@@ -25,6 +25,7 @@ from sqlfluff.core.errors import (
     SQLTemplaterSkipFile,
 )
 from sqlfluff.core.parser import Lexer, Parser
+from sqlfluff.core.file_helpers import get_encoding
 from sqlfluff.core.templaters import TemplatedFile
 from sqlfluff.core.rules import get_ruleset
 from sqlfluff.core.config import FluffConfig, ConfigLoader
@@ -100,12 +101,13 @@ class Linter:
     def _load_raw_file_and_config(fname, root_config):
         """Load a raw file and the associated config."""
         file_config = root_config.make_child_from_path(fname)
-        with open(fname, encoding="utf8", errors="backslashreplace") as target_file:
+        encoding = get_encoding(fname=fname, config=file_config)
+        with open(fname, encoding=encoding, errors="backslashreplace") as target_file:
             raw_file = target_file.read()
         # Scan the raw file for config commands.
         file_config.process_raw_file_for_config(raw_file)
         # Return the raw file and config
-        return raw_file, file_config
+        return raw_file, file_config, encoding
 
     @staticmethod
     def _lex_templated_file(
@@ -436,6 +438,7 @@ class Linter:
         rule_set: List[BaseRule],
         fix: bool = False,
         formatter: Any = None,
+        encoding: str = "utf8",
     ):
         """Lint a ParsedString and return a LintedFile."""
         violations = parsed.violations
@@ -479,6 +482,7 @@ class Linter:
             tree,
             ignore_mask=ignore_buff,
             templated_file=parsed.templated_file,
+            encoding=encoding,
         )
 
         # This is the main command line output from linting.
@@ -506,14 +510,20 @@ class Linter:
     ) -> LintedFile:
         """Take a RenderedFile and return a LintedFile."""
         parsed = cls.parse_rendered(rendered)
-        return cls.lint_parsed(parsed, rule_set=rule_set, fix=fix, formatter=formatter)
+        return cls.lint_parsed(
+            parsed,
+            rule_set=rule_set,
+            fix=fix,
+            formatter=formatter,
+            encoding=rendered.encoding,
+        )
 
     # ### Instance Methods
     # These are tied to a specific instance and so are not necessarily
     # safe to use in parallel operations.
 
     def render_string(
-        self, in_str: str, fname: str, config: FluffConfig
+        self, in_str: str, fname: str, config: FluffConfig, encoding: str
     ) -> RenderedFile:
         """Template the file."""
         linter_logger.info("TEMPLATING RAW [%s] (%s)", self.templater.name, fname)
@@ -546,15 +556,15 @@ class Linter:
         time_dict = {"templating": time.monotonic() - t0}
 
         return RenderedFile(
-            templated_file, templater_violations, config, time_dict, fname
+            templated_file, templater_violations, config, time_dict, fname, encoding
         )
 
     def render_file(self, fname: str, root_config: FluffConfig) -> RenderedFile:
         """Load and render a file with relevant config."""
         # Load the raw file.
-        raw_file, config = self._load_raw_file_and_config(fname, root_config)
+        raw_file, config, encoding = self._load_raw_file_and_config(fname, root_config)
         # Render the file
-        return self.render_string(raw_file, fname, config)
+        return self.render_string(raw_file, fname, config, encoding)
 
     def parse_string(
         self,
@@ -562,6 +572,7 @@ class Linter:
         fname: str = "<string>",
         recurse: bool = True,
         config: Optional[FluffConfig] = None,
+        encoding: str = "utf-8",
     ) -> ParsedString:
         """Parse a string."""
         violations: List[SQLBaseError] = []
@@ -575,7 +586,7 @@ class Linter:
 
         # Scan the raw file for config commands.
         config.process_raw_file_for_config(in_str)
-        rendered = self.render_string(in_str, fname, config)
+        rendered = self.render_string(in_str, fname, config, encoding)
         violations += rendered.templater_violations
 
         # Dispatch the output for the parse header
@@ -632,6 +643,7 @@ class Linter:
         fname: str = "<string input>",
         fix: bool = False,
         config: Optional[FluffConfig] = None,
+        encoding: str = "utf8",
     ) -> LintedFile:
         """Lint a string.
 
@@ -646,7 +658,9 @@ class Linter:
         # Get rules as appropriate
         rule_set = self.get_ruleset(config=config)
         # Lint the file and return the LintedFile
-        return self.lint_parsed(parsed, rule_set, fix=fix, formatter=self.formatter)
+        return self.lint_parsed(
+            parsed, rule_set, fix=fix, formatter=self.formatter, encoding=encoding
+        )
 
     def paths_from_path(
         self,
@@ -840,7 +854,9 @@ class Linter:
             if self.formatter:
                 self.formatter.dispatch_path(path)
             # Load the file with the config and yield the result.
-            raw_file, config = self._load_raw_file_and_config(fname, self.config)
+            raw_file, config, encoding = self._load_raw_file_and_config(
+                fname, self.config
+            )
             yield self.parse_string(
-                raw_file, fname=fname, recurse=recurse, config=config
+                raw_file, fname=fname, recurse=recurse, config=config, encoding=encoding
             )

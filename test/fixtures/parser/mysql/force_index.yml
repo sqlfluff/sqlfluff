@@ -2,18 +2,11 @@ file:
   statement:
     select_statement:
       select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-          - identifier: onetable
-          - dot: .
-          - identifier: f1
-      - comma: ','
-      - select_clause_element:
-          column_reference:
-          - identifier: twotable
-          - dot: .
-          - identifier: f1
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
       from_clause:
         keyword: FROM
         from_expression:
@@ -21,31 +14,12 @@ file:
             table_expression:
               table_reference:
                 identifier: onetable
-          join_clause:
-          - keyword: LEFT
-          - keyword: JOIN
-          - from_expression_element:
-            - table_expression:
-                table_reference:
-                  identifier: twotable
-            - keyword: FORCE
-            - keyword: INDEX
-            - keyword: FOR
-            - keyword: JOIN
-            - bracketed:
-                start_bracket: (
-                object_reference:
-                  identifier: idx_index
-                end_bracket: )
-          - join_on_condition:
-              keyword: 'ON'
-              expression:
-              - column_reference:
-                - identifier: onetable
-                - dot: .
-                - identifier: f1
-              - comparison_operator: '='
-              - column_reference:
-                - identifier: twotable
-                - dot: .
-                - identifier: f1
+      index_hint_clause:
+      - keyword: FORCE
+      - keyword: INDEX
+      - bracketed:
+          start_bracket: (
+          object_reference:
+            identifier: idx_index
+          end_bracket: )
+  statement_terminator: ;

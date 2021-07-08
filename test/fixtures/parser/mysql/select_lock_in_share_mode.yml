@@ -1,0 +1,20 @@
+file:
+  statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          literal: '1'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: table
+      for_clause:
+      - keyword: lock
+      - keyword: in
+      - keyword: share
+      - keyword: mode
+  statement_terminator: ;

@@ -1479,7 +1479,7 @@ ansi_dialect.add(
             ),
         ),
         Ref("Accessor_Grammar", optional=True),
-        Ref("ShorthandCastSegment", optional=True),
+        AnyNumberOf(Ref("ShorthandCastSegment")),
         allow_gaps=True,
     ),
     Accessor_Grammar=AnyNumberOf(Ref("ArrayAccessorSegment")),
