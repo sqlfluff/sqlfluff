@@ -1,0 +1,6 @@
+file:
+  statement:
+    resignal_segment:
+      keyword: resignal
+      identifier: testcondition
+  statement_terminator: ;
