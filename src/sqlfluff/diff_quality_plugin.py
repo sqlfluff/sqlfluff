@@ -37,6 +37,10 @@ class SQLFluffViolationReporter(BaseViolationReporter):
             result.append(Violation(violation.line_no, message))
         return result
 
+    def measured_lines(self, src_path):
+        """Return list of the lines in src_path that were measured."""
+        return None
+
 
 @diff_cover_hookimpl
 def diff_cover_report_quality():
