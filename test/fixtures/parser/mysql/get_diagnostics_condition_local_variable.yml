@@ -1,0 +1,8 @@
+file:
+  statement:
+    get_diagnostics_segment:
+    - keyword: GET
+    - keyword: DIAGNOSTICS
+    - keyword: CONDITION
+    - variable: _test
+  statement_terminator: ;

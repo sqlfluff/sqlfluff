@@ -1,0 +1,13 @@
+file:
+  statement:
+    resignal_segment:
+    - keyword: resignal
+    - keyword: set
+    - keyword: message_text
+    - comparison_operator: '='
+    - literal: "'test message'"
+    - comma: ','
+    - keyword: mysql_errno
+    - comparison_operator: '='
+    - literal: "'42S500'"
+  statement_terminator: ;
