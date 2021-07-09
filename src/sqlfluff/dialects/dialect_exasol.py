@@ -1535,7 +1535,7 @@ class DeleteStatementSegment(BaseSegment):
 ############################
 # TRUNCATE
 ############################
-@exasol_dialect.segment()
+@exasol_dialect.segment(replace=True)
 class TruncateStatmentSegement(BaseSegment):
     """`TRUNCATE TABLE` statement.
 

@@ -2273,6 +2273,17 @@ class DropStatementSegment(BaseSegment):
         OneOf("RESTRICT", Ref.keyword("CASCADE", optional=True), optional=True),
     )
 
+@ansi_dialect.segment()
+class TruncateStatmentSegement(BaseSegment):
+    """`TRUNCATE TABLE` statement."""
+
+    type = "truncate_table"
+
+    match_grammar = Sequence(
+        "TRUNCATE",
+        Ref.keyword("TABLE", optional=True),
+        Ref("TableReferenceSegment"),
+    )
 
 @ansi_dialect.segment()
 class DropIndexStatementSegment(BaseSegment):
@@ -2799,6 +2810,7 @@ class StatementSegment(BaseSegment):
         Ref("InsertStatementSegment"),
         Ref("TransactionStatementSegment"),
         Ref("DropStatementSegment"),
+        Ref("TruncateStatmentSegement"),
         Ref("AlterDefaultPrivilegesSegment"),
         Ref("AccessStatementSegment"),
         Ref("CreateTableStatementSegment"),
