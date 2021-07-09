@@ -41,6 +41,7 @@ class SQLFluffViolationReporter(BaseViolationReporter):
         """Return list of the lines in src_path that were measured."""
         return None
 
+
 @diff_cover_hookimpl
 def diff_cover_report_quality():
     """Returns the SQLFluff plugin.
