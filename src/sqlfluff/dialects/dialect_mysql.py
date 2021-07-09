@@ -315,6 +315,9 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref("SetAssignmentStatementSegment"),
             Ref("IfExpressionStatement"),
             Ref("CallStoredProcedureSegment"),
+            Ref("PrepareSegment"),
+            Ref("ExecuteSegment"),
+            Ref("DeallocateSegment"),
             Ref("GetDiagnosticsSegment"),
             Ref("ResignalSegment"),
             Ref("CursorOpenCloseSegment"),
@@ -802,6 +805,27 @@ class SelectPartitionClauseSegment(BaseSegment):
 
 
 @mysql_dialect.segment()
+class PrepareSegment(BaseSegment):
+    """This is the body of a `PREPARE` statement.
+
+    https://dev.mysql.com/doc/refman/8.0/en/prepare.html
+    """
+
+    type = "prepare_segment"
+
+    match_grammar = Sequence(
+        "PREPARE",
+        Ref("NakedIdentifierSegment"),
+        "FROM",
+        OneOf(
+            Ref("QuotedLiteralSegment"),
+            Ref("SessionVariableNameSegment"),
+            Ref("LocalVariableNameSegment"),
+        ),
+    )
+
+
+@mysql_dialect.segment()
 class GetDiagnosticsSegment(BaseSegment):
     """This is the body of a `GET DIAGNOSTICS` statement.
 
@@ -873,6 +897,37 @@ class CursorOpenCloseSegment(BaseSegment):
             Ref("SingleIdentifierGrammar"),
             Ref("QuotedIdentifierSegment"),
         ),
+    )
+
+
+@mysql_dialect.segment()
+class ExecuteSegment(BaseSegment):
+    """This is the body of a `EXECUTE` statement.
+
+    https://dev.mysql.com/doc/refman/8.0/en/execute.html
+    """
+
+    type = "execute_segment"
+
+    match_grammar = Sequence(
+        "EXECUTE",
+        Ref("NakedIdentifierSegment"),
+        Sequence("USING", Delimited(Ref("SessionVariableNameSegment")), optional=True),
+    )
+
+
+@mysql_dialect.segment()
+class DeallocateSegment(BaseSegment):
+    """This is the body of a `DEALLOCATE/DROP` statement.
+
+    https://dev.mysql.com/doc/refman/8.0/en/deallocate-prepare.html
+    """
+
+    type = "deallocate_segment"
+
+    match_grammar = Sequence(
+        Sequence(OneOf("DEALLOCATE", "DROP"), "PREPARE"),
+        Ref("NakedIdentifierSegment"),
     )
 
 

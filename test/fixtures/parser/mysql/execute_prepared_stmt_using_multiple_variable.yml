@@ -1,0 +1,10 @@
+file:
+  statement:
+    execute_segment:
+    - keyword: execute
+    - identifier: test
+    - keyword: using
+    - variable: '@test'
+    - comma: ','
+    - variable: '@test1'
+  statement_terminator: ;
