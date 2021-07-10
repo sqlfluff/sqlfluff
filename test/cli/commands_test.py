@@ -497,7 +497,7 @@ def test__cli__command_fail_nice_not_found(command):
     assert "could not be accessed" in result.output
 
 
-@pytest.mark.parametrize("serialize", ["yaml", "json"])
+@pytest.mark.parametrize("serialize", ["yaml", "json", "github-annotation"])
 def test__cli__command_lint_serialize_multiple_files(serialize):
     """Check the general format of JSON output for multiple files."""
     fpath = "test/fixtures/linter/indentation_errors.sql"
@@ -510,11 +510,16 @@ def test__cli__command_lint_serialize_multiple_files(serialize):
 
     if serialize == "json":
         result = json.loads(result.output)
+        assert len(result) == 2
     elif serialize == "yaml":
         result = yaml.safe_load(result.output)
+        assert len(result) == 2
+    elif serialize == "github-annotation":
+        result = json.loads(result.output)
+        filepaths = {r["file"] for r in result}
+        assert len(filepaths) == 1
     else:
         raise Exception
-    assert len(result) == 2
 
 
 def test___main___help():
