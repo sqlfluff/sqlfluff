@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for the IF-THEN-ELSEIF-ELSE syntax for the mysql dialect [#1140](https://github.com/sqlfluff/sqlfluff/issues/1140)
 - Support for the DEFINER syntax for the mysql dialect [#1131](https://github.com/sqlfluff/sqlfluff/issues/1131)
 - Preserve existing file encoding in the "fix" command. Partially addresses [#654](https://github.com/sqlfluff/sqlfluff/issues/654)
+- Enhance error text for rules capitalisation rules (L010, L014, L039, L009) [#1128](https://github.com/sqlfluff/sqlfluff/issues/1128)
 
 ### Changed
 
@@ -32,7 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [@GitHub-Username](Link to GitHub profile) ([#PR-Number](Link to PR))
 - [@dflss](https://github.com/dflss) ([#1154](https://github.com/sqlfluff/sqlfluff/pull/1153))
 - [@silverbullettruck2001](https://github.com/silverbullettruck2001) ([#1141](https://github.com/sqlfluff/sqlfluff/pull/1141)), ([#1159](https://github.com/sqlfluff/sqlfluff/pull/1159)), ([#1161](https://github.com/sqlfluff/sqlfluff/pull/1161)), ([#1176](https://github.com/sqlfluff/sqlfluff/pull/1176)), ([#1179](https://github.com/sqlfluff/sqlfluff/pull/1179)), ([#1181](https://github.com/sqlfluff/sqlfluff/pull/1181))
-
+- [@scrambldchannel](https://github.com/scrambldchannel) ([#1173](https://github.com/sqlfluff/sqlfluff/pull/1173))
 
 ## [0.6.0] - 2021-06-06
 
@@ -854,4 +855,3 @@ Contributors:
 - Initial Commit! - VERY ALPHA
 - Restructure into [package layout](https://blog.ionelmc.ro/2014/05/25/python-packaging/#the-structure)
 - Adding Tox and Pytest so that they work
-{"mode":"full","isActive":false}
