@@ -1,1 +1,1 @@
-CALL zproc_validate_send_adminuser_otp(test('something'));
+CALL somefunction(test('something'));

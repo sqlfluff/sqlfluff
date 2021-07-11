@@ -37,8 +37,60 @@ mysql_dialect.patch_lexer_matchers(
 )
 
 # Reserve USE, FORCE & IGNORE
-mysql_dialect.sets("unreserved_keywords").difference_update(["FORCE", "IGNORE", "USE"])
-mysql_dialect.sets("reserved_keywords").update(["FORCE", "IGNORE", "USE"])
+mysql_dialect.sets("unreserved_keywords").difference_update(
+    [
+        "FORCE",
+        "IGNORE",
+        "USE",
+        "SQL_BUFFER_RESULT",
+        "SQL_NO_CACHE",
+        "SQL_CACHE",
+        "DUMPFILE",
+        "SKIP",
+        "LOCKED",
+        "CLASS_ORIGIN",
+        "SUBCLASS_ORIGIN",
+        "RETURNED_SQLSTATE",
+        "MESSAGE_TEXT",
+        "MYSQL_ERRNO",
+        "CONSTRAINT_CATALOG",
+        "CONSTRAINT_SCHEMA",
+        "CONSTRAINT_NAME",
+        "CATALOG_NAME",
+        "SCHEMA_NAME",
+        "TABLE_NAME",
+        "COLUMN_NAME",
+        "CURSOR_NAME",
+        "STACKED",
+    ]
+)
+mysql_dialect.sets("reserved_keywords").update(
+    [
+        "FORCE",
+        "IGNORE",
+        "USE",
+        "SQL_BUFFER_RESULT",
+        "SQL_NO_CACHE",
+        "SQL_CACHE",
+        "DUMPFILE",
+        "SKIP",
+        "LOCKED",
+        "CLASS_ORIGIN",
+        "SUBCLASS_ORIGIN",
+        "RETURNED_SQLSTATE",
+        "MESSAGE_TEXT",
+        "MYSQL_ERRNO",
+        "CONSTRAINT_CATALOG",
+        "CONSTRAINT_SCHEMA",
+        "CONSTRAINT_NAME",
+        "CATALOG_NAME",
+        "SCHEMA_NAME",
+        "TABLE_NAME",
+        "COLUMN_NAME",
+        "CURSOR_NAME",
+        "STACKED",
+    ]
+)
 
 mysql_dialect.replace(
     QuotedIdentifierSegment=NamedParser(
@@ -53,11 +105,24 @@ mysql_dialect.replace(
             Ref("DoubleQuotedLiteralSegment"),
         ]
     ),
-    PostTableExpressionGrammar=Sequence(
-        OneOf("IGNORE", "FORCE", "USE"),
-        OneOf("INDEX", "KEY"),
-        Sequence("FOR", OneOf("JOIN"), optional=True),
-        Bracketed(Ref("ObjectReferenceSegment")),
+    FromClauseTerminatorGrammar=ansi_dialect.get_grammar(
+        "FromClauseTerminatorGrammar"
+    ).copy(
+        insert=[
+            Ref("IndexHintClauseSegment"),
+            Ref("SelectPartitionClauseSegment"),
+            Ref("ForClauseSegment"),
+            Ref("SetOperatorSegment"),
+            Ref("WithNoSchemaBindingClauseSegment"),
+        ]
+    ),
+    BaseExpressionElementGrammar=ansi_dialect.get_grammar(
+        "BaseExpressionElementGrammar"
+    ).copy(
+        insert=[
+            Ref("SessionVariableNameSegment"),
+            Ref("LocalVariableNameSegment"),
+        ]
     ),
 )
 
@@ -250,6 +315,13 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref("SetAssignmentStatementSegment"),
             Ref("IfExpressionStatement"),
             Ref("CallStoredProcedureSegment"),
+            Ref("PrepareSegment"),
+            Ref("ExecuteSegment"),
+            Ref("DeallocateSegment"),
+            Ref("GetDiagnosticsSegment"),
+            Ref("ResignalSegment"),
+            Ref("CursorOpenCloseSegment"),
+            Ref("CursorFetchSegment"),
         ],
     )
 
@@ -475,6 +547,221 @@ class DefinerSegment(BaseSegment):
     )
 
 
+@mysql_dialect.segment(replace=True)
+class SelectClauseModifierSegment(BaseSegment):
+    """Things that come after SELECT but before the columns."""
+
+    type = "select_clause_modifier"
+    match_grammar = Sequence(
+        OneOf("DISTINCT", "ALL", "DISTINCTROW", optional=True),
+        Ref.keyword("HIGH_PRIORITY", optional=True),
+        Ref.keyword("STRAIGHT_JOIN", optional=True),
+        Ref.keyword("SQL_SMALL_RESULT", optional=True),
+        Ref.keyword("SQL_BIG_RESULT", optional=True),
+        Ref.keyword("SQL_BUFFER_RESULT", optional=True),
+        Ref.keyword("SQL_CACHE", optional=True),
+        Ref.keyword("SQL_NO_CACHE", optional=True),
+        Ref.keyword("SQL_CALC_FOUND_ROWS", optional=True),
+        optional=True,
+    )
+
+
+@mysql_dialect.segment()
+class IntoClauseSegment(BaseSegment):
+    """This is an `INTO` clause for assigning variables in a select statement.
+
+    https://dev.mysql.com/doc/refman/5.7/en/load-data.html
+    https://dev.mysql.com/doc/refman/5.7/en/select-into.html
+    """
+
+    type = "into_clause"
+
+    match_grammar = Sequence(
+        "INTO",
+        OneOf(
+            Delimited(
+                AnyNumberOf(
+                    Ref("SessionVariableNameSegment"),
+                    Ref("LocalVariableNameSegment"),
+                ),
+                Sequence("DUMPFILE", Ref("QuotedLiteralSegment")),
+                Sequence(
+                    "OUTFILE",
+                    Ref("QuotedLiteralSegment"),
+                    Sequence(
+                        "CHARACTER", "SET", Ref("NakedIdentifierSegment"), optional=True
+                    ),
+                    Sequence(
+                        OneOf("FIELDS", "COLUMNS"),
+                        Sequence(
+                            "TERMINATED",
+                            "BY",
+                            Ref("QuotedLiteralSegment"),
+                            optional=True,
+                        ),
+                        Sequence(
+                            Ref.keyword("OPTIONALLY", optional=True),
+                            "ENCLOSED",
+                            "BY",
+                            Ref("QuotedLiteralSegment"),
+                            optional=True,
+                        ),
+                        Sequence(
+                            "ESCAPED", "BY", Ref("QuotedLiteralSegment"), optional=True
+                        ),
+                        optional=True,
+                    ),
+                    Sequence(
+                        "LINES",
+                        Sequence(
+                            "STARTING", "BY", Ref("QuotedLiteralSegment"), optional=True
+                        ),
+                        Sequence(
+                            "TERMINATED",
+                            "BY",
+                            Ref("QuotedLiteralSegment"),
+                            optional=True,
+                        ),
+                        optional=True,
+                    ),
+                ),
+            ),
+        ),
+    )
+
+
+@mysql_dialect.segment(replace=True)
+class UnorderedSelectStatementSegment(BaseSegment):
+    """A `SELECT` statement without any ORDER clauses or later.
+
+    This is designed for use in the context of set operations,
+    for other use cases, we should use the main
+    SelectStatementSegment.
+    """
+
+    type = "select_statement"
+    match_grammar = ansi_dialect.get_segment(
+        "UnorderedSelectStatementSegment"
+    ).match_grammar.copy()
+    match_grammar.terminator = (
+        match_grammar.terminator.copy(
+            insert=[Ref("IntoClauseSegment")],
+            before=Ref("SetOperatorSegment"),
+        )
+        .copy(insert=[Ref("ForClauseSegment")])
+        .copy(insert=[Ref("IndexHintClauseSegment")])
+        .copy(insert=[Ref("SelectPartitionClauseSegment")])
+    )
+    # Note we're copying twice, once to add IntoClauseSegment and once to add
+    # ForClauseSegment.
+    parse_grammar = (
+        ansi_dialect.get_segment("UnorderedSelectStatementSegment")
+        .parse_grammar.copy(
+            insert=[Ref("IntoClauseSegment", optional=True)],
+            before=Ref("FromClauseSegment", optional=True),
+        )
+        .copy(insert=[Ref("ForClauseSegment", optional=True)])
+        .copy(
+            insert=[Ref("IndexHintClauseSegment", optional=True)],
+            before=Ref("WhereClauseSegment", optional=True),
+        )
+        .copy(
+            insert=[Ref("SelectPartitionClauseSegment", optional=True)],
+            before=Ref("WhereClauseSegment", optional=True),
+        )
+    )
+
+
+@mysql_dialect.segment(replace=True)
+class SelectClauseElementSegment(BaseSegment):
+    """An element in the targets of a select statement."""
+
+    type = "select_clause_element"
+
+    match_grammar = ansi_dialect.get_segment(
+        "SelectClauseElementSegment"
+    ).match_grammar.copy()
+
+    parse_grammar = ansi_dialect.get_segment(
+        "SelectClauseElementSegment"
+    ).parse_grammar.copy()
+
+
+@mysql_dialect.segment(replace=True)
+class SelectClauseSegment(BaseSegment):
+    """A group of elements in a select target statement."""
+
+    type = "select_clause"
+    match_grammar = ansi_dialect.get_segment("SelectClauseSegment").match_grammar.copy()
+    match_grammar.terminator = match_grammar.terminator.copy(
+        insert=[Ref("IntoKeywordSegment")]
+    )
+    parse_grammar = ansi_dialect.get_segment("SelectClauseSegment").parse_grammar.copy()
+
+
+@mysql_dialect.segment(replace=True)
+class SelectStatementSegment(BaseSegment):
+    """A `SELECT` statement.
+
+    https://dev.mysql.com/doc/refman/5.7/en/select.html
+    """
+
+    type = "select_statement"
+    match_grammar = ansi_dialect.get_segment(
+        "SelectStatementSegment"
+    ).match_grammar.copy()
+
+    # Inherit most of the parse grammar from the original.
+    parse_grammar = UnorderedSelectStatementSegment.parse_grammar.copy(
+        insert=[
+            Ref("OrderByClauseSegment", optional=True),
+            Ref("LimitClauseSegment", optional=True),
+            Ref("NamedWindowSegment", optional=True),
+        ]
+    )
+
+
+@mysql_dialect.segment()
+class ForClauseSegment(BaseSegment):
+    """This is the body of a `FOR` clause."""
+
+    type = "for_clause"
+
+    match_grammar = OneOf(
+        Sequence(
+            Sequence(
+                "FOR",
+                OneOf("UPDATE", "SHARE"),
+            ),
+            Sequence("OF", Delimited(Ref("NakedIdentifierSegment")), optional=True),
+            OneOf("NOWAIT", Sequence("SKIP", "LOCKED"), optional=True),
+        ),
+        Sequence("LOCK", "IN", "SHARE", "MODE"),
+        optional=True,
+    )
+
+
+@mysql_dialect.segment()
+class IndexHintClauseSegment(BaseSegment):
+    """This is the body of an index hint clause."""
+
+    type = "index_hint_clause"
+
+    match_grammar = Sequence(
+        OneOf("USE", "IGNORE", "FORCE"),
+        OneOf("INDEX", "KEY"),
+        Sequence(
+            "FOR",
+            OneOf(
+                "JOIN", Sequence("ORDER", "BY"), Sequence("GROUP", "BY"), optional=True
+            ),
+            optional=True,
+        ),
+        Bracketed(Ref("ObjectReferenceSegment")),
+        Ref("JoinOnConditionSegment", optional=True),
+    )
+
+
 @mysql_dialect.segment()
 class CallStoredProcedureSegment(BaseSegment):
     """This is a CALL statement used to execute a stored procedure.
@@ -501,5 +788,217 @@ class CallStoredProcedureSegment(BaseSegment):
                     Ref("FunctionSegment"),
                 ),
             ),
+        ),
+    )
+
+
+@mysql_dialect.segment()
+class SelectPartitionClauseSegment(BaseSegment):
+    """This is the body of a partition clause."""
+
+    type = "partition_clause"
+
+    match_grammar = Sequence(
+        "PARTITION",
+        Bracketed(Delimited(Ref("ObjectReferenceSegment"))),
+    )
+
+
+@mysql_dialect.segment()
+class PrepareSegment(BaseSegment):
+    """This is the body of a `PREPARE` statement.
+
+    https://dev.mysql.com/doc/refman/8.0/en/prepare.html
+    """
+
+    type = "prepare_segment"
+
+    match_grammar = Sequence(
+        "PREPARE",
+        Ref("NakedIdentifierSegment"),
+        "FROM",
+        OneOf(
+            Ref("QuotedLiteralSegment"),
+            Ref("SessionVariableNameSegment"),
+            Ref("LocalVariableNameSegment"),
+        ),
+    )
+
+
+@mysql_dialect.segment()
+class GetDiagnosticsSegment(BaseSegment):
+    """This is the body of a `GET DIAGNOSTICS` statement.
+
+    https://dev.mysql.com/doc/refman/8.0/en/get-diagnostics.html
+    """
+
+    type = "get_diagnostics_segment"
+
+    match_grammar = Sequence(
+        "GET",
+        Sequence("CURRENT", "STACKED", optional=True),
+        "DIAGNOSTICS",
+        Delimited(
+            Sequence(
+                OneOf(
+                    Ref("SessionVariableNameSegment"), Ref("LocalVariableNameSegment")
+                ),
+                Ref("EqualsSegment"),
+                OneOf("NUMBER", "ROW_COUNT"),
+            ),
+            optional=True,
+        ),
+        "CONDITION",
+        OneOf(
+            Ref("SessionVariableNameSegment"),
+            Ref("LocalVariableNameSegment"),
+            Ref("NumericLiteralSegment"),
+        ),
+        Delimited(
+            Sequence(
+                OneOf(
+                    Ref("SessionVariableNameSegment"), Ref("LocalVariableNameSegment")
+                ),
+                Ref("EqualsSegment"),
+                OneOf(
+                    "CLASS_ORIGIN",
+                    "SUBCLASS_ORIGIN",
+                    "RETURNED_SQLSTATE",
+                    "MESSAGE_TEXT",
+                    "MYSQL_ERRNO",
+                    "CONSTRAINT_CATALOG",
+                    "CONSTRAINT_SCHEMA",
+                    "CONSTRAINT_NAME",
+                    "CATALOG_NAME",
+                    "SCHEMA_NAME",
+                    "TABLE_NAME",
+                    "COLUMN_NAME",
+                    "CURSOR_NAME",
+                ),
+            ),
+            optional=True,
+        ),
+    )
+
+
+@mysql_dialect.segment()
+class CursorOpenCloseSegment(BaseSegment):
+    """This is a CLOSE or Open statement.
+
+    https://dev.mysql.com/doc/refman/8.0/en/close.html
+    https://dev.mysql.com/doc/refman/8.0/en/open.html
+    """
+
+    type = "cursor_open_close_segment"
+
+    match_grammar = Sequence(
+        OneOf("CLOSE", "OPEN"),
+        OneOf(
+            Ref("SingleIdentifierGrammar"),
+            Ref("QuotedIdentifierSegment"),
+        ),
+    )
+
+
+@mysql_dialect.segment()
+class ExecuteSegment(BaseSegment):
+    """This is the body of a `EXECUTE` statement.
+
+    https://dev.mysql.com/doc/refman/8.0/en/execute.html
+    """
+
+    type = "execute_segment"
+
+    match_grammar = Sequence(
+        "EXECUTE",
+        Ref("NakedIdentifierSegment"),
+        Sequence("USING", Delimited(Ref("SessionVariableNameSegment")), optional=True),
+    )
+
+
+@mysql_dialect.segment()
+class DeallocateSegment(BaseSegment):
+    """This is the body of a `DEALLOCATE/DROP` statement.
+
+    https://dev.mysql.com/doc/refman/8.0/en/deallocate-prepare.html
+    """
+
+    type = "deallocate_segment"
+
+    match_grammar = Sequence(
+        Sequence(OneOf("DEALLOCATE", "DROP"), "PREPARE"),
+        Ref("NakedIdentifierSegment"),
+    )
+
+
+@mysql_dialect.segment()
+class ResignalSegment(BaseSegment):
+    """This is the body of a `RESIGNAL` statement.
+
+    https://dev.mysql.com/doc/refman/8.0/en/resignal.html
+    """
+
+    type = "resignal_segment"
+
+    match_grammar = Sequence(
+        OneOf("SIGNAL", "RESIGNAL"),
+        OneOf(
+            Sequence(
+                "SQLSTATE",
+                Ref.keyword("VALUE", optional=True),
+                Ref("QuotedLiteralSegment"),
+            ),
+            Ref("NakedIdentifierSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "SET",
+            Delimited(
+                Sequence(
+                    OneOf(
+                        "CLASS_ORIGIN",
+                        "SUBCLASS_ORIGIN",
+                        "RETURNED_SQLSTATE",
+                        "MESSAGE_TEXT",
+                        "MYSQL_ERRNO",
+                        "CONSTRAINT_CATALOG",
+                        "CONSTRAINT_SCHEMA",
+                        "CONSTRAINT_NAME",
+                        "CATALOG_NAME",
+                        "SCHEMA_NAME",
+                        "TABLE_NAME",
+                        "COLUMN_NAME",
+                        "CURSOR_NAME",
+                    ),
+                    Ref("EqualsSegment"),
+                    OneOf(
+                        Ref("SessionVariableNameSegment"),
+                        Ref("LocalVariableNameSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                ),
+            ),
+            optional=True,
+        ),
+    )
+
+
+@mysql_dialect.segment()
+class CursorFetchSegment(BaseSegment):
+    """This is a FETCH statement.
+
+    https://dev.mysql.com/doc/refman/8.0/en/fetch.html
+    """
+
+    type = "cursor_fetch_segment"
+
+    match_grammar = Sequence(
+        "FETCH",
+        Sequence(Ref.keyword("NEXT", optional=True), "FROM", optional=True),
+        Ref("NakedIdentifierSegment"),
+        "INTO",
+        Delimited(
+            Ref("SessionVariableNameSegment"),
+            Ref("LocalVariableNameSegment"),
         ),
     )

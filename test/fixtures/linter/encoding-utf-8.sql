@@ -1,0 +1,4 @@
+select
+    a
+from
+    b
