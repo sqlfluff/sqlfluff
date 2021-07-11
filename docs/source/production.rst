@@ -131,6 +131,15 @@ This is equivalent to running ``pip install sqlfluff[dbt]``.
 Note that you can pass the same arguments available
 through the CLI using ``args:``.
 
+Using `GitHub Actions`_
+^^^^^^^^^^^^^^^^^^^^^^^
+This feature is still in development and testing.
+* `sqlfluff lint` now supports `--format github-annotation`, which produces output compatible with this [action](https://github.com/yuzutech/annotations-action)
+* GitHub [`sqlfluff lint` action](https://github.com/sqlfluff/sqlfluff-github-actions/tree/main/menu_of_workflows/fishtown_analytics). (Was developed
+  independently of the above. Needs updating/integrating.)
+* GitHub [property documentation](https://docs.github.com/en/rest/reference/checks#annotations-items) for actions that output annotation
+
 .. _`pre-commit`: https://pre-commit.com/
 .. _`git hook`: https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks
 .. _`dbt templater`: `dbt-project-configuration`
+.. _`GitHub Actions`: https://github.com/features/actions
