@@ -1535,8 +1535,8 @@ class DeleteStatementSegment(BaseSegment):
 ############################
 # TRUNCATE
 ############################
-@exasol_dialect.segment()
-class TruncateStatmentSegement(BaseSegment):
+@exasol_dialect.segment(replace=True)
+class TruncateStatementSegment(BaseSegment):
     """`TRUNCATE TABLE` statement.
 
     https://docs.exasol.com/sql/truncate.htm
@@ -2554,7 +2554,7 @@ class StatementSegment(BaseSegment):
         Ref("ImportStatementSegment"),
         Ref("InsertStatementSegment"),
         Ref("MergeStatementSegment"),
-        Ref("TruncateStatmentSegement"),
+        Ref("TruncateStatementSegment"),
         Ref("UpdateStatementSegment"),
         # Data Definition Language (DDL)
         Ref("AlterTableStatementSegment"),

@@ -260,7 +260,7 @@ def test_dialect_exasol_specific_segment_parses(
             3,
         ),
         (
-            "TruncateStatmentSegement",
+            "TruncateStatementSegment",
             """
             TRUNCATE TABLE test;
             """,
