@@ -1,0 +1,23 @@
+file:
+  statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+            identifier: id
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: mytable
+      qualify_clause:
+        keyword: qualify
+        expression:
+          column_reference:
+            identifier: x
+          comparison_operator: '='
+          literal: '1'
+  statement_terminator: ;
