@@ -9,7 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Support for QUALIFY syntax specific to teradata dialect [#1184](https://github.com/sqlfluff/sqlfluff/pull/1184)
+- Support for QUALIFY syntax specific to teradata dialect [#1184](https://github.com/sqlfluff/sqlfluff/issues/1184)
+- Support for TRUNCATE statement [#1194](https://github.com/sqlfluff/sqlfluff/pull/1194)
 - Support for prepared statement syntaxes specific to mysql dialect [#1147](https://github.com/sqlfluff/sqlfluff/issues/1147)
 - Support for GET DIAGNOSTICS statement syntax specific to mysql dialect [#1148](https://github.com/sqlfluff/sqlfluff/issues/1148)
 - Support for cursor syntax specific to mysql dialect [#1145](https://github.com/sqlfluff/sqlfluff/pull/1145)
@@ -31,7 +32,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Contributors
 
 - [@GitHub-Username](Link to GitHub profile) ([#PR-Number](Link to PR))
-- [@dflss](https://github.com/dflss) ([#1154](https://github.com/sqlfluff/sqlfluff/pull/1153))
+- [@dflss](https://github.com/dflss) ([#1154](https://github.com/sqlfluff/sqlfluff/pull/1154))
+- [@barrywhart](https://github.com/barrywhart) ([#1177])(https://github.com/sqlfluff/sqlfluff/pull/1177)), [#1195](https://github.com/sqlfluff/sqlfluff/pull/1195)
+- [@niallrees](https://github.com/niallrees) ([#1178])(https://github.com/sqlfluff/sqlfluff/pull/1178))
+- [@barnabyshearer](https://github.com/barnabyshearer) ([#1194])(https://github.com/sqlfluff/sqlfluff/pull/1194))
 - [@silverbullettruck2001](https://github.com/silverbullettruck2001) ([#1141](https://github.com/sqlfluff/sqlfluff/pull/1141)), ([#1159](https://github.com/sqlfluff/sqlfluff/pull/1159)), ([#1161](https://github.com/sqlfluff/sqlfluff/pull/1161)), ([#1176](https://github.com/sqlfluff/sqlfluff/pull/1176)), ([#1179](https://github.com/sqlfluff/sqlfluff/pull/1179)), ([#1181](https://github.com/sqlfluff/sqlfluff/pull/1181)) ([#1193](https://github.com/sqlfluff/sqlfluff/pull/1193))
 
 ## [0.6.0] - 2021-06-06
