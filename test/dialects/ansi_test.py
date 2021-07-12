@@ -114,8 +114,8 @@ def test__dialect__ansi__file_lex(raw, res, caplog):
         # Shorthand casting
         ("ExpressionSegment", "NULL::INT"),
         ("SelectClauseElementSegment", "NULL::INT AS user_id"),
-        ("TruncateStatmentSegement", "TRUNCATE TABLE test"),
-        ("TruncateStatmentSegement", "TRUNCATE test"),
+        ("TruncateStatementSegment", "TRUNCATE TABLE test"),
+        ("TruncateStatementSegment", "TRUNCATE test"),
     ],
 )
 def test__dialect__ansi_specific_segment_parses(

@@ -2275,7 +2275,7 @@ class DropStatementSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
-class TruncateStatmentSegement(BaseSegment):
+class TruncateStatementSegment(BaseSegment):
     """`TRUNCATE TABLE` statement."""
 
     type = "truncate_table"
@@ -2812,7 +2812,7 @@ class StatementSegment(BaseSegment):
         Ref("InsertStatementSegment"),
         Ref("TransactionStatementSegment"),
         Ref("DropStatementSegment"),
-        Ref("TruncateStatmentSegement"),
+        Ref("TruncateStatementSegment"),
         Ref("AlterDefaultPrivilegesSegment"),
         Ref("AccessStatementSegment"),
         Ref("CreateTableStatementSegment"),
