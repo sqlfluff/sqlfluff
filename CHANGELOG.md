@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for TRUNCATE statement [#1194](https://github.com/sqlfluff/sqlfluff/pull/1194)
 - Support for prepared statement syntaxes specific to mysql dialect [#1147](https://github.com/sqlfluff/sqlfluff/issues/1147)
 - Support for GET DIAGNOSTICS statement syntax specific to mysql dialect [#1148](https://github.com/sqlfluff/sqlfluff/issues/1148)
-- Support for cursor syntax specific to mysql dialect [#1145](https://github.com/sqlfluff/sqlfluff/pull/1145)
+- Support for cursor syntax specific to mysql dialect [#1145](https://github.com/sqlfluff/sqlfluff/issues/1145)
 - Support sequential shorthand casts [#1178](https://github.com/sqlfluff/sqlfluff/pull/1178)
 - Support for select statement syntax specific to mysql dialect [#1175](https://github.com/sqlfluff/sqlfluff/issues/1175)
 - Support for the CALL statement for the mysql dialect [#1144](https://github.com/sqlfluff/sqlfluff/issues/1144)
