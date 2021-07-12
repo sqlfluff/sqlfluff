@@ -522,6 +522,77 @@ def test__cli__command_lint_serialize_multiple_files(serialize):
         raise Exception
 
 
+def test__cli__command_lint_serialize_github_annotation():
+    """Test format of github-annotation output."""
+    fpath = "test/fixtures/linter/identifier_capitalisation.sql"
+    result = invoke_assert_code(
+        args=[lint, (fpath, "--format", "github-annotation")],
+        ret_code=65,
+    )
+    result = json.loads(result.output)
+    assert result == [
+        {
+            "annotation_level": "warning",
+            "file": "test/fixtures/linter/identifier_capitalisation.sql",
+            "line": 1,
+            "message": "L036: Select targets should be on a new line unless there is "
+            "only one select target.",
+            "start_column": 1,
+            "title": "SQLFluff",
+        },
+        {
+            "annotation_level": "warning",
+            "file": "test/fixtures/linter/identifier_capitalisation.sql",
+            "line": 2,
+            "message": "L027: Unqualified reference 'foo' found in select with more than "
+            "one referenced table/view.",
+            "start_column": 5,
+            "title": "SQLFluff",
+        },
+        {
+            "annotation_level": "warning",
+            "file": "test/fixtures/linter/identifier_capitalisation.sql",
+            "line": 3,
+            "message": "L012: Implicit aliasing of column not allowed. Use explicit `AS` "
+            "clause.",
+            "start_column": 5,
+            "title": "SQLFluff",
+        },
+        {
+            "annotation_level": "warning",
+            "file": "test/fixtures/linter/identifier_capitalisation.sql",
+            "line": 3,
+            "message": "L014: Inconsistent capitalisation of unquoted identifiers.",
+            "start_column": 5,
+            "title": "SQLFluff",
+        },
+        {
+            "annotation_level": "warning",
+            "file": "test/fixtures/linter/identifier_capitalisation.sql",
+            "line": 4,
+            "message": "L010: Inconsistent capitalisation of keywords.",
+            "start_column": 1,
+            "title": "SQLFluff",
+        },
+        {
+            "annotation_level": "warning",
+            "file": "test/fixtures/linter/identifier_capitalisation.sql",
+            "line": 4,
+            "message": "L014: Inconsistent capitalisation of unquoted identifiers.",
+            "start_column": 12,
+            "title": "SQLFluff",
+        },
+        {
+            "annotation_level": "warning",
+            "file": "test/fixtures/linter/identifier_capitalisation.sql",
+            "line": 4,
+            "message": "L014: Inconsistent capitalisation of unquoted identifiers.",
+            "start_column": 18,
+            "title": "SQLFluff",
+        },
+    ]
+
+
 def test___main___help():
     """Test that the CLI can be access via __main__."""
     # nonzero exit is good enough
