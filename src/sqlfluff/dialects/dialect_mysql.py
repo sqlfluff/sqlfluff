@@ -934,7 +934,7 @@ class LoopStatementSegment(BaseSegment):
                 Ref("SingleIdentifierGrammar"), Ref("ColonSegment"), optional=True
             ),
             "LOOP",
-            AnyNumberOf(
+            Delimited(
                 Ref("StatementSegment"),
             ),
         ),

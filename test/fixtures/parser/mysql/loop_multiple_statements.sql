@@ -1,1 +1,1 @@
-loop select 1; select from onetable; end loop;
+loop select 1; select * from onetable; end loop;
