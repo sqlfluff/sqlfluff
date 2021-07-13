@@ -45,6 +45,7 @@ class LintedFile(NamedTuple):
     tree: Optional[BaseSegment]
     ignore_mask: List[NoQaDirective]
     templated_file: TemplatedFile
+    encoding: str
 
     def check_tuples(self) -> List[CheckTuple]:
         """Make a list of check_tuples.
@@ -486,6 +487,6 @@ class LintedFile(NamedTuple):
                 root, ext = os.path.splitext(fname)
                 fname = root + suffix + ext
             # Actually write the file.
-            with open(fname, "w") as f:
+            with open(fname, "w", encoding=self.encoding) as f:
                 f.write(write_buff)
         return success

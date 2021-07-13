@@ -1,0 +1,6 @@
+file:
+  statement:
+    execute_segment:
+      keyword: execute
+      identifier: test
+  statement_terminator: ;
