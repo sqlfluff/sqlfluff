@@ -278,6 +278,14 @@ def dialects(**kwargs):
     help="What format to return the lint result in (default=human).",
 )
 @click.option(
+    "--annotation-level",
+    default="notice",
+    type=click.Choice(
+            ["notice", "warning", "failure"], case_sensitive=False
+    ),
+    help="When format is set to github-annotation, default annotation level (default=notice).",
+)
+@click.option(
     "--nofail",
     is_flag=True,
     help=(
@@ -302,6 +310,7 @@ def lint(
     paths,
     processes,
     format,
+    annotation_level,
     nofail,
     disregard_sqlfluffignores,
     logger=None,
@@ -383,7 +392,7 @@ def lint(
                         "start_column": violation["line_pos"],
                         "title": "SQLFluff",
                         "message": f"{violation['code']}: {violation['description']}",
-                        "annotation_level": "warning",
+                        "annotation_level": annotation_level,
                     }
                 )
         click.echo(json.dumps(github_result))
