@@ -526,7 +526,7 @@ def test__cli__command_lint_serialize_github_annotation():
     """Test format of github-annotation output."""
     fpath = "test/fixtures/linter/identifier_capitalisation.sql"
     result = invoke_assert_code(
-        args=[lint, (fpath, "--format", "github-annotation")],
+        args=[lint, (fpath, "--format", "github-annotation", "--annotation-level", "warning")],
         ret_code=65,
     )
     result = json.loads(result.output)

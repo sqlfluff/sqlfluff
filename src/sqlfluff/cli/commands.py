@@ -280,9 +280,7 @@ def dialects(**kwargs):
 @click.option(
     "--annotation-level",
     default="notice",
-    type=click.Choice(
-            ["notice", "warning", "failure"], case_sensitive=False
-    ),
+    type=click.Choice(["notice", "warning", "failure"], case_sensitive=False),
     help="When format is set to github-annotation, default annotation level (default=notice).",
 )
 @click.option(
