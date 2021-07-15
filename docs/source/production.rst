@@ -135,8 +135,7 @@ Using `GitHub Actions`_ to Annotate PRs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 When `sqlfluff lint` is run with the `--format github-annotation` option, it produces
 output compatible with this [action](https://github.com/yuzutech/annotations-action).
-You can set up an GitHub CI (continuous integration) workflow that annotates
-your SQL.
+You can use this to annotate the SQL in _`GitHub pull requests`.
 
 For more information and examples on using SQLFluff in GitHub Actions, see the
 [`sqlfluff-github-actions` repository](https://github.com/sqlfluff/sqlfluff-github-actions).
@@ -145,3 +144,4 @@ For more information and examples on using SQLFluff in GitHub Actions, see the
 .. _`git hook`: https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks
 .. _`dbt templater`: `dbt-project-configuration`
 .. _`GitHub Actions`: https://github.com/features/actions
+.. _`GitHub pull requests`: https://docs.github.com/en/github/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests
