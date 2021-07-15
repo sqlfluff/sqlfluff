@@ -388,6 +388,7 @@ def lint(
                         "file": filepath,
                         "line": violation["line_no"],
                         "start_column": violation["line_pos"],
+                        "end_column": violation["line_pos"],
                         "title": "SQLFluff",
                         "message": f"{violation['code']}: {violation['description']}",
                         "annotation_level": annotation_level,

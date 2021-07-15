@@ -541,6 +541,7 @@ def test__cli__command_lint_serialize_github_annotation():
             "message": "L036: Select targets should be on a new line unless there is "
             "only one select target.",
             "start_column": 1,
+            "end_column": 1,
             "title": "SQLFluff",
         },
         {
@@ -550,6 +551,7 @@ def test__cli__command_lint_serialize_github_annotation():
             "message": "L027: Unqualified reference 'foo' found in select with more than "
             "one referenced table/view.",
             "start_column": 5,
+            "end_column": 5,
             "title": "SQLFluff",
         },
         {
@@ -559,6 +561,7 @@ def test__cli__command_lint_serialize_github_annotation():
             "message": "L012: Implicit aliasing of column not allowed. Use explicit `AS` "
             "clause.",
             "start_column": 5,
+            "end_column": 5,
             "title": "SQLFluff",
         },
         {
@@ -567,6 +570,7 @@ def test__cli__command_lint_serialize_github_annotation():
             "line": 3,
             "message": "L014: Inconsistent capitalisation of unquoted identifiers.",
             "start_column": 5,
+            "end_column": 5,
             "title": "SQLFluff",
         },
         {
@@ -575,6 +579,7 @@ def test__cli__command_lint_serialize_github_annotation():
             "line": 4,
             "message": "L010: Inconsistent capitalisation of keywords.",
             "start_column": 1,
+            "end_column": 1,
             "title": "SQLFluff",
         },
         {
@@ -583,6 +588,7 @@ def test__cli__command_lint_serialize_github_annotation():
             "line": 4,
             "message": "L014: Inconsistent capitalisation of unquoted identifiers.",
             "start_column": 12,
+            "end_column": 12,
             "title": "SQLFluff",
         },
         {
@@ -591,6 +597,7 @@ def test__cli__command_lint_serialize_github_annotation():
             "line": 4,
             "message": "L014: Inconsistent capitalisation of unquoted identifiers.",
             "start_column": 18,
+            "end_column": 18,
             "title": "SQLFluff",
         },
     ]
