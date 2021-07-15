@@ -138,7 +138,8 @@ output compatible with this [action](https://github.com/yuzutech/annotations-act
 You can set up an GitHub CI (continuous integration) workflow that annotates
 your SQL.
 
-For more information and examples on using SQLFluff in GitHub Actions, see the the [`sqlfluff-github-actions` repository](https://github.com/sqlfluff/sqlfluff-github-actions).
+For more information and examples on using SQLFluff in GitHub Actions, see the
+[`sqlfluff-github-actions` repository](https://github.com/sqlfluff/sqlfluff-github-actions).
 
 .. _`pre-commit`: https://pre-commit.com/
 .. _`git hook`: https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks
