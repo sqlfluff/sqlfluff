@@ -272,8 +272,16 @@ def dialects(**kwargs):
     "--format",
     "format",
     default="human",
-    type=click.Choice(["human", "json", "yaml"], case_sensitive=False),
+    type=click.Choice(
+        ["human", "json", "yaml", "github-annotation"], case_sensitive=False
+    ),
     help="What format to return the lint result in (default=human).",
+)
+@click.option(
+    "--annotation-level",
+    default="notice",
+    type=click.Choice(["notice", "warning", "failure"], case_sensitive=False),
+    help="When format is set to github-annotation, default annotation level (default=notice).",
 )
 @click.option(
     "--nofail",
@@ -300,6 +308,7 @@ def lint(
     paths,
     processes,
     format,
+    annotation_level,
     nofail,
     disregard_sqlfluffignores,
     logger=None,
@@ -325,7 +334,7 @@ def lint(
 
     """
     c = get_config(**kwargs)
-    non_human_output = format in ("json", "yaml")
+    non_human_output = format != "human"
     lnt, formatter = get_linter_and_formatter(c, silent=non_human_output)
     verbose = c.get("verbose")
 
@@ -365,6 +374,27 @@ def lint(
         click.echo(json.dumps(result.as_records()))
     elif format == "yaml":
         click.echo(yaml.dump(result.as_records()))
+    elif format == "github-annotation":
+        github_result = []
+        for record in result.as_records():
+            filepath = record["filepath"]
+            for violation in record["violations"]:
+                # NOTE: The output format is designed for this GitHub action:
+                # https://github.com/yuzutech/annotations-action
+                # It is similar, but not identical, to the native GitHub format:
+                # https://docs.github.com/en/rest/reference/checks#annotations-items
+                github_result.append(
+                    {
+                        "file": filepath,
+                        "line": violation["line_no"],
+                        "start_column": violation["line_pos"],
+                        "end_column": violation["line_pos"],
+                        "title": "SQLFluff",
+                        "message": f"{violation['code']}: {violation['description']}",
+                        "annotation_level": annotation_level,
+                    }
+                )
+        click.echo(json.dumps(github_result))
 
     if bench:
         click.echo("==== overall timings ====")
