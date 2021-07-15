@@ -1,0 +1,5 @@
+file:
+  statement:
+    resignal_segment:
+      keyword: resignal
+  statement_terminator: ;

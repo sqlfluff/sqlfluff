@@ -11,7 +11,6 @@ Teradata Database SQL Data Definition Language Syntax and Examples
 from sqlfluff.core.parser import (
     BaseSegment,
     Sequence,
-    GreedyUntil,
     StartsWith,
     OneOf,
     Delimited,
@@ -21,7 +20,11 @@ from sqlfluff.core.parser import (
     Anything,
     RegexLexer,
     CodeSegment,
+    Indent,
+    Dedent,
+    OptionallyBracketed,
 )
+
 from sqlfluff.core.dialects import load_raw_dialect
 
 ansi_dialect = load_raw_dialect("ansi")
@@ -550,22 +553,17 @@ class StatementSegment(BaseSegment):
     """A generic segment, to any of its child subsegments."""
 
     type = "statement"
-    parse_grammar = OneOf(
-        Ref("SelectableGrammar"),
-        Ref("InsertStatementSegment"),
-        Ref("TransactionStatementSegment"),
-        Ref("DropStatementSegment"),
-        Ref("AccessStatementSegment"),
-        Ref("CreateTableStatementSegment"),
-        Ref("CreateViewStatementSegment"),
-        Ref("DeleteStatementSegment"),
-        Ref("UpdateStatementSegment"),
-        # Teradata specific statements
-        Ref("TdCollectStatisticsStatementSegment"),
-        Ref("BteqStatementSegment"),
-        Ref("TdRenameStatementSegment"),
+
+    parse_grammar = ansi_dialect.get_segment("StatementSegment").parse_grammar.copy(
+        insert=[
+            Ref("TdCollectStatisticsStatementSegment"),
+            Ref("BteqStatementSegment"),
+            Ref("TdRenameStatementSegment"),
+            Ref("QualifyClauseSegment"),
+        ],
     )
-    match_grammar = GreedyUntil(Ref("DelimiterSegment"))
+
+    match_grammar = ansi_dialect.get_segment("StatementSegment").match_grammar.copy()
 
 
 teradata_dialect.add(
@@ -581,3 +579,41 @@ teradata_dialect.replace(
         Ref("TdCastIdentifierSegment"),
     )
 )
+
+
+@teradata_dialect.segment()
+class QualifyClauseSegment(BaseSegment):
+    """A `QUALIFY` clause like in `SELECT`."""
+
+    type = "qualify_clause"
+    match_grammar = StartsWith(
+        "QUALIFY",
+        terminator=OneOf("ORDER", "LIMIT", "QUALIFY", "WINDOW"),
+        enforce_whitespace_preceeding_terminator=True,
+    )
+    parse_grammar = Sequence(
+        "QUALIFY",
+        Indent,
+        OptionallyBracketed(Ref("ExpressionSegment")),
+        Dedent,
+    )
+
+
+@teradata_dialect.segment(replace=True)
+class SelectStatementSegment(BaseSegment):
+    """A `SELECT` statement.
+
+    https://dev.mysql.com/doc/refman/5.7/en/select.html
+    """
+
+    type = "select_statement"
+    match_grammar = ansi_dialect.get_segment(
+        "SelectStatementSegment"
+    ).match_grammar.copy()
+
+    parse_grammar = ansi_dialect.get_segment(
+        "SelectStatementSegment"
+    ).parse_grammar.copy(
+        insert=[Ref("QualifyClauseSegment", optional=True)],
+        before=Ref("OrderByClauseSegment", optional=True),
+    )
