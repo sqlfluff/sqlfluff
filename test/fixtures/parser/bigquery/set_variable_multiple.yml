@@ -1,0 +1,38 @@
+file:
+  statement:
+    set_segment:
+    - keyword: set
+    - bracketed:
+      - start_bracket: (
+      - identifier: var2
+      - comma: ','
+      - identifier: var3
+      - comma: ','
+      - identifier: var5
+      - end_bracket: )
+    - comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - literal: '"y"'
+      - comma: ','
+      - bracketed:
+          start_bracket: (
+          select_statement:
+            select_clause:
+              keyword: select
+              select_clause_element:
+                literal: '"x"'
+          end_bracket: )
+      - comma: ','
+      - function:
+          function_name:
+            function_name_identifier: DATE_TRUNC
+          bracketed:
+            start_bracket: (
+            expression:
+              literal: '"2000-01-01"'
+            comma: ','
+            date_part: month
+            end_bracket: )
+      - end_bracket: )
+  statement_terminator: ;
