@@ -54,6 +54,7 @@ snowflake_dialect.insert_lexer_matchers(
 
 snowflake_dialect.sets("unreserved_keywords").update(
     [
+        "ALLOW_OVERLAPPING_EXECUTION",
         "API",
         "AUTHORIZATIONS",
         "BERNOULLI",
@@ -66,9 +67,12 @@ snowflake_dialect.sets("unreserved_keywords").update(
         "PIPES",
         "QUERIES",
         "REGIONS",
+        "RESUME",
         "REMOVE",
+        "SCHEDULE",
         "SECURE",
         "SEED",
+        "SUSPEND",
         "TERSE",
         "UNSET",
         "TABULAR",
@@ -167,6 +171,7 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref("ShowStatementSegment"),
             Ref("AlterUserSegment"),
             Ref("AlterSessionStatementSegment"),
+            Ref("AlterTaskStatementSegment"),
         ],
         remove=[
             Ref("CreateTypeStatementSegment"),
@@ -780,6 +785,146 @@ class AlterSessionUnsetClauseSegment(BaseSegment):
     """
 
     type = "alter_session_unset_clause"
+
+    match_grammar = Sequence(
+        "UNSET",
+        Delimited(Ref("ParameterNameSegment"), delimiter=Ref("CommaSegment")),
+    )
+
+
+@snowflake_dialect.segment()
+class AlterTaskStatementSegment(BaseSegment):
+    """Snowflake's ALTER TASK statement.
+
+    ```
+    ALTER TASK [IF EXISTS] <name> RESUME;
+    ALTER TASK [IF EXISTS] <name> SUSPEND;
+    ALTER TASK [IF EXISTS] <name> REMOVE AFTER <value>;
+    ALTER TASK [IF EXISTS] <name> ADD AFTER <value>;
+    ALTER TASK [IF EXISTS] <name> SET
+        [WAREHOUSE = <value>]
+        [SCHEDULE = <value>]
+        [ALLOW_OVERLAPPING_EXECUTION = TRUE|FALSE];
+    ALTER TASK [IF EXISTS] <name> SET
+        <param_name> = <param_value> [ , <param_name> = <param_value> , ...];
+    ALTER TASK [IF EXISTS] <name> UNSET <param_name> [ , <param_name> , ... ];
+    ALTER TASK [IF EXISTS] <name> MODIFY AS <sql>;
+    ALTER TASK [IF EXISTS] <name> MODIFY WHEN <boolean>;
+    ```
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-task.html
+    """
+
+    type = "alter_task_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "TASK",
+        Sequence("IF", "EXISTS", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            "RESUME",
+            "SUSPEND",
+            Sequence("REMOVE", "AFTER", Ref("ObjectReferenceSegment")),
+            Sequence("ADD", "AFTER", Ref("ObjectReferenceSegment")),
+            Ref("AlterTaskSpecialSetClauseSegment"),
+            Ref("AlterTaskSetClauseSegment"),
+            Ref("AlterTaskUnsetClauseSegment"),
+            Sequence(
+                "MODIFY",
+                "AS",
+                ansi_dialect.get_segment("ExplainStatementSegment").explainable_stmt,
+            ),
+            Sequence("MODIFY", "WHEN", Ref("BooleanLiteralGrammar")),
+        ),
+    )
+
+
+@snowflake_dialect.segment()
+class AlterTaskSpecialSetClauseSegment(BaseSegment):
+    """Snowflake's ALTER TASK special SET clause.
+
+    ```
+    [ALTER TASK <name>] SET
+        [WAREHOUSE = <value>]
+        [SCHEDULE = <value>]
+        [ALLOW_OVERLAPPING_EXECUTION = TRUE|FALSE];
+    ```
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-task.html
+    """
+
+    type = "alter_task_special_set_clause"
+
+    match_grammar = Sequence(
+        "SET",
+        AnyNumberOf(
+            Sequence(
+                "WAREHOUSE",
+                Ref("EqualsSegment"),
+                Ref("ObjectReferenceSegment"),
+                optional=True,
+            ),
+            Sequence(
+                "SCHEDULE",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+                optional=True,
+            ),
+            Sequence(
+                "ALLOW_OVERLAPPING_EXECUTION",
+                Ref("EqualsSegment"),
+                OneOf("TRUE", "FALSE"),
+                optional=True,
+            ),
+            min_times=1,
+        ),
+    )
+
+
+@snowflake_dialect.segment()
+class AlterTaskSetClauseSegment(BaseSegment):
+    """Snowflake's ALTER TASK SET clause.
+
+    ```
+    [ALTER TASK <name>] SET
+        <param_name> = <param_value> [ , <param_name> = <param_value> , ...];
+    ```
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-task.html
+    """
+
+    type = "alter_task_set_clause"
+
+    match_grammar = Sequence(
+        "SET",
+        Delimited(
+            Sequence(
+                Ref("ParameterNameSegment"),
+                Ref("EqualsSegment"),
+                OneOf(
+                    Ref("BooleanLiteralGrammar"),
+                    Ref("QuotedLiteralSegment"),
+                    Ref("NumericLiteralSegment"),
+                ),
+            ),
+            delimiter=Ref("CommaSegment"),
+        ),
+    )
+
+
+@snowflake_dialect.segment()
+class AlterTaskUnsetClauseSegment(BaseSegment):
+    """Snowflake's ALTER TASK UNSET clause.
+
+    ```
+    [ALTER TASK <name>] UNSET <param_name> [ , <param_name> , ... ];
+    ```
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-task.html
+    """
+
+    type = "alter_task_unset_clause"
 
     match_grammar = Sequence(
         "UNSET",

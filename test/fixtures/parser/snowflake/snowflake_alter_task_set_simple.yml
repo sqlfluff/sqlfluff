@@ -1,0 +1,13 @@
+file:
+  statement:
+    alter_task_statement:
+    - keyword: ALTER
+    - keyword: TASK
+    - object_reference:
+        identifier: my_task
+    - alter_task_set_clause:
+        keyword: SET
+        parameter: x
+        comparison_operator: '='
+        literal: "'y'"
+  statement_terminator: ;

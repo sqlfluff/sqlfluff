@@ -1,0 +1,11 @@
+file:
+  statement:
+    alter_task_statement:
+    - keyword: ALTER
+    - keyword: TASK
+    - object_reference:
+        identifier: my_task
+    - alter_task_unset_clause:
+        keyword: UNSET
+        parameter: a
+  statement_terminator: ;
