@@ -4,5 +4,6 @@ file:
       select_clause:
         keyword: select
         select_clause_element:
-          variable: '@test2'
+          column_reference:
+            variable: '@test2'
   statement_terminator: ;

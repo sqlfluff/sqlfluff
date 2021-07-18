@@ -223,6 +223,9 @@ mysql_dialect.replace(
     ParameterNameSegment=RegexParser(
         r"`?[A-Za-z0-9_]*`?", CodeSegment, name="parameter", type="parameter"
     ),
+    SingleIdentifierGrammar=ansi_dialect.get_grammar("SingleIdentifierGrammar").copy(
+        insert=[Ref("SessionVariableNameSegment")]
+    ),
 )
 
 mysql_dialect.insert_lexer_matchers(
@@ -241,9 +244,9 @@ mysql_dialect.insert_lexer_matchers(
 class DeclareStatement(BaseSegment):
     """DECLARE statement.
 
-    mysql: https://dev.mysql.com/doc/refman/8.0/en/declare-local-variable.html
-    mysql: https://dev.mysql.com/doc/refman/8.0/en/declare-handler.html
-    mysql: https://dev.mysql.com/doc/refman/8.0/en/declare-condition.html
+    https://dev.mysql.com/doc/refman/8.0/en/declare-local-variable.html
+    https://dev.mysql.com/doc/refman/8.0/en/declare-handler.html
+    https://dev.mysql.com/doc/refman/8.0/en/declare-condition.html
     https://dev.mysql.com/doc/refman/8.0/en/declare-cursor.html
     """
 
@@ -314,6 +317,10 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref("DeclareStatement"),
             Ref("SetAssignmentStatementSegment"),
             Ref("IfExpressionStatement"),
+            Ref("WhileStatementSegment"),
+            Ref("IterateStatementSegment"),
+            Ref("RepeatStatementSegment"),
+            Ref("LoopStatementSegment"),
             Ref("CallStoredProcedureSegment"),
             Ref("PrepareSegment"),
             Ref("ExecuteSegment"),
@@ -339,7 +346,7 @@ class DelimiterStatement(BaseSegment):
 class CreateProcedureStatementSegment(BaseSegment):
     """A `CREATE PROCEDURE` statement.
 
-    mysql: https://dev.mysql.com/doc/refman/8.0/en/create-procedure.html
+    https://dev.mysql.com/doc/refman/8.0/en/create-procedure.html
     """
 
     type = "create_procedure_statement"
@@ -387,7 +394,7 @@ class CharacteristicStatement(BaseSegment):
 class CreateFunctionStatementSegment(BaseSegment):
     """A `CREATE FUNCTION` statement.
 
-    mysql: https://dev.mysql.com/doc/refman/8.0/en/create-procedure.html
+    https://dev.mysql.com/doc/refman/8.0/en/create-procedure.html
     """
 
     type = "create_function_statement"
@@ -445,7 +452,7 @@ class ProcedureParameterListGrammar(BaseSegment):
 class SetAssignmentStatementSegment(BaseSegment):
     """A `SET` statement.
 
-    mysql: https://dev.mysql.com/doc/refman/8.0/en/set-variable.html
+    https://dev.mysql.com/doc/refman/8.0/en/set-variable.html
     """
 
     type = "set_statement"
@@ -460,6 +467,7 @@ class SetAssignmentStatementSegment(BaseSegment):
             Ref("SessionVariableNameSegment"),
             Ref("LocalVariableNameSegment"),
             Ref("FunctionSegment"),
+            Ref("ArithmeticBinaryOperatorGrammar"),
         ),
     )
 
@@ -468,8 +476,8 @@ class SetAssignmentStatementSegment(BaseSegment):
 class TransactionStatementSegment(BaseSegment):
     """A `COMMIT`, `ROLLBACK` or `TRANSACTION` statement.
 
-    mysql: https://dev.mysql.com/doc/refman/8.0/en/commit.html
-    mysql: https://dev.mysql.com/doc/refman/8.0/en/begin-end.html
+    https://dev.mysql.com/doc/refman/8.0/en/commit.html
+    https://dev.mysql.com/doc/refman/8.0/en/begin-end.html
     """
 
     type = "transaction_statement"
@@ -510,7 +518,7 @@ class TransactionStatementSegment(BaseSegment):
 class IfExpressionStatement(BaseSegment):
     """IF-THEN-ELSE-ELSEIF-END IF statement.
 
-    mysql:https://dev.mysql.com/doc/refman/8.0/en/if.html
+    https://dev.mysql.com/doc/refman/8.0/en/if.html
     """
 
     type = "if_then_statement"
@@ -652,8 +660,7 @@ class UnorderedSelectStatementSegment(BaseSegment):
         .copy(insert=[Ref("IndexHintClauseSegment")])
         .copy(insert=[Ref("SelectPartitionClauseSegment")])
     )
-    # Note we're copying twice, once to add IntoClauseSegment and once to add
-    # ForClauseSegment.
+
     parse_grammar = (
         ansi_dialect.get_segment("UnorderedSelectStatementSegment")
         .parse_grammar.copy(
@@ -766,7 +773,7 @@ class IndexHintClauseSegment(BaseSegment):
 class CallStoredProcedureSegment(BaseSegment):
     """This is a CALL statement used to execute a stored procedure.
 
-    mysql: https://dev.mysql.com/doc/refman/8.0/en/call.html
+    https://dev.mysql.com/doc/refman/8.0/en/call.html
     """
 
     type = "call_segment"
@@ -801,6 +808,37 @@ class SelectPartitionClauseSegment(BaseSegment):
     match_grammar = Sequence(
         "PARTITION",
         Bracketed(Delimited(Ref("ObjectReferenceSegment"))),
+    )
+
+
+@mysql_dialect.segment()
+class WhileStatementSegment(BaseSegment):
+    """A `WHILE-DO-END WHILE` statement.
+
+    https://dev.mysql.com/doc/refman/8.0/en/while.html
+    """
+
+    type = "while_statement"
+
+    match_grammar = OneOf(
+        Sequence(
+            Sequence(
+                Ref("SingleIdentifierGrammar"), Ref("ColonSegment"), optional=True
+            ),
+            Sequence(
+                "WHILE",
+                Ref("ExpressionSegment"),
+                "DO",
+                AnyNumberOf(
+                    Ref("StatementSegment"),
+                ),
+            ),
+        ),
+        Sequence(
+            "END",
+            "WHILE",
+            Ref("SingleIdentifierGrammar", optional=True),
+        ),
     )
 
 
@@ -882,6 +920,33 @@ class GetDiagnosticsSegment(BaseSegment):
 
 
 @mysql_dialect.segment()
+class LoopStatementSegment(BaseSegment):
+    """A `LOOP` statement.
+
+    https://dev.mysql.com/doc/refman/8.0/en/loop.html
+    """
+
+    type = "loop_statement"
+
+    match_grammar = OneOf(
+        Sequence(
+            Sequence(
+                Ref("SingleIdentifierGrammar"), Ref("ColonSegment"), optional=True
+            ),
+            "LOOP",
+            Delimited(
+                Ref("StatementSegment"),
+            ),
+        ),
+        Sequence(
+            "END",
+            "LOOP",
+            Ref("SingleIdentifierGrammar", optional=True),
+        ),
+    )
+
+
+@mysql_dialect.segment()
 class CursorOpenCloseSegment(BaseSegment):
     """This is a CLOSE or Open statement.
 
@@ -901,6 +966,21 @@ class CursorOpenCloseSegment(BaseSegment):
 
 
 @mysql_dialect.segment()
+class IterateStatementSegment(BaseSegment):
+    """A `ITERATE` statement.
+
+    https://dev.mysql.com/doc/refman/8.0/en/iterate.html
+    """
+
+    type = "iterate_statement"
+
+    match_grammar = Sequence(
+        "ITERATE",
+        Ref("SingleIdentifierGrammar"),
+    )
+
+
+@mysql_dialect.segment()
 class ExecuteSegment(BaseSegment):
     """This is the body of a `EXECUTE` statement.
 
@@ -913,6 +993,37 @@ class ExecuteSegment(BaseSegment):
         "EXECUTE",
         Ref("NakedIdentifierSegment"),
         Sequence("USING", Delimited(Ref("SessionVariableNameSegment")), optional=True),
+    )
+
+
+@mysql_dialect.segment()
+class RepeatStatementSegment(BaseSegment):
+    """A `REPEAT-UNTIL` statement.
+
+    https://dev.mysql.com/doc/refman/8.0/en/repeat.html
+    """
+
+    type = "repeat_statement"
+
+    match_grammar = OneOf(
+        Sequence(
+            Sequence(
+                Ref("SingleIdentifierGrammar"), Ref("ColonSegment"), optional=True
+            ),
+            "REPEAT",
+            AnyNumberOf(
+                Ref("StatementSegment"),
+            ),
+        ),
+        Sequence(
+            "UNTIL",
+            Ref("ExpressionSegment"),
+            Sequence(
+                "END",
+                "REPEAT",
+                Ref("SingleIdentifierGrammar", optional=True),
+            ),
+        ),
     )
 
 
