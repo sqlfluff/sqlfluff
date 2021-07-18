@@ -56,10 +56,6 @@ class Rule_L008(BaseRule):
         cm1 = raw_stack[-1]
         cm2 = raw_stack[-2]
         if cm2.name == "comma":
-            # comma followed by something that isn't whitespace?
-            if cm1.name not in ["whitespace", "newline"]:
-                ins = WhitespaceSegment(raw=" ")
-                return LintResult(anchor=cm1, fixes=[LintFix("create", cm1, ins)])
             # comma followed by too much whitespace?
             if (cm1.raw != " " and cm1.name != "newline") and not segment.is_comment:
                 repl = WhitespaceSegment(raw=" ")
