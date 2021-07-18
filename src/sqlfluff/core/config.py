@@ -402,20 +402,24 @@ class FluffConfig:
         )
         # Deal with potential ignore parameters
         if self._configs["core"].get("ignore", None):
-            self._configs["core"]["ignore"] = self._configs["core"]["ignore"].split(",")
+            self._configs["core"]["ignore"] = self._split_comma_separated_string(
+                self._configs["core"]["ignore"]
+            )
         else:
             self._configs["core"]["ignore"] = []
         # Whitelists and blacklists
         if self._configs["core"].get("rules", None):
-            self._configs["core"]["rule_whitelist"] = self._configs["core"][
-                "rules"
-            ].split(",")
+            self._configs["core"][
+                "rule_whitelist"
+            ] = self._split_comma_separated_string(self._configs["core"]["rules"])
         else:
             self._configs["core"]["rule_whitelist"] = None
         if self._configs["core"].get("exclude_rules", None):
-            self._configs["core"]["rule_blacklist"] = self._configs["core"][
-                "exclude_rules"
-            ].split(",")
+            self._configs["core"][
+                "rule_blacklist"
+            ] = self._split_comma_separated_string(
+                self._configs["core"]["exclude_rules"]
+            )
         else:
             self._configs["core"]["rule_blacklist"] = None
         # Configure Recursion
@@ -606,3 +610,7 @@ class FluffConfig:
             if raw_line.startswith("-- sqlfluff"):
                 # Found a in-file config command
                 self.process_inline_config(raw_line)
+
+    @staticmethod
+    def _split_comma_separated_string(raw_str: str) -> List[str]:
+        return [s.strip() for s in raw_str.split(",") if s.strip()]
