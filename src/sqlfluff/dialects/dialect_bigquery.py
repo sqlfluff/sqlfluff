@@ -26,6 +26,7 @@ from sqlfluff.core.parser import (
     StringParser,
     RegexParser,
     Nothing,
+    StartsWith,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -147,6 +148,15 @@ bigquery_dialect.sets("angle_bracket_pairs").update(
         ("angle", "StartAngleBracketSegment", "EndAngleBracketSegment", False),
     ]
 )
+
+
+@bigquery_dialect.segment(replace=True)
+class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: ignore
+    """Overriding StatementSegment to allow for additional segment parsing."""
+
+    parse_grammar = ansi_dialect.get_segment("StatementSegment").parse_grammar.copy(
+        insert=[Ref("DeclareStatementSegment"), Ref("SetStatementSegment")],
+    )
 
 
 @bigquery_dialect.segment(replace=True)
@@ -485,4 +495,69 @@ class TableExpressionSegment(BaseSegment):
         insert=[
             Ref("HyphenatedObjectReferenceSegment"),
         ]
+    )
+
+
+@bigquery_dialect.segment()
+class DeclareStatementSegment(BaseSegment):
+    """Declaration of a variable.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/scripting#declare
+    """
+
+    type = "declare_segment"
+    match_grammar = StartsWith("DECLARE")
+    parse_grammar = Sequence(
+        "DECLARE",
+        Delimited(Ref("NakedIdentifierSegment")),
+        Ref("DatatypeIdentifierSegment"),
+        Sequence(
+            "DEFAULT",
+            OneOf(
+                Ref("LiteralGrammar"),
+                Bracketed(Ref("SelectStatementSegment")),
+                Ref("BareFunctionSegment"),
+                Ref("FunctionSegment"),
+            ),
+            optional=True,
+        ),
+    )
+
+
+@bigquery_dialect.segment()
+class SetStatementSegment(BaseSegment):
+    """Setting an already declared variable.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/scripting#set
+    """
+
+    type = "set_segment"
+    match_grammar = StartsWith("SET")
+    parse_grammar = Sequence(
+        "SET",
+        OneOf(
+            Ref("NakedIdentifierSegment"),
+            Bracketed(Delimited(Ref("NakedIdentifierSegment"))),
+        ),
+        Ref("EqualsSegment"),
+        OneOf(
+            Delimited(
+                OneOf(
+                    Ref("LiteralGrammar"),
+                    Bracketed(Ref("SelectStatementSegment")),
+                    Ref("BareFunctionSegment"),
+                    Ref("FunctionSegment"),
+                    Bracketed(
+                        Delimited(
+                            OneOf(
+                                Ref("LiteralGrammar"),
+                                Bracketed(Ref("SelectStatementSegment")),
+                                Ref("BareFunctionSegment"),
+                                Ref("FunctionSegment"),
+                            )
+                        )
+                    ),
+                )
+            )
+        ),
     )
