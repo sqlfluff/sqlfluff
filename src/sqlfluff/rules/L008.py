@@ -41,19 +41,18 @@ class Rule_L008(BaseRule):
         if len(raw_stack) < 1:
             return None
 
-        cm2 = raw_stack[-1]
-        if cm2.name == "comma":
+        cm1 = raw_stack[-1]
+        if cm1.name == "comma":
             # comma followed by something that isn't whitespace?
             if segment.name not in ["whitespace", "newline"]:
                 ins = WhitespaceSegment(raw=" ")
                 return LintResult(
-                    anchor=cm2, fixes=[LintFix("edit", segment, [ins, segment])]
+                    anchor=cm1, fixes=[LintFix("edit", segment, [ins, segment])]
                 )
 
         if len(raw_stack) < 2:
             return None
 
-        cm1 = raw_stack[-1]
         cm2 = raw_stack[-2]
         if cm2.name == "comma":
             # comma followed by too much whitespace?
