@@ -131,6 +131,17 @@ This is equivalent to running ``pip install sqlfluff[dbt]``.
 Note that you can pass the same arguments available
 through the CLI using ``args:``.
 
+Using `GitHub Actions`_ to Annotate PRs
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+When `sqlfluff lint` is run with the `--format github-annotation` option, it
+produces output compatible with this [action](https://github.com/yuzutech/annotations-action).
+You can use this to annotate the SQL in `GitHub pull requests`.
+
+For more information and examples on using SQLFluff in GitHub Actions, see the
+[`sqlfluff-github-actions` repository](https://github.com/sqlfluff/sqlfluff-github-actions).
+
 .. _`pre-commit`: https://pre-commit.com/
 .. _`git hook`: https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks
 .. _`dbt templater`: `dbt-project-configuration`
+.. _`GitHub Actions`: https://github.com/features/actions
+.. _`GitHub pull requests`: https://docs.github.com/en/github/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests

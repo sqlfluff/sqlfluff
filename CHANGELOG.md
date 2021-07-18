@@ -6,10 +6,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-
 ### Added
 
 - Support for looping statements (loop, while, repeat) and supporting statements to mysql dialect [#1180](https://github.com/sqlfluff/sqlfluff/issues/1180)
+
+### Changed
+
+- Added dbt 0.20.* to the default test suite.
+
+## [0.6.1] - 2021-07-16
+### Added
+
+- Linting output now supports GitHub Actions [#1190](https://github.com/sqlfluff/sqlfluff/issues/1190)
 - Support for QUALIFY syntax specific to teradata dialect [#1184](https://github.com/sqlfluff/sqlfluff/issues/1184)
 - Support for TRUNCATE statement [#1194](https://github.com/sqlfluff/sqlfluff/pull/1194)
 - Support for prepared statement syntaxes specific to mysql dialect [#1147](https://github.com/sqlfluff/sqlfluff/issues/1147)
@@ -25,10 +33,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for the IF-THEN-ELSEIF-ELSE syntax for the mysql dialect [#1140](https://github.com/sqlfluff/sqlfluff/issues/1140)
 - Support for the DEFINER syntax for the mysql dialect [#1131](https://github.com/sqlfluff/sqlfluff/issues/1131)
 - Preserve existing file encoding in the "fix" command. Partially addresses [#654](https://github.com/sqlfluff/sqlfluff/issues/654)
+- Support for DECLARE and SET variable syntax for the BigQuery dialect [#1127](https://github.com/sqlfluff/sqlfluff/issues/1127)
 
 ### Changed
 
 - Fix runtime error in diff-cover plugin caused by new diff-cover release 6.1.0 [#1195](https://github.com/sqlfluff/sqlfluff/pull/1195)
+- Resolved an issue with the snowflake dialect where backslash escaped single
+  quoted strings led to fatal lexing errors [#1200](https://github.com/sqlfluff/sqlfluff/pull/1200)
 
 ### Contributors
 
