@@ -1,0 +1,29 @@
+file:
+- statement:
+    loop_statement:
+      identifier: iteration
+      colon: ':'
+      keyword: loop
+      statement:
+        select_statement:
+          select_clause:
+            keyword: select
+            select_clause_element:
+              literal: '1'
+- statement_terminator: ;
+- statement:
+    iterate_statement:
+      keyword: iterate
+      identifier: iteration
+- statement_terminator: ;
+- statement:
+    transaction_statement:
+      keyword: leave
+      identifier: iteration
+- statement_terminator: ;
+- statement:
+    loop_statement:
+    - keyword: end
+    - keyword: loop
+    - identifier: iteration
+- statement_terminator: ;

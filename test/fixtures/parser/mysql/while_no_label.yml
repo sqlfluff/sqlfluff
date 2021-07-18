@@ -1,0 +1,25 @@
+file:
+- statement:
+    while_statement:
+    - keyword: while
+    - expression:
+      - column_reference:
+          identifier: _cnt
+      - comparison_operator: <=
+      - column_reference:
+          identifier: _max_cnt
+    - keyword: do
+    - statement:
+        set_statement:
+        - keyword: set
+        - variable: _cnt
+        - comparison_operator: '='
+        - variable: _cnt
+        - binary_operator: +
+        - variable: '1'
+- statement_terminator: ;
+- statement:
+    transaction_statement:
+      keyword: end
+      identifier: while
+- statement_terminator: ;
