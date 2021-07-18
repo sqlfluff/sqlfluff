@@ -47,9 +47,13 @@ class Rule_L030(Rule_L010):
         We need to do this because function_name nodes have a child
         function_name_identifier that holds the actual name.
         """
-        child_segment = segment.segments[0]
+        child_segment = [
+            child
+            for child in segment.segments
+            if child.get_type() == "function_name_identifier"
+        ][0]
         return LintFix(
             "edit",
             child_segment,
-            child_segment.__class__(raw=fixed_raw, pos_marker=child_segment.pos_marker),
+            child_segment.edit(fixed_raw.strip()),
         )

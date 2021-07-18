@@ -38,6 +38,18 @@ class Rule_L008(BaseRule):
         This is a slightly odd one, because we'll almost always evaluate from a point a few places
         after the problem site. NB: We need at least two segments behind us for this to work.
         """
+        if len(raw_stack) < 1:
+            return None
+
+        cm2 = raw_stack[-1]
+        if cm2.name == "comma":
+            # comma followed by something that isn't whitespace?
+            if segment.name not in ["whitespace", "newline"]:
+                ins = WhitespaceSegment(raw=" ")
+                return LintResult(
+                    anchor=cm2, fixes=[LintFix("edit", segment, [ins, segment])]
+                )
+
         if len(raw_stack) < 2:
             return None
 
