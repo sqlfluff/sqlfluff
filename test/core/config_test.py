@@ -183,3 +183,13 @@ def test__config__load_user_appdir_config(
             call(os.path.expanduser("~/Library/Application Support/sqlfluff")),
         ]
     )
+
+
+@pytest.mark.parametrize(
+    "raw_str, expected",
+     [
+         ("L011,L022,L031", ['L011', 'L022', 'L031']),
+         ("\nL011,\nL022,\nL031,", ['L011', 'L022', 'L031']),
+     ])
+def test__config___split_comma_separated_string(raw_str, expected):
+    assert FluffConfig._split_comma_separated_string(raw_str) == expected
