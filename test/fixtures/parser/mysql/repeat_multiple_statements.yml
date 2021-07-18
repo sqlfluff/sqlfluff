@@ -1,0 +1,36 @@
+file:
+- statement:
+    repeat_statement:
+      keyword: repeat
+      statement:
+        set_statement:
+        - keyword: set
+        - variable: '@a'
+        - comparison_operator: '='
+        - variable: '@a'
+        - binary_operator: +
+        - variable: '1'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          literal: '1'
+- statement_terminator: ;
+- statement:
+    repeat_statement:
+    - keyword: until
+    - expression:
+      - column_reference:
+          variable: '@a'
+      - comparison_operator: '>'
+      - literal: '5'
+      - binary_operator: and
+      - column_reference:
+          identifier: x
+      - comparison_operator: '='
+      - literal: '1'
+    - keyword: end
+    - keyword: repeat
+- statement_terminator: ;
