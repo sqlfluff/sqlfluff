@@ -48,7 +48,9 @@ class Rule_L008(BaseRule):
         if cm1.name == "comma":
             # comma followed by something that isn't whitespace?
             if first_elem.name not in ["whitespace", "newline"]:
-                self.logger.debug("Comma followed by something other than whitespace: %s", first_elem)
+                self.logger.debug(
+                    "Comma followed by something other than whitespace: %s", first_elem
+                )
                 ins = WhitespaceSegment(raw=" ")
                 return LintResult(
                     anchor=cm1, fixes=[LintFix("edit", segment, [ins, segment])]
