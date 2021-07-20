@@ -8,6 +8,7 @@ import json
 import oyaml as yaml
 import subprocess
 import chardet
+import sys
 
 # Testing libraries
 import pytest
@@ -522,6 +523,7 @@ def test__cli__command_lint_serialize_multiple_files(serialize):
         raise Exception
 
 
+@pytest.mark.skipif(sys.platform == "win32", reason="Paths won't match test on windows")
 def test__cli__command_lint_serialize_github_annotation():
     """Test format of github-annotation output."""
     fpath = "test/fixtures/linter/identifier_capitalisation.sql"
