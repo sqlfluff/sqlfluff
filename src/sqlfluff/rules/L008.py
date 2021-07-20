@@ -37,13 +37,7 @@ class Rule_L008(BaseRule):
 
         This is a slightly odd one, because we'll almost always evaluate from a point a few places
         after the problem site. NB: We need at least two segments behind us for this to work.
-
-        This also works if we're considering a raw segment, so this will return None
-        until we reach the appropriate raw segment.
         """
-        if not segment.is_type('raw'):
-            return None
-
         if len(raw_stack) < 1:
             return None
 
