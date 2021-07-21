@@ -147,6 +147,13 @@ jobs:
         environment:
           TOXENV: dbt019-py38
           TOX_ARGS: -m dbt
+  dbt020-py38:
+    <<: *common
+    docker:
+      - image: circleci/python:3.8
+        environment:
+          TOXENV: dbt020-py38
+          TOX_ARGS: -m dbt
   # NB: The default python installation on the circleci
   # windows VM is python 3.7.3.
   # https://circleci.com/docs/2.0/hello-world-windows/#software-pre-installed-in-the-windows-image
