@@ -61,7 +61,7 @@ class DbtTemplater(JinjaTemplater):
 
         version = get_installed_version()
 
-        self.dbt_version_tuple = (version.major, version.minor)
+        self.dbt_version_tuple = (int(version.major), int(version.minor))
         return self.dbt_version_tuple
 
     @cached_property
