@@ -183,6 +183,7 @@ workflows:
       - py39
       - dbt018-py38
       - dbt019-py38
+      - dbt020-py38
       - bench
       - examples
   nightly:
