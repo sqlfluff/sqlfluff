@@ -55,6 +55,13 @@ class DbtTemplater(JinjaTemplater):
         return self.dbt_version
 
     @cached_property
+    def dbt_version_tuple(self):
+        """Gets the dbt version as a tuple on ints."""
+        return tuple(
+            int(idx) for idx in self.dbt_version.split('.')
+        )
+
+    @cached_property
     def dbt_config(self):
         """Loads the dbt config."""
         from dbt.config.runtime import RuntimeConfig as DbtRuntimeConfig
@@ -92,23 +99,36 @@ class DbtTemplater(JinjaTemplater):
 
         do_not_track()
 
-        if "0.17" in self.dbt_version:
-            from dbt.parser.manifest import (
-                load_internal_manifest as load_macro_manifest,
-                load_manifest,
+        dbt_minor_version = self.dbt_version_tuple()[:1]
+
+        if dbt_minor_version == [(0, 17), (0, 18), (0, 19)]:
+            if dbt_minor_version == (0, 17):
+                # dbt version 0.17.*
+                from dbt.parser.manifest import (
+                    load_internal_manifest as load_macro_manifest,
+                    load_manifest,
+                )
+            else:
+                # dbt version 0.18.* & # 0.19.*
+                from dbt.parser.manifest import (
+                    load_macro_manifest,
+                    load_manifest,
+                )
+
+                load_macro_manifest = partial(load_macro_manifest, macro_hook=identity)
+
+            dbt_macros_manifest = load_macro_manifest(self.dbt_config)
+            self.dbt_manifest = load_manifest(
+                self.dbt_config, dbt_macros_manifest, macro_hook=identity
             )
         else:
-            from dbt.parser.manifest import (
-                load_macro_manifest,
-                load_manifest,
-            )
+            # dbt 0.20.* and onward
+            from dbt.parser.manifest import ManifestLoader
 
-            load_macro_manifest = partial(load_macro_manifest, macro_hook=identity)
+            projects = self.dbt_config.load_dependencies()
+            loader = ManifestLoader(self.dbt_config, projects, macro_hook=identity)
+            self.dbt_manifest = loader.load()
 
-        dbt_macros_manifest = load_macro_manifest(self.dbt_config)
-        self.dbt_manifest = load_manifest(
-            self.dbt_config, dbt_macros_manifest, macro_hook=identity
-        )
         return self.dbt_manifest
 
     @cached_property
