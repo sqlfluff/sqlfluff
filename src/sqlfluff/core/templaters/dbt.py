@@ -56,10 +56,13 @@ class DbtTemplater(JinjaTemplater):
 
     @cached_property
     def dbt_version_tuple(self):
-        """Gets the dbt version as a tuple on ints."""
-        return tuple(
-            int(idx) for idx in self.dbt_version.split('.')
-        )
+        """Gets the dbt version as a tuple on (major, minor)."""
+        from dbt.version import get_installed_version
+
+        version = get_installed_version()
+
+        self.dbt_version_tuple = (version.major, version.minor)
+        return self.dbt_version_tuple
 
     @cached_property
     def dbt_config(self):
@@ -99,10 +102,8 @@ class DbtTemplater(JinjaTemplater):
 
         do_not_track()
 
-        dbt_minor_version = self.dbt_version_tuple()[:1]
-
-        if dbt_minor_version == [(0, 17), (0, 18), (0, 19)]:
-            if dbt_minor_version == (0, 17):
+        if self.dbt_version_tuple in ((0, 17), (0, 18), (0, 19)):
+            if self.dbt_version_tuple == (0, 17):
                 # dbt version 0.17.*
                 from dbt.parser.manifest import (
                     load_internal_manifest as load_macro_manifest,
