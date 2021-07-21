@@ -393,7 +393,7 @@ class Linter:
                 all_linting_errors += linting_errors
 
                 if fix and fixes:
-                    linter_logger.info(f"Applying Fixes: {fixes}")
+                    linter_logger.info(f"Applying Fixes [{crawler.code}]: {fixes}")
                     # Do some sanity checks on the fixes before applying.
                     if fixes == last_fixes:
                         cls._warn_unfixable(crawler.code)

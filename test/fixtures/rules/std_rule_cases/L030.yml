@@ -15,3 +15,7 @@ test_2:
     rules:
       L030:
         capitalisation_policy: lower
+
+test_fail_capitalization_after_comma:
+  fail_str: SELECT FLOOR(dt) ,count(*) FROM test
+  fix_str: SELECT FLOOR(dt) ,COUNT(*) FROM test

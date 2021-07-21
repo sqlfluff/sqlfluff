@@ -4,6 +4,7 @@ file:
       select_clause:
         keyword: select
         select_clause_element:
-          column_reference:
-            variable: '@test2'
-  statement_terminator: ;
+          literal: "'c\\' '"
+          alias_expression:
+            keyword: as
+            identifier: escaped
