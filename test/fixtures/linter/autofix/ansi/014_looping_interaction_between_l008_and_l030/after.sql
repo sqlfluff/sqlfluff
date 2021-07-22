@@ -1,0 +1,1 @@
+SELECT FLOOR(dt) , COUNT(*) FROM test

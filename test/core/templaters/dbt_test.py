@@ -39,7 +39,10 @@ def test__templater_dbt_profiles_dir_expanded(dbt_templater):  # noqa: F811
         configs={"templater": {"dbt": {"profiles_dir": "~/.dbt"}}}
     )
     profiles_dir = dbt_templater._get_profiles_dir()
-    assert profiles_dir == os.path.expanduser("~/.dbt")
+    # Normalise paths to control for OS variance
+    assert os.path.normpath(profiles_dir) == os.path.normpath(
+        os.path.expanduser("~/.dbt")
+    )
 
 
 @pytest.mark.parametrize(

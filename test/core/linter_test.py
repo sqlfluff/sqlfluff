@@ -3,6 +3,7 @@
 import pytest
 import logging
 import os
+import os.path
 from typing import List
 from unittest.mock import patch
 
@@ -628,7 +629,8 @@ def test__linter__skip_dbt_model_disabled(project_dir):  # noqa
     # Check that the file is still there
     assert len(linted_path.files) == 1
     linted_file = linted_path.files[0]
-    assert linted_file.path == model_file_path
+    # Normalise paths to control for OS variance
+    assert os.path.normpath(linted_file.path) == os.path.normpath(model_file_path)
     assert not linted_file.templated_file
     assert not linted_file.tree
 
