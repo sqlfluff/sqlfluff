@@ -441,6 +441,7 @@ def do_fixes(lnt, result, formatter=None, **kwargs):
     "--fixed-suffix", default=None, help="An optional suffix to add to fixed files."
 )
 @click.option(
+    "-p",
     "--processes",
     type=int,
     default=1,
