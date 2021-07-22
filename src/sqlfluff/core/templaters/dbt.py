@@ -102,21 +102,20 @@ class DbtTemplater(JinjaTemplater):
 
         do_not_track()
 
-        if self.dbt_version_tuple in ((0, 17), (0, 18), (0, 19)):
+        if self.dbt_version_tuple <= (0, 19):
+
             if self.dbt_version_tuple == (0, 17):
                 # dbt version 0.17.*
                 from dbt.parser.manifest import (
                     load_internal_manifest as load_macro_manifest,
-                    load_manifest,
                 )
             else:
                 # dbt version 0.18.* & # 0.19.*
-                from dbt.parser.manifest import (
-                    load_macro_manifest,
-                    load_manifest,
-                )
+                from dbt.parser.manifest import load_macro_manifest
 
                 load_macro_manifest = partial(load_macro_manifest, macro_hook=identity)
+
+            from dbt.parser.manifest import load_manifest
 
             dbt_macros_manifest = load_macro_manifest(self.dbt_config)
             self.dbt_manifest = load_manifest(
