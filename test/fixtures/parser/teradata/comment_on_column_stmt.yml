@@ -1,0 +1,15 @@
+file:
+  statement:
+    comment_clause:
+    - keyword: comment
+    - keyword: 'on'
+    - keyword: column
+    - column_reference:
+      - identifier: sandbox_db
+      - dot: .
+      - identifier: Org_Descendant
+      - dot: .
+      - identifier: Org_Unit_Code
+    - keyword: is
+    - literal: "'Organisational unit code'"
+  statement_terminator: ;
