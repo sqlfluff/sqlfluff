@@ -536,7 +536,10 @@ def test__cli__command_lint_serialize_github_annotation():
     assert result == [
         {
             "annotation_level": "warning",
-            "file": "test/fixtures/linter/identifier_capitalisation.sql",
+            # Normalise paths to control for OS variance
+            "file": os.path.normpath(
+                "test/fixtures/linter/identifier_capitalisation.sql"
+            ),
             "line": 1,
             "message": "L036: Select targets should be on a new line unless there is "
             "only one select target.",
@@ -546,7 +549,10 @@ def test__cli__command_lint_serialize_github_annotation():
         },
         {
             "annotation_level": "warning",
-            "file": "test/fixtures/linter/identifier_capitalisation.sql",
+            # Normalise paths to control for OS variance
+            "file": os.path.normpath(
+                "test/fixtures/linter/identifier_capitalisation.sql"
+            ),
             "line": 2,
             "message": "L027: Unqualified reference 'foo' found in select with more than "
             "one referenced table/view.",
@@ -556,7 +562,10 @@ def test__cli__command_lint_serialize_github_annotation():
         },
         {
             "annotation_level": "warning",
-            "file": "test/fixtures/linter/identifier_capitalisation.sql",
+            # Normalise paths to control for OS variance
+            "file": os.path.normpath(
+                "test/fixtures/linter/identifier_capitalisation.sql"
+            ),
             "line": 3,
             "message": "L012: Implicit aliasing of column not allowed. Use explicit `AS` "
             "clause.",
@@ -566,7 +575,10 @@ def test__cli__command_lint_serialize_github_annotation():
         },
         {
             "annotation_level": "warning",
-            "file": "test/fixtures/linter/identifier_capitalisation.sql",
+            # Normalise paths to control for OS variance
+            "file": os.path.normpath(
+                "test/fixtures/linter/identifier_capitalisation.sql"
+            ),
             "line": 3,
             "message": "L014: Inconsistent capitalisation of unquoted identifiers.",
             "start_column": 5,
@@ -575,7 +587,10 @@ def test__cli__command_lint_serialize_github_annotation():
         },
         {
             "annotation_level": "warning",
-            "file": "test/fixtures/linter/identifier_capitalisation.sql",
+            # Normalise paths to control for OS variance
+            "file": os.path.normpath(
+                "test/fixtures/linter/identifier_capitalisation.sql"
+            ),
             "line": 4,
             "message": "L010: Inconsistent capitalisation of keywords.",
             "start_column": 1,
@@ -584,7 +599,10 @@ def test__cli__command_lint_serialize_github_annotation():
         },
         {
             "annotation_level": "warning",
-            "file": "test/fixtures/linter/identifier_capitalisation.sql",
+            # Normalise paths to control for OS variance
+            "file": os.path.normpath(
+                "test/fixtures/linter/identifier_capitalisation.sql"
+            ),
             "line": 4,
             "message": "L014: Inconsistent capitalisation of unquoted identifiers.",
             "start_column": 12,
@@ -593,7 +611,10 @@ def test__cli__command_lint_serialize_github_annotation():
         },
         {
             "annotation_level": "warning",
-            "file": "test/fixtures/linter/identifier_capitalisation.sql",
+            # Normalise paths to control for OS variance
+            "file": os.path.normpath(
+                "test/fixtures/linter/identifier_capitalisation.sql"
+            ),
             "line": 4,
             "message": "L014: Inconsistent capitalisation of unquoted identifiers.",
             "start_column": 18,

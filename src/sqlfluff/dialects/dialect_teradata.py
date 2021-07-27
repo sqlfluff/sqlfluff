@@ -53,22 +53,34 @@ teradata_dialect.sets("unreserved_keywords").update(
         "AUTOINCREMENT",
         "ACTIVITYCOUNT",
         "CASESPECIFIC",
+        "CS",
+        "DAYS",
         "DUAL",
         "ERRORCODE",
         "EXPORT",
         "FALLBACK",
         "FORMAT",
+        "HASH",
         "IMPORT",
         "JOURNAL",
         "LABEL",
         "LOGON",
         "LOGOFF",
+        "MACRO",
+        "MAXINTERVALS",
+        "MAXVALUELENGTH",
         "MERGEBLOCKRATIO",
+        "PERCENT",
+        "PROFILE",
         "PROTECTION",
         "QUIT",
         "RUN",
+        "SAMPLE",
         "STAT",
         "SUMMARY",
+        "THRESHOLD",
+        "UC",
+        "UPPERCASE",
     ]
 )
 
@@ -144,12 +156,50 @@ class BteqStatementSegment(BaseSegment):
     )
 
 
+@teradata_dialect.segment()
+class TdCollectStatUsingOptionClauseSegment(BaseSegment):
+    """'using_option' for COLLECT STAT clause."""
+
+    type = "collect_stat_using_option_clause"
+
+    match_grammar = Sequence(
+        OneOf(
+            Sequence("SAMPLE", Ref("NumericLiteralSegment"), "PERCENT"),
+            Sequence("SYSTEM", "THRESHOLD", OneOf("PERCENT", "DAYS", optional=True)),
+            Sequence("SYSTEM", "SAMPLE"),
+            Sequence(
+                "THRESHOLD",
+                Ref("NumericLiteralSegment"),
+                OneOf("PERCENT", "DAYS"),
+            ),
+            Sequence("NO", "THRESHOLD", OneOf("PERCENT", "DAYS", optional=True)),
+            Sequence("NO", "SAMPLE"),
+            Sequence("MAXINTERVALS", Ref("NumericLiteralSegment")),
+            Sequence("SYSTEM", "MAXINTERVALS"),
+            Sequence("MAXVALUELENGTH", Ref("NumericLiteralSegment")),
+            Sequence("SYSTEM", "MAXVALUELENGTH"),
+            "SAMPLE",
+        ),
+        Sequence("FOR", "CURRENT", optional=True),
+    )
+
+
+@teradata_dialect.segment()
+class TdOrderByStatClauseSegment(BaseSegment):
+    """An `ORDER BY (VALUES|HASH) (column_name)` clause in COLLECT STATS."""
+
+    type = "stat_orderby_clause"
+    match_grammar = Sequence(
+        "ORDER", "BY", OneOf("VALUES", "HASH"), Bracketed(Ref("ColumnReferenceSegment"))
+    )
+
+
 # Collect Statistics statement
 @teradata_dialect.segment()
 class TdCollectStatisticsStatementSegment(BaseSegment):
     """A `COLLECT STATISTICS (Optimizer Form)` statement.
 
-    # TODO: Make complete
+    # TODO: add expression
     COLLECT [SUMMARY] (STATISTICS|STAT) [[COLUMN| [UNIQUE] INDEX] (expression (, expression ...)] ON TABLENAME
     """
 
@@ -158,41 +208,117 @@ class TdCollectStatisticsStatementSegment(BaseSegment):
         "COLLECT",
         Ref.keyword("SUMMARY", optional=True),
         OneOf("STATISTICS", "STAT"),
-        OneOf(
-            Sequence(
-                OneOf(
-                    "COLUMN",
-                    Sequence(
-                        Ref.keyword("UNIQUE", optional=True),
-                        "INDEX",
-                    ),
-                ),
-                OneOf(
-                    Bracketed(
-                        Delimited(
-                            Ref("ObjectReferenceSegment"), delimiter=Ref("CommaSegment")
-                        )
-                    ),
-                    Ref("ObjectReferenceSegment"),
-                ),
+        Sequence(
+            "USING",
+            Delimited(
+                Ref("TdCollectStatUsingOptionClauseSegment"),
+                delimiter="AND",
             ),
             optional=True,
         ),
+        Delimited(
+            OneOf(
+                # UNIQUE INDEX index_name ALL (column_name, ...) ORDER BY VALUES|HASH (column_name)
+                Sequence(
+                    Ref.keyword("UNIQUE", optional=True),
+                    "INDEX",
+                    Ref("IndexReferenceSegment", optional=True),
+                    Ref.keyword("ALL", optional=True),
+                    Bracketed(
+                        Delimited(
+                            Ref("ColumnReferenceSegment"), delimiter=Ref("CommaSegment")
+                        )
+                    ),
+                    Ref("TdOrderByStatClauseSegment", optional=True),
+                ),
+                # UNIQUE INDEX index_name
+                Sequence(
+                    Ref.keyword("UNIQUE", optional=True),
+                    "INDEX",
+                    Ref("IndexReferenceSegment"),
+                ),
+                # COLUMN ...
+                Sequence(
+                    "COLUMN",
+                    Bracketed(
+                        Delimited(
+                            OneOf(
+                                Ref("ColumnReferenceSegment"),
+                                Ref.keyword("PARTITION"),
+                                # TODO: expression
+                            ),
+                            delimiter=Ref("CommaSegment"),
+                        ),
+                    ),
+                    Sequence(
+                        Ref.keyword("AS", optional=True),
+                        Ref("ObjectReferenceSegment"),  # statistics_name
+                        optional=True,
+                    ),
+                ),
+            ),
+            delimiter=Ref("CommaSegment"),
+            optional=True,
+        ),
         "ON",
-        Ref("ObjectReferenceSegment"),
+        Ref.keyword("TEMPORARY", optional=True),
+        Ref("TableReferenceSegment"),
+    )
+
+
+@teradata_dialect.segment()
+class TdCommentStatementSegment(BaseSegment):
+    """A `COMMENT` statement.
+
+    COMMENT [ON] (object_kind_1|object_kind_2) name [[AS|IS] comment]
+    object_kind_1: (COLUMN|FUNCTION|GLOP SET|MACRO|MAP|METHOD|PROCEDURE|PROFILE|ROLE|TRIGGER|TYPE|VIEW)
+    object_kind_2: (DATABASE|FILE|TABLE|USER)
+    """
+
+    type = "comment_clause"
+    is_ddl = True
+    is_dml = False
+    is_dql = False
+    is_dcl = False
+
+    match_grammar = Sequence(
+        "COMMENT",
+        OneOf("ON", optional=True),
+        OneOf(
+            Sequence("COLUMN", Ref("ColumnReferenceSegment")),
+            Sequence("FUNCTION", Ref("ObjectReferenceSegment")),
+            Sequence("MACRO", Ref("ObjectReferenceSegment")),
+            Sequence("MAP", Ref("ObjectReferenceSegment")),
+            Sequence("METHOD", Ref("ObjectReferenceSegment")),
+            Sequence("PROCEDURE", Ref("ObjectReferenceSegment")),
+            Sequence("PROFILE", Ref("ObjectReferenceSegment")),
+            Sequence("ROLE", Ref("ObjectReferenceSegment")),
+            Sequence("TRIGGER", Ref("ObjectReferenceSegment")),
+            Sequence("TYPE", Ref("ObjectReferenceSegment")),
+            Sequence("VIEW", Ref("TableReferenceSegment")),
+            Sequence("DATABASE", Ref("DatabaseReferenceSegment")),
+            Sequence("FILE", Ref("ObjectReferenceSegment")),
+            Sequence("TABLE", Ref("TableReferenceSegment")),
+            Sequence("USER", Ref("ObjectReferenceSegment")),
+        ),
+        Sequence(
+            OneOf("AS", "IS", optional=True),
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
     )
 
 
 # Rename table statement
 @teradata_dialect.segment()
 class TdRenameStatementSegment(BaseSegment):
-    """A `COLLECT STATISTICS (Optimizer Form)` statement.
+    """A `RENAME TABLE` statement.
 
     https://docs.teradata.com/reader/eWpPpcMoLGQcZEoyt5AjEg/Kl~F4lxPauOELYJVuFLjag
     RENAME TABLE OLD_TABLENAME (TO|AS) NEW_TABLENAME
     """
 
-    type = "collect_statistics_statement"
+    type = "rename_table_statement"
     match_grammar = Sequence(
         "RENAME",
         "TABLE",
@@ -292,7 +418,7 @@ class ColumnDefinitionSegment(BaseSegment):
 class TdColumnOptionSegment(BaseSegment):
     """Teradata specific column attributes.
 
-    e.g. CHARACTER SET LATIN or [NOT] CASESPECIFIC
+    e.g. CHARACTER SET LATIN | [NOT] (CASESPECIFIC|CS) | (UPPERCASE|UC)
     """
 
     type = "td_column_attribute_constraint"
@@ -303,8 +429,9 @@ class TdColumnOptionSegment(BaseSegment):
             ),
             Sequence(  # [NOT] CASESPECIFIC
                 Ref.keyword("NOT", optional=True),
-                "CASESPECIFIC",
+                OneOf("CASESPECIFIC", "CS"),
             ),
+            OneOf("UPPERCASE", "UC"),
             Sequence(  # COMPRESS [(1.,3.) | 3. | NULL],
                 "COMPRESS",
                 OneOf(
@@ -428,6 +555,7 @@ class TdTableConstraints(BaseSegment):
                     Ref.keyword("UNIQUE", optional=True),
                     "PRIMARY",
                     "INDEX",
+                    Ref("ObjectReferenceSegment", optional=True),  # primary index name
                     OneOf(
                         Bracketed(
                             Delimited(
@@ -560,6 +688,7 @@ class StatementSegment(BaseSegment):
             Ref("BteqStatementSegment"),
             Ref("TdRenameStatementSegment"),
             Ref("QualifyClauseSegment"),
+            Ref("TdCommentStatementSegment"),
         ],
     )
 
