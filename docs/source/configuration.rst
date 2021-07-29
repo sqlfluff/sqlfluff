@@ -37,12 +37,7 @@ For example
 
     [tool.sqlfluff.core]
     templater = "jinja"
-    sql_file_exts = [
-        ".sql",
-        ".sql.j2",
-        ".dml",
-        ".ddl",
-    ]
+    sql_file_exts = ".sql,.sql.j2,.dml,.ddl"
 
     [tool.sqlfluff.indentation]
     indented_joins = false
