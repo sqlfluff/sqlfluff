@@ -1,0 +1,9 @@
+file:
+  statement:
+    alter_task_statement:
+    - keyword: ALTER
+    - keyword: TASK
+    - object_reference:
+        identifier: my_task
+    - keyword: RESUME
+  statement_terminator: ;

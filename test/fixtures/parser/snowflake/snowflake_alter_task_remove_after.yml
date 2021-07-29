@@ -1,0 +1,12 @@
+file:
+  statement:
+    alter_task_statement:
+    - keyword: ALTER
+    - keyword: TASK
+    - object_reference:
+        identifier: my_task
+    - keyword: REMOVE
+    - keyword: AFTER
+    - object_reference:
+        identifier: another_task
+  statement_terminator: ;

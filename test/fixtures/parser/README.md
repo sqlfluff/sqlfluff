@@ -25,3 +25,14 @@ python test/generate_parse_fixture_yml.py
 ```
 
 which will regenerate all the parsed structure yml files.
+
+## Running parser tests
+
+To avoid running the whole test suite with tox after changing parsers, you can instead
+run:
+
+```
+pytest test/dialects/dialects_test.py
+```
+
+to save some time.
