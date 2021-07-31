@@ -31,7 +31,7 @@ from test.fixtures.dbt.templater import (  # noqa
         # Check we get comma (with leading space/newline) whitespace errors
         # NB The newline before the comma, should report on the comma, not the newline for clarity.
         ("L005", "whitespace_errors.sql", [(2, 9)]),
-        ("L019", "whitespace_errors.sql", [(4, 1)]),
+        ("L019", "whitespace_errors.sql", {(2, 12), (4, 1)}),
         # Check we get comma (with incorrect trailing space) whitespace errors,
         # but also no false positives on line 4 or 5.
         ("L008", "whitespace_errors.sql", [(3, 12)]),
