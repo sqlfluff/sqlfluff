@@ -1,0 +1,2 @@
+[sqlfluff:rules:L019]
+comma_style=leading

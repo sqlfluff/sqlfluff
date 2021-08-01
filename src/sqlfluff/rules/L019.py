@@ -191,9 +191,9 @@ class Rule_L019(BaseRule):
                         fixes=[
                             LintFix("delete", anchor=last_comma_seg),
                             LintFix(
-                                "edit",
+                                "create",
                                 anchor=segment,
-                                edit=[last_comma_seg, new_whitespace_seg, segment],
+                                edit=[last_comma_seg, new_whitespace_seg],
                             ),
                         ],
                     )
