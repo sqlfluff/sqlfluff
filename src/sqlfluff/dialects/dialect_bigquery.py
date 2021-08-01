@@ -27,6 +27,7 @@ from sqlfluff.core.parser import (
     RegexParser,
     Nothing,
     StartsWith,
+    OptionallyBracketed,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -559,5 +560,88 @@ class SetStatementSegment(BaseSegment):
                     ),
                 )
             )
+        ),
+    )
+
+
+@bigquery_dialect.segment()
+class PartitionBySegment(BaseSegment):
+    """PARTITION BY partition_expression."""
+
+    type = "partition_by_segment"
+    match_grammar = Sequence(
+        "PARTITION",
+        "BY",
+        Delimited(Ref("ExpressionSegment")),
+    )
+
+
+@bigquery_dialect.segment()
+class ClusterBySegment(BaseSegment):
+    """CLUSTER BY clustering_column_list."""
+
+    type = "cluster_by_segment"
+    # PARTITION BY partition_expression
+    match_grammar = Sequence(
+        "CLUSTER",
+        "BY",
+        Delimited(Ref("ExpressionSegment")),
+    )
+
+
+@bigquery_dialect.segment()
+class OptionsSegment(BaseSegment):
+    """OPTIONS clause for a table."""
+
+    type = "options_segment"
+    match_grammar = Sequence(
+        "OPTIONS",
+        Bracketed(
+            Delimited(
+                # Table options
+                Sequence(
+                    Ref("ParameterNameSegment"),
+                    Ref("EqualsSegment"),
+                    Ref("LiteralGrammar"),
+                )
+            )
+        ),
+    )
+
+
+@bigquery_dialect.segment(replace=True)
+class CreateTableStatementSegment(BaseSegment):
+    """A `CREATE TABLE` statement."""
+
+    type = "create_table_statement"
+    # https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#create_table_statement
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        Ref("TemporaryTransientGrammar", optional=True),
+        "TABLE",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        # Column list
+        Sequence(
+            Bracketed(
+                Delimited(
+                    OneOf(
+                        Ref("TableConstraintSegment"),
+                        Ref("ColumnDefinitionSegment"),
+                    ),
+                )
+            ),
+            Ref("CommentClauseSegment", optional=True),
+            optional=True,
+        ),
+        Ref("PartitionBySegment", optional=True),
+        Ref("ClusterBySegment", optional=True),
+        Ref("OptionsSegment", optional=True),
+        # Create AS syntax:
+        Sequence(
+            "AS",
+            OptionallyBracketed(Ref("SelectableGrammar")),
+            optional=True,
         ),
     )
