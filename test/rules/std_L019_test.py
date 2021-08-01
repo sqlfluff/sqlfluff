@@ -2,6 +2,7 @@
 
 import sqlfluff
 
+
 def test__rules__std_L019_unparseable():
     """Verify that L019 doesn't try to fix queries with parse errors.
 
@@ -22,7 +23,6 @@ def test__rules__std_L019_unparseable():
             CAST(JSON_EXTRACT(readability_scores,
             '$.data.{{feature}}') AS float64) AS {{feature}} {% if not loop.last %} , {% endif %}
           {% endfor %},
-    
           {% for feature in readability_features_count_list %}
             CAST(JSON_EXTRACT(asset_structure,
             '$.{{feature}}') AS float64) AS {{feature}}_count {% if not loop.last %} , {% endif %}
@@ -33,4 +33,4 @@ def test__rules__std_L019_unparseable():
           t
     """
     result = sqlfluff.lint(sql)
-    assert "L019" not in [r['code'] for r in result]
+    assert "L019" not in [r["code"] for r in result]
