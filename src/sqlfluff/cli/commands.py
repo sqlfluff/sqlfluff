@@ -333,10 +333,10 @@ def lint(
         echo 'select col from tbl' | sqlfluff lint -
 
     """
-    c = get_config(**kwargs)
+    config = get_config(**kwargs)
     non_human_output = format != "human"
-    lnt, formatter = get_linter_and_formatter(c, silent=non_human_output)
-    verbose = c.get("verbose")
+    lnt, formatter = get_linter_and_formatter(config, silent=non_human_output)
+    verbose = config.get("verbose")
 
     formatter.dispatch_config(lnt)
 
@@ -405,7 +405,7 @@ def lint(
             click.echo(cli_table(timing_summary[step].items()))
 
     if not nofail:
-        if not non_human_output and not c.get("nocolor"):
+        if not non_human_output and not config.get("nocolor"):
             click.echo("All Finished 📜 🎉!")
         sys.exit(result.stats()["exit code"])
     else:
@@ -459,9 +459,9 @@ def fix(force, paths, processes, bench=False, fixed_suffix="", logger=None, **kw
     # some quick checks
     fixing_stdin = ("-",) == paths
 
-    c = get_config(**kwargs)
-    lnt, formatter = get_linter_and_formatter(c, silent=fixing_stdin)
-    verbose = c.get("verbose")
+    config = get_config(**kwargs)
+    lnt, formatter = get_linter_and_formatter(config, silent=fixing_stdin)
+    verbose = config.get("verbose")
 
     formatter.dispatch_config(lnt)
 
@@ -530,7 +530,7 @@ def fix(force, paths, processes, bench=False, fixed_suffix="", logger=None, **kw
                 )
                 if not success:
                     sys.exit(1)
-                elif not c.get("nocolor"):
+                elif not config.get("nocolor"):
                     click.echo("All Finished 📜 🎉!")
             elif c == "n":
                 click.echo("Aborting...")
@@ -545,7 +545,7 @@ def fix(force, paths, processes, bench=False, fixed_suffix="", logger=None, **kw
                     result.num_violations(types=SQLLintError, fixable=False)
                 )
             )
-        if not c.get("nocolor"):
+        if not config.get("nocolor"):
             click.echo("All Finished 📜 🎉!")
 
     if bench:
