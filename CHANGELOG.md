@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix looping interaction between L008 and L030 [#1207](https://github.com/sqlfluff/sqlfluff/issues/1207)
 - Fix comma removed by L019 [#939](https://github.com/sqlfluff/sqlfluff/issues/939)
 - Update L019 (leading/trailng comma rule) so it doesn't run on unparsable code.
+- The "--nocolor" command-line option should suppress emoji output (https://github.com/sqlfluff/sqlfluff/issues/1246)
 
 ## [0.6.1] - 2021-07-16
 ### Added
