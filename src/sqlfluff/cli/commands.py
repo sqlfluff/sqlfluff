@@ -405,7 +405,7 @@ def lint(
             click.echo(cli_table(timing_summary[step].items()))
 
     if not nofail:
-        if not non_human_output:
+        if not non_human_output and not c.get("nocolor"):
             click.echo("All Finished 📜 🎉!")
         sys.exit(result.stats()["exit code"])
     else:
@@ -530,7 +530,7 @@ def fix(force, paths, processes, bench=False, fixed_suffix="", logger=None, **kw
                 )
                 if not success:
                     sys.exit(1)
-                else:
+                elif not c.get("nocolor"):
                     click.echo("All Finished 📜 🎉!")
             elif c == "n":
                 click.echo("Aborting...")
@@ -545,7 +545,8 @@ def fix(force, paths, processes, bench=False, fixed_suffix="", logger=None, **kw
                     result.num_violations(types=SQLLintError, fixable=False)
                 )
             )
-        click.echo("All Finished 📜 🎉!")
+        if not c.get("nocolor"):
+            click.echo("All Finished 📜 🎉!")
 
     if bench:
         click.echo("==== overall timings ====")
