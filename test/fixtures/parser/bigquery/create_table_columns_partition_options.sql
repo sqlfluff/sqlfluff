@@ -3,5 +3,5 @@ CREATE TABLE newtable (
     y INT64
 )
 PARTITION BY x, y
-CLUSTER BY x
+CLUSTER BY x, y
 OPTIONS(description="foo")

@@ -569,7 +569,12 @@ class PartitionBySegment(BaseSegment):
     """PARTITION BY partition_expression."""
 
     type = "partition_by_segment"
-    match_grammar = Sequence(
+    match_grammar = StartsWith(
+        "PARTITION",
+        terminator=OneOf("CLUSTER", "OPTIONS", Ref("DelimiterSegment")),
+        enforce_whitespace_preceeding_terminator=True,
+    )
+    parse_grammar = Sequence(
         "PARTITION",
         "BY",
         Delimited(Ref("ExpressionSegment")),
@@ -582,7 +587,12 @@ class ClusterBySegment(BaseSegment):
 
     type = "cluster_by_segment"
     # PARTITION BY partition_expression
-    match_grammar = Sequence(
+    match_grammar = StartsWith(
+        "CLUSTER",
+        terminator=OneOf("OPTIONS", Ref("DelimiterSegment")),
+        enforce_whitespace_preceeding_terminator=True,
+    )
+    parse_grammar = Sequence(
         "CLUSTER",
         "BY",
         Delimited(Ref("ExpressionSegment")),

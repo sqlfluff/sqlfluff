@@ -33,6 +33,10 @@ file:
       - expression:
           column_reference:
             identifier: x
+      - comma: ','
+      - expression:
+          column_reference:
+            identifier: y
     - options_segment:
         keyword: OPTIONS
         bracketed:
