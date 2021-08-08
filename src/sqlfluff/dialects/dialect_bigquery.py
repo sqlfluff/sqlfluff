@@ -220,6 +220,10 @@ class FunctionDefinitionGrammar(BaseSegment):
     match_grammar = Sequence(
         AnyNumberOf(
             Sequence(
+                OneOf("DETERMINISTIC", Sequence("NOT", "DETERMINISTIC")),
+                optional=True,
+            ),
+            Sequence(
                 "LANGUAGE",
                 # Not really a parameter, but best fit for now.
                 Ref("ParameterNameSegment"),
