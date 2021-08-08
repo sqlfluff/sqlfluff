@@ -221,6 +221,38 @@ bigquery_dialect.replace(
 
 
 @bigquery_dialect.segment(replace=True)
+class FunctionSegment(BaseSegment):
+    """A scalar or aggregate function.
+
+    Maybe in the future we should distinguish between
+    aggregate functions and other functions. For now
+    we treat them the same because they look the same
+    for our purposes.
+    """
+
+    type = "function"
+    match_grammar = Sequence(
+        Sequence(
+            Ref("FunctionNameSegment"),
+            Bracketed(
+                Ref(
+                    "FunctionContentsGrammar",
+                    # The brackets might be empty for some functions...
+                    optional=True,
+                    ephemeral_name="FunctionContentsGrammar",
+                )
+            ),
+            Sequence(
+                Ref("DotSegment"),
+                Ref("ParameterNameSegment"),
+                optional=True,
+            ),
+        ),
+        Ref("PostFunctionGrammar", optional=True),
+    )
+
+
+@bigquery_dialect.segment(replace=True)
 class FunctionDefinitionGrammar(BaseSegment):
     """This is the body of a `CREATE FUNCTION AS` statement."""
 
