@@ -119,8 +119,10 @@ bigquery_dialect.replace(
     ),
     # BigQuery allows underscore in parameter names, and also anything if quoted in backticks
     ParameterNameSegment=OneOf(
-        RegexParser(r"[A-Z_][A-Z0-9_]*", CodeSegment, name="parameter", type="parameter"),
-        RegexParser(r"`[^`]+`", CodeSegment, name="parameter", type="parameter"),
+        RegexParser(
+            r"[A-Z_][A-Z0-9_]*", CodeSegment, name="parameter", type="parameter"
+        ),
+        RegexParser(r"`[^`]*`", CodeSegment, name="parameter", type="parameter"),
     ),
     DateTimeLiteralGrammar=Nothing(),
 )
