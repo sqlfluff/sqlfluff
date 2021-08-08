@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 ### Changed
 
+- Support for DETERMINISTIC user defined functions [#1251](https://github.com/sqlfluff/sqlfluff/issues/1251)
+
 ## [0.6.2] - 2021-07-22
 ### Added
 
