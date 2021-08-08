@@ -405,8 +405,8 @@ def lint(
             click.echo(cli_table(timing_summary[step].items()))
 
     if not nofail:
-        if not non_human_output and not config.get("nocolor"):
-            click.echo("All Finished 📜 🎉!")
+        if not non_human_output:
+            _completion_message(config)
         sys.exit(result.stats()["exit code"])
     else:
         sys.exit(0)
@@ -530,8 +530,8 @@ def fix(force, paths, processes, bench=False, fixed_suffix="", logger=None, **kw
                 )
                 if not success:
                     sys.exit(1)
-                elif not config.get("nocolor"):
-                    click.echo("All Finished 📜 🎉!")
+                else:
+                    _completion_message(config)
             elif c == "n":
                 click.echo("Aborting...")
             else:
@@ -545,8 +545,7 @@ def fix(force, paths, processes, bench=False, fixed_suffix="", logger=None, **kw
                     result.num_violations(types=SQLLintError, fixable=False)
                 )
             )
-        if not config.get("nocolor"):
-            click.echo("All Finished 📜 🎉!")
+        _completion_message(config)
 
     if bench:
         click.echo("==== overall timings ====")
@@ -557,6 +556,12 @@ def fix(force, paths, processes, bench=False, fixed_suffix="", logger=None, **kw
             click.echo(cli_table(timing_summary[step].items()))
 
     sys.exit(0)
+
+
+def _completion_message(config):
+    click.echo(
+        "All Finished{emojis}!".format(emojis="" if config.get("nocolor") else " 📜 🎉")
+    )
 
 
 def quoted_presenter(dumper, data):
