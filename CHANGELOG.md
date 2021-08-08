@@ -7,14 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
+
+- Support for primary index name, collect stats improvement, COMMENT statement for teradata dialect [#] (https://github.com/sqlfluff/sqlfluff/issues/)
+
 ### Changed
 
 - Support for DETERMINISTIC user defined functions [#1251](https://github.com/sqlfluff/sqlfluff/issues/1251)
+- Fix comma removed by L019 [#939](https://github.com/sqlfluff/sqlfluff/issues/939)
+- Update L019 (leading/trailng comma rule) so it doesn't run on unparsable code.
+- The "--nocolor" command-line option should suppress emoji output (https://github.com/sqlfluff/sqlfluff/issues/1246)
 
 ## [0.6.2] - 2021-07-22
 ### Added
 
-- Support for primary index name, collect stats improvement, COMMENT statement for teradata dialect [#] (https://github.com/sqlfluff/sqlfluff/issues/)
 - Support for looping statements (loop, while, repeat) and supporting statements to mysql dialect [#1180](https://github.com/sqlfluff/sqlfluff/issues/1180)
 
 ### Changed
@@ -23,9 +28,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated manifest loading in dbt 0.20.* to use the new `ManifestLoader` [#1220](https://github.com/sqlfluff/sqlfluff/pull/1220)
 - Handle newlines in rule list configuration in .sqlfluff [#1215](https://github.com/sqlfluff/sqlfluff/issues/1215)
 - Fix looping interaction between L008 and L030 [#1207](https://github.com/sqlfluff/sqlfluff/issues/1207)
-- Fix comma removed by L019 [#939](https://github.com/sqlfluff/sqlfluff/issues/939)
-- Update L019 (leading/trailng comma rule) so it doesn't run on unparsable code.
-- The "--nocolor" command-line option should suppress emoji output (https://github.com/sqlfluff/sqlfluff/issues/1246)
 
 ## [0.6.1] - 2021-07-16
 ### Added
