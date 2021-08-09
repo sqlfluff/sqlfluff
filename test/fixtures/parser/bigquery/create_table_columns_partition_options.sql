@@ -1,7 +1,7 @@
 CREATE TABLE newtable (
-    x INT64,
+    x TIMESTAMP,
     y INT64
 )
-PARTITION BY x, y
+PARTITION BY DATE(x)
 CLUSTER BY x, y
 OPTIONS(description="foo")

@@ -620,7 +620,7 @@ class PartitionBySegment(BaseSegment):
     parse_grammar = Sequence(
         "PARTITION",
         "BY",
-        Delimited(Ref("ExpressionSegment")),
+        Ref("ExpressionSegment"),
     )
 
 
