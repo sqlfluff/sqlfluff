@@ -41,6 +41,7 @@ For example
 
     [tool.sqlfluff.indentation]
     indented_joins = false
+    indented_using_on = true
     template_blocks_indent = false
 
     [tool.sqlfluff.templater]
