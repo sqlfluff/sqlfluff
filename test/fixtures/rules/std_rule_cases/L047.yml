@@ -158,7 +158,7 @@ changes_count_star_to_count_1:
     group by
       foo
 
-  configs:  *prefer_count_1
+  configs: *prefer_count_1
 
 changes_count_star_to_count_1_handle_new_line:
   fail_str: |
