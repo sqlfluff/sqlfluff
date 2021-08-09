@@ -118,6 +118,13 @@ bigquery_dialect.replace(
         insert=[Ref("TypelessStructSegment")],
         before=Ref("ExpressionSegment"),
     ),
+    # BigQuery allows underscore in parameter names, and also anything if quoted in backticks
+    ParameterNameSegment=OneOf(
+        RegexParser(
+            r"[A-Z_][A-Z0-9_]*", CodeSegment, name="parameter", type="parameter"
+        ),
+        RegexParser(r"`[^`]*`", CodeSegment, name="parameter", type="parameter"),
+    ),
     DateTimeLiteralGrammar=Nothing(),
 )
 
@@ -215,11 +222,47 @@ bigquery_dialect.replace(
 
 
 @bigquery_dialect.segment(replace=True)
+class FunctionSegment(BaseSegment):
+    """A scalar or aggregate function.
+
+    Maybe in the future we should distinguish between
+    aggregate functions and other functions. For now
+    we treat them the same because they look the same
+    for our purposes.
+    """
+
+    type = "function"
+    match_grammar = Sequence(
+        Sequence(
+            Ref("FunctionNameSegment"),
+            Bracketed(
+                Ref(
+                    "FunctionContentsGrammar",
+                    # The brackets might be empty for some functions...
+                    optional=True,
+                    ephemeral_name="FunctionContentsGrammar",
+                )
+            ),
+            Sequence(
+                Ref("DotSegment"),
+                Ref("ParameterNameSegment"),
+                optional=True,
+            ),
+        ),
+        Ref("PostFunctionGrammar", optional=True),
+    )
+
+
+@bigquery_dialect.segment(replace=True)
 class FunctionDefinitionGrammar(BaseSegment):
     """This is the body of a `CREATE FUNCTION AS` statement."""
 
     match_grammar = Sequence(
         AnyNumberOf(
+            Sequence(
+                OneOf("DETERMINISTIC", Sequence("NOT", "DETERMINISTIC")),
+                optional=True,
+            ),
             Sequence(
                 "LANGUAGE",
                 # Not really a parameter, but best fit for now.
