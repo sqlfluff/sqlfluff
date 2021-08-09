@@ -1183,6 +1183,7 @@ class JoinClauseSegment(BaseSegment):
         Indent,
         Sequence(
             Ref("FromExpressionElementSegment"),
+            Conditional(Dedent, indented_using_on=False),
             # NB: this is optional
             OneOf(
                 # ON clause
@@ -1209,6 +1210,7 @@ class JoinClauseSegment(BaseSegment):
                 # be a good idea.
                 optional=True,
             ),
+            Conditional(Indent, indented_using_on=False),
         ),
         Dedent,
     )
@@ -1242,7 +1244,7 @@ ansi_dialect.add(
 class FromClauseSegment(BaseSegment):
     """A `FROM` clause like in `SELECT`.
 
-    NOTE: thiis is a delimited set of table expressions, with a variable
+    NOTE: this is a delimited set of table expressions, with a variable
     number of optional join clauses with those table expressions. The
     delmited aspect is the higher of the two such that the following is
     valid (albeit unusual):
