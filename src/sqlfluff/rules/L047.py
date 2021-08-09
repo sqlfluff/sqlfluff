@@ -14,7 +14,7 @@ class Rule_L047(BaseRule):
 
     Note:
         If both `prefer_count_1` and `prefer_count_0` are set to true
-        then `prefer_count_1` has preference.
+        then `prefer_count_1` has precedence.
 
     COUNT(*), COUNT(1), and even COUNT(0) are equivalent syntaxes in many SQL
     engines due to optimizers interpreting these instructions as
