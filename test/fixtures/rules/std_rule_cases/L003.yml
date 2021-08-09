@@ -115,6 +115,98 @@ test_fail_indented_joins_false_fix:
     indentation:
       indented_joins: false
 
+test_pass_indented_using_on_default:
+  # Configurable using_on indents work.
+  # 2.a) default
+  pass_str: |
+    SELECT a, b, c
+    FROM my_tbl
+    LEFT JOIN another_tbl
+        USING(a)
+
+test_pass_indented_using_on_true:
+  # 2.b) specific
+  pass_str: |
+    SELECT a, b, c
+    FROM my_tbl
+        LEFT JOIN another_tbl
+            USING(a)
+
+  configs:
+    indentation:
+      indented_joins: true
+      indented_using_on: true
+
+test_pass_indented_using_on_false:
+  # 2.c) specific False, but passing
+  pass_str: |
+    SELECT a, b, c
+    FROM my_tbl
+        LEFT JOIN another_tbl
+        USING(a)
+
+  configs:
+    indentation:
+      indented_joins: true
+      indented_using_on: false
+
+test_fail_indented_using_on_false:
+  # 2.d) specific False, but failing
+  fail_str: |
+    SELECT a, b, c
+    FROM my_tbl
+        LEFT JOIN another_tbl
+            USING(a)
+
+  fix_str: |
+    SELECT a, b, c
+    FROM my_tbl
+        LEFT JOIN another_tbl
+        USING(a)
+
+  configs:
+    indentation:
+      indented_joins: true
+      indented_using_on: false
+
+test_fail_indented_joins_using_on_false:
+  # 2.e) specific True, and failing
+  fail_str: |
+    SELECT a, b, c
+    FROM my_tbl
+        LEFT JOIN another_tbl
+        USING(a)
+
+  fix_str: |
+    SELECT a, b, c
+    FROM my_tbl
+        LEFT JOIN another_tbl
+            USING(a)
+
+  configs:
+    indentation:
+      indented_joins: true
+      indented_using_on: true
+
+test_fail_indented_joins_using_on_false:
+  # 2.f) specific false for both, and failing
+  fail_str: |
+    SELECT a, b, c
+    FROM my_tbl
+        LEFT JOIN another_tbl
+            USING(a)
+
+  fix_str: |
+    SELECT a, b, c
+    FROM my_tbl
+    LEFT JOIN another_tbl
+    USING(a)
+
+  configs:
+    indentation:
+      indented_joins: false
+      indented_using_on: false
+
 test_pass_indented_from_with_comment:
   pass_str: |
     SELECT *
