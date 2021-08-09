@@ -1,44 +1,11 @@
 """Defines the templaters."""
 
 import logging
-from typing import Dict, Iterator, List, Tuple, Optional, NamedTuple
+from typing import Iterator, List, Tuple, Optional, NamedTuple
 
-
-_templater_lookup: Dict[str, "RawTemplater"] = {}
 
 # Instantiate the templater logger
 templater_logger = logging.getLogger("sqlfluff.templater")
-
-
-def templater_selector(s=None, **kwargs):
-    """Instantiate a new templater by name."""
-    s = s or "jinja"  # default to jinja
-    try:
-        cls = _templater_lookup[s]
-        # Instantiate here, optionally with kwargs
-        return cls(**kwargs)
-    except KeyError:
-        raise ValueError(
-            "Requested templater {!r} which is not currently available. Try one of {}".format(
-                s, ", ".join(_templater_lookup.keys())
-            )
-        )
-
-
-def register_templater(cls):
-    """Register a new templater by name.
-
-    This is designed as a decorator for templaters.
-
-    e.g.
-    @register_templater()
-    class RawTemplater(BaseSegment):
-        blah blah blah
-
-    """
-    n = cls.name
-    _templater_lookup[n] = cls
-    return cls
 
 
 def iter_indices_of_newlines(raw_str: str) -> Iterator[int]:
@@ -362,7 +329,6 @@ class TemplatedFile:
         return ret_buff
 
 
-@register_templater
 class RawTemplater:
     """A templater which does nothing.
 

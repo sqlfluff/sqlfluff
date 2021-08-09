@@ -5,6 +5,11 @@ import sys
 
 from sqlfluff.core.config import ConfigLoader, nested_combine, dict_diff
 from sqlfluff.core import Linter, FluffConfig
+from sqlfluff.core.templaters import (
+    RawTemplater,
+    PythonTemplater,
+    JinjaTemplater,
+)
 
 from pathlib import Path
 from unittest.mock import patch, call
@@ -192,6 +197,17 @@ def test__config__load_user_appdir_config(
         ("\nL011,\nL022,\nL031,", ["L011", "L022", "L031"]),
     ],
 )
-def test__config___split_comma_separated_string(raw_str, expected):
+def test__config__split_comma_separated_string(raw_str, expected):
     """Tests that comma separated string config is handled correctly."""
     assert FluffConfig._split_comma_separated_string(raw_str) == expected
+
+
+def test__config__templater_selection():
+    """Test template selection by name."""
+    cfg = FluffConfig()
+    assert cfg.get_templater().__class__ is JinjaTemplater
+    assert cfg.get_templater("raw").__class__ is RawTemplater
+    assert cfg.get_templater("python").__class__ is PythonTemplater
+    assert cfg.get_templater("jinja").__class__ is JinjaTemplater
+    with pytest.raises(ValueError):
+        cfg.get_templater("afefhlsakufe")

@@ -5,12 +5,19 @@ from sqlfluff.core.config import ConfigLoader
 from sqlfluff.core.plugin import hookimpl
 from sqlfluff.core.rules.config_info import STANDARD_CONFIG_INFO_DICT
 from sqlfluff.core.rules.loader import get_rules_from_path
+from sqlfluff.core.templaters import core_templaters
 
 
 @hookimpl
 def get_rules():
     """Get plugin rules."""
     return get_rules_from_path()
+
+
+@hookimpl
+def get_templaters():
+    """Get templaters."""
+    return core_templaters()
 
 
 @hookimpl

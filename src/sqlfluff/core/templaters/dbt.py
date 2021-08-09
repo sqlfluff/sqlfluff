@@ -10,7 +10,7 @@ from functools import partial
 
 from sqlfluff.core.errors import SQLTemplaterError, SQLTemplaterSkipFile
 
-from sqlfluff.core.templaters.base import register_templater, TemplatedFile
+from sqlfluff.core.templaters.base import TemplatedFile
 from sqlfluff.core.templaters.jinja import JinjaTemplater
 
 # Instantiate the templater logger
@@ -26,7 +26,6 @@ class DbtConfigArgs:
     profile: Optional[str] = None
 
 
-@register_templater
 class DbtTemplater(JinjaTemplater):
     """A templater using dbt."""
 

@@ -4,6 +4,8 @@ import logging
 import os
 import os.path
 import configparser
+import pluggy
+from itertools import chain
 from typing import Dict, List, Tuple, Any, Optional, Union, Iterable
 from pathlib import Path
 from sqlfluff.core.plugin.host import get_plugin_manager
@@ -389,10 +391,17 @@ class FluffConfig:
     private_vals = "rule_blacklist", "rule_whitelist", "dialect_obj", "templater_obj"
 
     def __init__(
-        self, configs: Optional[dict] = None, overrides: Optional[dict] = None
+        self,
+        configs: Optional[dict] = None,
+        overrides: Optional[dict] = None,
+        plugin_manager: Optional[pluggy.PluginManager] = None,
     ):
         self._overrides = overrides  # We only store this for child configs
-        defaults = nested_combine(*get_plugin_manager().hook.load_default_config())
+
+        # Fetch a fresh plugin manager if we weren't provided with one
+        self._plugin_manager = plugin_manager or get_plugin_manager()
+
+        defaults = nested_combine(*self._plugin_manager.hook.load_default_config())
         self._configs = nested_combine(
             defaults, configs or {"core": {}}, {"core": overrides or {}}
         )
@@ -429,14 +438,31 @@ class FluffConfig:
         # Dialect and Template selection.
         # NB: We import here to avoid a circular references.
         from sqlfluff.core.dialects import dialect_selector
-        from sqlfluff.core.templaters import templater_selector
 
         self._configs["core"]["dialect_obj"] = dialect_selector(
             self._configs["core"]["dialect"]
         )
-        self._configs["core"]["templater_obj"] = templater_selector(
+        self._configs["core"]["templater_obj"] = self.get_templater(
             self._configs["core"]["templater"]
         )
+
+    def __getstate__(self):
+        # Copy the object's state from self.__dict__ which contains
+        # all our instance attributes. Always use the dict.copy()
+        # method to avoid modifying the original state.
+        state = self.__dict__.copy()
+        # Remove the unpicklable entries.
+        del state["_plugin_manager"]
+        return state
+
+    def __setstate__(self, state):
+        # Restore instance attributes
+        self.__dict__.update(state)
+        # NB: We don't reinstate the plugin manager, but this should only
+        # be happening between threads where the plugin manager should
+        # probably be fresh in any case.
+        # NOTE: This means that registering user plugins directly is not
+        # thread safe.
 
     @classmethod
     def from_root(cls, overrides: Optional[dict] = None) -> "FluffConfig":
@@ -446,11 +472,16 @@ class FluffConfig:
         return cls(configs=c, overrides=overrides)
 
     @classmethod
-    def from_path(cls, path: str, overrides: Optional[dict] = None) -> "FluffConfig":
+    def from_path(
+        cls,
+        path: str,
+        overrides: Optional[dict] = None,
+        plugin_manager: Optional[pluggy.PluginManager] = None,
+    ) -> "FluffConfig":
         """Loads a config object given a particular path."""
         loader = ConfigLoader.get_global()
         c = loader.load_config_up_to_path(path=path)
-        return cls(configs=c, overrides=overrides)
+        return cls(configs=c, overrides=overrides, plugin_manager=plugin_manager)
 
     @classmethod
     def from_kwargs(
@@ -484,9 +515,30 @@ class FluffConfig:
             overrides["rules"] = ",".join(rules)
         return cls(overrides=overrides)
 
+    def get_templater(self, templater_name="jinja", **kwargs):
+        """Fetch a templater by name."""
+        templater_lookup = {
+            templater.name: templater
+            for templater in chain.from_iterable(
+                self._plugin_manager.hook.get_templaters()
+            )
+        }
+        try:
+            cls = templater_lookup[templater_name]
+            # Instantiate here, optionally with kwargs
+            return cls(**kwargs)
+        except KeyError:
+            raise ValueError(
+                "Requested templater {!r} which is not currently available. Try one of {}".format(
+                    templater_name, ", ".join(templater_lookup.keys())
+                )
+            )
+
     def make_child_from_path(self, path: str) -> "FluffConfig":
         """Make a new child config at a path but pass on overrides."""
-        return self.from_path(path, overrides=self._overrides)
+        return self.from_path(
+            path, overrides=self._overrides, plugin_manager=self._plugin_manager
+        )
 
     def diff_to(self, other: "FluffConfig") -> dict:
         """Compare this config to another.

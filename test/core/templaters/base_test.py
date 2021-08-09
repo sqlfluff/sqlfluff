@@ -4,9 +4,6 @@ import pytest
 
 from sqlfluff.core.templaters import (
     RawTemplater,
-    templater_selector,
-    PythonTemplater,
-    JinjaTemplater,
     TemplatedFile,
 )
 
@@ -29,16 +26,6 @@ from sqlfluff.core.templaters.base import (
 def test__indices_of_newlines(raw_str, positions):
     """Test iter_indices_of_newlines."""
     assert list(iter_indices_of_newlines(raw_str)) == positions
-
-
-def test__templater_selection():
-    """Test template selection by name."""
-    assert templater_selector().__class__ is JinjaTemplater
-    assert templater_selector("raw").__class__ is RawTemplater
-    assert templater_selector("python").__class__ is PythonTemplater
-    assert templater_selector("jinja").__class__ is JinjaTemplater
-    with pytest.raises(ValueError):
-        templater_selector("afefhlsakufe")
 
 
 def test__templater_raw():
