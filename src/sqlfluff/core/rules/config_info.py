@@ -90,6 +90,10 @@ STANDARD_CONFIG_INFO_DICT = {
         "validation": [True, False],
         "definition": ("Should count(0) be preferred over count(*) and count(1)?"),
     },
+    "operator_new_lines": {
+        "validation": ["before", "after"],
+        "definition": ("Should operator be placed before or after newlines."),
+    },
 }
 
 
