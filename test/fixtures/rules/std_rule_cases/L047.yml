@@ -23,6 +23,71 @@ passes_on_count_1:
       L047:
         prefer_count_1: True
 
+changes_count_0_to_count_star:
+  fail_str: |
+    select
+        foo,
+        count(0)
+    from my_table
+    group by
+      foo
+
+  fix_str: |
+    select
+        foo,
+        count(*)
+    from my_table
+    group by
+      foo
+
+passes_on_count_0:
+  pass_str: |
+    select
+        foo,
+        count(0)
+    from my_table
+    group by
+      foo
+
+  configs: &prefer_count_0
+    rules:
+      L047:
+        prefer_count_0: True
+
+passes_on_count_1_if_both_present:
+  pass_str: |
+    select
+        foo,
+        count(1)
+    from my_table
+    group by
+      foo
+
+  configs: &prefer_both
+    rules:
+      L047:
+        prefer_count_0: True
+        prefer_count_1: True
+
+changes_to_count_1_if_both_present:
+  fail_str: |
+    select
+        foo,
+        count(*)
+    from my_table
+    group by
+      foo
+
+  fix_str: |
+    select
+        foo,
+        count(1)
+    from my_table
+    group by
+      foo
+
+  configs: *prefer_both
+
 changes_count_1_to_count_star:
   fail_str: |
     select
@@ -57,11 +122,68 @@ handles_whitespaces:
     group by
       foo
 
+changes_count_star_to_count_0:
+  fail_str: |
+    select
+        foo,
+        count(*)
+    from my_table
+    group by
+      foo
+
+  fix_str: |
+    select
+        foo,
+        count(0)
+    from my_table
+    group by
+      foo
+
+  configs: *prefer_count_0
+
 changes_count_star_to_count_1:
   fail_str: |
     select
         foo,
         count(*)
+    from my_table
+    group by
+      foo
+
+  fix_str: |
+    select
+        foo,
+        count(1)
+    from my_table
+    group by
+      foo
+
+  configs: *prefer_count_1
+
+changes_count_1_to_count_0:
+  fail_str: |
+    select
+        foo,
+        count(1)
+    from my_table
+    group by
+      foo
+
+  fix_str: |
+    select
+        foo,
+        count(0)
+    from my_table
+    group by
+      foo
+
+  configs: *prefer_count_0
+
+changes_count_0_to_count_1:
+  fail_str: |
+    select
+        foo,
+        count(0)
     from my_table
     group by
       foo
