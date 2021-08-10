@@ -16,7 +16,6 @@ from sqlfluff.core.templaters.jinja import JinjaTemplater
 # Instantiate the templater logger
 templater_logger = logging.getLogger("sqlfluff.templater")
 
-print("FOO")
 
 @dataclass
 class DbtConfigArgs:
