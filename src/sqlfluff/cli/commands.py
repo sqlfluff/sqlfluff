@@ -333,10 +333,10 @@ def lint(
         echo 'select col from tbl' | sqlfluff lint -
 
     """
-    c = get_config(**kwargs)
+    config = get_config(**kwargs)
     non_human_output = format != "human"
-    lnt, formatter = get_linter_and_formatter(c, silent=non_human_output)
-    verbose = c.get("verbose")
+    lnt, formatter = get_linter_and_formatter(config, silent=non_human_output)
+    verbose = config.get("verbose")
 
     formatter.dispatch_config(lnt)
 
@@ -406,7 +406,7 @@ def lint(
 
     if not nofail:
         if not non_human_output:
-            click.echo("All Finished 📜 🎉!")
+            _completion_message(config)
         sys.exit(result.stats()["exit code"])
     else:
         sys.exit(0)
@@ -459,9 +459,9 @@ def fix(force, paths, processes, bench=False, fixed_suffix="", logger=None, **kw
     # some quick checks
     fixing_stdin = ("-",) == paths
 
-    c = get_config(**kwargs)
-    lnt, formatter = get_linter_and_formatter(c, silent=fixing_stdin)
-    verbose = c.get("verbose")
+    config = get_config(**kwargs)
+    lnt, formatter = get_linter_and_formatter(config, silent=fixing_stdin)
+    verbose = config.get("verbose")
 
     formatter.dispatch_config(lnt)
 
@@ -531,7 +531,7 @@ def fix(force, paths, processes, bench=False, fixed_suffix="", logger=None, **kw
                 if not success:
                     sys.exit(1)
                 else:
-                    click.echo("All Finished 📜 🎉!")
+                    _completion_message(config)
             elif c == "n":
                 click.echo("Aborting...")
             else:
@@ -545,7 +545,7 @@ def fix(force, paths, processes, bench=False, fixed_suffix="", logger=None, **kw
                     result.num_violations(types=SQLLintError, fixable=False)
                 )
             )
-        click.echo("All Finished 📜 🎉!")
+        _completion_message(config)
 
     if bench:
         click.echo("==== overall timings ====")
@@ -556,6 +556,12 @@ def fix(force, paths, processes, bench=False, fixed_suffix="", logger=None, **kw
             click.echo(cli_table(timing_summary[step].items()))
 
     sys.exit(0)
+
+
+def _completion_message(config):
+    click.echo(
+        "All Finished{emojis}!".format(emojis="" if config.get("nocolor") else " 📜 🎉")
+    )
 
 
 def quoted_presenter(dumper, data):
