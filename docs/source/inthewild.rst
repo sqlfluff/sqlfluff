@@ -46,4 +46,4 @@ Just add a section below by raising a PR on Github by
   attracts hundreds of volunteers to help analyse our BigQuery dataset and
   being able automatically lint Pull Requests through GitHub Actions is a
   fantastic way to help us maintain repositary of
-  `over a thousand queries <https://github.com/HTTPArchive/almanac.httparchive.org/tree/main/src>`.
+  `over a thousand queries <https://github.com/HTTPArchive/almanac.httparchive.org/tree/main/sql>`.
