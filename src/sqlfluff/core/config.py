@@ -528,6 +528,11 @@ class FluffConfig:
             # Instantiate here, optionally with kwargs
             return cls(**kwargs)
         except KeyError:
+            if templater_name == "dbt":
+                config_logger.warning(
+                    "Starting in sqlfluff version 0.7.0 the dbt templater is distributed as a "
+                    "seperate python package. Please pip install sqlfluff-templater-dbt to use it."
+                )
             raise ValueError(
                 "Requested templater {!r} which is not currently available. Try one of {}".format(
                     templater_name, ", ".join(templater_lookup.keys())

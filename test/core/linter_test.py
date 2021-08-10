@@ -647,7 +647,7 @@ def test__attempt_to_change_templater_warning(caplog):
     """Test warning if user tries to change templater in .sqlfluff file in subdirectory."""
     initial_config = FluffConfig(configs={"core": {"templater": "jinja"}})
     lntr = Linter(config=initial_config)
-    updated_config = FluffConfig(configs={"core": {"templater": "dbt"}})
+    updated_config = FluffConfig(configs={"core": {"templater": "python"}})
     logger = logging.getLogger("sqlfluff")
     original_propagate_value = logger.propagate
     try:

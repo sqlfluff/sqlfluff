@@ -19,11 +19,15 @@ jobs:
           pip install --upgrade pip
           pip install twine wheel --upgrade
 
-      - name: Build Distribution
+      - name: Build Distribution (Core)
         run: python setup.py sdist bdist_wheel
+      
+      - name: Build Distribution (dbt plugin)
+        run: python plugins/sqlfluff-templater-dbt/setup.py sdist bdist_wheel
 
       - name: Publish Python distribution to PyPI
         uses: pypa/gh-action-pypi-publish@master
         with:
           user: __token__
           password: ${{ secrets.PYPI_TOKEN }}
+          skip_existing: true

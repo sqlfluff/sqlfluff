@@ -9,9 +9,8 @@ from sqlfluff.core.templaters.base import TemplatedFile
 from sqlfluff.core.templaters.base import RawTemplater
 from sqlfluff.core.templaters.jinja import JinjaTemplater
 from sqlfluff.core.templaters.python import PythonTemplater
-from sqlfluff.core.templaters.dbt import DbtTemplater
 
 
 def core_templaters():
     """Returns the templater tuples for the core templaters."""
-    yield from [RawTemplater, JinjaTemplater, PythonTemplater, DbtTemplater]
+    yield from [RawTemplater, JinjaTemplater, PythonTemplater]

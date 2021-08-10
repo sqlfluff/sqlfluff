@@ -97,12 +97,6 @@ setup(
         # For returning exceptions from multiprocessing.Pool.map()
         "tblib",
     ],
-    extras_require={
-        "dbt": ["dbt>=0.17"],
-        # eg:
-        #   'rst': ['docutils>=0.11'],
-        #   ':python_version=="2.6"': ['argparse'],
-    },
     entry_points={
         "console_scripts": [
             "sqlfluff = sqlfluff.cli.commands:cli",
