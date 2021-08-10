@@ -43,7 +43,7 @@ class Rule_L047(BaseRule):
         from table_a
 
     | **Best practice**
-    | Use ``count(*) unless specified otherwise by config ``prefer_count_1``,
+    | Use ``count(*)`` unless specified otherwise by config ``prefer_count_1``,
     | or ``prefer_count_0`` as preferred.
 
     .. code-block:: sql
