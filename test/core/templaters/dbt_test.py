@@ -6,8 +6,10 @@ import logging
 
 from sqlfluff.core import FluffConfig, Lexer, Linter
 from sqlfluff.core.errors import SQLTemplaterSkipFile
-from test.fixtures.dbt.templater import (
+from test.fixtures.dbt.templater import (  # noqa: F401
     DBT_FLUFF_CONFIG,
+    dbt_templater,
+    project_dir
 )
 
 
