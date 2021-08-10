@@ -9,7 +9,7 @@ from sqlfluff.core.errors import SQLTemplaterSkipFile
 from test.fixtures.dbt.templater import (  # noqa: F401
     DBT_FLUFF_CONFIG,
     dbt_templater,
-    project_dir
+    project_dir,
 )
 
 
@@ -89,7 +89,7 @@ select * from a
     ],
 )
 def test__templater_dbt_slice_file_wrapped_test(
-    raw_file, templated_file, result, dbt_templater, caplog
+    raw_file, templated_file, result, dbt_templater, caplog  # noqa: F811
 ):
     """Test that wrapped queries are sliced safely using _check_for_wrapped()."""
     with caplog.at_level(logging.DEBUG, logger="sqlfluff.templater"):
