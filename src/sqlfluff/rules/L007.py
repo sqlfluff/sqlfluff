@@ -57,17 +57,11 @@ class Rule_L007(BaseRule):
                                 # Had a newline - so mark this operator as a fail
                                 anchor = segment
                                 # TODO: Work out a nice fix for this failure.
-                    else:
-                        # If in "after" mode then we don't check operator now, but after next code
-                        pass
                 elif memory["last_code"] and memory["last_code"].is_type(
                     "binary_operator", "comparison_operator"
                 ):
                     # It's not an operator, but the last code was.
-                    if self.operator_new_lines == "before":
-                        # If we're in "before" mode then we don't check operator now, but after next code
-                        pass
-                    else:
+                    if self.operator_new_lines != "before":
                         # If in "after" mode, then check to see
                         # there is a newline between us and the last operator.
                         for s in memory["since_code"]:
