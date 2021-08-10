@@ -40,3 +40,9 @@ Just add a section below by raising a PR on Github by
   - Reduced burden on Analytics Engineers to remember every single style rule.
   - New Analytics Engineers can quickly see and learn what "good SQL" looks
     like at Surfline and start writing it from day 1.
+- The `HTTP Archive <https://httparchive.org>` uses SQL Fluff to automatically check for
+  quality and consistency of code submitted by the many contributors to this project. In
+  particular our annual `Web Almanac <https://almanac.httparchive.org>` attracts hundreds
+  of volunteers to help analyse our BigQuery dataset and being able automatically lint
+  Pull Requests through GitHub Actions is a fantastic way to help us maintain repositary of
+  `over a thousand queries <https://github.com/HTTPArchive/almanac.httparchive.org/tree/main/src>`.

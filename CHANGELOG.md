@@ -10,16 +10,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Support for primary index name, collect stats improvement, COMMENT statement for teradata dialect [#] (https://github.com/sqlfluff/sqlfluff/issues/)
 - Support config for L007 to prefer end of line operators [#1261](https://github.com/sqlfluff/sqlfluff/issues/1261)
-
-### Changed
-
 - Support for DETERMINISTIC user defined functions in BigQuery dialect [#1251](https://github.com/sqlfluff/sqlfluff/issues/1251)
 - Support more identifiers in BigQuery dialect [#1253](https://github.com/sqlfluff/sqlfluff/issues/1253)
 - Support function member field references in BigQuery dialect [#1255](https://github.com/sqlfluff/sqlfluff/issues/1255)
 - Support alternative indentation for USING and ON clauses [#1250](https://github.com/sqlfluff/sqlfluff/issues/1250)
+
+### Changed
+
 - Fix comma removed by L019 [#939](https://github.com/sqlfluff/sqlfluff/issues/939)
 - Update L019 (leading/trailng comma rule) so it doesn't run on unparsable code.
 - The "--nocolor" command-line option should suppress emoji output (https://github.com/sqlfluff/sqlfluff/issues/1246)
+- Added HTTP 
 
 ## [0.6.2] - 2021-07-22
 ### Added
