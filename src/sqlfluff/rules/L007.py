@@ -19,7 +19,7 @@ class Rule_L007(BaseRule):
 
 
     | **Best practice**
-    | Place the operator after the newline.
+    | Place the operator after the newline. Unless specified by ``operator_new_lines = after``
 
     .. code-block:: sql
 
@@ -28,6 +28,8 @@ class Rule_L007(BaseRule):
             + b
         FROM foo
     """
+
+    config_keywords = ["operator_new_lines"]
 
     def _eval(self, segment, memory, parent_stack, **kwargs):
         """Operators near newlines should be after, not before the newline.
@@ -47,17 +49,32 @@ class Rule_L007(BaseRule):
             if segment.is_code:
                 # This is code, what kind?
                 if segment.is_type("binary_operator", "comparison_operator"):
-                    # We only trigger if the last was an operator, not if this is.
-                    pass
+                    # If it's an operator, then check if in "before" mode
+                    if self.operator_new_lines == "before":
+                        # If we're in "before" mode, then check if newline since last code
+                        for s in memory["since_code"]:
+                            if s.name == "newline":
+                                # Had a newline - so mark this operator as a fail
+                                anchor = segment
+                                # TODO: Work out a nice fix for this failure.
+                    else:
+                        # If in "after" mode then we don't check operator now, but after next code
+                        pass
                 elif memory["last_code"] and memory["last_code"].is_type(
                     "binary_operator", "comparison_operator"
                 ):
-                    # It's not an operator, but the last code was. Now check to see
-                    # there is a newline between us and the last operator.
-                    for s in memory["since_code"]:
-                        if s.name == "newline":
-                            anchor = memory["last_code"]
-                            # TODO: Work out a nice fix for this.
+                    # It's not an operator, but the last code was.
+                    if self.operator_new_lines == "before":
+                        # If we're in "before" mode then we don't check operator now, but after next code
+                        pass
+                    else:
+                        # If in "after" mode, then check to see
+                        # there is a newline between us and the last operator.
+                        for s in memory["since_code"]:
+                            if s.name == "newline":
+                                # Had a newline - so mark last operator as a fail
+                                anchor = memory["last_code"]
+                                # TODO: Work out a nice fix for this failure.
                 # Prepare memory for later
                 memory["last_code"] = segment
                 memory["since_code"] = []
