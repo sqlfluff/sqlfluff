@@ -82,82 +82,36 @@ class Rule_L047(BaseRule):
             if len(f_content) != 1:
                 return None
 
-            if self.prefer_count_1 and f_content[0].is_type("star"):
-                return LintResult(
-                    anchor=segment,
-                    fixes=[
-                        LintFix(
-                            "edit",
-                            f_content[0],
-                            f_content[0].edit(f_content[0].raw.replace("*", "1")),
-                        ),
-                    ],
-                )
-            elif self.prefer_count_1 and f_content[0].is_type("expression"):
-                expression_content = [
-                    seg for seg in f_content[0].segments if not seg.is_meta
-                ]
-                if (
-                    len(expression_content) == 1
-                    and expression_content[0].is_type("literal")
-                    and expression_content[0].raw == "0"
-                ):
-                    return LintResult(
-                        anchor=segment,
-                        fixes=[
-                            LintFix(
-                                "edit",
-                                expression_content[0],
-                                expression_content[0].edit(
-                                    expression_content[0].raw.replace("0", "1")
-                                ),
-                            ),
-                        ],
-                    )
-            elif self.prefer_count_0 and f_content[0].is_type("star"):
-                return LintResult(
-                    anchor=segment,
-                    fixes=[
-                        LintFix(
-                            "edit",
-                            f_content[0],
-                            f_content[0].edit(f_content[0].raw.replace("*", "0")),
-                        ),
-                    ],
-                )
-            elif self.prefer_count_0 and f_content[0].is_type("expression"):
-                expression_content = [
-                    seg for seg in f_content[0].segments if not seg.is_meta
-                ]
-                if (
-                    len(expression_content) == 1
-                    and expression_content[0].is_type("literal")
-                    and expression_content[0].raw == "1"
-                ):
-                    return LintResult(
-                        anchor=segment,
-                        fixes=[
-                            LintFix(
-                                "edit",
-                                expression_content[0],
-                                expression_content[0].edit(
-                                    expression_content[0].raw.replace("1", "0")
-                                ),
-                            ),
-                        ],
-                    )
-            elif (
-                not self.prefer_count_1
-                and not self.prefer_count_0
-                and f_content[0].is_type("expression")
+            preferred = "*"
+            if self.prefer_count_1:
+                preferred = "1"
+            elif self.prefer_count_0:
+                preferred = "0"
+
+            if f_content[0].is_type("star") and (
+                self.prefer_count_1 or self.prefer_count_0
             ):
+                return LintResult(
+                    anchor=segment,
+                    fixes=[
+                        LintFix(
+                            "edit",
+                            f_content[0],
+                            f_content[0].edit(f_content[0].raw.replace("*", preferred)),
+                        ),
+                    ],
+                )
+
+            if f_content[0].is_type("expression"):
                 expression_content = [
                     seg for seg in f_content[0].segments if not seg.is_meta
                 ]
+
                 if (
                     len(expression_content) == 1
                     and expression_content[0].is_type("literal")
-                    and expression_content[0].raw == "1"
+                    and expression_content[0].raw in ["0", "1"]
+                    and expression_content[0].raw != preferred
                 ):
                     return LintResult(
                         anchor=segment,
@@ -166,24 +120,9 @@ class Rule_L047(BaseRule):
                                 "edit",
                                 expression_content[0],
                                 expression_content[0].edit(
-                                    expression_content[0].raw.replace("1", "*")
-                                ),
-                            ),
-                        ],
-                    )
-                elif (
-                    len(expression_content) == 1
-                    and expression_content[0].is_type("literal")
-                    and expression_content[0].raw == "0"
-                ):
-                    return LintResult(
-                        anchor=segment,
-                        fixes=[
-                            LintFix(
-                                "edit",
-                                expression_content[0],
-                                expression_content[0].edit(
-                                    expression_content[0].raw.replace("0", "*")
+                                    expression_content[0].raw.replace(
+                                        expression_content[0].raw, preferred
+                                    )
                                 ),
                             ),
                         ],
