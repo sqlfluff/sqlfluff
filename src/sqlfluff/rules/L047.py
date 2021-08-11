@@ -12,8 +12,12 @@ from sqlfluff.core.rules.doc_decorators import (
 class Rule_L047(BaseRule):
     """Use consistent syntax to express "count number of rows".
 
-    COUNT(*) and COUNT(1) are equivalent syntaxes in many SQL engines
-    due to optimizers interpreting these instructions as
+    Note:
+        If both `prefer_count_1` and `prefer_count_0` are set to true
+        then `prefer_count_1` has precedence.
+
+    COUNT(*), COUNT(1), and even COUNT(0) are equivalent syntaxes in many SQL
+    engines due to optimizers interpreting these instructions as
     "count number of rows in result".
 
     The ANSI-92_ spec mentions the COUNT(*) syntax specifically as
@@ -24,8 +28,9 @@ class Rule_L047(BaseRule):
 
     So by default, SQLFluff enforces the consistent use of COUNT(*).
 
-    If the SQL engine you work with, or your team, prefers COUNT(1)
-    over COUNT(*) you can configure this rule to consistently enforce COUNT(1).
+    If the SQL engine you work with, or your team, prefers COUNT(1) or COUNT(0)
+    over COUNT(*) you can configure this rule to consistently enforce your
+    preference.
 
     .. _ANSI-92: http://msdn.microsoft.com/en-us/library/ms175997.aspx
 
@@ -38,7 +43,8 @@ class Rule_L047(BaseRule):
         from table_a
 
     | **Best practice**
-    |   Use count(*) unless specified otherwise by config ``prefer_count_1``
+    | Use ``count(*)`` unless specified otherwise by config ``prefer_count_1``,
+    | or ``prefer_count_0`` as preferred.
 
     .. code-block:: sql
 
@@ -48,7 +54,7 @@ class Rule_L047(BaseRule):
 
     """
 
-    config_keywords = ["prefer_count_1"]
+    config_keywords = ["prefer_count_1", "prefer_count_0"]
 
     def _eval(self, segment, **kwargs):
         """Find rule violations and provide fixes."""
@@ -76,25 +82,36 @@ class Rule_L047(BaseRule):
             if len(f_content) != 1:
                 return None
 
-            if self.prefer_count_1 and f_content[0].is_type("star"):
+            preferred = "*"
+            if self.prefer_count_1:
+                preferred = "1"
+            elif self.prefer_count_0:
+                preferred = "0"
+
+            if f_content[0].is_type("star") and (
+                self.prefer_count_1 or self.prefer_count_0
+            ):
                 return LintResult(
                     anchor=segment,
                     fixes=[
                         LintFix(
                             "edit",
                             f_content[0],
-                            f_content[0].edit(f_content[0].raw.replace("*", "1")),
+                            f_content[0].edit(f_content[0].raw.replace("*", preferred)),
                         ),
                     ],
                 )
-            if not self.prefer_count_1 and f_content[0].is_type("expression"):
+
+            if f_content[0].is_type("expression"):
                 expression_content = [
                     seg for seg in f_content[0].segments if not seg.is_meta
                 ]
+
                 if (
                     len(expression_content) == 1
                     and expression_content[0].is_type("literal")
-                    and expression_content[0].raw == "1"
+                    and expression_content[0].raw in ["0", "1"]
+                    and expression_content[0].raw != preferred
                 ):
                     return LintResult(
                         anchor=segment,
@@ -103,7 +120,9 @@ class Rule_L047(BaseRule):
                                 "edit",
                                 expression_content[0],
                                 expression_content[0].edit(
-                                    expression_content[0].raw.replace("1", "*")
+                                    expression_content[0].raw.replace(
+                                        expression_content[0].raw, preferred
+                                    )
                                 ),
                             ),
                         ],
