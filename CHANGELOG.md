@@ -7,17 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-### Changed
 
+- Support for primary index name, collect stats improvement, COMMENT statement for teradata dialect [#] (https://github.com/sqlfluff/sqlfluff/issues/)
+- Support config for L007 to prefer end of line operators [#1261](https://github.com/sqlfluff/sqlfluff/issues/1261)
 - Support for DETERMINISTIC user defined functions in BigQuery dialect [#1251](https://github.com/sqlfluff/sqlfluff/issues/1251)
 - Support more identifiers in BigQuery dialect [#1253](https://github.com/sqlfluff/sqlfluff/issues/1253)
 - Support function member field references in BigQuery dialect [#1255](https://github.com/sqlfluff/sqlfluff/issues/1255)
 - Support alternative indentation for USING and ON clauses [#1250](https://github.com/sqlfluff/sqlfluff/issues/1250)
+- Support COUNT(0) preference over COUNT(*) or COUNT(1) [#1260](https://github.com/sqlfluff/sqlfluff/issues/1260)
+- Support for BigQuery "CREATE table OPTIONS ( description = 'desc' )" [#1205](https://github.com/sqlfluff/sqlfluff/issues/1205)
+
+### Changed
+
+- Fix comma removed by L019 [#939](https://github.com/sqlfluff/sqlfluff/issues/939)
+- Update L019 (leading/trailng comma rule) so it doesn't run on unparsable code.
+- The "--nocolor" command-line option should suppress emoji output (https://github.com/sqlfluff/sqlfluff/issues/1246)
+- Added HTTP Archive to the [In The Wild page](https://docs.sqlfluff.com/en/stable/inthewild.html)
 
 ## [0.6.2] - 2021-07-22
 ### Added
 
-- Support for primary index name, collect stats improvement, COMMENT statement for teradata dialect [#] (https://github.com/sqlfluff/sqlfluff/issues/)
 - Support for looping statements (loop, while, repeat) and supporting statements to mysql dialect [#1180](https://github.com/sqlfluff/sqlfluff/issues/1180)
 
 ### Changed
@@ -26,9 +35,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated manifest loading in dbt 0.20.* to use the new `ManifestLoader` [#1220](https://github.com/sqlfluff/sqlfluff/pull/1220)
 - Handle newlines in rule list configuration in .sqlfluff [#1215](https://github.com/sqlfluff/sqlfluff/issues/1215)
 - Fix looping interaction between L008 and L030 [#1207](https://github.com/sqlfluff/sqlfluff/issues/1207)
-- Fix comma removed by L019 [#939](https://github.com/sqlfluff/sqlfluff/issues/939)
-- Update L019 (leading/trailng comma rule) so it doesn't run on unparsable code.
-- Support for BigQuery "CREATE table OPTIONS ( description = 'desc' )" [#1205](https://github.com/sqlfluff/sqlfluff/issues/1205)
 
 ## [0.6.1] - 2021-07-16
 ### Added
