@@ -614,7 +614,7 @@ class PartitionBySegment(BaseSegment):
     type = "partition_by_segment"
     match_grammar = StartsWith(
         "PARTITION",
-        terminator=OneOf("CLUSTER", "OPTIONS", Ref("DelimiterSegment")),
+        terminator=OneOf("CLUSTER", "OPTIONS", "AS", Ref("DelimiterSegment")),
         enforce_whitespace_preceeding_terminator=True,
     )
     parse_grammar = Sequence(
@@ -629,10 +629,9 @@ class ClusterBySegment(BaseSegment):
     """CLUSTER BY clustering_column_list."""
 
     type = "cluster_by_segment"
-    # PARTITION BY partition_expression
     match_grammar = StartsWith(
         "CLUSTER",
-        terminator=OneOf("OPTIONS", Ref("DelimiterSegment")),
+        terminator=OneOf("OPTIONS", "AS", Ref("DelimiterSegment")),
         enforce_whitespace_preceeding_terminator=True,
     )
     parse_grammar = Sequence(
