@@ -80,3 +80,28 @@ file:
           alias_expression:
             keyword: AS
             identifier: numcol2
+      - comma: ','
+      - select_clause_element:
+          expression:
+            array_literal:
+              start_square_bracket: '['
+              typeless_struct:
+                keyword: STRUCT
+                bracketed:
+                  start_bracket: '('
+                  literal: "'a'"
+                  comma: ','
+                  expression:
+                    array_literal:
+                      start_square_bracket: '['
+                      expression:
+                        literal: 26.1
+                      end_square_bracket: ']'
+                  alias_expression:
+                    keyword: AS
+                    identifier: splits
+                  end_bracket: ')'
+              end_square_bracket: ']'
+          alias_expression:
+            keyword: AS
+            identifier: struct1
