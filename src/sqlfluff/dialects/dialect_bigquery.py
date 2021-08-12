@@ -159,6 +159,23 @@ bigquery_dialect.sets("angle_bracket_pairs").update(
 
 
 @bigquery_dialect.segment(replace=True)
+class ArrayLiteralSegment(BaseSegment):
+    """Overridde array literal segment to add Typeless Struct."""
+
+    type = "array_literal"
+    match_grammar = Bracketed(
+        Delimited(
+            OneOf(
+                Ref("ExpressionSegment"),
+                Ref("TypelessStructSegment"),
+            ),
+            optional=True,
+        ),
+        bracket_type="square",
+    )
+
+
+@bigquery_dialect.segment(replace=True)
 class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: ignore
     """Overriding StatementSegment to allow for additional segment parsing."""
 

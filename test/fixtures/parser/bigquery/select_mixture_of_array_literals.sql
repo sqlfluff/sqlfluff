@@ -10,4 +10,5 @@ SELECT
     ['a'] AS strcol1,
     ARRAY<string>['b'] AS strcol2,
     [1.0] AS numcol1,
-    ARRAY<NUMERIC>[1.4] AS numcol2
+    ARRAY<NUMERIC>[1.4] AS numcol2,
+    [STRUCT('a', [26.1] AS splits)] AS struct1
