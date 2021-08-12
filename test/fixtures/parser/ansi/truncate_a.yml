@@ -1,6 +1,6 @@
 file:
   statement:
     truncate_table:
-    - keyword: truncate
-    - table_reference:
+      keyword: truncate
+      table_reference:
         identifier: a
