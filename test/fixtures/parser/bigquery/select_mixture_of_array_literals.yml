@@ -32,10 +32,13 @@ file:
       - select_clause_element:
           expression:
             array_literal:
-              start_square_bracket: '['
-              expression:
+            - start_square_bracket: '['
+            - expression:
                 literal: "'a'"
-              end_square_bracket: ']'
+            - comma: ','
+            - expression:
+                literal: "'b'"
+            - end_square_bracket: ']'
           alias_expression:
             keyword: AS
             identifier: strcol1
@@ -88,19 +91,19 @@ file:
               typeless_struct:
                 keyword: STRUCT
                 bracketed:
-                  start_bracket: '('
+                  start_bracket: (
                   literal: "'a'"
                   comma: ','
                   expression:
                     array_literal:
                       start_square_bracket: '['
                       expression:
-                        literal: 26.1
+                        literal: '26.1'
                       end_square_bracket: ']'
                   alias_expression:
                     keyword: AS
                     identifier: splits
-                  end_bracket: ')'
+                  end_bracket: )
               end_square_bracket: ']'
           alias_expression:
             keyword: AS

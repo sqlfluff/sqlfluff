@@ -7,7 +7,7 @@ SELECT
     [],
     [false],
     ARRAY<BOOLEAN>[false],
-    ['a'] AS strcol1,
+    ['a', 'b'] AS strcol1,
     ARRAY<string>['b'] AS strcol2,
     [1.0] AS numcol1,
     ARRAY<NUMERIC>[1.4] AS numcol2,
