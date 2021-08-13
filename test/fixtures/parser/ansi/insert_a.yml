@@ -1,19 +1,19 @@
 file:
-  statement:
-    insert_statement:
+- statement:
+  - insert_statement:
     - keyword: INSERT
     - keyword: into
     - table_reference:
-        identifier: tbl_b
+      - identifier: tbl_b
     - bracketed:
-        start_bracket: (
-        column_reference:
-          identifier: col1
-        end_bracket: )
+      - start_bracket: (
+      - column_reference:
+        - identifier: col1
+      - end_bracket: )
     - values_clause:
-        keyword: values
-        bracketed:
-          start_bracket: (
-          literal: '123'
-          end_bracket: )
-  statement_terminator: ;
+      - keyword: values
+      - bracketed:
+        - start_bracket: (
+        - literal: '123'
+        - end_bracket: )
+- statement_terminator: ;

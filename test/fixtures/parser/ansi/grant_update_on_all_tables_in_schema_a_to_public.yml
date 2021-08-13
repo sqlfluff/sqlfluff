@@ -1,6 +1,6 @@
 file:
-  statement:
-    access_statement:
+- statement:
+  - access_statement:
     - keyword: grant
     - keyword: update
     - keyword: 'on'
@@ -9,7 +9,7 @@ file:
     - keyword: in
     - keyword: schema
     - object_reference:
-        identifier: a
+      - identifier: a
     - keyword: to
     - object_reference:
-        identifier: public
+      - identifier: public

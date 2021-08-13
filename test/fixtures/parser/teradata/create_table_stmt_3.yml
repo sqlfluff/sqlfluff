@@ -1,23 +1,23 @@
 file:
-  statement:
-    create_table_statement:
+- statement:
+  - create_table_statement:
     - keyword: CREATE
     - keyword: MULTISET
     - keyword: TABLE
     - table_reference:
-        identifier: NUM_LTR_DESVINCULADOS_ADH
+      - identifier: NUM_LTR_DESVINCULADOS_ADH
     - bracketed:
       - start_bracket: (
       - column_definition:
         - column_reference:
-            identifier: DES_EVENTO
+          - identifier: DES_EVENTO
         - td_internal_data_type:
-            data_type_identifier: VARCHAR
-            bracketed:
-              start_bracket: (
-              expression:
-                literal: '255'
-              end_bracket: )
+          - data_type_identifier: VARCHAR
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - literal: '255'
+            - end_bracket: )
         - td_column_attribute_constraint:
           - keyword: CHARACTER
           - keyword: SET
@@ -26,8 +26,8 @@ file:
           - keyword: NOT
           - keyword: CASESPECIFIC
         - td_column_attribute_constraint:
-            keyword: COMPRESS
-            bracketed:
+          - keyword: COMPRESS
+          - bracketed:
             - start_bracket: (
             - literal: "'Cambio de bandera'"
             - comma: ','
@@ -35,12 +35,12 @@ file:
             - end_bracket: )
       - comma: ','
       - column_definition:
-          column_reference:
-            identifier: IND_CONTINUA
-          td_internal_data_type:
-            data_type_identifier: BYTEINT
-          td_column_attribute_constraint:
-            keyword: COMPRESS
+        - column_reference:
+          - identifier: IND_CONTINUA
+        - td_internal_data_type:
+          - data_type_identifier: BYTEINT
+        - td_column_attribute_constraint:
+          - keyword: COMPRESS
       - end_bracket: )
     - td_table_constraint:
       - keyword: PRIMARY
@@ -58,9 +58,9 @@ file:
       - keyword: PARTITION
       - keyword: BY
       - td_partitioning_level:
-          function_name:
-            function_name_identifier: RANGE_N
-          bracketed:
+        - function_name:
+          - function_name_identifier: RANGE_N
+        - bracketed:
           - start_bracket: (
           - raw: FEC_OPERACION
           - raw: BETWEEN
@@ -81,10 +81,10 @@ file:
           - end_bracket: )
       - keyword: INDEX
       - object_reference:
-          identifier: HOPR_TRN_TRAV_SIN_MP_I
+        - identifier: HOPR_TRN_TRAV_SIN_MP_I
       - bracketed:
-          start_bracket: (
-          column_reference:
-            identifier: IND_TIPO_TARJETA
-          end_bracket: )
-  statement_terminator: ;
+        - start_bracket: (
+        - column_reference:
+          - identifier: IND_TIPO_TARJETA
+        - end_bracket: )
+- statement_terminator: ;

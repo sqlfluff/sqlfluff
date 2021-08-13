@@ -1,148 +1,148 @@
 file:
 - statement:
-    select_statement:
-      select_clause:
-        keyword: SELECT
-        select_clause_element:
-          wildcard_expression:
-            wildcard_identifier:
-              star: '*'
-            select_except_clause:
-              keyword: EXCEPT
-              bracketed:
-                start_bracket: (
-                identifier: seqnum
-                end_bracket: )
-            select_replace_clause:
-              keyword: REPLACE
-              bracketed:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - star: '*'
+          - select_except_clause:
+            - keyword: EXCEPT
+            - bracketed:
+              - start_bracket: (
+              - identifier: seqnum
+              - end_bracket: )
+          - select_replace_clause:
+            - keyword: REPLACE
+            - bracketed:
               - start_bracket: (
               - select_clause_element:
-                  column_reference:
-                    identifier: foo
-                  alias_expression:
-                    keyword: as
-                    identifier: bar
+                - column_reference:
+                  - identifier: foo
+                - alias_expression:
+                  - keyword: as
+                  - identifier: bar
               - comma: ','
               - select_clause_element:
-                  column_reference:
-                    identifier: baz
-                  alias_expression:
-                    identifier: foobar
+                - column_reference:
+                  - identifier: baz
+                - alias_expression:
+                  - identifier: foobar
               - end_bracket: )
-      from_clause:
-        keyword: FROM
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                identifier: my_tbl
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - identifier: my_tbl
 - statement_terminator: ;
 - statement:
-    set_expression:
+  - set_expression:
     - select_statement:
-        select_clause:
-          keyword: select
-          select_clause_element:
-            wildcard_expression:
-              wildcard_identifier:
-                star: '*'
-              select_except_clause:
-                keyword: except
-                bracketed:
-                  start_bracket: (
-                  identifier: foo
-                  end_bracket: )
-        from_clause:
-          keyword: from
-          from_expression:
-            from_expression_element:
-              table_expression:
-                table_reference:
-                  identifier: some_table
+      - select_clause:
+        - keyword: select
+        - select_clause_element:
+          - wildcard_expression:
+            - wildcard_identifier:
+              - star: '*'
+            - select_except_clause:
+              - keyword: except
+              - bracketed:
+                - start_bracket: (
+                - identifier: foo
+                - end_bracket: )
+      - from_clause:
+        - keyword: from
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - identifier: some_table
     - set_operator:
       - keyword: union
       - keyword: all
     - select_statement:
-        select_clause:
-          keyword: select
-          select_clause_element:
-            wildcard_expression:
-              wildcard_identifier:
-                star: '*'
-        from_clause:
-          keyword: from
-          from_expression:
-            from_expression_element:
-              table_expression:
-                table_reference:
-                  identifier: another_table
+      - select_clause:
+        - keyword: select
+        - select_clause_element:
+          - wildcard_expression:
+            - wildcard_identifier:
+              - star: '*'
+      - from_clause:
+        - keyword: from
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - identifier: another_table
 - statement_terminator: ;
 - statement:
-    select_statement:
-      select_clause:
+  - select_statement:
+    - select_clause:
       - keyword: select
       - select_clause_element:
-          expression:
+        - expression:
           - literal: '1'
           - binary_operator: +
           - literal: '2'
-          alias_expression:
-            keyword: as
-            identifier: calculated
+        - alias_expression:
+          - keyword: as
+          - identifier: calculated
       - comma: ','
       - select_clause_element:
-          wildcard_expression:
-            wildcard_identifier:
-              star: '*'
-            select_except_clause:
-              keyword: except
-              bracketed:
-                start_bracket: (
-                identifier: irrelevant
-                end_bracket: )
-      from_clause:
-        keyword: from
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                identifier: my_tbl
+        - wildcard_expression:
+          - wildcard_identifier:
+            - star: '*'
+          - select_except_clause:
+            - keyword: except
+            - bracketed:
+              - start_bracket: (
+              - identifier: irrelevant
+              - end_bracket: )
+    - from_clause:
+      - keyword: from
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - identifier: my_tbl
 - statement_terminator: ;
 - statement:
-    select_statement:
-      select_clause:
+  - select_statement:
+    - select_clause:
       - keyword: select
       - select_clause_element:
-          wildcard_expression:
-            wildcard_identifier:
-              identifier: foo
-              dot: .
-              star: '*'
-            select_except_clause:
-              keyword: except
-              bracketed:
-                start_bracket: (
-                identifier: some_column
-                end_bracket: )
+        - wildcard_expression:
+          - wildcard_identifier:
+            - identifier: foo
+            - dot: .
+            - star: '*'
+          - select_except_clause:
+            - keyword: except
+            - bracketed:
+              - start_bracket: (
+              - identifier: some_column
+              - end_bracket: )
       - comma: ','
       - select_clause_element:
-          wildcard_expression:
-            wildcard_identifier:
-              identifier: bar
-              dot: .
-              star: '*'
-            select_except_clause:
-              keyword: except
-              bracketed:
-                start_bracket: (
-                identifier: other_column
-                end_bracket: )
-      from_clause:
-        keyword: from
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                identifier: my_tbl
+        - wildcard_expression:
+          - wildcard_identifier:
+            - identifier: bar
+            - dot: .
+            - star: '*'
+          - select_except_clause:
+            - keyword: except
+            - bracketed:
+              - start_bracket: (
+              - identifier: other_column
+              - end_bracket: )
+    - from_clause:
+      - keyword: from
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - identifier: my_tbl
 - statement_terminator: ;

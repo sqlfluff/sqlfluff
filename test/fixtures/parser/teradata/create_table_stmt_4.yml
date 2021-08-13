@@ -1,6 +1,6 @@
 file:
-  statement:
-    create_table_statement:
+- statement:
+  - create_table_statement:
     - keyword: create
     - keyword: table
     - table_reference:
@@ -10,106 +10,106 @@ file:
     - bracketed:
       - start_bracket: (
       - column_definition:
-          column_reference:
-            identifier: Org_Unit_Code
-          td_internal_data_type:
-            data_type_identifier: char
-            bracketed:
-              start_bracket: (
-              expression:
-                literal: '6'
-              end_bracket: )
-          td_column_attribute_constraint:
+        - column_reference:
+          - identifier: Org_Unit_Code
+        - td_internal_data_type:
+          - data_type_identifier: char
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - literal: '6'
+            - end_bracket: )
+        - td_column_attribute_constraint:
           - keyword: character
           - keyword: set
           - identifier: unicode
-          column_constraint:
+        - column_constraint:
           - keyword: not
           - keyword: 'null'
       - comma: ','
       - column_definition:
-          column_reference:
-            identifier: Org_Unit_Type
-          td_internal_data_type:
-            data_type_identifier: char
-            bracketed:
-              start_bracket: (
-              expression:
-                literal: '3'
-              end_bracket: )
-          td_column_attribute_constraint:
+        - column_reference:
+          - identifier: Org_Unit_Type
+        - td_internal_data_type:
+          - data_type_identifier: char
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - literal: '3'
+            - end_bracket: )
+        - td_column_attribute_constraint:
           - keyword: character
           - keyword: set
           - identifier: unicode
-          column_constraint:
+        - column_constraint:
           - keyword: not
           - keyword: 'null'
       - comma: ','
       - column_definition:
-          column_reference:
-            identifier: Entity_Code
-          td_internal_data_type:
-            data_type_identifier: varchar
-            bracketed:
-              start_bracket: (
-              expression:
-                literal: '10'
-              end_bracket: )
-          td_column_attribute_constraint:
-            keyword: uppercase
-          column_constraint:
+        - column_reference:
+          - identifier: Entity_Code
+        - td_internal_data_type:
+          - data_type_identifier: varchar
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - literal: '10'
+            - end_bracket: )
+        - td_column_attribute_constraint:
+          - keyword: uppercase
+        - column_constraint:
           - keyword: not
           - keyword: 'null'
       - comma: ','
       - column_definition:
-          column_reference:
-            identifier: Parent_Org_Unit_Code
-          td_internal_data_type:
-            data_type_identifier: char
-            bracketed:
-              start_bracket: (
-              expression:
-                literal: '6'
-              end_bracket: )
-          td_column_attribute_constraint:
+        - column_reference:
+          - identifier: Parent_Org_Unit_Code
+        - td_internal_data_type:
+          - data_type_identifier: char
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - literal: '6'
+            - end_bracket: )
+        - td_column_attribute_constraint:
           - keyword: character
           - keyword: set
           - identifier: unicode
-          column_constraint:
+        - column_constraint:
           - keyword: not
           - keyword: 'null'
       - comma: ','
       - column_definition:
-          column_reference:
-            identifier: Parent_Org_Unit_Type
-          td_internal_data_type:
-            data_type_identifier: char
-            bracketed:
-              start_bracket: (
-              expression:
-                literal: '3'
-              end_bracket: )
-          td_column_attribute_constraint:
+        - column_reference:
+          - identifier: Parent_Org_Unit_Type
+        - td_internal_data_type:
+          - data_type_identifier: char
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - literal: '3'
+            - end_bracket: )
+        - td_column_attribute_constraint:
           - keyword: character
           - keyword: set
           - identifier: unicode
-          column_constraint:
+        - column_constraint:
           - keyword: not
           - keyword: 'null'
       - comma: ','
       - column_definition:
-          column_reference:
-            identifier: Parent_Entity_Code
-          td_internal_data_type:
-            data_type_identifier: varchar
-            bracketed:
-              start_bracket: (
-              expression:
-                literal: '10'
-              end_bracket: )
-          td_column_attribute_constraint:
-            keyword: uppercase
-          column_constraint:
+        - column_reference:
+          - identifier: Parent_Entity_Code
+        - td_internal_data_type:
+          - data_type_identifier: varchar
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - literal: '10'
+            - end_bracket: )
+        - td_column_attribute_constraint:
+          - keyword: uppercase
+        - column_constraint:
           - keyword: not
           - keyword: 'null'
       - end_bracket: )
@@ -117,7 +117,7 @@ file:
       - keyword: primary
       - keyword: index
       - object_reference:
-          identifier: Org_Descendant_NUPI
+        - identifier: Org_Descendant_NUPI
       - bracketed:
         - start_bracket: (
         - identifier: Org_Unit_Code
@@ -126,4 +126,4 @@ file:
         - comma: ','
         - identifier: Entity_Code
         - end_bracket: )
-  statement_terminator: ;
+- statement_terminator: ;

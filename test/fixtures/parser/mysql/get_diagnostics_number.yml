@@ -1,6 +1,6 @@
 file:
-  statement:
-    get_diagnostics_segment:
+- statement:
+  - get_diagnostics_segment:
     - keyword: GET
     - keyword: DIAGNOSTICS
     - variable: '@a'
@@ -8,4 +8,4 @@ file:
     - keyword: NUMBER
     - keyword: CONDITION
     - variable: '1'
-  statement_terminator: ;
+- statement_terminator: ;

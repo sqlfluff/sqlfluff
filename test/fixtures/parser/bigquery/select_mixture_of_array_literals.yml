@@ -1,110 +1,110 @@
 file:
-  statement:
-    select_statement:
-      select_clause:
+- statement:
+  - select_statement:
+    - select_clause:
       - keyword: SELECT
       - select_clause_element:
-          expression:
-            array_literal:
-              start_square_bracket: '['
-              end_square_bracket: ']'
+        - expression:
+          - array_literal:
+            - start_square_bracket: '['
+            - end_square_bracket: ']'
       - comma: ','
       - select_clause_element:
-          expression:
-            array_literal:
-              start_square_bracket: '['
-              expression:
-                literal: 'false'
-              end_square_bracket: ']'
-      - comma: ','
-      - select_clause_element:
-          expression:
-            keyword: ARRAY
-            start_angle_bracket: <
-            data_type_identifier: BOOLEAN
-            end_angle_bracket: '>'
-            array_literal:
-              start_square_bracket: '['
-              expression:
-                literal: 'false'
-              end_square_bracket: ']'
-      - comma: ','
-      - select_clause_element:
-          expression:
-            array_literal:
+        - expression:
+          - array_literal:
             - start_square_bracket: '['
             - expression:
-                literal: "'a'"
+              - literal: 'false'
+            - end_square_bracket: ']'
+      - comma: ','
+      - select_clause_element:
+        - expression:
+          - keyword: ARRAY
+          - start_angle_bracket: <
+          - data_type_identifier: BOOLEAN
+          - end_angle_bracket: '>'
+          - array_literal:
+            - start_square_bracket: '['
+            - expression:
+              - literal: 'false'
+            - end_square_bracket: ']'
+      - comma: ','
+      - select_clause_element:
+        - expression:
+          - array_literal:
+            - start_square_bracket: '['
+            - expression:
+              - literal: "'a'"
             - comma: ','
             - expression:
-                literal: "'b'"
+              - literal: "'b'"
             - end_square_bracket: ']'
-          alias_expression:
-            keyword: AS
-            identifier: strcol1
+        - alias_expression:
+          - keyword: AS
+          - identifier: strcol1
       - comma: ','
       - select_clause_element:
-          expression:
-            keyword: ARRAY
-            start_angle_bracket: <
-            data_type_identifier: string
-            end_angle_bracket: '>'
-            array_literal:
-              start_square_bracket: '['
-              expression:
-                literal: "'b'"
-              end_square_bracket: ']'
-          alias_expression:
-            keyword: AS
-            identifier: strcol2
+        - expression:
+          - keyword: ARRAY
+          - start_angle_bracket: <
+          - data_type_identifier: string
+          - end_angle_bracket: '>'
+          - array_literal:
+            - start_square_bracket: '['
+            - expression:
+              - literal: "'b'"
+            - end_square_bracket: ']'
+        - alias_expression:
+          - keyword: AS
+          - identifier: strcol2
       - comma: ','
       - select_clause_element:
-          expression:
-            array_literal:
-              start_square_bracket: '['
-              expression:
-                literal: '1.0'
-              end_square_bracket: ']'
-          alias_expression:
-            keyword: AS
-            identifier: numcol1
+        - expression:
+          - array_literal:
+            - start_square_bracket: '['
+            - expression:
+              - literal: '1.0'
+            - end_square_bracket: ']'
+        - alias_expression:
+          - keyword: AS
+          - identifier: numcol1
       - comma: ','
       - select_clause_element:
-          expression:
-            keyword: ARRAY
-            start_angle_bracket: <
-            data_type_identifier: NUMERIC
-            end_angle_bracket: '>'
-            array_literal:
-              start_square_bracket: '['
-              expression:
-                literal: '1.4'
-              end_square_bracket: ']'
-          alias_expression:
-            keyword: AS
-            identifier: numcol2
+        - expression:
+          - keyword: ARRAY
+          - start_angle_bracket: <
+          - data_type_identifier: NUMERIC
+          - end_angle_bracket: '>'
+          - array_literal:
+            - start_square_bracket: '['
+            - expression:
+              - literal: '1.4'
+            - end_square_bracket: ']'
+        - alias_expression:
+          - keyword: AS
+          - identifier: numcol2
       - comma: ','
       - select_clause_element:
-          expression:
-            array_literal:
-              start_square_bracket: '['
-              typeless_struct:
-                keyword: STRUCT
-                bracketed:
-                  start_bracket: (
-                  literal: "'a'"
-                  comma: ','
-                  expression:
-                    array_literal:
-                      start_square_bracket: '['
-                      expression:
-                        literal: '26.1'
-                      end_square_bracket: ']'
-                  alias_expression:
-                    keyword: AS
-                    identifier: splits
-                  end_bracket: )
-              end_square_bracket: ']'
-          alias_expression:
-            keyword: AS
-            identifier: struct1
+        - expression:
+          - array_literal:
+            - start_square_bracket: '['
+            - typeless_struct:
+              - keyword: STRUCT
+              - bracketed:
+                - start_bracket: (
+                - literal: "'a'"
+                - comma: ','
+                - expression:
+                  - array_literal:
+                    - start_square_bracket: '['
+                    - expression:
+                      - literal: '26.1'
+                    - end_square_bracket: ']'
+                - alias_expression:
+                  - keyword: AS
+                  - identifier: splits
+                - end_bracket: )
+            - end_square_bracket: ']'
+        - alias_expression:
+          - keyword: AS
+          - identifier: struct1

@@ -1,25 +1,25 @@
 file:
-  statement:
-    select_statement:
-      select_clause:
+- statement:
+  - select_statement:
+    - select_clause:
       - keyword: select
       - select_clause_element:
-          column_reference:
-            identifier: a
+        - column_reference:
+          - identifier: a
       - comma: ','
       - select_clause_element:
-          column_reference:
-            identifier: b
+        - column_reference:
+          - identifier: b
       - comma: ','
       - select_clause_element:
-          column_reference:
-            identifier: c
-      from_clause:
-        keyword: from
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
+        - column_reference:
+          - identifier: c
+    - from_clause:
+      - keyword: from
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
               - identifier: sch
               - dot: .
               - identifier: '"blah"'

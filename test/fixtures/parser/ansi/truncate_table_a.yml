@@ -1,7 +1,7 @@
 file:
-  statement:
-    truncate_table:
+- statement:
+  - truncate_table:
     - keyword: truncate
     - keyword: table
     - table_reference:
-        identifier: a
+      - identifier: a

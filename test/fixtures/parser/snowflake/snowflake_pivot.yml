@@ -1,32 +1,32 @@
 file:
-  statement:
-    select_statement:
-      select_clause:
-        keyword: SELECT
-        select_clause_element:
-          wildcard_expression:
-            wildcard_identifier:
-              star: '*'
-      from_clause:
-        keyword: FROM
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                identifier: my_tbl
-          from_pivot_expression:
-            keyword: PIVOT
-            bracketed:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - star: '*'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - identifier: my_tbl
+        - from_pivot_expression:
+          - keyword: PIVOT
+          - bracketed:
             - start_bracket: (
             - function:
-                function_name:
-                  function_name_identifier: min
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    column_reference:
-                      identifier: f_val
-                  end_bracket: )
+              - function_name:
+                - function_name_identifier: min
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - column_reference:
+                    - identifier: f_val
+                - end_bracket: )
             - keyword: FOR
             - identifier: f_id
             - keyword: IN
@@ -37,14 +37,14 @@ file:
               - literal: '2'
               - end_bracket: )
             - end_bracket: )
-          table_alias_expression:
-            alias_expression:
-              keyword: AS
-              identifier: f
-              bracketed:
-                start_bracket: (
-                identifier_list:
+        - table_alias_expression:
+          - alias_expression:
+            - keyword: AS
+            - identifier: f
+            - bracketed:
+              - start_bracket: (
+              - identifier_list:
                 - identifier: a
                 - comma: ','
                 - identifier: b
-                end_bracket: )
+              - end_bracket: )

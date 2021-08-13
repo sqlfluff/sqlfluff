@@ -1,7 +1,7 @@
 file:
-  statement:
-    use_statement:
-      keyword: use
-      object_reference:
-        identifier: my_db
-  statement_terminator: ;
+- statement:
+  - use_statement:
+    - keyword: use
+    - object_reference:
+      - identifier: my_db
+- statement_terminator: ;

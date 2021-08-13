@@ -1,44 +1,44 @@
 file:
-  statement:
-    select_statement:
-      select_clause:
+- statement:
+  - select_statement:
+    - select_clause:
       - keyword: SELECT
       - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: DATE
-            bracketed:
+        - function:
+          - function_name:
+            - function_name_identifier: DATE
+          - bracketed:
             - start_bracket: (
             - expression:
-                column_reference:
+              - column_reference:
                 - identifier: zendesk
                 - dot: .
                 - identifier: created_at
             - comma: ','
             - expression:
-                literal: "'America/New_York'"
+              - literal: "'America/New_York'"
             - end_bracket: )
-          alias_expression:
-            keyword: AS
-            identifier: date
+        - alias_expression:
+          - keyword: AS
+          - identifier: date
       - comma: ','
       - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: COUNT
-            bracketed:
-              start_bracket: (
-              expression:
-                case_expression:
+        - function:
+          - function_name:
+            - function_name_identifier: COUNT
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - case_expression:
                 - keyword: CASE
                 - keyword: WHEN
                 - expression:
-                    column_reference:
+                  - column_reference:
                     - identifier: zendesk
                     - dot: .
                     - identifier: support_team
-                    keyword: IN
-                    bracketed:
+                  - keyword: IN
+                  - bracketed:
                     - start_bracket: (
                     - literal: "'tech support'"
                     - comma: ','
@@ -48,16 +48,16 @@ file:
                     - end_bracket: )
                 - keyword: THEN
                 - expression:
-                    literal: '1'
+                  - literal: '1'
                 - keyword: END
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            identifier: tech_support
-      from_clause:
-        keyword: FROM
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                identifier: zendesk
+            - end_bracket: )
+        - alias_expression:
+          - keyword: AS
+          - identifier: tech_support
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - identifier: zendesk

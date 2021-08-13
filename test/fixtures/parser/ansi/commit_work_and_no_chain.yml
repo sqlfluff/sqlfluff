@@ -1,6 +1,6 @@
 file:
-  statement:
-    transaction_statement:
+- statement:
+  - transaction_statement:
     - keyword: commit
     - keyword: work
     - binary_operator: and

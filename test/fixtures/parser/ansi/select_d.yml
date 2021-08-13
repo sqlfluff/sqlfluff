@@ -1,48 +1,48 @@
 file:
-  statement:
-    select_statement:
-      select_clause:
+- statement:
+  - select_statement:
+    - select_clause:
       - keyword: SELECT
       - select_clause_element:
-          column_reference:
-            identifier: col_a
+        - column_reference:
+          - identifier: col_a
       - comma: ','
       - select_clause_element:
-          column_reference:
-            identifier: col_b
-      from_clause:
-        keyword: FROM
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                identifier: some_table
-      where_clause:
-        keyword: WHERE
-        expression:
         - column_reference:
-            identifier: col_a
+          - identifier: col_b
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - identifier: some_table
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - column_reference:
+          - identifier: col_a
         - keyword: IS
         - keyword: NOT
         - keyword: 'NULL'
         - binary_operator: AND
         - column_reference:
-            identifier: col_b
+          - identifier: col_b
         - keyword: NOT
         - keyword: IN
         - bracketed:
-            start_bracket: (
-            select_statement:
-              select_clause:
-                keyword: SELECT
-                select_clause_element:
-                  column_reference:
-                    identifier: c
-              from_clause:
-                keyword: FROM
-                from_expression:
-                  from_expression_element:
-                    table_expression:
-                      table_reference:
-                        identifier: another_table
-            end_bracket: )
+          - start_bracket: (
+          - select_statement:
+            - select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                - column_reference:
+                  - identifier: c
+            - from_clause:
+              - keyword: FROM
+              - from_expression:
+                - from_expression_element:
+                  - table_expression:
+                    - table_reference:
+                      - identifier: another_table
+          - end_bracket: )

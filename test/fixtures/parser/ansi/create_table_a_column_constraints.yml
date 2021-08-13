@@ -1,87 +1,87 @@
 file:
-  statement:
-    create_table_statement:
+- statement:
+  - create_table_statement:
     - keyword: create
     - keyword: table
     - table_reference:
-        identifier: table1
+      - identifier: table1
     - bracketed:
       - start_bracket: (
       - column_definition:
-          identifier: c1
-          data_type:
-            data_type_identifier: INT
-          column_constraint:
+        - identifier: c1
+        - data_type:
+          - data_type_identifier: INT
+        - column_constraint:
           - keyword: NOT
           - keyword: 'NULL'
       - comma: ','
       - column_definition:
         - identifier: c2
         - data_type:
-            data_type_identifier: INT
+          - data_type_identifier: INT
         - column_constraint:
-            keyword: 'NULL'
+          - keyword: 'NULL'
         - column_constraint:
-            keyword: DEFAULT
-            literal: '1'
+          - keyword: DEFAULT
+          - literal: '1'
       - comma: ','
       - column_definition:
-          identifier: c3
-          data_type:
-            data_type_identifier: INT
-          column_constraint:
+        - identifier: c3
+        - data_type:
+          - data_type_identifier: INT
+        - column_constraint:
           - keyword: PRIMARY
           - keyword: KEY
       - comma: ','
       - column_definition:
-          identifier: c4
-          data_type:
-            data_type_identifier: INT
-          column_constraint:
-            keyword: UNIQUE
+        - identifier: c4
+        - data_type:
+          - data_type_identifier: INT
+        - column_constraint:
+          - keyword: UNIQUE
       - comma: ','
       - column_definition:
-          identifier: c5
-          data_type:
-            data_type_identifier: INT
-          column_constraint:
-            keyword: REFERENCES
-            column_reference:
-              identifier: table2
+        - identifier: c5
+        - data_type:
+          - data_type_identifier: INT
+        - column_constraint:
+          - keyword: REFERENCES
+          - column_reference:
+            - identifier: table2
       - comma: ','
       - column_definition:
-          identifier: c6
-          data_type:
-            data_type_identifier: INT
-          column_constraint:
-            keyword: REFERENCES
-            column_reference:
-              identifier: table2
-            bracketed:
-              start_bracket: (
-              column_reference:
-                identifier: c6_other
-              end_bracket: )
+        - identifier: c6
+        - data_type:
+          - data_type_identifier: INT
+        - column_constraint:
+          - keyword: REFERENCES
+          - column_reference:
+            - identifier: table2
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
+              - identifier: c6_other
+            - end_bracket: )
       - comma: ','
       - column_definition:
         - identifier: c7
         - data_type:
-            data_type_identifier: INT
+          - data_type_identifier: INT
         - column_constraint:
           - keyword: NOT
           - keyword: 'NULL'
         - column_constraint:
-            keyword: DEFAULT
-            literal: '1'
+          - keyword: DEFAULT
+          - literal: '1'
         - column_constraint:
-            keyword: UNIQUE
+          - keyword: UNIQUE
         - column_constraint:
-            keyword: REFERENCES
-            column_reference:
-              identifier: table3
-            bracketed:
-              start_bracket: (
-              column_reference:
-                identifier: c7_other
-              end_bracket: )
+          - keyword: REFERENCES
+          - column_reference:
+            - identifier: table3
+          - bracketed:
+            - start_bracket: (
+            - column_reference:
+              - identifier: c7_other
+            - end_bracket: )
       - end_bracket: )

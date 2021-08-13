@@ -1,15 +1,15 @@
 file:
-  statement:
-    alter_task_statement:
+- statement:
+  - alter_task_statement:
     - keyword: ALTER
     - keyword: TASK
     - object_reference:
-        identifier: my_task
+      - identifier: my_task
     - keyword: MODIFY
     - keyword: AS
     - select_statement:
-        select_clause:
-          keyword: SELECT
-          select_clause_element:
-            literal: '42'
-  statement_terminator: ;
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - literal: '42'
+- statement_terminator: ;

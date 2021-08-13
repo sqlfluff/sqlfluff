@@ -1,20 +1,20 @@
 file:
 - statement:
-    create_role_statement:
+  - create_role_statement:
     - keyword: CREATE
     - keyword: ROLE
     - object_reference:
-        identifier: MY_ROLE
+      - identifier: MY_ROLE
 - statement_terminator: ;
 - statement:
-    create_role_statement:
+  - create_role_statement:
     - keyword: CREATE
     - keyword: ROLE
     - object_reference:
-        identifier: '"my_role"'
+      - identifier: '"my_role"'
 - statement_terminator: ;
 - statement:
-    create_role_statement:
+  - create_role_statement:
     - keyword: CREATE
     - binary_operator: OR
     - keyword: REPLACE
@@ -23,7 +23,7 @@ file:
     - keyword: NOT
     - keyword: EXISTS
     - object_reference:
-        identifier: foo_role
+      - identifier: foo_role
     - keyword: COMMENT
     - comparison_operator: '='
     - literal: "'this is a fake role'"

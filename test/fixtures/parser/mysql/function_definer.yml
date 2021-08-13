@@ -1,6 +1,6 @@
 file:
 - statement:
-    create_function_statement:
+  - create_function_statement:
     - keyword: CREATE
     - definer_segment:
       - keyword: DEFINER
@@ -10,27 +10,27 @@ file:
       - identifier: '`%`'
     - keyword: FUNCTION
     - function_name:
-        identifier: '`testfunction`'
+      - identifier: '`testfunction`'
     - base:
-        bracketed:
-          start_bracket: (
-          end_bracket: )
+      - bracketed:
+        - start_bracket: (
+        - end_bracket: )
     - keyword: RETURNS
     - data_type:
-        data_type_identifier: longtext
+      - data_type_identifier: longtext
     - characteristic_statement:
-        keyword: DETERMINISTIC
+      - keyword: DETERMINISTIC
     - base:
-        transaction_statement:
-          keyword: BEGIN
-          statement:
-            select_statement:
-              select_clause:
-                keyword: SELECT
-                select_clause_element:
-                  literal: '1'
+      - transaction_statement:
+        - keyword: BEGIN
+        - statement:
+          - select_statement:
+            - select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                - literal: '1'
 - statement_terminator: ;
 - statement:
-    transaction_statement:
-      keyword: END
+  - transaction_statement:
+    - keyword: END
 - statement_terminator: '~'

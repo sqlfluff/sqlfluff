@@ -1,38 +1,38 @@
 file:
-  statement:
-    with_compound_statement:
-      keyword: WITH
-      common_table_expression:
-        identifier: constants
-        keyword: AS
-        bracketed:
-          start_bracket: (
-          select_statement:
-            select_clause:
-              keyword: SELECT
-              select_clause_element:
-                literal: '8760'
-                alias_expression:
-                  keyword: AS
-                  identifier: hours_per_year
-          end_bracket: )
-      select_statement:
-        select_clause:
+- statement:
+  - with_compound_statement:
+    - keyword: WITH
+    - common_table_expression:
+      - identifier: constants
+      - keyword: AS
+      - bracketed:
+        - start_bracket: (
+        - select_statement:
+          - select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+              - literal: '8760'
+              - alias_expression:
+                - keyword: AS
+                - identifier: hours_per_year
+        - end_bracket: )
+    - select_statement:
+      - select_clause:
         - keyword: SELECT
         - select_clause_element:
-            column_reference:
+          - column_reference:
             - identifier: table1
             - dot: .
             - identifier: name
         - comma: ','
         - select_clause_element:
-            column_reference:
+          - column_reference:
             - identifier: foo
             - dot: .
             - identifier: name
         - comma: ','
         - select_clause_element:
-            expression:
+          - expression:
             - column_reference:
               - identifier: foo
               - dot: .
@@ -42,34 +42,34 @@ file:
               - identifier: constants
               - dot: .
               - identifier: hours_per_year
-            alias_expression:
-              keyword: AS
-              identifier: some_value
-        from_clause:
-          keyword: FROM
-          from_expression:
+          - alias_expression:
+            - keyword: AS
+            - identifier: some_value
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
           - from_expression_element:
-              table_expression:
-                table_reference:
-                  identifier: table1
+            - table_expression:
+              - table_reference:
+                - identifier: table1
           - join_clause:
             - keyword: CROSS
             - keyword: JOIN
             - from_expression_element:
-                table_expression:
-                  table_reference:
-                    identifier: constants
+              - table_expression:
+                - table_reference:
+                  - identifier: constants
           - join_clause:
             - keyword: JOIN
             - from_expression_element:
-                table_expression:
-                  table_reference:
-                    identifier: table2
-                alias_expression:
-                  keyword: AS
-                  identifier: foo
+              - table_expression:
+                - table_reference:
+                  - identifier: table2
+              - alias_expression:
+                - keyword: AS
+                - identifier: foo
             - keyword: USING
             - bracketed:
-                start_bracket: (
-                identifier: id
-                end_bracket: )
+              - start_bracket: (
+              - identifier: id
+              - end_bracket: )

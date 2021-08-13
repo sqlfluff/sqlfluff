@@ -1,11 +1,11 @@
 file:
-  statement:
-    create_table_statement:
+- statement:
+  - create_table_statement:
     - keyword: CREATE
     - keyword: MULTISET
     - keyword: TABLE
     - table_reference:
-        identifier: CONSUMOS
+      - identifier: CONSUMOS
     - create_table_options_statement:
       - comma: ','
       - keyword: 'NO'
@@ -26,23 +26,23 @@ file:
       - keyword: DEFAULT
       - keyword: MERGEBLOCKRATIO
     - bracketed:
-        start_bracket: (
-        column_definition:
-          column_reference:
-            identifier: FIELD1
-          td_internal_data_type:
-            data_type_identifier: CHAR
-            bracketed:
-              start_bracket: (
-              expression:
-                literal: '9'
-              end_bracket: )
-        end_bracket: )
+      - start_bracket: (
+      - column_definition:
+        - column_reference:
+          - identifier: FIELD1
+        - td_internal_data_type:
+          - data_type_identifier: CHAR
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - literal: '9'
+            - end_bracket: )
+      - end_bracket: )
     - td_table_constraint:
       - keyword: PRIMARY
       - keyword: INDEX
       - bracketed:
-          start_bracket: (
-          identifier: FIELD1
-          end_bracket: )
-  statement_terminator: ;
+        - start_bracket: (
+        - identifier: FIELD1
+        - end_bracket: )
+- statement_terminator: ;

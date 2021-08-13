@@ -1,38 +1,38 @@
 file:
-  statement:
-    create_table_statement:
+- statement:
+  - create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: '`foo`'
+      - identifier: '`foo`'
     - bracketed:
-        start_bracket: (
-        column_definition:
+      - start_bracket: (
+      - column_definition:
         - identifier: '`id`'
         - data_type:
-            data_type_identifier: int
-            bracketed:
-              start_bracket: (
-              expression:
-                literal: '11'
-              end_bracket: )
+          - data_type_identifier: int
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - literal: '11'
+            - end_bracket: )
         - column_constraint:
-            keyword: unsigned
+          - keyword: unsigned
         - column_constraint:
           - keyword: NOT
           - keyword: 'NULL'
         - column_constraint:
-            keyword: AUTO_INCREMENT
-        comma: ','
-        table_constraint_definition:
+          - keyword: AUTO_INCREMENT
+      - comma: ','
+      - table_constraint_definition:
         - keyword: PRIMARY
         - keyword: KEY
         - bracketed:
-            start_bracket: (
-            column_reference:
-              identifier: '`id`'
-            end_bracket: )
-        end_bracket: )
+          - start_bracket: (
+          - column_reference:
+            - identifier: '`id`'
+          - end_bracket: )
+      - end_bracket: )
     - parameter: ENGINE
     - comparison_operator: '='
     - parameter: InnoDB
@@ -43,4 +43,4 @@ file:
     - parameter: COLLATE
     - comparison_operator: '='
     - parameter: utf8mb4_unicode_ci
-  statement_terminator: ;
+- statement_terminator: ;

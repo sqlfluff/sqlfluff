@@ -1,29 +1,29 @@
 file:
-  statement:
-    create_statement:
+- statement:
+  - create_statement:
     - keyword: create
     - keyword: view
     - object_reference:
-        identifier: another_view
+      - identifier: another_view
     - snowflake_comment:
-        keyword: comment
-        comparison_operator: '='
-        literal: "'a great description'"
+      - keyword: comment
+      - comparison_operator: '='
+      - literal: "'a great description'"
     - keyword: as
     - select_statement:
-        select_clause:
+      - select_clause:
         - keyword: select
         - select_clause_element:
-            column_reference:
-              identifier: col_1
+          - column_reference:
+            - identifier: col_1
         - comma: ','
         - select_clause_element:
-            column_reference:
-              identifier: col_2
-        from_clause:
-          keyword: from
-          from_expression:
-            from_expression_element:
-              table_expression:
-                table_reference:
-                  identifier: other_table
+          - column_reference:
+            - identifier: col_2
+      - from_clause:
+        - keyword: from
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - identifier: other_table

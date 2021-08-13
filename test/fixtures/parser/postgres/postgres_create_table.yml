@@ -1,16 +1,16 @@
 file:
-  statement:
-    create_table_statement:
+- statement:
+  - create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: counters
+      - identifier: counters
     - bracketed:
-        start_bracket: (
-        column_definition:
-          identifier: my_type
-          data_type:
-            identifier: public
-            dot: .
-            data_type_identifier: MY_TYPE
-        end_bracket: )
+      - start_bracket: (
+      - column_definition:
+        - identifier: my_type
+        - data_type:
+          - identifier: public
+          - dot: .
+          - data_type_identifier: MY_TYPE
+      - end_bracket: )

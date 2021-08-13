@@ -1,7 +1,7 @@
 file:
-  statement:
-    create_schema_statement:
+- statement:
+  - create_schema_statement:
     - keyword: create
     - keyword: schema
     - schema_reference:
-        identifier: my_schema
+      - identifier: my_schema

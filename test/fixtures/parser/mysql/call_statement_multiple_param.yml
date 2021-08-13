@@ -1,9 +1,9 @@
 file:
-  statement:
-    call_segment:
-      keyword: CALL
-      identifier: somefunction
-      bracketed:
+- statement:
+  - call_segment:
+    - keyword: CALL
+    - identifier: somefunction
+    - bracketed:
       - start_bracket: (
       - literal: "'test'"
       - comma: ','
@@ -12,14 +12,14 @@ file:
       - variable: test2
       - comma: ','
       - function:
-          function_name:
-            function_name_identifier: test3
-          bracketed:
-            start_bracket: (
-            expression:
-              literal: "'test'"
-            end_bracket: )
+        - function_name:
+          - function_name_identifier: test3
+        - bracketed:
+          - start_bracket: (
+          - expression:
+            - literal: "'test'"
+          - end_bracket: )
       - comma: ','
       - literal: '"test4"'
       - end_bracket: )
-  statement_terminator: ;
+- statement_terminator: ;

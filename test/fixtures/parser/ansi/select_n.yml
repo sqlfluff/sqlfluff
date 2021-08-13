@@ -1,48 +1,48 @@
 file:
-  statement:
-    select_statement:
-      select_clause:
+- statement:
+  - select_statement:
+    - select_clause:
       - keyword: SELECT
       - select_clause_element:
-          column_reference:
+        - column_reference:
           - identifier: exists_left
           - dot: .
           - identifier: business_type
-          alias_expression:
-            keyword: AS
-            identifier: business_type_left
+        - alias_expression:
+          - keyword: AS
+          - identifier: business_type_left
       - comma: ','
       - select_clause_element:
-          column_reference:
+        - column_reference:
           - identifier: exists_right
           - dot: .
           - identifier: business_type
-          alias_expression:
-            keyword: AS
-            identifier: business_type_right
-      from_clause:
-        keyword: FROM
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                identifier: benchmark_summaries
-            alias_expression:
-              keyword: AS
-              identifier: exists_left
-          join_clause:
+        - alias_expression:
+          - keyword: AS
+          - identifier: business_type_right
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - identifier: benchmark_summaries
+          - alias_expression:
+            - keyword: AS
+            - identifier: exists_left
+        - join_clause:
           - keyword: FULL
           - keyword: JOIN
           - from_expression_element:
-              table_expression:
-                table_reference:
-                  identifier: business_types
-              alias_expression:
-                keyword: AS
-                identifier: exists_right
+            - table_expression:
+              - table_reference:
+                - identifier: business_types
+            - alias_expression:
+              - keyword: AS
+              - identifier: exists_right
           - join_on_condition:
-              keyword: 'ON'
-              expression:
+            - keyword: 'ON'
+            - expression:
               - column_reference:
                 - identifier: exists_left
                 - dot: .

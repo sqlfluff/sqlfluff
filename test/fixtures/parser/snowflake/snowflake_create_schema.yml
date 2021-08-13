@@ -1,6 +1,6 @@
 file:
 - statement:
-    create_clone_statement:
+  - create_clone_statement:
     - keyword: create
     - keyword: schema
     - identifier: mytestschema_clone_restore
@@ -8,30 +8,30 @@ file:
     - identifier: testschema
 - statement_terminator: ;
 - statement:
-    create_clone_statement:
+  - create_clone_statement:
     - keyword: create
     - keyword: schema
     - identifier: mytestschema_clone_restore
     - keyword: clone
     - identifier: testschema
     - from_before_expression:
-        keyword: before
-        bracketed:
-          start_bracket: (
-          keyword: timestamp
-          parameter_assigner: =>
-          expression:
-            function:
-              function_name:
-                function_name_identifier: to_timestamp
-              bracketed:
-                start_bracket: (
-                expression:
+      - keyword: before
+      - bracketed:
+        - start_bracket: (
+        - keyword: timestamp
+        - parameter_assigner: =>
+        - expression:
+          - function:
+            - function_name:
+              - function_name_identifier: to_timestamp
+            - bracketed:
+              - start_bracket: (
+              - expression:
                 - literal: '40'
                 - binary_operator: '*'
                 - literal: '365'
                 - binary_operator: '*'
                 - literal: '86400'
-                end_bracket: )
-          end_bracket: )
+              - end_bracket: )
+        - end_bracket: )
 - statement_terminator: ;

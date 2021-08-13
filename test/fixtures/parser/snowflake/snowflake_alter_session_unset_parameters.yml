@@ -1,6 +1,6 @@
 file:
-  statement:
-    alter_session_statement:
+- statement:
+  - alter_session_statement:
     - keyword: ALTER
     - keyword: SESSION
     - alter_session_unset_clause:
@@ -8,4 +8,4 @@ file:
       - parameter: TIME_OUTPUT_FORMAT
       - comma: ','
       - parameter: TWO_DIGIT_CENTURY_START
-  statement_terminator: ;
+- statement_terminator: ;

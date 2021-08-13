@@ -1,30 +1,30 @@
 file:
-  statement:
-    select_statement:
-      select_clause:
-        keyword: select
-        select_clause_element:
-          wildcard_expression:
-            wildcard_identifier:
-              star: '*'
-      from_clause:
-        keyword: from
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                identifier: foo
-          join_clause:
-            keyword: JOIN
-            from_expression_element:
-              table_expression:
-                table_reference:
-                  identifier: bar
-            join_on_condition:
-              keyword: 'ON'
-              bracketed:
-                start_bracket: (
-                expression:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: select
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - star: '*'
+    - from_clause:
+      - keyword: from
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - identifier: foo
+        - join_clause:
+          - keyword: JOIN
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - identifier: bar
+          - join_on_condition:
+            - keyword: 'ON'
+            - bracketed:
+              - start_bracket: (
+              - expression:
                 - column_reference:
                   - identifier: foo
                   - dot: .
@@ -34,4 +34,4 @@ file:
                   - identifier: bar
                   - dot: .
                   - identifier: a
-                end_bracket: )
+              - end_bracket: )

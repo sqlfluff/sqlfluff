@@ -1,18 +1,18 @@
 file:
 - statement:
-    transaction_statement:
-      identifier: blocks
-      colon: ':'
-      keyword: BEGIN
-      statement:
-        select_statement:
-          select_clause:
-            keyword: select
-            select_clause_element:
-              literal: '1'
+  - transaction_statement:
+    - identifier: blocks
+    - colon: ':'
+    - keyword: BEGIN
+    - statement:
+      - select_statement:
+        - select_clause:
+          - keyword: select
+          - select_clause_element:
+            - literal: '1'
 - statement_terminator: ;
 - statement:
-    transaction_statement:
-      keyword: END
-      identifier: blocks
+  - transaction_statement:
+    - keyword: END
+    - identifier: blocks
 - statement_terminator: '~'

@@ -1,9 +1,9 @@
 file:
-  statement:
-    call_segment:
-      keyword: CALL
-      identifier: somefunction
-      bracketed:
-        start_bracket: (
-        end_bracket: )
-  statement_terminator: ;
+- statement:
+  - call_segment:
+    - keyword: CALL
+    - identifier: somefunction
+    - bracketed:
+      - start_bracket: (
+      - end_bracket: )
+- statement_terminator: ;

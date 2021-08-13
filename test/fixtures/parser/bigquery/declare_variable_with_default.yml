@@ -1,19 +1,19 @@
 file:
 - statement:
-    declare_segment:
+  - declare_segment:
     - keyword: declare
     - identifier: var5
     - data_type_identifier: date
     - keyword: default
     - function:
-        function_name:
-          function_name_identifier: CURRENT_DATE
-        bracketed:
-          start_bracket: (
-          end_bracket: )
+      - function_name:
+        - function_name_identifier: CURRENT_DATE
+      - bracketed:
+        - start_bracket: (
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
-    declare_segment:
+  - declare_segment:
     - keyword: declare
     - identifier: var4
     - data_type_identifier: int64
@@ -21,17 +21,17 @@ file:
     - literal: '1'
 - statement_terminator: ;
 - statement:
-    declare_segment:
+  - declare_segment:
     - keyword: declare
     - identifier: var3
     - data_type_identifier: string
     - keyword: default
     - bracketed:
-        start_bracket: (
-        select_statement:
-          select_clause:
-            keyword: SELECT
-            select_clause_element:
-              literal: '"x"'
-        end_bracket: )
+      - start_bracket: (
+      - select_statement:
+        - select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+            - literal: '"x"'
+      - end_bracket: )
 - statement_terminator: ;

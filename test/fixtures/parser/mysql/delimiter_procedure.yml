@@ -1,21 +1,21 @@
 file:
 - statement:
-    delimiter_statement:
-      keyword: DELIMITER
+  - delimiter_statement:
+    - keyword: DELIMITER
 - statement_terminator: '~'
 - statement:
-    create_procedure_statement:
+  - create_procedure_statement:
     - keyword: CREATE
     - keyword: PROCEDURE
     - function_name:
-        identifier: '`testprocedure`'
+      - identifier: '`testprocedure`'
     - base:
-        bracketed:
-          start_bracket: (
-          parameter: test
-          data_type:
-            data_type_identifier: int
-          end_bracket: )
+      - bracketed:
+        - start_bracket: (
+        - parameter: test
+        - data_type:
+          - data_type_identifier: int
+        - end_bracket: )
     - characteristic_statement:
       - keyword: DETERMINISTIC
       - keyword: LANGUAGE
@@ -26,23 +26,23 @@ file:
       - keyword: SECURITY
       - keyword: DEFINER
     - base:
-        transaction_statement:
-          keyword: BEGIN
-          statement:
-            select_statement:
-              select_clause:
-                keyword: SELECT
-                select_clause_element:
-                  expression:
+      - transaction_statement:
+        - keyword: BEGIN
+        - statement:
+          - select_statement:
+            - select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                - expression:
                   - literal: '1'
                   - binary_operator: +
                   - literal: '2'
 - statement_terminator: ;
 - statement:
-    transaction_statement:
-      keyword: END
+  - transaction_statement:
+    - keyword: END
 - statement_terminator: '~'
 - statement:
-    delimiter_statement:
-      keyword: DELIMITER
+  - delimiter_statement:
+    - keyword: DELIMITER
 - statement_terminator: ;

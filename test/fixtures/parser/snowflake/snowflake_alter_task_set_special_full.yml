@@ -1,20 +1,20 @@
 file:
-  statement:
-    alter_task_statement:
+- statement:
+  - alter_task_statement:
     - keyword: ALTER
     - keyword: TASK
     - object_reference:
-        identifier: my_task
+      - identifier: my_task
     - alter_task_special_set_clause:
       - keyword: SET
       - keyword: WAREHOUSE
       - comparison_operator: '='
       - object_reference:
-          identifier: my_warehouse
+        - identifier: my_warehouse
       - keyword: SCHEDULE
       - comparison_operator: '='
       - literal: "'2 MINUTE'"
       - keyword: ALLOW_OVERLAPPING_EXECUTION
       - comparison_operator: '='
       - keyword: 'TRUE'
-  statement_terminator: ;
+- statement_terminator: ;

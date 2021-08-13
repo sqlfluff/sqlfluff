@@ -1,11 +1,11 @@
 file:
-  statement:
-    alter_task_statement:
+- statement:
+  - alter_task_statement:
     - keyword: ALTER
     - keyword: TASK
     - keyword: IF
     - keyword: EXISTS
     - object_reference:
-        identifier: my_task
+      - identifier: my_task
     - keyword: RESUME
-  statement_terminator: ;
+- statement_terminator: ;

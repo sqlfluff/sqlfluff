@@ -1,43 +1,43 @@
 file:
-  statement:
-    select_statement:
-      select_clause:
-        keyword: select
-        select_clause_element:
-          wildcard_expression:
-            wildcard_identifier:
-              star: '*'
-            select_except_clause:
-              keyword: except
-              bracketed:
-                start_bracket: (
-                identifier: foo
-                end_bracket: )
-            select_replace_clause:
-              keyword: replace
-              bracketed:
-                start_bracket: (
-                select_clause_element:
-                  function:
-                    function_name:
-                      function_name_identifier: concat
-                    bracketed:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: select
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - star: '*'
+          - select_except_clause:
+            - keyword: except
+            - bracketed:
+              - start_bracket: (
+              - identifier: foo
+              - end_bracket: )
+          - select_replace_clause:
+            - keyword: replace
+            - bracketed:
+              - start_bracket: (
+              - select_clause_element:
+                - function:
+                  - function_name:
+                    - function_name_identifier: concat
+                  - bracketed:
                     - start_bracket: (
                     - expression:
-                        column_reference:
-                          identifier: fruit
+                      - column_reference:
+                        - identifier: fruit
                     - comma: ','
                     - expression:
-                        literal: "'berry'"
+                      - literal: "'berry'"
                     - end_bracket: )
-                  alias_expression:
-                    keyword: as
-                    identifier: fruit
-                end_bracket: )
-      from_clause:
-        keyword: from
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                identifier: some_table
+                - alias_expression:
+                  - keyword: as
+                  - identifier: fruit
+              - end_bracket: )
+    - from_clause:
+      - keyword: from
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - identifier: some_table

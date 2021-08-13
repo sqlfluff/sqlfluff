@@ -1,22 +1,22 @@
 file:
 - statement:
-    declare_statement:
+  - declare_statement:
     - keyword: DECLARE
     - keyword: exit
     - keyword: handler
     - keyword: for
     - literal: '1051'
     - statement:
-        transaction_statement:
-          keyword: begin
-          statement:
-            select_statement:
-              select_clause:
-                keyword: select
-                select_clause_element:
-                  literal: '1'
+      - transaction_statement:
+        - keyword: begin
+        - statement:
+          - select_statement:
+            - select_clause:
+              - keyword: select
+              - select_clause_element:
+                - literal: '1'
 - statement_terminator: ;
 - statement:
-    transaction_statement:
-      keyword: end
+  - transaction_statement:
+    - keyword: end
 - statement_terminator: ;

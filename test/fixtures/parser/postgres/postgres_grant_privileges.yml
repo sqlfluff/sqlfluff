@@ -1,18 +1,18 @@
 file:
 - statement:
-    access_statement:
+  - access_statement:
     - keyword: GRANT
     - keyword: USAGE
     - keyword: 'ON'
     - keyword: SCHEMA
     - object_reference:
-        identifier: api
+      - identifier: api
     - keyword: TO
     - object_reference:
-        identifier: web_anon
+      - identifier: web_anon
 - statement_terminator: ;
 - statement:
-    access_statement:
+  - access_statement:
     - keyword: GRANT
     - keyword: EXECUTE
     - keyword: 'ON'
@@ -23,14 +23,14 @@ file:
       - identifier: test
     - keyword: TO
     - object_reference:
-        identifier: web_anon
+      - identifier: web_anon
 - statement_terminator: ;
 - statement:
-    access_statement:
+  - access_statement:
     - keyword: GRANT
     - object_reference:
-        identifier: web_anon
+      - identifier: web_anon
     - keyword: TO
     - object_reference:
-        identifier: my_user
+      - identifier: my_user
 - statement_terminator: ;

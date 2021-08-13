@@ -1,16 +1,16 @@
 file:
-  statement:
-    create_index_statement:
+- statement:
+  - create_index_statement:
     - keyword: CREATE
     - keyword: INDEX
     - index_reference:
-        identifier: transaction_updated
+      - identifier: transaction_updated
     - keyword: 'ON'
     - table_reference:
-        identifier: transaction_master
+      - identifier: transaction_master
     - bracketed:
-        start_bracket: (
-        index_column_definition:
-          identifier: last_updated
-        end_bracket: )
-  statement_terminator: ;
+      - start_bracket: (
+      - index_column_definition:
+        - identifier: last_updated
+      - end_bracket: )
+- statement_terminator: ;

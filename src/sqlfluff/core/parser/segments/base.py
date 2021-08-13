@@ -395,15 +395,7 @@ class BaseSegment:
                 # This looks like a single element, make a dict
                 elem = {elem[0]: cls.structural_simplify(elem[1])}
             elif isinstance(elem[0], tuple):
-                # This looks like a list of elements.
-                keys = [e[0] for e in elem]
-                # Any duplicate elements?
-                if len(set(keys)) == len(keys):
-                    # No, we can use a mapping tuple
-                    elem = {e[0]: cls.structural_simplify(e[1]) for e in elem}
-                else:
-                    # Yes, this has to be a list :(
-                    elem = [cls.structural_simplify(e) for e in elem]
+                elem = [cls.structural_simplify(e) for e in elem]
         return elem
 
     @classmethod

@@ -1,20 +1,20 @@
 file:
-  statement:
-    select_statement:
-      select_clause:
-        keyword: select
-        select_clause_element:
-          expression:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: select
+      - select_clause_element:
+        - expression:
           - literal: "'1'"
           - cast_expression:
-              casting_operator: '::'
-              data_type:
-                data_type_identifier: int
+            - casting_operator: '::'
+            - data_type:
+              - data_type_identifier: int
           - cast_expression:
-              casting_operator: '::'
-              data_type:
-                data_type_identifier: boolean
-          alias_expression:
-            keyword: as
-            identifier: bool
-  statement_terminator: ;
+            - casting_operator: '::'
+            - data_type:
+              - data_type_identifier: boolean
+        - alias_expression:
+          - keyword: as
+          - identifier: bool
+- statement_terminator: ;

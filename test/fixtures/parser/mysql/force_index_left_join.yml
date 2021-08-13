@@ -1,44 +1,44 @@
 file:
-  statement:
-    select_statement:
-      select_clause:
+- statement:
+  - select_statement:
+    - select_clause:
       - keyword: SELECT
       - select_clause_element:
-          column_reference:
+        - column_reference:
           - identifier: onetable
           - dot: .
           - identifier: f1
       - comma: ','
       - select_clause_element:
-          column_reference:
+        - column_reference:
           - identifier: twotable
           - dot: .
           - identifier: f1
-      from_clause:
-        keyword: FROM
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                identifier: onetable
-          join_clause:
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - identifier: onetable
+        - join_clause:
           - keyword: left
           - keyword: join
           - from_expression_element:
-              table_expression:
-                table_reference:
-                  identifier: twotable
-      index_hint_clause:
+            - table_expression:
+              - table_reference:
+                - identifier: twotable
+    - index_hint_clause:
       - keyword: FORCE
       - keyword: INDEX
       - bracketed:
-          start_bracket: (
-          object_reference:
-            identifier: idx_index
-          end_bracket: )
+        - start_bracket: (
+        - object_reference:
+          - identifier: idx_index
+        - end_bracket: )
       - join_on_condition:
-          keyword: 'on'
-          expression:
+        - keyword: 'on'
+        - expression:
           - column_reference:
             - identifier: onetable
             - dot: .
@@ -48,4 +48,4 @@ file:
             - identifier: twotable
             - dot: .
             - identifier: f1
-  statement_terminator: ;
+- statement_terminator: ;

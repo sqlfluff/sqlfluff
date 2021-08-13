@@ -1,29 +1,29 @@
 file:
-  statement:
-    select_statement:
-      select_clause:
-        keyword: SELECT
-        select_clause_element:
-          column_reference:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
           - identifier: data
           - dot: .
           - identifier: id
-      from_clause:
-        keyword: FROM
-        from_expression:
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
         - from_expression_element:
-            table_expression:
-              table_reference:
-                identifier: data
+          - table_expression:
+            - table_reference:
+              - identifier: data
         - join_clause:
-            keyword: JOIN
-            from_expression_element:
-              table_expression:
-                table_reference:
-                  identifier: data_max
-            join_on_condition:
-              keyword: 'ON'
-              expression:
+          - keyword: JOIN
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - identifier: data_max
+          - join_on_condition:
+            - keyword: 'ON'
+            - expression:
               - column_reference:
                 - identifier: data
                 - dot: .
@@ -37,17 +37,17 @@ file:
           - keyword: LEFT
           - keyword: JOIN
           - from_expression_element:
-              table_expression:
-                table_reference:
+            - table_expression:
+              - table_reference:
                 - identifier: '"other_db"'
                 - dot: .
                 - identifier: '"other_data"'
-              alias_expression:
-                keyword: AS
-                identifier: od
+            - alias_expression:
+              - keyword: AS
+              - identifier: od
           - join_on_condition:
-              keyword: 'ON'
-              expression:
+            - keyword: 'ON'
+            - expression:
               - column_reference:
                 - identifier: od
                 - dot: .

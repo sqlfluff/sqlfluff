@@ -1,6 +1,6 @@
 file:
-  statement:
-    get_diagnostics_segment:
+- statement:
+  - get_diagnostics_segment:
     - keyword: GET
     - keyword: DIAGNOSTICS
     - keyword: CONDITION
@@ -12,4 +12,4 @@ file:
     - variable: '@test'
     - comparison_operator: '='
     - keyword: TABLE_NAME
-  statement_terminator: ;
+- statement_terminator: ;

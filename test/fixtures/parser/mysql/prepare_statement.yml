@@ -1,8 +1,8 @@
 file:
-  statement:
-    prepare_segment:
+- statement:
+  - prepare_segment:
     - keyword: PREPARE
     - identifier: test
     - keyword: FROM
     - literal: "'select 1;'"
-  statement_terminator: ;
+- statement_terminator: ;

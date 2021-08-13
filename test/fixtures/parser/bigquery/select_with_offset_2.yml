@@ -1,35 +1,35 @@
 file:
-  statement:
-    select_statement:
-      select_clause:
-        keyword: SELECT
-        select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: ARRAY
-            bracketed:
-              start_bracket: (
-              expression:
-                select_statement:
-                  select_clause:
-                    keyword: SELECT
-                    select_clause_element:
-                      column_reference:
-                        identifier: a
-                  from_clause:
-                    keyword: FROM
-                    from_expression:
-                      from_expression_element:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: ARRAY
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - select_statement:
+                - select_clause:
+                  - keyword: SELECT
+                  - select_clause_element:
+                    - column_reference:
+                      - identifier: a
+                - from_clause:
+                  - keyword: FROM
+                  - from_expression:
+                    - from_expression_element:
                       - table_expression:
-                          table_reference:
-                            identifier: foo
+                        - table_reference:
+                          - identifier: foo
                       - keyword: WITH
                       - keyword: OFFSET
-                  where_clause:
-                    keyword: WHERE
-                    expression:
-                      column_reference:
-                        identifier: OFFSET
-                      comparison_operator: '>'
-                      literal: '1'
-              end_bracket: )
+                - where_clause:
+                  - keyword: WHERE
+                  - expression:
+                    - column_reference:
+                      - identifier: OFFSET
+                    - comparison_operator: '>'
+                    - literal: '1'
+            - end_bracket: )

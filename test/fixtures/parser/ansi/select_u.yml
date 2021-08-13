@@ -1,28 +1,28 @@
 file:
-  statement:
-    select_statement:
-      select_clause:
-        keyword: select
-        select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: substring
-            bracketed:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: select
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: substring
+          - bracketed:
             - start_bracket: (
             - expression:
-                column_reference:
-                  identifier: a
+              - column_reference:
+                - identifier: a
             - keyword: from
             - expression:
-                literal: "'abc'"
+              - literal: "'abc'"
             - end_bracket: )
-          alias_expression:
-            keyword: as
-            identifier: b
-      from_clause:
-        keyword: from
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                identifier: my_table
+        - alias_expression:
+          - keyword: as
+          - identifier: b
+    - from_clause:
+      - keyword: from
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - identifier: my_table

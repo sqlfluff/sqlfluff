@@ -1,10 +1,10 @@
 file:
-  statement:
-    create_database_statement:
+- statement:
+  - create_database_statement:
     - keyword: create
     - keyword: database
     - keyword: if
     - keyword: not
     - keyword: exists
     - database_reference:
-        identifier: my_database
+      - identifier: my_database

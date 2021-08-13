@@ -1,17 +1,17 @@
 file:
 - statement:
-    create_type_statement:
+  - create_type_statement:
     - keyword: CREATE
     - keyword: TYPE
     - object_reference:
-        identifier: foo
+      - identifier: foo
 - statement_terminator: ;
 - statement:
-    create_type_statement:
+  - create_type_statement:
     - keyword: CREATE
     - keyword: TYPE
     - object_reference:
-        identifier: bar
+      - identifier: bar
     - keyword: AS
     - keyword: ENUM
     - bracketed:
@@ -22,11 +22,11 @@ file:
       - end_bracket: )
 - statement_terminator: ;
 - statement:
-    create_type_statement:
+  - create_type_statement:
     - keyword: CREATE
     - keyword: TYPE
     - object_reference:
-        identifier: foobar
+      - identifier: foobar
     - keyword: AS
     - keyword: RANGE
     - bracketed:
@@ -37,11 +37,11 @@ file:
       - end_bracket: )
 - statement_terminator: ;
 - statement:
-    create_type_statement:
+  - create_type_statement:
     - keyword: CREATE
     - keyword: TYPE
     - object_reference:
-        identifier: barbar
+      - identifier: barbar
     - keyword: AS
     - bracketed:
       - start_bracket: (
@@ -55,11 +55,11 @@ file:
       - end_bracket: )
 - statement_terminator: ;
 - statement:
-    create_type_statement:
+  - create_type_statement:
     - keyword: CREATE
     - keyword: TYPE
     - object_reference:
-        identifier: foofoo
+      - identifier: foofoo
     - keyword: AS
     - bracketed:
       - start_bracket: (

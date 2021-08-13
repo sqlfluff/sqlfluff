@@ -1,11 +1,11 @@
 file:
 - statement:
-    repeat_statement:
-      identifier: iteration
-      colon: ':'
-      keyword: repeat
-      statement:
-        set_statement:
+  - repeat_statement:
+    - identifier: iteration
+    - colon: ':'
+    - keyword: repeat
+    - statement:
+      - set_statement:
         - keyword: set
         - variable: '@a'
         - comparison_operator: '='
@@ -14,13 +14,13 @@ file:
         - variable: '1'
 - statement_terminator: ;
 - statement:
-    repeat_statement:
+  - repeat_statement:
     - keyword: until
     - expression:
-        column_reference:
-          variable: '@a'
-        comparison_operator: '>'
-        literal: '5'
+      - column_reference:
+        - variable: '@a'
+      - comparison_operator: '>'
+      - literal: '5'
     - keyword: end
     - keyword: repeat
     - identifier: iteration

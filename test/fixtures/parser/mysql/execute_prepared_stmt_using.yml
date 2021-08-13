@@ -1,8 +1,8 @@
 file:
-  statement:
-    execute_segment:
+- statement:
+  - execute_segment:
     - keyword: execute
     - identifier: test
     - keyword: using
     - variable: '@test'
-  statement_terminator: ;
+- statement_terminator: ;

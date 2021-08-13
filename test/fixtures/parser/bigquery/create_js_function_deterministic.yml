@@ -1,17 +1,17 @@
 file:
-  statement:
-    create_function_statement:
+- statement:
+  - create_function_statement:
     - keyword: CREATE
     - keyword: FUNCTION
     - function_name:
-        function_name_identifier: qs
+      - function_name_identifier: qs
     - base:
-        bracketed:
-          start_bracket: (
-          parameter: y
-          data_type:
-            data_type_identifier: STRING
-          end_bracket: )
+      - bracketed:
+        - start_bracket: (
+        - parameter: y
+        - data_type:
+          - data_type_identifier: STRING
+        - end_bracket: )
     - base:
       - keyword: DETERMINISTIC
       - keyword: LANGUAGE

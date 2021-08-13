@@ -1,83 +1,83 @@
 file:
-  statement:
-    collect_statistics_statement:
+- statement:
+  - collect_statistics_statement:
     - keyword: collect
     - keyword: statistics
     - keyword: column
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: Org_Unit_Code
+        - identifier: Org_Unit_Code
       - comma: ','
       - column_reference:
-          identifier: Org_Unit_Type
+        - identifier: Org_Unit_Type
       - comma: ','
       - column_reference:
-          identifier: Entity_Code
+        - identifier: Entity_Code
       - end_bracket: )
     - keyword: as
     - object_reference:
-        identifier: Org_Descendant_NUPI
-    - comma: ','
-    - keyword: column
-    - bracketed:
-        start_bracket: (
-        column_reference:
-          identifier: Org_Unit_Type
-        end_bracket: )
-    - comma: ','
-    - keyword: column
-    - bracketed:
-        start_bracket: (
-        column_reference:
-          identifier: Entity_Code
-        end_bracket: )
+      - identifier: Org_Descendant_NUPI
     - comma: ','
     - keyword: column
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: Org_Unit_Code
-      - comma: ','
-      - column_reference:
-          identifier: Entity_Code
+        - identifier: Org_Unit_Type
       - end_bracket: )
     - comma: ','
     - keyword: column
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: Entity_Code
-      - comma: ','
-      - column_reference:
-          identifier: Parent_Org_Unit_Code
-      - comma: ','
-      - column_reference:
-          identifier: Parent_Org_Unit_Type
+        - identifier: Entity_Code
       - end_bracket: )
-    - comma: ','
-    - keyword: column
-    - bracketed:
-        start_bracket: (
-        column_reference:
-          identifier: Org_Unit_Code
-        end_bracket: )
     - comma: ','
     - keyword: column
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: Parent_Org_Unit_Code
+        - identifier: Org_Unit_Code
       - comma: ','
       - column_reference:
-          identifier: Parent_Org_Unit_Type
+        - identifier: Entity_Code
+      - end_bracket: )
+    - comma: ','
+    - keyword: column
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+        - identifier: Entity_Code
       - comma: ','
       - column_reference:
-          identifier: Parent_Entity_Code
+        - identifier: Parent_Org_Unit_Code
+      - comma: ','
+      - column_reference:
+        - identifier: Parent_Org_Unit_Type
+      - end_bracket: )
+    - comma: ','
+    - keyword: column
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+        - identifier: Org_Unit_Code
+      - end_bracket: )
+    - comma: ','
+    - keyword: column
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+        - identifier: Parent_Org_Unit_Code
+      - comma: ','
+      - column_reference:
+        - identifier: Parent_Org_Unit_Type
+      - comma: ','
+      - column_reference:
+        - identifier: Parent_Entity_Code
       - end_bracket: )
     - keyword: 'on'
     - table_reference:
       - identifier: sandbox_db
       - dot: .
       - identifier: Org_Descendant
-  statement_terminator: ;
+- statement_terminator: ;

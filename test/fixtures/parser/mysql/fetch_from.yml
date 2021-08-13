@@ -1,9 +1,9 @@
 file:
-  statement:
-    cursor_fetch_segment:
+- statement:
+  - cursor_fetch_segment:
     - keyword: fetch
     - keyword: from
     - identifier: curcursor
     - keyword: into
     - variable: test
-  statement_terminator: ;
+- statement_terminator: ;

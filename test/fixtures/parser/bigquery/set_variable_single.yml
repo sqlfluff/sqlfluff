@@ -1,8 +1,8 @@
 file:
-  statement:
-    set_segment:
-      keyword: set
-      identifier: var1
-      comparison_operator: '='
-      literal: '5'
-  statement_terminator: ;
+- statement:
+  - set_segment:
+    - keyword: set
+    - identifier: var1
+    - comparison_operator: '='
+    - literal: '5'
+- statement_terminator: ;

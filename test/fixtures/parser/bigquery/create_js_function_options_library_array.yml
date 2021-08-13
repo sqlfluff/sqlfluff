@@ -1,34 +1,34 @@
 file:
-  statement:
-    create_function_statement:
+- statement:
+  - create_function_statement:
     - keyword: CREATE
     - keyword: TEMP
     - keyword: FUNCTION
     - function_name:
-        function_name_identifier: parseTopSellers
+      - function_name_identifier: parseTopSellers
     - base:
-        bracketed:
-          start_bracket: (
-          parameter: arr_str
-          data_type:
-            data_type_identifier: STRING
-          end_bracket: )
+      - bracketed:
+        - start_bracket: (
+        - parameter: arr_str
+        - data_type:
+          - data_type_identifier: STRING
+        - end_bracket: )
     - keyword: RETURNS
     - data_type:
-        keyword: ARRAY
-        start_angle_bracket: <
-        data_type:
+      - keyword: ARRAY
+      - start_angle_bracket: <
+      - data_type:
         - keyword: STRUCT
         - start_angle_bracket: <
         - parameter: product_id
         - data_type:
-            data_type_identifier: INT64
+          - data_type_identifier: INT64
         - comma: ','
         - parameter: rating
         - data_type:
-            data_type_identifier: FLOAT64
+          - data_type_identifier: FLOAT64
         - end_angle_bracket: '>'
-        end_angle_bracket: '>'
+      - end_angle_bracket: '>'
     - base:
       - keyword: LANGUAGE
       - parameter: js

@@ -1,23 +1,23 @@
 file:
-  statement:
-    create_table_statement:
+- statement:
+  - create_table_statement:
     - keyword: CREATE
     - keyword: MULTISET
     - keyword: TABLE
     - table_reference:
-        identifier: TABLE_2
+      - identifier: TABLE_2
     - bracketed:
       - start_bracket: (
       - column_definition:
         - column_reference:
-            identifier: CHAR_FIELD
+          - identifier: CHAR_FIELD
         - td_internal_data_type:
-            data_type_identifier: CHAR
-            bracketed:
-              start_bracket: (
-              expression:
-                literal: '19'
-              end_bracket: )
+          - data_type_identifier: CHAR
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - literal: '19'
+            - end_bracket: )
         - td_column_attribute_constraint:
           - keyword: CHARACTER
           - keyword: SET
@@ -30,41 +30,41 @@ file:
           - keyword: 'NULL'
       - comma: ','
       - column_definition:
-          column_reference:
-            identifier: DATE_FIELD
-          td_internal_data_type:
-            data_type_identifier: DATE
-            keyword: FORMAT
-            literal: "'YYYY-MM-DD'"
-          column_constraint:
+        - column_reference:
+          - identifier: DATE_FIELD
+        - td_internal_data_type:
+          - data_type_identifier: DATE
+          - keyword: FORMAT
+          - literal: "'YYYY-MM-DD'"
+        - column_constraint:
           - keyword: NOT
           - keyword: 'NULL'
       - comma: ','
       - column_definition:
-          column_reference:
-            identifier: BYTE_FIELD
-          td_internal_data_type:
-            data_type_identifier: BYTEINT
-          td_column_attribute_constraint:
-            keyword: COMPRESS
-            literal: '0'
+        - column_reference:
+          - identifier: BYTE_FIELD
+        - td_internal_data_type:
+          - data_type_identifier: BYTEINT
+        - td_column_attribute_constraint:
+          - keyword: COMPRESS
+          - literal: '0'
       - comma: ','
       - column_definition:
-          column_reference:
-            identifier: DECIMAL_FIELD
-          td_internal_data_type:
-            data_type_identifier: DECIMAL
-            bracketed:
+        - column_reference:
+          - identifier: DECIMAL_FIELD
+        - td_internal_data_type:
+          - data_type_identifier: DECIMAL
+          - bracketed:
             - start_bracket: (
             - expression:
-                literal: '15'
+              - literal: '15'
             - comma: ','
             - expression:
-                literal: '2'
+              - literal: '2'
             - end_bracket: )
-          td_column_attribute_constraint:
-            keyword: COMPRESS
-            bracketed:
+        - td_column_attribute_constraint:
+          - keyword: COMPRESS
+          - bracketed:
             - start_bracket: (
             - literal: '50.00'
             - comma: ','
@@ -98,16 +98,16 @@ file:
             - end_bracket: )
       - comma: ','
       - column_definition:
-          column_reference:
-            identifier: TIMESTAMP_FIELD
-          td_internal_data_type:
-            data_type_identifier: TIMESTAMP
-            bracketed:
-              start_bracket: (
-              expression:
-                literal: '6'
-              end_bracket: )
-          column_constraint:
+        - column_reference:
+          - identifier: TIMESTAMP_FIELD
+        - td_internal_data_type:
+          - data_type_identifier: TIMESTAMP
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - literal: '6'
+            - end_bracket: )
+        - column_constraint:
           - keyword: NOT
           - keyword: 'NULL'
       - end_bracket: )
@@ -122,4 +122,4 @@ file:
         - comma: ','
         - identifier: BYTE_FIELD
         - end_bracket: )
-  statement_terminator: ;
+- statement_terminator: ;

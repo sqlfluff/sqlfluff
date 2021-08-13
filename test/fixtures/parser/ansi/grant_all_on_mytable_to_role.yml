@@ -1,11 +1,11 @@
 file:
-  statement:
-    access_statement:
+- statement:
+  - access_statement:
     - keyword: grant
     - keyword: all
     - keyword: 'on'
     - object_reference:
-        identifier: mytable
+      - identifier: mytable
     - keyword: to
     - object_reference:
-        identifier: public
+      - identifier: public

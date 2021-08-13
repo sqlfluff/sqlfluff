@@ -1,25 +1,25 @@
 file:
-  statement:
-    select_statement:
-      select_clause:
-        keyword: SELECT
-        select_clause_element:
-          expression:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
           - literal: '1'
           - binary_operator: +
           - bracketed:
-              start_bracket: (
-              expression:
+            - start_bracket: (
+            - expression:
               - literal: '2'
               - binary_operator: '*'
               - literal: '3'
-              end_bracket: )
+            - end_bracket: )
           - comparison_operator: '>='
           - literal: '4'
           - binary_operator: +
           - literal: '6'
           - binary_operator: +
           - literal: '13'
-          alias_expression:
-            keyword: as
-            identifier: val
+        - alias_expression:
+          - keyword: as
+          - identifier: val

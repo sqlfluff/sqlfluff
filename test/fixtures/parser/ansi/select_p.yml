@@ -1,56 +1,56 @@
 file:
-  statement:
-    select_statement:
-      select_clause:
+- statement:
+  - select_statement:
+    - select_clause:
       - keyword: SELECT
       - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: CAST
-            bracketed:
-              start_bracket: (
-              expression:
-                literal: '25.65'
-              keyword: AS
-              data_type:
-                data_type_identifier: int
-              end_bracket: )
+        - function:
+          - function_name:
+            - function_name_identifier: CAST
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - literal: '25.65'
+            - keyword: AS
+            - data_type:
+              - data_type_identifier: int
+            - end_bracket: )
       - comma: ','
       - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: SAFE_CAST
-            bracketed:
-              start_bracket: (
-              expression:
-                literal: 'NULL'
-              keyword: AS
-              data_type:
-                data_type_identifier: STRING
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            identifier: age_label
+        - function:
+          - function_name:
+            - function_name_identifier: SAFE_CAST
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - literal: 'NULL'
+            - keyword: AS
+            - data_type:
+              - data_type_identifier: STRING
+            - end_bracket: )
+        - alias_expression:
+          - keyword: AS
+          - identifier: age_label
       - comma: ','
       - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: EXTRACT
-            bracketed:
-              start_bracket: (
-              date_part: day
-              keyword: FROM
-              expression:
-                column_reference:
-                  identifier: end_time
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            identifier: day
-      from_clause:
-        keyword: FROM
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                identifier: benchmark_with_performance
+        - function:
+          - function_name:
+            - function_name_identifier: EXTRACT
+          - bracketed:
+            - start_bracket: (
+            - date_part: day
+            - keyword: FROM
+            - expression:
+              - column_reference:
+                - identifier: end_time
+            - end_bracket: )
+        - alias_expression:
+          - keyword: AS
+          - identifier: day
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - identifier: benchmark_with_performance

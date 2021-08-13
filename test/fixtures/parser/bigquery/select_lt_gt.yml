@@ -1,13 +1,13 @@
 file:
-  statement:
-    select_statement:
-      select_clause:
-        keyword: SELECT
-        select_clause_element:
-          expression:
-            bracketed:
-              start_bracket: (
-              expression:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - bracketed:
+            - start_bracket: (
+            - expression:
               - literal: '0'
               - comparison_operator: <
               - literal: '1'
@@ -15,4 +15,4 @@ file:
               - literal: '1'
               - comparison_operator: '>'
               - literal: '0'
-              end_bracket: )
+            - end_bracket: )

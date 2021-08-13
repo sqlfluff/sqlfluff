@@ -1,9 +1,9 @@
 file:
-  statement:
-    resignal_segment:
+- statement:
+  - resignal_segment:
     - keyword: resignal
     - keyword: set
     - keyword: message_text
     - comparison_operator: '='
     - literal: "'test message'"
-  statement_terminator: ;
+- statement_terminator: ;

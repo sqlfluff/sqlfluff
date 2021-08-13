@@ -1,6 +1,6 @@
 file:
-  statement:
-    comment_clause:
+- statement:
+  - comment_clause:
     - keyword: comment
     - keyword: 'on'
     - keyword: table
@@ -10,4 +10,4 @@ file:
       - identifier: Org_Descendant
     - keyword: is
     - literal: "'View with all Org_Unit_Ids on all levels'"
-  statement_terminator: ;
+- statement_terminator: ;

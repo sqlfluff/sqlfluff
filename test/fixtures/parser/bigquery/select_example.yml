@@ -1,261 +1,261 @@
 file:
-  statement:
-    with_compound_statement:
+- statement:
+  - with_compound_statement:
     - keyword: WITH
     - common_table_expression:
-        identifier: age_buckets_bit_array
-        keyword: AS
-        bracketed:
-          start_bracket: (
-          select_statement:
-            select_clause:
+      - identifier: age_buckets_bit_array
+      - keyword: AS
+      - bracketed:
+        - start_bracket: (
+        - select_statement:
+          - select_clause:
             - keyword: SELECT
             - select_clause_element:
-                column_reference:
-                  identifier: bucket_id
+              - column_reference:
+                - identifier: bucket_id
             - comma: ','
             - select_clause_element:
-                column_reference:
-                  identifier: num_ranges
+              - column_reference:
+                - identifier: num_ranges
             - comma: ','
             - select_clause_element:
-                column_reference:
-                  identifier: min_age
+              - column_reference:
+                - identifier: min_age
             - comma: ','
             - select_clause_element:
-                function:
-                  function_name:
-                    function_name_identifier: ARRAY
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      select_statement:
-                        select_clause:
-                          keyword: SELECT
-                          select_clause_element:
-                            function:
-                              function_name:
-                                function_name_identifier: CAST
-                              bracketed:
-                                start_bracket: (
-                                expression:
-                                  column_reference:
-                                    identifier: num
-                                keyword: AS
-                                data_type:
-                                  data_type_identifier: INT64
-                                end_bracket: )
-                        from_clause:
-                          keyword: FROM
-                          from_expression:
-                            from_expression_element:
-                              table_expression:
-                                function:
-                                  function_name:
-                                    function_name_identifier: UNNEST
-                                  bracketed:
-                                    start_bracket: (
-                                    expression:
-                                      function:
-                                        function_name:
-                                          function_name_identifier: SPLIT
-                                        bracketed:
+              - function:
+                - function_name:
+                  - function_name_identifier: ARRAY
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                    - select_statement:
+                      - select_clause:
+                        - keyword: SELECT
+                        - select_clause_element:
+                          - function:
+                            - function_name:
+                              - function_name_identifier: CAST
+                            - bracketed:
+                              - start_bracket: (
+                              - expression:
+                                - column_reference:
+                                  - identifier: num
+                              - keyword: AS
+                              - data_type:
+                                - data_type_identifier: INT64
+                              - end_bracket: )
+                      - from_clause:
+                        - keyword: FROM
+                        - from_expression:
+                          - from_expression_element:
+                            - table_expression:
+                              - function:
+                                - function_name:
+                                  - function_name_identifier: UNNEST
+                                - bracketed:
+                                  - start_bracket: (
+                                  - expression:
+                                    - function:
+                                      - function_name:
+                                        - function_name_identifier: SPLIT
+                                      - bracketed:
                                         - start_bracket: (
                                         - expression:
-                                            column_reference:
-                                              identifier: binary
+                                          - column_reference:
+                                            - identifier: binary
                                         - comma: ','
                                         - expression:
-                                            literal: "''"
+                                          - literal: "''"
                                         - end_bracket: )
-                                    end_bracket: )
-                              alias_expression:
-                                keyword: AS
-                                identifier: num
-                    end_bracket: )
-                alias_expression:
-                  keyword: AS
-                  identifier: bits
+                                  - end_bracket: )
+                            - alias_expression:
+                              - keyword: AS
+                              - identifier: num
+                  - end_bracket: )
+              - alias_expression:
+                - keyword: AS
+                - identifier: bits
             - comma: ','
             - select_clause_element:
-                column_reference:
-                  identifier: age_label
-            from_clause:
-              keyword: FROM
-              from_expression:
-                from_expression_element:
-                  table_expression:
-                    table_reference:
-                      identifier: age_buckets
-          end_bracket: )
+              - column_reference:
+                - identifier: age_label
+          - from_clause:
+            - keyword: FROM
+            - from_expression:
+              - from_expression_element:
+                - table_expression:
+                  - table_reference:
+                    - identifier: age_buckets
+        - end_bracket: )
     - comma: ','
     - common_table_expression:
-        identifier: bucket_abundance
-        keyword: AS
-        bracketed:
-          start_bracket: (
-          select_statement:
-            select_clause:
-              keyword: SELECT
-              select_clause_element:
-                expression:
-                  function:
-                    function_name:
-                      function_name_identifier: bucket_id
-                    bracketed:
-                      start_bracket: (
-                      expression:
+      - identifier: bucket_abundance
+      - keyword: AS
+      - bracketed:
+        - start_bracket: (
+        - select_statement:
+          - select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+              - expression:
+                - function:
+                  - function_name:
+                    - function_name_identifier: bucket_id
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
                       - column_reference:
-                          identifier: count_18_24
+                        - identifier: count_18_24
                       - binary_operator: '*'
                       - column_reference:
-                          identifier: bits
+                        - identifier: bits
                       - array_accessor:
-                          start_square_bracket: '['
-                          expression:
-                            function:
-                              function_name:
-                                function_name_identifier: OFFSET
-                              bracketed:
-                                start_bracket: (
-                                expression:
-                                  literal: '0'
-                                end_bracket: )
-                          end_square_bracket: ']'
+                        - start_square_bracket: '['
+                        - expression:
+                          - function:
+                            - function_name:
+                              - function_name_identifier: OFFSET
+                            - bracketed:
+                              - start_bracket: (
+                              - expression:
+                                - literal: '0'
+                              - end_bracket: )
+                        - end_square_bracket: ']'
                       - binary_operator: +
                       - column_reference:
-                          identifier: count_25_34
+                        - identifier: count_25_34
                       - binary_operator: '*'
                       - column_reference:
-                          identifier: bits
+                        - identifier: bits
                       - array_accessor:
-                          start_square_bracket: '['
-                          expression:
-                            function:
-                              function_name:
-                                function_name_identifier: OFFSET
-                              bracketed:
-                                start_bracket: (
-                                expression:
-                                  literal: '1'
-                                end_bracket: )
-                          end_square_bracket: ']'
+                        - start_square_bracket: '['
+                        - expression:
+                          - function:
+                            - function_name:
+                              - function_name_identifier: OFFSET
+                            - bracketed:
+                              - start_bracket: (
+                              - expression:
+                                - literal: '1'
+                              - end_bracket: )
+                        - end_square_bracket: ']'
                       - binary_operator: +
                       - column_reference:
-                          identifier: count_35_44
+                        - identifier: count_35_44
                       - binary_operator: '*'
                       - column_reference:
-                          identifier: bits
+                        - identifier: bits
                       - array_accessor:
-                          start_square_bracket: '['
-                          expression:
-                            function:
-                              function_name:
-                                function_name_identifier: OFFSET
-                              bracketed:
-                                start_bracket: (
-                                expression:
-                                  literal: '2'
-                                end_bracket: )
-                          end_square_bracket: ']'
+                        - start_square_bracket: '['
+                        - expression:
+                          - function:
+                            - function_name:
+                              - function_name_identifier: OFFSET
+                            - bracketed:
+                              - start_bracket: (
+                              - expression:
+                                - literal: '2'
+                              - end_bracket: )
+                        - end_square_bracket: ']'
                       - binary_operator: +
                       - column_reference:
-                          identifier: count_45_54
+                        - identifier: count_45_54
                       - binary_operator: '*'
                       - column_reference:
-                          identifier: bits
+                        - identifier: bits
                       - array_accessor:
-                          start_square_bracket: '['
-                          expression:
-                            function:
-                              function_name:
-                                function_name_identifier: OFFSET
-                              bracketed:
-                                start_bracket: (
-                                expression:
-                                  literal: '3'
-                                end_bracket: )
-                          end_square_bracket: ']'
+                        - start_square_bracket: '['
+                        - expression:
+                          - function:
+                            - function_name:
+                              - function_name_identifier: OFFSET
+                            - bracketed:
+                              - start_bracket: (
+                              - expression:
+                                - literal: '3'
+                              - end_bracket: )
+                        - end_square_bracket: ']'
                       - binary_operator: +
                       - column_reference:
-                          identifier: count_55_64
+                        - identifier: count_55_64
                       - binary_operator: '*'
                       - column_reference:
-                          identifier: bits
+                        - identifier: bits
                       - array_accessor:
-                          start_square_bracket: '['
-                          expression:
-                            function:
-                              function_name:
-                                function_name_identifier: OFFSET
-                              bracketed:
-                                start_bracket: (
-                                expression:
-                                  literal: '4'
-                                end_bracket: )
-                          end_square_bracket: ']'
+                        - start_square_bracket: '['
+                        - expression:
+                          - function:
+                            - function_name:
+                              - function_name_identifier: OFFSET
+                            - bracketed:
+                              - start_bracket: (
+                              - expression:
+                                - literal: '4'
+                              - end_bracket: )
+                        - end_square_bracket: ']'
                       - binary_operator: +
                       - column_reference:
-                          identifier: count_65_plus
+                        - identifier: count_65_plus
                       - binary_operator: '*'
                       - column_reference:
-                          identifier: bits
+                        - identifier: bits
                       - array_accessor:
-                          start_square_bracket: '['
-                          expression:
-                            function:
-                              function_name:
-                                function_name_identifier: OFFSET
-                              bracketed:
-                                start_bracket: (
-                                expression:
-                                  literal: '5'
-                                end_bracket: )
-                          end_square_bracket: ']'
-                      end_bracket: )
-                  binary_operator: /
-                  column_reference:
-                    identifier: audience_size
-                alias_expression:
-                  keyword: AS
-                  identifier: relative_abundance
-            from_clause:
-              keyword: FROM
-              from_expression:
-                from_expression_element:
-                  table_expression:
-                    table_reference:
-                      identifier: audience_counts_gender_age
-                join_clause:
+                        - start_square_bracket: '['
+                        - expression:
+                          - function:
+                            - function_name:
+                              - function_name_identifier: OFFSET
+                            - bracketed:
+                              - start_bracket: (
+                              - expression:
+                                - literal: '5'
+                              - end_bracket: )
+                        - end_square_bracket: ']'
+                    - end_bracket: )
+                - binary_operator: /
+                - column_reference:
+                  - identifier: audience_size
+              - alias_expression:
+                - keyword: AS
+                - identifier: relative_abundance
+          - from_clause:
+            - keyword: FROM
+            - from_expression:
+              - from_expression_element:
+                - table_expression:
+                  - table_reference:
+                    - identifier: audience_counts_gender_age
+              - join_clause:
                 - keyword: CROSS
                 - keyword: JOIN
                 - from_expression_element:
-                    table_expression:
-                      table_reference:
-                        identifier: age_buckets_bit_array
-          end_bracket: )
+                  - table_expression:
+                    - table_reference:
+                      - identifier: age_buckets_bit_array
+        - end_bracket: )
     - select_statement:
-        select_clause:
-          keyword: SELECT
-          select_clause_element:
-            wildcard_expression:
-              wildcard_identifier:
-                star: '*'
-        from_clause:
-          keyword: FROM
-          from_expression:
-            from_expression_element:
-              table_expression:
-                table_reference:
-                  identifier: age_buckets_bit_array
-            join_clause:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - wildcard_expression:
+            - wildcard_identifier:
+              - star: '*'
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - identifier: age_buckets_bit_array
+          - join_clause:
             - keyword: JOIN
             - from_expression_element:
-                table_expression:
-                  table_reference:
-                    identifier: bucket_abundance
+              - table_expression:
+                - table_reference:
+                  - identifier: bucket_abundance
             - keyword: USING
             - bracketed:
-                start_bracket: (
-                identifier: bucket_id
-                end_bracket: )
+              - start_bracket: (
+              - identifier: bucket_id
+              - end_bracket: )

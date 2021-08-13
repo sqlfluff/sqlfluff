@@ -1,27 +1,27 @@
 file:
-  statement:
-    create_table_statement:
+- statement:
+  - create_table_statement:
     - keyword: CREATE
     - binary_operator: OR
     - keyword: REPLACE
     - keyword: TABLE
     - table_reference:
-        identifier: t2
+      - identifier: t2
     - keyword: AS
     - select_statement:
-        select_clause:
+      - select_clause:
         - keyword: SELECT
         - select_clause_element:
-            column_reference:
-              identifier: a
+          - column_reference:
+            - identifier: a
         - comma: ','
         - select_clause_element:
-            column_reference:
-              identifier: b
-        from_clause:
-          keyword: FROM
-          from_expression:
-            from_expression_element:
-              table_expression:
-                table_reference:
-                  identifier: t1
+          - column_reference:
+            - identifier: b
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - identifier: t1

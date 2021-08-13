@@ -1,10 +1,10 @@
 file:
-  statement:
-    alter_user:
+- statement:
+  - alter_user:
     - keyword: ALTER
     - keyword: USER
     - object_reference:
-        identifier: my_user
+      - identifier: my_user
     - keyword: SET
     - parameter: password
     - comparison_operator: '='
@@ -13,5 +13,5 @@ file:
     - parameter: DEFAULT_ROLE
     - comparison_operator: '='
     - object_reference:
-        identifier: user_role
-  statement_terminator: ;
+      - identifier: user_role
+- statement_terminator: ;

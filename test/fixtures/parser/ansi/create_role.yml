@@ -1,7 +1,7 @@
 file:
-  statement:
-    create_role_statement:
+- statement:
+  - create_role_statement:
     - keyword: CREATE
     - keyword: ROLE
     - object_reference:
-        identifier: foo_role
+      - identifier: foo_role

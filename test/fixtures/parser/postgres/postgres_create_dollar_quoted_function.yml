@@ -1,25 +1,25 @@
 file:
-  statement:
-    create_function_statement:
+- statement:
+  - create_function_statement:
     - keyword: CREATE
     - keyword: FUNCTION
     - function_name:
-        function_name_identifier: foo
+      - function_name_identifier: foo
     - base:
-        bracketed:
+      - bracketed:
         - start_bracket: (
         - data_type:
-            data_type_identifier: integer
+          - data_type_identifier: integer
         - comma: ','
         - data_type:
-            data_type_identifier: integer
+          - data_type_identifier: integer
         - end_bracket: )
     - keyword: RETURNS
     - data_type:
-        data_type_identifier: integer
+      - data_type_identifier: integer
     - base:
       - keyword: AS
       - literal: $$ select $1 + $2; $$
       - keyword: LANGUAGE
       - parameter: SQL
-  statement_terminator: ;
+- statement_terminator: ;

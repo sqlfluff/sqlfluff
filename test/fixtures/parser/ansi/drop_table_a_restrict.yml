@@ -1,8 +1,8 @@
 file:
-  statement:
-    drop_statement:
+- statement:
+  - drop_statement:
     - keyword: drop
     - keyword: table
     - table_reference:
-        identifier: a
+      - identifier: a
     - keyword: restrict

@@ -1,14 +1,14 @@
 file:
 - statement:
-    collect_statistics_statement:
+  - collect_statistics_statement:
     - keyword: COLLECT
     - keyword: STATISTICS
     - keyword: COLUMN
     - bracketed:
-        start_bracket: (
-        column_reference:
-          identifier: IND_TIPO_TARJETA
-        end_bracket: )
+      - start_bracket: (
+      - column_reference:
+        - identifier: IND_TIPO_TARJETA
+      - end_bracket: )
     - keyword: 'ON'
     - table_reference:
       - identifier: DB_1
@@ -16,23 +16,23 @@ file:
       - identifier: TABLE_1
 - statement_terminator: ;
 - statement:
-    collect_statistics_statement:
+  - collect_statistics_statement:
     - keyword: COLLECT
     - keyword: STATISTICS
     - keyword: INDEX
     - bracketed:
       - start_bracket: (
       - column_reference:
-          identifier: COD_TARJETA
+        - identifier: COD_TARJETA
       - comma: ','
       - column_reference:
-          identifier: COD_EST
+        - identifier: COD_EST
       - comma: ','
       - column_reference:
-          identifier: IND_TIPO_TARJETA
+        - identifier: IND_TIPO_TARJETA
       - comma: ','
       - column_reference:
-          identifier: FEC_ANIO_MES
+        - identifier: FEC_ANIO_MES
       - end_bracket: )
     - keyword: 'ON'
     - table_reference:

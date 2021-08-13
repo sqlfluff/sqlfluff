@@ -1,19 +1,19 @@
 file:
-  statement:
-    delete_statement:
-      keyword: DELETE
-      from_clause:
-        keyword: FROM
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                identifier: table_name
-      where_clause:
-        keyword: WHERE
-        expression:
-          column_reference:
-            identifier: a
-          comparison_operator: '>'
-          literal: '0'
-  statement_terminator: ;
+- statement:
+  - delete_statement:
+    - keyword: DELETE
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - identifier: table_name
+    - where_clause:
+      - keyword: WHERE
+      - expression:
+        - column_reference:
+          - identifier: a
+        - comparison_operator: '>'
+        - literal: '0'
+- statement_terminator: ;

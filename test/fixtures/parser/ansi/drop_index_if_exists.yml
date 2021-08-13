@@ -1,10 +1,10 @@
 file:
-  statement:
-    drop_statement:
+- statement:
+  - drop_statement:
     - keyword: DROP
     - keyword: INDEX
     - keyword: IF
     - keyword: EXISTS
     - index_reference:
-        identifier: transaction_updated
-  statement_terminator: ;
+      - identifier: transaction_updated
+- statement_terminator: ;

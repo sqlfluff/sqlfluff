@@ -1,13 +1,13 @@
 file:
-  statement:
-    alter_user:
+- statement:
+  - alter_user:
     - keyword: ALTER
     - keyword: USER
     - keyword: IF
     - keyword: EXISTS
     - object_reference:
-        identifier: my_user
+      - identifier: my_user
     - keyword: ABORT
     - keyword: ALL
     - keyword: QUERIES
-  statement_terminator: ;
+- statement_terminator: ;

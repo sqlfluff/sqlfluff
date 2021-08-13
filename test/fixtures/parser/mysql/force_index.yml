@@ -1,25 +1,25 @@
 file:
-  statement:
-    select_statement:
-      select_clause:
-        keyword: SELECT
-        select_clause_element:
-          wildcard_expression:
-            wildcard_identifier:
-              star: '*'
-      from_clause:
-        keyword: FROM
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                identifier: onetable
-      index_hint_clause:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - star: '*'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - identifier: onetable
+    - index_hint_clause:
       - keyword: FORCE
       - keyword: INDEX
       - bracketed:
-          start_bracket: (
-          object_reference:
-            identifier: idx_index
-          end_bracket: )
-  statement_terminator: ;
+        - start_bracket: (
+        - object_reference:
+          - identifier: idx_index
+        - end_bracket: )
+- statement_terminator: ;

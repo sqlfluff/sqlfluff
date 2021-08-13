@@ -1,17 +1,17 @@
 file:
-  statement:
-    bteq_statement:
+- statement:
+  - bteq_statement:
     - dot: .
     - bteq_key_word_segment:
-        keyword: if
+      - keyword: if
     - bteq_key_word_segment:
-        keyword: errorcode
+      - keyword: errorcode
     - comparison_operator: '>'
     - literal: '0'
     - bteq_key_word_segment:
-        keyword: then
+      - keyword: then
     - bteq_key_word_segment:
-        dot: .
-        keyword: quit
-        literal: '4'
-  statement_terminator: ;
+      - dot: .
+      - keyword: quit
+      - literal: '4'
+- statement_terminator: ;

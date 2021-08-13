@@ -1,22 +1,22 @@
 file:
-  statement:
-    select_statement:
-      select_clause:
-        keyword: select
-        select_clause_element:
-          expression:
-            case_expression:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: select
+      - select_clause_element:
+        - expression:
+          - case_expression:
             - keyword: case
             - keyword: when
             - expression:
-                column_reference:
-                  identifier: '"Spec\"s 23"'
-                keyword: like
-                literal: "'Spec\\'s%'"
+              - column_reference:
+                - identifier: '"Spec\"s 23"'
+              - keyword: like
+              - literal: "'Spec\\'s%'"
             - keyword: then
             - expression:
-                literal: "'boop'"
+              - literal: "'boop'"
             - keyword: end
-          alias_expression:
-            keyword: as
-            identifier: field
+        - alias_expression:
+          - keyword: as
+          - identifier: field

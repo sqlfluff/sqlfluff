@@ -1,6 +1,6 @@
 file:
-  statement:
-    create_view_statement:
+- statement:
+  - create_view_statement:
     - keyword: create
     - keyword: view
     - table_reference:
@@ -9,18 +9,18 @@ file:
       - identifier: my_view
     - keyword: as
     - select_statement:
-        select_clause:
-          keyword: select
-          select_clause_element:
-            wildcard_expression:
-              wildcard_identifier:
-                star: '*'
-        from_clause:
-          keyword: from
-          from_expression:
-            from_expression_element:
-              table_expression:
-                table_reference:
+      - select_clause:
+        - keyword: select
+        - select_clause_element:
+          - wildcard_expression:
+            - wildcard_identifier:
+              - star: '*'
+      - from_clause:
+        - keyword: from
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
                 - identifier: schema
                 - dot: .
                 - identifier: table
@@ -29,4 +29,4 @@ file:
       - keyword: 'no'
       - keyword: schema
       - keyword: binding
-  statement_terminator: ;
+- statement_terminator: ;

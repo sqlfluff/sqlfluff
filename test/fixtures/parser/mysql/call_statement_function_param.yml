@@ -1,17 +1,17 @@
 file:
-  statement:
-    call_segment:
-      keyword: CALL
-      identifier: somefunction
-      bracketed:
-        start_bracket: (
-        function:
-          function_name:
-            function_name_identifier: test
-          bracketed:
-            start_bracket: (
-            expression:
-              literal: "'something'"
-            end_bracket: )
-        end_bracket: )
-  statement_terminator: ;
+- statement:
+  - call_segment:
+    - keyword: CALL
+    - identifier: somefunction
+    - bracketed:
+      - start_bracket: (
+      - function:
+        - function_name:
+          - function_name_identifier: test
+        - bracketed:
+          - start_bracket: (
+          - expression:
+            - literal: "'something'"
+          - end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;

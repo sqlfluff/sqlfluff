@@ -1,57 +1,57 @@
 file:
-  statement:
-    select_statement:
-      select_clause:
-        keyword: SELECT
-        select_clause_element:
-          expression:
-            function:
-              function_name:
-                function_name_identifier: dateadd
-              bracketed:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - function:
+            - function_name:
+              - function_name_identifier: dateadd
+            - bracketed:
               - start_bracket: (
               - expression:
-                  literal: "'day'"
+                - literal: "'day'"
               - comma: ','
               - expression:
-                  function:
-                    function_name:
-                      function_name_identifier: row_number
-                    bracketed:
-                      start_bracket: (
-                      end_bracket: )
-                    over_clause:
-                      keyword: OVER
-                      bracketed:
-                        start_bracket: (
-                        window_specification:
-                          orderby_clause:
+                - function:
+                  - function_name:
+                    - function_name_identifier: row_number
+                  - bracketed:
+                    - start_bracket: (
+                    - end_bracket: )
+                  - over_clause:
+                    - keyword: OVER
+                    - bracketed:
+                      - start_bracket: (
+                      - window_specification:
+                        - orderby_clause:
                           - keyword: ORDER
                           - keyword: BY
                           - expression:
-                              function:
-                                function_name:
-                                  function_name_identifier: seq8
-                                bracketed:
-                                  start_bracket: (
-                                  end_bracket: )
+                            - function:
+                              - function_name:
+                                - function_name_identifier: seq8
+                              - bracketed:
+                                - start_bracket: (
+                                - end_bracket: )
                           - keyword: asc
-                        end_bracket: )
+                      - end_bracket: )
               - comma: ','
               - expression:
-                  literal: "'2014-01-01'"
+                - literal: "'2014-01-01'"
               - end_bracket: )
-            cast_expression:
-              casting_operator: '::'
-              data_type:
-                data_type_identifier: date
-          alias_expression:
-            keyword: AS
-            identifier: dt
-      from_clause:
-        keyword: FROM
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                identifier: boo
+          - cast_expression:
+            - casting_operator: '::'
+            - data_type:
+              - data_type_identifier: date
+        - alias_expression:
+          - keyword: AS
+          - identifier: dt
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - identifier: boo

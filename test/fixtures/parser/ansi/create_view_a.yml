@@ -1,36 +1,36 @@
 file:
-  statement:
-    create_view_statement:
+- statement:
+  - create_view_statement:
     - keyword: CREATE
     - keyword: VIEW
     - table_reference:
-        identifier: a
+      - identifier: a
     - keyword: AS
     - select_statement:
-        select_clause:
-          keyword: SELECT
-          select_clause_element:
-            column_reference:
-              identifier: c
-        from_clause:
-          keyword: FROM
-          from_expression:
-            from_expression_element:
-              table_expression:
-                table_reference:
-                  identifier: table1
-            join_clause:
+      - select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+          - column_reference:
+            - identifier: c
+      - from_clause:
+        - keyword: FROM
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - identifier: table1
+          - join_clause:
             - keyword: INNER
             - keyword: JOIN
             - from_expression_element:
-                table_expression:
-                  table_reference:
-                    identifier: table2
+              - table_expression:
+                - table_reference:
+                  - identifier: table2
             - join_on_condition:
-                keyword: 'ON'
-                bracketed:
-                  start_bracket: (
-                  expression:
+              - keyword: 'ON'
+              - bracketed:
+                - start_bracket: (
+                - expression:
                   - column_reference:
                     - identifier: table1
                     - dot: .
@@ -40,4 +40,4 @@ file:
                     - identifier: table2
                     - dot: .
                     - identifier: id
-                  end_bracket: )
+                - end_bracket: )

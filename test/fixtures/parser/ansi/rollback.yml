@@ -1,4 +1,4 @@
 file:
-  statement:
-    transaction_statement:
-      keyword: rollback
+- statement:
+  - transaction_statement:
+    - keyword: rollback

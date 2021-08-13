@@ -1,6 +1,6 @@
 file:
-  statement:
-    get_diagnostics_segment:
+- statement:
+  - get_diagnostics_segment:
     - keyword: GET
     - keyword: DIAGNOSTICS
     - keyword: CONDITION
@@ -8,4 +8,4 @@ file:
     - variable: _test
     - comparison_operator: '='
     - keyword: CLASS_ORIGIN
-  statement_terminator: ;
+- statement_terminator: ;

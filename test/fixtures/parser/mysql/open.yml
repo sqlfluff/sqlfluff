@@ -1,6 +1,6 @@
 file:
-  statement:
-    cursor_open_close_segment:
-      keyword: open
-      identifier: curcursor
-  statement_terminator: ;
+- statement:
+  - cursor_open_close_segment:
+    - keyword: open
+    - identifier: curcursor
+- statement_terminator: ;

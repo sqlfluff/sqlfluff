@@ -1,73 +1,73 @@
 file:
-  statement:
-    create_function_statement:
+- statement:
+  - create_function_statement:
     - keyword: CREATE
     - binary_operator: OR
     - keyword: REPLACE
     - keyword: FUNCTION
     - function_name:
-        function_name_identifier: qs
+      - function_name_identifier: qs
     - base:
-        bracketed:
+      - bracketed:
         - start_bracket: (
         - parameter: y
         - keyword: ANY
         - keyword: TYPE
         - end_bracket: )
     - base:
-        keyword: AS
-        bracketed:
-          start_bracket: (
-          expression:
-            case_expression:
+      - keyword: AS
+      - bracketed:
+        - start_bracket: (
+        - expression:
+          - case_expression:
             - keyword: CASE
             - keyword: WHEN
             - expression:
-                column_reference:
-                  identifier: y
-                comparison_operator: '='
-                literal: '1'
+              - column_reference:
+                - identifier: y
+              - comparison_operator: '='
+              - literal: '1'
             - keyword: THEN
             - expression:
-                literal: "'low'"
+              - literal: "'low'"
             - keyword: WHEN
             - expression:
-                column_reference:
-                  identifier: y
-                comparison_operator: '='
-                literal: '2'
+              - column_reference:
+                - identifier: y
+              - comparison_operator: '='
+              - literal: '2'
             - keyword: THEN
             - expression:
-                literal: "'midlow'"
+              - literal: "'midlow'"
             - keyword: WHEN
             - expression:
-                column_reference:
-                  identifier: y
-                comparison_operator: '='
-                literal: '3'
+              - column_reference:
+                - identifier: y
+              - comparison_operator: '='
+              - literal: '3'
             - keyword: THEN
             - expression:
-                literal: "'mid'"
+              - literal: "'mid'"
             - keyword: WHEN
             - expression:
-                column_reference:
-                  identifier: y
-                comparison_operator: '='
-                literal: '4'
+              - column_reference:
+                - identifier: y
+              - comparison_operator: '='
+              - literal: '4'
             - keyword: THEN
             - expression:
-                literal: "'midhigh'"
+              - literal: "'midhigh'"
             - keyword: WHEN
             - expression:
-                column_reference:
-                  identifier: y
-                comparison_operator: '='
-                literal: '5'
+              - column_reference:
+                - identifier: y
+              - comparison_operator: '='
+              - literal: '5'
             - keyword: THEN
             - expression:
-                literal: "'high'"
+              - literal: "'high'"
             - keyword: ELSE
             - expression:
-                literal: '"unknown"'
+              - literal: '"unknown"'
             - keyword: END
-          end_bracket: )
+        - end_bracket: )

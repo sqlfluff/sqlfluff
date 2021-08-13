@@ -1,18 +1,18 @@
 file:
-  statement:
-    select_statement:
-      select_clause:
-        keyword: SELECT
-        select_clause_element:
-          wildcard_expression:
-            wildcard_identifier:
-              star: '*'
-      from_clause:
-        keyword: FROM
-        from_expression:
-          from_expression_element:
-            table_expression:
-              hyphenated_object_reference:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - star: '*'
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - hyphenated_object_reference:
               - identifier: project
               - binary_operator: '-'
               - identifier: a
@@ -24,11 +24,11 @@ file:
               - identifier: table
               - binary_operator: '-'
               - identifier: c
-          join_clause:
+        - join_clause:
           - keyword: JOIN
           - from_expression_element:
-              table_expression:
-                hyphenated_object_reference:
+            - table_expression:
+              - hyphenated_object_reference:
                 - identifier: dataset
                 - binary_operator: '-'
                 - identifier: c
@@ -38,6 +38,6 @@ file:
                 - identifier: d
           - keyword: USING
           - bracketed:
-              start_bracket: (
-              identifier: a
-              end_bracket: )
+            - start_bracket: (
+            - identifier: a
+            - end_bracket: )

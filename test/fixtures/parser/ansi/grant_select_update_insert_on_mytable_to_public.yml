@@ -1,6 +1,6 @@
 file:
-  statement:
-    access_statement:
+- statement:
+  - access_statement:
     - keyword: grant
     - keyword: select
     - comma: ','
@@ -9,7 +9,7 @@ file:
     - keyword: insert
     - keyword: 'on'
     - object_reference:
-        identifier: mytable
+      - identifier: mytable
     - keyword: to
     - object_reference:
-        identifier: public
+      - identifier: public

@@ -1,12 +1,12 @@
 file:
 - statement:
-    declare_segment:
-      keyword: declare
-      identifier: var1
-      data_type_identifier: int64
+  - declare_segment:
+    - keyword: declare
+    - identifier: var1
+    - data_type_identifier: int64
 - statement_terminator: ;
 - statement:
-    declare_segment:
+  - declare_segment:
     - keyword: declare
     - identifier: var2
     - comma: ','

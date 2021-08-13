@@ -1,44 +1,44 @@
 file:
-  statement:
-    with_compound_statement:
-      keyword: with
-      common_table_expression:
-        identifier: favourite_fruits
-        keyword: as
-        bracketed:
-          start_bracket: (
-          select_statement:
-            select_clause:
+- statement:
+  - with_compound_statement:
+    - keyword: with
+    - common_table_expression:
+      - identifier: favourite_fruits
+      - keyword: as
+      - bracketed:
+        - start_bracket: (
+        - select_statement:
+          - select_clause:
             - keyword: select
             - select_clause_element:
-                column_reference:
-                  identifier: column1
-                alias_expression:
-                  keyword: as
-                  identifier: name
+              - column_reference:
+                - identifier: column1
+              - alias_expression:
+                - keyword: as
+                - identifier: name
             - comma: ','
             - select_clause_element:
-                column_reference:
-                  identifier: column2
-                alias_expression:
-                  keyword: as
-                  identifier: colour
-            from_clause:
-              keyword: from
-              from_expression:
-                from_expression_element:
-                  table_expression:
-                    bracketed:
-                      start_bracket: (
-                      values_clause:
+              - column_reference:
+                - identifier: column2
+              - alias_expression:
+                - keyword: as
+                - identifier: colour
+          - from_clause:
+            - keyword: from
+            - from_expression:
+              - from_expression_element:
+                - table_expression:
+                  - bracketed:
+                    - start_bracket: (
+                    - values_clause:
                       - keyword: values
                       - bracketed:
                         - start_bracket: (
                         - expression:
-                            literal: "'apple'"
+                          - literal: "'apple'"
                         - comma: ','
                         - expression:
-                            literal: "'green'"
+                          - literal: "'green'"
                         - end_bracket: )
                       - comma: ','
                       - bracketed:
@@ -75,51 +75,51 @@ file:
                         - comma: ','
                         - literal: "'red'"
                         - end_bracket: )
-                      end_bracket: )
-          end_bracket: )
-      select_statement:
-        select_clause:
+                    - end_bracket: )
+        - end_bracket: )
+    - select_statement:
+      - select_clause:
         - keyword: select
         - select_clause_element:
-            column_reference:
-              identifier: colour
+          - column_reference:
+            - identifier: colour
         - comma: ','
         - select_clause_element:
-            function:
-              function_name:
-                function_name_identifier: listagg
-              bracketed:
+          - function:
+            - function_name:
+              - function_name_identifier: listagg
+            - bracketed:
               - start_bracket: (
               - expression:
-                  column_reference:
-                    identifier: name
+                - column_reference:
+                  - identifier: name
               - comma: ','
               - expression:
-                  literal: "', '"
+                - literal: "', '"
               - end_bracket: )
-              withingroup_clause:
+            - withingroup_clause:
               - keyword: within
               - keyword: group
               - bracketed:
-                  start_bracket: (
-                  orderby_clause:
+                - start_bracket: (
+                - orderby_clause:
                   - keyword: order
                   - keyword: by
                   - column_reference:
-                      identifier: name
-                  end_bracket: )
-            alias_expression:
-              keyword: as
-              identifier: fruits
-        from_clause:
-          keyword: from
-          from_expression:
-            from_expression_element:
-              table_expression:
-                table_reference:
-                  identifier: favourite_fruits
-        groupby_clause:
+                    - identifier: name
+                - end_bracket: )
+          - alias_expression:
+            - keyword: as
+            - identifier: fruits
+      - from_clause:
+        - keyword: from
+        - from_expression:
+          - from_expression_element:
+            - table_expression:
+              - table_reference:
+                - identifier: favourite_fruits
+      - groupby_clause:
         - keyword: group
         - keyword: by
         - column_reference:
-            identifier: colour
+          - identifier: colour

@@ -1,9 +1,9 @@
 file:
-  statement:
-    drop_MODELstatement:
+- statement:
+  - drop_MODELstatement:
     - keyword: DROP
     - keyword: MODEL
     - keyword: IF
     - keyword: EXISTS
     - object_reference:
-        identifier: model3
+      - identifier: model3

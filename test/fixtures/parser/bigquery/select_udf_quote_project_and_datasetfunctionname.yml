@@ -1,32 +1,32 @@
 file:
-  statement:
-    select_statement:
-      select_clause:
-        keyword: SELECT
-        select_clause_element:
-          function:
-            function_name:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
             - identifier: '`another-gcp-project`'
             - dot: .
             - identifier: '`functions.timestamp_parsing`'
-            bracketed:
-              start_bracket: (
-              expression:
-                column_reference:
+          - bracketed:
+            - start_bracket: (
+            - expression:
+              - column_reference:
                 - identifier: log_tbl
                 - dot: .
                 - identifier: first_move
-              end_bracket: )
-          alias_expression:
-            keyword: AS
-            identifier: first_move
-      from_clause:
-        keyword: FROM
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                identifier: '`gcp-project.data.year_2021`'
-            alias_expression:
-              keyword: AS
-              identifier: log_tbl
+            - end_bracket: )
+        - alias_expression:
+          - keyword: AS
+          - identifier: first_move
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - identifier: '`gcp-project.data.year_2021`'
+          - alias_expression:
+            - keyword: AS
+            - identifier: log_tbl

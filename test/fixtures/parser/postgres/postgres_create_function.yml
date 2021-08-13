@@ -1,22 +1,22 @@
 file:
 - statement:
-    create_function_statement:
+  - create_function_statement:
     - keyword: CREATE
     - keyword: FUNCTION
     - function_name:
-        function_name_identifier: add
+      - function_name_identifier: add
     - base:
-        bracketed:
+      - bracketed:
         - start_bracket: (
         - data_type:
-            data_type_identifier: integer
+          - data_type_identifier: integer
         - comma: ','
         - data_type:
-            data_type_identifier: integer
+          - data_type_identifier: integer
         - end_bracket: )
     - keyword: RETURNS
     - data_type:
-        data_type_identifier: integer
+      - data_type_identifier: integer
     - base:
       - keyword: AS
       - literal: "'select $1 + $2;'"
@@ -24,23 +24,23 @@ file:
       - parameter: SQL
 - statement_terminator: ;
 - statement:
-    create_function_statement:
+  - create_function_statement:
     - keyword: CREATE
     - binary_operator: OR
     - keyword: REPLACE
     - keyword: FUNCTION
     - function_name:
-        function_name_identifier: increment
+      - function_name_identifier: increment
     - base:
-        bracketed:
-          start_bracket: (
-          parameter: i
-          data_type:
-            data_type_identifier: integer
-          end_bracket: )
+      - bracketed:
+        - start_bracket: (
+        - parameter: i
+        - data_type:
+          - data_type_identifier: integer
+        - end_bracket: )
     - keyword: RETURNS
     - data_type:
-        data_type_identifier: integer
+      - data_type_identifier: integer
     - base:
       - keyword: AS
       - literal: "'\n    BEGIN\n        RETURN i + 1;\n    END;\n'"

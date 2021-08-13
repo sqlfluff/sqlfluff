@@ -1,16 +1,16 @@
 file:
 - statement:
-    while_statement:
+  - while_statement:
     - keyword: while
     - expression:
       - column_reference:
-          identifier: _cnt
+        - identifier: _cnt
       - comparison_operator: <=
       - column_reference:
-          identifier: _max_cnt
+        - identifier: _max_cnt
     - keyword: do
     - statement:
-        set_statement:
+      - set_statement:
         - keyword: set
         - variable: _cnt
         - comparison_operator: '='
@@ -19,7 +19,7 @@ file:
         - variable: '1'
 - statement_terminator: ;
 - statement:
-    transaction_statement:
-      keyword: end
-      identifier: while
+  - transaction_statement:
+    - keyword: end
+    - identifier: while
 - statement_terminator: ;

@@ -1,8 +1,8 @@
 file:
-  statement:
-    prepare_segment:
+- statement:
+  - prepare_segment:
     - keyword: PREPARE
     - identifier: test
     - keyword: FROM
     - variable: '@test'
-  statement_terminator: ;
+- statement_terminator: ;

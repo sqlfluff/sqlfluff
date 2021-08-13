@@ -1,45 +1,45 @@
 file:
-  statement:
-    select_statement:
-      select_clause:
-        keyword: SELECT
-        select_clause_element:
-          wildcard_expression:
-            wildcard_identifier:
-              star: '*'
-            select_replace_clause:
-              keyword: REPLACE
-              bracketed:
-                start_bracket: (
-                select_clause_element:
-                  function:
-                    function_name:
-                      function_name_identifier: CAST
-                    bracketed:
-                      start_bracket: (
-                      expression:
-                        literal: '1'
-                      keyword: AS
-                      data_type:
-                        data_type_identifier: BOOLEAN
-                      end_bracket: )
-                  alias_expression:
-                    keyword: AS
-                    identifier: foo
-                end_bracket: )
-      from_clause:
-        keyword: FROM
-        from_expression:
-          from_expression_element:
-            table_expression:
-              bracketed:
-                start_bracket: (
-                select_statement:
-                  select_clause:
-                    keyword: SELECT
-                    select_clause_element:
-                      literal: '1'
-                      alias_expression:
-                        keyword: AS
-                        identifier: foo
-                end_bracket: )
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - wildcard_expression:
+          - wildcard_identifier:
+            - star: '*'
+          - select_replace_clause:
+            - keyword: REPLACE
+            - bracketed:
+              - start_bracket: (
+              - select_clause_element:
+                - function:
+                  - function_name:
+                    - function_name_identifier: CAST
+                  - bracketed:
+                    - start_bracket: (
+                    - expression:
+                      - literal: '1'
+                    - keyword: AS
+                    - data_type:
+                      - data_type_identifier: BOOLEAN
+                    - end_bracket: )
+                - alias_expression:
+                  - keyword: AS
+                  - identifier: foo
+              - end_bracket: )
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - bracketed:
+              - start_bracket: (
+              - select_statement:
+                - select_clause:
+                  - keyword: SELECT
+                  - select_clause_element:
+                    - literal: '1'
+                    - alias_expression:
+                      - keyword: AS
+                      - identifier: foo
+              - end_bracket: )

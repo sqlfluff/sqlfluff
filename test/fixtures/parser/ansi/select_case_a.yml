@@ -1,11 +1,11 @@
 file:
-  statement:
-    select_statement:
-      select_clause:
-        keyword: SELECT
-        select_clause_element:
-          expression:
-            case_expression:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - case_expression:
             - keyword: CASE
             - keyword: WHEN
             - expression:
@@ -14,7 +14,7 @@ file:
               - literal: '2'
             - keyword: THEN
             - expression:
-                literal: '3'
+              - literal: '3'
             - keyword: WHEN
             - expression:
               - literal: '4'
@@ -27,10 +27,10 @@ file:
               - literal: '2'
             - keyword: WHEN
             - expression:
-                column_reference:
-                  identifier: some_var
-                keyword: IN
-                bracketed:
+              - column_reference:
+                - identifier: some_var
+              - keyword: IN
+              - bracketed:
                 - start_bracket: (
                 - literal: '1'
                 - comma: ','
@@ -40,20 +40,20 @@ file:
                 - end_bracket: )
             - keyword: then
             - expression:
-                column_reference:
-                  identifier: '"nothing"'
+              - column_reference:
+                - identifier: '"nothing"'
             - keyword: ELSE
             - expression:
-                column_reference:
-                  identifier: '"boo"'
+              - column_reference:
+                - identifier: '"boo"'
             - keyword: END
-          alias_expression:
-            keyword: as
-            identifier: a_case_statement
-      from_clause:
-        keyword: FROM
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                identifier: boo
+        - alias_expression:
+          - keyword: as
+          - identifier: a_case_statement
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - identifier: boo

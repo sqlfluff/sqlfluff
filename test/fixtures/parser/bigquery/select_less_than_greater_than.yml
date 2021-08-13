@@ -1,16 +1,16 @@
 file:
-  statement:
-    select_statement:
-      select_clause:
+- statement:
+  - select_statement:
+    - select_clause:
       - keyword: SELECT
       - select_clause_element:
-          expression:
+        - expression:
           - literal: '1'
           - comparison_operator: <
           - literal: '2'
       - comma: ','
       - select_clause_element:
-          expression:
+        - expression:
           - literal: '2'
           - comparison_operator: '>'
           - literal: '1'

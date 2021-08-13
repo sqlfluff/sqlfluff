@@ -1,20 +1,20 @@
 file:
-  statement:
-    alter_user:
+- statement:
+  - alter_user:
     - keyword: ALTER
     - keyword: USER
     - object_reference:
-        identifier: my_user
+      - identifier: my_user
     - keyword: ADD
     - keyword: DELEGATED
     - keyword: AUTHORIZATION
     - keyword: OF
     - keyword: ROLE
     - object_reference:
-        identifier: my_role
+      - identifier: my_role
     - keyword: TO
     - keyword: SECURITY
     - keyword: INTEGRATION
     - object_reference:
-        identifier: my_idp
-  statement_terminator: ;
+      - identifier: my_idp
+- statement_terminator: ;

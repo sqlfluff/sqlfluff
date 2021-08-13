@@ -1,16 +1,16 @@
 file:
 - statement:
-    delimiter_statement:
-      keyword: DELIMITER
+  - delimiter_statement:
+    - keyword: DELIMITER
 - statement_terminator: '~'
 - statement:
-    select_statement:
-      select_clause:
-        keyword: SELECT
-        select_clause_element:
-          literal: '1'
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - literal: '1'
 - statement_terminator: '~'
 - statement:
-    delimiter_statement:
-      keyword: DELIMITER
+  - delimiter_statement:
+    - keyword: DELIMITER
 - statement_terminator: ;

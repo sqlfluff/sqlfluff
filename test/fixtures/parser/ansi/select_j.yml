@@ -1,96 +1,96 @@
 file:
 - statement:
-    select_statement:
-      select_clause:
-        keyword: SELECT
-        select_clause_element:
-          expression:
-            bracketed:
-              start_bracket: (
-              expression:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - bracketed:
+            - start_bracket: (
+            - expression:
               - function:
-                  function_name:
-                    function_name_identifier: POW
-                  bracketed:
+                - function_name:
+                  - function_name_identifier: POW
+                - bracketed:
                   - start_bracket: (
                   - expression:
-                      column_reference:
-                        identifier: sd2
+                    - column_reference:
+                      - identifier: sd2
                   - comma: ','
                   - expression:
-                      literal: '2'
+                    - literal: '2'
                   - end_bracket: )
               - binary_operator: +
               - function:
-                  function_name:
-                    function_name_identifier: POW
-                  bracketed:
+                - function_name:
+                  - function_name_identifier: POW
+                - bracketed:
                   - start_bracket: (
                   - expression:
-                      column_reference:
-                        identifier: sd3
+                    - column_reference:
+                      - identifier: sd3
                   - comma: ','
                   - expression:
-                      literal: '2'
+                    - literal: '2'
                   - end_bracket: )
               - binary_operator: +
               - function:
-                  function_name:
-                    function_name_identifier: POW
-                  bracketed:
+                - function_name:
+                  - function_name_identifier: POW
+                - bracketed:
                   - start_bracket: (
                   - expression:
-                      column_reference:
-                        identifier: sd4
+                    - column_reference:
+                      - identifier: sd4
                   - comma: ','
                   - expression:
-                      literal: '2'
+                    - literal: '2'
                   - end_bracket: )
               - binary_operator: +
               - function:
-                  function_name:
-                    function_name_identifier: POW
-                  bracketed:
+                - function_name:
+                  - function_name_identifier: POW
+                - bracketed:
                   - start_bracket: (
                   - expression:
-                      column_reference:
-                        identifier: sd4
+                    - column_reference:
+                      - identifier: sd4
                   - comma: ','
                   - expression:
-                      literal: '2'
+                    - literal: '2'
                   - end_bracket: )
-              end_bracket: )
-          alias_expression:
-            identifier: w1
-      from_clause:
-        keyword: FROM
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                identifier: dat
+            - end_bracket: )
+        - alias_expression:
+          - identifier: w1
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - identifier: dat
 - statement_terminator: ;
 - statement:
-    select_statement:
-      select_clause:
-        keyword: SELECT
-        select_clause_element:
-          expression:
-            case_expression:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - expression:
+          - case_expression:
             - keyword: CASE
             - keyword: WHEN
             - expression:
               - column_reference:
-                  identifier: order_month
+                - identifier: order_month
               - comparison_operator: '='
               - column_reference:
-                  identifier: max_month
+                - identifier: max_month
             - keyword: THEN
             - expression:
-                literal: '1'
+              - literal: '1'
             - keyword: ELSE
             - expression:
-                literal: '0'
+              - literal: '0'
             - keyword: END
-          alias_expression:
-            identifier: churn
+        - alias_expression:
+          - identifier: churn

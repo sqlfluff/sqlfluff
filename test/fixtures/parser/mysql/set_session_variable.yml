@@ -1,8 +1,8 @@
 file:
-  statement:
-    set_statement:
+- statement:
+  - set_statement:
     - keyword: set
     - variable: '@abc'
     - comparison_operator: '='
     - variable: '1'
-  statement_terminator: ;
+- statement_terminator: ;

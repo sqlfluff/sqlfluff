@@ -1,28 +1,28 @@
 file:
-  statement:
-    select_statement:
-      select_clause:
-        keyword: SELECT
-        select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: ARRAY_AGG
-            bracketed:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - function:
+          - function_name:
+            - function_name_identifier: ARRAY_AGG
+          - bracketed:
             - start_bracket: (
             - keyword: DISTINCT
             - expression:
-                column_reference:
-                  identifier: x
+              - column_reference:
+                - identifier: x
             - keyword: IGNORE
             - keyword: NULLS
             - end_bracket: )
-          alias_expression:
-            keyword: AS
-            identifier: array_agg
-      from_clause:
-        keyword: FROM
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                identifier: t
+        - alias_expression:
+          - keyword: AS
+          - identifier: array_agg
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - identifier: t

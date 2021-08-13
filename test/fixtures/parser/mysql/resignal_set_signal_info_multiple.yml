@@ -1,6 +1,6 @@
 file:
-  statement:
-    resignal_segment:
+- statement:
+  - resignal_segment:
     - keyword: resignal
     - keyword: set
     - keyword: message_text
@@ -10,4 +10,4 @@ file:
     - keyword: mysql_errno
     - comparison_operator: '='
     - literal: "'42S500'"
-  statement_terminator: ;
+- statement_terminator: ;

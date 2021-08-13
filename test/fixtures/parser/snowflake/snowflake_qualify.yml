@@ -1,47 +1,47 @@
 file:
-  statement:
-    select_statement:
-      select_clause:
+- statement:
+  - select_statement:
+    - select_clause:
       - keyword: select
       - select_clause_element:
-          column_reference:
-            identifier: col1
+        - column_reference:
+          - identifier: col1
       - comma: ','
       - select_clause_element:
-          column_reference:
-            identifier: col2
-      from_clause:
-        keyword: from
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                identifier: some_table
-      having_clause:
-        keyword: qualify
-        expression:
-          function:
-            function_name:
-              function_name_identifier: row_number
-            bracketed:
-              start_bracket: (
-              end_bracket: )
-            over_clause:
-              keyword: over
-              bracketed:
-                start_bracket: (
-                window_specification:
-                  partitionby_clause:
+        - column_reference:
+          - identifier: col2
+    - from_clause:
+      - keyword: from
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - table_reference:
+              - identifier: some_table
+    - having_clause:
+      - keyword: qualify
+      - expression:
+        - function:
+          - function_name:
+            - function_name_identifier: row_number
+          - bracketed:
+            - start_bracket: (
+            - end_bracket: )
+          - over_clause:
+            - keyword: over
+            - bracketed:
+              - start_bracket: (
+              - window_specification:
+                - partitionby_clause:
                   - keyword: partition
                   - keyword: by
                   - expression:
-                      column_reference:
-                        identifier: col1
-                  orderby_clause:
+                    - column_reference:
+                      - identifier: col1
+                - orderby_clause:
                   - keyword: order
                   - keyword: by
                   - column_reference:
-                      identifier: col1
-                end_bracket: )
-          comparison_operator: '='
-          literal: '1'
+                    - identifier: col1
+              - end_bracket: )
+        - comparison_operator: '='
+        - literal: '1'

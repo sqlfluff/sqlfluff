@@ -1,10 +1,10 @@
 file:
-  statement:
-    declare_statement:
+- statement:
+  - declare_statement:
     - keyword: DECLARE
     - variable: abc
     - data_type:
-        data_type_identifier: longtext
+      - data_type_identifier: longtext
     - keyword: default
     - literal: "'test'"
-  statement_terminator: ;
+- statement_terminator: ;

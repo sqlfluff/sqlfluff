@@ -1,37 +1,37 @@
 file:
-  statement:
-    select_statement:
-      select_clause:
-        keyword: SELECT
-        select_clause_element:
-          column_reference:
-            identifier: y
-          alias_expression:
-            keyword: AS
-            identifier: woy
-      from_clause:
-        keyword: FROM
-        from_expression:
-          from_expression_element:
-            table_expression:
-              function:
-                function_name:
-                  function_name_identifier: UNNEST
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    function:
-                      function_name:
-                        function_name_identifier: GENERATE_ARRAY
-                      bracketed:
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+        - column_reference:
+          - identifier: y
+        - alias_expression:
+          - keyword: AS
+          - identifier: woy
+    - from_clause:
+      - keyword: FROM
+      - from_expression:
+        - from_expression_element:
+          - table_expression:
+            - function:
+              - function_name:
+                - function_name_identifier: UNNEST
+              - bracketed:
+                - start_bracket: (
+                - expression:
+                  - function:
+                    - function_name:
+                      - function_name_identifier: GENERATE_ARRAY
+                    - bracketed:
                       - start_bracket: (
                       - expression:
-                          literal: '1'
+                        - literal: '1'
                       - comma: ','
                       - expression:
-                          literal: '53'
+                        - literal: '53'
                       - end_bracket: )
-                  end_bracket: )
-            alias_expression:
-              keyword: AS
-              identifier: y
+                - end_bracket: )
+          - alias_expression:
+            - keyword: AS
+            - identifier: y

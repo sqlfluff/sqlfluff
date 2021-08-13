@@ -1,10 +1,10 @@
 file:
-  statement:
-    select_statement:
-      select_clause:
-        keyword: select
-        select_clause_element:
-          literal: "'c\\' '"
-          alias_expression:
-            keyword: as
-            identifier: escaped
+- statement:
+  - select_statement:
+    - select_clause:
+      - keyword: select
+      - select_clause_element:
+        - literal: "'c\\' '"
+        - alias_expression:
+          - keyword: as
+          - identifier: escaped
