@@ -1,0 +1,47 @@
+file:
+  statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          function:
+          - function_name:
+              function_name_identifier: testFunction
+          - bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  identifier: a
+              end_bracket: )
+          - dot: .
+          - parameter: b
+          - dot: .
+          - parameter: c
+          alias_expression:
+            keyword: AS
+            identifier: field_with_field
+      - comma: ','
+      - select_clause_element:
+          function:
+          - function_name:
+              function_name_identifier: testFunction
+          - bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  identifier: a
+              end_bracket: )
+          - dot: .
+          - parameter: b
+          - dot: .
+          - star: '*'
+          alias_expression:
+            keyword: AS
+            identifier: field_with_wildcard
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: table1

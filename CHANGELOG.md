@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for BigQuery "CREATE table OPTIONS ( description = 'desc' )" [#1205](https://github.com/sqlfluff/sqlfluff/issues/1205)
 - Support wildcard member field references in BigQuery dialect [#1269](https://github.com/sqlfluff/sqlfluff/issues/1269)
 - Support ARRAYS of STRUCTs in BigQuery dialect [#1271](https://github.com/sqlfluff/sqlfluff/issues/1271)
+- Support fields of field references in BigQuery dialect [#](https://github.com/sqlfluff/sqlfluff/issues/)
 
 ### Changed
 
