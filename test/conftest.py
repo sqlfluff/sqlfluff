@@ -1,6 +1,7 @@
 """Common Test Fixtures."""
 import hashlib
 import io
+import json
 
 import pytest
 import oyaml
@@ -56,8 +57,16 @@ def compute_parse_tree_hash(tree):
         r = tree.as_record(code_only=True, show_raw=True)
         if r:
             r_io = io.StringIO()
-            oyaml.dump(r, r_io)
-            return hashlib.blake2s(r_io.getvalue().encode("utf-8")).hexdigest()
+            # :TRICKY: Use json, not oyaml, because oyaml is inconsistent how
+            # it outputs certain data. For example, I've seen oayml write an
+            # empty string literal written out both the following ways:
+            # - "''"
+            # - ''''''
+            json.dump(r, r_io)
+            result = hashlib.blake2s(r_io.getvalue().encode("utf-8")).hexdigest()
+            #print(result)
+            #print(r_io.getvalue())
+            return result
     return None
 
 
