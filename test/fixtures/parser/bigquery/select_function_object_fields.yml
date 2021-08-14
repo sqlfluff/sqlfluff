@@ -93,6 +93,29 @@ file:
           alias_expression:
             keyword: AS
             identifier: field_with_offset_wildcard
+      - comma: ','
+      - select_clause_element:
+          function:
+          - function_name:
+              function_name_identifier: testFunction
+          - bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  identifier: a
+              end_bracket: )
+          - start_square_bracket: '['
+          - keyword: ORDINAL
+          - bracketed:
+              start_bracket: (
+              literal: '1'
+              end_bracket: )
+          - end_square_bracket: ']'
+          - dot: .
+          - star: '*'
+          alias_expression:
+            keyword: AS
+            identifier: field_with_ordinal_wildcard
       from_clause:
         keyword: FROM
         from_expression:
