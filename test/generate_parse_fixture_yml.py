@@ -16,6 +16,7 @@ def main():
     for example in parse_success_examples:
         dialect, sqlfile = example
         tree = parse_example_file(dialect, sqlfile)
+        _hash = compute_parse_tree_hash(tree)
         # Remove the .sql file extension
         root = sqlfile[:-4]
         path = os.path.join("test", "fixtures", "parser", dialect, root + ".yml")
@@ -23,7 +24,7 @@ def main():
             r = None
             if tree:
                 r = dict(
-                    [('_hash', compute_parse_tree_hash(tree))] + list(tree.as_record(code_only=True, show_raw=True).items())
+                    [('_hash', _hash)] + list(tree.as_record(code_only=True, show_raw=True).items())
                 )
                 yaml.dump(r, f, default_flow_style=False)
             else:

@@ -18,7 +18,7 @@ from sqlfluff.core.parser.segments import (
     CodeSegment,
 )
 from sqlfluff.core.templaters import TemplatedFile
-from .dialects.parse_fixtures import load_file
+from test.dialects.parse_fixtures import load_file
 
 def process_struct(obj):
     """Process a nested dict or dict-like into a check tuple."""

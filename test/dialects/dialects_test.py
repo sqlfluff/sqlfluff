@@ -49,10 +49,10 @@ def test__dialect__base_parse_struct(
 ):
     """For given test examples, check parsed structure against yaml."""
     parsed = parse_example_file(dialect, sqlfile)
+    actual_hash = compute_parse_tree_hash(parsed)
     # Load the YAML
     expected_hash, res = yaml_loader(make_dialect_path(dialect, yamlfile))
     if parsed:
-        actual_hash = compute_parse_tree_hash(parsed)
         assert expected_hash == actual_hash
         assert parsed.to_tuple(code_only=code_only, show_raw=True) == res
     else:
