@@ -21,6 +21,7 @@ from sqlfluff.core.parser.segments import (
 from sqlfluff.core.templaters import TemplatedFile
 from test.dialects.parse_fixtures import load_file
 
+
 def process_struct(obj):
     """Process a nested dict or dict-like into a check tuple."""
     if isinstance(obj, dict):
@@ -43,6 +44,7 @@ def process_struct(obj):
 
 
 def parse_example_file(dialect, sqlfile):
+    """Parse example SQL file, return parse tree."""
     config = FluffConfig(overrides=dict(dialect=dialect))
     # Load the SQL
     raw = load_file(dialect, sqlfile)
@@ -53,6 +55,7 @@ def parse_example_file(dialect, sqlfile):
 
 
 def compute_parse_tree_hash(tree):
+    """Given a parse tree, compute a consistent hash value for it."""
     if tree:
         r = tree.as_record(code_only=True, show_raw=True)
         if r:
@@ -64,8 +67,8 @@ def compute_parse_tree_hash(tree):
             # - ''''''
             json.dump(r, r_io)
             result = hashlib.blake2s(r_io.getvalue().encode("utf-8")).hexdigest()
-            #print(result)
-            #print(r_io.getvalue())
+            # print(result)
+            # print(r_io.getvalue())
             return result
     return None
 
