@@ -139,6 +139,7 @@ bigquery_dialect.sets("datetime_units").update(
 bigquery_dialect.sets("unreserved_keywords").add("SYSTEM_TIME")
 bigquery_dialect.sets("unreserved_keywords").remove("FOR")
 bigquery_dialect.sets("unreserved_keywords").add("STRUCT")
+bigquery_dialect.sets("unreserved_keywords").add("ORDINAL")
 # Reserved Keywords
 bigquery_dialect.sets("reserved_keywords").add("FOR")
 
@@ -259,6 +260,21 @@ class FunctionSegment(BaseSegment):
                     optional=True,
                     ephemeral_name="FunctionContentsGrammar",
                 )
+            ),
+            # Functions returning ARRYS in BigQuery can have optional
+            # OFFSET or ORDINAL clauses
+            Sequence(
+                Bracketed(
+                    OneOf(
+                        "OFFSET",
+                        "ORDINAL",
+                    ),
+                    Bracketed(
+                        Ref("NumericLiteralSegment"),
+                    ),
+                    bracket_type="square",
+                ),
+                optional=True,
             ),
             # Functions returning STRUCTs in BigQuery can have the fields
             # elements referenced (e.g. ".a"), including wildcards (e.g. ".*")
