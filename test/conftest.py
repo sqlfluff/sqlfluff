@@ -45,11 +45,14 @@ def load_yaml(fpath):
     # Parse the yaml
     obj = oyaml.safe_load(raw)
     # Return the parsed and structured object
+    _hash = None
+    if obj:
+        _hash = obj.pop("_hash", None)
     processed = process_struct(obj)
     if processed:
-        return process_struct(obj)[0]
+        return _hash, process_struct(obj)[0]
     else:
-        return None
+        return None, None
 
 
 @pytest.fixture()

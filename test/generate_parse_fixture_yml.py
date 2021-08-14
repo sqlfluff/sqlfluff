@@ -1,4 +1,6 @@
 """Utility to generate yml files for all the parsing examples."""
+import hashlib
+import io
 import os
 
 import oyaml as yaml
@@ -29,6 +31,12 @@ for example in parse_success_examples:
     path = os.path.join("test", "fixtures", "parser", dialect, root + ".yml")
     with open(path, "w", newline="\n") as f:
         if r:
+            r_io = io.StringIO()
+            yaml.dump(r, r_io)
+            r_hash = hashlib.blake2s(r_io.getvalue().encode("utf-8")).hexdigest()
+            r = dict(
+                [('_hash', r_hash)] + list(r.items())
+            )
             yaml.dump(r, f, default_flow_style=False)
         else:
             f.write("")

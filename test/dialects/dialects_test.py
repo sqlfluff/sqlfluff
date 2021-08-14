@@ -55,7 +55,7 @@ def test__dialect__base_parse_struct(
     tokens, _ = Lexer(config=config).lex(raw)
     parsed = Parser(config=config).parse(tokens)
     # Load the YAML
-    res = yaml_loader(make_dialect_path(dialect, yamlfile))
+    _hash, res = yaml_loader(make_dialect_path(dialect, yamlfile))
     if parsed:
         assert parsed.to_tuple(code_only=code_only, show_raw=True) == res
     else:
