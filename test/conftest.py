@@ -1,4 +1,6 @@
 """Common Test Fixtures."""
+import hashlib
+import io
 
 import pytest
 import oyaml
@@ -35,6 +37,16 @@ def process_struct(obj):
         return None
     else:
         raise TypeError(f"Not sure how to deal with type {type(obj)}: {obj!r}")
+
+
+def compute_parse_tree_hash(tree):
+    if tree:
+        r = tree.as_record(code_only=True, show_raw=True)
+        if r:
+            r_io = io.StringIO()
+            oyaml.dump(r, r_io)
+            return hashlib.blake2s(r_io.getvalue().encode("utf-8")).hexdigest()
+    return None
 
 
 def load_yaml(fpath):

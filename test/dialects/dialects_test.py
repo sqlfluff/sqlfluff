@@ -9,6 +9,7 @@ import pytest
 from sqlfluff.core.parser import Parser, Lexer
 from sqlfluff.core import FluffConfig
 
+from ..conftest import compute_parse_tree_hash
 from .parse_fixtures import get_parse_fixtures, load_file, make_dialect_path
 
 parse_success_examples, parse_structure_examples = get_parse_fixtures(
@@ -55,8 +56,10 @@ def test__dialect__base_parse_struct(
     tokens, _ = Lexer(config=config).lex(raw)
     parsed = Parser(config=config).parse(tokens)
     # Load the YAML
-    _hash, res = yaml_loader(make_dialect_path(dialect, yamlfile))
+    expected_hash, res = yaml_loader(make_dialect_path(dialect, yamlfile))
     if parsed:
+        actual_hash = compute_parse_tree_hash(parsed)
+        assert expected_hash == actual_hash
         assert parsed.to_tuple(code_only=code_only, show_raw=True) == res
     else:
         assert parsed == res
