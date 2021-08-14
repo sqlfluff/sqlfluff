@@ -5,6 +5,38 @@ file:
       - keyword: SELECT
       - select_clause_element:
           function:
+            function_name:
+              function_name_identifier: testFunction
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  identifier: a
+              end_bracket: )
+            dot: .
+            parameter: b
+          alias_expression:
+            keyword: AS
+            identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: testFunction
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  identifier: a
+              end_bracket: )
+            dot: .
+            star: '*'
+          alias_expression:
+            keyword: AS
+            identifier: wildcard
+      - comma: ','
+      - select_clause_element:
+          function:
           - function_name:
               function_name_identifier: testFunction
           - bracketed:

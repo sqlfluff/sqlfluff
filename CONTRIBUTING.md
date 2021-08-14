@@ -108,7 +108,7 @@ To run the dbt-related tests you will have to explicitly include these tests:
 tox -e dbt018-py38 -- -m "dbt"
 ```
 
-For more information on adding and running test cases see the [Parser Test README](test/fixtures/parser/README.md) and the [Rules Test README](test/fixtures/rules/std_classes/README.md).
+For more information on adding and running test cases see the [Parser Test README](test/fixtures/parser/README.md) and the [Rules Test README](test/fixtures/rules/std_rule_cases/README.md).
 
 ### Using your local version
 
