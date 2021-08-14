@@ -5,6 +5,8 @@ import io
 import pytest
 import oyaml
 
+from sqlfluff.core import FluffConfig
+from sqlfluff.core.parser import Parser, Lexer
 from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.parser.segments import (
     Indent,
@@ -16,7 +18,7 @@ from sqlfluff.core.parser.segments import (
     CodeSegment,
 )
 from sqlfluff.core.templaters import TemplatedFile
-
+from .dialects.parse_fixtures import load_file
 
 def process_struct(obj):
     """Process a nested dict or dict-like into a check tuple."""
@@ -37,6 +39,16 @@ def process_struct(obj):
         return None
     else:
         raise TypeError(f"Not sure how to deal with type {type(obj)}: {obj!r}")
+
+
+def parse_example_file(dialect, sqlfile):
+    config = FluffConfig(overrides=dict(dialect=dialect))
+    # Load the SQL
+    raw = load_file(dialect, sqlfile)
+    # Lex and parse the file
+    tokens, _ = Lexer(config=config).lex(raw)
+    tree = Parser(config=config).parse(tokens)
+    return tree
 
 
 def compute_parse_tree_hash(tree):

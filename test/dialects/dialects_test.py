@@ -9,7 +9,7 @@ import pytest
 from sqlfluff.core.parser import Parser, Lexer
 from sqlfluff.core import FluffConfig
 
-from ..conftest import compute_parse_tree_hash
+from ..conftest import compute_parse_tree_hash, parse_example_file
 from .parse_fixtures import get_parse_fixtures, load_file, make_dialect_path
 
 parse_success_examples, parse_structure_examples = get_parse_fixtures(
@@ -48,13 +48,7 @@ def test__dialect__base_parse_struct(
     dialect, sqlfile, code_only, yamlfile, yaml_loader
 ):
     """For given test examples, check parsed structure against yaml."""
-    # Load the right dialect
-    config = FluffConfig(overrides=dict(dialect=dialect))
-    # Load the SQL
-    raw = load_file(dialect, sqlfile)
-    # Lex and parse the file
-    tokens, _ = Lexer(config=config).lex(raw)
-    parsed = Parser(config=config).parse(tokens)
+    parsed = parse_example_file(dialect, sqlfile)
     # Load the YAML
     expected_hash, res = yaml_loader(make_dialect_path(dialect, yamlfile))
     if parsed:

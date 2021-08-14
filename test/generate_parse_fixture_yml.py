@@ -1,16 +1,12 @@
 """Utility to generate yml files for all the parsing examples."""
-import hashlib
-import io
 import os
 
 import oyaml as yaml
 
-from sqlfluff.core.parser import Parser, Lexer
-from sqlfluff.core import FluffConfig
 from sqlfluff.cli.commands import quoted_presenter
 
-from conftest import compute_parse_tree_hash
-from dialects.parse_fixtures import get_parse_fixtures, load_file
+from conftest import compute_parse_tree_hash, parse_example_file
+from dialects.parse_fixtures import get_parse_fixtures
 
 yaml.add_representer(str, quoted_presenter)
 
@@ -19,12 +15,7 @@ def main():
 
     for example in parse_success_examples:
         dialect, sqlfile = example
-        config = FluffConfig(overrides=dict(dialect=dialect))
-        # Load the SQL
-        raw = load_file(dialect, sqlfile)
-        # Lex and parse the file
-        tokens, _ = Lexer(config=config).lex(raw)
-        tree = Parser(config=config).parse(tokens)
+        tree = parse_example_file(dialect, sqlfile)
         # Remove the .sql file extension
         root = sqlfile[:-4]
         path = os.path.join("test", "fixtures", "parser", dialect, root + ".yml")
