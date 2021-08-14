@@ -11,4 +11,4 @@ SELECT
     ARRAY<string>['b'] AS strcol2,
     [1.0] AS numcol1,
     ARRAY<NUMERIC>[1.4] AS numcol2,
-    [STRUCT('a', [26.1] AS splits)] AS struct1
+    [STRUCT("Rudisha" AS name, [23.4, 26.3, 26.4, 26.1] AS splits)] AS struct1

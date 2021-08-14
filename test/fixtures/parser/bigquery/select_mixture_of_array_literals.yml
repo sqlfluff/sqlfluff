@@ -88,19 +88,31 @@ file:
               typeless_struct:
                 keyword: STRUCT
                 bracketed:
-                  start_bracket: '('
-                  literal: "'a'"
-                  comma: ','
-                  expression:
+                - start_bracket: (
+                - literal: '"Rudisha"'
+                - alias_expression:
+                    keyword: AS
+                    identifier: name
+                - comma: ','
+                - expression:
                     array_literal:
-                      start_square_bracket: '['
-                      expression:
-                        literal: 26.1
-                      end_square_bracket: ']'
-                  alias_expression:
+                    - start_square_bracket: '['
+                    - expression:
+                        literal: '23.4'
+                    - comma: ','
+                    - expression:
+                        literal: '26.3'
+                    - comma: ','
+                    - expression:
+                        literal: '26.4'
+                    - comma: ','
+                    - expression:
+                        literal: '26.1'
+                    - end_square_bracket: ']'
+                - alias_expression:
                     keyword: AS
                     identifier: splits
-                  end_bracket: ')'
+                - end_bracket: )
               end_square_bracket: ']'
           alias_expression:
             keyword: AS

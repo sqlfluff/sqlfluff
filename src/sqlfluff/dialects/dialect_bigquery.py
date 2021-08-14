@@ -262,10 +262,15 @@ class FunctionSegment(BaseSegment):
             ),
             # Functions returning STRUCTs in BigQuery can have the fields
             # elements referenced (e.g. ".a"), including wildcards (e.g. ".*")
-            # Note: we currently don't support field of fields (e.g. ".a.b", or ".a.b.c")
-            # But bad practice to use them directly, as can't guarantee they exist.
+            # or multiple nested fields (e.g. ".a.b", or ".a.b.c")
             Sequence(
                 Ref("DotSegment"),
+                AnyNumberOf(
+                    Sequence(
+                        Ref("ParameterNameSegment"),
+                        Ref("DotSegment"),
+                    ),
+                ),
                 OneOf(
                     Ref("ParameterNameSegment"),
                     Ref("StarSegment"),
