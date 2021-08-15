@@ -12,7 +12,7 @@ jobs:
     - name: Install dependencies
       run: |
         pip install -Ur requirements.txt -Ur requirements_dev.txt
-        pip install -e
+        python setup.py develop
     - name: Generate the YAML files
       run: |
         python test/generate_parse_fixture_yml.py
