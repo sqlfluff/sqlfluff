@@ -3,12 +3,8 @@ import os
 
 import oyaml as yaml
 
-from sqlfluff.cli.commands import quoted_presenter
-
 from conftest import compute_parse_tree_hash, parse_example_file
 from dialects.parse_fixtures import get_parse_fixtures
-
-yaml.add_representer(str, quoted_presenter)
 
 
 def generate_parse_fixture(dialect, sqlfile):

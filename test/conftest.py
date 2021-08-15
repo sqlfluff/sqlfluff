@@ -1,11 +1,11 @@
 """Common Test Fixtures."""
 import hashlib
 import io
-import json
 
 import pytest
 import oyaml
 
+from sqlfluff.cli.commands import quoted_presenter
 from sqlfluff.core import FluffConfig
 from sqlfluff.core.parser import Parser, Lexer
 from sqlfluff.core.parser.markers import PositionMarker
@@ -20,6 +20,9 @@ from sqlfluff.core.parser.segments import (
 )
 from sqlfluff.core.templaters import TemplatedFile
 from test.dialects.parse_fixtures import load_file
+
+# When writing YAML files, double quotes string values needing escapes.
+oyaml.add_representer(str, quoted_presenter)
 
 
 def process_struct(obj):
@@ -60,12 +63,7 @@ def compute_parse_tree_hash(tree):
         r = tree.as_record(code_only=True, show_raw=True)
         if r:
             r_io = io.StringIO()
-            # :TRICKY: Use json, not oyaml, because oyaml is inconsistent how
-            # it outputs certain data. For example, I've seen oayml write an
-            # empty string literal written out both the following ways:
-            # - "''"
-            # - ''''''
-            json.dump(r, r_io)
+            oyaml.dump(r, r_io)
             result = hashlib.blake2s(r_io.getvalue().encode("utf-8")).hexdigest()
             # print(result)
             # print(r_io.getvalue())

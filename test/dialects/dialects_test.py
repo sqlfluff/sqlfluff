@@ -53,7 +53,17 @@ def test__dialect__base_parse_struct(
     # Load the YAML
     expected_hash, res = yaml_loader(make_dialect_path(dialect, yamlfile))
     if parsed:
-        assert expected_hash == actual_hash
+        # Verify the current parse tree matches the historic parse tree.
         assert parsed.to_tuple(code_only=code_only, show_raw=True) == res
+        # Verify the current hash matches the historic hash. The main purpose of
+        # this check is to force contributors to use the generator script to
+        # to create these files. New contributors have sometimes been unaware of
+        # this tool and have attempted to craft the YAML files manually. This
+        # can lead to slight differences, confusion, and errors.
+        assert expected_hash == actual_hash, (
+            "Parse tree hash does not match. Please run "
+            "'python test/generate_parse_fixture_yml.py' to create YAML files "
+            "in test/fixtures/parser."
+        )
     else:
         assert parsed == res
