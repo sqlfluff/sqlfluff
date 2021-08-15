@@ -11,8 +11,7 @@ jobs:
         python-version: '3.8'
     - name: Install dependencies
       run: |
-        pip install -Ur requirements.txt -Ur requirements_dev.txt
-        python setup.py develop
+        pip install -e -Ur requirements.txt -Ur requirements_dev.txt
     - name: Generate the YAML files
       run: |
         python test/generate_parse_fixture_yml.py
@@ -20,7 +19,7 @@ jobs:
       run: |
         if [ -n "$(git status --porcelain)" ]; then
           git diff
-          echo "Generated YAML files do no match branch."
+          echo "Generated YAML files do not match branch."
           echo "Please run the following command to generate these:"
           echo "  python test/generate_parse_fixture_yml.py"
           exit 1
