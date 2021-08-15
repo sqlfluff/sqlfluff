@@ -12,10 +12,11 @@ jobs:
     - name: Install dependencies
       run: |
         pip install -Ur requirements.txt -Ur requirements_dev.txt
+        python setup.py develop
     - name: Generate the YAML files
       run: |
         python test/generate_parse_fixture_yml.py
-    - name: Generate the YAML files
+    - name: Test the generated YAML files
       run: |
         if [ -n "$(git status --porcelain)" ]; then
           git diff
