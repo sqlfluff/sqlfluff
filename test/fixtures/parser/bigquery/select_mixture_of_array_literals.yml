@@ -34,7 +34,7 @@ file:
             array_literal:
               start_square_bracket: '['
               expression:
-                literal: "'a'"
+                literal: '"a"'
               end_square_bracket: ']'
           alias_expression:
             keyword: AS
