@@ -30,15 +30,15 @@ file:
               end_square_bracket: ']'
       - comma: ','
       - select_clause_element:
-          expression:
-            array_literal:
-              start_square_bracket: '['
-              expression:
-                literal: '"a"'
-              end_square_bracket: ']'
-          alias_expression:
-            keyword: AS
-            identifier: strcol1
+            expression:
+              array_literal:
+                start_square_bracket: '['
+                expression:
+                  literal: "'a'"
+                end_square_bracket: ']'
+            alias_expression:
+              keyword: AS
+              identifier: strcol1
       - comma: ','
       - select_clause_element:
           expression:
