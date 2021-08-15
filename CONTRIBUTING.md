@@ -127,14 +127,16 @@ source .venv/bin/activate
 Once you're in a virtual environment, run:
 
 ```shell
-pip install -e -Ur requirements.txt -Ur requirements_dev.txt
+pip install -Ur requirements.txt -Ur requirements_dev.txt
+pip install -e
 ```
 
-> `pip install -e -Ur requirements.txt -Ur requirements_dev.txt` installs the 
-> project dependencies using a link to the source code (-e) so that any changes
-> which you make will immediately be available for use, as well as the 
-> dependencies needed to run linting, formatting, and testing commands. This will
+> `pip install -Ur requirements.txt -Ur requirements_dev.txt` installs the project dependencies
+> as well as the dependencies needed to run linting, formatting, and testing commands. This will
 > install the most up-to-date package versions for all dependencies (-U).
+
+> `pip install -e` installs the package using a link to the source code so that any changes
+> which you make will immediately be available for use.
 
 ## Building Package
 

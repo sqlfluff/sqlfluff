@@ -11,7 +11,8 @@ jobs:
         python-version: '3.8'
     - name: Install dependencies
       run: |
-        pip install -e -Ur requirements.txt -Ur requirements_dev.txt
+        pip install -Ur requirements.txt -Ur requirements_dev.txt
+        pip install -e
     - name: Generate the YAML files
       run: |
         python test/generate_parse_fixture_yml.py
