@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 ### Changed
+- Fix typo in the in the wild page [#](https://github.com/sqlfluff/sqlfluff/issues/)
 
 ## [0.6.3] - 2021-08-16
 ### Added
