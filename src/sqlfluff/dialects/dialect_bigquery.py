@@ -28,6 +28,8 @@ from sqlfluff.core.parser import (
     Nothing,
     StartsWith,
     OptionallyBracketed,
+    Indent,
+    Dedent,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -157,6 +159,42 @@ bigquery_dialect.sets("angle_bracket_pairs").update(
         ("angle", "StartAngleBracketSegment", "EndAngleBracketSegment", False),
     ]
 )
+
+
+@bigquery_dialect.segment()
+class QualifyClauseSegment(BaseSegment):
+    """A `QUALIFY` clause like in `SELECT`."""
+
+    type = "qualify_clause"
+    match_grammar = StartsWith(
+        "QUALIFY",
+        terminator=OneOf("WINDOW"),
+        enforce_whitespace_preceeding_terminator=True,
+    )
+
+    parse_grammar = Sequence(
+        "QUALIFY",
+        Indent,
+        OptionallyBracketed(Ref("ExpressionSegment")),
+        Dedent,
+    )
+
+
+@bigquery_dialect.segment(replace=True)
+class SelectStatementSegment(BaseSegment):
+    """Enhance`SELECT` statement to include QUALIFY."""
+
+    type = "select_statement"
+    match_grammar = ansi_dialect.get_segment(
+        "SelectStatementSegment"
+    ).match_grammar.copy()
+
+    parse_grammar = ansi_dialect.get_segment(
+        "SelectStatementSegment"
+    ).parse_grammar.copy(
+        insert=[Ref("QualifyClauseSegment", optional=True)],
+        before=Ref("OrderByClauseSegment", optional=True),
+    )
 
 
 @bigquery_dialect.segment(replace=True)
