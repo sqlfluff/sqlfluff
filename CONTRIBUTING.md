@@ -89,13 +89,13 @@ python version, so you can always specify a particular environment. For example
 if you're developing in python 3.6 you might call...
 
 ```shell
-tox -e py36,linting
+tox -e generate-fixture-yml,py36,linting
 ```
 
 ...or if you also want to see the coverage reporting...
 
 ```shell
-tox -e cov-init,py36,cov-report,linting
+tox -e generate-fixture-yml,cov-init,py36,cov-report,linting
 ```
 
 > NB: The `cov-init` task clears the previous test results, the `py36` environment
@@ -131,12 +131,12 @@ pip install -Ur requirements.txt -Ur requirements_dev.txt
 python setup.py develop
 ```
 
-> `setup.py develop` installs the package using a link to the source code so that any changes
-> which you make will immediately be available for use.
->
 > `pip install -Ur requirements.txt -Ur requirements_dev.txt` installs the project dependencies
 > as well as the dependencies needed to run linting, formatting, and testing commands. This will
-> install the most up-to-date package versions for all dependencies.
+> install the most up-to-date package versions for all dependencies (-U).
+
+> `python setup.py develop` installs the package using a link to the source code so that any changes
+> which you make will immediately be available for use.
 
 ## Building Package
 
