@@ -1,9 +1,3 @@
----
-name: Bug Fix/Demonstration
-about: This fixes or demonstrates a bug in SQLFluff
-labels: bug
----
-
 -- Firstly, thanks for fixing a bug! Secondly, please make sure your PR includes a test case demonstrating that the bug is fixed. Test cases should be as minimal as possible to show it's fixed but also be representative of the case the original reporter of the bug posted. If this PR is just a failing test case, please file it as a `draft` PR or use pytest `xfail` to mark the case as expected to fail. --
 
 ### Bug fix checklist
@@ -17,7 +11,6 @@ labels: bug
   - [ ] `.sql`/`.yml` parser test cases in `test/fixtures/parser`.
   - [ ] Full autofix test cases in `test/fixtures/linter/autofix`.
   - [ ] Other.
-- [ ] This PR updates the [CHANGELOG.md](https://github.com/sqlfluff/sqlfluff/blob/master/CHANGELOG.md).
 
 ### What was the root cause of this bug?
 ...
