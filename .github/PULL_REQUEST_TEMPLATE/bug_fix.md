@@ -2,7 +2,7 @@
 
 ### Bug fix checklist
 - [ ] I have identified the root cause of the bug.
-- I have fixed:
+- [ ] I have fixed:
   - [ ] All cases affected by the bug.
   - [ ] Some cases affected by the bug, but others still remain.
   - [ ] No cases, this PR just adds a failing test case.
