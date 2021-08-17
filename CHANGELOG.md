@@ -10,7 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfluff/sqlfluff/releases) and will be copied in here on each release. There is no need to manually edit this file going forward.
 
 ### Added
+- Added support for empty WINDOWS specificiations [#1293](https://github.com/sqlfluff/sqlfluff/pull/1293)
 - Added auto release drafter [#1287](https://github.com/sqlfluff/sqlfluff/pull/1287)
+
 ### Changed
 - Fix typo in the in the wild page [#1285](https://github.com/sqlfluff/sqlfluff/pull/1285)
 
