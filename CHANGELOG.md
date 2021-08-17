@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
+- Added support for empty WINDOWS specificiations [#1293](https://github.com/sqlfluff/sqlfluff/pull/1293)
 ### Changed
 - Fix typo in the in the wild page [#1285](https://github.com/sqlfluff/sqlfluff/pull/1285)
 
