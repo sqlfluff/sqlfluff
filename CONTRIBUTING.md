@@ -147,7 +147,7 @@ whenever a new release is published to github.
 A new release can published with a tag in github by navigating to the 
 [releases page](https://github.com/sqlfluff/sqlfluff/releases) and a Draft release should
 already exist with merged Pull Requests automatically added since the last release.
-Copy the changes to the [CHANGELOG.md](CHANGELOG.md) file and update the
+Copy the text from the draft release into a new, version-numbered section of the [CHANGELOG.md](CHANGELOG.md) file and update the
 [src/sqlfluff/config.ini](src/sqlfluff/config.ini) file to the new version.
 Once both changes are done, open a new Pull Request for these changes.
 
