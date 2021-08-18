@@ -4,7 +4,7 @@ _Firstly, thanks for adding this feature! Secondly, please check the key steps a
 _Please give meaningful title the Pull Request (including the dialect this PR is for if it is dialect specific), as this will automatically be added ot the release notes, and then the Change Log._
 
 ### Brief summary of the change made
-_Please include `fixes XXX` or `closes XXX` replacing `XXX` if there is an open issue for this and it will automatically close the issue when the pull request is merged. Alternatively if not fully closed you can say `makes progress on XXX`_
+_If there is an open issue for this, then please include `fixes XXXX` or `closes XXXX` replacing `XXXX` with the issue number and it will automatically close the issue when the pull request is merged. Alternatively if not fully closed you can say `makes progress on XXXX` to create a link on that issue without closing it._
 ...
 
 ### Are there any other side effects of this change that we should be aware of?
