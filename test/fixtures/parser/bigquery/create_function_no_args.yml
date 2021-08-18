@@ -14,7 +14,7 @@ file:
         data_type_identifier: integer
     - base:
       - keyword: AS
-      - literal: "'select $1 + $2;'"
+      - udf_body: "'select $1 + $2;'"
       - keyword: LANGUAGE
       - parameter: SQL
   statement_terminator: ;
