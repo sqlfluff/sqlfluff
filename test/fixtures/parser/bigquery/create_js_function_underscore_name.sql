@@ -1,5 +1,5 @@
 CREATE TEMP FUNCTION
-qs(
+_qs(
     y STRING
 )
 RETURNS STRUCT<_product_id ARRAY<INT64>>
