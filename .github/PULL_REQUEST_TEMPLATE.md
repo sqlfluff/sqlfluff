@@ -1,17 +1,22 @@
 
 -- Firstly, thanks for adding this feature! Secondly, please check the key steps against the checklist below to make your contribution easy to merge. --
 
-### Pull Request checklist
-- [ ] This PR includes test cases to demonstrate any code changes. Including one or more of the following:
-  - [ ] `.yml` rule test cases in `test/fixtures/rules/std_rule_cases`.
-  - [ ] `.sql`/`.yml` parser test cases in `test/fixtures/parser` (note YML files can be auto generated with `python test/generate_parse_fixture_yml.py` or by running `tox` locally).
-  - [ ] Full autofix test cases in `test/fixtures/linter/autofix`.
-  - [ ] Other.
-- [ ] This PR adds appropriate documentation for the change.
-- [ ] _[if appropriate]_ I have created GitHub issues for any relevant followup/future enhancements.
+-- Please give meaningful title the Pull Request (including the dialect this PR is for if it is dialect specific), as this will automatically be added ot the release notes, and then the Change Log. --
 
 ### Brief summary of the change made
+-- Please include `fixes XXX` or `closes XXX` replacing `XXX` if there is an open issue for this and it will automatically close the issue when the pull request is merged. Alternatively if not fully closed you can say `makes progress on XXX` --
 ...
 
-### Are there any other side effects of this change?
+### Are there any other side effects of this change that we should be aware of?
 ...
+
+### Pull Request checklist
+- [ ] Please confirm you have completed any of the necessary steps below.
+
+- Included test cases to demonstrate any code changes, which may be one or more of the following:
+  - `.yml` rule test cases in `test/fixtures/rules/std_rule_cases`.
+  - `.sql`/`.yml` parser test cases in `test/fixtures/parser` (note YML files can be auto generated with `python test/generate_parse_fixture_yml.py` or by running `tox` locally).
+  - Full autofix test cases in `test/fixtures/linter/autofix`.
+  - Other.
+- Added appropriate documentation for the change.
+- Created GitHub issues for any relevant followup/future enhancements if appropriate.

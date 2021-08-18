@@ -12,6 +12,8 @@ labels: bug
 
 ## Steps to Reproduce
 
+## Dialect
+
 ## Version
 Include the output of `sqlfluff --version` along with your Python version
 

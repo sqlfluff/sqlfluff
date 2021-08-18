@@ -4,4 +4,4 @@ about: Suggest an enhancement to help improve SQLFluff
 labels: enhancement
 ---
 
--- Please add any additional labels that are related to the issue before submitting! --
+-- Note: This is for general enhacnements to the project. Please use the Bug report template instead to raise parsing/linting/syntax issues for existing supported dialects --
