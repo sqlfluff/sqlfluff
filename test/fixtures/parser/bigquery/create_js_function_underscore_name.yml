@@ -5,7 +5,7 @@ file:
     - keyword: TEMP
     - keyword: FUNCTION
     - function_name:
-        function_name_identifier: qs
+        function_name_identifier: _qs
     - base:
         bracketed:
           start_bracket: (

@@ -266,13 +266,21 @@ bigquery_dialect.replace(
         ),
         Sequence("WITH", "OFFSET", "AS", Ref("SingleIdentifierGrammar"), optional=True),
     ),
-    FunctionNameIdentifierSegment=RegexParser(
+    FunctionNameIdentifierSegment=OneOf(
         # In BigQuery struct() has a special syntax, so we don't treat it as a function
-        r"[A-Z][A-Z0-9_]*",
-        CodeSegment,
-        name="function_name_identifier",
-        type="function_name_identifier",
-        anti_template=r"STRUCT",
+        RegexParser(
+            r"[A-Z_][A-Z0-9_]*",
+            CodeSegment,
+            name="function_name_identifier",
+            type="function_name_identifier",
+            anti_template=r"STRUCT",
+        ),
+        RegexParser(
+            r"`[^`]*`",
+            CodeSegment,
+            name="function_name_identifier",
+            type="function_name_identifier",
+        ),
     ),
 )
 
