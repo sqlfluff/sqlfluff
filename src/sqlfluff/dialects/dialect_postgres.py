@@ -1,4 +1,9 @@
-"""The PostgreSQL dialect."""
+"""The MSSQL T-SQL dialect.
+
+https://docs.microsoft.com/en-us/sql/t-sql/language-elements/language-elements-transact-sql
+
+
+"""
 
 from sqlfluff.core.parser import (
     OneOf,
@@ -18,7 +23,7 @@ from sqlfluff.core.dialects import load_raw_dialect
 
 ansi_dialect = load_raw_dialect("ansi")
 
-postgres_dialect = ansi_dialect.copy_as("postgres")
+postgres_dialect = ansi_dialect.copy_as("tsql")
 
 
 postgres_dialect.insert_lexer_matchers(

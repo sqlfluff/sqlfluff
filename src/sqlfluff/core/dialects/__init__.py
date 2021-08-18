@@ -26,6 +26,7 @@ _dialect_lookup = {
     "snowflake": ("dialect_snowflake", "snowflake_dialect"),
     "exasol": ("dialect_exasol", "exasol_dialect"),
     "exasol_fs": ("dialect_exasol_fs", "exasol_fs_dialect"),
+    "tsql": ("dialect_tsql", "tsql_dialect"),
 }
 
 
