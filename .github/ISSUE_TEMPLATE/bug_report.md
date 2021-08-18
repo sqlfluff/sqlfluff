@@ -4,7 +4,7 @@ about: Report a bug to help improve SQLFluff
 labels: bug
 ---
 
--- If this is a parsing or linting issue, please include a minimal SQL example which reproduces the issue, along with the `sqlfluff parse` output, `sqlfluff lint` output and `sqlfluff fix` output when relevant. --
+_If this is a parsing or linting issue, please include a minimal SQL example which reproduces the issue, along with the `sqlfluff parse` output, `sqlfluff lint` output and `sqlfluff fix` output when relevant._
 
 ## Expected Behaviour
 
