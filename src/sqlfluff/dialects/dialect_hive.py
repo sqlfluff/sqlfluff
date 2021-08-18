@@ -8,11 +8,11 @@ from sqlfluff.core.parser import (
     Bracketed,
     Delimited,
     StartsWith,
-    NamedSegment,
-    GreedyUntil,
+    NamedParser,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
+from sqlfluff.core.parser.segments.raw import CodeSegment
 from sqlfluff.dialects.hive_keywords import RESERVED_KEYWORDS, UNRESERVED_KEYWORDS
 
 ansi_dialect = load_raw_dialect("ansi")
@@ -21,7 +21,7 @@ hive_dialect = ansi_dialect.copy_as("hive")
 # Clear ANSI Keywords and add all Hive keywords
 # hive_dialect.sets("unreserved_keywords").clear()
 hive_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
-# hive_dialect.sets("reserved_keywords").clear()
+hive_dialect.sets("reserved_keywords").clear()
 hive_dialect.sets("reserved_keywords").update(RESERVED_KEYWORDS)
 
 hive_dialect.sets("bracket_pairs").update(
@@ -33,8 +33,12 @@ hive_dialect.sets("bracket_pairs").update(
 
 
 hive_dialect.add(
-    DoubleQuotedLiteralSegment=NamedSegment.make(
-        "double_quote", name="quoted_literal", type="literal", trim_chars=('"',)
+    DoubleQuotedLiteralSegment=NamedParser(
+        "double_quote",
+        CodeSegment,
+        name="quoted_literal",
+        type="literal",
+        trim_chars=('"',),
     ),
     SingleOrDoubleQuotedLiteralGrammar=OneOf(
         Ref("QuotedLiteralSegment"), Ref("DoubleQuotedLiteralSegment")
@@ -324,7 +328,7 @@ class RowFormatClauseSegment(BaseSegment):
 
 @hive_dialect.segment()
 class AlterDatabaseStatementSegment(BaseSegment):
-    """An `ALTER DATABASE` statement."""
+    """An `ALTER DATABASE/SCHEMA` statement."""
 
     type = "alter_database_statement"
     match_grammar = Sequence(
@@ -356,7 +360,7 @@ class DropStatementSegment(BaseSegment):
 
 @hive_dialect.segment()
 class DropDatabaseStatementSegment(BaseSegment):
-    """A `DROP TABLE` statement."""
+    """A `DROP DATEBASE/SCHEMA` statement."""
 
     type = "drop_table_statement"
     match_grammar = Sequence(
@@ -382,7 +386,7 @@ class DropTableStatementSegment(BaseSegment):
     )
 
 
-@hive_dialect.segment()
+@hive_dialect.segment(replace=True)
 class TruncateStatementSegment(BaseSegment):
     """`TRUNCATE TABLE` statement."""
 
@@ -409,17 +413,19 @@ class UseStatementSegment(BaseSegment):
 
 
 @hive_dialect.segment(replace=True)
-class StatementSegment(BaseSegment):
-    """A generic segment, to any of its child subsegments."""
+class StatementSegment(ansi_dialect.get_segment("StatementSegment")):
+    """Overriding StatementSegment to allow for additional segment parsing."""
 
-    type = "statement"
-    match_grammar = GreedyUntil(Ref("SemicolonSegment"))
-
-    parse_grammar = OneOf(
-        Ref("CreateDatabaseStatementSegment"),
-        Ref("AlterDatabaseStatementSegment"),
-        Ref("CreateTableStatementSegment"),
-        Ref("DropStatementSegment"),
-        Ref("TruncateStatementSegment"),
-        Ref("UseStatementSegment"),
+    parse_grammar = ansi_dialect.get_segment("StatementSegment").parse_grammar.copy(
+        insert=[Ref("AlterDatabaseStatementSegment")],
+        remove=[
+            Ref("TransactionStatementSegment"),
+            Ref("AlterDefaultPrivilegesSegment"),
+            Ref("CreateSchemaStatementSegment"),
+            Ref("SetSchemaStatementSegment"),
+            Ref("DropSchemaStatementSegment"),
+            Ref("CreateExtensionStatementSegment"),
+            Ref("CreateModelStatementSegment"),
+            Ref("DropModelStatementSegment"),
+        ],
     )
