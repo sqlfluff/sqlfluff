@@ -77,6 +77,20 @@ bigquery_dialect.add(
         type="literal",
         trim_chars=('"',),
     ),
+    DoubleQuotedUDFBody=NamedParser(
+        "double_quote",
+        CodeSegment,
+        name="udf_body",
+        type="udf_body",
+        trim_chars=('"',),
+    ),
+    SingleQuotedUDFBody=NamedParser(
+        "single_quote",
+        CodeSegment,
+        name="udf_body",
+        type="udf_body",
+        trim_chars=("'",),
+    ),
     StructKeywordSegment=StringParser("struct", KeywordSegment, name="struct"),
     StartAngleBracketSegment=StringParser(
         "<", SymbolSegment, name="start_angle_bracket", type="start_angle_bracket"
@@ -377,8 +391,8 @@ class FunctionDefinitionGrammar(BaseSegment):
             Sequence(
                 "AS",
                 OneOf(
-                    Ref("DoubleQuotedLiteralSegment"),
-                    Ref("QuotedLiteralSegment"),
+                    Ref("DoubleQuotedUDFBody"),
+                    Ref("SingleQuotedUDFBody"),
                     Bracketed(
                         OneOf(Ref("ExpressionSegment"), Ref("SelectStatementSegment"))
                     ),
