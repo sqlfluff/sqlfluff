@@ -490,6 +490,7 @@ class FunctionParameterListGrammar(BaseSegment):
             Ref("FunctionParameterGrammar"),
             delimiter=Ref("CommaSegment"),
             bracket_pairs_set="angle_bracket_pairs",
+            optional=True,
         )
     )
 
