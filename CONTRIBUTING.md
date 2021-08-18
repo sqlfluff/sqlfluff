@@ -145,8 +145,14 @@ New versions of SQLFluff will be published to PyPI automatically via
 whenever a new release is published to github. 
 
 A new release can published with a tag in github by navigating to the 
-[releases page](https://github.com/sqlfluff/sqlfluff/releases) and clicking on "Draft a
-New Release" (or clicking [here](https://github.com/sqlfluff/sqlfluff/releases/new)).
+[releases page](https://github.com/sqlfluff/sqlfluff/releases) and a Draft release should
+already exist with merged Pull Requests automatically added since the last release.
+Copy the changes to the [CHANGELOG.md](CHANGELOG.md) file and update the
+[src/sqlfluff/config.ini](src/sqlfluff/config.ini) file to the new version.
+
+Once both changes are done, open a new Pull Request and add "?template=release.md"
+to the compare URL before clicking the `Creating Pull Request` button to use the release
+Pull Request template, which will list the items to do for the release.
 
 :warning: **Before creating a new release, ensure that
 [src/sqlfluff/config.ini](src/sqlfluff/config.ini) is up to date with a new version** :warning:.
