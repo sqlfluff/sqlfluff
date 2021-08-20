@@ -27,6 +27,11 @@ from sqlfluff.core.templaters.jinja import JinjaTemplater
 templater_logger = logging.getLogger("sqlfluff.templater")
 
 
+DBT_VERSION = get_installed_version()
+DBT_VERSION_STRING = DBT_VERSION.to_version_string()
+DBT_VERSION_TUPLE = (int(DBT_VERSION.major), int(DBT_VERSION.minor))
+
+
 @dataclass
 class DbtConfigArgs:
     """Arguments to load dbt runtime config."""
@@ -55,18 +60,13 @@ class DbtTemplater(JinjaTemplater):
         """Returns info about the given templater for output by the cli."""
         return [("templater", self.name), ("dbt", self.dbt_version)]
 
-    @cached_property
     def dbt_version(self):
         """Gets the dbt version."""
-        self.dbt_version = get_installed_version().to_version_string()
-        return self.dbt_version
+        return DBT_VERSION_STRING
 
-    @cached_property
     def dbt_version_tuple(self):
         """Gets the dbt version as a tuple on (major, minor)."""
-        version = get_installed_version()
-        self.dbt_version_tuple = (int(version.major), int(version.minor))
-        return self.dbt_version_tuple
+        return DBT_VERSION_TUPLE
 
     @cached_property
     def dbt_config(self):
@@ -138,7 +138,7 @@ class DbtTemplater(JinjaTemplater):
                 "dbt templater", "Compiling dbt project..."
             )
 
-        if "0.17" in self.dbt_version:
+        if self.dbt_version_tuple == (0, 17):
             from dbt.graph.selector import PathSelector
 
             self.dbt_selector_method = PathSelector(self.dbt_manifest)
