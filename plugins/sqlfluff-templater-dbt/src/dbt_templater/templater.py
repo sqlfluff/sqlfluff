@@ -8,6 +8,16 @@ from dataclasses import dataclass
 from cached_property import cached_property
 from functools import partial
 
+from dbt.version import get_installed_version
+from dbt.config.profile import PROFILES_DIR
+from dbt.config.runtime import RuntimeConfig as DbtRuntimeConfig
+from dbt.adapters.factory import register_adapter
+from dbt.compilation import Compiler as DbtCompiler
+from dbt.exceptions import (
+    CompilationException as DbtCompilationException,
+    FailedToConnectException as DbtFailedToConnectException,
+)
+
 from sqlfluff.core.errors import SQLTemplaterError, SQLTemplaterSkipFile
 
 from sqlfluff.core.templaters.base import TemplatedFile
@@ -48,27 +58,19 @@ class DbtTemplater(JinjaTemplater):
     @cached_property
     def dbt_version(self):
         """Gets the dbt version."""
-        from dbt.version import get_installed_version
-
         self.dbt_version = get_installed_version().to_version_string()
         return self.dbt_version
 
     @cached_property
     def dbt_version_tuple(self):
         """Gets the dbt version as a tuple on (major, minor)."""
-        from dbt.version import get_installed_version
-
         version = get_installed_version()
-
         self.dbt_version_tuple = (int(version.major), int(version.minor))
         return self.dbt_version_tuple
 
     @cached_property
     def dbt_config(self):
         """Loads the dbt config."""
-        from dbt.config.runtime import RuntimeConfig as DbtRuntimeConfig
-        from dbt.adapters.factory import register_adapter
-
         self.dbt_config = DbtRuntimeConfig.from_args(
             DbtConfigArgs(
                 project_dir=self.project_dir,
@@ -82,8 +84,6 @@ class DbtTemplater(JinjaTemplater):
     @cached_property
     def dbt_compiler(self):
         """Loads the dbt compiler."""
-        from dbt.compilation import Compiler as DbtCompiler
-
         self.dbt_compiler = DbtCompiler(self.dbt_config)
         return self.dbt_compiler
 
@@ -171,8 +171,6 @@ class DbtTemplater(JinjaTemplater):
         as to support the same overwriting mechanism as
         dbt (currently an environment variable).
         """
-        from dbt.config.profile import PROFILES_DIR
-
         dbt_profiles_dir = os.path.abspath(
             os.path.expanduser(
                 self.sqlfluff_config.get_section(
@@ -215,16 +213,6 @@ class DbtTemplater(JinjaTemplater):
             (self.templater_selector, self.name, "profile")
         )
 
-    @staticmethod
-    def _check_dbt_installed():
-        try:
-            import dbt  # noqa: F401
-        except ModuleNotFoundError as e:
-            raise ModuleNotFoundError(
-                "Module dbt was not found while trying to use dbt templating, "
-                "please install dbt dependencies through `pip install sqlfluff[dbt]`"
-            ) from e
-
     def process(self, *, fname, in_str=None, config=None, formatter=None):
         """Compile a dbt model and return the compiled SQL.
 
@@ -237,13 +225,6 @@ class DbtTemplater(JinjaTemplater):
         """
         # Stash the formatter if provided to use in cached methods.
         self.formatter = formatter
-
-        self._check_dbt_installed()
-        from dbt.exceptions import (
-            CompilationException as DbtCompilationException,
-            FailedToConnectException as DbtFailedToConnectException,
-        )
-
         self.sqlfluff_config = config
         self.project_dir = self._get_project_dir()
         self.profiles_dir = self._get_profiles_dir()
