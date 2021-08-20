@@ -60,10 +60,12 @@ class DbtTemplater(JinjaTemplater):
         """Returns info about the given templater for output by the cli."""
         return [("templater", self.name), ("dbt", self.dbt_version)]
 
+    @property
     def dbt_version(self):
         """Gets the dbt version."""
         return DBT_VERSION_STRING
 
+    @property
     def dbt_version_tuple(self):
         """Gets the dbt version as a tuple on (major, minor)."""
         return DBT_VERSION_TUPLE
