@@ -6,7 +6,7 @@ file:
         select_clause_element:
           function:
             function_name:
-              identifier: '`another-gcp-project.functions.timestamp_parsing`'
+              function_name_identifier: '`another-gcp-project.functions.timestamp_parsing`'
             bracketed:
               start_bracket: (
               expression:

@@ -17,4 +17,4 @@ file:
       - keyword: LANGUAGE
       - parameter: js
       - keyword: AS
-      - literal: '" return y; "'
+      - udf_body: '" return y; "'

@@ -1,0 +1,50 @@
+file:
+  statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        identifier: newtable
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          identifier: x
+          data_type:
+            data_type_identifier: TIMESTAMP
+      - comma: ','
+      - column_definition:
+          identifier: y
+          data_type:
+            data_type_identifier: INT64
+      - end_bracket: )
+    - partition_by_segment:
+      - keyword: PARTITION
+      - keyword: BY
+      - expression:
+          function:
+            function_name:
+              function_name_identifier: DATE
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  identifier: x
+              end_bracket: )
+    - cluster_by_segment:
+      - keyword: CLUSTER
+      - keyword: BY
+      - expression:
+          column_reference:
+            identifier: x
+      - comma: ','
+      - expression:
+          column_reference:
+            identifier: y
+    - options_segment:
+        keyword: OPTIONS
+        bracketed:
+          start_bracket: (
+          parameter: description
+          comparison_operator: '='
+          literal: '"foo"'
+          end_bracket: )

@@ -84,7 +84,15 @@ STANDARD_CONFIG_INFO_DICT = {
     },
     "prefer_count_1": {
         "validation": [True, False],
-        "definition": ("Should count(1) be preferred over count(*)?"),
+        "definition": ("Should count(1) be preferred over count(*) and count(0)?"),
+    },
+    "prefer_count_0": {
+        "validation": [True, False],
+        "definition": ("Should count(0) be preferred over count(*) and count(1)?"),
+    },
+    "operator_new_lines": {
+        "validation": ["before", "after"],
+        "definition": ("Should operator be placed before or after newlines."),
     },
 }
 

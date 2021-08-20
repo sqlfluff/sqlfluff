@@ -6,21 +6,42 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfluff/sqlfluff/releases) and will be copied in here on each release. There is no need to manually edit this file going forward.
+
+### Added
+- Added support for empty WINDOWS specificiations [#1293](https://github.com/sqlfluff/sqlfluff/pull/1293)
+- Added auto release drafter [#1287](https://github.com/sqlfluff/sqlfluff/pull/1287)
+
+### Changed
+- Fix typo in the in the wild page [#1285](https://github.com/sqlfluff/sqlfluff/pull/1285)
+- Moved the dbt templater into a plugin rather than part of the core. This should now be installed
+  using `pip install sqlfluff-templater-dbt` rather than `pip install sqlfluff[dbt]`.
+
+## [0.6.3] - 2021-08-16
 ### Added
 
 - Support for primary index name, collect stats improvement, COMMENT statement for teradata dialect [#] (https://github.com/sqlfluff/sqlfluff/issues/)
-
-### Changed
-
-- Moved the dbt templater into a plugin rather than part of the core. This should now be installed
-  using `pip install sqlfluff-templater-dbt` rather than `pip install sqlfluff[dbt]`.
+- Support config for L007 to prefer end of line operators [#1261](https://github.com/sqlfluff/sqlfluff/issues/1261)
 - Support for DETERMINISTIC user defined functions in BigQuery dialect [#1251](https://github.com/sqlfluff/sqlfluff/issues/1251)
 - Support more identifiers in BigQuery dialect [#1253](https://github.com/sqlfluff/sqlfluff/issues/1253)
 - Support function member field references in BigQuery dialect [#1255](https://github.com/sqlfluff/sqlfluff/issues/1255)
 - Support alternative indentation for USING and ON clauses [#1250](https://github.com/sqlfluff/sqlfluff/issues/1250)
+- Support COUNT(0) preference over COUNT(*) or COUNT(1) [#1260](https://github.com/sqlfluff/sqlfluff/issues/1260)
+- Support for BigQuery "CREATE table OPTIONS ( description = 'desc' )" [#1205](https://github.com/sqlfluff/sqlfluff/issues/1205)
+- Support wildcard member field references in BigQuery dialect [#1269](https://github.com/sqlfluff/sqlfluff/issues/1269)
+- Support ARRAYS of STRUCTs in BigQuery dialect [#1271](https://github.com/sqlfluff/sqlfluff/issues/1271)
+- Support fields of field references in BigQuery dialect [#1276](https://github.com/sqlfluff/sqlfluff/issues/1276)
+- Support OFFSET and ORDINAL clauses of Array Functions in BigQuery dialect [#1171](https://github.com/sqlfluff/sqlfluff/issues/1171)
+- Added check for generated YML files [#1277](https://github.com/sqlfluff/sqlfluff/issues/1277)
+- Support QUALIFY to BigQuery dialect [#1242](https://github.com/sqlfluff/sqlfluff/issues/1242)
+
+### Changed
+
 - Fix comma removed by L019 [#939](https://github.com/sqlfluff/sqlfluff/issues/939)
 - Update L019 (leading/trailng comma rule) so it doesn't run on unparsable code.
 - The "--nocolor" command-line option should suppress emoji output (https://github.com/sqlfluff/sqlfluff/issues/1246)
+- Added HTTP Archive to the [In The Wild page](https://docs.sqlfluff.com/en/stable/inthewild.html)
 
 ## [0.6.2] - 2021-07-22
 ### Added

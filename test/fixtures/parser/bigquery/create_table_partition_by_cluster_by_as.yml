@@ -1,0 +1,53 @@
+file:
+  statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        identifier: newtable
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          identifier: x
+          data_type:
+            data_type_identifier: INT64
+      - comma: ','
+      - column_definition:
+          identifier: y
+          data_type:
+            data_type_identifier: INT64
+      - end_bracket: )
+    - partition_by_segment:
+      - keyword: PARTITION
+      - keyword: BY
+      - expression:
+          column_reference:
+            identifier: y
+    - cluster_by_segment:
+      - keyword: CLUSTER
+      - keyword: BY
+      - expression:
+          column_reference:
+            identifier: x
+      - comma: ','
+      - expression:
+          column_reference:
+            identifier: y
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              identifier: x
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: y
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: table1

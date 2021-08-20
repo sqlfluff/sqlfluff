@@ -27,6 +27,9 @@ from sqlfluff.core.parser import (
     RegexParser,
     Nothing,
     StartsWith,
+    OptionallyBracketed,
+    Indent,
+    Dedent,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -73,6 +76,20 @@ bigquery_dialect.add(
         name="quoted_literal",
         type="literal",
         trim_chars=('"',),
+    ),
+    DoubleQuotedUDFBody=NamedParser(
+        "double_quote",
+        CodeSegment,
+        name="udf_body",
+        type="udf_body",
+        trim_chars=('"',),
+    ),
+    SingleQuotedUDFBody=NamedParser(
+        "single_quote",
+        CodeSegment,
+        name="udf_body",
+        type="udf_body",
+        trim_chars=("'",),
     ),
     StructKeywordSegment=StringParser("struct", KeywordSegment, name="struct"),
     StartAngleBracketSegment=StringParser(
@@ -138,6 +155,7 @@ bigquery_dialect.sets("datetime_units").update(
 bigquery_dialect.sets("unreserved_keywords").add("SYSTEM_TIME")
 bigquery_dialect.sets("unreserved_keywords").remove("FOR")
 bigquery_dialect.sets("unreserved_keywords").add("STRUCT")
+bigquery_dialect.sets("unreserved_keywords").add("ORDINAL")
 # Reserved Keywords
 bigquery_dialect.sets("reserved_keywords").add("FOR")
 
@@ -155,6 +173,59 @@ bigquery_dialect.sets("angle_bracket_pairs").update(
         ("angle", "StartAngleBracketSegment", "EndAngleBracketSegment", False),
     ]
 )
+
+
+@bigquery_dialect.segment()
+class QualifyClauseSegment(BaseSegment):
+    """A `QUALIFY` clause like in `SELECT`."""
+
+    type = "qualify_clause"
+    match_grammar = StartsWith(
+        "QUALIFY",
+        terminator=OneOf("WINDOW"),
+        enforce_whitespace_preceeding_terminator=True,
+    )
+
+    parse_grammar = Sequence(
+        "QUALIFY",
+        Indent,
+        OptionallyBracketed(Ref("ExpressionSegment")),
+        Dedent,
+    )
+
+
+@bigquery_dialect.segment(replace=True)
+class SelectStatementSegment(BaseSegment):
+    """Enhance`SELECT` statement to include QUALIFY."""
+
+    type = "select_statement"
+    match_grammar = ansi_dialect.get_segment(
+        "SelectStatementSegment"
+    ).match_grammar.copy()
+
+    parse_grammar = ansi_dialect.get_segment(
+        "SelectStatementSegment"
+    ).parse_grammar.copy(
+        insert=[Ref("QualifyClauseSegment", optional=True)],
+        before=Ref("OrderByClauseSegment", optional=True),
+    )
+
+
+@bigquery_dialect.segment(replace=True)
+class ArrayLiteralSegment(BaseSegment):
+    """Override array literal segment to add Typeless Struct."""
+
+    type = "array_literal"
+    match_grammar = Bracketed(
+        Delimited(
+            OneOf(
+                Ref("ExpressionSegment"),
+                Ref("TypelessStructSegment"),
+            ),
+            optional=True,
+        ),
+        bracket_type="square",
+    )
 
 
 @bigquery_dialect.segment(replace=True)
@@ -209,13 +280,21 @@ bigquery_dialect.replace(
         ),
         Sequence("WITH", "OFFSET", "AS", Ref("SingleIdentifierGrammar"), optional=True),
     ),
-    FunctionNameIdentifierSegment=RegexParser(
+    FunctionNameIdentifierSegment=OneOf(
         # In BigQuery struct() has a special syntax, so we don't treat it as a function
-        r"[A-Z][A-Z0-9_]*",
-        CodeSegment,
-        name="function_name_identifier",
-        type="function_name_identifier",
-        anti_template=r"STRUCT",
+        RegexParser(
+            r"[A-Z_][A-Z0-9_]*",
+            CodeSegment,
+            name="function_name_identifier",
+            type="function_name_identifier",
+            anti_template=r"STRUCT",
+        ),
+        RegexParser(
+            r"`[^`]*`",
+            CodeSegment,
+            name="function_name_identifier",
+            type="function_name_identifier",
+        ),
     ),
 )
 
@@ -242,9 +321,36 @@ class FunctionSegment(BaseSegment):
                     ephemeral_name="FunctionContentsGrammar",
                 )
             ),
+            # Functions returning ARRYS in BigQuery can have optional
+            # OFFSET or ORDINAL clauses
+            Sequence(
+                Bracketed(
+                    OneOf(
+                        "OFFSET",
+                        "ORDINAL",
+                    ),
+                    Bracketed(
+                        Ref("NumericLiteralSegment"),
+                    ),
+                    bracket_type="square",
+                ),
+                optional=True,
+            ),
+            # Functions returning STRUCTs in BigQuery can have the fields
+            # elements referenced (e.g. ".a"), including wildcards (e.g. ".*")
+            # or multiple nested fields (e.g. ".a.b", or ".a.b.c")
             Sequence(
                 Ref("DotSegment"),
-                Ref("ParameterNameSegment"),
+                AnyNumberOf(
+                    Sequence(
+                        Ref("ParameterNameSegment"),
+                        Ref("DotSegment"),
+                    ),
+                ),
+                OneOf(
+                    Ref("ParameterNameSegment"),
+                    Ref("StarSegment"),
+                ),
                 optional=True,
             ),
         ),
@@ -285,8 +391,8 @@ class FunctionDefinitionGrammar(BaseSegment):
             Sequence(
                 "AS",
                 OneOf(
-                    Ref("DoubleQuotedLiteralSegment"),
-                    Ref("QuotedLiteralSegment"),
+                    Ref("DoubleQuotedUDFBody"),
+                    Ref("SingleQuotedUDFBody"),
                     Bracketed(
                         OneOf(Ref("ExpressionSegment"), Ref("SelectStatementSegment"))
                     ),
@@ -398,6 +504,7 @@ class FunctionParameterListGrammar(BaseSegment):
             Ref("FunctionParameterGrammar"),
             delimiter=Ref("CommaSegment"),
             bracket_pairs_set="angle_bracket_pairs",
+            optional=True,
         )
     )
 
@@ -602,5 +709,97 @@ class SetStatementSegment(BaseSegment):
                     ),
                 )
             )
+        ),
+    )
+
+
+@bigquery_dialect.segment()
+class PartitionBySegment(BaseSegment):
+    """PARTITION BY partition_expression."""
+
+    type = "partition_by_segment"
+    match_grammar = StartsWith(
+        "PARTITION",
+        terminator=OneOf("CLUSTER", "OPTIONS", "AS", Ref("DelimiterSegment")),
+        enforce_whitespace_preceeding_terminator=True,
+    )
+    parse_grammar = Sequence(
+        "PARTITION",
+        "BY",
+        Ref("ExpressionSegment"),
+    )
+
+
+@bigquery_dialect.segment()
+class ClusterBySegment(BaseSegment):
+    """CLUSTER BY clustering_column_list."""
+
+    type = "cluster_by_segment"
+    match_grammar = StartsWith(
+        "CLUSTER",
+        terminator=OneOf("OPTIONS", "AS", Ref("DelimiterSegment")),
+        enforce_whitespace_preceeding_terminator=True,
+    )
+    parse_grammar = Sequence(
+        "CLUSTER",
+        "BY",
+        Delimited(Ref("ExpressionSegment")),
+    )
+
+
+@bigquery_dialect.segment()
+class OptionsSegment(BaseSegment):
+    """OPTIONS clause for a table."""
+
+    type = "options_segment"
+    match_grammar = Sequence(
+        "OPTIONS",
+        Bracketed(
+            Delimited(
+                # Table options
+                Sequence(
+                    Ref("ParameterNameSegment"),
+                    Ref("EqualsSegment"),
+                    Ref("LiteralGrammar"),
+                )
+            )
+        ),
+    )
+
+
+@bigquery_dialect.segment(replace=True)
+class CreateTableStatementSegment(BaseSegment):
+    """A `CREATE TABLE` statement."""
+
+    type = "create_table_statement"
+    # https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#create_table_statement
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        Ref("TemporaryTransientGrammar", optional=True),
+        "TABLE",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        # Column list
+        Sequence(
+            Bracketed(
+                Delimited(
+                    OneOf(
+                        Ref("TableConstraintSegment"),
+                        Ref("ColumnDefinitionSegment"),
+                    ),
+                )
+            ),
+            Ref("CommentClauseSegment", optional=True),
+            optional=True,
+        ),
+        Ref("PartitionBySegment", optional=True),
+        Ref("ClusterBySegment", optional=True),
+        Ref("OptionsSegment", optional=True),
+        # Create AS syntax:
+        Sequence(
+            "AS",
+            OptionallyBracketed(Ref("SelectableGrammar")),
+            optional=True,
         ),
     )
