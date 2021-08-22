@@ -176,7 +176,7 @@ class Rule_L003(BaseRule):
                 LintFix(
                     "edit",
                     current_anchor,
-                    [WhitespaceSegment(raw=desired_indent), current_anchor]
+                    [WhitespaceSegment(raw=desired_indent), current_anchor],
                 )
             ]
         # Otherwise edit the first element to be the right size
