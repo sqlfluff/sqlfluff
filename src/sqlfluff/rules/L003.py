@@ -174,11 +174,9 @@ class Rule_L003(BaseRule):
         elif len("".join(elem.raw for elem in current_indent_buffer)) == 0:
             fixes = [
                 LintFix(
-                    "create",
+                    "edit",
                     current_anchor,
-                    WhitespaceSegment(
-                        raw=desired_indent,
-                    ),
+                    [WhitespaceSegment(raw=desired_indent), current_anchor]
                 )
             ]
         # Otherwise edit the first element to be the right size
