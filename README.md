@@ -80,9 +80,8 @@ Follow us [on Twitter @SQLFLuff](https://twitter.com/SQLFluff) for annoncements 
 
 # Contributing
 
-There's lots to do in this project, and we're just getting started. If you want to understand more
-about the architecture of **SQLFluff**, you can find [more here](https://docs.sqlfluff.com/en/latest/architecture.html).
+We are grateful for all out [contributors](https://github.com/sqlfluff/sqlfluff/graphs/contributors). There's lots to do in this project, and we're just getting started.
 
-If you'd like to contribute, check out the
-[open issues on GitHub](https://github.com/sqlfluff/sqlfluff/issues).
-You can also see the guide to [contributing](CONTRIBUTING.md).
+If you want to understand more about the architecture of **SQLFluff**, you can find [more here](https://docs.sqlfluff.com/en/latest/architecture.html).
+
+If you'd like to contribute, check out the [open issues on GitHub](https://github.com/sqlfluff/sqlfluff/issues). You can also see the guide to [contributing](CONTRIBUTING.md).
