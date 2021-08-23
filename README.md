@@ -18,7 +18,7 @@
 
 ## Dialects Supported
 
-Although SQL is fairly consistent in it's implementations, there are a number of different dialects available with slight variations of syntax and grammar. **SQLFluff** currently supports the following SQL dialects (though perhaps not in full):
+Although SQL is reasonable consistent in it's implementations, there are a number of different dialects available with variations of syntax and grammar. **SQLFluff** currently supports the following SQL dialects (though perhaps not in full):
 
 - ANSI SQL - this is the base version and on occasion may not strictly follow the ANSI/ISO SQL definition 
 - [BigQuery](https://cloud.google.com/bigquery/)
