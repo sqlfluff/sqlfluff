@@ -1,7 +1,7 @@
 
 _Firstly, thanks for adding this feature! Secondly, please check the key steps against the checklist below to make your contribution easy to merge._
 
-_Please give the Pull Request a meaningful title (including the dialect this PR is for if it is dialect specific), as this will automatically be added ot the release notes, and then the Change Log._
+_Please give the Pull Request a meaningful title (including the dialect this PR is for if it is dialect specific), as this will automatically be added to the release notes, and then the Change Log._
 
 ### Brief summary of the change made
 _If there is an open issue for this, then please include `fixes #XXXX` or `closes #XXXX` replacing `XXXX` with the issue number and it will automatically close the issue when the pull request is merged. Alternatively if not fully closed you can say `makes progress on #XXXX` to create a link on that issue without closing it._
