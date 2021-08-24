@@ -19,7 +19,7 @@ from sqlfluff.core.parser.segments import (
     CodeSegment,
 )
 from sqlfluff.core.templaters import TemplatedFile
-from dialects.parse_fixtures import load_file
+from .dialects.parse_fixtures import load_file
 
 # When writing YAML files, double quotes string values needing escapes.
 oyaml.add_representer(str, quoted_presenter)
