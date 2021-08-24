@@ -105,4 +105,3 @@ test_12:
         perks.received_at as perk_received_at
 
     from subscriptions_xf
-  
