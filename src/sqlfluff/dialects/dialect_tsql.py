@@ -58,6 +58,22 @@ from sqlfluff.core.dialects import load_raw_dialect
 ansi_dialect = load_raw_dialect("ansi")
 tsql_dialect = ansi_dialect.copy_as("tsql")
 
+
+# Bracket pairs (a set of tuples).
+# (name, startref, endref, persists)
+# NOTE: The `persists` value controls whether this type
+# of bracket is persisted during matching to speed up other
+# parts of the matching process. Round brackets are the most
+# common and match the largest areas and so are sufficient.
+ansi_dialect.sets("bracket_pairs").update(
+    [
+        ("round", "StartBracketSegment", "EndBracketSegment", True),
+        ("square", "StartSquareBracketSegment", "EndSquareBracketSegment", True),
+        ("curly", "StartCurlyBracketSegment", "EndCurlyBracketSegment", False),
+    ]
+)
+
+
 # Update only RESERVED Keywords
 # tsql_dialect.sets("reserved_keywords").clear()
 # tsql_dialect.sets("reserved_keywords").update(RESERVED_KEYWORDS)
@@ -86,7 +102,7 @@ tsql_dialect.add(
 
 tsql_dialect.replace(
     ParameterNameSegment=RegexParser(
-        r"`?[A-Za-z0-9_]*`?", CodeSegment, name="parameter", type="parameter"
+        r"[@][A-Za-z0-9_]+", CodeSegment, name="parameter", type="parameter"
     )
 )
 
@@ -94,9 +110,68 @@ tsql_dialect.insert_lexer_matchers(
     [
         RegexLexer(
             "atsign",
-            r"[@][a-zA-Z0-9_]*",
+            r"[@][a-zA-Z0-9_]+",
             CodeSegment,
         ),
     ],
     before="code",
 )
+
+
+@tsql_dialect.segment(replace=True)
+class CreateFunctionStatementSegment(BaseSegment):
+    """A `CREATE FUNCTION` statement.
+
+    This version in the ANSI dialect should be a "common subset" of the
+    structure of the code for those dialects.
+    postgres: https://www.postgresql.org/docs/9.1/sql-createfunction.html
+    snowflake: https://docs.snowflake.com/en/sql-reference/sql/create-function.html
+    bigquery: https://cloud.google.com/bigquery/docs/reference/standard-sql/user-defined-functions
+    """
+
+    type = "create_function_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Sequence("OR", "ALTER", optional=True),
+        Ref("TemporaryGrammar", optional=True),
+        "FUNCTION",
+        Anything(),
+    )
+    parse_grammar = Sequence(
+        "CREATE",
+        Sequence("OR", "ALTER", optional=True),
+        Ref("TemporaryGrammar", optional=True),
+        "FUNCTION",       
+        Sequence(
+            Ref("StartSquareBracketSegment", optional=True),
+            Ref("FunctionNameSegment"),
+            Ref("EndSquareBracketSegment", optional=True),
+            Ref("DotSegment"), optional=True),               
+        Sequence(
+            Ref("StartSquareBracketSegment", optional=True),
+            Ref("FunctionNameSegment"),
+            Ref("EndSquareBracketSegment", optional=True)),
+        Ref("FunctionParameterListGrammar"),
+        Sequence(  # Optional function return type
+            "RETURNS",
+            Ref("DatatypeSegment"),
+            optional=True,
+        ),
+        Sequence("AS"),
+        Sequence("BEGIN"),
+        Ref("FunctionDefinitionGrammar"),
+        Sequence("END"),
+        Sequence("GO", optional=True),
+    )
+
+
+@tsql_dialect.segment(replace=True)
+class FunctionDefinitionGrammar(BaseSegment):
+    """This is the body of a `CREATE FUNCTION AS` statement."""
+
+    match_grammar = Sequence(        
+        GreedyUntil("RETURN", optional=True),
+        Sequence("RETURN"),
+        GreedyUntil("END"),
+    )

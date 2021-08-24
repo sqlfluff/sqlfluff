@@ -1,0 +1,47 @@
+file:
+  statement:
+    create_function_statement:
+    - keyword: CREATE
+    - binary_operator: OR
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - start_square_bracket: '['
+    - function_name:
+        function_name_identifier: dbo
+    - end_square_bracket: ']'
+    - dot: .
+    - start_square_bracket: '['
+    - function_name:
+        function_name_identifier: add
+    - end_square_bracket: ']'
+    - base:
+        bracketed:
+        - start_bracket: (
+        - parameter: '@add_1'
+        - data_type:
+            data_type_identifier: int
+        - comma: ','
+        - parameter: '@add_2'
+        - data_type:
+            data_type_identifier: int
+        - end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: integer
+    - keyword: AS
+    - keyword: BEGIN
+    - base:
+      - raw: DECLARE
+      - raw: '@time'
+      - raw: int
+      - raw: '='
+      - raw: '1'
+      - raw: SELECT
+      - raw: '*'
+      - raw: FROM
+      - raw: Table
+      - keyword: RETURN
+      - raw: '@add_1'
+      - raw: +
+      - raw: '@add_2'
+    - keyword: END
