@@ -60,13 +60,13 @@ class Rule_L042(BaseRule):
             if segment.is_type(parent_type):
                 # Get the referenced table segment
                 from_expression_element = segment.get_child("from_expression_element")
-                if not from_expression_element:
+                if not from_expression_element:  # pragma: no cover
                     return None  # There isn't one. We're done.
                 # Get the main bit
                 from_expression_element = from_expression_element.get_child(
                     "table_expression"
                 )
-                if not from_expression_element:
+                if not from_expression_element:  # pragma: no cover
                     return None  # There isn't one. We're done.
                 # Is it bracketed?
                 bracketed_expression = from_expression_element.get_child("bracketed")

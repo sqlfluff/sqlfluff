@@ -51,7 +51,7 @@ class Rule_L018(BaseRule):
                 if seg.name.lower() == "with":
                     seg_line_no = seg.pos_marker.line_no
                     break
-            else:
+            else:  # pragma: no cover
                 # This *could* happen if the with statement is unparsable,
                 # in which case then the user will have to fix that first.
                 if any(s.is_type("unparsable") for s in segment.segments):

@@ -138,6 +138,8 @@ def test__cli__command_lint_stdin(command):
         # Check the profiler and benching commands
         (parse, ["-n", "test/fixtures/cli/passing_b.sql", "--profiler"]),
         (parse, ["-n", "test/fixtures/cli/passing_b.sql", "--bench"]),
+        (lint, ["-n", "test/fixtures/cli/passing_b.sql", "--bench"]),
+        (fix, ["-n", "test/fixtures/cli/passing_b.sql", "--bench"]),
         # Check linting works in specifying rules
         (lint, ["-n", "--rules", "L001", "test/fixtures/linter/operator_errors.sql"]),
         # Check linting works in specifying multiple rules

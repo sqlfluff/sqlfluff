@@ -19,7 +19,7 @@ def _unify_str_or_file(sql):
     if not isinstance(sql, str):
         try:
             sql = sql.read()
-        except AttributeError:
+        except AttributeError:  # pragma: no cover
             raise TypeError("Value passed as sql is not a string or a readable object.")
     return sql
 

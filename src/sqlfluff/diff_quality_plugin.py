@@ -37,7 +37,7 @@ class SQLFluffViolationReporter(BaseViolationReporter):
             result.append(Violation(violation.line_no, message))
         return result
 
-    def measured_lines(self, src_path):
+    def measured_lines(self, src_path):  # pragma: no cover
         """Return list of the lines in src_path that were measured."""
         return None
 

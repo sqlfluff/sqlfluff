@@ -980,7 +980,7 @@ class FromExpressionElementSegment(BaseSegment):
         """
         alias_expression = self.get_child("alias_expression")
         tbl_expression = self.get_child("table_expression")
-        if not tbl_expression:
+        if not tbl_expression:  # pragma: no cover
             tbl_expression = self.get_child("bracketed").get_child("table_expression")
         ref = tbl_expression.get_child("object_reference")
         if alias_expression:
