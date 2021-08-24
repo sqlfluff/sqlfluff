@@ -59,7 +59,7 @@ setup(
         "Documentation": "https://docs.sqlfluff.com",
         "Changes": "https://github.com/sqlfluff/sqlfluff/blob/main/CHANGELOG.md",
         "Source": "https://github.com/sqlfluff/sqlfluff",
-        "Issue Tracker": "https://github.com/sqlfluff/sqlfluff/issues/",
+        "Issue Tracker": "https://github.com/sqlfluff/sqlfluff/issues",
         "Twitter": "https://twitter.com/SQLFLuff",
         "Chat": "https://github.com/sqlfluff/sqlfluff#sqlfluff-on-slack",
     },
