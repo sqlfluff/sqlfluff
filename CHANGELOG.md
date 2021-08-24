@@ -5,13 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
-### Added
-### Changed
+<!--
+Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfluff/sqlfluff/releases) and will be copied in here on each release. There is no need to manually edit this file going forward.
+-->
 
 ## [0.6.4] - 2021-08-20
-
-Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfluff/sqlfluff/releases) and will be copied in here on each release. There is no need to manually edit this file going forward.
 
 ### Added
 - Added support for empty WINDOWS specificiations [#1293](https://github.com/sqlfluff/sqlfluff/pull/1293)
