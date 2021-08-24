@@ -65,7 +65,7 @@ tsql_dialect = ansi_dialect.copy_as("tsql")
 # of bracket is persisted during matching to speed up other
 # parts of the matching process. Round brackets are the most
 # common and match the largest areas and so are sufficient.
-ansi_dialect.sets("bracket_pairs").update(
+tsql_dialect.sets("bracket_pairs").update(
     [
         ("round", "StartBracketSegment", "EndBracketSegment", True),
         ("square", "StartSquareBracketSegment", "EndSquareBracketSegment", True),
