@@ -1,4 +1,4 @@
-"""Tests specific to the postgres dialect."""
+"""Tests specific to the T-SQL dialect."""
 
 import pytest
 
