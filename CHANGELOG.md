@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+### Changed
+
+## [0.6.4] - 2021-08-20
 
 Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfluff/sqlfluff/releases) and will be copied in here on each release. There is no need to manually edit this file going forward.
 
@@ -15,6 +19,13 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ### Changed
 - Fix typo in the in the wild page [#1285](https://github.com/sqlfluff/sqlfluff/pull/1285)
+* Fix spacing issue for BigQuery UNNEST statement for rules L003 and L025 (#1303) @tunetheweb
+* Update GitHub templates (#1297) @tunetheweb
+* Allow BigQuery UDF with triple quoted bodies to pass rule L048 (#1300) @tunetheweb
+* Add Parameterless Functions and more function names support to BigQuery (#1299) @tunetheweb
+* Add release drafter (#1295) @tunetheweb
+* Support empty OVER() clause in Window Specification (#1294) @tunetheweb
+* Fix typo on the In the Wild page (#1285) @tunetheweb
 
 ## [0.6.3] - 2021-08-16
 ### Added
