@@ -7,9 +7,9 @@ file:
         select_clause_element:
           function:
             function_name:
-            - identifier: '`another-gcp-project`'
-            - dot: .
-            - identifier: '`functions.timestamp_parsing`'
+              identifier: '`another-gcp-project`'
+              dot: .
+              function_name_identifier: '`functions.timestamp_parsing`'
             bracketed:
               start_bracket: (
               expression:

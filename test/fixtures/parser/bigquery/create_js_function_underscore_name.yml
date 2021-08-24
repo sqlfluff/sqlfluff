@@ -6,7 +6,7 @@ file:
     - keyword: TEMP
     - keyword: FUNCTION
     - function_name:
-        function_name_identifier: qs
+        function_name_identifier: _qs
     - base:
         bracketed:
           start_bracket: (
@@ -30,4 +30,4 @@ file:
       - keyword: LANGUAGE
       - parameter: js
       - keyword: AS
-      - literal: "\"\"\"\n    CODE GOES HERE\n\"\"\""
+      - udf_body: "\"\"\"\n    CODE GOES HERE\n\"\"\""

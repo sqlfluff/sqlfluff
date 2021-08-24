@@ -86,4 +86,4 @@ file:
       - keyword: LANGUAGE
       - parameter: js
       - keyword: AS
-      - literal: "\"\"\"\n    CODE GOES HERE\n\"\"\""
+      - udf_body: "\"\"\"\n    CODE GOES HERE\n\"\"\""

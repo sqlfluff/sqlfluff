@@ -845,7 +845,7 @@ class OverClauseSegment(BaseSegment):
         OneOf(
             Ref("SingleIdentifierGrammar"),  # Window name
             Bracketed(
-                Ref("WindowSpecificationSegment"),
+                Ref("WindowSpecificationSegment", optional=True),
             ),
         ),
     )
@@ -853,7 +853,7 @@ class OverClauseSegment(BaseSegment):
 
 @ansi_dialect.segment()
 class WindowSpecificationSegment(BaseSegment):
-    """Window specification, e.g. OVER() or named window."""
+    """Window specification within OVER(...)."""
 
     type = "window_specification"
     match_grammar = Sequence(

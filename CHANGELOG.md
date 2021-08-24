@@ -5,7 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+<!--
+Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfluff/sqlfluff/releases) and will be copied in here on each release. There is no need to manually edit this file going forward.
+-->
+
+## [0.6.4] - 2021-08-20
+
+### Added
+- Added support for empty WINDOWS specificiations [#1293](https://github.com/sqlfluff/sqlfluff/pull/1293)
+- Added auto release drafter [#1287](https://github.com/sqlfluff/sqlfluff/pull/1287)
+
+### Changed
+- Fix typo in the in the wild page [#1285](https://github.com/sqlfluff/sqlfluff/pull/1285)
+* Fix spacing issue for BigQuery UNNEST statement for rules L003 and L025 (#1303) @tunetheweb
+* Update GitHub templates (#1297) @tunetheweb
+* Allow BigQuery UDF with triple quoted bodies to pass rule L048 (#1300) @tunetheweb
+* Add Parameterless Functions and more function names support to BigQuery (#1299) @tunetheweb
+* Add release drafter (#1295) @tunetheweb
+* Support empty OVER() clause in Window Specification (#1294) @tunetheweb
+* Fix typo on the In the Wild page (#1285) @tunetheweb
+
+## [0.6.3] - 2021-08-16
 ### Added
 
 - Support for primary index name, collect stats improvement, COMMENT statement for teradata dialect [#] (https://github.com/sqlfluff/sqlfluff/issues/)
@@ -20,7 +40,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support ARRAYS of STRUCTs in BigQuery dialect [#1271](https://github.com/sqlfluff/sqlfluff/issues/1271)
 - Support fields of field references in BigQuery dialect [#1276](https://github.com/sqlfluff/sqlfluff/issues/1276)
 - Support OFFSET and ORDINAL clauses of Array Functions in BigQuery dialect [#1171](https://github.com/sqlfluff/sqlfluff/issues/1171)
-
+- Added check for generated YML files [#1277](https://github.com/sqlfluff/sqlfluff/issues/1277)
+- Support QUALIFY to BigQuery dialect [#1242](https://github.com/sqlfluff/sqlfluff/issues/1242)
 
 ### Changed
 

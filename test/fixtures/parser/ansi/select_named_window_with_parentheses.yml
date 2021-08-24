@@ -3,8 +3,8 @@ file:
   statement:
     select_statement:
       select_clause:
-        keyword: SELECT
-        select_clause_element:
+      - keyword: SELECT
+      - select_clause_element:
           function:
             function_name:
               function_name_identifier: NTH_VALUE
@@ -27,6 +27,28 @@ file:
           alias_expression:
             keyword: AS
             identifier: baz
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: NTH_VALUE
+            bracketed:
+            - start_bracket: (
+            - expression:
+                column_reference:
+                  identifier: bar
+            - comma: ','
+            - expression:
+                literal: '1'
+            - end_bracket: )
+            over_clause:
+              keyword: OVER
+              bracketed:
+                start_bracket: (
+                end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: foo
       from_clause:
         keyword: FROM
         from_expression:
