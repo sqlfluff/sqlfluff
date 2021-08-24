@@ -4,8 +4,7 @@ import os
 
 import oyaml as yaml
 
-from conftest import compute_parse_tree_hash, parse_example_file
-from dialects.parse_fixtures import get_parse_fixtures
+from conftest import compute_parse_tree_hash, get_parse_fixtures, parse_example_file
 
 
 def generate_parse_fixture(example):

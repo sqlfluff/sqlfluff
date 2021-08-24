@@ -9,8 +9,13 @@ import pytest
 from sqlfluff.core.parser import Parser, Lexer
 from sqlfluff.core import FluffConfig
 
-from ..conftest import compute_parse_tree_hash, parse_example_file
-from .parse_fixtures import get_parse_fixtures, load_file, make_dialect_path
+from ..conftest import (
+    compute_parse_tree_hash,
+    parse_example_file,
+    load_file,
+    make_dialect_path,
+    get_parse_fixtures,
+)
 
 parse_success_examples, parse_structure_examples = get_parse_fixtures(
     fail_on_missing_yml=True
