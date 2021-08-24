@@ -20,7 +20,7 @@
 
 Although SQL is reasonable consistent in it's implementations, there are a number of different dialects available with variations of syntax and grammar. **SQLFluff** currently supports the following SQL dialects (though perhaps not in full):
 
-- ANSI SQL - this is the base version and on occasion may not strictly follow the ANSI/ISO SQL definition 
+- ANSI SQL - this is the base version and on occasion may not strictly follow the ANSI/ISO SQL definition
 - [BigQuery](https://cloud.google.com/bigquery/)
 - [Exasol](https://www.exasol.com/)
 - [MySQL](https://www.mysql.com/)
@@ -34,7 +34,7 @@ Pull requests from those that know the missing syntax or dialects are especially
 
 ## Templates Supported
 
-SQL itself doesn't lend itself well to [modularity](https://docs.getdbt.com/docs/viewpoint#section-modularity), so to introduce some flexibility and reusability it is often [templated](https://en.wikipedia.org/wiki/Template_processor as discussed more in [our modularity documentation](https://docs.sqlfluff.com/en/stable/realworld.html#modularity).
+SQL itself doesn't lend itself well to [modularity](https://docs.getdbt.com/docs/viewpoint#section-modularity), so to introduce some flexibility and reusability it is often [templated](https://en.wikipedia.org/wiki/Template_processor) as discussed more in [our modularity documentation](https://docs.sqlfluff.com/en/stable/realworld.html#modularity).
 
 **SQLFluff** supports the following templates:
 - [Jinja](https://jinja.palletsprojects.com/) (aka Jinja2)
