@@ -4,16 +4,17 @@ file:
     - keyword: CREATE
     - keyword: FUNCTION
     - function_name:
-        function_name_identifier: qs
+        function_name_identifier: add
     - base:
         bracketed:
           start_bracket: (
-          parameter: y
-          data_type:
-            data_type_identifier: STRING
           end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: integer
     - base:
-      - keyword: LANGUAGE
-      - parameter: js
       - keyword: AS
-      - udf_body: '" return y; "'
+      - udf_body: "'select $1 + $2;'"
+      - keyword: LANGUAGE
+      - parameter: SQL
+  statement_terminator: ;

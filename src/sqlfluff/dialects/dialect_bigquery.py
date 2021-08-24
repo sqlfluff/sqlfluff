@@ -77,6 +77,20 @@ bigquery_dialect.add(
         type="literal",
         trim_chars=('"',),
     ),
+    DoubleQuotedUDFBody=NamedParser(
+        "double_quote",
+        CodeSegment,
+        name="udf_body",
+        type="udf_body",
+        trim_chars=('"',),
+    ),
+    SingleQuotedUDFBody=NamedParser(
+        "single_quote",
+        CodeSegment,
+        name="udf_body",
+        type="udf_body",
+        trim_chars=("'",),
+    ),
     StructKeywordSegment=StringParser("struct", KeywordSegment, name="struct"),
     StartAngleBracketSegment=StringParser(
         "<", SymbolSegment, name="start_angle_bracket", type="start_angle_bracket"
@@ -266,13 +280,21 @@ bigquery_dialect.replace(
         ),
         Sequence("WITH", "OFFSET", "AS", Ref("SingleIdentifierGrammar"), optional=True),
     ),
-    FunctionNameIdentifierSegment=RegexParser(
+    FunctionNameIdentifierSegment=OneOf(
         # In BigQuery struct() has a special syntax, so we don't treat it as a function
-        r"[A-Z][A-Z0-9_]*",
-        CodeSegment,
-        name="function_name_identifier",
-        type="function_name_identifier",
-        anti_template=r"STRUCT",
+        RegexParser(
+            r"[A-Z_][A-Z0-9_]*",
+            CodeSegment,
+            name="function_name_identifier",
+            type="function_name_identifier",
+            anti_template=r"STRUCT",
+        ),
+        RegexParser(
+            r"`[^`]*`",
+            CodeSegment,
+            name="function_name_identifier",
+            type="function_name_identifier",
+        ),
     ),
 )
 
@@ -369,8 +391,8 @@ class FunctionDefinitionGrammar(BaseSegment):
             Sequence(
                 "AS",
                 OneOf(
-                    Ref("DoubleQuotedLiteralSegment"),
-                    Ref("QuotedLiteralSegment"),
+                    Ref("DoubleQuotedUDFBody"),
+                    Ref("SingleQuotedUDFBody"),
                     Bracketed(
                         OneOf(Ref("ExpressionSegment"), Ref("SelectStatementSegment"))
                     ),
@@ -482,6 +504,7 @@ class FunctionParameterListGrammar(BaseSegment):
             Ref("FunctionParameterGrammar"),
             delimiter=Ref("CommaSegment"),
             bracket_pairs_set="angle_bracket_pairs",
+            optional=True,
         )
     )
 
