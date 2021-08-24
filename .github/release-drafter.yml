@@ -1,0 +1,11 @@
+template: |
+  ## What’s Changed
+
+  $CHANGES
+exclude-labels:
+  - 'skip-changelog'
+categories:
+  - title: '🚀 Enhancements'
+    label: 'enhancement'
+  - title: '🐛 Bug Fixes'
+    label: 'bug'

@@ -44,7 +44,7 @@ that's actually useful for the community.
   coordination, discussion or development work, there is a process for each
   major release to work out what features will fit into that release.
   - Each major release will have its own github issue. For example the link
-    to the issue for [0.4.0 is here](https://github.com/sqlfluff/sqlfluff/issues/470).
+    to the issue for [0.6.0 is here](https://github.com/sqlfluff/sqlfluff/issues/922).
   - Features or issues are organised into a _shortlist_. During the initial
     discussion for the release, each feature is vetted for enough clarity
     that someone in the community can pick it up. Issues where we can't
@@ -89,13 +89,13 @@ python version, so you can always specify a particular environment. For example
 if you're developing in python 3.6 you might call...
 
 ```shell
-tox -e py36,linting
+tox -e generate-fixture-yml,py36,linting
 ```
 
 ...or if you also want to see the coverage reporting...
 
 ```shell
-tox -e cov-init,py36,cov-report,linting
+tox -e generate-fixture-yml,cov-init,py36,cov-report,linting
 ```
 
 > NB: The `cov-init` task clears the previous test results, the `py36` environment
@@ -131,12 +131,12 @@ pip install -Ur requirements.txt -Ur requirements_dev.txt
 python setup.py develop
 ```
 
-> `setup.py develop` installs the package using a link to the source code so that any changes
-> which you make will immediately be available for use.
->
 > `pip install -Ur requirements.txt -Ur requirements_dev.txt` installs the project dependencies
 > as well as the dependencies needed to run linting, formatting, and testing commands. This will
-> install the most up-to-date package versions for all dependencies.
+> install the most up-to-date package versions for all dependencies (-U).
+
+> `python setup.py develop` installs the package using a link to the source code so that any changes
+> which you make will immediately be available for use.
 
 ## Building Package
 
@@ -145,8 +145,11 @@ New versions of SQLFluff will be published to PyPI automatically via
 whenever a new release is published to github. 
 
 A new release can published with a tag in github by navigating to the 
-[releases page](https://github.com/sqlfluff/sqlfluff/releases) and clicking on "Draft a
-New Release" (or clicking [here](https://github.com/sqlfluff/sqlfluff/releases/new)).
+[releases page](https://github.com/sqlfluff/sqlfluff/releases) and a Draft release should
+already exist with merged Pull Requests automatically added since the last release.
+Copy the text from the draft release into a new, version-numbered section of the [CHANGELOG.md](CHANGELOG.md) file and update the
+[src/sqlfluff/config.ini](src/sqlfluff/config.ini) file to the new version.
+Once both changes are done, open a new Pull Request for these changes.
 
 :warning: **Before creating a new release, ensure that
 [src/sqlfluff/config.ini](src/sqlfluff/config.ini) is up to date with a new version** :warning:.

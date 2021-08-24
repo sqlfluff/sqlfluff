@@ -45,4 +45,4 @@ file:
         - end_square_bracket: ']'
         - end_bracket: )
       - keyword: AS
-      - literal: "\"\"\"\n    CODE GOES HERE\n\"\"\""
+      - udf_body: "\"\"\"\n    CODE GOES HERE\n\"\"\""
