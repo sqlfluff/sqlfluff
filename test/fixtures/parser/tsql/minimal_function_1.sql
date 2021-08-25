@@ -1,7 +1,0 @@
-CREATE OR ALTER FUNCTION [dbo].function(@date int) RETURNS int
-AS
-BEGIN
-	RETURN SELECT * FROM Table
-
-END
-GO

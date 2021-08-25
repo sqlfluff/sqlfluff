@@ -798,7 +798,6 @@ class CallStoredProcedureSegment(BaseSegment):
         ),
     )
 
-
 @mysql_dialect.segment()
 class SelectPartitionClauseSegment(BaseSegment):
     """This is the body of a partition clause."""
