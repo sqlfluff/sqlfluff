@@ -80,7 +80,7 @@ Follow us [on Twitter @SQLFLuff](https://twitter.com/SQLFluff) for annoncements 
 
 # Contributing
 
-We are grateful for all out [contributors](https://github.com/sqlfluff/sqlfluff/graphs/contributors). There's lots to do in this project, and we're just getting started.
+We are grateful for all our [contributors](https://github.com/sqlfluff/sqlfluff/graphs/contributors). There's lots to do in this project, and we're just getting started.
 
 If you want to understand more about the architecture of **SQLFluff**, you can find [more here](https://docs.sqlfluff.com/en/latest/architecture.html).
 
