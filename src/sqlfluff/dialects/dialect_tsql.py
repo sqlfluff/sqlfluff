@@ -55,6 +55,7 @@ from sqlfluff.dialects.ansi_keywords import (
 # )
 
 from sqlfluff.core.dialects import load_raw_dialect
+from sqlfluff.dialects.dialect_ansi import StatementSegment
 
 ansi_dialect = load_raw_dialect("ansi")
 tsql_dialect = ansi_dialect.copy_as("tsql")
@@ -97,6 +98,13 @@ tsql_dialect.insert_lexer_matchers(
     before="code",
 )
 
+
+@tsql_dialect.segment()
+class GoStatementSegment(BaseSegment):
+    """This is a Go statement to signal end of batch"""
+    type = "go_statement"
+    type = "go_statement"
+    match_grammar = Sequence("GO")
 
 @tsql_dialect.segment()
 class SchemaNameSegment(BaseSegment):
@@ -157,6 +165,7 @@ class CreateFunctionStatementSegment(BaseSegment):
         ),
        "AS",       
         Ref("FunctionDefinitionGrammar"),
+        Ref("GoStatementSegment", optional=True),
     )
 
 @tsql_dialect.segment(replace=True)
@@ -168,6 +177,27 @@ class FunctionDefinitionGrammar(BaseSegment):
     match_grammar = Sequence(        
         Anything()
     )
+
+
+@tsql_dialect.segment()
+class CreateProcedureStatementSegment(BaseSegment):
+    """A `CREATE PROCEDURE` statement.
+
+    
+    """
+
+    type = "create_procedure_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Sequence("OR", "ALTER", optional=True),
+        # Ref("DefinerSegment", optional=True),
+        "PROCEDURE",
+        Ref("ObjectNameSegment"),
+        Ref("FunctionParameterListGrammar", optional=True),
+        Ref("FunctionDefinitionGrammar"),
+    )
+
 
 # @tsql_dialect.segment()
 # class FunctionReturnGrammar(BaseSegment):
