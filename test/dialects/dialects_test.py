@@ -9,7 +9,13 @@ import pytest
 from sqlfluff.core.parser import Parser, Lexer
 from sqlfluff.core import FluffConfig
 
-from .parse_fixtures import get_parse_fixtures, load_file, make_dialect_path
+from ..conftest import (
+    compute_parse_tree_hash,
+    parse_example_file,
+    load_file,
+    make_dialect_path,
+    get_parse_fixtures,
+)
 
 parse_success_examples, parse_structure_examples = get_parse_fixtures(
     fail_on_missing_yml=True
@@ -47,16 +53,22 @@ def test__dialect__base_parse_struct(
     dialect, sqlfile, code_only, yamlfile, yaml_loader
 ):
     """For given test examples, check parsed structure against yaml."""
-    # Load the right dialect
-    config = FluffConfig(overrides=dict(dialect=dialect))
-    # Load the SQL
-    raw = load_file(dialect, sqlfile)
-    # Lex and parse the file
-    tokens, _ = Lexer(config=config).lex(raw)
-    parsed = Parser(config=config).parse(tokens)
+    parsed = parse_example_file(dialect, sqlfile)
+    actual_hash = compute_parse_tree_hash(parsed)
     # Load the YAML
-    res = yaml_loader(make_dialect_path(dialect, yamlfile))
+    expected_hash, res = yaml_loader(make_dialect_path(dialect, yamlfile))
     if parsed:
+        # Verify the current parse tree matches the historic parse tree.
         assert parsed.to_tuple(code_only=code_only, show_raw=True) == res
+        # Verify the current hash matches the historic hash. The main purpose of
+        # this check is to force contributors to use the generator script to
+        # to create these files. New contributors have sometimes been unaware of
+        # this tool and have attempted to craft the YAML files manually. This
+        # can lead to slight differences, confusion, and errors.
+        assert expected_hash == actual_hash, (
+            "Parse tree hash does not match. Please run "
+            "'python test/generate_parse_fixture_yml.py' to create YAML files "
+            "in test/fixtures/parser."
+        )
     else:
         assert parsed == res
