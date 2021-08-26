@@ -39,6 +39,7 @@ def test__rules__std_L007_after():
             b = 2
     """
     config = FluffConfig(configs={"rules": {"L007": {"operator_new_lines": "after"}}})
+    # The sqlfluff.lint API doesn't allow us to pass config so need to do what it does
     linter = Linter(config=config)
     result_records = linter.lint_string_wrapped(sql).as_records()
     result = result_records[0]["violations"]
@@ -60,6 +61,7 @@ def test__rules__std_L007_before():
             AND b = 2
     """
     config = FluffConfig(configs={"rules": {"L007": {"operator_new_lines": "before"}}})
+    # The sqlfluff.lint API doesn't allow us to pass config so need to do what it does
     linter = Linter(config=config)
     result_records = linter.lint_string_wrapped(sql).as_records()
     result = result_records[0]["violations"]
