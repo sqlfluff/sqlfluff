@@ -57,7 +57,9 @@ class Rule_L007(BaseRule):
         anchor = None
         description = "Operators near newlines should be after, not before the newline"
         if self.operator_new_lines == "before":
-            description = "Operators near newlines should be before, not after the newline"
+            description = (
+                "Operators near newlines should be before, not after the newline"
+            )
 
         # The parent stack tells us whether we're in an expression or not.
         if parent_stack and parent_stack[-1].is_type("expression"):
@@ -97,9 +99,6 @@ class Rule_L007(BaseRule):
 
         # Anchor is our signal as to whether there's a problem
         if anchor:
-            return LintResult(
-                anchor=anchor,
-                memory=memory,
-                description=description)
+            return LintResult(anchor=anchor, memory=memory, description=description)
         else:
             return LintResult(memory=memory)
