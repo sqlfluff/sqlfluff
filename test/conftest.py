@@ -113,8 +113,6 @@ def compute_parse_tree_hash(tree):
             r_io = io.StringIO()
             oyaml.dump(r, r_io)
             result = hashlib.blake2s(r_io.getvalue().encode("utf-8")).hexdigest()
-            # print(result)
-            # print(r_io.getvalue())
             return result
     return None
 
