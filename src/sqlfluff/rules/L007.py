@@ -2,6 +2,9 @@
 
 from sqlfluff.core.rules.base import BaseRule, LintResult
 
+after_description = "Operators near newlines should be after, not before the newline"
+before_description = "Operators near newlines should be before, not after the newline"
+
 
 class Rule_L007(BaseRule):
     """Operators should follow a standard for being before/after newlines.
@@ -55,11 +58,9 @@ class Rule_L007(BaseRule):
 
         """
         anchor = None
-        description = "Operators near newlines should be after, not before the newline"
+        description = after_description
         if self.operator_new_lines == "before":
-            description = (
-                "Operators near newlines should be before, not after the newline"
-            )
+            description = before_description
 
         # The parent stack tells us whether we're in an expression or not.
         if parent_stack and parent_stack[-1].is_type("expression"):

@@ -4,8 +4,7 @@ import sqlfluff
 from sqlfluff.core.config import FluffConfig
 from sqlfluff.core import Linter
 
-after_description = "Operators near newlines should be after, not before the newline"
-before_description = "Operators near newlines should be before, not after the newline"
+from sqlfluff.rules.L007 import after_description, before_description
 
 
 def test__rules__std_L007_default():
