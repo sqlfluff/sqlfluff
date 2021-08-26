@@ -220,7 +220,7 @@ class IgnoreSegment(RawSegment):
     _is_whitespace = True
     _is_code = True
     _is_comment = False
-    _default_raw = "^\\s?\\\\.*$"
+    _default_raw = r"^\s?\\[^\n]*"
 
 
 class NewlineSegment(RawSegment):

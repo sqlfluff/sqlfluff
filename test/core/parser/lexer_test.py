@@ -47,6 +47,8 @@ def assert_matches(instring, matcher, matchstring):
         # This tests subdivision and trimming (incl the empty case)
         ("abc /* comment \nblah*/", ["abc", " ", "/* comment", " ", "\n", "blah*/"]),
         ("abc /*\n\t\n*/", ["abc", " ", "/*", "\n", "\t", "\n", "*/"]),
+        # Test IgnoreSegment
+        ("abc \\some meta command \nblah", ["abc", " ", "\\some meta command ", "\n", "blah"]),
         # Test strings
         ("*-+bd/", ["*", "-", "+", "bd", "/"]),
         # Test Negatives and Minus
