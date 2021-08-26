@@ -212,6 +212,17 @@ class WhitespaceSegment(RawSegment):
     _default_raw = " "
 
 
+class IgnoreSegment(RawSegment):
+    """Segment to be excluded from the lint analysis."""
+
+    type = "ignore"
+    _name = "ignore"
+    _is_whitespace = True
+    _is_code = True
+    _is_comment = False
+    _default_raw = "^\\s?\\\\.*$"
+
+
 class NewlineSegment(RawSegment):
     """Segment containing a newline.
 

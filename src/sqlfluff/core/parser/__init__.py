@@ -10,6 +10,7 @@ from sqlfluff.core.parser.segments import (
     CommentSegment,
     WhitespaceSegment,
     NewlineSegment,
+    IgnoreSegment,
     KeywordSegment,
     SymbolSegment,
     Indent,
