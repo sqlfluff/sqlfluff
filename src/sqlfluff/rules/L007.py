@@ -4,11 +4,11 @@ from sqlfluff.core.rules.base import BaseRule, LintResult
 
 
 class Rule_L007(BaseRule):
-    """Operators do not follow the standard for being before/after newlines
+    """Operators should follow a standard for being before/after newlines.
 
     | **Anti-pattern**
     | The • character represents a space.
-    | If ``operator_new_lines = before`` (or unspecified, as this is the default)
+    | If ``operator_new_lines = after`` (or unspecified, as this is the default)
     | In this example, the operator '+' should not be at the end of the second line.
 
     .. code-block:: sql
@@ -20,7 +20,7 @@ class Rule_L007(BaseRule):
 
 
     | **Best practice**
-    | If ``operator_new_lines = before`` (or unspecified as this is the default)
+    | If ``operator_new_lines = after`` (or unspecified, as this is the default)
     | Place the operator after the newline.
 
     .. code-block:: sql
@@ -30,7 +30,7 @@ class Rule_L007(BaseRule):
             + b
         FROM foo
 
-    | If ``operator_new_lines = after``
+    | If ``operator_new_lines = before``
     | Place the operator before the newline.
 
     .. code-block:: sql
@@ -44,7 +44,7 @@ class Rule_L007(BaseRule):
     config_keywords = ["operator_new_lines"]
 
     def _eval(self, segment, memory, parent_stack, **kwargs):
-        """Operators do not follow the standard for being before/after newlines
+        """Operators should follow a standard for being before/after newlines.
 
         We use the memory to keep track of whitespace up to now, and
         whether the last code segment was an operator or not.
@@ -55,6 +55,9 @@ class Rule_L007(BaseRule):
 
         """
         anchor = None
+        description = "Operators near newlines should be after, not before the newline"
+        if self.operator_new_lines == "before":
+            description = "Operators near newlines should be before, not after the newline"
 
         # The parent stack tells us whether we're in an expression or not.
         if parent_stack and parent_stack[-1].is_type("expression"):
@@ -94,6 +97,9 @@ class Rule_L007(BaseRule):
 
         # Anchor is our signal as to whether there's a problem
         if anchor:
-            return LintResult(anchor=anchor, memory=memory)
+            return LintResult(
+                anchor=anchor,
+                memory=memory,
+                description=description)
         else:
             return LintResult(memory=memory)
