@@ -194,7 +194,7 @@ workflows:
           filters:
             branches:
               only:
-                - master
+                - main
     jobs:
       # Run the windows jobs on a schedule.
       - win-py37
