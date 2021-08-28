@@ -628,7 +628,9 @@ def test__cli__command_lint_serialize_github_annotation():
 def test___main___help():
     """Test that the CLI can be access via __main__."""
     # nonzero exit is good enough
-    subprocess.check_output([sys.executable, "-m", "sqlfluff", "--help"], env=os.environ)
+    subprocess.check_output(
+        [sys.executable, "-m", "sqlfluff", "--help"], env=os.environ
+    )
 
 
 @pytest.mark.parametrize(
