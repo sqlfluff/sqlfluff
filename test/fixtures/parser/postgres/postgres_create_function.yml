@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 88b9dce529a554c7650abe72b389538057a83f3854f5f84d3e4b3261829ce83c
+_hash: c263b5f9ae270db5d9260c314620a98c15c7c776cf72c2c9ae1f93face4fb3ac
 file:
 - statement:
     create_function_statement:
@@ -52,4 +52,98 @@ file:
       - literal: "'\n    BEGIN\n        RETURN i + 1;\n    END;\n'"
       - keyword: LANGUAGE
       - parameter: plpgsql
+      - keyword: VOLATILE
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - binary_operator: OR
+    - keyword: REPLACE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: increment
+    - base:
+        bracketed:
+          start_bracket: (
+          parameter: i
+          data_type:
+            data_type_identifier: integer
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: integer
+    - base:
+      - keyword: AS
+      - literal: "'\n    BEGIN\n        RETURN i + 1;\n    END;\n'"
+      - keyword: LANGUAGE
+      - parameter: plpgsql
+      - keyword: WINDOW
+      - keyword: IMMUTABLE
+      - keyword: STABLE
+      - keyword: LEAKPROOF
+      - keyword: RETURNS
+      - keyword: 'NULL'
+      - keyword: 'ON'
+      - keyword: 'NULL'
+      - keyword: INPUT
+      - keyword: EXTERNAL
+      - keyword: SECURITY
+      - keyword: DEFINER
+      - keyword: ROWS
+      - literal: '5'
+      - keyword: SET
+      - parameter: test_param
+      - comparison_operator: '='
+      - literal: '3'
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - binary_operator: OR
+    - keyword: REPLACE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: increment
+    - base:
+        bracketed:
+          start_bracket: (
+          parameter: i
+          data_type:
+            data_type_identifier: integer
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: integer
+    - base:
+      - keyword: AS
+      - literal: "'C:\\\\my_file.c'"
+      - comma: ','
+      - literal: "'symlink_c'"
+      - keyword: LANGUAGE
+      - parameter: plpgsql
+      - keyword: WINDOW
+      - keyword: IMMUTABLE
+      - keyword: STABLE
+      - keyword: NOT
+      - keyword: LEAKPROOF
+      - keyword: CALLED
+      - keyword: 'ON'
+      - keyword: 'NULL'
+      - keyword: INPUT
+      - keyword: EXTERNAL
+      - keyword: SECURITY
+      - keyword: DEFINER
+      - keyword: COST
+      - literal: '123'
+      - keyword: ROWS
+      - literal: '5'
+      - keyword: SET
+      - parameter: test_param
+      - comparison_operator: '='
+      - literal: '3'
+      - keyword: WITH
+      - bracketed:
+          start_bracket: (
+          parameter: isStrict
+          end_bracket: )
 - statement_terminator: ;

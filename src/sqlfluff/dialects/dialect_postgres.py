@@ -2,6 +2,7 @@
 
 from sqlfluff.core.parser import (
     OneOf,
+    AnyNumberOf,
     Ref,
     Sequence,
     Bracketed,
@@ -20,7 +21,6 @@ ansi_dialect = load_raw_dialect("ansi")
 
 postgres_dialect = ansi_dialect.copy_as("postgres")
 
-
 postgres_dialect.insert_lexer_matchers(
     # JSON Operators: https://www.postgresql.org/docs/9.5/functions-json.html
     [
@@ -32,7 +32,6 @@ postgres_dialect.insert_lexer_matchers(
     ],
     before="not_equal",
 )
-
 
 # https://www.postgresql.org/docs/current/sql-keywords-appendix.html
 # SPACE has special status in some SQL dialects, but not Postgres.
@@ -54,6 +53,7 @@ postgres_dialect.sets("reserved_keywords").add("WITHIN")
 # Add the EPOCH datetime unit
 postgres_dialect.sets("datetime_units").update(["EPOCH"])
 
+postgres_dialect.sets("unreserved_keywords").update(["COST", "LEAKPROOF"])
 
 postgres_dialect.add(
     JsonOperatorSegment=NamedParser(
@@ -63,7 +63,6 @@ postgres_dialect.add(
         "dollar_quote", CodeSegment, name="dollar_quoted_literal", type="literal"
     ),
 )
-
 
 postgres_dialect.replace(
     PostFunctionGrammar=OneOf(
@@ -88,15 +87,60 @@ postgres_dialect.replace(
 
 @postgres_dialect.segment(replace=True)
 class FunctionDefinitionGrammar(BaseSegment):
-    """This is the body of a `CREATE FUNCTION AS` statement."""
+    """This is the body of a `CREATE FUNCTION AS` statement.
+    Options supported as defined in https://www.postgresql.org/docs/9.1/sql-createfunction.html"""
 
     match_grammar = Sequence(
-        "AS",
-        OneOf(Ref("QuotedLiteralSegment"), Ref("DollarQuotedLiteralSegment")),
+        AnyNumberOf(
+            Sequence("TRANSFORM", "FOR", "TYPE", Ref("ParameterNameSegment")),
+            OneOf("WINDOW", "IMMUTABLE", "STABLE", "VOLATILE", "STRICT"),
+            Sequence(OneOf("NOT", optional=True), "LEAKPROOF"),
+            Sequence(
+                OneOf("CALLED", Sequence("RETURNS", "NULL")), "ON", "NULL", "INPUT"
+            ),
+            Sequence(
+                OneOf("EXTERNAL", optional=True),
+                "SECURITY",
+                OneOf("INVOKER", "DEFINER"),
+            ),
+            Sequence("LANGUAGE", Ref("ParameterNameSegment")),
+            Sequence(OneOf("COST", "ROWS"), Ref("NumericLiteralSegment")),
+            Sequence(
+                "SET",
+                Ref("ParameterNameSegment"),
+                OneOf(
+                    Sequence(
+                        OneOf("TO", Ref("EqualsSegment")),
+                        Delimited(
+                            OneOf(
+                                Ref("ParameterNameSegment"),
+                                Ref("NumericLiteralSegment"),
+                                Ref("QuotedLiteralSegment"),
+                            ),
+                            delimiter=Ref("CommaSegment"),
+                        ),
+                    ),
+                    Sequence("FROM", "CURRENT"),
+                ),
+            ),
+            Sequence(
+                "AS",
+                OneOf(
+                    Ref("QuotedLiteralSegment"),
+                    Ref("DollarQuotedLiteralSegment"),
+                    Sequence(
+                        Ref("QuotedLiteralSegment"),
+                        Ref("CommaSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                ),
+            ),
+        ),
         Sequence(
-            "LANGUAGE",
-            # Not really a parameter, but best fit for now.
-            Ref("ParameterNameSegment"),
+            "WITH",
+            Bracketed(
+                Delimited(Ref("ParameterNameSegment"), delimiter=Ref("CommaSegment"))
+            ),
             optional=True,
         ),
     )
