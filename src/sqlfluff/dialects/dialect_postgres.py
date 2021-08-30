@@ -88,7 +88,9 @@ postgres_dialect.replace(
 @postgres_dialect.segment(replace=True)
 class FunctionDefinitionGrammar(BaseSegment):
     """This is the body of a `CREATE FUNCTION AS` statement.
-    Options supported as defined in https://www.postgresql.org/docs/9.1/sql-createfunction.html"""
+
+    Options supported as defined in https://www.postgresql.org/docs/9.1/sql-createfunction.html
+    """
 
     match_grammar = Sequence(
         AnyNumberOf(
