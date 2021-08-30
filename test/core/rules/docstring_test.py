@@ -9,20 +9,20 @@ KEYWORD_CODE_BLOCK = "\n    .. code-block:: sql\n"
 
 
 @pytest.mark.parametrize(
-    "content,count",
+    "content,min_count",
     [
         (KEYWORD_ANTI, 1),
         (KEYWORD_BEST, 1),
         (KEYWORD_CODE_BLOCK, 2),
     ]
 )
-def test_content_count(content, count):
+def test_content_count(content, min_count):
     """Test docstring have specific content"""
     for plugin_rules in get_plugin_manager().hook.get_rules():
         for rule in plugin_rules:
             if rule._check_docstring is True:
-                assert rule.__doc__.count(content) == count, \
-                    f"{rule.__name__} do not occurrences content {content} with {count} times"
+                assert rule.__doc__.count(content) >= min_count, \
+                    f"{rule.__name__} content {content} do not occurrences at less {min_count} times"
 
 
 def test_keyword_anti_before_best():
