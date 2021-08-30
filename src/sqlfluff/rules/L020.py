@@ -7,7 +7,29 @@ from sqlfluff.core.rules.analysis.select import get_select_statement_info
 
 
 class Rule_L020(BaseRule):
-    """Table aliases should be unique within each clause."""
+    """Table aliases should be unique within each clause.
+
+    | **Anti-pattern**
+    | In this example, same table 'foo' have two aliases 'f1' and 'f2'.
+
+    .. code-block:: sql
+
+        SELECT
+            f1.a,
+            f2.a
+        FROM foo f1, foo f2
+
+    | **Best practice**
+    | Make all table with the some aliases.
+
+    .. code-block:: sql
+
+        SELECT
+            f.a,
+            f.a
+        FROM foo f, foo f
+
+    """
 
     def _lint_references_and_aliases(
         self,
