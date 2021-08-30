@@ -9,6 +9,7 @@ from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 @document_fix_compatible
 class Rule_L009(BaseRule):
     """Files must end with a trailing newline."""
+
     _check_docstring = False
 
     def _eval(self, segment, siblings_post, parent_stack, **kwargs):
