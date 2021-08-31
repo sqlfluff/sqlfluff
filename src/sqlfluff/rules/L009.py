@@ -18,7 +18,7 @@ class Rule_L009(BaseRule):
         SELECT
             a
         FROM foo$
-        
+
         -- Ending on an indented line means there is no newline at the end of the file, the • represents space.
 
         SELECT
@@ -43,7 +43,7 @@ class Rule_L009(BaseRule):
             a
         FROM foo
         $
-        
+
         -- Ensuring the last line is not indented so is just a newline.
 
         SELECT
