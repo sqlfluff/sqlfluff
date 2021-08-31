@@ -29,7 +29,7 @@ class Rule_L040(Rule_L010):
         from foo
 
     | **Best practice**
-    | Make all literal null/true/false either in upper-case or in lower-case
+    | Ensure all literal null/true/false literals cases are used consistently
 
     .. code-block:: sql
 
