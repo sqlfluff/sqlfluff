@@ -23,7 +23,7 @@ def test_content_count(content, min_count):
             if rule._check_docstring is True:
                 assert (
                     rule.__doc__.count(content) >= min_count
-                ), f"{rule.__name__} content {content} do not occurrences at less {min_count} times"
+                ), f"{rule.__name__} content {content} does not occur at less {min_count} times"
 
 
 def test_keyword_anti_before_best():
@@ -33,4 +33,4 @@ def test_keyword_anti_before_best():
             if rule._check_docstring is True:
                 assert rule.__doc__.index(KEYWORD_ANTI) < rule.__doc__.index(
                     KEYWORD_BEST
-                ), f"{rule.__name__} keyword {KEYWORD_BEST} appear before {KEYWORD_ANTI}"
+                ), f"{rule.__name__} keyword {KEYWORD_BEST} appears before {KEYWORD_ANTI}"
