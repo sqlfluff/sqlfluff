@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5a9f5758efc007ceeb3c6ae245e019882d5147613bafa94f6d6fab5f82b69136
+_hash: 929c55d2cf6f5da08b4830b07cb5593347b2ebb74d414f2078a514c24e97755f
 file:
 - statement:
     create_function_statement:
@@ -169,7 +169,7 @@ file:
       - keyword: PARALLEL
       - keyword: UNSAFE
       - keyword: AS
-      - literal: "'\n    BEGIN\n        RETURN i + 1;\n    END;\n'"
+      - literal: "$$\n    BEGIN\n        RETURN i + 1;\n    END;\n$$"
       - keyword: LANGUAGE
       - parameter: plpgsql
       - keyword: SUPPORT
