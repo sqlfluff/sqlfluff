@@ -96,20 +96,25 @@ class FunctionDefinitionGrammar(BaseSegment):
 
     match_grammar = Sequence(
         AnyNumberOf(
-            Sequence(OneOf("LANGUAGE", "SUPPORT"), Ref("ParameterNameSegment")),
+            Sequence("LANGUAGE", Ref("ParameterNameSegment")),
             Sequence("TRANSFORM", "FOR", "TYPE", Ref("ParameterNameSegment")),
-            OneOf("WINDOW", "IMMUTABLE", "STABLE", "VOLATILE", "STRICT"),
-            Sequence(OneOf("NOT", optional=True), "LEAKPROOF"),
-            Sequence(
-                OneOf("CALLED", Sequence("RETURNS", "NULL")), "ON", "NULL", "INPUT"
+            Ref.keyword("WINDOW"),
+            OneOf("IMMUTABLE", "STABLE", "VOLATILE"),
+            Sequence(Ref.keyword("NOT", optional=True), "LEAKPROOF"),
+            OneOf(
+                Sequence("CALLED", "ON", "NULL", "INPUT"),
+                Sequence("RETURNS", "NULL", "ON", "NULL", "INPUT"),
+                "STRICT",
             ),
             Sequence(
-                OneOf("EXTERNAL", optional=True),
+                Ref.keyword("EXTERNAL", optional=True),
                 "SECURITY",
                 OneOf("INVOKER", "DEFINER"),
             ),
             Sequence("PARALLEL", OneOf("UNSAFE", "RESTRICTED", "SAFE")),
-            Sequence(OneOf("COST", "ROWS"), Ref("NumericLiteralSegment")),
+            Sequence("COST", Ref("NumericLiteralSegment")),
+            Sequence("ROWS", Ref("NumericLiteralSegment")),
+            Sequence("SUPPORT", Ref("ParameterNameSegment")),
             Sequence(
                 "SET",
                 Ref("ParameterNameSegment"),
