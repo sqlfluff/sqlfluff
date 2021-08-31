@@ -10,24 +10,42 @@ class Rule_L020(BaseRule):
     """Table aliases should be unique within each clause.
 
     | **Anti-pattern**
-    | In this example, same table 'foo' have two aliases 'f1' and 'f2'.
+    | In this example, the alias 't' is reused for two different ables:
 
     .. code-block:: sql
 
         SELECT
-            f1.a,
-            f2.a
-        FROM foo f1, foo f2
+            t.a,
+            t.b
+        FROM foo AS t, bar AS t
+        
+        -- this can also happen when using schemas where the implicit alias is the table name:
+
+        SELECT
+            a,
+            b
+        FROM
+            2020.foo,
+            2021.foo
 
     | **Best practice**
-    | Make all table with the some aliases.
+    | Make all tables have a unique alias
 
     .. code-block:: sql
 
         SELECT
             f.a,
-            f.a
-        FROM foo f, foo f
+            b.b
+        FROM foo AS f, bar AS b
+        
+        -- Also use explicit alias's when referencing two tables with same name from two different schemas
+
+        SELECT
+            f1.a,
+            f2.b
+        FROM
+            2020.foo AS f1,
+            2021.foo AS f2
 
     """
 
