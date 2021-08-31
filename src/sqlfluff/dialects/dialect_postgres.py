@@ -53,7 +53,9 @@ postgres_dialect.sets("reserved_keywords").update(["WITHIN"])
 # Add the EPOCH datetime unit
 postgres_dialect.sets("datetime_units").update(["EPOCH"])
 
-postgres_dialect.sets("unreserved_keywords").update(["COST", "LEAKPROOF", "PARALLEL", "SUPPORT", "SAFE", "UNSAFE", "RESTRICTED"])
+postgres_dialect.sets("unreserved_keywords").update(
+    ["COST", "LEAKPROOF", "PARALLEL", "SUPPORT", "SAFE", "UNSAFE", "RESTRICTED"]
+)
 
 postgres_dialect.add(
     JsonOperatorSegment=NamedParser(
