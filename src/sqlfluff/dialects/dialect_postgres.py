@@ -47,6 +47,8 @@ postgres_dialect.sets("unreserved_keywords").update(
         "BUFFERS",
         "FORMAT",
         "XML",
+        "SERVER",
+        "WRAPPER",
     ]
 )
 postgres_dialect.sets("reserved_keywords").update(["WITHIN", "VARIADIC", "WITH"])
