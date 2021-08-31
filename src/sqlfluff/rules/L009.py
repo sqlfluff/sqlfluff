@@ -8,7 +8,27 @@ from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
 @document_fix_compatible
 class Rule_L009(BaseRule):
-    """Files must end with a trailing newline."""
+    """Files must end with a trailing newline.
+
+    | **Anti-pattern**
+    | The content in file without end with a trailing newline.
+
+    .. code-block:: sql
+
+        SELECT
+            a
+        FROM foo
+
+    | **Best practice**
+    | Add trailing newline to the end, the \n character represents a newline symbol.
+
+    .. code-block:: sql
+
+        SELECT
+            a
+        FROM foo\n
+
+    """
 
     _check_docstring = False
 
