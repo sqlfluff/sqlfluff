@@ -679,7 +679,7 @@ class ColumnOptionSegment(BaseSegment):
 
 @postgres_dialect.segment()
 class PartitionBoundSpecSegment(BaseSegment):
-    """partition_bound_spec as per https://www.postgresql.org/docs/13/sql-altertable.html"""
+    """partition_bound_spec as per https://www.postgresql.org/docs/13/sql-altertable.html."""
 
     match_grammar = OneOf(
         Sequence(
