@@ -24,7 +24,7 @@ class Rule_L040(Rule_L010):
         select
             a,
             null,
-            TURE,
+            TRUE,
             false
         from foo
 
