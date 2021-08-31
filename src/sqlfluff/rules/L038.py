@@ -22,7 +22,7 @@ class Rule_L038(BaseRule):
 
     | **Anti-pattern**
 
-    .. code-block::
+    .. code-block:: sql
 
         SELECT
             a, b,
@@ -30,7 +30,7 @@ class Rule_L038(BaseRule):
 
     | **Best practice**
 
-    .. code-block::
+    .. code-block:: sql
 
         SELECT
             a, b
