@@ -86,8 +86,10 @@ html_theme_options = {
     "github_repo": "sqlfluff",
     # Github Fork button
     "github_banner": True,
-    # Github link button
-    "github_button": True,
+    # Github star button
+    "github_type": "star",
+    # Use `"true"` instead of `True` for counting github star, see https://ghbtns.com for details
+    "github_count": "true",
     # Codecov button
     "codecov_button": True,
 }
