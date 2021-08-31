@@ -35,18 +35,18 @@ class Rule_L040(Rule_L010):
 
         select
             a,
-            null,
-            true,
-            false
+            NULL,
+            TRUE,
+            FALSE
         from foo
 
         -- Also good
 
         select
             a,
-            NULL,
-            TRUE,
-            FALSE
+            null,
+            true,
+            false
         from foo
 
     """
