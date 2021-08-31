@@ -516,8 +516,7 @@ class ArrayLiteralSegment(BaseSegment):
 
 @ansi_dialect.segment()
 class DatatypeSegment(BaseSegment):
-    """
-    A data type segment.
+    """A data type segment.
 
     Supports timestamp with(out) time zone. Doesn't currently support intervals.
     """

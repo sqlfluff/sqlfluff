@@ -360,8 +360,7 @@ class ExplainOptionSegment(BaseSegment):
 
 @postgres_dialect.segment(replace=True)
 class AlterTableStatementSegment(BaseSegment):
-    """
-    An `ALTER TABLE` statement.
+    """An `ALTER TABLE` statement.
 
     Matches the definition in https://www.postgresql.org/docs/13/sql-altertable.html
     """
@@ -439,8 +438,7 @@ class AlterTableStatementSegment(BaseSegment):
 
 @postgres_dialect.segment()
 class AlterTableActionSegment(BaseSegment):
-    """
-    Alter Table Action Segment
+    """Alter Table Action Segment.
 
     Matches the definition of action in https://www.postgresql.org/docs/13/sql-altertable.html
     """
@@ -624,8 +622,7 @@ class AlterTableActionSegment(BaseSegment):
 
 @postgres_dialect.segment(replace=True)
 class ColumnOptionSegment(BaseSegment):
-    """
-    A column option; each CREATE TABLE column can have 0 or more.
+    """A column option; each CREATE TABLE column can have 0 or more.
 
     This matches the definition in https://www.postgresql.org/docs/13/sql-altertable.html
     """
@@ -682,9 +679,7 @@ class ColumnOptionSegment(BaseSegment):
 
 @postgres_dialect.segment()
 class PartitionBoundSpecSegment(BaseSegment):
-    """
-    partition_bound_spec as per https://www.postgresql.org/docs/13/sql-altertable.html
-    """
+    """partition_bound_spec as per https://www.postgresql.org/docs/13/sql-altertable.html"""
 
     match_grammar = OneOf(
         Sequence(
@@ -795,9 +790,7 @@ class TableConstraintSegment(BaseSegment):
 
 @postgres_dialect.segment()
 class TableConstraintUsingIndexSegment(BaseSegment):
-    """
-    table_constraint_using_index as specified in https://www.postgresql.org/docs/13/sql-altertable.html
-    """
+    """table_constraint_using_index as specified in https://www.postgresql.org/docs/13/sql-altertable.html."""
 
     match_grammar = Sequence(
         Sequence(  # [ CONSTRAINT <Constraint name> ]
@@ -820,9 +813,7 @@ class TableConstraintUsingIndexSegment(BaseSegment):
 
 @postgres_dialect.segment()
 class IndexParametersSegment(BaseSegment):
-    """
-    index_parameters as specified in https://www.postgresql.org/docs/13/sql-altertable.html
-    """
+    """index_parameters as specified in https://www.postgresql.org/docs/13/sql-altertable.html."""
 
     type = "index_parameters"
 
@@ -848,8 +839,9 @@ class IndexParametersSegment(BaseSegment):
 
 @postgres_dialect.segment()
 class ReferentialActionSegment(BaseSegment):
-    """
-    Foreign Key constraints as found in https://www.postgresql.org/docs/13/infoschema-referential-constraints.html
+    """Foreign Key constraints.
+
+    As found in https://www.postgresql.org/docs/13/infoschema-referential-constraints.html
     """
 
     type = "referential_action"
@@ -865,9 +857,7 @@ class ReferentialActionSegment(BaseSegment):
 
 @postgres_dialect.segment()
 class ExcludeElementSegment(BaseSegment):
-    """
-    exclude_element segment as found in https://www.postgresql.org/docs/13/sql-altertable.html
-    """
+    """exclude_element segment as found in https://www.postgresql.org/docs/13/sql-altertable.html."""
 
     match_grammar = Sequence(
         OneOf(Ref("ColumnReferenceSegment"), Bracketed(Ref("ExpressionSegment"))),
