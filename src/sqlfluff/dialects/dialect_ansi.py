@@ -2382,6 +2382,7 @@ class AccessStatementSegment(BaseSegment):
         "STAGE",
         "FUNCTION",
         "PROCEDURE",
+        "ROUTINE",
         "SEQUENCE",
         "STREAM",
         "TASK",
@@ -2412,6 +2413,8 @@ class AccessStatementSegment(BaseSegment):
             ),
             Sequence("IMPORTED", "PRIVILEGES"),
             "APPLY",
+            "CONNECT",
+            "CREATE",
             "DELETE",
             "EXECUTE",
             "INSERT",
@@ -2423,6 +2426,9 @@ class AccessStatementSegment(BaseSegment):
             "REFERENCE_USAGE",
             "REFERENCES",
             "SELECT",
+            "TEMP",
+            "TEMPORARY",
+            "TRIGGER",
             "TRUNCATE",
             "UPDATE",
             "USAGE",
@@ -2442,9 +2448,17 @@ class AccessStatementSegment(BaseSegment):
                 Sequence("RESOURCE", "MONITOR"),
                 "WAREHOUSE",
                 "DATABASE",
+                "DOMAIN",
                 "INTEGRATION",
+                "LANGUAGE",
                 "SCHEMA",
                 "ROLE",
+                "TABLESPACE",
+                "TYPE",
+                Sequence(
+                    "FOREIGN",
+                    OneOf("SERVER", Sequence("DATA", "WRAPPER")),
+                ),
                 Sequence("ALL", "SCHEMAS", "IN", "DATABASE"),
                 Sequence("FUTURE", "SCHEMAS", "IN", "DATABASE"),
                 _schema_object_types,
@@ -2460,10 +2474,11 @@ class AccessStatementSegment(BaseSegment):
             Ref("ObjectReferenceSegment"),
             Ref("FunctionParameterListGrammar", optional=True),
         ),
+        Sequence("LARGE", "OBJECT", Ref("NumericLiteralSegment")),
     )
 
     match_grammar = OneOf(
-        # Based on https://www.postgresql.org/docs/12/sql-grant.html
+        # Based on https://www.postgresql.org/docs/13/sql-grant.html
         # and https://docs.snowflake.com/en/sql-reference/sql/grant-privilege.html
         Sequence(
             "GRANT",
@@ -2490,7 +2505,18 @@ class AccessStatementSegment(BaseSegment):
             ),
             OneOf(
                 Sequence("WITH", "GRANT", "OPTION"),
+                Sequence("WITH", "ADMIN", "OPTION"),
                 Sequence("COPY", "CURRENT", "GRANTS"),
+                optional=True,
+            ),
+            Sequence(
+                "GRANTED",
+                "BY",
+                OneOf(
+                    "CURRENT_USER",
+                    "SESSION_USER",
+                    Ref("ObjectReferenceSegment"),
+                ),
                 optional=True,
             ),
         ),
