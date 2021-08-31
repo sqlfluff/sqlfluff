@@ -516,31 +516,42 @@ class ArrayLiteralSegment(BaseSegment):
 
 @ansi_dialect.segment()
 class DatatypeSegment(BaseSegment):
-    """A data type segment."""
+    """
+    A data type segment.
+
+    Supports timestamp with(out) time zone. Doesn't currently support intervals.
+    """
 
     type = "data_type"
-    match_grammar = Sequence(
+    match_grammar = OneOf(
         Sequence(
-            # Some dialects allow optional qualification of data types with schemas
+            OneOf("time", "timestamp"),
+            Bracketed(Ref("NumericLiteralSegment"), optional=True),
+            Sequence(OneOf("WITH", "WITHOUT"), "TIME", "ZONE", optional=True),
+        ),
+        Sequence(
             Sequence(
-                Ref("SingleIdentifierGrammar"),
-                Ref("DotSegment"),
+                # Some dialects allow optional qualification of data types with schemas
+                Sequence(
+                    Ref("SingleIdentifierGrammar"),
+                    Ref("DotSegment"),
+                    allow_gaps=False,
+                    optional=True,
+                ),
+                Ref("DatatypeIdentifierSegment"),
                 allow_gaps=False,
+            ),
+            Bracketed(
+                OneOf(
+                    Delimited(Ref("ExpressionSegment")),
+                    # The brackets might be empty for some cases...
+                    optional=True,
+                ),
+                # There may be no brackets for some data types
                 optional=True,
             ),
-            Ref("DatatypeIdentifierSegment"),
-            allow_gaps=False,
+            Ref("CharCharacterSetSegment", optional=True),
         ),
-        Bracketed(
-            OneOf(
-                Delimited(Ref("ExpressionSegment")),
-                # The brackets might be empty for some cases...
-                optional=True,
-            ),
-            # There may be no brackets for some data types
-            optional=True,
-        ),
-        Ref("CharCharacterSetSegment", optional=True),
     )
 
 

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bc50de8fb367e8566bf8bbdf923726ee315b6e0991cfd5523a6446c5baf75c78
+_hash: 4c7d292686079c8a7dee56a3e42ddf1ef1d275c0e8f1e7cfc3e47a185d0373e5
 file:
 - statement:
     alter_table_statement:
@@ -645,4 +645,34 @@ file:
             column_reference:
               identifier: id
             end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        identifier: my_table
+    - base:
+      - keyword: ADD
+      - keyword: COLUMN
+      - keyword: IF
+      - keyword: NOT
+      - keyword: EXISTS
+      - column_reference:
+          identifier: foo
+      - data_type:
+          data_type_identifier: TEXT
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - identifier: public
+      - dot: .
+      - identifier: obm_buildings
+    - base:
+      - keyword: OWNER
+      - keyword: to
+      - parameter: postgres
 - statement_terminator: ;

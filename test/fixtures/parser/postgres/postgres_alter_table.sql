@@ -78,3 +78,8 @@ ALTER TABLE measurement
 ALTER TABLE landing.workorderhistory
 ADD CONSTRAINT workorder_id_foreign_key
 FOREIGN KEY(workorderid) REFERENCES landing.workorder(id);
+
+ALTER TABLE my_table ADD COLUMN IF NOT EXISTS foo TEXT;
+
+ALTER TABLE public.obm_buildings
+OWNER to postgres;
