@@ -49,11 +49,11 @@ postgres_dialect.sets("unreserved_keywords").update(
         "XML",
     ]
 )
-postgres_dialect.sets("reserved_keywords").add("WITHIN")
+postgres_dialect.sets("reserved_keywords").update(["WITHIN"])
 # Add the EPOCH datetime unit
 postgres_dialect.sets("datetime_units").update(["EPOCH"])
 
-postgres_dialect.sets("unreserved_keywords").update(["COST", "LEAKPROOF", "PARALLEL", "SUPPORT"])
+postgres_dialect.sets("unreserved_keywords").update(["COST", "LEAKPROOF", "PARALLEL", "SUPPORT", "SAFE", "UNSAFE", "RESTRICTED"])
 
 postgres_dialect.add(
     JsonOperatorSegment=NamedParser(
@@ -97,12 +97,12 @@ class FunctionDefinitionGrammar(BaseSegment):
             Sequence(OneOf("LANGUAGE", "SUPPORT"), Ref("ParameterNameSegment")),
             Sequence("TRANSFORM", "FOR", "TYPE", Ref("ParameterNameSegment")),
             OneOf("WINDOW", "IMMUTABLE", "STABLE", "VOLATILE", "STRICT"),
-            Sequence(Ref("NOT", optional=True), "LEAKPROOF"),
+            Sequence(OneOf("NOT", optional=True), "LEAKPROOF"),
             Sequence(
                 OneOf("CALLED", Sequence("RETURNS", "NULL")), "ON", "NULL", "INPUT"
             ),
             Sequence(
-                Ref("EXTERNAL", optional=True),
+                OneOf("EXTERNAL", optional=True),
                 "SECURITY",
                 OneOf("INVOKER", "DEFINER"),
             ),
