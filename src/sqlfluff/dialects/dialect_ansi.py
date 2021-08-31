@@ -633,7 +633,7 @@ class ObjectReferenceSegment(BaseSegment):
         SCHEMA = 3
 
     def extract_possible_references(
-            self, level: Union[ObjectReferenceLevel, int]
+        self, level: Union[ObjectReferenceLevel, int]
     ) -> List[ObjectReferencePart]:
         """Extract possible references of a given level.
 
@@ -1492,8 +1492,8 @@ ansi_dialect.add(
                     Ref("NumericLiteralSegment"),
                     Ref("BooleanLiteralGrammar"),
                     Ref("NullLiteralSegment"),
-                    Ref("DateTimeLiteralGrammar")
-                )
+                    Ref("DateTimeLiteralGrammar"),
+                ),
             ),
         ),
         Ref("Accessor_Grammar", optional=True),
