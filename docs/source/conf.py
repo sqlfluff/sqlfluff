@@ -89,6 +89,8 @@ html_theme_options = {
     # Github star button
     "github_type": "star",
     "github_count": "true",
+    # Codecov button
+    "codecov_button": True,
 }
 
 
