@@ -15,6 +15,40 @@ class Rule_L040(Rule_L010):
     """Inconsistent capitalisation of boolean/null literal.
 
     The functionality for this rule is inherited from :obj:`Rule_L010`.
+
+    | **Anti-pattern**
+    | In this example, 'null' and 'false' are in lower-case whereas 'TRUE' is in upper-case.
+
+    .. code-block:: sql
+
+        select
+            a,
+            null,
+            TRUE,
+            false
+        from foo
+
+    | **Best practice**
+    | Ensure all literal null/true/false literals cases are used consistently
+
+    .. code-block:: sql
+
+        select
+            a,
+            NULL,
+            TRUE,
+            FALSE
+        from foo
+
+        -- Also good
+
+        select
+            a,
+            null,
+            true,
+            false
+        from foo
+
     """
 
     _target_elems: List[Tuple[str, str]] = [

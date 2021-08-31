@@ -11,7 +11,7 @@ class Rule_L024(Rule_L023):
 
     | **Anti-pattern**
 
-    .. code-block::
+    .. code-block:: sql
 
         SELECT b
         FROM foo
@@ -22,7 +22,7 @@ class Rule_L024(Rule_L023):
     | Add a space after USING, to avoid confusing it
     | for a function.
 
-    .. code-block::
+    .. code-block:: sql
 
         SELECT b
         FROM foo

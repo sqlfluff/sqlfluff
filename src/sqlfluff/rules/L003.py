@@ -22,7 +22,7 @@ class Rule_L003(BaseRule):
     | The • character represents a space.
     | In this example, the third line contains five spaces instead of four.
 
-    .. code-block::
+    .. code-block:: sql
 
         SELECT
         ••••a,
@@ -33,7 +33,7 @@ class Rule_L003(BaseRule):
     | **Best practice**
     | Change the indentation to use a multiple of four spaces.
 
-    .. code-block::
+    .. code-block:: sql
 
         SELECT
         ••••a,
