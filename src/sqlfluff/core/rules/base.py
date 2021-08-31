@@ -205,6 +205,7 @@ class BaseRule:
 
     """
 
+    _check_docstring = True
     _works_on_unparsable = True
     targets_templated = False
 

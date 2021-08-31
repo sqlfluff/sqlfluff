@@ -278,7 +278,12 @@ bigquery_dialect.replace(
         Sequence(
             "FOR", "SYSTEM_TIME", "AS", "OF", Ref("ExpressionSegment"), optional=True
         ),
-        Sequence("WITH", "OFFSET", "AS", Ref("SingleIdentifierGrammar"), optional=True),
+        Sequence(
+            "WITH",
+            "OFFSET",
+            Sequence("AS", Ref("SingleIdentifierGrammar"), optional=True),
+            optional=True,
+        ),
     ),
     FunctionNameIdentifierSegment=OneOf(
         # In BigQuery struct() has a special syntax, so we don't treat it as a function
