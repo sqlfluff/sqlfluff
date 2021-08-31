@@ -2,6 +2,7 @@
 
 from sqlfluff.core.parser import (
     OneOf,
+    AnyNumberOf,
     Ref,
     Sequence,
     Bracketed,
@@ -20,7 +21,6 @@ ansi_dialect = load_raw_dialect("ansi")
 
 postgres_dialect = ansi_dialect.copy_as("postgres")
 
-
 postgres_dialect.insert_lexer_matchers(
     # JSON Operators: https://www.postgresql.org/docs/9.5/functions-json.html
     [
@@ -32,7 +32,6 @@ postgres_dialect.insert_lexer_matchers(
     ],
     before="not_equal",
 )
-
 
 # https://www.postgresql.org/docs/current/sql-keywords-appendix.html
 # SPACE has special status in some SQL dialects, but not Postgres.
@@ -50,10 +49,13 @@ postgres_dialect.sets("unreserved_keywords").update(
         "XML",
     ]
 )
-postgres_dialect.sets("reserved_keywords").add("WITHIN")
+postgres_dialect.sets("reserved_keywords").update(["WITHIN", "VARIADIC"])
 # Add the EPOCH datetime unit
 postgres_dialect.sets("datetime_units").update(["EPOCH"])
 
+postgres_dialect.sets("unreserved_keywords").update(
+    ["COST", "LEAKPROOF", "PARALLEL", "SUPPORT", "SAFE", "UNSAFE", "RESTRICTED"]
+)
 
 postgres_dialect.add(
     JsonOperatorSegment=NamedParser(
@@ -63,7 +65,6 @@ postgres_dialect.add(
         "dollar_quote", CodeSegment, name="dollar_quoted_literal", type="literal"
     ),
 )
-
 
 postgres_dialect.replace(
     PostFunctionGrammar=OneOf(
@@ -83,20 +84,135 @@ postgres_dialect.replace(
         # Add JSON operators
         Ref("JsonOperatorSegment"),
     ),
+    FunctionParameterGrammar=Sequence(
+        OneOf("IN", "OUT", "INOUT", "VARIADIC", optional=True),
+        OneOf(
+            Ref("DatatypeSegment"),
+            Sequence(Ref("ParameterNameSegment"), Ref("DatatypeSegment")),
+        ),
+        Sequence(
+            OneOf("DEFAULT", Ref("EqualsSegment")), Ref("LiteralGrammer"), optional=True
+        ),
+    ),
 )
 
 
 @postgres_dialect.segment(replace=True)
-class FunctionDefinitionGrammar(BaseSegment):
-    """This is the body of a `CREATE FUNCTION AS` statement."""
+class CreateFunctionStatementSegment(BaseSegment):
+    """A `CREATE FUNCTION` statement.
+
+    This version in the ANSI dialect should be a "common subset" of the
+    structure of the code for those dialects.
+    postgres: https://www.postgresql.org/docs/13/sql-createfunction.html
+    """
+
+    type = "create_function_statement"
 
     match_grammar = Sequence(
-        "AS",
-        OneOf(Ref("QuotedLiteralSegment"), Ref("DollarQuotedLiteralSegment")),
+        "CREATE",
+        Sequence("OR", "REPLACE", optional=True),
+        Ref("TemporaryGrammar", optional=True),
+        "FUNCTION",
+        Anything(),
+    )
+
+    parse_grammar = Sequence(
+        "CREATE",
+        Sequence("OR", "REPLACE", optional=True),
+        Ref("TemporaryGrammar", optional=True),
+        "FUNCTION",
+        Sequence("IF", "NOT", "EXISTS", optional=True),
+        Ref("FunctionNameSegment"),
+        Ref("FunctionParameterListGrammar"),
+        Sequence(  # Optional function return type
+            "RETURNS",
+            OneOf(
+                Sequence(
+                    "TABLE",
+                    Bracketed(
+                        Delimited(
+                            OneOf(
+                                Ref("DatatypeSegment"),
+                                Sequence(
+                                    Ref("ParameterNameSegment"), Ref("DatatypeSegment")
+                                ),
+                            ),
+                            delimiter=Ref("CommaSegment"),
+                        )
+                    ),
+                    optional=True,
+                ),
+                Ref("DatatypeSegment"),
+            ),
+            optional=True,
+        ),
+        Ref("FunctionDefinitionGrammar"),
+    )
+
+
+@postgres_dialect.segment(replace=True)
+class FunctionDefinitionGrammar(BaseSegment):
+    """This is the body of a `CREATE FUNCTION AS` statement.
+
+    Options supported as defined in https://www.postgresql.org/docs/13/sql-createfunction.html
+    """
+
+    match_grammar = Sequence(
+        AnyNumberOf(
+            Sequence("LANGUAGE", Ref("ParameterNameSegment")),
+            Sequence("TRANSFORM", "FOR", "TYPE", Ref("ParameterNameSegment")),
+            Ref.keyword("WINDOW"),
+            OneOf("IMMUTABLE", "STABLE", "VOLATILE"),
+            Sequence(Ref.keyword("NOT", optional=True), "LEAKPROOF"),
+            OneOf(
+                Sequence("CALLED", "ON", "NULL", "INPUT"),
+                Sequence("RETURNS", "NULL", "ON", "NULL", "INPUT"),
+                "STRICT",
+            ),
+            Sequence(
+                Ref.keyword("EXTERNAL", optional=True),
+                "SECURITY",
+                OneOf("INVOKER", "DEFINER"),
+            ),
+            Sequence("PARALLEL", OneOf("UNSAFE", "RESTRICTED", "SAFE")),
+            Sequence("COST", Ref("NumericLiteralSegment")),
+            Sequence("ROWS", Ref("NumericLiteralSegment")),
+            Sequence("SUPPORT", Ref("ParameterNameSegment")),
+            Sequence(
+                "SET",
+                Ref("ParameterNameSegment"),
+                OneOf(
+                    Sequence(
+                        OneOf("TO", Ref("EqualsSegment")),
+                        Delimited(
+                            OneOf(
+                                Ref("ParameterNameSegment"),
+                                Ref("LiteralGrammar"),
+                            ),
+                            delimiter=Ref("CommaSegment"),
+                        ),
+                    ),
+                    Sequence("FROM", "CURRENT"),
+                ),
+            ),
+            Sequence(
+                "AS",
+                OneOf(
+                    Ref("QuotedLiteralSegment"),
+                    Ref("DollarQuotedLiteralSegment"),
+                    Sequence(
+                        Ref("QuotedLiteralSegment"),
+                        Ref("CommaSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                ),
+            ),
+        ),
         Sequence(
-            "LANGUAGE",
-            # Not really a parameter, but best fit for now.
-            Ref("ParameterNameSegment"),
+            "WITH",
+            Bracketed(
+                Delimited(Ref("ParameterNameSegment"), delimiter=Ref("CommaSegment"))
+            ),
             optional=True,
         ),
     )
