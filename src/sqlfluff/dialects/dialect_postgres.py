@@ -49,7 +49,7 @@ postgres_dialect.sets("unreserved_keywords").update(
         "XML",
     ]
 )
-postgres_dialect.sets("reserved_keywords").update(["WITHIN"])
+postgres_dialect.sets("reserved_keywords").update(["WITHIN", "VARIADIC"])
 # Add the EPOCH datetime unit
 postgres_dialect.sets("datetime_units").update(["EPOCH"])
 
@@ -84,7 +84,70 @@ postgres_dialect.replace(
         # Add JSON operators
         Ref("JsonOperatorSegment"),
     ),
+    FunctionParameterGrammar=Sequence(
+        OneOf("IN", "OUT", "INOUT", "VARIADIC", optional=True),
+        OneOf(
+            Ref("DatatypeSegment"),
+            Sequence(Ref("ParameterNameSegment"), Ref("DatatypeSegment")),
+        ),
+        Sequence(
+            OneOf("DEFAULT", Ref("EqualsSegment")), Ref("LiteralGrammer"), optional=True
+        ),
+    ),
 )
+
+
+@postgres_dialect.segment(replace=True)
+class CreateFunctionStatementSegment(BaseSegment):
+    """A `CREATE FUNCTION` statement.
+
+    This version in the ANSI dialect should be a "common subset" of the
+    structure of the code for those dialects.
+    postgres: https://www.postgresql.org/docs/13/sql-createfunction.html
+    """
+
+    type = "create_function_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Sequence("OR", "REPLACE", optional=True),
+        Ref("TemporaryGrammar", optional=True),
+        "FUNCTION",
+        Anything(),
+    )
+
+    parse_grammar = Sequence(
+        "CREATE",
+        Sequence("OR", "REPLACE", optional=True),
+        Ref("TemporaryGrammar", optional=True),
+        "FUNCTION",
+        Sequence("IF", "NOT", "EXISTS", optional=True),
+        Ref("FunctionNameSegment"),
+        Ref("FunctionParameterListGrammar"),
+        Sequence(  # Optional function return type
+            "RETURNS",
+            OneOf(
+                Sequence(
+                    "TABLE",
+                    Bracketed(
+                        Delimited(
+                            OneOf(
+                                Ref("DatatypeSegment"),
+                                Sequence(
+                                    Ref("ParameterNameSegment"), Ref("DatatypeSegment")
+                                ),
+                            ),
+                            delimiter=Ref("CommaSegment"),
+                        )
+                    ),
+                    optional=True,
+                ),
+                Ref("DatatypeSegment"),
+            ),
+            optional=True,
+        ),
+        Ref("FunctionDefinitionGrammar"),
+    )
 
 
 @postgres_dialect.segment(replace=True)
