@@ -11,22 +11,54 @@ class Rule_L009(BaseRule):
     r"""Files must end with a trailing newline.
 
     | **Anti-pattern**
-    | The content in file without end with a trailing newline.
+    | The content in file without ends without a trailing newline, the $ represents end of file.
+
+    .. code-block:: sql
+
+        SELECT
+            a
+        FROM foo$
+        
+        -- Ending on an indented line means there is no newline at the end of the file, the • represents space.
+
+        SELECT
+        ••••a
+        FROM
+        ••••foo
+        ••••$
+
+        -- Ending on a semi-colon means the last line is not a newline.
+
+        SELECT
+            a
+        FROM foo
+        ;$
+
+    | **Best practice**
+    | Add trailing newline to the end, the $ character represents end of file.
 
     .. code-block:: sql
 
         SELECT
             a
         FROM foo
+        $
+        
+        -- Ensuring the last line is not indented so is just a newline.
 
-    | **Best practice**
-    | Add trailing newline to the end, the \n character represents a newline symbol.
+       SELECT
+        ••••a
+        FROM
+        ••••foo
+        $
 
-    .. code-block:: sql
+        -- Even when ending on a semi-colon, ensure there is a newline after
 
         SELECT
             a
-        FROM foo\n
+        FROM foo
+        ;
+        $
 
     """
 
