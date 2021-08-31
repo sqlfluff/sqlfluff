@@ -46,7 +46,7 @@ class Rule_L009(BaseRule):
         
         -- Ensuring the last line is not indented so is just a newline.
 
-       SELECT
+        SELECT
         ••••a
         FROM
         ••••foo
