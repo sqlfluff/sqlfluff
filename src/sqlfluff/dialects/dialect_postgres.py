@@ -53,7 +53,7 @@ postgres_dialect.sets("reserved_keywords").add("WITHIN")
 # Add the EPOCH datetime unit
 postgres_dialect.sets("datetime_units").update(["EPOCH"])
 
-postgres_dialect.sets("unreserved_keywords").update(["COST", "LEAKPROOF"])
+postgres_dialect.sets("unreserved_keywords").update(["COST", "LEAKPROOF", "PARALLEL", "SUPPORT"])
 
 postgres_dialect.add(
     JsonOperatorSegment=NamedParser(
@@ -89,7 +89,7 @@ postgres_dialect.replace(
 class FunctionDefinitionGrammar(BaseSegment):
     """This is the body of a `CREATE FUNCTION AS` statement.
 
-    Options supported as defined in https://www.postgresql.org/docs/9.1/sql-createfunction.html
+    Options supported as defined in https://www.postgresql.org/docs/13/sql-createfunction.html
     """
 
     match_grammar = Sequence(
@@ -105,7 +105,8 @@ class FunctionDefinitionGrammar(BaseSegment):
                 "SECURITY",
                 OneOf("INVOKER", "DEFINER"),
             ),
-            Sequence("LANGUAGE", Ref("ParameterNameSegment")),
+            Sequence(OneOf("LANGUAGE", "SUPPORT"), Ref("ParameterNameSegment")),
+            Sequence("PARALLEL", OneOf("UNSAFE", "RESTRICTED", "SAFE")),
             Sequence(OneOf("COST", "ROWS"), Ref("NumericLiteralSegment")),
             Sequence(
                 "SET",
