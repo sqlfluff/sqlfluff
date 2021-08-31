@@ -64,22 +64,24 @@ class Rule_L020(BaseRule):
 
         """
         # Are any of the aliases the same?
+        duplicate = set()
         for a1, a2 in itertools.combinations(table_aliases, 2):
             # Compare the strings
             if a1.ref_str == a2.ref_str and a1.ref_str:
-                # If there are any, then the rest of the code
-                # won't make sense so just return here.
-                return [
-                    LintResult(
-                        # Reference the element, not the string.
-                        anchor=a2.segment,
-                        description=(
-                            "Duplicate table alias {!r}. Table "
-                            "aliases should be unique."
-                        ).format(a2.ref_str),
-                    )
-                ]
-        return None
+                duplicate.add(a2)
+        if duplicate:
+            return [
+                LintResult(
+                    # Reference the element, not the string.
+                    anchor=aliases.segment,
+                    description=(
+                        "Duplicate table alias {!r}. Table "
+                        "aliases should be unique."
+                    ).format(aliases.ref_str),
+                ) for aliases in duplicate
+            ]
+        else:
+            return None
 
     def _eval(self, segment, parent_stack, dialect, **kwargs):
         """Get References and Aliases and allow linting.
