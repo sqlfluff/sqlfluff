@@ -18,7 +18,7 @@ class Rule_L020(BaseRule):
             t.a,
             t.b
         FROM foo AS t, bar AS t
-        
+
         -- this can also happen when using schemas where the implicit alias is the table name:
 
         SELECT
@@ -37,7 +37,7 @@ class Rule_L020(BaseRule):
             f.a,
             b.b
         FROM foo AS f, bar AS b
-        
+
         -- Also use explicit alias's when referencing two tables with same name from two different schemas
 
         SELECT
