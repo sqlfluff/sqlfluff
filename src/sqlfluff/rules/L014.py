@@ -44,7 +44,7 @@ class Rule_L014(Rule_L010):
         from foo
 
     | **Best practice**
-    | Make all unquoted identifiers either in upper-case or in lower-case
+    | Ensure all unquoted identifiers are either in upper-case or in lower-case
 
     .. code-block:: sql
 
