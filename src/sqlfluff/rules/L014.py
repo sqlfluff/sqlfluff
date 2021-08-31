@@ -33,7 +33,7 @@ class Rule_L014(Rule_L010):
     The functionality for this rule is inherited from :obj:`Rule_L010`.
 
     | **Anti-pattern**
-    | In this example, unquoted identifiers 'a' is in lower-case and
+    | In this example, unquoted identifier 'a' is in lower-case but
     | 'B' is in upper-case.
 
     .. code-block:: sql
