@@ -94,18 +94,18 @@ class FunctionDefinitionGrammar(BaseSegment):
 
     match_grammar = Sequence(
         AnyNumberOf(
+            Sequence(OneOf("LANGUAGE", "SUPPORT"), Ref("ParameterNameSegment")),
             Sequence("TRANSFORM", "FOR", "TYPE", Ref("ParameterNameSegment")),
             OneOf("WINDOW", "IMMUTABLE", "STABLE", "VOLATILE", "STRICT"),
-            Sequence(OneOf("NOT", optional=True), "LEAKPROOF"),
+            Sequence(Ref("NOT", optional=True), "LEAKPROOF"),
             Sequence(
                 OneOf("CALLED", Sequence("RETURNS", "NULL")), "ON", "NULL", "INPUT"
             ),
             Sequence(
-                OneOf("EXTERNAL", optional=True),
+                Ref("EXTERNAL", optional=True),
                 "SECURITY",
                 OneOf("INVOKER", "DEFINER"),
             ),
-            Sequence(OneOf("LANGUAGE", "SUPPORT"), Ref("ParameterNameSegment")),
             Sequence("PARALLEL", OneOf("UNSAFE", "RESTRICTED", "SAFE")),
             Sequence(OneOf("COST", "ROWS"), Ref("NumericLiteralSegment")),
             Sequence(
@@ -117,8 +117,7 @@ class FunctionDefinitionGrammar(BaseSegment):
                         Delimited(
                             OneOf(
                                 Ref("ParameterNameSegment"),
-                                Ref("NumericLiteralSegment"),
-                                Ref("QuotedLiteralSegment"),
+                                Ref("LiteralGrammar"),
                             ),
                             delimiter=Ref("CommaSegment"),
                         ),
