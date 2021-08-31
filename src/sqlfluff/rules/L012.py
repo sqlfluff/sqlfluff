@@ -10,7 +10,7 @@ class Rule_L012(Rule_L011):
     separate so that they can be enabled and disabled separately.
 
     | **Anti-pattern**
-    | In this example, the alias 'alias_col' is implicit.
+    | In this example, the alias for column 'a' is implicit.
 
     .. code-block:: sql
 
