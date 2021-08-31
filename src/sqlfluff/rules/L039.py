@@ -12,7 +12,7 @@ class Rule_L039(BaseRule):
 
     | **Anti-pattern**
 
-    .. code-block::
+    .. code-block:: sql
 
         SELECT
             a,        b
@@ -22,7 +22,7 @@ class Rule_L039(BaseRule):
     | Unless an indent or preceeding a comment, whitespace should
     | be a single space.
 
-    .. code-block::
+    .. code-block:: sql
 
         SELECT
             a, b

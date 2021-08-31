@@ -14,7 +14,7 @@ class Rule_L018(BaseRule):
     | The • character represents a space.
     | In this example, the closing bracket is not aligned with WITH keyword.
 
-    .. code-block::
+    .. code-block:: sql
 
         WITH zoo AS (
             SELECT a FROM foo
@@ -25,7 +25,7 @@ class Rule_L018(BaseRule):
     | **Best practice**
     | Remove the spaces to align the WITH keyword with the closing bracket.
 
-    .. code-block::
+    .. code-block:: sql
 
         WITH zoo AS (
             SELECT a FROM foo
