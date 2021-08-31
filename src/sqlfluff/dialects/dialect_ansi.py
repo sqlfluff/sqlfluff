@@ -55,9 +55,7 @@ from sqlfluff.dialects.ansi_keywords import (
     ansi_unreserved_keywords,
 )
 
-
 ansi_dialect = Dialect("ansi", root_segment_name="FileSegment")
-
 
 ansi_dialect.set_lexer_matchers(
     [
@@ -128,7 +126,6 @@ ansi_dialect.sets("bare_functions").update(
     ["current_timestamp", "current_time", "current_date"]
 )
 
-
 # Set the datetime units
 ansi_dialect.sets("datetime_units").update(
     [
@@ -178,7 +175,6 @@ ansi_dialect.sets("bracket_pairs").update(
 # - At least one other database (DB2) has the same value table function,
 #   UNNEST(), as BigQuery. DB2 is not currently supported by SQLFluff.
 ansi_dialect.sets("value_table_functions").update([])
-
 
 ansi_dialect.add(
     # Real segments
@@ -637,7 +633,7 @@ class ObjectReferenceSegment(BaseSegment):
         SCHEMA = 3
 
     def extract_possible_references(
-        self, level: Union[ObjectReferenceLevel, int]
+            self, level: Union[ObjectReferenceLevel, int]
     ) -> List[ObjectReferencePart]:
         """Extract possible references of a given level.
 
@@ -1486,9 +1482,18 @@ ansi_dialect.add(
             Ref("LiteralGrammar"),
             Ref("IntervalExpressionSegment"),
             Ref("ColumnReferenceSegment"),
-            Sequence(Ref("DatatypeSegment"), Ref("LiteralGrammar")),
             Sequence(
                 Ref("SimpleArrayTypeGrammar", optional=True), Ref("ArrayLiteralSegment")
+            ),
+            Sequence(
+                Ref("DatatypeSegment"),
+                OneOf(
+                    Ref("QuotedLiteralSegment"),
+                    Ref("NumericLiteralSegment"),
+                    Ref("BooleanLiteralGrammar"),
+                    Ref("NullLiteralSegment"),
+                    Ref("DateTimeLiteralGrammar")
+                )
             ),
         ),
         Ref("Accessor_Grammar", optional=True),
