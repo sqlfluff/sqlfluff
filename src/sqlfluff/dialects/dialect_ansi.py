@@ -296,11 +296,15 @@ ansi_dialect.add(
         type="function_name_identifier",
     ),
     # Maybe data types should be more restrictive?
-    DatatypeIdentifierSegment=RegexParser(
-        r"[A-Z][A-Z0-9_]*",
-        CodeSegment,
-        name="data_type_identifier",
-        type="data_type_identifier",
+    DatatypeIdentifierSegment=SegmentGenerator(
+        # Generate the anti template from the set of reserved keywords
+        lambda dialect: RegexParser(
+            r"[A-Z][A-Z0-9_]*",
+            CodeSegment,
+            name="data_type_identifier",
+            type="data_type_identifier",
+            anti_template=r"^(NOT)$",  # TODO - this is a stopgap until we implement explicit data types
+        ),
     ),
     # Ansi Intervals
     DatetimeUnitSegment=SegmentGenerator(
