@@ -355,7 +355,7 @@ class BaseRule:
                 if lerr:
                     new_lerrs.append(lerr)
                 new_fixes += elem.fixes
-        else:
+        else:  # pragma: no cover
             raise TypeError(
                 "Got unexpected result [{!r}] back from linting rule: {!r}".format(
                     res, self.code
