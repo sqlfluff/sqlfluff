@@ -24,7 +24,7 @@ from collections import namedtuple
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.errors import SQLLintError
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.templaters import TemplatedFile
 
 # The ghost of a rule (mostly used for testing)
@@ -109,10 +109,10 @@ class LintFix:
     """
 
     def __init__(self, edit_type, anchor: BaseSegment, edit=None):
-        if edit_type not in ["create", "edit", "delete"]:
+        if edit_type not in ["create", "edit", "delete"]:  # pragma: no cover
             raise ValueError(f"Unexpected edit_type: {edit_type}")
         self.edit_type = edit_type
-        if not anchor:
+        if not anchor:  # pragma: no cover
             raise ValueError("Fixes must provide an anchor.")
         self.anchor = anchor
         # Coerce to list
@@ -151,12 +151,12 @@ class LintFix:
         """
         if self.edit_type == "create":
             if isinstance(self.edit, BaseSegment):
-                if len(self.edit.raw) == 0:
+                if len(self.edit.raw) == 0:  # pragma: no cover TODO?
                     return True
             elif all(len(elem.raw) == 0 for elem in self.edit):
                 return True
         elif self.edit_type == "edit" and self.edit == self.anchor:
-            return True
+            return True  # pragma: no cover TODO?
         return False
 
     def __repr__(self):
@@ -164,7 +164,7 @@ class LintFix:
             detail = f"delete:{self.anchor.raw!r}"
         elif self.edit_type in ("edit", "create"):
             if hasattr(self.edit, "raw"):
-                new_detail = self.edit.raw
+                new_detail = self.edit.raw  # pragma: no cover TODO?
             else:
                 new_detail = "".join(s.raw for s in self.edit)
 
@@ -173,7 +173,7 @@ class LintFix:
             else:
                 detail = f"create:{new_detail!r}"
         else:
-            detail = ""
+            detail = ""  # pragma: no cover TODO?
         return "<LintFix: {} @{} {}>".format(
             self.edit_type, self.anchor.pos_marker, detail
         )
@@ -191,7 +191,7 @@ class LintFix:
             return False
         if not self.edit == other.edit:
             return False
-        return True
+        return True  # pragma: no cover TODO?
 
 
 class BaseRule:
@@ -234,7 +234,7 @@ class BaseRule:
         except AttributeError:
             self.logger.info(f"No config_keywords defined for {code}")
 
-    def _eval(self, **kwargs):
+    def _eval(self, **kwargs):  # pragma: no cover
         """Evaluate this rule against the current context.
 
         This should indicate whether a linting violation has occurred and/or
@@ -355,7 +355,7 @@ class BaseRule:
                 if lerr:
                     new_lerrs.append(lerr)
                 new_fixes += elem.fixes
-        else:
+        else:  # pragma: no cover
             raise TypeError(
                 "Got unexpected result [{!r}] back from linting rule: {!r}".format(
                     res, self.code
@@ -408,7 +408,7 @@ class BaseRule:
         return tuple(buff)
 
     @classmethod
-    def get_parent_of(cls, segment, root_segment):
+    def get_parent_of(cls, segment, root_segment):  # pragma: no cover TODO?
         """Return the segment immediately containing segment.
 
         NB: This is recursive.
@@ -534,7 +534,7 @@ class RuleSet:
         """
         rule_name_match = self.valid_rule_name_regex.match(cls.__name__)
         # Validate the name
-        if not rule_name_match:
+        if not rule_name_match:  # pragma: no cover
             raise ValueError(
                 (
                     "Tried to register rule on set {!r} with unexpected "
@@ -551,7 +551,7 @@ class RuleSet:
             code = f"{plugin_name}_{code}"
 
         # Keep track of the *class* in the register. Don't instantiate yet.
-        if code in self._register:
+        if code in self._register:  # pragma: no cover
             raise ValueError(
                 "Rule {!r} has already been registered on RuleSet {!r}!".format(
                     code, self.name
@@ -591,7 +591,7 @@ class RuleSet:
         blacklisted_unknown_rule_codes = [
             r for r in blacklist if r not in self._register
         ]
-        if any(blacklisted_unknown_rule_codes):
+        if any(blacklisted_unknown_rule_codes):  # pragma: no cover
             rules_logger.warning(
                 "Tried to blacklist unknown rules: {!r}".format(
                     blacklisted_unknown_rule_codes
