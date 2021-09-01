@@ -60,7 +60,7 @@ class BaseRunner(ABC):
 
     def run(self, fnames: List[str], fix: bool):
         """Run linting on the specified list of files."""
-        raise NotImplementedError
+        raise NotImplementedError  # pragma: no cover
 
     @classmethod
     def _init_global(cls, config):
@@ -75,7 +75,7 @@ class BaseRunner(ABC):
     def _handle_lint_path_exception(fname, e):
         if isinstance(e, IOError):
             # IOErrors are caught in commands.py, so propagate it
-            raise (e)
+            raise (e)  # pragma: no cover
         linter_logger.warning(
             f"""Unable to lint {fname} due to an internal error. \
 Please report this as an issue with your query's contents and stacktrace below!
@@ -138,7 +138,7 @@ class ParallelRunner(BaseRunner):
                                 lint_result.path, lint_result, only_fixable=fix
                             )
                         yield lint_result
-            except KeyboardInterrupt:
+            except KeyboardInterrupt:  # pragma: no cover
                 # On keyboard interrupt (Ctrl-C), terminate the workers.
                 # Notify the user we've received the signal and are cleaning up,
                 # in case it takes awhile.
@@ -174,7 +174,7 @@ class MultiProcessRunner(ParallelRunner):
     MAP_FUNCTION_NAME = "imap_unordered"
 
     @classmethod
-    def _init_global(cls, config):
+    def _init_global(cls, config):  # pragma: no cover
         super()._init_global(config)
 
         # Disable signal handling in the child processes to let the parent

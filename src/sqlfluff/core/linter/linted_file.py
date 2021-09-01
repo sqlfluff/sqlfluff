@@ -83,7 +83,7 @@ class LintedFile(NamedTuple):
             if isinstance(types, type) and issubclass(types, SQLBaseError):
                 types = (types,)
             else:
-                types = tuple(types)
+                types = tuple(types)  # pragma: no cover TODO?
             violations = [v for v in violations if isinstance(v, types)]
         # Filter rules
         if rules:
@@ -354,13 +354,15 @@ class LintedFile(NamedTuple):
                 )
             # If it's an insertion (i.e. the string in the pre-fix template is '') then we
             # won't be able to place it, so skip.
-            elif not enriched_patch.templated_str:
+            elif not enriched_patch.templated_str:  # pragma: no cover TODO?
                 linter_logger.info(
                     "      - Skipping insertion patch in templated section: %s",
                     enriched_patch,
                 )
             # If the string from the templated version isn't in the source, then we can't fix it.
-            elif enriched_patch.templated_str not in enriched_patch.source_str:
+            elif (
+                enriched_patch.templated_str not in enriched_patch.source_str
+            ):  # pragma: no cover TODO?
                 linter_logger.info(
                     "      - Skipping edit patch on templated content: %s",
                     enriched_patch,

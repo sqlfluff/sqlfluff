@@ -13,7 +13,7 @@ def document_fix_compatible(cls):
     return cls
 
 
-def is_fix_compatible(cls) -> bool:
+def is_fix_compatible(cls) -> bool:  # pragma: no cover TODO?
     """Return whether the rule is documented as fixable."""
     return FIX_COMPATIBLE in cls.__doc__
 
@@ -29,7 +29,7 @@ def document_configuration(cls, ruleset="std"):
     """
     if ruleset == "std":
         config_info = get_config_info()
-    else:
+    else:  # pragma: no cover
         raise (
             NotImplementedError(
                 "Add another config info dict for the new ruleset here!"
@@ -41,7 +41,7 @@ def document_configuration(cls, ruleset="std"):
         for keyword in sorted(cls.config_keywords):
             try:
                 info_dict = config_info[keyword]
-            except KeyError:
+            except KeyError:  # pragma: no cover
                 raise KeyError(
                     "Config value {!r} for rule {} is not configured in `config_info`.".format(
                         keyword, cls.__name__

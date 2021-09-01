@@ -44,7 +44,7 @@ class Dialect:
         self.inherits_from = inherits_from
         self.root_segment_name = root_segment_name
 
-    def __repr__(self):
+    def __repr__(self):  # pragma: no cover
         return f"<Dialect: {self.name}>"
 
     def expand(self) -> "Dialect":
@@ -63,7 +63,7 @@ class Dialect:
                 with expanded references.
         """
         # Are we already expanded?
-        if self.expanded:
+        if self.expanded:  # pragma: no cover
             raise ValueError("Attempted to re-expand an already expanded dialect.")
 
         expanded_copy = self.copy_as(name=self.name)
@@ -108,7 +108,7 @@ class Dialect:
         `replace` method can be used to override particular rules.
         """
         # Are we already expanded?
-        if self.expanded:
+        if self.expanded:  # pragma: no cover
             # If we copy an already expanded dialect then any SegmentGenerators
             # won't respond. This is most likely a mistake.
             raise ValueError("Attempted to copy an already expanded dialect.")
@@ -141,10 +141,10 @@ class Dialect:
             """Wrap a segment and register it against the dialect."""
             n = cls.__name__
             if replace:
-                if n not in self._library:
+                if n not in self._library:  # pragma: no cover
                     raise ValueError(f"{n!r} is not already registered in {self!r}")
             else:
-                if n in self._library:
+                if n in self._library:  # pragma: no cover
                     raise ValueError(f"{n!r} is already registered in {self!r}")
             self._library[n] = cls
             # Pass it back after registering it
@@ -166,7 +166,7 @@ class Dialect:
         will iterate through the kwargs
         """
         for n in kwargs:
-            if n in self._library:
+            if n in self._library:  # pragma: no cover
                 raise ValueError(f"{n!r} is already registered in {self!r}")
             self._library[n] = kwargs[n]
 
@@ -176,7 +176,7 @@ class Dialect:
         Usage is very similar to add, but elements specified must already exist.
         """
         for n in kwargs:
-            if n not in self._library:
+            if n not in self._library:  # pragma: no cover
                 raise ValueError(f"{n!r} is not already registered in {self!r}")
             self._library[n] = kwargs[n]
 
@@ -186,9 +186,9 @@ class Dialect:
         This is typically for dialect inheritance. This method
         also validates that the result is a grammar.
         """
-        if name not in self._library:
+        if name not in self._library:  # pragma: no cover
             raise ValueError(f"Element {name} not found in dialect.")
-        if not isinstance(self._library[name], BaseGrammar):
+        if not isinstance(self._library[name], BaseGrammar):  # pragma: no cover
             raise TypeError(
                 f"Attempted to fetch non grammar [{name}] with get_grammar."
             )
@@ -200,9 +200,9 @@ class Dialect:
         This is typically for dialect inheritance. This method
         also validates that the result is a segment.
         """
-        if name not in self._library:
+        if name not in self._library:  # pragma: no cover
             raise ValueError(f"Element {name} not found in dialect.")
-        if not issubclass(self._library[name], BaseSegment):
+        if not issubclass(self._library[name], BaseSegment):  # pragma: no cover
             raise TypeError(
                 f"Attempted to fetch non segment [{name}] with get_segment."
             )
@@ -215,20 +215,20 @@ class Dialect:
         as a result.
 
         """
-        if not self.expanded:
+        if not self.expanded:  # pragma: no cover
             raise RuntimeError("Dialect must be expanded before use.")
 
         if name in self._library:
             res = self._library[name]
             if res:
                 return res
-            else:
+            else:  # pragma: no cover
                 raise ValueError(
                     "Unexpected Null response while fetching {!r} from {}".format(
                         name, self.name
                     )
                 )
-        else:
+        else:  # pragma: no cover
             raise RuntimeError(
                 "Grammar refers to {!r} which was not found in the {} dialect".format(
                     name, self.name
@@ -249,7 +249,7 @@ class Dialect:
         """Fetch the lexer struct for this dialect."""
         if self.lexer_matchers:
             return self.lexer_matchers
-        else:
+        else:  # pragma: no cover
             raise ValueError(f"Lexing struct has not been set for dialect {self}")
 
     def patch_lexer_matchers(self, lexer_patch):
@@ -258,7 +258,7 @@ class Dialect:
         Used to edit the lexer of a sub-dialect.
         """
         buff = []
-        if not self.lexer_matchers:
+        if not self.lexer_matchers:  # pragma: no cover
             raise ValueError("Lexer struct must be defined before it can be patched!")
 
         # Make a new data struct for lookups
@@ -280,7 +280,7 @@ class Dialect:
         """
         buff = []
         found = False
-        if not self.lexer_matchers:
+        if not self.lexer_matchers:  # pragma: no cover
             raise ValueError("Lexer struct must be defined before it can be patched!")
 
         for elem in self.lexer_matchers:
@@ -292,7 +292,7 @@ class Dialect:
             else:
                 buff.append(elem)
 
-        if not found:
+        if not found:  # pragma: no cover
             raise ValueError(
                 "Lexer struct insert before '%s' failed because tag never found."
             )
