@@ -427,6 +427,32 @@ class SelectStatementSegment(ansi_dialect.get_segment("SelectStatementSegment"))
     )
 
 
+@snowflake_dialect.segment(replace=True)
+class UnorderedSelectStatementSegment(ansi_dialect.get_segment("SelectStatementSegment")):  # type: ignore
+    """A snowflake unordered `SELECT` statement including optional Qualify.
+
+    https://docs.snowflake.com/en/sql-reference/constructs/qualify.html
+    """
+
+    type = "select_statement"
+    match_grammar = StartsWith(
+        # NB: In bigquery, the select clause may include an EXCEPT, which
+        # will also match the set operator, but by starting with the whole
+        # select clause rather than just the SELECT keyword, we normally
+        # mitigate that here. But this isn't BigQuery! So we can be more
+        # efficient and just just the keyword.
+        "SELECT",
+        terminator=Ref("SetOperatorSegment"),
+    )
+
+    parse_grammar = ansi_dialect.get_segment(
+        "UnorderedSelectStatementSegment"
+    ).parse_grammar.copy(
+        insert=[Ref("QualifyClauseSegment", optional=True)],
+        before=Ref("OverlapsClauseSegment", optional=True),
+    )
+
+
 @snowflake_dialect.segment()
 class CreateCloneStatementSegment(BaseSegment):
     """A snowflake `CREATE ... CLONE` statement.
