@@ -78,7 +78,7 @@ class Rule_L023(BaseRule):
                             else:
                                 # Don't otherwise suggest a fix for now.
                                 # TODO: Enable more complex fixing here.
-                                fixes = None
+                                fixes = None  # pragma: no cover
                             error_buffer.append(
                                 LintResult(anchor=last_code, fixes=fixes)
                             )

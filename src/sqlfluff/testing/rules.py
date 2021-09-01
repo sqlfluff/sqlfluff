@@ -61,7 +61,7 @@ def assert_rule_fail_in_sql(code, sql, configs=None, line_numbers=None):
     print(f"Errors Found: {lerrs}")
     for e in lerrs:
         if e.desc().startswith("Unexpected exception"):
-            pytest.fail(f"Linter failed with {e.desc()}")
+            pytest.fail(f"Linter failed with {e.desc()}")  # pragma: no cover
     parse_errors = list(filter(lambda v: type(v) == SQLParseError, lerrs))
     if parse_errors:
         pytest.fail(f"Found the following parse errors in test case: {parse_errors}")
@@ -72,7 +72,7 @@ def assert_rule_fail_in_sql(code, sql, configs=None, line_numbers=None):
         )
     if line_numbers:
         actual_line_numbers = [e.line_no for e in lerrs]
-        if line_numbers != actual_line_numbers:
+        if line_numbers != actual_line_numbers:  # pragma: no cover
             pytest.fail(
                 "Expected errors on lines {}, but got errors on lines {}".format(
                     line_numbers, actual_line_numbers
