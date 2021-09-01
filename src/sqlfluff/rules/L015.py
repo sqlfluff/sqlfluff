@@ -41,7 +41,7 @@ class Rule_L015(BaseRule):
                 return None
             first_element = segment.get_child("select_clause_element")
             if not first_element:
-                return None
+                return None  # pragma: no cover
             # is the first element only an expression with only brackets?
             expression = first_element.get_child("expression")
             if not expression:

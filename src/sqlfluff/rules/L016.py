@@ -112,7 +112,9 @@ class Rule_L016(Rule_L003):
 
                     # NOTE: Deal with commas and binary operators differently here.
                     # Maybe only deal with commas to start with?
-                    if any(seg.is_type("binary_operator") for seg in self.segments):
+                    if any(
+                        seg.is_type("binary_operator") for seg in self.segments
+                    ):  # pragma: no cover
                         raise NotImplementedError(
                             "Don't know how to deal with binary operators here yet!!"
                         )
@@ -155,7 +157,9 @@ class Rule_L016(Rule_L003):
                         )
                     )
                     return fixes
-                raise ValueError(f"Unexpected break generated at {self}")
+                raise ValueError(
+                    f"Unexpected break generated at {self}"
+                )  # pragma: no cover
 
         segment_buff = ()
         whitespace_buff = ()
@@ -256,10 +260,10 @@ class Rule_L016(Rule_L003):
             role = "pausepoint"
         elif segment_buff:
             role = "content"
-        elif indent_impulse:
+        elif indent_impulse:  # pragma: no cover
             role = "breakpoint"
         else:
-            raise ValueError("Is this possible?")
+            raise ValueError("Is this possible?")  # pragma: no cover
 
         chunk_buff.append(
             Section(
@@ -362,7 +366,7 @@ class Rule_L016(Rule_L003):
                     working_buff.insert(0, s)
                     idx -= 1
             else:
-                break
+                break  # pragma: no cover
         return working_buff
 
     def _eval(self, segment, raw_stack, **kwargs):
@@ -424,7 +428,7 @@ class Rule_L016(Rule_L003):
                         delete_buffer.append(LintFix("delete", this_line[idx]))
                         idx -= 1
                     else:
-                        break
+                        break  # pragma: no cover
                 # Create a newline before this one with the existing comment, an
                 # identical indent AND a terminating newline, copied from the current
                 # target segment.

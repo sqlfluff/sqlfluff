@@ -55,16 +55,16 @@ def format_violation(violation, max_line_length=90):
         if violation.line_no is not None:
             line_elem = f"{violation.line_no:4d}"
         else:
-            line_elem = "   -"
+            line_elem = "   -"  # pragma: no cover
         if violation.line_pos is not None:
             pos_elem = f"{violation.line_pos:4d}"
         else:
-            pos_elem = "   -"
-    else:
+            pos_elem = "   -"  # pragma: no cover
+    else:  # pragma: no cover
         raise ValueError(f"Unexpected violation format: {violation}")
 
     if violation.ignore:
-        desc = "IGNORE: " + desc
+        desc = "IGNORE: " + desc  # pragma: no cover
 
     split_desc = split_string_on_spaces(desc, line_length=max_line_length - 25)
 
@@ -178,7 +178,7 @@ def format_dialects(dialect_readout, verbose=0):
     return text_buffer.getvalue()
 
 
-def format_dialect_warning():
+def format_dialect_warning():  # pragma: no cover
     """Output a warning for parsing errors found on the ansi dialect."""
     return colorize(
         (
@@ -283,7 +283,7 @@ class CallbackFormatter:
             if file_config:
                 # Only output config diffs if there is a config to diff to.
                 config_diff = file_config.diff_to(linter_config)
-                if config_diff:
+                if config_diff:  # pragma: no cover
                     self._dispatch("   Config Diff:")
                     self._dispatch(
                         format_config_vals(linter_config.iter_vals(cfg=config_diff))
@@ -301,11 +301,13 @@ class CallbackFormatter:
 
     def dispatch_compilation_header(self, templater, message):
         """Dispatch the header displayed before linting."""
-        self._dispatch("=== [" + colorize(templater, "lightgrey") + "] " + message)
+        self._dispatch(
+            "=== [" + colorize(templater, "lightgrey") + "] " + message
+        )  # pragma: no cover
 
     def dispatch_dialect_warning(self):
         """Dispatch a warning for dialects."""
-        self._dispatch(format_dialect_warning())
+        self._dispatch(format_dialect_warning())  # pragma: no cover
 
     def _format_file_violations(self, fname, violations):
         """Format a set of violations in a `LintingResult`."""

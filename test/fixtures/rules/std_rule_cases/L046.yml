@@ -13,6 +13,9 @@ test_fail_1:
 test_fail_2:
   fail_str: SELECT 1 from {{      ref('foo')       }}
 
+test_fail_3:
+  fail_str: SELECT 1 from {{+ref('foo')-}}
+
 test_pass_newlines:
   # It's ok if there are newlines.
   pass_str:

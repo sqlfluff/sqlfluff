@@ -51,7 +51,7 @@ class Rule_L006(BaseRule):
         if seg.name.endswith("_bracket"):
             if seg.name.startswith("start_" if before else "end_"):
                 return False
-        if seg.is_meta:
+        if seg.is_meta:  # pragma: no cover
             if before:
                 if seg.source_str.endswith(" ") or seg.source_str.endswith("\n"):
                     return False
