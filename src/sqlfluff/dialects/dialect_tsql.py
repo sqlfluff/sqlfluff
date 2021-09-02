@@ -8,24 +8,15 @@ from enum import Enum
 from typing import Generator, List, Tuple, NamedTuple, Optional, Union
 
 from sqlfluff.core.parser import (
-    
     BaseSegment,
-    
     Sequence,
-    
     OneOf,
-   
     Bracketed,
-   
     Ref,
-    
     Anything,
-    
     RegexLexer,
     CodeSegment,
-   
     RegexParser,
-    
 )
 
 from sqlfluff.core.dialects.base import Dialect
@@ -36,7 +27,6 @@ from sqlfluff.dialects.ansi_keywords import (
     ansi_reserved_keywords,
     ansi_unreserved_keywords,
 )
-
 
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -60,13 +50,13 @@ tsql_dialect.replace(
     ),
     QuotedIdentifierSegment=Bracketed(
         RegexParser(
-          r"[A-Z][A-Z0-9_]*", CodeSegment, name="quoted_identifier", type="identifier"
+            r"[A-Z][A-Z0-9_]*", CodeSegment, name="quoted_identifier", type="identifier"
         ),
         bracket_type="square",
     ),
     # QuotedIdentifierSegment=NamedParser(
     #     BracketedSegment(
-    #         CodeSegment,        
+    #         CodeSegment,
     #         start_bracket="sq_brackets_open",
     #         end_bracket="sq_brackets_close",
     #     ),
@@ -124,6 +114,7 @@ class StatementSegment(BaseSegment):
         Ref("CreateProcedureStatementSegment"),
     )
 
+
 #     parse_grammar = OneOf(
 #         Ref("SelectableGrammar"),
 #         Ref("InsertStatementSegment"),
@@ -154,36 +145,40 @@ class StatementSegment(BaseSegment):
 #         Ref("ExplainStatementSegment"),
 #     )
 
+
 @tsql_dialect.segment()
 class GoStatementSegment(BaseSegment):
     """This is a Go statement to signal end of batch"""
+
     type = "go_statement"
     type = "go_statement"
     match_grammar = Sequence("GO")
 
+
 @tsql_dialect.segment()
 class SchemaNameSegment(BaseSegment):
     """This is a schema name optionally bracketed"""
+
     type = "schema_name"
     name = "schema"
     match_grammar = Sequence(
-            
-            Ref("StartSquareBracketSegment", optional=True),
-            Ref("SingleIdentifierGrammar"),
-            Ref("EndSquareBracketSegment", optional=True),
-            Ref("DotSegment")
-        )
+        Ref("StartSquareBracketSegment", optional=True),
+        Ref("SingleIdentifierGrammar"),
+        Ref("EndSquareBracketSegment", optional=True),
+        Ref("DotSegment"),
+    )
+
 
 @tsql_dialect.segment()
 class ObjectNameSegment(BaseSegment):
     """This is the body of a `CREATE FUNCTION AS` statement."""
+
     type = "object_name"
     match_grammar = Sequence(
-            Ref("StartSquareBracketSegment", optional=True),
-            Ref("SingleIdentifierGrammar"),
-            Ref("EndSquareBracketSegment", optional=True),
-        )
-
+        Ref("StartSquareBracketSegment", optional=True),
+        Ref("SingleIdentifierGrammar"),
+        Ref("EndSquareBracketSegment", optional=True),
+    )
 
 
 @tsql_dialect.segment(replace=True)
@@ -209,7 +204,7 @@ class CreateFunctionStatementSegment(BaseSegment):
     parse_grammar = Sequence(
         "CREATE",
         Sequence("OR", "ALTER", optional=True),
-        "FUNCTION",        
+        "FUNCTION",
         Ref("SchemaNameSegment"),
         Ref("ObjectNameSegment"),
         Ref("FunctionParameterListGrammar"),
@@ -218,20 +213,20 @@ class CreateFunctionStatementSegment(BaseSegment):
             Ref("DatatypeSegment"),
             optional=True,
         ),
-       "AS",       
+        "AS",
         Ref("FunctionDefinitionGrammar"),
         Ref("GoStatementSegment", optional=True),
     )
 
+
 @tsql_dialect.segment(replace=True)
 class FunctionDefinitionGrammar(BaseSegment):
     """This is the body of a `CREATE FUNCTION AS` statement."""
+
     type = "function_statement"
     name = "function_statement"
 
-    match_grammar = Sequence(        
-        Anything()
-    )
+    match_grammar = Sequence(Anything())
 
 
 @tsql_dialect.segment()
@@ -258,12 +253,12 @@ class CreateProcedureStatementSegment(BaseSegment):
 @tsql_dialect.segment()
 class ProcedureDefinitionGrammar(BaseSegment):
     """This is the body of a `CREATE OR ALTER PROCEDURE AS` statement."""
+
     type = "procedure_statement"
     name = "procedure_statement"
 
-    match_grammar = Sequence(        
-        Anything()
-    )
+    match_grammar = Sequence(Anything())
+
 
 @tsql_dialect.segment(replace=True)
 class CreateViewStatementSegment(BaseSegment):
@@ -280,5 +275,4 @@ class CreateViewStatementSegment(BaseSegment):
         "AS",
         Ref("SelectableGrammar"),
         Ref("GoStatementSegment", optional=True),
-        
     )
