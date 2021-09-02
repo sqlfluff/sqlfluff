@@ -16,6 +16,7 @@ from sqlfluff.core.parser import (
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
+from sqlfluff.dialects.postgres_keywords import *
 
 ansi_dialect = load_raw_dialect("ansi")
 
@@ -33,46 +34,51 @@ postgres_dialect.insert_lexer_matchers(
     before="not_equal",
 )
 
-# https://www.postgresql.org/docs/current/sql-keywords-appendix.html
-# SPACE has special status in some SQL dialects, but not Postgres.
-postgres_dialect.sets("unreserved_keywords").remove("SPACE")
-# Reserve WITHIN (required for the WithinGroupClauseSegment)
-postgres_dialect.sets("unreserved_keywords").remove("WITHIN")
-postgres_dialect.sets("unreserved_keywords").update(
-    [
-        "WITHIN",
-        "ANALYZE",
-        "VERBOSE",
-        "COSTS",
-        "BUFFERS",
-        "FORMAT",
-        "XML",
-        "SERVER",
-        "WRAPPER",
-    ]
-)
-postgres_dialect.sets("reserved_keywords").update(["WITHIN", "VARIADIC", "WITH"])
-# Add the EPOCH datetime unit
-postgres_dialect.sets("datetime_units").update(["EPOCH"])
+postgres_dialect.sets("reserved_keywords").update(get_keywords(postgres_keywords, "reserved"))
+postgres_dialect.sets("unreserved_keywords").update(get_keywords(postgres_keywords, "non-reserved"))
+postgres_dialect.sets("reserved_keywords").difference_update(get_keywords(postgres_keywords, "not-keyword"))
+postgres_dialect.sets("unreserved_keywords").difference_update(get_keywords(postgres_keywords, "not-keyword"))
 
-postgres_dialect.sets("unreserved_keywords").update(
-    [
-        "COST",
-        "LEAKPROOF",
-        "PARALLEL",
-        "SUPPORT",
-        "SAFE",
-        "UNSAFE",
-        "RESTRICTED",
-        "REPLICA",
-        "ATTACH",
-        "DETACH",
-        "LOGGED",
-        "UNLOGGED",
-        "MODULUS",
-        "REMAINDER",
-    ]
-)
+# # https://www.postgresql.org/docs/current/sql-keywords-appendix.html
+# # SPACE has special status in some SQL dialects, but not Postgres.
+# postgres_dialect.sets("unreserved_keywords").remove("SPACE")
+# # Reserve WITHIN (required for the WithinGroupClauseSegment)
+# postgres_dialect.sets("unreserved_keywords").remove("WITHIN")
+# postgres_dialect.sets("unreserved_keywords").update(
+#     [
+#         "WITHIN",
+#         "ANALYZE",
+#         "VERBOSE",
+#         "COSTS",
+#         "BUFFERS",
+#         "FORMAT",
+#         "XML",
+#         "SERVER",
+#         "WRAPPER",
+#     ]
+# )
+# postgres_dialect.sets("reserved_keywords").update(["WITHIN", "VARIADIC", "WITH"])
+# # Add the EPOCH datetime unit
+# postgres_dialect.sets("datetime_units").update(["EPOCH"])
+#
+# postgres_dialect.sets("unreserved_keywords").update(
+#     [
+#         "COST",
+#         "LEAKPROOF",
+#         "PARALLEL",
+#         "SUPPORT",
+#         "SAFE",
+#         "UNSAFE",
+#         "RESTRICTED",
+#         "REPLICA",
+#         "ATTACH",
+#         "DETACH",
+#         "LOGGED",
+#         "UNLOGGED",
+#         "MODULUS",
+#         "REMAINDER",
+#     ]
+# )
 
 postgres_dialect.add(
     JsonOperatorSegment=NamedParser(
