@@ -1,190 +1,60 @@
 file:
-  unparsable:
-  - raw: CREATE
-  - raw: TABLE
-  - raw: VWSDEST
-  - raw: .
-  - raw: ECDC_VARIANTS
-  - raw: (
-  - raw: '['
-  - raw: ID
-  - raw: ']'
-  - raw: INT
-  - raw: PRIMARY
-  - raw: KEY
-  - raw: NOT
-  - raw: 'NULL'
-  - raw: DEFAULT
-  - raw: (
-  - raw: NEXT
-  - raw: VALUE
-  - raw: FOR
-  - raw: '['
-  - raw: dbo
-  - raw: ']'
-  - raw: .
-  - raw: '['
-  - raw: SEQ_VWSDEST_ECDC_VARIANTS
-  - raw: ']'
-  - raw: )
-  - comma: ','
-  - raw: '['
-  - raw: COUNTRY
-  - raw: ']'
-  - raw: '['
-  - raw: varchar
-  - raw: ']'
-  - raw: (
-  - raw: '100'
-  - raw: )
-  - raw: 'NULL'
-  - comma: ','
-  - raw: '['
-  - raw: COUNTRY_CODE
-  - raw: ']'
-  - raw: '['
-  - raw: varchar
-  - raw: ']'
-  - raw: (
-  - raw: '3'
-  - raw: )
-  - raw: 'NULL'
-  - comma: ','
-  - raw: '['
-  - raw: YEAR_WEEK
-  - raw: ']'
-  - raw: '['
-  - raw: varchar
-  - raw: ']'
-  - raw: (
-  - raw: '100'
-  - raw: )
-  - raw: 'NULL'
-  - comma: ','
-  - raw: '['
-  - raw: WEEK_START
-  - raw: ']'
-  - raw: '['
-  - raw: date
-  - raw: ']'
-  - raw: 'NULL'
-  - comma: ','
-  - raw: '['
-  - raw: WEEK_END
-  - raw: ']'
-  - raw: '['
-  - raw: date
-  - raw: ']'
-  - raw: 'NULL'
-  - comma: ','
-  - raw: '['
-  - raw: SOURCE
-  - raw: ']'
-  - raw: '['
-  - raw: varchar
-  - raw: ']'
-  - raw: (
-  - raw: '100'
-  - raw: )
-  - raw: 'NULL'
-  - comma: ','
-  - raw: '['
-  - raw: NEW_CASES
-  - raw: ']'
-  - raw: '['
-  - raw: int
-  - raw: ']'
-  - raw: 'NULL'
-  - comma: ','
-  - raw: '['
-  - raw: SAMPLE_SIZE
-  - raw: ']'
-  - raw: '['
-  - raw: int
-  - raw: ']'
-  - raw: 'NULL'
-  - comma: ','
-  - raw: '['
-  - raw: ECDC_CATEGORY
-  - raw: ']'
-  - raw: '['
-  - raw: varchar
-  - raw: ']'
-  - raw: (
-  - raw: '100'
-  - raw: )
-  - raw: 'NULL'
-  - comma: ','
-  - raw: '['
-  - raw: PERCENT_CASES_SAMPLED
-  - raw: ']'
-  - raw: '['
-  - raw: decimal
-  - raw: ']'
-  - raw: (
-  - raw: '8'
-  - comma: ','
-  - raw: '1'
-  - raw: )
-  - raw: 'NULL'
-  - comma: ','
-  - raw: '['
-  - raw: VARIANT_CODE
-  - raw: ']'
-  - raw: '['
-  - raw: varchar
-  - raw: ']'
-  - raw: (
-  - raw: '2048'
-  - raw: )
-  - raw: 'NULL'
-  - comma: ','
-  - raw: '['
-  - raw: VARIANT
-  - raw: ']'
-  - raw: '['
-  - raw: varchar
-  - raw: ']'
-  - raw: (
-  - raw: '100'
-  - raw: )
-  - raw: 'NULL'
-  - comma: ','
-  - raw: '['
-  - raw: VARIANT_OF_CONCERN
-  - raw: ']'
-  - raw: '['
-  - raw: bit
-  - raw: ']'
-  - raw: 'NULL'
-  - comma: ','
-  - raw: '['
-  - raw: OCCURRENCE
-  - raw: ']'
-  - raw: '['
-  - raw: int
-  - raw: ']'
-  - raw: 'NULL'
-  - comma: ','
-  - raw: '['
-  - raw: PERCENT_VARIANT
-  - raw: ']'
-  - raw: '['
-  - raw: decimal
-  - raw: ']'
-  - raw: (
-  - raw: '8'
-  - comma: ','
-  - raw: '1'
-  - raw: )
-  - raw: 'NULL'
-  - comma: ','
-  - raw: '['
-  - raw: DATE_LAST_INSERTED
-  - raw: ']'
-  - raw: DATETIME
-  - raw: DEFAULT
-  - raw: GETDATE
-  - raw: (
-  - raw: )
-  - raw: )
+  statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - schema_name:
+        identifier: dbo
+        dot: .
+    - table_reference:
+        identifier: ECDC
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+        - start_square_bracket: '['
+        - identifier: EmployeeID
+        - end_square_bracket: ']'
+        - data_type:
+            start_square_bracket: '['
+            data_type_identifier: int
+            end_square_bracket: ']'
+        - column_constraint:
+          - keyword: PRIMARY
+          - keyword: KEY
+        - column_constraint:
+            keyword: CLUSTERED
+      - comma: ','
+      - column_definition:
+          start_square_bracket: '['
+          identifier: COUNTRY
+          end_square_bracket: ']'
+          data_type:
+            start_square_bracket: '['
+            data_type_identifier: varchar
+            end_square_bracket: ']'
+            bracketed:
+              start_bracket: (
+              expression:
+                literal: '100'
+              end_bracket: )
+          column_constraint:
+            keyword: 'NULL'
+      - comma: ','
+      - column_definition:
+          start_square_bracket: '['
+          identifier: COUNTRY_CODE
+          end_square_bracket: ']'
+          data_type:
+            start_square_bracket: '['
+            data_type_identifier: varchar
+            end_square_bracket: ']'
+            bracketed:
+              start_bracket: (
+              expression:
+                literal: '2'
+              end_bracket: )
+          column_constraint:
+          - keyword: NOT
+          - keyword: 'NULL'
+      - end_bracket: )
+  statement_terminator: ;
