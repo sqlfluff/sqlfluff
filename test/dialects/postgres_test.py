@@ -43,7 +43,6 @@ def test_space_is_not_reserved(raw):
 
 def test_priority_keyword_merge():
     """Test merging on keyword lists works as expected."""
-
     kw_list_1 = [("A", "not-keyword"), ("B", "non-reserved")]
 
     kw_list_2 = [("A", "reserved"), ("C", "non-reserved")]
@@ -83,7 +82,6 @@ def test_priority_keyword_merge():
 
 def test_get_keywords():
     """Test keyword filtering works as expected."""
-
     kw_list = [
         ("A", "not-keyword"),
         ("B", "reserved"),

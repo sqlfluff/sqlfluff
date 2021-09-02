@@ -37,11 +37,10 @@ def priority_keyword_merge(*args):
 
 
 def get_keywords(keyword_list, keyword_type):
-    """Get a list of keywords of the required type
+    """Get a list of keywords of the required type.
 
     keyword_type should be one of "not-keyword", "reserved", "non-reserved"
     """
-
     keywords = [x[0] for x in keyword_list if x[1].startswith(keyword_type)]
 
     return keywords

@@ -16,7 +16,7 @@ from sqlfluff.core.parser import (
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
-from sqlfluff.dialects.postgres_keywords import *
+from sqlfluff.dialects.postgres_keywords import postgres_keywords, get_keywords
 
 ansi_dialect = load_raw_dialect("ansi")
 
