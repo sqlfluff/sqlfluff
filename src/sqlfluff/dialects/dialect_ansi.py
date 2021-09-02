@@ -55,9 +55,7 @@ from sqlfluff.dialects.ansi_keywords import (
     ansi_unreserved_keywords,
 )
 
-
 ansi_dialect = Dialect("ansi", root_segment_name="FileSegment")
-
 
 ansi_dialect.set_lexer_matchers(
     [
@@ -87,7 +85,7 @@ ansi_dialect.set_lexer_matchers(
         RegexLexer("double_quote", r'"([^"\\]|\\.)*"', CodeSegment),
         RegexLexer("back_quote", r"`[^`]*`", CodeSegment),
         # See https://www.geeksforgeeks.org/postgresql-dollar-quoted-string-constants/
-        RegexLexer("dollar_quote", r"\$(\w*)\$[^\1]*\$\1\$", CodeSegment),
+        RegexLexer("dollar_quote", r"\$(\w*)\$[^\1]*?\$\1\$", CodeSegment),
         RegexLexer(
             "numeric_literal", r"(\d+(\.\d+)?|\.\d+)([eE][+-]?\d+)?", CodeSegment
         ),
@@ -127,7 +125,6 @@ ansi_dialect.set_lexer_matchers(
 ansi_dialect.sets("bare_functions").update(
     ["current_timestamp", "current_time", "current_date"]
 )
-
 
 # Set the datetime units
 ansi_dialect.sets("datetime_units").update(
@@ -178,7 +175,6 @@ ansi_dialect.sets("bracket_pairs").update(
 # - At least one other database (DB2) has the same value table function,
 #   UNNEST(), as BigQuery. DB2 is not currently supported by SQLFluff.
 ansi_dialect.sets("value_table_functions").update([])
-
 
 ansi_dialect.add(
     # Real segments
@@ -300,11 +296,15 @@ ansi_dialect.add(
         type="function_name_identifier",
     ),
     # Maybe data types should be more restrictive?
-    DatatypeIdentifierSegment=RegexParser(
-        r"[A-Z][A-Z0-9_]*",
-        CodeSegment,
-        name="data_type_identifier",
-        type="data_type_identifier",
+    DatatypeIdentifierSegment=SegmentGenerator(
+        # Generate the anti template from the set of reserved keywords
+        lambda dialect: RegexParser(
+            r"[A-Z][A-Z0-9_]*",
+            CodeSegment,
+            name="data_type_identifier",
+            type="data_type_identifier",
+            anti_template=r"^(NOT)$",  # TODO - this is a stopgap until we implement explicit data types
+        ),
     ),
     # Ansi Intervals
     DatetimeUnitSegment=SegmentGenerator(
@@ -516,31 +516,41 @@ class ArrayLiteralSegment(BaseSegment):
 
 @ansi_dialect.segment()
 class DatatypeSegment(BaseSegment):
-    """A data type segment."""
+    """A data type segment.
+
+    Supports timestamp with(out) time zone. Doesn't currently support intervals.
+    """
 
     type = "data_type"
-    match_grammar = Sequence(
+    match_grammar = OneOf(
         Sequence(
-            # Some dialects allow optional qualification of data types with schemas
+            OneOf("time", "timestamp"),
+            Bracketed(Ref("NumericLiteralSegment"), optional=True),
+            Sequence(OneOf("WITH", "WITHOUT"), "TIME", "ZONE", optional=True),
+        ),
+        Sequence(
             Sequence(
-                Ref("SingleIdentifierGrammar"),
-                Ref("DotSegment"),
+                # Some dialects allow optional qualification of data types with schemas
+                Sequence(
+                    Ref("SingleIdentifierGrammar"),
+                    Ref("DotSegment"),
+                    allow_gaps=False,
+                    optional=True,
+                ),
+                Ref("DatatypeIdentifierSegment"),
                 allow_gaps=False,
+            ),
+            Bracketed(
+                OneOf(
+                    Delimited(Ref("ExpressionSegment")),
+                    # The brackets might be empty for some cases...
+                    optional=True,
+                ),
+                # There may be no brackets for some data types
                 optional=True,
             ),
-            Ref("DatatypeIdentifierSegment"),
-            allow_gaps=False,
+            Ref("CharCharacterSetSegment", optional=True),
         ),
-        Bracketed(
-            OneOf(
-                Delimited(Ref("ExpressionSegment")),
-                # The brackets might be empty for some cases...
-                optional=True,
-            ),
-            # There may be no brackets for some data types
-            optional=True,
-        ),
-        Ref("CharCharacterSetSegment", optional=True),
     )
 
 
@@ -980,7 +990,7 @@ class FromExpressionElementSegment(BaseSegment):
         """
         alias_expression = self.get_child("alias_expression")
         tbl_expression = self.get_child("table_expression")
-        if not tbl_expression:
+        if not tbl_expression:  # pragma: no cover
             tbl_expression = self.get_child("bracketed").get_child("table_expression")
         ref = tbl_expression.get_child("object_reference")
         if alias_expression:
@@ -1478,6 +1488,16 @@ ansi_dialect.add(
             Ref("ColumnReferenceSegment"),
             Sequence(
                 Ref("SimpleArrayTypeGrammar", optional=True), Ref("ArrayLiteralSegment")
+            ),
+            Sequence(
+                Ref("DatatypeSegment"),
+                OneOf(
+                    Ref("QuotedLiteralSegment"),
+                    Ref("NumericLiteralSegment"),
+                    Ref("BooleanLiteralGrammar"),
+                    Ref("NullLiteralSegment"),
+                    Ref("DateTimeLiteralGrammar"),
+                ),
             ),
         ),
         Ref("Accessor_Grammar", optional=True),
@@ -2382,6 +2402,7 @@ class AccessStatementSegment(BaseSegment):
         "STAGE",
         "FUNCTION",
         "PROCEDURE",
+        "ROUTINE",
         "SEQUENCE",
         "STREAM",
         "TASK",
@@ -2412,6 +2433,8 @@ class AccessStatementSegment(BaseSegment):
             ),
             Sequence("IMPORTED", "PRIVILEGES"),
             "APPLY",
+            "CONNECT",
+            "CREATE",
             "DELETE",
             "EXECUTE",
             "INSERT",
@@ -2423,6 +2446,9 @@ class AccessStatementSegment(BaseSegment):
             "REFERENCE_USAGE",
             "REFERENCES",
             "SELECT",
+            "TEMP",
+            "TEMPORARY",
+            "TRIGGER",
             "TRUNCATE",
             "UPDATE",
             "USAGE",
@@ -2442,9 +2468,17 @@ class AccessStatementSegment(BaseSegment):
                 Sequence("RESOURCE", "MONITOR"),
                 "WAREHOUSE",
                 "DATABASE",
+                "DOMAIN",
                 "INTEGRATION",
+                "LANGUAGE",
                 "SCHEMA",
                 "ROLE",
+                "TABLESPACE",
+                "TYPE",
+                Sequence(
+                    "FOREIGN",
+                    OneOf("SERVER", Sequence("DATA", "WRAPPER")),
+                ),
                 Sequence("ALL", "SCHEMAS", "IN", "DATABASE"),
                 Sequence("FUTURE", "SCHEMAS", "IN", "DATABASE"),
                 _schema_object_types,
@@ -2460,10 +2494,11 @@ class AccessStatementSegment(BaseSegment):
             Ref("ObjectReferenceSegment"),
             Ref("FunctionParameterListGrammar", optional=True),
         ),
+        Sequence("LARGE", "OBJECT", Ref("NumericLiteralSegment")),
     )
 
     match_grammar = OneOf(
-        # Based on https://www.postgresql.org/docs/12/sql-grant.html
+        # Based on https://www.postgresql.org/docs/13/sql-grant.html
         # and https://docs.snowflake.com/en/sql-reference/sql/grant-privilege.html
         Sequence(
             "GRANT",
@@ -2490,7 +2525,18 @@ class AccessStatementSegment(BaseSegment):
             ),
             OneOf(
                 Sequence("WITH", "GRANT", "OPTION"),
+                Sequence("WITH", "ADMIN", "OPTION"),
                 Sequence("COPY", "CURRENT", "GRANTS"),
+                optional=True,
+            ),
+            Sequence(
+                "GRANTED",
+                "BY",
+                OneOf(
+                    "CURRENT_USER",
+                    "SESSION_USER",
+                    Ref("ObjectReferenceSegment"),
+                ),
                 optional=True,
             ),
         ),

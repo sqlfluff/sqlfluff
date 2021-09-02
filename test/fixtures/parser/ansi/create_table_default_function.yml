@@ -1,3 +1,9 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 21038890703e6bcfd77f878b921ad9d05ea6d3cee6fd282bf13209876a375f38
 file:
   statement:
     create_table_statement:
@@ -10,7 +16,7 @@ file:
         column_definition:
           identifier: ts
           data_type:
-            data_type_identifier: TIMESTAMP
+            keyword: TIMESTAMP
           column_constraint:
             keyword: DEFAULT
             function:

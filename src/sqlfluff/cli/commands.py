@@ -207,7 +207,7 @@ def get_linter_and_formatter(cfg, silent=False):
     try:
         # We're just making sure it exists at this stage - it will be fetched properly in the linter
         dialect_selector(cfg.get("dialect"))
-    except KeyError:
+    except KeyError:  # pragma: no cover
         click.echo("Error: Unknown dialect {!r}".format(cfg.get("dialect")))
         sys.exit(66)
 
@@ -420,9 +420,13 @@ def do_fixes(lnt, result, formatter=None, **kwargs):
         click.echo("Done. Please check your files to confirm.")
         return True
     # If some failed then return false
-    click.echo("Done. Some operations failed. Please check your files to confirm.")
-    click.echo("Some errors cannot be fixed or there is another error blocking it.")
-    return False
+    click.echo(
+        "Done. Some operations failed. Please check your files to confirm."
+    )  # pragma: no cover
+    click.echo(
+        "Some errors cannot be fixed or there is another error blocking it."
+    )  # pragma: no cover
+    return False  # pragma: no cover
 
 
 @cli.command()
@@ -512,7 +516,7 @@ def fix(force, paths, processes, bench=False, fixed_suffix="", logger=None, **kw
                 fixed_file_suffix=fixed_suffix,
             )
             if not success:
-                sys.exit(1)
+                sys.exit(1)  # pragma: no cover
         else:
             click.echo(
                 "Are you sure you wish to attempt to fix these? [Y/n] ", nl=False
@@ -529,18 +533,18 @@ def fix(force, paths, processes, bench=False, fixed_suffix="", logger=None, **kw
                     fixed_file_suffix=fixed_suffix,
                 )
                 if not success:
-                    sys.exit(1)
+                    sys.exit(1)  # pragma: no cover
                 else:
                     _completion_message(config)
             elif c == "n":
                 click.echo("Aborting...")
-            else:
+            else:  # pragma: no cover
                 click.echo("Invalid input, please enter 'Y' or 'N'")
                 click.echo("Aborting...")
     else:
         click.echo("==== no fixable linting violations found ====")
         if result.num_violations(types=SQLLintError, fixable=False) > 0:
-            click.echo(
+            click.echo(  # pragma: no cover
                 "  [{} unfixable linting violations found]".format(
                     result.num_violations(types=SQLLintError, fixable=False)
                 )
@@ -648,7 +652,7 @@ def parse(
         # Set up the profiler if required
         try:
             import cProfile
-        except ImportError:
+        except ImportError:  # pragma: no cover
             click.echo("The cProfiler is not available on your platform.")
             sys.exit(1)
         pr = cProfile.Profile()
@@ -678,17 +682,17 @@ def parse(
                     click.echo(parsed_string.tree.stringify(code_only=code_only))
                 else:
                     # TODO: Make this prettier
-                    click.echo("...Failed to Parse...")
+                    click.echo("...Failed to Parse...")  # pragma: no cover
                 nv += len(parsed_string.violations)
                 if parsed_string.violations:
-                    click.echo("==== parsing violations ====")
+                    click.echo("==== parsing violations ====")  # pragma: no cover
                 for v in parsed_string.violations:
-                    click.echo(format_violation(v))
+                    click.echo(format_violation(v))  # pragma: no cover
                 if (
                     parsed_string.violations
                     and parsed_string.config.get("dialect") == "ansi"
                 ):
-                    click.echo(format_dialect_warning())
+                    click.echo(format_dialect_warning())  # pragma: no cover
                 if verbose >= 2:
                     click.echo("==== timings ====")
                     click.echo(cli_table(parsed_string.time_dict.items()))
@@ -719,7 +723,7 @@ def parse(
                 click.echo(yaml.dump(result))
             elif format == "json":
                 click.echo(json.dumps(result))
-    except OSError:
+    except OSError:  # pragma: no cover
         click.echo(
             colorize(
                 f"The path {path!r} could not be accessed. Check it exists.",
@@ -738,7 +742,7 @@ def parse(
         click.echo("\n".join(profiler_buffer.getvalue().split("\n")[:50]))
 
     if nv > 0 and not nofail:
-        sys.exit(66)
+        sys.exit(66)  # pragma: no cover
     else:
         sys.exit(0)
 
@@ -747,4 +751,4 @@ def parse(
 # simplifies the use of cProfile, e.g.:
 # python -m cProfile -s cumtime -m sqlfluff.cli.commands lint slow_file.sql
 if __name__ == "__main__":
-    cli.main(sys.argv[1:])
+    cli.main(sys.argv[1:])  # pragma: no cover
