@@ -29,7 +29,7 @@ class Delimited(OneOf):
         min_delimiters=None,
         **kwargs,
     ):
-        if delimiter is None:
+        if delimiter is None:  # pragma: no cover
             raise ValueError("Delimited grammars require a `delimiter`")
         self.bracket_pairs_set = kwargs.pop("bracket_pairs_set", "bracket_pairs")
         self.delimiter = self._resolve_ref(delimiter)
@@ -77,10 +77,10 @@ class Delimited(OneOf):
                 if self.allow_trailing and (
                     self.min_delimiters is None
                     or len(delimiters) >= self.min_delimiters
-                ):
+                ):  # pragma: no cover TODO?
                     # It is! (nothing left so no unmatched segments to append)
                     return MatchResult.from_matched(matched_segments.matched_segments)
-                else:
+                else:  # pragma: no cover TODO?
                     return MatchResult.from_unmatched(segments)
 
             # We rely on _bracket_sensitive_look_ahead_match to do the bracket counting
@@ -127,7 +127,9 @@ class Delimited(OneOf):
                     if not self.allow_gaps and any(
                         seg.is_whitespace for seg in pre_non_code + post_non_code
                     ):
-                        return MatchResult.from_unmatched(mutated_segments)
+                        return MatchResult.from_unmatched(
+                            mutated_segments
+                        )  # pragma: no cover TODO?
 
                     with parse_context.deeper_match() as ctx:
                         match, _ = self._longest_trimmed_match(
@@ -174,7 +176,7 @@ class Delimited(OneOf):
                                 matched_segments.matched_segments,
                                 delimiter_match.all_segments(),
                             )
-                    else:
+                    else:  # pragma: no cover
                         raise RuntimeError(
                             (
                                 "I don't know how I got here. Matched instead on {}, which "
@@ -208,7 +210,9 @@ class Delimited(OneOf):
                 if not self.allow_gaps and any(
                     seg.is_whitespace for seg in pre_non_code + post_non_code
                 ):
-                    return MatchResult.from_unmatched(mutated_segments)
+                    return MatchResult.from_unmatched(
+                        mutated_segments
+                    )  # pragma: no cover TODO?
 
                 with parse_context.deeper_match() as ctx:
                     mat, _ = self._longest_trimmed_match(

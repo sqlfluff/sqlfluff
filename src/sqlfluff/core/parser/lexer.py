@@ -192,7 +192,7 @@ class StringLexer:
             :obj:`LexMatch`
 
         """
-        if len(forward_string) == 0:
+        if len(forward_string) == 0:  # pragma: no cover
             raise ValueError("Unexpected empty string!")
         matched = self._match(forward_string)
 
@@ -245,7 +245,7 @@ class RegexLexer(StringLexer):
             # We can only match strings with length
             if match.group(0):
                 return match.span()
-            else:
+            else:  # pragma: no cover
                 lexer_logger.warning(
                     f"Zero length Lex item returned from {self.name!r}. Report this as a bug."
                 )
@@ -308,7 +308,7 @@ class Lexer:
                     )
                 str_buff = resort_res.forward_string
                 element_buffer += resort_res.elements
-            else:
+            else:  # pragma: no cover TODO?
                 break
 
         # Map tuple LexedElement to list of TemplateElement.
@@ -542,7 +542,9 @@ class Lexer:
             template_slice = slice(idx, idx + len(element.raw))
             idx += len(element.raw)
             templated_buff.append(TemplateElement.from_element(element, template_slice))
-            if template.templated_str[template_slice] != element.raw:
+            if (
+                template.templated_str[template_slice] != element.raw
+            ):  # pragma: no cover
                 raise ValueError(
                     "Template and lexed elements do not match. This should never "
                     f"happen {element.raw!r} != {template.templated_str[template_slice]!r}"

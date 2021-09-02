@@ -561,7 +561,9 @@ class PythonTemplater(RawTemplater):
         for p in priority:
             if p in types:
                 return p
-        raise RuntimeError(f"Exhausted priorities in _coalesce_types! {types!r}")
+        raise RuntimeError(
+            f"Exhausted priorities in _coalesce_types! {types!r}"
+        )  # pragma: no cover
 
     @classmethod
     def _split_uniques_coalesce_rest(
@@ -765,7 +767,7 @@ class PythonTemplater(RawTemplater):
                                 slice(_starts[1], starts[1]),
                             )
 
-                if bookmark_idx == 0:
+                if bookmark_idx == 0:  # pragma: no cover
                     # This is a SAFETY VALVE. In Theory we should never be here
                     # and if we are it implies an error elsewhere. This clause
                     # should stop any potential infinite recursion in its tracks
@@ -874,7 +876,9 @@ class PythonTemplater(RawTemplater):
                     # to recurse a split?
                     sub_section: Optional[List[RawFileSlice]] = None
                     # If it's the start, the slicing is easy
-                    if starts[1] == int_file_slice.templated_slice.stop:
+                    if (
+                        starts[1] == int_file_slice.templated_slice.stop
+                    ):  # pragma: no cover TODO?
                         sub_section = int_file_slice.slice_buffer[:this_owu_idx]
                     # If we are AFTER the previous in the template, then it's
                     # also easy. [assuming it's not the same owu]

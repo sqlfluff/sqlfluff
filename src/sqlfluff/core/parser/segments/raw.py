@@ -135,7 +135,7 @@ class RawSegment(BaseSegment):
             return raw_buff
         return raw_buff
 
-    def raw_list(self):
+    def raw_list(self):  # pragma: no cover TODO?
         """Return a list of the raw content of this segment."""
         return [self.raw]
 

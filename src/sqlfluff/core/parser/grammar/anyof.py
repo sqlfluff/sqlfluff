@@ -80,7 +80,7 @@ class AnyNumberOf(BaseGrammar):
             # it for pruning.
             for simple_opt in simple:
                 # Check it's not a whitespace option
-                if not simple_opt.strip():
+                if not simple_opt.strip():  # pragma: no cover
                     raise NotImplementedError(
                         "_prune_options not supported for whitespace matching."
                     )
@@ -183,7 +183,7 @@ class AnyNumberOf(BaseGrammar):
                     return MatchResult(
                         matched_segments.matched_segments, unmatched_segments
                     )
-                else:
+                else:  # pragma: no cover TODO?
                     # We didn't meet the hurdle
                     return MatchResult.from_unmatched(unmatched_segments)
 
