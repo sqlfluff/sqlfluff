@@ -89,7 +89,7 @@ def assert_structure(yaml_loader, path, code_only=True, include_meta=False):
     if "unparsable" in parsed.type_set():
         print(parsed.stringify())
         raise ValueError("Input file is contains unparsable.")
-    expected = yaml_loader(path + ".yml")
+    _hash, expected = yaml_loader(path + ".yml")
     assert tpl == expected
 
 

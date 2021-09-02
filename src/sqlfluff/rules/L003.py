@@ -22,7 +22,7 @@ class Rule_L003(BaseRule):
     | The • character represents a space.
     | In this example, the third line contains five spaces instead of four.
 
-    .. code-block::
+    .. code-block:: sql
 
         SELECT
         ••••a,
@@ -33,7 +33,7 @@ class Rule_L003(BaseRule):
     | **Best practice**
     | Change the indentation to use a multiple of four spaces.
 
-    .. code-block::
+    .. code-block:: sql
 
         SELECT
         ••••a,
@@ -337,7 +337,9 @@ class Rule_L003(BaseRule):
         # Are we linting a placeholder, and if so are we allowed to?
         if (not self.lint_templated_tokens) and this_line["line_buffer"][
             len(this_line["indent_buffer"]) :
-        ][0].is_type("placeholder"):
+        ][0].is_type(
+            "placeholder"
+        ):  # pragma: no cover
             # If not, make this a problem line and carry on.
             memory["problem_lines"].append(this_line_no)
             self.logger.debug(
@@ -442,7 +444,7 @@ class Rule_L003(BaseRule):
                     elif res[k]["hanging_indent"]:
                         self.logger.debug("        Use hanging indent.")
                         desired_indent = " " * res[k]["hanging_indent"]
-                    else:
+                    else:  # pragma: no cover
                         self.logger.debug("        Use default indent.")
                         desired_indent = default_indent
 
@@ -498,7 +500,7 @@ class Rule_L003(BaseRule):
                                 b_idx += 1
                                 b_num += 1
                                 continue
-                            break
+                            break  # pragma: no cover
 
                     if b_num >= indent_diff:
                         # It does. This line is fine.

@@ -14,7 +14,7 @@ class Rule_L018(BaseRule):
     | The • character represents a space.
     | In this example, the closing bracket is not aligned with WITH keyword.
 
-    .. code-block::
+    .. code-block:: sql
 
         WITH zoo AS (
             SELECT a FROM foo
@@ -25,7 +25,7 @@ class Rule_L018(BaseRule):
     | **Best practice**
     | Remove the spaces to align the WITH keyword with the closing bracket.
 
-    .. code-block::
+    .. code-block:: sql
 
         WITH zoo AS (
             SELECT a FROM foo
@@ -51,7 +51,7 @@ class Rule_L018(BaseRule):
                 if seg.name.lower() == "with":
                     seg_line_no = seg.pos_marker.line_no
                     break
-            else:
+            else:  # pragma: no cover
                 # This *could* happen if the with statement is unparsable,
                 # in which case then the user will have to fix that first.
                 if any(s.is_type("unparsable") for s in segment.segments):

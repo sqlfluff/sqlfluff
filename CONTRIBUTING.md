@@ -44,7 +44,7 @@ that's actually useful for the community.
   coordination, discussion or development work, there is a process for each
   major release to work out what features will fit into that release.
   - Each major release will have its own github issue. For example the link
-    to the issue for [0.4.0 is here](https://github.com/sqlfluff/sqlfluff/issues/470).
+    to the issue for [0.6.0 is here](https://github.com/sqlfluff/sqlfluff/issues/922).
   - Features or issues are organised into a _shortlist_. During the initial
     discussion for the release, each feature is vetted for enough clarity
     that someone in the community can pick it up. Issues where we can't

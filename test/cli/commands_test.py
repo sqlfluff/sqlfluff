@@ -8,6 +8,7 @@ import json
 import oyaml as yaml
 import subprocess
 import chardet
+import sys
 
 # Testing libraries
 import pytest
@@ -138,6 +139,8 @@ def test__cli__command_lint_stdin(command):
         # Check the profiler and benching commands
         (parse, ["-n", "test/fixtures/cli/passing_b.sql", "--profiler"]),
         (parse, ["-n", "test/fixtures/cli/passing_b.sql", "--bench"]),
+        (lint, ["-n", "test/fixtures/cli/passing_b.sql", "--bench"]),
+        (fix, ["-n", "test/fixtures/cli/passing_b.sql", "--bench"]),
         # Check linting works in specifying rules
         (lint, ["-n", "--rules", "L001", "test/fixtures/linter/operator_errors.sql"]),
         # Check linting works in specifying multiple rules
@@ -627,7 +630,9 @@ def test__cli__command_lint_serialize_github_annotation():
 def test___main___help():
     """Test that the CLI can be access via __main__."""
     # nonzero exit is good enough
-    subprocess.check_output(["python", "-m", "sqlfluff", "--help"])
+    subprocess.check_output(
+        [sys.executable, "-m", "sqlfluff", "--help"], env=os.environ
+    )
 
 
 @pytest.mark.parametrize(

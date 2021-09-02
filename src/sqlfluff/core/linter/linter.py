@@ -135,7 +135,7 @@ class Linter:
             violations.append(err)
             return None, violations, config
 
-        if not tokens:
+        if not tokens:  # pragma: no cover TODO?
             return None, violations, config
 
         # Check that we've got sensible indentation from the lexer.
@@ -230,7 +230,7 @@ class Linter:
                     action: Optional[str]
                     if "=" in comment_remainder:
                         action, rule_part = comment_remainder.split("=", 1)
-                        if action not in {"disable", "enable"}:
+                        if action not in {"disable", "enable"}:  # pragma: no cover
                             return SQLParseError(
                                 "Malformed 'noqa' section. "
                                 "Expected 'noqa: enable=<rule>[,...] | all' "
@@ -395,7 +395,7 @@ class Linter:
                 if fix and fixes:
                     linter_logger.info(f"Applying Fixes [{crawler.code}]: {fixes}")
                     # Do some sanity checks on the fixes before applying.
-                    if fixes == last_fixes:
+                    if fixes == last_fixes:  # pragma: no cover
                         cls._warn_unfixable(crawler.code)
                     else:
                         last_fixes = fixes
@@ -495,7 +495,7 @@ class Linter:
         if parsed.config.get("dialect") == "ansi" and linted_file.get_violations(
             fixable=True if fix else None, types=SQLParseError
         ):
-            if formatter:
+            if formatter:  # pragma: no cover TODO?
                 formatter.dispatch_dialect_warning()
 
         return linted_file
@@ -544,7 +544,7 @@ class Linter:
             templated_file, templater_violations = self.templater.process(
                 in_str=in_str, fname=fname, config=config, formatter=self.formatter
             )
-        except SQLTemplaterSkipFile as s:
+        except SQLTemplaterSkipFile as s:  # pragma: no cover
             linter_logger.warning(str(s))
             templated_file = None
             templater_violations = []
@@ -808,7 +808,7 @@ class Linter:
         for linted_file in runner.run(fnames, fix):
             linted_path.add(linted_file)
             # If any fatal errors, then stop iteration.
-            if any(v.fatal for v in linted_file.violations):
+            if any(v.fatal for v in linted_file.violations):  # pragma: no cover
                 linter_logger.error("Fatal linting error. Halting further linting.")
                 break
         return linted_path
@@ -823,7 +823,7 @@ class Linter:
     ) -> LintingResult:
         """Lint an iterable of paths."""
         # If no paths specified - assume local
-        if len(paths) == 0:
+        if len(paths) == 0:  # pragma: no cover
             paths = (os.getcwd(),)
         # Set up the result to hold what we get back
         result = LintingResult()

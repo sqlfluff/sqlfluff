@@ -196,7 +196,7 @@ class QualifyClauseSegment(BaseSegment):
 
 @bigquery_dialect.segment(replace=True)
 class SelectStatementSegment(BaseSegment):
-    """Enhance`SELECT` statement to include QUALIFY."""
+    """Enhance `SELECT` statement to include QUALIFY."""
 
     type = "select_statement"
     match_grammar = ansi_dialect.get_segment(
@@ -208,6 +208,23 @@ class SelectStatementSegment(BaseSegment):
     ).parse_grammar.copy(
         insert=[Ref("QualifyClauseSegment", optional=True)],
         before=Ref("OrderByClauseSegment", optional=True),
+    )
+
+
+@bigquery_dialect.segment(replace=True)
+class UnorderedSelectStatementSegment(BaseSegment):
+    """Enhance unordered `SELECT` statement to include QUALIFY."""
+
+    type = "select_statement"
+    match_grammar = ansi_dialect.get_segment(
+        "UnorderedSelectStatementSegment"
+    ).match_grammar.copy()
+
+    parse_grammar = ansi_dialect.get_segment(
+        "UnorderedSelectStatementSegment"
+    ).parse_grammar.copy(
+        insert=[Ref("QualifyClauseSegment", optional=True)],
+        before=Ref("OverlapsClauseSegment", optional=True),
     )
 
 
@@ -278,7 +295,12 @@ bigquery_dialect.replace(
         Sequence(
             "FOR", "SYSTEM_TIME", "AS", "OF", Ref("ExpressionSegment"), optional=True
         ),
-        Sequence("WITH", "OFFSET", "AS", Ref("SingleIdentifierGrammar"), optional=True),
+        Sequence(
+            "WITH",
+            "OFFSET",
+            Sequence("AS", Ref("SingleIdentifierGrammar"), optional=True),
+            optional=True,
+        ),
     ),
     FunctionNameIdentifierSegment=OneOf(
         # In BigQuery struct() has a special syntax, so we don't treat it as a function
@@ -588,7 +610,7 @@ class ColumnReferenceSegment(ObjectReferenceSegment):  # type: ignore
         level = self._level_to_int(level)
         refs = list(self.iter_raw_references())
         if level == self.ObjectReferenceLevel.SCHEMA.value and len(refs) >= 3:
-            return [refs[0]]
+            return [refs[0]]  # pragma: no cover
         if level == self.ObjectReferenceLevel.TABLE.value and len(refs) >= 3:
             # Ambiguous case: The table could be the first or second part, so
             # return both.
@@ -596,7 +618,7 @@ class ColumnReferenceSegment(ObjectReferenceSegment):  # type: ignore
         if level == self.ObjectReferenceLevel.OBJECT.value and len(refs) >= 3:
             # Ambiguous case: The object (i.e. column) could be the first or
             # second part, so return both.
-            return [refs[1], refs[2]]
+            return [refs[1], refs[2]]  # pragma: no cover
         return super().extract_possible_references(level)
 
 

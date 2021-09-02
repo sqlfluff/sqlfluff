@@ -39,17 +39,21 @@ class LintedDir:
         self.files.append(file)
 
     @overload
-    def check_tuples(self, by_path: Literal[False]) -> List[CheckTuple]:
+    def check_tuples(
+        self, by_path: Literal[False]
+    ) -> List[CheckTuple]:  # pragma: no cover
         """Return a List of CheckTuples when by_path is False."""
         ...
 
     @overload
-    def check_tuples(self, by_path: Literal[True]) -> Dict[str, List[CheckTuple]]:
+    def check_tuples(
+        self, by_path: Literal[True]
+    ) -> Dict[str, List[CheckTuple]]:  # pragma: no cover
         """Return a Dict of paths and CheckTuples when by_path is True."""
         ...
 
     @overload
-    def check_tuples(self, by_path: bool = False):
+    def check_tuples(self, by_path: bool = False):  # pragma: no cover
         """Default overload method."""
         ...
 
@@ -105,7 +109,7 @@ class LintedDir:
             if file.num_violations(fixable=True, **kwargs) > 0:
                 buffer[file.path] = file.persist_tree(suffix=fixed_file_suffix)
                 result = buffer[file.path]
-            else:
+            else:  # pragma: no cover TODO?
                 buffer[file.path] = True
                 result = "SKIP"
 
@@ -116,7 +120,7 @@ class LintedDir:
     @property
     def tree(self) -> Optional[BaseSegment]:
         """A convenience method for when there is only one file and we want the tree."""
-        if len(self.files) > 1:
+        if len(self.files) > 1:  # pragma: no cover
             raise ValueError(
                 ".tree() cannot be called when a LintedDir contains more than one file."
             )

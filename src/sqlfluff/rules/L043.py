@@ -70,7 +70,7 @@ class Rule_L043(BaseRule):
                     # If the first then-bool is followed by a "WHEN" or "END", exit
                     if segment.segments[idx].name in ["when", "end"]:
                         return None
-                    idx += 1
+                    idx += 1  # pragma: no cover
                 # Determine if "else" is followed by a boolean
                 else_bool_type = None
                 while segment.segments[idx].name != "end":
