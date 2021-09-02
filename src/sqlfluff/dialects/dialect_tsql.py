@@ -8,35 +8,24 @@ from enum import Enum
 from typing import Generator, List, Tuple, NamedTuple, Optional, Union
 
 from sqlfluff.core.parser import (
-    Matchable,
-    RawSegment,
+    
     BaseSegment,
-    KeywordSegment,
-    SymbolSegment,
+    
     Sequence,
-    GreedyUntil,
-    StartsWith,
+    
     OneOf,
-    Delimited,
+   
     Bracketed,
-    AnyNumberOf,
+   
     Ref,
-    SegmentGenerator,
+    
     Anything,
-    Indent,
-    Dedent,
-    Nothing,
-    OptionallyBracketed,
-    StringLexer,
+    
     RegexLexer,
     CodeSegment,
-    CommentSegment,
-    WhitespaceSegment,
-    NewlineSegment,
-    StringParser,
-    NamedParser,
+   
     RegexParser,
-    Conditional,
+    
 )
 
 from sqlfluff.core.dialects.base import Dialect
@@ -48,11 +37,7 @@ from sqlfluff.dialects.ansi_keywords import (
     ansi_unreserved_keywords,
 )
 
-# from sqlfluff.dialects.tsql_keywords import (
-#     # BARE_FUNCTIONS,
-#     RESERVED_KEYWORDS,
-#     # UNRESERVED_KEYWORDS,
-# )
+
 
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.dialects.dialect_ansi import StatementSegment
@@ -61,7 +46,10 @@ ansi_dialect = load_raw_dialect("ansi")
 tsql_dialect = ansi_dialect.copy_as("tsql")
 
 
-# Update only RESERVED Keywords
+# Update only RESERVED Keywords, not working yet, error UsingKeywordSegment
+# from sqlfluff.dialects.tsql_keywords import (
+#     RESERVED_KEYWORDS,
+# )
 # tsql_dialect.sets("reserved_keywords").clear()
 # tsql_dialect.sets("reserved_keywords").update(RESERVED_KEYWORDS)
 
