@@ -646,7 +646,7 @@ class ColumnOptionSegment(BaseSegment):
             Sequence(Ref.keyword("NOT", optional=True), "NULL"),  # NOT NULL or NULL
             Sequence(
                 "CHECK",
-                Ref("ExpressionSegment"),
+                Bracketed(Ref("ExpressionSegment")),
                 Sequence("NO", "INHERIT", optional=True),
             ),
             Sequence(  # DEFAULT <value>
@@ -733,13 +733,17 @@ class TableConstraintSegment(BaseSegment):
     """
 
     type = "table_constraint_definition"
-    # Later add support for CHECK constraint, others?
-    # e.g. CONSTRAINT constraint_1 PRIMARY KEY(column_1)
+
     match_grammar = Sequence(
         Sequence(  # [ CONSTRAINT <Constraint name> ]
             "CONSTRAINT", Ref("ObjectReferenceSegment"), optional=True
         ),
         OneOf(
+            Sequence(
+                "CHECK",
+                Bracketed(Ref("ExpressionSegment")),
+                Sequence("NO", "INHERIT", optional=True),
+            ),
             Sequence(  # UNIQUE ( column_name [, ... ] )
                 "UNIQUE",
                 Ref("BracketedColumnReferenceListGrammar"),

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d84be9888941f88cf76a64c12bf03a85213834faa74e219f773fd857d0c9b03b
+_hash: 1e62b5bb94da056f8cd1abd3cdd2e1a340149013cae07514bf5db2a1e504a4df
 file:
 - statement:
     alter_table_statement:
@@ -281,46 +281,64 @@ file:
       - keyword: 'NULL'
 - statement_terminator: ;
 - statement:
-    unparsable:
-    - raw: ALTER
-    - raw: TABLE
-    - raw: distributors
-    - raw: ADD
-    - raw: CONSTRAINT
-    - raw: zipchk
-    - raw: CHECK
-    - bracketed:
-      - start_bracket: (
-      - raw: char_length
-      - bracketed:
-          start_bracket: (
-          raw: zipcode
-          end_bracket: )
-      - raw: '='
-      - raw: '5'
-      - end_bracket: )
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        identifier: distributors
+    - base:
+        keyword: ADD
+        table_constraint_definition:
+        - keyword: CONSTRAINT
+        - object_reference:
+            identifier: zipchk
+        - keyword: CHECK
+        - bracketed:
+            start_bracket: (
+            expression:
+              function:
+                function_name:
+                  function_name_identifier: char_length
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      identifier: zipcode
+                  end_bracket: )
+              comparison_operator: '='
+              literal: '5'
+            end_bracket: )
 - statement_terminator: ;
 - statement:
-    unparsable:
-    - raw: ALTER
-    - raw: TABLE
-    - raw: distributors
-    - raw: ADD
-    - raw: CONSTRAINT
-    - raw: zipchk
-    - raw: CHECK
-    - bracketed:
-      - start_bracket: (
-      - raw: char_length
-      - bracketed:
-          start_bracket: (
-          raw: zipcode
-          end_bracket: )
-      - raw: '='
-      - raw: '5'
-      - end_bracket: )
-    - raw: 'NO'
-    - raw: INHERIT
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        identifier: distributors
+    - base:
+        keyword: ADD
+        table_constraint_definition:
+        - keyword: CONSTRAINT
+        - object_reference:
+            identifier: zipchk
+        - keyword: CHECK
+        - bracketed:
+            start_bracket: (
+            expression:
+              function:
+                function_name:
+                  function_name_identifier: char_length
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      identifier: zipcode
+                  end_bracket: )
+              comparison_operator: '='
+              literal: '5'
+            end_bracket: )
+        - keyword: 'NO'
+        - keyword: INHERIT
 - statement_terminator: ;
 - statement:
     alter_table_statement:
