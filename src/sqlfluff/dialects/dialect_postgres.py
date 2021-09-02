@@ -34,10 +34,18 @@ postgres_dialect.insert_lexer_matchers(
     before="not_equal",
 )
 
-postgres_dialect.sets("reserved_keywords").update(get_keywords(postgres_keywords, "reserved"))
-postgres_dialect.sets("unreserved_keywords").update(get_keywords(postgres_keywords, "non-reserved"))
-postgres_dialect.sets("reserved_keywords").difference_update(get_keywords(postgres_keywords, "not-keyword"))
-postgres_dialect.sets("unreserved_keywords").difference_update(get_keywords(postgres_keywords, "not-keyword"))
+postgres_dialect.sets("reserved_keywords").update(
+    get_keywords(postgres_keywords, "reserved")
+)
+postgres_dialect.sets("unreserved_keywords").update(
+    get_keywords(postgres_keywords, "non-reserved")
+)
+postgres_dialect.sets("reserved_keywords").difference_update(
+    get_keywords(postgres_keywords, "not-keyword")
+)
+postgres_dialect.sets("unreserved_keywords").difference_update(
+    get_keywords(postgres_keywords, "not-keyword")
+)
 
 # Add the EPOCH datetime unit
 postgres_dialect.sets("datetime_units").update(["EPOCH"])

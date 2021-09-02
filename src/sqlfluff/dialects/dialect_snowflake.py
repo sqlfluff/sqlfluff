@@ -76,7 +76,7 @@ snowflake_dialect.sets("unreserved_keywords").update(
         "TERSE",
         "UNSET",
         "TABULAR",
-        "USER"
+        "USER",
     ]
 )
 

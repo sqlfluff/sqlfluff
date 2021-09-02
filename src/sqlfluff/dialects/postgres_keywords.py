@@ -10,10 +10,10 @@ distinction at present.
 
 
 def priority_keyword_merge(*args):
-    """ Merge keyword lists, giving priority to entries in later lists.
-    
+    """Merge keyword lists, giving priority to entries in later lists.
+
     *args is a list of keyword lists, these lists should be of tuples in the form (keyword, type)
-    
+
     """
     keyword_lists = [*args]
     base_list = []
@@ -892,7 +892,9 @@ postgres_nondocs_keywords = [
     ("SAFE", "non-reserved"),
     ("TIMESTAMPTZ", "non-reserved"),
     ("UNSAFE", "non-reserved"),
-    ("USAGE", "reserved")
+    ("USAGE", "reserved"),
 ]
 
-postgres_keywords = priority_keyword_merge(postgres_docs_keywords, postgres_nondocs_keywords)
+postgres_keywords = priority_keyword_merge(
+    postgres_docs_keywords, postgres_nondocs_keywords
+)
