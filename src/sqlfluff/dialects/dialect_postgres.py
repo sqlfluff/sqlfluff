@@ -39,46 +39,8 @@ postgres_dialect.sets("unreserved_keywords").update(get_keywords(postgres_keywor
 postgres_dialect.sets("reserved_keywords").difference_update(get_keywords(postgres_keywords, "not-keyword"))
 postgres_dialect.sets("unreserved_keywords").difference_update(get_keywords(postgres_keywords, "not-keyword"))
 
-# # https://www.postgresql.org/docs/current/sql-keywords-appendix.html
-# # SPACE has special status in some SQL dialects, but not Postgres.
-# postgres_dialect.sets("unreserved_keywords").remove("SPACE")
-# # Reserve WITHIN (required for the WithinGroupClauseSegment)
-# postgres_dialect.sets("unreserved_keywords").remove("WITHIN")
-# postgres_dialect.sets("unreserved_keywords").update(
-#     [
-#         "WITHIN",
-#         "ANALYZE",
-#         "VERBOSE",
-#         "COSTS",
-#         "BUFFERS",
-#         "FORMAT",
-#         "XML",
-#         "SERVER",
-#         "WRAPPER",
-#     ]
-# )
-# postgres_dialect.sets("reserved_keywords").update(["WITHIN", "VARIADIC", "WITH"])
-# # Add the EPOCH datetime unit
-# postgres_dialect.sets("datetime_units").update(["EPOCH"])
-#
-# postgres_dialect.sets("unreserved_keywords").update(
-#     [
-#         "COST",
-#         "LEAKPROOF",
-#         "PARALLEL",
-#         "SUPPORT",
-#         "SAFE",
-#         "UNSAFE",
-#         "RESTRICTED",
-#         "REPLICA",
-#         "ATTACH",
-#         "DETACH",
-#         "LOGGED",
-#         "UNLOGGED",
-#         "MODULUS",
-#         "REMAINDER",
-#     ]
-# )
+# Add the EPOCH datetime unit
+postgres_dialect.sets("datetime_units").update(["EPOCH"])
 
 postgres_dialect.add(
     JsonOperatorSegment=NamedParser(
