@@ -183,6 +183,7 @@ class ObjectNameSegment(BaseSegment):
         Ref("EndSquareBracketSegment", optional=True),
     )
 
+
 # @tsql_dialect.segment(replace=True)
 # class TableConstraintSegment(BaseSegment):
 #     """A table constraint, e.g. for CREATE TABLE."""
@@ -263,14 +264,16 @@ class CreateTableStatementSegment(BaseSegment):
         Ref("GoStatementSegment", optional=True),
     )
 
+
 # @tsql_dialect.segment(replace=True)
 # class DatatypeIdentifierSegment(BaseSegment):
 #     name="data_type_identifier",
 #     type="data_type_identifier",
 #     match_grammar = RegexParser(
 #         r"\[?[A-Z][A-Z0-9_]*\]?",
-#         CodeSegment,        
+#         CodeSegment,
 #     ),
+
 
 @tsql_dialect.segment(replace=True)
 class DatatypeSegment(BaseSegment):
@@ -282,13 +285,13 @@ class DatatypeSegment(BaseSegment):
             # Some dialects allow optional qualification of data types with schemas
             Sequence(
                 Ref("StartSquareBracketSegment", optional=True),
-                Ref("SingleIdentifierGrammar"),       
+                Ref("SingleIdentifierGrammar"),
                 Ref("EndSquareBracketSegment", optional=True),
                 Ref("DotSegment"),
                 allow_gaps=False,
                 optional=True,
             ),
-            Ref("StartSquareBracketSegment", optional=True),        
+            Ref("StartSquareBracketSegment", optional=True),
             Ref("DatatypeIdentifierSegment"),
             Ref("EndSquareBracketSegment", optional=True),
             allow_gaps=False,
@@ -304,6 +307,7 @@ class DatatypeSegment(BaseSegment):
         ),
         Ref("CharCharacterSetSegment", optional=True),
     )
+
 
 @tsql_dialect.segment(replace=True)
 class ColumnOptionSegment(BaseSegment):
@@ -341,8 +345,8 @@ class ColumnOptionSegment(BaseSegment):
             ),
             Ref("CommentClauseSegment"),
         ),
-        
     )
+
 
 @tsql_dialect.segment(replace=True)
 class ColumnDefinitionSegment(BaseSegment):
@@ -350,7 +354,7 @@ class ColumnDefinitionSegment(BaseSegment):
 
     type = "column_definition"
     match_grammar = Sequence(
-        Ref("StartSquareBracketSegment", optional=True),        
+        Ref("StartSquareBracketSegment", optional=True),
         Ref("SingleIdentifierGrammar"),  # Column name
         Ref("EndSquareBracketSegment", optional=True),
         Ref("DatatypeSegment"),  # Column type
@@ -359,6 +363,7 @@ class ColumnDefinitionSegment(BaseSegment):
             Ref("ColumnOptionSegment", optional=True),
         ),
     )
+
 
 @tsql_dialect.segment(replace=True)
 class CreateFunctionStatementSegment(BaseSegment):
