@@ -75,10 +75,10 @@ class Rule_L020(BaseRule):
                     # Reference the element, not the string.
                     anchor=aliases.segment,
                     description=(
-                        "Duplicate table alias {!r}. Table "
-                        "aliases should be unique."
+                        "Duplicate table alias {!r}. Table " "aliases should be unique."
                     ).format(aliases.ref_str),
-                ) for aliases in duplicate
+                )
+                for aliases in duplicate
             ]
         else:
             return None
