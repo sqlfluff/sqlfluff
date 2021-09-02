@@ -18,7 +18,7 @@ def priority_keyword_merge(*args):
     keyword_lists = [*args]
     base_list = []
     if len(keyword_lists) == 1:
-        return keyword_lists
+        return keyword_lists[0]
 
     while len(keyword_lists) > 1:
         base_list, priority_list = keyword_lists[0], keyword_lists[1]
