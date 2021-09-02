@@ -12,27 +12,37 @@ file:
         dot: .
     - object_name:
         start_square_bracket: '['
-        identifier: add
+        identifier: CONVERT_ISO_WEEK_TO_UNIX
         end_square_bracket: ']'
     - base:
         bracketed:
         - start_bracket: (
-        - parameter: '@add_1'
+        - parameter: '@year'
         - data_type:
-            data_type_identifier: int
+            data_type_identifier: INT
         - comma: ','
-        - parameter: '@add_2'
+        - parameter: '@week'
         - data_type:
-            data_type_identifier: int
+            data_type_identifier: INT
         - end_bracket: )
     - keyword: RETURNS
     - data_type:
-        data_type_identifier: integer
+        data_type_identifier: BIGINT
     - keyword: AS
     - function_statement:
       - raw: BEGIN
+      - raw: DECLARE
+      - raw: '@result'
+      - raw: BIGINT
+      - raw: SET
+      - raw: '@result'
+      - raw: '='
+      - raw: '4'
       - raw: RETURN
-      - raw: '@add_1'
+      - raw: '@result'
       - raw: +
-      - raw: '@add_2'
+      - raw: '@year'
+      - raw: +
+      - raw: '@week'
       - raw: END
+      - raw: GO

@@ -1,0 +1,17 @@
+file:
+  statement:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: PROC
+    - object_name:
+        identifier: What_DB_is_this
+    - keyword: AS
+    - procedure_statement:
+      - raw: SELECT
+      - raw: DB_NAME
+      - bracketed:
+          start_bracket: (
+          end_bracket: )
+      - raw: AS
+      - raw: ThisDB
+  statement_terminator: ;

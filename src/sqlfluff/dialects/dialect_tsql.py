@@ -98,6 +98,73 @@ tsql_dialect.insert_lexer_matchers(
     before="code",
 )
 
+# Below statement or similar is required to make sqlfluff understand the different statements within a file as these are not seperated by semicolons.
+@tsql_dialect.segment(replace=True)
+class StatementSegment(BaseSegment):
+    """A generic segment, to any of its child subsegments."""
+
+    type = "statement"
+    match_grammar = OneOf(
+        Ref("SelectableGrammar"),
+        Ref("InsertStatementSegment"),
+        Ref("TransactionStatementSegment"),
+        Ref("DropStatementSegment"),
+        Ref("TruncateStatementSegment"),
+        Ref("AlterDefaultPrivilegesSegment"),
+        Ref("AccessStatementSegment"),
+        Ref("CreateTableStatementSegment"),
+        Ref("CreateTypeStatementSegment"),
+        Ref("CreateRoleStatementSegment"),
+        Ref("AlterTableStatementSegment"),
+        Ref("CreateSchemaStatementSegment"),
+        Ref("SetSchemaStatementSegment"),
+        Ref("DropSchemaStatementSegment"),
+        Ref("CreateDatabaseStatementSegment"),
+        Ref("CreateExtensionStatementSegment"),
+        Ref("CreateIndexStatementSegment"),
+        Ref("DropIndexStatementSegment"),
+        Ref("CreateViewStatementSegment"),
+        Ref("DeleteStatementSegment"),
+        Ref("UpdateStatementSegment"),
+        Ref("CreateFunctionStatementSegment"),
+        Ref("CreateModelStatementSegment"),
+        Ref("DropModelStatementSegment"),
+        Ref("DescribeStatementSegment"),
+        Ref("UseStatementSegment"),
+        Ref("ExplainStatementSegment"),
+        Ref("ExplainStatementSegment"),
+        Ref("CreateProcedureStatementSegment"),
+    )
+
+#     parse_grammar = OneOf(
+#         Ref("SelectableGrammar"),
+#         Ref("InsertStatementSegment"),
+#         Ref("TransactionStatementSegment"),
+#         Ref("DropStatementSegment"),
+#         Ref("TruncateStatementSegment"),
+#         Ref("AlterDefaultPrivilegesSegment"),
+#         Ref("AccessStatementSegment"),
+#         Ref("CreateTableStatementSegment"),
+#         Ref("CreateTypeStatementSegment"),
+#         Ref("CreateRoleStatementSegment"),
+#         Ref("AlterTableStatementSegment"),
+#         Ref("CreateSchemaStatementSegment"),
+#         Ref("SetSchemaStatementSegment"),
+#         Ref("DropSchemaStatementSegment"),
+#         Ref("CreateDatabaseStatementSegment"),
+#         Ref("CreateExtensionStatementSegment"),
+#         Ref("CreateIndexStatementSegment"),
+#         Ref("DropIndexStatementSegment"),
+#         Ref("CreateViewStatementSegment"),
+#         Ref("DeleteStatementSegment"),
+#         Ref("UpdateStatementSegment"),
+#         Ref("CreateFunctionStatementSegment"),
+#         Ref("CreateModelStatementSegment"),
+#         Ref("DropModelStatementSegment"),
+#         Ref("DescribeStatementSegment"),
+#         Ref("UseStatementSegment"),
+#         Ref("ExplainStatementSegment"),
+#     )
 
 @tsql_dialect.segment()
 class GoStatementSegment(BaseSegment):
@@ -182,8 +249,7 @@ class FunctionDefinitionGrammar(BaseSegment):
 @tsql_dialect.segment()
 class CreateProcedureStatementSegment(BaseSegment):
     """A `CREATE PROCEDURE` statement.
-
-    
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-procedure-transact-sql?view=sql-server-ver15
     """
 
     type = "create_procedure_statement"
@@ -191,19 +257,40 @@ class CreateProcedureStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "CREATE",
         Sequence("OR", "ALTER", optional=True),
-        # Ref("DefinerSegment", optional=True),
-        "PROCEDURE",
+        OneOf("PROCEDURE", "PROC"),
+        Ref("SchemaNameSegment", optional=True),
         Ref("ObjectNameSegment"),
         Ref("FunctionParameterListGrammar", optional=True),
-        Ref("FunctionDefinitionGrammar"),
+        "AS",
+        Ref("ProcedureDefinitionGrammar"),
+        Ref("GoStatementSegment", optional=True),
     )
 
 
-# @tsql_dialect.segment()
-# class FunctionReturnGrammar(BaseSegment):
-#     """This is the body of a `CREATE FUNCTION AS` statement."""
-#     type = "function_return_statement"
-#     name = "function_return_statement"
-#     match_grammar = Sequence(        
-#         Anything()        
-#     )
+@tsql_dialect.segment()
+class ProcedureDefinitionGrammar(BaseSegment):
+    """This is the body of a `CREATE OR ALTER PROCEDURE AS` statement."""
+    type = "procedure_statement"
+    name = "procedure_statement"
+
+    match_grammar = Sequence(        
+        Anything()
+    )
+
+@tsql_dialect.segment(replace=True)
+class CreateViewStatementSegment(BaseSegment):
+    """A `CREATE VIEW` statement."""
+
+    type = "create_view_statement"
+    # https://docs.microsoft.com/en-us/sql/t-sql/statements/create-view-transact-sql?view=sql-server-ver15#examples
+    match_grammar = Sequence(
+        "CREATE",
+        Sequence("OR", "ALTER", optional=True),
+        "VIEW",
+        Ref("SchemaNameSegment", optional=True),
+        Ref("ObjectNameSegment"),
+        "AS",
+        Ref("SelectableGrammar"),
+        Ref("GoStatementSegment", optional=True),
+        
+    )

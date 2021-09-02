@@ -3,4 +3,3 @@ AS
 BEGIN
 	RETURN @add_1 + @add_2
 END
-	

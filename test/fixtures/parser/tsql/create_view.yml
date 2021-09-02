@@ -1,0 +1,76 @@
+file:
+  statement:
+    create_view_statement:
+    - keyword: CREATE
+    - binary_operator: OR
+    - keyword: ALTER
+    - keyword: VIEW
+    - schema_name:
+        identifier: Sales
+        dot: .
+    - object_name:
+        identifier: SalesPersonPerform
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: TOP
+              bracketed:
+                start_bracket: (
+                expression:
+                  literal: '100'
+                end_bracket: )
+            alias_expression:
+              identifier: SalesPersonID
+        - comma: ','
+        - select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: SUM
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    identifier: TotalDue
+                end_bracket: )
+            alias_expression:
+              keyword: AS
+              identifier: TotalSales
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - identifier: Sales
+                - dot: .
+                - identifier: SalesOrderHeader
+        where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+              identifier: OrderDate
+            comparison_operator: '>'
+            function:
+              function_name:
+                function_name_identifier: CONVERT
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    identifier: DATETIME
+              - comma: ','
+              - expression:
+                  literal: "'20001231'"
+              - comma: ','
+              - expression:
+                  literal: '101'
+              - end_bracket: )
+        groupby_clause:
+        - keyword: GROUP
+        - keyword: BY
+        - column_reference:
+            identifier: SalesPersonID

@@ -1,8 +1,9 @@
 CREATE OR ALTER FUNCTION [dbo].[CONVERT_ISO_WEEK_TO_UNIX] (@year INT, @week INT)
 RETURNS BIGINT
-AS BEGIN
-    DECLARE @result BIGINT
-    set @result=[dbo].[CONVERT_DATETIME_TO_UNIX]([dbo].[CONVERT_ISO_WEEK_TO_DATETIME](@year, @week))
-    RETURN @result
-END
+AS
+    BEGIN
+        DECLARE @result BIGINT
+        SET @result=4
+        RETURN @result + @year + @week
+    END
 GO
