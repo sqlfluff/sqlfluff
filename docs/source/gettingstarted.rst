@@ -90,7 +90,7 @@ You can then run :code:`sqlfluff lint test.sql` to lint this file.
     L:   1 | P:   9 | L006 | Missing whitespace after +
     L:   1 | P:  11 | L039 | Unnecessary whitespace found.
     L:   2 | P:   1 | L003 | Indent expected and not found compared to line #1
-    L:   2 | P:  10 | L010 | Keywords not consistently upper case.
+    L:   2 | P:  10 | L010 | Keywords must be consistently upper case.
     L:   2 | P:  15 | L009 | Files must end with a trailing newline.
 
 You'll see that *SQLFluff* has failed the linting check for this file.
