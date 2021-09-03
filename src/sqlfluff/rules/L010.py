@@ -156,23 +156,8 @@ class Rule_L010(BaseRule):
             )
             return LintResult(memory=memory)
         else:
-
             # build description based on the policy in use
-            if cap_policy == "consistent":
-                consistency = "consistently "
-
-            if concrete_policy in ["upper", "lower"]:
-                policy = f"{concrete_policy} case."
-            elif concrete_policy == "capitalise":
-                policy = "capitalised."
-            elif concrete_policy == "pascal":
-                policy = "pascal case."
-
-            # build description based on the policy in use
-            if cap_policy == "consistent":
-                consistency = "consistently "
-            else:
-                consistency = ""
+            consistency = "consistently " if cap_policy == "consistent" else ""
 
             if concrete_policy in ["upper", "lower"]:
                 policy = f"{concrete_policy} case."
