@@ -2326,37 +2326,6 @@ class DropIndexStatementSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
-class AlterDefaultPrivilegesSegment(BaseSegment):
-    """Postgres `ALTER DEFAULT PRIVILEGES` statement.
-
-    ```
-    ALTER DEFAULT PRIVILEGES
-    [ FOR { ROLE | USER } target_role [, ...] ]
-    [ IN SCHEMA schema_name [, ...] ]
-    abbreviated_grant_or_revoke
-    ```
-    """
-
-    type = "alter_default_privileges_statement"
-
-    match_grammar = Sequence(
-        "ALTER",
-        "DEFAULT",
-        "PRIVILEGES",
-        Sequence(
-            "FOR",
-            OneOf("ROLE", "USER"),
-            Delimited(Ref("ObjectReferenceSegment")),
-            optional=True,
-        ),
-        Sequence(
-            "IN", "SCHEMA", Delimited(Ref("SchemaReferenceSegment")), optional=True
-        ),
-        Ref("AccessStatementSegment"),
-    )
-
-
-@ansi_dialect.segment()
 class AccessStatementSegment(BaseSegment):
     """A `GRANT` or `REVOKE` statement.
 
@@ -2864,7 +2833,6 @@ class StatementSegment(BaseSegment):
         Ref("TransactionStatementSegment"),
         Ref("DropStatementSegment"),
         Ref("TruncateStatementSegment"),
-        Ref("AlterDefaultPrivilegesSegment"),
         Ref("AccessStatementSegment"),
         Ref("CreateTableStatementSegment"),
         Ref("CreateTypeStatementSegment"),
