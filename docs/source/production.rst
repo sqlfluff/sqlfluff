@@ -64,7 +64,7 @@ The output will look something like:
     Diff: origin/master...HEAD, staged and unstaged changes
     -------------
     sql/audience_size_queries/constraints/_postcondition_check_gdpr_compliance.sql (0.0%):
-    sql/audience_size_queries/constraints/_postcondition_check_gdpr_compliance.sql:5: Inconsistent capitalisation of unquoted identifiers.
+    sql/audience_size_queries/constraints/_postcondition_check_gdpr_compliance.sql:5: Unquoted Identifiers must be consistently upper case.
     -------------
     Total:   1 line
     Violations: 1 line
