@@ -4,7 +4,7 @@ Most of the keywords come from https://www.postgresql.org/docs/13/sql-keywords-a
 Here, "not-keyword" refers to a word not being a keyword, and will be removed from any default keyword definition,
 these keywords are, or have been, an ANSI keyword.
 
-There are also some keywords that are(n't) supported as types and function, but htere isn't support for that
+There are also some keywords that are(n't) supported as types and function, but there isn't support for that
 distinction at present.
 """
 
