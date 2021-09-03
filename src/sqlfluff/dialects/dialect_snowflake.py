@@ -35,9 +35,9 @@ snowflake_dialect = ansi_dialect.copy_as("snowflake")
 
 
 # These are Reserved Keywords in Snowflake so move them
+snowflake_dialect.sets("unreserved_keywords").remove("ILIKE")
 snowflake_dialect.sets("unreserved_keywords").remove("INCREMENT")
 snowflake_dialect.sets("unreserved_keywords").remove("MINUS")
-snowflake_dialect.sets("unreserved_keywords").remove("ILIKE")
 snowflake_dialect.sets("unreserved_keywords").remove("QUALIFY")
 snowflake_dialect.sets("unreserved_keywords").remove("REGEXP")
 snowflake_dialect.sets("unreserved_keywords").remove("RLIKE")
@@ -47,9 +47,10 @@ snowflake_dialect.sets("unreserved_keywords").remove("TABLESAMPLE")
 # Add above along with the
 snowflake_dialect.sets("reserved_keywords").update(
     [
+        "ILIKE",
         "INCREMENT",
         "MINUS",
-        "ILIKE",
+        "PIVOT",
         "QUALIFY",
         "REGEXP",
         "RLIKE",
@@ -85,7 +86,6 @@ snowflake_dialect.sets("unreserved_keywords").update(
         "PATTERN",
         "PIPE",
         "PIPES",
-        "PIVOT",
         "POLICY",
         "QUERIES",
         "REGIONS",
@@ -458,7 +458,8 @@ class CallStoredProcedureSegment(BaseSegment):
 class WithinGroupClauseSegment(BaseSegment):
     """An WITHIN GROUP clause for window functions.
 
-    https://www.postgresql.org/docs/current/functions-aggregate.html.
+    https://docs.snowflake.com/en/sql-reference/functions/listagg.html.
+    https://docs.snowflake.com/en/sql-reference/functions/array_agg.html.
     """
 
     type = "withingroup_clause"
