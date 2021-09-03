@@ -55,3 +55,4 @@ class Rule_L040(Rule_L010):
         ("name", "null_literal"),
         ("name", "boolean_literal"),
     ]
+    _description_elem = "Boolean/null literals"
