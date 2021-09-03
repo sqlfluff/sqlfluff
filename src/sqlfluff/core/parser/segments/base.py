@@ -132,7 +132,9 @@ class BaseSegment:
         )
 
     def __hash__(self):
-        return hash((self.__class__.__name__, self.raw, self.pos_marker.source_position()))
+        return hash(
+            (self.__class__.__name__, self.raw, self.pos_marker.source_position())
+        )
 
     def __repr__(self):
         return f"<{self.__class__.__name__}: ({self.pos_marker})>"
