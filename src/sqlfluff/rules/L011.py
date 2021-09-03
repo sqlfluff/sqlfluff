@@ -45,21 +45,17 @@ class Rule_L011(BaseRule):
             if parent_stack[-1].is_type(*self._target_elems):
                 if not any(e.name.lower() == "as" for e in segment.segments):
                     insert_buff = []
-                    insert_str = ""
 
                     # Add initial whitespace if we need to...
                     if raw_stack[-1].name not in ["whitespace", "newline"]:
                         insert_buff.append(WhitespaceSegment())
-                        insert_str += " "
 
                     # Add an AS (Uppercase for now, but could be corrected later)
                     insert_buff.append(KeywordSegment("AS"))
-                    insert_str += "AS"
 
                     # Add a trailing whitespace if we need to
                     if segment.segments[0].name not in ["whitespace", "newline"]:
                         insert_buff.append(WhitespaceSegment())
-                        insert_str += " "
 
                     return LintResult(
                         anchor=segment,
