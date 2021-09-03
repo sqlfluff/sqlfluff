@@ -583,7 +583,7 @@ def test__cli__command_lint_serialize_github_annotation():
                 "test/fixtures/linter/identifier_capitalisation.sql"
             ),
             "line": 3,
-            "message": "L014: Inconsistent capitalisation of unquoted identifiers.",
+            "message": "L014: Unquoted identifiers must be consistently lower case.",
             "start_column": 5,
             "end_column": 5,
             "title": "SQLFluff",
@@ -595,7 +595,7 @@ def test__cli__command_lint_serialize_github_annotation():
                 "test/fixtures/linter/identifier_capitalisation.sql"
             ),
             "line": 4,
-            "message": "L010: Inconsistent capitalisation of keywords.",
+            "message": "L010: Keywords must be consistently lower case.",
             "start_column": 1,
             "end_column": 1,
             "title": "SQLFluff",
@@ -607,7 +607,7 @@ def test__cli__command_lint_serialize_github_annotation():
                 "test/fixtures/linter/identifier_capitalisation.sql"
             ),
             "line": 4,
-            "message": "L014: Inconsistent capitalisation of unquoted identifiers.",
+            "message": "L014: Unquoted identifiers must be consistently lower case.",
             "start_column": 12,
             "end_column": 12,
             "title": "SQLFluff",
@@ -619,7 +619,7 @@ def test__cli__command_lint_serialize_github_annotation():
                 "test/fixtures/linter/identifier_capitalisation.sql"
             ),
             "line": 4,
-            "message": "L014: Inconsistent capitalisation of unquoted identifiers.",
+            "message": "L014: Unquoted identifiers must be consistently lower case.",
             "start_column": 18,
             "end_column": 18,
             "title": "SQLFluff",
