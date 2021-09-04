@@ -210,7 +210,7 @@ being indented, in which case above SQL would become:
 
 By default, *SQLFluff* aims to follow the indentation most common approach
 to indentation. However, if you have other versions of indentation which are
-supported by published style guides, then please submit an issue on github
+supported by published style guides, then please submit an issue on GitHub
 to have that variation supported by *SQLFluff*.
 
 .. _`Fishtown SQL style guide`: https://github.com/fishtown-analytics/corp/blob/master/dbt_coding_conventions.md#sql-style-guide

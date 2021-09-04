@@ -84,11 +84,11 @@ html_theme_options = {
     "touch_icon": "images/sqlfluff-sm2-sq.png",
     "github_user": "sqlfluff",
     "github_repo": "sqlfluff",
-    # Github Fork button
+    # GitHub Fork button
     "github_banner": True,
-    # Github star button
+    # GitHub star button
     "github_type": "star",
-    # Use `"true"` instead of `True` for counting github star, see https://ghbtns.com for details
+    # Use `"true"` instead of `True` for counting GitHub star, see https://ghbtns.com for details
     "github_count": "true",
     # Codecov button
     "codecov_button": True,

@@ -6,7 +6,7 @@
 of this guide and also our [code of conduct](CODE_OF_CONDUCT.md).
 
 :star2: **Third** - the best way to get started contributing, is to use the
-tool in anger and then to submit bugs and features through github.
+tool in anger and then to submit bugs and features through GitHub.
 In particular, in helping to develop the parser, examples of queries
 which don't parse as expected are especially helpful.
 
@@ -43,7 +43,7 @@ that's actually useful for the community.
   incompatible changes. As some of these features may require significant
   coordination, discussion or development work, there is a process for each
   major release to work out what features will fit into that release.
-  - Each major release will have its own github issue. For example the link
+  - Each major release will have its own GitHub issue. For example the link
     to the issue for [0.6.0 is here](https://github.com/sqlfluff/sqlfluff/issues/922).
   - Features or issues are organised into a _shortlist_. During the initial
     discussion for the release, each feature is vetted for enough clarity
@@ -142,9 +142,9 @@ python setup.py develop
 
 New versions of SQLFluff will be published to PyPI automatically via 
 [github actions](.github/workflows/publish-release-to-pypi.yaml) 
-whenever a new release is published to github. 
+whenever a new release is published to GitHub.
 
-A new release can published with a tag in github by navigating to the 
+A new release can be published with a tag in GitHub by navigating to the
 [releases page](https://github.com/sqlfluff/sqlfluff/releases) and a Draft release should
 already exist with merged Pull Requests automatically added since the last release.
 Copy the text from the draft release into a new, version-numbered section of the [CHANGELOG.md](CHANGELOG.md) file and update the

@@ -274,8 +274,8 @@ From here, there are several more things to explore.
 One last thing to note is that *SQLFluff* is a relatively new project
 and you may find bugs or strange things while using it. If you do find
 anything, the most useful thing you can do is to `post the issue on
-github`_ where the maintainers of the project can work out what to do with
+GitHub`_ where the maintainers of the project can work out what to do with
 it. The project is in active development and so updates and fixes may
 come out regularly.
 
-.. _`post the issue on github`: https://github.com/sqlfluff/sqlfluff/issues
+.. _`post the issue on GitHub`: https://github.com/sqlfluff/sqlfluff/issues
