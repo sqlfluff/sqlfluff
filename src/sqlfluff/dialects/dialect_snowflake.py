@@ -1617,3 +1617,45 @@ class MergeInsertClauseSegment(BaseSegment):
         ),
         Ref("WhereClauseSegment", optional=True),
     )
+
+
+@snowflake_dialect.segment(replace=True)
+class DeleteStatementSegment(ansi_dialect.get_segment("DeleteStatementSegment")):  # type: ignore
+    """Update `DELETE` statement to support `USING`."""
+
+    parse_grammar = Sequence(
+        "DELETE",
+        Ref("FromClauseTerminatingUsingWhereSegment"),
+        Ref("DeleteUsingClauseSegment", optional=True),
+        Ref("WhereClauseSegment", optional=True),
+    )
+
+
+@snowflake_dialect.segment()
+class DeleteUsingClauseSegment(BaseSegment):
+    """`USING` clause within the `DELETE` statement."""
+
+    type = "using_clause"
+    match_grammar = StartsWith(
+        "USING",
+        terminator=Ref.keyword("WHERE"),
+        enforce_whitespace_preceeding_terminator=True,
+    )
+    parse_grammar = Sequence(
+        "USING",
+        Delimited(
+            Ref("FromExpressionElementSegment"),
+        ),
+        Ref("AliasExpressionSegment", optional=True),
+    )
+
+
+@snowflake_dialect.segment()
+class FromClauseTerminatingUsingWhereSegment(ansi_dialect.get_segment("FromClauseSegment")):  # type: ignore
+    """Copy `FROM` terminator statement to support `USING` in specific circumstances."""
+
+    match_grammar = StartsWith(
+        "FROM",
+        terminator=OneOf(Ref.keyword("USING"), Ref.keyword("WHERE")),
+        enforce_whitespace_preceeding_terminator=True,
+    )
