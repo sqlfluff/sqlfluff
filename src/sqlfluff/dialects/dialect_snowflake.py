@@ -101,6 +101,7 @@ snowflake_dialect.sets("unreserved_keywords").update(
         "UNPIVOT",
         "UNSET",
         "TABULAR",
+        "USER",
     ]
 )
 
@@ -112,6 +113,7 @@ snowflake_dialect.patch_lexer_matchers(
     ]
 )
 
+snowflake_dialect.sets("reserved_keywords").discard("USER")
 
 snowflake_dialect.insert_lexer_matchers(
     [
