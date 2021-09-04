@@ -25,8 +25,7 @@ are always welcome. Bear in mind that all the tests should pass, and test
 coverage should not decrease unduly as part of the changes which you make.
 You may find it useful to familiarise yourself with the
 [architectural principles here](https://docs.sqlfluff.com/en/latest/architecture.html)
-and with the [current documentation here](https://docs.sqlfluff.com). Lastly, please
-document your contributions in the `CHANGELOG.md`.
+and with the [current documentation here](https://docs.sqlfluff.com).
 
 ## How the community works
 
