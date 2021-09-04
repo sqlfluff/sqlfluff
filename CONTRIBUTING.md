@@ -158,8 +158,8 @@ version as a part of the tag and have described the changes accordingly.
 
 ### Manually
 
-If for some reason the package needs to be submitted to pypi manually, we use `twine`.
-You'll need to be an admin to actually submit this to pypi and you'll need a properly 
+If for some reason the package needs to be submitted to PyPI manually, we use `twine`.
+You'll need to be an admin to actually submit this to PyPI, and you'll need a properly
 formatted `.pypirc` file. If you've managed all that then you can run:
 
 ```shell
@@ -167,4 +167,4 @@ python setup.py sdist
 twine upload dist/*
 ```
 
-... and the most recent version will be uploaded to pypi.
+... and the most recent version will be uploaded to PyPI.
