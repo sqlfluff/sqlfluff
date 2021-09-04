@@ -1,0 +1,237 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 81336bfdb038d0d45b0fe172dead75507be3beff2bb7997fe185125fe10ec793
+file:
+- statement:
+    comment_on_statement:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: TABLE
+    - table_reference:
+        identifier: mytable
+    - keyword: IS
+    - literal: "'This is my table.'"
+- statement_terminator: ;
+- statement:
+    comment_on_statement:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: TABLE
+    - table_reference:
+        identifier: mytable
+    - keyword: IS
+    - keyword: 'NULL'
+- statement_terminator: ;
+- statement:
+    comment_on_statement:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: COLLATION
+    - object_reference:
+        identifier: '"fr_CA"'
+    - keyword: IS
+    - literal: "'Canadian French'"
+- statement_terminator: ;
+- statement:
+    comment_on_statement:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: COLUMN
+    - column_reference:
+      - identifier: my_table
+      - dot: .
+      - identifier: my_column
+    - keyword: IS
+    - literal: "'Employee ID number'"
+- statement_terminator: ;
+- statement:
+    comment_on_statement:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: CONVERSION
+    - object_reference:
+        identifier: my_conv
+    - keyword: IS
+    - literal: "'Conversion to UTF8'"
+- statement_terminator: ;
+- statement:
+    comment_on_statement:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: DATABASE
+    - database_reference:
+        identifier: my_database
+    - keyword: IS
+    - literal: "'Development Database'"
+- statement_terminator: ;
+- statement:
+    comment_on_statement:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: DOMAIN
+    - object_reference:
+        identifier: my_domain
+    - keyword: IS
+    - literal: "'Email Address Domain'"
+- statement_terminator: ;
+- statement:
+    comment_on_statement:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: EXTENSION
+    - extension_reference:
+        identifier: hstore
+    - keyword: IS
+    - literal: "'implements the hstore data type'"
+- statement_terminator: ;
+- statement:
+    comment_on_statement:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: my_function
+    - base:
+        bracketed:
+          start_bracket: (
+          data_type:
+            keyword: timestamp
+          end_bracket: )
+    - keyword: IS
+    - literal: "'Returns Roman Numeral'"
+- statement_terminator: ;
+- statement:
+    comment_on_statement:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: INDEX
+    - index_reference:
+        identifier: my_index
+    - keyword: IS
+    - literal: "'Enforces uniqueness on employee ID'"
+- statement_terminator: ;
+- statement:
+    comment_on_statement:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: LANGUAGE
+    - object_reference:
+        identifier: plpython
+    - keyword: IS
+    - literal: "'Python support for stored procedures'"
+- statement_terminator: ;
+- statement:
+    comment_on_statement:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: PUBLICATION
+    - object_reference:
+        identifier: alltables
+    - keyword: IS
+    - literal: "'Publishes all operations on all tables'"
+- statement_terminator: ;
+- statement:
+    comment_on_statement:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: ROLE
+    - object_reference:
+        identifier: my_role
+    - keyword: IS
+    - literal: "'Administration group for finance tables'"
+- statement_terminator: ;
+- statement:
+    comment_on_statement:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: SCHEMA
+    - schema_reference:
+        identifier: my_schema
+    - keyword: IS
+    - literal: "'Departmental data'"
+- statement_terminator: ;
+- statement:
+    comment_on_statement:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: SEQUENCE
+    - object_reference:
+        identifier: my_sequence
+    - keyword: IS
+    - literal: "'Used to generate primary keys'"
+- statement_terminator: ;
+- statement:
+    comment_on_statement:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: SERVER
+    - object_reference:
+        identifier: myserver
+    - keyword: IS
+    - literal: "'my foreign server'"
+- statement_terminator: ;
+- statement:
+    comment_on_statement:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: STATISTICS
+    - object_reference:
+        identifier: my_statistics
+    - keyword: IS
+    - literal: "'Improves planner row estimations'"
+- statement_terminator: ;
+- statement:
+    comment_on_statement:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: SUBSCRIPTION
+    - object_reference:
+        identifier: alltables
+    - keyword: IS
+    - literal: "'Subscription for all operations on all tables'"
+- statement_terminator: ;
+- statement:
+    comment_on_statement:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: TABLE
+    - table_reference:
+      - identifier: my_schema
+      - dot: .
+      - identifier: my_table
+    - keyword: IS
+    - literal: "'Employee Information'"
+- statement_terminator: ;
+- statement:
+    comment_on_statement:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: TABLESPACE
+    - object_reference:
+        identifier: my_tablespace
+    - keyword: IS
+    - literal: "'Tablespace for indexes'"
+- statement_terminator: ;
+- statement:
+    comment_on_statement:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: TYPE
+    - object_reference:
+        identifier: complex
+    - keyword: IS
+    - literal: "'Complex number data type'"
+- statement_terminator: ;
+- statement:
+    comment_on_statement:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: VIEW
+    - table_reference:
+        identifier: my_view
+    - keyword: IS
+    - literal: "'View of departmental costs'"
+- statement_terminator: ;

@@ -13,6 +13,7 @@ from sqlfluff.core.parser import (
     CodeSegment,
     NamedParser,
     SymbolSegment,
+    StartsWith,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -1000,6 +1001,79 @@ class AlterDefaultPrivilegesRevokeSegment(BaseSegment):
     )
 
 
+@postgres_dialect.segment()
+class CommentOnStatementSegment(BaseSegment):
+    """`COMMENT ON` statement.
+
+    https://www.postgresql.org/docs/13/sql-comment.html
+    """
+
+    type = "comment_on_statement"
+
+    match_grammar = StartsWith(Sequence("COMMENT", "ON"))
+    parse_grammar = Sequence(
+        "COMMENT",
+        "ON",
+        Sequence(
+            OneOf(
+                Sequence(
+                    OneOf(
+                        "TABLE",
+                        # TODO: Create a ViewReferenceSegment
+                        "VIEW",
+                    ),
+                    Ref("TableReferenceSegment"),
+                ),
+                Sequence(
+                    "COLUMN",
+                    # TODO: Does this correctly emit a Table Reference?
+                    Ref("ColumnReferenceSegment"),
+                ),
+                Sequence(
+                    "DATABASE",
+                    Ref("DatabaseReferenceSegment"),
+                ),
+                Sequence(
+                    "EXTENSION",
+                    Ref("ExtensionReferenceSegment"),
+                ),
+                Sequence(
+                    "FUNCTION",
+                    Ref("FunctionNameSegment"),
+                    Ref("FunctionParameterListGrammar"),
+                ),
+                Sequence(
+                    "INDEX",
+                    Ref("IndexReferenceSegment"),
+                ),
+                Sequence(
+                    "SCHEMA",
+                    Ref("SchemaReferenceSegment"),
+                ),
+                # TODO: Split out individual items if they have references
+                Sequence(
+                    OneOf(
+                        "COLLATION",
+                        "CONVERSION",
+                        "DOMAIN",
+                        "LANGUAGE",
+                        "PUBLICATION",
+                        "ROLE",
+                        "SEQUENCE",
+                        "SERVER",
+                        "STATISTICS",
+                        "SUBSCRIPTION",
+                        "TABLESPACE",
+                        "TYPE",
+                    ),
+                    Ref("ObjectReferenceSegment"),
+                ),
+            ),
+            Sequence("IS", OneOf(Ref("QuotedLiteralSegment"), "NULL")),
+        ),
+    )
+
+
 # Adding PostgreSQL specific statements
 @postgres_dialect.segment(replace=True)
 class StatementSegment(BaseSegment):
@@ -1010,6 +1084,7 @@ class StatementSegment(BaseSegment):
     parse_grammar = ansi_dialect.get_segment("StatementSegment").parse_grammar.copy(
         insert=[
             Ref("AlterDefaultPrivilegesStatementSegment"),
+            Ref("CommentOnStatementSegment"),
         ],
     )
 
