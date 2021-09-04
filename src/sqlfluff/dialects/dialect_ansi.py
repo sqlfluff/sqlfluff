@@ -2481,6 +2481,7 @@ class AccessStatementSegment(BaseSegment):
                     _objects,
                 ),
                 Sequence("ROLE", Ref("ObjectReferenceSegment")),
+                Sequence("OWNERSHIP", "ON", "USER", Ref("ObjectReferenceSegment")),
                 # In the case where a role is granted non-explicitly,
                 # e.g. GRANT ROLE_NAME TO OTHER_ROLE_NAME
                 # See https://www.postgresql.org/docs/current/sql-grant.html
@@ -2490,6 +2491,7 @@ class AccessStatementSegment(BaseSegment):
             OneOf("GROUP", "USER", "ROLE", "SHARE", optional=True),
             OneOf(
                 Ref("ObjectReferenceSegment"),
+                Ref("FunctionSegment"),
                 "PUBLIC",
             ),
             OneOf(
@@ -2523,6 +2525,7 @@ class AccessStatementSegment(BaseSegment):
                     _objects,
                 ),
                 Sequence("ROLE", Ref("ObjectReferenceSegment")),
+                Sequence("OWNERSHIP", "ON", "USER", Ref("ObjectReferenceSegment")),
             ),
             "FROM",
             OneOf("GROUP", "USER", "ROLE", "SHARE", optional=True),
