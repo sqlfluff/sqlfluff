@@ -10,7 +10,7 @@ tool in anger and then to submit bugs and features through GitHub.
 In particular, in helping to develop the parser, examples of queries
 which don't parse as expected are especially helpful.
 
-:star2: **Fourth** - making sure that our documentation is up to date and useful
+:star2: **Fourth** - making sure that our documentation is up-to-date and useful
 for new users is really important. If you're a new user, you're in precisely
 the best position to do this. Familiarise yourself with the tool (as per step
 2 above) and familiarise yourself with the current documentation (live version
@@ -84,7 +84,7 @@ tox
 ```
 
 This will build and test for several python versions, and also lint the project.
-Practically on a day to day basis, you might only want to lint and test for one
+Practically on a day-to-day basis, you might only want to lint and test for one
 python version, so you can always specify a particular environment. For example
 if you're developing in python 3.8 you might call...
 
@@ -152,7 +152,7 @@ Copy the text from the draft release into a new, version-numbered section of the
 Once both changes are done, open a new Pull Request for these changes.
 
 :warning: **Before creating a new release, ensure that
-[src/sqlfluff/config.ini](src/sqlfluff/config.ini) is up to date with a new version** :warning:.
+[src/sqlfluff/config.ini](src/sqlfluff/config.ini) is up-to-date with a new version** :warning:.
 If this is not done, PyPI will reject the package. Also ensure you have used that 
 version as a part of the tag and have described the changes accordingly.
 
