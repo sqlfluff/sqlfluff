@@ -35,14 +35,14 @@ snowflake_dialect = ansi_dialect.copy_as("snowflake")
 
 
 # These are Reserved Keywords in Snowflake so move them
-snowflake_dialect.sets("unreserved_keywords").remove("ILIKE")
-snowflake_dialect.sets("unreserved_keywords").remove("INCREMENT")
-snowflake_dialect.sets("unreserved_keywords").remove("MINUS")
-snowflake_dialect.sets("unreserved_keywords").remove("QUALIFY")
-snowflake_dialect.sets("unreserved_keywords").remove("REGEXP")
-snowflake_dialect.sets("unreserved_keywords").remove("RLIKE")
-snowflake_dialect.sets("unreserved_keywords").remove("SOME")
-snowflake_dialect.sets("unreserved_keywords").remove("TABLESAMPLE")
+snowflake_dialect.sets("unreserved_keywords").discard("ILIKE")
+snowflake_dialect.sets("unreserved_keywords").discard("INCREMENT")
+snowflake_dialect.sets("unreserved_keywords").discard("MINUS")
+snowflake_dialect.sets("unreserved_keywords").discard("QUALIFY")
+snowflake_dialect.sets("unreserved_keywords").discard("REGEXP")
+snowflake_dialect.sets("unreserved_keywords").discard("RLIKE")
+snowflake_dialect.sets("unreserved_keywords").discard("SOME")
+snowflake_dialect.sets("unreserved_keywords").discard("TABLESAMPLE")
 
 # Add above along with the
 snowflake_dialect.sets("reserved_keywords").update(
@@ -101,7 +101,6 @@ snowflake_dialect.sets("unreserved_keywords").update(
         "UNPIVOT",
         "UNSET",
         "TABULAR",
-        "USER",
     ]
 )
 
@@ -112,8 +111,6 @@ snowflake_dialect.patch_lexer_matchers(
         RegexLexer("single_quote", r"'([^'\\]|\\.|'')*'", CodeSegment),
     ]
 )
-
-snowflake_dialect.sets("reserved_keywords").discard("USER")
 
 snowflake_dialect.insert_lexer_matchers(
     [
