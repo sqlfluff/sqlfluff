@@ -38,7 +38,6 @@ postgres_dialect.sets("reserved_keywords").update(
     get_keywords(postgres_keywords, "reserved")
 )
 postgres_dialect.sets("unreserved_keywords").update(
-
     get_keywords(postgres_keywords, "non-reserved")
 )
 postgres_dialect.sets("reserved_keywords").difference_update(
