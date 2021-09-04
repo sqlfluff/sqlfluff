@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d9a9e6e3e056cc3dfd1a84f278ee60382c61bf1957ec2b6ebfdaf31fa1d8ca40
+_hash: 40776a3244a7816c6ea515052ba922643a91946bdbe9033bdcfa9d0b6abb77ea
 file:
 - statement:
     access_statement:
@@ -112,6 +112,36 @@ file:
     - keyword: copy
     - keyword: current
     - keyword: grants
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: ROLE
+    - object_reference:
+        identifier: ROLENAME
+    - keyword: TO
+    - keyword: ROLE
+    - function:
+        function_name:
+          function_name_identifier: IDENTIFIER
+        bracketed:
+          start_bracket: (
+          expression:
+            variable: $THIS_ROLE
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: OWNERSHIP
+    - keyword: 'ON'
+    - keyword: ROLE
+    - object_reference:
+        identifier: TEST_ROLE
+    - keyword: TO
+    - keyword: ROLE
+    - object_reference:
+        identifier: DIFFERENT_ROLE
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -226,13 +256,13 @@ file:
 - statement_terminator: ;
 - statement:
     access_statement:
-    - keyword: GRANT
+    - keyword: REVOKE
     - keyword: OWNERSHIP
     - keyword: 'ON'
     - keyword: ROLE
     - object_reference:
         identifier: TEST_ROLE
-    - keyword: TO
+    - keyword: FROM
     - keyword: ROLE
     - object_reference:
         identifier: DIFFERENT_ROLE

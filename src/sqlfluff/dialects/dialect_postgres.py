@@ -16,6 +16,7 @@ from sqlfluff.core.parser import (
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
+from sqlfluff.dialects.postgres_keywords import postgres_keywords, get_keywords
 
 ansi_dialect = load_raw_dialect("ansi")
 
@@ -33,47 +34,22 @@ postgres_dialect.insert_lexer_matchers(
     before="not_equal",
 )
 
-# https://www.postgresql.org/docs/current/sql-keywords-appendix.html
-# SPACE has special status in some SQL dialects, but not Postgres.
-postgres_dialect.sets("unreserved_keywords").remove("SPACE")
-# Reserve WITHIN (required for the WithinGroupClauseSegment)
-postgres_dialect.sets("unreserved_keywords").remove("WITHIN")
-postgres_dialect.sets("unreserved_keywords").update(
-    [
-        "WITHIN",
-        "ANALYZE",
-        "VERBOSE",
-        "COSTS",
-        "BUFFERS",
-        "FORMAT",
-        "XML",
-        "SERVER",
-        "WRAPPER",
-        "TYPES",
-    ]
+postgres_dialect.sets("reserved_keywords").update(
+    get_keywords(postgres_keywords, "reserved")
 )
-postgres_dialect.sets("reserved_keywords").update(["WITHIN", "VARIADIC", "WITH"])
+postgres_dialect.sets("unreserved_keywords").update(
+    get_keywords(postgres_keywords, "non-reserved")
+)
+postgres_dialect.sets("reserved_keywords").difference_update(
+    get_keywords(postgres_keywords, "not-keyword")
+)
+
+postgres_dialect.sets("unreserved_keywords").difference_update(
+    get_keywords(postgres_keywords, "not-keyword")
+)
+
 # Add the EPOCH datetime unit
 postgres_dialect.sets("datetime_units").update(["EPOCH"])
-
-postgres_dialect.sets("unreserved_keywords").update(
-    [
-        "COST",
-        "LEAKPROOF",
-        "PARALLEL",
-        "SUPPORT",
-        "SAFE",
-        "UNSAFE",
-        "RESTRICTED",
-        "REPLICA",
-        "ATTACH",
-        "DETACH",
-        "LOGGED",
-        "UNLOGGED",
-        "MODULUS",
-        "REMAINDER",
-    ]
-)
 
 postgres_dialect.add(
     JsonOperatorSegment=NamedParser(
@@ -641,7 +617,7 @@ class ColumnOptionSegment(BaseSegment):
             Sequence(Ref.keyword("NOT", optional=True), "NULL"),  # NOT NULL or NULL
             Sequence(
                 "CHECK",
-                Ref("ExpressionSegment"),
+                Bracketed(Ref("ExpressionSegment")),
                 Sequence("NO", "INHERIT", optional=True),
             ),
             Sequence(  # DEFAULT <value>
@@ -728,13 +704,17 @@ class TableConstraintSegment(BaseSegment):
     """
 
     type = "table_constraint_definition"
-    # Later add support for CHECK constraint, others?
-    # e.g. CONSTRAINT constraint_1 PRIMARY KEY(column_1)
+
     match_grammar = Sequence(
         Sequence(  # [ CONSTRAINT <Constraint name> ]
             "CONSTRAINT", Ref("ObjectReferenceSegment"), optional=True
         ),
         OneOf(
+            Sequence(
+                "CHECK",
+                Bracketed(Ref("ExpressionSegment")),
+                Sequence("NO", "INHERIT", optional=True),
+            ),
             Sequence(  # UNIQUE ( column_name [, ... ] )
                 "UNIQUE",
                 Ref("BracketedColumnReferenceListGrammar"),
