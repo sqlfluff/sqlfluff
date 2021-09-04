@@ -1,4 +1,25 @@
 -- Snowflake style WITHIN GROUP window functions
+with favourite_fruits as (
+
+    select column1 as name, column2 as colour from
+    (values
+        ('apple', 'green'),
+        ('unripe banana', 'green'),
+        ('kiwi', 'green'),
+        ('blueberry', 'blue'),
+        ('strawberry', 'red'),
+        ('grape', 'red')
+    )
+
+)
+
+select
+    colour,
+    listagg(name, ', ')
+        within group (order by name) as fruits
+from favourite_fruits
+group by colour;
+
 SELECT ARRAY_AGG(o_orderkey) WITHIN GROUP (ORDER BY o_orderkey ASC)
 FROM orders;
 
