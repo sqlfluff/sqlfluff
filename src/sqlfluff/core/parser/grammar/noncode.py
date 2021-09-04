@@ -19,14 +19,14 @@ class NonCodeMatcher(Matchable):
         """This element doesn't work with simple."""
         return None
 
-    def is_optional(self):
+    def is_optional(self):  # pragma: no cover TODO?
         """Not optional."""
         return False
 
     @match_wrapper(v_level=4)
     def match(self, segments, parse_context):
         """Match any starting non-code segments."""
-        if not isinstance(segments, tuple):
+        if not isinstance(segments, tuple):  # pragma: no cover
             raise TypeError("NonCodeMatcher expects a tuple.")
         idx = 0
         while idx < len(segments) and not segments[idx].is_code:

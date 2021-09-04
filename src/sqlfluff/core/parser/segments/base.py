@@ -84,21 +84,21 @@ class BaseSegment:
         self._is_expandable = None
         # Surrogate name option.
         self._surrogate_name = name
-        if len(segments) == 0:
+        if len(segments) == 0:  # pragma: no cover
             raise RuntimeError(
                 "Setting {} with a zero length segment set. This shouldn't happen.".format(
                     self.__class__
                 )
             )
 
-        if hasattr(segments, "matched_segments"):
+        if hasattr(segments, "matched_segments"):  # pragma: no cover TODO?
             # Safely extract segments from a match
             self.segments = segments.matched_segments
         elif isinstance(segments, tuple):
             self.segments = segments
         elif isinstance(segments, list):
             self.segments = tuple(segments)
-        else:
+        else:  # pragma: no cover
             raise TypeError(f"Unexpected type passed to BaseSegment: {type(segments)}")
 
         if not pos_marker:
@@ -107,7 +107,7 @@ class BaseSegment:
                 pos_marker = PositionMarker.from_child_markers(
                     *(seg.pos_marker for seg in segments)
                 )
-            else:
+            else:  # pragma: no cover
                 raise TypeError(
                     f"Unexpected type passed to BaseSegment: {type(segments)}"
                 )
@@ -147,7 +147,7 @@ class BaseSegment:
         return [seg for seg in self.segments if seg.is_type("comment")]
 
     @property
-    def _non_comments(self):
+    def _non_comments(self):  # pragma: no cover TODO?
         """Returns only the non-comment elements of this segment."""
         return [seg for seg in self.segments if not seg.is_type("comment")]
 
@@ -196,7 +196,7 @@ class BaseSegment:
         return any(seg.is_code for seg in self.segments)
 
     @cached_property
-    def is_comment(self):
+    def is_comment(self):  # pragma: no cover TODO?
         """Return True if this is entirely made of comments."""
         return all(seg.is_comment for seg in self.segments)
 
@@ -223,7 +223,7 @@ class BaseSegment:
     # ################ STATIC METHODS
 
     @staticmethod
-    def segs_to_tuple(segs, **kwargs):
+    def segs_to_tuple(segs, **kwargs):  # pragma: no cover TODO?
         """Return a tuple structure from an iterable of segments."""
         return tuple(seg.to_tuple(**kwargs) for seg in segs)
 
@@ -249,13 +249,13 @@ class BaseSegment:
                     )
                     segs += (stmt,)
                     continue
-            except Exception as err:
+            except Exception as err:  # pragma: no cover
                 parse_context.logger.error(
                     "%s has no attribute `is_expandable`. This segment appears poorly constructed.",
                     stmt,
                 )
                 raise err
-            if not hasattr(stmt, "parse"):
+            if not hasattr(stmt, "parse"):  # pragma: no cover
                 raise ValueError(
                     "{} has no method `parse`. This segment appears poorly constructed.".format(
                         stmt
@@ -306,7 +306,7 @@ class BaseSegment:
                     line_no = fwd_seg.pos_marker.working_line_no
                     line_pos = fwd_seg.pos_marker.working_line_pos
                     break
-            else:
+            else:  # pragma: no cover
                 linter_logger.warning("SEG: %r, POS: %r", segments, parent_pos)
                 raise ValueError("Unable to find working position.")
 
@@ -329,7 +329,7 @@ class BaseSegment:
                                 idx
                             ].pos_marker = fwd_seg.pos_marker.start_point_marker()
                             break
-                    else:
+                    else:  # pragma: no cover
                         raise ValueError("Unable to position new segment")
 
             # Update the working position.
@@ -361,7 +361,7 @@ class BaseSegment:
         """
         if cls.match_grammar:
             return cls.match_grammar.simple(parse_context=parse_context)
-        else:
+        else:  # pragma: no cover TODO?
             # Other segments will either override this method, or aren't
             # simple.
             return None
@@ -458,7 +458,7 @@ class BaseSegment:
                 m = cls.match_grammar.match(segments=segments, parse_context=ctx)
 
             # Calling unify here, allows the MatchResult class to do all the type checking.
-            if not isinstance(m, MatchResult):
+            if not isinstance(m, MatchResult):  # pragma: no cover
                 raise TypeError(
                     "[PD:{} MD:{}] {}.match. Result is {}, not a MatchResult!".format(
                         parse_context.parse_depth,
@@ -474,7 +474,7 @@ class BaseSegment:
                 )
             else:
                 return MatchResult.from_unmatched(segments)
-        else:
+        else:  # pragma: no cover
             raise NotImplementedError(
                 f"{cls.__name__} has no match function implemented"
             )
@@ -543,7 +543,7 @@ class BaseSegment:
         preface = self._preface(ident=ident, tabsize=tabsize)
         buff.write(preface + "\n")
         if not code_only and self.comment_seperate and len(self._comments) > 0:
-            if self._comments:
+            if self._comments:  # pragma: no cover TODO?
                 buff.write((" " * ((ident + 1) * tabsize)) + "Comments:" + "\n")
                 for seg in self._comments:
                     buff.write(
@@ -553,7 +553,7 @@ class BaseSegment:
                             code_only=code_only,
                         )
                     )
-            if self._non_comments:
+            if self._non_comments:  # pragma: no cover TODO?
                 buff.write((" " * ((ident + 1) * tabsize)) + "Code:" + "\n")
                 for seg in self._non_comments:
                     buff.write(
@@ -618,7 +618,7 @@ class BaseSegment:
         """
         return self.structural_simplify(self.to_tuple(**kwargs))
 
-    def raw_list(self):
+    def raw_list(self):  # pragma: no cover TODO?
         """Return a list of raw elements, mostly for testing or searching."""
         buff = []
         for s in self.segments:
@@ -739,7 +739,7 @@ class BaseSegment:
             res = seg.path_to(other)
             if res:
                 return [self] + res
-        return None
+        return None  # pragma: no cover
 
     def parse(self, parse_context=None, parse_grammar=None):
         """Use the parse grammar to find subsegments within this segment.
@@ -758,7 +758,7 @@ class BaseSegment:
             parse_context.blacklist.clear()
 
         # the parse_depth and recurse kwargs control how deep we will recurse for testing.
-        if not self.segments:
+        if not self.segments:  # pragma: no cover TODO?
             # This means we're a root segment, just return an unmutated self
             return self
 
@@ -781,13 +781,17 @@ class BaseSegment:
             else:
                 pre_nc = ()
                 post_nc = ()
-                if (not segments[0].is_code) and (not segments[0].is_meta):
+                if (not segments[0].is_code) and (
+                    not segments[0].is_meta
+                ):  # pragma: no cover
                     raise ValueError(
                         "Segment {} starts with non code segment: {!r}.\n{!r}".format(
                             self, segments[0].raw, segments
                         )
                     )
-                if (not segments[-1].is_code) and (not segments[-1].is_meta):
+                if (not segments[-1].is_code) and (
+                    not segments[-1].is_meta
+                ):  # pragma: no cover
                     raise ValueError(
                         "Segment {} ends with non code segment: {!r}.\n{!r}".format(
                             self, segments[-1].raw, segments
@@ -798,7 +802,7 @@ class BaseSegment:
             with parse_context.matching_segment(self.__class__.__name__) as ctx:
                 m = parse_grammar.match(segments=segments, parse_context=ctx)
 
-            if not isinstance(m, MatchResult):
+            if not isinstance(m, MatchResult):  # pragma: no cover
                 raise TypeError(
                     "[PD:{}] {}.match. Result is {}, not a MatchResult!".format(
                         parse_context.parse_depth, self.__class__.__name__, type(m)
@@ -900,7 +904,7 @@ class BaseSegment:
                             elif f.edit_type in ("edit", "create"):
                                 # We're doing a replacement (it could be a single segment or an iterable)
                                 if isinstance(f.edit, BaseSegment):
-                                    seg_buffer.append(f.edit)
+                                    seg_buffer.append(f.edit)  # pragma: no cover TODO?
                                 else:
                                     for s in f.edit:
                                         seg_buffer.append(s)
@@ -908,7 +912,7 @@ class BaseSegment:
                                 if f.edit_type == "create":
                                     # in the case of a creation, also add this segment on the end
                                     seg_buffer.append(seg)
-                            else:
+                            else:  # pragma: no cover
                                 raise ValueError(
                                     "Unexpected edit_type: {!r} in {!r}".format(
                                         f.edit_type, f
@@ -977,7 +981,7 @@ class BaseSegment:
             # It's not literal, but it's also a raw segment. If were going
             # to yield a change, we would have done it from the parent, so
             # we just abort from here.
-            return
+            return  # pragma: no cover TODO?
         else:
             # This segment isn't a literal, but has changed, we need to go deeper.
 
@@ -1056,7 +1060,7 @@ class BracketedSegment(BaseSegment):
         **kwargs,
     ):
         """Stash the bracket segments for later."""
-        if not start_bracket or not end_bracket:
+        if not start_bracket or not end_bracket:  # pragma: no cover
             raise ValueError(
                 "Attempted to construct Bracketed segment without specifying brackets."
             )

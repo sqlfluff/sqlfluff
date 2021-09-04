@@ -86,26 +86,26 @@ tox
 This will build and test for several python versions, and also lint the project.
 Practically on a day to day basis, you might only want to lint and test for one
 python version, so you can always specify a particular environment. For example
-if you're developing in python 3.6 you might call...
+if you're developing in python 3.8 you might call...
 
 ```shell
-tox -e generate-fixture-yml,py36,linting
+tox -e generate-fixture-yml,py38,linting
 ```
 
 ...or if you also want to see the coverage reporting...
 
 ```shell
-tox -e generate-fixture-yml,cov-init,py36,cov-report,linting
+tox -e generate-fixture-yml,cov-init,py38,cov-report,linting
 ```
 
 > NB: The `cov-init` task clears the previous test results, the `py36` environment
-> generates the results for tests in that python version and the `cov-report` environment
-> actually reports those results out to you.
+> generates the results for tests in that python version and the `cov-report-nobt`
+> environment actually reports those results out to you (excluding dbt).
 
 To run the dbt-related tests you will have to explicitly include these tests:
 
 ```shell
-tox -e dbt018-py38 -- -m "dbt"
+tox -e cov-init,dbt018-py38,cov-report-dbt -- -m "dbt"
 ```
 
 For more information on adding and running test cases see the [Parser Test README](test/fixtures/parser/README.md) and the [Rules Test README](test/fixtures/rules/std_rule_cases/README.md).

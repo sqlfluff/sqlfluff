@@ -42,7 +42,7 @@ class DbtTemplater(JinjaTemplater):
         self._sequential_fails = 0
         super().__init__(**kwargs)
 
-    def config_pairs(self):
+    def config_pairs(self):  # pragma: no cover TODO?
         """Returns info about the given templater for output by the cli."""
         return [("templater", self.name), ("dbt", self.dbt_version)]
 
@@ -104,7 +104,7 @@ class DbtTemplater(JinjaTemplater):
 
         if self.dbt_version_tuple <= (0, 19):
 
-            if self.dbt_version_tuple == (0, 17):
+            if self.dbt_version_tuple == (0, 17):  # pragma: no cover TODO?
                 # dbt version 0.17.*
                 from dbt.parser.manifest import (
                     load_internal_manifest as load_macro_manifest,
@@ -134,12 +134,12 @@ class DbtTemplater(JinjaTemplater):
     @cached_property
     def dbt_selector_method(self):
         """Loads the dbt selector method."""
-        if self.formatter:
+        if self.formatter:  # pragma: no cover TODO?
             self.formatter.dispatch_compilation_header(
                 "dbt templater", "Compiling dbt project..."
             )
 
-        if "0.17" in self.dbt_version:
+        if "0.17" in self.dbt_version:  # pragma: no cover TODO?
             from dbt.graph.selector import PathSelector
 
             self.dbt_selector_method = PathSelector(self.dbt_manifest)
@@ -156,7 +156,7 @@ class DbtTemplater(JinjaTemplater):
                 DbtMethodName.Path, method_arguments=[]
             )
 
-        if self.formatter:
+        if self.formatter:  # pragma: no cover TODO?
             self.formatter.dispatch_compilation_header(
                 "dbt templater", "Project Compiled."
             )
@@ -220,7 +220,7 @@ class DbtTemplater(JinjaTemplater):
     def _check_dbt_installed():
         try:
             import dbt  # noqa: F401
-        except ModuleNotFoundError as e:
+        except ModuleNotFoundError as e:  # pragma: no cover TODO?
             raise ModuleNotFoundError(
                 "Module dbt was not found while trying to use dbt templating, "
                 "please install dbt dependencies through `pip install sqlfluff[dbt]`"
@@ -276,21 +276,21 @@ class DbtTemplater(JinjaTemplater):
                 )
             ]
         # If a SQLFluff error is raised, just pass it through
-        except SQLTemplaterError as e:
+        except SQLTemplaterError as e:  # pragma: no cover
             return None, [e]
         finally:
             os.chdir(self.working_dir)
 
     def _unsafe_process(self, fname, in_str=None, config=None):
-        if not config:
+        if not config:  # pragma: no cover
             raise ValueError(
                 "For the dbt templater, the `process()` method requires a config object."
             )
-        if not fname:
+        if not fname:  # pragma: no cover
             raise ValueError(
                 "For the dbt templater, the `process()` method requires a file name"
             )
-        elif fname == "stdin":
+        elif fname == "stdin":  # pragma: no cover
             raise ValueError(
                 "The dbt templater does not support stdin input, provide a path instead"
             )
@@ -310,7 +310,9 @@ class DbtTemplater(JinjaTemplater):
                 raise SQLTemplaterSkipFile(
                     f"Skipped file {fname} because the model was disabled"
                 )
-            raise RuntimeError("File %s was not found in dbt project" % fname)
+            raise RuntimeError(
+                "File %s was not found in dbt project" % fname
+            )  # pragma: no cover
 
         node = self.dbt_compiler.compile_node(
             node=results[0],
@@ -325,7 +327,7 @@ class DbtTemplater(JinjaTemplater):
         else:
             compiled_sql = node.compiled_sql
 
-        if not compiled_sql:
+        if not compiled_sql:  # pragma: no cover
             raise SQLTemplaterError(
                 "dbt templater compilation failed silently, check your configuration "
                 "by running `dbt compile` directly."

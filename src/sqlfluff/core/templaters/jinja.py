@@ -55,7 +55,7 @@ class JinjaTemplater(PythonTemplater):
     def _extract_macros_from_path(cls, path, env, ctx):
         """Take a path and extract macros from it."""
         # Does the path exist? It should as this check was done on config load.
-        if not os.path.exists(path):
+        if not os.path.exists(path):  # pragma: no cover
             raise ValueError(f"Path does not exist: {path}")
 
         macro_ctx = {}
@@ -86,7 +86,7 @@ class JinjaTemplater(PythonTemplater):
             loaded_context = (
                 config.get_section((self.templater_selector, self.name, "macros")) or {}
             )
-        else:
+        else:  # pragma: no cover TODO?
             loaded_context = {}
 
         # Iterate to load macros
@@ -132,7 +132,7 @@ class JinjaTemplater(PythonTemplater):
             schema = "this_schema"
             database = "this_database"
 
-            def __str__(self):
+            def __str__(self):  # pragma: no cover TODO?
                 return self.name
 
         dbt_builtins = {
@@ -195,7 +195,7 @@ class JinjaTemplater(PythonTemplater):
             formatter (:obj:`CallbackFormatter`): Optional object for output.
 
         """
-        if not config:
+        if not config:  # pragma: no cover
             raise ValueError(
                 "For the jinja templater, the `process()` method requires a config object."
             )
@@ -259,7 +259,7 @@ class JinjaTemplater(PythonTemplater):
         try:
             syntax_tree = env.parse(in_str)
             undefined_variables = meta.find_undeclared_variables(syntax_tree)
-        except Exception as err:
+        except Exception as err:  # pragma: no cover
             # TODO: Add a url here so people can get more help.
             raise SQLTemplaterError(f"Failure in identifying Jinja variables: {err}.")
 
