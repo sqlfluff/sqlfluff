@@ -76,6 +76,7 @@ snowflake_dialect.sets("unreserved_keywords").update(
         "TERSE",
         "UNSET",
         "TABULAR",
+        "USER",
     ]
 )
 
@@ -92,6 +93,7 @@ snowflake_dialect.sets("reserved_keywords").update(
     ]
 )
 
+snowflake_dialect.sets("reserved_keywords").discard("USER")
 
 snowflake_dialect.add(
     # In snowflake, these are case sensitive even though they're not quoted
