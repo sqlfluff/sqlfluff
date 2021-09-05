@@ -9,6 +9,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfluff/sqlfluff/releases) and will be copied in here on each release. There is no need to manually edit this file going forward.
 -->
 
+## [0.6.5] - 2021-09-05
+
+### What's Changed
+
+* Minor grammar corrections to documentation [#1355](https://github.com/sqlfluff/sqlfluff/pull/1355) @miketheman
+* Pytest coverage exceptions to get us to 100% coverage! [#1346](https://github.com/sqlfluff/sqlfluff/pull/1346) @tunetheweb
+* Greatly improved Snowflake syntax support [#1353](https://github.com/sqlfluff/sqlfluff/pull/1353) @tunetheweb
+* Postgres keyword support [#1347](https://github.com/sqlfluff/sqlfluff/pull/1347) @WittierDinosaur
+* Added full support for postgres's ALTER DEFAULT PRIVILEGES. [#1350](https://github.com/sqlfluff/sqlfluff/pull/1350) @creste
+* Show all LintResult in Rule_L020 [#1348](https://github.com/sqlfluff/sqlfluff/pull/1348) @zhongjiajie
+* Enhance error message L010 base on configure [#1351](https://github.com/sqlfluff/sqlfluff/pull/1351) @zhongjiajie
+* Remove unused variable insert_str [#1352](https://github.com/sqlfluff/sqlfluff/pull/1352) @zhongjiajie
+* Pytest coverage exceptions for Core code - part 1 [#1343](https://github.com/sqlfluff/sqlfluff/pull/1343) @tunetheweb
+* BigQuery: Allow Qualify Clause for UnorderedSelectStatements [#1341](https://github.com/sqlfluff/sqlfluff/pull/1341) @tunetheweb
+* Postgres "ALTER TABLE" enhancement, and timestamp bug fix [#1338](https://github.com/sqlfluff/sqlfluff/pull/1338) @WittierDinosaur
+* Improve pytest coverage for non-core code [#1319](https://github.com/sqlfluff/sqlfluff/pull/1319) @tunetheweb
+* Support additional GRANTs in Postgres [#1339](https://github.com/sqlfluff/sqlfluff/pull/1339) @creste
+* Allow optional alias for BigQuery WITH OFFSET [#1330](https://github.com/sqlfluff/sqlfluff/pull/1330) @tunetheweb
+* Improve function support in Postgres dialect [#1336](https://github.com/sqlfluff/sqlfluff/pull/1336) @WittierDinosaur
+* Using github star instead of watch in docs [#1337](https://github.com/sqlfluff/sqlfluff/pull/1337) @zhongjiajie
+* Add unittest for rules docstring [#1335](https://github.com/sqlfluff/sqlfluff/pull/1335) @zhongjiajie
+* Bugfix PR, fixes issue #1333, wherein test___main___help() defaults to your default Python installation [#1334](https://github.com/sqlfluff/sqlfluff/pull/1334) @WittierDinosaur
+* Improve wording of L007 now the before/after is configurable [#1325](https://github.com/sqlfluff/sqlfluff/pull/1325) @tunetheweb
+* Fix a couple of small issues with CI jobs [#1326](https://github.com/sqlfluff/sqlfluff/pull/1326) @tunetheweb
+* Add updated sqlfluff graphics and source. [#1315](https://github.com/sqlfluff/sqlfluff/pull/1315) @alanmcruickshank
+* Issue 1277: Enforce that YML test files are computer generated and not edited [#1279](https://github.com/sqlfluff/sqlfluff/pull/1279) @barrywhart
+* Fix typo in README [#1320](https://github.com/sqlfluff/sqlfluff/pull/1320) @tunetheweb
+* Fix link in README [#1316](https://github.com/sqlfluff/sqlfluff/pull/1316) @jmks
+* Update documentation to make the project more discoverable [#1311](https://github.com/sqlfluff/sqlfluff/pull/1311) @tunetheweb
+* Show latest version number on unsupported Python error message [#1307](https://github.com/sqlfluff/sqlfluff/pull/1307) @zhongjiajie
+* Fix typo in github PR template [#1308](https://github.com/sqlfluff/sqlfluff/pull/1308) @zhongjiajie
+
 ## [0.6.4] - 2021-08-20
 
 ### Added
@@ -17,13 +49,13 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ### Changed
 - Fix typo in the in the wild page [#1285](https://github.com/sqlfluff/sqlfluff/pull/1285)
-* Fix spacing issue for BigQuery UNNEST statement for rules L003 and L025 (#1303) @tunetheweb
-* Update GitHub templates (#1297) @tunetheweb
-* Allow BigQuery UDF with triple quoted bodies to pass rule L048 (#1300) @tunetheweb
-* Add Parameterless Functions and more function names support to BigQuery (#1299) @tunetheweb
-* Add release drafter (#1295) @tunetheweb
-* Support empty OVER() clause in Window Specification (#1294) @tunetheweb
-* Fix typo on the In the Wild page (#1285) @tunetheweb
+* Fix spacing issue for BigQuery UNNEST statement for rules L003 and L025 [#1303](https://github.com/sqlfluff/sqlfluff/pull/1303) @tunetheweb
+* Update GitHub templates [#1297](https://github.com/sqlfluff/sqlfluff/pull/1297) @tunetheweb
+* Allow BigQuery UDF with triple quoted bodies to pass rule L048 [#1300](https://github.com/sqlfluff/sqlfluff/pull/1300) @tunetheweb
+* Add Parameterless Functions and more function names support to BigQuery [#1299](https://github.com/sqlfluff/sqlfluff/pull/1299) @tunetheweb
+* Add release drafter [#1295](https://github.com/sqlfluff/sqlfluff/pull/1295) @tunetheweb
+* Support empty OVER() clause in Window Specification [#1294](https://github.com/sqlfluff/sqlfluff/pull/1294) @tunetheweb
+* Fix typo on the In the Wild page [#1285](https://github.com/sqlfluff/sqlfluff/pull/1285) @tunetheweb
 
 ## [0.6.3] - 2021-08-16
 ### Added
