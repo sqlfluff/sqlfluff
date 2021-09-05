@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8a586c2e0bd02465b93705b706fc53150df5a6a99116ba7d88494808f4684250
+_hash: 3862f397e338c215eec73e8e9db7dbe71e3b87dfa1ea56410b55e843865518c0
 file:
 - statement:
     comment_on_statement:
@@ -108,11 +108,45 @@ file:
     comment_on_statement:
     - keyword: COMMENT
     - keyword: 'ON'
+    - keyword: EVENT
+    - keyword: TRIGGER
+    - object_reference:
+        identifier: abort_ddl
+    - keyword: IS
+    - literal: "'Aborts all DDL commands'"
+- statement_terminator: ;
+- statement:
+    comment_on_statement:
+    - keyword: COMMENT
+    - keyword: 'ON'
     - keyword: EXTENSION
     - extension_reference:
         identifier: hstore
     - keyword: IS
     - literal: "'implements the hstore data type'"
+- statement_terminator: ;
+- statement:
+    comment_on_statement:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: FOREIGN
+    - keyword: DATA
+    - keyword: WRAPPER
+    - object_reference:
+        identifier: mywrapper
+    - keyword: IS
+    - literal: "'my foreign data wrapper'"
+- statement_terminator: ;
+- statement:
+    comment_on_statement:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: FOREIGN
+    - keyword: TABLE
+    - object_reference:
+        identifier: my_foreign_table
+    - keyword: IS
+    - literal: "'Employee Information in other database'"
 - statement_terminator: ;
 - statement:
     comment_on_statement:
@@ -149,6 +183,17 @@ file:
         identifier: plpython
     - keyword: IS
     - literal: "'Python support for stored procedures'"
+- statement_terminator: ;
+- statement:
+    comment_on_statement:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - object_reference:
+        identifier: my_matview
+    - keyword: IS
+    - literal: "'Summary of order history'"
 - statement_terminator: ;
 - statement:
     comment_on_statement:
@@ -267,6 +312,54 @@ file:
         identifier: my_tablespace
     - keyword: IS
     - literal: "'Tablespace for indexes'"
+- statement_terminator: ;
+- statement:
+    comment_on_statement:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: TEXT
+    - keyword: SEARCH
+    - keyword: CONFIGURATION
+    - object_reference:
+        identifier: my_config
+    - keyword: IS
+    - literal: "'Special word filtering'"
+- statement_terminator: ;
+- statement:
+    comment_on_statement:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: TEXT
+    - keyword: SEARCH
+    - keyword: DICTIONARY
+    - object_reference:
+        identifier: swedish
+    - keyword: IS
+    - literal: "'Snowball stemmer for Swedish language'"
+- statement_terminator: ;
+- statement:
+    comment_on_statement:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: TEXT
+    - keyword: SEARCH
+    - keyword: PARSER
+    - object_reference:
+        identifier: my_parser
+    - keyword: IS
+    - literal: "'Splits text into words'"
+- statement_terminator: ;
+- statement:
+    comment_on_statement:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: TEXT
+    - keyword: SEARCH
+    - keyword: TEMPLATE
+    - object_reference:
+        identifier: snowball
+    - keyword: IS
+    - literal: "'Snowball stemmer'"
 - statement_terminator: ;
 - statement:
     comment_on_statement:
