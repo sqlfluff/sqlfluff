@@ -132,10 +132,10 @@ Many thanks to all the [contributors](https://github.com/sqlfluff/sqlfluff/graph
 ### Contributors
 
 - @dflss (#1154)
-- @barrywhart (#1177, (#1195)
-- @niallrees (#1178
-- @barnabyshearer (#1194
-- @silverbullettruck2001 (#1141), (#1159), (#1161), (#1176), (#1179), (#1181), (#1193), (#1203)
+- @barrywhart (#1177, #1195)
+- @niallrees (#1178)
+- @barnabyshearer (#1194)
+- @silverbullettruck2001 (#1141, #1159, #1161, #1176, #1179, #1181, #1193, #1203)
 
 ## [0.6.0] - 2021-06-06
 
@@ -177,10 +177,10 @@ Many thanks to all the [contributors](https://github.com/sqlfluff/sqlfluff/graph
 - (#1080) Add
   SET SCHEMA and DROP SCHEMA support to ANSI dialect.
 
-Contributors:
+### Contributors
 
 - @bolajiwahab (#1063)
-- @silverbullettruck2001 (#1126), (#1099), (#1141)
+- @silverbullettruck2001 (#1126, #1099, #1141)
 
 ## [0.6.0a2] - 2021-05-27
 
@@ -205,7 +205,7 @@ Contributors:
 ### Added
 
 - Lint and fix parallelism using `--parallel` CLI argument
-- Fix (#1051), adding support
+- Fix #1051, adding support
   for bitwise operators `&`, `|`, `^`, `<<`, `>>`
 
 ## [0.5.6] - 2021-05-14
