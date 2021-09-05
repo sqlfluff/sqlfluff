@@ -19,8 +19,6 @@ Many thanks to all the [contributors](https://github.com/sqlfluff/sqlfluff/graph
 
 ### Complete list of changes
 
-
-
 * Correct CircleCI badge reference ([#1359](https://github.com/sqlfluff/sqlfluff/pull/1359)) [@miketheman](https://github.com/miketheman)
 * Minor grammar corrections to documentation ([#1355](https://github.com/sqlfluff/sqlfluff/pull/1355)) [@miketheman](https://github.com/miketheman)
 * Pytest coverage exceptions to get us to 100% coverage! ([#1346](https://github.com/sqlfluff/sqlfluff/pull/1346)) [@tunetheweb](https://github.com/tunetheweb)
@@ -53,11 +51,11 @@ Many thanks to all the [contributors](https://github.com/sqlfluff/sqlfluff/graph
 ## [0.6.4] - 2021-08-20
 
 ### Added
-- Added support for empty WINDOWS specificiations [#1293](https://github.com/sqlfluff/sqlfluff/pull/1293)
-- Added auto release drafter [#1287](https://github.com/sqlfluff/sqlfluff/pull/1287)
+* Added support for empty WINDOWS specificiations ([#1293](https://github.com/sqlfluff/sqlfluff/pull/1293)) [@matthieucan](https://github.com/matthieucan)
+* Added auto release drafter ([#1287](https://github.com/sqlfluff/sqlfluff/pull/1287)) [@tunetheweb](https://github.com/tunetheweb)
 
 ### Changed
-- Fix typo in the in the wild page [#1285](https://github.com/sqlfluff/sqlfluff/pull/1285)
+* Fix typo in the in the wild page ([#1285](https://github.com/sqlfluff/sqlfluff/pull/1285)) [@tunetheweb](https://github.com/tunetheweb)
 * Fix spacing issue for BigQuery UNNEST statement for rules L003 and L025 ([#1303](https://github.com/sqlfluff/sqlfluff/pull/1303)) [@tunetheweb](https://github.com/tunetheweb)
 * Update GitHub templates ([#1297](https://github.com/sqlfluff/sqlfluff/pull/1297)) [@tunetheweb](https://github.com/tunetheweb)
 * Allow BigQuery UDF with triple quoted bodies to pass rule L048 ([#1300](https://github.com/sqlfluff/sqlfluff/pull/1300)) [@tunetheweb](https://github.com/tunetheweb)
@@ -88,7 +86,7 @@ Many thanks to all the [contributors](https://github.com/sqlfluff/sqlfluff/graph
 
 - Fix comma removed by L019 [#939](https://github.com/sqlfluff/sqlfluff/issues/939)
 - Update L019 (leading/trailng comma rule) so it doesn't run on unparsable code.
-- The "--nocolor" command-line option should suppress emoji output [#1246](https://github.com/sqlfluff/sqlfluff/issues/1246)
+- The `--nocolor` command-line option should suppress emoji output [#1246](https://github.com/sqlfluff/sqlfluff/issues/1246)
 - Added HTTP Archive to the [In The Wild page](https://docs.sqlfluff.com/en/stable/inthewild.html)
 
 ## [0.6.2] - 2021-07-22
