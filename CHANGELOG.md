@@ -19,119 +19,120 @@ Many thanks to all the [contributors](https://github.com/sqlfluff/sqlfluff/graph
 
 ### Complete list of changes
 
-* Minor grammar corrections to documentation #1355 @miketheman
-* Pytest coverage exceptions to get us to 100% coverage! #1346 @tunetheweb
-* Greatly improved Snowflake syntax support #1353 @tunetheweb
-* Postgres keyword support #1347 @WittierDinosaur
-* Added full support for postgres's ALTER DEFAULT PRIVILEGES. #1350 @creste
-* Show all LintResult in Rule_L020 #1348 @zhongjiajie
-* Enhance error message L010 base on configure #1351 @zhongjiajie
-* Remove unused variable insert_str #1352 @zhongjiajie
-* Pytest coverage exceptions for Core code - part 1 #1343 @tunetheweb
-* BigQuery: Allow Qualify Clause for UnorderedSelectStatements #1341 @tunetheweb
-* Postgres "ALTER TABLE" enhancement, and timestamp bug fix #1338 @WittierDinosaur
-* Improve pytest coverage for non-core code #1319 @tunetheweb
-* Support additional GRANTs in Postgres #1339 @creste
-* Allow optional alias for BigQuery WITH OFFSET #1330 @tunetheweb
-* Improve function support in Postgres dialect #1336 @WittierDinosaur
-* Using github star instead of watch in docs #1337 @zhongjiajie
-* Add unittest for rules docstring #1335 @zhongjiajie
-* Bugfix PR, fixes issue #1333, wherein test___main___help() defaults to your default Python installation #1334 @WittierDinosaur
-* Improve wording of L007 now the before/after is configurable #1325 @tunetheweb
-* Fix a couple of small issues with CI jobs #1326 @tunetheweb
-* Add updated sqlfluff graphics and source. #1315 @alanmcruickshank
-* Issue 1277: Enforce that YML test files are computer generated and not edited #1279 @barrywhart
-* Fix typo in README #1320 @tunetheweb
-* Fix link in README #1316 @jmks
-* Update documentation to make the project more discoverable #1311 @tunetheweb
-* Show latest version number on unsupported Python error message #1307 @zhongjiajie
-* Fix typo in github PR template #1308 @zhongjiajie
+* Correct CircleCI badge reference (#1359) @miketheman
+* Minor grammar corrections to documentation (#1355) @miketheman
+* Pytest coverage exceptions to get us to 100% coverage! (#1346) @tunetheweb
+* Greatly improved Snowflake syntax support (#1353) @tunetheweb
+* Postgres keyword support (#1347) @WittierDinosaur
+* Added full support for postgres's ALTER DEFAULT PRIVILEGES. (#1350) @creste
+* Show all LintResult in Rule_L020 (#1348) @zhongjiajie
+* Enhance error message L010 base on configure (#1351) @zhongjiajie
+* Remove unused variable insert_str (#1352) @zhongjiajie
+* Pytest coverage exceptions for Core code - part 1 (#1343) @tunetheweb
+* BigQuery: Allow Qualify Clause for UnorderedSelectStatements (#1341) @tunetheweb
+* Postgres "ALTER TABLE" enhancement, and timestamp bug fix (#1338) @WittierDinosaur
+* Improve pytest coverage for non-core code (#1319) @tunetheweb
+* Support additional GRANTs in Postgres (#1339) @creste
+* Allow optional alias for BigQuery WITH OFFSET (#1330) @tunetheweb
+* Improve function support in Postgres dialect (#1336) @WittierDinosaur
+* Using github star instead of watch in docs (#1337) @zhongjiajie
+* Add unittest for rules docstring (#1335) @zhongjiajie
+* Bugfix PR, fixes issue (#1333), wherein test___main___help() defaults to your default Python installation (#1334) @WittierDinosaur
+* Improve wording of L007 now the before/after is configurable (#1325) @tunetheweb
+* Fix a couple of small issues with CI jobs (#1326) @tunetheweb
+* Add updated sqlfluff graphics and source. (#1315) @alanmcruickshank
+* Issue 1277: Enforce that YML test files are computer generated and not edited (#1279) @barrywhart
+* Fix typo in README (#1320) @tunetheweb
+* Fix link in README (#1316) @jmks
+* Update documentation to make the project more discoverable (#1311) @tunetheweb
+* Show latest version number on unsupported Python error message (#1307) @zhongjiajie
+* Fix typo in github PR template (#1308) @zhongjiajie
 
 ## [0.6.4] - 2021-08-20
 
 ### Added
-- Added support for empty WINDOWS specificiations #1293
-- Added auto release drafter #1287
+- Added support for empty WINDOWS specificiations (#1293)
+- Added auto release drafter (#1287)
 
 ### Changed
-- Fix typo in the in the wild page #1285
-* Fix spacing issue for BigQuery UNNEST statement for rules L003 and L025 #1303 @tunetheweb
-* Update GitHub templates #1297 @tunetheweb
-* Allow BigQuery UDF with triple quoted bodies to pass rule L048 #1300 @tunetheweb
-* Add Parameterless Functions and more function names support to BigQuery #1299 @tunetheweb
-* Add release drafter #1295 @tunetheweb
-* Support empty OVER() clause in Window Specification #1294 @tunetheweb
-* Fix typo on the In the Wild page #1285 @tunetheweb
+- Fix typo in the in the wild page (#1285)
+* Fix spacing issue for BigQuery UNNEST statement for rules L003 and L025 (#1303) @tunetheweb
+* Update GitHub templates (#1297) @tunetheweb
+* Allow BigQuery UDF with triple quoted bodies to pass rule L048 (#1300) @tunetheweb
+* Add Parameterless Functions and more function names support to BigQuery (#1299) @tunetheweb
+* Add release drafter (#1295) @tunetheweb
+* Support empty OVER() clause in Window Specification (#1294) @tunetheweb
+* Fix typo on the In the Wild page (#1285) @tunetheweb
 
 ## [0.6.3] - 2021-08-16
 ### Added
 
-- Support for primary index name, collect stats improvement, COMMENT statement for teradata dialect #1232
-- Support config for L007 to prefer end of line operators #1261
-- Support for DETERMINISTIC user defined functions in BigQuery dialect #1251
-- Support more identifiers in BigQuery dialect #1253
-- Support function member field references in BigQuery dialect #1255
-- Support alternative indentation for USING and ON clauses #1250
-- Support COUNT(0) preference over COUNT(*) or COUNT(1) #1260
-- Support for BigQuery "CREATE table OPTIONS ( description = 'desc' )" #1205
-- Support wildcard member field references in BigQuery dialect #1269
-- Support ARRAYS of STRUCTs in BigQuery dialect #1271
-- Support fields of field references in BigQuery dialect #1276
-- Support OFFSET and ORDINAL clauses of Array Functions in BigQuery dialect #1171
-- Added check for generated YML files #1277
-- Support QUALIFY to BigQuery dialect #1242
+- Support for primary index name, collect stats improvement, COMMENT statement for teradata dialect (#1232)
+- Support config for L007 to prefer end of line operators (#1261)
+- Support for DETERMINISTIC user defined functions in BigQuery dialect (#1251)
+- Support more identifiers in BigQuery dialect (#1253)
+- Support function member field references in BigQuery dialect (#1255)
+- Support alternative indentation for USING and ON clauses (#1250)
+- Support COUNT(0) preference over COUNT(*) or COUNT(1) (#1260)
+- Support for BigQuery "CREATE table OPTIONS ( description = 'desc' )" (#1205)
+- Support wildcard member field references in BigQuery dialect (#1269)
+- Support ARRAYS of STRUCTs in BigQuery dialect (#1271)
+- Support fields of field references in BigQuery dialect (#1276)
+- Support OFFSET and ORDINAL clauses of Array Functions in BigQuery dialect (#1171)
+- Added check for generated YML files (#1277)
+- Support QUALIFY to BigQuery dialect (#1242)
 
 ### Changed
 
-- Fix comma removed by L019 #939
+- Fix comma removed by L019 (#939)
 - Update L019 (leading/trailng comma rule) so it doesn't run on unparsable code.
-- The "--nocolor" command-line option should suppress emoji output #1246
+- The "--nocolor" command-line option should suppress emoji output (#1246)
 - Added HTTP Archive to the [In The Wild page](https://docs.sqlfluff.com/en/stable/inthewild.html)
 
 ## [0.6.2] - 2021-07-22
 ### Added
 
-- Support for looping statements (loop, while, repeat) and supporting statements to mysql dialect #1180
+- Support for looping statements (loop, while, repeat) and supporting statements to mysql dialect (#1180)
 
 ### Changed
 
 - Added dbt 0.20.* to the default test suite.
-- Updated manifest loading in dbt 0.20.* to use the new `ManifestLoader` #1220
-- Handle newlines in rule list configuration in .sqlfluff #1215
-- Fix looping interaction between L008 and L030 #1207
+- Updated manifest loading in dbt 0.20.* to use the new `ManifestLoader` (#1220)
+- Handle newlines in rule list configuration in .sqlfluff (#1215)
+- Fix looping interaction between L008 and L030 (#1207)
 
 ## [0.6.1] - 2021-07-16
 ### Added
 
-- Linting output now supports GitHub Actions #1190
-- Support for QUALIFY syntax specific to teradata dialect #1184
-- Support for TRUNCATE statement #1194
-- Support for prepared statement syntaxes specific to mysql dialect #1147
-- Support for GET DIAGNOSTICS statement syntax specific to mysql dialect #1148
-- Support for cursor syntax specific to mysql dialect #1145
-- Support sequential shorthand casts #1178
-- Support for select statement syntax specific to mysql dialect #1175
-- Support for the CALL statement for the mysql dialect #1144
-- Support for OVERLAPS predicate #1091
-- Support for the CREATE/DROP PROCEDURE statement for the mysql dialect #901
-- Specific allowed/required syntaxes for CREATE/DROP FUNCTION within the mysql dialect #901
-- Support for DECLARE statement for the mysql dialect #1140
-- Support for the IF-THEN-ELSEIF-ELSE syntax for the mysql dialect #1140
-- Support for the DEFINER syntax for the mysql dialect #1131
-- Preserve existing file encoding in the "fix" command. Partially addresses #654
-- Support for DECLARE and SET variable syntax for the BigQuery dialect #1127
-- Support for ALTER TASK statement on Snowflake #1211
+- Linting output now supports GitHub Actions (#1190)
+- Support for QUALIFY syntax specific to teradata dialect (#1184)
+- Support for TRUNCATE statement (#1194)
+- Support for prepared statement syntaxes specific to mysql dialect (#1147)
+- Support for GET DIAGNOSTICS statement syntax specific to mysql dialect (#1148)
+- Support for cursor syntax specific to mysql dialect (#1145)
+- Support sequential shorthand casts (#1178)
+- Support for select statement syntax specific to mysql dialect (#1175)
+- Support for the CALL statement for the mysql dialect (#1144)
+- Support for OVERLAPS predicate (#1091)
+- Support for the CREATE/DROP PROCEDURE statement for the mysql dialect (#901)
+- Specific allowed/required syntaxes for CREATE/DROP FUNCTION within the mysql dialect (#901)
+- Support for DECLARE statement for the mysql dialect (#1140)
+- Support for the IF-THEN-ELSEIF-ELSE syntax for the mysql dialect (#1140)
+- Support for the DEFINER syntax for the mysql dialect (#1131)
+- Preserve existing file encoding in the "fix" command. Partially addresses (#654)
+- Support for DECLARE and SET variable syntax for the BigQuery dialect (#1127)
+- Support for ALTER TASK statement on Snowflake (#1211)
 
 ### Changed
 
-- Fix runtime error in diff-cover plugin caused by new diff-cover release 6.1.0 #1195
+- Fix runtime error in diff-cover plugin caused by new diff-cover release 6.1.0 (#1195)
 - Resolved an issue with the snowflake dialect where backslash escaped single
-  quoted strings led to fatal lexing errors #1200
+  quoted strings led to fatal lexing errors (#1200)
 
 ### Contributors
 
 - @dflss (#1154)
-- @barrywhart (#1177, #1195
+- @barrywhart (#1177, (#1195)
 - @niallrees (#1178
 - @barnabyshearer (#1194
 - @silverbullettruck2001 (#1141), (#1159), (#1161), (#1176), (#1179), (#1181), (#1193), (#1203)
@@ -143,17 +144,17 @@ Many thanks to all the [contributors](https://github.com/sqlfluff/sqlfluff/graph
 - Respect XDG base dirs on Mac OS (#889).
 - Added support for additional delimiters by creating a new DelimiterSegment in the
   ANSI dialect which defaults to the semicolon, but allows it to be more intuitive
-  when overriden in a specific child dialect (mysql) #901)
-- Added support for the DELIMITER statement in the mysql dialect #901)
+  when overriden in a specific child dialect (mysql) (#901))
+- Added support for the DELIMITER statement in the mysql dialect (#901))
 - Added support for additional delimiters by creating a new DelimiterSegment in the
   ANSI dialect which defaults to the semicolon, but allows it to be more intuitive
-  when overriden in a specific child dialect (mysql) #901)
-- Added support for function as a default column value #849.
+  when overriden in a specific child dialect (mysql) (#901))
+- Added support for function as a default column value (#849).
 - Add an `--include-metas` option for parse output to show the meta
   segments in the parse tree.
-- Allow CREATE FUNCTION syntax without arguments @bolajiwahab #1063.
-- Added support for the CREATE/DROP PROCEDURE statement for the mysql dialect #901)
-- Added specific allowed/required syntaxes for CREATE/DROP FUNCTION within the mysql dialect #901)
+- Allow CREATE FUNCTION syntax without arguments @bolajiwahab (#1063).
+- Added support for the CREATE/DROP PROCEDURE statement for the mysql dialect (#901))
+- Added specific allowed/required syntaxes for CREATE/DROP FUNCTION within the mysql dialect (#901))
 - Now possible to run sqlfluff commands outside the project root when using the dbt templater.
 
 ### Changed
@@ -161,7 +162,7 @@ Many thanks to all the [contributors](https://github.com/sqlfluff/sqlfluff/graph
 - Renamed --parallel CLI argument to --processes to be more accurate.
 - L034 now ignores select statements which contain macros.
 - L034 now ignores select statements part of a set expression, most commonly a union.
-- Fix bug #1082, adding
+- Fix bug (#1082), adding
   support for BigQuery `select as struct '1' as bb, 2 as aa` syntax.
 - Rationalisation of the placement of meta segments within templated
   queries to support more reliable indentation. This includes prioritising
@@ -171,9 +172,9 @@ Many thanks to all the [contributors](https://github.com/sqlfluff/sqlfluff/graph
 - Allow meta segments to parse within `Delimited` grammars which otherwise
   don't allow gaps. This is facilitated through an optional agrument to
   `trim_non_code_segments`.
-- Fix bug #1079, addressing
+- Fix bug (#1079), addressing
   issues with L025 and L026 with BigQuery column references involving `STRUCT`.
-- #1080 Add
+- (#1080) Add
   SET SCHEMA and DROP SCHEMA support to ANSI dialect.
 
 Contributors:
@@ -188,13 +189,13 @@ Contributors:
 - Better exception handling for the simple parsing API (`sqlfluff.parse`)
   which now raises an exception which holds all potential parsing issues
   and prints nicely with more than one issue.
-- Fix bug #1037, in which fix
+- Fix bug (#1037), in which fix
   logging had been sent to stdout when reading data from stdin.
 - Add a little bit of fun on CLI exit 🎉!
 - Disabled models in the dbt templater are now skipped entirely rather than
   returning an untemplated file.
 - Add a changelog check to SQLFluff continuous integration.
-- Fix bug #1083, adding
+- Fix bug (#1083), adding
   support for BigQuery named function arguments, used with functions such as
   [ST_GEOGFROMGEOJSON()](https://cloud.google.com/bigquery/docs/reference/standard-sql/geography_functions#st_geogfromgeojson)
 - Update documentation links to sqlfluff-online.
@@ -204,14 +205,14 @@ Contributors:
 ### Added
 
 - Lint and fix parallelism using `--parallel` CLI argument
-- Fix #1051, adding support
+- Fix (#1051), adding support
   for bitwise operators `&`, `|`, `^`, `<<`, `>>`
 
 ## [0.5.6] - 2021-05-14
 
 - Bugfix release for an issue in `L016` introduced in `0.5.4`.
 - Fix for `L016` issue where `DISTINCT` keywords were mangled during
-  fixing #1024.
+  fixing (#1024).
 
 ## [0.5.5] - 2021-05-13
 
@@ -246,7 +247,7 @@ Contributors:
 
 ### Changed
 
-- Fix `templater = dbt` L009 bug #861 where:
+- Fix `templater = dbt` L009 bug (#861) where:
   - `sqlfluff lint` would incorrectly always return `L009 | Files must end with a trailing newline.`
   - `sqlfluff fix` would remove trailing newlines when `exclude_rules = L009`.
 - Fix bug with BigQuery comparison operators.
@@ -377,13 +378,13 @@ Contributors:
   `Dedent` tag accordingly (which can be enabled or disabled)
   with a configuration value so that indentation around these
   functions can be linted accordingly. (#541)
-- MyPy type linting into a large proportion of the core library. (#526, #580)
+- MyPy type linting into a large proportion of the core library. (#526, (#580))
 - Config values specific to a file can now be defined using a comment
   line starting with `-- sqlfluff:`. (#541)
 - Added documentation for `--noqa:` use in rules. (#552)
 - Added `pre-commit` hooks for `lint` and `fix`. (#576)
 - Added a fix routine for Rule L019 (comma placement). (#575)
-- Added Rule L031 to enforce "avoid using alias in the `FROM`/`JOIN` clauses" from the `dbt` coding conventions. (#473, #479)
+- Added Rule L031 to enforce "avoid using alias in the `FROM`/`JOIN` clauses" from the `dbt` coding conventions. (#473, (#479))
 - Added Rule L032 to enforce "do not use `USING`" from the `dbt` coding conventions. (#487)
 - Added Rule L033 to enforce "prefer `UNION ALL` to `UNION *`" from the `dbt` coding conventions. (#489)
 - Added Rule L034 to enforce "fields should be stated before aggregate/window functions" from the `dbt` coding conventions. (#495)
@@ -409,18 +410,18 @@ Contributors:
 - Added `CREATE INDEX` and `DROP INDEX` for mysql. (#740)
 - Added `IGNORE NULLS`, `RESPECT NULLS`, `GENERATE_DATE_ARRAY` and
   `GENERATE_TIMESTAMP_ARRAY` for bigquery. (
-  #667,
-  #527)
+  (#667),
+  (#527))
 - Added `CREATE` and `CREATE ... CLONE` for snowflake. (#539)
 - Added support for EXASOL. (#684)
 
 ### Changed
 
 - Fixed parsing of semi-structured objects in the snowflake of dialects
-  with whitespace gaps. #634
+  with whitespace gaps. (#634)
 - Handle internal errors elegantly, reporting the stacktrace and the
-  error-surfacing file. #632
-- Improve message for when an automatic fix is not available for L004. #633
+  error-surfacing file. (#632)
+- Improve message for when an automatic fix is not available for L004. (#633)
 - Linting errors raised on templated sections are now ignored by default
   and added a configuration value to show them. (#713)
 - Big refactor of logging internally. `Linter` is now decoupled from
@@ -655,7 +656,7 @@ Contributors:
 - Updated logging of parsing and lexing errors to have more useful
   error codes.
 - Changed parsing of expressions to favour functions over identifiers
-  to fix the expression bug #96.
+  to fix the expression bug (#96).
 - Fixed the "inconsistent" bug in L010. Thanks @nolanbconaway.
 - Moved where the `SELECT` keyword is parsed within a select statement,
   so that it belongs as part of the newly renamed `select_clause` (renamed
