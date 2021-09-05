@@ -130,7 +130,6 @@ Many thanks to all the [contributors](https://github.com/sqlfluff/sqlfluff/graph
 
 ### Contributors
 
-- [@GitHub-Username](Link to GitHub profile) ([#PR-Number](Link to PR))
 - [@dflss](https://github.com/dflss) ([#1154](https://github.com/sqlfluff/sqlfluff/pull/1154))
 - [@barrywhart](https://github.com/barrywhart) ([#1177](https://github.com/sqlfluff/sqlfluff/pull/1177), [#1195](https://github.com/sqlfluff/sqlfluff/pull/1195)
 - [@niallrees](https://github.com/niallrees) ([#1178](https://github.com/sqlfluff/sqlfluff/pull/1178)
