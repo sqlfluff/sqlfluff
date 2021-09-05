@@ -88,7 +88,7 @@ Many thanks to all the [contributors](https://github.com/sqlfluff/sqlfluff/graph
 
 - Fix comma removed by L019 [#939](https://github.com/sqlfluff/sqlfluff/issues/939)
 - Update L019 (leading/trailng comma rule) so it doesn't run on unparsable code.
-- The "--nocolor" command-line option should suppress emoji output (https://github.com/sqlfluff/sqlfluff/issues/1246)
+- The "--nocolor" command-line option should suppress emoji output [#1246](https://github.com/sqlfluff/sqlfluff/issues/1246)
 - Added HTTP Archive to the [In The Wild page](https://docs.sqlfluff.com/en/stable/inthewild.html)
 
 ## [0.6.2] - 2021-07-22
@@ -135,10 +135,10 @@ Many thanks to all the [contributors](https://github.com/sqlfluff/sqlfluff/graph
 
 - [@GitHub-Username](Link to GitHub profile) ([#PR-Number](Link to PR))
 - [@dflss](https://github.com/dflss) ([#1154](https://github.com/sqlfluff/sqlfluff/pull/1154))
-- [@barrywhart](https://github.com/barrywhart) ([#1177])(https://github.com/sqlfluff/sqlfluff/pull/1177), [#1195](https://github.com/sqlfluff/sqlfluff/pull/1195))
-- [@niallrees](https://github.com/niallrees) ([#1178])(https://github.com/sqlfluff/sqlfluff/pull/1178))
-- [@barnabyshearer](https://github.com/barnabyshearer) ([#1194])(https://github.com/sqlfluff/sqlfluff/pull/1194))
-- [@silverbullettruck2001](https://github.com/silverbullettruck2001) ([#1141](https://github.com/sqlfluff/sqlfluff/pull/1141)), [#1159](https://github.com/sqlfluff/sqlfluff/pull/1159), [#1161](https://github.com/sqlfluff/sqlfluff/pull/1161), [#1176](https://github.com/sqlfluff/sqlfluff/pull/1176), [#1179](https://github.com/sqlfluff/sqlfluff/pull/1179), [#1181](https://github.com/sqlfluff/sqlfluff/pull/1181), [#1193](https://github.com/sqlfluff/sqlfluff/pull/1193), [#1203](https://github.com/sqlfluff/sqlfluff/pull/1203))
+- [@barrywhart](https://github.com/barrywhart) ([#1177](https://github.com/sqlfluff/sqlfluff/pull/1177), [#1195](https://github.com/sqlfluff/sqlfluff/pull/1195))
+- [@niallrees](https://github.com/niallrees) ([#1178](https://github.com/sqlfluff/sqlfluff/pull/1178))
+- [@barnabyshearer](https://github.com/barnabyshearer) ([#1194](https://github.com/sqlfluff/sqlfluff/pull/1194))
+- [@silverbullettruck2001](https://github.com/silverbullettruck2001) ([#1141](https://github.com/sqlfluff/sqlfluff/pull/1141), [#1159](https://github.com/sqlfluff/sqlfluff/pull/1159), [#1161](https://github.com/sqlfluff/sqlfluff/pull/1161), [#1176](https://github.com/sqlfluff/sqlfluff/pull/1176), [#1179](https://github.com/sqlfluff/sqlfluff/pull/1179), [#1181](https://github.com/sqlfluff/sqlfluff/pull/1181), [#1193](https://github.com/sqlfluff/sqlfluff/pull/1193), [#1203](https://github.com/sqlfluff/sqlfluff/pull/1203))
 
 ## [0.6.0] - 2021-06-06
 
@@ -182,8 +182,8 @@ Many thanks to all the [contributors](https://github.com/sqlfluff/sqlfluff/graph
 
 ### Contributors
 
-- [@bolajiwahab](https://github.com/bolajiwahab) ([#1063])(https://github.com/sqlfluff/sqlfluff/pull/1063)
-- [@silverbullettruck2001](https://github.com/silverbullettruck2001) ([#1126](https://github.com/sqlfluff/sqlfluff/pull/1126)), ([#1099](https://github.com/sqlfluff/sqlfluff/pull/1099), [#1141](https://github.com/sqlfluff/sqlfluff/pull/1141))
+- [@bolajiwahab](https://github.com/bolajiwahab) ([#1063](https://github.com/sqlfluff/sqlfluff/pull/1063))
+- [@silverbullettruck2001](https://github.com/silverbullettruck2001) ([#1126](https://github.com/sqlfluff/sqlfluff/pull/1126), [#1099](https://github.com/sqlfluff/sqlfluff/pull/1099), [#1141](https://github.com/sqlfluff/sqlfluff/pull/1141))
 
 ## [0.6.0a2] - 2021-05-27
 
