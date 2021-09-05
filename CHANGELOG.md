@@ -21,34 +21,34 @@ Many thanks to all the [contributors](https://github.com/sqlfluff/sqlfluff/graph
 
 
 
-* Correct CircleCI badge reference ([(#1359](https://github.com/sqlfluff/sqlfluff/pull/(#1359)) @miketheman
-* Minor grammar corrections to documentation ([(#1355](https://github.com/sqlfluff/sqlfluff/pull/(#1355)) @miketheman
-* Pytest coverage exceptions to get us to 100% coverage! ([(#1346](https://github.com/sqlfluff/sqlfluff/pull/(#1346)) @tunetheweb
-* Greatly improved Snowflake syntax support ([(#1353](https://github.com/sqlfluff/sqlfluff/pull/(#1353)) @tunetheweb
-* Postgres keyword support ([(#1347](https://github.com/sqlfluff/sqlfluff/pull/(#1347)) @WittierDinosaur
-* Added full support for postgres's ALTER DEFAULT PRIVILEGES. ([(#1350](https://github.com/sqlfluff/sqlfluff/pull/(#1350)) @creste
-* Show all LintResult in Rule_L020 ([(#1348](https://github.com/sqlfluff/sqlfluff/pull/(#1348)) @zhongjiajie
-* Enhance error message L010 base on configure ([(#1351](https://github.com/sqlfluff/sqlfluff/pull/(#1351)) @zhongjiajie
-* Remove unused variable insert_str ([(#1352](https://github.com/sqlfluff/sqlfluff/pull/(#1352)) @zhongjiajie
-* Pytest coverage exceptions for Core code - part 1 ([(#1343](https://github.com/sqlfluff/sqlfluff/pull/(#1343)) @tunetheweb
-* BigQuery: Allow Qualify Clause for UnorderedSelectStatements ([(#1341](https://github.com/sqlfluff/sqlfluff/pull/(#1341)) @tunetheweb
-* Postgres "ALTER TABLE" enhancement, and timestamp bug fix ([(#1338](https://github.com/sqlfluff/sqlfluff/pull/(#1338)) @WittierDinosaur
-* Improve pytest coverage for non-core code ([(#1319](https://github.com/sqlfluff/sqlfluff/pull/(#1319)) @tunetheweb
-* Support additional GRANTs in Postgres ([(#1339](https://github.com/sqlfluff/sqlfluff/pull/(#1339)) @creste
-* Allow optional alias for BigQuery WITH OFFSET ([(#1330](https://github.com/sqlfluff/sqlfluff/pull/(#1330)) @tunetheweb
-* Improve function support in Postgres dialect ([(#1336](https://github.com/sqlfluff/sqlfluff/pull/(#1336)) @WittierDinosaur
-* Using github star instead of watch in docs ([(#1337](https://github.com/sqlfluff/sqlfluff/pull/(#1337)) @zhongjiajie
-* Add unittest for rules docstring ([(#1335](https://github.com/sqlfluff/sqlfluff/pull/(#1335)) @zhongjiajie
-* Bugfix PR, fixes issue [#1333](https://github.com/sqlfluff/sqlfluff/issues/#1333), wherein test___main___help() defaults to your default Python installation ([(#1334](https://github.com/sqlfluff/sqlfluff/pull/(#1334)) @WittierDinosaur
-* Improve wording of L007 now the before/after is configurable ([(#1325](https://github.com/sqlfluff/sqlfluff/pull/(#1325)) @tunetheweb
-* Fix a couple of small issues with CI jobs ([(#1326](https://github.com/sqlfluff/sqlfluff/pull/(#1326)) @tunetheweb
-* Add updated sqlfluff graphics and source. ([(#1315](https://github.com/sqlfluff/sqlfluff/pull/(#1315)) @alanmcruickshank
-* Issue 1277: Enforce that YML test files are computer generated and not edited ([(#1279](https://github.com/sqlfluff/sqlfluff/pull/(#1279)) @barrywhart
-* Fix typo in README ([(#1320](https://github.com/sqlfluff/sqlfluff/pull/(#1320)) @tunetheweb
-* Fix link in README ([(#1316](https://github.com/sqlfluff/sqlfluff/pull/(#1316)) @jmks
-* Update documentation to make the project more discoverable ([(#1311](https://github.com/sqlfluff/sqlfluff/pull/(#1311)) @tunetheweb
-* Show latest version number on unsupported Python error message ([(#1307](https://github.com/sqlfluff/sqlfluff/pull/(#1307)) @zhongjiajie
-* Fix typo in github PR template ([(#1308](https://github.com/sqlfluff/sqlfluff/pull/(#1308)) @zhongjiajie
+* Correct CircleCI badge reference ([(#1359](https://github.com/sqlfluff/sqlfluff/pull/(#1359)) [@miketheman](https://github.com/miketheman)
+* Minor grammar corrections to documentation ([(#1355](https://github.com/sqlfluff/sqlfluff/pull/(#1355)) [@miketheman](https://github.com/miketheman)
+* Pytest coverage exceptions to get us to 100% coverage! ([(#1346](https://github.com/sqlfluff/sqlfluff/pull/(#1346)) [@tunetheweb](https://github.com/tunetheweb)
+* Greatly improved Snowflake syntax support ([(#1353](https://github.com/sqlfluff/sqlfluff/pull/(#1353)) [@tunetheweb](https://github.com/tunetheweb)
+* Postgres keyword support ([(#1347](https://github.com/sqlfluff/sqlfluff/pull/(#1347)) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Added full support for postgres's ALTER DEFAULT PRIVILEGES. ([(#1350](https://github.com/sqlfluff/sqlfluff/pull/(#1350)) [@creste](https://github.com/creste)
+* Show all LintResult in Rule_L020 ([(#1348](https://github.com/sqlfluff/sqlfluff/pull/(#1348)) [@zhongjiajie](https://github.com/zhongjiajie)
+* Enhance error message L010 base on configure ([(#1351](https://github.com/sqlfluff/sqlfluff/pull/(#1351)) [@zhongjiajie](https://github.com/zhongjiajie)
+* Remove unused variable insert_str ([(#1352](https://github.com/sqlfluff/sqlfluff/pull/(#1352)) [@zhongjiajie](https://github.com/zhongjiajie)
+* Pytest coverage exceptions for Core code - part 1 ([(#1343](https://github.com/sqlfluff/sqlfluff/pull/(#1343)) [@tunetheweb](https://github.com/tunetheweb)
+* BigQuery: Allow Qualify Clause for UnorderedSelectStatements ([(#1341](https://github.com/sqlfluff/sqlfluff/pull/(#1341)) [@tunetheweb](https://github.com/tunetheweb)
+* Postgres "ALTER TABLE" enhancement, and timestamp bug fix ([(#1338](https://github.com/sqlfluff/sqlfluff/pull/(#1338)) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Improve pytest coverage for non-core code ([(#1319](https://github.com/sqlfluff/sqlfluff/pull/(#1319)) [@tunetheweb](https://github.com/tunetheweb)
+* Support additional GRANTs in Postgres ([(#1339](https://github.com/sqlfluff/sqlfluff/pull/(#1339)) [@creste](https://github.com/creste)
+* Allow optional alias for BigQuery WITH OFFSET ([(#1330](https://github.com/sqlfluff/sqlfluff/pull/(#1330)) [@tunetheweb](https://github.com/tunetheweb)
+* Improve function support in Postgres dialect ([(#1336](https://github.com/sqlfluff/sqlfluff/pull/(#1336)) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Using github star instead of watch in docs ([(#1337](https://github.com/sqlfluff/sqlfluff/pull/(#1337)) [@zhongjiajie](https://github.com/zhongjiajie)
+* Add unittest for rules docstring ([(#1335](https://github.com/sqlfluff/sqlfluff/pull/(#1335)) [@zhongjiajie](https://github.com/zhongjiajie)
+* Bugfix PR, fixes issue [#1333](https://github.com/sqlfluff/sqlfluff/issues/#1333), wherein test___main___help() defaults to your default Python installation ([(#1334](https://github.com/sqlfluff/sqlfluff/pull/(#1334)) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Improve wording of L007 now the before/after is configurable ([(#1325](https://github.com/sqlfluff/sqlfluff/pull/(#1325)) [@tunetheweb](https://github.com/tunetheweb)
+* Fix a couple of small issues with CI jobs ([(#1326](https://github.com/sqlfluff/sqlfluff/pull/(#1326)) [@tunetheweb](https://github.com/tunetheweb)
+* Add updated sqlfluff graphics and source. ([(#1315](https://github.com/sqlfluff/sqlfluff/pull/(#1315)) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Issue 1277: Enforce that YML test files are computer generated and not edited ([(#1279](https://github.com/sqlfluff/sqlfluff/pull/(#1279)) [@barrywhart](https://github.com/barrywhart)
+* Fix typo in README ([(#1320](https://github.com/sqlfluff/sqlfluff/pull/(#1320)) [@tunetheweb](https://github.com/tunetheweb)
+* Fix link in README ([(#1316](https://github.com/sqlfluff/sqlfluff/pull/(#1316)) [@jmks](https://github.com/jmks)
+* Update documentation to make the project more discoverable ([(#1311](https://github.com/sqlfluff/sqlfluff/pull/(#1311)) [@tunetheweb](https://github.com/tunetheweb)
+* Show latest version number on unsupported Python error message ([(#1307](https://github.com/sqlfluff/sqlfluff/pull/(#1307)) [@zhongjiajie](https://github.com/zhongjiajie)
+* Fix typo in github PR template ([(#1308](https://github.com/sqlfluff/sqlfluff/pull/(#1308)) [@zhongjiajie](https://github.com/zhongjiajie)
 
 ## [0.6.4] - 2021-08-20
 
@@ -58,13 +58,13 @@ Many thanks to all the [contributors](https://github.com/sqlfluff/sqlfluff/graph
 
 ### Changed
 - Fix typo in the in the wild page [#1285](https://github.com/sqlfluff/sqlfluff/pull/1285)
-* Fix spacing issue for BigQuery UNNEST statement for rules L003 and L025 ([(#1303](https://github.com/sqlfluff/sqlfluff/pull/(#1303)) @tunetheweb
-* Update GitHub templates ([(#1297](https://github.com/sqlfluff/sqlfluff/pull/(#1297)) @tunetheweb
-* Allow BigQuery UDF with triple quoted bodies to pass rule L048 ([(#1300](https://github.com/sqlfluff/sqlfluff/pull/(#1300)) @tunetheweb
-* Add Parameterless Functions and more function names support to BigQuery ([(#1299](https://github.com/sqlfluff/sqlfluff/pull/(#1299)) @tunetheweb
-* Add release drafter ([(#1295](https://github.com/sqlfluff/sqlfluff/pull/(#1295)) @tunetheweb
-* Support empty OVER() clause in Window Specification ([(#1294](https://github.com/sqlfluff/sqlfluff/pull/(#1294)) @tunetheweb
-* Fix typo on the In the Wild page ([(#1285](https://github.com/sqlfluff/sqlfluff/pull/(#1285)) @tunetheweb
+* Fix spacing issue for BigQuery UNNEST statement for rules L003 and L025 ([(#1303](https://github.com/sqlfluff/sqlfluff/pull/(#1303)) [@tunetheweb](https://github.com/tunetheweb)
+* Update GitHub templates ([(#1297](https://github.com/sqlfluff/sqlfluff/pull/(#1297)) [@tunetheweb](https://github.com/tunetheweb)
+* Allow BigQuery UDF with triple quoted bodies to pass rule L048 ([(#1300](https://github.com/sqlfluff/sqlfluff/pull/(#1300)) [@tunetheweb](https://github.com/tunetheweb)
+* Add Parameterless Functions and more function names support to BigQuery ([(#1299](https://github.com/sqlfluff/sqlfluff/pull/(#1299)) [@tunetheweb](https://github.com/tunetheweb)
+* Add release drafter ([(#1295](https://github.com/sqlfluff/sqlfluff/pull/(#1295)) [@tunetheweb](https://github.com/tunetheweb)
+* Support empty OVER() clause in Window Specification ([(#1294](https://github.com/sqlfluff/sqlfluff/pull/(#1294)) [@tunetheweb](https://github.com/tunetheweb)
+* Fix typo on the In the Wild page ([(#1285](https://github.com/sqlfluff/sqlfluff/pull/(#1285)) [@tunetheweb](https://github.com/tunetheweb)
 
 ## [0.6.3] - 2021-08-16
 ### Added
@@ -135,10 +135,10 @@ Many thanks to all the [contributors](https://github.com/sqlfluff/sqlfluff/graph
 
 - [@GitHub-Username](Link to GitHub profile) ([#PR-Number](Link to PR))
 - [@dflss](https://github.com/dflss) ([#1154](https://github.com/sqlfluff/sqlfluff/pull/1154))
-- [@barrywhart](https://github.com/barrywhart) ([#1177])(https://github.com/sqlfluff/sqlfluff/pull/1177)), [#1195](https://github.com/sqlfluff/sqlfluff/pull/1195)
+- [@barrywhart](https://github.com/barrywhart) ([#1177])(https://github.com/sqlfluff/sqlfluff/pull/1177), [#1195](https://github.com/sqlfluff/sqlfluff/pull/1195))
 - [@niallrees](https://github.com/niallrees) ([#1178])(https://github.com/sqlfluff/sqlfluff/pull/1178))
 - [@barnabyshearer](https://github.com/barnabyshearer) ([#1194])(https://github.com/sqlfluff/sqlfluff/pull/1194))
-- [@silverbullettruck2001](https://github.com/silverbullettruck2001) ([#1141](https://github.com/sqlfluff/sqlfluff/pull/1141)), ([#1159](https://github.com/sqlfluff/sqlfluff/pull/1159)), ([#1161](https://github.com/sqlfluff/sqlfluff/pull/1161)), ([#1176](https://github.com/sqlfluff/sqlfluff/pull/1176)), ([#1179](https://github.com/sqlfluff/sqlfluff/pull/1179)), ([#1181](https://github.com/sqlfluff/sqlfluff/pull/1181)), ([#1193](https://github.com/sqlfluff/sqlfluff/pull/1193)), ([#1203](https://github.com/sqlfluff/sqlfluff/pull/1203))
+- [@silverbullettruck2001](https://github.com/silverbullettruck2001) ([#1141](https://github.com/sqlfluff/sqlfluff/pull/1141)), [#1159](https://github.com/sqlfluff/sqlfluff/pull/1159), [#1161](https://github.com/sqlfluff/sqlfluff/pull/1161), [#1176](https://github.com/sqlfluff/sqlfluff/pull/1176), [#1179](https://github.com/sqlfluff/sqlfluff/pull/1179), [#1181](https://github.com/sqlfluff/sqlfluff/pull/1181), [#1193](https://github.com/sqlfluff/sqlfluff/pull/1193), [#1203](https://github.com/sqlfluff/sqlfluff/pull/1203))
 
 ## [0.6.0] - 2021-06-06
 
@@ -180,10 +180,10 @@ Many thanks to all the [contributors](https://github.com/sqlfluff/sqlfluff/graph
 - [#1080](https://github.com/sqlfluff/sqlfluff/issues/1080) Add
   SET SCHEMA and DROP SCHEMA support to ANSI dialect.
 
-Contributors:
+### Contributors
 
 - [@bolajiwahab](https://github.com/bolajiwahab) ([#1063])(https://github.com/sqlfluff/sqlfluff/pull/1063)
-- [@silverbullettruck2001](https://github.com/silverbullettruck2001) ([#1126](https://github.com/sqlfluff/sqlfluff/pull/1126)), ([#1099](https://github.com/sqlfluff/sqlfluff/pull/1099)), ([#1141](https://github.com/sqlfluff/sqlfluff/pull/1141))
+- [@silverbullettruck2001](https://github.com/silverbullettruck2001) ([#1126](https://github.com/sqlfluff/sqlfluff/pull/1126)), ([#1099](https://github.com/sqlfluff/sqlfluff/pull/1099), [#1141](https://github.com/sqlfluff/sqlfluff/pull/1141))
 
 ## [0.6.0a2] - 2021-05-27
 
