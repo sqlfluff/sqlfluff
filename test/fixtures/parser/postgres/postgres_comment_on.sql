@@ -7,7 +7,7 @@ COMMENT ON COLLATION "fr_CA" IS 'Canadian French';
 COMMENT ON COLUMN my_table.my_column IS 'Employee ID number';
 COMMENT ON CONVERSION my_conv IS 'Conversion to UTF8';
 COMMENT ON CONSTRAINT bar_col_cons ON bar IS 'Constrains column col';
---COMMENT ON CONSTRAINT dom_col_constr ON DOMAIN dom IS 'Constrains col of domain';
+COMMENT ON CONSTRAINT dom_col_constr ON DOMAIN dom IS 'Constrains col of domain';
 COMMENT ON DATABASE my_database IS 'Development Database';
 COMMENT ON DOMAIN my_domain IS 'Email Address Domain';
 --COMMENT ON EVENT TRIGGER abort_ddl IS 'Aborts all DDL commands';

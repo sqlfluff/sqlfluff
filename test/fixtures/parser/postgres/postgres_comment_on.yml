@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5f62bd517ec0ddf697d25669a4a2224a65a382de0057639ede2995f8def641fe
+_hash: 8a586c2e0bd02465b93705b706fc53150df5a6a99116ba7d88494808f4684250
 file:
 - statement:
     comment_on_statement:
@@ -69,6 +69,20 @@ file:
         identifier: bar
     - keyword: IS
     - literal: "'Constrains column col'"
+- statement_terminator: ;
+- statement:
+    comment_on_statement:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: CONSTRAINT
+    - object_reference:
+        identifier: dom_col_constr
+    - keyword: 'ON'
+    - keyword: DOMAIN
+    - object_reference:
+        identifier: dom
+    - keyword: IS
+    - literal: "'Constrains col of domain'"
 - statement_terminator: ;
 - statement:
     comment_on_statement:

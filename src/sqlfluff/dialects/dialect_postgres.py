@@ -1030,6 +1030,15 @@ class CommentOnStatementSegment(BaseSegment):
                     Ref("ColumnReferenceSegment"),
                 ),
                 Sequence(
+                    "CONSTRAINT",
+                    Ref("ObjectReferenceSegment"),
+                    Sequence(
+                        "ON",
+                        Ref.keyword("DOMAIN", optional=True),
+                        Ref("ObjectReferenceSegment"),
+                    ),
+                ),
+                Sequence(
                     "DATABASE",
                     Ref("DatabaseReferenceSegment"),
                 ),
@@ -1054,7 +1063,6 @@ class CommentOnStatementSegment(BaseSegment):
                 Sequence(
                     OneOf(
                         "COLLATION",
-                        "CONSTRAINT",
                         "CONVERSION",
                         "DOMAIN",
                         "LANGUAGE",
