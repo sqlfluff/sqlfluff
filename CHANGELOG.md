@@ -13,6 +13,12 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ### What's Changed
 
+This release includes much better Postgres and Snowflake support, improvements to our documentation, 100% coverage for Python code (with a small number of accepted exceptions), along with numerous other bug fixes and improvements.
+
+Many thanks to all the [contributors](https://github.com/sqlfluff/sqlfluff/graphs/contributors) helping to improve SQLFluff!
+
+### Complete list of changes
+
 * Minor grammar corrections to documentation [#1355](https://github.com/sqlfluff/sqlfluff/pull/1355) @miketheman
 * Pytest coverage exceptions to get us to 100% coverage! [#1346](https://github.com/sqlfluff/sqlfluff/pull/1346) @tunetheweb
 * Greatly improved Snowflake syntax support [#1353](https://github.com/sqlfluff/sqlfluff/pull/1353) @tunetheweb
@@ -126,9 +132,9 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 - [@GitHub-Username](Link to GitHub profile) ([#PR-Number](Link to PR))
 - [@dflss](https://github.com/dflss) ([#1154](https://github.com/sqlfluff/sqlfluff/pull/1154))
-- [@barrywhart](https://github.com/barrywhart) ([#1177])(https://github.com/sqlfluff/sqlfluff/pull/1177)), [#1195](https://github.com/sqlfluff/sqlfluff/pull/1195)
-- [@niallrees](https://github.com/niallrees) ([#1178])(https://github.com/sqlfluff/sqlfluff/pull/1178))
-- [@barnabyshearer](https://github.com/barnabyshearer) ([#1194])(https://github.com/sqlfluff/sqlfluff/pull/1194))
+- [@barrywhart](https://github.com/barrywhart) ([#1177](https://github.com/sqlfluff/sqlfluff/pull/1177), [#1195](https://github.com/sqlfluff/sqlfluff/pull/1195)
+- [@niallrees](https://github.com/niallrees) ([#1178](https://github.com/sqlfluff/sqlfluff/pull/1178)
+- [@barnabyshearer](https://github.com/barnabyshearer) ([#1194](https://github.com/sqlfluff/sqlfluff/pull/1194)
 - [@silverbullettruck2001](https://github.com/silverbullettruck2001) ([#1141](https://github.com/sqlfluff/sqlfluff/pull/1141)), ([#1159](https://github.com/sqlfluff/sqlfluff/pull/1159)), ([#1161](https://github.com/sqlfluff/sqlfluff/pull/1161)), ([#1176](https://github.com/sqlfluff/sqlfluff/pull/1176)), ([#1179](https://github.com/sqlfluff/sqlfluff/pull/1179)), ([#1181](https://github.com/sqlfluff/sqlfluff/pull/1181)), ([#1193](https://github.com/sqlfluff/sqlfluff/pull/1193)), ([#1203](https://github.com/sqlfluff/sqlfluff/pull/1203))
 
 ## [0.6.0] - 2021-06-06
@@ -173,7 +179,7 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 Contributors:
 
-- [@bolajiwahab](https://github.com/bolajiwahab) ([#1063])(https://github.com/sqlfluff/sqlfluff/pull/1063)
+- [@bolajiwahab](https://github.com/bolajiwahab) ([#1063](https://github.com/sqlfluff/sqlfluff/pull/1063)
 - [@silverbullettruck2001](https://github.com/silverbullettruck2001) ([#1126](https://github.com/sqlfluff/sqlfluff/pull/1126)), ([#1099](https://github.com/sqlfluff/sqlfluff/pull/1099)), ([#1141](https://github.com/sqlfluff/sqlfluff/pull/1141))
 
 ## [0.6.0a2] - 2021-05-27
