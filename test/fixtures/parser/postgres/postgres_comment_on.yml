@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 81336bfdb038d0d45b0fe172dead75507be3beff2bb7997fe185125fe10ec793
+_hash: 5f62bd517ec0ddf697d25669a4a2224a65a382de0057639ede2995f8def641fe
 file:
 - statement:
     comment_on_statement:
@@ -56,6 +56,19 @@ file:
         identifier: my_conv
     - keyword: IS
     - literal: "'Conversion to UTF8'"
+- statement_terminator: ;
+- statement:
+    comment_on_statement:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: CONSTRAINT
+    - object_reference:
+        identifier: bar_col_cons
+    - keyword: 'ON'
+    - object_reference:
+        identifier: bar
+    - keyword: IS
+    - literal: "'Constrains column col'"
 - statement_terminator: ;
 - statement:
     comment_on_statement:
@@ -127,6 +140,19 @@ file:
     comment_on_statement:
     - keyword: COMMENT
     - keyword: 'ON'
+    - keyword: POLICY
+    - object_reference:
+        identifier: my_policy
+    - keyword: 'ON'
+    - object_reference:
+        identifier: mytable
+    - keyword: IS
+    - literal: "'Filter rows by users'"
+- statement_terminator: ;
+- statement:
+    comment_on_statement:
+    - keyword: COMMENT
+    - keyword: 'ON'
     - keyword: PUBLICATION
     - object_reference:
         identifier: alltables
@@ -142,6 +168,19 @@ file:
         identifier: my_role
     - keyword: IS
     - literal: "'Administration group for finance tables'"
+- statement_terminator: ;
+- statement:
+    comment_on_statement:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: RULE
+    - object_reference:
+        identifier: my_rule
+    - keyword: 'ON'
+    - object_reference:
+        identifier: my_table
+    - keyword: IS
+    - literal: "'Logs updates of employee records'"
 - statement_terminator: ;
 - statement:
     comment_on_statement:
@@ -214,6 +253,19 @@ file:
         identifier: my_tablespace
     - keyword: IS
     - literal: "'Tablespace for indexes'"
+- statement_terminator: ;
+- statement:
+    comment_on_statement:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: TRIGGER
+    - object_reference:
+        identifier: my_trigger
+    - keyword: 'ON'
+    - object_reference:
+        identifier: my_table
+    - keyword: IS
+    - literal: "'Used for RI'"
 - statement_terminator: ;
 - statement:
     comment_on_statement:
