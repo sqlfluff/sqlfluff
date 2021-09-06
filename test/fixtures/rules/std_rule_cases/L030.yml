@@ -16,6 +16,16 @@ test_2:
       L030:
         capitalisation_policy: lower
 
+test_bare_functions:
+  fail_str: SELECT current_timestamp from table
+
+  fix_str: SELECT CURRENT_TIMESTAMP from table
+
+  configs:
+    rules:
+      L030:
+        capitalisation_policy: upper
+
 test_fail_capitalization_after_comma:
   fail_str: SELECT FLOOR(dt) ,count(*) FROM test
   fix_str: SELECT FLOOR(dt) ,COUNT(*) FROM test
