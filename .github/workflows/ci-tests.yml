@@ -18,7 +18,7 @@ jobs:
     strategy:
       matrix:
         jobs: [ 'linting', 'doclinting' ]
-    name: ${{ matrix.python-version }} tests
+    name: ${{ matrix.jobs }} tests
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python
@@ -67,7 +67,7 @@ jobs:
     strategy:
       matrix:
         jobs: [ 'bench', 'mypy' ]
-    name: ${{ matrix.python-version }} tests
+    name: ${{ matrix.jobs }} tests
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python
@@ -125,5 +125,5 @@ jobs:
         pip install tox
     - name: Run the tests
       run: |
-        tox -e ${{ matrix.dbt-version }} -m dbt
+        tox -e ${{ matrix.dbt-version }} -- -m dbt
 
