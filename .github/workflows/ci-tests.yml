@@ -18,7 +18,7 @@ jobs:
     strategy:
       matrix:
         jobs: [ 'linting', 'doclinting' ]
-    name: Python ${{ matrix.python-version }} sample
+    name: Python ${{ matrix.python-version }} tests
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python
@@ -29,6 +29,7 @@ jobs:
       run: |
         pip install -Ur requirements.txt -Ur requirements_dev.txt
         python setup.py develop
+        pip install tox
     - name: Set Tox Params
       run: |
         echo "TOXENV={{ matrix.jobs }}" >> $GITHUB_ENV
@@ -52,6 +53,7 @@ jobs:
       run: |
         pip install -Ur requirements.txt -Ur requirements_dev.txt
         python setup.py develop
+        pip install tox
     - name: Set Tox Python Param
       run: |
         echo 'TOXENV<<EOF' >> $GITHUB_ENV
@@ -65,7 +67,7 @@ jobs:
     strategy:
       matrix:
         jobs: [ 'bench', 'mypy' ]
-    name: Python ${{ matrix.python-version }} sample
+    name: Python ${{ matrix.python-version }} tests
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python
@@ -76,6 +78,7 @@ jobs:
       run: |
         pip install -Ur requirements.txt -Ur requirements_dev.txt
         python setup.py develop
+        pip install tox
     - name: Set Tox Params
       run: |
         echo "TOXENV={{ matrix.jobs }}" >> $GITHUB_ENV
@@ -84,7 +87,7 @@ jobs:
         tox -e ${{ env.TOXENV }}
   examples:
     runs-on: ubuntu-latest
-    name: Python ${{ matrix.python-version }} sample
+    name: Python example tests
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python
@@ -95,6 +98,7 @@ jobs:
       run: |
         pip install -Ur requirements.txt -Ur requirements_dev.txt
         python setup.py develop
+        pip install tox
     - name: Test the example files
       run: |
         for file in examples/*
@@ -107,7 +111,7 @@ jobs:
     strategy:
       matrix:
         dbt-version: [ 'dbt018', 'dbt019', 'dbt020' ]
-    name: Python ${{ matrix.python-version }} sample
+    name: Python ${{ matrix.dbt-version }} tests
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python
@@ -118,7 +122,8 @@ jobs:
       run: |
         pip install -Ur requirements.txt -Ur requirements_dev.txt
         python setup.py develop
+        pip install tox
     - name: Run the tests
       run: |
-        tox -e ${{ matrix.python-version }} -m dbt
+        tox -e ${{ matrix.dbt-version }} -m dbt
 
