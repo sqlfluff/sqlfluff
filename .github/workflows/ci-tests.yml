@@ -18,7 +18,7 @@ jobs:
     strategy:
       matrix:
         jobs: [ 'linting', 'doclinting' ]
-    name: Python ${{ matrix.python-version }} tests
+    name: ${{ matrix.python-version }} tests
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python
@@ -32,7 +32,7 @@ jobs:
         pip install tox
     - name: Set Tox Params
       run: |
-        echo "TOXENV={{ matrix.jobs }}" >> $GITHUB_ENV
+        echo "TOXENV=${{ matrix.jobs }}" >> $GITHUB_ENV
         echo "UPLOAD_COVERAGE=0" >> $GITHUB_ENV
     - name: Run the tests
       run: |
@@ -42,7 +42,7 @@ jobs:
     strategy:
       matrix:
         python-version: [ '3.6', '3.7', '3.8', '3.9' ]
-    name: Python ${{ matrix.python-version }} sample
+    name: Python ${{ matrix.python-version }} tests
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python
@@ -67,7 +67,7 @@ jobs:
     strategy:
       matrix:
         jobs: [ 'bench', 'mypy' ]
-    name: Python ${{ matrix.python-version }} tests
+    name: ${{ matrix.python-version }} tests
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python
@@ -81,13 +81,13 @@ jobs:
         pip install tox
     - name: Set Tox Params
       run: |
-        echo "TOXENV={{ matrix.jobs }}" >> $GITHUB_ENV
+        echo "TOXENV=${{ matrix.jobs }}" >> $GITHUB_ENV
     - name: Run the tests
       run: |
         tox -e ${{ env.TOXENV }}
   examples:
     runs-on: ubuntu-latest
-    name: Python example tests
+    name: example tests
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python
@@ -111,7 +111,7 @@ jobs:
     strategy:
       matrix:
         dbt-version: [ 'dbt018', 'dbt019', 'dbt020' ]
-    name: Python ${{ matrix.dbt-version }} tests
+    name: DBT ${{ matrix.dbt-version }} tests
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python
