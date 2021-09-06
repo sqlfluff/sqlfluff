@@ -12,6 +12,7 @@ on:
     paths-ignore:
       - '**.png'
       - '**.md'
+      - '**.rst'
 jobs:
   linting:
     runs-on: ubuntu-latest
