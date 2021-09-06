@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 588a570e1e7172f1c506f539bc37d01fe2ae622c02f59565d086dd985f1045db
+_hash: b6fb81910aa6207dc6a861e3a33fe12ac8c0ac4c184ca933bfc8772bf1b11bb3
 file:
 - statement:
     comment_on_statement:
@@ -24,6 +24,32 @@ file:
         identifier: mytable
     - keyword: IS
     - keyword: 'NULL'
+- statement_terminator: ;
+- statement:
+    comment_on_statement:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: ACCESS
+    - keyword: METHOD
+    - object_reference:
+        identifier: gin
+    - keyword: IS
+    - literal: "'GIN index access method'"
+- statement_terminator: ;
+- statement:
+    comment_on_statement:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: AGGREGATE
+    - object_reference:
+        identifier: my_aggregate
+    - bracketed:
+      - start_bracket: (
+      - raw: double
+      - raw: precision
+      - end_bracket: )
+    - keyword: IS
+    - literal: "'Computes sample variance'"
 - statement_terminator: ;
 - statement:
     comment_on_statement:
@@ -228,6 +254,22 @@ file:
     comment_on_statement:
     - keyword: COMMENT
     - keyword: 'ON'
+    - keyword: PROCEDURE
+    - object_reference:
+        identifier: my_proc
+    - bracketed:
+      - start_bracket: (
+      - raw: integer
+      - comma: ','
+      - raw: integer
+      - end_bracket: )
+    - keyword: IS
+    - literal: "'Runs a report'"
+- statement_terminator: ;
+- statement:
+    comment_on_statement:
+    - keyword: COMMENT
+    - keyword: 'ON'
     - keyword: PUBLICATION
     - object_reference:
         identifier: alltables
@@ -243,6 +285,22 @@ file:
         identifier: my_role
     - keyword: IS
     - literal: "'Administration group for finance tables'"
+- statement_terminator: ;
+- statement:
+    comment_on_statement:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: ROUTINE
+    - object_reference:
+        identifier: my_routine
+    - bracketed:
+      - start_bracket: (
+      - raw: integer
+      - comma: ','
+      - raw: integer
+      - end_bracket: )
+    - keyword: IS
+    - literal: "'Runs a routine (which is a function or procedure)'"
 - statement_terminator: ;
 - statement:
     comment_on_statement:

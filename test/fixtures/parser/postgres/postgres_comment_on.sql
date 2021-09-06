@@ -3,8 +3,8 @@
 -- See https://www.postgresql.org/docs/13/sql-comment.html
 COMMENT ON TABLE mytable IS 'This is my table.';
 COMMENT ON TABLE mytable IS NULL;
---COMMENT ON ACCESS METHOD gin IS 'GIN index access method';
---COMMENT ON AGGREGATE my_aggregate (double precision) IS 'Computes sample variance';
+COMMENT ON ACCESS METHOD gin IS 'GIN index access method';
+COMMENT ON AGGREGATE my_aggregate (double precision) IS 'Computes sample variance';
 COMMENT ON CAST (text AS int4) IS 'Allow casts from text to int4';
 COMMENT ON COLLATION "fr_CA" IS 'Canadian French';
 COMMENT ON COLUMN my_table.my_column IS 'Employee ID number';
@@ -27,10 +27,10 @@ COMMENT ON MATERIALIZED VIEW my_matview IS 'Summary of order history';
 --COMMENT ON OPERATOR CLASS int4ops USING btree IS '4 byte integer operators for btrees';
 --COMMENT ON OPERATOR FAMILY integer_ops USING btree IS 'all integer operators for btrees';
 COMMENT ON POLICY my_policy ON mytable IS 'Filter rows by users';
---COMMENT ON PROCEDURE my_proc (integer, integer) IS 'Runs a report';
+COMMENT ON PROCEDURE my_proc (integer, integer) IS 'Runs a report';
 COMMENT ON PUBLICATION alltables IS 'Publishes all operations on all tables';
 COMMENT ON ROLE my_role IS 'Administration group for finance tables';
---COMMENT ON ROUTINE my_routine (integer, integer) IS 'Runs a routine (which is a function or procedure)';
+COMMENT ON ROUTINE my_routine (integer, integer) IS 'Runs a routine (which is a function or procedure)';
 COMMENT ON RULE my_rule ON my_table IS 'Logs updates of employee records';
 COMMENT ON SCHEMA my_schema IS 'Departmental data';
 COMMENT ON SEQUENCE my_sequence IS 'Used to generate primary keys';

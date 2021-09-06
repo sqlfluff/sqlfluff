@@ -1087,6 +1087,7 @@ class CommentOnStatementSegment(BaseSegment):
                         "TABLESPACE",
                         "TRIGGER",
                         "TYPE",
+                        Sequence("ACCESS", "METHOD"),
                         Sequence("EVENT", "TRIGGER"),
                         Sequence("FOREIGN", "DATA", "WRAPPER"),
                         Sequence("FOREIGN", "TABLE"),
@@ -1098,6 +1099,20 @@ class CommentOnStatementSegment(BaseSegment):
                     ),
                     Ref("ObjectReferenceSegment"),
                     Sequence("ON", Ref("ObjectReferenceSegment"), optional=True),
+                ),
+                Sequence(
+                    OneOf(
+                        "AGGREGATE",
+                        "PROCEDURE",
+                        "ROUTINE",
+                    ),
+                    Ref("ObjectReferenceSegment"),
+                    Bracketed(
+                        Sequence(
+                            # TODO: Is this too permissive?
+                            Anything(),
+                        ),
+                    ),
                 ),
             ),
             Sequence("IS", OneOf(Ref("QuotedLiteralSegment"), "NULL")),
