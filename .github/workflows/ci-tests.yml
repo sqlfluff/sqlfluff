@@ -3,7 +3,7 @@
 ########################
 #
 # Our preferred CI usage is Circle CI
-# but this acts as alternative is not available
+# but this acts as alternative if not available
 #
 name: "Run CI Tests"
 on:
