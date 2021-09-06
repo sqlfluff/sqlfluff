@@ -2,8 +2,11 @@
 ## GitHub Actions CI  ##
 ########################
 #
-# Our preferred CI usage is Circle CI
-# but this acts as alternative if not available
+# Our preferred CI usage is Circle CI but this acts as
+# alternative if not available.
+#
+# This Workflow can be enabled and disabled in the  Actions
+# tab: https://github.com/sqlfluff/sqlfluff/actions
 #
 name: "Run CI Tests"
 on:
