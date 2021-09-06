@@ -2,7 +2,7 @@ COMMENT ON TABLE mytable IS 'This is my table.';
 COMMENT ON TABLE mytable IS NULL;
 --COMMENT ON ACCESS METHOD gin IS 'GIN index access method';
 --COMMENT ON AGGREGATE my_aggregate (double precision) IS 'Computes sample variance';
---COMMENT ON CAST (text AS int4) IS 'Allow casts from text to int4';
+COMMENT ON CAST (text AS int4) IS 'Allow casts from text to int4';
 COMMENT ON COLLATION "fr_CA" IS 'Canadian French';
 COMMENT ON COLUMN my_table.my_column IS 'Employee ID number';
 COMMENT ON CONVERSION my_conv IS 'Conversion to UTF8';

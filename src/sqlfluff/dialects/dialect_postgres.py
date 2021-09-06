@@ -1025,6 +1025,16 @@ class CommentOnStatementSegment(BaseSegment):
                     Ref("TableReferenceSegment"),
                 ),
                 Sequence(
+                    "CAST",
+                    Bracketed(
+                        Sequence(
+                            Ref("ObjectReferenceSegment"),
+                            "AS",
+                            Ref("ObjectReferenceSegment"),
+                        ),
+                    ),
+                ),
+                Sequence(
                     "COLUMN",
                     # TODO: Does this correctly emit a Table Reference?
                     Ref("ColumnReferenceSegment"),

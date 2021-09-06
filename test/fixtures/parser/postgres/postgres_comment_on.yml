@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3862f397e338c215eec73e8e9db7dbe71e3b87dfa1ea56410b55e843865518c0
+_hash: 588a570e1e7172f1c506f539bc37d01fe2ae622c02f59565d086dd985f1045db
 file:
 - statement:
     comment_on_statement:
@@ -24,6 +24,22 @@ file:
         identifier: mytable
     - keyword: IS
     - keyword: 'NULL'
+- statement_terminator: ;
+- statement:
+    comment_on_statement:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: CAST
+    - bracketed:
+      - start_bracket: (
+      - object_reference:
+          identifier: text
+      - keyword: AS
+      - object_reference:
+          identifier: int4
+      - end_bracket: )
+    - keyword: IS
+    - literal: "'Allow casts from text to int4'"
 - statement_terminator: ;
 - statement:
     comment_on_statement:
