@@ -171,13 +171,13 @@ jobs:
 
 ### Workflows which call the different tox jobs
 workflows:
-  # Temporarily disable this by limiting it to master
-  filters:
-  branches:
-     only:
-      - master
   version: 2
   test-sqlfluff:
+    # Temporarily disable this by limiting it to master
+    filters:
+      branches:
+        only:
+          - master
     jobs:
       - linting
       - doclinting
