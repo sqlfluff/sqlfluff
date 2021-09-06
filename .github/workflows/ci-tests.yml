@@ -63,17 +63,8 @@ jobs:
       run: |
         tox -e ${{ env.TOXENV }}
     - name: Upload Coverage Report
-      run: |
-        pip install codecov
-        # Retry upload until success (sometimes we get a timeout)
-        n=0
-        until [ $n -ge 5 ]
-        do
-          # The break at the end means if the command succeeds then we break out of the loop.
-          codecov --required -X search gcov pycov -f coverage.xml --flags $GITHUB_REF && break
-          n=$[$n+1]
-          sleep 5
-        done
+      uses: codecov/codecov-action@v1
+      file: ./coverage.xml
   other-tests:
     runs-on: ubuntu-latest
     strategy:
@@ -97,18 +88,6 @@ jobs:
     - name: Run the tests
       run: |
         tox -e ${{ env.TOXENV }}
-    - name: Upload Coverage Report
-      run: |
-        pip install codecov
-        # Retry upload until success (sometimes we get a timeout)
-        n=0
-        until [ $n -ge 5 ]
-        do
-          # The break at the end means if the command succeeds then we break out of the loop.
-          codecov --required -X search gcov pycov -f coverage.xml --flags $GITHUB_REF && break
-          n=$[$n+1]
-          sleep 5
-        done
   examples:
     runs-on: ubuntu-latest
     name: example tests
@@ -129,18 +108,6 @@ jobs:
         do
           echo "Running $file"
           python "$file"
-        done
-    - name: Upload Coverage Report
-      run: |
-        pip install codecov
-        # Retry upload until success (sometimes we get a timeout)
-        n=0
-        until [ $n -ge 5 ]
-        do
-          # The break at the end means if the command succeeds then we break out of the loop.
-          codecov --required -X search gcov pycov -f coverage.xml --flags $GITHUB_REF && break
-          n=$[$n+1]
-          sleep 5
         done
   dbt-tests:
     runs-on: ubuntu-latest
@@ -163,15 +130,6 @@ jobs:
       run: |
         tox -e ${{ matrix.dbt-version }} -- -m dbt
     - name: Upload Coverage Report
-      run: |
-        pip install codecov
-        # Retry upload until success (sometimes we get a timeout)
-        n=0
-        until [ $n -ge 5 ]
-        do
-          # The break at the end means if the command succeeds then we break out of the loop.
-          codecov --required -X search gcov pycov -f coverage.xml --flags $GITHUB_REF && break
-          n=$[$n+1]
-          sleep 5
-        done
+      uses: codecov/codecov-action@v1
+      file: ./coverage.xml
 
