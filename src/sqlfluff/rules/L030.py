@@ -52,8 +52,6 @@ class Rule_L030(Rule_L010):
         function_name_identifier that holds the actual name.
         """
 
-        print(segment.type)
-
         if segment.type == "function_name":
 
             child_segment = [
