@@ -64,7 +64,8 @@ jobs:
         tox -e ${{ env.TOXENV }}
     - name: Upload Coverage Report
       uses: codecov/codecov-action@v1
-      file: ./coverage.xml
+      with:
+        files: ./coverage.xml
   other-tests:
     runs-on: ubuntu-latest
     strategy:
@@ -131,5 +132,6 @@ jobs:
         tox -e ${{ matrix.dbt-version }} -- -m dbt
     - name: Upload Coverage Report
       uses: codecov/codecov-action@v1
-      file: ./coverage.xml
+      with:
+        files: ./coverage.xml
 
