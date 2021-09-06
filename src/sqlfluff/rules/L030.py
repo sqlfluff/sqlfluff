@@ -41,7 +41,7 @@ class Rule_L030(Rule_L010):
 
     _target_elems: List[Tuple[str, str]] = [
         ("type", "function_name"),
-        ("type", "bare_function")
+        ("type", "bare_function"),
     ]
     _description_elem = "Function names"
 
@@ -54,7 +54,7 @@ class Rule_L030(Rule_L010):
 
         print(segment.type)
 
-        if segment.type == 'function_name':
+        if segment.type == "function_name":
 
             child_segment = [
                 child
