@@ -51,7 +51,6 @@ class Rule_L030(Rule_L010):
         We need to do this because function_name nodes have a child
         function_name_identifier that holds the actual name.
         """
-
         if segment.type == "function_name":
 
             child_segment = [
