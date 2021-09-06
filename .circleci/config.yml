@@ -171,9 +171,11 @@ jobs:
 
 ### Workflows which call the different tox jobs
 workflows:
+  # Temporarily disable this by limiting it to master
   filters:
   branches:
-     only: master
+     only:
+      - master
   version: 2
   test-sqlfluff:
     jobs:
