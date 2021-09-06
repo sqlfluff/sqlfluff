@@ -172,21 +172,20 @@ jobs:
 ### Workflows which call the different tox jobs
 workflows:
   version: 2
-  # Temporarily disable this by limiting it to master
-  #test-sqlfluff:
-    #jobs:
-    #  - linting
-    #  - doclinting
-    #  - mypy
-    #  - py36
-    #  - py37
-    #  - py38
-    #  - py39
-    #  - dbt018-py38
-    #  - dbt019-py38
-    #  - dbt020-py38
-    #  - bench
-    #  - examples
+  test-sqlfluff:
+    jobs:
+      - linting
+      - doclinting
+      - mypy
+      - py36
+      - py37
+      - py38
+      - py39
+      - dbt018-py38
+      - dbt019-py38
+      - dbt020-py38
+      - bench
+      - examples
   nightly:
     triggers:
       - schedule:
