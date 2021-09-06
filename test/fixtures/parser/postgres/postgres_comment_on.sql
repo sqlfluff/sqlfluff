@@ -1,3 +1,6 @@
+-- This test file includes all examples from the Postgres docs,
+-- but not all are implemented so some are commented out for now.
+-- See https://www.postgresql.org/docs/13/sql-comment.html
 COMMENT ON TABLE mytable IS 'This is my table.';
 COMMENT ON TABLE mytable IS NULL;
 --COMMENT ON ACCESS METHOD gin IS 'GIN index access method';
