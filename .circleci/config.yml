@@ -4,10 +4,6 @@
 ### =============================================================
 
 version: 2.1
-parameters: 
-    git-branch: 
-      default: non-existing-branch-to-disable-this
-      type: string
 
 # Enable the windows orb for windows testing
 orbs:
@@ -175,6 +171,9 @@ jobs:
 
 ### Workflows which call the different tox jobs
 workflows:
+  filters:
+  branches:
+     only: master
   version: 2
   test-sqlfluff:
     jobs:
