@@ -56,6 +56,9 @@ tsql_dialect.insert_lexer_matchers(
 
 
 tsql_dialect.replace(
+    SingleIdentifierGrammar=OneOf(
+        Ref("NakedIdentifierSegment"), Ref("QuotedIdentifierSegment"), Ref("BracketedIdentifierSegment"),
+    ),
     ParameterNameSegment=RegexParser(
         r"[@][A-Za-z0-9_]+", CodeSegment, name="parameter", type="parameter"
     ),
@@ -76,12 +79,8 @@ tsql_dialect.replace(
             anti_template=r"^(NOT)$",  # TODO - this is a stopgap until we implement explicit data types
         ),
     ),
-    SingleIdentifierGrammar=OneOf(
-        Ref("NakedIdentifierSegment"), Ref("QuotedIdentifierSegment"), Ref("BracketedIdentifierSegment"),
-    ),
+
 )
-
-
 
 @tsql_dialect.segment()
 class BracketedIdentifierSegment(BaseSegment):
@@ -138,27 +137,13 @@ class ObjectReferenceSegment(BaseSegment):
     type = "object_reference"
     # match grammar (don't allow whitespace)
 
-    match_grammar = Ref("SingleIdentifierGrammar")
-    # match_grammar: Matchable = Delimited(
-    #     Ref("SingleIdentifierGrammar"),
-    #     # delimiter=OneOf(
-    #     #     Ref("DotSegment"), Sequence(Ref("DotSegment"), Ref("DotSegment"))
-    #     # ),
-    #     # terminator=OneOf(
-    #     #     "ON",
-    #     #     "AS",
-    #     #     "USING",
-    #     #     Ref("CommaSegment"),
-    #     #     Ref("CastOperatorSegment"),
-    #     #     Ref("StartSquareBracketSegment"),
-    #     #     Ref("StartBracketSegment"),
-    #     #     Ref("BinaryOperatorGrammar"),
-    #     #     Ref("ColonSegment"),
-    #     #     Ref("DelimiterSegment"),
-    #     #     BracketedSegment,
-    #     # ),
-    #     allow_gaps=False,
-    # )
+    match_grammar: Matchable = Delimited(
+        Ref("SingleIdentifierGrammar"),
+        delimiter=OneOf(
+            Ref("DotSegment"), Sequence(Ref("DotSegment"), Ref("DotSegment"))
+        ),
+        allow_gaps=False,
+    )
 
 @tsql_dialect.segment()
 class GoStatementSegment(BaseSegment):
@@ -167,21 +152,6 @@ class GoStatementSegment(BaseSegment):
     type = "go_statement"
     type = "go_statement"
     match_grammar = Sequence("GO")
-
-
-@tsql_dialect.segment()
-class SchemaNameSegment(BaseSegment):
-    """This is a schema name optionally bracketed"""
-
-    type = "schema_name"
-    name = "schema"
-    match_grammar = Sequence(
-        #OptionallyBracketed(
-            Ref("SingleIdentifierGrammar"),
-            #bracket_type="square",
-        #),
-        Ref("DotSegment"),
-    )
 
 
 # @tsql_dialect.segment()
@@ -226,7 +196,18 @@ class CreateTableStatementSegment(BaseSegment):
         "TABLE",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),   
-        Anything(),     
+        Sequence(
+                Bracketed(
+                    Delimited(
+                        OneOf(
+                            Ref("TableConstraintSegment"),
+                            Ref("ColumnDefinitionSegment"),
+                        ),
+                    )
+                ),
+                Ref("CommentClauseSegment", optional=True),
+            ),        
+        Anything(),  
         # OneOf(
         #     # Columns and comment syntax:
         #     Sequence(
@@ -240,14 +221,15 @@ class CreateTableStatementSegment(BaseSegment):
         #         ),
         #         Ref("CommentClauseSegment", optional=True),
         #     ),
-        #     # Create AS syntax:
-        #     Sequence(
-        #         "AS",
-        #         OptionallyBracketed(Ref("SelectableGrammar")),
-        #     ),
-        #     # Create like syntax
-        #     Sequence("LIKE", Ref("TableReferenceSegment")),
+            # # Create AS syntax:
+            # Sequence(
+            #     "AS",
+            #     OptionallyBracketed(Ref("SelectableGrammar")),
+            # ),
+            # # Create like syntax
+            # Sequence("LIKE", Ref("TableReferenceSegment")),
         # ),
+        # Anything(),  
         # Ref("GoStatementSegment", optional=True),
     )
 
