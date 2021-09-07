@@ -4,8 +4,6 @@ https://docs.microsoft.com/en-us/sql/t-sql/language-elements/language-elements-t
 
 
 """
-from enum import Enum
-from typing import Any, Generator, List, Tuple, NamedTuple, Optional, Union
 
 from sqlfluff.core.parser import (
     BaseSegment,
@@ -22,15 +20,10 @@ from sqlfluff.core.parser import (
     AnyNumberOf,
 )
 
-from sqlfluff.core.dialects.base import Dialect
-from sqlfluff.core.dialects.common import AliasInfo
-from sqlfluff.core.parser.segments.base import BracketedSegment
-
 from sqlfluff.dialects.ansi_keywords import (
     ansi_reserved_keywords,
     ansi_unreserved_keywords,
 )
-
 
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.dialects.dialect_ansi import StatementSegment
@@ -165,9 +158,10 @@ class SchemaNameSegment(BaseSegment):
     type = "schema_name"
     name = "schema"
     match_grammar = Sequence(
-        Ref("StartSquareBracketSegment", optional=True),
-        Ref("SingleIdentifierGrammar"),
-        Ref("EndSquareBracketSegment", optional=True),
+        OptionallyBracketed(
+            Ref("SingleIdentifierSegment"),
+            bracket_type="square",
+        ),
         Ref("DotSegment"),
     )
 
@@ -178,50 +172,11 @@ class ObjectNameSegment(BaseSegment):
 
     type = "object_name"
     match_grammar = Sequence(
-        Ref("StartSquareBracketSegment", optional=True),
-        Ref("SingleIdentifierGrammar"),
-        Ref("EndSquareBracketSegment", optional=True),
+        OptionallyBracketed(
+            Ref("SingleIdentifierSegment"),
+            bracket_type="square",
+        ),
     )
-
-
-# @tsql_dialect.segment(replace=True)
-# class TableConstraintSegment(BaseSegment):
-#     """A table constraint, e.g. for CREATE TABLE."""
-
-#     type = "table_constraint_definition"
-#     # Later add support for CHECK constraint, others?
-#     # e.g. CONSTRAINT constraint_1 PRIMARY KEY(column_1)
-#     match_grammar = Sequence(
-#         Sequence(  # [ CONSTRAINT <Constraint name> ]
-#             "CONSTRAINT", Ref("ObjectReferenceSegment"), optional=True
-#         ),
-#         OneOf(
-#             Sequence(  # UNIQUE ( column_name [, ... ] )
-#                 "UNIQUE",
-#                 Ref("BracketedColumnReferenceListGrammar"),
-#                 # Later add support for index_parameters?
-#             ),
-#             Sequence(  # PRIMARY KEY ( column_name [, ... ] ) index_parameters
-#                 Ref("PrimaryKeyGrammar"),
-#                 # Columns making up PRIMARY KEY constraint
-#                 Ref("BracketedColumnReferenceListGrammar"),
-#                 # Later add support for index_parameters?
-#             ),
-#             Sequence(  # FOREIGN KEY ( column_name [, ... ] )
-#                 # REFERENCES reftable [ ( refcolumn [, ... ] ) ]
-#                 "FOREIGN",
-#                 "KEY",
-#                 # Local columns making up FOREIGN KEY constraint
-#                 Ref("BracketedColumnReferenceListGrammar"),
-#                 "REFERENCES",
-#                 Ref("ColumnReferenceSegment"),
-#                 # Foreign columns making up FOREIGN KEY constraint
-#                 Ref("BracketedColumnReferenceListGrammar"),
-#                 # Later add support for [MATCH FULL/PARTIAL/SIMPLE] ?
-#                 # Later add support for [ ON DELETE/UPDATE action ] ?
-#             ),
-#         ),
-#     )
 
 
 @tsql_dialect.segment(replace=True)
@@ -265,16 +220,6 @@ class CreateTableStatementSegment(BaseSegment):
     )
 
 
-# @tsql_dialect.segment(replace=True)
-# class DatatypeIdentifierSegment(BaseSegment):
-#     name="data_type_identifier",
-#     type="data_type_identifier",
-#     match_grammar = RegexParser(
-#         r"\[?[A-Z][A-Z0-9_]*\]?",
-#         CodeSegment,
-#     ),
-
-
 @tsql_dialect.segment(replace=True)
 class DatatypeSegment(BaseSegment):
     """A data type segment."""
@@ -284,16 +229,18 @@ class DatatypeSegment(BaseSegment):
         Sequence(
             # Some dialects allow optional qualification of data types with schemas
             Sequence(
-                Ref("StartSquareBracketSegment", optional=True),
-                Ref("SingleIdentifierGrammar"),
-                Ref("EndSquareBracketSegment", optional=True),
+                OptionallyBracketed(
+                    Ref("SingleIdentifierSegment"),
+                    bracket_type="square",
+                ),
                 Ref("DotSegment"),
                 allow_gaps=False,
                 optional=True,
             ),
-            Ref("StartSquareBracketSegment", optional=True),
-            Ref("DatatypeIdentifierSegment"),
-            Ref("EndSquareBracketSegment", optional=True),
+            OptionallyBracketed(
+                Ref("DatatypeIdentifierSegment"),
+                bracket_type="square",
+            ),
             allow_gaps=False,
         ),
         Bracketed(
@@ -354,9 +301,10 @@ class ColumnDefinitionSegment(BaseSegment):
 
     type = "column_definition"
     match_grammar = Sequence(
-        Ref("StartSquareBracketSegment", optional=True),
-        Ref("SingleIdentifierGrammar"),  # Column name
-        Ref("EndSquareBracketSegment", optional=True),
+        OptionallyBracketed(
+            Ref("SingleIdentifierSegment"),
+            bracket_type="square",
+        ),
         Ref("DatatypeSegment"),  # Column type
         Bracketed(Anything(), optional=True),  # For types like VARCHAR(100)
         AnyNumberOf(
