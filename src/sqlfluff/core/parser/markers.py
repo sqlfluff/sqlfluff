@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from typing import Tuple, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from sqlfluff.core.templaters import TemplatedFile
+    from sqlfluff.core.templaters import TemplatedFile  # pragma: no cover
 
 
 @dataclass(frozen=True)
@@ -49,16 +49,16 @@ class PositionMarker:
         return self.to_source_string()
 
     def __gt__(self, other):
-        return self.working_loc > other.working_loc
+        return self.working_loc > other.working_loc  # pragma: no cover TODO?
 
     def __lt__(self, other):
-        return self.working_loc < other.working_loc
+        return self.working_loc < other.working_loc  # pragma: no cover TODO?
 
     def __ge__(self, other):
-        return self.working_loc >= other.working_loc
+        return self.working_loc >= other.working_loc  # pragma: no cover TODO?
 
     def __le__(self, other):
-        return self.working_loc <= other.working_loc
+        return self.working_loc <= other.working_loc  # pragma: no cover TODO?
 
     @property
     def working_loc(self) -> Tuple[int, int]:
@@ -101,7 +101,7 @@ class PositionMarker:
             max(m.templated_slice.stop for m in markers),
         )
         templated_files = {m.templated_file for m in markers}
-        if len(templated_files) != 1:
+        if len(templated_files) != 1:  # pragma: no cover
             raise ValueError("Attempted to make a parent marker from multiple files.")
         templated_file = templated_files.pop()
         return cls(source_slice, templated_slice, templated_file)

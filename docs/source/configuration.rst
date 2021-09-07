@@ -306,7 +306,7 @@ dbt Project Configuration
 .. note::
     dbt templating is a new feature added in 0.4.0 and has not benefited
     from widespread use and testing yet! If you encounter an issue, please
-    let us know in a Github issue or on the SQLFluff slack workspace.
+    let us know in a GitHub issue or on the SQLFluff slack workspace.
 
 dbt is not the default templater for *SQLFluff* (it is Jinja). For using
 *SQLFluff* with a dbt project, users can either use the `jinja` templater

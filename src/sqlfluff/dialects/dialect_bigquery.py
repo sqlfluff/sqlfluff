@@ -208,7 +208,7 @@ class QualifyClauseSegment(BaseSegment):
 
 @bigquery_dialect.segment(replace=True)
 class SelectStatementSegment(BaseSegment):
-    """Enhance`SELECT` statement to include QUALIFY."""
+    """Enhance `SELECT` statement to include QUALIFY."""
 
     type = "select_statement"
     match_grammar = ansi_dialect.get_segment(
@@ -220,6 +220,23 @@ class SelectStatementSegment(BaseSegment):
     ).parse_grammar.copy(
         insert=[Ref("QualifyClauseSegment", optional=True)],
         before=Ref("OrderByClauseSegment", optional=True),
+    )
+
+
+@bigquery_dialect.segment(replace=True)
+class UnorderedSelectStatementSegment(BaseSegment):
+    """Enhance unordered `SELECT` statement to include QUALIFY."""
+
+    type = "select_statement"
+    match_grammar = ansi_dialect.get_segment(
+        "UnorderedSelectStatementSegment"
+    ).match_grammar.copy()
+
+    parse_grammar = ansi_dialect.get_segment(
+        "UnorderedSelectStatementSegment"
+    ).parse_grammar.copy(
+        insert=[Ref("QualifyClauseSegment", optional=True)],
+        before=Ref("OverlapsClauseSegment", optional=True),
     )
 
 

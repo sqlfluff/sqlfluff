@@ -55,9 +55,7 @@ from sqlfluff.dialects.ansi_keywords import (
     ansi_unreserved_keywords,
 )
 
-
 ansi_dialect = Dialect("ansi", root_segment_name="FileSegment")
-
 
 ansi_dialect.set_lexer_matchers(
     [
@@ -128,7 +126,6 @@ ansi_dialect.sets("bare_functions").update(
     ["current_timestamp", "current_time", "current_date"]
 )
 
-
 # Set the datetime units
 ansi_dialect.sets("datetime_units").update(
     [
@@ -178,7 +175,6 @@ ansi_dialect.sets("bracket_pairs").update(
 # - At least one other database (DB2) has the same value table function,
 #   UNNEST(), as BigQuery. DB2 is not currently supported by SQLFluff.
 ansi_dialect.sets("value_table_functions").update([])
-
 
 ansi_dialect.add(
     # Real segments
@@ -300,11 +296,15 @@ ansi_dialect.add(
         type="function_name_identifier",
     ),
     # Maybe data types should be more restrictive?
-    DatatypeIdentifierSegment=RegexParser(
-        r"[A-Z][A-Z0-9_]*",
-        CodeSegment,
-        name="data_type_identifier",
-        type="data_type_identifier",
+    DatatypeIdentifierSegment=SegmentGenerator(
+        # Generate the anti template from the set of reserved keywords
+        lambda dialect: RegexParser(
+            r"[A-Z][A-Z0-9_]*",
+            CodeSegment,
+            name="data_type_identifier",
+            type="data_type_identifier",
+            anti_template=r"^(NOT)$",  # TODO - this is a stopgap until we implement explicit data types
+        ),
     ),
     # Ansi Intervals
     DatetimeUnitSegment=SegmentGenerator(
@@ -516,31 +516,41 @@ class ArrayLiteralSegment(BaseSegment):
 
 @ansi_dialect.segment()
 class DatatypeSegment(BaseSegment):
-    """A data type segment."""
+    """A data type segment.
+
+    Supports timestamp with(out) time zone. Doesn't currently support intervals.
+    """
 
     type = "data_type"
-    match_grammar = Sequence(
+    match_grammar = OneOf(
         Sequence(
-            # Some dialects allow optional qualification of data types with schemas
+            OneOf("time", "timestamp"),
+            Bracketed(Ref("NumericLiteralSegment"), optional=True),
+            Sequence(OneOf("WITH", "WITHOUT"), "TIME", "ZONE", optional=True),
+        ),
+        Sequence(
             Sequence(
-                Ref("SingleIdentifierGrammar"),
-                Ref("DotSegment"),
+                # Some dialects allow optional qualification of data types with schemas
+                Sequence(
+                    Ref("SingleIdentifierGrammar"),
+                    Ref("DotSegment"),
+                    allow_gaps=False,
+                    optional=True,
+                ),
+                Ref("DatatypeIdentifierSegment"),
                 allow_gaps=False,
+            ),
+            Bracketed(
+                OneOf(
+                    Delimited(Ref("ExpressionSegment")),
+                    # The brackets might be empty for some cases...
+                    optional=True,
+                ),
+                # There may be no brackets for some data types
                 optional=True,
             ),
-            Ref("DatatypeIdentifierSegment"),
-            allow_gaps=False,
+            Ref("CharCharacterSetSegment", optional=True),
         ),
-        Bracketed(
-            OneOf(
-                Delimited(Ref("ExpressionSegment")),
-                # The brackets might be empty for some cases...
-                optional=True,
-            ),
-            # There may be no brackets for some data types
-            optional=True,
-        ),
-        Ref("CharCharacterSetSegment", optional=True),
     )
 
 
@@ -1479,6 +1489,16 @@ ansi_dialect.add(
             Sequence(
                 Ref("SimpleArrayTypeGrammar", optional=True), Ref("ArrayLiteralSegment")
             ),
+            Sequence(
+                Ref("DatatypeSegment"),
+                OneOf(
+                    Ref("QuotedLiteralSegment"),
+                    Ref("NumericLiteralSegment"),
+                    Ref("BooleanLiteralGrammar"),
+                    Ref("NullLiteralSegment"),
+                    Ref("DateTimeLiteralGrammar"),
+                ),
+            ),
         ),
         Ref("Accessor_Grammar", optional=True),
         AnyNumberOf(Ref("ShorthandCastSegment")),
@@ -2306,37 +2326,6 @@ class DropIndexStatementSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
-class AlterDefaultPrivilegesSegment(BaseSegment):
-    """Postgres `ALTER DEFAULT PRIVILEGES` statement.
-
-    ```
-    ALTER DEFAULT PRIVILEGES
-    [ FOR { ROLE | USER } target_role [, ...] ]
-    [ IN SCHEMA schema_name [, ...] ]
-    abbreviated_grant_or_revoke
-    ```
-    """
-
-    type = "alter_default_privileges_statement"
-
-    match_grammar = Sequence(
-        "ALTER",
-        "DEFAULT",
-        "PRIVILEGES",
-        Sequence(
-            "FOR",
-            OneOf("ROLE", "USER"),
-            Delimited(Ref("ObjectReferenceSegment")),
-            optional=True,
-        ),
-        Sequence(
-            "IN", "SCHEMA", Delimited(Ref("SchemaReferenceSegment")), optional=True
-        ),
-        Ref("AccessStatementSegment"),
-    )
-
-
-@ansi_dialect.segment()
 class AccessStatementSegment(BaseSegment):
     """A `GRANT` or `REVOKE` statement.
 
@@ -2492,6 +2481,7 @@ class AccessStatementSegment(BaseSegment):
                     _objects,
                 ),
                 Sequence("ROLE", Ref("ObjectReferenceSegment")),
+                Sequence("OWNERSHIP", "ON", "USER", Ref("ObjectReferenceSegment")),
                 # In the case where a role is granted non-explicitly,
                 # e.g. GRANT ROLE_NAME TO OTHER_ROLE_NAME
                 # See https://www.postgresql.org/docs/current/sql-grant.html
@@ -2501,6 +2491,7 @@ class AccessStatementSegment(BaseSegment):
             OneOf("GROUP", "USER", "ROLE", "SHARE", optional=True),
             OneOf(
                 Ref("ObjectReferenceSegment"),
+                Ref("FunctionSegment"),
                 "PUBLIC",
             ),
             OneOf(
@@ -2534,6 +2525,7 @@ class AccessStatementSegment(BaseSegment):
                     _objects,
                 ),
                 Sequence("ROLE", Ref("ObjectReferenceSegment")),
+                Sequence("OWNERSHIP", "ON", "USER", Ref("ObjectReferenceSegment")),
             ),
             "FROM",
             OneOf("GROUP", "USER", "ROLE", "SHARE", optional=True),
@@ -2841,7 +2833,6 @@ class StatementSegment(BaseSegment):
         Ref("TransactionStatementSegment"),
         Ref("DropStatementSegment"),
         Ref("TruncateStatementSegment"),
-        Ref("AlterDefaultPrivilegesSegment"),
         Ref("AccessStatementSegment"),
         Ref("CreateTableStatementSegment"),
         Ref("CreateTypeStatementSegment"),

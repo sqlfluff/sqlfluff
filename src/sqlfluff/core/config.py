@@ -68,7 +68,7 @@ def nested_combine(*dicts: dict) -> dict:
             if k in r and isinstance(r[k], dict):
                 if isinstance(d[k], dict):
                     r[k] = nested_combine(r[k], d[k])
-                else:
+                else:  # pragma: no cover
                     raise ValueError(
                         "Key {!r} is a dict in one config but not another! PANIC: {!r}".format(
                             k, d[k]
@@ -203,7 +203,7 @@ class ConfigLoader:
             elif k.startswith("sqlfluff:"):
                 # Return a tuple of nested values
                 key = tuple(k[len("sqlfluff:") :].split(":"))
-            else:
+            else:  # pragma: no cover
                 # if it doesn't start with sqlfluff, then don't go
                 # further on this iteration
                 continue
@@ -240,7 +240,7 @@ class ConfigLoader:
                 if dp in r:
                     if isinstance(r[dp], dict):
                         r = r[dp]
-                    else:
+                    else:  # pragma: no cover
                         raise ValueError(f"Overriding config value with section! [{k}]")
                 else:
                     r[dp] = {}
@@ -374,7 +374,7 @@ class ConfigLoader:
             next_path_to_visit = (
                 path_to_visit / given_path.relative_to(path_to_visit).parts[0]
             )
-            if next_path_to_visit == path_to_visit:
+            if next_path_to_visit == path_to_visit:  # pragma: no cover
                 # we're not making progress...
                 # [prevent infinite loop]
                 break
@@ -465,7 +465,7 @@ class FluffConfig:
         like Linter(), Parser() and Lexer() can be instantiated with a
         FluffConfig or with the convenience kwargs: dialect & rules.
         """
-        if (dialect or rules) and config:
+        if (dialect or rules) and config:  # pragma: no cover
             raise ValueError(
                 "Cannot specify `config` with `dialect` or `rules`. Any config object "
                 "specifies its own dialect and rules."
@@ -543,7 +543,7 @@ class FluffConfig:
         # Coerce the value into something more useful.
         config_val = coerce_value(val)
         # Sort out core if not there
-        if len(config_path) == 1:
+        if len(config_path) == 1:  # pragma: no cover TODO?
             config_path = ["core"] + config_path
         # Current section:
         dict_buff = [self._configs]
@@ -592,7 +592,7 @@ class FluffConfig:
         if config_line.startswith("--"):
             config_line = config_line[2:].strip()
         # Strip preceding sqlfluff line.
-        if not config_line.startswith("sqlfluff:"):
+        if not config_line.startswith("sqlfluff:"):  # pragma: no cover
             config_logger.warning(
                 "Unable to process inline config statement: %r", config_line
             )

@@ -50,7 +50,7 @@ def iter_indices_of_newlines(raw_str: str) -> Iterator[int]:
             yield nl_pos
             init_idx = nl_pos
         else:
-            break
+            break  # pragma: no cover TODO?
 
 
 class RawFileSlice(NamedTuple):
@@ -105,7 +105,9 @@ class TemplatedFile:
         self.fname = fname
         # Assume that no sliced_file, means the file is not templated
         # TODO: Enable error handling.
-        if (not sliced_file) and self.templated_str != self.source_str:
+        if (
+            not sliced_file
+        ) and self.templated_str != self.source_str:  # pragma: no cover
             raise ValueError("Cannot instantiate a templated file unsliced!")
         # If we get here and we don't have sliced files, then it's raw, so create them.
         self.sliced_file: List[TemplatedFileSlice] = sliced_file or [
@@ -129,7 +131,7 @@ class TemplatedFile:
         """Return true if there's a templated file."""
         return bool(self.templated_str)
 
-    def __repr__(self):
+    def __repr__(self):  # pragma: no cover TODO?
         return "<TemplatedFile>"
 
     def __str__(self):
@@ -192,7 +194,7 @@ class TemplatedFile:
         # If we got to the end add another index
         else:
             last_idx += 1
-        if first_idx is None:
+        if first_idx is None:  # pragma: no cover
             raise ValueError("Position Not Found")
         return first_idx, last_idx
 
@@ -223,7 +225,7 @@ class TemplatedFile:
     ) -> slice:
         """Convert a template slice to a source slice."""
         if not self.sliced_file:
-            return template_slice
+            return template_slice  # pragma: no cover TODO?
 
         ts_start_sf_start, ts_start_sf_stop = self._find_slice_indices_of_templated_pos(
             template_slice.start
@@ -283,11 +285,11 @@ class TemplatedFile:
                 ts_start_sf_stop, ts_stop_sf_stop
             )
         ]
-        if ts_start_sf_start == ts_start_sf_stop:
+        if ts_start_sf_start == ts_start_sf_stop:  # pragma: no cover TODO?
             start_slices = [self.sliced_file[ts_start_sf_start]]
         else:
             start_slices = self.sliced_file[ts_start_sf_start:ts_start_sf_stop]
-        if ts_stop_sf_start == ts_stop_sf_stop:
+        if ts_stop_sf_start == ts_stop_sf_stop:  # pragma: no cover TODO?
             stop_slices = [self.sliced_file[ts_stop_sf_start]]
         else:
             stop_slices = self.sliced_file[ts_stop_sf_start:ts_stop_sf_stop]
@@ -327,7 +329,7 @@ class TemplatedFile:
     def is_source_slice_literal(self, source_slice: slice) -> bool:
         """Work out whether a slice of the source file is a literal or not."""
         # No sliced file? Everything is literal
-        if not self.raw_sliced:
+        if not self.raw_sliced:  # pragma: no cover TODO?
             return True
         # Zero length slice. It's a literal, because it's definitely not templated.
         if source_slice.start == source_slice.stop:

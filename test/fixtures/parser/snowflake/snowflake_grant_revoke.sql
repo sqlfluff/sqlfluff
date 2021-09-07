@@ -12,6 +12,10 @@ grant ownership on all tables in schema mydb.public to role analyst;
 
 grant ownership on all tables in schema mydb.public to role analyst copy current grants;
 
+GRANT ROLE ROLENAME TO ROLE IDENTIFIER($THIS_ROLE);
+
+GRANT OWNERSHIP ON ROLE TEST_ROLE TO ROLE DIFFERENT_ROLE;
+
 revoke role analyst from role sysadmin;
 
 revoke select,insert on future tables in schema mydb.myschema from role role1;
@@ -26,4 +30,4 @@ revoke operate on warehouse report_wh from role analyst;
 
 revoke reference_usage on database database2 from share share1;
 
-GRANT OWNERSHIP ON ROLE TEST_ROLE TO ROLE DIFFERENT_ROLE;
+REVOKE OWNERSHIP ON ROLE TEST_ROLE FROM ROLE DIFFERENT_ROLE;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9ff34a79ad05f1fd2a7179dc6ffb225d92ee34cb7dd8661f0ae93cacf23152bc
+_hash: 21038890703e6bcfd77f878b921ad9d05ea6d3cee6fd282bf13209876a375f38
 file:
   statement:
     create_table_statement:
@@ -16,7 +16,7 @@ file:
         column_definition:
           identifier: ts
           data_type:
-            data_type_identifier: TIMESTAMP
+            keyword: TIMESTAMP
           column_constraint:
             keyword: DEFAULT
             function:
