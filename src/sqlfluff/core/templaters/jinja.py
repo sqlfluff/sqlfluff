@@ -339,7 +339,7 @@ class JinjaTemplater(PythonTemplater):
         in_str = in_str.replace('-%}', '+%}')
         in_str = in_str.replace('{#-', '{#+')
         in_str = in_str.replace('-#}', '+#}')
-
+        # https://jinja.palletsprojects.com/en/2.11.x/api/#jinja2.Environment.lex
         for _, elem_type, raw in env.lex(in_str):
             if elem_type == "data":
                 yield RawFileSlice(raw, "literal", idx)
