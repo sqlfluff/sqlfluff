@@ -41,6 +41,8 @@ bigquery_dialect.insert_lexer_matchers(
     # JSON Operators: https://www.postgresql.org/docs/9.5/functions-json.html
     [
         StringLexer("right_arrow", "=>", CodeSegment),
+        StringLexer("question_mark", "?", CodeSegment),
+        RegexLexer("atsign", r"[@][\w]*", CodeSegment),
     ],
     before="equals",
 )
@@ -105,6 +107,16 @@ bigquery_dialect.add(
         Ref("SelectClauseElementSegment"),
         delimiter=Ref("CommaSegment"),
         allow_trailing=True,
+    ),
+    QuestionMarkSegment=StringParser(
+        "?", SymbolSegment, name="question_mark", type="question_mark"
+    ),
+    AtSignLiteralSegment=NamedParser(
+        "atsign",
+        CodeSegment,
+        name="atsign_literal",
+        type="literal",
+        trim_chars=("@",),
     ),
 )
 
@@ -270,9 +282,11 @@ bigquery_dialect.replace(
         type="identifier",
         trim_chars=("`",),
     ),
-    # Add two elements to the ansi LiteralGrammar
+    # Add three elements to the ansi LiteralGrammar
     LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar").copy(
-        insert=[Ref("DoubleQuotedLiteralSegment"), Ref("LiteralCoercionSegment")]
+        insert=[Ref("DoubleQuotedLiteralSegment"),
+                Ref("LiteralCoercionSegment"),
+                Ref("ParameterizedSegment"),]
     ),
     PostTableExpressionGrammar=Sequence(
         Sequence(
@@ -807,4 +821,18 @@ class CreateTableStatementSegment(BaseSegment):
             OptionallyBracketed(Ref("SelectableGrammar")),
             optional=True,
         ),
+    )
+
+@bigquery_dialect.segment()
+class ParameterizedSegment(BaseSegment):
+    """
+    BigQuery allows named and argument based parameters
+
+    https://cloud.google.com/bigquery/docs/parameterized-queries
+    """
+
+    type = "parameterized_expression"
+    match_grammar = OneOf(
+        Ref("AtSignLiteralSegment"),
+        Ref("QuestionMarkSegment")
     )
