@@ -340,7 +340,7 @@ class JinjaTemplater(PythonTemplater):
         in_str = in_str.replace('{#-', '{#+')
         in_str = in_str.replace('-#}', '+#}')
 
-        for _, elem_type, raw in env.lex(env, in_str):
+        for _, elem_type, raw in env.lex(in_str):
             if elem_type == "data":
                 yield RawFileSlice(raw, "literal", idx)
                 idx += len(raw)
