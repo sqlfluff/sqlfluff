@@ -6,7 +6,7 @@ from sqlfluff.core.parser.context import RootParseContext
 from sqlfluff.core.config import FluffConfig
 
 if TYPE_CHECKING:
-    from sqlfluff.core.parser.segments import BaseSegment
+    from sqlfluff.core.parser.segments import BaseSegment  # pragma: no cover
 
 
 class Parser:

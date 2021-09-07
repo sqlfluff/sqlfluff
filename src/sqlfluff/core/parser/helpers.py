@@ -5,7 +5,7 @@ from typing import Tuple, List, Any, Iterator, TYPE_CHECKING
 from sqlfluff.core.string_helpers import curtail_string
 
 if TYPE_CHECKING:
-    from sqlfluff.core.parser.segments import BaseSegment
+    from sqlfluff.core.parser.segments import BaseSegment  # pragma: no cover
 
 
 def join_segments_raw(segments: Tuple["BaseSegment", ...]) -> str:
@@ -26,7 +26,7 @@ def check_still_complete(
     """Check that the segments in are the same as the segments out."""
     initial_str = join_segments_raw(segments_in)
     current_str = join_segments_raw(matched_segments + unmatched_segments)
-    if initial_str != current_str:
+    if initial_str != current_str:  # pragma: no cover
         raise RuntimeError(
             "Dropped elements in sequence matching! {!r} != {!r}".format(
                 initial_str, current_str

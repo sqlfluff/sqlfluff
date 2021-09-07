@@ -1,0 +1,147 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: eea2b524948955971357cad0751ff699f75a274d2d2ee6594f12501be5b8b932
+file:
+- statement:
+    copy_into_statement:
+    - keyword: copy
+    - keyword: into
+    - object_reference:
+        identifier: mytable
+    - keyword: from
+    - internal_external_stage:
+        literal: '@'
+        identifier: my_int_stage
+- statement_terminator: ;
+- statement:
+    copy_into_statement:
+    - keyword: copy
+    - keyword: into
+    - object_reference:
+        identifier: mytable
+    - keyword: from
+    - internal_external_stage:
+        literal: '@'
+        identifier: my_int_stage
+    - keyword: file_format
+    - comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - keyword: type
+      - comparison_operator: '='
+      - keyword: csv
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_into_statement:
+    - keyword: copy
+    - keyword: into
+    - object_reference:
+        identifier: mytable
+    - keyword: from
+    - internal_external_stage:
+        literal: '@'
+        identifier: my_int_stage
+    - keyword: file_format
+    - comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        keyword: format_name
+        comparison_operator: '='
+        literal: "'mycsv'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_into_statement:
+    - keyword: copy
+    - keyword: into
+    - object_reference:
+        identifier: mytable
+    - keyword: from
+    - internal_external_stage:
+        literal: '@'
+        identifier: my_int_stage
+    - keyword: file_format
+    - comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        keyword: type
+        comparison_operator: '='
+        literal: "'CSV'"
+        end_bracket: )
+    - keyword: pattern
+    - comparison_operator: '='
+    - literal: "'.*/.*/.*[.]csv[.]gz'"
+- statement_terminator: ;
+- statement:
+    copy_into_statement:
+    - keyword: copy
+    - keyword: into
+    - object_reference:
+        identifier: mytable
+    - keyword: from
+    - internal_external_stage:
+        literal: '@'
+        identifier: my_int_stage
+    - keyword: file_format
+    - comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        keyword: format_name
+        comparison_operator: '='
+        identifier: myformat
+        end_bracket: )
+    - keyword: pattern
+    - comparison_operator: '='
+    - literal: "'.*sales.*[.]csv'"
+- statement_terminator: ;
+- statement:
+    copy_into_statement:
+    - keyword: copy
+    - keyword: into
+    - object_reference:
+        identifier: mytable
+- statement_terminator: ;
+- statement:
+    copy_into_statement:
+    - keyword: copy
+    - keyword: into
+    - object_reference:
+        identifier: mytable
+    - identifier: purge
+    - comparison_operator: '='
+    - identifier: 'true'
+- statement_terminator: ;
+- statement:
+    copy_into_statement:
+    - keyword: copy
+    - keyword: into
+    - object_reference:
+        identifier: mytable
+    - identifier: validation_mode
+    - comparison_operator: '='
+    - literal: "'RETURN_ERRORS'"
+- statement_terminator: ;
+- statement:
+    copy_into_statement:
+    - keyword: copy
+    - keyword: into
+    - object_reference:
+        identifier: mytable
+    - identifier: validation_mode
+    - comparison_operator: '='
+    - literal: "'RETURN_2_ROWS'"
+- statement_terminator: ;
+- statement:
+    copy_into_statement:
+    - keyword: copy
+    - keyword: into
+    - object_reference:
+        identifier: mytable
+    - identifier: validation_mode
+    - comparison_operator: '='
+    - literal: "'RETURN_3_ROWS'"
+- statement_terminator: ;
