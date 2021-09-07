@@ -13,7 +13,7 @@ lint_result = [
         "code": "L010",
         "line_no": 1,
         "line_pos": 1,
-        "description": "Inconsistent capitalisation of keywords.",
+        "description": "Keywords must be consistently upper case.",
     },
     {
         "code": "L036",
@@ -43,7 +43,7 @@ lint_result = [
         "code": "L010",
         "line_no": 1,
         "line_pos": 20,
-        "description": "Inconsistent capitalisation of keywords.",
+        "description": "Keywords must be consistently upper case.",
     },
     {
         "code": "L039",
@@ -55,7 +55,7 @@ lint_result = [
         "code": "L014",
         "line_no": 1,
         "line_pos": 24,
-        "description": "Inconsistent capitalisation of unquoted identifiers.",
+        "description": "Unquoted identifiers must be consistently lower case.",
     },
     {
         "code": "L039",
@@ -67,7 +67,7 @@ lint_result = [
         "code": "L010",
         "line_no": 1,
         "line_pos": 29,
-        "description": "Inconsistent capitalisation of keywords.",
+        "description": "Keywords must be consistently upper case.",
     },
     {
         "code": "L009",
@@ -79,7 +79,7 @@ lint_result = [
         "code": "L014",
         "line_no": 1,
         "line_pos": 34,
-        "description": "Inconsistent capitalisation of unquoted identifiers.",
+        "description": "Unquoted identifiers must be consistently lower case.",
     },
 ]
 

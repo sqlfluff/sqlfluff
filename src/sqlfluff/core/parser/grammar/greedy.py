@@ -30,7 +30,7 @@ class GreedyUntil(BaseGrammar):
             "enforce_whitespace_preceeding_terminator", False
         )
         super().__init__(*args, **kwargs)
-        if not self.allow_gaps:
+        if not self.allow_gaps:  # pragma: no cover
             raise NotImplementedError(
                 f"{self.__class__} does not support allow_gaps=False."
             )
@@ -78,10 +78,12 @@ class GreedyUntil(BaseGrammar):
                     idx = 0
                     while True:
                         elem = mat.matched_segments[idx]
-                        if elem.is_meta:
+                        if elem.is_meta:  # pragma: no cover TODO?
                             idx += 1
                             continue
-                        elif elem.is_type("whitespace", "newline"):
+                        elif elem.is_type(
+                            "whitespace", "newline"
+                        ):  # pragma: no cover TODO?
                             allowable_match = True
                             break
                         else:
@@ -93,11 +95,11 @@ class GreedyUntil(BaseGrammar):
                     if not allowable_match:
                         idx = -1
                         while True:
-                            if len(pre) < abs(idx):
+                            if len(pre) < abs(idx):  # pragma: no cover TODO?
                                 # If we're at the start, it's ok
                                 allowable_match = True
                                 break
-                            if pre[idx].is_meta:
+                            if pre[idx].is_meta:  # pragma: no cover TODO?
                                 idx -= 1
                                 continue
                             elif pre[idx].is_type("whitespace", "newline"):
@@ -139,7 +141,9 @@ class GreedyUntil(BaseGrammar):
                         trailing_nc + mat.all_segments(),
                     )
                 # No terminator, just return the whole thing.
-                return MatchResult.from_matched(mat.unmatched_segments)
+                return MatchResult.from_matched(
+                    mat.unmatched_segments
+                )  # pragma: no cover TODO?
             else:
                 # Return everything
                 return MatchResult.from_matched(segments)
@@ -177,7 +181,7 @@ class StartsWith(GreedyUntil):
         else:
             # We've trying to match on a sequence of segments which contain no code.
             # That means this isn't a match.
-            return MatchResult.from_unmatched(segments)
+            return MatchResult.from_unmatched(segments)  # pragma: no cover TODO?
         with parse_context.deeper_match() as ctx:
             match = self.target.match(
                 segments=segments[first_code_idx:], parse_context=ctx

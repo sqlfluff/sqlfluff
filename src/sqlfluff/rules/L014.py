@@ -64,6 +64,7 @@ class Rule_L014(Rule_L010):
 
     _target_elems: List[Tuple[str, str]] = [("name", "naked_identifier")]
     config_keywords = ["extended_capitalisation_policy", "unquoted_identifiers_policy"]
+    _description_elem = "Unquoted identifiers"
 
     def _eval(self, segment, memory, parent_stack, **kwargs):
         if unquoted_ids_policy_applicable(

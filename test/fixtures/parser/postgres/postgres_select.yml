@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 22a85f5b716aa0b66e8b9ff3c51453f2bff1c24b17922b8a9cece704647e5811
+_hash: e0fa9030c83da1863138639c935d176ce7d92ef4b86d4a238cd459108713480c
 file:
-  statement:
+- statement:
     select_statement:
       select_clause:
         keyword: SELECT
@@ -20,4 +20,41 @@ file:
           - binary_operator: +
           - keyword: interval
           - literal: "'1 day'"
-  statement_terminator: ;
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: DATEADD
+            bracketed:
+            - start_bracket: (
+            - expression:
+                column_reference:
+                  identifier: day
+            - comma: ','
+            - expression:
+                numeric_literal:
+                  binary_operator: '-'
+                  literal: '2'
+            - comma: ','
+            - expression:
+                bare_function: current_date
+            - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - data_type:
+              data_type_identifier: timestamptz
+          - literal: "'2013-07-01 12:00:00'"
+          - binary_operator: '-'
+          - data_type:
+              data_type_identifier: timestamptz
+          - literal: "'2013-03-01 12:00:00'"
+- statement_terminator: ;

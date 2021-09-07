@@ -42,21 +42,21 @@ class Conditional(BaseGrammar):
     """
 
     def __init__(self, *args, config_type: str = "indentation", **rules):
-        if not all(issubclass(arg, Indent) for arg in args):
+        if not all(issubclass(arg, Indent) for arg in args):  # pragma: no cover
             raise ValueError(
                 "Conditional is only designed to work with Indent segments."
             )
-        if len(args) != 1:
+        if len(args) != 1:  # pragma: no cover
             raise ValueError(
                 "Conditional is only designed to work with a single element."
             )
-        if not config_type:
+        if not config_type:  # pragma: no cover
             raise ValueError("Conditional config_type must be set.")
-        elif config_type not in ("indentation"):
+        elif config_type not in ("indentation"):  # pragma: no cover
             raise ValueError(
                 "Only 'indentation' is supported as a Conditional config_type."
             )
-        if not rules:
+        if not rules:  # pragma: no cover
             raise ValueError("Conditional requires rules to be set.")
         self._config_type = config_type
         self._config_rules = rules
@@ -67,7 +67,7 @@ class Conditional(BaseGrammar):
         # NOTE: Because only "indentation" is the only current config_type
         # supported, this code is much simpler that would be required in
         # future if multiple options are available.
-        if self._config_type != "indentation":
+        if self._config_type != "indentation":  # pragma: no cover
             raise ValueError(
                 "Only 'indentation' is supported as a Conditional config_type."
             )
@@ -84,7 +84,7 @@ class Conditional(BaseGrammar):
     @match_wrapper()
     def match(self, segments, parse_context):
         """Evaluate conditionals and return content."""
-        if not self.is_enabled(parse_context):
+        if not self.is_enabled(parse_context):  # pragma: no cover TODO?
             return MatchResult.from_unmatched(segments)
 
         # Instantiate the new element and return

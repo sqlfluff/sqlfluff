@@ -2326,37 +2326,6 @@ class DropIndexStatementSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
-class AlterDefaultPrivilegesSegment(BaseSegment):
-    """Postgres `ALTER DEFAULT PRIVILEGES` statement.
-
-    ```
-    ALTER DEFAULT PRIVILEGES
-    [ FOR { ROLE | USER } target_role [, ...] ]
-    [ IN SCHEMA schema_name [, ...] ]
-    abbreviated_grant_or_revoke
-    ```
-    """
-
-    type = "alter_default_privileges_statement"
-
-    match_grammar = Sequence(
-        "ALTER",
-        "DEFAULT",
-        "PRIVILEGES",
-        Sequence(
-            "FOR",
-            OneOf("ROLE", "USER"),
-            Delimited(Ref("ObjectReferenceSegment")),
-            optional=True,
-        ),
-        Sequence(
-            "IN", "SCHEMA", Delimited(Ref("SchemaReferenceSegment")), optional=True
-        ),
-        Ref("AccessStatementSegment"),
-    )
-
-
-@ansi_dialect.segment()
 class AccessStatementSegment(BaseSegment):
     """A `GRANT` or `REVOKE` statement.
 
@@ -2512,6 +2481,7 @@ class AccessStatementSegment(BaseSegment):
                     _objects,
                 ),
                 Sequence("ROLE", Ref("ObjectReferenceSegment")),
+                Sequence("OWNERSHIP", "ON", "USER", Ref("ObjectReferenceSegment")),
                 # In the case where a role is granted non-explicitly,
                 # e.g. GRANT ROLE_NAME TO OTHER_ROLE_NAME
                 # See https://www.postgresql.org/docs/current/sql-grant.html
@@ -2521,6 +2491,7 @@ class AccessStatementSegment(BaseSegment):
             OneOf("GROUP", "USER", "ROLE", "SHARE", optional=True),
             OneOf(
                 Ref("ObjectReferenceSegment"),
+                Ref("FunctionSegment"),
                 "PUBLIC",
             ),
             OneOf(
@@ -2554,6 +2525,7 @@ class AccessStatementSegment(BaseSegment):
                     _objects,
                 ),
                 Sequence("ROLE", Ref("ObjectReferenceSegment")),
+                Sequence("OWNERSHIP", "ON", "USER", Ref("ObjectReferenceSegment")),
             ),
             "FROM",
             OneOf("GROUP", "USER", "ROLE", "SHARE", optional=True),
@@ -2861,7 +2833,6 @@ class StatementSegment(BaseSegment):
         Ref("TransactionStatementSegment"),
         Ref("DropStatementSegment"),
         Ref("TruncateStatementSegment"),
-        Ref("AlterDefaultPrivilegesSegment"),
         Ref("AccessStatementSegment"),
         Ref("CreateTableStatementSegment"),
         Ref("CreateTypeStatementSegment"),

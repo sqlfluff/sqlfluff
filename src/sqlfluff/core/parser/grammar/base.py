@@ -103,7 +103,7 @@ class BaseGrammar(Matchable):
         raise TypeError(
             "Grammar element [{!r}] was found of unexpected type [{}] was found.".format(
                 elem, type(elem)
-            )
+            )  # pragma: no cover
         )
 
     def __init__(
@@ -172,7 +172,7 @@ class BaseGrammar(Matchable):
         """
         raise NotImplementedError(
             f"{self.__class__.__name__} has no match function implemented"
-        )
+        )  # pragma: no cover
 
     @cached_method_for_parse_context
     def simple(self, parse_context: ParseContext) -> Optional[List[str]]:
@@ -280,11 +280,11 @@ class BaseGrammar(Matchable):
 
         # Do some type munging
         matchers = list(matchers)
-        if isinstance(segments, BaseSegment):
+        if isinstance(segments, BaseSegment):  # pragma: no cover TODO?
             segments = [segments]
 
         # Have we been passed an empty list?
-        if len(segments) == 0:
+        if len(segments) == 0:  # pragma: no cover TODO?
             return ((), MatchResult.from_empty(), None)
 
         # Here we enable a performance optimisation. Most of the time in this cycle
@@ -468,7 +468,7 @@ class BaseGrammar(Matchable):
         """
         # Type munging
         matchers = list(matchers)
-        if isinstance(segments, BaseSegment):
+        if isinstance(segments, BaseSegment):  # pragma: no cover TODO?
             segments = [segments]
 
         # Have we been passed an empty list?
@@ -590,9 +590,9 @@ class BaseGrammar(Matchable):
                                     segment=match.matched_segments[0],
                                 )
 
-                        else:
+                        else:  # pragma: no cover
                             raise RuntimeError("I don't know how we get here?!")
-                    else:
+                    else:  # pragma: no cover
                         # No match, we're in a bracket stack. Error.
                         raise SQLParseError(
                             "Couldn't find closing bracket for opening bracket.",
@@ -645,7 +645,7 @@ class BaseGrammar(Matchable):
                                 got=matcher,
                             )
                             # From here we'll drop out to the happy unmatched exit.
-                        else:
+                        else:  # pragma: no cover
                             # This shouldn't happen!?
                             raise NotImplementedError(
                                 "This shouldn't happen. Panic in _bracket_sensitive_look_ahead_match."
@@ -655,7 +655,7 @@ class BaseGrammar(Matchable):
             else:
                 # No we're at the end:
                 # Now check have we closed all our brackets?
-                if bracket_stack:
+                if bracket_stack:  # pragma: no cover
                     # No we haven't.
                     raise SQLParseError(
                         f"Couldn't find closing bracket for opened brackets: `{bracket_stack}`.",
@@ -670,7 +670,7 @@ class BaseGrammar(Matchable):
             # reuse any bracket matching.
             return ((), MatchResult.from_unmatched(pre_seg_buff + seg_buff), None)
 
-    def __str__(self):
+    def __str__(self):  # pragma: no cover TODO?
         return repr(self)
 
     def __repr__(self):
@@ -734,14 +734,14 @@ class BaseGrammar(Matchable):
             for elem in self._elements
         ]
         if insert:
-            if at is not None and before is not None:
+            if at is not None and before is not None:  # pragma: no cover
                 raise ValueError(
                     "Cannot specify `at` and `before` in BaseGrammar.copy()."
                 )
             if before is not None:
                 try:
                     idx = new_elems.index(before)
-                except ValueError:
+                except ValueError:  # pragma: no cover
                     raise ValueError(
                         "Could not insert {} in copy of {}. {} not Found.".format(
                             insert, self, before
@@ -756,7 +756,7 @@ class BaseGrammar(Matchable):
             for elem in remove:
                 try:
                     new_elems.remove(elem)
-                except ValueError:
+                except ValueError:  # pragma: no cover
                     raise ValueError(
                         "Could not remove {} from copy of {}. Not Found.".format(
                             elem, self
@@ -791,7 +791,7 @@ class Ref(BaseGrammar):
         if len(self._elements) == 1:
             # We're good on length. Get the name of the reference
             return self._elements[0]
-        else:
+        else:  # pragma: no cover
             raise ValueError(
                 "Ref grammar can only deal with precisely one element for now. Instead found {!r}".format(
                     self._elements
@@ -803,7 +803,7 @@ class Ref(BaseGrammar):
         if dialect:
             # Use the dialect to retrieve the grammar it refers to.
             return dialect.ref(self._get_ref())
-        else:
+        else:  # pragma: no cover
             raise ReferenceError("No Dialect has been provided to Ref grammar!")
 
     def __repr__(self):
@@ -825,7 +825,7 @@ class Ref(BaseGrammar):
         """
         elem = self._get_elem(dialect=parse_context.dialect)
 
-        if not elem:
+        if not elem:  # pragma: no cover
             raise ValueError(f"Null Element returned! _elements: {self._elements!r}")
 
         # First check against the efficiency Cache.
@@ -834,7 +834,9 @@ class Ref(BaseGrammar):
         # objects.
         seg_tuple = (id(seg) for seg in segments)
         self_name = self._get_ref()
-        if parse_context.blacklist.check(self_name, seg_tuple):
+        if parse_context.blacklist.check(
+            self_name, seg_tuple
+        ):  # pragma: no cover TODO?
             # This has been tried before.
             parse_match_logging(
                 self.__class__.__name__,

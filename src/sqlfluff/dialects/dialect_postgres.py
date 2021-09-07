@@ -16,6 +16,7 @@ from sqlfluff.core.parser import (
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
+from sqlfluff.dialects.postgres_keywords import postgres_keywords, get_keywords
 
 ansi_dialect = load_raw_dialect("ansi")
 
@@ -33,46 +34,22 @@ postgres_dialect.insert_lexer_matchers(
     before="not_equal",
 )
 
-# https://www.postgresql.org/docs/current/sql-keywords-appendix.html
-# SPACE has special status in some SQL dialects, but not Postgres.
-postgres_dialect.sets("unreserved_keywords").remove("SPACE")
-# Reserve WITHIN (required for the WithinGroupClauseSegment)
-postgres_dialect.sets("unreserved_keywords").remove("WITHIN")
-postgres_dialect.sets("unreserved_keywords").update(
-    [
-        "WITHIN",
-        "ANALYZE",
-        "VERBOSE",
-        "COSTS",
-        "BUFFERS",
-        "FORMAT",
-        "XML",
-        "SERVER",
-        "WRAPPER",
-    ]
+postgres_dialect.sets("reserved_keywords").update(
+    get_keywords(postgres_keywords, "reserved")
 )
-postgres_dialect.sets("reserved_keywords").update(["WITHIN", "VARIADIC", "WITH"])
+postgres_dialect.sets("unreserved_keywords").update(
+    get_keywords(postgres_keywords, "non-reserved")
+)
+postgres_dialect.sets("reserved_keywords").difference_update(
+    get_keywords(postgres_keywords, "not-keyword")
+)
+
+postgres_dialect.sets("unreserved_keywords").difference_update(
+    get_keywords(postgres_keywords, "not-keyword")
+)
+
 # Add the EPOCH datetime unit
 postgres_dialect.sets("datetime_units").update(["EPOCH"])
-
-postgres_dialect.sets("unreserved_keywords").update(
-    [
-        "COST",
-        "LEAKPROOF",
-        "PARALLEL",
-        "SUPPORT",
-        "SAFE",
-        "UNSAFE",
-        "RESTRICTED",
-        "REPLICA",
-        "ATTACH",
-        "DETACH",
-        "LOGGED",
-        "UNLOGGED",
-        "MODULUS",
-        "REMAINDER",
-    ]
-)
 
 postgres_dialect.add(
     JsonOperatorSegment=NamedParser(
@@ -640,7 +617,7 @@ class ColumnOptionSegment(BaseSegment):
             Sequence(Ref.keyword("NOT", optional=True), "NULL"),  # NOT NULL or NULL
             Sequence(
                 "CHECK",
-                Ref("ExpressionSegment"),
+                Bracketed(Ref("ExpressionSegment")),
                 Sequence("NO", "INHERIT", optional=True),
             ),
             Sequence(  # DEFAULT <value>
@@ -727,13 +704,17 @@ class TableConstraintSegment(BaseSegment):
     """
 
     type = "table_constraint_definition"
-    # Later add support for CHECK constraint, others?
-    # e.g. CONSTRAINT constraint_1 PRIMARY KEY(column_1)
+
     match_grammar = Sequence(
         Sequence(  # [ CONSTRAINT <Constraint name> ]
             "CONSTRAINT", Ref("ObjectReferenceSegment"), optional=True
         ),
         OneOf(
+            Sequence(
+                "CHECK",
+                Bracketed(Ref("ExpressionSegment")),
+                Sequence("NO", "INHERIT", optional=True),
+            ),
             Sequence(  # UNIQUE ( column_name [, ... ] )
                 "UNIQUE",
                 Ref("BracketedColumnReferenceListGrammar"),
@@ -865,3 +846,171 @@ class ExcludeElementSegment(BaseSegment):
         OneOf("ASC", "DESC", optional=True),
         Sequence("NULLS", OneOf("FIRST", "LAST"), optional=True),
     )
+
+
+@postgres_dialect.segment()
+class AlterDefaultPrivilegesStatementSegment(BaseSegment):
+    """`ALTER DEFAULT PRIVILEGES` statement.
+
+    ```
+    ALTER DEFAULT PRIVILEGES
+    [ FOR { ROLE | USER } target_role [, ...] ]
+    [ IN SCHEMA schema_name [, ...] ]
+    abbreviated_grant_or_revoke
+    ```
+
+    https://www.postgresql.org/docs/13/sql-alterdefaultprivileges.html
+    """
+
+    type = "alter_default_privileges_statement"
+    match_grammar = Sequence(
+        "ALTER",
+        "DEFAULT",
+        "PRIVILEGES",
+        Sequence(
+            "FOR",
+            OneOf("ROLE", "USER"),
+            Delimited(
+                Ref("ObjectReferenceSegment"),
+                terminator=OneOf("IN", "GRANT", "REVOKE"),
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "IN",
+            "SCHEMA",
+            Delimited(
+                Ref("SchemaReferenceSegment"),
+                terminator=OneOf("GRANT", "REVOKE"),
+            ),
+            optional=True,
+        ),
+        OneOf(
+            Ref("AlterDefaultPrivilegesGrantSegment"),
+            Ref("AlterDefaultPrivilegesRevokeSegment"),
+        ),
+    )
+
+
+@postgres_dialect.segment()
+class AlterDefaultPrivilegesObjectPrivilegesSegment(BaseSegment):
+    """`ALTER DEFAULT PRIVILEGES` object privileges.
+
+    https://www.postgresql.org/docs/13/sql-alterdefaultprivileges.html
+    """
+
+    type = "alter_default_privileges_object_privilege"
+    match_grammar = OneOf(
+        Sequence("ALL", Ref.keyword("PRIVILEGES", optional=True)),
+        Delimited(
+            "CREATE",
+            "DELETE",
+            "EXECUTE",
+            "INSERT",
+            "REFERENCES",
+            "SELECT",
+            "TRIGGER",
+            "TRUNCATE",
+            "UPDATE",
+            "USAGE",
+            terminator="ON",
+        ),
+    )
+
+
+@postgres_dialect.segment()
+class AlterDefaultPrivilegesSchemaObjectsSegment(BaseSegment):
+    """`ALTER DEFAULT PRIVILEGES` schema object types.
+
+    https://www.postgresql.org/docs/13/sql-alterdefaultprivileges.html
+    """
+
+    type = "alter_default_privileges_schema_object"
+    match_grammar = OneOf(
+        "TABLES",
+        "FUNCTIONS",
+        "ROUTINES",
+        "SEQUENCES",
+        "TYPES",
+        "SCHEMAS",
+    )
+
+
+@postgres_dialect.segment()
+class AlterDefaultPrivilegesToFromRolesSegment(BaseSegment):
+    """The segment after `TO` / `FROM`  in `ALTER DEFAULT PRIVILEGES`.
+
+    `{ [ GROUP ] role_name | PUBLIC } [, ...]`
+
+    https://www.postgresql.org/docs/13/sql-alterdefaultprivileges.html
+    """
+
+    type = "alter_default_privileges_to_from_roles"
+    match_grammar = OneOf(
+        Sequence(
+            Ref.keyword("GROUP", optional=True),
+            Ref("ObjectReferenceSegment"),
+        ),
+        "PUBLIC",
+    )
+
+
+@postgres_dialect.segment()
+class AlterDefaultPrivilegesGrantSegment(BaseSegment):
+    """`GRANT` for `ALTER DEFAULT PRIVILEGES`.
+
+    https://www.postgresql.org/docs/13/sql-alterdefaultprivileges.html
+    """
+
+    type = "alter_default_privileges_grant"
+    match_grammar = Sequence(
+        "GRANT",
+        Ref("AlterDefaultPrivilegesObjectPrivilegesSegment"),
+        "ON",
+        Ref("AlterDefaultPrivilegesSchemaObjectsSegment"),
+        "TO",
+        Delimited(
+            Ref("AlterDefaultPrivilegesToFromRolesSegment"),
+            terminator="WITH",
+        ),
+        Sequence("WITH", "GRANT", "OPTION", optional=True),
+    )
+
+
+@postgres_dialect.segment()
+class AlterDefaultPrivilegesRevokeSegment(BaseSegment):
+    """`REVOKE` for `ALTER DEFAULT PRIVILEGES`.
+
+    https://www.postgresql.org/docs/13/sql-alterdefaultprivileges.html
+    """
+
+    type = "alter_default_privileges_revoke"
+    match_grammar = Sequence(
+        "REVOKE",
+        Sequence("GRANT", "OPTION", "FOR", optional=True),
+        Ref("AlterDefaultPrivilegesObjectPrivilegesSegment"),
+        "ON",
+        Ref("AlterDefaultPrivilegesSchemaObjectsSegment"),
+        "FROM",
+        Delimited(
+            Ref("AlterDefaultPrivilegesToFromRolesSegment"),
+            terminator=OneOf("RESTRICT", "CASCADE"),
+        ),
+        OneOf("RESTRICT", "CASCADE", optional=True),
+    )
+
+
+# Adding PostgreSQL specific statements
+@postgres_dialect.segment(replace=True)
+class StatementSegment(BaseSegment):
+    """A generic segment, to any of its child subsegments."""
+
+    type = "statement"
+
+    parse_grammar = ansi_dialect.get_segment("StatementSegment").parse_grammar.copy(
+        insert=[
+            Ref("AlterDefaultPrivilegesStatementSegment"),
+        ],
+    )
+
+    match_grammar = ansi_dialect.get_segment("StatementSegment").match_grammar.copy()
