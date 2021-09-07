@@ -934,7 +934,7 @@ class PythonTemplater(RawTemplater):
                         if last_owu_idx is None or last_owu_idx + 1 >= len(
                             int_file_slice.slice_buffer
                         ):
-                            cur_idx = 0
+                            cur_idx = 0  # pragma: noqa
                         else:
                             cur_idx = last_owu_idx + 1
 
