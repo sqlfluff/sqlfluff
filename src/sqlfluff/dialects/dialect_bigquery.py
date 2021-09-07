@@ -284,9 +284,11 @@ bigquery_dialect.replace(
     ),
     # Add three elements to the ansi LiteralGrammar
     LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar").copy(
-        insert=[Ref("DoubleQuotedLiteralSegment"),
-                Ref("LiteralCoercionSegment"),
-                Ref("ParameterizedSegment"),]
+        insert=[
+            Ref("DoubleQuotedLiteralSegment"),
+            Ref("LiteralCoercionSegment"),
+            Ref("ParameterizedSegment"),
+        ]
     ),
     PostTableExpressionGrammar=Sequence(
         Sequence(
@@ -823,6 +825,7 @@ class CreateTableStatementSegment(BaseSegment):
         ),
     )
 
+
 @bigquery_dialect.segment()
 class ParameterizedSegment(BaseSegment):
     """
@@ -832,7 +835,4 @@ class ParameterizedSegment(BaseSegment):
     """
 
     type = "parameterized_expression"
-    match_grammar = OneOf(
-        Ref("AtSignLiteralSegment"),
-        Ref("QuestionMarkSegment")
-    )
+    match_grammar = OneOf(Ref("AtSignLiteralSegment"), Ref("QuestionMarkSegment"))
