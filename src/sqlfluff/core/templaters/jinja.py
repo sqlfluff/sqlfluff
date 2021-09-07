@@ -3,7 +3,6 @@
 import os.path
 import logging
 import importlib.util
-import re
 from typing import Iterator, Tuple, Optional
 
 from jinja2.sandbox import SandboxedEnvironment
@@ -335,10 +334,10 @@ class JinjaTemplater(PythonTemplater):
         # Note: '+' is the default, so shouldn't really be needed but we
         # explicitly state that to preserve the space for the missing '-' character
         # so it looks the same.
-        in_str = in_str.replace('{%-', '{%+')
-        in_str = in_str.replace('-%}', '+%}')
-        in_str = in_str.replace('{#-', '{#+')
-        in_str = in_str.replace('-#}', '+#}')
+        in_str = in_str.replace("{%-", "{%+")
+        in_str = in_str.replace("-%}", "+%}")
+        in_str = in_str.replace("{#-", "{#+")
+        in_str = in_str.replace("-#}", "+#}")
         # https://jinja.palletsprojects.com/en/2.11.x/api/#jinja2.Environment.lex
         for _, elem_type, raw in env.lex(in_str):
             if elem_type == "data":
