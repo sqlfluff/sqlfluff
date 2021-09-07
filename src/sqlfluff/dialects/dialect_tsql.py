@@ -21,6 +21,7 @@ from sqlfluff.core.parser import (
     AnyNumberOf,
     SegmentGenerator,
     Matchable,
+    NamedParser,
 )
 
 from sqlfluff.dialects.ansi_keywords import (
@@ -53,13 +54,11 @@ tsql_dialect.insert_lexer_matchers(
     before="code",
 )
 
+
 tsql_dialect.replace(
     ParameterNameSegment=RegexParser(
         r"[@][A-Za-z0-9_]+", CodeSegment, name="parameter", type="parameter"
     ),
-    QuotedIdentifierSegment=RegexParser(
-            r"[A-Z][A-Z0-9_]*|\[[A-Z][A-Z0-9_]*\]", CodeSegment, name="quoted_identifier", type="identifier"        
-    ),    
     FunctionNameIdentifierSegment=RegexParser(
         r"[A-Z][A-Z0-9_]*|\[[A-Z][A-Z0-9_]*\]",
         CodeSegment,
@@ -77,9 +76,23 @@ tsql_dialect.replace(
             anti_template=r"^(NOT)$",  # TODO - this is a stopgap until we implement explicit data types
         ),
     ),
+    SingleIdentifierGrammar=OneOf(
+        Ref("NakedIdentifierSegment"), Ref("QuotedIdentifierSegment"), Ref("BracketedIdentifierSegment"),
+    ),
 )
 
 
+
+@tsql_dialect.segment()
+class BracketedIdentifierSegment(BaseSegment):
+    """A bracketed identifier (e.g. `[dbo]`)."""
+
+    type = "bracketed_identifier"
+
+    match_grammar = Bracketed(
+        Ref("NakedIdentifierSegment"),
+        bracket_type="square",
+    )
 
 # Below statement or similar is required to make sqlfluff understand the different statements within a file as these are not seperated by semicolons.
 # @tsql_dialect.segment(replace=True)
@@ -182,6 +195,21 @@ class SchemaNameSegment(BaseSegment):
 #             #bracket_type="square",
 #         #),
 #     )
+
+
+@tsql_dialect.segment(replace=True)
+class TableReferenceSegment(ObjectReferenceSegment):
+
+    type = "table_reference"
+
+    match_grammar: Matchable = Delimited(
+        Ref("SingleIdentifierGrammar"),
+        delimiter=OneOf(
+            Ref("DotSegment"), Sequence(Ref("DotSegment"), Ref("DotSegment"))
+        ),
+        allow_gaps=False,
+    )
+
 
 
 @tsql_dialect.segment(replace=True)
