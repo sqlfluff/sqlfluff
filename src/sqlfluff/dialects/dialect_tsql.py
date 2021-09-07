@@ -68,17 +68,17 @@ tsql_dialect.replace(
         name="function_name_identifier",
         type="function_name_identifier",
     ),
-    # Maybe data types should be more restrictive?
-    DatatypeIdentifierSegment=SegmentGenerator(
-        # Generate the anti template from the set of reserved keywords
-        lambda dialect: RegexParser(
-            r"[A-Z][A-Z0-9_]*|\[[A-Z][A-Z0-9_]*\]",
-            CodeSegment,
-            name="data_type_identifier",
-            type="data_type_identifier",
-            anti_template=r"^(NOT)$",  # TODO - this is a stopgap until we implement explicit data types
-        ),
-    ),
+    # # Maybe data types should be more restrictive?
+    # DatatypeIdentifierSegment=SegmentGenerator(
+    #     # Generate the anti template from the set of reserved keywords
+    #     lambda dialect: RegexParser(
+    #         r"[A-Z][A-Z0-9_]*|\[[A-Z][A-Z0-9_]*\]",
+    #         CodeSegment,
+    #         name="data_type_identifier",
+    #         type="data_type_identifier",
+    #         anti_template=r"^(NOT)$",  # TODO - this is a stopgap until we implement explicit data types
+    #     ),
+    # ),
 
 )
 
@@ -171,7 +171,6 @@ class GoStatementSegment(BaseSegment):
 class TableReferenceSegment(ObjectReferenceSegment):
 
     type = "table_reference"
-
     match_grammar: Matchable = Delimited(
         Ref("SingleIdentifierGrammar"),
         delimiter=OneOf(
@@ -182,93 +181,89 @@ class TableReferenceSegment(ObjectReferenceSegment):
 
 
 
-@tsql_dialect.segment(replace=True)
-class CreateTableStatementSegment(BaseSegment):
-    """A `CREATE TABLE` statement."""
+# @tsql_dialect.segment(replace=True)
+# class CreateTableStatementSegment(BaseSegment):
+#     """A `CREATE TABLE` statement."""
 
-    type = "create_table_statement"
-    # https://docs.microsoft.com/en-us/sql/t-sql/statements/create-table-transact-sql?view=sql-server-ver15
+#     type = "create_table_statement"
+#     # https://docs.microsoft.com/en-us/sql/t-sql/statements/create-table-transact-sql?view=sql-server-ver15
 
-    match_grammar = Sequence(
-        "CREATE",
-        Ref("OrReplaceGrammar", optional=True),
-        Ref("TemporaryTransientGrammar", optional=True),
-        "TABLE",
-        Ref("IfNotExistsGrammar", optional=True),
-        Ref("TableReferenceSegment"),   
-        Sequence(
-                Bracketed(
-                    Delimited(
-                        OneOf(
-                            Ref("TableConstraintSegment"),
-                            Ref("ColumnDefinitionSegment"),
-                        ),
-                    )
-                ),
-                Ref("CommentClauseSegment", optional=True),
-            ),        
-        Anything(),  
-        # OneOf(
-        #     # Columns and comment syntax:
-        #     Sequence(
-        #         Bracketed(
-        #             Delimited(
-        #                 OneOf(
-        #                     Ref("TableConstraintSegment"),
-        #                     Ref("ColumnDefinitionSegment"),
-        #                 ),
-        #             )
-        #         ),
-        #         Ref("CommentClauseSegment", optional=True),
-        #     ),
-            # # Create AS syntax:
-            # Sequence(
-            #     "AS",
-            #     OptionallyBracketed(Ref("SelectableGrammar")),
-            # ),
-            # # Create like syntax
-            # Sequence("LIKE", Ref("TableReferenceSegment")),
-        # ),
-        # Anything(),  
-        # Ref("GoStatementSegment", optional=True),
-    )
+#     match_grammar = Sequence(
+#         "CREATE",
+#         Ref("OrReplaceGrammar", optional=True),
+#         Ref("TemporaryTransientGrammar", optional=True),
+#         "TABLE",
+#         Ref("IfNotExistsGrammar", optional=True),
+#         Ref("TableReferenceSegment"),   
+#         Sequence(
+#                 Bracketed(
+#                     Delimited(
+#                         OneOf(
+#                             Ref("TableConstraintSegment"),
+#                             Ref("ColumnDefinitionSegment"),
+#                         ),
+#                     )
+#                 ),
+#                 Ref("CommentClauseSegment", optional=True),
+#             ),        
+#         # Anything(),  
+#         # OneOf(
+#         #     # Columns and comment syntax:
+#         #     Sequence(
+#         #         Bracketed(
+#         #             Delimited(
+#         #                 OneOf(
+#         #                     Ref("TableConstraintSegment"),
+#         #                     Ref("ColumnDefinitionSegment"),
+#         #                 ),
+#         #             )
+#         #         ),
+#         #         Ref("CommentClauseSegment", optional=True),
+#         #     ),
+#             # # Create AS syntax:
+#             # Sequence(
+#             #     "AS",
+#             #     OptionallyBracketed(Ref("SelectableGrammar")),
+#             # ),
+#             # # Create like syntax
+#             # Sequence("LIKE", Ref("TableReferenceSegment")),
+#         # ),
+#         # Anything(),  
+#         # Ref("GoStatementSegment", optional=True),
+#     )
 
 
 @tsql_dialect.segment(replace=True)
 class DatatypeSegment(BaseSegment):
-    """A data type segment."""
+    """A data type segment.
+
+    Supports timestamp with(out) time zone. Doesn't currently support intervals.
+    """
 
     type = "data_type"
-    match_grammar = Sequence(
-        Sequence(
-            # Some dialects allow optional qualification of data types with schemas
-            Sequence(
-                #OptionallyBracketed(
+    match_grammar = Sequence(  
+                # Some dialects allow optional qualification of data types with schemas
+                Sequence(
                     Ref("SingleIdentifierGrammar"),
-                #    bracket_type="square",
-                #),
-                Ref("DotSegment"),
-                allow_gaps=False,
+                    Ref("DotSegment"),
+                    allow_gaps=False,
+                    optional=True,
+                ),
+                OneOf(
+                    Ref("DatatypeIdentifierSegment"),
+                    Bracketed(Ref("DatatypeIdentifierSegment"), bracket_type="square")
+                ),
+                Bracketed(
+                OneOf(
+                    Delimited(Ref("ExpressionSegment")),
+                    # The brackets might be empty for some cases...
+                    optional=True,
+                ),
+                # There may be no brackets for some data types
                 optional=True,
             ),
-            #OptionallyBracketed(
-                Ref("DatatypeIdentifierSegment"),
-                #bracket_type="square",
-            #),
-            allow_gaps=False,
-        ),
-        Bracketed(
-            OneOf(
-                Delimited(Ref("ExpressionSegment")),
-                # The brackets might be empty for some cases...
-                optional=True,
-            ),
-            # There may be no brackets for some data types
-            optional=True,
-        ),
-        Ref("CharCharacterSetSegment", optional=True),
-    )
-
+            Ref("CharCharacterSetSegment", optional=True),
+            )
 
 @tsql_dialect.segment(replace=True)
 class ColumnOptionSegment(BaseSegment):
@@ -315,10 +310,7 @@ class ColumnDefinitionSegment(BaseSegment):
 
     type = "column_definition"
     match_grammar = Sequence(
-        #OptionallyBracketed(
-            Ref("SingleIdentifierGrammar"),
-        #    bracket_type="square",
-        #),
+        Ref("SingleIdentifierGrammar"),
         Ref("DatatypeSegment"),  # Column type
         Bracketed(Anything(), optional=True),  # For types like VARCHAR(100)
         AnyNumberOf(
