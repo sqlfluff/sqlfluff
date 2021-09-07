@@ -828,8 +828,7 @@ class CreateTableStatementSegment(BaseSegment):
 
 @bigquery_dialect.segment()
 class ParameterizedSegment(BaseSegment):
-    """
-    BigQuery allows named and argument based parameters
+    """BigQuery allows named and argument based parameters to help preven SQL Injection.
 
     https://cloud.google.com/bigquery/docs/parameterized-queries
     """
