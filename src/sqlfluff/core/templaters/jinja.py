@@ -3,6 +3,7 @@
 import os.path
 import logging
 import importlib.util
+import re
 from typing import Iterator, Tuple, Optional
 
 from jinja2.sandbox import SandboxedEnvironment
@@ -326,8 +327,16 @@ class JinjaTemplater(PythonTemplater):
             "raw_end": "block",
             "raw_begin": "block",
         }
-        # https://jinja.palletsprojects.com/en/2.11.x/api/#jinja2.Environment.lex
-        for _, elem_type, raw in env.lex(in_str):
+        def lex(env, in_str):
+            # This is ugly. Jinja discards leading whitespace-only lines. We
+            # have to detect and add them back in order for SQLFluff's source
+            # position markers to align with the actual file.
+            m = re.search(r'^\s+\n', in_str)
+            if m:
+                yield None, "data", m.group(0)
+            # https://jinja.palletsprojects.com/en/2.11.x/api/#jinja2.Environment.lex
+            yield from env.lex(in_str)
+        for _, elem_type, raw in lex(env, in_str):
             if elem_type == "data":
                 yield RawFileSlice(raw, "literal", idx)
                 idx += len(raw)
