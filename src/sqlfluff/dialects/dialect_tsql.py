@@ -50,14 +50,21 @@ tsql_dialect.insert_lexer_matchers(
             r"[@][a-zA-Z0-9_]+",
             CodeSegment,
         ),
+        RegexLexer(
+            "square_quote",
+            r"\[([a-zA-Z][^\[\]]*)*\]",
+            CodeSegment,
+        ),
     ],
-    before="code",
+    before="back_quote",
 )
 
-
 tsql_dialect.replace(
+    QuotedIdentifierSegment=NamedParser(
+        "square_quote", CodeSegment, name="quoted_identifier", type="identifier"
+    ),
     SingleIdentifierGrammar=OneOf(
-        Ref("NakedIdentifierSegment"), Ref("QuotedIdentifierSegment"), Ref("BracketedIdentifierSegment"),
+        Ref("NakedIdentifierSegment"), Ref("QuotedIdentifierSegment"), #Ref("BracketedIdentifierSegment"),
     ),
     ParameterNameSegment=RegexParser(
         r"[@][A-Za-z0-9_]+", CodeSegment, name="parameter", type="parameter"
@@ -68,6 +75,7 @@ tsql_dialect.replace(
         name="function_name_identifier",
         type="function_name_identifier",
     ),
+    DatatypeIdentifierSegment=Ref("SingleIdentifierGrammar"),
     # # Maybe data types should be more restrictive?
     # DatatypeIdentifierSegment=SegmentGenerator(
     #     # Generate the anti template from the set of reserved keywords
@@ -82,51 +90,15 @@ tsql_dialect.replace(
 
 )
 
-@tsql_dialect.segment()
-class BracketedIdentifierSegment(BaseSegment):
-    """A bracketed identifier (e.g. `[dbo]`)."""
+# @tsql_dialect.segment()
+# class BracketedIdentifierSegment(BaseSegment):
+#     """A bracketed identifier (e.g. `[dbo]`)."""
 
-    type = "bracketed_identifier"
+#     type = "bracketed_identifier"
 
-    match_grammar = Bracketed(
-        Ref("NakedIdentifierSegment"),
-        bracket_type="square",
-    )
-
-# Below statement or similar is required to make sqlfluff understand the different statements within a file as these are not seperated by semicolons.
-# @tsql_dialect.segment(replace=True)
-# class StatementSegment(BaseSegment):
-#     """A generic segment, to any of its child subsegments."""
-
-#     type = "statement"
-#     match_grammar = OneOf(
-#         Ref("SelectableGrammar"),
-#         Ref("InsertStatementSegment"),
-#         Ref("TransactionStatementSegment"),
-#         Ref("DropStatementSegment"),
-#         Ref("TruncateStatementSegment"),
-#         Ref("AccessStatementSegment"),
-#         Ref("CreateTableStatementSegment"),
-#         Ref("CreateTypeStatementSegment"),
-#         Ref("CreateRoleStatementSegment"),
-#         Ref("AlterTableStatementSegment"),
-#         Ref("CreateSchemaStatementSegment"),
-#         Ref("SetSchemaStatementSegment"),
-#         Ref("DropSchemaStatementSegment"),
-#         Ref("CreateDatabaseStatementSegment"),
-#         Ref("CreateExtensionStatementSegment"),
-#         Ref("CreateIndexStatementSegment"),
-#         Ref("DropIndexStatementSegment"),
-#         Ref("CreateViewStatementSegment"),
-#         Ref("DeleteStatementSegment"),
-#         Ref("UpdateStatementSegment"),
-#         Ref("CreateFunctionStatementSegment"),
-#         Ref("CreateModelStatementSegment"),
-#         Ref("DropModelStatementSegment"),
-#         Ref("DescribeStatementSegment"),
-#         Ref("UseStatementSegment"),
-#         Ref("ExplainStatementSegment"),
-#         Ref("CreateProcedureStatementSegment"),
+#     match_grammar = Bracketed(
+#         Ref("NakedIdentifierSegment"),
+#         bracket_type="square",
 #     )
 
 
@@ -142,7 +114,7 @@ class ObjectReferenceSegment(BaseSegment):
         delimiter=OneOf(
             Ref("DotSegment"), Sequence(Ref("DotSegment"), Ref("DotSegment"))
         ),
-        allow_gaps=False,
+        allow_gaps=True,
     )
 
 @tsql_dialect.segment()
@@ -152,19 +124,6 @@ class GoStatementSegment(BaseSegment):
     type = "go_statement"
     type = "go_statement"
     match_grammar = Sequence("GO")
-
-
-# @tsql_dialect.segment()
-# class ObjectNameSegment(BaseSegment):
-#     """This is the body of a `CREATE FUNCTION AS` statement."""
-
-#     type = "object_name"
-#     match_grammar = Sequence(
-#         #OptionallyBracketed(
-#             Ref("SingleIdentifierGrammar"),
-#             #bracket_type="square",
-#         #),
-#     )
 
 
 @tsql_dialect.segment(replace=True)
