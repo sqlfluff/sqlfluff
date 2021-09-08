@@ -19,31 +19,16 @@ from sqlfluff.core.parser import (
     NamedParser,
 )
 
-# from sqlfluff.dialects.ansi_keywords import (
-#     ansi_reserved_keywords,
-#     ansi_unreserved_keywords,
-# )
-
 from sqlfluff.core.dialects import load_raw_dialect
+from sqlfluff.dialects.tsql_keywords import RESERVED_KEYWORDS
 
 ansi_dialect = load_raw_dialect("ansi")
 tsql_dialect = ansi_dialect.copy_as("tsql")
 
-# Update only RESERVED Keywords, not working yet, error UsingKeywordSegment
-# from sqlfluff.dialects.tsql_keywords import RESERVED_KEYWORDS
+# Update only RESERVED Keywords
+# Should really clear down the old keywords but some are needed by certain segments
 # tsql_dialect.sets("reserved_keywords").clear()
-# tsql_dialect.sets("reserved_keywords").update(RESERVED_KEYWORDS)
-
-
-@tsql_dialect.segment(replace=True)
-class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: ignore
-    """Overriding StatementSegment to allow for additional segment parsing."""
-
-    parse_grammar = ansi_dialect.get_segment("StatementSegment").parse_grammar.copy(
-        insert=[
-            Ref("CreateProcedureStatementSegment"),
-        ],
-    )
+tsql_dialect.sets("reserved_keywords").update(RESERVED_KEYWORDS)
 
 
 tsql_dialect.insert_lexer_matchers(
@@ -95,11 +80,23 @@ tsql_dialect.replace(
 
 
 @tsql_dialect.segment(replace=True)
+class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: ignore
+    """Overriding StatementSegment to allow for additional segment parsing."""
+
+    parse_grammar = ansi_dialect.get_segment("StatementSegment").parse_grammar.copy(
+        insert=[
+            Ref("CreateProcedureStatementSegment"),
+        ],
+    )
+
+
+@tsql_dialect.segment(replace=True)
 class ObjectReferenceSegment(BaseSegment):
     """A reference to an object.
 
     Update ObjectReferenceSegment to only allow dot separated SingleIdentifierGrammar
-    So Square Bracketed identifers can be matched."""
+    So Square Bracketed identifers can be matched.
+    """
 
     type = "object_reference"
     # match grammar (don't allow whitespace)
