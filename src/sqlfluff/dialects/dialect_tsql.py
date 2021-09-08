@@ -119,24 +119,6 @@ class GoStatementSegment(BaseSegment):
 
 
 @tsql_dialect.segment(replace=True)
-class TableReferenceSegment(ObjectReferenceSegment):
-    """TableReferenceSegment.
-
-    Update TableReferenceSegment to only allow dot separated SingleIdentifierGrammar
-    So Square Bracketed identifers can be matched.
-    """
-
-    type = "table_reference"
-    match_grammar: Matchable = Delimited(
-        Ref("SingleIdentifierGrammar"),
-        delimiter=OneOf(
-            Ref("DotSegment"), Sequence(Ref("DotSegment"), Ref("DotSegment"))
-        ),
-        allow_gaps=False,
-    )
-
-
-@tsql_dialect.segment(replace=True)
 class DatatypeSegment(BaseSegment):
     """A data type segment.
 
@@ -302,10 +284,12 @@ class ProcedureDefinitionGrammar(BaseSegment):
 
 @tsql_dialect.segment(replace=True)
 class CreateViewStatementSegment(BaseSegment):
-    """A `CREATE VIEW` statement."""
+    """A `CREATE VIEW` statement.
+
+    # https://docs.microsoft.com/en-us/sql/t-sql/statements/create-view-transact-sql?view=sql-server-ver15#examples
+    """
 
     type = "create_view_statement"
-    # https://docs.microsoft.com/en-us/sql/t-sql/statements/create-view-transact-sql?view=sql-server-ver15#examples
     match_grammar = Sequence(
         "CREATE",
         Sequence("OR", "ALTER", optional=True),
