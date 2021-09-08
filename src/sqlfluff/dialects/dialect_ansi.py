@@ -2476,7 +2476,7 @@ class AccessStatementSegment(BaseSegment):
                     Delimited(
                         OneOf(_global_permissions, _permissions),
                         delimiter=Ref("CommaSegment"),
-                        terminator="ON"
+                        terminator="ON",
                     ),
                     "ON",
                     _objects,
@@ -2522,7 +2522,7 @@ class AccessStatementSegment(BaseSegment):
                     Delimited(
                         OneOf(_global_permissions, _permissions),
                         delimiter=Ref("CommaSegment"),
-                        terminator="ON"
+                        terminator="ON",
                     ),
                     "ON",
                     _objects,
