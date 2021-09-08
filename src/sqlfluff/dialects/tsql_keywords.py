@@ -1,4 +1,5 @@
 """A list of all SQL key words.
+
 https://docs.microsoft.com/en-us/sql/t-sql/language-elements/reserved-keywords-transact-sql?view=sql-server-ver15
 """
 

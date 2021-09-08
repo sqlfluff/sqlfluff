@@ -1,10 +1,7 @@
-""" The MSSQL T-SQL dialect.
+"""The MSSQL T-SQL dialect.
 
 https://docs.microsoft.com/en-us/sql/t-sql/language-elements/language-elements-transact-sql
-
-
 """
-from sqlfluff.core.parser.segments.base import BracketedSegment
 
 from sqlfluff.core.parser import (
     BaseSegment,
@@ -27,19 +24,15 @@ from sqlfluff.core.parser import (
 #     ansi_unreserved_keywords,
 # )
 
-# Update only RESERVED Keywords, not working yet, error UsingKeywordSegment
-# from sqlfluff.dialects.tsql_keywords import (
-#     RESERVED_KEYWORDS,
-# )
-# tsql_dialect.sets("reserved_keywords").clear()
-# tsql_dialect.sets("reserved_keywords").update(RESERVED_KEYWORDS)
-
-
 from sqlfluff.core.dialects import load_raw_dialect
-from sqlfluff.dialects.dialect_ansi import StatementSegment
 
 ansi_dialect = load_raw_dialect("ansi")
 tsql_dialect = ansi_dialect.copy_as("tsql")
+
+# Update only RESERVED Keywords, not working yet, error UsingKeywordSegment
+# from sqlfluff.dialects.tsql_keywords import RESERVED_KEYWORDS
+# tsql_dialect.sets("reserved_keywords").clear()
+# tsql_dialect.sets("reserved_keywords").update(RESERVED_KEYWORDS)
 
 
 @tsql_dialect.segment(replace=True)
@@ -76,7 +69,8 @@ tsql_dialect.add(
 )
 
 tsql_dialect.replace(
-    # Below delimiterstatement might need to be removed in the future as delimiting is optional with semicolon and GO is a end of statement indicator.
+    # Below delimiterstatement might need to be removed in the future as delimiting
+    # is optional with semicolon and GO is a end of statement indicator.
     DelimiterSegment=OneOf(
         Sequence(Ref("SemicolonSegment"), Ref("GoStatementSegment")),
         Ref("SemicolonSegment"),
@@ -102,7 +96,10 @@ tsql_dialect.replace(
 
 @tsql_dialect.segment(replace=True)
 class ObjectReferenceSegment(BaseSegment):
-    """A reference to an object."""
+    """A reference to an object.
+
+    Update ObjectReferenceSegment to only allow dot separated SingleIdentifierGrammar
+    So Square Bracketed identifers can be matched."""
 
     type = "object_reference"
     # match grammar (don't allow whitespace)
@@ -118,15 +115,19 @@ class ObjectReferenceSegment(BaseSegment):
 
 @tsql_dialect.segment()
 class GoStatementSegment(BaseSegment):
-    """This is a Go statement to signal end of batch"""
+    """This is a Go statement to signal end of batch."""
 
-    type = "go_statement"
     type = "go_statement"
     match_grammar = Sequence("GO")
 
 
 @tsql_dialect.segment(replace=True)
 class TableReferenceSegment(ObjectReferenceSegment):
+    """TableReferenceSegment.
+
+    Update TableReferenceSegment to only allow dot separated SingleIdentifierGrammar
+    So Square Bracketed identifers can be matched.
+    """
 
     type = "table_reference"
     match_grammar: Matchable = Delimited(
@@ -275,6 +276,7 @@ class FunctionDefinitionGrammar(BaseSegment):
 @tsql_dialect.segment()
 class CreateProcedureStatementSegment(BaseSegment):
     """A `CREATE PROCEDURE` statement.
+
     https://docs.microsoft.com/en-us/sql/t-sql/statements/create-procedure-transact-sql?view=sql-server-ver15
     """
 

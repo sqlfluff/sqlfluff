@@ -1,6 +1,6 @@
 CREATE VIEW vwCTE AS
 --Creates an infinite loop
-WITH cte (EmployeeID, ManagerID, Title) as
+WITH cte (EmployeeID, ManagerID, Title) AS
 (
     SELECT EmployeeID, ManagerID, Title
     FROM HumanResources.Employee
