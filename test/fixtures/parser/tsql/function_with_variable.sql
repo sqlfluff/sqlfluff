@@ -6,4 +6,3 @@ AS
         SET @result=4
         RETURN @result + @year + @week
     END
-GO

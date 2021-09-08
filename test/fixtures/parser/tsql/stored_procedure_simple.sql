@@ -1,3 +1,3 @@
-CREATE PROC What_DB_is_this
+CREATE PROC ProcedureName
 AS
-SELECT DB_NAME() AS ThisDB;
+SELECT DB_NAME()

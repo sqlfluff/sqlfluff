@@ -3,13 +3,13 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 552c1c433e759789a653397c343444369fb5dc0f615ae01d2e30a08082021428
+_hash: d0d8c6d3ae707ec0c817833df91628b0822f9cef4449d219235c2dbc9b1032b6
 file:
   statement:
     create_view_statement:
     - keyword: CREATE
     - keyword: VIEW
-    - object_name:
+    - object_reference:
         identifier: vwCTE
     - keyword: AS
     - with_compound_statement:
@@ -135,5 +135,5 @@ file:
                 table_expression:
                   table_reference:
                     identifier: cte
-                alias_expression:
-                  identifier: GO
+  go_statement:
+    keyword: GO

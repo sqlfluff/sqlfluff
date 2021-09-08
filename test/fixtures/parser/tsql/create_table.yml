@@ -3,64 +3,48 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 79705ad20930508f8f244de4a8bda8f8248026944324354272eca20720660996
+_hash: 0e20e78dee5085d7fab3b8714a918b6ef1762425ed982323a957b8a03ceaf399
 file:
   statement:
     create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
-    - schema_name:
-        identifier: dbo
-        dot: .
     - table_reference:
-        identifier: ECDC
+      - identifier: '[dbo]'
+      - dot: .
+      - identifier: '[EC DC]'
     - bracketed:
       - start_bracket: (
       - column_definition:
-        - start_square_bracket: '['
-        - identifier: EmployeeID
-        - end_square_bracket: ']'
-        - data_type:
-            start_square_bracket: '['
-            data_type_identifier: int
-            end_square_bracket: ']'
-        - column_constraint:
-          - keyword: PRIMARY
-          - keyword: KEY
-        - column_constraint:
-            keyword: CLUSTERED
-      - comma: ','
-      - column_definition:
-          start_square_bracket: '['
-          identifier: COUNTRY
-          end_square_bracket: ']'
+          identifier: '[Column B]'
           data_type:
-            start_square_bracket: '['
-            data_type_identifier: varchar
-            end_square_bracket: ']'
+            identifier: '[varchar]'
             bracketed:
               start_bracket: (
               expression:
                 literal: '100'
               end_bracket: )
-          column_constraint:
-            keyword: 'NULL'
       - comma: ','
       - column_definition:
-          start_square_bracket: '['
-          identifier: COUNTRY_CODE
-          end_square_bracket: ']'
+          identifier: '[ColumnC]'
           data_type:
-            start_square_bracket: '['
-            data_type_identifier: varchar
-            end_square_bracket: ']'
+            identifier: varchar
             bracketed:
               start_bracket: (
               expression:
-                literal: '2'
+                literal: '100'
               end_bracket: )
-          column_constraint:
-          - keyword: NOT
-          - keyword: 'NULL'
+      - comma: ','
+      - column_definition:
+          identifier: '[ColumnDecimal]'
+          data_type:
+            identifier: decimal
+            bracketed:
+            - start_bracket: (
+            - expression:
+                literal: '10'
+            - comma: ','
+            - expression:
+                literal: '3'
+            - end_bracket: )
       - end_bracket: )
-  statement_terminator: ;

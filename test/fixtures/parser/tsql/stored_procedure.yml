@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8b99b4fe7fb246816f5965d723f4ce1a2bbbeea24d2e0e87ff64f568ce66cf4d
+_hash: 400f986de52f5803d4eb8f9ee10d46b2e96e5a76897e6ef7e2f8812ee1894ade
 file:
   statement:
     create_procedure_statement:
@@ -11,11 +11,26 @@ file:
     - binary_operator: OR
     - keyword: ALTER
     - keyword: PROCEDURE
-    - schema_name:
-        identifier: DBO
-        dot: .
-    - object_name:
-        identifier: SP_ECDC_CASES_INTER
+    - object_reference:
+      - identifier: DBO
+      - dot: .
+      - identifier: SP_ECDC_CASES_INTER
+    - base:
+        bracketed:
+        - start_bracket: (
+        - parameter: '@Apple'
+        - data_type:
+            identifier: '[int]'
+        - comma: ','
+        - parameter: '@Orange'
+        - data_type:
+            identifier: varchar
+            bracketed:
+              start_bracket: (
+              expression:
+                literal: '100'
+              end_bracket: )
+        - end_bracket: )
     - keyword: AS
     - procedure_statement:
       - raw: BEGIN
@@ -26,113 +41,67 @@ file:
       - raw: ECDC_CASES
       - bracketed:
         - start_bracket: (
-        - start_square_bracket: '['
-        - raw: COUNTRY
-        - end_square_bracket: ']'
+        - raw: '[COUNTRY]'
         - comma: ','
-        - start_square_bracket: '['
-        - raw: COUNTRY_CODE
-        - end_square_bracket: ']'
+        - raw: '[COUNTRY_CODE]'
         - comma: ','
-        - start_square_bracket: '['
-        - raw: CONTINENT
-        - end_square_bracket: ']'
+        - raw: '[CONTINENT]'
         - comma: ','
-        - start_square_bracket: '['
-        - raw: POPULATION
-        - end_square_bracket: ']'
+        - raw: '[POPULATION]'
         - comma: ','
-        - start_square_bracket: '['
-        - raw: INDICATOR
-        - end_square_bracket: ']'
+        - raw: '[INDICATOR]'
         - comma: ','
-        - start_square_bracket: '['
-        - raw: WEEKLY_COUNT
-        - end_square_bracket: ']'
+        - raw: '[WEEKLY_COUNT]'
         - comma: ','
-        - start_square_bracket: '['
-        - raw: YEAR_WEEK
-        - end_square_bracket: ']'
+        - raw: '[YEAR_WEEK]'
         - comma: ','
-        - start_square_bracket: '['
-        - raw: WEEK_START
-        - end_square_bracket: ']'
+        - raw: '[WEEK_START]'
         - comma: ','
-        - start_square_bracket: '['
-        - raw: WEEK_END
-        - end_square_bracket: ']'
+        - raw: '[WEEK_END]'
         - comma: ','
-        - start_square_bracket: '['
-        - raw: RATE_14_DAY
-        - end_square_bracket: ']'
+        - raw: '[RATE_14_DAY]'
         - comma: ','
-        - start_square_bracket: '['
-        - raw: CUMULATIVE_COUNT
-        - end_square_bracket: ']'
+        - raw: '[CUMULATIVE_COUNT]'
         - comma: ','
-        - start_square_bracket: '['
-        - raw: SOURCE
-        - end_square_bracket: ']'
+        - raw: '[SOURCE]'
         - end_bracket: )
       - raw: SELECT
-      - start_square_bracket: '['
-      - raw: COUNTRY
-      - end_square_bracket: ']'
+      - raw: '[COUNTRY]'
       - comma: ','
-      - start_square_bracket: '['
-      - raw: COUNTRY_CODE
-      - end_square_bracket: ']'
+      - raw: '[COUNTRY_CODE]'
       - comma: ','
-      - start_square_bracket: '['
-      - raw: CONTINENT
-      - end_square_bracket: ']'
+      - raw: '[CONTINENT]'
       - comma: ','
       - raw: CAST
       - bracketed:
         - start_bracket: (
-        - start_square_bracket: '['
-        - raw: POPULATION
-        - end_square_bracket: ']'
+        - raw: '[POPULATION]'
         - raw: AS
         - raw: BIGINT
         - end_bracket: )
       - raw: AS
-      - start_square_bracket: '['
-      - raw: POPULATION
-      - end_square_bracket: ']'
+      - raw: '[POPULATION]'
       - comma: ','
-      - start_square_bracket: '['
-      - raw: INDICATOR
-      - end_square_bracket: ']'
+      - raw: '[INDICATOR]'
       - comma: ','
       - raw: CAST
       - bracketed:
         - start_bracket: (
-        - start_square_bracket: '['
-        - raw: WEEKLY_COUNT
-        - end_square_bracket: ']'
+        - raw: '[WEEKLY_COUNT]'
         - raw: AS
         - raw: BIGINT
         - end_bracket: )
       - raw: AS
-      - start_square_bracket: '['
-      - raw: WEEKLY_COUNT
-      - end_square_bracket: ']'
+      - raw: '[WEEKLY_COUNT]'
       - comma: ','
-      - start_square_bracket: '['
-      - raw: YEAR_WEEK
-      - end_square_bracket: ']'
+      - raw: '[YEAR_WEEK]'
       - comma: ','
       - raw: CAST
       - bracketed:
         - start_bracket: (
-        - start_square_bracket: '['
-        - raw: dbo
-        - end_square_bracket: ']'
+        - raw: '[dbo]'
         - raw: .
-        - start_square_bracket: '['
-        - raw: CONVERT_ISO_WEEK_TO_DATETIME
-        - end_square_bracket: ']'
+        - raw: '[CONVERT_ISO_WEEK_TO_DATETIME]'
         - bracketed:
           - start_bracket: (
           - raw: LEFT
@@ -155,29 +124,19 @@ file:
         - raw: DATE
         - end_bracket: )
       - raw: AS
-      - start_square_bracket: '['
-      - raw: WEEK_START
-      - end_square_bracket: ']'
+      - raw: '[WEEK_START]'
       - comma: ','
       - raw: CAST
       - bracketed:
         - start_bracket: (
-        - start_square_bracket: '['
-        - raw: dbo
-        - end_square_bracket: ']'
+        - raw: '[dbo]'
         - raw: .
-        - start_square_bracket: '['
-        - raw: WEEK_END
-        - end_square_bracket: ']'
+        - raw: '[WEEK_END]'
         - bracketed:
           - start_bracket: (
-          - start_square_bracket: '['
-          - raw: dbo
-          - end_square_bracket: ']'
+          - raw: '[dbo]'
           - raw: .
-          - start_square_bracket: '['
-          - raw: CONVERT_ISO_WEEK_TO_DATETIME
-          - end_square_bracket: ']'
+          - raw: '[CONVERT_ISO_WEEK_TO_DATETIME]'
           - bracketed:
             - start_bracket: (
             - raw: LEFT
@@ -201,41 +160,29 @@ file:
         - raw: DATE
         - end_bracket: )
       - raw: AS
-      - start_square_bracket: '['
-      - raw: WEEK_END
-      - end_square_bracket: ']'
+      - raw: '[WEEK_END]'
       - comma: ','
       - raw: CAST
       - bracketed:
         - start_bracket: (
-        - start_square_bracket: '['
-        - raw: RATE_14_DAY
-        - end_square_bracket: ']'
+        - raw: '[RATE_14_DAY]'
         - raw: AS
         - raw: FLOAT
         - end_bracket: )
       - raw: AS
-      - start_square_bracket: '['
-      - raw: RATE_14_DAY
-      - end_square_bracket: ']'
+      - raw: '[RATE_14_DAY]'
       - comma: ','
       - raw: CAST
       - bracketed:
         - start_bracket: (
-        - start_square_bracket: '['
-        - raw: CUMULATIVE_COUNT
-        - end_square_bracket: ']'
+        - raw: '[CUMULATIVE_COUNT]'
         - raw: AS
         - raw: BIGINT
         - end_bracket: )
       - raw: AS
-      - start_square_bracket: '['
-      - raw: CUMULATIVE_COUNT
-      - end_square_bracket: ']'
+      - raw: '[CUMULATIVE_COUNT]'
       - comma: ','
-      - start_square_bracket: '['
-      - raw: SOURCE
-      - end_square_bracket: ']'
+      - raw: '[SOURCE]'
       - raw: FROM
       - raw: VWSSTAGE
       - raw: .
@@ -263,113 +210,67 @@ file:
       - raw: ECDC_CASES_OLD
       - bracketed:
         - start_bracket: (
-        - start_square_bracket: '['
-        - raw: COUNTRY
-        - end_square_bracket: ']'
+        - raw: '[COUNTRY]'
         - comma: ','
-        - start_square_bracket: '['
-        - raw: COUNTRY_CODE
-        - end_square_bracket: ']'
+        - raw: '[COUNTRY_CODE]'
         - comma: ','
-        - start_square_bracket: '['
-        - raw: CONTINENT
-        - end_square_bracket: ']'
+        - raw: '[CONTINENT]'
         - comma: ','
-        - start_square_bracket: '['
-        - raw: POPULATION
-        - end_square_bracket: ']'
+        - raw: '[POPULATION]'
         - comma: ','
-        - start_square_bracket: '['
-        - raw: INDICATOR
-        - end_square_bracket: ']'
+        - raw: '[INDICATOR]'
         - comma: ','
-        - start_square_bracket: '['
-        - raw: WEEKLY_COUNT
-        - end_square_bracket: ']'
+        - raw: '[WEEKLY_COUNT]'
         - comma: ','
-        - start_square_bracket: '['
-        - raw: YEAR_WEEK
-        - end_square_bracket: ']'
+        - raw: '[YEAR_WEEK]'
         - comma: ','
-        - start_square_bracket: '['
-        - raw: WEEK_START
-        - end_square_bracket: ']'
+        - raw: '[WEEK_START]'
         - comma: ','
-        - start_square_bracket: '['
-        - raw: WEEK_END
-        - end_square_bracket: ']'
+        - raw: '[WEEK_END]'
         - comma: ','
-        - start_square_bracket: '['
-        - raw: RATE_14_DAY
-        - end_square_bracket: ']'
+        - raw: '[RATE_14_DAY]'
         - comma: ','
-        - start_square_bracket: '['
-        - raw: CUMULATIVE_COUNT
-        - end_square_bracket: ']'
+        - raw: '[CUMULATIVE_COUNT]'
         - comma: ','
-        - start_square_bracket: '['
-        - raw: SOURCE
-        - end_square_bracket: ']'
+        - raw: '[SOURCE]'
         - end_bracket: )
       - raw: SELECT
-      - start_square_bracket: '['
-      - raw: COUNTRY
-      - end_square_bracket: ']'
+      - raw: '[COUNTRY]'
       - comma: ','
-      - start_square_bracket: '['
-      - raw: COUNTRY_CODE
-      - end_square_bracket: ']'
+      - raw: '[COUNTRY_CODE]'
       - comma: ','
-      - start_square_bracket: '['
-      - raw: CONTINENT
-      - end_square_bracket: ']'
+      - raw: '[CONTINENT]'
       - comma: ','
       - raw: CAST
       - bracketed:
         - start_bracket: (
-        - start_square_bracket: '['
-        - raw: POPULATION
-        - end_square_bracket: ']'
+        - raw: '[POPULATION]'
         - raw: AS
         - raw: BIGINT
         - end_bracket: )
       - raw: AS
-      - start_square_bracket: '['
-      - raw: POPULATION
-      - end_square_bracket: ']'
+      - raw: '[POPULATION]'
       - comma: ','
-      - start_square_bracket: '['
-      - raw: INDICATOR
-      - end_square_bracket: ']'
+      - raw: '[INDICATOR]'
       - comma: ','
       - raw: CAST
       - bracketed:
         - start_bracket: (
-        - start_square_bracket: '['
-        - raw: WEEKLY_COUNT
-        - end_square_bracket: ']'
+        - raw: '[WEEKLY_COUNT]'
         - raw: AS
         - raw: BIGINT
         - end_bracket: )
       - raw: AS
-      - start_square_bracket: '['
-      - raw: WEEKLY_COUNT
-      - end_square_bracket: ']'
+      - raw: '[WEEKLY_COUNT]'
       - comma: ','
-      - start_square_bracket: '['
-      - raw: YEAR_WEEK
-      - end_square_bracket: ']'
+      - raw: '[YEAR_WEEK]'
       - comma: ','
       - raw: CAST
       - bracketed:
         - start_bracket: (
-        - start_square_bracket: '['
-        - raw: dbo
-        - end_square_bracket: ']'
+        - raw: '[dbo]'
         - raw: .
-        - start_square_bracket: '['
-        - raw: CONVERT_ISO_WEEK_TO_DATETIME
-        - end_square_bracket: ']'
+        - raw: '[CONVERT_ISO_WEEK_TO_DATETIME]'
         - bracketed:
           - start_bracket: (
           - raw: LEFT
@@ -392,29 +293,19 @@ file:
         - raw: DATE
         - end_bracket: )
       - raw: AS
-      - start_square_bracket: '['
-      - raw: WEEK_START
-      - end_square_bracket: ']'
+      - raw: '[WEEK_START]'
       - comma: ','
       - raw: CAST
       - bracketed:
         - start_bracket: (
-        - start_square_bracket: '['
-        - raw: dbo
-        - end_square_bracket: ']'
+        - raw: '[dbo]'
         - raw: .
-        - start_square_bracket: '['
-        - raw: WEEK_END
-        - end_square_bracket: ']'
+        - raw: '[WEEK_END]'
         - bracketed:
           - start_bracket: (
-          - start_square_bracket: '['
-          - raw: dbo
-          - end_square_bracket: ']'
+          - raw: '[dbo]'
           - raw: .
-          - start_square_bracket: '['
-          - raw: CONVERT_ISO_WEEK_TO_DATETIME
-          - end_square_bracket: ']'
+          - raw: '[CONVERT_ISO_WEEK_TO_DATETIME]'
           - bracketed:
             - start_bracket: (
             - raw: LEFT
@@ -438,41 +329,29 @@ file:
         - raw: DATE
         - end_bracket: )
       - raw: AS
-      - start_square_bracket: '['
-      - raw: WEEK_END
-      - end_square_bracket: ']'
+      - raw: '[WEEK_END]'
       - comma: ','
       - raw: CAST
       - bracketed:
         - start_bracket: (
-        - start_square_bracket: '['
-        - raw: RATE_14_DAY
-        - end_square_bracket: ']'
+        - raw: '[RATE_14_DAY]'
         - raw: AS
         - raw: FLOAT
         - end_bracket: )
       - raw: AS
-      - start_square_bracket: '['
-      - raw: RATE_14_DAY
-      - end_square_bracket: ']'
+      - raw: '[RATE_14_DAY]'
       - comma: ','
       - raw: CAST
       - bracketed:
         - start_bracket: (
-        - start_square_bracket: '['
-        - raw: CUMULATIVE_COUNT
-        - end_square_bracket: ']'
+        - raw: '[CUMULATIVE_COUNT]'
         - raw: AS
         - raw: BIGINT
         - end_bracket: )
       - raw: AS
-      - start_square_bracket: '['
-      - raw: CUMULATIVE_COUNT
-      - end_square_bracket: ']'
+      - raw: '[CUMULATIVE_COUNT]'
       - comma: ','
-      - start_square_bracket: '['
-      - raw: SOURCE
-      - end_square_bracket: ']'
+      - raw: '[SOURCE]'
       - raw: FROM
       - raw: VWSSTAGE
       - raw: .

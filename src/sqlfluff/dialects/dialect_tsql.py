@@ -17,17 +17,23 @@ from sqlfluff.core.parser import (
     CodeSegment,
     RegexParser,
     Delimited,
-    OptionallyBracketed,
     AnyNumberOf,
-    SegmentGenerator,
     Matchable,
     NamedParser,
 )
 
-from sqlfluff.dialects.ansi_keywords import (
-    ansi_reserved_keywords,
-    ansi_unreserved_keywords,
-)
+# from sqlfluff.dialects.ansi_keywords import (
+#     ansi_reserved_keywords,
+#     ansi_unreserved_keywords,
+# )
+
+# Update only RESERVED Keywords, not working yet, error UsingKeywordSegment
+# from sqlfluff.dialects.tsql_keywords import (
+#     RESERVED_KEYWORDS,
+# )
+# tsql_dialect.sets("reserved_keywords").clear()
+# tsql_dialect.sets("reserved_keywords").update(RESERVED_KEYWORDS)
+
 
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.dialects.dialect_ansi import StatementSegment
@@ -36,12 +42,16 @@ ansi_dialect = load_raw_dialect("ansi")
 tsql_dialect = ansi_dialect.copy_as("tsql")
 
 
-# Update only RESERVED Keywords, not working yet, error UsingKeywordSegment
-# from sqlfluff.dialects.tsql_keywords import (
-#     RESERVED_KEYWORDS,
-# )
-# tsql_dialect.sets("reserved_keywords").clear()
-# tsql_dialect.sets("reserved_keywords").update(RESERVED_KEYWORDS)
+@tsql_dialect.segment(replace=True)
+class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: ignore
+    """Overriding StatementSegment to allow for additional segment parsing."""
+
+    parse_grammar = ansi_dialect.get_segment("StatementSegment").parse_grammar.copy(
+        insert=[
+            Ref("CreateProcedureStatementSegment"),
+        ],
+    )
+
 
 tsql_dialect.insert_lexer_matchers(
     [
@@ -59,12 +69,23 @@ tsql_dialect.insert_lexer_matchers(
     before="back_quote",
 )
 
-tsql_dialect.replace(
-    QuotedIdentifierSegment=NamedParser(
+tsql_dialect.add(
+    BracketedIdentifierSegment=NamedParser(
         "square_quote", CodeSegment, name="quoted_identifier", type="identifier"
     ),
+)
+
+tsql_dialect.replace(
+    # Below delimiterstatement might need to be removed in the future as delimiting is optional with semicolon and GO is a end of statement indicator.
+    DelimiterSegment=OneOf(
+        Sequence(Ref("SemicolonSegment"), Ref("GoStatementSegment")),
+        Ref("SemicolonSegment"),
+        Ref("GoStatementSegment"),
+    ),
     SingleIdentifierGrammar=OneOf(
-        Ref("NakedIdentifierSegment"), Ref("QuotedIdentifierSegment"), #Ref("BracketedIdentifierSegment"),
+        Ref("NakedIdentifierSegment"),
+        Ref("QuotedIdentifierSegment"),
+        Ref("BracketedIdentifierSegment"),
     ),
     ParameterNameSegment=RegexParser(
         r"[@][A-Za-z0-9_]+", CodeSegment, name="parameter", type="parameter"
@@ -76,30 +97,7 @@ tsql_dialect.replace(
         type="function_name_identifier",
     ),
     DatatypeIdentifierSegment=Ref("SingleIdentifierGrammar"),
-    # # Maybe data types should be more restrictive?
-    # DatatypeIdentifierSegment=SegmentGenerator(
-    #     # Generate the anti template from the set of reserved keywords
-    #     lambda dialect: RegexParser(
-    #         r"[A-Z][A-Z0-9_]*|\[[A-Z][A-Z0-9_]*\]",
-    #         CodeSegment,
-    #         name="data_type_identifier",
-    #         type="data_type_identifier",
-    #         anti_template=r"^(NOT)$",  # TODO - this is a stopgap until we implement explicit data types
-    #     ),
-    # ),
-
 )
-
-# @tsql_dialect.segment()
-# class BracketedIdentifierSegment(BaseSegment):
-#     """A bracketed identifier (e.g. `[dbo]`)."""
-
-#     type = "bracketed_identifier"
-
-#     match_grammar = Bracketed(
-#         Ref("NakedIdentifierSegment"),
-#         bracket_type="square",
-#     )
 
 
 @tsql_dialect.segment(replace=True)
@@ -114,8 +112,9 @@ class ObjectReferenceSegment(BaseSegment):
         delimiter=OneOf(
             Ref("DotSegment"), Sequence(Ref("DotSegment"), Ref("DotSegment"))
         ),
-        allow_gaps=True,
+        allow_gaps=False,
     )
+
 
 @tsql_dialect.segment()
 class GoStatementSegment(BaseSegment):
@@ -139,59 +138,6 @@ class TableReferenceSegment(ObjectReferenceSegment):
     )
 
 
-
-# @tsql_dialect.segment(replace=True)
-# class CreateTableStatementSegment(BaseSegment):
-#     """A `CREATE TABLE` statement."""
-
-#     type = "create_table_statement"
-#     # https://docs.microsoft.com/en-us/sql/t-sql/statements/create-table-transact-sql?view=sql-server-ver15
-
-#     match_grammar = Sequence(
-#         "CREATE",
-#         Ref("OrReplaceGrammar", optional=True),
-#         Ref("TemporaryTransientGrammar", optional=True),
-#         "TABLE",
-#         Ref("IfNotExistsGrammar", optional=True),
-#         Ref("TableReferenceSegment"),   
-#         Sequence(
-#                 Bracketed(
-#                     Delimited(
-#                         OneOf(
-#                             Ref("TableConstraintSegment"),
-#                             Ref("ColumnDefinitionSegment"),
-#                         ),
-#                     )
-#                 ),
-#                 Ref("CommentClauseSegment", optional=True),
-#             ),        
-#         # Anything(),  
-#         # OneOf(
-#         #     # Columns and comment syntax:
-#         #     Sequence(
-#         #         Bracketed(
-#         #             Delimited(
-#         #                 OneOf(
-#         #                     Ref("TableConstraintSegment"),
-#         #                     Ref("ColumnDefinitionSegment"),
-#         #                 ),
-#         #             )
-#         #         ),
-#         #         Ref("CommentClauseSegment", optional=True),
-#         #     ),
-#             # # Create AS syntax:
-#             # Sequence(
-#             #     "AS",
-#             #     OptionallyBracketed(Ref("SelectableGrammar")),
-#             # ),
-#             # # Create like syntax
-#             # Sequence("LIKE", Ref("TableReferenceSegment")),
-#         # ),
-#         # Anything(),  
-#         # Ref("GoStatementSegment", optional=True),
-#     )
-
-
 @tsql_dialect.segment(replace=True)
 class DatatypeSegment(BaseSegment):
     """A data type segment.
@@ -200,29 +146,30 @@ class DatatypeSegment(BaseSegment):
     """
 
     type = "data_type"
-    match_grammar = Sequence(  
-                # Some dialects allow optional qualification of data types with schemas
-                Sequence(
-                    Ref("SingleIdentifierGrammar"),
-                    Ref("DotSegment"),
-                    allow_gaps=False,
-                    optional=True,
-                ),
-                OneOf(
-                    Ref("DatatypeIdentifierSegment"),
-                    Bracketed(Ref("DatatypeIdentifierSegment"), bracket_type="square")
-                ),
-                Bracketed(
-                OneOf(
-                    Delimited(Ref("ExpressionSegment")),
-                    # The brackets might be empty for some cases...
-                    optional=True,
-                ),
-                # There may be no brackets for some data types
+    match_grammar = Sequence(
+        # Some dialects allow optional qualification of data types with schemas
+        Sequence(
+            Ref("SingleIdentifierGrammar"),
+            Ref("DotSegment"),
+            allow_gaps=False,
+            optional=True,
+        ),
+        OneOf(
+            Ref("DatatypeIdentifierSegment"),
+            Bracketed(Ref("DatatypeIdentifierSegment"), bracket_type="square"),
+        ),
+        Bracketed(
+            OneOf(
+                Delimited(Ref("ExpressionSegment")),
+                # The brackets might be empty for some cases...
                 optional=True,
             ),
-            Ref("CharCharacterSetSegment", optional=True),
-            )
+            # There may be no brackets for some data types
+            optional=True,
+        ),
+        Ref("CharCharacterSetSegment", optional=True),
+    )
+
 
 @tsql_dialect.segment(replace=True)
 class ColumnOptionSegment(BaseSegment):
@@ -302,8 +249,7 @@ class CreateFunctionStatementSegment(BaseSegment):
         "CREATE",
         Sequence("OR", "ALTER", optional=True),
         "FUNCTION",
-        Ref("SchemaNameSegment"),
-        Ref("ObjectNameSegment"),
+        Ref("ObjectReferenceSegment"),
         Ref("FunctionParameterListGrammar"),
         Sequence(  # Optional function return type
             "RETURNS",
@@ -338,12 +284,10 @@ class CreateProcedureStatementSegment(BaseSegment):
         "CREATE",
         Sequence("OR", "ALTER", optional=True),
         OneOf("PROCEDURE", "PROC"),
-        Ref("SchemaNameSegment", optional=True),
-        Ref("ObjectNameSegment"),
+        Ref("ObjectReferenceSegment"),
         Ref("FunctionParameterListGrammar", optional=True),
         "AS",
         Ref("ProcedureDefinitionGrammar"),
-        Ref("GoStatementSegment", optional=True),
     )
 
 
@@ -367,9 +311,112 @@ class CreateViewStatementSegment(BaseSegment):
         "CREATE",
         Sequence("OR", "ALTER", optional=True),
         "VIEW",
-        Ref("SchemaNameSegment", optional=True),
-        Ref("ObjectNameSegment"),
+        Ref("ObjectReferenceSegment"),
         "AS",
         Ref("SelectableGrammar"),
         Ref("GoStatementSegment", optional=True),
     )
+
+
+# @tsql_dialect.segment(replace=True)
+# class StatementSegment(BaseSegment):
+#     """A generic segment, to any of its child subsegments."""
+
+#     type = "statement"
+#     match_grammar = GreedyUntil(Ref("DelimiterSegment"))
+
+#     parse_grammar = OneOf(
+#         Ref("SelectableGrammar"),
+#         Ref("InsertStatementSegment"),
+#         Ref("TransactionStatementSegment"),
+#         Ref("DropStatementSegment"),
+#         Ref("TruncateStatementSegment"),
+#         # Ref("AlterDefaultPrivilegesSegment"),
+#         Ref("AccessStatementSegment"),
+#         Ref("CreateTableStatementSegment"),
+#         Ref("CreateTypeStatementSegment"),
+#         Ref("CreateRoleStatementSegment"),
+#         Ref("AlterTableStatementSegment"),
+#         Ref("CreateSchemaStatementSegment"),
+#         Ref("SetSchemaStatementSegment"),
+#         Ref("DropSchemaStatementSegment"),
+#         Ref("CreateDatabaseStatementSegment"),
+#         Ref("CreateExtensionStatementSegment"),
+#         Ref("CreateIndexStatementSegment"),
+#         Ref("DropIndexStatementSegment"),
+#         Ref("CreateViewStatementSegment"),
+#         Ref("DeleteStatementSegment"),
+#         Ref("UpdateStatementSegment"),
+#         Ref("CreateFunctionStatementSegment"),
+#         Ref("CreateModelStatementSegment"),
+#         Ref("DropModelStatementSegment"),
+#         Ref("DescribeStatementSegment"),
+#         Ref("UseStatementSegment"),
+#         Ref("ExplainStatementSegment"),
+#         Ref("CreateProcedureStatementSegment")
+#     )
+
+#     def get_table_references(self):
+#         """Use parsed tree to extract table references."""
+#         table_refs = {
+#             tbl_ref.raw for tbl_ref in self.recursive_crawl("table_reference")
+#         }
+#         cte_refs = {
+#             cte_def.get_identifier().raw
+#             for cte_def in self.recursive_crawl("common_table_expression")
+#         }
+#         # External references are any table references which aren't
+#         # also cte aliases.
+#         return table_refs - cte_refs
+
+
+# @tsql_dialect.segment(replace=True)
+# class CreateTableStatementSegment(BaseSegment):
+#     """A `CREATE TABLE` statement."""
+
+#     type = "create_table_statement"
+#     # https://docs.microsoft.com/en-us/sql/t-sql/statements/create-table-transact-sql?view=sql-server-ver15
+
+#     match_grammar = Sequence(
+#         "CREATE",
+#         Ref("OrReplaceGrammar", optional=True),
+#         Ref("TemporaryTransientGrammar", optional=True),
+#         "TABLE",
+#         Ref("IfNotExistsGrammar", optional=True),
+#         Ref("TableReferenceSegment"),
+#         Sequence(
+#                 Bracketed(
+#                     Delimited(
+#                         OneOf(
+#                             Ref("TableConstraintSegment"),
+#                             Ref("ColumnDefinitionSegment"),
+#                         ),
+#                     )
+#                 ),
+#                 Ref("CommentClauseSegment", optional=True),
+#             ),
+#         # Anything(),
+#         # OneOf(
+#         #     # Columns and comment syntax:
+#         #     Sequence(
+#         #         Bracketed(
+#         #             Delimited(
+#         #                 OneOf(
+#         #                     Ref("TableConstraintSegment"),
+#         #                     Ref("ColumnDefinitionSegment"),
+#         #                 ),
+#         #             )
+#         #         ),
+#         #         Ref("CommentClauseSegment", optional=True),
+#         #     ),
+#             # # Create AS syntax:
+#             # Sequence(
+#             #     "AS",
+#             #     OptionallyBracketed(Ref("SelectableGrammar")),
+#             # ),
+#             # # Create like syntax
+#             # Sequence("LIKE", Ref("TableReferenceSegment")),
+#         # ),
+#         # Anything(),
+#         # Ref("GoStatementSegment", optional=True),
+#     )

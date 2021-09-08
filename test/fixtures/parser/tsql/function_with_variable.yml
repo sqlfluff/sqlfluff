@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3ae3f964ae360a54d7a1b1c0207635389b67feb87c2e4d97870d1c416593d80d
+_hash: ebdd68fc958b22467f83a54079eb7593f99e5798da18745718decf396be694d6
 file:
   statement:
     create_function_statement:
@@ -11,29 +11,24 @@ file:
     - binary_operator: OR
     - keyword: ALTER
     - keyword: FUNCTION
-    - schema_name:
-        start_square_bracket: '['
-        identifier: dbo
-        end_square_bracket: ']'
-        dot: .
-    - object_name:
-        start_square_bracket: '['
-        identifier: CONVERT_ISO_WEEK_TO_UNIX
-        end_square_bracket: ']'
+    - object_reference:
+      - identifier: '[dbo]'
+      - dot: .
+      - identifier: '[CONVERT_ISO_WEEK_TO_UNIX]'
     - base:
         bracketed:
         - start_bracket: (
         - parameter: '@year'
         - data_type:
-            data_type_identifier: INT
+            identifier: INT
         - comma: ','
         - parameter: '@week'
         - data_type:
-            data_type_identifier: INT
+            identifier: INT
         - end_bracket: )
     - keyword: RETURNS
     - data_type:
-        data_type_identifier: BIGINT
+        identifier: BIGINT
     - keyword: AS
     - function_statement:
       - raw: BEGIN
@@ -51,4 +46,3 @@ file:
       - raw: +
       - raw: '@week'
       - raw: END
-      - raw: GO

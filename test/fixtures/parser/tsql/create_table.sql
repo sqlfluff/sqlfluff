@@ -3,5 +3,3 @@ CREATE TABLE [dbo].[EC DC] (
     [ColumnC] varchar(100) ,
     [ColumnDecimal] decimal(10,3)
 )
-
-
