@@ -14,7 +14,6 @@ from sqlfluff.core.parser import (
     CodeSegment,
     RegexParser,
     Delimited,
-    AnyNumberOf,
     Matchable,
     NamedParser,
 )
