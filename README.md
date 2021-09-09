@@ -27,6 +27,7 @@ Although SQL is reasonable consistent in its implementations, there are a number
 - [PostgreSQL](https://www.postgresql.org/) (aka Postgres)
 - [Snowflake](https://www.snowflake.com/)
 - [Teradata](https://www.teradata.com/)
+- [Transact-SQL](https://docs.microsoft.com/en-us/sql/t-sql/language-reference) (aka T-SQL)
 
 We aim to make it easy to expand on the support of these dialects and also add other, currently unsupported, dialects. Please [raise issues](https://github.com/sqlfluff/sqlfluff/issues) (or upvote any existing issues) to let us know of demand for missing support.
 
