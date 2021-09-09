@@ -154,7 +154,7 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: '3.7'
-    - name: Install dependencies
+    - name: List Env
       shell: bash
       run: |
         env
@@ -167,9 +167,7 @@ jobs:
     - name: Run the tests
       shell: bash
       run: |
-        export TMP=%USERPROFILE%\AppData\Local\Temp
-        export TEMP=%USERPROFILE%\AppData\Local\Temp
-        export TMPDIR=%USERPROFILE%\AppData\Local\Temp
+        export LOCALAPPDATA=%$RUNNER_TEMP
         python -m tox -e py37 --workdir=%USERPROFILE%\AppData\Local\Temp
     - name: Upload Coverage Report
       uses: codecov/codecov-action@v1
