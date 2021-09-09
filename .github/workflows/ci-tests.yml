@@ -178,7 +178,7 @@ jobs:
     # Only run windows tests on cron or on demand
     #if: github.event_name != 'pull_request'
     runs-on: windows-latest
-    name: Python 3.8 Windows dbt tests
+    name: Python 3.7 Windows dbt tests
     steps:
     - name: Set git to use LF
       run: |
@@ -188,7 +188,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: '3.8'
+        python-version: '3.7'
     - name: Install dependencies
       shell: bash
       run: |
@@ -202,7 +202,7 @@ jobs:
       # working dir on D drive which causes problems.
       run: |
         mkdir temp_pytest
-        python -m tox -e set-tmpdir,dbt018-py38 -- -m dbt
+        python -m tox -e set-tmpdir,dbt018-py37 -- -m dbt
     - name: Upload Coverage Report
       uses: codecov/codecov-action@v1
       with:
