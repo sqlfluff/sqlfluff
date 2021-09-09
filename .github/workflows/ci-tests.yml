@@ -143,7 +143,6 @@ jobs:
         files: ./coverage.xml
   python-windows-tests:
     runs-on: windows-latest
-    shell: bash
     name: Python 3.7 Windows tests
     steps:
     - uses: actions/checkout@v2
@@ -152,11 +151,13 @@ jobs:
       with:
         python-version: '3.7'
     - name: Install dependencies
+      shell: bash
       run: |
         pip install -Ur requirements.txt -Ur requirements_dev.txt
         python setup.py develop
         pip install tox
     - name: Run the tests
+      shell: bash
       run: |
         tox -e py37
     - name: Upload Coverage Report
@@ -165,7 +166,6 @@ jobs:
         files: ./coverage.xml
   python-windows-dbt-tests:
     runs-on: windows-latest
-    shell: bash
     name: Python 3.7 Windows dbt tests
     steps:
     - uses: actions/checkout@v2
@@ -174,11 +174,13 @@ jobs:
       with:
         python-version: '3.7'
     - name: Install dependencies
+      shell: bash
       run: |
         pip install -Ur requirements.txt -Ur requirements_dev.txt
         python setup.py develop
         pip install tox
     - name: Run the tests
+      shell: bash
       run: |
         tox -e dbt018-py37 -m dbt
     - name: Upload Coverage Report
