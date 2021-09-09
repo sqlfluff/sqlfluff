@@ -144,11 +144,11 @@ jobs:
   python-windows-tests:
     runs-on: windows-latest
     name: Python 3.7 Windows tests
-    steps:
     defaults:
       run:
         shell: bash
         working-directory: {{ GITHUB_WORKSPACE }}
+    steps:
     - name: Set git to use LF
       run: |
         git config --global core.autocrlf false
