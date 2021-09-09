@@ -259,13 +259,16 @@ class DbtTemplater(JinjaTemplater):
         except DbtCompilationException as e:
             # Increment the counter
             self._sequential_fails += 1
-            return None, [
-                SQLTemplaterError(
-                    f"dbt compilation error on file '{e.node.original_file_path}', {e.msg}",
-                    # It's fatal if we're over the limit
-                    fatal=self._sequential_fails > self.sequential_fail_limit,
-                )
-            ]
+            if e.node:
+                return None, [
+                    SQLTemplaterError(
+                        f"dbt compilation error on file '{e.node.original_file_path}', {e.msg}",
+                        # It's fatal if we're over the limit
+                        fatal=self._sequential_fails > self.sequential_fail_limit,
+                    )
+                ]
+            else:
+                raise
         except DbtFailedToConnectException as e:
             return None, [
                 SQLTemplaterError(
