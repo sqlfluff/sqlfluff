@@ -194,7 +194,7 @@ class QualifyClauseSegment(BaseSegment):
     type = "qualify_clause"
     match_grammar = StartsWith(
         "QUALIFY",
-        terminator=OneOf("WINDOW"),
+        terminator=OneOf("WINDOW", "ORDER", "LIMIT"),
         enforce_whitespace_preceeding_terminator=True,
     )
 
