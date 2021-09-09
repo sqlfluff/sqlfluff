@@ -2476,6 +2476,7 @@ class AccessStatementSegment(BaseSegment):
                     Delimited(
                         OneOf(_global_permissions, _permissions),
                         delimiter=Ref("CommaSegment"),
+                        terminator="ON",
                     ),
                     "ON",
                     _objects,
@@ -2489,10 +2490,9 @@ class AccessStatementSegment(BaseSegment):
             ),
             "TO",
             OneOf("GROUP", "USER", "ROLE", "SHARE", optional=True),
-            OneOf(
-                Ref("ObjectReferenceSegment"),
-                Ref("FunctionSegment"),
-                "PUBLIC",
+            Delimited(
+                OneOf(Ref("ObjectReferenceSegment"), Ref("FunctionSegment"), "PUBLIC"),
+                delimiter=Ref("CommaSegment"),
             ),
             OneOf(
                 Sequence("WITH", "GRANT", "OPTION"),
@@ -2520,6 +2520,7 @@ class AccessStatementSegment(BaseSegment):
                     Delimited(
                         OneOf(_global_permissions, _permissions),
                         delimiter=Ref("CommaSegment"),
+                        terminator="ON",
                     ),
                     "ON",
                     _objects,
@@ -2529,7 +2530,10 @@ class AccessStatementSegment(BaseSegment):
             ),
             "FROM",
             OneOf("GROUP", "USER", "ROLE", "SHARE", optional=True),
-            Ref("ObjectReferenceSegment"),
+            Delimited(
+                Ref("ObjectReferenceSegment"),
+                delimiter=Ref("CommaSegment"),
+            ),
             OneOf("RESTRICT", Ref.keyword("CASCADE", optional=True), optional=True),
         ),
     )
