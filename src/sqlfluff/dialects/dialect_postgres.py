@@ -6,7 +6,6 @@ from sqlfluff.core.parser import (
     Ref,
     Sequence,
     Bracketed,
-    OptionallyBracketed,
     Anything,
     BaseSegment,
     Delimited,
