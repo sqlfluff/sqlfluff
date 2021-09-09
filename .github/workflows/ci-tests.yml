@@ -171,6 +171,7 @@ jobs:
       run: |
         mkdir temp_pytest
         mkdir temp_pytest2
+        echo "import tempfile;print(tempfile.mkdtemp())" | python
         python -m tox -e py37 -- --basetemp=temp_pytest2 -m "not dbt"
     - name: Upload Coverage Report
       uses: codecov/codecov-action@v1
