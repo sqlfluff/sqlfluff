@@ -143,6 +143,7 @@ jobs:
         files: ./coverage.xml
   python-windows-tests:
     runs-on: windows-latest
+    shell: bash
     name: Python 3.7 Windows tests
     steps:
     - uses: actions/checkout@v2
@@ -164,7 +165,8 @@ jobs:
         files: ./coverage.xml
   python-windows-dbt-tests:
     runs-on: windows-latest
-    name: Python 3.7 Windows tests
+    shell: bash
+    name: Python 3.7 Windows dbt tests
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python
