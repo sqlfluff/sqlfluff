@@ -161,9 +161,9 @@ jobs:
         python setup.py develop
         pip install tox
     - name: Run the tests
-      shell: bash
+      shell: python
       run: |
-        tox -e py37 --workdir=C:\Users\runneradmin\AppData\Local\Temp\
+        -m tox -e py37
     - name: Upload Coverage Report
       uses: codecov/codecov-action@v1
       with:
@@ -188,9 +188,9 @@ jobs:
         python setup.py develop
         pip install tox
     - name: Run the tests
-      shell: bash
+      shell: python
       run: |
-        tox -e dbt018-py37 -- -m dbt
+        -m tox -e dbt018-py37 -- -m dbt
     - name: Upload Coverage Report
       uses: codecov/codecov-action@v1
       with:
