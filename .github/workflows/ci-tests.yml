@@ -167,8 +167,8 @@ jobs:
     - name: Run the tests
       shell: bash
       run: |
-        env | sort
-        python -m tox -e py37 -- --basetemp="${{ github.workspace }}"
+        mkdir temp_pytest
+        python -m tox -e py37 -- --basetemp="${{ github.workspace }}\temp_pytest"
     - name: Upload Coverage Report
       uses: codecov/codecov-action@v1
       with:
