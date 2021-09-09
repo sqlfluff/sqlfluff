@@ -163,6 +163,7 @@ jobs:
     - name: Run the tests
       shell: bash
       run: |
+        cd /c
         tox -e py37
     - name: Upload Coverage Report
       uses: codecov/codecov-action@v1
@@ -190,6 +191,7 @@ jobs:
     - name: Run the tests
       shell: bash
       run: |
+        cd /c
         tox -e dbt018-py37 -- -m dbt
     - name: Upload Coverage Report
       uses: codecov/codecov-action@v1
