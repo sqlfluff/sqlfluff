@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ed79513b8ddb6fcec652c988ce5cb77acdffa5ced8d5df1ddf7b7df62f82bf83
+_hash: 2487633f946fb666690669422d9aa8375a82e9a8026161e5151a6dec4103f14b
 file:
 - statement:
     select_statement:
@@ -257,6 +257,69 @@ file:
       - keyword: BY
       - column_reference:
           identifier: item
+      limit_clause:
+        keyword: LIMIT
+        literal: '5'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            identifier: item
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: RANK
+            bracketed:
+              start_bracket: (
+              end_bracket: )
+            over_clause:
+              keyword: OVER
+              bracketed:
+                start_bracket: (
+                window_specification:
+                  partitionby_clause:
+                  - keyword: PARTITION
+                  - keyword: BY
+                  - expression:
+                      column_reference:
+                        identifier: category
+                  orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                      identifier: purchases
+                  - keyword: DESC
+                end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: rank
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: Produce
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+          - identifier: Produce
+          - dot: .
+          - identifier: category
+          comparison_operator: '='
+          literal: "'vegetable'"
+      qualify_clause:
+        keyword: QUALIFY
+        expression:
+          column_reference:
+            identifier: rank
+          comparison_operator: <=
+          literal: '3'
       limit_clause:
         keyword: LIMIT
         literal: '5'
