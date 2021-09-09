@@ -166,9 +166,10 @@ jobs:
         pip install tox
     - name: Run the tests
       shell: bash
+      env:
+        LOCALAPPDATA: ${{ GITHUB_WORKSPACE }}
+        TMPDIR: ${{ GITHUB_WORKSPACE }}
       run: |
-        export LOCALAPPDATA=$RUNNER_TEMP
-        export TMPDIR=$RUNNER_TEMP
         env
         python -m tox -e py37
     - name: Upload Coverage Report
