@@ -11,6 +11,9 @@
 name: "Run CI Tests"
 on:
   workflow_dispatch:
+  schedule:
+    # 2am each night
+    - cron: '* 2 * * *'
   pull_request:
     paths-ignore:
       - '**.png'
@@ -134,6 +137,48 @@ jobs:
     - name: Run the tests
       run: |
         tox -e ${{ matrix.dbt-version }} -- -m dbt
+    - name: Upload Coverage Report
+      uses: codecov/codecov-action@v1
+      with:
+        files: ./coverage.xml
+  python-windows-tests:
+    runs-on: windows-latest
+    name: Python 3.7 Windows tests
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.7'
+    - name: Install dependencies
+      run: |
+        pip install -Ur requirements.txt -Ur requirements_dev.txt
+        python setup.py develop
+        pip install tox
+    - name: Run the tests
+      run: |
+        tox -e py37
+    - name: Upload Coverage Report
+      uses: codecov/codecov-action@v1
+      with:
+        files: ./coverage.xml
+  python-windows-dbt-tests:
+    runs-on: windows-latest
+    name: Python 3.7 Windows tests
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.7'
+    - name: Install dependencies
+      run: |
+        pip install -Ur requirements.txt -Ur requirements_dev.txt
+        python setup.py develop
+        pip install tox
+    - name: Run the tests
+      run: |
+        tox -e dbt018-py37 -m dbt
     - name: Upload Coverage Report
       uses: codecov/codecov-action@v1
       with:
