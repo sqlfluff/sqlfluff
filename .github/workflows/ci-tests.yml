@@ -161,9 +161,9 @@ jobs:
         python setup.py develop
         pip install tox
     - name: Run the tests
-      shell: python
+      shell: bash
       run: |
-        -m tox -e py37
+        python -m tox -e py37
     - name: Upload Coverage Report
       uses: codecov/codecov-action@v1
       with:
@@ -188,9 +188,9 @@ jobs:
         python setup.py develop
         pip install tox
     - name: Run the tests
-      shell: python
+      shell: bash
       run: |
-        -m tox -e dbt018-py37 -- -m dbt
+        python -m tox -e dbt018-py37 -- -m dbt
     - name: Upload Coverage Report
       uses: codecov/codecov-action@v1
       with:
