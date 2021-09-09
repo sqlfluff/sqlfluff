@@ -144,10 +144,6 @@ jobs:
   python-windows-tests:
     runs-on: windows-latest
     name: Python 3.7 Windows tests
-    defaults:
-      run:
-        shell: bash
-        working-directory: {{ GITHUB_WORKSPACE }}
     steps:
     - name: Set git to use LF
       run: |
@@ -159,11 +155,15 @@ jobs:
       with:
         python-version: '3.7'
     - name: Install dependencies
+      shell: bash
+      working-directory: {{ GITHUB_WORKSPACE }}
       run: |
         pip install -Ur requirements.txt -Ur requirements_dev.txt
         python setup.py develop
         pip install tox
     - name: Run the tests
+      shell: bash
+      working-directory: {{ GITHUB_WORKSPACE }}
       run: |
         python -m tox -e py37
     - name: Upload Coverage Report
