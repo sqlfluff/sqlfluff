@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3fc3c1c06fb5991e561b67d7e7719f8a7b0267681538237a51a6317fd628f19a
+_hash: e53719c9a38eb0112c74b63b68a96a9464329a57c4136e8a85c19fbbc443abdb
 file:
 - statement:
     access_statement:
@@ -271,4 +271,78 @@ file:
     - keyword: BY
     - object_reference:
         identifier: my_new_role
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: CONNECT
+    - comma: ','
+    - keyword: CREATE
+    - comma: ','
+    - keyword: TEMP
+    - comma: ','
+    - keyword: TEMPORARY
+    - keyword: 'ON'
+    - keyword: DATABASE
+    - object_reference:
+        identifier: my_db
+    - keyword: TO
+    - object_reference:
+        identifier: xyz
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: CONNECT
+    - comma: ','
+    - keyword: CREATE
+    - comma: ','
+    - keyword: TEMP
+    - comma: ','
+    - keyword: TEMPORARY
+    - keyword: 'ON'
+    - keyword: DATABASE
+    - object_reference:
+        identifier: my_db
+    - keyword: TO
+    - object_reference:
+        identifier: my_user
+    - comma: ','
+    - object_reference:
+        identifier: my_other_user
+    - keyword: WITH
+    - keyword: GRANT
+    - keyword: OPTION
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: SELECT
+    - keyword: 'ON'
+    - object_reference:
+        identifier: abc
+    - keyword: TO
+    - object_reference:
+        identifier: xyz
+    - comma: ','
+    - object_reference:
+        identifier: mno
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: EXECUTE
+    - keyword: 'ON'
+    - keyword: ALL
+    - keyword: ROUTINES
+    - keyword: IN
+    - keyword: SCHEMA
+    - object_reference:
+        identifier: my_schema
+    - keyword: TO
+    - object_reference:
+        identifier: my_user
+    - comma: ','
+    - object_reference:
+        identifier: my_other_user
 - statement_terminator: ;
