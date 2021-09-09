@@ -39,7 +39,10 @@ class Rule_L030(Rule_L010):
 
     """
 
-    _target_elems: List[Tuple[str, str]] = [("type", "function_name")]
+    _target_elems: List[Tuple[str, str]] = [
+        ("type", "function_name"),
+        ("type", "bare_function"),
+    ]
     _description_elem = "Function names"
 
     def _get_fix(self, segment, fixed_raw):
@@ -48,13 +51,17 @@ class Rule_L030(Rule_L010):
         We need to do this because function_name nodes have a child
         function_name_identifier that holds the actual name.
         """
-        child_segment = [
-            child
-            for child in segment.segments
-            if child.get_type() == "function_name_identifier"
-        ][0]
-        return LintFix(
-            "edit",
-            child_segment,
-            child_segment.edit(fixed_raw.strip()),
-        )
+        if segment.type == "function_name":
+
+            child_segment = [
+                child
+                for child in segment.segments
+                if child.get_type() == "function_name_identifier"
+            ][0]
+            return LintFix(
+                "edit",
+                child_segment,
+                child_segment.edit(fixed_raw.strip()),
+            )
+
+        return super()._get_fix(segment, fixed_raw)
