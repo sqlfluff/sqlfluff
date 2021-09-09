@@ -163,8 +163,7 @@ jobs:
     - name: Run the tests
       shell: bash
       run: |
-        cd /c
-        tox -e py37
+        tox -e py37 --workdir="D:\a\sqlfluff\sqlfluff"
     - name: Upload Coverage Report
       uses: codecov/codecov-action@v1
       with:
@@ -191,7 +190,6 @@ jobs:
     - name: Run the tests
       shell: bash
       run: |
-        cd /c
         tox -e dbt018-py37 -- -m dbt
     - name: Upload Coverage Report
       uses: codecov/codecov-action@v1
