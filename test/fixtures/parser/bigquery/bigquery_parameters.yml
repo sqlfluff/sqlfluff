@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5949202183bb0fd92cef1697ceec1976d95c36f83520656d018b31e4683286f2
+_hash: c8a45c0adfb7b9bc2b8d71cce561ec224086d168a43af6ed3e2045833a8ddc5c
 file:
 - statement:
     select_statement:
@@ -40,6 +40,40 @@ file:
               expression:
                 parameterized_expression:
                   literal: '@z2'
+              comma: ','
+              date_part: week
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: datetime_trunc
+            bracketed:
+              start_bracket: (
+              expression:
+                parameterized_expression:
+                  literal: '@_ab'
+              comma: ','
+              date_part: week
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: datetime_trunc
+            bracketed:
+              start_bracket: (
+              expression:
+                parameterized_expression:
+                  literal: '@a'
               comma: ','
               date_part: week
               end_bracket: )
