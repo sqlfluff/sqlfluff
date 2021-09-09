@@ -182,3 +182,19 @@ CREATE TABLE orders_p4 PARTITION OF orders
 
 CREATE TABLE cities_partdef
     PARTITION OF cities DEFAULT;
+
+CREATE UNLOGGED TABLE staging (
+    event_type INTEGER
+    , event_time TIMESTAMP
+    , user_email VARCHAR
+    , phone_number VARCHAR
+    , processing_date DATE
+    , PRIMARY KEY (event_type, event_time, user_email, phone_number, processing_date)
+);
+
+CREATE TABLE measurement (
+city_id int NOT NULL,
+logdate date NOT NULL,
+peaktemp int,
+unitsales int
+) PARTITION BY RANGE (logdate);

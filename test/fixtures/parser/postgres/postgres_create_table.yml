@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4da19375b0276edc822b612a1268f36ca09abe0d170040b72062dc6d4a8aaeb2
+_hash: e342d9cf3b7875516529cba66bd2e1a34339aba8ffd20923bd05bff78c7b954f
 file:
 - statement:
     create_table_statement:
@@ -1021,4 +1021,103 @@ file:
     - table_reference:
         identifier: cities
     - keyword: DEFAULT
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: UNLOGGED
+    - keyword: TABLE
+    - table_reference:
+        identifier: staging
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          identifier: event_type
+      - data_type:
+          data_type_identifier: INTEGER
+      - comma: ','
+      - column_reference:
+          identifier: event_time
+      - data_type:
+          keyword: TIMESTAMP
+      - comma: ','
+      - column_reference:
+          identifier: user_email
+      - data_type:
+          data_type_identifier: VARCHAR
+      - comma: ','
+      - column_reference:
+          identifier: phone_number
+      - data_type:
+          data_type_identifier: VARCHAR
+      - comma: ','
+      - column_reference:
+          identifier: processing_date
+      - data_type:
+          data_type_identifier: DATE
+      - comma: ','
+      - table_constraint_definition:
+        - keyword: PRIMARY
+        - keyword: KEY
+        - bracketed:
+          - start_bracket: (
+          - column_reference:
+              identifier: event_type
+          - comma: ','
+          - column_reference:
+              identifier: event_time
+          - comma: ','
+          - column_reference:
+              identifier: user_email
+          - comma: ','
+          - column_reference:
+              identifier: phone_number
+          - comma: ','
+          - column_reference:
+              identifier: processing_date
+          - end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        identifier: measurement
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          identifier: city_id
+      - data_type:
+          data_type_identifier: int
+      - column_constraint:
+        - keyword: NOT
+        - keyword: 'NULL'
+      - comma: ','
+      - column_reference:
+          identifier: logdate
+      - data_type:
+          data_type_identifier: date
+      - column_constraint:
+        - keyword: NOT
+        - keyword: 'NULL'
+      - comma: ','
+      - column_reference:
+          identifier: peaktemp
+      - data_type:
+          data_type_identifier: int
+      - comma: ','
+      - column_reference:
+          identifier: unitsales
+      - data_type:
+          data_type_identifier: int
+      - end_bracket: )
+    - keyword: PARTITION
+    - keyword: BY
+    - keyword: RANGE
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          identifier: logdate
+        end_bracket: )
 - statement_terminator: ;
