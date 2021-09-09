@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ebdd68fc958b22467f83a54079eb7593f99e5798da18745718decf396be694d6
+_hash: d4f268aa332b57217684bae77a6bc2c50b64a318f591b78124a5bd47c79c55f5
 file:
   statement:
     create_function_statement:
@@ -29,8 +29,8 @@ file:
     - keyword: RETURNS
     - data_type:
         identifier: BIGINT
-    - keyword: AS
     - function_statement:
+      - keyword: AS
       - raw: BEGIN
       - raw: DECLARE
       - raw: '@result'

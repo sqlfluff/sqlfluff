@@ -113,7 +113,8 @@ class ObjectReferenceSegment(BaseSegment):
 class GoStatementSegment(BaseSegment):
     """GO signals the end of a batch of Transact-SQL statements to the SQL Server utilities.
 
-    GO statements are not part of the TSQL language. They are used to signal batch statements so that clients know in how batches of statements can be executed.
+    GO statements are not part of the TSQL language. They are used to signal batch statements
+    so that clients know in how batches of statements can be executed.
     """
 
     type = "go_statement"
@@ -195,7 +196,8 @@ class CreateFunctionStatementSegment(BaseSegment):
 class FunctionDefinitionGrammar(BaseSegment):
     """This is the body of a `CREATE FUNCTION AS` statement.
 
-    Adjusted from ansi as Transact SQL does not seem to have the QuotedLiteralSegment and Language. Futhermore the body can contain almost anything like a function with table output.
+    Adjusted from ansi as Transact SQL does not seem to have the QuotedLiteralSegmentand Language.
+    Futhermore the body can contain almost anything like a function with table output.
     """
 
     type = "function_statement"
