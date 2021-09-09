@@ -61,7 +61,6 @@ def auto_fix_test(dialect, folder, caplog):
     filename = "testing.sql"
     # Lets get the path of a file to use
     tempdir_path = tempfile.mkdtemp()
-    print("BARRY:%s:" % tempdir_path)
     filepath = os.path.join(tempdir_path, filename)
     cfgpath = os.path.join(tempdir_path, ".sqlfluff")
     src_filepath = os.path.join(*base_auto_fix_path, dialect, folder, "before.sql")

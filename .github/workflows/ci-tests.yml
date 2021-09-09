@@ -20,127 +20,127 @@ on:
       - '**.md'
       - '**.rst'
 jobs:
-  # linting:
-  #   runs-on: ubuntu-latest
-  #   strategy:
-  #     matrix:
-  #       jobs: [ 'linting', 'doclinting' ]
-  #   name: ${{ matrix.jobs }} tests
-  #   steps:
-  #   - uses: actions/checkout@v2
-  #   - name: Set up Python
-  #     uses: actions/setup-python@v2
-  #     with:
-  #       python-version: '3.9'
-  #   - name: Install dependencies
-  #     run: |
-  #       pip install -Ur requirements.txt -Ur requirements_dev.txt
-  #       python setup.py develop
-  #       pip install tox
-  #   - name: Set Tox Params
-  #     run: |
-  #       echo "TOXENV=${{ matrix.jobs }}" >> $GITHUB_ENV
-  #       echo "UPLOAD_COVERAGE=0" >> $GITHUB_ENV
-  #   - name: Run the tests
-  #     run: |
-  #       tox -e ${{ env.TOXENV }}
-  # python-version-tests:
-  #   runs-on: ubuntu-latest
-  #   strategy:
-  #     matrix:
-  #       python-version: [ '3.6', '3.7', '3.8', '3.9' ]
-  #   name: Python ${{ matrix.python-version }} tests
-  #   steps:
-  #   - uses: actions/checkout@v2
-  #   - name: Set up Python
-  #     uses: actions/setup-python@v2
-  #     with:
-  #       python-version: ${{ matrix.python-version }}
-  #   - name: Install dependencies
-  #     run: |
-  #       pip install -Ur requirements.txt -Ur requirements_dev.txt
-  #       python setup.py develop
-  #       pip install tox
-  #   - name: Set Tox Python Param
-  #     run: |
-  #       echo 'TOXENV<<EOF' >> $GITHUB_ENV
-  #       echo "${{ matrix.python-version }}" | sed "s/\.//" | sed "s/^/py/" >> $GITHUB_ENV
-  #       echo 'EOF' >> $GITHUB_ENV
-  #   - name: Run the tests
-  #     run: |
-  #       tox -e ${{ env.TOXENV }}
-  #   - name: Upload Coverage Report
-  #     uses: codecov/codecov-action@v1
-  #     with:
-  #       files: ./coverage.xml
-  # other-tests:
-  #   runs-on: ubuntu-latest
-  #   strategy:
-  #     matrix:
-  #       jobs: [ 'bench', 'mypy' ]
-  #   name: ${{ matrix.jobs }} tests
-  #   steps:
-  #   - uses: actions/checkout@v2
-  #   - name: Set up Python
-  #     uses: actions/setup-python@v2
-  #     with:
-  #       python-version: '3.9'
-  #   - name: Install dependencies
-  #     run: |
-  #       pip install -Ur requirements.txt -Ur requirements_dev.txt
-  #       python setup.py develop
-  #       pip install tox
-  #   - name: Set Tox Params
-  #     run: |
-  #       echo "TOXENV=${{ matrix.jobs }}" >> $GITHUB_ENV
-  #   - name: Run the tests
-  #     run: |
-  #       tox -e ${{ env.TOXENV }}
-  # examples:
-  #   runs-on: ubuntu-latest
-  #   name: example tests
-  #   steps:
-  #   - uses: actions/checkout@v2
-  #   - name: Set up Python
-  #     uses: actions/setup-python@v2
-  #     with:
-  #       python-version: '3.9'
-  #   - name: Install dependencies
-  #     run: |
-  #       pip install -Ur requirements.txt -Ur requirements_dev.txt
-  #       python setup.py develop
-  #       pip install tox
-  #   - name: Test the example files
-  #     run: |
-  #       for file in examples/*
-  #       do
-  #         echo "Running $file"
-  #         python "$file"
-  #       done
-  # dbt-tests:
-  #   runs-on: ubuntu-latest
-  #   strategy:
-  #     matrix:
-  #       dbt-version: [ 'dbt018', 'dbt019', 'dbt020' ]
-  #   name: DBT ${{ matrix.dbt-version }} tests
-  #   steps:
-  #   - uses: actions/checkout@v2
-  #   - name: Set up Python
-  #     uses: actions/setup-python@v2
-  #     with:
-  #       python-version: '3.8'
-  #   - name: Install dependencies
-  #     run: |
-  #       pip install -Ur requirements.txt -Ur requirements_dev.txt
-  #       python setup.py develop
-  #       pip install tox
-  #   - name: Run the tests
-  #     run: |
-  #       tox -e ${{ matrix.dbt-version }} -- -m dbt
-  #   - name: Upload Coverage Report
-  #     uses: codecov/codecov-action@v1
-  #     with:
-  #       files: ./coverage.xml
+  linting:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        jobs: [ 'linting', 'doclinting' ]
+    name: ${{ matrix.jobs }} tests
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.9'
+    - name: Install dependencies
+      run: |
+        pip install -Ur requirements.txt -Ur requirements_dev.txt
+        python setup.py develop
+        pip install tox
+    - name: Set Tox Params
+      run: |
+        echo "TOXENV=${{ matrix.jobs }}" >> $GITHUB_ENV
+        echo "UPLOAD_COVERAGE=0" >> $GITHUB_ENV
+    - name: Run the tests
+      run: |
+        tox -e ${{ env.TOXENV }}
+  python-version-tests:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [ '3.6', '3.7', '3.8', '3.9' ]
+    name: Python ${{ matrix.python-version }} tests
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        pip install -Ur requirements.txt -Ur requirements_dev.txt
+        python setup.py develop
+        pip install tox
+    - name: Set Tox Python Param
+      run: |
+        echo 'TOXENV<<EOF' >> $GITHUB_ENV
+        echo "${{ matrix.python-version }}" | sed "s/\.//" | sed "s/^/py/" >> $GITHUB_ENV
+        echo 'EOF' >> $GITHUB_ENV
+    - name: Run the tests
+      run: |
+        tox -e ${{ env.TOXENV }}
+    - name: Upload Coverage Report
+      uses: codecov/codecov-action@v1
+      with:
+        files: ./coverage.xml
+  other-tests:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        jobs: [ 'bench', 'mypy' ]
+    name: ${{ matrix.jobs }} tests
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.9'
+    - name: Install dependencies
+      run: |
+        pip install -Ur requirements.txt -Ur requirements_dev.txt
+        python setup.py develop
+        pip install tox
+    - name: Set Tox Params
+      run: |
+        echo "TOXENV=${{ matrix.jobs }}" >> $GITHUB_ENV
+    - name: Run the tests
+      run: |
+        tox -e ${{ env.TOXENV }}
+  examples:
+    runs-on: ubuntu-latest
+    name: example tests
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.9'
+    - name: Install dependencies
+      run: |
+        pip install -Ur requirements.txt -Ur requirements_dev.txt
+        python setup.py develop
+        pip install tox
+    - name: Test the example files
+      run: |
+        for file in examples/*
+        do
+          echo "Running $file"
+          python "$file"
+        done
+  dbt-tests:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        dbt-version: [ 'dbt018', 'dbt019', 'dbt020' ]
+    name: DBT ${{ matrix.dbt-version }} tests
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.8'
+    - name: Install dependencies
+      run: |
+        pip install -Ur requirements.txt -Ur requirements_dev.txt
+        python setup.py develop
+        pip install tox
+    - name: Run the tests
+      run: |
+        tox -e ${{ matrix.dbt-version }} -- -m dbt
+    - name: Upload Coverage Report
+      uses: codecov/codecov-action@v1
+      with:
+        files: ./coverage.xml
   python-windows-tests:
     runs-on: windows-latest
     name: Python 3.7 Windows tests
@@ -166,42 +166,45 @@ jobs:
         pip install tox
     - name: Run the tests
       shell: bash
-      env:
-        TMPDIR: ${{ github.workspace }}/temp_pytest
+      # Set python temp dir in working dir as on GitHub Actions Windows
+      # machine often has system temp dir (which tox uses) on C drive and
+      # working dir on D drive which causes problems.
       run: |
         mkdir temp_pytest
-        mkdir temp_pytest2
-        echo "import tempfile;print(tempfile.mkdtemp())" | python
-        python -m tox -e py37 -- --basetemp=temp_pytest2 -m "not dbt"
+        python -m tox -e set-tmpdir,py37
     - name: Upload Coverage Report
       uses: codecov/codecov-action@v1
       with:
         files: ./coverage.xml
-  # python-windows-dbt-tests:
-  #   runs-on: windows-latest
-  #   name: Python 3.7 Windows dbt tests
-  #   steps:
-  #   - name: Set git to use LF
-  #     run: |
-  #       git config --global core.autocrlf false
-  #       git config --global core.eol lf
-  #   - uses: actions/checkout@v2
-  #   - name: Set up Python
-  #     uses: actions/setup-python@v2
-  #     with:
-  #       python-version: '3.7'
-  #   - name: Install dependencies
-  #     shell: bash
-  #     run: |
-  #       pip install -Ur requirements.txt -Ur requirements_dev.txt
-  #       python setup.py develop
-  #       pip install tox
-  #   - name: Run the tests
-  #     shell: bash
-  #     run: |
-  #       python -m tox -e dbt018-py37 -- -m dbt
-  #   - name: Upload Coverage Report
-  #     uses: codecov/codecov-action@v1
-  #     with:
-  #       files: ./coverage.xml
+  python-windows-dbt-tests:
+    runs-on: windows-latest
+    name: Python 3.7 Windows dbt tests
+    steps:
+    - name: Set git to use LF
+      run: |
+        git config --global core.autocrlf false
+        git config --global core.eol lf
+    - uses: actions/checkout@v2
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.7'
+    - name: Install dependencies
+      shell: bash
+      run: |
+        pip install -Ur requirements.txt -Ur requirements_dev.txt
+        python setup.py develop
+        pip install tox
+    - name: Run the tests
+      shell: bash
+      # Set python temp dir in working dir as on GitHub Actions Windows
+      # machine often has system temp dir (which tox uses) on C drive and
+      # working dir on D drive which causes problems.
+      run: |
+        mkdir temp_pytest
+        python -m tox -e dbt018-py37 -- -m dbt
+    - name: Upload Coverage Report
+      uses: codecov/codecov-action@v1
+      with:
+        files: ./coverage.xml
 
