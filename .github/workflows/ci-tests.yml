@@ -168,6 +168,7 @@ jobs:
       shell: bash
       run: |
         export LOCALAPPDATA=$RUNNER_TEMP
+        export TMPDIR=$RUNNER_TEMP
         python -m tox -e py37
     - name: Upload Coverage Report
       uses: codecov/codecov-action@v1
