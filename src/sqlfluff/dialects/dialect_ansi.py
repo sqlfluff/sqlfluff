@@ -2491,9 +2491,7 @@ class AccessStatementSegment(BaseSegment):
             "TO",
             OneOf("GROUP", "USER", "ROLE", "SHARE", optional=True),
             Delimited(
-                Ref("ObjectReferenceSegment"),
-                Ref("FunctionSegment"),
-                "PUBLIC",
+                OneOf(Ref("ObjectReferenceSegment"), Ref("FunctionSegment"), "PUBLIC"),
                 delimiter=Ref("CommaSegment"),
             ),
             OneOf(
