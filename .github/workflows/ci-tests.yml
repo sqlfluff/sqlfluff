@@ -166,21 +166,9 @@ jobs:
         pip install tox
     - name: Run the tests
       shell: bash
-      env:
-        LOCALAPPDATA: ${{ github.workspace }}
-        TMPDIR: ${{ github.workspace }}
       run: |
         env | sort
-        pwd
-        ls
-        ls test
-        echo "Test creating temp file"
-        python <<EOF
-        import tempfile
-        print(tempfile.mkdtemp())
-        EOF
-        echo "Test complete"
-        python -m tox -e py37 -- --basetemp=${{ github.workspace }}
+        python -m tox -e py37 -- --basetemp="${{ github.workspace }}"
     - name: Upload Coverage Report
       uses: codecov/codecov-action@v1
       with:
