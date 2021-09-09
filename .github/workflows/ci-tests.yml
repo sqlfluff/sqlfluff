@@ -175,13 +175,12 @@ jobs:
         ls
         ls test
         echo "Test creating temp file"
-        $(python <<EOF
+        python <<EOF
         import tempfile
         print(tempfile.mkdtemp())
         EOF
-        )
         echo "Test complete"
-        python -m tox -e py37
+        python -m tox -e py37 -- --basetemp=${{ github.workspace }}
     - name: Upload Coverage Report
       uses: codecov/codecov-action@v1
       with:
