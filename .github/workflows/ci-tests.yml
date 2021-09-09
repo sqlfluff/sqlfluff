@@ -166,9 +166,12 @@ jobs:
         pip install tox
     - name: Run the tests
       shell: bash
+      env:
+        TMPDIR: ${{ github.workspace }}/temp_pytest
       run: |
         mkdir temp_pytest
-        python -m tox -e py37 -- --basetemp=temp_pytest -m "not dbt"
+        mkdir temp_pytest2
+        python -m tox -e py37 -- --basetemp=temp_pytest2 -m "not dbt"
     - name: Upload Coverage Report
       uses: codecov/codecov-action@v1
       with:
