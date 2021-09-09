@@ -163,7 +163,7 @@ jobs:
     - name: Run the tests
       shell: bash
       run: |
-        tox -e py37 --workdir="C:\Users\runneradmin\AppData\Local\Temp\"
+        tox -e py37 --workdir=C:\Users\runneradmin\AppData\Local\Temp\
     - name: Upload Coverage Report
       uses: codecov/codecov-action@v1
       with:
