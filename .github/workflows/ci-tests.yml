@@ -157,6 +157,10 @@ jobs:
     - name: Install dependencies
       shell: bash
       run: |
+        env
+    - name: Install dependencies
+      shell: bash
+      run: |
         pip install -Ur requirements.txt -Ur requirements_dev.txt
         python setup.py develop
         pip install tox
@@ -165,7 +169,8 @@ jobs:
       run: |
         export TMP=%USERPROFILE%\AppData\Local\Temp
         export TEMP=%USERPROFILE%\AppData\Local\Temp
-        python -m tox -e py37
+        export TMPDIR=%USERPROFILE%\AppData\Local\Temp
+        python -m tox -e py37 --workdir=%USERPROFILE%\AppData\Local\Temp
     - name: Upload Coverage Report
       uses: codecov/codecov-action@v1
       with:
