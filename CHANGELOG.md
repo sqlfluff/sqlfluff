@@ -19,6 +19,7 @@ Many thanks to all the [contributors](https://github.com/sqlfluff/sqlfluff/graph
 
 ### Complete list of changes
 
+* Added ability to Grant and Revoke Grant to multiple users ([#1367](https://github.com/sqlfluff/sqlfluff/pull/1367)) ([@WittierDinosaur](https://github.com/WittierDinosaur)
 * Add BigQuery Parameter Lexing and Parsing ([#1363](https://github.com/sqlfluff/sqlfluff/pull/1363)) ([@rileyrunnoe](https://github.com/rileyrunnoe)
 * Rule L030 bugfix ([#1360](https://github.com/sqlfluff/sqlfluff/pull/1360)) ([@WittierDinosaur](https://github.com/WittierDinosaur)
 * Add Postgres dialect for COMMENT ON ([#1358](https://github.com/sqlfluff/sqlfluff/pull/1358)) ([@miketheman](https://github.com/miketheman)
