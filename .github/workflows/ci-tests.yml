@@ -167,8 +167,8 @@ jobs:
     - name: Run the tests
       shell: bash
       env:
-        LOCALAPPDATA: ${{ env.RUNNER_TEMP }}
-        TMPDIR: ${{ env.RUNNER_TEMP }}
+        LOCALAPPDATA: ${{ github.workspace }}
+        TMPDIR: ${{ github.workspace }}
       run: |
         env
         python -m tox -e py37
