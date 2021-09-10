@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e342d9cf3b7875516529cba66bd2e1a34339aba8ffd20923bd05bff78c7b954f
+_hash: 275dbb34c26b119cd77059f66f08406c2648c4adaf15a492c32e7c1448d10111
 file:
 - statement:
     create_table_statement:
@@ -1120,4 +1120,83 @@ file:
         column_reference:
           identifier: logdate
         end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - identifier: public
+      - dot: .
+      - identifier: public
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          identifier: id
+      - data_type:
+          data_type_identifier: serial
+      - column_constraint:
+        - keyword: NOT
+        - keyword: 'NULL'
+      - comma: ','
+      - column_reference:
+          identifier: name
+      - data_type:
+          data_type_identifier: text
+      - column_constraint:
+        - keyword: NOT
+        - keyword: 'NULL'
+      - comma: ','
+      - column_reference:
+          identifier: group_name
+      - data_type:
+          data_type_identifier: text
+      - column_constraint:
+          keyword: 'NULL'
+      - comma: ','
+      - column_reference:
+          identifier: cluster_id
+      - data_type:
+          data_type_identifier: int8
+      - column_constraint:
+          keyword: 'NULL'
+      - comma: ','
+      - column_reference:
+          identifier: date_created
+      - data_type:
+          keyword: timestamp
+      - column_constraint:
+        - keyword: NOT
+        - keyword: 'NULL'
+      - column_constraint:
+          keyword: DEFAULT
+          bare_function: CURRENT_TIMESTAMP
+      - comma: ','
+      - column_reference:
+          identifier: date_updated
+      - data_type:
+          keyword: timestamp
+      - column_constraint:
+        - keyword: NOT
+        - keyword: 'NULL'
+      - column_constraint:
+          keyword: DEFAULT
+          bare_function: CURRENT_TIMESTAMP
+      - comma: ','
+      - column_reference:
+          identifier: operation_id
+      - data_type:
+          data_type_identifier: int4
+      - column_constraint:
+        - keyword: NOT
+        - keyword: 'NULL'
+      - column_constraint:
+          keyword: DEFAULT
+          expression:
+            literal: "'-1'"
+            cast_expression:
+              casting_operator: '::'
+              data_type:
+                data_type_identifier: integer
+      - end_bracket: )
 - statement_terminator: ;
