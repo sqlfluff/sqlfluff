@@ -526,19 +526,25 @@ class DatatypeSegment(BaseSegment):
         Sequence(
             OneOf("time", "timestamp"),
             Bracketed(Ref("NumericLiteralSegment"), optional=True),
-            Sequence(OneOf("WITH", "WITHOUT"), "TIME", "ZONE", optional=True),
+            OneOf(
+                Sequence(OneOf("WITH", "WITHOUT"), "TIME", "ZONE", optional=True),
+                Sequence("AT", "TIME", "ZONE", Ref("LiteralGrammar"), optional=True),
+            )
         ),
         Sequence(
-            Sequence(
-                # Some dialects allow optional qualification of data types with schemas
+            OneOf(
+                Sequence("CHARACTER", "VARYING"),
                 Sequence(
-                    Ref("SingleIdentifierGrammar"),
-                    Ref("DotSegment"),
+                    # Some dialects allow optional qualification of data types with schemas
+                    Sequence(
+                        Ref("SingleIdentifierGrammar"),
+                        Ref("DotSegment"),
+                        allow_gaps=False,
+                        optional=True,
+                    ),
+                    Ref("DatatypeIdentifierSegment"),
                     allow_gaps=False,
-                    optional=True,
-                ),
-                Ref("DatatypeIdentifierSegment"),
-                allow_gaps=False,
+                )
             ),
             Bracketed(
                 OneOf(

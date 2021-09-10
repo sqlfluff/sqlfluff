@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 275dbb34c26b119cd77059f66f08406c2648c4adaf15a492c32e7c1448d10111
+_hash: 0b2a9289df38c731b580419db721d00c138de7229f6df69022b79d5e528f1dc4
 file:
 - statement:
     create_table_statement:
@@ -243,7 +243,7 @@ file:
       - column_reference:
           identifier: modtime
       - data_type:
-          keyword: timestamp
+          data_type_identifier: timestamp
       - column_constraint:
           keyword: DEFAULT
           bare_function: current_timestamp
@@ -1039,7 +1039,7 @@ file:
       - column_reference:
           identifier: event_time
       - data_type:
-          keyword: TIMESTAMP
+          data_type_identifier: TIMESTAMP
       - comma: ','
       - column_reference:
           identifier: user_email
@@ -1164,7 +1164,7 @@ file:
       - column_reference:
           identifier: date_created
       - data_type:
-          keyword: timestamp
+          data_type_identifier: timestamp
       - column_constraint:
         - keyword: NOT
         - keyword: 'NULL'
@@ -1175,7 +1175,7 @@ file:
       - column_reference:
           identifier: date_updated
       - data_type:
-          keyword: timestamp
+          data_type_identifier: timestamp
       - column_constraint:
         - keyword: NOT
         - keyword: 'NULL'
@@ -1199,4 +1199,29 @@ file:
               data_type:
                 data_type_identifier: integer
       - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - identifier: main
+      - dot: .
+      - identifier: test_table
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          identifier: '"col1"'
+        data_type:
+        - keyword: character
+        - keyword: varying
+        - bracketed:
+            start_bracket: (
+            expression:
+              literal: '40'
+            end_bracket: )
+        column_constraint:
+        - keyword: NOT
+        - keyword: 'NULL'
+        end_bracket: )
 - statement_terminator: ;
