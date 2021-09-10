@@ -198,3 +198,13 @@ logdate date NOT NULL,
 peaktemp int,
 unitsales int
 ) PARTITION BY RANGE (logdate);
+
+CREATE TABLE public.public (
+id serial NOT NULL,
+name text NOT NULL,
+group_name text NULL,
+cluster_id int8 NULL,
+date_created timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+date_updated timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+operation_id int4 NOT NULL DEFAULT '-1'::integer
+);
