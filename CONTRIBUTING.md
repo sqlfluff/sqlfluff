@@ -140,7 +140,7 @@ python setup.py develop
 ## Building Package
 
 New versions of SQLFluff will be published to PyPI automatically via 
-[GitHub actions](.github/workflows/publish-release-to-pypi.yaml) 
+[GitHub Actions](.github/workflows/publish-release-to-pypi.yaml) 
 whenever a new release is published to GitHub.
 
 A new release can be published with a tag in GitHub by navigating to the
