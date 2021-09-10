@@ -354,7 +354,6 @@ class JinjaTemplater(PythonTemplater):
                 idx += len(str_buff)
                 str_buff = ""
 
-
     @classmethod
     def _preprocess_template(cls, in_str: str) -> str:
         """Does any preprocessing of the template required before expansion."""
