@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 <!--
-Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfluff/sqlfluff/releases) and will be copied in here on each release. There is no need to manually edit this file going forward.
+Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfluff/sqlfluff/releases) and will be copied in here on each release (please remember to update the issues and contributors to links!). There is no need to manually edit this file going forward.
 -->
 
 ## [0.6.5] - 2021-09-10
@@ -19,6 +19,9 @@ Many thanks to all the [contributors](https://github.com/sqlfluff/sqlfluff/graph
 
 ### Complete list of changes
 
+* Simplify rule L030 and fix recursion ([#1376](https://github.com/sqlfluff/sqlfluff/pull/1376)) ([@tunetheweb](https://github.com/tunetheweb)
+* Move from CircleCI to GitHub Actions for Continuous Integration ([#1361](https://github.com/sqlfluff/sqlfluff/pull/1361)) ([@tunetheweb](https://github.com/tunetheweb)
+* Postgres enhance create index ([#1375](https://github.com/sqlfluff/sqlfluff/pull/1375)) ([@WittierDinosaur](https://github.com/WittierDinosaur)
 * Initial support for Transact-SQL (T-SQL) dialect ([#1313](https://github.com/sqlfluff/sqlfluff/pull/1313)) ([@ericmuijs](https://github.com/ericmuijs)
 * Handle initial whitespace lines in rule L001 ([#1372](https://github.com/sqlfluff/sqlfluff/pull/1372)) ([@tunetheweb](https://github.com/tunetheweb)
 * Postgres Improved DEFAULT column constraint support ([#1373](https://github.com/sqlfluff/sqlfluff/pull/1373)) ([@WittierDinosaur](https://github.com/WittierDinosaur)
