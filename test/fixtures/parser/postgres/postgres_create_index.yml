@@ -1,0 +1,218 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 3abe3bf3a5c99eb554f010ba17109671a296457dcd0fd4b516511721a4fa3364
+file:
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: UNIQUE
+    - keyword: INDEX
+    - index_reference:
+        identifier: title_idx
+    - keyword: 'ON'
+    - table_reference:
+        identifier: films
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          identifier: title
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: UNIQUE
+    - keyword: INDEX
+    - index_reference:
+        identifier: title_idx
+    - keyword: 'ON'
+    - table_reference:
+        identifier: films
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          identifier: title
+        end_bracket: )
+    - keyword: INCLUDE
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          identifier: director
+      - comma: ','
+      - column_reference:
+          identifier: rating
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - index_reference:
+        identifier: title_idx
+    - keyword: 'ON'
+    - table_reference:
+        identifier: films
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          identifier: title
+        end_bracket: )
+    unparsable:
+      raw: WITH
+      bracketed:
+      - start_bracket: (
+      - raw: deduplicate_items
+      - raw: '='
+      - raw: 'off'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - raw: CREATE
+    - raw: INDEX
+    - raw: 'ON'
+    - raw: films
+    - bracketed:
+        start_bracket: (
+        bracketed:
+          start_bracket: (
+          raw: lower
+          bracketed:
+            start_bracket: (
+            raw: title
+            end_bracket: )
+          end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - raw: CREATE
+    - raw: INDEX
+    - raw: title_idx_german
+    - raw: 'ON'
+    - raw: films
+    - bracketed:
+      - start_bracket: (
+      - raw: title
+      - raw: COLLATE
+      - raw: '"de_DE"'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - index_reference:
+        identifier: title_idx_nulls_low
+    - keyword: 'ON'
+    - table_reference:
+        identifier: films
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          identifier: title
+      - keyword: NULLS
+      - keyword: FIRST
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: UNIQUE
+    - keyword: INDEX
+    - index_reference:
+        identifier: title_idx
+    - keyword: 'ON'
+    - table_reference:
+        identifier: films
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          identifier: title
+        end_bracket: )
+    - keyword: WITH
+    - bracketed:
+        start_bracket: (
+        parameter: fillfactor
+        comparison_operator: '='
+        literal: '70'
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - raw: CREATE
+    - raw: INDEX
+    - raw: gin_idx
+    - raw: 'ON'
+    - raw: documents_table
+    - raw: USING
+    - raw: GIN
+    - bracketed:
+        start_bracket: (
+        raw: locations
+        end_bracket: )
+    - raw: WITH
+    - bracketed:
+      - start_bracket: (
+      - raw: fastupdate
+      - raw: '='
+      - raw: 'off'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - index_reference:
+        identifier: code_idx
+    - keyword: 'ON'
+    - table_reference:
+        identifier: films
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          identifier: code
+        end_bracket: )
+    - keyword: TABLESPACE
+    - table_reference:
+        identifier: indexspace
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - raw: CREATE
+    - raw: INDEX
+    - raw: pointloc
+    - raw: 'ON'
+    - raw: points
+    - raw: USING
+    - raw: gist
+    - bracketed:
+        start_bracket: (
+        raw: box
+        bracketed:
+        - start_bracket: (
+        - raw: location
+        - comma: ','
+        - raw: location
+        - end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - keyword: CONCURRENTLY
+    - index_reference:
+        identifier: sales_quantity_index
+    - keyword: 'ON'
+    - table_reference:
+        identifier: sales_table
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          identifier: quantity
+        end_bracket: )
+- statement_terminator: ;

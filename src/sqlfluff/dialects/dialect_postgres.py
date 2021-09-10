@@ -1303,6 +1303,85 @@ class CommentOnStatementSegment(BaseSegment):
     )
 
 
+@postgres_dialect.segment(replace=True)
+class CreateIndexStatementSegment(BaseSegment):
+    """A `CREATE INDEX` statement."""
+
+    type = "create_index_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        Ref.keyword("UNIQUE", optional=True),
+        Ref("OrReplaceGrammar", optional=True),
+        "INDEX",
+        Ref.keyword("CONCURRENTLY", optional=True),
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("IndexReferenceSegment"),
+        "ON",
+        Ref.keyword("ONLY", optional=True),
+        Ref("TableReferenceSegment"),
+        Bracketed(
+            Delimited(
+                Sequence(
+                    OneOf(
+                        Ref("ColumnReferenceSegment"),
+                        Ref("FunctionSegment"),
+                        Bracketed(Ref("ExpressionSegment"))
+                    ),
+                    AnyNumberOf(
+                        Sequence("COLLATE", Ref("ParameterNameSegment"), optional=True),
+                        Sequence(
+                            Ref("ParameterNameSegment"),
+                            Bracketed(
+                                Delimited(
+                                    Sequence(
+                                        Ref("ParameterNameSegment"),
+                                        Ref("EqualsSegment"),
+                                        Ref("LiteralGrammar")
+                                    ),
+                                    delimiter=Ref("CommaSegment")
+                                ),
+                                optional=True
+                            )
+                        ),
+                        OneOf("ASC", "DESC", optional=True),
+                        OneOf(
+                            Sequence("NULLS", "FIRST"),
+                            Sequence("NULLS", "LAST")
+                        )
+                    )
+                ),
+                delimiter=Ref("CommaSegment")
+            )
+        ),
+        AnyNumberOf(
+            Sequence(
+                "INCLUDE",
+                Bracketed(
+                    Delimited(
+                        Ref("ColumnReferenceSegment"),
+                        delimiter=Ref("CommaSegment")
+                    )
+                )
+            ),
+            Sequence(
+                "WITH",
+                Bracketed(
+                    Delimited(
+                        Sequence(
+                            Ref("ParameterNameSegment"),
+                            Ref("EqualsSegment"),
+                            Ref("LiteralGrammar")
+                        ),
+                        delimiter=Ref("CommaSegment")
+                    )
+                )
+            ),
+            Sequence("TABLESPACE", Ref("TableReferenceSegment")),
+            Sequence("WHERE", Ref("ExpressionSegment"))
+        )
+    )
+
+
 # Adding PostgreSQL specific statements
 @postgres_dialect.segment(replace=True)
 class StatementSegment(BaseSegment):
