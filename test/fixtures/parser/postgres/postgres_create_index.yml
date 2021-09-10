@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3abe3bf3a5c99eb554f010ba17109671a296457dcd0fd4b516511721a4fa3364
+_hash: 384927d42e71cf16294db45f70be615f00ad1824680ccc69eb7132a0b3ed21a8
 file:
 - statement:
     create_index_statement:
@@ -60,46 +60,53 @@ file:
         column_reference:
           identifier: title
         end_bracket: )
-    unparsable:
-      raw: WITH
-      bracketed:
-      - start_bracket: (
-      - raw: deduplicate_items
-      - raw: '='
-      - raw: 'off'
-      - end_bracket: )
+    - keyword: WITH
+    - bracketed:
+        start_bracket: (
+        parameter: deduplicate_items
+        comparison_operator: '='
+        literal: "'off'"
+        end_bracket: )
 - statement_terminator: ;
 - statement:
-    unparsable:
-    - raw: CREATE
-    - raw: INDEX
-    - raw: 'ON'
-    - raw: films
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - keyword: 'ON'
+    - table_reference:
+        identifier: films
     - bracketed:
         start_bracket: (
         bracketed:
           start_bracket: (
-          raw: lower
-          bracketed:
-            start_bracket: (
-            raw: title
-            end_bracket: )
+          function:
+            function_name:
+              function_name_identifier: lower
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  identifier: title
+              end_bracket: )
           end_bracket: )
         end_bracket: )
 - statement_terminator: ;
 - statement:
-    unparsable:
-    - raw: CREATE
-    - raw: INDEX
-    - raw: title_idx_german
-    - raw: 'ON'
-    - raw: films
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - index_reference:
+        identifier: title_idx_german
+    - keyword: 'ON'
+    - table_reference:
+        identifier: films
     - bracketed:
-      - start_bracket: (
-      - raw: title
-      - raw: COLLATE
-      - raw: '"de_DE"'
-      - end_bracket: )
+        start_bracket: (
+        column_reference:
+          identifier: title
+        keyword: COLLATE
+        identifier: '"de_DE"'
+        end_bracket: )
 - statement_terminator: ;
 - statement:
     create_index_statement:
@@ -142,25 +149,31 @@ file:
         end_bracket: )
 - statement_terminator: ;
 - statement:
-    unparsable:
-    - raw: CREATE
-    - raw: INDEX
-    - raw: gin_idx
-    - raw: 'ON'
-    - raw: documents_table
-    - raw: USING
-    - raw: GIN
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - index_reference:
+        identifier: gin_idx
+    - keyword: 'ON'
+    - table_reference:
+        identifier: documents_table
+    - keyword: USING
+    - function:
+        function_name:
+          function_name_identifier: GIN
+        bracketed:
+          start_bracket: (
+          expression:
+            column_reference:
+              identifier: locations
+          end_bracket: )
+    - keyword: WITH
     - bracketed:
         start_bracket: (
-        raw: locations
+        parameter: fastupdate
+        comparison_operator: '='
+        literal: "'off'"
         end_bracket: )
-    - raw: WITH
-    - bracketed:
-      - start_bracket: (
-      - raw: fastupdate
-      - raw: '='
-      - raw: 'off'
-      - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_index_statement:
@@ -181,24 +194,35 @@ file:
         identifier: indexspace
 - statement_terminator: ;
 - statement:
-    unparsable:
-    - raw: CREATE
-    - raw: INDEX
-    - raw: pointloc
-    - raw: 'ON'
-    - raw: points
-    - raw: USING
-    - raw: gist
-    - bracketed:
-        start_bracket: (
-        raw: box
+    create_index_statement:
+    - keyword: CREATE
+    - keyword: INDEX
+    - index_reference:
+        identifier: pointloc
+    - keyword: 'ON'
+    - table_reference:
+        identifier: points
+    - keyword: USING
+    - function:
+        function_name:
+          function_name_identifier: gist
         bracketed:
-        - start_bracket: (
-        - raw: location
-        - comma: ','
-        - raw: location
-        - end_bracket: )
-        end_bracket: )
+          start_bracket: (
+          expression:
+            function:
+              function_name:
+                function_name_identifier: box
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    identifier: location
+              - comma: ','
+              - expression:
+                  column_reference:
+                    identifier: location
+              - end_bracket: )
+          end_bracket: )
 - statement_terminator: ;
 - statement:
     create_index_statement:

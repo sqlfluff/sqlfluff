@@ -6,6 +6,7 @@ from sqlfluff.core.parser import (
     Ref,
     Sequence,
     Bracketed,
+    OptionallyBracketed,
     Anything,
     BaseSegment,
     Delimited,
@@ -1315,53 +1316,62 @@ class CreateIndexStatementSegment(BaseSegment):
         "INDEX",
         Ref.keyword("CONCURRENTLY", optional=True),
         Ref("IfNotExistsGrammar", optional=True),
-        Ref("IndexReferenceSegment"),
+        Ref("IndexReferenceSegment", optional=True),
         "ON",
         Ref.keyword("ONLY", optional=True),
         Ref("TableReferenceSegment"),
-        Bracketed(
-            Delimited(
-                Sequence(
-                    OneOf(
-                        Ref("ColumnReferenceSegment"),
-                        Ref("FunctionSegment"),
-                        Bracketed(Ref("ExpressionSegment"))
-                    ),
-                    AnyNumberOf(
-                        Sequence("COLLATE", Ref("ParameterNameSegment"), optional=True),
-                        Sequence(
-                            Ref("ParameterNameSegment"),
-                            Bracketed(
-                                Delimited(
-                                    Sequence(
-                                        Ref("ParameterNameSegment"),
-                                        Ref("EqualsSegment"),
-                                        Ref("LiteralGrammar")
-                                    ),
-                                    delimiter=Ref("CommaSegment")
-                                ),
-                                optional=True
-                            )
-                        ),
-                        OneOf("ASC", "DESC", optional=True),
+        OneOf(
+            Sequence("USING", Ref("FunctionSegment"), optional=True),
+            Bracketed(
+                Delimited(
+                    Sequence(
                         OneOf(
-                            Sequence("NULLS", "FIRST"),
-                            Sequence("NULLS", "LAST")
-                        )
-                    )
-                ),
-                delimiter=Ref("CommaSegment")
-            )
+                            Ref("ColumnReferenceSegment"),
+                            OptionallyBracketed(Ref("FunctionSegment")),
+                            Bracketed(Ref("ExpressionSegment")),
+                        ),
+                        AnyNumberOf(
+                            Sequence(
+                                "COLLATE",
+                                OneOf(
+                                    Ref("LiteralGrammar"),
+                                    Ref("QuotedIdentifierSegment"),
+                                ),
+                            ),
+                            Sequence(
+                                Ref("ParameterNameSegment"),
+                                Bracketed(
+                                    Delimited(
+                                        Sequence(
+                                            Ref("ParameterNameSegment"),
+                                            Ref("EqualsSegment"),
+                                            OneOf(
+                                                Ref("LiteralGrammar"),
+                                                Ref("QuotedIdentifierSegment"),
+                                            ),
+                                        ),
+                                        delimiter=Ref("CommaSegment"),
+                                    ),
+                                ),
+                            ),
+                            OneOf("ASC", "DESC"),
+                            OneOf(
+                                Sequence("NULLS", "FIRST"), Sequence("NULLS", "LAST")
+                            ),
+                        ),
+                    ),
+                    delimiter=Ref("CommaSegment"),
+                )
+            ),
         ),
         AnyNumberOf(
             Sequence(
                 "INCLUDE",
                 Bracketed(
                     Delimited(
-                        Ref("ColumnReferenceSegment"),
-                        delimiter=Ref("CommaSegment")
+                        Ref("ColumnReferenceSegment"), delimiter=Ref("CommaSegment")
                     )
-                )
+                ),
             ),
             Sequence(
                 "WITH",
@@ -1370,15 +1380,15 @@ class CreateIndexStatementSegment(BaseSegment):
                         Sequence(
                             Ref("ParameterNameSegment"),
                             Ref("EqualsSegment"),
-                            Ref("LiteralGrammar")
+                            Ref("LiteralGrammar"),
                         ),
-                        delimiter=Ref("CommaSegment")
+                        delimiter=Ref("CommaSegment"),
                     )
-                )
+                ),
             ),
             Sequence("TABLESPACE", Ref("TableReferenceSegment")),
-            Sequence("WHERE", Ref("ExpressionSegment"))
-        )
+            Sequence("WHERE", Ref("ExpressionSegment")),
+        ),
     )
 
 
