@@ -5,7 +5,7 @@ codecov:
   branch: master
   bot: "codecov-io"
   ci:
-    - "circleci.com"
+    - "github.com"
   max_report_age: 24
   disable_default_path_fixes: no
   require_ci_to_pass: yes
