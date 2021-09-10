@@ -86,7 +86,7 @@ postgres_dialect.replace(
             Sequence(Ref("ParameterNameSegment"), Ref("DatatypeSegment")),
         ),
         Sequence(
-            OneOf("DEFAULT", Ref("EqualsSegment")), Ref("LiteralGrammer"), optional=True
+            OneOf("DEFAULT", Ref("EqualsSegment")), Ref("LiteralGrammar"), optional=True
         ),
     ),
 )
@@ -337,6 +337,161 @@ class ExplainOptionSegment(BaseSegment):
 
 
 @postgres_dialect.segment(replace=True)
+class CreateTableStatementSegment(BaseSegment):
+    """A `CREATE TABLE` statement.
+
+    As specified in https://www.postgresql.org/docs/13/sql-createtable.html
+    """
+
+    type = "create_table_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        OneOf(
+            Sequence(
+                OneOf("GLOBAL", "LOCAL", optional=True),
+                Ref("TemporaryGrammar", optional=True),
+            ),
+            "UNLOGGED",
+            optional=True,
+        ),
+        "TABLE",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        OneOf(
+            # Columns and comment syntax:
+            Sequence(
+                Bracketed(
+                    Delimited(
+                        OneOf(
+                            Sequence(
+                                Ref("ColumnReferenceSegment"),
+                                Ref("DatatypeSegment"),
+                                Sequence(
+                                    "COLLATE",
+                                    Ref("QuotedLiteralSegment"),
+                                    optional=True,
+                                ),
+                                AnyNumberOf(
+                                    Ref("ColumnConstraintSegment", optional=True)
+                                ),
+                            ),
+                            Ref("TableConstraintSegment"),
+                            Sequence(
+                                "LIKE",
+                                Ref("TableReferenceSegment"),
+                                AnyNumberOf(Ref("LikeOptionSegment"), optional=True),
+                            ),
+                        ),
+                    )
+                ),
+                Sequence(
+                    "INHERITS",
+                    Bracketed(
+                        Delimited(
+                            Ref("TableReferenceSegment"), delimiter=Ref("CommaSegment")
+                        )
+                    ),
+                    optional=True,
+                ),
+            ),
+            # Create OF syntax:
+            Sequence(
+                "OF",
+                Ref("ParameterNameSegment"),
+                Bracketed(
+                    Delimited(
+                        Sequence(
+                            Ref("ColumnReferenceSegment"),
+                            Sequence("WITH", "OPTIONS", optional=True),
+                            AnyNumberOf(Ref("ColumnConstraintSegment")),
+                        ),
+                        Ref("TableConstraintSegment"),
+                        delimiter=Ref("CommaSegment"),
+                    ),
+                    optional=True,
+                ),
+            ),
+            # Create PARTITION OF syntax
+            Sequence(
+                "PARTITION",
+                "OF",
+                Ref("TableReferenceSegment"),
+                Bracketed(
+                    Delimited(
+                        Sequence(
+                            Ref("ColumnReferenceSegment"),
+                            Sequence("WITH", "OPTIONS", optional=True),
+                            AnyNumberOf(Ref("ColumnConstraintSegment")),
+                        ),
+                        Ref("TableConstraintSegment"),
+                        delimiter=Ref("CommaSegment"),
+                    ),
+                    optional=True,
+                ),
+                OneOf(
+                    Sequence("FOR", "VALUES", Ref("PartitionBoundSpecSegment")),
+                    "DEFAULT",
+                ),
+            ),
+        ),
+        AnyNumberOf(
+            Sequence(
+                "PARTITION",
+                "BY",
+                OneOf("RANGE", "LIST", "HASH"),
+                Bracketed(
+                    AnyNumberOf(
+                        Delimited(
+                            Sequence(
+                                OneOf(
+                                    Ref("ColumnReferenceSegment"),
+                                    Ref("FunctionSegment"),
+                                ),
+                                AnyNumberOf(
+                                    Sequence(
+                                        "COLLATE",
+                                        Ref("QuotedLiteralSegment"),
+                                        optional=True,
+                                    ),
+                                    Ref("ParameterNameSegment", optional=True),
+                                ),
+                            ),
+                            delimiter=Ref("CommaSegment"),
+                        )
+                    )
+                ),
+            ),
+            Sequence("USING", Ref("ParameterNameSegment")),
+            OneOf(
+                Sequence(
+                    "WITH",
+                    Bracketed(
+                        AnyNumberOf(
+                            Sequence(
+                                Ref("ParameterNameSegment"),
+                                Sequence(
+                                    Ref("EqualsSegment"),
+                                    Ref("LiteralGrammar"),
+                                    optional=True,
+                                ),
+                            )
+                        )
+                    ),
+                ),
+                Sequence("WITHOUT", "OIDS"),
+            ),
+            Sequence(
+                "ON",
+                "COMMIT",
+                OneOf(Sequence("PRESERVE", "ROWS"), Sequence("DELETE", "ROWS"), "DROP"),
+            ),
+            Sequence("TABLESPACE", Ref("TableReferenceSegment")),
+        ),
+    )
+
+
+@postgres_dialect.segment(replace=True)
 class AlterTableStatementSegment(BaseSegment):
     """An `ALTER TABLE` statement.
 
@@ -429,7 +584,7 @@ class AlterTableActionSegment(BaseSegment):
             Ref("ColumnReferenceSegment"),
             Ref("DatatypeSegment"),
             Sequence("COLLATE", Ref("QuotedLiteralSegment"), optional=True),
-            Ref("ColumnOptionSegment", optional=True),
+            AnyNumberOf(Ref("ColumnConstraintSegment")),
         ),
         Sequence(
             "DROP",
@@ -484,7 +639,7 @@ class AlterTableActionSegment(BaseSegment):
                             Sequence(
                                 Ref("ParameterNameSegment"),
                                 Ref("EqualsSegment"),
-                                Ref("LiteralGrammer"),
+                                Ref("LiteralGrammar"),
                             ),
                             delimiter=Ref("CommaSegment"),
                         )
@@ -505,10 +660,10 @@ class AlterTableActionSegment(BaseSegment):
         ),
         Sequence(
             "ADD",
-            Ref("TableConstraintSegment"),  # TODO
+            Ref("TableConstraintSegment"),
             Sequence("NOT", "VALID", optional=True),
         ),
-        Sequence("ADD", Ref("TableConstraintUsingIndexSegment")),  # TODO
+        Sequence("ADD", Ref("TableConstraintUsingIndexSegment")),
         Sequence(
             "ALTER",
             "CONSTRAINT",
@@ -598,8 +753,33 @@ class AlterTableActionSegment(BaseSegment):
     )
 
 
-@postgres_dialect.segment(replace=True)
-class ColumnOptionSegment(BaseSegment):
+@postgres_dialect.segment()
+class LikeOptionSegment(BaseSegment):
+    """Like Option Segment.
+
+    As specified in https://www.postgresql.org/docs/13/sql-createtable.html
+    """
+
+    type = "like_option"
+
+    match_grammar = Sequence(
+        OneOf("INCLUDING", "EXCLUDING"),
+        OneOf(
+            "COMMENTS",
+            "CONSTRAINTS",
+            "DEFAULTS",
+            "GENERATED",
+            "IDENTITY",
+            "INDEXES",
+            "STATISTICS",
+            "STORAGE",
+            "ALL",
+        ),
+    )
+
+
+@postgres_dialect.segment()
+class ColumnConstraintSegment(BaseSegment):
     """A column option; each CREATE TABLE column can have 0 or more.
 
     This matches the definition in https://www.postgresql.org/docs/13/sql-altertable.html
@@ -626,6 +806,8 @@ class ColumnOptionSegment(BaseSegment):
                 OneOf(
                     Ref("LiteralGrammar"),
                     Ref("FunctionSegment"),
+                    Ref("BareFunctionSegment"),
+                    Ref("ExpressionSegment")
                     # ?? Ref('IntervalExpressionSegment')
                 ),
             ),
@@ -729,7 +911,7 @@ class TableConstraintSegment(BaseSegment):
             ),
             Sequence(
                 "EXCLUDE",
-                Sequence("USING", Ref("ParameterNameSegment"), optional=True),
+                Sequence("USING", Ref("FunctionSegment"), optional=True),
                 Bracketed(
                     Delimited(
                         Sequence(
@@ -808,14 +990,16 @@ class IndexParametersSegment(BaseSegment):
                     Sequence(
                         Ref("ParameterNameSegment"),
                         Ref("EqualsSegment"),
-                        Ref("LiteralGrammer"),
+                        Ref("LiteralGrammar"),
                     ),
                     delimiter=Ref("CommaSegment"),
                 )
             ),
             optional=True,
         ),
-        Sequence("USING", "INDEX", "TABLESPACE", Ref("ParameterNameSegment")),
+        Sequence(
+            "USING", "INDEX", "TABLESPACE", Ref("ParameterNameSegment"), optional=True
+        ),
     )
 
 

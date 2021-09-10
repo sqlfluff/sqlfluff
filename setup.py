@@ -52,6 +52,7 @@ setup(
         "postgres",
         "snowflake",
         "teradata",
+        "tsql",
         "dbt",
     ],
     project_urls={

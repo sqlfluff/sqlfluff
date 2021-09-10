@@ -41,7 +41,7 @@ class Rule_L001(BaseRule):
             # If we find a newline, which is preceded by whitespace, then bad
             deletions = []
             idx = -1
-            while raw_stack[idx].is_type("whitespace"):
+            while abs(idx) <= len(raw_stack) and raw_stack[idx].is_type("whitespace"):
                 deletions.append(raw_stack[idx])
                 idx -= 1
             return LintResult(
