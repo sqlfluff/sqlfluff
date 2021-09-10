@@ -2,7 +2,12 @@
 ## GitHub Actions CI Tests ##
 #############################
 #
-# Based on our old circleci config
+# Based on our old CircleCI config
+#
+# This can be kicked off manually in the Actions tab of GitHub
+# It will also run nightly at 2pm
+# It will run on any pull request, except non-code changes
+# (images, markdown files, )
 #
 name: "Run CI Tests"
 on:
@@ -13,15 +18,13 @@ on:
   pull_request:
     paths-ignore:
       - '**.png'
+      - '**.svg'
       - '**.md'
       - '**.rst'
 jobs:
   linting:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        jobs: [ 'linting', 'doclinting' ]
-    name: ${{ matrix.jobs }} tests
+    name: linting tests
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python
@@ -33,13 +36,9 @@ jobs:
         pip install -Ur requirements.txt -Ur requirements_dev.txt
         python setup.py develop
         pip install tox
-    - name: Set Tox Params
-      run: |
-        echo "TOXENV=${{ matrix.jobs }}" >> $GITHUB_ENV
-        echo "UPLOAD_COVERAGE=0" >> $GITHUB_ENV
     - name: Run the tests
       run: |
-        tox -e ${{ env.TOXENV }}
+        tox -e linting
   python-version-tests:
     runs-on: ubuntu-latest
     strategy:
@@ -138,8 +137,6 @@ jobs:
       with:
         files: ./coverage.xml
   python-windows-tests:
-    # Only run windows tests on cron or on demand
-    #if: github.event_name != 'pull_request'
     runs-on: windows-latest
     name: Python 3.8 Windows tests
     steps:
@@ -175,8 +172,6 @@ jobs:
       with:
         files: ./coverage.xml
   python-windows-dbt-tests:
-    # Only run windows tests on cron or on demand
-    #if: github.event_name != 'pull_request'
     runs-on: windows-latest
     name: Python 3.8 Windows dbt tests
     steps:
