@@ -584,7 +584,7 @@ class AlterTableActionSegment(BaseSegment):
             Ref("ColumnReferenceSegment"),
             Ref("DatatypeSegment"),
             Sequence("COLLATE", Ref("QuotedLiteralSegment"), optional=True),
-            AnyNumberOf(Ref("ColumnConstraintSegment"))
+            AnyNumberOf(Ref("ColumnConstraintSegment")),
         ),
         Sequence(
             "DROP",
