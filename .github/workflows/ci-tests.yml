@@ -188,7 +188,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: '3.7'
+        python-version: '3.8'
     - name: Install dependencies
       shell: bash
       run: |
@@ -197,12 +197,10 @@ jobs:
         pip install tox
     - name: Run the tests
       shell: bash
-      # Set python temp dir in working dir as on GitHub Actions Windows
-      # machine often has system temp dir (which tox uses) on C drive and
-      # working dir on D drive which causes problems.
+      # Do not set explicitly temp dir for dbt as causes problems
+      # None of these test need temp dir set
       run: |
-        mkdir temp_pytest
-        python -m tox -e set-tmpdir,dbt018-py37 -- -m dbt
+        python -m tox -e dbt018-py38 -- -m dbt
     - name: Upload Coverage Report
       uses: codecov/codecov-action@v1
       with:
