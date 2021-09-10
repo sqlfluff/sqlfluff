@@ -198,4 +198,3 @@ logdate date NOT NULL,
 peaktemp int,
 unitsales int
 ) PARTITION BY RANGE (logdate);
-
