@@ -268,7 +268,7 @@ class DbtTemplater(JinjaTemplater):
                     )
                 ]
             else:
-                raise
+                raise  # pragma: no cover
         except DbtFailedToConnectException as e:
             return None, [
                 SQLTemplaterError(
@@ -382,3 +382,7 @@ class DbtTemplater(JinjaTemplater):
             # No violations returned in this way.
             [],
         )
+
+    @classmethod
+    def _preprocess_template(cls, in_str: str) -> str:
+        return in_str

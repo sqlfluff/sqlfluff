@@ -166,11 +166,6 @@ def test__dbt_templated_models_do_not_raise_lint_error(
         path=os.path.join(project_dir, "models/my_new_project/", fname)
     )
     violations = lnt.check_tuples()
-    # BarryH: Discard violations of the L003 rule. It began failing in this PR:
-    # https://github.com/sqlfluff/sqlfluff/pull/1364 for reasons that are not
-    # clear to me.
-    # TODO: What's going on here?
-    violations = [v for v in violations if v[0] != "L003"]
     assert len(violations) == 0
 
 

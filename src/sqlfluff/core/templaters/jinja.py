@@ -327,19 +327,8 @@ class JinjaTemplater(PythonTemplater):
             "raw_begin": "block",
         }
 
-        # Using Jinja whitespace stripping (e.g. `{%-` or `-%}`) breaks the
-        # position markers between unlexed and lexed file. So let's ignore any
-        # request to do that before lexing, by replacing '-' with '+'
-        #
-        # Note: '+' is the default, so shouldn't really be needed but we
-        # explicitly state that to preserve the space for the missing '-' character
-        # so it looks the same.
-        in_str = in_str.replace("{%-", "{%+")
-        in_str = in_str.replace("-%}", "+%}")
-        in_str = in_str.replace("{#-", "{#+")
-        in_str = in_str.replace("-#}", "+#}")
         # https://jinja.palletsprojects.com/en/2.11.x/api/#jinja2.Environment.lex
-        for _, elem_type, raw in env.lex(in_str):
+        for _, elem_type, raw in env.lex(cls._preprocess_template(in_str)):
             if elem_type == "data":
                 yield RawFileSlice(raw, "literal", idx)
                 idx += len(raw)
@@ -364,3 +353,20 @@ class JinjaTemplater(PythonTemplater):
                 yield RawFileSlice(str_buff, block_type, idx)
                 idx += len(str_buff)
                 str_buff = ""
+
+
+    @classmethod
+    def _preprocess_template(cls, in_str: str) -> str:
+        """Does any preprocessing of the template required before expansion."""
+        # Using Jinja whitespace stripping (e.g. `{%-` or `-%}`) breaks the
+        # position markers between unlexed and lexed file. So let's ignore any
+        # request to do that before lexing, by replacing '-' with '+'
+        #
+        # Note: '+' is the default, so shouldn't really be needed but we
+        # explicitly state that to preserve the space for the missing '-' character
+        # so it looks the same.
+        in_str = in_str.replace("{%-", "{%+")
+        in_str = in_str.replace("-%}", "+%}")
+        in_str = in_str.replace("{#-", "{#+")
+        in_str = in_str.replace("-#}", "+#}")
+        return in_str
