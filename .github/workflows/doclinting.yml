@@ -27,8 +27,6 @@ jobs:
         python-version: '3.9'
     - name: Install dependencies
       run: |
-        pip install -Ur requirements.txt -Ur requirements_dev.txt
-        python setup.py develop
         pip install tox
     - name: Run the tests
       run: |

@@ -33,8 +33,6 @@ jobs:
         python-version: '3.9'
     - name: Install dependencies
       run: |
-        pip install -Ur requirements.txt -Ur requirements_dev.txt
-        python setup.py develop
         pip install tox
     - name: Run the tests
       run: |
@@ -53,8 +51,6 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: |
-        pip install -Ur requirements.txt -Ur requirements_dev.txt
-        python setup.py develop
         pip install tox
     - name: Set Tox Python Param
       run: |
@@ -82,8 +78,6 @@ jobs:
         python-version: '3.9'
     - name: Install dependencies
       run: |
-        pip install -Ur requirements.txt -Ur requirements_dev.txt
-        python setup.py develop
         pip install tox
     - name: Set Tox Params
       run: |
@@ -102,8 +96,6 @@ jobs:
         python-version: '3.9'
     - name: Install dependencies
       run: |
-        pip install -Ur requirements.txt -Ur requirements_dev.txt
-        python setup.py develop
         pip install tox
     - name: Test the example files
       run: |
@@ -126,8 +118,6 @@ jobs:
         python-version: '3.8'
     - name: Install dependencies
       run: |
-        pip install -Ur requirements.txt -Ur requirements_dev.txt
-        python setup.py develop
         pip install tox
     - name: Run the tests
       run: |
@@ -156,8 +146,6 @@ jobs:
     - name: Install dependencies
       shell: bash
       run: |
-        pip install -Ur requirements.txt -Ur requirements_dev.txt
-        python setup.py develop
         pip install tox
     - name: Run the tests
       shell: bash
@@ -187,8 +175,6 @@ jobs:
     - name: Install dependencies
       shell: bash
       run: |
-        pip install -Ur requirements.txt -Ur requirements_dev.txt
-        python setup.py develop
         pip install tox
     - name: Run the tests
       shell: bash
