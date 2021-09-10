@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e0fa9030c83da1863138639c935d176ce7d92ef4b86d4a238cd459108713480c
+_hash: 80b987a428f17979341c6affd2866ac11ba9353f169ffb2542d90921cbb6eb06
 file:
 - statement:
     select_statement:
@@ -57,4 +57,16 @@ file:
           - data_type:
               data_type_identifier: timestamptz
           - literal: "'2013-03-01 12:00:00'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            literal: '1.0'
+            cast_expression:
+              casting_operator: '::'
+              data_type:
+                data_type_identifier: int
 - statement_terminator: ;

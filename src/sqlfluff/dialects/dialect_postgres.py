@@ -806,7 +806,8 @@ class ColumnConstraintSegment(BaseSegment):
                 OneOf(
                     Ref("LiteralGrammar"),
                     Ref("FunctionSegment"),
-                    Ref("BareFunctionSegment")
+                    Ref("BareFunctionSegment"),
+                    Ref("ExpressionSegment")
                     # ?? Ref('IntervalExpressionSegment')
                 ),
             ),
