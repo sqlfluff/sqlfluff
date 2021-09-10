@@ -13,12 +13,14 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ### What's Changed
 
-This release includes much better Postgres and Snowflake support, improvements to our documentation, 100% coverage for Python code (with a small number of accepted exceptions), along with numerous other bug fixes and improvements.
+This release includes initial support of Transact-SQL (T-SQL), much better Postgres and Snowflake support, improvements to our documentation, 100% coverage for Python code (with a small number of accepted exceptions), along with numerous other bug fixes and improvements.
 
 Many thanks to all the [contributors](https://github.com/sqlfluff/sqlfluff/graphs/contributors) helping to improve SQLFluff!
 
 ### Complete list of changes
 
+* Initial support for Transact-SQL (T-SQL) dialect ([#1313](https://github.com/sqlfluff/sqlfluff/pull/1313)) ([@ericmuijs](https://github.com/ericmuijs)
+* Handle initial whitespace lines in rule L001 ([#1372](https://github.com/sqlfluff/sqlfluff/pull/1372)) ([@tunetheweb](https://github.com/tunetheweb)
 * Postgres Improved DEFAULT column constraint support ([#1373](https://github.com/sqlfluff/sqlfluff/pull/1373)) ([@WittierDinosaur](https://github.com/WittierDinosaur)
 * Minor grammar, spelling, and readability fixes ([#1370](https://github.com/sqlfluff/sqlfluff/pull/1370)) ([@WittierDinosaur](https://github.com/Fdawgs)
 * Issues 854, 1321: Handle Jinja leading whitespace-only lines ([#1364](https://github.com/sqlfluff/sqlfluff/pull/1364)) ([@barrywhart](https://github.com/barrywhart)
