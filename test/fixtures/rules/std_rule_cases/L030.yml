@@ -40,6 +40,10 @@ test_fail_capitalization_after_comma:
   fail_str: SELECT FLOOR(dt) ,count(*) FROM test
   fix_str: SELECT FLOOR(dt) ,COUNT(*) FROM test
 
-test_fail_fully_qualified_function:
-  fail_str: SELECT project1.foo(value1) AS value2
+test_fail_fully_qualified_function_mixed_functions:
+  fail_str: SELECT COUNT(*), project1.foo(value1) AS value2
+  fix_str: SELECT COUNT(*), project1.FOO(value1) AS value2
+
+test_fail_fully_qualified_function_mixed_case:
+  fail_str: SELECT project1.FoO(value1) AS value2
   fix_str: SELECT project1.FOO(value1) AS value2
