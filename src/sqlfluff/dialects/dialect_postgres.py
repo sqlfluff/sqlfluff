@@ -1306,7 +1306,10 @@ class CommentOnStatementSegment(BaseSegment):
 
 @postgres_dialect.segment(replace=True)
 class CreateIndexStatementSegment(BaseSegment):
-    """A `CREATE INDEX` statement."""
+    """A `CREATE INDEX` statement.
+
+    As specified in https://www.postgresql.org/docs/13/sql-createindex.html
+    """
 
     type = "create_index_statement"
     match_grammar = Sequence(
