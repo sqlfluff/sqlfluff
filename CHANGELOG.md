@@ -19,13 +19,15 @@ Many thanks to all the [contributors](https://github.com/sqlfluff/sqlfluff/graph
 
 ### Complete list of changes
 
-* Issues 854, 1321: Handle Jinja leading whitespace-only lines ([#1369](https://github.com/sqlfluff/sqlfluff/pull/1364)) ([@barrywhart](https://github.com/barrywhart)
+* Postgres Improved DEFAULT column constraint support ([#1373](https://github.com/sqlfluff/sqlfluff/pull/1373)) ([@WittierDinosaur](https://github.com/WittierDinosaur)
+* Minor grammar, spelling, and readability fixes ([#1370](https://github.com/sqlfluff/sqlfluff/pull/1370)) ([@WittierDinosaur](https://github.com/Fdawgs)
+* Issues 854, 1321: Handle Jinja leading whitespace-only lines ([#1364](https://github.com/sqlfluff/sqlfluff/pull/1364)) ([@barrywhart](https://github.com/barrywhart)
 * Enhanced the Postgres grammar for create table ([#1369](https://github.com/sqlfluff/sqlfluff/pull/1369)) ([@WittierDinosaur](https://github.com/WittierDinosaur)
 * Added ability to Grant and Revoke Grant to multiple users ([#1367](https://github.com/sqlfluff/sqlfluff/pull/1367)) ([@WittierDinosaur](https://github.com/WittierDinosaur)
 * Add BigQuery Parameter Lexing and Parsing ([#1363](https://github.com/sqlfluff/sqlfluff/pull/1363)) ([@rileyrunnoe](https://github.com/rileyrunnoe)
 * Rule L030 bugfix ([#1360](https://github.com/sqlfluff/sqlfluff/pull/1360)) ([@WittierDinosaur](https://github.com/WittierDinosaur)
 * Add Postgres dialect for COMMENT ON ([#1358](https://github.com/sqlfluff/sqlfluff/pull/1358)) ([@miketheman](https://github.com/miketheman)
-* Allow ORDER BY and LIMIT after QUALIFY in BigQuery ([#1362](https://github.com/sqlfluff/sqlfluff/pull/1359)) ([@tunetheweb](https://github.com/tunetheweb)
+* Allow ORDER BY and LIMIT after QUALIFY in BigQuery ([#1362](https://github.com/sqlfluff/sqlfluff/pull/1362)) ([@tunetheweb](https://github.com/tunetheweb)
 * Correct CircleCI badge reference ([#1359](https://github.com/sqlfluff/sqlfluff/pull/1359)) [@miketheman](https://github.com/miketheman)
 * Minor grammar corrections to documentation ([#1355](https://github.com/sqlfluff/sqlfluff/pull/1355)) [@miketheman](https://github.com/miketheman)
 * Pytest coverage exceptions to get us to 100% coverage! ([#1346](https://github.com/sqlfluff/sqlfluff/pull/1346)) [@tunetheweb](https://github.com/tunetheweb)
