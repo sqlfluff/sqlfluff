@@ -11,7 +11,7 @@ In particular, in helping to develop the parser, examples of queries
 that do not parse as expected are especially helpful.
 
 :star2: **Fourth** - making sure that our documentation is up-to-date and useful
-for new users is important. If you are a new user, you are in precisely
+for new users is really important. If you are a new user, you are in precisely
 the best position to do this. Familiarise yourself with the tool (as per step
 2 above) and familiarise yourself with the current documentation (live version
 at [docs.sqlfluff.com](https://docs.sqlfluff.com) and the source can be found
