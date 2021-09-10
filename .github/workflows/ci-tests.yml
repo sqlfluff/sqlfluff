@@ -16,15 +16,14 @@ on:
     # 2am each night
     - cron: '* 2 * * *'
   pull_request:
-    paths-ignore:
-      - '**.png'
-      - '**.svg'
-      - '**.md'
-      - '**.rst'
+
 jobs:
   linting:
     runs-on: ubuntu-latest
-    name: linting tests
+    strategy:
+      matrix:
+        jobs: [ 'linting', 'doclinting' ]
+    name: ${{ matrix.jobs }} tests
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python
@@ -36,7 +35,7 @@ jobs:
         pip install tox
     - name: Run the tests
       run: |
-        tox -e linting
+        tox -e ${{ matrix.jobs }}
   python-version-tests:
     runs-on: ubuntu-latest
     strategy:
