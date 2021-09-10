@@ -19,7 +19,7 @@ Many thanks to all the [contributors](https://github.com/sqlfluff/sqlfluff/graph
 
 ### Complete list of changes
 
-* Simplify rule L030 and fix recursion ([#1376](https://github.com/sqlfluff/sqlfluff/pull/1376)) ([@tunetheweb](https://github.com/tunetheweb)
+* Simplify rule L030 and fix recursion bug ([#1376](https://github.com/sqlfluff/sqlfluff/pull/1376)) ([@tunetheweb](https://github.com/tunetheweb)
 * Move from CircleCI to GitHub Actions for Continuous Integration ([#1361](https://github.com/sqlfluff/sqlfluff/pull/1361)) ([@tunetheweb](https://github.com/tunetheweb)
 * Postgres enhance create index ([#1375](https://github.com/sqlfluff/sqlfluff/pull/1375)) ([@WittierDinosaur](https://github.com/WittierDinosaur)
 * Initial support for Transact-SQL (T-SQL) dialect ([#1313](https://github.com/sqlfluff/sqlfluff/pull/1313)) ([@ericmuijs](https://github.com/ericmuijs)
