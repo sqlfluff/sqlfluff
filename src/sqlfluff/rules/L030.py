@@ -2,7 +2,6 @@
 
 from typing import List, Tuple
 
-from sqlfluff.core.rules.base import LintFix
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
