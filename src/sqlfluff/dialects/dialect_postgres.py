@@ -1403,41 +1403,21 @@ class AnalyzeStatementSegment(BaseSegment):
     As specified in https://www.postgresql.org/docs/13/sql-analyze.html
     """
 
-    type = 'analyze_statement'
+    type = "analyze_statement"
 
     _option = Sequence(
-        OneOf(
-            "VERBOSE",
-            "SKIP_LOCKED"
-        ),
-        Ref("BooleanLiteralGrammar", optional=True)
+        OneOf("VERBOSE", "SKIP_LOCKED"), Ref("BooleanLiteralGrammar", optional=True)
     )
 
     _tables_and_columns = Sequence(
         Ref("TableReferenceSegment"),
-        Bracketed(
-            Delimited(
-                Ref("ColumnReferenceSegment")
-            ),
-            optional=True
-        )
+        Bracketed(Delimited(Ref("ColumnReferenceSegment")), optional=True),
     )
 
     match_grammar = Sequence(
         OneOf("ANALYZE", "ANALYSE"),
-        OneOf(
-            Bracketed(
-                Delimited(
-                    _option
-                )
-            ),
-            "VERBOSE",
-            optional=True
-        ),
-        Delimited(
-            _tables_and_columns,
-            optional=True
-        )
+        OneOf(Bracketed(Delimited(_option)), "VERBOSE", optional=True),
+        Delimited(_tables_and_columns, optional=True),
     )
 
 
@@ -1452,7 +1432,7 @@ class StatementSegment(BaseSegment):
         insert=[
             Ref("AlterDefaultPrivilegesStatementSegment"),
             Ref("CommentOnStatementSegment"),
-            Ref("AnalyzeStatementSegment")
+            Ref("AnalyzeStatementSegment"),
         ],
     )
 
