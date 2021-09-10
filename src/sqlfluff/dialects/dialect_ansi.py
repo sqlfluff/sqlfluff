@@ -529,7 +529,7 @@ class DatatypeSegment(BaseSegment):
             OneOf(
                 Sequence(OneOf("WITH", "WITHOUT"), "TIME", "ZONE"),
                 Sequence("AT", "TIME", "ZONE", Ref("LiteralGrammar")),
-                optional=True
+                optional=True,
             ),
         ),
         Sequence(
