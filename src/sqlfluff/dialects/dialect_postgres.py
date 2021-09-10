@@ -6,6 +6,7 @@ from sqlfluff.core.parser import (
     Ref,
     Sequence,
     Bracketed,
+    OptionallyBracketed,
     Anything,
     BaseSegment,
     Delimited,
@@ -1300,6 +1301,97 @@ class CommentOnStatementSegment(BaseSegment):
                 ),
             ),
             Sequence("IS", OneOf(Ref("QuotedLiteralSegment"), "NULL")),
+        ),
+    )
+
+
+@postgres_dialect.segment(replace=True)
+class CreateIndexStatementSegment(BaseSegment):
+    """A `CREATE INDEX` statement.
+
+    As specified in https://www.postgresql.org/docs/13/sql-createindex.html
+    """
+
+    type = "create_index_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        Ref.keyword("UNIQUE", optional=True),
+        Ref("OrReplaceGrammar", optional=True),
+        "INDEX",
+        Ref.keyword("CONCURRENTLY", optional=True),
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("IndexReferenceSegment", optional=True),
+        "ON",
+        Ref.keyword("ONLY", optional=True),
+        Ref("TableReferenceSegment"),
+        OneOf(
+            Sequence("USING", Ref("FunctionSegment"), optional=True),
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        OneOf(
+                            Ref("ColumnReferenceSegment"),
+                            OptionallyBracketed(Ref("FunctionSegment")),
+                            Bracketed(Ref("ExpressionSegment")),
+                        ),
+                        AnyNumberOf(
+                            Sequence(
+                                "COLLATE",
+                                OneOf(
+                                    Ref("LiteralGrammar"),
+                                    Ref("QuotedIdentifierSegment"),
+                                ),
+                            ),
+                            Sequence(
+                                Ref("ParameterNameSegment"),
+                                Bracketed(
+                                    Delimited(
+                                        Sequence(
+                                            Ref("ParameterNameSegment"),
+                                            Ref("EqualsSegment"),
+                                            OneOf(
+                                                Ref("LiteralGrammar"),
+                                                Ref("QuotedIdentifierSegment"),
+                                            ),
+                                        ),
+                                        delimiter=Ref("CommaSegment"),
+                                    ),
+                                ),
+                            ),
+                            OneOf("ASC", "DESC"),
+                            OneOf(
+                                Sequence("NULLS", "FIRST"), Sequence("NULLS", "LAST")
+                            ),
+                        ),
+                    ),
+                    delimiter=Ref("CommaSegment"),
+                )
+            ),
+        ),
+        AnyNumberOf(
+            Sequence(
+                "INCLUDE",
+                Bracketed(
+                    Delimited(
+                        Ref("ColumnReferenceSegment"), delimiter=Ref("CommaSegment")
+                    )
+                ),
+            ),
+            Sequence(
+                "WITH",
+                Bracketed(
+                    Delimited(
+                        Sequence(
+                            Ref("ParameterNameSegment"),
+                            Ref("EqualsSegment"),
+                            Ref("LiteralGrammar"),
+                        ),
+                        delimiter=Ref("CommaSegment"),
+                    )
+                ),
+            ),
+            Sequence("TABLESPACE", Ref("TableReferenceSegment")),
+            Sequence("WHERE", Ref("ExpressionSegment")),
         ),
     )
 
