@@ -96,6 +96,7 @@ jobs:
         python-version: '3.9'
     - name: Install dependencies
       run: |
+        pip install -e .
         pip install tox
     - name: Test the example files
       run: |
