@@ -584,11 +584,7 @@ class AlterTableActionSegment(BaseSegment):
             Ref("ColumnReferenceSegment"),
             Ref("DatatypeSegment"),
             Sequence("COLLATE", Ref("QuotedLiteralSegment"), optional=True),
-<<<<<<< HEAD
-            AnyNumberOf(Ref("ColumnConstraintSegment")),
-=======
-            AnyNumberOf(Ref("ColumnConstraintSegment", optional=True)),
->>>>>>> c7cf0122... Enhanced the postgres grammar for create table
+            AnyNumberOf(Ref("ColumnConstraintSegment"))
         ),
         Sequence(
             "DROP",
