@@ -6,6 +6,7 @@ from sqlfluff.core.parser import (
     Ref,
     Sequence,
     Bracketed,
+    OptionallyBracketed,
     Anything,
     BaseSegment,
     Delimited,
@@ -584,7 +585,11 @@ class AlterTableActionSegment(BaseSegment):
             Ref("ColumnReferenceSegment"),
             Ref("DatatypeSegment"),
             Sequence("COLLATE", Ref("QuotedLiteralSegment"), optional=True),
+<<<<<<< HEAD
             AnyNumberOf(Ref("ColumnConstraintSegment")),
+=======
+            AnyNumberOf(Ref("ColumnConstraintSegment", optional=True)),
+>>>>>>> c7cf0122... Enhanced the postgres grammar for create table
         ),
         Sequence(
             "DROP",
