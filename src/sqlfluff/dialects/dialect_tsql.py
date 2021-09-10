@@ -99,7 +99,6 @@ class ObjectReferenceSegment(BaseSegment):
 
     type = "object_reference"
     # match grammar (don't allow whitespace)
-
     match_grammar: Matchable = Delimited(
         Ref("SingleIdentifierGrammar"),
         delimiter=OneOf(
