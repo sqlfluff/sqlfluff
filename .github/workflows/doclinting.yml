@@ -4,7 +4,7 @@
 #
 # Based on our old CircleCI config
 #
-# We pull Doc Linting out separatelty so it can be run independently
+# We pull Doc Linting out separately so it can be run independently
 #
 name: "Run CI Tests"
 on:
