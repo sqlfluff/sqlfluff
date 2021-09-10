@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0b2a9289df38c731b580419db721d00c138de7229f6df69022b79d5e528f1dc4
+_hash: a8771b35e9845e2eaaca48ccd655d8fbd786e6a1cc1095b9d5e430e4c9ecec75
 file:
 - statement:
     create_table_statement:
@@ -243,7 +243,7 @@ file:
       - column_reference:
           identifier: modtime
       - data_type:
-          data_type_identifier: timestamp
+          keyword: timestamp
       - column_constraint:
           keyword: DEFAULT
           bare_function: current_timestamp
@@ -1039,7 +1039,7 @@ file:
       - column_reference:
           identifier: event_time
       - data_type:
-          data_type_identifier: TIMESTAMP
+          keyword: TIMESTAMP
       - comma: ','
       - column_reference:
           identifier: user_email
@@ -1164,7 +1164,7 @@ file:
       - column_reference:
           identifier: date_created
       - data_type:
-          data_type_identifier: timestamp
+          keyword: timestamp
       - column_constraint:
         - keyword: NOT
         - keyword: 'NULL'
@@ -1175,7 +1175,7 @@ file:
       - column_reference:
           identifier: date_updated
       - data_type:
-          data_type_identifier: timestamp
+          keyword: timestamp
       - column_constraint:
         - keyword: NOT
         - keyword: 'NULL'

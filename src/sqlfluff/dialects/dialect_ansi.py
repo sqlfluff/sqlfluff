@@ -527,8 +527,9 @@ class DatatypeSegment(BaseSegment):
             OneOf("time", "timestamp"),
             Bracketed(Ref("NumericLiteralSegment"), optional=True),
             OneOf(
-                Sequence(OneOf("WITH", "WITHOUT"), "TIME", "ZONE", optional=True),
-                Sequence("AT", "TIME", "ZONE", Ref("LiteralGrammar"), optional=True),
+                Sequence(OneOf("WITH", "WITHOUT"), "TIME", "ZONE"),
+                Sequence("AT", "TIME", "ZONE", Ref("LiteralGrammar")),
+                optional=True
             ),
         ),
         Sequence(
