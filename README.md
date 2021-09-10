@@ -10,7 +10,7 @@
 
 [![codecov](https://img.shields.io/codecov/c/gh/sqlfluff/sqlfluff.svg?style=flat-square&logo=Codecov)](https://codecov.io/gh/sqlfluff/sqlfluff)
 [![Requirements Status](https://img.shields.io/requires/github/sqlfluff/sqlfluff.svg?style=flat-square)](https://requires.io/github/sqlfluff/sqlfluff/requirements/?branch=main)
-[![CircleCI](https://img.shields.io/circleci/build/gh/sqlfluff/sqlfluff/main?style=flat-square&logo=CircleCI)](https://circleci.com/gh/sqlfluff/sqlfluff/tree/main)
+[![CI Tests](https://github.com/sqlfluff/sqlfluff/workflows/CI%20Tests/badge.svg)](https://github.com/HTTPArchive/almanac.httparchive.org/actions?query=workflow%3A%22CI+Tests%22)
 [![ReadTheDocs](https://img.shields.io/readthedocs/sqlfluff?style=flat-square&logo=Read%20the%20Docs)](https://sqlfluff.readthedocs.io)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg?style=flat-square)](https://github.com/psf/black)
 

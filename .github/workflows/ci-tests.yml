@@ -9,7 +9,7 @@
 # It will run on any pull request, except non-code changes
 # (images, markdown files, )
 #
-name: "Run CI Tests"
+name: CI Tests
 on:
   workflow_dispatch:
   schedule:
