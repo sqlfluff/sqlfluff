@@ -33,6 +33,7 @@ from sqlfluff.core import (
     Linter,
     FluffConfig,
     SQLLintError,
+    SQLTemplaterError,
     dialect_selector,
     dialect_readout,
     TimingSummary,
@@ -476,6 +477,16 @@ def fix(force, paths, processes, bench=False, fixed_suffix="", logger=None, **kw
     if fixing_stdin:
         stdin = sys.stdin.read()
         result = lnt.lint_string_wrapped(stdin, fname="stdin", fix=True)
+        # exit early if there is a templater error.
+        if any((isinstance(i, SQLTemplaterError) for i in result.get_violations())):
+            click.echo(
+                colorize(
+                    "The stdin input contains template variables that could not be "
+                    + "parsed. Aborting fix.",
+                    "red",
+                )
+            )
+            sys.exit(1)
         stdout = result.paths[0].files[0].fix_string()[0]
         click.echo(stdout, nl=False)
         sys.exit()

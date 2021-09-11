@@ -406,6 +406,16 @@ def test__cli__command_fix_stdin_safety():
     assert result.output.strip() == perfect_sql
 
 
+def test__cli__command_fix_stdin_template_error():
+    """Check that the CLI fails nicely if fixing a templated stdin."""
+    sql = "create table {{ params.something }}.t (a int)"
+
+    with pytest.raises(SystemExit) as exc_info:
+        invoke_assert_code(args=[fix, ("-",)], cli_input=sql)
+
+    assert exc_info.value.args[0] == 1
+
+
 @pytest.mark.parametrize(
     "rule,fname,prompt,exit_code",
     [
