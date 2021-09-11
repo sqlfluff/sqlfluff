@@ -1,0 +1,89 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 2c38443f8e096d11ada45768d4d537067f1c5857e6ee2e06dfd0fb5b444fb96e
+file:
+- statement:
+    create_sequence_statement:
+    - keyword: CREATE
+    - keyword: SEQUENCE
+    - parameter: foo
+- statement_terminator: ;
+- statement:
+    create_sequence_statement:
+    - keyword: CREATE
+    - keyword: TEMP
+    - keyword: SEQUENCE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - parameter: foo
+- statement_terminator: ;
+- statement:
+    create_sequence_statement:
+    - keyword: CREATE
+    - keyword: TEMPORARY
+    - keyword: SEQUENCE
+    - parameter: foo
+- statement_terminator: ;
+- statement:
+    create_sequence_statement:
+    - keyword: CREATE
+    - keyword: SEQUENCE
+    - parameter: foo
+    - keyword: AS
+    - data_type:
+        data_type_identifier: integer
+- statement_terminator: ;
+- statement:
+    create_sequence_statement:
+    - keyword: CREATE
+    - keyword: SEQUENCE
+    - parameter: foo
+    - keyword: INCREMENT
+    - keyword: BY
+    - literal: '3'
+- statement_terminator: ;
+- statement:
+    create_sequence_statement:
+    - keyword: CREATE
+    - keyword: SEQUENCE
+    - parameter: foo
+    - keyword: MINVALUE
+    - literal: '5'
+    - keyword: 'NO'
+    - keyword: MAXVALUE
+- statement_terminator: ;
+- statement:
+    create_sequence_statement:
+    - keyword: CREATE
+    - keyword: SEQUENCE
+    - parameter: foo
+    - keyword: 'NO'
+    - keyword: MINVALUE
+    - keyword: MAXVALUE
+    - literal: '12'
+- statement_terminator: ;
+- statement:
+    create_sequence_statement:
+    - keyword: CREATE
+    - keyword: SEQUENCE
+    - parameter: foo
+    - keyword: INCREMENT
+    - literal: '5'
+    - keyword: START
+    - keyword: WITH
+    - literal: '8'
+    - keyword: CACHE
+    - literal: '4'
+- statement_terminator: ;
+- statement:
+    create_sequence_statement:
+    - keyword: CREATE
+    - keyword: SEQUENCE
+    - parameter: foo
+    - keyword: 'NO'
+    - keyword: CYCLE
+- statement_terminator: ;

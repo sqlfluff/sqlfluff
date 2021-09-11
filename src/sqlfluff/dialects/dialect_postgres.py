@@ -1396,6 +1396,25 @@ class CreateIndexStatementSegment(BaseSegment):
     )
 
 
+@postgres_dialect.segment(replace=True)
+class CreateSequenceDialectOptionsSegment(BaseSegment):
+    """Dialect-specific options for create sequence statement.
+
+    As specified in https://www.postgresql.org/docs/13/sql-createsequence.html
+    """
+
+    type = "create_sequence_dialect_options_segment"
+
+    match_grammar = Sequence(
+        "OWNED",
+        "BY",
+        OneOf(
+            "NONE",
+            Ref("ColumnReferenceSegment")
+        )
+    )
+
+
 # Adding PostgreSQL specific statements
 @postgres_dialect.segment(replace=True)
 class StatementSegment(BaseSegment):

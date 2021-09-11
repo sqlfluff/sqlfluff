@@ -2858,6 +2858,7 @@ class StatementSegment(BaseSegment):
         Ref("DescribeStatementSegment"),
         Ref("UseStatementSegment"),
         Ref("ExplainStatementSegment"),
+        Ref("CreateSequenceStatementSegment")
     )
 
     def get_table_references(self):
@@ -2951,4 +2952,38 @@ class ExplainStatementSegment(BaseSegment):
     parse_grammar = Sequence(
         "EXPLAIN",
         explainable_stmt,
+    )
+
+
+# hookpoint for dialect options
+ansi_dialect.add(CreateSequenceDialectOptionsSegment=Nothing())
+
+
+@ansi_dialect.segment()
+class CreateSequenceStatementSegment(BaseSegment):
+
+    type = 'create_sequence_statement'
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("TemporaryGrammar", optional=True),
+        "SEQUENCE",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("ParameterNameSegment"),
+        AnyNumberOf(
+            Sequence("AS", Ref("DatatypeSegment")),
+            Sequence("INCREMENT", Ref.keyword("BY", optional=True), Ref("NumericLiteralSegment")),
+            OneOf(
+                Sequence("MINVALUE", Ref("NumericLiteralSegment")),
+                Sequence("NO", "MINVALUE")
+            ),
+            OneOf(
+                Sequence("MAXVALUE", Ref("NumericLiteralSegment")),
+                Sequence("NO", "MAXVALUE")
+            ),
+            Sequence("START", Ref.keyword("WITH", optional=True), Ref("NumericLiteralSegment")),
+            Sequence("CACHE", Ref("NumericLiteralSegment")),
+            Sequence(Ref.keyword("NO", optional=True), "CYCLE"),
+            Ref("CreateSequenceDialectOptionsSegment")
+        )
     )
