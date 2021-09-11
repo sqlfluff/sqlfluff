@@ -2955,8 +2955,20 @@ class ExplainStatementSegment(BaseSegment):
     )
 
 
-# hookpoint for dialect options
-ansi_dialect.add(CreateSequenceDialectOptionsSegment=Nothing())
+@ansi_dialect.segment()
+class CreateSequenceDialectOptionsSegment(BaseSegment):
+    """Options that aren't common to all dialects.
+
+    Can be overwritten in other dialects.
+    For this I've used options that appear in
+    https://docs.oracle.com/cd/B19306_01/server.102/b14200/statements_6015.htm#i2067093
+    but not in
+    https://www.postgresql.org/docs/13/sql-createsequence.html
+    """
+
+    type = "create_sequence_dialect_options_segment"
+
+    match_grammar = OneOf("ORDER", Sequence("NO", "ORDER"))
 
 
 @ansi_dialect.segment()
