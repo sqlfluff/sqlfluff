@@ -66,8 +66,8 @@ class Rule_L034(BaseRule):
 
         # Ignore select clauses which belong to a set expression, which are most commonly a union.
         if segment.is_type("select_clause") and not parent_stack[-2].is_type(
-            "set_expression"
-        ):
+            "insert_statement", "set_expression"
+        ) and not parent_stack[-3].is_type('create_table_statement'):
             select_clause_segment = segment
             select_target_elements = segment.get_children("select_clause_element")
             if not select_target_elements:
