@@ -3,98 +3,91 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 43dcc7d4aaaa5a3a5c5430e239cb1643403a90f52e4b7dc016d43388129d4d22
+_hash: 7146aabc682e2da203a90f06d8de4ff1ff5bd2948cf241058bbaedb95b0fc665
 file:
 - statement:
     create_sequence_statement:
     - keyword: CREATE
     - keyword: SEQUENCE
-    - parameter: foo
-- statement_terminator: ;
-- statement:
-    create_sequence_statement:
-    - keyword: CREATE
-    - keyword: TEMP
-    - keyword: SEQUENCE
-    - keyword: IF
-    - keyword: NOT
-    - keyword: EXISTS
-    - parameter: foo
-- statement_terminator: ;
-- statement:
-    create_sequence_statement:
-    - keyword: CREATE
-    - keyword: TEMPORARY
-    - keyword: SEQUENCE
-    - parameter: foo
+    - sequence_reference:
+        identifier: foo
 - statement_terminator: ;
 - statement:
     create_sequence_statement:
     - keyword: CREATE
     - keyword: SEQUENCE
-    - parameter: foo
-    - keyword: AS
-    - data_type:
-        data_type_identifier: integer
+    - sequence_reference:
+        identifier: foo
+    - create_sequence_options_segment:
+      - keyword: INCREMENT
+      - keyword: BY
+      - literal: '3'
 - statement_terminator: ;
 - statement:
     create_sequence_statement:
     - keyword: CREATE
     - keyword: SEQUENCE
-    - parameter: foo
-    - keyword: INCREMENT
-    - keyword: BY
-    - literal: '3'
-- statement_terminator: ;
-- statement:
-    create_sequence_statement:
-    - keyword: CREATE
-    - keyword: SEQUENCE
-    - parameter: foo
-    - keyword: MINVALUE
-    - literal: '5'
-    - keyword: 'NO'
-    - keyword: MAXVALUE
-- statement_terminator: ;
-- statement:
-    create_sequence_statement:
-    - keyword: CREATE
-    - keyword: SEQUENCE
-    - parameter: foo
-    - keyword: 'NO'
-    - keyword: MINVALUE
-    - keyword: MAXVALUE
-    - literal: '12'
-- statement_terminator: ;
-- statement:
-    create_sequence_statement:
-    - keyword: CREATE
-    - keyword: SEQUENCE
-    - parameter: foo
-    - keyword: INCREMENT
-    - literal: '5'
-    - keyword: START
-    - keyword: WITH
-    - literal: '8'
-    - keyword: CACHE
-    - literal: '4'
-- statement_terminator: ;
-- statement:
-    create_sequence_statement:
-    - keyword: CREATE
-    - keyword: SEQUENCE
-    - parameter: foo
-    - keyword: 'NO'
-    - keyword: CYCLE
-    - create_sequence_dialect_options_segment:
-        keyword: ORDER
-- statement_terminator: ;
-- statement:
-    create_sequence_statement:
-    - keyword: CREATE
-    - keyword: SEQUENCE
-    - parameter: foo
-    - create_sequence_dialect_options_segment:
+    - sequence_reference:
+        identifier: foo
+    - create_sequence_options_segment:
+      - keyword: MINVALUE
+      - literal: '5'
       - keyword: 'NO'
+      - keyword: MAXVALUE
+- statement_terminator: ;
+- statement:
+    create_sequence_statement:
+    - keyword: CREATE
+    - keyword: SEQUENCE
+    - sequence_reference:
+        identifier: foo
+    - create_sequence_options_segment:
+      - keyword: 'NO'
+      - keyword: MINVALUE
+      - keyword: MAXVALUE
+      - literal: '12'
+- statement_terminator: ;
+- statement:
+    create_sequence_statement:
+    - keyword: CREATE
+    - keyword: SEQUENCE
+    - sequence_reference:
+        identifier: foo
+    - create_sequence_options_segment:
+      - keyword: INCREMENT
+      - keyword: BY
+      - literal: '5'
+      - keyword: START
+      - keyword: WITH
+      - literal: '8'
+      - keyword: CACHE
+      - literal: '4'
+- statement_terminator: ;
+- statement:
+    create_sequence_statement:
+    - keyword: CREATE
+    - keyword: SEQUENCE
+    - sequence_reference:
+        identifier: foo
+    - create_sequence_options_segment:
+        keyword: NOCACHE
+- statement_terminator: ;
+- statement:
+    create_sequence_statement:
+    - keyword: CREATE
+    - keyword: SEQUENCE
+    - sequence_reference:
+        identifier: foo
+    - create_sequence_options_segment:
+      - keyword: NOCYCLE
       - keyword: ORDER
+- statement_terminator: ;
+- statement:
+    create_sequence_statement:
+    - keyword: CREATE
+    - keyword: SEQUENCE
+    - sequence_reference:
+        identifier: foo
+    - create_sequence_options_segment:
+        keyword: NOORDER
 - statement_terminator: ;

@@ -1,0 +1,61 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 84c63d9b996bd83ba562341c3237d84fa1af7311ef9197fc7fe6a52e6fbe81b3
+file:
+- statement:
+    alter_sequence_statement:
+    - keyword: ALTER
+    - keyword: SEQUENCE
+    - sequence_reference:
+        identifier: foo
+    - alter_sequence_options_segment:
+      - keyword: INCREMENT
+      - keyword: BY
+      - literal: '1'
+- statement_terminator: ;
+- statement:
+    alter_sequence_statement:
+    - keyword: ALTER
+    - keyword: SEQUENCE
+    - sequence_reference:
+        identifier: foo
+    - alter_sequence_options_segment:
+      - keyword: MAXVALUE
+      - literal: '7'
+      - keyword: 'NO'
+      - keyword: minvalue
+- statement_terminator: ;
+- statement:
+    alter_sequence_statement:
+    - keyword: ALTER
+    - keyword: SEQUENCE
+    - sequence_reference:
+        identifier: foo
+    - alter_sequence_options_segment:
+      - keyword: NOCACHE
+      - keyword: CYCLE
+- statement_terminator: ;
+- statement:
+    alter_sequence_statement:
+    - keyword: ALTER
+    - keyword: SEQUENCE
+    - sequence_reference:
+        identifier: foo
+    - alter_sequence_options_segment:
+      - keyword: NOORDER
+      - keyword: CACHE
+      - literal: '5'
+      - keyword: NOCYCLE
+- statement_terminator: ;
+- statement:
+    alter_sequence_statement:
+    - keyword: ALTER
+    - keyword: SEQUENCE
+    - sequence_reference:
+        identifier: foo
+    - alter_sequence_options_segment:
+        keyword: ORDER
+- statement_terminator: ;

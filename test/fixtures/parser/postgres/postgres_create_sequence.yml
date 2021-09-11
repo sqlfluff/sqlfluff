@@ -3,20 +3,93 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 11cf2da04baa096f5c520f98cb293a1fd3e97af203422fd3fea52e7846afbf50
+_hash: a0af8e9aee3bbad9d5b253513a57477172ab408c2b3b58a4b4776cf176efa4cd
 file:
 - statement:
     create_sequence_statement:
     - keyword: CREATE
     - keyword: SEQUENCE
-    - parameter: foo
+    - sequence_reference:
+        identifier: foo
 - statement_terminator: ;
 - statement:
     create_sequence_statement:
     - keyword: CREATE
     - keyword: SEQUENCE
-    - parameter: foo
-    - create_sequence_dialect_options_segment:
+    - sequence_reference:
+        identifier: foo
+    - create_sequence_options_segment:
+        keyword: AS
+        data_type:
+          data_type_identifier: integer
+- statement_terminator: ;
+- statement:
+    create_sequence_statement:
+    - keyword: CREATE
+    - keyword: SEQUENCE
+    - sequence_reference:
+        identifier: foo
+    - create_sequence_options_segment:
+      - keyword: INCREMENT
+      - keyword: BY
+      - literal: '3'
+- statement_terminator: ;
+- statement:
+    create_sequence_statement:
+    - keyword: CREATE
+    - keyword: SEQUENCE
+    - sequence_reference:
+        identifier: foo
+    - create_sequence_options_segment:
+      - keyword: MINVALUE
+      - literal: '5'
+      - keyword: 'NO'
+      - keyword: MAXVALUE
+- statement_terminator: ;
+- statement:
+    create_sequence_statement:
+    - keyword: CREATE
+    - keyword: SEQUENCE
+    - sequence_reference:
+        identifier: foo
+    - create_sequence_options_segment:
+      - keyword: 'NO'
+      - keyword: MINVALUE
+      - keyword: MAXVALUE
+      - literal: '12'
+- statement_terminator: ;
+- statement:
+    create_sequence_statement:
+    - keyword: CREATE
+    - keyword: SEQUENCE
+    - sequence_reference:
+        identifier: foo
+    - create_sequence_options_segment:
+      - keyword: INCREMENT
+      - literal: '5'
+      - keyword: START
+      - keyword: WITH
+      - literal: '8'
+      - keyword: CACHE
+      - literal: '4'
+- statement_terminator: ;
+- statement:
+    create_sequence_statement:
+    - keyword: CREATE
+    - keyword: SEQUENCE
+    - sequence_reference:
+        identifier: foo
+    - create_sequence_options_segment:
+      - keyword: 'NO'
+      - keyword: CYCLE
+- statement_terminator: ;
+- statement:
+    create_sequence_statement:
+    - keyword: CREATE
+    - keyword: SEQUENCE
+    - sequence_reference:
+        identifier: foo
+    - create_sequence_options_segment:
       - keyword: OWNED
       - keyword: BY
       - keyword: NONE
@@ -25,12 +98,32 @@ file:
     create_sequence_statement:
     - keyword: CREATE
     - keyword: SEQUENCE
-    - parameter: foo
-    - create_sequence_dialect_options_segment:
+    - sequence_reference:
+        identifier: foo
+    - create_sequence_options_segment:
       - keyword: OWNED
       - keyword: BY
       - column_reference:
         - identifier: my_table
         - dot: .
         - identifier: my_column
+- statement_terminator: ;
+- statement:
+    create_sequence_statement:
+    - keyword: CREATE
+    - keyword: TEMP
+    - keyword: SEQUENCE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - sequence_reference:
+        identifier: foo
+- statement_terminator: ;
+- statement:
+    create_sequence_statement:
+    - keyword: CREATE
+    - keyword: TEMPORARY
+    - keyword: SEQUENCE
+    - sequence_reference:
+        identifier: foo
 - statement_terminator: ;

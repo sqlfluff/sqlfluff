@@ -1,0 +1,3 @@
+DROP SEQUENCE foo;
+
+DROP SEQUENCE foo.foo;
