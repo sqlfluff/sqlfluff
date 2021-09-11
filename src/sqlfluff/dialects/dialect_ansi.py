@@ -637,7 +637,7 @@ class ObjectReferenceSegment(BaseSegment):
         SCHEMA = 3
 
     def extract_possible_references(
-            self, level: Union[ObjectReferenceLevel, int]
+        self, level: Union[ObjectReferenceLevel, int]
     ) -> List[ObjectReferencePart]:
         """Extract possible references of a given level.
 
@@ -2867,7 +2867,7 @@ class StatementSegment(BaseSegment):
         Ref("ExplainStatementSegment"),
         Ref("CreateSequenceStatementSegment"),
         Ref("AlterSequenceStatementSegment"),
-        Ref("DropSequenceStatementSegment")
+        Ref("DropSequenceStatementSegment"),
     )
 
     def get_table_references(self):
@@ -2975,30 +2975,32 @@ class CreateSequenceOptionsSegment(BaseSegment):
 
     match_grammar = OneOf(
         Sequence("INCREMENT", "BY", Ref("NumericLiteralSegment")),
-        Sequence("START", Ref.keyword("WITH", optional=True), Ref("NumericLiteralSegment")),
+        Sequence(
+            "START", Ref.keyword("WITH", optional=True), Ref("NumericLiteralSegment")
+        ),
         OneOf(
             Sequence("MINVALUE", Ref("NumericLiteralSegment")),
-            Sequence("NO", "MINVALUE")
+            Sequence("NO", "MINVALUE"),
         ),
         OneOf(
             Sequence("MAXVALUE", Ref("NumericLiteralSegment")),
-            Sequence("NO", "MAXVALUE")
+            Sequence("NO", "MAXVALUE"),
         ),
         OneOf(Sequence("CACHE", Ref("NumericLiteralSegment")), "NOCACHE"),
         OneOf("CYCLE", "NOCYCLE"),
-        OneOf("ORDER", "NOORDER")
+        OneOf("ORDER", "NOORDER"),
     )
 
 
 @ansi_dialect.segment()
 class CreateSequenceStatementSegment(BaseSegment):
-    type = 'create_sequence_statement'
+    type = "create_sequence_statement"
 
     match_grammar = Sequence(
         "CREATE",
         "SEQUENCE",
         Ref("SequenceReferenceSegment"),
-        AnyNumberOf(Ref("CreateSequenceOptionsSegment"), optional=True)
+        AnyNumberOf(Ref("CreateSequenceOptionsSegment"), optional=True),
     )
 
 
@@ -3015,15 +3017,15 @@ class AlterSequenceOptionsSegment(BaseSegment):
         Sequence("INCREMENT", "BY", Ref("NumericLiteralSegment")),
         OneOf(
             Sequence("MINVALUE", Ref("NumericLiteralSegment")),
-            Sequence("NO", "MINVALUE")
+            Sequence("NO", "MINVALUE"),
         ),
         OneOf(
             Sequence("MAXVALUE", Ref("NumericLiteralSegment")),
-            Sequence("NO", "MAXVALUE")
+            Sequence("NO", "MAXVALUE"),
         ),
         OneOf(Sequence("CACHE", Ref("NumericLiteralSegment")), "NOCACHE"),
         OneOf("CYCLE", "NOCYCLE"),
-        OneOf("ORDER", "NOORDER")
+        OneOf("ORDER", "NOORDER"),
     )
 
 
@@ -3034,13 +3036,13 @@ class AlterSequenceStatementSegment(BaseSegment):
     As specified in https://docs.oracle.com/cd/B19306_01/server.102/b14200/statements_2011.htm
     """
 
-    type = 'alter_sequence_statement'
+    type = "alter_sequence_statement"
 
     match_grammar = Sequence(
         "ALTER",
         "SEQUENCE",
         Ref("SequenceReferenceSegment"),
-        AnyNumberOf(Ref("AlterSequenceOptionsSegment"))
+        AnyNumberOf(Ref("AlterSequenceOptionsSegment")),
     )
 
 
@@ -3053,8 +3055,4 @@ class DropSequenceStatementSegment(BaseSegment):
 
     type = "drop_sequence_statement"
 
-    match_grammar = Sequence(
-        "DROP",
-        "SEQUENCE",
-        Ref("SequenceReferenceSegment")
-    )
+    match_grammar = Sequence("DROP", "SEQUENCE", Ref("SequenceReferenceSegment"))

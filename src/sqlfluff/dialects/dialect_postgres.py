@@ -577,7 +577,7 @@ class AlterTableActionSegment(BaseSegment):
     Matches the definition of action in https://www.postgresql.org/docs/13/sql-altertable.html
     """
 
-    type = 'alter_table_action_segment'
+    type = "alter_table_action_segment"
 
     match_grammar = OneOf(
         Sequence(
@@ -618,7 +618,9 @@ class AlterTableActionSegment(BaseSegment):
                     OneOf("ALWAYS", Sequence("BY", "DEFAULT")),
                     "AS",
                     "IDENTITY",
-                    Bracketed(AnyNumberOf(Ref("AlterSequenceOptionsSegment")), optional=True)
+                    Bracketed(
+                        AnyNumberOf(Ref("AlterSequenceOptionsSegment")), optional=True
+                    ),
                 ),
                 Sequence(
                     OneOf(
@@ -820,7 +822,9 @@ class ColumnConstraintSegment(BaseSegment):
                 OneOf("ALWAYS", Sequence("BY", "DEFAULT")),
                 "AS",
                 "IDENTITY",
-                Bracketed(AnyNumberOf(Ref("AlterSequenceOptionsSegment")), optional=True)
+                Bracketed(
+                    AnyNumberOf(Ref("AlterSequenceOptionsSegment")), optional=True
+                ),
             ),
             "UNIQUE",
             Ref("PrimaryKeyGrammar"),
@@ -1409,27 +1413,23 @@ class CreateSequenceOptionsSegment(BaseSegment):
 
     match_grammar = OneOf(
         Sequence("AS", Ref("DatatypeSegment")),
-        Sequence("INCREMENT", Ref.keyword("BY", optional=True), Ref("NumericLiteralSegment")),
-
+        Sequence(
+            "INCREMENT", Ref.keyword("BY", optional=True), Ref("NumericLiteralSegment")
+        ),
         OneOf(
             Sequence("MINVALUE", Ref("NumericLiteralSegment")),
-            Sequence("NO", "MINVALUE")
+            Sequence("NO", "MINVALUE"),
         ),
         OneOf(
             Sequence("MAXVALUE", Ref("NumericLiteralSegment")),
-            Sequence("NO", "MAXVALUE")
+            Sequence("NO", "MAXVALUE"),
         ),
-        Sequence("START", Ref.keyword("WITH", optional=True), Ref("NumericLiteralSegment")),
+        Sequence(
+            "START", Ref.keyword("WITH", optional=True), Ref("NumericLiteralSegment")
+        ),
         Sequence("CACHE", Ref("NumericLiteralSegment")),
         OneOf("CYCLE", Sequence("NO", "CYCLE")),
-        Sequence(
-            "OWNED",
-            "BY",
-            OneOf(
-                "NONE",
-                Ref("ColumnReferenceSegment")
-            )
-        )
+        Sequence("OWNED", "BY", OneOf("NONE", Ref("ColumnReferenceSegment"))),
     )
 
 
@@ -1440,7 +1440,7 @@ class CreateSequenceStatementSegment(BaseSegment):
     As specified in https://www.postgresql.org/docs/13/sql-createsequence.html
     """
 
-    type = 'create_sequence_statement'
+    type = "create_sequence_statement"
 
     match_grammar = Sequence(
         "CREATE",
@@ -1448,7 +1448,7 @@ class CreateSequenceStatementSegment(BaseSegment):
         "SEQUENCE",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("SequenceReferenceSegment"),
-        AnyNumberOf(Ref("CreateSequenceOptionsSegment"), optional=True)
+        AnyNumberOf(Ref("CreateSequenceOptionsSegment"), optional=True),
     )
 
 
@@ -1462,29 +1462,28 @@ class AlterSequenceOptionsSegment(BaseSegment):
     type = "alter_sequence_options_segment"
 
     match_grammar = OneOf(
-            Sequence("AS", Ref("DatatypeSegment")),
-            Sequence("INCREMENT", Ref.keyword("BY", optional=True), Ref("NumericLiteralSegment")),
-            OneOf(
-                Sequence("MINVALUE", Ref("NumericLiteralSegment")),
-                Sequence("NO", "MINVALUE")
-            ),
-            OneOf(
-                Sequence("MAXVALUE", Ref("NumericLiteralSegment")),
-                Sequence("NO", "MAXVALUE")
-            ),
-            Sequence("START", Ref.keyword("WITH", optional=True), Ref("NumericLiteralSegment")),
-            Sequence("RESTART", Ref.keyword("WITH", optional=True), Ref("NumericLiteralSegment")),
-            Sequence("CACHE", Ref("NumericLiteralSegment")),
-            Sequence(Ref.keyword("NO", optional=True), "CYCLE"),
-            Sequence(
-                "OWNED",
-                "BY",
-                OneOf(
-                    "NONE",
-                    Ref("ColumnReferenceSegment")
-                )
-            )
-        )
+        Sequence("AS", Ref("DatatypeSegment")),
+        Sequence(
+            "INCREMENT", Ref.keyword("BY", optional=True), Ref("NumericLiteralSegment")
+        ),
+        OneOf(
+            Sequence("MINVALUE", Ref("NumericLiteralSegment")),
+            Sequence("NO", "MINVALUE"),
+        ),
+        OneOf(
+            Sequence("MAXVALUE", Ref("NumericLiteralSegment")),
+            Sequence("NO", "MAXVALUE"),
+        ),
+        Sequence(
+            "START", Ref.keyword("WITH", optional=True), Ref("NumericLiteralSegment")
+        ),
+        Sequence(
+            "RESTART", Ref.keyword("WITH", optional=True), Ref("NumericLiteralSegment")
+        ),
+        Sequence("CACHE", Ref("NumericLiteralSegment")),
+        Sequence(Ref.keyword("NO", optional=True), "CYCLE"),
+        Sequence("OWNED", "BY", OneOf("NONE", Ref("ColumnReferenceSegment"))),
+    )
 
 
 @postgres_dialect.segment(replace=True)
@@ -1494,7 +1493,7 @@ class AlterSequenceStatementSegment(BaseSegment):
     As specified in https://www.postgresql.org/docs/13/sql-altersequence.html
     """
 
-    type = 'alter_sequence_statement'
+    type = "alter_sequence_statement"
 
     match_grammar = Sequence(
         "ALTER",
@@ -1506,15 +1505,11 @@ class AlterSequenceStatementSegment(BaseSegment):
             Sequence(
                 "OWNER",
                 "TO",
-                OneOf(
-                    Ref("ParameterNameSegment"),
-                    "CURRENT_USER",
-                    "SESSION_USER"
-                )
+                OneOf(Ref("ParameterNameSegment"), "CURRENT_USER", "SESSION_USER"),
             ),
             Sequence("RENAME", "TO", Ref("SequenceReferenceSegment")),
-            Sequence("SET", "SCHEMA", Ref("SchemaReferenceSegment"))
-        )
+            Sequence("SET", "SCHEMA", Ref("SchemaReferenceSegment")),
+        ),
     )
 
 
@@ -1532,7 +1527,7 @@ class DropSequenceStatementSegment(BaseSegment):
         "SEQUENCE",
         Ref("IfExistsGrammar", optional=True),
         Delimited(Ref("SequenceReferenceSegment")),
-        OneOf("CASCADE", "RESTRICT", optional=True)
+        OneOf("CASCADE", "RESTRICT", optional=True),
     )
 
 
