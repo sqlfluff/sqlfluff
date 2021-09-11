@@ -830,15 +830,13 @@ ansi_dialect.add(
             "IN",
             OneOf(Ref("QuotedLiteralSegment"), Ref("SingleIdentifierGrammar")),
         ),
+        Sequence(OneOf("IGNORE", "RESPECT"), "NULLS"),
     ),
     PostFunctionGrammar=OneOf(
         # Optional OVER suffix for window functions.
-        # This is supported in biquery & postgres (and its derivatives)
+        # This is supported in bigquery & postgres (and its derivatives)
         # and so is included here for now.
-        Sequence(
-            Sequence(OneOf("IGNORE", "RESPECT"), "NULLS", optional=True),
-            Ref("OverClauseSegment"),
-        ),
+        Ref("OverClauseSegment"),
         # Filter clause supported by both Postgres and SQLite
         Ref("FilterClauseGrammar"),
     ),
@@ -947,16 +945,40 @@ class PartitionClauseSegment(BaseSegment):
 
 @ansi_dialect.segment()
 class FrameClauseSegment(BaseSegment):
-    """A frame clause for window functions."""
+    """A frame clause for window functions.
+
+    As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_Window_function_synopsis.html
+    """
 
     type = "frame_clause"
-    match_grammar = StartsWith("ROWS")
-    # TODO: Expand a parse statement here properly to actually
-    # parse rather than assuming that it's good.
-    # parse_grammar = Sequence(
-    #    'ROWS',
-    #    ...
-    # )
+    match_grammar = Sequence(
+        "ROWS",
+        OneOf(
+            OneOf(
+                Sequence("UNBOUNDED", "PRECEDING"),
+                Sequence(Ref("NumericLiteralSegment"), "PRECEDING"),
+                Sequence("CURRENT", "ROW"),
+            ),
+            Sequence(
+                "BETWEEN",
+                OneOf(
+                    Sequence("UNBOUNDED", "PRECEDING"),
+                    Sequence(
+                        Ref("NumericLiteralSegment"), OneOf("PRECEDING", "FOLLOWING")
+                    ),
+                    Sequence("CURRENT", "ROW"),
+                ),
+                "AND",
+                OneOf(
+                    Sequence("UNBOUNDED", "FOLLOWING"),
+                    Sequence(
+                        Ref("NumericLiteralSegment"), OneOf("PRECEDING", "FOLLOWING")
+                    ),
+                    Sequence("CURRENT", "ROW"),
+                ),
+            ),
+        ),
+    )
 
 
 ansi_dialect.add(
@@ -1603,7 +1625,7 @@ class OrderByClauseSegment(BaseSegment):
                 # for now.
                 Sequence("NULLS", OneOf("FIRST", "LAST"), optional=True),
             ),
-            terminator=Ref.keyword("LIMIT"),
+            terminator=OneOf(Ref.keyword("LIMIT"), Ref.keyword("ROWS")),
         ),
         Dedent,
     )
