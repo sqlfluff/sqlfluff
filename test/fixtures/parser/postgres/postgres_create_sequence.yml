@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a0af8e9aee3bbad9d5b253513a57477172ab408c2b3b58a4b4776cf176efa4cd
+_hash: c8de1aeb7d549b33c1eb52090811c4df336d803432f3c5c16e7e35e775a6fdeb
 file:
 - statement:
     create_sequence_statement:
@@ -41,8 +41,9 @@ file:
     - sequence_reference:
         identifier: foo
     - create_sequence_options_segment:
-      - keyword: MINVALUE
-      - literal: '5'
+        keyword: MINVALUE
+        literal: '5'
+    - create_sequence_options_segment:
       - keyword: 'NO'
       - keyword: MAXVALUE
 - statement_terminator: ;
@@ -55,8 +56,9 @@ file:
     - create_sequence_options_segment:
       - keyword: 'NO'
       - keyword: MINVALUE
-      - keyword: MAXVALUE
-      - literal: '12'
+    - create_sequence_options_segment:
+        keyword: MAXVALUE
+        literal: '12'
 - statement_terminator: ;
 - statement:
     create_sequence_statement:
@@ -65,13 +67,15 @@ file:
     - sequence_reference:
         identifier: foo
     - create_sequence_options_segment:
-      - keyword: INCREMENT
-      - literal: '5'
+        keyword: INCREMENT
+        literal: '5'
+    - create_sequence_options_segment:
       - keyword: START
       - keyword: WITH
       - literal: '8'
-      - keyword: CACHE
-      - literal: '4'
+    - create_sequence_options_segment:
+        keyword: CACHE
+        literal: '4'
 - statement_terminator: ;
 - statement:
     create_sequence_statement:

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 84c63d9b996bd83ba562341c3237d84fa1af7311ef9197fc7fe6a52e6fbe81b3
+_hash: 1128b45a714b35f69abd1eb988090d43b7b148919fc7abbcaa2b71a6b1a7581d
 file:
 - statement:
     alter_sequence_statement:
@@ -23,8 +23,9 @@ file:
     - sequence_reference:
         identifier: foo
     - alter_sequence_options_segment:
-      - keyword: MAXVALUE
-      - literal: '7'
+        keyword: MAXVALUE
+        literal: '7'
+    - alter_sequence_options_segment:
       - keyword: 'NO'
       - keyword: minvalue
 - statement_terminator: ;
@@ -35,8 +36,9 @@ file:
     - sequence_reference:
         identifier: foo
     - alter_sequence_options_segment:
-      - keyword: NOCACHE
-      - keyword: CYCLE
+        keyword: NOCACHE
+    - alter_sequence_options_segment:
+        keyword: CYCLE
 - statement_terminator: ;
 - statement:
     alter_sequence_statement:
@@ -45,10 +47,12 @@ file:
     - sequence_reference:
         identifier: foo
     - alter_sequence_options_segment:
-      - keyword: NOORDER
-      - keyword: CACHE
-      - literal: '5'
-      - keyword: NOCYCLE
+        keyword: NOORDER
+    - alter_sequence_options_segment:
+        keyword: CACHE
+        literal: '5'
+    - alter_sequence_options_segment:
+        keyword: NOCYCLE
 - statement_terminator: ;
 - statement:
     alter_sequence_statement:

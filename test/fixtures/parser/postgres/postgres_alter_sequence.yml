@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ecc78e4e703b8eef293cd9e1de11a574d1f5d3dd409d6b524513e8edb9a7a025
+_hash: 13cc162b4e8a80ce244e1e7b066258d06d1cf43d3afb0ce3ef0eb5231ffd262e
 file:
 - statement:
     alter_sequence_statement:
@@ -28,10 +28,12 @@ file:
       - keyword: INCREMENT
       - keyword: BY
       - literal: '4'
+    - alter_sequence_options_segment:
       - keyword: 'NO'
       - keyword: MINVALUE
-      - keyword: MAXVALUE
-      - literal: '56'
+    - alter_sequence_options_segment:
+        keyword: MAXVALUE
+        literal: '56'
 - statement_terminator: ;
 - statement:
     alter_sequence_statement:
@@ -40,12 +42,14 @@ file:
     - sequence_reference:
         identifier: foo
     - alter_sequence_options_segment:
-      - keyword: INCREMENT
-      - literal: '3'
+        keyword: INCREMENT
+        literal: '3'
+    - alter_sequence_options_segment:
       - keyword: 'NO'
       - keyword: MAXVALUE
-      - keyword: MINVALUE
-      - literal: '3'
+    - alter_sequence_options_segment:
+        keyword: MINVALUE
+        literal: '3'
 - statement_terminator: ;
 - statement:
     alter_sequence_statement:
@@ -54,10 +58,11 @@ file:
     - sequence_reference:
         identifier: foo
     - alter_sequence_options_segment:
-      - keyword: START
-      - literal: '7'
-      - keyword: CACHE
-      - literal: '4'
+        keyword: START
+        literal: '7'
+    - alter_sequence_options_segment:
+        keyword: CACHE
+        literal: '4'
 - statement_terminator: ;
 - statement:
     alter_sequence_statement:
@@ -69,6 +74,7 @@ file:
       - keyword: RESTART
       - keyword: WITH
       - literal: '14'
+    - alter_sequence_options_segment:
       - keyword: 'NO'
       - keyword: CYCLE
 - statement_terminator: ;

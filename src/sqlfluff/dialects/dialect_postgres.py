@@ -577,6 +577,8 @@ class AlterTableActionSegment(BaseSegment):
     Matches the definition of action in https://www.postgresql.org/docs/13/sql-altertable.html
     """
 
+    type = 'alter_table_action_segment'
+
     match_grammar = OneOf(
         Sequence(
             "ADD",
@@ -616,7 +618,7 @@ class AlterTableActionSegment(BaseSegment):
                     OneOf("ALWAYS", Sequence("BY", "DEFAULT")),
                     "AS",
                     "IDENTITY",
-                    # TODO Optional Sequence options here
+                    Bracketed(AnyNumberOf(Ref("AlterSequenceOptionsSegment")), optional=True)
                 ),
                 Sequence(
                     OneOf(
@@ -625,7 +627,7 @@ class AlterTableActionSegment(BaseSegment):
                             "GENERATED",
                             OneOf("ALWAYS", Sequence("BY", "DEFAULT")),
                         ),
-                        # TODO SET sequence_option
+                        Sequence("SET", Ref("AlterSequenceOptionsSegment")),
                         Sequence(
                             "RESTART", Sequence("WITH", Ref("NumericLiteralSegment"))
                         ),
@@ -761,7 +763,7 @@ class LikeOptionSegment(BaseSegment):
     As specified in https://www.postgresql.org/docs/13/sql-createtable.html
     """
 
-    type = "like_option"
+    type = "like_option_segment"
 
     match_grammar = Sequence(
         OneOf("INCLUDING", "EXCLUDING"),
@@ -786,7 +788,7 @@ class ColumnConstraintSegment(BaseSegment):
     This matches the definition in https://www.postgresql.org/docs/13/sql-altertable.html
     """
 
-    type = "column_constraint"
+    type = "column_constraint_segment"
     # Column constraint from
     # https://www.postgresql.org/docs/12/sql-createtable.html
     match_grammar = Sequence(
@@ -818,7 +820,7 @@ class ColumnConstraintSegment(BaseSegment):
                 OneOf("ALWAYS", Sequence("BY", "DEFAULT")),
                 "AS",
                 "IDENTITY",
-                # TODO Add optional sequence options
+                Bracketed(AnyNumberOf(Ref("AlterSequenceOptionsSegment")), optional=True)
             ),
             "UNIQUE",
             Ref("PrimaryKeyGrammar"),
@@ -887,7 +889,7 @@ class TableConstraintSegment(BaseSegment):
     As specified in https://www.postgresql.org/docs/13/sql-altertable.html
     """
 
-    type = "table_constraint_definition"
+    type = "table_constraint_segment"
 
     match_grammar = Sequence(
         Sequence(  # [ CONSTRAINT <Constraint name> ]
@@ -1405,7 +1407,7 @@ class CreateSequenceOptionsSegment(BaseSegment):
 
     type = "create_sequence_options_segment"
 
-    match_grammar = AnyNumberOf(
+    match_grammar = OneOf(
         Sequence("AS", Ref("DatatypeSegment")),
         Sequence("INCREMENT", Ref.keyword("BY", optional=True), Ref("NumericLiteralSegment")),
 
@@ -1446,7 +1448,7 @@ class CreateSequenceStatementSegment(BaseSegment):
         "SEQUENCE",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("SequenceReferenceSegment"),
-        Ref("CreateSequenceOptionsSegment", optional=True)
+        AnyNumberOf(Ref("CreateSequenceOptionsSegment"), optional=True)
     )
 
 
@@ -1459,7 +1461,7 @@ class AlterSequenceOptionsSegment(BaseSegment):
 
     type = "alter_sequence_options_segment"
 
-    match_grammar = AnyNumberOf(
+    match_grammar = OneOf(
             Sequence("AS", Ref("DatatypeSegment")),
             Sequence("INCREMENT", Ref.keyword("BY", optional=True), Ref("NumericLiteralSegment")),
             OneOf(
@@ -1500,7 +1502,7 @@ class AlterSequenceStatementSegment(BaseSegment):
         Ref("IfExistsGrammar", optional=True),
         Ref("SequenceReferenceSegment"),
         OneOf(
-            Ref("AlterSequenceOptionsSegment", optional=True),
+            AnyNumberOf(Ref("AlterSequenceOptionsSegment", optional=True)),
             Sequence(
                 "OWNER",
                 "TO",

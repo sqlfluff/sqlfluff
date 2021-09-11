@@ -2973,7 +2973,7 @@ class CreateSequenceOptionsSegment(BaseSegment):
 
     type = "create_sequence_options_segment"
 
-    match_grammar = AnyNumberOf(
+    match_grammar = OneOf(
         Sequence("INCREMENT", "BY", Ref("NumericLiteralSegment")),
         Sequence("START", Ref.keyword("WITH", optional=True), Ref("NumericLiteralSegment")),
         OneOf(
@@ -2998,7 +2998,7 @@ class CreateSequenceStatementSegment(BaseSegment):
         "CREATE",
         "SEQUENCE",
         Ref("SequenceReferenceSegment"),
-        Ref("CreateSequenceOptionsSegment", optional=True)
+        AnyNumberOf(Ref("CreateSequenceOptionsSegment"), optional=True)
     )
 
 
@@ -3011,7 +3011,7 @@ class AlterSequenceOptionsSegment(BaseSegment):
 
     type = "alter_sequence_options_segment"
 
-    match_grammar = AnyNumberOf(
+    match_grammar = OneOf(
         Sequence("INCREMENT", "BY", Ref("NumericLiteralSegment")),
         OneOf(
             Sequence("MINVALUE", Ref("NumericLiteralSegment")),
@@ -3040,7 +3040,7 @@ class AlterSequenceStatementSegment(BaseSegment):
         "ALTER",
         "SEQUENCE",
         Ref("SequenceReferenceSegment"),
-        Ref("AlterSequenceOptionsSegment")
+        AnyNumberOf(Ref("AlterSequenceOptionsSegment"))
     )
 
 

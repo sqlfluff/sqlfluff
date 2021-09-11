@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7146aabc682e2da203a90f06d8de4ff1ff5bd2948cf241058bbaedb95b0fc665
+_hash: e356fa9713d20be8475c93cbf5f68d9dfbd23373af7a90e7576c2a4e9c1faf61
 file:
 - statement:
     create_sequence_statement:
@@ -30,8 +30,9 @@ file:
     - sequence_reference:
         identifier: foo
     - create_sequence_options_segment:
-      - keyword: MINVALUE
-      - literal: '5'
+        keyword: MINVALUE
+        literal: '5'
+    - create_sequence_options_segment:
       - keyword: 'NO'
       - keyword: MAXVALUE
 - statement_terminator: ;
@@ -44,8 +45,9 @@ file:
     - create_sequence_options_segment:
       - keyword: 'NO'
       - keyword: MINVALUE
-      - keyword: MAXVALUE
-      - literal: '12'
+    - create_sequence_options_segment:
+        keyword: MAXVALUE
+        literal: '12'
 - statement_terminator: ;
 - statement:
     create_sequence_statement:
@@ -57,11 +59,13 @@ file:
       - keyword: INCREMENT
       - keyword: BY
       - literal: '5'
+    - create_sequence_options_segment:
       - keyword: START
       - keyword: WITH
       - literal: '8'
-      - keyword: CACHE
-      - literal: '4'
+    - create_sequence_options_segment:
+        keyword: CACHE
+        literal: '4'
 - statement_terminator: ;
 - statement:
     create_sequence_statement:
@@ -79,8 +83,9 @@ file:
     - sequence_reference:
         identifier: foo
     - create_sequence_options_segment:
-      - keyword: NOCYCLE
-      - keyword: ORDER
+        keyword: NOCYCLE
+    - create_sequence_options_segment:
+        keyword: ORDER
 - statement_terminator: ;
 - statement:
     create_sequence_statement:
