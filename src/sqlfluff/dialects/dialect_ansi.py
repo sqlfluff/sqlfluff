@@ -2994,6 +2994,11 @@ class CreateSequenceOptionsSegment(BaseSegment):
 
 @ansi_dialect.segment()
 class CreateSequenceStatementSegment(BaseSegment):
+    """Create Sequence statement.
+
+    As specified in https://docs.oracle.com/cd/B19306_01/server.102/b14200/statements_6015.htm
+    """
+
     type = "create_sequence_statement"
 
     match_grammar = Sequence(
