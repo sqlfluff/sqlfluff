@@ -1528,6 +1528,30 @@ class DropSequenceStatementSegment(BaseSegment):
         Ref("IfExistsGrammar", optional=True),
         Delimited(Ref("SequenceReferenceSegment")),
         OneOf("CASCADE", "RESTRICT", optional=True),
+
+
+@postgres_dialect.segment()
+class AnalyzeStatementSegment(BaseSegment):
+    """Analyze Statement Segment.
+
+    As specified in https://www.postgresql.org/docs/13/sql-analyze.html
+    """
+
+    type = "analyze_statement"
+
+    _option = Sequence(
+        OneOf("VERBOSE", "SKIP_LOCKED"), Ref("BooleanLiteralGrammar", optional=True)
+    )
+
+    _tables_and_columns = Sequence(
+        Ref("TableReferenceSegment"),
+        Bracketed(Delimited(Ref("ColumnReferenceSegment")), optional=True),
+    )
+
+    match_grammar = Sequence(
+        OneOf("ANALYZE", "ANALYSE"),
+        OneOf(Bracketed(Delimited(_option)), "VERBOSE", optional=True),
+        Delimited(_tables_and_columns, optional=True),
     )
 
 
@@ -1542,6 +1566,7 @@ class StatementSegment(BaseSegment):
         insert=[
             Ref("AlterDefaultPrivilegesStatementSegment"),
             Ref("CommentOnStatementSegment"),
+            Ref("AnalyzeStatementSegment"),
         ],
     )
 

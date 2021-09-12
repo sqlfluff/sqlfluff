@@ -256,6 +256,28 @@ test_fail_possible_hanger_fix:
                     bar)
     FROM tbl
 
+test_fail_consecutive_hangers:
+  fail_str: |
+    select *
+    from foo
+    where a like 'a%'
+      and b like 'b%'
+      and c like 'c%'
+      and d like 'd%'
+      and e like 'e%'
+      and f like 'f%'
+
+  fix_str: |
+    select *
+    from foo
+    where a like 'a%'
+          and b like 'b%'
+          and c like 'c%'
+          and d like 'd%'
+          and e like 'e%'
+          and f like 'f%'
+
+
 test_fail_clean_reindent_fix:
   # A "clean" indent is where the previous line ends with an
   # indent token (as per this example). We should use the

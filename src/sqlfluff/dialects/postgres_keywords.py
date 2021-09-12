@@ -891,6 +891,7 @@ postgres_nondocs_keywords = [
     ("RESPECT", "non-reserved"),
     ("RESTRICTED", "non-reserved"),
     ("SAFE", "non-reserved"),
+    ("SKIP_LOCKED", "non-reserved"),
     ("TIMESTAMPTZ", "non-reserved"),
     ("UNSAFE", "non-reserved"),
     ("USAGE", "reserved"),
