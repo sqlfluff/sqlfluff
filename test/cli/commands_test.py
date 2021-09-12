@@ -406,14 +406,23 @@ def test__cli__command_fix_stdin_safety():
     assert result.output.strip() == perfect_sql
 
 
-def test__cli__command_fix_stdin_template_error():
+@pytest.mark.parametrize(
+    "sql,exit_code",
+    [
+        ("create TABLE {{ params.dsfsdfds }}.t (a int)", 1),
+        ("create TABLE a.t (a int)", 0),
+        ("create table a.t (a int)", 0),
+    ],
+)
+def test__cli__command_fix_stdin_template_error_exit_code(sql, exit_code):
     """Check that the CLI fails nicely if fixing a templated stdin."""
-    sql = "create table {{ params.something }}.t (a int)"
-
-    with pytest.raises(SystemExit) as exc_info:
+    if exit_code == 0:
         invoke_assert_code(args=[fix, ("-",)], cli_input=sql)
+    else:
+        with pytest.raises(SystemExit) as exc_info:
+            invoke_assert_code(args=[fix, ("-",)], cli_input=sql)
 
-    assert exc_info.value.args[0] == 1
+        assert exc_info.value.args[0] == exit_code
 
 
 @pytest.mark.parametrize(
