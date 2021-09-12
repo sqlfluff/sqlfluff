@@ -1528,6 +1528,7 @@ class DropSequenceStatementSegment(BaseSegment):
         Ref("IfExistsGrammar", optional=True),
         Delimited(Ref("SequenceReferenceSegment")),
         OneOf("CASCADE", "RESTRICT", optional=True),
+    )
 
 
 @postgres_dialect.segment()
