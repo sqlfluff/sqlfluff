@@ -466,6 +466,7 @@ def fix(force, paths, processes, bench=False, fixed_suffix="", logger=None, **kw
     config = get_config(**kwargs)
     lnt, formatter = get_linter_and_formatter(config, silent=fixing_stdin)
     verbose = config.get("verbose")
+    exit_code = 0
 
     formatter.dispatch_config(lnt)
 
@@ -483,12 +484,13 @@ def fix(force, paths, processes, bench=False, fixed_suffix="", logger=None, **kw
         if result.num_violations(types=SQLLintError, fixable=True) > 0:
             stdout = result.paths[0].files[0].fix_string()[0]
         else:
-            if verbose:
-                if templater_error:
-                    click.echo("Fix aborted due to unparseable template variables.")
-                if unfixable_error:
-                    click.echo("Unfixable violations detected.")
             stdout = stdin
+
+        if verbose:
+            if templater_error:
+                click.echo("Fix aborted due to unparseable template variables.")
+            if unfixable_error:
+                click.echo("Unfixable violations detected.")
 
         click.echo(stdout, nl=False)
         sys.exit(1 if templater_error or unfixable_error else 0)
@@ -551,18 +553,30 @@ def fix(force, paths, processes, bench=False, fixed_suffix="", logger=None, **kw
                     _completion_message(config)
             elif c == "n":
                 click.echo("Aborting...")
+                exit_code = 1
             else:  # pragma: no cover
                 click.echo("Invalid input, please enter 'Y' or 'N'")
                 click.echo("Aborting...")
+                exit_code = 1
     else:
         click.echo("==== no fixable linting violations found ====")
-        if result.num_violations(types=SQLLintError, fixable=False) > 0:
-            click.echo(  # pragma: no cover
-                "  [{} unfixable linting violations found]".format(
-                    result.num_violations(types=SQLLintError, fixable=False)
-                )
-            )
         _completion_message(config)
+
+    if result.num_violations(types=SQLLintError, fixable=False) > 0:
+        click.echo(
+            "  [{} unfixable linting violations found]".format(
+                result.num_violations(types=SQLLintError, fixable=False)
+            )
+        )
+        exit_code = 1
+
+    if result.num_violations(types=SQLTemplaterError) > 0:
+        click.echo(
+            "  [{} templating errors found]".format(
+                result.num_violations(types=SQLTemplaterError)
+            )
+        )
+        exit_code = 1
 
     if bench:
         click.echo("==== overall timings ====")
@@ -572,7 +586,7 @@ def fix(force, paths, processes, bench=False, fixed_suffix="", logger=None, **kw
             click.echo(f"=== {step} ===")
             click.echo(cli_table(timing_summary[step].items()))
 
-    sys.exit(0)
+    sys.exit(exit_code)
 
 
 def _completion_message(config):
