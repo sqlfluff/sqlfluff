@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 275dbb34c26b119cd77059f66f08406c2648c4adaf15a492c32e7c1448d10111
+_hash: 2114cc2fc68b4798a524fc3d945965f506344dd3fed86488e876280812496550
 file:
 - statement:
     create_table_statement:
@@ -33,10 +33,10 @@ file:
           identifier: did
       - data_type:
           data_type_identifier: integer
-      - column_constraint:
+      - column_constraint_segment:
         - keyword: PRIMARY
         - keyword: KEY
-      - column_constraint:
+      - column_constraint_segment:
         - keyword: GENERATED
         - keyword: BY
         - keyword: DEFAULT
@@ -52,10 +52,10 @@ file:
             expression:
               literal: '40'
             end_bracket: )
-      - column_constraint:
+      - column_constraint_segment:
         - keyword: NOT
         - keyword: 'NULL'
-      - column_constraint:
+      - column_constraint_segment:
           keyword: CHECK
           bracketed:
             start_bracket: (
@@ -79,7 +79,7 @@ file:
           identifier: did
       - data_type:
           data_type_identifier: integer
-      - column_constraint:
+      - column_constraint_segment:
           keyword: CHECK
           bracketed:
             start_bracket: (
@@ -124,7 +124,7 @@ file:
               literal: '40'
             end_bracket: )
       - comma: ','
-      - table_constraint_definition:
+      - table_constraint_segment:
         - keyword: CONSTRAINT
         - object_reference:
             identifier: con1
@@ -167,7 +167,7 @@ file:
               literal: '40'
             end_bracket: )
       - comma: ','
-      - table_constraint_definition:
+      - table_constraint_segment:
         - keyword: PRIMARY
         - keyword: KEY
         - bracketed:
@@ -189,7 +189,7 @@ file:
           identifier: did
       - data_type:
           data_type_identifier: integer
-      - column_constraint:
+      - column_constraint_segment:
         - keyword: PRIMARY
         - keyword: KEY
       - comma: ','
@@ -221,7 +221,7 @@ file:
             expression:
               literal: '40'
             end_bracket: )
-      - column_constraint:
+      - column_constraint_segment:
           keyword: DEFAULT
           literal: "'Luso Films'"
       - comma: ','
@@ -229,7 +229,7 @@ file:
           identifier: did
       - data_type:
           data_type_identifier: integer
-      - column_constraint:
+      - column_constraint_segment:
           keyword: DEFAULT
           function:
             function_name:
@@ -244,7 +244,7 @@ file:
           identifier: modtime
       - data_type:
           keyword: timestamp
-      - column_constraint:
+      - column_constraint_segment:
           keyword: DEFAULT
           bare_function: current_timestamp
       - end_bracket: )
@@ -261,7 +261,7 @@ file:
           identifier: did
       - data_type:
           data_type_identifier: integer
-      - column_constraint:
+      - column_constraint_segment:
         - keyword: CONSTRAINT
         - object_reference:
             identifier: no_null
@@ -277,7 +277,7 @@ file:
             expression:
               literal: '40'
             end_bracket: )
-      - column_constraint:
+      - column_constraint_segment:
         - keyword: NOT
         - keyword: 'NULL'
       - end_bracket: )
@@ -304,7 +304,7 @@ file:
             expression:
               literal: '40'
             end_bracket: )
-      - column_constraint:
+      - column_constraint_segment:
           keyword: UNIQUE
       - end_bracket: )
 - statement_terminator: ;
@@ -331,7 +331,7 @@ file:
               literal: '40'
             end_bracket: )
       - comma: ','
-      - table_constraint_definition:
+      - table_constraint_segment:
           keyword: UNIQUE
           bracketed:
             start_bracket: (
@@ -363,7 +363,7 @@ file:
               literal: '40'
             end_bracket: )
       - comma: ','
-      - table_constraint_definition:
+      - table_constraint_segment:
           keyword: UNIQUE
           bracketed:
             start_bracket: (
@@ -440,7 +440,7 @@ file:
     - parameter: employee_type
     - bracketed:
       - start_bracket: (
-      - table_constraint_definition:
+      - table_constraint_segment:
         - keyword: PRIMARY
         - keyword: KEY
         - bracketed:
@@ -453,7 +453,7 @@ file:
           identifier: salary
       - keyword: WITH
       - keyword: OPTIONS
-      - column_constraint:
+      - column_constraint_segment:
           keyword: DEFAULT
           literal: '1000'
       - end_bracket: )
@@ -470,7 +470,7 @@ file:
           identifier: logdate
       - data_type:
           data_type_identifier: date
-      - column_constraint:
+      - column_constraint_segment:
         - keyword: not
         - keyword: 'null'
       - comma: ','
@@ -505,7 +505,7 @@ file:
           identifier: logdate
       - data_type:
           data_type_identifier: date
-      - column_constraint:
+      - column_constraint_segment:
         - keyword: not
         - keyword: 'null'
       - comma: ','
@@ -561,7 +561,7 @@ file:
           identifier: city_id
       - data_type:
           data_type_identifier: bigserial
-      - column_constraint:
+      - column_constraint_segment:
         - keyword: not
         - keyword: 'null'
       - comma: ','
@@ -569,7 +569,7 @@ file:
           identifier: name
       - data_type:
           data_type_identifier: text
-      - column_constraint:
+      - column_constraint_segment:
         - keyword: not
         - keyword: 'null'
       - comma: ','
@@ -616,7 +616,7 @@ file:
           identifier: order_id
       - data_type:
           data_type_identifier: bigint
-      - column_constraint:
+      - column_constraint_segment:
         - keyword: not
         - keyword: 'null'
       - comma: ','
@@ -624,7 +624,7 @@ file:
           identifier: cust_id
       - data_type:
           data_type_identifier: bigint
-      - column_constraint:
+      - column_constraint_segment:
         - keyword: not
         - keyword: 'null'
       - comma: ','
@@ -656,7 +656,7 @@ file:
         start_bracket: (
         column_reference:
           identifier: unitsales
-        column_constraint:
+        column_constraint_segment:
           keyword: DEFAULT
           literal: '0'
         end_bracket: )
@@ -818,7 +818,7 @@ file:
         identifier: cities
     - bracketed:
         start_bracket: (
-        table_constraint_definition:
+        table_constraint_segment:
         - keyword: CONSTRAINT
         - object_reference:
             identifier: city_id_nonzero
@@ -857,7 +857,7 @@ file:
         identifier: cities
     - bracketed:
         start_bracket: (
-        table_constraint_definition:
+        table_constraint_segment:
         - keyword: CONSTRAINT
         - object_reference:
             identifier: city_id_nonzero
@@ -1056,7 +1056,7 @@ file:
       - data_type:
           data_type_identifier: DATE
       - comma: ','
-      - table_constraint_definition:
+      - table_constraint_segment:
         - keyword: PRIMARY
         - keyword: KEY
         - bracketed:
@@ -1090,7 +1090,7 @@ file:
           identifier: city_id
       - data_type:
           data_type_identifier: int
-      - column_constraint:
+      - column_constraint_segment:
         - keyword: NOT
         - keyword: 'NULL'
       - comma: ','
@@ -1098,7 +1098,7 @@ file:
           identifier: logdate
       - data_type:
           data_type_identifier: date
-      - column_constraint:
+      - column_constraint_segment:
         - keyword: NOT
         - keyword: 'NULL'
       - comma: ','
@@ -1135,7 +1135,7 @@ file:
           identifier: id
       - data_type:
           data_type_identifier: serial
-      - column_constraint:
+      - column_constraint_segment:
         - keyword: NOT
         - keyword: 'NULL'
       - comma: ','
@@ -1143,7 +1143,7 @@ file:
           identifier: name
       - data_type:
           data_type_identifier: text
-      - column_constraint:
+      - column_constraint_segment:
         - keyword: NOT
         - keyword: 'NULL'
       - comma: ','
@@ -1151,24 +1151,24 @@ file:
           identifier: group_name
       - data_type:
           data_type_identifier: text
-      - column_constraint:
+      - column_constraint_segment:
           keyword: 'NULL'
       - comma: ','
       - column_reference:
           identifier: cluster_id
       - data_type:
           data_type_identifier: int8
-      - column_constraint:
+      - column_constraint_segment:
           keyword: 'NULL'
       - comma: ','
       - column_reference:
           identifier: date_created
       - data_type:
           keyword: timestamp
-      - column_constraint:
+      - column_constraint_segment:
         - keyword: NOT
         - keyword: 'NULL'
-      - column_constraint:
+      - column_constraint_segment:
           keyword: DEFAULT
           bare_function: CURRENT_TIMESTAMP
       - comma: ','
@@ -1176,10 +1176,10 @@ file:
           identifier: date_updated
       - data_type:
           keyword: timestamp
-      - column_constraint:
+      - column_constraint_segment:
         - keyword: NOT
         - keyword: 'NULL'
-      - column_constraint:
+      - column_constraint_segment:
           keyword: DEFAULT
           bare_function: CURRENT_TIMESTAMP
       - comma: ','
@@ -1187,10 +1187,10 @@ file:
           identifier: operation_id
       - data_type:
           data_type_identifier: int4
-      - column_constraint:
+      - column_constraint_segment:
         - keyword: NOT
         - keyword: 'NULL'
-      - column_constraint:
+      - column_constraint_segment:
           keyword: DEFAULT
           expression:
             literal: "'-1'"

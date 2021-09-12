@@ -1,0 +1,98 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: e356fa9713d20be8475c93cbf5f68d9dfbd23373af7a90e7576c2a4e9c1faf61
+file:
+- statement:
+    create_sequence_statement:
+    - keyword: CREATE
+    - keyword: SEQUENCE
+    - sequence_reference:
+        identifier: foo
+- statement_terminator: ;
+- statement:
+    create_sequence_statement:
+    - keyword: CREATE
+    - keyword: SEQUENCE
+    - sequence_reference:
+        identifier: foo
+    - create_sequence_options_segment:
+      - keyword: INCREMENT
+      - keyword: BY
+      - literal: '3'
+- statement_terminator: ;
+- statement:
+    create_sequence_statement:
+    - keyword: CREATE
+    - keyword: SEQUENCE
+    - sequence_reference:
+        identifier: foo
+    - create_sequence_options_segment:
+        keyword: MINVALUE
+        literal: '5'
+    - create_sequence_options_segment:
+      - keyword: 'NO'
+      - keyword: MAXVALUE
+- statement_terminator: ;
+- statement:
+    create_sequence_statement:
+    - keyword: CREATE
+    - keyword: SEQUENCE
+    - sequence_reference:
+        identifier: foo
+    - create_sequence_options_segment:
+      - keyword: 'NO'
+      - keyword: MINVALUE
+    - create_sequence_options_segment:
+        keyword: MAXVALUE
+        literal: '12'
+- statement_terminator: ;
+- statement:
+    create_sequence_statement:
+    - keyword: CREATE
+    - keyword: SEQUENCE
+    - sequence_reference:
+        identifier: foo
+    - create_sequence_options_segment:
+      - keyword: INCREMENT
+      - keyword: BY
+      - literal: '5'
+    - create_sequence_options_segment:
+      - keyword: START
+      - keyword: WITH
+      - literal: '8'
+    - create_sequence_options_segment:
+        keyword: CACHE
+        literal: '4'
+- statement_terminator: ;
+- statement:
+    create_sequence_statement:
+    - keyword: CREATE
+    - keyword: SEQUENCE
+    - sequence_reference:
+        identifier: foo
+    - create_sequence_options_segment:
+        keyword: NOCACHE
+- statement_terminator: ;
+- statement:
+    create_sequence_statement:
+    - keyword: CREATE
+    - keyword: SEQUENCE
+    - sequence_reference:
+        identifier: foo
+    - create_sequence_options_segment:
+        keyword: NOCYCLE
+    - create_sequence_options_segment:
+        keyword: ORDER
+- statement_terminator: ;
+- statement:
+    create_sequence_statement:
+    - keyword: CREATE
+    - keyword: SEQUENCE
+    - sequence_reference:
+        identifier: foo
+    - create_sequence_options_segment:
+        keyword: NOORDER
+- statement_terminator: ;

@@ -706,6 +706,13 @@ class ColumnReferenceSegment(ObjectReferenceSegment):
 
 
 @ansi_dialect.segment()
+class SequenceReferenceSegment(ObjectReferenceSegment):
+    """A reference to a sequence."""
+
+    type = "sequence_reference"
+
+
+@ansi_dialect.segment()
 class SingleIdentifierListSegment(BaseSegment):
     """A comma delimited list of identifiers."""
 
@@ -1964,10 +1971,10 @@ class TransactionStatementSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
-class ColumnOptionSegment(BaseSegment):
+class ColumnConstraintSegment(BaseSegment):
     """A column option; each CREATE TABLE column can have 0 or more."""
 
-    type = "column_constraint"
+    type = "column_constraint_segment"
     # Column constraint from
     # https://www.postgresql.org/docs/12/sql-createtable.html
     match_grammar = Sequence(
@@ -2011,7 +2018,7 @@ class ColumnDefinitionSegment(BaseSegment):
         Ref("DatatypeSegment"),  # Column type
         Bracketed(Anything(), optional=True),  # For types like VARCHAR(100)
         AnyNumberOf(
-            Ref("ColumnOptionSegment", optional=True),
+            Ref("ColumnConstraintSegment", optional=True),
         ),
     )
 
@@ -2031,7 +2038,7 @@ class IndexColumnDefinitionSegment(BaseSegment):
 class TableConstraintSegment(BaseSegment):
     """A table constraint, e.g. for CREATE TABLE."""
 
-    type = "table_constraint_definition"
+    type = "table_constraint_segment"
     # Later add support for CHECK constraint, others?
     # e.g. CONSTRAINT constraint_1 PRIMARY KEY(column_1)
     match_grammar = Sequence(
@@ -2858,6 +2865,9 @@ class StatementSegment(BaseSegment):
         Ref("DescribeStatementSegment"),
         Ref("UseStatementSegment"),
         Ref("ExplainStatementSegment"),
+        Ref("CreateSequenceStatementSegment"),
+        Ref("AlterSequenceStatementSegment"),
+        Ref("DropSequenceStatementSegment"),
     )
 
     def get_table_references(self):
@@ -2952,3 +2962,102 @@ class ExplainStatementSegment(BaseSegment):
         "EXPLAIN",
         explainable_stmt,
     )
+
+
+@ansi_dialect.segment()
+class CreateSequenceOptionsSegment(BaseSegment):
+    """Options for Create Sequence statement.
+
+    As specified in https://docs.oracle.com/cd/B19306_01/server.102/b14200/statements_6015.htm
+    """
+
+    type = "create_sequence_options_segment"
+
+    match_grammar = OneOf(
+        Sequence("INCREMENT", "BY", Ref("NumericLiteralSegment")),
+        Sequence(
+            "START", Ref.keyword("WITH", optional=True), Ref("NumericLiteralSegment")
+        ),
+        OneOf(
+            Sequence("MINVALUE", Ref("NumericLiteralSegment")),
+            Sequence("NO", "MINVALUE"),
+        ),
+        OneOf(
+            Sequence("MAXVALUE", Ref("NumericLiteralSegment")),
+            Sequence("NO", "MAXVALUE"),
+        ),
+        OneOf(Sequence("CACHE", Ref("NumericLiteralSegment")), "NOCACHE"),
+        OneOf("CYCLE", "NOCYCLE"),
+        OneOf("ORDER", "NOORDER"),
+    )
+
+
+@ansi_dialect.segment()
+class CreateSequenceStatementSegment(BaseSegment):
+    """Create Sequence statement.
+
+    As specified in https://docs.oracle.com/cd/B19306_01/server.102/b14200/statements_6015.htm
+    """
+
+    type = "create_sequence_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        "SEQUENCE",
+        Ref("SequenceReferenceSegment"),
+        AnyNumberOf(Ref("CreateSequenceOptionsSegment"), optional=True),
+    )
+
+
+@ansi_dialect.segment()
+class AlterSequenceOptionsSegment(BaseSegment):
+    """Options for Alter Sequence statement.
+
+    As specified in https://docs.oracle.com/cd/B19306_01/server.102/b14200/statements_2011.htm
+    """
+
+    type = "alter_sequence_options_segment"
+
+    match_grammar = OneOf(
+        Sequence("INCREMENT", "BY", Ref("NumericLiteralSegment")),
+        OneOf(
+            Sequence("MINVALUE", Ref("NumericLiteralSegment")),
+            Sequence("NO", "MINVALUE"),
+        ),
+        OneOf(
+            Sequence("MAXVALUE", Ref("NumericLiteralSegment")),
+            Sequence("NO", "MAXVALUE"),
+        ),
+        OneOf(Sequence("CACHE", Ref("NumericLiteralSegment")), "NOCACHE"),
+        OneOf("CYCLE", "NOCYCLE"),
+        OneOf("ORDER", "NOORDER"),
+    )
+
+
+@ansi_dialect.segment()
+class AlterSequenceStatementSegment(BaseSegment):
+    """Alter Sequence Statement.
+
+    As specified in https://docs.oracle.com/cd/B19306_01/server.102/b14200/statements_2011.htm
+    """
+
+    type = "alter_sequence_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "SEQUENCE",
+        Ref("SequenceReferenceSegment"),
+        AnyNumberOf(Ref("AlterSequenceOptionsSegment")),
+    )
+
+
+@ansi_dialect.segment()
+class DropSequenceStatementSegment(BaseSegment):
+    """Drop Sequence Statement.
+
+    As specified in https://docs.oracle.com/cd/E11882_01/server.112/e41084/statements_9001.htm
+    """
+
+    type = "drop_sequence_statement"
+
+    match_grammar = Sequence("DROP", "SEQUENCE", Ref("SequenceReferenceSegment"))

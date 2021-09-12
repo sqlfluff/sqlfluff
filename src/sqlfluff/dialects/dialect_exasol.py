@@ -822,12 +822,12 @@ class ColumnDefinitionSegment(BaseSegment):
     type = "column_definition"
     match_grammar = Sequence(
         Ref("ColumnDatatypeSegment"),
-        Ref("ColumnOptionSegment", optional=True),
+        Ref("ColumnConstraintSegment", optional=True),
     )
 
 
 @exasol_dialect.segment(replace=True)
-class ColumnOptionSegment(BaseSegment):
+class ColumnConstraintSegment(BaseSegment):
     """A column option; each CREATE TABLE column can have 0 or more."""
 
     type = "column_option"
@@ -1023,7 +1023,7 @@ class AlterTableModifyColumnSegment(BaseSegment):
         OptionallyBracketed(
             Ref("SingleIdentifierGrammar"),
             Ref("DatatypeSegment", optional=True),
-            Ref("ColumnOptionSegment", optional=True),
+            Ref("ColumnConstraintSegment", optional=True),
         ),
     )
 
