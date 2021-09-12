@@ -87,7 +87,9 @@ def benchmark(cmd, runs, from_file):
             if process.returncode != 0:
                 if benchmark["cmd"][0] == "sqlfluff" and benchmark["cmd"][1] == "fix":
                     # Allow fix to fail as not all our benchmark errors are fixable
-                    click.echo(f"Fix command failed with return code: {process.returncode}")
+                    click.echo(
+                        f"Fix command failed with return code: {process.returncode}"
+                    )
                 else:
                     click.echo(f"Command failed with return code: {process.returncode}")
                     sys.exit(process.returncode)
