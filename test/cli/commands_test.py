@@ -409,12 +409,13 @@ def test__cli__command_fix_stdin_safety():
 @pytest.mark.parametrize(
     "sql,exit_code",
     [
-        ("create TABLE {{ params.dsfsdfds }}.t (a int)", 1),
-        ("create TABLE a.t (a int)", 0),
-        ("create table a.t (a int)", 0),
+        ("create TABLE {{ params.dsfsdfds }}.t (a int)", 1),  # template error
+        ("create TABLE a.t (a int)", 0),  # fixable error
+        ("create table a.t (a int)", 0),  # perfection
+        ("select col from a join b using (c)", 1),  # unfixable error (using)
     ],
 )
-def test__cli__command_fix_stdin_template_error_exit_code(sql, exit_code):
+def test__cli__command_fix_stdin_error_exit_code(sql, exit_code):
     """Check that the CLI fails nicely if fixing a templated stdin."""
     if exit_code == 0:
         invoke_assert_code(args=[fix, ("-",)], cli_input=sql)
