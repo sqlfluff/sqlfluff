@@ -51,11 +51,8 @@ test_fail_line_too_long_with_comments_4:
     rules:
       max_line_length: 80
 
-test_fail_line_too_long_with_comments_ignore_comment_lines:
-  # In this case, the inline comment is NOT on a line by itself (note the
-  # leading comma), but even if we move it onto a line by itself, it's still
-  # too long. In this case, the rule should do nothing, otherwise it triggers
-  # an endless cycle of "fixes" that simply keeps adding blank lines.
+test_pass_line_too_long_with_comments_ignore_comment_lines:
+  # Same case as above, but should pass as ignore_comment_lines is set to true
   pass_str: |
     SELECT
     c1
