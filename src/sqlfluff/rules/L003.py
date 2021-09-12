@@ -94,7 +94,7 @@ class Rule_L003(BaseRule):
                     # Indent balance is the indent at the start of the first content
                     "indent_balance": this_indent_balance,
                     "hanging_indent": hanger_pos if line_indent_stack else None,
-                    # Clean indent is true if the line *ends* win an indent
+                    # Clean indent is true if the line *ends* with an indent
                     # or has an indent in the initial whitespace.
                     "clean_indent": clean_indent,
                 }
@@ -436,8 +436,7 @@ class Rule_L003(BaseRule):
                     )
                     # If we have a clean indent, we can just add steps in line
                     # with the difference in the indent buffers. simples.
-                    # We can also do this if we've skipped a line. I think?
-                    if this_line["clean_indent"] or this_line_no - k > 1:
+                    if this_line["clean_indent"]:
                         self.logger.debug("        Use clean indent.")
                         desired_indent = default_indent
                     # If we have the option of a hanging indent then use it.

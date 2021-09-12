@@ -449,7 +449,7 @@ ansi_dialect.add(
     FilterClauseGrammar=Sequence(
         "FILTER", Bracketed(Sequence("WHERE", Ref("ExpressionSegment")))
     ),
-    FrameClauseUnitGrammar=OneOf("ROWS", "RANGE")
+    FrameClauseUnitGrammar=OneOf("ROWS", "RANGE"),
 )
 
 
@@ -955,15 +955,15 @@ class FrameClauseSegment(BaseSegment):
 
     _frame_extent = OneOf(
         Sequence("CURRENT", "ROW"),
-        Sequence(OneOf(Ref("NumericLiteralSegment"), "UNBOUNDED"), OneOf("PRECEDING", "FOLLOWING"))
+        Sequence(
+            OneOf(Ref("NumericLiteralSegment"), "UNBOUNDED"),
+            OneOf("PRECEDING", "FOLLOWING"),
+        ),
     )
 
     match_grammar = Sequence(
         Ref("FrameClauseUnitGrammar"),
-        OneOf(
-            _frame_extent,
-            Sequence("BETWEEN", _frame_extent, "AND", _frame_extent)
-        )
+        OneOf(_frame_extent, Sequence("BETWEEN", _frame_extent, "AND", _frame_extent)),
     )
 
 
