@@ -79,6 +79,8 @@ html_static_path = ["_static"]
 # -- Options for Alabaster Theme ---------------------------------------------
 
 html_theme_options = {
+    # Set branch to main (used by Codecov button)
+    "badge_branch": "main",
     "logo": "images/sqlfluff-lrg.png",
     # Icon for iOS shortcuts
     "touch_icon": "images/sqlfluff-sm2-sq.png",
