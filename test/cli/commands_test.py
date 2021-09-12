@@ -407,6 +407,26 @@ def test__cli__command_fix_stdin_safety():
 
 
 @pytest.mark.parametrize(
+    "sql,exit_code",
+    [
+        ("create TABLE {{ params.dsfsdfds }}.t (a int)", 1),  # template error
+        ("create TABLE a.t (a int)", 0),  # fixable error
+        ("create table a.t (a int)", 0),  # perfection
+        ("select col from a join b using (c)", 1),  # unfixable error (using)
+    ],
+)
+def test__cli__command_fix_stdin_error_exit_code(sql, exit_code):
+    """Check that the CLI fails nicely if fixing a templated stdin."""
+    if exit_code == 0:
+        invoke_assert_code(args=[fix, ("-",)], cli_input=sql)
+    else:
+        with pytest.raises(SystemExit) as exc_info:
+            invoke_assert_code(args=[fix, ("-",)], cli_input=sql)
+
+        assert exc_info.value.args[0] == exit_code
+
+
+@pytest.mark.parametrize(
     "rule,fname,prompt,exit_code",
     [
         ("L001", "test/fixtures/linter/indentation_errors.sql", "y", 0),

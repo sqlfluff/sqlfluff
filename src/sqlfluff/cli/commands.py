@@ -4,7 +4,6 @@ import sys
 import json
 import logging
 import time
-
 import oyaml as yaml
 
 import click
@@ -33,6 +32,7 @@ from sqlfluff.core import (
     Linter,
     FluffConfig,
     SQLLintError,
+    SQLTemplaterError,
     dialect_selector,
     dialect_readout,
     TimingSummary,
@@ -475,10 +475,23 @@ def fix(force, paths, processes, bench=False, fixed_suffix="", logger=None, **kw
     # handle stdin case. should output formatted sql to stdout and nothing else.
     if fixing_stdin:
         stdin = sys.stdin.read()
+
         result = lnt.lint_string_wrapped(stdin, fname="stdin", fix=True)
-        stdout = result.paths[0].files[0].fix_string()[0]
+        templater_error = result.num_violations(types=SQLTemplaterError) > 0
+        unfixable_error = result.num_violations(types=SQLLintError, fixable=False) > 0
+
+        if result.num_violations(types=SQLLintError, fixable=True) > 0:
+            stdout = result.paths[0].files[0].fix_string()[0]
+        else:
+            if verbose:
+                if templater_error:
+                    click.echo("Fix aborted due to unparseable template variables.")
+                if unfixable_error:
+                    click.echo("Unfixable violations detected.")
+            stdout = stdin
+
         click.echo(stdout, nl=False)
-        sys.exit()
+        sys.exit(1 if templater_error or unfixable_error else 0)
 
     # Lint the paths (not with the fix argument at this stage), outputting as we go.
     click.echo("==== finding fixable violations ====")
