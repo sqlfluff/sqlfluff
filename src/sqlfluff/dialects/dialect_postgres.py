@@ -783,7 +783,7 @@ class LikeOptionSegment(BaseSegment):
     )
 
 
-@postgres_dialect.segment()
+@postgres_dialect.segment(replace=True)
 class ColumnConstraintSegment(BaseSegment):
     """A column option; each CREATE TABLE column can have 0 or more.
 

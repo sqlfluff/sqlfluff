@@ -1971,10 +1971,10 @@ class TransactionStatementSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
-class ColumnOptionSegment(BaseSegment):
+class ColumnConstraintSegment(BaseSegment):
     """A column option; each CREATE TABLE column can have 0 or more."""
 
-    type = "column_constraint"
+    type = "column_constraint_segment"
     # Column constraint from
     # https://www.postgresql.org/docs/12/sql-createtable.html
     match_grammar = Sequence(
@@ -2018,7 +2018,7 @@ class ColumnDefinitionSegment(BaseSegment):
         Ref("DatatypeSegment"),  # Column type
         Bracketed(Anything(), optional=True),  # For types like VARCHAR(100)
         AnyNumberOf(
-            Ref("ColumnOptionSegment", optional=True),
+            Ref("ColumnConstraintSegment", optional=True),
         ),
     )
 
@@ -2038,7 +2038,7 @@ class IndexColumnDefinitionSegment(BaseSegment):
 class TableConstraintSegment(BaseSegment):
     """A table constraint, e.g. for CREATE TABLE."""
 
-    type = "table_constraint_definition"
+    type = "table_constraint_segment"
     # Later add support for CHECK constraint, others?
     # e.g. CONSTRAINT constraint_1 PRIMARY KEY(column_1)
     match_grammar = Sequence(
