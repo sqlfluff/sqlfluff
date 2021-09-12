@@ -65,10 +65,7 @@ postgres_dialect.add(
 postgres_dialect.replace(
     PostFunctionGrammar=OneOf(
         Ref("WithinGroupClauseSegment"),
-        Sequence(
-            Sequence(OneOf("IGNORE", "RESPECT"), "NULLS", optional=True),
-            Ref("OverClauseSegment"),
-        ),
+        Ref("OverClauseSegment"),
         # Filter clause supported by both Postgres and SQLite
         Ref("FilterClauseGrammar"),
     ),
@@ -90,6 +87,7 @@ postgres_dialect.replace(
             OneOf("DEFAULT", Ref("EqualsSegment")), Ref("LiteralGrammar"), optional=True
         ),
     ),
+    FrameClauseUnitGrammar=OneOf("RANGE", "ROWS", "GROUPS")
 )
 
 
@@ -1393,6 +1391,40 @@ class CreateIndexStatementSegment(BaseSegment):
             Sequence("TABLESPACE", Ref("TableReferenceSegment")),
             Sequence("WHERE", Ref("ExpressionSegment")),
         ),
+    )
+
+
+@postgres_dialect.segment(replace=True)
+class FrameClauseSegment(BaseSegment):
+    """A frame clause for window functions.
+
+    As specified in https://www.postgresql.org/docs/13/sql-expressions.html
+    """
+
+    type = "frame_clause"
+
+    _frame_extent = OneOf(
+        Sequence("CURRENT", "ROW"),
+        Sequence(OneOf(Ref("NumericLiteralSegment"), "UNBOUNDED"), OneOf("PRECEDING", "FOLLOWING"))
+    )
+
+    _frame_exclusion = Sequence(
+        "EXCLUDE",
+        OneOf(
+            Sequence("CURRENT", "ROW"),
+            "GROUP",
+            "TIES",
+            Sequence("NO", "OTHERS")),
+        optional=True
+    )
+
+    match_grammar = Sequence(
+        Ref("FrameClauseUnitGrammar"),
+        OneOf(
+            _frame_extent,
+            Sequence("BETWEEN", _frame_extent, "AND", _frame_extent)
+        ),
+        _frame_exclusion
     )
 
 

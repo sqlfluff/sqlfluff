@@ -449,6 +449,7 @@ ansi_dialect.add(
     FilterClauseGrammar=Sequence(
         "FILTER", Bracketed(Sequence("WHERE", Ref("ExpressionSegment")))
     ),
+    FrameClauseUnitGrammar=OneOf("ROWS", "RANGE")
 )
 
 
@@ -930,7 +931,7 @@ class PartitionClauseSegment(BaseSegment):
     type = "partitionby_clause"
     match_grammar = StartsWith(
         "PARTITION",
-        terminator=OneOf("ORDER", "ROWS"),
+        terminator=OneOf("ORDER", Ref("FrameClauseUnitGrammar")),
         enforce_whitespace_preceeding_terminator=True,
     )
     parse_grammar = Sequence(
@@ -947,37 +948,22 @@ class PartitionClauseSegment(BaseSegment):
 class FrameClauseSegment(BaseSegment):
     """A frame clause for window functions.
 
-    As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_Window_function_synopsis.html
+    As specified in https://docs.oracle.com/cd/E17952_01/mysql-8.0-en/window-functions-frames.html
     """
 
     type = "frame_clause"
+
+    _frame_extent = OneOf(
+        Sequence("CURRENT", "ROW"),
+        Sequence(OneOf(Ref("NumericLiteralSegment"), "UNBOUNDED"), OneOf("PRECEDING", "FOLLOWING"))
+    )
+
     match_grammar = Sequence(
-        "ROWS",
+        Ref("FrameClauseUnitGrammar"),
         OneOf(
-            OneOf(
-                Sequence("UNBOUNDED", "PRECEDING"),
-                Sequence(Ref("NumericLiteralSegment"), "PRECEDING"),
-                Sequence("CURRENT", "ROW"),
-            ),
-            Sequence(
-                "BETWEEN",
-                OneOf(
-                    Sequence("UNBOUNDED", "PRECEDING"),
-                    Sequence(
-                        Ref("NumericLiteralSegment"), OneOf("PRECEDING", "FOLLOWING")
-                    ),
-                    Sequence("CURRENT", "ROW"),
-                ),
-                "AND",
-                OneOf(
-                    Sequence("UNBOUNDED", "FOLLOWING"),
-                    Sequence(
-                        Ref("NumericLiteralSegment"), OneOf("PRECEDING", "FOLLOWING")
-                    ),
-                    Sequence("CURRENT", "ROW"),
-                ),
-            ),
-        ),
+            _frame_extent,
+            Sequence("BETWEEN", _frame_extent, "AND", _frame_extent)
+        )
     )
 
 
@@ -1602,7 +1588,7 @@ class OrderByClauseSegment(BaseSegment):
             "QUALIFY",
             # For window functions
             "WINDOW",
-            "ROWS",
+            Ref("FrameClauseUnitGrammar"),
             "SEPARATOR",
         ),
     )
@@ -1625,7 +1611,7 @@ class OrderByClauseSegment(BaseSegment):
                 # for now.
                 Sequence("NULLS", OneOf("FIRST", "LAST"), optional=True),
             ),
-            terminator=OneOf(Ref.keyword("LIMIT"), Ref.keyword("ROWS")),
+            terminator=OneOf(Ref.keyword("LIMIT"), Ref("FrameClauseUnitGrammar")),
         ),
         Dedent,
     )

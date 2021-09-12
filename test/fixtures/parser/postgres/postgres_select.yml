@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ada399298b0380d94a6941414410ee12cd69b9018e7b335d1837e3637c6819df
+_hash: 80b987a428f17979341c6affd2866ac11ba9353f169ffb2542d90921cbb6eb06
 file:
 - statement:
     select_statement:
@@ -69,69 +69,4 @@ file:
               casting_operator: '::'
               data_type:
                 data_type_identifier: int
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-      - keyword: select
-      - select_clause_element:
-          column_reference:
-            identifier: venuestate
-      - comma: ','
-      - select_clause_element:
-          column_reference:
-            identifier: venueseats
-      - comma: ','
-      - select_clause_element:
-          column_reference:
-            identifier: venuename
-      - comma: ','
-      - select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: first_value
-            bracketed:
-            - start_bracket: (
-            - expression:
-                column_reference:
-                  identifier: venuename
-            - keyword: ignore
-            - keyword: nulls
-            - end_bracket: )
-            over_clause:
-              keyword: over
-              bracketed:
-                start_bracket: (
-                window_specification:
-                  partitionby_clause:
-                  - keyword: partition
-                  - keyword: by
-                  - expression:
-                      column_reference:
-                        identifier: venuestate
-                  orderby_clause:
-                  - keyword: order
-                  - keyword: by
-                  - column_reference:
-                      identifier: venueseats
-                  - keyword: desc
-                  frame_clause:
-                  - keyword: rows
-                  - keyword: between
-                  - keyword: unbounded
-                  - keyword: preceding
-                  - binary_operator: and
-                  - keyword: unbounded
-                  - keyword: following
-                end_bracket: )
-          alias_expression:
-            keyword: as
-            identifier: col_name
-      from_clause:
-        keyword: from
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                identifier: table_name
 - statement_terminator: ;
