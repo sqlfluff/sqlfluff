@@ -64,11 +64,11 @@ def benchmark(cmd, runs, from_file):
     commit_hash = None
     post_results = False
     # Try and detect a CI environment
-    if "CIRCLECI" in os.environ:
-        click.echo("Circle CI detected!")
+    if "CI" in os.environ:
+        click.echo("CI detected!")
         # available_vars = [var for var in os.environ.keys()]  # if var.startswith('CIRCLE')
         # click.echo("Available keys: {0!r}".format(available_vars))
-        commit_hash = os.environ.get("CIRCLE_SHA1", None)
+        commit_hash = os.environ.get("GITHUB_SHA", None)
         post_results = True
         click.echo(f"Commit hash is: {commit_hash!r}")
 
@@ -78,15 +78,19 @@ def benchmark(cmd, runs, from_file):
         results = {}
         for benchmark in benchmarks:
             # Iterate through benchmarks
-            click.echo("Starting bechmark: {!r}".format(benchmark["name"]))
+            click.echo("Starting benchmark: {!r}".format(benchmark["name"]))
             t0 = time.monotonic()
             click.echo("===START PROCESS OUTPUT===")
             process = subprocess.run(benchmark["cmd"])
             click.echo("===END PROCESS OUTPUT===")
             t1 = time.monotonic()
             if process.returncode != 0:
-                click.echo(f"Command failed with return code: {process.returncode}")
-                sys.exit(process.returncode)
+                if benchmark["cmd"][0] == "sqlfluff" and benchmark["cmd"][1] == "fix":
+                    # Allow fix to fail as not all our benchmark errors are fixable
+                    click.echo(f"Fix command failed with return code: {process.returncode}")
+                else:
+                    click.echo(f"Command failed with return code: {process.returncode}")
+                    sys.exit(process.returncode)
             else:
                 duration = t1 - t0
                 click.echo(f"Process completed in {duration:.4f}s")
