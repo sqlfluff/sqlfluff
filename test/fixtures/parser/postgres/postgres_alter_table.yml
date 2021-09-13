@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 027f89c23162a9bc7191eae1c803e223c46a8fc0af4e67a112ffc5a263d73c12
+_hash: 10c9acb91a7ea62ff027e9d73ba2cce515f0685a38e78cef8492722facb1ce88
 file:
 - statement:
     alter_table_statement:
@@ -159,8 +159,9 @@ file:
         - column_reference:
             identifier: foo_timestamp
         - binary_operator: '*'
-        - keyword: interval
-        - literal: "'1 second'"
+        - interval_expression:
+            keyword: interval
+            literal: "'1 second'"
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -189,14 +190,16 @@ file:
         - keyword: zone
       - keyword: USING
       - expression:
-        - keyword: timestamp
+        - data_type:
+            keyword: timestamp
         - literal: "'epoch'"
         - binary_operator: +
         - column_reference:
             identifier: foo_timestamp
         - binary_operator: '*'
-        - keyword: interval
-        - literal: "'1 second'"
+        - interval_expression:
+            keyword: interval
+            literal: "'1 second'"
     - comma: ','
     - alter_table_action_segment:
       - keyword: ALTER
