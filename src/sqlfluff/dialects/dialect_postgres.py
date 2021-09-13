@@ -114,11 +114,18 @@ class DatatypeSegment(BaseSegment):
         Sequence(
             OneOf(
                 Sequence(
-                    OneOf("TIME", "TIMESTAMP"),
+                    "TIME",
+                    Sequence(OneOf("WITH", "WITHOUT"), "TIME", "ZONE", optional=True),
+                ),
+                Sequence(
+                    "TIMESTAMP",
                     Bracketed(Ref("NumericLiteralSegment"), optional=True),
                     Sequence(OneOf("WITH", "WITHOUT"), "TIME", "ZONE", optional=True),
                 ),
-                "TIMESTAMPTZ",
+                Sequence(
+                    "TIMESTAMPTZ",
+                    Bracketed(Ref("NumericLiteralSegment"), optional=True),
+                ),
             ),
             Sequence("AT", "TIME", "ZONE", Ref("QuotedLiteralSegment"), optional=True),
         ),
