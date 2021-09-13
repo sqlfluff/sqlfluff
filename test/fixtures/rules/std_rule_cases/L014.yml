@@ -171,8 +171,8 @@ test_policy_unquoted_identifiers_aliases_5:
         unquoted_identifiers_policy: aliases
 
 test_policy_unquoted_identifiers_aliases_6:
-  fail_str: SELECT UPPER_CASE AS Pascal_Case, PascalCase AS lower_case
-  fix_str: SELECT UPPER_CASE AS PASCAL_CASE, PascalCase AS LOWER_CASE
+  fail_str: SELECT UPPER_CASE AS PascalCase, PascalCase AS lower_case
+  fix_str: SELECT UPPER_CASE AS PASCALCASE, PascalCase AS LOWER_CASE
   configs:
     rules:
       L014:

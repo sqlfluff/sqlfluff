@@ -126,7 +126,7 @@ class Rule_L010(BaseRule):
                     f"Setting concrete policy '{concrete_policy}' from cap_policy"
                 )
 
-        # Set the fixed to same as initial incase any of below don't match
+        # Set the fixed to same as initial in case any of below don't match
         fixed_raw = segment.raw
         # We need to change the segment to match the concrete policy
         if concrete_policy in ["upper", "lower", "capitalise"]:
