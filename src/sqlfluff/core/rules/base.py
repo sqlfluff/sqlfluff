@@ -310,7 +310,7 @@ class BaseRule:
                 path=pathlib.Path(fname) if fname else None,
                 templated_file=templated_file,
             )
-        except (bdb.BdbQuit, KeyboardInterrupt):  #pragma: no cover
+        except (bdb.BdbQuit, KeyboardInterrupt):  # pragma: no cover
             raise
         # Any exception at this point would halt the linter and
         # cause the user to get no results
