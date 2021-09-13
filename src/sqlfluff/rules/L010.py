@@ -126,15 +126,9 @@ class Rule_L010(BaseRule):
                     f"Setting concrete policy '{concrete_policy}' from cap_policy"
                 )
 
+        fixed_raw = segment.raw
         # We need to change the segment to match the concrete policy
         if concrete_policy in ["upper", "lower", "capitalise"]:
-            if "pascal" in cap_policy_opts and segment.raw[0].isupper():
-                # Insert undescores in transitions between lower and upper
-                fixed_raw = re.sub("(?<=[a-z0-9])(?=[A-Z])", "_", segment.raw)
-                self.logger.debug(f"Inserted underscores: {fixed_raw}")
-            else:
-                fixed_raw = segment.raw
-
             if concrete_policy == "upper":
                 fixed_raw = fixed_raw.upper()
             elif concrete_policy == "lower":
@@ -142,9 +136,10 @@ class Rule_L010(BaseRule):
             elif concrete_policy == "capitalise":
                 fixed_raw = fixed_raw.capitalize()
         elif concrete_policy == "pascal":
+            # For Pascal we set the first letter in each word to uppercase
             fixed_raw = re.sub(
                 "([^a-zA-Z0-9]+|^)([a-zA-Z0-9])([a-zA-Z0-9]*)",
-                lambda match: match.group(2).upper() + match.group(3).lower(),
+                lambda match: match.group(1) + match.group(2).upper() + match.group(3),
                 segment.raw,
             )
 
