@@ -23,6 +23,7 @@ class Rule_L024(Rule_L023):
     | for a function.
 
     .. code-block:: sql
+       :force:
 
         SELECT b
         FROM foo

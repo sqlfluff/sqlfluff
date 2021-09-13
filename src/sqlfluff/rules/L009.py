@@ -14,6 +14,7 @@ class Rule_L009(BaseRule):
     | The content in file without ends without a trailing newline, the $ represents end of file.
 
     .. code-block:: sql
+       :force:
 
         SELECT
             a
@@ -38,6 +39,7 @@ class Rule_L009(BaseRule):
     | Add trailing newline to the end, the $ character represents end of file.
 
     .. code-block:: sql
+       :force:
 
         SELECT
             a
