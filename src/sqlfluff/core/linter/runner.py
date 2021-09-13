@@ -7,6 +7,7 @@ Implements various runner types for SQLFluff:
   - Multithread (used only by automated tests)
 """
 from abc import ABC
+import bdb
 import functools
 import logging
 import multiprocessing.dummy
@@ -92,7 +93,7 @@ class SequentialRunner(BaseRunner):
         for fname, partial in self.iter_partials(fnames, fix=fix):
             try:
                 yield partial()
-            except KeyboardInterrupt:
+            except (bdb.BdbQuit, KeyboardInterrupt):
                 raise
             except Exception as e:
                 self._handle_lint_path_exception(fname, e)
