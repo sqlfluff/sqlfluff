@@ -22,6 +22,10 @@ test_pass_consistent_capitalisation_with_single_word_pascal:
   # Single-word ambiguity: Pascal vs Capitalise
   pass_str: SELECT AppleFritter, Banana
 
+test_pass_consistent_capitalisation_with_multiple_words_with_numbers:
+  # Numbers count as part of words so following letter can be upper or lower
+  pass_str: SELECT AppleFritter, Apple123fritter, Apple123Fritter
+
 test_fail_inconsistent_capitalisation_1:
   # Test that fixes are consistent
   fail_str: SELECT a,   B
@@ -70,6 +74,10 @@ test_pass_consistent_capitalisation_policy_pascal_5:
         extended_capitalisation_policy: pascal
 
 test_pass_consistent_capitalisation_policy_pascal_6:
+  # This could be argued as not PascalCase but technically it is
+  # unless we introduce a full dictionarry of words to recognise
+  # where word breaks are (an impossible task!). Also what about
+  # abbreviations (e.g. NASA)?
   pass_str: SELECT PASCALCASE 
   configs:
     rules:
@@ -93,6 +101,8 @@ test_fail_inconsistent_capitalisation_policy_pascal_2:
         extended_capitalisation_policy: pascal
 
 test_fail_inconsistent_capitalisation_policy_pascal_3:
+  # Similar to above, you could argue the fixed string is
+  # Not really Pascal Case, but it's closer than it was!
   fail_str: SELECT pASCAL_CASE
   fix_str: SELECT PASCAL_CASE
   configs:
@@ -136,6 +146,8 @@ test_pass_policy_unquoted_identifiers_aliases_2:
         unquoted_identifiers_policy: aliases
 
 test_pass_policy_unquoted_identifiers_aliases_3:
+  # See above commentsin regards to whether this should
+  # really be considered PascalCase (we treat as yes)
   pass_str: SELECT PASCAL_CASE
   configs:
     rules:

@@ -126,6 +126,7 @@ class Rule_L010(BaseRule):
                     f"Setting concrete policy '{concrete_policy}' from cap_policy"
                 )
 
+        # Set the fixed to same as initial incase any of below don't match
         fixed_raw = segment.raw
         # We need to change the segment to match the concrete policy
         if concrete_policy in ["upper", "lower", "capitalise"]:
@@ -136,7 +137,11 @@ class Rule_L010(BaseRule):
             elif concrete_policy == "capitalise":
                 fixed_raw = fixed_raw.capitalize()
         elif concrete_policy == "pascal":
-            # For Pascal we set the first letter in each word to uppercase
+            # For Pascal we set the first letter in each "word" to uppercase
+            # We do not lowercase other letters to allow for PascalCase style
+            # words. This does mean we allow all UPPERCASE and also don't
+            # correct Pascalcase to PascalCase, but there's only so much we can
+            # do. We do correct underscore_words to Underscore_Words.
             fixed_raw = re.sub(
                 "([^a-zA-Z0-9]+|^)([a-zA-Z0-9])([a-zA-Z0-9]*)",
                 lambda match: match.group(1) + match.group(2).upper() + match.group(3),
