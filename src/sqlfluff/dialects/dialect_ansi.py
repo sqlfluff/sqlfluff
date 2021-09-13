@@ -527,7 +527,7 @@ class DatatypeSegment(BaseSegment):
         Sequence(
             OneOf("time", "timestamp"),
             Bracketed(Ref("NumericLiteralSegment"), optional=True),
-            Sequence(OneOf("WITH", "WITHOUT"), "TIME", "ZONE"), optional=True),
+            Sequence(OneOf("WITH", "WITHOUT"), "TIME", "ZONE", optional=True),
         ),
         Sequence(
             OneOf(
