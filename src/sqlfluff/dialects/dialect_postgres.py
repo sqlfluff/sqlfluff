@@ -101,7 +101,7 @@ class DatatypeSegment(BaseSegment):
     type = "data_type"
     match_grammar = OneOf(
         Sequence(
-            OneOf("time", "timestamp"),
+            OneOf("TIME", "TIMESTAMP", "TIMESTAMPTZ"),
             Bracketed(Ref("NumericLiteralSegment"), optional=True),
             OneOf(
                 Sequence(OneOf("WITH", "WITHOUT"), "TIME", "ZONE"),
