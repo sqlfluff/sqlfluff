@@ -14,6 +14,7 @@ should flag on the segment FOLLOWING, the place that the desired element is
 missing.
 """
 
+import bdb
 import copy
 import logging
 import pathlib
@@ -309,6 +310,8 @@ class BaseRule:
                 path=pathlib.Path(fname) if fname else None,
                 templated_file=templated_file,
             )
+        except (bdb.BdbQuit, KeyboardInterrupt):  # pragma: no cover
+            raise
         # Any exception at this point would halt the linter and
         # cause the user to get no results
         except Exception as e:
