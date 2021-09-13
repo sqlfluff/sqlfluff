@@ -528,13 +528,15 @@ class DatatypeSegment(BaseSegment):
             Bracketed(Ref("NumericLiteralSegment"), optional=True),
             OneOf(
                 Sequence(OneOf("WITH", "WITHOUT"), "TIME", "ZONE"),
-                Sequence("AT", "TIME", "ZONE", Ref("LiteralGrammar")),
                 optional=True,
             ),
         ),
         Sequence(
             OneOf(
-                Sequence("CHARACTER", "VARYING"),
+                Sequence(
+                    OneOf("CHARACTER", "BINARY"),
+                    OneOf("VARYING", Sequence("LARGE", "OBJECT")),
+                ),
                 Sequence(
                     # Some dialects allow optional qualification of data types with schemas
                     Sequence(
