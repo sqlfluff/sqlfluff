@@ -24,7 +24,7 @@ leading_comma_violation_with_inline_comment:
   fix_str: |
     SELECT
         a,
-        b ,-- inline comment
+        b, -- inline comment
         c,
         /* non inline comment */
         d
