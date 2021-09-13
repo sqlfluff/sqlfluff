@@ -147,6 +147,9 @@ class Rule_L019(BaseRule):
                 else:
                     # We've run out of whitespace to delete, time to fix
                     last_leading_comma_seg = memory["last_leading_comma_seg"]
+                    # Scan backwards to find the last code segment, skipping
+                    # over lines that are either entirely blank or just a
+                    # comment. We want to place the comma immediately after it.
                     last_code_seg = None
                     while last_code_seg is None or last_code_seg.is_type("newline"):
                         last_code_seg = self._last_code_seg(
