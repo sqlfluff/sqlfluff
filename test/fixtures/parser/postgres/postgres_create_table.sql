@@ -208,3 +208,7 @@ date_created timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
 date_updated timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
 operation_id int4 NOT NULL DEFAULT '-1'::integer
 );
+
+CREATE TABLE main.test_table (
+    "col1" character varying(40) NOT NULL
+);
