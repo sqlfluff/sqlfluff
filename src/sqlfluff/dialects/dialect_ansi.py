@@ -530,16 +530,22 @@ class DatatypeSegment(BaseSegment):
             Sequence(OneOf("WITH", "WITHOUT"), "TIME", "ZONE", optional=True),
         ),
         Sequence(
-            Sequence(
-                # Some dialects allow optional qualification of data types with schemas
+            OneOf(
                 Sequence(
-                    Ref("SingleIdentifierGrammar"),
-                    Ref("DotSegment"),
-                    allow_gaps=False,
-                    optional=True,
+                    OneOf("CHARACTER", "BINARY"),
+                    OneOf("VARYING", Sequence("LARGE", "OBJECT")),
                 ),
-                Ref("DatatypeIdentifierSegment"),
-                allow_gaps=False,
+                Sequence(
+                    # Some dialects allow optional qualification of data types with schemas
+                    Sequence(
+                        Ref("SingleIdentifierGrammar"),
+                        Ref("DotSegment"),
+                        allow_gaps=False,
+                        optional=True,
+                    ),
+                    Ref("DatatypeIdentifierSegment"),
+                    allow_gaps=False,
+                ),
             ),
             Bracketed(
                 OneOf(

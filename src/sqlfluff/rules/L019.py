@@ -147,6 +147,20 @@ class Rule_L019(BaseRule):
                 else:
                     # We've run out of whitespace to delete, time to fix
                     last_leading_comma_seg = memory["last_leading_comma_seg"]
+                    # Scan backwards to find the last code segment, skipping
+                    # over lines that are either entirely blank or just a
+                    # comment. We want to place the comma immediately after it.
+                    last_code_seg = None
+                    while last_code_seg is None or last_code_seg.is_type("newline"):
+                        last_code_seg = self._last_code_seg(
+                            raw_stack[
+                                : raw_stack.index(
+                                    last_code_seg
+                                    if last_code_seg
+                                    else memory["last_leading_comma_seg"]
+                                )
+                            ]
+                        )
                     return LintResult(
                         anchor=last_leading_comma_seg,
                         description="Found leading comma. Expected only trailing.",
@@ -157,11 +171,11 @@ class Rule_L019(BaseRule):
                                 for d in memory["whitespace_deletions"]
                             ],
                             LintFix(
-                                "create",
-                                anchor=memory["anchor_for_new_trailing_comma_seg"],
+                                "edit",
+                                last_code_seg,
                                 # Reuse the previous leading comma violation to
                                 # create a new trailing comma
-                                edit=last_leading_comma_seg,
+                                [last_code_seg, last_leading_comma_seg],
                             ),
                         ],
                     )

@@ -2,7 +2,7 @@ SELECT
     COUNT(1) AS campaign_count,
     state_user_v_peer_open,
     business_type,
-    
+
     -- The following is the slope of the regression line. Note that CORR (which is the Pearson's correlation
     --  coefficient is symmetric in its arguments, but since STDDEV_POP(open_rate_su) appears in the
     --  numerator this is the slope of the regression line considering STDDEV_POP(open_rate_su) to be

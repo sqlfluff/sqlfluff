@@ -578,35 +578,41 @@ class Rule_L003(BaseRule):
             # we can assume that we're ok.
             self.logger.debug("    Indent deemed ok comparing to #%s", k)
 
-            # Given that this line is ok, consider if the previous line is a comment.
-            # If it is, lint the indentation of that comment.
-            if this_line_no - 1 in memory["comment_lines"]:
-                # The previous line WAS as comment.
-                prev_line = res[this_line_no - 1]
-                if this_line["indent_size"] != prev_line["indent_size"]:
-                    # It's not aligned.
-                    # Find the anchor first.
-                    anchor = None
-                    for seg in prev_line["line_buffer"]:
-                        if seg.is_type("comment"):
-                            anchor = seg
-                            break
-                    # Make fixes.
-                    fixes = self._coerce_indent_to(
-                        desired_indent="".join(
-                            elem.raw for elem in this_line["indent_buffer"]
-                        ),
-                        current_indent_buffer=prev_line["indent_buffer"],
-                        current_anchor=anchor,
-                    )
+            # Given that this line is ok, consider if the preceding lines are
+            # comments. If they are, lint the indentation of the comment(s).
+            fixes = []
+            for n in range(this_line_no - 1, -1, -1):
+                if n in memory["comment_lines"]:
+                    # The previous line WAS a comment.
+                    prev_line = res[n]
+                    if this_line["indent_size"] != prev_line["indent_size"]:
+                        # It's not aligned.
+                        # Find the anchor first.
+                        anchor = None
+                        for seg in prev_line["line_buffer"]:
+                            if seg.is_type("comment"):
+                                anchor = seg
+                                break
+                        # Make fixes.
+                        fixes += self._coerce_indent_to(
+                            desired_indent="".join(
+                                elem.raw for elem in this_line["indent_buffer"]
+                            ),
+                            current_indent_buffer=prev_line["indent_buffer"],
+                            current_anchor=anchor,
+                        )
 
-                    memory["problem_lines"].append(this_line_no - 1)
-                    return LintResult(
-                        anchor=anchor,
-                        memory=memory,
-                        description="Comment not aligned with following line.",
-                        fixes=fixes,
-                    )
+                        memory["problem_lines"].append(n)
+                else:
+                    break
+
+            if fixes:
+                return LintResult(
+                    anchor=anchor,
+                    memory=memory,
+                    description="Comment not aligned with following line.",
+                    fixes=fixes,
+                )
 
             # Otherwise all good.
             return LintResult(memory=memory)

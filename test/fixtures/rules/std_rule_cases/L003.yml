@@ -230,6 +230,28 @@ test_fail_indented_from_with_comment_fix:
     -- Comment
     JOIN t2 USING (user_id)
 
+test_fail_indented_multi_line_comment:
+  fail_str: |
+    SELECT
+    business_type,
+
+    -- The following is the slope of the regression line. Note that CORR (which is the Pearson's correlation
+    -- coefficient is symmetric in its arguments, but since STDDEV_POP(open_rate_su) appears in the
+    customer_type
+
+    FROM
+    global_actions_states
+  fix_str: |
+    SELECT
+        business_type,
+
+        -- The following is the slope of the regression line. Note that CORR (which is the Pearson's correlation
+        -- coefficient is symmetric in its arguments, but since STDDEV_POP(open_rate_su) appears in the
+        customer_type
+
+    FROM
+        global_actions_states
+
 test_fail_attempted_hanger_fix:
   # It's almost a hanger and so should be corrected to one.
   fail_str: |
