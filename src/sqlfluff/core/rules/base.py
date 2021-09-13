@@ -309,6 +309,8 @@ class BaseRule:
                 path=pathlib.Path(fname) if fname else None,
                 templated_file=templated_file,
             )
+        except KeyboardInterrupt:
+            raise
         # Any exception at this point would halt the linter and
         # cause the user to get no results
         except Exception as e:

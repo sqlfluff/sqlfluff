@@ -92,6 +92,8 @@ class SequentialRunner(BaseRunner):
         for fname, partial in self.iter_partials(fnames, fix=fix):
             try:
                 yield partial()
+            except KeyboardInterrupt:
+                raise
             except Exception as e:
                 self._handle_lint_path_exception(fname, e)
 
