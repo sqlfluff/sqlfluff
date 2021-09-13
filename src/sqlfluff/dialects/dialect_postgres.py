@@ -93,7 +93,7 @@ postgres_dialect.replace(
 
 @postgres_dialect.segment(replace=True)
 class DateTimeLiteralGrammar(BaseSegment):
-    """Literal Date Time with optional casting to Time Zone"""
+    """Literal Date Time with optional casting to Time Zone."""
 
     type = "date_type_literal"
     match_grammar = Sequence(
