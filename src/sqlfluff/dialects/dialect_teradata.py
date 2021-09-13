@@ -407,15 +407,15 @@ class ColumnDefinitionSegment(BaseSegment):
         Ref("DatatypeSegment"),  # Column type
         Bracketed(Anything(), optional=True),  # For types like VARCHAR(100)
         AnyNumberOf(
-            Ref("ColumnOptionSegment", optional=True),
+            Ref("ColumnConstraintSegment", optional=True),
             # Adding Teradata specific column definitions
-            Ref("TdColumnOptionSegment", optional=True),
+            Ref("TdColumnConstraintSegment", optional=True),
         ),
     )
 
 
 @teradata_dialect.segment()
-class TdColumnOptionSegment(BaseSegment):
+class TdColumnConstraintSegment(BaseSegment):
     """Teradata specific column attributes.
 
     e.g. CHARACTER SET LATIN | [NOT] (CASESPECIFIC|CS) | (UPPERCASE|UC)

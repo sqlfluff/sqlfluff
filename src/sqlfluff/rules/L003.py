@@ -94,7 +94,7 @@ class Rule_L003(BaseRule):
                     # Indent balance is the indent at the start of the first content
                     "indent_balance": this_indent_balance,
                     "hanging_indent": hanger_pos if line_indent_stack else None,
-                    # Clean indent is true if the line *ends* win an indent
+                    # Clean indent is true if the line *ends* with an indent
                     # or has an indent in the initial whitespace.
                     "clean_indent": clean_indent,
                 }
@@ -436,8 +436,7 @@ class Rule_L003(BaseRule):
                     )
                     # If we have a clean indent, we can just add steps in line
                     # with the difference in the indent buffers. simples.
-                    # We can also do this if we've skipped a line. I think?
-                    if this_line["clean_indent"] or this_line_no - k > 1:
+                    if this_line["clean_indent"]:
                         self.logger.debug("        Use clean indent.")
                         desired_indent = default_indent
                     # If we have the option of a hanging indent then use it.
@@ -579,35 +578,41 @@ class Rule_L003(BaseRule):
             # we can assume that we're ok.
             self.logger.debug("    Indent deemed ok comparing to #%s", k)
 
-            # Given that this line is ok, consider if the previous line is a comment.
-            # If it is, lint the indentation of that comment.
-            if this_line_no - 1 in memory["comment_lines"]:
-                # The previous line WAS as comment.
-                prev_line = res[this_line_no - 1]
-                if this_line["indent_size"] != prev_line["indent_size"]:
-                    # It's not aligned.
-                    # Find the anchor first.
-                    anchor = None
-                    for seg in prev_line["line_buffer"]:
-                        if seg.is_type("comment"):
-                            anchor = seg
-                            break
-                    # Make fixes.
-                    fixes = self._coerce_indent_to(
-                        desired_indent="".join(
-                            elem.raw for elem in this_line["indent_buffer"]
-                        ),
-                        current_indent_buffer=prev_line["indent_buffer"],
-                        current_anchor=anchor,
-                    )
+            # Given that this line is ok, consider if the preceding lines are
+            # comments. If they are, lint the indentation of the comment(s).
+            fixes = []
+            for n in range(this_line_no - 1, -1, -1):
+                if n in memory["comment_lines"]:
+                    # The previous line WAS a comment.
+                    prev_line = res[n]
+                    if this_line["indent_size"] != prev_line["indent_size"]:
+                        # It's not aligned.
+                        # Find the anchor first.
+                        anchor = None
+                        for seg in prev_line["line_buffer"]:
+                            if seg.is_type("comment"):
+                                anchor = seg
+                                break
+                        # Make fixes.
+                        fixes += self._coerce_indent_to(
+                            desired_indent="".join(
+                                elem.raw for elem in this_line["indent_buffer"]
+                            ),
+                            current_indent_buffer=prev_line["indent_buffer"],
+                            current_anchor=anchor,
+                        )
 
-                    memory["problem_lines"].append(this_line_no - 1)
-                    return LintResult(
-                        anchor=anchor,
-                        memory=memory,
-                        description="Comment not aligned with following line.",
-                        fixes=fixes,
-                    )
+                        memory["problem_lines"].append(n)
+                else:
+                    break
+
+            if fixes:
+                return LintResult(
+                    anchor=anchor,
+                    memory=memory,
+                    description="Comment not aligned with following line.",
+                    fixes=fixes,
+                )
 
             # Otherwise all good.
             return LintResult(memory=memory)

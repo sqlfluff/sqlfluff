@@ -65,10 +65,7 @@ postgres_dialect.add(
 postgres_dialect.replace(
     PostFunctionGrammar=OneOf(
         Ref("WithinGroupClauseSegment"),
-        Sequence(
-            Sequence(OneOf("IGNORE", "RESPECT"), "NULLS", optional=True),
-            Ref("OverClauseSegment"),
-        ),
+        Ref("OverClauseSegment"),
         # Filter clause supported by both Postgres and SQLite
         Ref("FilterClauseGrammar"),
     ),
@@ -90,6 +87,7 @@ postgres_dialect.replace(
             OneOf("DEFAULT", Ref("EqualsSegment")), Ref("LiteralGrammar"), optional=True
         ),
     ),
+    FrameClauseUnitGrammar=OneOf("RANGE", "ROWS", "GROUPS"),
 )
 
 
@@ -627,6 +625,8 @@ class AlterTableActionSegment(BaseSegment):
     Matches the definition of action in https://www.postgresql.org/docs/13/sql-altertable.html
     """
 
+    type = "alter_table_action_segment"
+
     match_grammar = OneOf(
         Sequence(
             "ADD",
@@ -666,7 +666,9 @@ class AlterTableActionSegment(BaseSegment):
                     OneOf("ALWAYS", Sequence("BY", "DEFAULT")),
                     "AS",
                     "IDENTITY",
-                    # TODO Optional Sequence options here
+                    Bracketed(
+                        AnyNumberOf(Ref("AlterSequenceOptionsSegment")), optional=True
+                    ),
                 ),
                 Sequence(
                     OneOf(
@@ -675,7 +677,7 @@ class AlterTableActionSegment(BaseSegment):
                             "GENERATED",
                             OneOf("ALWAYS", Sequence("BY", "DEFAULT")),
                         ),
-                        # TODO SET sequence_option
+                        Sequence("SET", Ref("AlterSequenceOptionsSegment")),
                         Sequence(
                             "RESTART", Sequence("WITH", Ref("NumericLiteralSegment"))
                         ),
@@ -811,7 +813,7 @@ class LikeOptionSegment(BaseSegment):
     As specified in https://www.postgresql.org/docs/13/sql-createtable.html
     """
 
-    type = "like_option"
+    type = "like_option_segment"
 
     match_grammar = Sequence(
         OneOf("INCLUDING", "EXCLUDING"),
@@ -829,14 +831,14 @@ class LikeOptionSegment(BaseSegment):
     )
 
 
-@postgres_dialect.segment()
+@postgres_dialect.segment(replace=True)
 class ColumnConstraintSegment(BaseSegment):
     """A column option; each CREATE TABLE column can have 0 or more.
 
     This matches the definition in https://www.postgresql.org/docs/13/sql-altertable.html
     """
 
-    type = "column_constraint"
+    type = "column_constraint_segment"
     # Column constraint from
     # https://www.postgresql.org/docs/12/sql-createtable.html
     match_grammar = Sequence(
@@ -868,7 +870,9 @@ class ColumnConstraintSegment(BaseSegment):
                 OneOf("ALWAYS", Sequence("BY", "DEFAULT")),
                 "AS",
                 "IDENTITY",
-                # TODO Add optional sequence options
+                Bracketed(
+                    AnyNumberOf(Ref("AlterSequenceOptionsSegment")), optional=True
+                ),
             ),
             "UNIQUE",
             Ref("PrimaryKeyGrammar"),
@@ -937,7 +941,7 @@ class TableConstraintSegment(BaseSegment):
     As specified in https://www.postgresql.org/docs/13/sql-altertable.html
     """
 
-    type = "table_constraint_definition"
+    type = "table_constraint_segment"
 
     match_grammar = Sequence(
         Sequence(  # [ CONSTRAINT <Constraint name> ]
@@ -1446,6 +1450,190 @@ class CreateIndexStatementSegment(BaseSegment):
     )
 
 
+@postgres_dialect.segment(replace=True)
+class FrameClauseSegment(BaseSegment):
+    """A frame clause for window functions.
+
+    As specified in https://www.postgresql.org/docs/13/sql-expressions.html
+    """
+
+    type = "frame_clause"
+
+    _frame_extent = OneOf(
+        Sequence("CURRENT", "ROW"),
+        Sequence(
+            OneOf(Ref("NumericLiteralSegment"), "UNBOUNDED"),
+            OneOf("PRECEDING", "FOLLOWING"),
+        ),
+    )
+
+    _frame_exclusion = Sequence(
+        "EXCLUDE",
+        OneOf(Sequence("CURRENT", "ROW"), "GROUP", "TIES", Sequence("NO", "OTHERS")),
+        optional=True,
+    )
+
+    match_grammar = Sequence(
+        Ref("FrameClauseUnitGrammar"),
+        OneOf(_frame_extent, Sequence("BETWEEN", _frame_extent, "AND", _frame_extent)),
+        _frame_exclusion,
+    )
+
+
+@postgres_dialect.segment(replace=True)
+class CreateSequenceOptionsSegment(BaseSegment):
+    """Options for Create Sequence statement.
+
+    As specified in https://www.postgresql.org/docs/13/sql-createsequence.html
+    """
+
+    type = "create_sequence_options_segment"
+
+    match_grammar = OneOf(
+        Sequence("AS", Ref("DatatypeSegment")),
+        Sequence(
+            "INCREMENT", Ref.keyword("BY", optional=True), Ref("NumericLiteralSegment")
+        ),
+        OneOf(
+            Sequence("MINVALUE", Ref("NumericLiteralSegment")),
+            Sequence("NO", "MINVALUE"),
+        ),
+        OneOf(
+            Sequence("MAXVALUE", Ref("NumericLiteralSegment")),
+            Sequence("NO", "MAXVALUE"),
+        ),
+        Sequence(
+            "START", Ref.keyword("WITH", optional=True), Ref("NumericLiteralSegment")
+        ),
+        Sequence("CACHE", Ref("NumericLiteralSegment")),
+        OneOf("CYCLE", Sequence("NO", "CYCLE")),
+        Sequence("OWNED", "BY", OneOf("NONE", Ref("ColumnReferenceSegment"))),
+    )
+
+
+@postgres_dialect.segment(replace=True)
+class CreateSequenceStatementSegment(BaseSegment):
+    """Create Sequence Statement.
+
+    As specified in https://www.postgresql.org/docs/13/sql-createsequence.html
+    """
+
+    type = "create_sequence_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("TemporaryGrammar", optional=True),
+        "SEQUENCE",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("SequenceReferenceSegment"),
+        AnyNumberOf(Ref("CreateSequenceOptionsSegment"), optional=True),
+    )
+
+
+@postgres_dialect.segment(replace=True)
+class AlterSequenceOptionsSegment(BaseSegment):
+    """Dialect-specific options for ALTER SEQUENCE statement.
+
+    As specified in https://www.postgresql.org/docs/13/sql-altersequence.html
+    """
+
+    type = "alter_sequence_options_segment"
+
+    match_grammar = OneOf(
+        Sequence("AS", Ref("DatatypeSegment")),
+        Sequence(
+            "INCREMENT", Ref.keyword("BY", optional=True), Ref("NumericLiteralSegment")
+        ),
+        OneOf(
+            Sequence("MINVALUE", Ref("NumericLiteralSegment")),
+            Sequence("NO", "MINVALUE"),
+        ),
+        OneOf(
+            Sequence("MAXVALUE", Ref("NumericLiteralSegment")),
+            Sequence("NO", "MAXVALUE"),
+        ),
+        Sequence(
+            "START", Ref.keyword("WITH", optional=True), Ref("NumericLiteralSegment")
+        ),
+        Sequence(
+            "RESTART", Ref.keyword("WITH", optional=True), Ref("NumericLiteralSegment")
+        ),
+        Sequence("CACHE", Ref("NumericLiteralSegment")),
+        Sequence(Ref.keyword("NO", optional=True), "CYCLE"),
+        Sequence("OWNED", "BY", OneOf("NONE", Ref("ColumnReferenceSegment"))),
+    )
+
+
+@postgres_dialect.segment(replace=True)
+class AlterSequenceStatementSegment(BaseSegment):
+    """Alter Sequence Statement.
+
+    As specified in https://www.postgresql.org/docs/13/sql-altersequence.html
+    """
+
+    type = "alter_sequence_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "SEQUENCE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("SequenceReferenceSegment"),
+        OneOf(
+            AnyNumberOf(Ref("AlterSequenceOptionsSegment", optional=True)),
+            Sequence(
+                "OWNER",
+                "TO",
+                OneOf(Ref("ParameterNameSegment"), "CURRENT_USER", "SESSION_USER"),
+            ),
+            Sequence("RENAME", "TO", Ref("SequenceReferenceSegment")),
+            Sequence("SET", "SCHEMA", Ref("SchemaReferenceSegment")),
+        ),
+    )
+
+
+@postgres_dialect.segment(replace=True)
+class DropSequenceStatementSegment(BaseSegment):
+    """Drop Sequence Statement.
+
+    As specified in https://www.postgresql.org/docs/13/sql-dropsequence.html
+    """
+
+    type = "drop_sequence_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        "SEQUENCE",
+        Ref("IfExistsGrammar", optional=True),
+        Delimited(Ref("SequenceReferenceSegment")),
+        OneOf("CASCADE", "RESTRICT", optional=True),
+    )
+
+
+@postgres_dialect.segment()
+class AnalyzeStatementSegment(BaseSegment):
+    """Analyze Statement Segment.
+
+    As specified in https://www.postgresql.org/docs/13/sql-analyze.html
+    """
+
+    type = "analyze_statement"
+
+    _option = Sequence(
+        OneOf("VERBOSE", "SKIP_LOCKED"), Ref("BooleanLiteralGrammar", optional=True)
+    )
+
+    _tables_and_columns = Sequence(
+        Ref("TableReferenceSegment"),
+        Bracketed(Delimited(Ref("ColumnReferenceSegment")), optional=True),
+    )
+
+    match_grammar = Sequence(
+        OneOf("ANALYZE", "ANALYSE"),
+        OneOf(Bracketed(Delimited(_option)), "VERBOSE", optional=True),
+        Delimited(_tables_and_columns, optional=True),
+    )
+
+
 # Adding PostgreSQL specific statements
 @postgres_dialect.segment(replace=True)
 class StatementSegment(BaseSegment):
@@ -1457,6 +1645,7 @@ class StatementSegment(BaseSegment):
         insert=[
             Ref("AlterDefaultPrivilegesStatementSegment"),
             Ref("CommentOnStatementSegment"),
+            Ref("AnalyzeStatementSegment"),
         ],
     )
 

@@ -101,3 +101,38 @@ test_union_statements_ignored:
       c,
       d
     from table_b
+
+test_insert_statements_ignored:
+  pass_str: |
+    INSERT INTO example_schema.example_table
+    (id,
+        example_column,
+        rank_asc,
+        rank_desc)
+    SELECT
+        id,
+        CASE
+            WHEN col_a IN('a',
+                                  'b',
+                    'c') THEN col_a
+        END AS example_column,
+        rank_asc,
+        rank_desc
+    FROM
+      another_schema.another_table
+
+test_create_table_as_select_statements_ignored:
+  pass_str: |
+    CREATE TABLE new_table AS (
+      SELECT
+          id,
+          CASE
+              WHEN col_a IN('a',
+                                    'b',
+                      'c') THEN col_a
+          END AS example_column,
+          rank_asc,
+          rank_desc
+      FROM
+        another_schema.another_table
+    )

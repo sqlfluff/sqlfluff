@@ -391,7 +391,6 @@ class Rule_L016(Rule_L003):
 
             # We'll need the indent, so let's get it for fixing.
             line_indent = []
-            idx = 0
             for s in this_line:
                 if s.name == "whitespace":
                     line_indent.append(s)
@@ -429,14 +428,25 @@ class Rule_L016(Rule_L003):
                         idx -= 1
                     else:
                         break  # pragma: no cover
+                create_elements = line_indent + [this_line[-1], segment]
+                if sum(len(s.raw) for s in create_elements) > self.max_line_length:
+                    # The inline comment is NOT on a line by itself, but even if
+                    # we move it onto a line by itself, it's still too long. In
+                    # this case, the rule should do nothing, otherwise it
+                    # triggers an endless cycle of "fixes" that simply keeps
+                    # adding blank lines.
+                    self.logger.info(
+                        "Unfixable inline comment, too long even on a line by itself: %s",
+                        this_line[-1],
+                    )
+                    if self.ignore_comment_lines:
+                        return LintResult()
+                    else:
+                        return LintResult(anchor=segment)
                 # Create a newline before this one with the existing comment, an
                 # identical indent AND a terminating newline, copied from the current
                 # target segment.
-                create_buffer = [
-                    LintFix(
-                        "create", this_line[0], line_indent + [this_line[-1], segment]
-                    )
-                ]
+                create_buffer = [LintFix("create", this_line[0], create_elements)]
                 return LintResult(anchor=segment, fixes=delete_buffer + create_buffer)
 
             fixes = self._eval_line_for_breaks(this_line)
