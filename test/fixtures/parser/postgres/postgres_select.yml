@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: dbfdbc9469a77d57d8b02faec8b95da33e52024ee4907a9d010073e0fed818b3
+_hash: e6aa4e41c65ff4155ca1ec839cd9071ecada5b617cd6b6c31c3074b79545a66a
 file:
 - statement:
     select_statement:
@@ -51,11 +51,11 @@ file:
         select_clause_element:
           expression:
           - data_type:
-              keyword: timestamptz
+              data_type_identifier: timestamptz
           - literal: "'2013-07-01 12:00:00'"
           - binary_operator: '-'
           - data_type:
-              keyword: timestamptz
+              data_type_identifier: timestamptz
           - literal: "'2013-03-01 12:00:00'"
 - statement_terminator: ;
 - statement:
@@ -83,7 +83,7 @@ file:
                 cast_expression:
                   casting_operator: '::'
                   data_type:
-                  - keyword: timestamp
+                  - keyword: TIMESTAMP
                   - keyword: AT
                   - keyword: TIME
                   - keyword: ZONE
@@ -96,11 +96,30 @@ file:
         keyword: SELECT
         select_clause_element:
           expression:
+            bracketed:
+              start_bracket: (
+              expression:
+                literal: "'2015-10-24 16:38:46'"
+                cast_expression:
+                  casting_operator: '::'
+                  data_type:
+                  - keyword: TIMESTAMP
+                  - keyword: WITH
+                  - keyword: TIME
+                  - keyword: ZONE
+              end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
             literal: "'2015-10-24 16:38:46'"
             cast_expression:
               casting_operator: '::'
               data_type:
-              - keyword: timestamptz
+              - keyword: TIMESTAMPTZ
               - keyword: AT
               - keyword: TIME
               - keyword: ZONE
