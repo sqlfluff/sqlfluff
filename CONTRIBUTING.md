@@ -27,7 +27,7 @@ You may find it useful to familiarise yourself with the
 [architectural principles here](https://docs.sqlfluff.com/en/latest/architecture.html)
 and with the [current documentation here](https://docs.sqlfluff.com).
 
-## How the community works
+## How The Community Works
 
 SQLFluff is maintained by a community of volunteers, which means we have a
 few processes in place to allow everyone to contribute at a level that suits
@@ -74,7 +74,7 @@ changes.
 
 ## Nerdy Details
 
-### Developing SQLFluff locally
+### Developing and Running SQLFluff Locally
 
 To use your local development branch of SQLFluff, I recommend you use a virtual
 environment. e.g:
@@ -138,7 +138,7 @@ tox -e cov-init,dbt018-py38,cov-report-dbt -- -m "dbt"
 
 For more information on adding and running test cases see the [Parser Test README](test/fixtures/parser/README.md) and the [Rules Test README](test/fixtures/rules/std_rule_cases/README.md).
 
-### Documentation
+### Documentation Website
 
 Documentation is built using Sphinx with some pages being built based on the source code.
 See the [Documentation Website README.md](./docs/README.md) file for more information on how to build and test this.
