@@ -4,7 +4,9 @@ from sqlfluff.rules.L011 import Rule_L011
 
 
 class Rule_L012(Rule_L011):
-    """Implicit/explicit aliasing of column to follow preference
+    """Implicit/explicit aliasing of columns.
+
+    Aliasing of columns to follow preference
     (explicit using an `AS` clause is default).
 
     NB: This rule inherits its functionality from obj:`Rule_L011` but is

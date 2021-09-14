@@ -49,18 +49,3 @@ test_fail_implicit_alias_implicit_newline:
     rules:
       L011:
         aliasing: implicit
-
-# TODO - add test for blank line
-# test_fail_implicit_alias_implicit_newlines:
-#   # Add whitespace when fixing implicit aliasing
-#   fail_str: |
-#       select foo.bar from (select 1 as bar)
-#       AS
-#       foo
-#   fix_str: |
-#       select foo.bar from (select 1 as bar)
-#       foo
-#   configs:
-#     rules:
-#       L011:
-#         aliasing: implicit

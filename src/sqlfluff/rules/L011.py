@@ -8,7 +8,9 @@ from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
 @document_fix_compatible
 class Rule_L011(BaseRule):
-    """Implicit/explicit aliasing of table to follow preference
+    """Implicit/explicit aliasing of table.
+
+    Aliasing of table to follow preference
     (explicit using an `AS` clause is default).
 
     | **Anti-pattern**
@@ -67,7 +69,7 @@ class Rule_L011(BaseRule):
                                 and segment.segments[1].type == "whitespace"
                             ):
                                 fixes.append(LintFix("delete", segment.segments[1]))
-                            # TODO - check if we're left with a blank line and remove it if so.
+
                             return LintResult(anchor=anchor, fixes=fixes)
 
                 else:
