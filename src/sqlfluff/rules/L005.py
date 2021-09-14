@@ -16,7 +16,6 @@ class Rule_L005(BaseRule):
     | There is an extra space in line two before the comma.
 
     .. code-block:: sql
-       :force:
 
         SELECT
             a•,

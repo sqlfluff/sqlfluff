@@ -15,7 +15,6 @@ class Rule_L018(BaseRule):
     | In this example, the closing bracket is not aligned with WITH keyword.
 
     .. code-block:: sql
-       :force:
 
         WITH zoo AS (
             SELECT a FROM foo

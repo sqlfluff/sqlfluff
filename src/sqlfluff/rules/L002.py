@@ -20,7 +20,6 @@ class Rule_L002(BaseRule):
     | In this example, the second line contains two spaces and one tab.
 
     .. code-block:: sql
-       :force:
 
         SELECT
         ••→a
@@ -30,7 +29,6 @@ class Rule_L002(BaseRule):
     | Change the line to use spaces only.
 
     .. code-block:: sql
-       :force:
 
         SELECT
         ••••a

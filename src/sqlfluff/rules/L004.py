@@ -23,7 +23,6 @@ class Rule_L004(BaseRule):
     | Using tabs instead of spaces when indent_unit config set to spaces (default).
 
     .. code-block:: sql
-       :force:
 
         select
         ••••a,
@@ -34,7 +33,6 @@ class Rule_L004(BaseRule):
     | Change the line to use spaces only.
 
     .. code-block:: sql
-       :force:
 
         select
         ••••a,

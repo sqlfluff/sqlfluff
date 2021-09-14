@@ -11,7 +11,6 @@ class Rule_L001(BaseRule):
     | The • character represents a space.
 
     .. code-block:: sql
-       :force:
 
         SELECT
             a
