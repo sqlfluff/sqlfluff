@@ -108,14 +108,7 @@ def ultimate_replace(app, docname, source):
     source[0] = result
 
 
-SQLFLUFF_RELEASE_FLAG = "|release|"
-SQLFLUFF_SQL_CODE_BLOCK = f"{' ' * 4}.. code-block:: sql"
-SQLFLUFF_SQL_CODE_BLOCK_FORCE = f"{SQLFLUFF_SQL_CODE_BLOCK}\n{' ' * (4 + 3)}:force:"
-
-ultimate_replacements = {
-    SQLFLUFF_RELEASE_FLAG: release,
-    SQLFLUFF_SQL_CODE_BLOCK: SQLFLUFF_SQL_CODE_BLOCK_FORCE
-}
+ultimate_replacements = {"|release|": release}
 
 
 def setup(app):
