@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 10c9acb91a7ea62ff027e9d73ba2cce515f0685a38e78cef8492722facb1ce88
+_hash: dcfa7d689c0b44df6919c9da2f574211959f343f126a1b38763f815f75543abc
 file:
 - statement:
     alter_table_statement:
@@ -36,10 +36,11 @@ file:
       - column_reference:
           identifier: mtime
       - data_type:
-        - keyword: timestamp
-        - keyword: with
-        - keyword: time
-        - keyword: zone
+          datetime_type_identifier:
+          - keyword: timestamp
+          - keyword: with
+          - keyword: time
+          - keyword: zone
       - column_constraint_segment:
           keyword: DEFAULT
           function:
@@ -143,24 +144,27 @@ file:
       - keyword: DATA
       - keyword: TYPE
       - data_type:
-        - keyword: timestamp
-        - keyword: with
-        - keyword: time
-        - keyword: zone
-      - keyword: USING
-      - expression:
-        - data_type:
+          datetime_type_identifier:
           - keyword: timestamp
           - keyword: with
           - keyword: time
           - keyword: zone
-        - literal: "'epoch'"
+      - keyword: USING
+      - expression:
+        - datetime_literal:
+            datetime_type_identifier:
+            - keyword: timestamp
+            - keyword: with
+            - keyword: time
+            - keyword: zone
+            literal: "'epoch'"
         - binary_operator: +
         - column_reference:
             identifier: foo_timestamp
         - binary_operator: '*'
-        - interval_expression:
-            keyword: interval
+        - datetime_literal:
+            datetime_type_identifier:
+              keyword: interval
             literal: "'1 second'"
 - statement_terminator: ;
 - statement:
@@ -184,21 +188,24 @@ file:
           identifier: foo_timestamp
       - keyword: TYPE
       - data_type:
-        - keyword: timestamp
-        - keyword: with
-        - keyword: time
-        - keyword: zone
+          datetime_type_identifier:
+          - keyword: timestamp
+          - keyword: with
+          - keyword: time
+          - keyword: zone
       - keyword: USING
       - expression:
-        - data_type:
-            keyword: timestamp
-        - literal: "'epoch'"
+        - datetime_literal:
+            datetime_type_identifier:
+              keyword: timestamp
+            literal: "'epoch'"
         - binary_operator: +
         - column_reference:
             identifier: foo_timestamp
         - binary_operator: '*'
-        - interval_expression:
-            keyword: interval
+        - datetime_literal:
+            datetime_type_identifier:
+              keyword: interval
             literal: "'1 second'"
     - comma: ','
     - alter_table_action_segment:

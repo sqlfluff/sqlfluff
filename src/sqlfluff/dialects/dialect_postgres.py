@@ -101,12 +101,30 @@ class TimeZoneGrammar(BaseSegment):
     )
 
 
+@postgres_dialect.segment()
+class DateTimeTypeIdentifier(BaseSegment):
+    """Date Time Type."""
+
+    type = "datetime_type_identifier"
+    match_grammar = OneOf(
+        "DATE",
+        Sequence(
+            OneOf("TIME", "TIMESTAMP"),
+            Bracketed(Ref("NumericLiteralSegment"), optional=True),
+            Sequence(OneOf("WITH", "WITHOUT"), "TIME", "ZONE", optional=True),
+        ),
+        Sequence("TIMESTAMPTZ", Bracketed(Ref("NumericLiteralSegment"), optional=True)),
+        "INTERVAL",
+    )
+
+
 @postgres_dialect.segment(replace=True)
 class DateTimeLiteralGrammar(BaseSegment):
     """Literal Date Time with optional casting to Time Zone."""
 
-    type = "date_type_literal"
+    type = "datetime_literal"
     match_grammar = Sequence(
+        Ref("DateTimeTypeIdentifier"),
         Ref("QuotedLiteralSegment"),
         Ref("TimeZoneGrammar", optional=True),
     )
@@ -122,17 +140,7 @@ class DatatypeSegment(BaseSegment):
     type = "data_type"
     match_grammar = OneOf(
         Sequence(
-            OneOf(
-                Sequence(
-                    OneOf("TIME", "TIMESTAMP"),
-                    Bracketed(Ref("NumericLiteralSegment"), optional=True),
-                    Sequence(OneOf("WITH", "WITHOUT"), "TIME", "ZONE", optional=True),
-                ),
-                Sequence(
-                    "TIMESTAMPTZ",
-                    Bracketed(Ref("NumericLiteralSegment"), optional=True),
-                ),
-            ),
+            Ref("DateTimeTypeIdentifier"),
             Ref("TimeZoneGrammar", optional=True),
         ),
         Sequence(
