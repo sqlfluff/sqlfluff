@@ -16,6 +16,7 @@ from sqlfluff.core.parser import (
     Delimited,
     Matchable,
     NamedParser,
+    OptionallyBracketed,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -150,6 +151,96 @@ class DatatypeSegment(BaseSegment):
             optional=True,
         ),
         Ref("CharCharacterSetSegment", optional=True),
+    )
+
+
+@tsql_dialect.segment()
+class NextValueSequenceSegment(BaseSegment):
+    """Segment to get next value from a sequence."""
+
+    type = "sequence_next_value"
+    match_grammar = (
+        Sequence(
+            "NEXT",
+            "VALUE",
+            "FOR",
+            Ref("ObjectReferenceSegment"),
+        ),
+    )
+
+
+# @tsql_dialect.segment(replace=True)
+# class CreateTableStatementSegment(BaseSegment):
+#     """A `CREATE TABLE` statement."""
+
+#     type = "create_table_statement"
+#     # https://crate.io/docs/sql-99/en/latest/chapters/18.html
+#     # https://www.postgresql.org/docs/12/sql-createtable.html
+#     match_grammar = Sequence(
+#         "CREATE",
+#         Ref("OrReplaceGrammar", optional=True),
+#         Ref("TemporaryTransientGrammar", optional=True),
+#         "TABLE",
+#         Ref("IfNotExistsGrammar", optional=True),
+#         Ref("TableReferenceSegment"),
+#         OneOf(
+#             # Columns and comment syntax:
+#             Sequence(
+#                 Bracketed(
+#                     Delimited(
+#                         OneOf(
+#                             Ref("TableConstraintSegment"),
+#                             Ref("ColumnDefinitionSegment"),
+#                         ),
+#                     )
+#                 ),
+#                 Ref("CommentClauseSegment", optional=True),
+#             ),
+#             # Create AS syntax:
+#             Sequence(
+#                 "AS",
+#                 OptionallyBracketed(Ref("SelectableGrammar")),
+#             ),
+#             # Create like syntax
+#             Sequence("LIKE", Ref("TableReferenceSegment")),
+#         ),
+#     )
+
+
+@tsql_dialect.segment(replace=True)
+class ColumnOptionSegment(BaseSegment):
+    """A column option; each CREATE TABLE column can have 0 or more."""
+
+    type = "column_constraint"
+
+    match_grammar = Sequence(
+        Sequence(
+            "CONSTRAINT",
+            Ref("ObjectReferenceSegment"),  # Constraint name
+            optional=True,
+        ),
+        OneOf(
+            Sequence(Ref.keyword("NOT", optional=True), "NULL"),  # NOT NULL or NULL
+            Sequence(  # DEFAULT <value>
+                "DEFAULT",
+                OneOf(
+                    Ref("LiteralGrammar"),
+                    Ref("FunctionSegment"),
+                    Ref("NextValueSequenceSegment"),
+                ),
+            ),
+            Ref("PrimaryKeyGrammar"),
+            "UNIQUE",  # UNIQUE
+            "AUTO_INCREMENT",  # AUTO_INCREMENT (MySQL)
+            "UNSIGNED",  # UNSIGNED (MySQL)
+            Sequence(  # REFERENCES reftable [ ( refcolumn) ]
+                "REFERENCES",
+                Ref("ColumnReferenceSegment"),
+                # Foreign columns making up FOREIGN KEY constraint
+                Ref("BracketedColumnReferenceListGrammar", optional=True),
+            ),
+            Ref("CommentClauseSegment"),
+        ),
     )
 
 
