@@ -101,6 +101,14 @@ tox -e generate-fixture-yml,cov-init,py38,cov-report,linting
 > generates the results for tests in that Python version and the `cov-report-nobt`
 > environment reports those results out to you (excluding dbt).
 
+You can also run specific tests only by making use of `pytest -k` to match test.
+For example below will only run the tests for rule L012 which is much faster while
+working on an issue, before running full tests at the end:
+
+```
+pytest -k L012 -v
+```
+
 To run the dbt-related tests you will have to explicitly include these tests:
 
 ```shell
