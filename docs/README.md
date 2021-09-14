@@ -6,15 +6,25 @@ You can run the following steps to generate the documentation website:
 tox -e docbuild, doclint
 ```
 
+The `docbuild` job will recognise when source files have changed and only
+generate the changed files. To force a clean build (for example when changing
+config) rather than the source files use the following command from the project
+root directory (drop the `-C doc` if running from within the `docs` directory).
+
+```
+make -C doc clean
+```
+
 The built HTML should be placed in `docs/build/html` and can be opened directly
-or you can launch a webserver with the following:
+in the browser or you can launch a simple webserver with the below command
+and then navigate to http://127.0.0.1:8000/ to view the site locally:
 
 ```
 python -m http.server --directory docs/build/html
 ```
 
-Note this is run from the root server, not the `doc` subfolder but you can
-alter the path as appropriate if needs be.
+Again, this command is run from the root server, not the `doc` subfolder but you
+can alter the path as appropriate if needs be.
 
 If you don't want to use `tox`, then you can complete the steps manually with
 the following commands after setting up your Python environment as detailed
