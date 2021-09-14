@@ -2,7 +2,7 @@
 # https://docs.codecov.io/docs/codecovyml-reference
 
 codecov:
-  branch: master
+  branch: main
   bot: "codecov-io"
   ci:
     - "github.com"
@@ -10,7 +10,7 @@ codecov:
   disable_default_path_fixes: no
   require_ci_to_pass: yes
   notify:
-    after_n_builds: 2
+    after_n_builds: 14
     wait_for_ci: yes
 
 coverage:
