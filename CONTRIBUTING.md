@@ -138,12 +138,12 @@ tox -e cov-init,dbt018-py38,cov-report-dbt -- -m "dbt"
 
 For more information on adding and running test cases see the [Parser Test README](test/fixtures/parser/README.md) and the [Rules Test README](test/fixtures/rules/std_rule_cases/README.md).
 
-## Documentation
+### Documentation
 
 Documentation is built using Sphinx with some pages being built based on the source code.
 See the [Documentation Website README.md](./docs/README.md) file for more information on how to build and test this.
 
-## Building Package
+### Building Package
 
 New versions of SQLFluff will be published to PyPI automatically via 
 [GitHub Actions](.github/workflows/publish-release-to-pypi.yaml) 
@@ -161,7 +161,7 @@ Once both changes are done, open a new Pull Request for these changes.
 If this is not done, PyPI will reject the package. Also, ensure you have used that 
 version as a part of the tag and have described the changes accordingly.
 
-### Manually
+#### Manually
 
 If for some reason the package needs to be submitted to PyPI manually, we use `twine`.
 You will need to be an admin to submit this to PyPI, and you will need a properly
