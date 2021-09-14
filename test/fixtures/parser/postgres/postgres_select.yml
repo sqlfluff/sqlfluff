@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7b307e1e89e2a587e25304d9025093bd5ee1f4bc6911ba394dc388d5c367a535
+_hash: 1a5e3912373e6f5a5e41c555e68796878511ad09092ab453a384b8dda5fe9326
 file:
 - statement:
     select_statement:
@@ -93,11 +93,12 @@ file:
             cast_expression:
               casting_operator: '::'
               data_type:
-              - keyword: TIMESTAMP
-              - keyword: AT
-              - keyword: TIME
-              - keyword: ZONE
-              - literal: "'UTC'"
+                keyword: TIMESTAMP
+                time_zone_grammar:
+                - keyword: AT
+                - keyword: TIME
+                - keyword: ZONE
+                - literal: "'UTC'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -128,10 +129,11 @@ file:
               - keyword: WITH
               - keyword: TIME
               - keyword: ZONE
-              - keyword: AT
-              - keyword: TIME
-              - keyword: ZONE
-              - literal: "'UTC'"
+              - time_zone_grammar:
+                - keyword: AT
+                - keyword: TIME
+                - keyword: ZONE
+                - literal: "'UTC'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -170,11 +172,12 @@ file:
             cast_expression:
               casting_operator: '::'
               data_type:
-              - keyword: TIMESTAMPTZ
-              - keyword: AT
-              - keyword: TIME
-              - keyword: ZONE
-              - literal: "'UTC'"
+                keyword: TIMESTAMPTZ
+                time_zone_grammar:
+                - keyword: AT
+                - keyword: TIME
+                - keyword: ZONE
+                - literal: "'UTC'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -188,11 +191,12 @@ file:
             - keyword: time
             - keyword: zone
             date_type_literal:
-            - literal: "'2025-11-20 00:00:00+00'"
-            - keyword: AT
-            - keyword: TIME
-            - keyword: ZONE
-            - literal: "'Africa/Cairo'"
+              literal: "'2025-11-20 00:00:00+00'"
+              time_zone_grammar:
+              - keyword: AT
+              - keyword: TIME
+              - keyword: ZONE
+              - literal: "'Africa/Cairo'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -219,11 +223,12 @@ file:
             - keyword: time
             - keyword: zone
             date_type_literal:
-            - literal: "'2025-11-20 00:00:00'"
-            - keyword: AT
-            - keyword: TIME
-            - keyword: ZONE
-            - literal: "'Africa/Cairo'"
+              literal: "'2025-11-20 00:00:00'"
+              time_zone_grammar:
+              - keyword: AT
+              - keyword: TIME
+              - keyword: ZONE
+              - literal: "'Africa/Cairo'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -237,11 +242,12 @@ file:
             - keyword: time
             - keyword: zone
             date_type_literal:
-            - literal: "'2025-11-20 00:00:00+12'"
-            - keyword: AT
-            - keyword: TIME
-            - keyword: ZONE
-            - literal: "'Africa/Cairo'"
+              literal: "'2025-11-20 00:00:00+12'"
+              time_zone_grammar:
+              - keyword: AT
+              - keyword: TIME
+              - keyword: ZONE
+              - literal: "'Africa/Cairo'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -268,11 +274,12 @@ file:
             - keyword: time
             - keyword: zone
             date_type_literal:
-            - literal: "'00:00:00+00'"
-            - keyword: AT
-            - keyword: TIME
-            - keyword: ZONE
-            - literal: "'Africa/Cairo'"
+              literal: "'00:00:00+00'"
+              time_zone_grammar:
+              - keyword: AT
+              - keyword: TIME
+              - keyword: ZONE
+              - literal: "'Africa/Cairo'"
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -286,9 +293,10 @@ file:
             - keyword: time
             - keyword: zone
             date_type_literal:
-            - literal: "'00:00:00'"
-            - keyword: AT
-            - keyword: TIME
-            - keyword: ZONE
-            - literal: "'Africa/Cairo'"
+              literal: "'00:00:00'"
+              time_zone_grammar:
+              - keyword: AT
+              - keyword: TIME
+              - keyword: ZONE
+              - literal: "'Africa/Cairo'"
 - statement_terminator: ;

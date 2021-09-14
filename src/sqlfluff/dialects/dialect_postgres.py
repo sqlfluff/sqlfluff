@@ -91,6 +91,16 @@ postgres_dialect.replace(
 )
 
 
+@postgres_dialect.segment()
+class TimeZoneGrammar(BaseSegment):
+    """Literal Date Time with optional casting to Time Zone."""
+
+    type = "time_zone_grammar"
+    match_grammar = AnyNumberOf(
+        Sequence("AT", "TIME", "ZONE", Ref("QuotedLiteralSegment")),
+    )
+
+
 @postgres_dialect.segment(replace=True)
 class DateTimeLiteralGrammar(BaseSegment):
     """Literal Date Time with optional casting to Time Zone."""
@@ -98,7 +108,7 @@ class DateTimeLiteralGrammar(BaseSegment):
     type = "date_type_literal"
     match_grammar = Sequence(
         Ref("QuotedLiteralSegment"),
-        Sequence("AT", "TIME", "ZONE", Ref("QuotedLiteralSegment"), optional=True),
+        Ref("TimeZoneGrammar", optional=True),
     )
 
 
@@ -123,7 +133,7 @@ class DatatypeSegment(BaseSegment):
                     Bracketed(Ref("NumericLiteralSegment"), optional=True),
                 ),
             ),
-            Sequence("AT", "TIME", "ZONE", Ref("QuotedLiteralSegment"), optional=True),
+            Ref("TimeZoneGrammar", optional=True),
         ),
         Sequence(
             OneOf(
