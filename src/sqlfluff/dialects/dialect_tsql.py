@@ -159,16 +159,13 @@ class NextValueSequenceSegment(BaseSegment):
     """Segment to get next value from a sequence."""
 
     type = "sequence_next_value"
-    match_grammar = (
-        Sequence(
+    match_grammar = Sequence(
             "NEXT",
             "VALUE",
             "FOR",
             Ref("ObjectReferenceSegment"),
-        ),
-    )
-
-
+        )
+    
 # @tsql_dialect.segment(replace=True)
 # class CreateTableStatementSegment(BaseSegment):
 #     """A `CREATE TABLE` statement."""
@@ -208,11 +205,12 @@ class NextValueSequenceSegment(BaseSegment):
 
 
 @tsql_dialect.segment(replace=True)
-class ColumnOptionSegment(BaseSegment):
+class ColumnConstraintSegment(BaseSegment):
     """A column option; each CREATE TABLE column can have 0 or more."""
 
-    type = "column_constraint"
-
+    type = "column_constraint_segment"
+    # Column constraint from
+    # https://www.postgresql.org/docs/12/sql-createtable.html
     match_grammar = Sequence(
         Sequence(
             "CONSTRAINT",
@@ -226,6 +224,7 @@ class ColumnOptionSegment(BaseSegment):
                 OneOf(
                     Ref("LiteralGrammar"),
                     Ref("FunctionSegment"),
+                    # ?? Ref('IntervalExpressionSegment')
                     Ref("NextValueSequenceSegment"),
                 ),
             ),
