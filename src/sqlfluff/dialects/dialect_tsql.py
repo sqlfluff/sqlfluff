@@ -16,7 +16,7 @@ from sqlfluff.core.parser import (
     Delimited,
     Matchable,
     NamedParser,
-    OptionallyBracketed,
+    StartsWith,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -87,6 +87,7 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
         insert=[
             Ref("CreateProcedureStatementSegment"),
             Ref("IfExpressionStatement"),
+            Ref("DeclareStatementSegment"),
         ],
     )
 
@@ -117,6 +118,31 @@ class CreateIndexStatementSegment(BaseSegment):
         ),
     )
 
+
+@tsql_dialect.segment()
+class DeclareStatementSegment(BaseSegment):
+    """Declaration of a variable.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/declare-local-variable-transact-sql?view=sql-server-ver15
+    """
+
+    type = "declare_segment"
+    match_grammar = StartsWith("DECLARE")
+    parse_grammar = Sequence(
+        "DECLARE",
+        Delimited(Ref("ParameterNameSegment")),
+        Ref("DatatypeSegment"),
+        Sequence(
+            Ref("EqualsSegment"),
+            OneOf(
+                Ref("LiteralGrammar"),
+                Bracketed(Ref("SelectStatementSegment")),
+                Ref("BareFunctionSegment"),
+                Ref("FunctionSegment"),
+            ),
+            optional=True,
+        ),
+    )
 
 @tsql_dialect.segment(replace=True)
 class ObjectReferenceSegment(BaseSegment):
@@ -333,7 +359,11 @@ class ProcedureDefinitionGrammar(BaseSegment):
     type = "procedure_statement"
     name = "procedure_statement"
 
-    match_grammar = Sequence("AS", Sequence(Anything()))
+    match_grammar = Sequence("AS", 
+        OneOf(
+            Delimited(Ref("StatementSegment"),delimiter=Ref("DelimiterSegment")),
+            Sequence("BEGIN", Delimited(Ref("StatementSegment"),delimiter=Ref("DelimiterSegment")),"END"),
+        ))
 
 
 @tsql_dialect.segment(replace=True)
