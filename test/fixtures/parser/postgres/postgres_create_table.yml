@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c8b4a8bec045d020f92027b6c46ac8d8e830ca5f1d533c763430577a2800cdc7
+_hash: 0ef79bbd602bc4202e929d6764458043407d864a13ed41260627d3ad66420b22
 file:
 - statement:
     create_table_statement:
@@ -243,7 +243,8 @@ file:
       - column_reference:
           identifier: modtime
       - data_type:
-          keyword: timestamp
+          datetime_type_identifier:
+            keyword: timestamp
       - column_constraint_segment:
           keyword: DEFAULT
           bare_function: current_timestamp
@@ -469,7 +470,8 @@ file:
       - column_reference:
           identifier: logdate
       - data_type:
-          data_type_identifier: date
+          datetime_type_identifier:
+            keyword: date
       - column_constraint_segment:
         - keyword: not
         - keyword: 'null'
@@ -504,7 +506,8 @@ file:
       - column_reference:
           identifier: logdate
       - data_type:
-          data_type_identifier: date
+          datetime_type_identifier:
+            keyword: date
       - column_constraint_segment:
         - keyword: not
         - keyword: 'null'
@@ -1039,7 +1042,8 @@ file:
       - column_reference:
           identifier: event_time
       - data_type:
-          keyword: TIMESTAMP
+          datetime_type_identifier:
+            keyword: TIMESTAMP
       - comma: ','
       - column_reference:
           identifier: user_email
@@ -1054,7 +1058,8 @@ file:
       - column_reference:
           identifier: processing_date
       - data_type:
-          data_type_identifier: DATE
+          datetime_type_identifier:
+            keyword: DATE
       - comma: ','
       - table_constraint_segment:
         - keyword: PRIMARY
@@ -1097,7 +1102,8 @@ file:
       - column_reference:
           identifier: logdate
       - data_type:
-          data_type_identifier: date
+          datetime_type_identifier:
+            keyword: date
       - column_constraint_segment:
         - keyword: NOT
         - keyword: 'NULL'
@@ -1164,7 +1170,8 @@ file:
       - column_reference:
           identifier: date_created
       - data_type:
-          keyword: timestamp
+          datetime_type_identifier:
+            keyword: timestamp
       - column_constraint_segment:
         - keyword: NOT
         - keyword: 'NULL'
@@ -1175,7 +1182,8 @@ file:
       - column_reference:
           identifier: date_updated
       - data_type:
-          keyword: timestamp
+          datetime_type_identifier:
+            keyword: timestamp
       - column_constraint_segment:
         - keyword: NOT
         - keyword: 'NULL'

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b6fb81910aa6207dc6a861e3a33fe12ac8c0ac4c184ca933bfc8772bf1b11bb3
+_hash: 842f9ce28e2eb10dc6e532b73d49b0bb48d4fdef2bfbcc78b53943e432e5bd3c
 file:
 - statement:
     comment_on_statement:
@@ -201,7 +201,8 @@ file:
         bracketed:
           start_bracket: (
           data_type:
-            keyword: timestamp
+            datetime_type_identifier:
+              keyword: timestamp
           end_bracket: )
     - keyword: IS
     - literal: "'Returns Roman Numeral'"
