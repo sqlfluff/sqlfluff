@@ -86,7 +86,35 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
     parse_grammar = ansi_dialect.get_segment("StatementSegment").parse_grammar.copy(
         insert=[
             Ref("CreateProcedureStatementSegment"),
+            Ref("IfExpressionStatement"),
         ],
+    )
+
+@tsql_dialect.segment(replace=True)
+class CreateIndexStatementSegment(BaseSegment):
+    """A `CREATE INDEX` statement.
+    
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-index-transact-sql?view=sql-server-ver15
+    """
+
+    type = "create_index_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        Sequence("UNIQUE", optional=True),
+        OneOf("CLUSTERED","NONCLUSTERED", optional=True),
+        "INDEX",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("IndexReferenceSegment"),
+        "ON",
+        Ref("TableReferenceSegment"),
+        Sequence(
+            Bracketed(
+                Delimited(
+                    Ref("IndexColumnDefinitionSegment"),
+                ),
+            )
+        ),
     )
 
 
@@ -165,43 +193,27 @@ class NextValueSequenceSegment(BaseSegment):
             "FOR",
             Ref("ObjectReferenceSegment"),
         )
-    
-# @tsql_dialect.segment(replace=True)
-# class CreateTableStatementSegment(BaseSegment):
-#     """A `CREATE TABLE` statement."""
 
-#     type = "create_table_statement"
-#     # https://crate.io/docs/sql-99/en/latest/chapters/18.html
-#     # https://www.postgresql.org/docs/12/sql-createtable.html
-#     match_grammar = Sequence(
-#         "CREATE",
-#         Ref("OrReplaceGrammar", optional=True),
-#         Ref("TemporaryTransientGrammar", optional=True),
-#         "TABLE",
-#         Ref("IfNotExistsGrammar", optional=True),
-#         Ref("TableReferenceSegment"),
-#         OneOf(
-#             # Columns and comment syntax:
-#             Sequence(
-#                 Bracketed(
-#                     Delimited(
-#                         OneOf(
-#                             Ref("TableConstraintSegment"),
-#                             Ref("ColumnDefinitionSegment"),
-#                         ),
-#                     )
-#                 ),
-#                 Ref("CommentClauseSegment", optional=True),
-#             ),
-#             # Create AS syntax:
-#             Sequence(
-#                 "AS",
-#                 OptionallyBracketed(Ref("SelectableGrammar")),
-#             ),
-#             # Create like syntax
-#             Sequence("LIKE", Ref("TableReferenceSegment")),
-#         ),
-#     )
+
+@tsql_dialect.segment()
+class IfExpressionStatement(BaseSegment):
+    """IF-ELSE-END IF statement.
+
+   https://docs.microsoft.com/en-us/sql/t-sql/language-elements/if-else-transact-sql?view=sql-server-ver15
+    """
+
+    type = "if_then_statement"
+
+    match_grammar = Sequence(
+        OneOf(
+            Sequence(Ref("IfNotExistsGrammar"),Ref("SelectStatementSegment")),
+            Sequence(Ref("IfExistsGrammar"),Ref("SelectStatementSegment")),
+            "IF",
+            Ref("ExpressionSegment"),           
+        ),
+        Ref("StatementSegment"),
+        Sequence("ELSE", Ref("StatementSegment"), optional=True),
+    )
 
 
 @tsql_dialect.segment(replace=True)
