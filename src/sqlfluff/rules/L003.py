@@ -23,6 +23,7 @@ class Rule_L003(BaseRule):
     | In this example, the third line contains five spaces instead of four.
 
     .. code-block:: sql
+       :force:
 
         SELECT
         ••••a,
@@ -34,6 +35,7 @@ class Rule_L003(BaseRule):
     | Change the indentation to use a multiple of four spaces.
 
     .. code-block:: sql
+       :force:
 
         SELECT
         ••••a,

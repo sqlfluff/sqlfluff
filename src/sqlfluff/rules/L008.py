@@ -25,6 +25,7 @@ class Rule_L008(BaseRule):
     | Keep a single space after the comma.
 
     .. code-block:: sql
+       :force:
 
         SELECT
             *
