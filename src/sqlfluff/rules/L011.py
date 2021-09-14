@@ -62,7 +62,10 @@ class Rule_L011(BaseRule):
                                 and raw_stack[-1].type == "whitespace"
                             ):
                                 fixes.append(LintFix("delete", raw_stack[-1]))
-                            elif (len(segment.segments) > 0 and segment.segments[1].type == "whitespace"):
+                            elif (
+                                len(segment.segments) > 0
+                                and segment.segments[1].type == "whitespace"
+                            ):
                                 fixes.append(LintFix("delete", segment.segments[1]))
                             # TODO - check if we're left with a blank line and remove it if so.
                             return LintResult(anchor=anchor, fixes=fixes)
