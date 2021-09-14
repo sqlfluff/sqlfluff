@@ -2,7 +2,7 @@
 # https://docs.codecov.io/docs/codecovyml-reference
 
 codecov:
-  branch: master
+  branch: main
   bot: "codecov-io"
   ci:
     - "github.com"
@@ -10,7 +10,11 @@ codecov:
   disable_default_path_fixes: no
   require_ci_to_pass: yes
   notify:
-    after_n_builds: 2
+    # We have 4 versions of python, 3 dbt and 2 windows checks
+    # So after 6 tests at least one python and one dbt check will
+    # have run, meaning we should have accurate coverage. We'll
+    # go with 7 for luck and in case we add any other tests.
+    after_n_builds: 7
     wait_for_ci: yes
 
 coverage:
