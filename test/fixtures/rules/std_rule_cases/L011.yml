@@ -6,12 +6,12 @@ test_fail_implicit_alias:
   fix_str: select foo.bar from (select 1 as bar) AS foo
 
 test_fail_implicit_alias_space:
-  # Add whitespace when fixing implicit aliasing
+  # No unnecessary whitespace added when fixing implicit aliasing
   fail_str: select foo.bar from (select 1 as bar) foo
   fix_str: select foo.bar from (select 1 as bar) AS foo
 
 test_fail_implicit_alias_explicit:
-  # Add whitespace when fixing implicit aliasing
+  # Test when explicitly setting explict
   fail_str: select foo.bar from (select 1 as bar) foo
   fix_str: select foo.bar from (select 1 as bar) AS foo
   configs:
@@ -20,9 +20,18 @@ test_fail_implicit_alias_explicit:
         aliasing: explicit
 
 test_fail_implicit_alias_implicit:
-  # Add whitespace when fixing implicit aliasing
+  # Test implicit
   fail_str: select foo.bar from (select 1 as bar) AS foo
   fix_str: select foo.bar from (select 1 as bar) foo
+  configs:
+    rules:
+      L011:
+        aliasing: implicit
+
+test_fail_implicit_alias_implicit_multiple:
+  # Test implicit with multiple tables
+  fail_str: select foo.bar from (select 1 as bar) AS bar, (select 1 as foo) AS foo
+  fix_str: select foo.bar from (select 1 as bar) bar, (select 1 as foo) foo
   configs:
     rules:
       L011:
