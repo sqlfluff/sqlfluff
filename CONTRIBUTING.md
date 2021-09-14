@@ -15,10 +15,9 @@ for new users is really important. If you are a new user, you are in precisely
 the best position to do this. Familiarise yourself with the tool (as per step
 2 above) and familiarise yourself with the current documentation (live version
 at [docs.sqlfluff.com](https://docs.sqlfluff.com) and the source can be found
-in the [docs/source](https://github.com/sqlfluff/sqlfluff/tree/main/docs/source)
-folder of the repo). Pull requests are always welcome with documentation
-improvements. Keep in mind that there are linting checks in place for good
-formatting so keep an eye on the tests whenever submitting a PR.
+in the [docs](./docs/) folder of the repo). Pull requests are always welcome
+with documentation improvements. Keep in mind that there are linting checks in
+place for good formatting so keep an eye on the tests whenever submitting a PR.
 
 :star2: **Fifth** - if you are so inclined - pull requests on the core codebase
 are always welcome. Bear in mind that all the tests should pass, and test
