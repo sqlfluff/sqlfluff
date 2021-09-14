@@ -4,3 +4,54 @@ test_fail_implicit_alias:
   # Add whitespace when fixing implicit aliasing
   fail_str: select foo.bar from (select 1 as bar)foo
   fix_str: select foo.bar from (select 1 as bar) AS foo
+
+test_fail_implicit_alias_space:
+  # Add whitespace when fixing implicit aliasing
+  fail_str: select foo.bar from (select 1 as bar) foo
+  fix_str: select foo.bar from (select 1 as bar) AS foo
+
+test_fail_implicit_alias_explicit:
+  # Add whitespace when fixing implicit aliasing
+  fail_str: select foo.bar from (select 1 as bar) foo
+  fix_str: select foo.bar from (select 1 as bar) AS foo
+  configs:
+    rules:
+      L011:
+        aliasing: explicit
+
+test_fail_implicit_alias_implicit:
+  # Add whitespace when fixing implicit aliasing
+  fail_str: select foo.bar from (select 1 as bar) AS foo
+  fix_str: select foo.bar from (select 1 as bar) foo
+  configs:
+    rules:
+      L011:
+        aliasing: implicit
+
+test_fail_implicit_alias_implicit_newline:
+  # Add whitespace when fixing implicit aliasing
+  fail_str: |
+      select foo.bar from (select 1 as bar)
+      AS foo
+  fix_str: |
+      select foo.bar from (select 1 as bar)
+      foo
+  configs:
+    rules:
+      L011:
+        aliasing: implicit
+
+# TODO - add test for blank line
+# test_fail_implicit_alias_implicit_newlines:
+#   # Add whitespace when fixing implicit aliasing
+#   fail_str: |
+#       select foo.bar from (select 1 as bar)
+#       AS
+#       foo
+#   fix_str: |
+#       select foo.bar from (select 1 as bar)
+#       foo
+#   configs:
+#     rules:
+#       L011:
+#         aliasing: implicit

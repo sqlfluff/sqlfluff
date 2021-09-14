@@ -4,7 +4,8 @@ from sqlfluff.rules.L011 import Rule_L011
 
 
 class Rule_L012(Rule_L011):
-    """Implicit aliasing of column not allowed. Use explicit `AS` clause.
+    """Implicit/explicit aliasing of column to follow preference
+    (explicit using an `AS` clause is default).
 
     NB: This rule inherits its functionality from obj:`Rule_L011` but is
     separate so that they can be enabled and disabled separately.
@@ -28,5 +29,7 @@ class Rule_L012(Rule_L011):
         FROM foo
 
     """
+
+    config_keywords = ["aliasing"]
 
     _target_elems = ("select_clause_element",)
