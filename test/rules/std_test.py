@@ -134,6 +134,7 @@ def test__rules__std_file_dbt(rule, path, violations, project_dir):  # noqa
         {"unquoted_identifiers_policy": "blah"},
         {"L010": {"capitalisation_policy": "blah"}},
         {"L011": {"aliasing": "blah"}},
+        {"L012": {"aliasing": "blah"}},
         {"L014": {"extended_capitalisation_policy": "blah"}},
         {"L030": {"capitalisation_policy": "blah"}},
     ],
