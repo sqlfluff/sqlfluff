@@ -73,6 +73,35 @@ larger changes or giving the green light to major structural project
 changes.
 
 ## Nerdy Details
+
+### Developing SQLFluff locally
+
+To use your local development branch of SQLFluff, I recommend you use a virtual
+environment. e.g:
+
+```shell
+python3 -m venv .venv
+source .venv/bin/activate
+```
+> `python3 -m venv .venv` creates a new virtual environment (in current working
+> directory) called `.venv`.
+> `source .venv/bin/activate` activates the virtual environment so that packages
+> can be installed/uninstalled into it. [More info on venv](https://docs.python.org/3/library/venv.html).
+
+Once you are in a virtual environment, run:
+
+```shell
+pip install -Ur requirements.txt -Ur requirements_dev.txt
+python setup.py develop
+```
+
+> `pip install -Ur requirements.txt -Ur requirements_dev.txt` installs the project dependencies
+> as well as the dependencies needed to run linting, formatting, and testing commands. This will
+> install the most up-to-date package versions for all dependencies (-U).
+
+> `python setup.py develop` installs the package using a link to the source code so that any changes
+> which you make will immediately be available for use.
+
 ### Testing
 
 To test locally, SQLFluff uses `tox`, which means you can build locally using...
@@ -109,38 +138,10 @@ tox -e cov-init,dbt018-py38,cov-report-dbt -- -m "dbt"
 
 For more information on adding and running test cases see the [Parser Test README](test/fixtures/parser/README.md) and the [Rules Test README](test/fixtures/rules/std_rule_cases/README.md).
 
-### Using your local version
-
-To trial using your local development branch of SQLFluff, I recommend you use a virtual
-environment. e.g:
-
-```shell
-python3 -m venv .venv
-source .venv/bin/activate
-```
-> `python3 -m venv .venv` creates a new virtual environment (in current working
-> directory) called `.venv`.
-> `source .venv/bin/activate` activates the virtual environment so that packages
-> can be installed/uninstalled into it. [More info on venv](https://docs.python.org/3/library/venv.html).
-
-Once you are in a virtual environment, run:
-
-```shell
-pip install -Ur requirements.txt -Ur requirements_dev.txt
-python setup.py develop
-```
-
-> `pip install -Ur requirements.txt -Ur requirements_dev.txt` installs the project dependencies
-> as well as the dependencies needed to run linting, formatting, and testing commands. This will
-> install the most up-to-date package versions for all dependencies (-U).
-
-> `python setup.py develop` installs the package using a link to the source code so that any changes
-> which you make will immediately be available for use.
-
 ## Documentation
 
 Documentation is built using Sphinx with some pages being built based on the source code.
-See the [docs/README.md](./docs/README.md) file for more information on how to build and test this.
+See the [Documentation Website README.md](./docs/README.md) file for more information on how to build and test this.
 
 ## Building Package
 
