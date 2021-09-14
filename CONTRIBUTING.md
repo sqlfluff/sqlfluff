@@ -137,6 +137,11 @@ python setup.py develop
 > `python setup.py develop` installs the package using a link to the source code so that any changes
 > which you make will immediately be available for use.
 
+## Documentation
+
+Documentation is built using Sphinx with some pages being built based on the source code.
+See the [docs/README.md](./docs/README.md) file for more information on how to build and test this.
+
 ## Building Package
 
 New versions of SQLFluff will be published to PyPI automatically via 
