@@ -11,8 +11,9 @@ codecov:
   require_ci_to_pass: yes
   notify:
     # We have 4 versions of python, 3 dbt and 2 windows checks
-    # So after 7 tests at least one python and one dbt check will
-    # have run, meaning we should have accurate coverage
+    # So after 6 tests at least one python and one dbt check will
+    # have run, meaning we should have accurate coverage. We'll
+    # go with 7 for luck and in case we add any other tests.
     after_n_builds: 7
     wait_for_ci: yes
 
