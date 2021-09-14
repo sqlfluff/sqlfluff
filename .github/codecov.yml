@@ -10,7 +10,7 @@ codecov:
   disable_default_path_fixes: no
   require_ci_to_pass: yes
   notify:
-    after_n_builds: 14
+    after_n_builds: 6
     wait_for_ci: yes
 
 coverage:
