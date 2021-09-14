@@ -486,11 +486,11 @@ def fix(force, paths, processes, bench=False, fixed_suffix="", logger=None, **kw
         else:
             stdout = stdin
 
-        if verbose:
-            if templater_error:
-                click.echo("Fix aborted due to unparseable template variables.")
-            if unfixable_error:
-                click.echo("Unfixable violations detected.")
+        if templater_error:
+            click.echo(colorize("Fix aborted due to unparseable template variables.", "red"))
+            click.echo(colorize("Use '--ignore templating' to ignore templating errors.", "red"))
+        if unfixable_error:
+            click.echo(colorize("Unfixable violations detected.", "red"))
 
         click.echo(stdout, nl=False)
         sys.exit(1 if templater_error or unfixable_error else 0)
