@@ -394,7 +394,7 @@ class BaseSegment:
     @classmethod
     def structural_simplify(cls, elem):
         """Simplify the structure recursively so it serializes nicely in json/yaml."""
-        if isinstance(elem, tuple):
+        if len(elem) > 0 and isinstance(elem, tuple):
             # Does this look like an element?
             if len(elem) == 2 and isinstance(elem[0], str):
                 # This looks like a single element, make a dict
