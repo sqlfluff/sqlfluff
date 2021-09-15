@@ -39,9 +39,9 @@ postgres_dialect.insert_lexer_matchers(
         #                   (?<!')(?:'')*          Any even number of single quotes, including zero
         #                                '(?!')    Followed by a single, which is not followed by a single quote
         # - (\s*UESCAPE\s*'[^0-9A-Fa-f'+\-\s)]')?
-        # (\s*UESCAPE\s*                           Whitespace, followed by UESCAPE, followed by whitespace
-        # '[^0-9A-Fa-f'+\-\s)]')                   Any character that isn't A-F, a-f, 0-9, +-, or whitespace, in quotes
-        # ?                                        This last block is optional
+        #    \s*UESCAPE\s*                         Whitespace, followed by UESCAPE, followed by whitespace
+        #                 '[^0-9A-Fa-f'+\-\s)]'    Any character that isn't A-F, a-f, 0-9, +-, or whitespace, in quotes
+        #                                       ?  This last block is optional
         RegexLexer(
             "unicode_single_quote",
             r"(?s)U&(('')+?(?!')|('.*?(?<!')(?:'')*'(?!')))(\s*UESCAPE\s*'[^0-9A-Fa-f'+\-\s)]')?",
