@@ -31,10 +31,10 @@ postgres_dialect.insert_lexer_matchers(
         # - (?s) Switch - .* includes newline characters
         # - U& - must start with U&
         # - (('')+?(?!')|('.*?(?<!')(?:'')*'(?!')))
-        #   (('')+?                                 Any non-zero number of pairs of single quotes -
+        #    ('')+?                                 Any non-zero number of pairs of single quotes -
         #          (?!')                            that are not then followed by a single quote
         #               |                           OR
-        #                ('.*?(?<!')(?:'')*'(?!')))
+        #                ('.*?(?<!')(?:'')*'(?!'))
         #                 '.*?                      A single quote followed by anything (non-greedy)
         #                     (?<!')(?:'')*         Any even number of single quotes, including zero
         #                                  '(?!')   Followed by a single quote, which is not followed by a single quote
