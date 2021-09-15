@@ -8,12 +8,9 @@ issue_561:
         (order by product_position asc) over (partition by (event_id, shelf_position))
       as shelf_catalog_items
     from x
-
   configs:
     core:
       dialect: snowflake
-
-
 
 test_fail_explicit_column_default:
   # Test explicit column alias
