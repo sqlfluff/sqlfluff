@@ -1,0 +1,23 @@
+# editorconfig.org
+root = true
+
+[*]
+indent_style = space
+end_of_line = lf
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+[*.{html,md,js,css}]
+indent_size = 2
+
+[*.py]
+indent_size = 4
+
+# Don't correct spacing for sql and yaml files as sometimes want them wrong for tests
+[*.sql]
+indent_style = unset
+trim_trailing_whitespace = unset
+
+[*.rst]
+indent_size = 3

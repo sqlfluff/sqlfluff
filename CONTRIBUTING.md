@@ -153,8 +153,8 @@ See the [Documentation Website README.md](./docs/README.md) file for more inform
 
 ### Building Package
 
-New versions of SQLFluff will be published to PyPI automatically via 
-[GitHub Actions](.github/workflows/publish-release-to-pypi.yaml) 
+New versions of SQLFluff will be published to PyPI automatically via
+[GitHub Actions](.github/workflows/publish-release-to-pypi.yaml)
 whenever a new release is published to GitHub.
 
 A new release can be published with a tag in GitHub by navigating to the
@@ -166,7 +166,7 @@ Once both changes are done, open a new Pull Request for these changes.
 
 :warning: **Before creating a new release, ensure that
 [src/sqlfluff/config.ini](src/sqlfluff/config.ini) is up-to-date with a new version** :warning:.
-If this is not done, PyPI will reject the package. Also, ensure you have used that 
+If this is not done, PyPI will reject the package. Also, ensure you have used that
 version as a part of the tag and have described the changes accordingly.
 
 #### Manually
