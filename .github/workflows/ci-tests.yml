@@ -14,7 +14,7 @@ on:
   workflow_dispatch:
   schedule:
     # 2am each night
-    - cron: '* 2 * * *'
+    - cron: '00 2 * * *'
   pull_request:
 
 jobs:
