@@ -373,7 +373,9 @@ class Rule_L016(Rule_L003):
     def _compute_segment_length(cls, segment):
         if segment.is_type("newline"):
             return 0
-        slice_length = segment.pos_marker.source_slice.stop - segment.pos_marker.source_slice.start
+        slice_length = (
+            segment.pos_marker.source_slice.stop - segment.pos_marker.source_slice.start
+        )
         if slice_length:
             return slice_length
         else:
@@ -386,7 +388,10 @@ class Rule_L016(Rule_L003):
         # Use a set to avoid counting segments twice.
         seen_slices = set()
         for segment in segments:
-            slice = (segment.pos_marker.source_slice.start, segment.pos_marker.source_slice.stop)
+            slice = (
+                segment.pos_marker.source_slice.start,
+                segment.pos_marker.source_slice.stop,
+            )
             if slice not in seen_slices:
                 seen_slices.add(slice)
                 line_len += cls._compute_segment_length(segment)
