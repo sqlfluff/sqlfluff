@@ -372,26 +372,36 @@ class Rule_L016(Rule_L003):
     @classmethod
     def _compute_segment_length(cls, segment):
         if segment.is_type("newline"):
+            # Generally, we won't see newlines, but if we do, simply ignore
+            # them. Rationale: The intent of this rule is to enforce maximum
+            # line length, and newlines don't make lines longer.
             return 0
+        # Compute the length of this segments in SOURCE space (before template
+        # expansion).
         slice_length = (
             segment.pos_marker.source_slice.stop - segment.pos_marker.source_slice.start
         )
         if slice_length:
             return slice_length
         else:
+            # If a segment did not originate from the original source, its slice
+            # length slice length will be zero. This occurs, for example, when
+            # other lint rules add indentation or other whitespace. In that
+            # case, compute the length of its contents.
             return len(segment.raw)
 
     @classmethod
     def _compute_source_length(cls, segments):
         line_len = 0
-        # Often, a single area of a template will supply many SQL tokens.
-        # Use a set to avoid counting segments twice.
         seen_slices = set()
         for segment in segments:
             slice = (
                 segment.pos_marker.source_slice.start,
                 segment.pos_marker.source_slice.stop,
             )
+            # Often, a single templated area of a source file will expand to
+            # multiple SQL tokens.Here, we use a set to avoid double counting
+            # the length of that text.
             if slice not in seen_slices:
                 seen_slices.add(slice)
                 line_len += cls._compute_segment_length(segment)
