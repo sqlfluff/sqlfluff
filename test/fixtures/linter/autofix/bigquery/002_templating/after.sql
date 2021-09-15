@@ -4,7 +4,10 @@ SELECT
     {{corr_states}}
     {% for action in considered_actions %}
         , aaa(
-            bbb(ccc({{metric}}_r, {{action}}), ddd({{metric}}_r)),
+            bbb(
+                ccc({{metric}}_r, {{action}}),
+                ddd({{metric}}_r)
+            ),
             eee({{action}})
         ) AS {{metric}}_{{action}}
     {% endfor %}

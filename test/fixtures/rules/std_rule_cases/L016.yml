@@ -96,3 +96,36 @@ test_pass_line_too_long_ignore_comments_false:
       max_line_length: 10
       L016:
         ignore_comment_lines: False
+
+test_compute_line_length_before_template_expansion_1:
+  # Line 3 is fine before expansion. Too long after expansion is NOT considered
+  # a violation.
+  pass_str: |
+    SELECT user_id
+    FROM
+        `{{bi_ecommerce_orders}}` {{table_at_job_start}}
+  configs:
+    core:
+      dialect: bigquery
+    templater:
+      jinja:
+        context:
+          table_at_job_start: FOR SYSTEM_TIME AS OF CAST('2021-03-02T01:22:59+00:00' AS TIMESTAMP)
+          bi_ecommerce_orders: bq-business-intelligence.user.ecommerce_orders
+
+
+test_compute_line_length_before_template_expansion_2:
+  # Line 3 is too long before expansion. It's fine after expansion, but the rule
+  # does not look at that.
+  fail_str: |
+    SELECT user_id
+    FROM
+        `{{bi_ecommerce_orders_bi_ecommerce_orders}}` AS {{table_alias_table_alias_table_alias_table_alias_table_alias_table_alias}}
+  configs:
+    core:
+      dialect: bigquery
+    templater:
+      jinja:
+        context:
+          bi_ecommerce_orders_bi_ecommerce_orders: bq-business-intelligence.user.ecommerce_orders
+          table_alias_table_alias_table_alias_table_alias_table_alias_table_alias: t
