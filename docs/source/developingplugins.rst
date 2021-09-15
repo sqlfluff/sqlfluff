@@ -45,7 +45,7 @@ Codes are used to display errors, they are also used as configuration keys.
 We make it easy for plugin developers to test their rules by
 exposing a testing library in *sqlfluff.testing*.
 
-.. _`sqlfluff/plugins/sqlfluff-plugin-example`: https://github.com/sqlfluff/sqlfluff/tree/master/plugins/sqlfluff-plugin-example
+.. _`sqlfluff/plugins/sqlfluff-plugin-example`: https://github.com/sqlfluff/sqlfluff/tree/main/plugins/sqlfluff-plugin-example
 
 Giving feedback
 ---------------
