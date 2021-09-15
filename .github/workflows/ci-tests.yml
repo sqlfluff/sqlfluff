@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        jobs: [ 'linting', 'doclinting' ]
+        jobs: [ 'linting', 'doclinting', 'docbuild' ]
     name: ${{ matrix.jobs }} tests
     steps:
     - uses: actions/checkout@v2
