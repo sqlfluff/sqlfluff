@@ -400,8 +400,21 @@ class Rule_L016(Rule_L003):
                 segment.pos_marker.source_slice.stop,
             )
             # Often, a single templated area of a source file will expand to
-            # multiple SQL tokens.Here, we use a set to avoid double counting
-            # the length of that text.
+            # multiple SQL tokens. Here, we use a set to avoid double counting
+            # the length of that text. For example, in BigQuery, we might
+            # see this source query:
+            #
+            # SELECT user_id
+            # FROM `{{bi_ecommerce_orders}}` {{table_at_job_start}}
+            #
+            # where 'table_at_job_start' is defined as:
+            # "FOR SYSTEM_TIME AS OF CAST('2021-03-02T01:22:59+00:00' AS TIMESTAMP)"
+            #
+            # So this one substitution results in roughly 10 segments (one per
+            # word or bit of punctuation). Each of these would have the same
+            # source slice, and if we didn't correct for this, we'd count the
+            # length of {{bi_ecommerce_orders}} roughly 10 times, resulting in
+            # vast overcount of the source length.
             if slice not in seen_slices:
                 seen_slices.add(slice)
                 line_len += cls._compute_segment_length(segment)
