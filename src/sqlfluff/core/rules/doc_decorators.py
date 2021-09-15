@@ -4,12 +4,12 @@ from sqlfluff.core.rules.config_info import get_config_info
 from sqlfluff.core.rules.base import rules_logger  # noqa
 
 
-FIX_COMPATIBLE = "``sqlfluff fix`` compatible."
+FIX_COMPATIBLE = "    ``sqlfluff fix`` compatible."
 
 
 def document_fix_compatible(cls):
     """Mark the rule as fixable in the documentation."""
-    cls.__doc__ = cls.__doc__.replace("\n", f"\n\n{FIX_COMPATIBLE}\n", 1)
+    cls.__doc__ = cls.__doc__.replace("\n", f"\n\n{FIX_COMPATIBLE}\n\n", 1)
     return cls
 
 

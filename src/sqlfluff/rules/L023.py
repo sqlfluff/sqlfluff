@@ -29,6 +29,7 @@ class Rule_L023(BaseRule):
     | it for a function.
 
     .. code-block:: sql
+       :force:
 
         WITH plop AS•(
             SELECT * FROM foo
