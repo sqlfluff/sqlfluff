@@ -82,6 +82,7 @@ environment. e.g:
 python3 -m venv .venv
 source .venv/bin/activate
 ```
+
 > `python3 -m venv .venv` creates a new virtual environment (in current working
 > directory) called `.venv`.
 > `source .venv/bin/activate` activates the virtual environment so that packages
