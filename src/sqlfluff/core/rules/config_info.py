@@ -97,7 +97,7 @@ STANDARD_CONFIG_INFO_DICT = {
     "aliasing": {
         "validation": ["implicit", "explicit"],
         "definition": (
-            "Should alias have an explict AS or is implicit aliasing allowed?"
+            "Should alias have an explict AS or is implicit aliasing required?"
         ),
     },
 }
