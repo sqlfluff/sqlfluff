@@ -31,17 +31,17 @@ postgres_dialect.insert_lexer_matchers(
         # - (?s) Switch - .* includes newline characters
         # - U& - must start with U&
         # - (('')+?(?!')|('.*?(?<!')(?:'')*'(?!')))
-        # (('')+?                                  Any non-zero number of pairs of single quotes -
-        #        (?!')                             that are not then followed by a single quote
-        #             |                            OR
-        #              ('.*?(?<!')(?:'')*'(?!')))
-        #               '.*?                       A single quote followed by anything (non-greedy)
-        #                   (?<!')(?:'')*          Any even number of single quotes, including zero
-        #                                '(?!')    Followed by a single, which is not followed by a single quote
+        #   (('')+?                                 Any non-zero number of pairs of single quotes -
+        #          (?!')                            that are not then followed by a single quote
+        #               |                           OR
+        #                ('.*?(?<!')(?:'')*'(?!')))
+        #                 '.*?                      A single quote followed by anything (non-greedy)
+        #                     (?<!')(?:'')*         Any even number of single quotes, including zero
+        #                                  '(?!')   Followed by a single quote, which is not followed by a single quote
         # - (\s*UESCAPE\s*'[^0-9A-Fa-f'+\-\s)]')?
-        #    \s*UESCAPE\s*                         Whitespace, followed by UESCAPE, followed by whitespace
-        #                 '[^0-9A-Fa-f'+\-\s)]'    Any character that isn't A-F, a-f, 0-9, +-, or whitespace, in quotes
-        #                                       ?  This last block is optional
+        #    \s*UESCAPE\s*                          Whitespace, followed by UESCAPE, followed by whitespace
+        #                 '[^0-9A-Fa-f'+\-\s)]'     Any character that isn't A-F, a-f, 0-9, +-, or whitespace, in quotes
+        #                                       ?   This last block is optional
         RegexLexer(
             "unicode_single_quote",
             r"(?s)U&(('')+?(?!')|('.*?(?<!')(?:'')*'(?!')))(\s*UESCAPE\s*'[^0-9A-Fa-f'+\-\s)]')?",
