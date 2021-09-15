@@ -643,8 +643,7 @@ def test__cli__command_lint_serialize_github_annotation():
                 "test/fixtures/linter/identifier_capitalisation.sql"
             ),
             "line": 3,
-            "message": "L012: Implicit aliasing of column not allowed. Use explicit `AS` "
-            "clause.",
+            "message": "L012: Implicit/explicit aliasing of columns.",
             "start_column": 5,
             "end_column": 5,
             "title": "SQLFluff",
