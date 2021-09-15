@@ -369,6 +369,20 @@ class Rule_L016(Rule_L003):
                 break  # pragma: no cover
         return working_buff
 
+    @staticmethod
+    def _compute_source_length(segments):
+        line_len = 0
+        for segment in segments:
+            if segment.is_type("newline"):
+                continue
+            slice_length = segment.pos_marker.source_slice.stop - segment.pos_marker.source_slice.start
+            if slice_length:
+                segment_length = slice_length
+            else:
+                segment_length = len(segment.raw)
+            line_len += segment_length
+        return line_len
+
     def _eval(self, segment, raw_stack, **kwargs):
         """Line is too long.
 
@@ -384,7 +398,7 @@ class Rule_L016(Rule_L003):
             return None
 
         # Now we can work out the line length and deal with the content
-        line_len = sum(len(s.raw) for s in this_line)
+        line_len = self._compute_source_length(this_line)
         if line_len > self.max_line_length:
             # Problem, we'll be reporting a violation. The
             # question is, can we fix it?
@@ -429,7 +443,7 @@ class Rule_L016(Rule_L003):
                     else:
                         break  # pragma: no cover
                 create_elements = line_indent + [this_line[-1], segment]
-                if sum(len(s.raw) for s in create_elements) > self.max_line_length:
+                if self._compute_source_length(create_elements) > self.max_line_length:
                     # The inline comment is NOT on a line by itself, but even if
                     # we move it onto a line by itself, it's still too long. In
                     # this case, the rule should do nothing, otherwise it
