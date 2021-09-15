@@ -369,18 +369,27 @@ class Rule_L016(Rule_L003):
                 break  # pragma: no cover
         return working_buff
 
-    @staticmethod
-    def _compute_source_length(segments):
+    @classmethod
+    def _compute_segment_length(cls, segment):
+        if segment.is_type("newline"):
+            return 0
+        slice_length = segment.pos_marker.source_slice.stop - segment.pos_marker.source_slice.start
+        if slice_length:
+            return slice_length
+        else:
+            return len(segment.raw)
+
+    @classmethod
+    def _compute_source_length(cls, segments):
         line_len = 0
+        # Often, a single area of a template will supply many SQL tokens.
+        # Use a set to avoid counting segments twice.
+        seen_slices = set()
         for segment in segments:
-            if segment.is_type("newline"):
-                continue
-            slice_length = segment.pos_marker.source_slice.stop - segment.pos_marker.source_slice.start
-            if slice_length:
-                segment_length = slice_length
-            else:
-                segment_length = len(segment.raw)
-            line_len += segment_length
+            slice = (segment.pos_marker.source_slice.start, segment.pos_marker.source_slice.stop)
+            if slice not in seen_slices:
+                seen_slices.add(slice)
+                line_len += cls._compute_segment_length(segment)
         return line_len
 
     def _eval(self, segment, raw_stack, **kwargs):
