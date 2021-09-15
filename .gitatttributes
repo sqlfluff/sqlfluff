@@ -2,7 +2,7 @@
 # enforce LF line endings regardless of OS or git configurations.
 * text=auto eol=lf
 
-# Allow Batch files ot be CRLF:
+# Allow Batch files to be CRLF:
 .bat text eol=crlf
 
 # Isolate binary files in case the auto-detection algorithm fails and
