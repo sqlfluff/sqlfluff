@@ -10,6 +10,7 @@ from sqlfluff.core.parser import (
     Bracketed,
     Ref,
     Anything,
+    Nothing,
     RegexLexer,
     CodeSegment,
     RegexParser,
@@ -251,3 +252,58 @@ class CreateViewStatementSegment(BaseSegment):
         "AS",
         Ref("SelectableGrammar"),
     )
+
+
+@tsql_dialect.segment(replace=True)
+class IntervalExpressionSegment(BaseSegment):
+    """An interval expression segment.
+
+    Not present in T-SQL.
+    """
+
+    type = "interval_expression"
+    match_grammar = Nothing()
+
+
+@tsql_dialect.segment(replace=True)
+class CreateExtensionStatementSegment(BaseSegment):
+    """A `CREATE EXTENSION` statement.
+
+    Not present in T-SQL.
+    """
+
+    type = "create_extension_statement"
+    match_grammar = Nothing()
+
+
+@tsql_dialect.segment(replace=True)
+class CreateModelStatementSegment(BaseSegment):
+    """A BigQuery `CREATE MODEL` statement.
+
+    Not present in T-SQL.
+    """
+
+    type = "create_model_statement"
+    match_grammar = Nothing()
+
+
+@tsql_dialect.segment(replace=True)
+class DropModelStatementSegment(BaseSegment):
+    """A `DROP MODEL` statement.
+
+    Not present in T-SQL.
+    """
+
+    type = "drop_MODELstatement"
+    match_grammar = Nothing()
+
+
+@tsql_dialect.segment(replace=True)
+class OverlapsClauseSegment(BaseSegment):
+    """An `OVERLAPS` clause like in `SELECT.
+
+    Not present in T-SQL.
+    """
+
+    type = "overlaps_clause"
+    match_grammar = Nothing()
