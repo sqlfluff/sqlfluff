@@ -258,7 +258,8 @@ class CreateViewStatementSegment(BaseSegment):
 class IntervalExpressionSegment(BaseSegment):
     """An interval expression segment.
 
-    Not present in T-SQL. """
+    Not present in T-SQL.
+    """
 
     type = "interval_expression"
     match_grammar = Nothing()
@@ -268,7 +269,8 @@ class IntervalExpressionSegment(BaseSegment):
 class CreateExtensionStatementSegment(BaseSegment):
     """A `CREATE EXTENSION` statement.
 
-    Not present in T-SQL. """
+    Not present in T-SQL.
+    """
 
     type = "create_extension_statement"
     match_grammar = Nothing()
@@ -278,7 +280,8 @@ class CreateExtensionStatementSegment(BaseSegment):
 class CreateModelStatementSegment(BaseSegment):
     """A BigQuery `CREATE MODEL` statement.
 
-    Not present in T-SQL. """
+    Not present in T-SQL.
+    """
 
     type = "create_model_statement"
     match_grammar = Nothing()
@@ -288,7 +291,8 @@ class CreateModelStatementSegment(BaseSegment):
 class DropModelStatementSegment(BaseSegment):
     """A `DROP MODEL` statement.
 
-    Not present in T-SQL. """
+    Not present in T-SQL.
+    """
 
     type = "drop_MODELstatement"
     match_grammar = Nothing()
@@ -298,7 +302,8 @@ class DropModelStatementSegment(BaseSegment):
 class LimitClauseSegment(BaseSegment):
     """A `LIMIT` clause like in `SELECT`.
 
-    Not present in T-SQL. """
+    Not present in T-SQL.
+    """
 
     type = "limit_clause"
     match_grammar = Nothing()
@@ -308,7 +313,8 @@ class LimitClauseSegment(BaseSegment):
 class OverlapsClauseSegment(BaseSegment):
     """An `OVERLAPS` clause like in `SELECT.
 
-    Not present in T-SQL. """
+    Not present in T-SQL.
+    """
 
     type = "overlaps_clause"
     match_grammar = Nothing()
@@ -318,8 +324,8 @@ class OverlapsClauseSegment(BaseSegment):
 class NamedWindowSegment(BaseSegment):
     """A WINDOW clause.
 
-    Not present in T-SQL. """
+    Not present in T-SQL.
+    """
 
     type = "named_window"
     match_grammar = Nothing()
-
