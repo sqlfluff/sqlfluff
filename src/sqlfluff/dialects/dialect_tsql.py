@@ -352,6 +352,7 @@ class CreateProcedureStatementSegment(BaseSegment):
     )
 
 
+
 @tsql_dialect.segment()
 class ProcedureDefinitionGrammar(BaseSegment):
     """This is the body of a `CREATE OR ALTER PROCEDURE AS` statement."""
@@ -359,11 +360,7 @@ class ProcedureDefinitionGrammar(BaseSegment):
     type = "procedure_statement"
     name = "procedure_statement"
 
-    match_grammar = Sequence("AS", 
-        OneOf(
-            Delimited(Ref("StatementSegment"),delimiter=Ref("DelimiterSegment")),
-            Sequence("BEGIN", Delimited(Ref("StatementSegment"),delimiter=Ref("DelimiterSegment")),"END"),
-        ))
+    match_grammar = Anything()
 
 
 @tsql_dialect.segment(replace=True)
