@@ -10,6 +10,7 @@ from sqlfluff.core.parser import (
     Bracketed,
     Ref,
     Anything,
+    Nothing,
     RegexLexer,
     CodeSegment,
     RegexParser,
