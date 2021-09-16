@@ -287,7 +287,7 @@ class CreateModelStatementSegment(BaseSegment):
     match_grammar = Nothing()
 
 
-@ansi_dialect.segment(replace=True)
+@tsql_dialect.segment(replace=True)
 class DropModelStatementSegment(BaseSegment):
     """A `DROP MODEL` statement.
 
