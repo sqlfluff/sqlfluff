@@ -902,4 +902,4 @@ class Nothing(BaseGrammar):
 
         Yes, trivially so.
         """
-        return "1"
+        return ["1"]
