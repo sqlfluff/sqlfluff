@@ -1,6 +1,8 @@
 """The simple public API methods."""
 
-from sqlfluff.core import Linter
+from typing import Optional
+
+from sqlfluff.core import Linter, FluffConfig
 
 
 class APIParsingError(ValueError):
@@ -24,7 +26,7 @@ def _unify_str_or_file(sql):
     return sql
 
 
-def lint(sql, dialect="ansi", rules=None):
+def lint(sql, dialect="ansi", rules=None, config: Optional[FluffConfig] = None):
     """Lint a sql string or file.
 
     Args:
@@ -34,12 +36,13 @@ def lint(sql, dialect="ansi", rules=None):
             to be linted. Defaults to `ansi`.
         rules (:obj:`str` or iterable of :obj:`str`, optional): A subset of rule
             reference to lint for.
+        config (:obj:`FluffConfig`): Optional configuration object.
 
     Returns:
         :obj:`list` of :obj:`dict` for each violation found.
     """
     sql = _unify_str_or_file(sql)
-    linter = Linter(dialect=dialect, rules=rules)
+    linter = Linter(dialect=dialect, rules=rules, config=config)
 
     result = linter.lint_string_wrapped(sql)
     result_records = result.as_records()
@@ -47,7 +50,7 @@ def lint(sql, dialect="ansi", rules=None):
     return [] if not result_records else result_records[0]["violations"]
 
 
-def fix(sql, dialect="ansi", rules=None):
+def fix(sql, dialect="ansi", rules=None, config: Optional[FluffConfig] = None):
     """Fix a sql string or file.
 
     Args:
@@ -57,19 +60,20 @@ def fix(sql, dialect="ansi", rules=None):
             to be linted. Defaults to `ansi`.
         rules (:obj:`str` or iterable of :obj:`str`, optional): A subset of rule
             reference to lint for.
+        config (:obj:`FluffConfig`): Optional configuration object.
 
     Returns:
         :obj:`str` for the fixed sql if possible.
     """
     sql = _unify_str_or_file(sql)
-    linter = Linter(dialect=dialect, rules=rules)
+    linter = Linter(dialect=dialect, rules=rules, config=config)
 
     result = linter.lint_string_wrapped(sql, fix=True)
     fixed_string = result.paths[0].files[0].fix_string()[0]
     return fixed_string
 
 
-def parse(sql, dialect="ansi"):
+def parse(sql, dialect="ansi", config: Optional[FluffConfig] = None):
     """Parse a sql string or file.
 
     Args:
@@ -77,12 +81,13 @@ def parse(sql, dialect="ansi"):
             either as a string or a subclass of :obj:`TextIOBase`.
         dialect (:obj:`str`, optional): A reference to the dialect of the sql
             to be linted. Defaults to `ansi`.
+        config (:obj:`FluffConfig`): Optional configuration object.
 
     Returns:
         :obj:`ParsedString` containing the parsed structure.
     """
     sql = _unify_str_or_file(sql)
-    linter = Linter(dialect=dialect)
+    linter = Linter(dialect=dialect, config=config)
     parsed = linter.parse_string(sql)
     # If we encounter any parsing errors, raise them in a combined issue.
     if parsed.violations:
