@@ -36,7 +36,8 @@ def lint(sql, dialect="ansi", rules=None, config: Optional[FluffConfig] = None):
             to be linted. Defaults to `ansi`.
         rules (:obj:`str` or iterable of :obj:`str`, optional): A subset of rule
             reference to lint for.
-        config (:obj:`FluffConfig`): Optional configuration object.
+        config (:obj:`FluffConfig`): Optional configuration object. When used,
+            ``dialect`` and ``rules`` must be ``None``.
 
     Returns:
         :obj:`list` of :obj:`dict` for each violation found.
@@ -60,7 +61,8 @@ def fix(sql, dialect="ansi", rules=None, config: Optional[FluffConfig] = None):
             to be linted. Defaults to `ansi`.
         rules (:obj:`str` or iterable of :obj:`str`, optional): A subset of rule
             reference to lint for.
-        config (:obj:`FluffConfig`): Optional configuration object.
+        config (:obj:`FluffConfig`): Optional configuration object. When used,
+            ``dialect`` and ``rules`` must be ``None``.
 
     Returns:
         :obj:`str` for the fixed sql if possible.
@@ -81,7 +83,8 @@ def parse(sql, dialect="ansi", config: Optional[FluffConfig] = None):
             either as a string or a subclass of :obj:`TextIOBase`.
         dialect (:obj:`str`, optional): A reference to the dialect of the sql
             to be linted. Defaults to `ansi`.
-        config (:obj:`FluffConfig`): Optional configuration object.
+        config (:obj:`FluffConfig`): Optional configuration object. When used,
+            ``dialect`` and ``rules`` must be ``None``.
 
     Returns:
         :obj:`ParsedString` containing the parsed structure.
