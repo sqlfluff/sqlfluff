@@ -307,3 +307,25 @@ class OverlapsClauseSegment(BaseSegment):
 
     type = "overlaps_clause"
     match_grammar = Nothing()
+
+
+@tsql_dialect.segment(replace=True)
+class LimitClauseSegment(BaseSegment):
+    """A `LIMIT` clause like in `SELECT`.
+
+    Not present in T-SQL.
+    """
+
+    type = "limit_clause"
+    match_grammar = Nothing()
+
+
+@tsql_dialect.segment(replace=True)
+class NamedWindowSegment(BaseSegment):
+    """A WINDOW clause.
+
+    Not present in T-SQL.
+    """
+
+    type = "named_window"
+    match_grammar = Nothing()

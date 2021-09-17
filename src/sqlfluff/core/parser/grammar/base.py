@@ -896,3 +896,10 @@ class Nothing(BaseGrammar):
         dialects.
         """
         return MatchResult.from_unmatched(segments)
+
+    def simple(self, parse_context: ParseContext) -> Optional[List[str]]:
+        """Does this matcher support a lowercase hash matching route?
+
+        Yes, trivially so.
+        """
+        return "1"
