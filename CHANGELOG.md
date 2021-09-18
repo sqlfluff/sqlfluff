@@ -9,6 +9,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfluff/sqlfluff/releases) and will be copied in here on each release (please remember to update the issues and contributors to links!). There is no need to manually edit this file going forward.
 -->
 
+## [0.6.6] - 2021-09-20
+
+Fix some of our autofix where running `fix` sometimes make unintended changes. Added config to rules L011 and L012 to allow prefering implicit aliasing. Also further improved our Postgres support and documentation.
+
+### What's Changed
+
+* Remaining line endings [#1415](https://github.com/sqlfluff/sqlfluff/pull/#1415) [@tunetheweb](https://github.com/tunetheweb)
+* TSQL: Remove match possibilities for segments with no TSQL equivalent [#1416](https://github.com/sqlfluff/sqlfluff/pull/#1416) [@jpers36](https://github.com/jpers36)
+* Fix generate error on test file with just a comment [#1413](https://github.com/sqlfluff/sqlfluff/pull/#1413) [@tunetheweb](https://github.com/tunetheweb)
+* Misc fixes to workflow files [#1412](https://github.com/sqlfluff/sqlfluff/pull/#1412) [@tunetheweb](https://github.com/tunetheweb)
+* Added support for escape character strings to Postgres [#1409](https://github.com/sqlfluff/sqlfluff/pull/#1409) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Issue 845: L016 should compute line length prior to template expansion [#1411](https://github.com/sqlfluff/sqlfluff/pull/#1411) [@barrywhart](https://github.com/barrywhart)
+* Add .editorconfig config and enforce style rules [#1410](https://github.com/sqlfluff/sqlfluff/pull/#1410) [@tunetheweb](https://github.com/tunetheweb)
+* Allow optional enforcing of implicit aliasing of tables (L011) and columns (L012) [#1402](https://github.com/sqlfluff/sqlfluff/pull/#1402) [@tunetheweb](https://github.com/tunetheweb)
+* Better error messages on error [#1407](https://github.com/sqlfluff/sqlfluff/pull/#1407) [@tunetheweb](https://github.com/tunetheweb)
+* Add README on how to generate docs [#1403](https://github.com/sqlfluff/sqlfluff/pull/#1403) [@tunetheweb](https://github.com/tunetheweb)
+* Fix extra underscores in case rules (L010 and L014) [#1396](https://github.com/sqlfluff/sqlfluff/pull/#1396) [@tunetheweb](https://github.com/tunetheweb)
+* Remove unused deps in tox test docbuild [#1406](https://github.com/sqlfluff/sqlfluff/pull/#1406) [@zhongjiajie](https://github.com/zhongjiajie)
+* Prevent CodeCov commenting on coverage differences too early [#1404](https://github.com/sqlfluff/sqlfluff/pull/#1404) [@tunetheweb](https://github.com/tunetheweb)
+* Fix "sqlfluff fix compatible" rules indenting to much in documentation [#1405](https://github.com/sqlfluff/sqlfluff/pull/#1405) [@tunetheweb](https://github.com/tunetheweb)
+* Fix documentation SQL highlight error [#1393](https://github.com/sqlfluff/sqlfluff/pull/#1393) [@zhongjiajie](https://github.com/zhongjiajie)
+* Support TIMESTAMPTZ in TIME ZONE queries for Postgres [#1398](https://github.com/sqlfluff/sqlfluff/pull/#1398) [@tunetheweb](https://github.com/tunetheweb)
+* Improve datatypes: CHARACTER VARYING for ANSI, and Postgres and also TIMESTAMP AT TIME ZONE for Postgres [#1378](https://github.com/sqlfluff/sqlfluff/pull/#1378) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Improve rules L003 and L019 by processing multi-line fixes in one pass. [#1391](https://github.com/sqlfluff/sqlfluff/pull/#1391) [@barrywhart](https://github.com/barrywhart)
+* Correct codecov badge for Docs website [#1390](https://github.com/sqlfluff/sqlfluff/pull/#1390) [@tunetheweb](https://github.com/tunetheweb)
+* Change fix to use non-zero exit code if unfixable [#1389](https://github.com/sqlfluff/sqlfluff/pull/#1389) [@tunetheweb](https://github.com/tunetheweb)
+* Bugfix, frame clauses in window functions were not working [#1381](https://github.com/sqlfluff/sqlfluff/pull/#1381) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Handle template and unfixable errors when fixing stdin [#1385](https://github.com/sqlfluff/sqlfluff/pull/#1385) [@nolanbconaway](https://github.com/nolanbconaway)
+* CREATE, ALTER, DROP SEQUENCE support, with Postgres extensions [#1380](https://github.com/sqlfluff/sqlfluff/pull/#1380) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Postgres analyze [#1377](https://github.com/sqlfluff/sqlfluff/pull/#1377) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* L016: "sqlfluff fix" adds too many newlines [#1382](https://github.com/sqlfluff/sqlfluff/pull/#1382) [@barrywhart](https://github.com/barrywhart)
+* L003 fix mixes hanging and clean indents [#1383](https://github.com/sqlfluff/sqlfluff/pull/#1383) [@barrywhart](https://github.com/barrywhart)
+* L034 should not fix inside "INSERT" or "CREATE TABLE AS SELECT" [#1384](https://github.com/sqlfluff/sqlfluff/pull/#1384) [@barrywhart](https://github.com/barrywhart)
+
 ## [0.6.5] - 2021-09-10
 
 ### What's Changed
