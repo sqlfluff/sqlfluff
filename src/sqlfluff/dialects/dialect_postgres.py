@@ -15,7 +15,7 @@ from sqlfluff.core.parser import (
     NamedParser,
     SymbolSegment,
     StartsWith,
-    GreedyUntil
+    GreedyUntil,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -90,9 +90,7 @@ postgres_dialect.insert_lexer_matchers(
         #                                        )
         #                                         ? The previous clause is optional
         RegexLexer(
-            "meta_command",
-            r"\\([^(\\\r\n)])+((\\\\)|(?=\n)|(?=\r\n))?",
-            CodeSegment
+            "meta_command", r"\\([^(\\\r\n)])+((\\\\)|(?=\n)|(?=\r\n))?", CodeSegment
         )
     ],
     before="code",  # Final thing to search for - as psql specific
@@ -135,7 +133,7 @@ postgres_dialect.add(
     ),
     PsqlMetaCommandSegment=NamedParser(
         "meta_command", CodeSegment, name="psql_meta_command", type="psql_meta_command"
-    )
+    ),
 )
 
 postgres_dialect.replace(
@@ -1772,11 +1770,13 @@ class StatementSegment(BaseSegment):
         insert=[
             Ref("AlterDefaultPrivilegesStatementSegment"),
             Ref("CommentOnStatementSegment"),
-            Ref("AnalyzeStatementSegment")
+            Ref("AnalyzeStatementSegment"),
         ],
     )
 
-    match_grammar = GreedyUntil(OneOf(Ref("DelimiterSegment"), Ref("PsqlMetaCommandSegment")))
+    match_grammar = GreedyUntil(
+        OneOf(Ref("DelimiterSegment"), Ref("PsqlMetaCommandSegment"))
+    )
 
 
 @postgres_dialect.segment(replace=True)
@@ -1799,12 +1799,9 @@ class FileSegment(BaseSegment):
     parse_grammar = Sequence(
         AnyNumberOf(
             Ref("PsqlMetaCommandSegment"),
-            Sequence(
-                Ref("StatementSegment"),
-                Ref("DelimiterSegment")
-            ),
+            Sequence(Ref("StatementSegment"), Ref("DelimiterSegment")),
         ),
-        Ref("StatementSegment", optional=True)
+        Ref("StatementSegment", optional=True),
     )
 
     def get_table_references(self):
