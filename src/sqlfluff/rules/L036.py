@@ -218,6 +218,22 @@ class Rule_L036(BaseRule):
                                 "delete", select_stmt.segments[after_select_clause_idx]
                             )
                         )
+                    elif (
+                        select_stmt.segments[after_select_clause_idx].is_type("dedent")
+                        and len(select_stmt.segments) == after_select_clause_idx + 1
+                    ):
+                        # The select_clause has nothing more then a dedent
+                        # In that case check we've left an empty newline afterwards
+                        # If so, delete them both
+                        if parent_stack[0].segments[1].is_type("newline"):
+                            fixes.append(
+                                LintFix(
+                                    "delete",
+                                    select_stmt.segments[after_select_clause_idx],
+                                )
+                            )
+                            fixes.append(LintFix("delete", parent_stack[0].segments[1]))
+
             return LintResult(
                 anchor=select_clause,
                 fixes=fixes,
