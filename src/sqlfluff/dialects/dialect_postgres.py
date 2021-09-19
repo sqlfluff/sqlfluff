@@ -1804,9 +1804,4 @@ class FileSegment(BaseSegment):
         Ref("StatementSegment", optional=True),
     )
 
-    def get_table_references(self):
-        """Use parsed tree to extract table references."""
-        references = set()
-        for stmt in self.get_children("statement"):
-            references |= stmt.get_table_references()
-        return references
+    get_table_references = ansi_dialect.get_segment("FileSegment").get_table_references
