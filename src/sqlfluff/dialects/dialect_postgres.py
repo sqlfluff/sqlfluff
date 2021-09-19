@@ -15,6 +15,7 @@ from sqlfluff.core.parser import (
     NamedParser,
     SymbolSegment,
     StartsWith,
+    GreedyUntil
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -74,6 +75,29 @@ postgres_dialect.insert_lexer_matchers(
     before="not_equal",
 )
 
+postgres_dialect.insert_lexer_matchers(
+    [
+        # Explanation for the regex
+        # \\([^(\\\r\n)])+((\\\\)|(?=\n)|(?=\r\n))?
+        # \\                                        Starts with backslash
+        #   ([^(\\\r\n)])+                          Anything that is not a newline or a backslash
+        #                 (
+        #                  (\\\\)                   Double backslash
+        #                        |                  OR
+        #                         (?=\n)            The next character is a newline
+        #                               |           OR
+        #                                (?=\r\n)   The next 2 characters are a carriage return and a newline
+        #                                        )
+        #                                         ? The previous clause is optional
+        RegexLexer(
+            "meta_command",
+            r"\\([^(\\\r\n)])+((\\\\)|(?=\n)|(?=\r\n))?",
+            CodeSegment
+        )
+    ],
+    before="code",  # Final thing to search for - as psql specific
+)
+
 postgres_dialect.patch_lexer_matchers(
     [
         # In Postgres, the only escape character is ' for single quote strings
@@ -109,6 +133,9 @@ postgres_dialect.add(
     DollarQuotedLiteralSegment=NamedParser(
         "dollar_quote", CodeSegment, name="dollar_quoted_literal", type="literal"
     ),
+    PsqlMetaCommandSegment=NamedParser(
+        "meta_command", CodeSegment, name="psql_meta_command", type="psql_meta_command"
+    )
 )
 
 postgres_dialect.replace(
@@ -1745,8 +1772,44 @@ class StatementSegment(BaseSegment):
         insert=[
             Ref("AlterDefaultPrivilegesStatementSegment"),
             Ref("CommentOnStatementSegment"),
-            Ref("AnalyzeStatementSegment"),
+            Ref("AnalyzeStatementSegment")
         ],
     )
 
-    match_grammar = ansi_dialect.get_segment("StatementSegment").match_grammar.copy()
+    match_grammar = GreedyUntil(OneOf(Ref("DelimiterSegment"), Ref("PsqlMetaCommandSegment")))
+
+
+@postgres_dialect.segment(replace=True)
+class FileSegment(BaseSegment):
+    """A segment representing a whole file or script.
+
+    This is also the default "root" segment of the dialect,
+    and so is usually instantiated directly. It therefore
+    has no match_grammar.
+    """
+
+    type = "file"
+    # The file segment is the only one which can start or end with non-code
+    can_start_end_non_code = True
+    # A file can be empty!
+    allow_empty = True
+
+    # NB: We don't need a match_grammar here because we're
+    # going straight into instantiating it directly usually.
+    parse_grammar = Sequence(
+        AnyNumberOf(
+            Ref("PsqlMetaCommandSegment"),
+            Sequence(
+                Ref("StatementSegment"),
+                Ref("DelimiterSegment")
+            ),
+        ),
+        Ref("StatementSegment", optional=True)
+    )
+
+    def get_table_references(self):
+        """Use parsed tree to extract table references."""
+        references = set()
+        for stmt in self.get_children("statement"):
+            references |= stmt.get_table_references()
+        return references
