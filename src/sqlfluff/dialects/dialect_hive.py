@@ -9,6 +9,8 @@ from sqlfluff.core.parser import (
     Delimited,
     StartsWith,
     NamedParser,
+    SymbolSegment,
+    StringParser,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -21,13 +23,12 @@ hive_dialect = ansi_dialect.copy_as("hive")
 # Clear ANSI Keywords and add all Hive keywords
 # hive_dialect.sets("unreserved_keywords").clear()
 hive_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
-hive_dialect.sets("reserved_keywords").clear()
+# hive_dialect.sets("reserved_keywords").clear()
 hive_dialect.sets("reserved_keywords").update(RESERVED_KEYWORDS)
 
-hive_dialect.sets("bracket_pairs").update(
+hive_dialect.sets("angle_bracket_pairs").update(
     [
-        # NB: Angle brackets can be mistaken, so False
-        ("angle", "LessThanSegment", "GreaterThanSegment", False)
+        ("angle", "StartAngleBracketSegment", "EndAngleBracketSegment", False),
     ]
 )
 
@@ -42,6 +43,12 @@ hive_dialect.add(
     ),
     SingleOrDoubleQuotedLiteralGrammar=OneOf(
         Ref("QuotedLiteralSegment"), Ref("DoubleQuotedLiteralSegment")
+    ),
+    StartAngleBracketSegment=StringParser(
+        "<", SymbolSegment, name="start_angle_bracket", type="start_angle_bracket"
+    ),
+    EndAngleBracketSegment=StringParser(
+        ">", SymbolSegment, name="end_angle_bracket", type="end_angle_bracket"
     ),
     LocationGrammar=Sequence("LOCATION", Ref("QuotedLiteralSegment")),
     PropertyGrammar=Sequence(
@@ -237,13 +244,21 @@ class DatatypeSegment(BaseSegment):
     type = "data_type"
     match_grammar = OneOf(
         Ref("PrimitiveTypeSegment"),
-        Sequence("ARRAY", Bracketed(Ref("DatatypeSegment"), bracket_type="angle")),
+        Sequence(
+            "ARRAY",
+            Bracketed(
+                Ref("DatatypeSegment"),
+                bracket_pairs_set="angle_bracket_pairs",
+                bracket_type="angle",
+            ),
+        ),
         Sequence(
             "MAP",
             Bracketed(
                 Ref("PrimitiveTypeSegment"),
                 Ref("CommaSegment"),
                 Ref("DatatypeSegment"),
+                bracket_pairs_set="angle_bracket_pairs",
                 bracket_type="angle",
             ),
         ),
@@ -258,12 +273,17 @@ class DatatypeSegment(BaseSegment):
                         Ref("CommentGrammar", optional=True),
                     ),
                 ),
+                bracket_pairs_set="angle_bracket_pairs",
                 bracket_type="angle",
             ),
         ),
         Sequence(
             "UNIONTYPE",
-            Bracketed(Delimited(Ref("DatatypeSegment")), bracket_type="angle"),
+            Bracketed(
+                Delimited(Ref("DatatypeSegment")),
+                bracket_pairs_set="angle_bracket_pairs",
+                bracket_type="angle",
+            ),
         ),
     )
 
