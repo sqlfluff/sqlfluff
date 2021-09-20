@@ -144,7 +144,10 @@ class Rule_L036(BaseRule):
             modifier = select_clause.get_child("select_clause_modifier")
 
             # Prepare the select clause which will be inserted
-            move_with_newline = True
+            # In most (but not all) case we'll want to replace the newline with
+            # the statement and a newline, but in some cases however (see #1424)
+            # we don't need the final newline.
+            copy_with_newline = True
             insert_buff = [
                 WhitespaceSegment(),
                 select_clause.segments[select_targets_info.first_select_target_idx],
@@ -261,28 +264,29 @@ class Rule_L036(BaseRule):
                                 )
                             )
 
-                    else:
+                    elif select_stmt.segments[after_select_clause_idx].is_type(
+                            "whitespace"
+                        ):
                         # The select_clause has stuff after (most likely a comment)
                         # Delete the whitespace immeadiately after the select clause
                         # so the other stuff aligns nicely based on where the select
                         # clause started
-                        if select_stmt.segments[after_select_clause_idx].is_type(
-                            "whitespace"
-                        ):
-                            fixes += [
-                                LintFix(
-                                    "delete",
-                                    select_stmt.segments[after_select_clause_idx],
-                                ),
-                            ]
+                        fixes += [
+                            LintFix(
+                                "delete",
+                                select_stmt.segments[after_select_clause_idx],
+                            ),
+                        ]
+                    elif select_stmt.segments[after_select_clause_idx].is_type(
+                            "dedent"
+                    ):
+                        # The end of the select statement, so this is the one
+                        # case we don't want the newline added to end of
+                        # select_clause (see #1424)
+                        copy_with_newline = False
 
-                else:
-                    # If there's nothing after this, not even a new line, then do NOT
-                    # add a newline to the moved clause (see issue #1424)
-                    # In all other cases we add a Newline to insert_buff.
-                    move_with_newline = False
 
-            if move_with_newline:
+            if copy_with_newline:
                 insert_buff = insert_buff + [NewlineSegment()]
 
             fixes += [
