@@ -144,6 +144,7 @@ class Rule_L036(BaseRule):
             modifier = select_clause.get_child("select_clause_modifier")
 
             # Prepare the select clause which will be inserted
+            move_with_newline = True
             insert_buff = [
                 WhitespaceSegment(),
                 select_clause.segments[select_targets_info.first_select_target_idx],
@@ -213,7 +214,7 @@ class Rule_L036(BaseRule):
                         # The select_clause is immediately followed by a
                         # newline. Delete the newline in order to avoid leaving
                         # behind an empty line after fix.
-                        delete_newline = True
+                        delete_last_newline = True
 
                         # Since, we're deleting the newline, we should also delete all
                         # whitespace before it or it will add random whitespace to
@@ -237,28 +238,22 @@ class Rule_L036(BaseRule):
                             if select_clause.segments[start_idx - idx].is_type(
                                 "newline",
                             ):
-                                # Since we know we have a something here add a
-                                # newline into moved segment.
-                                insert_buff = insert_buff + [NewlineSegment()]
                                 break
 
                             # Once we see anything other than whitespace,
-                            # then we're done.
+                            # then we're done, but in this case we want to
+                            # keep the final newline.
                             if select_clause.segments[start_idx - idx].type not in (
                                 "whitespace",
                                 "newline",
                             ):
-                                # Since we know we have a something here add a
-                                # newline into moved segment.
-                                insert_buff = insert_buff + [NewlineSegment()]
-                                # But in this case we do not want to delete the new line
-                                delete_newline = False
+                                delete_last_newline = False
                                 break
 
                             idx += idx
 
-                        # Finally delete the newline
-                        if delete_newline:
+                        # Finally delete the newline, unless we've decided not to
+                        if delete_last_newline:
                             fixes.append(
                                 LintFix(
                                     "delete",
@@ -280,14 +275,15 @@ class Rule_L036(BaseRule):
                                     select_stmt.segments[after_select_clause_idx],
                                 ),
                             ]
-                            # Since we know we have a newline here add one
-                            # back to moved segment.
-                            insert_buff = insert_buff + [NewlineSegment()]
 
-                # else:
-                #   If there's nothing after this, not even a new line, then do NOT
-                #   add a newline to the moved clause (see issue #1424)
-                #   In all other cases (see above) we add a Newline to insert_buff.
+                else:
+                    # If there's nothing after this, not even a new line, then do NOT
+                    # add a newline to the moved clause (see issue #1424)
+                    # In all other cases we add a Newline to insert_buff.
+                    move_with_newline = False
+
+            if move_with_newline:
+                insert_buff = insert_buff + [NewlineSegment()]
 
             fixes += [
                 # Insert the select_clause in place of the first newlin in the
