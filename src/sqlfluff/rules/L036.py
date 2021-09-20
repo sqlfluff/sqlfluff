@@ -265,8 +265,8 @@ class Rule_L036(BaseRule):
                             )
 
                     elif select_stmt.segments[after_select_clause_idx].is_type(
-                            "whitespace"
-                        ):
+                        "whitespace"
+                    ):
                         # The select_clause has stuff after (most likely a comment)
                         # Delete the whitespace immeadiately after the select clause
                         # so the other stuff aligns nicely based on where the select
@@ -278,13 +278,12 @@ class Rule_L036(BaseRule):
                             ),
                         ]
                     elif select_stmt.segments[after_select_clause_idx].is_type(
-                            "dedent"
+                        "dedent"
                     ):
                         # The end of the select statement, so this is the one
                         # case we don't want the newline added to end of
                         # select_clause (see #1424)
                         copy_with_newline = False
-
 
             if copy_with_newline:
                 insert_buff = insert_buff + [NewlineSegment()]
