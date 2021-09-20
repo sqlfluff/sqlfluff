@@ -90,6 +90,9 @@ postgres_dialect.insert_lexer_matchers(
         #                                        )
         #                                         ? The previous clause is optional
         RegexLexer(
+            # For now we'll just treat meta syntax like comments and so just ignore them.
+            # In future we may want to enhance this to actually parse them to ensure they are
+            # valid meta commands.
             "meta_command", r"\\([^(\\\r\n)])+((\\\\)|(?=\n)|(?=\r\n))?", CommentSegment
         )
     ],
