@@ -155,9 +155,6 @@ test_distinct_single_fail_b:
     SELECT distinct a
     FROM my_table
 
-test_long_single_select_clause:
-  fail_str: "SELECT\n100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\n"
-
 test_single_select_with_comment_after_column:
   fail_str: |
     SELECT

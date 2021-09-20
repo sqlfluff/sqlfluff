@@ -223,9 +223,9 @@ class Rule_L036(BaseRule):
                         # whitespace before it or it will add random whitespace to
                         # following statements. So walk back through the segment
                         # deleting whitespace until you get the previous newline, or
-                        # soemthing else.
+                        # something else.
                         idx = 1
-                        while idx < len(select_clause.segments):
+                        while start_idx - idx < len(select_clause.segments):
                             # Delete any whitespace
                             if select_clause.segments[start_idx - idx].is_type(
                                 "whitespace"
@@ -246,14 +246,13 @@ class Rule_L036(BaseRule):
                             # Once we see anything other than whitespace,
                             # then we're done, but in this case we want to
                             # keep the final newline.
-                            if select_clause.segments[start_idx - idx].type not in (
-                                "whitespace",
-                                "newline",
+                            if not select_clause.segments[start_idx - idx].is_type(
+                                "whitespace", "newline"
                             ):
                                 delete_last_newline = False
                                 break
 
-                            idx += idx
+                            idx += 1
 
                         # Finally delete the newline, unless we've decided not to
                         if delete_last_newline:
@@ -284,6 +283,26 @@ class Rule_L036(BaseRule):
                         # case we don't want the newline added to end of
                         # select_clause (see #1424)
                         copy_with_newline = False
+
+                        # Again let's strip back the whitespace, bnut simpler
+                        # as don't need to worry about new line so just break
+                        # if see non-whitespace
+                        idx = 1
+                        start_idx = select_clause_idx - 1
+                        while start_idx - idx < len(select_clause.segments):
+                            # Delete any whitespace
+                            if select_clause.segments[start_idx - idx].is_type(
+                                "whitespace"
+                            ):
+                                fixes += [
+                                    LintFix(
+                                        "delete",
+                                        select_clause.segments[start_idx - idx],
+                                    ),
+                                ]
+                            else:
+                                break
+                            idx += 1
 
             if copy_with_newline:
                 insert_buff = insert_buff + [NewlineSegment()]
