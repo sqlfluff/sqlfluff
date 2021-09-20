@@ -15,7 +15,7 @@ from sqlfluff.core.parser import (
     NamedParser,
     SymbolSegment,
     StartsWith,
-    GreedyUntil,
+    CommentSegment,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -90,7 +90,7 @@ postgres_dialect.insert_lexer_matchers(
         #                                        )
         #                                         ? The previous clause is optional
         RegexLexer(
-            "meta_command", r"\\([^(\\\r\n)])+((\\\\)|(?=\n)|(?=\r\n))?", CodeSegment
+            "meta_command", r"\\([^(\\\r\n)])+((\\\\)|(?=\n)|(?=\r\n))?", CommentSegment
         )
     ],
     before="code",  # Final thing to search for - as psql specific
@@ -130,9 +130,6 @@ postgres_dialect.add(
     ),
     DollarQuotedLiteralSegment=NamedParser(
         "dollar_quote", CodeSegment, name="dollar_quoted_literal", type="literal"
-    ),
-    PsqlMetaCommandSegment=NamedParser(
-        "meta_command", CodeSegment, name="psql_meta_command", type="psql_meta_command"
     ),
 )
 
@@ -1774,34 +1771,4 @@ class StatementSegment(BaseSegment):
         ],
     )
 
-    match_grammar = GreedyUntil(
-        OneOf(Ref("DelimiterSegment"), Ref("PsqlMetaCommandSegment"))
-    )
-
-
-@postgres_dialect.segment(replace=True)
-class FileSegment(BaseSegment):
-    """A segment representing a whole file or script.
-
-    This is also the default "root" segment of the dialect,
-    and so is usually instantiated directly. It therefore
-    has no match_grammar.
-    """
-
-    type = "file"
-    # The file segment is the only one which can start or end with non-code
-    can_start_end_non_code = True
-    # A file can be empty!
-    allow_empty = True
-
-    # NB: We don't need a match_grammar here because we're
-    # going straight into instantiating it directly usually.
-    parse_grammar = Sequence(
-        AnyNumberOf(
-            Ref("PsqlMetaCommandSegment"),
-            Sequence(Ref("StatementSegment"), Ref("DelimiterSegment")),
-        ),
-        Ref("StatementSegment", optional=True),
-    )
-
-    get_table_references = ansi_dialect.get_segment("FileSegment").get_table_references
+    match_grammar = ansi_dialect.get_segment("StatementSegment").match_grammar.copy()

@@ -3,12 +3,8 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8f1bd3ca1179138a67183b136e2ed3682656071cd1337bc31c61335eddda2f5b
+_hash: 205d8103278f15d40c051424c403f94a089d75fe0b5cd77742140e2fb6cb28c5
 file:
-- psql_meta_command: \echo "thing"
-- psql_meta_command: \echo "thing"
-- psql_meta_command: \x \\
-- psql_meta_command: \echo "thing"
 - statement:
     select_statement:
       select_clause:
@@ -40,7 +36,6 @@ file:
         select_clause_element:
           literal: '1'
 - statement_terminator: ;
-- psql_meta_command: \echo "thing" \\
 - statement:
     select_statement:
       select_clause:
@@ -48,5 +43,3 @@ file:
         select_clause_element:
           literal: '1'
 - statement_terminator: ;
-- psql_meta_command: '\echo "thing" '
-- psql_meta_command: \echo "thing2"
