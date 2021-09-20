@@ -17,6 +17,7 @@ from sqlfluff.core.parser import (
     Matchable,
     NamedParser,
     StartsWith,
+    OptionallyBracketed,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -91,10 +92,11 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
         ],
     )
 
+
 @tsql_dialect.segment(replace=True)
 class CreateIndexStatementSegment(BaseSegment):
     """A `CREATE INDEX` statement.
-    
+
     https://docs.microsoft.com/en-us/sql/t-sql/statements/create-index-transact-sql?view=sql-server-ver15
     """
 
@@ -103,7 +105,7 @@ class CreateIndexStatementSegment(BaseSegment):
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),
         Sequence("UNIQUE", optional=True),
-        OneOf("CLUSTERED","NONCLUSTERED", optional=True),
+        OneOf("CLUSTERED", "NONCLUSTERED", optional=True),
         "INDEX",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("IndexReferenceSegment"),
@@ -115,6 +117,17 @@ class CreateIndexStatementSegment(BaseSegment):
                     Ref("IndexColumnDefinitionSegment"),
                 ),
             )
+        ),
+        Sequence(
+            "INCLUDE",
+            Sequence(
+                Bracketed(
+                    Delimited(
+                        Ref("IndexColumnDefinitionSegment"),
+                    ),
+                )
+            ),
+            optional=True,
         ),
     )
 
@@ -143,6 +156,7 @@ class DeclareStatementSegment(BaseSegment):
             optional=True,
         ),
     )
+
 
 @tsql_dialect.segment(replace=True)
 class ObjectReferenceSegment(BaseSegment):
@@ -214,28 +228,28 @@ class NextValueSequenceSegment(BaseSegment):
 
     type = "sequence_next_value"
     match_grammar = Sequence(
-            "NEXT",
-            "VALUE",
-            "FOR",
-            Ref("ObjectReferenceSegment"),
-        )
+        "NEXT",
+        "VALUE",
+        "FOR",
+        Ref("ObjectReferenceSegment"),
+    )
 
 
 @tsql_dialect.segment()
 class IfExpressionStatement(BaseSegment):
     """IF-ELSE-END IF statement.
 
-   https://docs.microsoft.com/en-us/sql/t-sql/language-elements/if-else-transact-sql?view=sql-server-ver15
+    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/if-else-transact-sql?view=sql-server-ver15
     """
 
     type = "if_then_statement"
 
     match_grammar = Sequence(
         OneOf(
-            Sequence(Ref("IfNotExistsGrammar"),Ref("SelectStatementSegment")),
-            Sequence(Ref("IfExistsGrammar"),Ref("SelectStatementSegment")),
+            Sequence(Ref("IfNotExistsGrammar"), Ref("SelectStatementSegment")),
+            Sequence(Ref("IfExistsGrammar"), Ref("SelectStatementSegment")),
             "IF",
-            Ref("ExpressionSegment"),           
+            Ref("ExpressionSegment"),
         ),
         Ref("StatementSegment"),
         Sequence("ELSE", Ref("StatementSegment"), optional=True),
@@ -263,7 +277,7 @@ class ColumnConstraintSegment(BaseSegment):
                     Ref("LiteralGrammar"),
                     Ref("FunctionSegment"),
                     # ?? Ref('IntervalExpressionSegment')
-                    Ref("NextValueSequenceSegment"),
+                    OptionallyBracketed(Ref("NextValueSequenceSegment")),
                 ),
             ),
             Ref("PrimaryKeyGrammar"),
@@ -350,7 +364,6 @@ class CreateProcedureStatementSegment(BaseSegment):
         Ref("FunctionParameterListGrammar", optional=True),
         Ref("ProcedureDefinitionGrammar"),
     )
-
 
 
 @tsql_dialect.segment()
