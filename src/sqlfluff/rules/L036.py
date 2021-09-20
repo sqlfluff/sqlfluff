@@ -250,8 +250,9 @@ class Rule_L036(BaseRule):
                                     select_stmt.segments[after_select_clause_idx],
                                 ),
                             ]
-                        # Ensure a newline is inserted
-                        insert_buff = insert_buff + [NewlineSegment()]
+                            # Ensure a newline is inserted in the original select
+                            # since we have something else
+                            insert_buff = insert_buff + [NewlineSegment()]
 
             fixes += [
                 # Replace "newline" with <<select_target>>
