@@ -155,6 +155,10 @@ test_distinct_single_fail_b:
     SELECT distinct a
     FROM my_table
 
+test_single_select_with_no_from:
+  fail_str: "SELECT\n   10000000\n"
+  fix_str: "SELECT 10000000\n"
+
 test_single_select_with_comment_after_column:
   fail_str: |
     SELECT
