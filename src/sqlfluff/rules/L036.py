@@ -237,13 +237,13 @@ class Rule_L036(BaseRule):
                                     ),
                                 ]
 
-                            # Once we see a newline, then we're done,
+                            # Once we see a newline, then we're done
                             if select_clause.segments[start_idx - idx].is_type(
                                 "newline",
                             ):
                                 break
 
-                            # Once we see anything other than whitespace,
+                            # If we see anything other than whitespace,
                             # then we're done, but in this case we want to
                             # keep the final newline.
                             if not select_clause.segments[start_idx - idx].is_type(
@@ -300,7 +300,20 @@ class Rule_L036(BaseRule):
                                         select_clause.segments[start_idx - idx],
                                     ),
                                 ]
-                            else:
+
+                            # Once we see a newline, then we're done
+                            if select_clause.segments[start_idx - idx].is_type(
+                                "newline"
+                            ):
+                                break
+
+                            # If we see anything other than whitespace,
+                            # then we're done, but in this case we want to
+                            # keep the final newline.
+                            if not select_clause.segments[start_idx - idx].is_type(
+                                "whitespace", "newline"
+                            ):
+                                copy_with_newline = True
                                 break
                             idx += 1
 

@@ -159,6 +159,10 @@ test_single_select_with_no_from:
   fail_str: "SELECT\n   10000000\n"
   fix_str: "SELECT 10000000\n"
 
+test_single_select_with_no_from_previous_comment:
+  fail_str: "SELECT\n /* test */  10000000\n"
+  fix_str: "SELECT 10000000\n /* test */\n"
+
 test_single_select_with_comment_after_column:
   fail_str: |
     SELECT
