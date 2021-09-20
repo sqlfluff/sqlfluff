@@ -185,3 +185,15 @@ test_single_select_with_multiple_mixed_comments:
       -- this is a comment
     FROM
       my_table
+
+test_single_select_with_comment before:
+  fail_str: |
+    SELECT
+      /* comment before */ 1
+    FROM
+      my_table
+  fix_str: |
+    SELECT 1
+      /* comment before */
+    FROM
+      my_table

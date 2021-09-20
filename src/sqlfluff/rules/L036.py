@@ -213,16 +213,13 @@ class Rule_L036(BaseRule):
                         # The select_clause is immediately followed by a
                         # newline. Delete the newline in order to avoid leaving
                         # behind an empty line after fix.
-                        fixes.append(
-                            LintFix(
-                                "delete", select_stmt.segments[after_select_clause_idx]
-                            )
-                        )
+                        delete_newline = True
 
-                        # Since, we're deleting the newline after we should delete all
-                        # whitespace before or it will add random whitespace to follow
-                        # statements. So walk back through the segment to delete
-                        # whitespace until you get the previous newline
+                        # Since, we're deleting the newline, we should also delete all
+                        # whitespace before it or it will add random whitespace to
+                        # following statements. So walk back through the segment
+                        # deleting whitespace until you get the previous newline, or
+                        # soemthing else.
                         idx = 1
                         while idx < len(select_clause.segments):
                             # Delete any whitespace
@@ -236,16 +233,39 @@ class Rule_L036(BaseRule):
                                     ),
                                 ]
 
-                            # # Once we've reached the previous newline we're done
+                            # Once we see a newline, then we're done,
                             if select_clause.segments[start_idx - idx].is_type(
-                                "newline"
+                                "newline",
                             ):
-                                # Since we know we have a newline here add one
-                                # back to moved segment.
+                                # Since we know we have a something here add a
+                                # newline into moved segment.
                                 insert_buff = insert_buff + [NewlineSegment()]
                                 break
 
+                            # Once we see anything other than whitespace,
+                            # then we're done.
+                            if select_clause.segments[start_idx - idx].type not in (
+                                "whitespace",
+                                "newline",
+                            ):
+                                # Since we know we have a something here add a
+                                # newline into moved segment.
+                                insert_buff = insert_buff + [NewlineSegment()]
+                                # But in this case we do not want to delete the new line
+                                delete_newline = False
+                                break
+
                             idx += idx
+
+                        # Finally delete the newline
+                        if delete_newline:
+                            fixes.append(
+                                LintFix(
+                                    "delete",
+                                    select_stmt.segments[after_select_clause_idx],
+                                )
+                            )
+
                     else:
                         # The select_clause has stuff after (most likely a comment)
                         # Delete the whitespace immeadiately after the select clause
@@ -267,7 +287,7 @@ class Rule_L036(BaseRule):
                 # else:
                 #   If there's nothing after this, not even a new line, then do NOT
                 #   add a newline to the moved clause (see issue #1424)
-                #   In all other we add a Newline to insert_buff.
+                #   In all other cases (see above) we add a Newline to insert_buff.
 
             fixes += [
                 # Insert the select_clause in place of the first newlin in the
