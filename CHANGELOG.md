@@ -15,6 +15,7 @@ Fix some of our autofix where running `fix` sometimes make unintended changes. A
 
 ### What's Changed
 
+* Added support for psql meta commands to Postgres [#1423](https://github.com/sqlfluff/sqlfluff/pull/#1423) [@WittierDinosaur](https://github.com/WittierDinosaur)
 * Remaining line endings [#1415](https://github.com/sqlfluff/sqlfluff/pull/#1415) [@tunetheweb](https://github.com/tunetheweb)
 * TSQL: Remove match possibilities for segments with no TSQL equivalent [#1416](https://github.com/sqlfluff/sqlfluff/pull/#1416) [@jpers36](https://github.com/jpers36)
 * Fix generate error on test file with just a comment [#1413](https://github.com/sqlfluff/sqlfluff/pull/#1413) [@tunetheweb](https://github.com/tunetheweb)
