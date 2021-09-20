@@ -41,7 +41,7 @@ tsql_dialect.insert_lexer_matchers(
         ),
         RegexLexer(
             "square_quote",
-            r"\[([a-zA-Z][^\[\]]*)*\]",
+            r"\[([a-zA-Z0-9][^\[\]]*)*\]",
             CodeSegment,
         ),
     ],
@@ -77,6 +77,7 @@ tsql_dialect.replace(
         type="function_name_identifier",
     ),
     DatatypeIdentifierSegment=Ref("SingleIdentifierGrammar"),
+    PrimaryKeyGrammar=Sequence("PRIMARY", "KEY",OneOf("CLUSTERED", "NONCLUSTERED",optional=True)),
 )
 
 
