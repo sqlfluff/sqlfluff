@@ -264,8 +264,10 @@ class Rule_L036(BaseRule):
                             # back to moved segment.
                             insert_buff = insert_buff + [NewlineSegment()]
 
-                # If there's nothing after this, not even a new line, then do NOT
-                # add a newline to the newline segment (see issue #1424)
+                # else:
+                #   If there's nothing after this, not even a new line, then do NOT
+                #   add a newline to the moved clause (see issue #1424)
+                #   In all other we add a Newline to insert_buff.
 
             fixes += [
                 # Insert the select_clause in place of the first newlin in the
