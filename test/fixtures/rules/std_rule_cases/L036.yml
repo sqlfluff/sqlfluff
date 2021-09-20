@@ -159,3 +159,29 @@ test_long_single_select_clause:
   fail_str: |
     SELECT
       100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+
+test_single_select_with_comment_after_column:
+  fail_str: |
+    SELECT
+      1 -- this is a comment
+    FROM
+      my_table
+  fix_str: |
+    SELECT 1
+      -- this is a comment
+    FROM
+      my_table
+
+test_single_select_with_multiple_mixed_comments:
+  fail_str: |
+    SELECT
+      -- previous comment
+      1 -- this is a comment
+    FROM
+      my_table
+  fix_str: |
+    SELECT 1
+      -- previous comment
+      -- this is a comment
+    FROM
+      my_table

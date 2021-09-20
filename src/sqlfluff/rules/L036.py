@@ -142,6 +142,13 @@ class Rule_L036(BaseRule):
         ):
             # Do we have a modifier?
             modifier = select_clause.get_child("select_clause_modifier")
+
+            # Prepare the select clause which will be inserted
+            insert_buff = [
+                WhitespaceSegment(),
+                select_clause.segments[select_targets_info.first_select_target_idx],
+            ]
+
             if modifier:
                 # If it's already on the first line, ignore it.
                 if (
@@ -149,13 +156,6 @@ class Rule_L036(BaseRule):
                     < select_targets_info.first_new_line_idx
                 ):
                     modifier = None
-
-            # Prepare to insert the new section
-            insert_buff = [
-                WhitespaceSegment(),
-                select_clause.segments[select_targets_info.first_select_target_idx],
-            ]
-
             fixes = [
                 # Delete the first select target from its original location.
                 LintFix(
