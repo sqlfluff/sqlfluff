@@ -133,8 +133,6 @@ class Rule_L036(BaseRule):
                     if sub_segment.is_type("wildcard_expression"):
                         is_wildcard = True
 
-        fixes = []
-
         if is_wildcard:
             return None
         elif (
@@ -167,7 +165,6 @@ class Rule_L036(BaseRule):
             ]
 
             start_idx = 0
-            idx = 0
 
             # If we have a modifier to move:
             if modifier:
@@ -202,8 +199,6 @@ class Rule_L036(BaseRule):
                 # Set the positions to remove the preceeding whitespace and newline
                 start_idx = select_targets_info.first_select_target_idx
 
-            idx = 1
-
             if parent_stack and parent_stack[-1].is_type("select_statement"):
                 select_stmt = parent_stack[-1]
                 select_clause_idx = select_stmt.segments.index(select_clause)
@@ -219,10 +214,13 @@ class Rule_L036(BaseRule):
                             )
                         )
 
-                        # Delete all the stuff before the newline
+                        # Walk back through the sement to delete whitespace before the newline
+                        idx = 1
                         while idx < len(select_clause.segments):
                             # Delete any whitespace
-                            if select_clause.segments[start_idx - idx].is_type('whitespace'):
+                            if select_clause.segments[start_idx - idx].is_type(
+                                "whitespace"
+                            ):
                                 fixes += [
                                     LintFix(
                                         "delete",
@@ -230,20 +228,22 @@ class Rule_L036(BaseRule):
                                     ),
                                 ]
 
-                            # If newline, then check it's not the first new line
-                            # (which will be dealt with below), if not delete it
-                            if select_clause.segments[start_idx - idx].is_type("newline"):
+                            # # Once we've reached the previous newline we're done
+                            if select_clause.segments[start_idx - idx].is_type(
+                                "newline"
+                            ):
                                 insert_buff = insert_buff + [NewlineSegment()]
-
-                                # As we've reached the newline we're done
                                 break
 
                             idx += idx
                     else:
-                        # We have stuff after (most likely a comment)
-                        # Delete the whitespace after the select clause
-                        # so it aligns nicely
-                        if select_stmt.segments[after_select_clause_idx].is_type("whitespace"):
+                        # The select_clause has stuff after (most likely a comment)
+                        # Delete the whitespace immeadiately after the select clause
+                        # so the other stuff aligns nicely based on where the select
+                        # clause started
+                        if select_stmt.segments[after_select_clause_idx].is_type(
+                            "whitespace"
+                        ):
                             fixes += [
                                 LintFix(
                                     "delete",
@@ -255,7 +255,7 @@ class Rule_L036(BaseRule):
                             insert_buff = insert_buff + [NewlineSegment()]
 
             fixes += [
-                # Replace "newline" with <<select_target>>
+                # Replace the first "newline" in the select statement with <<select_target>>
                 LintFix(
                     "edit",
                     select_clause.segments[select_targets_info.first_new_line_idx],
