@@ -11,7 +11,7 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ## [0.6.6] - 2021-09-20
 
-Fix some of our autofix where running `fix` sometimes make unintended changes. Added config to rules L011 and L012 to allow prefering implicit aliasing. Also further improved our Postgres support and documentation.
+Fixed some of our autofix rules where running `fix` sometimes made unintended changes. Added config to rules L011 and L012 to allow preferring implicit aliasing. Also further improved our Postgres support and documentation.
 
 ### What's Changed
 
