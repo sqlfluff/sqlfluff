@@ -287,7 +287,7 @@ class TemplatedFile:
         ]
         if ts_start_sf_start == ts_start_sf_stop:
             if ts_start_sf_start < len(self.sliced_file):
-                start_slices = [self.sliced_file[ts_start_sf_start]]
+                start_slices = [self.sliced_file[ts_start_sf_start]]  # pragma: no cover TODO?
             else:
                 assert ts_start_sf_start == len(self.sliced_file)
                 return self.sliced_file[-1].source_slice
