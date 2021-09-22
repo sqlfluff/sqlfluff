@@ -295,7 +295,7 @@ def test__templated_file_templated_slice_to_source_slice(
     file = TemplatedFile(
         source_str="Dummy String",
         sliced_file=file_slices,
-        raw_sliced=raw_slices,
+        raw_sliced=[rs if isinstance(rs, RawFileSlice) else RawFileSlice(*rs) for rs in raw_slices],
         fname="test",
     )
     source_slice = file.templated_slice_to_source_slice(in_slice)
