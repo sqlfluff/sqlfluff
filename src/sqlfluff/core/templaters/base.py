@@ -197,15 +197,20 @@ class TemplatedFile:
             raise ValueError("Position Not Found")
         return first_idx, last_idx
 
-    def raw_slices_in_template_block(self):
+    def raw_slices_in_template_loop(self):
         result = []
-        block_level = 0
+        blocks = []
+        loop_level = 0
         for idx, raw_slice in enumerate(self.raw_sliced):
-            if raw_slice.slice_type == 'block_start':
-                block_level += 1
+            if raw_slice.slice_type in ('block_start', 'block_start_loop'):
+                blocks.append(raw_slice)
+                if raw_slice.slice_type == 'block_start_loop':
+                    loop_level += 1
             elif raw_slice.slice_type == 'block_end':
-                block_level -= 1
-            elif block_level > 0:
+                exiting = blocks.pop()
+                if exiting.slice_type == 'block_start_loop':
+                    loop_level -= 1
+            elif loop_level > 0:
                 result.append(raw_slice)
         return result
 

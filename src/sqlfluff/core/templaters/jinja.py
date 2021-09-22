@@ -348,6 +348,8 @@ class JinjaTemplater(PythonTemplater):
                     elif trimmed_content.startswith("el"):
                         # else, elif
                         block_type = "block_mid"
+                    elif trimmed_content.startswith("for"):
+                        block_type = "block_start_loop"
                     else:
                         block_type = "block_start"
                 yield RawFileSlice(str_buff, block_type, idx)

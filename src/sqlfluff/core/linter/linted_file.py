@@ -264,7 +264,7 @@ class LintedFile(NamedTuple):
         # Make sure no patches overlap and divide up the source file into slices.
         # Any Template tags in the source file are off limits.
         source_only_slices = self.templated_file.source_only_slices()
-        raw_slices_in_template_block = set(self.templated_file.raw_slices_in_template_block())
+        raw_slices_in_template_loop = set(self.templated_file.raw_slices_in_template_loop())
 
         linter_logger.debug("Source-only slices: %s", source_only_slices)
 
@@ -316,9 +316,9 @@ class LintedFile(NamedTuple):
             )
             local_type_list = [slc.slice_type for slc in local_raw_slices]
 
-            if set(local_raw_slices).intersection(raw_slices_in_template_block):
+            if set(local_raw_slices).intersection(raw_slices_in_template_loop):
                 linter_logger.info(
-                    "      - Skipping patch inside template block ('for' or 'if'): %s", patch
+                    "      - Skipping patch inside template loop: %s", patch
                 )
                 continue
 
