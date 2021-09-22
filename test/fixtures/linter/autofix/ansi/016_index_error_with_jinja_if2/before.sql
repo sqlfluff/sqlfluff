@@ -5,12 +5,13 @@
 
 {% for product in products %}
 SELECT
-    brand,
-    country_code,
-    category,
-    name,
-    id
+  brand,
+  country_code,
+  category,
+  name,
+  id
 FROM
-{{ product }}
-{% if not loop.last -%} UNION ALL {%- endif %}
+  {{ product }}
+{% if not loop.last %} UNION ALL {% endif %}
 {% endfor %}
+ORDER BY 1

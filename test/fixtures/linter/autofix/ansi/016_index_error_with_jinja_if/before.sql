@@ -11,6 +11,6 @@ SELECT
   name,
   id
 FROM
-  product
+  {{ product }}
 {% if not loop.last -%} UNION ALL {%- endif %}
 {% endfor %}

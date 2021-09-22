@@ -11,6 +11,7 @@ SELECT
     name,
     id
 FROM
-{{ product }}
-{% if not loop.last -%} UNION ALL {%- endif %}
+    {{ product }}
+{% if not loop.last %} UNION ALL {% endif %}
 {% endfor %}
+ORDER BY 1
