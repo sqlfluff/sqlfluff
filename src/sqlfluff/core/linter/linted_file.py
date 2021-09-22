@@ -208,11 +208,14 @@ class LintedFile(NamedTuple):
         max_log_length = 10
         if patch.templated_slice.start >= max_log_length:
             pre_hint = templated_file.templated_str[
-                patch.templated_slice.start - max_log_length : patch.templated_slice.start
+                patch.templated_slice.start
+                - max_log_length : patch.templated_slice.start
             ]
         else:
             pre_hint = templated_file.templated_str[: patch.templated_slice.start]
-        if patch.templated_slice.stop + max_log_length < len(templated_file.templated_str):
+        if patch.templated_slice.stop + max_log_length < len(
+            templated_file.templated_str
+        ):
             post_hint = templated_file.templated_str[
                 patch.templated_slice.stop : patch.templated_slice.stop + max_log_length
             ]
@@ -264,7 +267,9 @@ class LintedFile(NamedTuple):
         # Make sure no patches overlap and divide up the source file into slices.
         # Any Template tags in the source file are off limits.
         source_only_slices = self.templated_file.source_only_slices()
-        raw_slices_in_template_loop = set(self.templated_file.raw_slices_in_template_loop())
+        raw_slices_in_template_loop = set(
+            self.templated_file.raw_slices_in_template_loop()
+        )
 
         linter_logger.debug("Source-only slices: %s", source_only_slices)
 
@@ -334,16 +339,23 @@ class LintedFile(NamedTuple):
             # Deal with the easy case of only literals
             if set(local_type_list) == {"literal"}:
                 # Is there leftover source following the patch?
-                local_raw_source = ''.join(rfs.raw for rfs in local_raw_slices)
-                if patch.templated_slice.stop - patch.templated_slice.start < len(local_raw_source):  # pragma: no cover TODO?
+                local_raw_source = "".join(rfs.raw for rfs in local_raw_slices)
+                if patch.templated_slice.stop - patch.templated_slice.start < len(
+                    local_raw_source
+                ):  # pragma: no cover TODO?
                     # Yes. Create a corrected patch that includes the leftover
                     # source.
                     enriched_patch = EnrichedFixPatch(
                         source_slice=source_slice,
                         templated_slice=patch.templated_slice,
                         patch_category=patch.patch_category,
-                        fixed_raw=patch.fixed_raw + local_raw_source[patch.templated_slice.stop - patch.templated_slice.start:],
-                        templated_str=self.templated_file.templated_str[patch.templated_slice],
+                        fixed_raw=patch.fixed_raw
+                        + local_raw_source[
+                            patch.templated_slice.stop - patch.templated_slice.start :
+                        ],
+                        templated_str=self.templated_file.templated_str[
+                            patch.templated_slice
+                        ],
                         source_str=self.templated_file.source_str[source_slice],
                     )
                 linter_logger.info(

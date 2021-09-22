@@ -76,6 +76,7 @@ class TemplatedFileSlice(NamedTuple):
     source_slice: slice
     templated_slice: slice
 
+
 class TemplatedFile:
     """A templated SQL file.
 
@@ -198,17 +199,18 @@ class TemplatedFile:
         return first_idx, last_idx
 
     def raw_slices_in_template_loop(self):
+        """Returns the raw slices in this file inside template loops."""
         result = []
         blocks = []
         loop_level = 0
         for idx, raw_slice in enumerate(self.raw_sliced):
-            if raw_slice.slice_type in ('block_start', 'block_start_loop'):
+            if raw_slice.slice_type in ("block_start", "block_start_loop"):
                 blocks.append(raw_slice)
-                if raw_slice.slice_type == 'block_start_loop':
+                if raw_slice.slice_type == "block_start_loop":
                     loop_level += 1
-            elif raw_slice.slice_type == 'block_end':
+            elif raw_slice.slice_type == "block_end":
                 exiting = blocks.pop()
-                if exiting.slice_type == 'block_start_loop':
+                if exiting.slice_type == "block_start_loop":
                     loop_level -= 1
             elif loop_level > 0:
                 result.append(raw_slice)
