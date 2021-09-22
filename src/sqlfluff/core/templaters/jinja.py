@@ -351,7 +351,8 @@ class JinjaTemplater(PythonTemplater):
                         block_type = "block_mid"
                     else:
                         block_type = "block_start"
-                        block_subtype = trimmed_content.split()[0]
+                        if trimmed_content.split()[0] == "for":
+                            block_subtype = "loop"
                 yield RawFileSlice(str_buff, block_type, idx, block_subtype)
                 idx += len(str_buff)
                 str_buff = ""

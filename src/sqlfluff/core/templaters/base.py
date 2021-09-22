@@ -53,7 +53,6 @@ def iter_indices_of_newlines(raw_str: str) -> Iterator[int]:
             break  # pragma: no cover TODO?
 
 
-
 class RawFileSlice(NamedTuple):
     """A slice referring to a raw file."""
 
@@ -208,11 +207,11 @@ class TemplatedFile:
         for idx, raw_slice in enumerate(self.raw_sliced):
             if raw_slice.slice_type == "block_start":
                 blocks.append(raw_slice)
-                if raw_slice.slice_subtype == "for":
+                if raw_slice.slice_subtype == "loop":
                     loop_level += 1
             elif raw_slice.slice_type == "block_end":
                 exiting = blocks.pop()
-                if exiting.slice_subtype == "for":
+                if exiting.slice_subtype == "loop":
                     loop_level -= 1
             elif loop_level > 0:
                 result.append(raw_slice)
