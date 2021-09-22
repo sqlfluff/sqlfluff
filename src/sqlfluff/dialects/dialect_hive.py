@@ -21,6 +21,8 @@ ansi_dialect = load_raw_dialect("ansi")
 hive_dialect = ansi_dialect.copy_as("hive")
 
 # Clear ANSI Keywords and add all Hive keywords
+# Commented clearing for now as some are needed for some statements imported
+# from ANSI to work
 # hive_dialect.sets("unreserved_keywords").clear()
 hive_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
 # hive_dialect.sets("reserved_keywords").clear()
