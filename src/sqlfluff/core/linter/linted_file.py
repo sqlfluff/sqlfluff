@@ -338,26 +338,6 @@ class LintedFile(NamedTuple):
 
             # Deal with the easy case of only literals
             if set(local_type_list) == {"literal"}:
-                # Is there leftover source following the patch?
-                local_raw_source = "".join(rfs.raw for rfs in local_raw_slices)
-                if patch.templated_slice.stop - patch.templated_slice.start < len(
-                    local_raw_source
-                ):  # pragma: no cover TODO?
-                    # Yes. Create a corrected patch that includes the leftover
-                    # source.
-                    enriched_patch = EnrichedFixPatch(
-                        source_slice=source_slice,
-                        templated_slice=patch.templated_slice,
-                        patch_category=patch.patch_category,
-                        fixed_raw=patch.fixed_raw
-                        + local_raw_source[
-                            patch.templated_slice.stop - patch.templated_slice.start :
-                        ],
-                        templated_str=self.templated_file.templated_str[
-                            patch.templated_slice
-                        ],
-                        source_str=self.templated_file.source_str[source_slice],
-                    )
                 linter_logger.info(
                     "      * Keeping patch on literal-only section: %s", enriched_patch
                 )
