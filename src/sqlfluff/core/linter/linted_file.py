@@ -264,6 +264,7 @@ class LintedFile(NamedTuple):
         # Make sure no patches overlap and divide up the source file into slices.
         # Any Template tags in the source file are off limits.
         source_only_slices = self.templated_file.source_only_slices()
+        raw_slices_in_template_block = set(self.templated_file.raw_slices_in_template_block())
 
         linter_logger.debug("Source-only slices: %s", source_only_slices)
 
@@ -315,6 +316,12 @@ class LintedFile(NamedTuple):
             )
             local_type_list = [slc.slice_type for slc in local_raw_slices]
 
+            if set(local_raw_slices).intersection(raw_slices_in_template_block):
+                linter_logger.info(
+                    "      - Skipping patch inside template block ('for' or 'if'): %s", patch
+                )
+                continue
+
             enriched_patch = EnrichedFixPatch(
                 source_slice=source_slice,
                 templated_slice=patch.templated_slice,
@@ -328,7 +335,7 @@ class LintedFile(NamedTuple):
             if set(local_type_list) == {"literal"}:
                 # Is there leftover source following the patch?
                 local_raw_source = ''.join(rfs.raw for rfs in local_raw_slices)
-                if patch.templated_slice.stop - patch.templated_slice.start < len(local_raw_source):
+                if patch.templated_slice.stop - patch.templated_slice.start < len(local_raw_source):  # pragma: no cover TODO?
                     # Yes. Create a corrected patch that includes the leftover
                     # source.
                     enriched_patch = EnrichedFixPatch(

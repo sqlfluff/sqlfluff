@@ -76,7 +76,6 @@ class TemplatedFileSlice(NamedTuple):
     source_slice: slice
     templated_slice: slice
 
-
 class TemplatedFile:
     """A templated SQL file.
 
@@ -197,6 +196,18 @@ class TemplatedFile:
         if first_idx is None:  # pragma: no cover
             raise ValueError("Position Not Found")
         return first_idx, last_idx
+
+    def raw_slices_in_template_block(self):
+        result = []
+        block_level = 0
+        for idx, raw_slice in enumerate(self.raw_sliced):
+            if raw_slice.slice_type == 'block_start':
+                block_level += 1
+            elif raw_slice.slice_type == 'block_end':
+                block_level -= 1
+            elif block_level > 0:
+                result.append(raw_slice)
+        return result
 
     def raw_slices_spanning_source_slice(self, source_slice: slice):
         """Return a list of the raw slices spanning a set of indices."""
