@@ -205,15 +205,16 @@ class LintedFile(NamedTuple):
     ):
         """Log hints for debugging during patch generation."""
         # This next bit is ALL FOR LOGGING AND DEBUGGING
-        if patch.templated_slice.start >= 10:
+        max_log_length = 10
+        if patch.templated_slice.start >= max_log_length:
             pre_hint = templated_file.templated_str[
-                patch.templated_slice.start - 10 : patch.templated_slice.start
+                patch.templated_slice.start - max_log_length : patch.templated_slice.start
             ]
         else:
             pre_hint = templated_file.templated_str[: patch.templated_slice.start]
-        if patch.templated_slice.stop + 10 < len(templated_file.templated_str):
+        if patch.templated_slice.stop + max_log_length < len(templated_file.templated_str):
             post_hint = templated_file.templated_str[
-                patch.templated_slice.stop : patch.templated_slice.stop + 10
+                patch.templated_slice.stop : patch.templated_slice.stop + max_log_length
             ]
         else:
             post_hint = templated_file.templated_str[patch.templated_slice.stop :]
@@ -325,6 +326,19 @@ class LintedFile(NamedTuple):
 
             # Deal with the easy case of only literals
             if set(local_type_list) == {"literal"}:
+                # Is there leftover source following the patch?
+                local_raw_source = ''.join(rfs.raw for rfs in local_raw_slices)
+                if patch.templated_slice.stop - patch.templated_slice.start < len(local_raw_source):
+                    # Yes. Create a corrected patch that includes the leftover
+                    # source.
+                    enriched_patch = EnrichedFixPatch(
+                        source_slice=source_slice,
+                        templated_slice=patch.templated_slice,
+                        patch_category=patch.patch_category,
+                        fixed_raw=patch.fixed_raw + local_raw_source[patch.templated_slice.stop - patch.templated_slice.start:],
+                        templated_str=self.templated_file.templated_str[patch.templated_slice],
+                        source_str=self.templated_file.source_str[source_slice],
+                    )
                 linter_logger.info(
                     "      * Keeping patch on literal-only section: %s", enriched_patch
                 )
@@ -378,7 +392,7 @@ class LintedFile(NamedTuple):
                         enriched_patch,
                     )
                     continue
-                # We have a single occurrences of the thing we want to patch. This
+                # We have a single occurrence of the thing we want to patch. This
                 # means we can use its position to place our patch.
                 new_source_slice = slice(
                     enriched_patch.source_slice.start + positions[0],

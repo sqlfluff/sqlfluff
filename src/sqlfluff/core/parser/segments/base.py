@@ -971,6 +971,11 @@ class BaseSegment:
             return
 
         # If we're here, the segment doesn't match the original.
+        linter_logger.debug("%s at %s: Original: [%r] Fixed: [%r]",
+                            type(self).__name__,
+                            self.pos_marker.templated_slice,
+                            templated_str[self.pos_marker.templated_slice],
+                            self.raw)
 
         # If it's all literal, then we don't need to recurse.
         if self.pos_marker.is_literal():
@@ -980,7 +985,7 @@ class BaseSegment:
             )
         # Can we go deeper?
         elif not self.segments:
-            # It's not literal, but it's also a raw segment. If were going
+            # It's not literal, but it's also a raw segment. If we're going
             # to yield a change, we would have done it from the parent, so
             # we just abort from here.
             return  # pragma: no cover TODO?
