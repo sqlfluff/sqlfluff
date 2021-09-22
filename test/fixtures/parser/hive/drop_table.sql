@@ -1,0 +1,3 @@
+DROP TABLE foo;
+
+DROP TABLE IF exists bar PURGE;

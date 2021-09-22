@@ -50,7 +50,7 @@ hive_dialect.add(
     EndAngleBracketSegment=StringParser(
         ">", SymbolSegment, name="end_angle_bracket", type="end_angle_bracket"
     ),
-    LocationGrammar=Sequence("LOCATION", Ref("QuotedLiteralSegment")),
+    LocationGrammar=Sequence("LOCATION", Ref("SingleOrDoubleQuotedLiteralGrammar")),
     PropertyGrammar=Sequence(
         Ref("SingleOrDoubleQuotedLiteralGrammar"),
         Ref("EqualsSegment"),
@@ -121,7 +121,9 @@ class CreateDatabaseStatementSegment(BaseSegment):
         Ref("DatabaseReferenceSegment"),
         Ref("CommentGrammar", optional=True),
         Ref("LocationGrammar", optional=True),
-        Sequence("MANAGEDLOCATION", Ref("QuotedLiteralSegment"), optional=True),
+        Sequence(
+            "MANAGEDLOCATION", Ref("SingleOrDoubleQuotedLiteralGrammar"), optional=True
+        ),
         Sequence(
             "WITH", "DBPROPERTIES", Ref("BracketedPropertyListGrammar"), optional=True
         ),
@@ -159,7 +161,9 @@ class CreateTableStatementSegment(BaseSegment):
                             Ref("TableConstraintSegment"),
                             Ref("ColumnDefinitionSegment"),
                         ),
-                    )
+                        bracket_pairs_set="angle_bracket_pairs",
+                    ),
+                    optional=True,
                 ),
                 Ref("CommentGrammar", optional=True),
                 Sequence(
@@ -201,6 +205,7 @@ class CreateTableStatementSegment(BaseSegment):
                 "LIKE",
                 Ref("TableReferenceSegment"),
                 Ref("LocationGrammar", optional=True),
+                Ref("TablePropertiesGrammar", optional=True),
             ),
         ),
     )
@@ -255,9 +260,11 @@ class DatatypeSegment(BaseSegment):
         Sequence(
             "MAP",
             Bracketed(
-                Ref("PrimitiveTypeSegment"),
-                Ref("CommaSegment"),
-                Ref("DatatypeSegment"),
+                Sequence(
+                    Ref("PrimitiveTypeSegment"),
+                    Ref("CommaSegment"),
+                    Ref("DatatypeSegment"),
+                ),
                 bracket_pairs_set="angle_bracket_pairs",
                 bracket_type="angle",
             ),
@@ -272,6 +279,7 @@ class DatatypeSegment(BaseSegment):
                         Ref("DatatypeSegment"),
                         Ref("CommentGrammar", optional=True),
                     ),
+                    bracket_pairs_set="angle_bracket_pairs",
                 ),
                 bracket_pairs_set="angle_bracket_pairs",
                 bracket_type="angle",
@@ -280,7 +288,9 @@ class DatatypeSegment(BaseSegment):
         Sequence(
             "UNIONTYPE",
             Bracketed(
-                Delimited(Ref("DatatypeSegment")),
+                Delimited(
+                    Ref("DatatypeSegment"), bracket_pairs_set="angle_bracket_pairs"
+                ),
                 bracket_pairs_set="angle_bracket_pairs",
                 bracket_type="angle",
             ),
@@ -358,9 +368,13 @@ class AlterDatabaseStatementSegment(BaseSegment):
         "SET",
         OneOf(
             Sequence("DBPROPERTIES", Ref("BracketedPropertyListGrammar")),
-            Sequence("OWNER", OneOf("USER", "ROLE"), Ref("QuotedLiteralSegment")),
+            Sequence(
+                "OWNER",
+                OneOf("USER", "ROLE"),
+                Ref("SingleOrDoubleQuotedLiteralGrammar"),
+            ),
             Ref("LocationGrammar"),
-            Sequence("MANAGEDLOCATION", Ref("QuotedLiteralSegment")),
+            Sequence("MANAGEDLOCATION", Ref("SingleOrDoubleQuotedLiteralGrammar")),
         ),
     )
 
@@ -440,7 +454,6 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
         insert=[Ref("AlterDatabaseStatementSegment")],
         remove=[
             Ref("TransactionStatementSegment"),
-            Ref("AlterDefaultPrivilegesSegment"),
             Ref("CreateSchemaStatementSegment"),
             Ref("SetSchemaStatementSegment"),
             Ref("DropSchemaStatementSegment"),
