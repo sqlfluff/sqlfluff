@@ -185,11 +185,11 @@ def test__templater_jinja_slice_template(test, result):
         assert "".join(elem[0] for elem in resp) == test
         # check indices
         idx = 0
-        for literal, _, pos in resp:
+        for literal, _, pos, _ in resp:
             assert pos == idx
             idx += len(literal)
     # Check total result
-    assert resp == result
+    assert [r[:3] for r in resp] == result
 
 
 @pytest.mark.parametrize(
