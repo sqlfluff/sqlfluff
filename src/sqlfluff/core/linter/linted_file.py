@@ -59,8 +59,6 @@ class LintedFile(NamedTuple):
         for v in self.get_violations():
             if hasattr(v, "check_tuple"):
                 vs.append(v.check_tuple())
-            else:
-                raise v
         return vs
 
     def get_violations(
@@ -322,10 +320,18 @@ class LintedFile(NamedTuple):
             local_type_list = [slc.slice_type for slc in local_raw_slices]
 
             if set(local_raw_slices).intersection(raw_slices_in_template_loop):
-                linter_logger.info(
-                    "      - Skipping patch inside template loop: %s", patch
-                )
-                continue
+                # The patch is being applied to a loop body. Sanity check it.
+                patch_split_list = patch.fixed_raw.split()
+                patch_split_set = set(patch.fixed_raw.split())
+                if len(patch_split_list) - len(patch_split_set) >= 2:
+                    # This is a heuristic. If the patch contains 2 or more
+                    # duplicate strings, assume it's a poorly computed patch
+                    # where the fixes to expanded code couldn't be applied
+                    # cleanly to the source code.
+                    linter_logger.info(
+                        "      - Skipping apparent bad patch inside template loop: %s", patch
+                    )
+                    continue
 
             enriched_patch = EnrichedFixPatch(
                 source_slice=source_slice,
@@ -338,26 +344,6 @@ class LintedFile(NamedTuple):
 
             # Deal with the easy case of only literals
             if set(local_type_list) == {"literal"}:
-                # Is there leftover source following the patch?
-                local_raw_source = "".join(rfs.raw for rfs in local_raw_slices)
-                if patch.templated_slice.stop - patch.templated_slice.start < len(
-                    local_raw_source
-                ):  # pragma: no cover TODO?
-                    # Yes. Create a corrected patch that includes the leftover
-                    # source.
-                    enriched_patch = EnrichedFixPatch(
-                        source_slice=source_slice,
-                        templated_slice=patch.templated_slice,
-                        patch_category=patch.patch_category,
-                        fixed_raw=patch.fixed_raw
-                        + local_raw_source[
-                            patch.templated_slice.stop - patch.templated_slice.start :
-                        ],
-                        templated_str=self.templated_file.templated_str[
-                            patch.templated_slice
-                        ],
-                        source_str=self.templated_file.source_str[source_slice],
-                    )
                 linter_logger.info(
                     "      * Keeping patch on literal-only section: %s", enriched_patch
                 )

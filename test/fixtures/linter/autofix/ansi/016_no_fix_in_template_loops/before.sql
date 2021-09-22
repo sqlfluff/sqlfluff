@@ -1,4 +1,8 @@
 SELECT
-{% for _ in range(9) %} 2,
+{% for _ in [1, 2, 3] %} 2,
 {% endfor %}
-    10
+    10;
+
+SELECT
+    1,
+  {% for _ in [1, 2, 3] %}    2{%endfor %}
