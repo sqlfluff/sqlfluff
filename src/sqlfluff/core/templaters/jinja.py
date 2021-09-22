@@ -339,6 +339,7 @@ class JinjaTemplater(PythonTemplater):
             # parts of the tag at a time.
             if elem_type.endswith("_end") or elem_type == "raw_begin":
                 block_type = block_types[elem_type]
+                block_subtype = None
                 # Handle starts and ends of blocks
                 if block_type == "block":
                     # Trim off the brackets and then the whitespace
@@ -348,11 +349,10 @@ class JinjaTemplater(PythonTemplater):
                     elif trimmed_content.startswith("el"):
                         # else, elif
                         block_type = "block_mid"
-                    elif trimmed_content.startswith("for"):
-                        block_type = "block_start_loop"
                     else:
                         block_type = "block_start"
-                yield RawFileSlice(str_buff, block_type, idx)
+                        block_subtype = trimmed_content.split()[0]
+                yield RawFileSlice(str_buff, block_type, idx, block_subtype)
                 idx += len(str_buff)
                 str_buff = ""
 

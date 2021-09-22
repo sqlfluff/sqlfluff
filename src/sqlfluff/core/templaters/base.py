@@ -53,12 +53,14 @@ def iter_indices_of_newlines(raw_str: str) -> Iterator[int]:
             break  # pragma: no cover TODO?
 
 
+
 class RawFileSlice(NamedTuple):
     """A slice referring to a raw file."""
 
     raw: str
     slice_type: str
     source_idx: int
+    slice_subtype: Optional[str] = None
 
     def end_source_idx(self):
         """Return the closing index of this slice."""
@@ -204,13 +206,13 @@ class TemplatedFile:
         blocks = []
         loop_level = 0
         for idx, raw_slice in enumerate(self.raw_sliced):
-            if raw_slice.slice_type in ("block_start", "block_start_loop"):
+            if raw_slice.slice_type == "block_start":
                 blocks.append(raw_slice)
-                if raw_slice.slice_type == "block_start_loop":
+                if raw_slice.slice_subtype == "for":
                     loop_level += 1
             elif raw_slice.slice_type == "block_end":
                 exiting = blocks.pop()
-                if exiting.slice_type == "block_start_loop":
+                if exiting.slice_subtype == "for":
                     loop_level -= 1
             elif loop_level > 0:
                 result.append(raw_slice)
@@ -353,7 +355,7 @@ class TemplatedFile:
         if source_slice.start == source_slice.stop:
             return True
         is_literal = True
-        for _, seg_type, seg_idx in self.raw_sliced:
+        for _, seg_type, seg_idx, _ in self.raw_sliced:
             # Reset if we find a literal and we're up to the start
             # otherwise set false.
             if seg_idx <= source_slice.start:

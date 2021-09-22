@@ -30,7 +30,7 @@ class IntermediateFileSlice(NamedTuple):
     ) -> Tuple["IntermediateFileSlice", List[TemplatedFileSlice]]:
         """Trim the ends of a intermediate segment."""
         target_idx = 0 if target_end == "head" else -1
-        terminator_types = ("block_start", "block_start_loop") if target_end == "head" else ("block_end")
+        terminator_types = ("block_start") if target_end == "head" else ("block_end")
         main_source_slice = self.source_slice
         main_templated_slice = self.templated_slice
         slice_buffer = self.slice_buffer
@@ -41,14 +41,13 @@ class IntermediateFileSlice(NamedTuple):
         while len(slice_buffer) > 0 and slice_buffer[target_idx].slice_type in (
             "literal",
             "block_start",
-            "block_start_loop",
             "block_end",
             "comment",
         ):
             focus = slice_buffer[target_idx]
             templater_logger.debug("            %s Focus: %s", target_end, focus)
             # Is it a zero length item?
-            if focus.slice_type in ("block_start", "block_start_loop", "block_end", "comment"):
+            if focus.slice_type in ("block_start", "block_end", "comment"):
                 # Only add the length in the source space.
                 templated_len = 0
             else:
@@ -495,7 +494,7 @@ class PythonTemplater(RawTemplater):
         idx: Optional[int] = None
         templ_idx = 0
         # Loop through
-        for raw, token_type, raw_pos in raw_sliced:
+        for raw, token_type, raw_pos, _ in raw_sliced:
             if raw in invariants:
                 if buffer:
                     yield IntermediateFileSlice(
@@ -950,7 +949,7 @@ class PythonTemplater(RawTemplater):
                             for idx, slc in enumerate(
                                 int_file_slice.slice_buffer[:cur_idx]
                             )
-                            if slc[1] in ("block_start", "block_start_loop")
+                            if slc[1] == "block_start"
                         ]
 
                         # Trim anything which we're not allowed to use.
