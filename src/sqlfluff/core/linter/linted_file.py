@@ -47,7 +47,7 @@ class LintedFile(NamedTuple):
     templated_file: TemplatedFile
     encoding: str
 
-    def check_tuples(self) -> List[CheckTuple]:
+    def check_tuples(self, raise_on_non_linting_violations=True) -> List[CheckTuple]:
         """Make a list of check_tuples.
 
         This assumes that all the violations found are
@@ -59,6 +59,8 @@ class LintedFile(NamedTuple):
         for v in self.get_violations():
             if hasattr(v, "check_tuple"):
                 vs.append(v.check_tuple())
+            elif raise_on_non_linting_violations:
+                raise v
         return vs
 
     def get_violations(
@@ -329,7 +331,8 @@ class LintedFile(NamedTuple):
                     # where the fixes to expanded code couldn't be applied
                     # cleanly to the source code.
                     linter_logger.info(
-                        "      - Skipping apparent bad patch inside template loop: %s", patch
+                        "      - Skipping apparent bad patch inside template loop: %s",
+                        patch,
                     )
                     continue
 

@@ -113,7 +113,7 @@ def auto_fix_test(dialect, folder, caplog):
 
     # We call the check_tuples here, even to makes sure any non-linting
     # violations are raised, and the test fails.
-    vs = set(res.check_tuples())
+    vs = set(res.check_tuples(raise_on_non_linting_violations=False))
     # If we have a violations structure, let's enforce it.
     if violations:
         # Format the violations file
