@@ -313,7 +313,9 @@ class OverlapsClauseSegment(BaseSegment):
 @tsql_dialect.segment(replace=True)
 class UnorderedSelectStatementSegment(BaseSegment):
     """A `SELECT` statement without any ORDER clauses or later.
-    We need to change ANSI slightly
+
+    We need to change ANSI slightly to remove LimitClauseSegment
+    and NamedWindowSegment which don't exist in T-SQL.
     """
 
     type = "select_statement"
@@ -330,13 +332,15 @@ class UnorderedSelectStatementSegment(BaseSegment):
 
     parse_grammar = ansi_dialect.get_segment(
         "UnorderedSelectStatementSegment"
-    ).match_grammar.copy()
+    ).parse_grammar.copy()
 
 
 @tsql_dialect.segment(replace=True)
 class SelectStatementSegment(BaseSegment):
     """A `SELECT` statement.
-    We need to change ANSI slightly
+
+    We need to change ANSI slightly to remove LimitClauseSegment
+    and NamedWindowSegment which don't exist in T-SQL.
     """
 
     type = "select_statement"
