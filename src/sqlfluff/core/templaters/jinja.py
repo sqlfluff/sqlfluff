@@ -351,7 +351,9 @@ class JinjaTemplater(PythonTemplater):
                     m_close = cls.re_close_tag.search(str_buff)
                     trimmed_content = ""
                     if m_open and m_close:
-                        trimmed_content = str_buff[len(m_open.group(0)):-len(m_close.group(0))]
+                        trimmed_content = str_buff[
+                            len(m_open.group(0)) : -len(m_close.group(0))
+                        ]
                     if trimmed_content.startswith("end"):
                         block_type = "block_end"
                     elif trimmed_content.startswith("el"):
