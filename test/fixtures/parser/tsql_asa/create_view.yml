@@ -1,0 +1,79 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: ea2f4b9b429a692ab7f40da3cda6573d9a0f64ffbaf91611120d58baeddd1e41
+file:
+  statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: VIEW
+    - object_reference:
+      - identifier: Sales
+      - dot: .
+      - identifier: SalesPersonPerform
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: TOP
+              bracketed:
+                start_bracket: (
+                expression:
+                  literal: '100'
+                end_bracket: )
+            alias_expression:
+              identifier: SalesPersonID
+        - comma: ','
+        - select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: SUM
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    identifier: TotalDue
+                end_bracket: )
+            alias_expression:
+              keyword: AS
+              identifier: TotalSales
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - identifier: Sales
+                - dot: .
+                - identifier: SalesOrderHeader
+        where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+              identifier: OrderDate
+            comparison_operator: '>'
+            function:
+              function_name:
+                function_name_identifier: CONVERT
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    identifier: DATETIME
+              - comma: ','
+              - expression:
+                  literal: "'20001231'"
+              - comma: ','
+              - expression:
+                  literal: '101'
+              - end_bracket: )
+        groupby_clause:
+        - keyword: GROUP
+        - keyword: BY
+        - column_reference:
+            identifier: SalesPersonID

@@ -1,0 +1,78 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 54c6f4b5162f065ec8f60810e45ce3967b8b42f1cf7fda3506a100d332397d68
+file:
+  statement:
+    unparsable:
+    - raw: CREATE
+    - raw: TABLE
+    - raw: '[dbo]'
+    - raw: .
+    - raw: '[PL_stage]'
+    - raw: WITH
+    - bracketed:
+      - start_bracket: (
+      - raw: DISTRIBUTION
+      - raw: '='
+      - raw: HASH
+      - bracketed:
+          start_bracket: (
+          raw: '[ID]'
+          end_bracket: )
+      - comma: ','
+      - raw: HEAP
+      - end_bracket: )
+    - raw: AS
+    - raw: SELECT
+    - raw: e
+    - raw: .
+    - raw: '[ID]'
+    - comma: ','
+    - raw: e
+    - raw: .
+    - raw: '[ArriveDate]'
+    - comma: ','
+    - raw: e
+    - raw: .
+    - raw: '[Contribution]'
+    - comma: ','
+    - raw: e
+    - raw: .
+    - raw: '[DischargeDate]'
+    - comma: ','
+    - raw: e
+    - raw: .
+    - raw: '[Encounter]'
+    - comma: ','
+    - raw: e
+    - raw: .
+    - raw: '[Facility]'
+    - comma: ','
+    - raw: e
+    - raw: .
+    - raw: '[Region]'
+    - comma: ','
+    - raw: e
+    - raw: .
+    - raw: '[LOS]'
+    - raw: FROM
+    - raw: dbo
+    - raw: .
+    - raw: Encounter
+    - raw: e
+    - raw: JOIN
+    - raw: dbo
+    - raw: .
+    - raw: Finance
+    - raw: f
+    - raw: 'ON'
+    - raw: e
+    - raw: .
+    - raw: '[ID]'
+    - raw: '='
+    - raw: f
+    - raw: .
+    - raw: '[ID]'

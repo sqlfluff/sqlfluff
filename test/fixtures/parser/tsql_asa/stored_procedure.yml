@@ -1,0 +1,373 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 7a4dbf19c67d685b66563dbd77da9898ecaf584d6813f52057e1398691cd6906
+file:
+  statement:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: PROCEDURE
+    - object_reference:
+      - identifier: DBO
+      - dot: .
+      - identifier: SP_ECDC_CASES_INTER
+    - base:
+        bracketed:
+        - start_bracket: (
+        - parameter: '@Apple'
+        - data_type:
+            identifier: '[int]'
+        - comma: ','
+        - parameter: '@Orange'
+        - data_type:
+            identifier: varchar
+            bracketed:
+              start_bracket: (
+              expression:
+                literal: '100'
+              end_bracket: )
+        - end_bracket: )
+    - procedure_statement:
+      - keyword: AS
+      - raw: BEGIN
+      - raw: INSERT
+      - raw: INTO
+      - raw: VWSINTER
+      - raw: .
+      - raw: ECDC_CASES
+      - bracketed:
+        - start_bracket: (
+        - raw: '[COUNTRY]'
+        - comma: ','
+        - raw: '[COUNTRY_CODE]'
+        - comma: ','
+        - raw: '[CONTINENT]'
+        - comma: ','
+        - raw: '[POPULATION]'
+        - comma: ','
+        - raw: '[INDICATOR]'
+        - comma: ','
+        - raw: '[WEEKLY_COUNT]'
+        - comma: ','
+        - raw: '[YEAR_WEEK]'
+        - comma: ','
+        - raw: '[WEEK_START]'
+        - comma: ','
+        - raw: '[WEEK_END]'
+        - comma: ','
+        - raw: '[RATE_14_DAY]'
+        - comma: ','
+        - raw: '[CUMULATIVE_COUNT]'
+        - comma: ','
+        - raw: '[SOURCE]'
+        - end_bracket: )
+      - raw: SELECT
+      - raw: '[COUNTRY]'
+      - comma: ','
+      - raw: '[COUNTRY_CODE]'
+      - comma: ','
+      - raw: '[CONTINENT]'
+      - comma: ','
+      - raw: CAST
+      - bracketed:
+        - start_bracket: (
+        - raw: '[POPULATION]'
+        - raw: AS
+        - raw: BIGINT
+        - end_bracket: )
+      - raw: AS
+      - raw: '[POPULATION]'
+      - comma: ','
+      - raw: '[INDICATOR]'
+      - comma: ','
+      - raw: CAST
+      - bracketed:
+        - start_bracket: (
+        - raw: '[WEEKLY_COUNT]'
+        - raw: AS
+        - raw: BIGINT
+        - end_bracket: )
+      - raw: AS
+      - raw: '[WEEKLY_COUNT]'
+      - comma: ','
+      - raw: '[YEAR_WEEK]'
+      - comma: ','
+      - raw: CAST
+      - bracketed:
+        - start_bracket: (
+        - raw: '[dbo]'
+        - raw: .
+        - raw: '[CONVERT_ISO_WEEK_TO_DATETIME]'
+        - bracketed:
+          - start_bracket: (
+          - raw: LEFT
+          - bracketed:
+            - start_bracket: (
+            - raw: YEAR_WEEK
+            - comma: ','
+            - raw: '4'
+            - end_bracket: )
+          - comma: ','
+          - raw: RIGHT
+          - bracketed:
+            - start_bracket: (
+            - raw: YEAR_WEEK
+            - comma: ','
+            - raw: '2'
+            - end_bracket: )
+          - end_bracket: )
+        - raw: AS
+        - raw: DATE
+        - end_bracket: )
+      - raw: AS
+      - raw: '[WEEK_START]'
+      - comma: ','
+      - raw: CAST
+      - bracketed:
+        - start_bracket: (
+        - raw: '[dbo]'
+        - raw: .
+        - raw: '[WEEK_END]'
+        - bracketed:
+          - start_bracket: (
+          - raw: '[dbo]'
+          - raw: .
+          - raw: '[CONVERT_ISO_WEEK_TO_DATETIME]'
+          - bracketed:
+            - start_bracket: (
+            - raw: LEFT
+            - bracketed:
+              - start_bracket: (
+              - raw: YEAR_WEEK
+              - comma: ','
+              - raw: '4'
+              - end_bracket: )
+            - comma: ','
+            - raw: RIGHT
+            - bracketed:
+              - start_bracket: (
+              - raw: YEAR_WEEK
+              - comma: ','
+              - raw: '2'
+              - end_bracket: )
+            - end_bracket: )
+          - end_bracket: )
+        - raw: AS
+        - raw: DATE
+        - end_bracket: )
+      - raw: AS
+      - raw: '[WEEK_END]'
+      - comma: ','
+      - raw: CAST
+      - bracketed:
+        - start_bracket: (
+        - raw: '[RATE_14_DAY]'
+        - raw: AS
+        - raw: FLOAT
+        - end_bracket: )
+      - raw: AS
+      - raw: '[RATE_14_DAY]'
+      - comma: ','
+      - raw: CAST
+      - bracketed:
+        - start_bracket: (
+        - raw: '[CUMULATIVE_COUNT]'
+        - raw: AS
+        - raw: BIGINT
+        - end_bracket: )
+      - raw: AS
+      - raw: '[CUMULATIVE_COUNT]'
+      - comma: ','
+      - raw: '[SOURCE]'
+      - raw: FROM
+      - raw: VWSSTAGE
+      - raw: .
+      - raw: ECDC_CASES
+      - raw: WHERE
+      - raw: DATE_LAST_INSERTED
+      - raw: '='
+      - bracketed:
+        - start_bracket: (
+        - raw: SELECT
+        - raw: MAX
+        - bracketed:
+            start_bracket: (
+            raw: DATE_LAST_INSERTED
+            end_bracket: )
+        - raw: from
+        - raw: VWSSTAGE
+        - raw: .
+        - raw: ECDC_CASES
+        - end_bracket: )
+      - raw: INSERT
+      - raw: INTO
+      - raw: VWSINTER
+      - raw: .
+      - raw: ECDC_CASES_OLD
+      - bracketed:
+        - start_bracket: (
+        - raw: '[COUNTRY]'
+        - comma: ','
+        - raw: '[COUNTRY_CODE]'
+        - comma: ','
+        - raw: '[CONTINENT]'
+        - comma: ','
+        - raw: '[POPULATION]'
+        - comma: ','
+        - raw: '[INDICATOR]'
+        - comma: ','
+        - raw: '[WEEKLY_COUNT]'
+        - comma: ','
+        - raw: '[YEAR_WEEK]'
+        - comma: ','
+        - raw: '[WEEK_START]'
+        - comma: ','
+        - raw: '[WEEK_END]'
+        - comma: ','
+        - raw: '[RATE_14_DAY]'
+        - comma: ','
+        - raw: '[CUMULATIVE_COUNT]'
+        - comma: ','
+        - raw: '[SOURCE]'
+        - end_bracket: )
+      - raw: SELECT
+      - raw: '[COUNTRY]'
+      - comma: ','
+      - raw: '[COUNTRY_CODE]'
+      - comma: ','
+      - raw: '[CONTINENT]'
+      - comma: ','
+      - raw: CAST
+      - bracketed:
+        - start_bracket: (
+        - raw: '[POPULATION]'
+        - raw: AS
+        - raw: BIGINT
+        - end_bracket: )
+      - raw: AS
+      - raw: '[POPULATION]'
+      - comma: ','
+      - raw: '[INDICATOR]'
+      - comma: ','
+      - raw: CAST
+      - bracketed:
+        - start_bracket: (
+        - raw: '[WEEKLY_COUNT]'
+        - raw: AS
+        - raw: BIGINT
+        - end_bracket: )
+      - raw: AS
+      - raw: '[WEEKLY_COUNT]'
+      - comma: ','
+      - raw: '[YEAR_WEEK]'
+      - comma: ','
+      - raw: CAST
+      - bracketed:
+        - start_bracket: (
+        - raw: '[dbo]'
+        - raw: .
+        - raw: '[CONVERT_ISO_WEEK_TO_DATETIME]'
+        - bracketed:
+          - start_bracket: (
+          - raw: LEFT
+          - bracketed:
+            - start_bracket: (
+            - raw: YEAR_WEEK
+            - comma: ','
+            - raw: '4'
+            - end_bracket: )
+          - comma: ','
+          - raw: RIGHT
+          - bracketed:
+            - start_bracket: (
+            - raw: YEAR_WEEK
+            - comma: ','
+            - raw: '2'
+            - end_bracket: )
+          - end_bracket: )
+        - raw: AS
+        - raw: DATE
+        - end_bracket: )
+      - raw: AS
+      - raw: '[WEEK_START]'
+      - comma: ','
+      - raw: CAST
+      - bracketed:
+        - start_bracket: (
+        - raw: '[dbo]'
+        - raw: .
+        - raw: '[WEEK_END]'
+        - bracketed:
+          - start_bracket: (
+          - raw: '[dbo]'
+          - raw: .
+          - raw: '[CONVERT_ISO_WEEK_TO_DATETIME]'
+          - bracketed:
+            - start_bracket: (
+            - raw: LEFT
+            - bracketed:
+              - start_bracket: (
+              - raw: YEAR_WEEK
+              - comma: ','
+              - raw: '4'
+              - end_bracket: )
+            - comma: ','
+            - raw: RIGHT
+            - bracketed:
+              - start_bracket: (
+              - raw: YEAR_WEEK
+              - comma: ','
+              - raw: '2'
+              - end_bracket: )
+            - end_bracket: )
+          - end_bracket: )
+        - raw: AS
+        - raw: DATE
+        - end_bracket: )
+      - raw: AS
+      - raw: '[WEEK_END]'
+      - comma: ','
+      - raw: CAST
+      - bracketed:
+        - start_bracket: (
+        - raw: '[RATE_14_DAY]'
+        - raw: AS
+        - raw: FLOAT
+        - end_bracket: )
+      - raw: AS
+      - raw: '[RATE_14_DAY]'
+      - comma: ','
+      - raw: CAST
+      - bracketed:
+        - start_bracket: (
+        - raw: '[CUMULATIVE_COUNT]'
+        - raw: AS
+        - raw: BIGINT
+        - end_bracket: )
+      - raw: AS
+      - raw: '[CUMULATIVE_COUNT]'
+      - comma: ','
+      - raw: '[SOURCE]'
+      - raw: FROM
+      - raw: VWSSTAGE
+      - raw: .
+      - raw: ECDC_CASES
+      - raw: WHERE
+      - raw: DATE_LAST_INSERTED
+      - raw: '='
+      - bracketed:
+        - start_bracket: (
+        - raw: SELECT
+        - raw: MIN
+        - bracketed:
+            start_bracket: (
+            raw: DATE_LAST_INSERTED
+            end_bracket: )
+        - raw: from
+        - raw: VWSSTAGE
+        - raw: .
+        - raw: ECDC_CASES
+        - end_bracket: )
+      - raw: END
