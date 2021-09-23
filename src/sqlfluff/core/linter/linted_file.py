@@ -267,6 +267,11 @@ class LintedFile(NamedTuple):
         # Make sure no patches overlap and divide up the source file into slices.
         # Any Template tags in the source file are off limits.
         source_only_slices = self.templated_file.source_only_slices()
+
+        # Get a collection of slices inside a template loop (e.g. a Jinja loop
+        # in the original source file.) We'll use this later to identify patches
+        # to code inside a loop, which require extra care when applying to the
+        # original source code.
         raw_slices_in_template_loop = set(
             self.templated_file.raw_slices_in_template_loop()
         )
