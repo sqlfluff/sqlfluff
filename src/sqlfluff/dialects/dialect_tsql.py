@@ -298,6 +298,18 @@ class DropModelStatementSegment(BaseSegment):
     type = "drop_MODELstatement"
     match_grammar = Nothing()
 
+
+@tsql_dialect.segment(replace=True)
+class OverlapsClauseSegment(BaseSegment):
+    """An `OVERLAPS` clause like in `SELECT.
+
+    Not present in T-SQL.
+    """
+
+    type = "overlaps_clause"
+    match_grammar = Nothing()
+
+
 @tsql_dialect.segment(replace=True)
 class UnorderedSelectStatementSegment(BaseSegment):
     """A `SELECT` statement without any ORDER clauses or later.
