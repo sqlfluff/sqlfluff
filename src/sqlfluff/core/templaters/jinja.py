@@ -303,7 +303,8 @@ class JinjaTemplater(PythonTemplater):
             )
             return None, violations
 
-    re_block = re.compile(r"{%[\+\-]?(.*)[\+\-]?%}")
+    re_open_tag = re.compile(r"^{%[\+\-]?\s*")
+    re_close_tag = re.compile(r"\s*[\+\-]?%}$")
 
     @classmethod
     def _slice_template(cls, in_str: str) -> Iterator[RawFileSlice]:
@@ -346,7 +347,11 @@ class JinjaTemplater(PythonTemplater):
                 # Handle starts and ends of blocks
                 if block_type == "block":
                     # Trim off the brackets and then the whitespace
-                    trimmed_content = cls.re_block.match(str_buff).group(1).strip()
+                    m_open = cls.re_open_tag.search(str_buff)
+                    m_close = cls.re_close_tag.search(str_buff)
+                    trimmed_content = ""
+                    if m_open and m_close:
+                        trimmed_content = str_buff[len(m_open.group(0)):-len(m_close.group(0))]
                     if trimmed_content.startswith("end"):
                         block_type = "block_end"
                     elif trimmed_content.startswith("el"):
