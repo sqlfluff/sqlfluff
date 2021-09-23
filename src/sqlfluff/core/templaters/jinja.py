@@ -3,6 +3,7 @@
 import os.path
 import logging
 import importlib.util
+import re
 from typing import Iterator, Tuple, Optional
 
 from jinja2.sandbox import SandboxedEnvironment
@@ -302,6 +303,8 @@ class JinjaTemplater(PythonTemplater):
             )
             return None, violations
 
+    re_block = re.compile(r"{%[\+\-]?(.*)[\+\-]?%}")
+
     @classmethod
     def _slice_template(cls, in_str: str) -> Iterator[RawFileSlice]:
         """Slice template in jinja.
@@ -343,7 +346,7 @@ class JinjaTemplater(PythonTemplater):
                 # Handle starts and ends of blocks
                 if block_type == "block":
                     # Trim off the brackets and then the whitespace
-                    trimmed_content = str_buff[2:-2].strip()
+                    trimmed_content = cls.re_block.match(str_buff).group(1).strip()
                     if trimmed_content.startswith("end"):
                         block_type = "block_end"
                     elif trimmed_content.startswith("el"):
