@@ -17,6 +17,7 @@ from sqlfluff.core.parser import (
     Delimited,
     Matchable,
     NamedParser,
+    StartsWith,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -297,35 +298,43 @@ class DropModelStatementSegment(BaseSegment):
     type = "drop_MODELstatement"
     match_grammar = Nothing()
 
-
 @tsql_dialect.segment(replace=True)
-class OverlapsClauseSegment(BaseSegment):
-    """An `OVERLAPS` clause like in `SELECT.
-
-    Not present in T-SQL.
+class UnorderedSelectStatementSegment(BaseSegment):
+    """A `SELECT` statement without any ORDER clauses or later.
+    We need to change ANSI slightly
     """
 
-    type = "overlaps_clause"
-    match_grammar = Nothing()
+    type = "select_statement"
+    # Remove the LimitClauseSegment and NamedWindowSegment from ANSI
+    match_grammar = StartsWith(
+        Ref("SelectClauseSegment"),
+        terminator=OneOf(
+            Ref("SetOperatorSegment"),
+            Ref("WithNoSchemaBindingClauseSegment"),
+            Ref("OrderByClauseSegment"),
+        ),
+        enforce_whitespace_preceeding_terminator=True,
+    )
+
+    parse_grammar = ansi_dialect.get_segment(
+        "UnorderedSelectStatementSegment"
+    ).match_grammar.copy()
 
 
 @tsql_dialect.segment(replace=True)
-class LimitClauseSegment(BaseSegment):
-    """A `LIMIT` clause like in `SELECT`.
-
-    Not present in T-SQL.
+class SelectStatementSegment(BaseSegment):
+    """A `SELECT` statement.
+    We need to change ANSI slightly
     """
 
-    type = "limit_clause"
-    match_grammar = Nothing()
+    type = "select_statement"
+    match_grammar = ansi_dialect.get_segment(
+        "SelectStatementSegment"
+    ).match_grammar.copy()
 
-
-@tsql_dialect.segment(replace=True)
-class NamedWindowSegment(BaseSegment):
-    """A WINDOW clause.
-
-    Not present in T-SQL.
-    """
-
-    type = "named_window"
-    match_grammar = Nothing()
+    # Remove the Limit and Window statements from ANSI
+    parse_grammar = UnorderedSelectStatementSegment.parse_grammar.copy(
+        insert=[
+            Ref("OrderByClauseSegment", optional=True),
+        ]
+    )
