@@ -27,6 +27,7 @@ _dialect_lookup = {
     "exasol": ("dialect_exasol", "exasol_dialect"),
     "exasol_fs": ("dialect_exasol_fs", "exasol_fs_dialect"),
     "tsql": ("dialect_tsql", "tsql_dialect"),
+    "hive": ("dialect_hive", "hive_dialect"),
 }
 
 

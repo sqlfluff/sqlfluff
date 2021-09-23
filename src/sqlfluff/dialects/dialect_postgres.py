@@ -15,6 +15,7 @@ from sqlfluff.core.parser import (
     NamedParser,
     SymbolSegment,
     StartsWith,
+    CommentSegment,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -72,6 +73,32 @@ postgres_dialect.insert_lexer_matchers(
         ),
     ],
     before="not_equal",
+)
+
+postgres_dialect.insert_lexer_matchers(
+    [
+        # Explanation for the regex
+        # \\([^(\\\r\n)])+((\\\\)|(?=\n)|(?=\r\n))?
+        # \\                                        Starts with backslash
+        #   ([^(\\\r\n)])+                          Anything that is not a newline or a backslash
+        #                 (
+        #                  (\\\\)                   Double backslash
+        #                        |                  OR
+        #                         (?=\n)            The next character is a newline
+        #                               |           OR
+        #                                (?=\r\n)   The next 2 characters are a carriage return and a newline
+        #                                        )
+        #                                         ? The previous clause is optional
+        RegexLexer(
+            # For now we'll just treat meta syntax like comments and so just ignore them.
+            # In future we may want to enhance this to actually parse them to ensure they are
+            # valid meta commands.
+            "meta_command",
+            r"\\([^(\\\r\n)])+((\\\\)|(?=\n)|(?=\r\n))?",
+            CommentSegment,
+        )
+    ],
+    before="code",  # Final thing to search for - as psql specific
 )
 
 postgres_dialect.patch_lexer_matchers(

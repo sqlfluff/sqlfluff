@@ -1,0 +1,3 @@
+ALTER DATABASE foo SET OWNER ROLE "role";
+
+ALTER DATABASE bar SET MANAGEDLOCATION "hdfs://alternate_path";

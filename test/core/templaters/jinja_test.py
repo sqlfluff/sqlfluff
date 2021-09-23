@@ -102,6 +102,7 @@ def assert_structure(yaml_loader, path, code_only=True, include_meta=False):
         ("jinja_b/jinja", False, False),
         # dbt builting
         ("jinja_c_dbt/dbt_builtins", True, False),
+        ("jinja_c_dbt/var_default", True, False),
         # do directive
         ("jinja_e/jinja", True, False),
         # case sensitivity and python literals
