@@ -17,6 +17,7 @@ from sqlfluff.core.parser import (
     Delimited,
     Matchable,
     NamedParser,
+    StartsWith,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -307,3 +308,49 @@ class OverlapsClauseSegment(BaseSegment):
 
     type = "overlaps_clause"
     match_grammar = Nothing()
+
+
+@tsql_dialect.segment(replace=True)
+class UnorderedSelectStatementSegment(BaseSegment):
+    """A `SELECT` statement without any ORDER clauses or later.
+
+    We need to change ANSI slightly to remove LimitClauseSegment
+    and NamedWindowSegment which don't exist in T-SQL.
+    """
+
+    type = "select_statement"
+    # Remove the LimitClauseSegment and NamedWindowSegment from ANSI
+    match_grammar = StartsWith(
+        Ref("SelectClauseSegment"),
+        terminator=OneOf(
+            Ref("SetOperatorSegment"),
+            Ref("WithNoSchemaBindingClauseSegment"),
+            Ref("OrderByClauseSegment"),
+        ),
+        enforce_whitespace_preceeding_terminator=True,
+    )
+
+    parse_grammar = ansi_dialect.get_segment(
+        "UnorderedSelectStatementSegment"
+    ).parse_grammar.copy()
+
+
+@tsql_dialect.segment(replace=True)
+class SelectStatementSegment(BaseSegment):
+    """A `SELECT` statement.
+
+    We need to change ANSI slightly to remove LimitClauseSegment
+    and NamedWindowSegment which don't exist in T-SQL.
+    """
+
+    type = "select_statement"
+    match_grammar = ansi_dialect.get_segment(
+        "SelectStatementSegment"
+    ).match_grammar.copy()
+
+    # Remove the Limit and Window statements from ANSI
+    parse_grammar = UnorderedSelectStatementSegment.parse_grammar.copy(
+        insert=[
+            Ref("OrderByClauseSegment", optional=True),
+        ]
+    )
