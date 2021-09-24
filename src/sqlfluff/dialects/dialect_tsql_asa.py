@@ -105,8 +105,8 @@ class TableDistributionClause(BaseSegment):
             Sequence(
                 "HASH",
                 Bracketed(Ref("ColumnReferenceSegment")),
-            )
-        )
+            ),
+        ),
     )
 
 
@@ -123,8 +123,8 @@ class TableIndexClause(BaseSegment):
                 "CLUSTERED",
                 "COLUMNSTORE",
                 "INDEX"
-            )
-        )
+            ),
+        ),
     )
 
 
