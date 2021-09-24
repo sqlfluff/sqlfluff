@@ -135,6 +135,7 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
     parse_grammar = tsql_dialect.get_segment("StatementSegment").parse_grammar.copy(
         insert=[
             Ref("AlterTableSwitchStatementSegment"),
+            Ref("CreateTableAsSelectStatementSegment"),
         ],
     )
 
@@ -159,5 +160,21 @@ class AlterTableSwitchStatementSegment(BaseSegment):
             Bracketed("TRUNCATE_TARGET", Ref("EqualsSegment"), OneOf("ON","OFF")), 
             optional=True
         ),
+    )
+
+
+@tsql_asa_dialect.segment()
+class CreateTableAsSelectStatementSegment(BaseSegment):
+    """A `CREATE TABLE AS SELECT` statement."""
+
+    type = "create_table_as_select_statement"
+    # https://docs.microsoft.com/en-us/sql/t-sql/statements/create-table-as-select-azure-sql-data-warehouse?toc=/azure/synapse-analytics/sql-data-warehouse/toc.json&bc=/azure/synapse-analytics/sql-data-warehouse/breadcrumb/toc.json&view=azure-sqldw-latest&preserve-view=true
+    match_grammar = Sequence(
+        "CREATE",
+        "TABLE",
+        Ref("TableReferenceSegment"),
+        Ref("TableDistributionIndexClause"),
+        "AS",
+        Ref("SelectableGrammar"),
     )
 
