@@ -29,6 +29,7 @@ Although SQL is reasonably consistent in its implementations, there are several 
 - [Teradata](https://www.teradata.com/)
 - [Transact-SQL](https://docs.microsoft.com/en-us/sql/t-sql/language-reference) (aka T-SQL)
 - [Transact-SQL for Azure Synapse Analytics](https://docs.microsoft.com/en-us/sql/analytics-platform-system/tsql-statements?view=aps-pdw-2016-au7) 
+
 We aim to make it easy to expand on the support of these dialects and also add other, currently unsupported, dialects. Please [raise issues](https://github.com/sqlfluff/sqlfluff/issues) (or upvote any existing issues) to let us know of demand for missing support.
 
 Pull requests from those that know the missing syntax or dialects are especially welcomed and are the question way for you to get support added. We are happy to work with any potential contributors on this to help them add this support. Please raise an issue first for any large feature change to ensure it is a good fit for this project before spending time on this work.
