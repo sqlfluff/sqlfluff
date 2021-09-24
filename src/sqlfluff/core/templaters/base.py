@@ -88,11 +88,6 @@ class RawSliceBlockInfo(NamedTuple):
     # List of block IDs that have the following characteristics:
     # - Loop body
     # - Containing only literals (no templating)
-    #
-    # SQLFluff ignores fixes to these regions because there's a high risk of
-    # corrupting the file -- it's hard to map templated code back to source
-    # code in these regions, so there's a risk of accidentally "expanding"
-    # the loop body if we applied fixes in these blocks back to the source code.
     literal_only_loops: List[int]
 
 

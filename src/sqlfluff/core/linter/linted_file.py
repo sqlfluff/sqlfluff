@@ -267,6 +267,7 @@ class LintedFile(NamedTuple):
         # Make sure no patches overlap and divide up the source file into slices.
         # Any Template tags in the source file are off limits.
         source_only_slices = self.templated_file.source_only_slices()
+
         linter_logger.debug("Source-only slices: %s", source_only_slices)
 
         # Iterate patches, filtering and translating as we go:
@@ -316,6 +317,7 @@ class LintedFile(NamedTuple):
                 source_slice
             )
             local_type_list = [slc.slice_type for slc in local_raw_slices]
+
             enriched_patch = EnrichedFixPatch(
                 source_slice=source_slice,
                 templated_slice=patch.templated_slice,

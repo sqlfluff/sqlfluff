@@ -450,10 +450,9 @@ class BaseRule:
     def discard_fixes_that_span_block_boundaries(
         lint_result: LintResult, templated_file: Optional[TemplatedFile]
     ):
-        """Given a LintResult, remove its fixes if they are deemed "unsafe" due
-         to various template-related policies.
+        """Remove LintResult fixes if they are deemed "unsafe.
 
-        By removing its fixes, ae LintResult will still be reported, but it
+        By removing its fixes, a LintResult will still be reported, but it
         will be treated as _unfixable_.
         """
         if not lint_result.fixes or not templated_file:
@@ -485,7 +484,13 @@ class BaseRule:
                 lint_result.fixes = []
                 return
 
-        # If the fixes touch a literal-only block, discard the fixes.
+        # If the fixes touch a literal-only loop, discard the fixes.
+        # Rationale: Fixes to a template loop that contains only literals are:
+        # - Difficult to correctly back to source code, so there's a risk of
+        #   accidentally "expanding" the loop body if we apply them.
+        # - Highly unusual (In practice, templated loops in SQL are usually for
+        #   expanding the same code using different column names, types, etc.,
+        #   in which case the loop body contains template variables.
         for block_id in fix_block_ids:
             if block_id in block_info.literal_only_loops:
                 linter_logger.info(
