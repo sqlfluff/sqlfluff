@@ -76,6 +76,7 @@ def auto_fix_test(dialect, folder, caplog):
         cfg = yaml.safe_load(cfg_file)
     print("## Config: ", cfg)
     rules = ",".join(cfg["test-config"]["rules"])
+    raise_on_non_linting_violations = cfg["test-config"]["raise_on_non_linting_violations"]
 
     # Open the example file and write the content to it
     print_buff = ""
@@ -113,7 +114,7 @@ def auto_fix_test(dialect, folder, caplog):
 
     # We call the check_tuples here, even to makes sure any non-linting
     # violations are raised, and the test fails.
-    vs = set(res.check_tuples(raise_on_non_linting_violations=False))
+    vs = set(res.check_tuples(raise_on_non_linting_violations=raise_on_non_linting_violations))
     # If we have a violations structure, let's enforce it.
     if violations:
         # Format the violations file
