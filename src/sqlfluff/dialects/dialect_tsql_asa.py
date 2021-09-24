@@ -73,8 +73,16 @@ class TableDistributionIndexClause(BaseSegment):
         "WITH",
         Bracketed(
             OneOf(
-                Sequence(Ref("TableDistributionClause"), Ref("CommaSegment"), Ref("TableIndexClause")),
-                Sequence(Ref("TableIndexClause"), Ref("CommaSegment"), Ref("TableDistributionClause")),
+                Sequence(
+                    Ref("TableDistributionClause"),
+                    Ref("CommaSegment"),
+                    Ref("TableIndexClause"),
+                ),
+                Sequence(
+                    Ref("TableIndexClause"),
+                    Ref("CommaSegment"),
+                    Ref("TableDistributionClause"),
+                ),
                 Ref("TableDistributionClause"),
                 Ref("TableIndexClause"),
             )
