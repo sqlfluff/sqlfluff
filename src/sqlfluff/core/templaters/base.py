@@ -1,6 +1,7 @@
 """Defines the templaters."""
 
 import logging
+from collections import defaultdict
 from typing import Dict, Iterator, List, Tuple, Optional, NamedTuple
 
 from cached_property import cached_property
@@ -77,6 +78,22 @@ class TemplatedFileSlice(NamedTuple):
     slice_type: str
     source_slice: slice
     templated_slice: slice
+
+
+class RawSliceBlockInfo(NamedTuple):
+    # Given a raw file slace, return its block ID. Useful for identifying
+    # regions of a file with respect to template control structures (for, if).
+    block_ids: Dict[RawFileSlice, int]
+
+    # List of block IDs that have the following characteristics:
+    # - Loop body
+    # - Containing only literals (no templating)
+    #
+    # SQLFluff ignores fixes to these regions because there's a high risk of
+    # corrupting the file -- it's hard to map templated code back to source
+    # code in these regions, so there's a risk of accidentally "expanding"
+    # the loop body if we applied fixes in these blocks back to the source code.
+    literal_only_loops: List[int]
 
 
 class TemplatedFile:
@@ -200,42 +217,35 @@ class TemplatedFile:
             raise ValueError("Position Not Found")
         return first_idx, last_idx
 
-    def raw_slices_in_template_loop(self) -> List[RawFileSlice]:
-        """Returns the raw slices in this file inside template loops."""
-        result = []
-        blocks = []
-        loop_level = 0
-        for idx, raw_slice in enumerate(self.raw_sliced):
-            if raw_slice.slice_type == "block_start":
-                blocks.append(raw_slice)
-                if raw_slice.slice_subtype == "loop":
-                    loop_level += 1
-            elif raw_slice.slice_type == "block_end":
-                exiting = blocks.pop()
-                if exiting.slice_subtype == "loop":
-                    loop_level -= 1
-            elif loop_level > 0:
-                result.append(raw_slice)
-        return result
-
     @cached_property
-    def raw_slice_block_ids(self) -> Dict[RawFileSlice, int]:
+    def raw_slice_block_info(self) -> RawSliceBlockInfo:
         """Returns a dict with a unique ID for each template block."""
-        result = {}
+        block_ids = {}
+        block_content_types = defaultdict(set)
+        loops = set()
         blocks = []
         block_id = 0
         for idx, raw_slice in enumerate(self.raw_sliced):
+            if raw_slice.slice_type != "block_end":
+                block_content_types[block_id].add(raw_slice.slice_type)
             if raw_slice.slice_type == "block_start":
                 blocks.append(raw_slice)
-                result[raw_slice] = block_id
+                block_ids[raw_slice] = block_id
                 block_id += 1
+                if raw_slice.slice_subtype == "loop":
+                    loops.add(block_id)
             elif raw_slice.slice_type == "block_end":
                 blocks.pop()
                 block_id += 1
-                result[raw_slice] = block_id
+                block_ids[raw_slice] = block_id
             else:
-                result[raw_slice] = block_id
-        return result
+                block_ids[raw_slice] = block_id
+        literal_only_loops = [
+            block_id
+            for block_id in set(block_ids.values())
+            if block_id in loops and block_content_types[block_id] == {"literal"}
+        ]
+        return RawSliceBlockInfo(block_ids, literal_only_loops)
 
     def raw_slices_spanning_source_slice(self, source_slice: slice):
         """Return a list of the raw slices spanning a set of indices."""

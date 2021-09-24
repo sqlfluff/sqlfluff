@@ -448,37 +448,41 @@ class BaseRule:
     def discard_fixes_that_span_block_boundaries(
         lint_result: LintResult, templated_file: Optional[TemplatedFile]
     ):
-        """Given a LintResult, remove its fixes if they span block boundaries.
+        """Given a LintResult, remove its fixes if they are deemed "unsafe" due
+         to various template-related policies.
 
-        Reason: Applying changes that span block boundaries may corrupt the
-        file, e.g. by moving code in or out of a template loop.
+        By removing its fixes, ae LintResult will still be reported, but it
+        will be treated as _unfixable_.
         """
-        if not templated_file:
+        if not lint_result.fixes or not templated_file:
             return
 
         # Get the set of slices touched by any of lint_result's fixes.
         fix_slices = set()
         for fix in lint_result.fixes:
             if fix.anchor:
-                for slice in templated_file.raw_slices_spanning_source_slice(
+                for slice_ in templated_file.raw_slices_spanning_source_slice(
                     fix.anchor.pos_marker.source_slice
                 ):
-                    fix_slices.add(slice)
-
-        # By definition, a LintResult can only span block boundaries if it
-        # touches multiple slices. Exit early to avoid unnecessary computation.
-        if len(fix_slices) <= 1:
-            return
+                    fix_slices.add(slice_)
 
         # Compute the set of block IDs affected by lint_result's fixes. If it's
-        # more than one, discard the fixes, which we've determined are unsafe.
-        # The LintResult will now be reported as an _unfixable_ lint error.
-        file_block_ids = templated_file.raw_slice_block_ids
+        # more than one, discard the fixes. Rationale: Fixes that span block
+        # boundaries may corrupt the file, e.g. by moving code in or out of a
+        # template loop.
+        block_info = templated_file.raw_slice_block_info
         fix_block_ids = set()
-        for slice in fix_slices:
-            fix_block_ids.add(file_block_ids[slice])
+        for slice_ in fix_slices:
+            fix_block_ids.add(block_info.block_ids[slice_])
             if len(fix_block_ids) > 1:
                 # The fixes span multiple blocks. Discard them. We're done.
+                lint_result.fixes = []
+                return
+
+        # If the fixes touch a literal-only block, discard the fixes.
+        for block_id in fix_block_ids:
+            if block_id in block_info.literal_only_loops:
+                import pdb; pdb.set_trace()
                 lint_result.fixes = []
                 return
 

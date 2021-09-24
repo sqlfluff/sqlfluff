@@ -267,15 +267,6 @@ class LintedFile(NamedTuple):
         # Make sure no patches overlap and divide up the source file into slices.
         # Any Template tags in the source file are off limits.
         source_only_slices = self.templated_file.source_only_slices()
-
-        # Get a collection of slices inside a template loop (e.g. a Jinja loop
-        # in the original source file.) We'll use this later to identify patches
-        # to code inside a loop, which require extra care when applying to the
-        # original source code.
-        raw_slices_in_template_loop = set(
-            self.templated_file.raw_slices_in_template_loop()
-        )
-
         linter_logger.debug("Source-only slices: %s", source_only_slices)
 
         # Iterate patches, filtering and translating as we go:
@@ -325,22 +316,6 @@ class LintedFile(NamedTuple):
                 source_slice
             )
             local_type_list = [slc.slice_type for slc in local_raw_slices]
-
-            if set(local_raw_slices).intersection(raw_slices_in_template_loop):
-                # The patch is being applied to a loop body. Sanity check it.
-                patch_split_list = patch.fixed_raw.split()
-                patch_split_set = set(patch.fixed_raw.split())
-                if len(patch_split_list) - len(patch_split_set) >= 2:
-                    # This is a heuristic. If the patch contains 2 or more
-                    # duplicate strings, assume it's a poorly computed patch
-                    # where the fixes to expanded code couldn't be applied
-                    # cleanly to the source code.
-                    linter_logger.info(
-                        "      - Skipping apparent bad patch inside template loop: %s",
-                        patch,
-                    )
-                    continue
-
             enriched_patch = EnrichedFixPatch(
                 source_slice=source_slice,
                 templated_slice=patch.templated_slice,
