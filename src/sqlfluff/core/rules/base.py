@@ -24,6 +24,7 @@ from collections import namedtuple
 
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.errors import SQLLintError
+from sqlfluff.core.templaters import TemplatedFile
 
 if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.templaters import TemplatedFile
@@ -343,6 +344,7 @@ class BaseRule:
         elif isinstance(res, LintResult):
             # Extract any memory
             memory = res.memory
+            self.discard_results_that_span_block_boundaries(res, templated_file)
             lerr = res.to_linting_error(rule=self)
             if lerr:
                 new_lerrs = [lerr]
@@ -354,6 +356,7 @@ class BaseRule:
             # it was the last to be added
             memory = res[-1].memory
             for elem in res:
+                self.discard_results_that_span_block_boundaries(elem, templated_file)
                 lerr = elem.to_linting_error(rule=self)
                 if lerr:
                     new_lerrs.append(lerr)
@@ -443,6 +446,40 @@ class BaseRule:
         elif seg.is_type(*[elem[1] for elem in target_tuples if elem[0] == "type"]):
             return True
         return False
+
+    @staticmethod
+    def discard_results_that_span_block_boundaries(
+        lint_result: LintResult, templated_file: TemplatedFile
+    ) -> bool:
+        """Given a LintResult, remove its fixes if they span block boundaries.
+
+        Reason: Applying changes that span block boundaries may corrupt the
+        file, e.g. by moving code in or out of a template loop.
+        """
+        # Get the set of slices touched by any fixes.
+        fix_slices = set()
+        if templated_file:
+            for fix in lint_result.fixes:
+                if fix.anchor:
+                    for slice in templated_file.raw_slices_spanning_source_slice(
+                        fix.anchor.pos_marker.source_slice
+                    ):
+                        fix_slices.add(slice)
+
+        # By definition, a LintResult can only span block boundaries if it
+        # touches multiple slices. Exit early to avoid unnecessary computation.
+        if len(fix_slices) <= 1:
+            return
+
+        file_block_ids: Dict[RawFileSlice, int] = templated_file.raw_slice_block_ids()
+        fix_block_ids = set()
+        fix: LintFix
+        for slice in fix_slices:
+            fix_block_ids.add(file_block_ids[slice])
+            if len(fix_block_ids) > 1:
+                # The fixes span multiple blocks. Discard them. We're done.
+                lint_result.fixes = []
+                return
 
 
 class RuleSet:

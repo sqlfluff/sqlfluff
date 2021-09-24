@@ -1013,7 +1013,7 @@ class BaseSegment:
                     continue
 
                 # If we get here, then we know it's an original.
-                # Check for deletions at the before this segment (vs the TEMPLATED).
+                # Check for deletions at the point before this segment (vs the TEMPLATED).
                 start_diff = segment.pos_marker.templated_slice.start - templated_idx
 
                 # Check to see whether there's a discontinuity before the current segment

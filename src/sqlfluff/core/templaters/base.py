@@ -199,7 +199,7 @@ class TemplatedFile:
             raise ValueError("Position Not Found")
         return first_idx, last_idx
 
-    def raw_slices_in_template_loop(self):
+    def raw_slices_in_template_loop(self) -> List[RawFileSlice]:
         """Returns the raw slices in this file inside template loops."""
         result = []
         blocks = []
@@ -215,6 +215,24 @@ class TemplatedFile:
                     loop_level -= 1
             elif loop_level > 0:
                 result.append(raw_slice)
+        return result
+
+    def raw_slice_block_ids(self) -> Dict[RawFileSlice, int]:
+        """Returns a dict with a unique ID for each template block."""
+        result = {}
+        blocks = []
+        block_id = 0
+        for idx, raw_slice in enumerate(self.raw_sliced):
+            if raw_slice.slice_type == "block_start":
+                blocks.append(raw_slice)
+                result[raw_slice] = block_id
+                block_id += 1
+            elif raw_slice.slice_type == "block_end":
+                blocks.pop()
+                block_id += 1
+                result[raw_slice] = block_id
+            else:
+                result[raw_slice] = block_id
         return result
 
     def raw_slices_spanning_source_slice(self, source_slice: slice):
