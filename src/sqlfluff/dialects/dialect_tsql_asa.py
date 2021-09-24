@@ -11,8 +11,6 @@ from sqlfluff.core.parser import (
     Bracketed,
     Ref,
     Delimited,
-    Matchable,
-    NamedParser,
     OptionallyBracketed,
 )
 
@@ -151,7 +149,7 @@ class AlterTableSwitchStatementSegment(BaseSegment):
         Ref("ObjectReferenceSegment"),
         Sequence(
             "WITH",
-            Bracketed("TRUNCATE_TARGET", Ref("EqualsSegment"), OneOf("ON", "OFF")), 
+            Bracketed("TRUNCATE_TARGET", Ref("EqualsSegment"), OneOf("ON", "OFF")),
             optional=True
         ),
     )
