@@ -137,3 +137,22 @@ test_long_jina_comment:
     {# comment #}
     {# ........................................................................... #}
     FROM table
+  configs:
+    rules:
+      max_line_length: 80
+      L016:
+        ignore_comment_lines: False
+
+
+test_long_jina_comment_ignore:
+  # A Jinja comment is not seen as a SQL comment (perhaps it should be?) so should still fail
+  fail_str: |
+    SELECT *
+    {# comment #}
+    {# ........................................................................... #}
+    FROM table
+  configs:
+    rules:
+      max_line_length: 80
+      L016:
+        ignore_comment_lines: True

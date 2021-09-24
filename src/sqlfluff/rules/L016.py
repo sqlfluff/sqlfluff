@@ -448,10 +448,16 @@ class Rule_L016(Rule_L003):
                 else:
                     break
 
+            # Don't even attempt to handle template placeholders as don't have content
+            if (this_line[-1].type == "placeholder"):
+                self.logger.info(
+                    "Unfixable template segment: %s", this_line[-1]
+                )
+                return LintResult(anchor=segment)
+
             # Does the line end in an inline comment or jinja placeholder that we can move back?
             if (
                 this_line[-1].name == "inline_comment"
-                or this_line[-1].type == "placeholder"
             ):
                 # Is this line JUST comment/placeholder (with optional preceding whitespace) if
                 # so, user will have to fix themselves.
