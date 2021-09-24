@@ -122,7 +122,7 @@ class TableIndexClause(BaseSegment):
             Sequence(
                 "CLUSTERED",
                 "COLUMNSTORE",
-                "INDEX"
+                "INDEX",
             ),
         ),
     )
