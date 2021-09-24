@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f6cd4c2d9e09dccb36a29dc10d64020468038d6a36868bdeaac517dd099f8925
+_hash: eaeb8b2cef95c274fb4931668ab729c4966484c1bccf1ba0ba98a91044808dc1
 file:
   statement:
     create_table_statement:
@@ -48,16 +48,18 @@ file:
                 literal: '3'
             - end_bracket: )
       - end_bracket: )
-    unparsable:
-      raw: WITH
-      bracketed:
-      - start_bracket: (
-      - raw: CLUSTERED
-      - raw: COLUMNSTORE
-      - raw: INDEX
-      - comma: ','
-      - raw: DISTRIBUTION
-      - raw: '='
-      - raw: ROUND_ROBIN
-      - end_bracket: )
+    - table_distribution_index_clause:
+        keyword: WITH
+        bracketed:
+          start_bracket: (
+          table_index_clause:
+          - keyword: CLUSTERED
+          - keyword: COLUMNSTORE
+          - keyword: INDEX
+          comma: ','
+          table_distribution_clause:
+          - keyword: DISTRIBUTION
+          - comparison_operator: '='
+          - keyword: ROUND_ROBIN
+          end_bracket: )
   statement_terminator: ;

@@ -3,16 +3,15 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0e20e78dee5085d7fab3b8714a918b6ef1762425ed982323a957b8a03ceaf399
+_hash: 78cd3749db576a3787876589fb0b1e25d05ccfeb7bdea9752afc9091783204d3
 file:
   statement:
-    create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-      - identifier: '[dbo]'
-      - dot: .
-      - identifier: '[EC DC]'
+    unparsable:
+    - raw: CREATE
+    - raw: TABLE
+    - raw: '[dbo]'
+    - raw: .
+    - raw: '[EC DC]'
     - bracketed:
       - start_bracket: (
       - column_definition:

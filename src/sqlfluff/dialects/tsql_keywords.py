@@ -190,3 +190,7 @@ RESERVED_KEYWORDS = [
     "EXIT",
     "PROC",
 ]
+
+UNRESERVED_KEYWORDS = [
+    "SWITCH",
+]
