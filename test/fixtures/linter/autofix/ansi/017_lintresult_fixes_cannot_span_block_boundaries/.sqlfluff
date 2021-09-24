@@ -1,5 +1,2 @@
-[sqlfluff]
-load_macros_from_path = macros
-
 [sqlfluff:rules:L019]
 comma_style = trailing
