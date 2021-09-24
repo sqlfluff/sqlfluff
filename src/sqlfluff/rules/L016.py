@@ -454,6 +454,7 @@ class Rule_L016(Rule_L003):
                 self.logger.info("Unfixable template segment: %s", this_line[-1])
                 return LintResult(anchor=segment)
 
+            # Does the line end in an inline comment that we can move back?
             if this_line[-1].name == "inline_comment":
                 # Is this line JUST COMMENT (with optional preceding whitespace) if
                 # so, user will have to fix themselves.
