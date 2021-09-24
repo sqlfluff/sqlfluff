@@ -448,9 +448,9 @@ class Rule_L016(Rule_L003):
                 else:
                     break
 
-            # Does the line end in an inline comment that we can move back?
-            if this_line[-1].name == "inline_comment":
-                # Is this line JUST COMMENT (with optional preceding whitespace) if
+            # Does the line end in an inline comment or jinja placeholder that we can move back?
+            if this_line[-1].name == "inline_comment" or this_line[-1].type == "placeholder":
+                # Is this line JUST comment/placeholder (with optional preceding whitespace) if
                 # so, user will have to fix themselves.
                 if len(this_line) == 1 or all(
                     elem.name == "whitespace" or elem.is_meta for elem in this_line[:-1]
