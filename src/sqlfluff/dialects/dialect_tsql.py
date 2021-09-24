@@ -87,6 +87,7 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
     parse_grammar = ansi_dialect.get_segment("StatementSegment").parse_grammar.copy(
         insert=[
             Ref("CreateProcedureStatementSegment"),
+            Ref("AlterTableSwitchStatementSegment")
         ],
     )
 
@@ -354,3 +355,32 @@ class SelectStatementSegment(BaseSegment):
             Ref("OrderByClauseSegment", optional=True),
         ]
     )
+
+
+@tsql_dialect.segment()
+class AlterTableSwitchStatementSegment(BaseSegment):
+    """An `ALTER TABLE SWITCH` statement."""
+
+    type = "alter_table_statement"
+    # https://docs.microsoft.com/en-us/sql/t-sql/statements/alter-table-transact-sql?view=sql-server-ver15
+    # T-SQL's ALTER TABLE SWITCH grammar is different enough to core ALTER TABLE grammar to merit its own definition
+    match_grammar = Sequence(
+        "ALTER",
+        "TABLE",
+        Ref("SchemaNameSegment", optional=True),
+        Ref("ObjectNameSegment"),
+        "SWITCH",
+        Sequence("PARTITION", Ref("NumericLiteralSegment"), optional=True),
+        "TO",
+        Ref("SchemaNameSegment", optional=True),
+        Ref("ObjectNameSegment"),
+        Sequence(
+        "WITH",
+        #"(",
+        "TRUNCATE_TARGET",
+        #Ref("EqualsSegment"),
+        #"ON",")", 
+        optional=True),
+        Anything(),
+    )
+
