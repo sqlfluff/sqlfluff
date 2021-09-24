@@ -81,6 +81,8 @@ class TemplatedFileSlice(NamedTuple):
 
 
 class RawSliceBlockInfo(NamedTuple):
+    """Template-related info about the raw slices in a TemplateFile."""
+
     # Given a raw file slace, return its block ID. Useful for identifying
     # regions of a file with respect to template control structures (for, if).
     block_ids: Dict[RawFileSlice, int]
