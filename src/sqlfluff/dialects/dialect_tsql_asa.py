@@ -36,6 +36,7 @@ tsql_asa_dialect = tsql_dialect.copy_as("tsql_asa")
 # tsql_asa_dialect.sets("reserved_keywords").clear()
 tsql_asa_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
 
+
 @tsql_asa_dialect.segment(replace=True)
 class CreateTableStatementSegment(BaseSegment):
     """A `CREATE TABLE` statement."""
@@ -71,6 +72,8 @@ class CreateTableStatementSegment(BaseSegment):
         Ref("TableDistributionIndexClause")
     )
 
+    parse_grammar = match_grammar
+
 
 @tsql_asa_dialect.segment()
 class TableDistributionIndexClause(BaseSegment):
@@ -82,8 +85,8 @@ class TableDistributionIndexClause(BaseSegment):
         "WITH",
         Bracketed(
             OneOf(
-                Sequence(Ref("TableDistributionClause"),",",Ref("TableIndexClause")),
-                Sequence(Ref("TableIndexClause"),",",Ref("TableDistributionClause")),
+                Sequence(Ref("TableDistributionClause"),Ref("CommaSegment"),Ref("TableIndexClause")),
+                Sequence(Ref("TableIndexClause"),Ref("CommaSegment"),Ref("TableDistributionClause")),
                 Ref("TableDistributionClause"),
                 Ref("TableIndexClause"),
             )
@@ -99,7 +102,7 @@ class TableDistributionClause(BaseSegment):
 
     match_grammar=Sequence(
         "DISTRIBUTION",
-        "=",
+        Ref("EqualsSegment"),
         OneOf(
             "REPLICATE",
             "ROUND_ROBIN",
