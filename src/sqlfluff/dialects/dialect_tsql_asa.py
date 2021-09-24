@@ -66,7 +66,7 @@ class CreateTableStatementSegment(BaseSegment):
             # Create like syntax
             Sequence("LIKE", Ref("TableReferenceSegment")),
         ),
-        Ref("TableDistributionIndexClause")
+        Ref("TableDistributionIndexClause", optional=True)
     )
 
     parse_grammar = match_grammar
