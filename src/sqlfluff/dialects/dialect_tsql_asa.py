@@ -143,7 +143,7 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
 class AlterTableSwitchStatementSegment(BaseSegment):
     """An `ALTER TABLE SWITCH` statement."""
 
-    type = "alter_table_statement"
+    type = "alter_table_switch_statement"
     # https://docs.microsoft.com/en-us/sql/t-sql/statements/alter-table-transact-sql?view=sql-server-ver15
     # T-SQL's ALTER TABLE SWITCH grammar is different enough to core ALTER TABLE grammar to merit its own definition
     match_grammar = Sequence(
