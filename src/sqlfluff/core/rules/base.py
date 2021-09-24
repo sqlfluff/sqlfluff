@@ -19,12 +19,12 @@ import copy
 import logging
 import pathlib
 import re
-from typing import Optional, List, Tuple, TYPE_CHECKING
+from typing import Dict, Optional, List, Tuple, TYPE_CHECKING
 from collections import namedtuple
 
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.errors import SQLLintError
-from sqlfluff.core.templaters import TemplatedFile
+from sqlfluff.core.templaters.base import RawFileSlice
 
 if TYPE_CHECKING:  # pragma: no cover
     from sqlfluff.core.templaters import TemplatedFile
@@ -456,7 +456,7 @@ class BaseRule:
         Reason: Applying changes that span block boundaries may corrupt the
         file, e.g. by moving code in or out of a template loop.
         """
-        # Get the set of slices touched by any fixes.
+        # Get the set of slices touched by any of lint_result's fixes.
         fix_slices = set()
         if templated_file:
             for fix in lint_result.fixes:
@@ -471,6 +471,9 @@ class BaseRule:
         if len(fix_slices) <= 1:
             return
 
+        # Compute the set of block IDs affected by lint_result's fixes. If it's
+        # more than one, discard the fixes, which we've determined are unsafe.
+        # The LintResult will now be reported as an _unfixable_ lint error.
         file_block_ids: Dict[RawFileSlice, int] = templated_file.raw_slice_block_ids()
         fix_block_ids = set()
         fix: LintFix
