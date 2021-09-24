@@ -10,20 +10,13 @@ from sqlfluff.core.parser import (
     OneOf,
     Bracketed,
     Ref,
-    Anything,
-    Nothing,
-    RegexLexer,
-    CodeSegment,
-    RegexParser,
     Delimited,
     Matchable,
     NamedParser,
-    StartsWith,
     OptionallyBracketed,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
-from sqlfluff.dialects.tsql_asa_keywords import RESERVED_KEYWORDS
 from sqlfluff.dialects.tsql_asa_keywords import UNRESERVED_KEYWORDS
 
 
@@ -78,12 +71,12 @@ class TableDistributionIndexClause(BaseSegment):
 
     type = "table_distribution_index_clause"
 
-    match_grammar=Sequence(
+    match_grammar = Sequence(
         "WITH",
         Bracketed(
             OneOf(
-                Sequence(Ref("TableDistributionClause"),Ref("CommaSegment"),Ref("TableIndexClause")),
-                Sequence(Ref("TableIndexClause"),Ref("CommaSegment"),Ref("TableDistributionClause")),
+                Sequence(Ref("TableDistributionClause"), Ref("CommaSegment"), Ref("TableIndexClause")),
+                Sequence(Ref("TableIndexClause"), Ref("CommaSegment"), Ref("TableDistributionClause")),
                 Ref("TableDistributionClause"),
                 Ref("TableIndexClause"),
             )
@@ -97,7 +90,7 @@ class TableDistributionClause(BaseSegment):
 
     type = "table_distribution_clause"
 
-    match_grammar=Sequence(
+    match_grammar = Sequence(
         "DISTRIBUTION",
         Ref("EqualsSegment"),
         OneOf(
@@ -110,13 +103,14 @@ class TableDistributionClause(BaseSegment):
         )
     )
 
+
 @tsql_asa_dialect.segment()
 class TableIndexClause(BaseSegment):
     """`CREATE TABLE` table index clause."""
 
     type = "table_index_clause"
 
-    match_grammar=Sequence(
+    match_grammar = Sequence(
         OneOf(
             "HEAP",
             Sequence(
@@ -157,7 +151,7 @@ class AlterTableSwitchStatementSegment(BaseSegment):
         Ref("ObjectReferenceSegment"),
         Sequence(
             "WITH",
-            Bracketed("TRUNCATE_TARGET", Ref("EqualsSegment"), OneOf("ON","OFF")), 
+            Bracketed("TRUNCATE_TARGET", Ref("EqualsSegment"), OneOf("ON", "OFF")), 
             optional=True
         ),
     )
@@ -177,4 +171,3 @@ class CreateTableAsSelectStatementSegment(BaseSegment):
         "AS",
         Ref("SelectableGrammar"),
     )
-
