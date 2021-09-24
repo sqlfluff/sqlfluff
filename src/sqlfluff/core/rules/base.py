@@ -343,7 +343,7 @@ class BaseRule:
         elif isinstance(res, LintResult):
             # Extract any memory
             memory = res.memory
-            self.discard_fixes_that_span_block_boundaries(res, templated_file)
+            self.discard_unsafe_fixes(res, templated_file)
             lerr = res.to_linting_error(rule=self)
             if lerr:
                 new_lerrs = [lerr]
@@ -355,7 +355,7 @@ class BaseRule:
             # it was the last to be added
             memory = res[-1].memory
             for elem in res:
-                self.discard_fixes_that_span_block_boundaries(elem, templated_file)
+                self.discard_unsafe_fixes(elem, templated_file)
                 lerr = elem.to_linting_error(rule=self)
                 if lerr:
                     new_lerrs.append(lerr)
@@ -447,7 +447,7 @@ class BaseRule:
         return False
 
     @staticmethod
-    def discard_fixes_that_span_block_boundaries(
+    def discard_unsafe_fixes(
         lint_result: LintResult, templated_file: Optional[TemplatedFile]
     ):
         """Remove LintResult fixes if they are deemed "unsafe.
@@ -458,7 +458,7 @@ class BaseRule:
         if not lint_result.fixes or not templated_file:
             return
 
-        # Get the set of slices touched by any of lint_result's fixes.
+        # Get the set of slices touched by any of the fixes.
         fix_slices = set()
         for fix in lint_result.fixes:
             if fix.anchor:
@@ -467,16 +467,15 @@ class BaseRule:
                 ):
                     fix_slices.add(slice_)
 
-        # Compute the set of block IDs affected by lint_result's fixes. If it's
-        # more than one, discard the fixes. Rationale: Fixes that span block
-        # boundaries may corrupt the file, e.g. by moving code in or out of a
-        # template loop.
+        # Compute the set of block IDs affected by the fixes. If it's more than
+        # one, discard the fixes. Rationale: Fixes that span block boundaries
+        # may corrupt the file, e.g. by moving code in or out of a template
+        # loop.
         block_info = templated_file.raw_slice_block_info
         fix_block_ids = set()
         for slice_ in fix_slices:
             fix_block_ids.add(block_info.block_ids[slice_])
             if len(fix_block_ids) > 1:
-                # The fixes span multiple blocks. Discard them. We're done.
                 linter_logger.info(
                     "      * Discarding fixes that span blocks: %s",
                     lint_result.fixes,
