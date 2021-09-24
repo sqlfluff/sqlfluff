@@ -24,10 +24,7 @@ from collections import namedtuple
 
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.errors import SQLLintError
-from sqlfluff.core.templaters.base import RawFileSlice
-
-if TYPE_CHECKING:  # pragma: no cover
-    from sqlfluff.core.templaters import TemplatedFile
+from sqlfluff.core.templaters.base import RawFileSlice, TemplatedFile
 
 # The ghost of a rule (mostly used for testing)
 RuleGhost = namedtuple("RuleGhost", ["code", "description"])
