@@ -1,5 +1,4 @@
 [sqlfluff]
-dialect = snowflake
 load_macros_from_path = macros
 
 [sqlfluff:rules:L019]
