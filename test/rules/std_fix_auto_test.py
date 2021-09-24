@@ -77,7 +77,7 @@ def auto_fix_test(dialect, folder, caplog):
     print("## Config: ", cfg)
     rules = ",".join(cfg["test-config"]["rules"])
     raise_on_non_linting_violations = cfg["test-config"].get(
-        "raise_on_non_linting_violations", False
+        "raise_on_non_linting_violations", True
     )
 
     # Open the example file and write the content to it
