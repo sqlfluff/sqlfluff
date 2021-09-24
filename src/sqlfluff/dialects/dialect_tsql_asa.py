@@ -158,7 +158,7 @@ class AlterTableSwitchStatementSegment(BaseSegment):
         Sequence(
             "WITH",
             Bracketed("TRUNCATE_TARGET", Ref("EqualsSegment"), OneOf("ON", "OFF")),
-            optional=True
+            optional=True,
         ),
     )
 
