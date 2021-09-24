@@ -19,7 +19,7 @@ import copy
 import logging
 import pathlib
 import re
-from typing import Dict, Optional, List, Tuple, TYPE_CHECKING
+from typing import Dict, Optional, List, Tuple
 from collections import namedtuple
 
 from sqlfluff.core.parser import BaseSegment
