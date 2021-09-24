@@ -341,7 +341,7 @@ class BaseRule:
         elif isinstance(res, LintResult):
             # Extract any memory
             memory = res.memory
-            self.discard_results_that_span_block_boundaries(res, templated_file)
+            self.discard_fixes_that_span_block_boundaries(res, templated_file)
             lerr = res.to_linting_error(rule=self)
             if lerr:
                 new_lerrs = [lerr]
@@ -353,7 +353,7 @@ class BaseRule:
             # it was the last to be added
             memory = res[-1].memory
             for elem in res:
-                self.discard_results_that_span_block_boundaries(elem, templated_file)
+                self.discard_fixes_that_span_block_boundaries(elem, templated_file)
                 lerr = elem.to_linting_error(rule=self)
                 if lerr:
                     new_lerrs.append(lerr)
@@ -445,7 +445,7 @@ class BaseRule:
         return False
 
     @staticmethod
-    def discard_results_that_span_block_boundaries(
+    def discard_fixes_that_span_block_boundaries(
         lint_result: LintResult, templated_file: Optional[TemplatedFile]
     ):
         """Given a LintResult, remove its fixes if they span block boundaries.
