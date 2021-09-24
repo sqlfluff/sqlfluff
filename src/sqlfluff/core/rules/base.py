@@ -32,6 +32,8 @@ RuleGhost = namedtuple("RuleGhost", ["code", "description"])
 # Instantiate the rules logger
 rules_logger = logging.getLogger("sqlfluff.rules")
 
+linter_logger: logging.Logger = logging.getLogger("sqlfluff.linter")
+
 
 class RuleLoggingAdapter(logging.LoggerAdapter):
     """A LoggingAdapter for rules which adds the code of the rule to it."""
@@ -476,12 +478,20 @@ class BaseRule:
             fix_block_ids.add(block_info.block_ids[slice_])
             if len(fix_block_ids) > 1:
                 # The fixes span multiple blocks. Discard them. We're done.
+                linter_logger.info(
+                    "      * Discarding fixes that span blocks: %s",
+                    lint_result.fixes,
+                )
                 lint_result.fixes = []
                 return
 
         # If the fixes touch a literal-only block, discard the fixes.
         for block_id in fix_block_ids:
             if block_id in block_info.literal_only_loops:
+                linter_logger.info(
+                    "      * Discarding fixes to literal-only loop: %s",
+                    lint_result.fixes,
+                )
                 lint_result.fixes = []
                 return
 

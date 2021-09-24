@@ -230,6 +230,7 @@ class TemplatedFile:
                 block_content_types[block_id].add(raw_slice.slice_type)
             if raw_slice.slice_type == "block_start":
                 blocks.append(raw_slice)
+                templater_logger.info("%d -> %r", block_id, raw_slice.raw)
                 block_ids[raw_slice] = block_id
                 block_id += 1
                 if raw_slice.slice_subtype == "loop":
@@ -237,8 +238,10 @@ class TemplatedFile:
             elif raw_slice.slice_type == "block_end":
                 blocks.pop()
                 block_id += 1
+                templater_logger.info("%d -> %r", block_id, raw_slice.raw)
                 block_ids[raw_slice] = block_id
             else:
+                templater_logger.info("%d -> %r", block_id, raw_slice.raw)
                 block_ids[raw_slice] = block_id
         literal_only_loops = [
             block_id
