@@ -448,7 +448,8 @@ class Rule_L016(Rule_L003):
                 else:
                     break
 
-            # Don't even attempt to handle template placeholders as don't have content
+            # Don't even attempt to handle template placeholders as we don't have the content
+            # to move it (appears as empty space to us). It will remain as unfixable.
             if this_line[-1].type == "placeholder":
                 self.logger.info("Unfixable template segment: %s", this_line[-1])
                 return LintResult(anchor=segment)
