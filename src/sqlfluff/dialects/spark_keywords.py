@@ -262,14 +262,14 @@ UNRESERVED_KEYWORKDS = [
     "WINDOW",
     "YEAR",
     "ZONE",
-    # File format
-    "SEQUENCEFILE",
-    "TEXTFILE",
-    "RCFILE",
-    "ORC",
-    "PARQUET",
+    # Spark Core Data Sources
     "AVRO",
-    "JSONFILE",
-    # Other
-    "MANAGEDLOCATION",
+    "CSV",
+    "JSON",
+    "PARQUET",
+    "ORC",
+    "JDBC",
+    # Community Contributed Data Sources
+    "DELTA",  # https://github.com/delta-io/delta
+    "XML",  # https://github.com/databricks/spark-xml
 ]
