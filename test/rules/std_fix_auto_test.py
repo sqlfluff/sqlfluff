@@ -76,9 +76,9 @@ def auto_fix_test(dialect, folder, caplog):
         cfg = yaml.safe_load(cfg_file)
     print("## Config: ", cfg)
     rules = ",".join(cfg["test-config"]["rules"])
-    raise_on_non_linting_violations = cfg["test-config"][
-        "raise_on_non_linting_violations"
-    ]
+    raise_on_non_linting_violations = cfg["test-config"].get(
+        "raise_on_non_linting_violations", False
+    )
 
     # Open the example file and write the content to it
     print_buff = ""

@@ -450,7 +450,7 @@ class BaseRule:
     def discard_unsafe_fixes(
         lint_result: LintResult, templated_file: Optional[TemplatedFile]
     ):
-        """Remove LintResult fixes if they are deemed "unsafe.
+        """Remove (discard) LintResult fixes if they are "unsafe".
 
         By removing its fixes, a LintResult will still be reported, but it
         will be treated as _unfixable_.
@@ -462,26 +462,25 @@ class BaseRule:
         fix_slices = set()
         for fix in lint_result.fixes:
             if fix.anchor:
-                for slice_ in templated_file.raw_slices_spanning_source_slice(
-                    fix.anchor.pos_marker.source_slice
-                ):
-                    fix_slices.add(slice_)
+                fix_slices.update(
+                    templated_file.raw_slices_spanning_source_slice(
+                        fix.anchor.pos_marker.source_slice
+                    )
+                )
 
         # Compute the set of block IDs affected by the fixes. If it's more than
         # one, discard the fixes. Rationale: Fixes that span block boundaries
         # may corrupt the file, e.g. by moving code in or out of a template
         # loop.
         block_info = templated_file.raw_slice_block_info
-        fix_block_ids = set()
-        for slice_ in fix_slices:
-            fix_block_ids.add(block_info.block_ids[slice_])
-            if len(fix_block_ids) > 1:
-                linter_logger.info(
-                    "      * Discarding fixes that span blocks: %s",
-                    lint_result.fixes,
-                )
-                lint_result.fixes = []
-                return
+        fix_block_ids = set(block_info.block_ids[slice_] for slice_ in fix_slices)
+        if len(fix_block_ids) > 1:
+            linter_logger.info(
+                "      * Discarding fixes that span blocks: %s",
+                lint_result.fixes,
+            )
+            lint_result.fixes = []
+            return
 
         # If the fixes touch a literal-only loop, discard the fixes.
         # Rationale: Fixes to a template loop that contains only literals are:
