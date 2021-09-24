@@ -1,6 +1,6 @@
--- The second SELECT has parse errors (missing commas between the "columns").
--- This causes the "fixed" query to have weird indentation. The second SELECT's
--- main purpose is to ensure the loop body is not modified. (Issue 1425)
+-- The second and third SELECTs have parse errors, causing weird indentation.
+-- Not that concerned because the main purpose of this test case is to ensure
+-- "sqlfluff fix" does not make changes inside the loop body. (Issue 1425)
 SELECT
 {% for _ in [1, 2, 3] %} 2,
 {% endfor %}
