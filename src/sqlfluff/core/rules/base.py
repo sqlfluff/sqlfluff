@@ -482,7 +482,6 @@ class BaseRule:
         # If the fixes touch a literal-only block, discard the fixes.
         for block_id in fix_block_ids:
             if block_id in block_info.literal_only_loops:
-                import pdb; pdb.set_trace()
                 lint_result.fixes = []
                 return
 
