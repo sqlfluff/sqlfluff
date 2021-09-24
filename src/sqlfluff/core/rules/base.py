@@ -473,7 +473,7 @@ class BaseRule:
         # Compute the set of block IDs affected by lint_result's fixes. If it's
         # more than one, discard the fixes, which we've determined are unsafe.
         # The LintResult will now be reported as an _unfixable_ lint error.
-        file_block_ids = templated_file.raw_slice_block_ids()
+        file_block_ids = templated_file.raw_slice_block_ids
         fix_block_ids = set()
         for slice in fix_slices:
             fix_block_ids.add(file_block_ids[slice])

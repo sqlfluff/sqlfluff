@@ -3,6 +3,7 @@
 import logging
 from typing import Dict, Iterator, List, Tuple, Optional, NamedTuple
 
+from cached_property import cached_property
 
 _templater_lookup: Dict[str, "RawTemplater"] = {}
 
@@ -217,6 +218,7 @@ class TemplatedFile:
                 result.append(raw_slice)
         return result
 
+    @cached_property
     def raw_slice_block_ids(self) -> Dict[RawFileSlice, int]:
         """Returns a dict with a unique ID for each template block."""
         result = {}
