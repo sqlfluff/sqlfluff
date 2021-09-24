@@ -19,12 +19,12 @@ import copy
 import logging
 import pathlib
 import re
-from typing import Dict, Optional, List, Tuple
+from typing import Optional, List, Tuple
 from collections import namedtuple
 
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.errors import SQLLintError
-from sqlfluff.core.templaters.base import RawFileSlice, TemplatedFile
+from sqlfluff.core.templaters.base import TemplatedFile
 
 # The ghost of a rule (mostly used for testing)
 RuleGhost = namedtuple("RuleGhost", ["code", "description"])
@@ -446,22 +446,24 @@ class BaseRule:
 
     @staticmethod
     def discard_results_that_span_block_boundaries(
-        lint_result: LintResult, templated_file: TemplatedFile
-    ) -> bool:
+        lint_result: LintResult, templated_file: Optional[TemplatedFile]
+    ):
         """Given a LintResult, remove its fixes if they span block boundaries.
 
         Reason: Applying changes that span block boundaries may corrupt the
         file, e.g. by moving code in or out of a template loop.
         """
+        if not templated_file:
+            return
+
         # Get the set of slices touched by any of lint_result's fixes.
         fix_slices = set()
-        if templated_file:
-            for fix in lint_result.fixes:
-                if fix.anchor:
-                    for slice in templated_file.raw_slices_spanning_source_slice(
-                        fix.anchor.pos_marker.source_slice
-                    ):
-                        fix_slices.add(slice)
+        for fix in lint_result.fixes:
+            if fix.anchor:
+                for slice in templated_file.raw_slices_spanning_source_slice(
+                    fix.anchor.pos_marker.source_slice
+                ):
+                    fix_slices.add(slice)
 
         # By definition, a LintResult can only span block boundaries if it
         # touches multiple slices. Exit early to avoid unnecessary computation.
@@ -471,9 +473,8 @@ class BaseRule:
         # Compute the set of block IDs affected by lint_result's fixes. If it's
         # more than one, discard the fixes, which we've determined are unsafe.
         # The LintResult will now be reported as an _unfixable_ lint error.
-        file_block_ids: Dict[RawFileSlice, int] = templated_file.raw_slice_block_ids()
+        file_block_ids = templated_file.raw_slice_block_ids()
         fix_block_ids = set()
-        fix: LintFix
         for slice in fix_slices:
             fix_block_ids.add(file_block_ids[slice])
             if len(fix_block_ids) > 1:
