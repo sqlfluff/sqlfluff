@@ -1,4 +1,7 @@
-"""A List of Spark SQL keywords."""
+"""
+    A List of Spark SQL keywords.
+    https://spark.apache.org/docs/latest/sql-ref-ansi-compliance.html#sql-keywords
+"""
 
 RESERVED_KEYWORDS = [
     "ALL",
@@ -72,7 +75,7 @@ RESERVED_KEYWORDS = [
     "WITH",
 ]
 
-UNRESERVED_KEYWORKDS = [
+UNRESERVED_KEYWORDS = [
     "ADD",
     "AFTER",
     "ALTER",
@@ -263,6 +266,7 @@ UNRESERVED_KEYWORKDS = [
     "YEAR",
     "ZONE",
     # Spark Core Data Sources
+    # https://spark.apache.org/docs/latest/sql-data-sources.html
     "AVRO",
     "CSV",
     "JSON",
