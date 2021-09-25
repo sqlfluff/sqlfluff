@@ -303,8 +303,8 @@ class JinjaTemplater(PythonTemplater):
             )
             return None, violations
 
-    re_open_tag = re.compile(r"^{%[\+\-]?\s*")
-    re_close_tag = re.compile(r"\s*[\+\-]?%}$")
+    re_open_tag = re.compile(r"^\s*{%[\+\-]?\s*")
+    re_close_tag = re.compile(r"\s*[\+\-]?%}\s*$")
 
     @classmethod
     def _slice_template(cls, in_str: str) -> Iterator[RawFileSlice]:
