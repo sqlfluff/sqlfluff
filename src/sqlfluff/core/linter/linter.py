@@ -573,7 +573,6 @@ class Linter:
         recurse: bool = True,
         config: Optional[FluffConfig] = None,
         encoding: str = "utf-8",
-        templated_file: Optional[List[TemplatedFile]] = None,
     ) -> ParsedString:
         """Parse a string."""
         violations: List[SQLBaseError] = []
@@ -588,8 +587,6 @@ class Linter:
         # Scan the raw file for config commands.
         config.process_raw_file_for_config(in_str)
         rendered = self.render_string(in_str, fname, config, encoding)
-        if templated_file is not None:
-            templated_file[:] = [rendered.templated_file]
         violations += rendered.templater_violations
 
         # Dispatch the output for the parse header
