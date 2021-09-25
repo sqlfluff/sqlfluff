@@ -589,7 +589,7 @@ class Linter:
         config.process_raw_file_for_config(in_str)
         rendered = self.render_string(in_str, fname, config, encoding)
         if templated_file is not None:
-            templated_file[:] = rendered
+            templated_file[:] = [rendered.templated_file]
         violations += rendered.templater_violations
 
         # Dispatch the output for the parse header
