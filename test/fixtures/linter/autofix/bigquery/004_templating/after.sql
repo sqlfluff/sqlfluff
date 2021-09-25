@@ -66,7 +66,7 @@ imputed_effect_sizes AS (
         , COALESCE(IF(IS_NAN(o.{{metric}}_{{action}}), 0, o.{{metric}}_{{action}}), 0) AS {{metric}}_{{action}}
         , COALESCE(IF(IS_NAN(n.{{metric}}_{{action}}), 0, n.{{metric}}_{{action}}), 0) AS new_{{metric}}_{{action}}
         , n.campaign_count_{{action}}
-    {% endfor %}
+        {% endfor %}
     FROM
         raw_effect_sizes o
     JOIN
