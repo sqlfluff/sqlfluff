@@ -573,7 +573,7 @@ class Linter:
         recurse: bool = True,
         config: Optional[FluffConfig] = None,
         encoding: str = "utf-8",
-        templated_file: Optional[List[TemplatedFile]] = None
+        templated_file: Optional[List[TemplatedFile]] = None,
     ) -> ParsedString:
         """Parse a string."""
         violations: List[SQLBaseError] = []
