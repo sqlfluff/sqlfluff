@@ -448,6 +448,14 @@ class Rule_L016(Rule_L003):
                 else:
                     break
 
+            # Don't even attempt to handle template placeholders as gets
+            # complicated if logic changes (e.g. moving for loops). Most of
+            # these long lines will likely be single line Jinja comments.
+            # They will remain as unfixable.
+            if this_line[-1].type == "placeholder":
+                self.logger.info("Unfixable template segment: %s", this_line[-1])
+                return LintResult(anchor=segment)
+
             # Does the line end in an inline comment that we can move back?
             if this_line[-1].name == "inline_comment":
                 # Is this line JUST COMMENT (with optional preceding whitespace) if
