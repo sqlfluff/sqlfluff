@@ -19,20 +19,20 @@ import copy
 import logging
 import pathlib
 import re
-from typing import Optional, List, Tuple, TYPE_CHECKING
+from typing import Optional, List, Tuple
 from collections import namedtuple
 
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.errors import SQLLintError
-
-if TYPE_CHECKING:  # pragma: no cover
-    from sqlfluff.core.templaters import TemplatedFile
+from sqlfluff.core.templaters.base import TemplatedFile
 
 # The ghost of a rule (mostly used for testing)
 RuleGhost = namedtuple("RuleGhost", ["code", "description"])
 
 # Instantiate the rules logger
 rules_logger = logging.getLogger("sqlfluff.rules")
+
+linter_logger: logging.Logger = logging.getLogger("sqlfluff.linter")
 
 
 class RuleLoggingAdapter(logging.LoggerAdapter):
@@ -343,6 +343,7 @@ class BaseRule:
         elif isinstance(res, LintResult):
             # Extract any memory
             memory = res.memory
+            self.discard_unsafe_fixes(res, templated_file)
             lerr = res.to_linting_error(rule=self)
             if lerr:
                 new_lerrs = [lerr]
@@ -354,6 +355,7 @@ class BaseRule:
             # it was the last to be added
             memory = res[-1].memory
             for elem in res:
+                self.discard_unsafe_fixes(elem, templated_file)
                 lerr = elem.to_linting_error(rule=self)
                 if lerr:
                     new_lerrs.append(lerr)
@@ -443,6 +445,58 @@ class BaseRule:
         elif seg.is_type(*[elem[1] for elem in target_tuples if elem[0] == "type"]):
             return True
         return False
+
+    @staticmethod
+    def discard_unsafe_fixes(
+        lint_result: LintResult, templated_file: Optional[TemplatedFile]
+    ):
+        """Remove (discard) LintResult fixes if they are "unsafe".
+
+        By removing its fixes, a LintResult will still be reported, but it
+        will be treated as _unfixable_.
+        """
+        if not lint_result.fixes or not templated_file:
+            return
+
+        # Get the set of slices touched by any of the fixes.
+        fix_slices = set()
+        for fix in lint_result.fixes:
+            if fix.anchor:
+                fix_slices.update(
+                    templated_file.raw_slices_spanning_source_slice(
+                        fix.anchor.pos_marker.source_slice
+                    )
+                )
+
+        # Compute the set of block IDs affected by the fixes. If it's more than
+        # one, discard the fixes. Rationale: Fixes that span block boundaries
+        # may corrupt the file, e.g. by moving code in or out of a template
+        # loop.
+        block_info = templated_file.raw_slice_block_info
+        fix_block_ids = set(block_info.block_ids[slice_] for slice_ in fix_slices)
+        if len(fix_block_ids) > 1:
+            linter_logger.info(
+                "      * Discarding fixes that span blocks: %s",
+                lint_result.fixes,
+            )
+            lint_result.fixes = []
+            return
+
+        # If the fixes touch a literal-only loop, discard the fixes.
+        # Rationale: Fixes to a template loop that contains only literals are:
+        # - Difficult to correctly back to source code, so there's a risk of
+        #   accidentally "expanding" the loop body if we apply them.
+        # - Highly unusual (In practice, templated loops in SQL are usually for
+        #   expanding the same code using different column names, types, etc.,
+        #   in which case the loop body contains template variables.
+        for block_id in fix_block_ids:
+            if block_id in block_info.literal_only_loops:
+                linter_logger.info(
+                    "      * Discarding fixes to literal-only loop: %s",
+                    lint_result.fixes,
+                )
+                lint_result.fixes = []
+                return
 
 
 class RuleSet:

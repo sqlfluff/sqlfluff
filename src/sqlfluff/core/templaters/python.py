@@ -494,7 +494,7 @@ class PythonTemplater(RawTemplater):
         idx: Optional[int] = None
         templ_idx = 0
         # Loop through
-        for raw, token_type, raw_pos in raw_sliced:
+        for raw, token_type, raw_pos, _ in raw_sliced:
             if raw in invariants:
                 if buffer:
                     yield IntermediateFileSlice(

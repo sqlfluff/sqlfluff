@@ -47,7 +47,7 @@ class LintedFile(NamedTuple):
     templated_file: TemplatedFile
     encoding: str
 
-    def check_tuples(self) -> List[CheckTuple]:
+    def check_tuples(self, raise_on_non_linting_violations=True) -> List[CheckTuple]:
         """Make a list of check_tuples.
 
         This assumes that all the violations found are
@@ -59,7 +59,7 @@ class LintedFile(NamedTuple):
         for v in self.get_violations():
             if hasattr(v, "check_tuple"):
                 vs.append(v.check_tuple())
-            else:
+            elif raise_on_non_linting_violations:
                 raise v
         return vs
 
@@ -205,15 +205,19 @@ class LintedFile(NamedTuple):
     ):
         """Log hints for debugging during patch generation."""
         # This next bit is ALL FOR LOGGING AND DEBUGGING
-        if patch.templated_slice.start >= 10:
+        max_log_length = 10
+        if patch.templated_slice.start >= max_log_length:
             pre_hint = templated_file.templated_str[
-                patch.templated_slice.start - 10 : patch.templated_slice.start
+                patch.templated_slice.start
+                - max_log_length : patch.templated_slice.start
             ]
         else:
             pre_hint = templated_file.templated_str[: patch.templated_slice.start]
-        if patch.templated_slice.stop + 10 < len(templated_file.templated_str):
+        if patch.templated_slice.stop + max_log_length < len(
+            templated_file.templated_str
+        ):
             post_hint = templated_file.templated_str[
-                patch.templated_slice.stop : patch.templated_slice.stop + 10
+                patch.templated_slice.stop : patch.templated_slice.stop + max_log_length
             ]
         else:
             post_hint = templated_file.templated_str[patch.templated_slice.stop :]
@@ -378,7 +382,7 @@ class LintedFile(NamedTuple):
                         enriched_patch,
                     )
                     continue
-                # We have a single occurrences of the thing we want to patch. This
+                # We have a single occurrence of the thing we want to patch. This
                 # means we can use its position to place our patch.
                 new_source_slice = slice(
                     enriched_patch.source_slice.start + positions[0],
