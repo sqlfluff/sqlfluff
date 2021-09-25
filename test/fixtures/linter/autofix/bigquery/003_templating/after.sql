@@ -15,15 +15,15 @@ SELECT
         , campaign_count_{{action}}
     {% endfor %}
 FROM
-{% for action in considered_actions %}
+    {% for action in considered_actions %}
     {% if loop.first %}
         -- This next section gets very strange with forced template_blocks_indent
         {{action}}_raw_effect_sizes
-        {% else %}
+    {% else %}
         JOIN
                     {{action}}_raw_effect_sizes
             USING
                             ({{corr_states}})
-{% endif %}
-{% endfor %}
+    {% endif %}
+    {% endfor %}
 CROSS JOIN action_states

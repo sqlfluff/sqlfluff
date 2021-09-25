@@ -127,7 +127,7 @@ class Rule_L003(BaseRule):
                         # an increase in indentation? Can't quite
                         # remember the logic here. Let's go with that.
                         clean_indent = True
-                else:
+                elif not elem.is_type("placeholder"):
                     in_indent = False
                     this_indent_balance = indent_balance
                     indent_size = cls._indent_size(
@@ -255,9 +255,12 @@ class Rule_L003(BaseRule):
             elif segment.segments or (segment.is_meta and segment.indent_val != 0):
                 # it's not a raw segment or placeholder. Carry on.
                 return LintResult(memory=memory)
+            elif segment.is_type("placeholder"):
+                # it's a placeholder. Carry on.
+                return LintResult(memory=memory)
             else:
                 memory["in_indent"] = False
-                # we're found a non-whitespace element. This is our trigger,
+                # we've found a non-whitespace element. This is our trigger,
                 # which we'll handle after this if-statement
         else:
             # Not in indent and not a newline, don't trigger here.
