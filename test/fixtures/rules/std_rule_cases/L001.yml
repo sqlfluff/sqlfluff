@@ -17,6 +17,3 @@ test_pass_trailing_whitespace_before_template_code:
         {{ elem }},
         {% endfor %}
         0
-  configs:
-    templater:
-      jinja: {}

@@ -56,6 +56,11 @@ class Rule_L001(BaseRule):
             next_raw_slice = templated_file.raw_slices_spanning_source_slice(
                 slice(last_deletion_slice.stop, last_deletion_slice.stop)
             )
+            # If the next slice is literal, that means it's regular code, so
+            # it's safe to delete the trailing whitespace. If it's anything
+            # else, it's template code, so don't delete the whitespace because
+            # it's not REALLY trailing whitespace in terms of the raw source
+            # code.
             if next_raw_slice[0].slice_type == "literal":
                 return LintResult(
                     anchor=deletions[-1],
