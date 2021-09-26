@@ -37,9 +37,9 @@ from sqlfluff.dialects.spark3_keywords import (
 
 ansi_dialect = load_raw_dialect("ansi")
 hive_dialect = load_raw_dialect("hive")
-spark_dialect = ansi_dialect.copy_as("spark")
+spark3_dialect = ansi_dialect.copy_as("spark")
 
-spark_dialect.patch_lexer_matchers(
+spark3_dialect.patch_lexer_matchers(
     [
         # Spark SQL, only -- is used for single-line comment
         RegexLexer(
@@ -56,8 +56,8 @@ spark_dialect.patch_lexer_matchers(
 )
 
 # Set the bare functions
-spark_dialect.sets("bare_functions").clear()
-spark_dialect.sets("bare_functions").update(
+spark3_dialect.sets("bare_functions").clear()
+spark3_dialect.sets("bare_functions").update(
     [
         "CURRENT_DATE",
         "CURRENT_TIMESTAMP",
@@ -89,11 +89,11 @@ ansi_dialect.sets("datetime_units").update(
 )
 
 # Set Keywords
-spark_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
-spark_dialect.sets("reserved_keywords").update(RESERVED_KEYWORDS)
+spark3_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
+spark3_dialect.sets("reserved_keywords").update(RESERVED_KEYWORDS)
 
 # Real Segments
-spark_dialect.add(
+spark3_dialect.add(
     # Add Spark Segments
     EqualsSegment_a=StringParser(
         "==", SymbolSegment, name="equals", type="comparison_operator"
@@ -131,7 +131,7 @@ spark_dialect.add(
         "XML",  # https://github.com/databricks/spark-xml
     ),
 )
-spark_dialect.replace(
+spark3_dialect.replace(
     ComparisonOperatorGrammar=OneOf(
         Ref("EqualsSegment"),
         Ref("EqualsSegment_a"),
@@ -148,7 +148,7 @@ spark_dialect.replace(
 
 
 # Primitive Data Types
-@spark_dialect.segment()
+@spark3_dialect.segment()
 class PrimitiveTypeSegment(BaseSegment):
     """
         Spark SQL Primitive data types.
@@ -191,7 +191,7 @@ class PrimitiveTypeSegment(BaseSegment):
     )
 
 
-@spark_dialect.segment(replace=True)
+@spark3_dialect.segment(replace=True)
 class DatatypeSegment(BaseSegment):
     """
         Spark SQL Data types.
@@ -242,7 +242,7 @@ class DatatypeSegment(BaseSegment):
 
 # Data Definition Statements
 # http://spark.apache.org/docs/latest/sql-ref-syntax-ddl.html
-@spark_dialect.segment()
+@spark3_dialect.segment()
 class AlterDatabaseStatementSegment(BaseSegment):
     """
         An `ALTER DATABASE/SCHEMA` statement.
@@ -260,7 +260,7 @@ class AlterDatabaseStatementSegment(BaseSegment):
     )
 
 
-@spark_dialect.segment(replace=True)
+@spark3_dialect.segment(replace=True)
 class AlterTableStatementSegment(BaseSegment):
     """
         A `ALTER TABLE` statement to change the table/view schema or properties.
