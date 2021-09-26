@@ -37,7 +37,7 @@ from sqlfluff.dialects.spark3_keywords import (
 
 ansi_dialect = load_raw_dialect("ansi")
 hive_dialect = load_raw_dialect("hive")
-spark3_dialect = ansi_dialect.copy_as("spark")
+spark3_dialect = ansi_dialect.copy_as("spark3")
 
 spark3_dialect.patch_lexer_matchers(
     [
@@ -94,6 +94,14 @@ spark3_dialect.sets("reserved_keywords").update(RESERVED_KEYWORDS)
 
 # Real Segments
 spark3_dialect.add(
+    # Add Hive Segments TODO : Is there a way to retrive this w/o redefining?
+    DoubleQuotedLiteralSegment=NamedParser(
+        "double_quote",
+        CodeSegment,
+        name="quoted_literal",
+        type="literal",
+        trim_chars=('"',),
+    ),
     # Add Spark Segments
     EqualsSegment_a=StringParser(
         "==", SymbolSegment, name="equals", type="comparison_operator"
@@ -102,6 +110,8 @@ spark3_dialect.add(
         "<=>", SymbolSegment, name="equals", type="comparison_operator"
     ),
     # Add relevant Hive Grammar
+    SingleOrDoubleQuotedLiteralGrammar=hive_dialect.get_grammar("SingleOrDoubleQuotedLiteralGrammar"),
+    PropertyGrammar=hive_dialect.get_grammar("PropertyGrammar"),
     BracketedPropertyListGrammar=hive_dialect.get_grammar("BracketedPropertyListGrammar"),
     PartitionSpecGrammar=hive_dialect.get_grammar("PartitionSpecGrammar"),
     SerdePropertiesGrammar=hive_dialect.get_grammar("SerdePropertiesGrammar"),
@@ -260,121 +270,121 @@ class AlterDatabaseStatementSegment(BaseSegment):
     )
 
 
-@spark3_dialect.segment(replace=True)
-class AlterTableStatementSegment(BaseSegment):
-    """
-        A `ALTER TABLE` statement to change the table/view schema or properties.
-        http://spark.apache.org/docs/latest/sql-ref-syntax-ddl-alter-table.html
-    """
-
-    type = "alter_table_statement"
-
-    match_grammar = StartsWith("ALTER TABLE")
-    parse_grammar = Sequence(
-        "ALTER",
-        "TABLE",
-        Ref("TableReferenceSegment"),
-        OneOf(
-            # ALTER TABLE - RENAME TO `table_identifier`
-            Sequence(
-                "RENAME",
-                "TO",
-                Ref("TableReferenceSegment"),
-            ),
-            # ALTER TABLE - RENAME `partition_spec`
-            Sequence(
-                Ref("PartitionSpecGrammar"),
-                "RENAME",
-                "TO",
-                Ref("PartitionSpecGrammar"),
-            ),
-            # ALTER TABLE - ADD COLUMNS
-            Sequence(
-                "ADD",
-                OneOf("COLUMN", "COLUMNS"),
-                OptionallyBracketed(
-                    AnyNumberOf(
-                        Ref("ColumnDefinitionSegment"),
-                        # TODO : Save as Ref - ColPositionSegment
-                        OneOf(
-                            "FIRST",
-                            Sequence(
-                                "AFTER", Ref("ColumnReferenceSegment")
-                            ),
-                        ),
-                    )
-                )
-            ),
-            # ALTER TABLE - ALTER OR CHANGE COLUMN
-            Sequence(
-                OneOf("ALTER", "CHANGE"),
-                "COLUMN",
-                Ref("ColumnReferenceSegment"),
-                Sequence(
-                    "TYPE", Ref("DatatypeSegment"), optional=True
-                ),
-                Ref("CommentClauseSegment", optional=True),
-                # TODO : Add to Spark dialect - ColPositionGrammar
-                OneOf(
-                    "FIRST",
-                    Sequence(
-                        "AFTER", Ref("ColumnReferenceSegment")
-                    ),
-                    optional=True
-                ),
-                Sequence(
-                    OneOf("SET", "DROP"), "NOT NULL", optional=True
-                ),
-            ),
-            # ALTER TABLE - ADD PARTITION
-            Sequence(
-                "ADD",
-                Ref("IfNotExistsGrammar", optional=True),
-                Ref("PartitionSpecGrammar")
-            ),
-            # ALTER TABLE - DROP PARTITION
-            Sequence(
-                "DROP",
-                Ref("IfExistsGrammar", optional=True),
-                Ref("PartitionSpecGrammar"),
-                Sequence("PURGE", optional=True),
-            ),
-            # ALTER TABLE - SET PROPERTIES
-            Ref("SetTablePropertiesGrammar"),
-            # ALTER TABLE - UNSET PROPERTIES
-            Ref("UnsetTablePropertiesGrammar"),
-            # ALTER TABLE - SET SERDE
-            Sequence(
-                Ref("PartitionSpecGrammar"),
-                "SET",
-                OneOf(
-                    Sequence(
-                        "SERDEPROPERTIES",
-                        Ref("BracketedPropertyListGrammar"),
-                    ),
-                    Sequence(
-                        "SERDE",
-                        Ref("ParameterNameSegment"),
-                        Ref("SerdePropertiesGrammar", optional=True),
-                    ),
-                ),
-
-            ),
-            # ALTER TABLE - SET FILE FORMAT
-            Sequence(
-                Ref("PartitionSpecGrammar"),
-                "SET",
-                "FILEFORMAT",
-                Ref("FileFormatGrammar"),
-            ),
-            # ALTER TABLE - CHANGE FILE LOCATION
-            Sequence(
-                Ref("PartitionSpecGrammar"),
-                "SET",
-                Ref("LocationGrammar"),
-            ),
-        ),
-    )
+# @spark3_dialect.segment(replace=True)
+# class AlterTableStatementSegment(BaseSegment):
+#     """
+#         A `ALTER TABLE` statement to change the table/view schema or properties.
+#         http://spark.apache.org/docs/latest/sql-ref-syntax-ddl-alter-table.html
+#     """
+#
+#     type = "alter_table_statement"
+#
+#     match_grammar = StartsWith("ALTER TABLE")
+#     parse_grammar = Sequence(
+#         "ALTER",
+#         "TABLE",
+#         Ref("TableReferenceSegment"),
+#         OneOf(
+#             # ALTER TABLE - RENAME TO `table_identifier`
+#             Sequence(
+#                 "RENAME",
+#                 "TO",
+#                 Ref("TableReferenceSegment"),
+#             ),
+#             # ALTER TABLE - RENAME `partition_spec`
+#             Sequence(
+#                 Ref("PartitionSpecGrammar"),
+#                 "RENAME",
+#                 "TO",
+#                 Ref("PartitionSpecGrammar"),
+#             ),
+#             # ALTER TABLE - ADD COLUMNS
+#             Sequence(
+#                 "ADD",
+#                 OneOf("COLUMN", "COLUMNS"),
+#                 OptionallyBracketed(
+#                     AnyNumberOf(
+#                         Ref("ColumnDefinitionSegment"),
+#                         # TODO : Save as Ref - ColPositionSegment
+#                         OneOf(
+#                             "FIRST",
+#                             Sequence(
+#                                 "AFTER", Ref("ColumnReferenceSegment")
+#                             ),
+#                         ),
+#                     )
+#                 )
+#             ),
+#             # ALTER TABLE - ALTER OR CHANGE COLUMN
+#             Sequence(
+#                 OneOf("ALTER", "CHANGE"),
+#                 "COLUMN",
+#                 Ref("ColumnReferenceSegment"),
+#                 Sequence(
+#                     "TYPE", Ref("DatatypeSegment"), optional=True
+#                 ),
+#                 Ref("CommentClauseSegment", optional=True),
+#                 # TODO : Add to Spark dialect - ColPositionGrammar
+#                 OneOf(
+#                     "FIRST",
+#                     Sequence(
+#                         "AFTER", Ref("ColumnReferenceSegment")
+#                     ),
+#                     optional=True
+#                 ),
+#                 Sequence(
+#                     OneOf("SET", "DROP"), "NOT NULL", optional=True
+#                 ),
+#             ),
+#             # ALTER TABLE - ADD PARTITION
+#             Sequence(
+#                 "ADD",
+#                 Ref("IfNotExistsGrammar", optional=True),
+#                 Ref("PartitionSpecGrammar")
+#             ),
+#             # ALTER TABLE - DROP PARTITION
+#             Sequence(
+#                 "DROP",
+#                 Ref("IfExistsGrammar", optional=True),
+#                 Ref("PartitionSpecGrammar"),
+#                 Sequence("PURGE", optional=True),
+#             ),
+#             # ALTER TABLE - SET PROPERTIES
+#             Ref("SetTablePropertiesGrammar"),
+#             # ALTER TABLE - UNSET PROPERTIES
+#             Ref("UnsetTablePropertiesGrammar"),
+#             # ALTER TABLE - SET SERDE
+#             Sequence(
+#                 Ref("PartitionSpecGrammar"),
+#                 "SET",
+#                 OneOf(
+#                     Sequence(
+#                         "SERDEPROPERTIES",
+#                         Ref("BracketedPropertyListGrammar"),
+#                     ),
+#                     Sequence(
+#                         "SERDE",
+#                         Ref("ParameterNameSegment"),
+#                         Ref("SerdePropertiesGrammar", optional=True),
+#                     ),
+#                 ),
+#
+#             ),
+#             # ALTER TABLE - SET FILE FORMAT
+#             Sequence(
+#                 Ref("PartitionSpecGrammar"),
+#                 "SET",
+#                 "FILEFORMAT",
+#                 Ref("FileFormatGrammar"),
+#             ),
+#             # ALTER TABLE - CHANGE FILE LOCATION
+#             Sequence(
+#                 Ref("PartitionSpecGrammar"),
+#                 "SET",
+#                 Ref("LocationGrammar"),
+#             ),
+#         ),
+#     )
 
 
 # @spark_dialect.segment(replace=True)
@@ -420,3 +430,21 @@ class AlterTableStatementSegment(BaseSegment):
 #         A 'CREATE TABLE` statement using the definition/metadata of an existing table or view.
 #         http://spark.apache.org/docs/latest/sql-ref-syntax-ddl-create-table-like.html
 #     """
+
+
+@spark3_dialect.segment(replace=True)
+class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: ignore
+    """Overriding StatementSegment to allow for additional segment parsing."""
+
+    parse_grammar = ansi_dialect.get_segment("StatementSegment").parse_grammar.copy(
+        insert=[Ref("AlterDatabaseStatementSegment")],
+        # remove=[
+        #     Ref("TransactionStatementSegment"),
+        #     Ref("CreateSchemaStatementSegment"),
+        #     Ref("SetSchemaStatementSegment"),
+        #     Ref("DropSchemaStatementSegment"),
+        #     Ref("CreateExtensionStatementSegment"),
+        #     Ref("CreateModelStatementSegment"),
+        #     Ref("DropModelStatementSegment"),
+        # ],
+    )
