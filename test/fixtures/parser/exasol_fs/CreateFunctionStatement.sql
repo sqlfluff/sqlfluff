@@ -85,5 +85,6 @@ BEGIN
         res := res*2;
         cnt := cnt+1;
     END WHILE;
+    RETURN res;
 END for_loop_function3;
 /

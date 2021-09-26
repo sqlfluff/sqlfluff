@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1c783435c8dbd13033ce27dbc431b4f3d9013aa578ac81df830a7c86529d46d6
+_hash: 849614aec33e152ee572da0d6a7aeea1888cb911581e3b1685ee6f225b5adede
 file:
 - statement:
     create_function_statement:
@@ -409,46 +409,67 @@ file:
 - statement_terminator: /
 - statement:
     create_function_statement:
-      unparsable:
-      - keyword: CREATE
-      - keyword: FUNCTION
-      - raw: for_loop_function3
-      - bracketed:
-          start_bracket: (
-          end_bracket: )
-      - raw: RETURN
-      - raw: VARCHAR
-      - bracketed:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_reference:
+        identifier: for_loop_function3
+    - bracketed:
+        start_bracket: (
+        end_bracket: )
+    - keyword: RETURN
+    - data_type:
+        data_type_identifier: VARCHAR
+        bracketed:
           start_bracket: (
           expression:
             literal: '10'
           end_bracket: )
-      - raw: AS
-      - raw: res
-      - raw: DECIMAL
-      - raw: ;
-      - raw: BEGIN
-      - raw: WHILE
-      - raw: cnt
-      - raw: <=
-      - raw: input_variable
-      - raw: DO
-      - raw: res
-      - walrus_operator: :=
-      - raw: res
-      - raw: '*'
-      - raw: '2'
-      - raw: ;
-      - raw: cnt
-      - walrus_operator: :=
-      - raw: cnt
-      - raw: +
-      - raw: '1'
-      - raw: ;
-      - raw: END
-      - raw: WHILE
-      - raw: ;
-      - raw: END
-      - raw: for_loop_function3
-      - semicolon: ;
+    - keyword: AS
+    - variable: res
+    - data_type:
+        data_type_identifier: DECIMAL
+    - semicolon: ;
+    - keyword: BEGIN
+    - function_body:
+        function_while_loop:
+        - keyword: WHILE
+        - expression:
+          - column_reference:
+              identifier: cnt
+          - comparison_operator: <=
+          - column_reference:
+              identifier: input_variable
+        - keyword: DO
+        - function_body:
+            function_assignment:
+              variable: res
+              assignment_operator: :=
+              expression:
+                column_reference:
+                  identifier: res
+                binary_operator: '*'
+                literal: '2'
+              semicolon: ;
+        - function_body:
+            function_assignment:
+              variable: cnt
+              assignment_operator: :=
+              expression:
+                column_reference:
+                  identifier: cnt
+                binary_operator: +
+                literal: '1'
+              semicolon: ;
+        - keyword: END
+        - keyword: WHILE
+        - semicolon: ;
+    - keyword: RETURN
+    - expression:
+        column_reference:
+          identifier: res
+    - semicolon: ;
+    - keyword: END
+    - function_reference:
+        identifier: for_loop_function3
+    - semicolon: ;
 - statement_terminator: /
