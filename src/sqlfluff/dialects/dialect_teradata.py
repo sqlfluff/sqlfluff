@@ -771,7 +771,10 @@ class UnorderedSelectStatementSegment(BaseSegment):
 
 @teradata_dialect.segment(replace=True)
 class SelectClauseModifierSegment(BaseSegment):
-    """Things that come after SELECT but before the columns."""
+    """Things that come after SELECT but before the columns.
+
+    Adds NORMALIZE clause: https://docs.teradata.com/r/2_MC9vCtAJRlKle2Rpb0mA/UuxiA0mklFgv~33X5nyKMA
+    """
 
     type = "select_clause_modifier"
     match_grammar = OneOf(
