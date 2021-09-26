@@ -21,14 +21,14 @@ ALTER TABLE StudentInfo CHANGE COLUMN Name COMMENT "new comment" ;
 ---- Add a new partition to a table
 ALTER TABLE StudentInfo ADD IF NOT EXISTS PARTITION (Age = 18);
 
+-- Adding multiple partitions to the table
+ALTER TABLE StudentInfo ADD IF NOT EXISTS PARTITION (
+    Age = 18
+) PARTITION (Age = 20);
+
 -- Drop a partition from the table
 ALTER TABLE StudentInfo DROP IF EXISTS PARTITION (Age = 18);
 
----- Adding multiple partitions to the table
---ALTER TABLE StudentInfo ADD
---    IF NOT EXISTS PARTITION (age=18) PARTITION (age=20);
---
---
 ---- Change the fileformat
 --ALTER TABLE loc_orc SET fileformat orc;
 --

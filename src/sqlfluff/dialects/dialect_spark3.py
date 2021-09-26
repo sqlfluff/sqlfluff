@@ -334,7 +334,7 @@ class AlterTableStatementSegment(BaseSegment):
             Sequence(
                 "ADD",
                 Ref("IfNotExistsGrammar", optional=True),
-                Ref("PartitionSpecGrammar")
+                AnyNumberOf(Ref("PartitionSpecGrammar"))
             ),
             # ALTER TABLE - DROP PARTITION
             Sequence(
