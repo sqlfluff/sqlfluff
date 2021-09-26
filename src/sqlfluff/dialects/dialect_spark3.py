@@ -111,23 +111,15 @@ spark3_dialect.add(
         "<=>", SymbolSegment, name="equals", type="comparison_operator"
     ),
     # Add relevant Hive Grammar
-    SingleOrDoubleQuotedLiteralGrammar=hive_dialect.get_grammar("SingleOrDoubleQuotedLiteralGrammar"),
-    PropertyGrammar=hive_dialect.get_grammar("PropertyGrammar"),
     BracketedPropertyListGrammar=hive_dialect.get_grammar("BracketedPropertyListGrammar"),
-    PartitionSpecGrammar=hive_dialect.get_grammar("PartitionSpecGrammar"),
-    SerdePropertiesGrammar=hive_dialect.get_grammar("SerdePropertiesGrammar"),
+    CommentGrammar=hive_dialect.get_grammar("CommentGrammar"),
     LocationGrammar=hive_dialect.get_grammar("LocationGrammar"),
+    PartitionSpecGrammar=hive_dialect.get_grammar("PartitionSpecGrammar"),
+    PropertyGrammar=hive_dialect.get_grammar("PropertyGrammar"),
+    SerdePropertiesGrammar=hive_dialect.get_grammar("SerdePropertiesGrammar"),
+    SingleOrDoubleQuotedLiteralGrammar=hive_dialect.get_grammar("SingleOrDoubleQuotedLiteralGrammar"),
     # Add Spark Grammar
     DatabasePropertiesGrammar=Sequence("DBPROPERTIES", Ref("BracketedPropertyListGrammar")),
-    SetTablePropertiesGrammar=Sequence(
-        "SET", "TBLPROPERTIES", Ref("BracketedPropertyListGrammar")
-    ),
-    UnsetTablePropertiesGrammar=Sequence(
-        "UNSET",
-        "TBLPROPERTIES",
-        Ref("IfExistsGrammar", optional=True),
-        Ref("SingleOrDoubleQuotedLiteralGrammar"),
-    ),
     FileFormatGrammar=OneOf(
         # Spark Core Data Sources
         # https://spark.apache.org/docs/latest/sql-data-sources.html
@@ -140,6 +132,15 @@ spark3_dialect.add(
         # Community Contributed Data Sources
         "DELTA",  # https://github.com/delta-io/delta
         "XML",  # https://github.com/databricks/spark-xml
+    ),
+    SetTablePropertiesGrammar=Sequence(
+        "SET", "TBLPROPERTIES", Ref("BracketedPropertyListGrammar")
+    ),
+    UnsetTablePropertiesGrammar=Sequence(
+        "UNSET",
+        "TBLPROPERTIES",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("SingleOrDoubleQuotedLiteralGrammar"),
     ),
 )
 spark3_dialect.replace(
@@ -309,14 +310,14 @@ class AlterTableStatementSegment(BaseSegment):
                 ),
             ),
             # ALTER TABLE - ALTER OR CHANGE COLUMN
-            # Sequence(
-                # OneOf("ALTER", "CHANGE"),
-                # "COLUMN",
-                # Ref("ColumnReferenceSegment"),
-                # Sequence(
-                #     "TYPE", Ref("DatatypeSegment"), optional=True
-                # ),
-                # Ref("CommentClauseSegment", optional=True),
+            Sequence(
+                OneOf("ALTER", "CHANGE"),
+                "COLUMN",
+                Ref("ColumnReferenceSegment"),
+                Sequence(
+                    "TYPE", Ref("DatatypeSegment"), optional=True
+                ),
+                Ref("CommentGrammar", optional=True),
                 # # TODO : Add to Spark dialect - ColPositionGrammar
                 # OneOf(
                 #     "FIRST",
@@ -328,7 +329,7 @@ class AlterTableStatementSegment(BaseSegment):
                 # Sequence(
                 #     OneOf("SET", "DROP"), "NOT NULL", optional=True
                 # ),
-            # ),
+            ),
     #         # ALTER TABLE - ADD PARTITION
     #         Sequence(
     #             "ADD",
