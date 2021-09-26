@@ -51,6 +51,7 @@ setup(
         "mysql",
         "postgres",
         "snowflake",
+        "sqlite",
         "teradata",
         "tsql",
         "dbt",
