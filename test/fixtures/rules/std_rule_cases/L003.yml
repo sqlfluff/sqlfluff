@@ -366,3 +366,87 @@ test_jinja_indent_1:
         {% endfor %}
     FROM
         {{ 'table1' }}
+
+test_jinja_indent_2:
+  fail_str: |
+    {% set considered_actions=['uses_personal_to'] %}
+    {% set corr_states="state_user_v_peer_open\n ,business_type" %}
+
+    SELECT
+    foo
+    FROM
+    {% for action in considered_actions %}
+    {% if loop.first %}
+    -- This next section gets very strange with forced template_blocks_indent
+    {{action}}_raw_effect_sizes
+    {% else %}
+    JOIN {{action}}_raw_effect_sizes USING ({{corr_states}})
+    {% endif %}
+    -- The odd indentation of "endfor" is due to the SQL parser, which places
+    -- the dedent on the following line ("CROSS JOIN"). Perhaps a future
+    -- version of L003 could try and allow for this.
+    {% endfor %}
+    CROSS JOIN action_states
+  fix_str: |
+    {% set considered_actions=['uses_personal_to'] %}
+    {% set corr_states="state_user_v_peer_open\n ,business_type" %}
+
+    SELECT
+        foo
+    FROM
+    {% for action in considered_actions %}
+    {% if loop.first %}
+        -- This next section gets very strange with forced template_blocks_indent
+        {{action}}_raw_effect_sizes
+    {% else %}
+    JOIN {{action}}_raw_effect_sizes USING ({{corr_states}})
+    {% endif %}
+        -- The odd indentation of "endfor" is due to the SQL parser, which places
+        -- the dedent on the following line ("CROSS JOIN"). Perhaps a future
+        -- version of L003 could try and allow for this.
+        {% endfor %}
+    CROSS JOIN action_states
+
+test_jinja_indent_3:
+  fail_str: |
+    SELECT
+        a
+    {# My Comment #}
+          , b
+        {% for i in [1, 2, 3] %}
+            , c_{{i}}+42 AS the_meaning_of_li{{ 'f' * i }}
+            {% endfor %}
+        , boo
+    {% for i in [1, 2, 3] %}
+         , d_{{i}}
+            {% endfor %}
+    FROM my_table
+  fix_str: |
+    SELECT
+        a
+        {# My Comment #}
+        , b
+            {% for i in [1, 2, 3] %}
+            , c_{{i}}+42 AS the_meaning_of_li{{ 'f' * i }}
+            {% endfor %}
+        , boo
+            {% for i in [1, 2, 3] %}
+            , d_{{i}}
+            {% endfor %}
+    FROM my_table
+
+test_jinja_indent_4:
+  fail_str: |
+    SELECT
+    {% for i in [1] %}
+    c{{i}},
+    {% endfor %}
+    c10
+    FROM foo
+  fix_str: |
+    SELECT
+        {% for i in [1] %}
+        c{{i}},
+        {% endfor %}
+        c10
+    FROM foo

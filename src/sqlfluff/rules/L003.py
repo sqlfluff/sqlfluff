@@ -45,7 +45,7 @@ class Rule_L003(BaseRule):
     """
 
     _works_on_unparsable = False
-    config_keywords = ["tab_space_size", "indent_unit", "lint_templated_tokens"]
+    config_keywords = ["tab_space_size", "indent_unit"]
 
     @staticmethod
     def _make_indent(num=1, tab_space_size=4, indent_unit="space"):
@@ -66,8 +66,64 @@ class Rule_L003(BaseRule):
         return indent_size
 
     @classmethod
-    def _process_raw_stack(cls, raw_stack, tab_space_size=4):
+    def _current_line_has_code_whether_templated_or_not(cls, line, templated_file):
+        for elem in line:
+            if elem.is_code:
+                return True
+        return False
+
+    @classmethod
+    def _reorder_raw_stack(cls, raw_stack, templated_file):
+        lines = []
+        current_line = []
+        line_no = 1
+        def element_sort_key_templated_last(elem):
+            if not elem.is_type("placeholder"):
+                return 0
+            slices = templated_file.raw_slices_spanning_source_slice(
+                            elem.pos_marker.source_slice)
+            if slices[0].slice_type != "templated":
+                return 0
+            return 1
+        def element_sort_key_indent_first_dedent_last(elem):
+            if elem.is_meta:
+                if elem.indent_val > 0:
+                    return 0
+                elif elem.indent_val < 0:
+                    return 2
+            return 1
+        def sort_current_line():
+            # If the current line has actual code (whether templated or not)
+            # do this.
+            if cls._current_line_has_code_whether_templated_or_not(current_line, templated_file):
+                current_line.sort(key=element_sort_key_templated_last)
+            else:
+                # Otherwise, place any template code after dedent.
+                current_line.sort(key=element_sort_key_indent_first_dedent_last)
+
+        # Break raw_stack into lines.
+        for elem in raw_stack:
+            if not elem.is_type("newline"):
+                current_line.append(elem)
+            else:
+                sort_current_line()
+                current_line.append(elem)
+                lines.append(current_line)
+                current_line = []
+                line_no += 1
+        if current_line:
+            sort_current_line()
+            lines.append(current_line)
+        raw_stack_new = []
+        for line in lines:
+            raw_stack_new += line
+        raw_stack = raw_stack_new
+        return tuple(raw_stack)
+
+    @classmethod
+    def _process_raw_stack(cls, raw_stack, tab_space_size=4, templated_file=None):
         """Take the raw stack, split into lines and evaluate some stats."""
+        raw_stack = cls._reorder_raw_stack(raw_stack, templated_file)
         indent_balance = 0
         line_no = 1
         in_indent = True
@@ -127,7 +183,7 @@ class Rule_L003(BaseRule):
                         # an increase in indentation? Can't quite
                         # remember the logic here. Let's go with that.
                         clean_indent = True
-                elif not elem.is_type("placeholder"):
+                else:
                     in_indent = False
                     this_indent_balance = indent_balance
                     indent_size = cls._indent_size(
@@ -225,7 +281,7 @@ class Rule_L003(BaseRule):
                 return False
         return True
 
-    def _eval(self, segment, raw_stack, memory, parent_stack, siblings_post, **kwargs):
+    def _eval(self, segment, raw_stack, memory, parent_stack, siblings_post, templated_file, **kwargs):
         """Indentation not consistent with previous lines.
 
         To set the default tab size, set the `tab_space_size` value
@@ -274,11 +330,11 @@ class Rule_L003(BaseRule):
             return LintResult(memory=memory)
 
         res = self._process_raw_stack(
-            raw_stack, tab_space_size=self.tab_space_size
+            raw_stack, tab_space_size=self.tab_space_size, templated_file=templated_file
         )
-        return self._process_current_line(res, memory)
+        return self._process_current_line(res, memory, templated_file)
 
-    def _process_current_line(self, res, memory):
+    def _process_current_line(self, res, memory, templated_file):
         this_line_no = max(res.keys())
         this_line = res.pop(this_line_no)
         self.logger.debug(
@@ -287,8 +343,7 @@ class Rule_L003(BaseRule):
             # Don't log the line or indent buffer, it's too noisy.
             self._strip_buffers(this_line),
         )
-
-        trigger_segment = self._find_trigger(this_line["line_buffer"], memory)
+        trigger_segment = self._find_trigger(this_line["line_buffer"], memory, templated_file)
 
         # Is this line just comments?
         if all(
@@ -350,19 +405,6 @@ class Rule_L003(BaseRule):
                         LintFix("delete", elem) for elem in this_line["indent_buffer"]
                     ],
                 )
-
-        # Are we linting a placeholder, and if so are we allowed to?
-        if (not self.lint_templated_tokens) and this_line["line_buffer"][
-            len(this_line["indent_buffer"]) :
-        ][0].is_type(
-            "placeholder"
-        ):  # pragma: no cover
-            # If not, make this a problem line and carry on.
-            memory["problem_lines"].append(this_line_no)
-            self.logger.debug(
-                "    Avoiding template placeholder Line. #%s", this_line_no
-            )
-            return LintResult(memory=memory)
 
         # Assuming it's not a hanger, let's compare it to the other previous
         # lines. We do it in reverse so that closer lines are more relevant.
@@ -642,10 +684,10 @@ class Rule_L003(BaseRule):
         return LintResult(memory=memory)
 
     @classmethod
-    def _find_trigger(cls, line, memory):
+    def _find_trigger(cls, line, memory, templated_file):
         memory["in_indent"] = True
         placeholder = None
-        for segment in line:
+        for idx, segment in enumerate(line):
             # if segment.is_type("newline"):
             #     memory["in_indent"] = True
             #     # We're not going to flag on empty lines so we can safely proceed
@@ -662,7 +704,18 @@ class Rule_L003(BaseRule):
                         placeholder = segment
                 else:
                     memory["in_indent"] = False
-                    # we're found a non-whitespace element. This is our trigger.
+                    # we've found a non-whitespace element. This is our trigger.
+                    # Walk backwards from the segment. Is there a placeholder
+                    # immediately preceeding it? (Ignore meta and whitespace.)
+                    # If so, return that instead.
+                    for idx2 in range(idx - 1, -1, -1):
+                        if line[idx2].is_type("placeholder"):
+                            slices = templated_file.raw_slices_spanning_source_slice(
+                                            line[idx2].pos_marker.source_slice)
+                            if slices[0].slice_type == "templated":
+                                return line[idx2]
+                        if not line[idx2].is_type("whitespace") and not (line[idx2].is_meta and line[idx2].indent_val != 0):
+                            break
                     return segment
             else:
                 # Not in indent and not a newline, don't trigger here.
