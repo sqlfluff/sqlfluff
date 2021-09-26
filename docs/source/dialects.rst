@@ -96,10 +96,9 @@ PostgreSQL
 
 This is based around the `PostgreSQL spec`_, and is also part of the
 inheritance chain for several other dialects which were heavily inspired
-by this one. The :ref:`snowflake_dialect_ref` and :ref:`sqlite_dialect_ref`
-dialects depend directly on this one, and if you're running `AWS Redshift`_
-or `Greenplum`_ this is the dialect to use (until someone makes a specific
-dialect).
+by this one. The :ref:`sqlite_dialect_ref` dialect depends directly on
+this one, and if you're running `AWS Redshift`_ or `Greenplum`_ this is
+the dialect to use (until someone makes a specific dialect).
 
 .. _`PostgreSQL spec`: https://www.postgresql.org/docs/9.6/reference.html
 .. _`AWS Redshift`: https://aws.amazon.com/redshift/
