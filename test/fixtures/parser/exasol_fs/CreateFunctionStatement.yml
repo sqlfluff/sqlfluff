@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 30b18c4d4c9cbf95c6d2898f197c4fb132333a0944fc83d89f0fcf65d79bcfa7
+_hash: 1c783435c8dbd13033ce27dbc431b4f3d9013aa578ac81df830a7c86529d46d6
 file:
 - statement:
     create_function_statement:
@@ -113,4 +113,342 @@ file:
     - function_reference:
         identifier: hello
     - semicolon: ;
-- statement_terminator: ' /'
+- statement_terminator: /
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_reference:
+        identifier: case_function
+    - bracketed:
+        start_bracket: (
+        end_bracket: )
+    - keyword: RETURN
+    - data_type:
+        data_type_identifier: VARCHAR
+        bracketed:
+          start_bracket: (
+          expression:
+            literal: '10'
+          end_bracket: )
+    - keyword: AS
+    - variable: res
+    - data_type:
+        data_type_identifier: DECIMAL
+    - semicolon: ;
+    - keyword: BEGIN
+    - function_body:
+        function_assignment:
+          variable: res
+          assignment_operator: :=
+          expression:
+            case_expression:
+            - keyword: CASE
+            - keyword: WHEN
+            - expression:
+                column_reference:
+                  identifier: input_variable
+                comparison_operator: <
+                literal: '0'
+            - keyword: THEN
+            - expression:
+                literal: '0'
+            - keyword: ELSE
+            - expression:
+                column_reference:
+                  identifier: input_variable
+            - keyword: END
+          semicolon: ;
+    - keyword: RETURN
+    - expression:
+        column_reference:
+          identifier: res
+    - semicolon: ;
+    - keyword: END
+    - function_reference:
+        identifier: case_function
+    - semicolon: ;
+- statement_terminator: /
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_reference:
+        identifier: assignment_function
+    - bracketed:
+        start_bracket: (
+        end_bracket: )
+    - keyword: RETURN
+    - data_type:
+        data_type_identifier: VARCHAR
+        bracketed:
+          start_bracket: (
+          expression:
+            literal: '10'
+          end_bracket: )
+    - keyword: AS
+    - variable: res
+    - data_type:
+        data_type_identifier: DECIMAL
+    - semicolon: ;
+    - keyword: BEGIN
+    - function_body:
+        function_assignment:
+          variable: res
+          assignment_operator: :=
+          literal: "'Hello World'"
+          semicolon: ;
+    - keyword: RETURN
+    - expression:
+        column_reference:
+          identifier: res
+    - semicolon: ;
+    - keyword: END
+    - function_reference:
+        identifier: assignment_function
+    - semicolon: ;
+- statement_terminator: /
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_reference:
+        identifier: if_function
+    - bracketed:
+        start_bracket: (
+        end_bracket: )
+    - keyword: RETURN
+    - data_type:
+        data_type_identifier: VARCHAR
+        bracketed:
+          start_bracket: (
+          expression:
+            literal: '10'
+          end_bracket: )
+    - keyword: AS
+    - variable: res
+    - data_type:
+        data_type_identifier: DECIMAL
+    - semicolon: ;
+    - keyword: BEGIN
+    - function_body:
+        function_if_branch:
+        - keyword: IF
+        - expression:
+            column_reference:
+              identifier: input_variable
+            comparison_operator: '='
+            literal: '0'
+        - keyword: THEN
+        - function_body:
+            function_assignment:
+            - variable: res
+            - assignment_operator: :=
+            - variable: 'NULL'
+            - semicolon: ;
+        - keyword: ELSEIF
+        - expression:
+            column_reference:
+              identifier: input_variable
+            comparison_operator: '='
+            literal: '1'
+        - keyword: THEN
+        - function_body:
+            function_assignment:
+              variable: res
+              assignment_operator: :=
+              literal: "'HELLO'"
+              semicolon: ;
+        - keyword: ELSEIF
+        - expression:
+            column_reference:
+              identifier: input_variable
+            comparison_operator: '='
+            literal: '2'
+        - keyword: THEN
+        - function_body:
+            function_assignment:
+              variable: res
+              assignment_operator: :=
+              literal: "'HALLO'"
+              semicolon: ;
+        - keyword: ELSE
+        - function_body:
+            function_assignment:
+            - variable: res
+            - assignment_operator: :=
+            - variable: input_variable
+            - semicolon: ;
+        - keyword: END
+        - keyword: IF
+        - semicolon: ;
+    - keyword: RETURN
+    - expression:
+        column_reference:
+          identifier: res
+    - semicolon: ;
+    - keyword: END
+    - function_reference:
+        identifier: if_function
+    - semicolon: ;
+- statement_terminator: /
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_reference:
+        identifier: for_loop_function
+    - bracketed:
+        start_bracket: (
+        end_bracket: )
+    - keyword: RETURN
+    - data_type:
+        data_type_identifier: VARCHAR
+        bracketed:
+          start_bracket: (
+          expression:
+            literal: '10'
+          end_bracket: )
+    - keyword: AS
+    - variable: res
+    - data_type:
+        data_type_identifier: DECIMAL
+    - semicolon: ;
+    - keyword: BEGIN
+    - function_body:
+        function_for_loop:
+        - keyword: FOR
+        - identifier: cnt
+        - assignment_operator: :=
+        - expression:
+            literal: '1'
+        - keyword: TO
+        - expression:
+            column_reference:
+              identifier: input_variable
+        - keyword: DO
+        - function_body:
+            function_assignment:
+              variable: res
+              assignment_operator: :=
+              expression:
+                column_reference:
+                  identifier: res
+                binary_operator: '*'
+                literal: '2'
+              semicolon: ;
+        - keyword: END
+        - keyword: FOR
+        - semicolon: ;
+    - keyword: RETURN
+    - expression:
+        column_reference:
+          identifier: res
+    - semicolon: ;
+    - keyword: END
+    - function_reference:
+        identifier: for_loop_function
+    - semicolon: ;
+- statement_terminator: /
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_reference:
+        identifier: for_loop_function2
+    - bracketed:
+        start_bracket: (
+        end_bracket: )
+    - keyword: RETURN
+    - data_type:
+        data_type_identifier: VARCHAR
+        bracketed:
+          start_bracket: (
+          expression:
+            literal: '10'
+          end_bracket: )
+    - keyword: AS
+    - variable: res
+    - data_type:
+        data_type_identifier: DECIMAL
+    - semicolon: ;
+    - keyword: BEGIN
+    - function_body:
+        function_for_loop:
+        - keyword: FOR
+        - identifier: cnt
+        - keyword: IN
+        - expression:
+            literal: '1'
+        - range_operator: ..
+        - expression:
+            literal: '10'
+        - keyword: LOOP
+        - function_body:
+            function_assignment:
+              variable: res
+              assignment_operator: :=
+              expression:
+                column_reference:
+                  identifier: res
+                binary_operator: '*'
+                literal: '2'
+              semicolon: ;
+        - keyword: END
+        - keyword: LOOP
+        - semicolon: ;
+    - keyword: RETURN
+    - expression:
+        column_reference:
+          identifier: res
+    - semicolon: ;
+    - keyword: END
+    - function_reference:
+        identifier: for_loop_function2
+    - semicolon: ;
+- statement_terminator: /
+- statement:
+    create_function_statement:
+      unparsable:
+      - keyword: CREATE
+      - keyword: FUNCTION
+      - raw: for_loop_function3
+      - bracketed:
+          start_bracket: (
+          end_bracket: )
+      - raw: RETURN
+      - raw: VARCHAR
+      - bracketed:
+          start_bracket: (
+          expression:
+            literal: '10'
+          end_bracket: )
+      - raw: AS
+      - raw: res
+      - raw: DECIMAL
+      - raw: ;
+      - raw: BEGIN
+      - raw: WHILE
+      - raw: cnt
+      - raw: <=
+      - raw: input_variable
+      - raw: DO
+      - raw: res
+      - walrus_operator: :=
+      - raw: res
+      - raw: '*'
+      - raw: '2'
+      - raw: ;
+      - raw: cnt
+      - walrus_operator: :=
+      - raw: cnt
+      - raw: +
+      - raw: '1'
+      - raw: ;
+      - raw: END
+      - raw: WHILE
+      - raw: ;
+      - raw: END
+      - raw: for_loop_function3
+      - semicolon: ;
+- statement_terminator: /
