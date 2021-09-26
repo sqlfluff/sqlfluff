@@ -319,23 +319,23 @@ class AlterTableStatementSegment(BaseSegment):
                 ),
                 Ref("CommentGrammar", optional=True),
                 # # TODO : Add to Spark dialect - ColPositionGrammar
-                # OneOf(
-                #     "FIRST",
-                #     Sequence(
-                #         "AFTER", Ref("ColumnReferenceSegment")
-                #     ),
-                #     optional=True
-                # ),
-                # Sequence(
-                #     OneOf("SET", "DROP"), "NOT NULL", optional=True
-                # ),
+                OneOf(
+                    "FIRST",
+                    Sequence(
+                        "AFTER", Ref("ColumnReferenceSegment")
+                    ),
+                    optional=True
+                ),
+                Sequence(
+                    OneOf("SET", "DROP"), "NOT NULL", optional=True
+                ),
             ),
-    #         # ALTER TABLE - ADD PARTITION
-    #         Sequence(
-    #             "ADD",
-    #             Ref("IfNotExistsGrammar", optional=True),
-    #             Ref("PartitionSpecGrammar")
-    #         ),
+            # ALTER TABLE - ADD PARTITION
+            Sequence(
+                "ADD",
+                Ref("IfNotExistsGrammar", optional=True),
+                Ref("PartitionSpecGrammar")
+            ),
     #         # ALTER TABLE - DROP PARTITION
     #         Sequence(
     #             "DROP",
