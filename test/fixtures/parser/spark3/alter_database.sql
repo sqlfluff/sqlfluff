@@ -1,8 +1,17 @@
-ALTER DATABASE database_name SET DBPROPERTIES (
-    "property_name1" = "property_value1"
+ALTER DATABASE inventory SET DBPROPERTIES (
+    'Edited-by' = 'John'
 );
 
-ALTER DATABASE database_name SET DBPROPERTIES (
-    "property_name1" = "property_value1",
-    "property_name2" = "property_value2"
+ALTER DATABASE inventory SET DBPROPERTIES (
+    'Edited-by' = 'John',
+    'Edit-date' = '01/01/2001'
+);
+
+ALTER SCHEMA inventory SET DBPROPERTIES (
+    'Edited-by' = 'John'
+);
+
+ALTER SCHEMA inventory SET DBPROPERTIES (
+    'Edited-by' = 'John',
+    'Edit-date' = '01/01/2001'
 );
