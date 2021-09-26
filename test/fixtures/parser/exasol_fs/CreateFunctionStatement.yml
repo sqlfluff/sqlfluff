@@ -1,0 +1,116 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 30b18c4d4c9cbf95c6d2898f197c4fb132333a0944fc83d89f0fcf65d79bcfa7
+file:
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - binary_operator: OR
+    - keyword: REPLACE
+    - keyword: FUNCTION
+    - function_reference:
+        identifier: percentage
+    - bracketed:
+      - start_bracket: (
+      - identifier: fraction
+      - data_type:
+          data_type_identifier: DECIMAL
+      - comma: ','
+      - identifier: entirety
+      - data_type:
+          data_type_identifier: DECIMAL
+      - end_bracket: )
+    - keyword: RETURN
+    - data_type:
+        data_type_identifier: VARCHAR
+        bracketed:
+          start_bracket: (
+          expression:
+            literal: '10'
+          end_bracket: )
+    - keyword: IS
+    - variable: res
+    - data_type:
+        data_type_identifier: DECIMAL
+    - semicolon: ;
+    - keyword: BEGIN
+    - function_body:
+        function_assignment:
+          variable: res
+          assignment_operator: :=
+          expression:
+            bracketed:
+              start_bracket: (
+              expression:
+                literal: '100'
+                binary_operator: '*'
+                column_reference:
+                  identifier: fraction
+              end_bracket: )
+            binary_operator: /
+            column_reference:
+              identifier: entirety
+          semicolon: ;
+    - keyword: RETURN
+    - expression:
+        column_reference:
+          identifier: res
+        binary_operator: '||'
+        literal: "' %'"
+    - semicolon: ;
+    - keyword: END
+    - function_reference:
+        identifier: percentage
+    - semicolon: ;
+- statement_terminator: /
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_reference:
+        identifier: hello
+    - bracketed:
+        start_bracket: (
+        end_bracket: )
+    - keyword: RETURN
+    - data_type:
+        data_type_identifier: VARCHAR
+        bracketed:
+          start_bracket: (
+          expression:
+            literal: '10'
+          end_bracket: )
+    - keyword: AS
+    - variable: res
+    - data_type:
+        data_type_identifier: DECIMAL
+    - semicolon: ;
+    - keyword: BEGIN
+    - function_body:
+        function_assignment:
+          variable: res
+          assignment_operator: :=
+          function:
+            function_name:
+              identifier: hello
+              dot: .
+              function_name_identifier: world
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  identifier: '"no"'
+              end_bracket: )
+          semicolon: ;
+    - keyword: RETURN
+    - expression:
+        literal: "'HELLO'"
+    - semicolon: ;
+    - keyword: END
+    - function_reference:
+        identifier: hello
+    - semicolon: ;
+- statement_terminator: ' /'

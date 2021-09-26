@@ -1,0 +1,205 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 2884210bbc723dc66cc684f52720582c1754edd8e38e02bc0c34dd031b80c20a
+file:
+- statement:
+    access_statement:
+      keyword: GRANT
+      grant_revoke_system_privileges:
+        system_privilege:
+        - keyword: CREATE
+        - keyword: SCHEMA
+        keyword: TO
+        identifier: role1
+- statement_terminator: ;
+- statement:
+    access_statement:
+      keyword: GRANT
+      grant_revoke_system_privileges:
+      - system_privilege:
+        - keyword: SELECT
+        - keyword: ANY
+        - keyword: TABLE
+      - keyword: TO
+      - identifier: user1
+      - keyword: WITH
+      - keyword: ADMIN
+      - keyword: OPTION
+- statement_terminator: ;
+- statement:
+    access_statement:
+      keyword: GRANT
+      grant_revoke_object_privileges:
+      - obejct_privilege:
+          keyword: INSERT
+      - keyword: 'ON'
+      - object_reference:
+        - identifier: my_schema
+        - dot: .
+        - identifier: my_table
+      - keyword: TO
+      - identifier: user1
+      - comma: ','
+      - identifier: role2
+- statement_terminator: ;
+- statement:
+    access_statement:
+      keyword: GRANT
+      grant_revoke_object_privileges:
+      - obejct_privilege:
+          keyword: SELECT
+      - keyword: 'ON'
+      - keyword: VIEW
+      - object_reference:
+        - identifier: my_schema
+        - dot: .
+        - identifier: my_view
+      - keyword: TO
+      - identifier: user1
+- statement_terminator: ;
+- statement:
+    access_statement:
+      keyword: GRANT
+      grant_revoke_object_privileges:
+      - obejct_privilege:
+          keyword: SELECT
+      - keyword: 'ON'
+      - object_reference:
+        - identifier: my_schema
+        - dot: .
+        - identifier: my_view
+      - keyword: TO
+      - identifier: PUBLIC
+- statement_terminator: ;
+- statement:
+    access_statement:
+      keyword: GRANT
+      grant_revoke_roles:
+      - identifier: role1
+      - keyword: TO
+      - identifier: user1
+      - comma: ','
+      - identifier: user2
+      - keyword: WITH
+      - keyword: ADMIN
+      - keyword: OPTION
+- statement_terminator: ;
+- statement:
+    access_statement:
+      keyword: GRANT
+      grant_revoke_roles:
+      - identifier: role2
+      - keyword: TO
+      - identifier: role1
+- statement_terminator: ;
+- statement:
+    access_statement:
+      keyword: GRANT
+      grant_revoke_impersonation:
+      - keyword: IMPERSONATION
+      - keyword: 'ON'
+      - identifier: user2
+      - keyword: TO
+      - identifier: user1
+- statement_terminator: ;
+- statement:
+    access_statement:
+      keyword: GRANT
+      grant_revoke_connection:
+      - keyword: CONNECTION
+      - identifier: my_connection
+      - keyword: TO
+      - identifier: user1
+- statement_terminator: ;
+- statement:
+    access_statement:
+      keyword: GRANT
+      grant_revoke_connection_restricted:
+      - keyword: ACCESS
+      - keyword: 'ON'
+      - keyword: CONNECTION
+      - identifier: my_connection
+      - keyword: FOR
+      - keyword: SCRIPT
+      - identifier: script1
+      - keyword: TO
+      - identifier: user1
+- statement_terminator: ;
+- statement:
+    access_statement:
+      keyword: REVOKE
+      grant_revoke_system_privileges:
+      - system_privilege:
+        - keyword: CREATE
+        - keyword: SCHEMA
+      - keyword: FROM
+      - identifier: role1
+      - comma: ','
+      - identifier: user3
+- statement_terminator: ;
+- statement:
+    access_statement:
+      keyword: REVOKE
+      grant_revoke_object_privileges:
+      - obejct_privilege:
+          keyword: SELECT
+      - comma: ','
+      - obejct_privilege:
+          keyword: INSERT
+      - keyword: 'ON'
+      - object_reference:
+        - identifier: my_schema
+        - dot: .
+        - identifier: my_table
+      - keyword: FROM
+      - identifier: user1
+      - comma: ','
+      - identifier: role2
+- statement_terminator: ;
+- statement:
+    access_statement:
+      keyword: REVOKE
+      grant_revoke_object_privileges:
+      - keyword: ALL
+      - keyword: PRIVILEGES
+      - keyword: 'ON'
+      - keyword: VIEW
+      - object_reference:
+        - identifier: my_schema
+        - dot: .
+        - identifier: my_view
+      - keyword: FROM
+      - identifier: PUBLIC
+- statement_terminator: ;
+- statement:
+    access_statement:
+      keyword: REVOKE
+      grant_revoke_roles:
+      - identifier: role1
+      - keyword: FROM
+      - identifier: user1
+      - comma: ','
+      - identifier: user2
+- statement_terminator: ;
+- statement:
+    access_statement:
+      keyword: REVOKE
+      grant_revoke_impersonation:
+      - keyword: IMPERSONATION
+      - keyword: 'ON'
+      - identifier: user2
+      - keyword: FROM
+      - identifier: user1
+- statement_terminator: ;
+- statement:
+    access_statement:
+      keyword: REVOKE
+      grant_revoke_connection:
+      - keyword: CONNECTION
+      - identifier: my_connection
+      - keyword: FROM
+      - identifier: user1
+- statement_terminator: ;

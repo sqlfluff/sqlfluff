@@ -1,0 +1,89 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 684a0f6cb4b34b5c0c1bb23a3e10f05b130ce101ace4ae4131c0a3dbedd4889b
+file:
+  statement:
+    create_udf_script:
+    - keyword: CREATE
+    - keyword: LUA
+    - keyword: SCALAR
+    - keyword: SCRIPT
+    - script_reference:
+        identifier: map_words
+    - bracketed:
+        start_bracket: (
+        column_datatype_definition:
+          identifier: w
+          data_type:
+            data_type_identifier: varchar
+            bracketed:
+              start_bracket: (
+              expression:
+                literal: '10000'
+              end_bracket: )
+        end_bracket: )
+    - keyword: EMITS
+    - bracketed:
+        start_bracket: (
+        column_datatype_definition:
+          identifier: words
+          data_type:
+            data_type_identifier: varchar
+            bracketed:
+              start_bracket: (
+              expression:
+                literal: '100'
+              end_bracket: )
+        end_bracket: )
+    - keyword: AS
+    - script_content:
+      - raw: function
+      - raw: run
+      - bracketed:
+          start_bracket: (
+          raw: ctx
+          end_bracket: )
+      - raw: local
+      - raw: word
+      - raw: '='
+      - raw: ctx
+      - raw: .
+      - raw: w
+      - raw: if
+      - bracketed:
+        - start_bracket: (
+        - raw: word
+        - raw: '~'
+        - raw: '='
+        - raw: 'null'
+        - end_bracket: )
+      - raw: then
+      - raw: for
+      - raw: i
+      - raw: in
+      - raw: unicode
+      - raw: .
+      - raw: utf8
+      - raw: .
+      - raw: gmatch
+      - bracketed:
+        - start_bracket: (
+        - raw: word
+        - comma: ','
+        - raw: "'([%w%p]+)'"
+        - end_bracket: )
+      - raw: do
+      - raw: ctx
+      - raw: .
+      - raw: emit
+      - bracketed:
+          start_bracket: (
+          raw: i
+          end_bracket: )
+      - raw: end
+      - raw: end
+      - raw: end
+  statement_terminator: /
