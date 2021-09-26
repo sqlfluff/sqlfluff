@@ -334,12 +334,43 @@ test_pass_indent_snowflake:
 test_pass_indent_indent_bigquery:
   pass_str: |
     with source_data as (
-        select * from {{ source('source_name', 'xxx_yyy_zzz') }}   
+        select * from {{ source('source_name', 'xxx_yyy_zzz') }}
     )
 
     select *
     from source_data
-  
+
   configs:
     core:
       dialect: bigquery
+
+
+test_jinja_indent_1:
+  fail_str: |
+    {% set product = 'table1' %}
+    {% set considered_actions = ['uses_small_subject_line', 'uses_personal_to'] %}
+    {% set corr_states="state_user_v_peer_open\n ,business_type" %}
+    {% set metric='open' %}
+
+    SELECT
+      {{corr_states}}
+      {% for action in considered_actions %}
+      ,{{metric}}_{{action}}
+      ,campaign_count_{{action}}
+      {% endfor %}
+    FROM
+      {{ product }}
+  fix_str: |
+    {% set product = 'table1' %}
+    {% set considered_actions = ['uses_small_subject_line', 'uses_personal_to'] %}
+    {% set corr_states="state_user_v_peer_open\n ,business_type" %}
+    {% set metric='open' %}
+
+    SELECT
+        {{corr_states}}
+        {% for action in considered_actions %}
+        ,{{metric}}_{{action}}
+        ,campaign_count_{{action}}
+        {% endfor %}
+    FROM
+        {{ product }}

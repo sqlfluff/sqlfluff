@@ -86,7 +86,6 @@ def assert_rule_fail_in_sql(code, sql, configs=None, line_numbers=None):
         return linted.tree.raw
 
 
-
 def assert_rule_pass_in_sql(code, sql, configs=None):
     """Assert that a given rule doesn't fail on the given sql."""
     # Configs allows overrides if we want to use them.
