@@ -48,6 +48,7 @@ setup(
         "formatter",
         "bigquery",
         "exasol",
+        "hive",
         "mysql",
         "postgres",
         "snowflake",
