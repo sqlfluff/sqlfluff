@@ -274,7 +274,7 @@ class Rule_L003(BaseRule):
             return LintResult(memory=memory)
 
         res = self._process_raw_stack(
-            raw_stack + (segment,), tab_space_size=self.tab_space_size
+            raw_stack, tab_space_size=self.tab_space_size
         )
         return self._process_current_line(res, memory)
 
