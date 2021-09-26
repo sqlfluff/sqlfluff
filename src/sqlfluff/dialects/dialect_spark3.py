@@ -336,13 +336,13 @@ class AlterTableStatementSegment(BaseSegment):
                 Ref("IfNotExistsGrammar", optional=True),
                 Ref("PartitionSpecGrammar")
             ),
-    #         # ALTER TABLE - DROP PARTITION
-    #         Sequence(
-    #             "DROP",
-    #             Ref("IfExistsGrammar", optional=True),
-    #             Ref("PartitionSpecGrammar"),
-    #             Sequence("PURGE", optional=True),
-    #         ),
+            # ALTER TABLE - DROP PARTITION
+            Sequence(
+                "DROP",
+                Ref("IfExistsGrammar", optional=True),
+                Ref("PartitionSpecGrammar"),
+                Sequence("PURGE", optional=True),
+            ),
     #         # ALTER TABLE - SET PROPERTIES
     #         Ref("SetTablePropertiesGrammar"),
     #         # ALTER TABLE - UNSET PROPERTIES

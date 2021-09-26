@@ -21,9 +21,9 @@ ALTER TABLE StudentInfo CHANGE COLUMN Name COMMENT "new comment" ;
 ---- Add a new partition to a table
 ALTER TABLE StudentInfo ADD IF NOT EXISTS PARTITION (Age = 18);
 
----- Drop a partition from the table
---ALTER TABLE StudentInfo DROP IF EXISTS PARTITION (age=18);
---
+-- Drop a partition from the table
+ALTER TABLE StudentInfo DROP IF EXISTS PARTITION (Age = 18);
+
 ---- Adding multiple partitions to the table
 --ALTER TABLE StudentInfo ADD
 --    IF NOT EXISTS PARTITION (age=18) PARTITION (age=20);
