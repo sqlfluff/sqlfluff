@@ -8,6 +8,9 @@ ALTER TABLE Default.StudentInfo PARTITION (
     Age = '15'
 );
 
+-- Add new columns to a table
+ALTER TABLE StudentInfo ADD COLUMNS (LastName STRING, DOB TIMESTAMP);
+
 -- ALTER OR CHANGE COLUMNS
 ALTER TABLE StudentInfo --ALTER --COLUMN --Name --COMMENT "new comment";
 

@@ -169,7 +169,9 @@ class PrimitiveTypeSegment(BaseSegment):
     type = "primitive_type"
     match_grammar = OneOf(
         "BOOLEAN",
+        # "BYTE",  # TODO : not currently supported
         "TINYINT",
+        # "SHORT", # TODO : not currently supported
         "SMALLINT",
         "INT",
         "BIGINT",
