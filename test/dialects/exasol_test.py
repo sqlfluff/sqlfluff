@@ -1,13 +1,10 @@
 """Tests specific to the exasol dialect."""
 import pytest
 
-from sqlfluff.core.dialects import dialect_selector
-
 TEST_DIALECT = "exasol"
 
+
 # Develop test to check specific elements against specific grammars.
-
-
 @pytest.mark.parametrize(
     "segmentref,raw",
     [

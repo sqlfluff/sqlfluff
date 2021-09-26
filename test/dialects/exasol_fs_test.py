@@ -1,6 +1,5 @@
 """Tests specific to the exasol_fs dialect."""
 import pytest
-from sqlfluff.core.dialects import dialect_selector
 
 TEST_DIALECT = "exasol_fs"
 
