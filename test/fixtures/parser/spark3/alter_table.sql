@@ -29,6 +29,12 @@ ALTER TABLE StudentInfo ADD IF NOT EXISTS PARTITION (
 -- Drop a partition from the table
 ALTER TABLE StudentInfo DROP IF EXISTS PARTITION (Age = 18);
 
+-- SET TABLE PROPERTIES
+ALTER TABLE Dbx.Tab1 SET TBLPROPERTIES ('winner' = 'loser');
+
+-- DROP TABLE PROPERTIES
+ALTER TABLE Dbx.Tab1 UNSET TBLPROPERTIES ('winner');
+
 ---- Change the fileformat
 --ALTER TABLE loc_orc SET fileformat orc;
 --
@@ -45,14 +51,8 @@ ALTER TABLE StudentInfo DROP IF EXISTS PARTITION (Age = 18);
 --ALTER TABLE dbx.tab1 SET SERDE'org.apache.hadoop'
 --    WITH SERDEPROPERTIES ('k' = 'v', 'kay' = 'vee')
 --
----- SET TABLE PROPERTIES
---ALTER TABLE dbx.tab1 SET TBLPROPERTIES ('winner' = 'loser');
---
 ---- SET TABLE COMMENT Using SET PROPERTIES
 --ALTER TABLE dbx.tab1 SET TBLPROPERTIES ('comment' = 'A table comment.');
 --
 ---- Alter TABLE COMMENT Using SET PROPERTIES
 --ALTER TABLE dbx.tab1 SET TBLPROPERTIES ('comment' = 'This is a new comment.');
---
----- DROP TABLE PROPERTIES
---ALTER TABLE dbx.tab1 UNSET TBLPROPERTIES ('winner');

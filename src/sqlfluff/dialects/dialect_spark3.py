@@ -140,7 +140,7 @@ spark3_dialect.add(
         "UNSET",
         "TBLPROPERTIES",
         Ref("IfExistsGrammar", optional=True),
-        Ref("SingleOrDoubleQuotedLiteralGrammar"),
+        Bracketed(Delimited(Ref("SingleOrDoubleQuotedLiteralGrammar"))),
     ),
 )
 spark3_dialect.replace(
@@ -343,10 +343,10 @@ class AlterTableStatementSegment(BaseSegment):
                 Ref("PartitionSpecGrammar"),
                 Sequence("PURGE", optional=True),
             ),
-    #         # ALTER TABLE - SET PROPERTIES
-    #         Ref("SetTablePropertiesGrammar"),
-    #         # ALTER TABLE - UNSET PROPERTIES
-    #         Ref("UnsetTablePropertiesGrammar"),
+            # ALTER TABLE - SET PROPERTIES
+            Ref("SetTablePropertiesGrammar"),
+            # ALTER TABLE - UNSET PROPERTIES
+            Ref("UnsetTablePropertiesGrammar"),
     #         # ALTER TABLE - SET SERDE
     #         Sequence(
     #             Ref("PartitionSpecGrammar"),
