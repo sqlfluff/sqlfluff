@@ -26,6 +26,7 @@ Although SQL is reasonably consistent in its implementations, there are several 
 - [MySQL](https://www.mysql.com/)
 - [PostgreSQL](https://www.postgresql.org/) (aka Postgres)
 - [Snowflake](https://www.snowflake.com/)
+- [SQLite](https://www.sqlite.org/)
 - [Teradata](https://www.teradata.com/)
 - [Transact-SQL](https://docs.microsoft.com/en-us/sql/t-sql/language-reference) (aka T-SQL)
 

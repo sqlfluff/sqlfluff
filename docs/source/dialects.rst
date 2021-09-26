@@ -52,6 +52,24 @@ to be a representation of vanilla SQL before any other project adds their
 spin to it, and so may contain a slightly wider set of functions than actually
 available in true ANSI SQL.
 
+.. _bigquery_dialect_ref:
+
+BigQuery
+--------
+
+The dialect for `Google BigQuery`_.
+
+.. _`Google BigQuery`: https://cloud.google.com/bigquery/
+
+.. _mysql_dialect_ref:
+
+MySql
+-----
+
+The dialect for `MySQL`_.
+
+.. _`MySQL`: https://www.mysql.com/
+
 .. _postgres_dialect_ref:
 
 PostgreSQL
@@ -67,33 +85,6 @@ the dialect to use (until someone makes a specific dialect).
 .. _`AWS Redshift`: https://aws.amazon.com/redshift/
 .. _`Greenplum`: https://greenplum.org/
 
-.. _mysql_dialect_ref:
-
-MySql
------
-
-The dialect for `MySQL`_.
-
-.. _`MySQL`: https://www.mysql.com/
-
-.. _teradata_dialect_ref:
-
-Teradata
---------
-
-The dialect for `Teradata`_.
-
-.. _`Teradata`: https://www.teradata.co.uk/
-
-.. _bigquery_dialect_ref:
-
-BigQuery
---------
-
-The dialect for `Google BigQuery`_.
-
-.. _`Google BigQuery`: https://cloud.google.com/bigquery/
-
 .. _snowflake_dialect_ref:
 
 Snowflake
@@ -103,3 +94,22 @@ The dialect for `Snowflake`_, which has much of its syntax
 inherited from :ref:`postgres_dialect_ref`.
 
 .. _`Snowflake`: https://docs.snowflake.com/en/sql-reference.html
+
+.. _sqlite_dialect_ref:
+
+SQLite
+---------
+
+The dialect for `SQLite`_, which has much of its syntax
+inherited from :ref:`postgres_dialect_ref`.
+
+.. _`SQLite`: https://www.sqlite.org/
+
+.. _teradata_dialect_ref:
+
+Teradata
+--------
+
+The dialect for `Teradata`_.
+
+.. _`Teradata`: https://www.teradata.co.uk/
