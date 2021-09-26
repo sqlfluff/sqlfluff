@@ -644,6 +644,7 @@ class Rule_L003(BaseRule):
     @classmethod
     def _find_trigger(cls, line, memory):
         memory["in_indent"] = True
+        placeholder = None
         for segment in line:
             # if segment.is_type("newline"):
             #     memory["in_indent"] = True
@@ -656,8 +657,9 @@ class Rule_L003(BaseRule):
                     # it's not a raw segment or placeholder. Carry on.
                     pass
                 elif segment.is_type("placeholder"):
-                    # it's a placeholder. Carry on.
-                    pass
+                    # it's a placeholder. Remember it and carry on.
+                    if not placeholder:
+                        placeholder = segment
                 else:
                     memory["in_indent"] = False
                     # we're found a non-whitespace element. This is our trigger.
@@ -665,3 +667,4 @@ class Rule_L003(BaseRule):
             else:
                 # Not in indent and not a newline, don't trigger here.
                 pass
+        return placeholder
