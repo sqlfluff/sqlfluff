@@ -169,9 +169,7 @@ class PrimitiveTypeSegment(BaseSegment):
     type = "primitive_type"
     match_grammar = OneOf(
         "BOOLEAN",
-        "BYTE",
         "TINYINT",
-        "SHORT",
         "SMALLINT",
         "INT",
         "BIGINT",
@@ -182,7 +180,7 @@ class PrimitiveTypeSegment(BaseSegment):
         "TIMESTAMP",
         "STRING",
         Sequence(
-            OneOf("CHAR", "VARCHAR"),
+            OneOf("CHAR", "CHARACTER", "VARCHAR"),
             Bracketed(
                 Ref("NumericLiteralSegment"),
                 optional=True
@@ -299,36 +297,36 @@ class AlterTableStatementSegment(BaseSegment):
                 Ref("PartitionSpecGrammar"),
             ),
             # ALTER TABLE - ADD COLUMNS
+            Sequence(
+                "ADD",
+                "COLUMNS",
+                Bracketed(
+                    Delimited(
+                        Ref("ColumnDefinitionSegment"),
+                    ),
+                ),
+            ),
+            # ALTER TABLE - ALTER OR CHANGE COLUMN
             # Sequence(
-            #     "ADD",
-            #     OneOf("COLUMN", "COLUMNS"),
-            #     Bracketed(
-            #         Delimited(
-            #             Ref("ColumnDefinitionSegment"),
-            #         ),
-            #     )
+                # OneOf("ALTER", "CHANGE"),
+                # "COLUMN",
+                # Ref("ColumnReferenceSegment"),
+                # Sequence(
+                #     "TYPE", Ref("DatatypeSegment"), optional=True
+                # ),
+                # Ref("CommentClauseSegment", optional=True),
+                # # TODO : Add to Spark dialect - ColPositionGrammar
+                # OneOf(
+                #     "FIRST",
+                #     Sequence(
+                #         "AFTER", Ref("ColumnReferenceSegment")
+                #     ),
+                #     optional=True
+                # ),
+                # Sequence(
+                #     OneOf("SET", "DROP"), "NOT NULL", optional=True
+                # ),
             # ),
-    #         # ALTER TABLE - ALTER OR CHANGE COLUMN
-    #         Sequence(
-    #             OneOf("ALTER", "CHANGE"),
-    #             "COLUMN",
-    #             Ref("ColumnReferenceSegment"),
-    #             Sequence(
-    #                 "TYPE", Ref("DatatypeSegment"), optional=True
-    #             ),
-    #             Ref("CommentClauseSegment", optional=True),
-    #             # TODO : Add to Spark dialect - ColPositionGrammar
-    #             OneOf(
-    #                 "FIRST",
-    #                 Sequence(
-    #                     "AFTER", Ref("ColumnReferenceSegment")
-    #                 ),
-    #                 optional=True
-    #             ),
-    #             Sequence(
-    #                 OneOf("SET", "DROP"), "NOT NULL", optional=True
-    #             ),
-    #         ),
     #         # ALTER TABLE - ADD PARTITION
     #         Sequence(
     #             "ADD",

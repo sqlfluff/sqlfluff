@@ -8,23 +8,20 @@ ALTER TABLE Default.StudentInfo PARTITION (
     Age = '15'
 );
 
--- Add new columns to a table
---ALTER TABLE StudentInfo ADD COLUMNS (LastName CHARACTER, DOB TIMESTAMP);
+-- ALTER OR CHANGE COLUMNS
+ALTER TABLE StudentInfo --ALTER --COLUMN --Name --COMMENT "new comment";
+
+ALTER TABLE StudentInfo --CHANGE --COLUMN --Name --COMMENT "new comment";
 
 ---- Add a new partition to a table
 --ALTER TABLE StudentInfo ADD IF NOT EXISTS PARTITION (age=18);
---
+
 ---- Drop a partition from the table
 --ALTER TABLE StudentInfo DROP IF EXISTS PARTITION (age=18);
 --
 ---- Adding multiple partitions to the table
 --ALTER TABLE StudentInfo ADD
 --    IF NOT EXISTS PARTITION (age=18) PARTITION (age=20);
---
----- ALTER OR CHANGE COLUMNS
---ALTER TABLE StudentInfo ALTER COLUMN name COMMENT "new comment";
---
---ALTER TABLE StudentInfo CHANGE COLUMN name COMMENT "new comment";
 --
 --
 ---- Change the fileformat
