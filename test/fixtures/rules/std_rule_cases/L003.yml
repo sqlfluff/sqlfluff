@@ -473,7 +473,6 @@ test_jinja_indent_5:
 test_jinja_indent_6:
   fail_str: |
     {% set considered_actions=['uses_personal_to'] %}
-    {% set corr_states="state_user_v_peer_open\n ,business_type" %}
 
     SELECT
     foo
@@ -483,16 +482,17 @@ test_jinja_indent_6:
     -- This next section gets very strange with forced template_blocks_indent
     {{action}}_raw_effect_sizes
     {% else %}
-    JOIN {{action}}_raw_effect_sizes USING ({{corr_states}})
+    JOIN {{action}}_raw_effect_sizes USING (user_id)
     {% endif %}
     {% endfor %}
-    CROSS JOIN action_states
 
-  # TODO: Review the odd indentation of "else" and "endif".
-  # placing the dedent on the following line ("CROSS JOIN").
+
+  # TODO: Review the odd indentation of "else" and "endif". Interestingly:
+  # - If I move the "foo" column onto the same line as "SELECT", it indents
+  #   every line flush left.
+  # - If I remove the comment at line 8, it also indents everything flush left.
   fix_str: |
     {% set considered_actions=['uses_personal_to'] %}
-    {% set corr_states="state_user_v_peer_open\n ,business_type" %}
 
     SELECT
         foo
@@ -502,7 +502,6 @@ test_jinja_indent_6:
         -- This next section gets very strange with forced template_blocks_indent
         {{action}}_raw_effect_sizes
     {% else %}
-    JOIN {{action}}_raw_effect_sizes USING ({{corr_states}})
+    JOIN {{action}}_raw_effect_sizes USING (user_id)
     {% endif %}
         {% endfor %}
-    CROSS JOIN action_states
