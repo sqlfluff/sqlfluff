@@ -370,12 +370,12 @@ class AlterTableStatementSegment(BaseSegment):
                 "FILEFORMAT",
                 Ref("FileFormatGrammar"),
             ),
-    #         # ALTER TABLE - CHANGE FILE LOCATION
-    #         Sequence(
-    #             Ref("PartitionSpecGrammar"),
-    #             "SET",
-    #             Ref("LocationGrammar"),
-    #         ),
+            # ALTER TABLE - CHANGE FILE LOCATION
+            Sequence(
+                Ref("PartitionSpecGrammar"),
+                "SET",
+                Ref("LocationGrammar"),
+            ),
         ),
     )
 

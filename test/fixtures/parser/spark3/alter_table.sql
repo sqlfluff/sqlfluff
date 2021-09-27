@@ -32,6 +32,12 @@ ALTER TABLE StudentInfo DROP IF EXISTS PARTITION (Age = 18);
 -- SET TABLE PROPERTIES
 ALTER TABLE Dbx.Tab1 SET TBLPROPERTIES ('winner' = 'loser');
 
+---- SET TABLE COMMENT Using SET PROPERTIES
+--ALTER TABLE dbx.tab1 SET TBLPROPERTIES ('comment' = 'A table comment.');
+--
+---- Alter TABLE COMMENT Using SET PROPERTIES
+--ALTER TABLE dbx.tab1 SET TBLPROPERTIES ('comment' = 'This is a new comment.');
+
 -- DROP TABLE PROPERTIES
 ALTER TABLE Dbx.Tab1 UNSET TBLPROPERTIES ('winner');
 
@@ -42,20 +48,14 @@ SET SERDEPROPERTIES ( "key1" = "val1", "key2" = "val2");
 ALTER TABLE Test_Tab SET SERDE
 'org.apache.hadoop.hive.serde2.columnar.LazyBinaryColumnarSerDe' ;
 
+--ALTER TABLE dbx.tab1 SET SERDE'org.apache.hadoop'
+--    WITH SERDEPROPERTIES ('k' = 'v', 'kay' = 'vee')
+--
 -- Change the fileformat
 ALTER TABLE Loc_Orc SET FILEFORMAT ORC;
 
 ALTER TABLE P1 PARTITION (Month = 2, Day = 2) SET FILEFORMAT PARQUET;
 
----- Change the file Location
---ALTER TABLE dbx.tab1 PARTITION (a='1', b='2')
---    SET LOCATION '/path/to/part/ways'
---
---ALTER TABLE dbx.tab1 SET SERDE'org.apache.hadoop'
---    WITH SERDEPROPERTIES ('k' = 'v', 'kay' = 'vee')
---
----- SET TABLE COMMENT Using SET PROPERTIES
---ALTER TABLE dbx.tab1 SET TBLPROPERTIES ('comment' = 'A table comment.');
---
----- Alter TABLE COMMENT Using SET PROPERTIES
---ALTER TABLE dbx.tab1 SET TBLPROPERTIES ('comment' = 'This is a new comment.');
+-- Change the file Location
+ALTER TABLE Dbx.Tab1 PARTITION (A = '1', B = '2')
+SET LOCATION '/path/to/part/ways'
