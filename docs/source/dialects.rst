@@ -74,7 +74,7 @@ create statements are currently defined in a separate ``exasol_fs`` dialect.
 .. _hive_dialect_ref:
 
 Hive
-------
+----
 
 The dialect for `Hive`_.
 
@@ -82,7 +82,7 @@ The dialect for `Hive`_.
 
 .. _mysql_dialect_ref:
 
-MySql
+MySQL
 -----
 
 The dialect for `MySQL`_.
