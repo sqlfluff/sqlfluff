@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: eda42058bf46667f3008cd65d62cded6b77b42a2d0bd4ebba098380c7feae4aa
+_hash: 116902a9e93751b07acc409d5e2e373b5367604f1695a267341664309152b6e2
 file:
   statement:
     create_table_statement:
@@ -13,24 +13,24 @@ file:
         identifier: colors
     - bracketed:
       - start_bracket: (
-      - column_reference:
+      - column_definition:
           identifier: css_name
-      - data_type:
-          data_type_identifier: TEXT
+          data_type:
+            data_type_identifier: TEXT
       - comma: ','
-      - column_reference:
+      - column_definition:
           identifier: rgb
-      - data_type:
-          data_type_identifier: TEXT
-      - column_constraint_segment:
-          keyword: CHECK
-          bracketed:
-            start_bracket: (
-            expression:
-              column_reference:
-                identifier: rgb
-              keyword: REGEXP
-              literal: "'^#[0-9A-F]{6}$'"
-            end_bracket: )
+          data_type:
+            data_type_identifier: TEXT
+          column_constraint_segment:
+            keyword: CHECK
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  identifier: rgb
+                keyword: REGEXP
+                literal: "'^#[0-9A-F]{6}$'"
+              end_bracket: )
       - end_bracket: )
   statement_terminator: ;

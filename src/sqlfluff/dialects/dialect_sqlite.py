@@ -10,12 +10,9 @@ from sqlfluff.core.parser import (
 
 from sqlfluff.core.dialects import load_raw_dialect
 
-postgres_dialect = load_raw_dialect("postgres")
+ansi_dialect = load_raw_dialect("ansi")
 
-sqlite_dialect = postgres_dialect.copy_as("sqlite")
-
-# Add the REGEXP keyword
-sqlite_dialect.sets("unreserved_keywords").add("REGEXP")
+sqlite_dialect = ansi_dialect.copy_as("sqlite")
 
 sqlite_dialect.replace(
     BooleanBinaryOperatorGrammar=OneOf(
