@@ -235,32 +235,32 @@ class PivotUnpivotStatementSegment(BaseSegment):
         enforce_whitespace_preceeding_terminator=True,
     )
     parse_grammar = Sequence(
-            OneOf(
-                Sequence(
-                    "PIVOT", 
-                    OptionallyBracketed(
-                        Sequence(
-                            OptionallyBracketed(Ref("FunctionSegment")),
-                            "FOR",
-                            Ref("ColumnReferenceSegment"),
-                            "IN",
-                            Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
-                        )
-                    ),
-                ),
-                Sequence(
-                    "UNPIVOT",
-                    OptionallyBracketed(
-                        Sequence(
-                            OptionallyBracketed(Ref("ColumnReferenceSegment")),
-                            "FOR",
-                            Ref("ColumnReferenceSegment"),
-                            "IN",
-                            Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
-                        )
-                    ),
+        OneOf(
+            Sequence(
+                "PIVOT",
+                OptionallyBracketed(
+                    Sequence(
+                        OptionallyBracketed(Ref("FunctionSegment")),
+                        "FOR",
+                        Ref("ColumnReferenceSegment"),
+                        "IN",
+                        Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+                    )
                 ),
             ),
+            Sequence(
+                "UNPIVOT",
+                OptionallyBracketed(
+                    Sequence(
+                        OptionallyBracketed(Ref("ColumnReferenceSegment")),
+                        "FOR",
+                        Ref("ColumnReferenceSegment"),
+                        "IN",
+                        Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+                    )
+                ),
+            ),
+        ),
         "AS",
         Ref("TableReferenceSegment"),
     )
