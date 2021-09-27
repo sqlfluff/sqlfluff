@@ -32,11 +32,11 @@ ALTER TABLE StudentInfo DROP IF EXISTS PARTITION (Age = 18);
 -- SET TABLE PROPERTIES
 ALTER TABLE Dbx.Tab1 SET TBLPROPERTIES ('winner' = 'loser');
 
----- SET TABLE COMMENT Using SET PROPERTIES
---ALTER TABLE dbx.tab1 SET TBLPROPERTIES ('comment' = 'A table comment.');
---
----- Alter TABLE COMMENT Using SET PROPERTIES
---ALTER TABLE dbx.tab1 SET TBLPROPERTIES ('comment' = 'This is a new comment.');
+-- SET TABLE COMMENT Using SET PROPERTIES
+ALTER TABLE Dbx.Tab1 SET TBLPROPERTIES ('comment' = 'A table comment.');
+
+-- Alter TABLE COMMENT Using SET PROPERTIES
+ALTER TABLE Dbx.Tab1 SET TBLPROPERTIES ('comment' = 'This is a new comment.');
 
 -- DROP TABLE PROPERTIES
 ALTER TABLE Dbx.Tab1 UNSET TBLPROPERTIES ('winner');
@@ -48,9 +48,9 @@ SET SERDEPROPERTIES ( "key1" = "val1", "key2" = "val2");
 ALTER TABLE Test_Tab SET SERDE
 'org.apache.hadoop.hive.serde2.columnar.LazyBinaryColumnarSerDe' ;
 
---ALTER TABLE dbx.tab1 SET SERDE'org.apache.hadoop'
---    WITH SERDEPROPERTIES ('k' = 'v', 'kay' = 'vee')
---
+ALTER TABLE Dbx.Tab1 SET SERDE 'org.apache.hadoop'
+WITH SERDEPROPERTIES ('k' = 'v', 'kay' = 'vee');
+
 -- Change the fileformat
 ALTER TABLE Loc_Orc SET FILEFORMAT ORC;
 
