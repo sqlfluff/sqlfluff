@@ -27,7 +27,7 @@ class Rule_L001(BaseRule):
         FROM foo
     """
 
-    def _eval(self, segment, raw_stack, **kwargs):
+    def _eval(self, segment, raw_stack, templated_file, **kwargs):
         """Unnecessary trailing whitespace.
 
         Look for newline segments, and then evaluate what
@@ -45,7 +45,25 @@ class Rule_L001(BaseRule):
             while abs(idx) <= len(raw_stack) and raw_stack[idx].is_type("whitespace"):
                 deletions.append(raw_stack[idx])
                 idx -= 1
-            return LintResult(
-                anchor=deletions[-1], fixes=[LintFix("delete", d) for d in deletions]
+            last_deletion_slice = deletions[-1].pos_marker.source_slice
+
+            # Check the raw source (before template expansion) immediately
+            # following the whitespace we want to delete. Often, what looks
+            # like trailing whitespace in rendered SQL is actually a line like:
+            # "    {% for elem in elements %}\n", in which case the code is
+            # fine -- it's not trailing whitespace from a source code
+            # perspective.
+            next_raw_slice = templated_file.raw_slices_spanning_source_slice(
+                slice(last_deletion_slice.stop, last_deletion_slice.stop)
             )
+            # If the next slice is literal, that means it's regular code, so
+            # it's safe to delete the trailing whitespace. If it's anything
+            # else, it's template code, so don't delete the whitespace because
+            # it's not REALLY trailing whitespace in terms of the raw source
+            # code.
+            if next_raw_slice[0].slice_type == "literal":
+                return LintResult(
+                    anchor=deletions[-1],
+                    fixes=[LintFix("delete", d) for d in deletions],
+                )
         return LintResult()

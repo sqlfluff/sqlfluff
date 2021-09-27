@@ -195,7 +195,7 @@ def test__templater_python_slice_template(test, result):
     assert "".join(elem[0] for elem in resp) == test
     # check indices
     idx = 0
-    for literal, _, pos in resp:
+    for literal, _, pos, _ in resp:
         assert pos == idx
         idx += len(literal)
     # Check total result

@@ -129,3 +129,30 @@ test_compute_line_length_before_template_expansion_2:
         context:
           bi_ecommerce_orders_bi_ecommerce_orders: bq-business-intelligence.user.ecommerce_orders
           table_alias_table_alias_table_alias_table_alias_table_alias_table_alias: t
+
+
+test_long_jina_comment:
+  fail_str: |
+    SELECT *
+    {# comment #}
+    {# ........................................................................... #}
+    FROM table
+  configs:
+    rules:
+      max_line_length: 80
+      L016:
+        ignore_comment_lines: False
+
+
+test_long_jina_comment_ignore:
+  # A Jinja comment is not seen as a SQL comment (perhaps it should be?) so should still fail
+  fail_str: |
+    SELECT *
+    {# comment #}
+    {# ........................................................................... #}
+    FROM table
+  configs:
+    rules:
+      max_line_length: 80
+      L016:
+        ignore_comment_lines: True

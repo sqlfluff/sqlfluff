@@ -57,7 +57,7 @@ class LintedDir:
         """Default overload method."""
         ...
 
-    def check_tuples(self, by_path=False):
+    def check_tuples(self, by_path=False, raise_on_non_linting_violations=True):
         """Compress all the tuples into one list.
 
         NB: This is a little crude, as you can't tell which
@@ -65,11 +65,18 @@ class LintedDir:
         For more control set the `by_path` argument to true.
         """
         if by_path:
-            return {file.path: file.check_tuples() for file in self.files}
+            return {
+                file.path: file.check_tuples(
+                    raise_on_non_linting_violations=raise_on_non_linting_violations
+                )
+                for file in self.files
+            }
         else:
             tuple_buffer: List[CheckTuple] = []
             for file in self.files:
-                tuple_buffer += file.check_tuples()
+                tuple_buffer += file.check_tuples(
+                    raise_on_non_linting_violations=raise_on_non_linting_violations
+                )
             return tuple_buffer
 
     def num_violations(self, **kwargs) -> int:

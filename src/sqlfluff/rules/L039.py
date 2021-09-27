@@ -19,7 +19,7 @@ class Rule_L039(BaseRule):
         FROM foo
 
     | **Best practice**
-    | Unless an indent or preceeding a comment, whitespace should
+    | Unless an indent or preceding a comment, whitespace should
     | be a single space.
 
     .. code-block:: sql

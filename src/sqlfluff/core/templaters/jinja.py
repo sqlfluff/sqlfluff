@@ -3,6 +3,7 @@
 import os.path
 import logging
 import importlib.util
+import re
 from typing import Iterator, Tuple, Optional
 
 from jinja2.sandbox import SandboxedEnvironment
@@ -302,6 +303,9 @@ class JinjaTemplater(PythonTemplater):
             )
             return None, violations
 
+    re_open_tag = re.compile(r"^{%[\+\-]?\s*")
+    re_close_tag = re.compile(r"\s*[\+\-]?%}$")
+
     @classmethod
     def _slice_template(cls, in_str: str) -> Iterator[RawFileSlice]:
         """Slice template in jinja.
@@ -339,10 +343,17 @@ class JinjaTemplater(PythonTemplater):
             # parts of the tag at a time.
             if elem_type.endswith("_end") or elem_type == "raw_begin":
                 block_type = block_types[elem_type]
+                block_subtype = None
                 # Handle starts and ends of blocks
                 if block_type == "block":
                     # Trim off the brackets and then the whitespace
-                    trimmed_content = str_buff[2:-2].strip()
+                    m_open = cls.re_open_tag.search(str_buff)
+                    m_close = cls.re_close_tag.search(str_buff)
+                    trimmed_content = ""
+                    if m_open and m_close:
+                        trimmed_content = str_buff[
+                            len(m_open.group(0)) : -len(m_close.group(0))
+                        ]
                     if trimmed_content.startswith("end"):
                         block_type = "block_end"
                     elif trimmed_content.startswith("el"):
@@ -350,7 +361,9 @@ class JinjaTemplater(PythonTemplater):
                         block_type = "block_mid"
                     else:
                         block_type = "block_start"
-                yield RawFileSlice(str_buff, block_type, idx)
+                        if trimmed_content.split()[0] == "for":
+                            block_subtype = "loop"
+                yield RawFileSlice(str_buff, block_type, idx, block_subtype)
                 idx += len(str_buff)
                 str_buff = ""
 
