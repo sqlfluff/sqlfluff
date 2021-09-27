@@ -1999,6 +1999,7 @@ class ColumnConstraintSegment(BaseSegment):
         ),
         OneOf(
             Sequence(Ref.keyword("NOT", optional=True), "NULL"),  # NOT NULL or NULL
+            Sequence("CHECK", Bracketed(Ref("ExpressionSegment"))),
             Sequence(  # DEFAULT <value>
                 "DEFAULT",
                 OneOf(
