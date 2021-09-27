@@ -48,7 +48,7 @@ class Rule_L008(BaseRule):
         cm1 = raw_stack[-1]
         if cm1.name == "comma":
             # comma followed by something that isn't whitespace?
-            if first_elem.name not in ["whitespace", "newline"]:
+            if first_elem.name not in ["whitespace", "newline", "Dedent"]:
                 self.logger.debug(
                     "Comma followed by something other than whitespace: %s", first_elem
                 )
