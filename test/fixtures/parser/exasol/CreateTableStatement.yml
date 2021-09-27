@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 305c28ddb5ed4dc24fbdb15a2f530f63d8f982e59689d684771f25bcf1797a28
+_hash: 06f4d585f863aeae32bcb5a4c5751c146f85ee52194ffb2b65553b57187cfd85
 file:
 - statement:
     create_table_statement:
@@ -291,10 +291,10 @@ file:
         - column_reference:
             identifier: order_id
         - comma: ','
+        - keyword: PARTITION
+        - keyword: BY
         - column_reference:
-            identifier: PARTITION
-        - raw: BY
-        - raw: order_date
+            identifier: order_date
       - end_bracket: )
     - keyword: COMMENT
     - keyword: IS
