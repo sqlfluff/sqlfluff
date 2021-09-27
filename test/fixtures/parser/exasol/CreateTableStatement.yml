@@ -1,0 +1,343 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 305c28ddb5ed4dc24fbdb15a2f530f63d8f982e59689d684771f25bcf1797a28
+file:
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - identifier: myschema
+      - dot: .
+      - identifier: t1
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          column_datatype_definition:
+            identifier: a
+            data_type:
+              data_type_identifier: VARCHAR
+              bracketed:
+                start_bracket: (
+                expression:
+                  literal: '20'
+                end_bracket: )
+              keyword: UTF8
+      - comma: ','
+      - column_definition:
+          column_datatype_definition:
+            identifier: b
+            data_type:
+              data_type_identifier: DECIMAL
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  literal: '24'
+              - comma: ','
+              - expression:
+                  literal: '4'
+              - end_bracket: )
+          column_option:
+          - table_constraint_definition:
+            - keyword: NOT
+            - keyword: 'NULL'
+          - keyword: COMMENT
+          - keyword: IS
+          - literal: "'The B column'"
+      - comma: ','
+      - column_definition:
+          column_datatype_definition:
+            identifier: c
+            data_type:
+              data_type_identifier: DECIMAL
+          column_option:
+            keyword: DEFAULT
+            literal: '122'
+      - comma: ','
+      - column_definition:
+          column_datatype_definition:
+            identifier: d
+            data_type:
+              data_type_identifier: DOUBLE
+      - comma: ','
+      - column_definition:
+          column_datatype_definition:
+            identifier: e
+            data_type:
+              keyword: TIMESTAMP
+          column_option:
+            keyword: DEFAULT
+            bare_function: CURRENT_TIMESTAMP
+      - comma: ','
+      - column_definition:
+          column_datatype_definition:
+            identifier: f
+            data_type:
+              data_type_identifier: BOOL
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - identifier: '"MYSCHEMA"'
+      - dot: .
+      - identifier: '"T2"'
+    - keyword: AS
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    identifier: t1
+        end_bracket: )
+    - keyword: WITH
+    - keyword: 'NO'
+    - keyword: DATA
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - binary_operator: OR
+    - keyword: REPLACE
+    - keyword: TABLE
+    - table_reference:
+      - identifier: '"MYSCHEMA"'
+      - dot: .
+      - identifier: T2
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              identifier: a
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: b
+        - comma: ','
+        - select_clause_element:
+            expression:
+              column_reference:
+                identifier: c
+              binary_operator: +
+              literal: '1'
+            alias_expression:
+              keyword: AS
+              identifier: c
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: t1
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        identifier: t3
+    - keyword: AS
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              function:
+                function_name:
+                  function_name_identifier: count
+                bracketed:
+                  start_bracket: (
+                  star: '*'
+                  end_bracket: )
+              alias_expression:
+                keyword: AS
+                identifier: my_count
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    identifier: t1
+        end_bracket: )
+    - keyword: WITH
+    - keyword: 'NO'
+    - keyword: DATA
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        identifier: t4
+    - table_like_clause:
+        keyword: LIKE
+        table_reference:
+          identifier: t1
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        identifier: t5
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          column_datatype_definition:
+            identifier: id
+            data_type:
+              data_type_identifier: int
+          column_option:
+            keyword: IDENTITY
+            table_constraint_definition:
+            - keyword: PRIMARY
+            - keyword: KEY
+            - keyword: DISABLE
+      - comma: ','
+      - table_like_clause:
+        - keyword: LIKE
+        - table_reference:
+            identifier: t1
+        - keyword: INCLUDING
+        - keyword: DEFAULTS
+      - comma: ','
+      - column_definition:
+          column_datatype_definition:
+            identifier: g
+            data_type:
+              data_type_identifier: DOUBLE
+      - comma: ','
+      - table_distribution_partition_clause:
+        - keyword: DISTRIBUTE
+        - keyword: BY
+        - column_reference:
+            identifier: a
+        - comma: ','
+        - column_reference:
+            identifier: b
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        identifier: t6
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          column_datatype_definition:
+            identifier: order_id
+            data_type:
+              data_type_identifier: INT
+      - comma: ','
+      - column_definition:
+          column_datatype_definition:
+            identifier: order_price
+            data_type:
+              data_type_identifier: DOUBLE
+      - comma: ','
+      - column_definition:
+          column_datatype_definition:
+            identifier: order_date
+            data_type:
+              data_type_identifier: DATE
+      - comma: ','
+      - column_definition:
+          column_datatype_definition:
+            identifier: country
+            data_type:
+              data_type_identifier: VARCHAR
+              bracketed:
+                start_bracket: (
+                expression:
+                  literal: '40'
+                end_bracket: )
+      - comma: ','
+      - table_constraint_definition:
+        - keyword: CONSTRAINT
+        - identifier: t6_pk
+        - keyword: PRIMARY
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              identifier: order_id
+            end_bracket: )
+      - comma: ','
+      - table_distribution_partition_clause:
+        - keyword: DISTRIBUTE
+        - keyword: BY
+        - column_reference:
+            identifier: order_id
+        - comma: ','
+        - column_reference:
+            identifier: PARTITION
+        - raw: BY
+        - raw: order_date
+      - end_bracket: )
+    - keyword: COMMENT
+    - keyword: IS
+    - literal: "'a great table'"
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - binary_operator: OR
+    - keyword: REPLACE
+    - keyword: TABLE
+    - table_reference:
+        identifier: t8
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          column_datatype_definition:
+            identifier: ref_id
+            data_type:
+              data_type_identifier: int
+          column_option:
+            table_constraint_definition:
+            - keyword: CONSTRAINT
+            - identifier: FK_T5
+            - keyword: REFERENCES
+            - table_reference:
+                identifier: t5
+            - bracketed:
+                start_bracket: (
+                column_reference:
+                  identifier: id
+                end_bracket: )
+            - keyword: DISABLE
+      - comma: ','
+      - column_definition:
+          column_datatype_definition:
+            identifier: b
+            data_type:
+              data_type_identifier: VARCHAR
+              bracketed:
+                start_bracket: (
+                expression:
+                  literal: '20'
+                end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;

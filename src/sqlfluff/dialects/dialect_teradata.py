@@ -822,7 +822,7 @@ class SelectClauseSegment(BaseSegment):
             "LIMIT",
             Ref("SetOperatorSegment"),
         ),
-        enforce_whitespace_preceeding_terminator=True,
+        enforce_whitespace_preceding_terminator=True,
     )
 
     parse_grammar = ansi_dialect.get_segment("SelectClauseSegment").parse_grammar.copy()
