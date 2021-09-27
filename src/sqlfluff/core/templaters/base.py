@@ -302,7 +302,10 @@ class TemplatedFile:
                 return slice(insertion_point, insertion_point)
             # It's within a segment.
             else:
-                if ts_start_subsliced_file[0][0] == "literal":
+                if (
+                    ts_start_subsliced_file
+                    and ts_start_subsliced_file[0][0] == "literal"
+                ):
                     offset = template_slice.start - ts_start_subsliced_file[0][2].start
                     return slice(
                         ts_start_subsliced_file[0][1].start + offset,
