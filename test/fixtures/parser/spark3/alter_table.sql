@@ -35,18 +35,21 @@ ALTER TABLE Dbx.Tab1 SET TBLPROPERTIES ('winner' = 'loser');
 -- DROP TABLE PROPERTIES
 ALTER TABLE Dbx.Tab1 UNSET TBLPROPERTIES ('winner');
 
----- Change the fileformat
---ALTER TABLE loc_orc SET fileformat orc;
---
---ALTER TABLE p1 partition (month=2, day=2) SET fileformat parquet;
---
+-- SET SERDE/ SERDE Properties
+ALTER TABLE Table_Identifier
+SET SERDEPROPERTIES ( "key1" = "val1", "key2" = "val2");
+
+ALTER TABLE Test_Tab SET SERDE
+'org.apache.hadoop.hive.serde2.columnar.LazyBinaryColumnarSerDe' ;
+
+-- Change the fileformat
+ALTER TABLE Loc_Orc SET FILEFORMAT ORC;
+
+ALTER TABLE P1 PARTITION (Month = 2, Day = 2) SET FILEFORMAT PARQUET;
+
 ---- Change the file Location
 --ALTER TABLE dbx.tab1 PARTITION (a='1', b='2')
 --    SET LOCATION '/path/to/part/ways'
---
----- SET SERDE/ SERDE Properties
---ALTER TABLE test_tab SET SERDE
---    'org.apache.hadoop.hive.serde2.columnar.LazyBinaryColumnarSerDe';
 --
 --ALTER TABLE dbx.tab1 SET SERDE'org.apache.hadoop'
 --    WITH SERDEPROPERTIES ('k' = 'v', 'kay' = 'vee')

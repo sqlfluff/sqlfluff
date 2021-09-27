@@ -347,30 +347,29 @@ class AlterTableStatementSegment(BaseSegment):
             Ref("SetTablePropertiesGrammar"),
             # ALTER TABLE - UNSET PROPERTIES
             Ref("UnsetTablePropertiesGrammar"),
-    #         # ALTER TABLE - SET SERDE
-    #         Sequence(
-    #             Ref("PartitionSpecGrammar"),
-    #             "SET",
-    #             OneOf(
-    #                 Sequence(
-    #                     "SERDEPROPERTIES",
-    #                     Ref("BracketedPropertyListGrammar"),
-    #                 ),
-    #                 Sequence(
-    #                     "SERDE",
-    #                     Ref("ParameterNameSegment"),
-    #                     Ref("SerdePropertiesGrammar", optional=True),
-    #                 ),
-    #             ),
-    #
-    #         ),
-    #         # ALTER TABLE - SET FILE FORMAT
-    #         Sequence(
-    #             Ref("PartitionSpecGrammar"),
-    #             "SET",
-    #             "FILEFORMAT",
-    #             Ref("FileFormatGrammar"),
-    #         ),
+            # ALTER TABLE - SET SERDE
+            Sequence(
+                Ref("PartitionSpecGrammar", optional=True),
+                "SET",
+                OneOf(
+                    Sequence(
+                        "SERDEPROPERTIES",
+                        Ref("BracketedPropertyListGrammar"),
+                    ),
+                    Sequence(
+                        "SERDE",
+                        Ref("SingleOrDoubleQuotedLiteralGrammar"),
+                        Ref("SerdePropertiesGrammar", optional=True),
+                    ),
+                ),
+            ),
+            # ALTER TABLE - SET FILE FORMAT
+            Sequence(
+                Ref("PartitionSpecGrammar", optional=True),
+                "SET",
+                "FILEFORMAT",
+                Ref("FileFormatGrammar"),
+            ),
     #         # ALTER TABLE - CHANGE FILE LOCATION
     #         Sequence(
     #             Ref("PartitionSpecGrammar"),
