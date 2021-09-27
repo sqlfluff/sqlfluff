@@ -435,7 +435,41 @@ test_jinja_indent_3:
     indentation:
       template_blocks_indent: false
 
-test_jinja_indent_4:
+test_jinja_indent_4_foobar:
+  fail_str: |
+    SELECT
+    {% for i in [1] %}
+    c{{i}},
+    {% endfor %}
+    10
+
+  fix_str: |
+    SELECT
+        {% for i in [1] %}
+        c{{i}},
+        {% endfor %}
+        10
+
+test_jinja_indent_5_foobar:
+  fail_str: |
+    SELECT
+    {% for i in [1] %}
+    c{{i}},
+    {% endfor %}
+    c10
+    FROM foo
+  fix_str: |
+    SELECT
+        {% for i in [1] %}
+        c{{i}},
+        {% endfor %}
+        c10
+    FROM foo
+  configs:
+    indentation:
+      template_blocks_indent: false
+
+test_jinja_indent_6_foobar:
   fail_str: |
     SELECT
     a
@@ -466,35 +500,3 @@ test_jinja_indent_4:
     FROM my_table
 
 
-test_jinja_indent_5:
-  fail_str: |
-    SELECT
-    {% for i in [1] %}
-    c{{i}},
-    {% endfor %}
-    c10
-    FROM foo
-  fix_str: |
-    SELECT
-        {% for i in [1] %}
-        c{{i}},
-        {% endfor %}
-        c10
-    FROM foo
-  configs:
-    indentation:
-      template_blocks_indent: false
-
-test_jinja_indent_6:
-  fail_str: |
-    SELECT
-    {% for _ in [1, 2, 3] %} 2,
-    {% endfor %}
-    10
-
-  # TODO: Review indentation of the for loop
-  fix_str: |
-    SELECT
-    {% for _ in [1, 2, 3] %} 2,
-        {% endfor %}
-        10
