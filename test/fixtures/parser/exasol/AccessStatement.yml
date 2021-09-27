@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2884210bbc723dc66cc684f52720582c1754edd8e38e02bc0c34dd031b80c20a
+_hash: d0fb08b44bdc26671c4623b437ea020ec9e3e7abf73641ee4de7e143084c3c2c
 file:
 - statement:
     access_statement:
@@ -33,7 +33,7 @@ file:
     access_statement:
       keyword: GRANT
       grant_revoke_object_privileges:
-      - obejct_privilege:
+      - object_privilege:
           keyword: INSERT
       - keyword: 'ON'
       - object_reference:
@@ -49,7 +49,7 @@ file:
     access_statement:
       keyword: GRANT
       grant_revoke_object_privileges:
-      - obejct_privilege:
+      - object_privilege:
           keyword: SELECT
       - keyword: 'ON'
       - keyword: VIEW
@@ -64,7 +64,7 @@ file:
     access_statement:
       keyword: GRANT
       grant_revoke_object_privileges:
-      - obejct_privilege:
+      - object_privilege:
           keyword: SELECT
       - keyword: 'ON'
       - object_reference:
@@ -144,10 +144,10 @@ file:
     access_statement:
       keyword: REVOKE
       grant_revoke_object_privileges:
-      - obejct_privilege:
+      - object_privilege:
           keyword: SELECT
       - comma: ','
-      - obejct_privilege:
+      - object_privilege:
           keyword: INSERT
       - keyword: 'ON'
       - object_reference:

@@ -2437,7 +2437,7 @@ class ObjectPrivilegesSegment(BaseSegment):
     https://docs.exasol.com/database_concepts/privileges/details_rights_management.htm#System_Privileges
     """
 
-    type = "obejct_privilege"
+    type = "object_privilege"
     match_grammar = OneOf(
         "ALTER",
         "SELECT",
