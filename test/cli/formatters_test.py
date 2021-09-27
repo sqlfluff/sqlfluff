@@ -41,6 +41,6 @@ def test__cli__formatters__violation():
     # Position is 3, 3 becase foobarbar is on the third
     # line (i.e. it has two newlines preceding it) and
     # it's at the third position in that line (i.e. there
-    # are two characters between it and the preceeding
+    # are two characters between it and the preceding
     # newline).
     assert escape_ansi(f) == "L:   3 | P:   3 |    A | DESC"
