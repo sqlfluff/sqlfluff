@@ -94,10 +94,9 @@ The dialect for `MySQL`_.
 PostgreSQL
 ----------
 
-This is based around the `PostgreSQL spec`_, and is also part of the
-inheritance chain for several other dialects which were heavily inspired
-by this one. If you're running `AWS Redshift`_ or `Greenplum`_ this is
-the dialect to use (until someone makes a specific dialect).
+This is based around the `PostgreSQL spec`_. Many other SQL instances are often
+based on PostreSQL syntax. If you're running `AWS Redshift`_ or `Greenplum`_
+this is the dialect to use (until someone makes a specific dialect).
 
 .. _`PostgreSQL spec`: https://www.postgresql.org/docs/9.6/reference.html
 .. _`AWS Redshift`: https://aws.amazon.com/redshift/
