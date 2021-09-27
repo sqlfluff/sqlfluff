@@ -435,22 +435,7 @@ test_jinja_indent_3:
     indentation:
       template_blocks_indent: false
 
-test_jinja_indent_4_foobar:
-  fail_str: |
-    SELECT
-    {% for i in [1] %}
-    c{{i}},
-    {% endfor %}
-    10
-
-  fix_str: |
-    SELECT
-        {% for i in [1] %}
-        c{{i}},
-        {% endfor %}
-        10
-
-test_jinja_indent_5_foobar:
+test_jinja_indent_4:
   fail_str: |
     SELECT
     {% for i in [1] %}
@@ -469,7 +454,7 @@ test_jinja_indent_5_foobar:
     indentation:
       template_blocks_indent: false
 
-test_jinja_indent_6_foobar:
+test_jinja_indent_5:
   fail_str: |
     SELECT
     a
