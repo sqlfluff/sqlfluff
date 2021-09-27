@@ -382,11 +382,11 @@ test_jinja_indent_2:
     {% else %}
     JOIN {{action}}_raw_effect_sizes USING ({{corr_states}})
     {% endif %}
-    -- The odd indentation of "endfor" is due to the SQL parser, which places
-    -- the dedent on the following line ("CROSS JOIN"). Perhaps a future
-    -- version of L003 could try and allow for this.
     {% endfor %}
     CROSS JOIN action_states
+
+  # TODO: Review the odd indentation of "endfor" which is due to the SQL parser
+  # placing the dedent on the following line ("CROSS JOIN").
   fix_str: |
     {% set considered_actions=['uses_personal_to'] %}
     {% set corr_states="state_user_v_peer_open\n ,business_type" %}
@@ -401,9 +401,6 @@ test_jinja_indent_2:
     {% else %}
     JOIN {{action}}_raw_effect_sizes USING ({{corr_states}})
     {% endif %}
-        -- The odd indentation of "endfor" is due to the SQL parser, which places
-        -- the dedent on the following line ("CROSS JOIN"). Perhaps a future
-        -- version of L003 could try and allow for this.
         {% endfor %}
     CROSS JOIN action_states
 
@@ -426,6 +423,39 @@ test_jinja_indent_3:
         a
         {# My Comment #}
         , b
+        {% for i in [1, 2, 3] %}
+        , c_{{i}}+42 AS the_meaning_of_li{{ 'f' * i }}
+        {% endfor %}
+        , boo
+        {% for i in [1, 2, 3] %}
+        , d_{{i}}
+        {% endfor %}
+    FROM my_table
+  configs:
+    indentation:
+      template_blocks_indent: false
+
+test_jinja_indent_4:
+  fail_str: |
+    SELECT
+    a
+    {# My Comment #}
+    , b
+    {% for i in [1, 2, 3] %}
+    , c_{{i}}+42 AS the_meaning_of_li{{ 'f' * i }}
+    {% endfor %}
+    , boo
+    {% for i in [1, 2, 3] %}
+    , d_{{i}}
+    {% endfor %}
+    FROM my_table
+
+  # TODO: Review indentation of the for loops
+  fix_str: |
+    SELECT
+        a
+        {# My Comment #}
+        , b
             {% for i in [1, 2, 3] %}
             , c_{{i}}+42 AS the_meaning_of_li{{ 'f' * i }}
             {% endfor %}
@@ -435,7 +465,8 @@ test_jinja_indent_3:
             {% endfor %}
     FROM my_table
 
-test_jinja_indent_4:
+
+test_jinja_indent_5:
   fail_str: |
     SELECT
     {% for i in [1] %}
@@ -450,3 +481,20 @@ test_jinja_indent_4:
         {% endfor %}
         c10
     FROM foo
+  configs:
+    indentation:
+      template_blocks_indent: false
+
+test_jinja_indent_6:
+  fail_str: |
+    SELECT
+    {% for _ in [1, 2, 3] %} 2,
+    {% endfor %}
+    10
+
+  # TODO: Review indentation of the for loop
+  fix_str: |
+    SELECT
+    {% for _ in [1, 2, 3] %} 2,
+        {% endfor %}
+        10
