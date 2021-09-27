@@ -1,0 +1,60 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: e11b43af618ab2f70df2cd78d6d93fc707a0bc8d001e0b55b6821df2e57a7de2
+file:
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - binary_operator: OR
+    - keyword: REPLACE
+    - keyword: TEMPORARY
+    - keyword: FUNCTION
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - function_name_identifier: function_name
+    - keyword: AS
+    - literal: '"class_name"'
+    - keyword: USING
+    - keyword: FILE
+    - literal: '"resource_locations"'
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name_identifier: simple_udf
+    - keyword: AS
+    - literal: "'SimpleUdf'"
+    - keyword: USING
+    - file_type: JAR
+    - literal: "'/tmp/SimpleUdf.jar'"
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: TEMPORARY
+    - keyword: FUNCTION
+    - function_name_identifier: simple_temp_udf
+    - keyword: AS
+    - literal: "'SimpleUdf'"
+    - keyword: USING
+    - file_type: JAR
+    - literal: "'/tmp/SimpleUdf.jar'"
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - binary_operator: OR
+    - keyword: REPLACE
+    - keyword: FUNCTION
+    - function_name_identifier: simple_udf
+    - keyword: AS
+    - literal: "'SimpleUdfR'"
+    - keyword: USING
+    - file_type: JAR
+    - literal: "'/tmp/SimpleUdfR.jar'"
+- statement_terminator: ;

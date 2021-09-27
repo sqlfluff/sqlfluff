@@ -26,11 +26,11 @@ from sqlfluff.core.parser import (
     Sequence,
     StartsWith,
     StringParser,
-    SymbolSegment,
+    SymbolSegment, Anything,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
-from sqlfluff.core.parser.segments.raw import CodeSegment
+from sqlfluff.core.parser.segments.raw import CodeSegment, KeywordSegment
 from sqlfluff.dialects.spark3_keywords import (
     RESERVED_KEYWORDS,
     UNRESERVED_KEYWORDS,
@@ -94,6 +94,22 @@ spark3_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
 spark3_dialect.sets("reserved_keywords").update(RESERVED_KEYWORDS)
 
 # Real Segments
+spark3_dialect.replace(
+    ComparisonOperatorGrammar=OneOf(
+        Ref("EqualsSegment"),
+        Ref("EqualsSegment_a"),
+        Ref("EqualsSegment_b"),
+        Ref("GreaterThanSegment"),
+        Ref("LessThanSegment"),
+        Ref("GreaterThanOrEqualToSegment"),
+        Ref("LessThanOrEqualToSegment"),
+        Ref("NotEqualToSegment_a"),
+        Ref("NotEqualToSegment_b"),
+        Ref("LikeOperatorSegment"),
+    ),
+)
+
+
 spark3_dialect.add(
     # Add Hive Segments TODO : Is there a way to retrive this w/o redefining?
     DoubleQuotedLiteralSegment=NamedParser(
@@ -109,6 +125,9 @@ spark3_dialect.add(
     ),
     EqualsSegment_b=StringParser(
         "<=>", SymbolSegment, name="equals", type="comparison_operator"
+    ),
+    JarKeywordSegment=StringParser(
+        "JAR", KeywordSegment, name="jar", type="file_type"
     ),
     # Add relevant Hive Grammar
     BracketedPropertyListGrammar=hive_dialect.get_grammar("BracketedPropertyListGrammar"),
@@ -133,6 +152,15 @@ spark3_dialect.add(
         "DELTA",  # https://github.com/delta-io/delta
         "XML",  # https://github.com/databricks/spark-xml
     ),
+    ResourceFileGrammar=OneOf(
+        "JAR",
+        "FILE",
+    ),
+    ResourceLocationGrammar=Sequence(
+        "USING",
+        Ref("ResourceFileGrammar"),
+        Ref("SingleOrDoubleQuotedLiteralGrammar"),
+    ),
     SetTablePropertiesGrammar=Sequence(
         "SET", "TBLPROPERTIES", Ref("BracketedPropertyListGrammar")
     ),
@@ -143,22 +171,6 @@ spark3_dialect.add(
         Bracketed(Delimited(Ref("SingleOrDoubleQuotedLiteralGrammar"))),
     ),
 )
-spark3_dialect.replace(
-    ComparisonOperatorGrammar=OneOf(
-        Ref("EqualsSegment"),
-        Ref("EqualsSegment_a"),
-        Ref("EqualsSegment_b"),
-        Ref("GreaterThanSegment"),
-        Ref("LessThanSegment"),
-        Ref("GreaterThanOrEqualToSegment"),
-        Ref("LessThanOrEqualToSegment"),
-        Ref("NotEqualToSegment_a"),
-        Ref("NotEqualToSegment_b"),
-        Ref("LikeOperatorSegment"),
-    ),
-)
-
-
 # Primitive Data Types
 @spark3_dialect.segment()
 class PrimitiveTypeSegment(BaseSegment):
@@ -170,9 +182,11 @@ class PrimitiveTypeSegment(BaseSegment):
     type = "primitive_type"
     match_grammar = OneOf(
         "BOOLEAN",
-        # "BYTE",  # TODO : not currently supported
+        # TODO : not currently supported; add segment - see NumericLiteralSegment
+        # "BYTE",
         "TINYINT",
-        # "SHORT", # TODO : not currently supported
+        # TODO : not currently supported; add segment - see NumericLiteralSegment
+        # "SHORT",
         "SMALLINT",
         "INT",
         "BIGINT",
@@ -428,6 +442,38 @@ class CreateDatabaseStatementSegment(BaseSegment):
             "WITH", "DBPROPERTIES", Ref("BracketedPropertyListGrammar"), optional=True
         ),
     )
+
+
+@spark3_dialect.segment(replace=True)
+class CreateFunctionStatementSegment(BaseSegment):
+    """
+        A `CREATE FUNCTION` statement.
+        https://spark.apache.org/docs/latest/sql-ref-syntax-ddl-create-function.html
+    """
+
+    type = "create_function_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Sequence("OR", "REPLACE", optional=True),
+        Ref("TemporaryGrammar", optional=True),
+        "FUNCTION",
+        Anything(),
+    )
+
+    parse_grammar = Sequence(
+        "CREATE",
+        Sequence("OR", "REPLACE", optional=True),
+        Ref("TemporaryGrammar", optional=True),
+        "FUNCTION",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("FunctionNameIdentifierSegment"),
+        "AS",
+        Ref("SingleOrDoubleQuotedLiteralGrammar"),
+        Ref("ResourceLocationGrammar"),
+    )
+
+
 # @spark_dialect.segment(replace=True)
 # class CreateTableStatementSegment(ansi_dialect.get_segment("CreateTableStatementSegment")):
 #     """
@@ -478,6 +524,7 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
     """Overriding StatementSegment to allow for additional segment parsing."""
 
     parse_grammar = ansi_dialect.get_segment("StatementSegment").parse_grammar.copy(
+        # Segments defined in Spark3 dialect
         insert=[
             # Data Definition Statements
             Ref("AlterDatabaseStatementSegment"),
