@@ -275,7 +275,7 @@ class AlterDatabaseStatementSegment(BaseSegment):
 @spark3_dialect.segment(replace=True)
 class AlterTableStatementSegment(BaseSegment):
     """
-        A `ALTER TABLE` statement to change the table/view schema or properties.
+        A `ALTER TABLE` statement to change the table schema or properties.
         http://spark.apache.org/docs/latest/sql-ref-syntax-ddl-alter-table.html
     """
 
@@ -380,6 +380,34 @@ class AlterTableStatementSegment(BaseSegment):
     )
 
 
+@spark3_dialect.segment()
+class AlterViewStatementSegment(BaseSegment):
+    """
+        A `ALTER VIEW` statement to change the view schema or properties.
+        https://spark.apache.org/docs/latest/sql-ref-syntax-ddl-alter-view.html
+    """
+
+    type = "alter_view_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "VIEW",
+        Ref("TableReferenceSegment"),
+        OneOf(
+            Sequence(
+                "RENAME",
+                "TO",
+                Ref("TableReferenceSegment"),
+            ),
+            Ref("SetTablePropertiesGrammar"),
+            Ref("UnsetTablePropertiesGrammar"),
+            Sequence(
+                "AS",
+                OptionallyBracketed(Ref("SelectStatementSegment")),
+            ),
+        ),
+    )
+
 # @spark_dialect.segment(replace=True)
 # class CreateTableStatementSegment(ansi_dialect.get_segment("CreateTableStatementSegment")):
 #     """
@@ -434,6 +462,7 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             # Data Definition Statements
             Ref("AlterDatabaseStatementSegment"),
             Ref("AlterTableStatementSegment"),
+            Ref("AlterViewStatementSegment"),
         ],
         # remove=[
         #     Ref("TransactionStatementSegment"),
