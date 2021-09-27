@@ -78,7 +78,22 @@ tsql_dialect.replace(
         type="function_name_identifier",
     ),
     DatatypeIdentifierSegment=Ref("SingleIdentifierGrammar"),
-    PrimaryKeyGrammar=Sequence("PRIMARY", "KEY",OneOf("CLUSTERED", "NONCLUSTERED",optional=True)),
+    PrimaryKeyGrammar=Sequence(
+        "PRIMARY", "KEY", OneOf("CLUSTERED", "NONCLUSTERED", optional=True)
+    ),
+    FromClauseTerminatorGrammar=OneOf(
+        "WHERE",
+        "LIMIT",
+        "GROUP",
+        "ORDER",
+        "HAVING",
+        "QUALIFY",
+        "WINDOW",
+        "PIVOT",
+        "UNPIVOT",
+        Ref("SetOperatorSegment"),
+        Ref("WithNoSchemaBindingClauseSegment"),
+    ),
 )
 
 
@@ -91,7 +106,7 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref("CreateProcedureStatementSegment"),
             Ref("IfExpressionStatement"),
             Ref("DeclareStatementSegment"),
-            Ref("SetStatementSegment"),            
+            Ref("SetStatementSegment"),
         ],
     )
 
@@ -214,8 +229,25 @@ class PivotUnpivotStatementSegment(BaseSegment):
     """
 
     type = "pivot_segment"
-    match_grammar = Sequence("PIVOT") #StartsWith(OneOf("PIVOT", "UNPIVOT"))
-    parse_grammar =  Sequence("PIVOT")
+    match_grammar = StartsWith(
+        OneOf("PIVOT", "UNPIVOT"),
+        terminator=Ref("FromClauseTerminatorGrammar"),
+        enforce_whitespace_preceeding_terminator=True,
+    )
+    parse_grammar = Sequence(
+        OneOf("PIVOT", "UNPIVOT"),
+        OptionallyBracketed(
+            Sequence(
+                OptionallyBracketed(Ref("FunctionSegment")),
+                "FOR",
+                Ref("ColumnReferenceSegment"),
+                "IN",
+                Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+            )
+        ),
+        "AS",
+        Ref("TableReferenceSegment"),
+    )
 
 
 @tsql_dialect.segment()
@@ -418,10 +450,11 @@ class CreateFunctionStatementSegment(BaseSegment):
         Ref("FunctionDefinitionGrammar"),
     )
 
+
 @tsql_dialect.segment()
 class SetStatementSegment(BaseSegment):
     """Setting an already declared variable or global variable.
-    https://docs.microsoft.com/en-us/sql/t-sql/statements/set-statements-transact-sql?view=sql-server-ver15    
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/set-statements-transact-sql?view=sql-server-ver15
     """
 
     type = "set_segment"
@@ -430,46 +463,46 @@ class SetStatementSegment(BaseSegment):
         "SET",
         OneOf(
             Ref("ParameterNameSegment"),
-            "DATEFIRST"
-            ,"DATEFORMAT"
-            ,"DEADLOCK_PRIORITY"
-            ,"LOCK_TIMEOUT"
-            ,"CONCAT_NULL_YIELDS_NULL"
-            ,"CURSOR_CLOSE_ON_COMMIT"
-            ,"FIPS_FLAGGER"
-            ,"IDENTITY_INSERT"
-            ,"LANGUAGE"
-            ,"OFFSETS"
-            ,"QUOTED_IDENTIFIER"
-            ,"ARITHABORT"
-            ,"ARITHIGNORE"
-            ,"FMTONLY"
-            ,"NOCOUNT"
-            ,"NOEXEC"
-            ,"NUMERIC_ROUNDABORT"
-            ,"PARSEONLY"
-            ,"QUERY_GOVERNOR_COST_LIMIT"
-            ,"RESULT CACHING (Preview)"
-            ,"ROWCOUNT"
-            ,"TEXTSIZE"
-            ,"ANSI_DEFAULTS"
-            ,"ANSI_NULL_DFLT_OFF"
-            ,"ANSI_NULL_DFLT_ON"
-            ,"ANSI_NULLS"
-            ,"ANSI_PADDING"
-            ,"ANSI_WARNINGS"
-            ,"FORCEPLAN"
-            ,"SHOWPLAN_ALL"
-            ,"SHOWPLAN_TEXT"
-            ,"SHOWPLAN_XML"
-            ,"STATISTICS IO"
-            ,"STATISTICS XML"
-            ,"STATISTICS PROFILE"
-            ,"STATISTICS TIME"
-            ,"IMPLICIT_TRANSACTIONS"
-            ,"REMOTE_PROC_TRANSACTIONS"
-            ,"TRANSACTION ISOLATION LEVEL"
-            ,"XACT_ABORT"
+            "DATEFIRST",
+            "DATEFORMAT",
+            "DEADLOCK_PRIORITY",
+            "LOCK_TIMEOUT",
+            "CONCAT_NULL_YIELDS_NULL",
+            "CURSOR_CLOSE_ON_COMMIT",
+            "FIPS_FLAGGER",
+            "IDENTITY_INSERT",
+            "LANGUAGE",
+            "OFFSETS",
+            "QUOTED_IDENTIFIER",
+            "ARITHABORT",
+            "ARITHIGNORE",
+            "FMTONLY",
+            "NOCOUNT",
+            "NOEXEC",
+            "NUMERIC_ROUNDABORT",
+            "PARSEONLY",
+            "QUERY_GOVERNOR_COST_LIMIT",
+            "RESULT CACHING (Preview)",
+            "ROWCOUNT",
+            "TEXTSIZE",
+            "ANSI_DEFAULTS",
+            "ANSI_NULL_DFLT_OFF",
+            "ANSI_NULL_DFLT_ON",
+            "ANSI_NULLS",
+            "ANSI_PADDING",
+            "ANSI_WARNINGS",
+            "FORCEPLAN",
+            "SHOWPLAN_ALL",
+            "SHOWPLAN_TEXT",
+            "SHOWPLAN_XML",
+            "STATISTICS IO",
+            "STATISTICS XML",
+            "STATISTICS PROFILE",
+            "STATISTICS TIME",
+            "IMPLICIT_TRANSACTIONS",
+            "REMOTE_PROC_TRANSACTIONS",
+            "TRANSACTION ISOLATION LEVEL",
+            "XACT_ABORT",
         ),
         OneOf(
             "ON",
@@ -495,9 +528,10 @@ class SetStatementSegment(BaseSegment):
                         )
                     )
                 ),
-            )
-        )        
+            ),
+        ),
     )
+
 
 @tsql_dialect.segment(replace=True)
 class FunctionDefinitionGrammar(BaseSegment):
