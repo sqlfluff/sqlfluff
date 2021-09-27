@@ -332,7 +332,10 @@ class Rule_L003(BaseRule):
         res = self._process_raw_stack(
             raw_stack, tab_space_size=self.tab_space_size, templated_file=templated_file
         )
-        return self._process_current_line(res, memory, templated_file)
+        if res:
+            return self._process_current_line(res, memory, templated_file)
+        else:
+            return LintResult(memory=memory)
 
     def _process_current_line(self, res, memory, templated_file):
         this_line_no = max(res.keys())
