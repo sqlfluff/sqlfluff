@@ -228,23 +228,39 @@ class PivotUnpivotStatementSegment(BaseSegment):
     https://docs.microsoft.com/en-us/sql/t-sql/queries/from-using-pivot-and-unpivot?view=sql-server-ver15
     """
 
-    type = "pivot_segment"
+    type = "pivotunpivot_segment"
     match_grammar = StartsWith(
         OneOf("PIVOT", "UNPIVOT"),
         terminator=Ref("FromClauseTerminatorGrammar"),
         enforce_whitespace_preceeding_terminator=True,
     )
     parse_grammar = Sequence(
-        OneOf("PIVOT", "UNPIVOT"),
-        OptionallyBracketed(
-            Sequence(
-                OptionallyBracketed(Ref("FunctionSegment")),
-                "FOR",
-                Ref("ColumnReferenceSegment"),
-                "IN",
-                Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
-            )
-        ),
+            OneOf(
+                Sequence(
+                    "PIVOT", 
+                    OptionallyBracketed(
+                        Sequence(
+                            OptionallyBracketed(Ref("FunctionSegment")),
+                            "FOR",
+                            Ref("ColumnReferenceSegment"),
+                            "IN",
+                            Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+                        )
+                    ),
+                ),
+                Sequence(
+                    "UNPIVOT",
+                    OptionallyBracketed(
+                        Sequence(
+                            OptionallyBracketed(Ref("ColumnReferenceSegment")),
+                            "FOR",
+                            Ref("ColumnReferenceSegment"),
+                            "IN",
+                            Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+                        )
+                    ),
+                ),
+            ),
         "AS",
         Ref("TableReferenceSegment"),
     )
