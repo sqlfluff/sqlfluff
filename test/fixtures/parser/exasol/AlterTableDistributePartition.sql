@@ -1,0 +1,6 @@
+ALTER TABLE my_table DROP DISTRIBUTION KEYS;
+ALTER TABLE my_table DROP DISTRIBUTION AND PARTITION KEYS;
+ALTER TABLE my_table DISTRIBUTE BY shop_id, PARTITION BY order_date;
+ALTER TABLE my_table PARTITION BY order_date, DISTRIBUTE BY shop_id, branch_no;
+ALTER TABLE my_table PARTITION BY order_date;
+ALTER TABLE my_table DISTRIBUTE BY shop_id, branch_no;
