@@ -361,46 +361,32 @@ test_jinja_indent_1:
 
     SELECT
         foo
-        {% for action in considered_actions %}
-        ,{{action}}
-        {% endfor %}
+            {% for action in considered_actions %}
+            ,{{action}}
+            {% endfor %}
     FROM
         {{ 'table1' }}
 
 test_jinja_indent_2:
   fail_str: |
-    {% set considered_actions=['uses_personal_to'] %}
-    {% set corr_states="state_user_v_peer_open\n ,business_type" %}
+    {% set v="dummy" %}
 
     SELECT
     foo
     FROM
-    {% for action in considered_actions %}
-    {% if loop.first %}
-    -- This next section gets very strange with forced template_blocks_indent
+    {% for action in ['foo'] %}
     {{action}}_raw_effect_sizes
-    {% else %}
-    JOIN {{action}}_raw_effect_sizes USING ({{corr_states}})
-    {% endif %}
     {% endfor %}
     CROSS JOIN action_states
 
-  # TODO: Review the odd indentation of "endfor" which is due to the SQL parser
-  # placing the dedent on the following line ("CROSS JOIN").
   fix_str: |
-    {% set considered_actions=['uses_personal_to'] %}
-    {% set corr_states="state_user_v_peer_open\n ,business_type" %}
+    {% set v="dummy" %}
 
     SELECT
         foo
     FROM
-    {% for action in considered_actions %}
-    {% if loop.first %}
-        -- This next section gets very strange with forced template_blocks_indent
+        {% for action in ['foo'] %}
         {{action}}_raw_effect_sizes
-    {% else %}
-    JOIN {{action}}_raw_effect_sizes USING ({{corr_states}})
-    {% endif %}
         {% endfor %}
     CROSS JOIN action_states
 
@@ -484,4 +470,39 @@ test_jinja_indent_5:
             {% endfor %}
     FROM my_table
 
+test_jinja_indent_6:
+  fail_str: |
+    {% set considered_actions=['uses_personal_to'] %}
+    {% set corr_states="state_user_v_peer_open\n ,business_type" %}
 
+    SELECT
+    foo
+    FROM
+    {% for action in considered_actions %}
+    {% if loop.first %}
+    -- This next section gets very strange with forced template_blocks_indent
+    {{action}}_raw_effect_sizes
+    {% else %}
+    JOIN {{action}}_raw_effect_sizes USING ({{corr_states}})
+    {% endif %}
+    {% endfor %}
+    CROSS JOIN action_states
+
+  # TODO: Review the odd indentation of "else" and "endif".
+  # placing the dedent on the following line ("CROSS JOIN").
+  fix_str: |
+    {% set considered_actions=['uses_personal_to'] %}
+    {% set corr_states="state_user_v_peer_open\n ,business_type" %}
+
+    SELECT
+        foo
+    FROM
+        {% for action in considered_actions %}
+        {% if loop.first %}
+        -- This next section gets very strange with forced template_blocks_indent
+        {{action}}_raw_effect_sizes
+    {% else %}
+    JOIN {{action}}_raw_effect_sizes USING ({{corr_states}})
+    {% endif %}
+        {% endfor %}
+    CROSS JOIN action_states

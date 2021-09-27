@@ -354,15 +354,20 @@ class JinjaTemplater(PythonTemplater):
                         trimmed_content = str_buff[
                             len(m_open.group(0)) : -len(m_close.group(0))
                         ]
+                    first_word = trimmed_content.split()[0]
                     if trimmed_content.startswith("end"):
                         block_type = "block_end"
                     elif trimmed_content.startswith("el"):
                         # else, elif
                         block_type = "block_mid"
-                    else:
+                    elif first_word in ("for", "if"):
                         block_type = "block_start"
-                        if trimmed_content.split()[0] == "for":
+                        if first_word == "for":
                             block_subtype = "loop"
+                    else:
+                        # Not necessarily a comment, but we can treat it as one
+                        # for our purposes.
+                        block_type = "comment"
                 yield RawFileSlice(str_buff, block_type, idx, block_subtype)
                 idx += len(str_buff)
                 str_buff = ""
