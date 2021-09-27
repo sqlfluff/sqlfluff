@@ -195,7 +195,7 @@ class QualifyClauseSegment(BaseSegment):
     match_grammar = StartsWith(
         "QUALIFY",
         terminator=OneOf("WINDOW", "ORDER", "LIMIT"),
-        enforce_whitespace_preceeding_terminator=True,
+        enforce_whitespace_preceding_terminator=True,
     )
 
     parse_grammar = Sequence(
@@ -759,7 +759,7 @@ class PartitionBySegment(BaseSegment):
     match_grammar = StartsWith(
         "PARTITION",
         terminator=OneOf("CLUSTER", "OPTIONS", "AS", Ref("DelimiterSegment")),
-        enforce_whitespace_preceeding_terminator=True,
+        enforce_whitespace_preceding_terminator=True,
     )
     parse_grammar = Sequence(
         "PARTITION",
@@ -776,7 +776,7 @@ class ClusterBySegment(BaseSegment):
     match_grammar = StartsWith(
         "CLUSTER",
         terminator=OneOf("OPTIONS", "AS", Ref("DelimiterSegment")),
-        enforce_whitespace_preceeding_terminator=True,
+        enforce_whitespace_preceding_terminator=True,
     )
     parse_grammar = Sequence(
         "CLUSTER",

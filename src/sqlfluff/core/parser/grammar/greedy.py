@@ -18,7 +18,7 @@ class GreedyUntil(BaseGrammar):
     """Matching for GreedyUntil works just how you'd expect.
 
     Args:
-        enforce_whitespace_preceeding (:obj:`bool`): Should the GreedyUntil
+        enforce_whitespace_preceding (:obj:`bool`): Should the GreedyUntil
             match only match the content if it's preceded by whitespace?
             (defaults to False). This is useful for some keywords which may
             have false alarms on some array accessors.
@@ -26,8 +26,8 @@ class GreedyUntil(BaseGrammar):
     """
 
     def __init__(self, *args, **kwargs):
-        self.enforce_whitespace_preceeding_terminator = kwargs.pop(
-            "enforce_whitespace_preceeding_terminator", False
+        self.enforce_whitespace_preceding_terminator = kwargs.pop(
+            "enforce_whitespace_preceding_terminator", False
         )
         super().__init__(*args, **kwargs)
         if not self.allow_gaps:  # pragma: no cover
@@ -43,7 +43,7 @@ class GreedyUntil(BaseGrammar):
             segments,
             parse_context,
             matchers=self._elements,
-            enforce_whitespace_preceeding_terminator=self.enforce_whitespace_preceeding_terminator,
+            enforce_whitespace_preceding_terminator=self.enforce_whitespace_preceding_terminator,
             include_terminator=False,
         )
 
@@ -53,7 +53,7 @@ class GreedyUntil(BaseGrammar):
         segments,
         parse_context,
         matchers,
-        enforce_whitespace_preceeding_terminator,
+        enforce_whitespace_preceding_terminator,
         include_terminator=False,
     ):
         """Matching for GreedyUntil works just how you'd expect."""
@@ -72,7 +72,7 @@ class GreedyUntil(BaseGrammar):
             # Do we have a match?
             if mat:
                 # Do we need to enforce whitespace preceding?
-                if enforce_whitespace_preceeding_terminator:
+                if enforce_whitespace_preceding_terminator:
                     # Does the match include some whitespace already?
                     # Work forward
                     idx = 0
@@ -204,7 +204,7 @@ class StartsWith(GreedyUntil):
             match.unmatched_segments,
             parse_context,
             matchers=[self.terminator],
-            enforce_whitespace_preceeding_terminator=self.enforce_whitespace_preceeding_terminator,
+            enforce_whitespace_preceding_terminator=self.enforce_whitespace_preceding_terminator,
             include_terminator=self.include_terminator,
         )
 

@@ -1,0 +1,4 @@
+DROP FORCE SCHEMA my_schema;
+DROP SCHEMA IF EXISTS my_schema;
+DROP SCHEMA my_schema CASCADE;
+DROP VIRTUAL SCHEMA my_virtual_schema;

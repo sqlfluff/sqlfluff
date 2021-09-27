@@ -1,0 +1,1 @@
+ALTER CONNECTION exa_connection TO '192.168.6.11..14:8564';
