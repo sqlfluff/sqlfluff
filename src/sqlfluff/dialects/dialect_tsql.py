@@ -327,7 +327,7 @@ class UnorderedSelectStatementSegment(BaseSegment):
             Ref("WithNoSchemaBindingClauseSegment"),
             Ref("OrderByClauseSegment"),
         ),
-        enforce_whitespace_preceeding_terminator=True,
+        enforce_whitespace_preceding_terminator=True,
     )
 
     parse_grammar = ansi_dialect.get_segment(

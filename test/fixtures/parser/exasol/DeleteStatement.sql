@@ -1,0 +1,3 @@
+DELETE FROM staff WHERE name='SMITH';
+DELETE * FROM staff;
+DELETE FROM staff PREFERRING (LOW change_date) PARTITION BY emp_no;
