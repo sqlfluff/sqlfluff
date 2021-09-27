@@ -18,6 +18,7 @@ from sqlfluff.core.parser import (
     NamedParser,
     StartsWith,
     OptionallyBracketed,
+    Dedent,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -90,7 +91,79 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref("CreateProcedureStatementSegment"),
             Ref("IfExpressionStatement"),
             Ref("DeclareStatementSegment"),
+            Ref("SetStatementSegment"),            
         ],
+    )
+
+
+@tsql_dialect.segment(replace=True)
+class UnorderedSelectStatementSegment(BaseSegment):
+    """A `SELECT` statement without any ORDER clauses or later.
+
+    This is designed for use in the context of set operations,
+    for other use cases, we should use the main
+    SelectStatementSegment.
+    """
+
+    type = "select_statement"
+    # match grammar. This one makes sense in the context of knowing that it's
+    # definitely a statement, we just don't know what type yet.
+    match_grammar = StartsWith(
+        # NB: In bigquery, the select clause may include an EXCEPT, which
+        # will also match the set operator, but by starting with the whole
+        # select clause rather than just the SELECT keyword, we mitigate that
+        # here.
+        Ref("SelectClauseSegment"),
+        terminator=OneOf(
+            Ref("SetOperatorSegment"),
+            Ref("WithNoSchemaBindingClauseSegment"),
+            Ref("OrderByClauseSegment"),
+            Ref("LimitClauseSegment"),
+            Ref("NamedWindowSegment"),
+        ),
+        enforce_whitespace_preceeding_terminator=True,
+    )
+
+    parse_grammar = Sequence(
+        Ref("SelectClauseSegment"),
+        # Dedent for the indent in the select clause.
+        # It's here so that it can come AFTER any whitespace.
+        Dedent,
+        Ref("FromClauseSegment", optional=True),
+        Ref("PivotUnpivotStatementSegment", optional=True),
+        Ref("WhereClauseSegment", optional=True),
+        Ref("GroupByClauseSegment", optional=True),
+        Ref("HavingClauseSegment", optional=True),
+        Ref("OverlapsClauseSegment", optional=True),
+    )
+
+
+@tsql_dialect.segment(replace=True)
+class SelectStatementSegment(BaseSegment):
+    """A `SELECT` statement."""
+
+    type = "select_statement"
+    # match grammar. This one makes sense in the context of knowing that it's
+    # definitely a statement, we just don't know what type yet.
+    match_grammar = StartsWith(
+        # NB: In bigquery, the select clause may include an EXCEPT, which
+        # will also match the set operator, but by starting with the whole
+        # select clause rather than just the SELECT keyword, we mitigate that
+        # here.
+        Ref("SelectClauseSegment"),
+        terminator=OneOf(
+            Ref("SetOperatorSegment"), Ref("WithNoSchemaBindingClauseSegment")
+        ),
+        enforce_whitespace_preceeding_terminator=True,
+    )
+
+    # Inherit most of the parse grammar from the original.
+    parse_grammar = UnorderedSelectStatementSegment.parse_grammar.copy(
+        insert=[
+            Ref("OrderByClauseSegment", optional=True),
+            Ref("LimitClauseSegment", optional=True),
+            Ref("NamedWindowSegment", optional=True),
+        ]
     )
 
 
@@ -131,6 +204,18 @@ class CreateIndexStatementSegment(BaseSegment):
             optional=True,
         ),
     )
+
+
+@tsql_dialect.segment()
+class PivotUnpivotStatementSegment(BaseSegment):
+    """Declaration of a variable.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/queries/from-using-pivot-and-unpivot?view=sql-server-ver15
+    """
+
+    type = "pivot_segment"
+    match_grammar = Sequence("PIVOT") #StartsWith(OneOf("PIVOT", "UNPIVOT"))
+    parse_grammar =  Sequence("PIVOT")
 
 
 @tsql_dialect.segment()
@@ -333,6 +418,86 @@ class CreateFunctionStatementSegment(BaseSegment):
         Ref("FunctionDefinitionGrammar"),
     )
 
+@tsql_dialect.segment()
+class SetStatementSegment(BaseSegment):
+    """Setting an already declared variable or global variable.
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/set-statements-transact-sql?view=sql-server-ver15    
+    """
+
+    type = "set_segment"
+    match_grammar = StartsWith("SET")
+    parse_grammar = Sequence(
+        "SET",
+        OneOf(
+            Ref("ParameterNameSegment"),
+            "DATEFIRST"
+            ,"DATEFORMAT"
+            ,"DEADLOCK_PRIORITY"
+            ,"LOCK_TIMEOUT"
+            ,"CONCAT_NULL_YIELDS_NULL"
+            ,"CURSOR_CLOSE_ON_COMMIT"
+            ,"FIPS_FLAGGER"
+            ,"IDENTITY_INSERT"
+            ,"LANGUAGE"
+            ,"OFFSETS"
+            ,"QUOTED_IDENTIFIER"
+            ,"ARITHABORT"
+            ,"ARITHIGNORE"
+            ,"FMTONLY"
+            ,"NOCOUNT"
+            ,"NOEXEC"
+            ,"NUMERIC_ROUNDABORT"
+            ,"PARSEONLY"
+            ,"QUERY_GOVERNOR_COST_LIMIT"
+            ,"RESULT CACHING (Preview)"
+            ,"ROWCOUNT"
+            ,"TEXTSIZE"
+            ,"ANSI_DEFAULTS"
+            ,"ANSI_NULL_DFLT_OFF"
+            ,"ANSI_NULL_DFLT_ON"
+            ,"ANSI_NULLS"
+            ,"ANSI_PADDING"
+            ,"ANSI_WARNINGS"
+            ,"FORCEPLAN"
+            ,"SHOWPLAN_ALL"
+            ,"SHOWPLAN_TEXT"
+            ,"SHOWPLAN_XML"
+            ,"STATISTICS IO"
+            ,"STATISTICS XML"
+            ,"STATISTICS PROFILE"
+            ,"STATISTICS TIME"
+            ,"IMPLICIT_TRANSACTIONS"
+            ,"REMOTE_PROC_TRANSACTIONS"
+            ,"TRANSACTION ISOLATION LEVEL"
+            ,"XACT_ABORT"
+        ),
+        OneOf(
+            "ON",
+            "OFF",
+            Sequence(
+                Ref("EqualsSegment"),
+                OneOf(
+                    Delimited(
+                        OneOf(
+                            Ref("LiteralGrammar"),
+                            Bracketed(Ref("SelectStatementSegment")),
+                            Ref("FunctionSegment"),
+                            Bracketed(
+                                Delimited(
+                                    OneOf(
+                                        Ref("LiteralGrammar"),
+                                        Bracketed(Ref("SelectStatementSegment")),
+                                        Ref("BareFunctionSegment"),
+                                        Ref("FunctionSegment"),
+                                    )
+                                )
+                            ),
+                        )
+                    )
+                ),
+            )
+        )        
+    )
 
 @tsql_dialect.segment(replace=True)
 class FunctionDefinitionGrammar(BaseSegment):
