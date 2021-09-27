@@ -200,11 +200,11 @@ class Rule_L036(BaseRule):
                     ),
                 ]
 
-                # Set the position marker for removing the preceeding
+                # Set the position marker for removing the preceding
                 # whitespace and newline, which we'll use below.
                 start_idx = modifier_idx
             else:
-                # Set the position marker for removing the preceeding
+                # Set the position marker for removing the preceding
                 # whitespace and newline, which we'll use below.
                 start_idx = select_targets_info.first_select_target_idx
 
