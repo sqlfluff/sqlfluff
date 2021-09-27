@@ -408,6 +408,26 @@ class AlterViewStatementSegment(BaseSegment):
         ),
     )
 
+
+@spark3_dialect.segment(replace=True)
+class CreateDatabaseStatementSegment(BaseSegment):
+    """
+        A `CREATE DATABASE` statement.
+        https://spark.apache.org/docs/latest/sql-ref-syntax-ddl-create-database.html
+    """
+
+    type = "create_database_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        OneOf("DATABASE", "SCHEMA"),
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("DatabaseReferenceSegment"),
+        Ref("CommentGrammar", optional=True),
+        Ref("LocationGrammar", optional=True),
+        Sequence(
+            "WITH", "DBPROPERTIES", Ref("BracketedPropertyListGrammar"), optional=True
+        ),
+    )
 # @spark_dialect.segment(replace=True)
 # class CreateTableStatementSegment(ansi_dialect.get_segment("CreateTableStatementSegment")):
 #     """
