@@ -28,3 +28,26 @@ WITH mylist AS (
     AS mylist (a,b,c)
 )
 SELECT * from mylist;
+----
+SELECT
+rowid,
+ROW_NUMBER () OVER (
+    PARTITION BY (
+        col1,
+        col2
+    )
+    ORDER BY
+        col1 DESC,
+        col2 DESC
+);
+----
+SELECT
+rowid,
+ROW_NUMBER () OVER (
+    PARTITION BY (
+        col1,
+        col2
+    ))
+ORDER BY
+    col1 DESC,
+    col2 DESC;
