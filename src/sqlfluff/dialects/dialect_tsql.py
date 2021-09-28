@@ -156,32 +156,23 @@ class UnorderedSelectStatementSegment(BaseSegment):
 
 @tsql_dialect.segment(replace=True)
 class SelectStatementSegment(BaseSegment):
-    """A `SELECT` statement."""
+    """A `SELECT` statement.
+
+    We need to change ANSI slightly to remove LimitClauseSegment
+    and NamedWindowSegment which don't exist in T-SQL.
+    """
 
     type = "select_statement"
-    # match grammar. This one makes sense in the context of knowing that it's
-    # definitely a statement, we just don't know what type yet.
-    match_grammar = StartsWith(
-        # NB: In bigquery, the select clause may include an EXCEPT, which
-        # will also match the set operator, but by starting with the whole
-        # select clause rather than just the SELECT keyword, we mitigate that
-        # here.
-        Ref("SelectClauseSegment"),
-        terminator=OneOf(
-            Ref("SetOperatorSegment"), Ref("WithNoSchemaBindingClauseSegment")
-        ),
-        enforce_whitespace_preceding_terminator=True,
-    )
+    match_grammar = ansi_dialect.get_segment(
+        "SelectStatementSegment"
+    ).match_grammar.copy()
 
-    # Inherit most of the parse grammar from the original.
+    # Remove the Limit and Window statements from ANSI
     parse_grammar = UnorderedSelectStatementSegment.parse_grammar.copy(
         insert=[
             Ref("OrderByClauseSegment", optional=True),
-            Ref("LimitClauseSegment", optional=True),
-            Ref("NamedWindowSegment", optional=True),
         ]
     )
-
 
 @tsql_dialect.segment(replace=True)
 class CreateIndexStatementSegment(BaseSegment):
@@ -692,24 +683,3 @@ class UnorderedSelectStatementSegment(BaseSegment):
     parse_grammar = ansi_dialect.get_segment(
         "UnorderedSelectStatementSegment"
     ).parse_grammar.copy()
-
-
-@tsql_dialect.segment(replace=True)
-class SelectStatementSegment(BaseSegment):
-    """A `SELECT` statement.
-
-    We need to change ANSI slightly to remove LimitClauseSegment
-    and NamedWindowSegment which don't exist in T-SQL.
-    """
-
-    type = "select_statement"
-    match_grammar = ansi_dialect.get_segment(
-        "SelectStatementSegment"
-    ).match_grammar.copy()
-
-    # Remove the Limit and Window statements from ANSI
-    parse_grammar = UnorderedSelectStatementSegment.parse_grammar.copy(
-        insert=[
-            Ref("OrderByClauseSegment", optional=True),
-        ]
-    )
