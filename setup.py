@@ -63,7 +63,7 @@ setup(
         "Changes": "https://github.com/sqlfluff/sqlfluff/blob/main/CHANGELOG.md",
         "Source": "https://github.com/sqlfluff/sqlfluff",
         "Issue Tracker": "https://github.com/sqlfluff/sqlfluff/issues",
-        "Twitter": "https://twitter.com/SQLFLuff",
+        "Twitter": "https://twitter.com/SQLFluff",
         "Chat": "https://github.com/sqlfluff/sqlfluff#sqlfluff-on-slack",
     },
     packages=find_packages(where="src"),
