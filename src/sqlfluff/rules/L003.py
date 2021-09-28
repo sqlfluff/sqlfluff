@@ -86,10 +86,6 @@ class Rule_L003(BaseRule):
         If someone feels ambitious, it might be possible someday to eliminate
         this function by making changes to _process_raw_stack() and _eval().
         """
-        lines = []
-        current_line = []
-        line_no = 1
-
         def element_sort_key_templated_last(elem):
             if not elem.is_type("placeholder"):
                 return 0
@@ -120,6 +116,8 @@ class Rule_L003(BaseRule):
                 current_line.sort(key=element_sort_key_indent_first_dedent_last)
 
         # Break raw_stack into lines.
+        lines = []
+        current_line = []
         for elem in raw_stack:
             if not elem.is_type("newline"):
                 current_line.append(elem)
@@ -128,14 +126,10 @@ class Rule_L003(BaseRule):
                 current_line.append(elem)
                 lines.append(current_line)
                 current_line = []
-                line_no += 1
         if current_line:
             sort_current_line()
             lines.append(current_line)
-        raw_stack_new = []
-        for line in lines:
-            raw_stack_new += line
-        raw_stack = raw_stack_new
+        raw_stack = [s for line in lines for s in line]
         return tuple(raw_stack)
 
     @classmethod
