@@ -33,7 +33,6 @@ tsql_dialect = ansi_dialect.copy_as("tsql")
 # tsql_dialect.sets("reserved_keywords").clear()
 tsql_dialect.sets("reserved_keywords").update(RESERVED_KEYWORDS)
 
-
 tsql_dialect.insert_lexer_matchers(
     [
         RegexLexer(
@@ -116,9 +115,8 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
 class UnorderedSelectStatementSegment(BaseSegment):
     """A `SELECT` statement without any ORDER clauses or later.
 
-    This is designed for use in the context of set operations,
-    for other use cases, we should use the main
-    SelectStatementSegment.
+    We need to change ANSI slightly to remove LimitClauseSegment
+    and NamedWindowSegment which don't exist in T-SQL.
     """
 
     type = "select_statement"
@@ -134,8 +132,6 @@ class UnorderedSelectStatementSegment(BaseSegment):
             Ref("SetOperatorSegment"),
             Ref("WithNoSchemaBindingClauseSegment"),
             Ref("OrderByClauseSegment"),
-            Ref("LimitClauseSegment"),
-            Ref("NamedWindowSegment"),
         ),
         enforce_whitespace_preceding_terminator=True,
     )
@@ -659,28 +655,3 @@ class OverlapsClauseSegment(BaseSegment):
 
     type = "overlaps_clause"
     match_grammar = Nothing()
-
-
-@tsql_dialect.segment(replace=True)
-class UnorderedSelectStatementSegment(BaseSegment):
-    """A `SELECT` statement without any ORDER clauses or later.
-
-    We need to change ANSI slightly to remove LimitClauseSegment
-    and NamedWindowSegment which don't exist in T-SQL.
-    """
-
-    type = "select_statement"
-    # Remove the LimitClauseSegment and NamedWindowSegment from ANSI
-    match_grammar = StartsWith(
-        Ref("SelectClauseSegment"),
-        terminator=OneOf(
-            Ref("SetOperatorSegment"),
-            Ref("WithNoSchemaBindingClauseSegment"),
-            Ref("OrderByClauseSegment"),
-        ),
-        enforce_whitespace_preceding_terminator=True,
-    )
-
-    parse_grammar = ansi_dialect.get_segment(
-        "UnorderedSelectStatementSegment"
-    ).parse_grammar.copy()
