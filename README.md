@@ -61,7 +61,7 @@ L:   1 | P:  27 | L001 | Unnecessary trailing whitespace
 
 You can also have a play using [**SQLFluff online**](https://online.sqlfluff.com/).
 
-For full [CLI usage](https://docs.sqlfluff.com/en/stable/cli.html) and [rules reference](https://docs.sqlfluff.com/en/stable/rules.html), see [the SQLFLuff docs](https://docs.sqlfluff.com/en/stable/).
+For full [CLI usage](https://docs.sqlfluff.com/en/stable/cli.html) and [rules reference](https://docs.sqlfluff.com/en/stable/rules.html), see [the SQLFluff docs](https://docs.sqlfluff.com/en/stable/).
 
 # Documentation
 
@@ -79,7 +79,7 @@ We have a fast-growing community [on Slack](https://join.slack.com/t/sqlfluff/sh
 
 # SQLFluff on Twitter
 
-Follow us [on Twitter @SQLFLuff](https://twitter.com/SQLFluff) for announcements and other related posts.
+Follow us [on Twitter @SQLFluff](https://twitter.com/SQLFluff) for announcements and other related posts.
 
 # Contributing
 
