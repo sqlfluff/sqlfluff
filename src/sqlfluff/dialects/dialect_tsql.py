@@ -174,6 +174,7 @@ class SelectStatementSegment(BaseSegment):
         ]
     )
 
+
 @tsql_dialect.segment(replace=True)
 class CreateIndexStatementSegment(BaseSegment):
     """A `CREATE INDEX` statement.
