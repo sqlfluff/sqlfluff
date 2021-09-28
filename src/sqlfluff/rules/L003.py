@@ -282,6 +282,7 @@ class Rule_L003(BaseRule):
 
     @classmethod
     def _is_last_segment(cls, segment, memory, parent_stack, siblings_post):
+        """Returns True if 'segment' is the very last node in the parse tree."""
         if siblings_post:
             # We have subsequent siblings. Not finished.
             return False
@@ -365,6 +366,13 @@ class Rule_L003(BaseRule):
             return LintResult(memory=memory)
 
     def _process_current_line(self, res, memory, templated_file):
+        """Checks indentation of one line of code, returning a LintResult.
+
+        The _eval() function calls it for the current line of code:
+        - When passed a newline segment (thus ending a line)
+        - When passed the *final* segment in the entire parse tree (which may
+          not be a newline)
+        """
         this_line_no = max(res.keys())
         this_line = res.pop(this_line_no)
         self.logger.debug(
