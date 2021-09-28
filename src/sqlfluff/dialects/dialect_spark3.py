@@ -133,13 +133,24 @@ spark3_dialect.add(
     BracketedPropertyListGrammar=hive_dialect.get_grammar("BracketedPropertyListGrammar"),
     CommentGrammar=hive_dialect.get_grammar("CommentGrammar"),
     LocationGrammar=hive_dialect.get_grammar("LocationGrammar"),
-    PartitionSpecGrammar=hive_dialect.get_grammar("PartitionSpecGrammar"),
     PropertyGrammar=hive_dialect.get_grammar("PropertyGrammar"),
     SerdePropertiesGrammar=hive_dialect.get_grammar("SerdePropertiesGrammar"),
     SingleOrDoubleQuotedLiteralGrammar=hive_dialect.get_grammar("SingleOrDoubleQuotedLiteralGrammar"),
     # Add Spark Grammar
+    BucketSpecGrammar=Sequence(
+        Ref("ClusterSpecGrammar"),
+        Ref("SortSpecGrammar", optional=True),
+        "INTO",
+        Ref("NumericLiteralSegment"),
+        "BUCKETS",
+    ),
+    ClusterSpecGrammar=Sequence(
+        "CLUSTERED",
+        "BY",
+        Ref("BracketedColumnReferenceListGrammar"),
+    ),
     DatabasePropertiesGrammar=Sequence("DBPROPERTIES", Ref("BracketedPropertyListGrammar")),
-    FileFormatGrammar=OneOf(
+    DataSourceFormatGrammar=OneOf(
         # Spark Core Data Sources
         # https://spark.apache.org/docs/latest/sql-data-sources.html
         "AVRO",
@@ -152,6 +163,18 @@ spark3_dialect.add(
         "DELTA",  # https://github.com/delta-io/delta
         "XML",  # https://github.com/databricks/spark-xml
     ),
+    PartitionSpecGrammar=Sequence(
+        OneOf("PARTITION", Sequence("PARTITIONED", "BY")),
+        Bracketed(
+            Delimited(
+                Sequence(
+                    Ref("ColumnReferenceSegment"),
+                    Ref("EqualsSegment", optional=True),
+                    Ref("LiteralGrammar", optional=True),
+                ),
+            ),
+        ),
+    ),
     ResourceFileGrammar=OneOf(
         "JAR",
         "FILE",
@@ -161,14 +184,27 @@ spark3_dialect.add(
         Ref("ResourceFileGrammar"),
         Ref("SingleOrDoubleQuotedLiteralGrammar"),
     ),
-    SetTablePropertiesGrammar=Sequence(
-        "SET", "TBLPROPERTIES", Ref("BracketedPropertyListGrammar")
+    SortSpecGrammar=Sequence(
+        "SORTED",
+        "BY",
+        Bracketed(
+            Delimited(
+                Sequence(
+                    Ref("ColumnReferenceSegment"),
+                    OneOf("ASC", "DESC", optional=True),
+                )
+            )
+        ),
+        optional=True,
     ),
     UnsetTablePropertiesGrammar=Sequence(
         "UNSET",
         "TBLPROPERTIES",
         Ref("IfExistsGrammar", optional=True),
         Bracketed(Delimited(Ref("SingleOrDoubleQuotedLiteralGrammar"))),
+    ),
+    TablePropertiesGrammar=Sequence(
+        "TBLPROPERTIES", Ref("BracketedPropertyListGrammar")
     ),
 )
 # Primitive Data Types
@@ -358,7 +394,7 @@ class AlterTableStatementSegment(BaseSegment):
                 Sequence("PURGE", optional=True),
             ),
             # ALTER TABLE - SET PROPERTIES
-            Ref("SetTablePropertiesGrammar"),
+            Sequence("SET", Ref("TablePropertiesGrammar")),
             # ALTER TABLE - UNSET PROPERTIES
             Ref("UnsetTablePropertiesGrammar"),
             # ALTER TABLE - SET SERDE
@@ -382,7 +418,7 @@ class AlterTableStatementSegment(BaseSegment):
                 Ref("PartitionSpecGrammar", optional=True),
                 "SET",
                 "FILEFORMAT",
-                Ref("FileFormatGrammar"),
+                Ref("DataSourceFormatGrammar"),
             ),
             # ALTER TABLE - CHANGE FILE LOCATION
             Sequence(
@@ -413,7 +449,7 @@ class AlterViewStatementSegment(BaseSegment):
                 "TO",
                 Ref("TableReferenceSegment"),
             ),
-            Ref("SetTablePropertiesGrammar"),
+            Sequence("SET", Ref("TablePropertiesGrammar")),
             Ref("UnsetTablePropertiesGrammar"),
             Sequence(
                 "AS",
@@ -474,33 +510,50 @@ class CreateFunctionStatementSegment(BaseSegment):
     )
 
 
-# @spark_dialect.segment(replace=True)
-# class CreateTableStatementSegment(ansi_dialect.get_segment("CreateTableStatementSegment")):
-#     """
-#         A `CREATE TABLE` statement using a Data Source.
-#         http://spark.apache.org/docs/latest/sql-ref-syntax-ddl-create-table-datasource.html
-#     """
-#
-#     match_grammar = Sequence(
-#         "CREATE",
-#         "TABLE",
-#         Ref("IfNotExistsGrammar", optional=True),
-#         Ref("TableReferenceSegment"),
-#         # Columns and comment syntax:
-#         Sequence(
-#             Bracketed(
-#                 Delimited(
-#                     Ref("ColumnDefinitionSegment"),
-#                 ),
-#             ),
-#             Ref("CommentClauseSegment", optional=True),
-#         ),
-#         # Create AS syntax:
-#         Sequence(
-#             "AS",
-#             OptionallyBracketed(Ref("SelectableGrammar")),
-#         ),
-#     )
+@spark3_dialect.segment(replace=True)
+class CreateTableStatementSegment(ansi_dialect.get_segment("CreateTableStatementSegment")):
+    """
+        A `CREATE TABLE` statement using a Data Source.
+        http://spark.apache.org/docs/latest/sql-ref-syntax-ddl-create-table-datasource.html
+    """
+
+    match_grammar = Sequence(
+        "CREATE",
+        "TABLE",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        # Columns and comment syntax:
+        Sequence(
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        Ref("ColumnDefinitionSegment"),
+                        Ref("CommentGrammar", optional=True),
+                    ),
+                ),
+            ),
+            optional=True
+        ),
+        Sequence("USING", Ref("DataSourceFormatGrammar"), optional=True),
+        Sequence(
+            "OPTIONS",
+            Ref("BracketedPropertyListGrammar"),
+            optional=True
+        ),
+        Ref("PartitionSpecGrammar", optional=True),
+        Ref("BucketSpecGrammar", optional=True),
+        Ref("LocationGrammar", optional=True),
+        Ref("CommentGrammar", optional=True),
+        Ref("TablePropertiesGrammar", optional=True),
+        # Create AS syntax:
+        Sequence(
+            "AS",
+            OptionallyBracketed(Ref("SelectableGrammar")),
+            optional=True,
+        ),
+    )
+
+
 #
 #
 # @spark_dialect.segment()
