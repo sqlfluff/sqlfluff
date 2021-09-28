@@ -505,3 +505,35 @@ test_jinja_indent_6:
     JOIN {{action}}_raw_effect_sizes USING (user_id)
     {% endif %}
         {% endfor %}
+
+test_jinja_indent_7:
+  # Identical to test_jinja_indent_6 except considered_actions has 2 items.
+  fail_str: |
+    {% set considered_actions=['uses_personal_to', 'uses_personal_subject'] %}
+
+    SELECT
+    foo
+    FROM
+    {% for action in considered_actions %}
+    {% if loop.first %}
+    -- This next section gets very strange with forced template_blocks_indent
+    {{action}}_raw_effect_sizes
+    {% else %}
+    JOIN {{action}}_raw_effect_sizes USING (user_id)
+    {% endif %}
+    {% endfor %}
+
+  fix_str: |
+    {% set considered_actions=['uses_personal_to', 'uses_personal_subject'] %}
+
+    SELECT
+        foo
+    FROM
+        {% for action in considered_actions %}
+        {% if loop.first %}
+        -- This next section gets very strange with forced template_blocks_indent
+        {{action}}_raw_effect_sizes
+        {% else %}
+        JOIN {{action}}_raw_effect_sizes USING (user_id)
+        {% endif %}
+        {% endfor %}
