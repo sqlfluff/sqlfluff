@@ -102,6 +102,7 @@ def assert_structure(yaml_loader, path, code_only=True, include_meta=False):
         ("jinja_b/jinja", False, False),
         # dbt builting
         ("jinja_c_dbt/dbt_builtins", True, False),
+        ("jinja_c_dbt/var_default", True, False),
         # do directive
         ("jinja_e/jinja", True, False),
         # case sensitivity and python literals
@@ -184,11 +185,11 @@ def test__templater_jinja_slice_template(test, result):
         assert "".join(elem[0] for elem in resp) == test
         # check indices
         idx = 0
-        for literal, _, pos in resp:
+        for literal, _, pos, _ in resp:
             assert pos == idx
             idx += len(literal)
     # Check total result
-    assert resp == result
+    assert [r[:3] for r in resp] == result
 
 
 @pytest.mark.parametrize(

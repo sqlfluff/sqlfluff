@@ -14,7 +14,7 @@ on:
   workflow_dispatch:
   schedule:
     # 2am each night
-    - cron: '* 2 * * *'
+    - cron: '00 2 * * *'
   pull_request:
 
 jobs:
@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        jobs: [ 'linting', 'doclinting' ]
+        jobs: [ 'linting', 'doclinting', 'docbuild' ]
     name: ${{ matrix.jobs }} tests
     steps:
     - uses: actions/checkout@v2

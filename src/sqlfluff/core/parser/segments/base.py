@@ -394,7 +394,9 @@ class BaseSegment:
     @classmethod
     def structural_simplify(cls, elem):
         """Simplify the structure recursively so it serializes nicely in json/yaml."""
-        if isinstance(elem, tuple):
+        if len(elem) == 0:
+            return None
+        elif isinstance(elem, tuple):
             # Does this look like an element?
             if len(elem) == 2 and isinstance(elem[0], str):
                 # This looks like a single element, make a dict
@@ -969,6 +971,13 @@ class BaseSegment:
             return
 
         # If we're here, the segment doesn't match the original.
+        linter_logger.debug(
+            "%s at %s: Original: [%r] Fixed: [%r]",
+            type(self).__name__,
+            self.pos_marker.templated_slice,
+            templated_str[self.pos_marker.templated_slice],
+            self.raw,
+        )
 
         # If it's all literal, then we don't need to recurse.
         if self.pos_marker.is_literal():
@@ -978,7 +987,7 @@ class BaseSegment:
             )
         # Can we go deeper?
         elif not self.segments:
-            # It's not literal, but it's also a raw segment. If were going
+            # It's not literal, but it's also a raw segment. If we're going
             # to yield a change, we would have done it from the parent, so
             # we just abort from here.
             return  # pragma: no cover TODO?
@@ -1004,7 +1013,7 @@ class BaseSegment:
                     continue
 
                 # If we get here, then we know it's an original.
-                # Check for deletions at the before this segment (vs the TEMPLATED).
+                # Check for deletions at the point before this segment (vs the TEMPLATED).
                 start_diff = segment.pos_marker.templated_slice.start - templated_idx
 
                 # Check to see whether there's a discontinuity before the current segment

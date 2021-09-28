@@ -143,6 +143,13 @@ class Rule_L034(BaseRule):
                 ordered_select_target_elements = [
                     segment for band in self.seen_band_elements for segment in band
                 ]
+                # TODO: The "if" in the loop below compares corresponding items
+                # to avoid creating "do-nothing" edits. A potentially better
+                # approach would leverage difflib.SequenceMatcher.get_opcodes(),
+                # which generates a list of edit actions (similar to the
+                # command-line "diff" tool in Linux). This is more complex to
+                # implement, but minimizing the number of LintFixes makes the
+                # final application of patches (in "sqlfluff fix") more robust.
                 fixes = [
                     LintFix(
                         "edit",
@@ -152,6 +159,8 @@ class Rule_L034(BaseRule):
                     for initial_select_target_element, replace_select_target_element in zip(
                         select_target_elements, ordered_select_target_elements
                     )
+                    if initial_select_target_element
+                    is not replace_select_target_element
                 ]
                 # Anchoring on the select statement segment ensures that
                 # select statements which include macro targets are ignored

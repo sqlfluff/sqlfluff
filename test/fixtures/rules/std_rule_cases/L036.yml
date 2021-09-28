@@ -48,12 +48,10 @@ test_comment_between_select_and_single_select_target:
         user_id
     FROM
         safe_user
-  # In a normal "sqlfluff fix" run, the weird "FROM" indenting left over after the fix
-  # would be fixed by L003.
   fix_str: |
     SELECT user_id
         -- This is the user's ID.
-        FROM
+    FROM
         safe_user
 
 test_multiple_select_targets_some_newlines_missing_1:
@@ -153,7 +151,64 @@ test_distinct_single_fail_b:
     SELECT
       distinct a
     FROM my_table
-  # NOTE: This doesn't yet reflow nicely. We should solve that elsewhere.
   fix_str: |
     SELECT distinct a
-       FROM my_table
+    FROM my_table
+
+test_single_select_with_no_from:
+  fail_str: "SELECT\n   10000000\n"
+  fix_str: "SELECT 10000000\n"
+
+test_single_select_with_no_from_previous_comment:
+  fail_str: "SELECT\n /* test */  10000000\n"
+  fix_str: "SELECT 10000000\n /* test */\n"
+
+test_single_select_with_comment_after_column:
+  fail_str: |
+    SELECT
+      1 -- this is a comment
+    FROM
+      my_table
+  fix_str: |
+    SELECT 1
+      -- this is a comment
+    FROM
+      my_table
+
+test_single_select_with_comment_after_column_no_space:
+  fail_str: |
+    SELECT
+      1-- this is a comment
+    FROM
+      my_table
+  fix_str: |
+    SELECT 1
+      -- this is a comment
+    FROM
+      my_table
+
+test_single_select_with_multiple_mixed_comments:
+  fail_str: |
+    SELECT
+      -- previous comment
+      1 -- this is a comment
+    FROM
+      my_table
+  fix_str: |
+    SELECT 1
+      -- previous comment
+      -- this is a comment
+    FROM
+      my_table
+
+test_single_select_with_comment before:
+  fail_str: |
+    SELECT
+      /* comment before */ 1
+    FROM
+      my_table
+  fix_str: |
+    SELECT 1
+      /* comment before */
+    FROM
+      my_table

@@ -486,11 +486,17 @@ def fix(force, paths, processes, bench=False, fixed_suffix="", logger=None, **kw
         else:
             stdout = stdin
 
-        if verbose:
-            if templater_error:
-                click.echo("Fix aborted due to unparseable template variables.")
-            if unfixable_error:
-                click.echo("Unfixable violations detected.")
+        if templater_error:
+            click.echo(
+                colorize("Fix aborted due to unparseable template variables.", "red"),
+                err=True,
+            )
+            click.echo(
+                colorize("Use '--ignore templating' to attempt to fix anyway.", "red"),
+                err=True,
+            )
+        if unfixable_error:
+            click.echo(colorize("Unfixable violations detected.", "red"), err=True)
 
         click.echo(stdout, nl=False)
         sys.exit(1 if templater_error or unfixable_error else 0)
@@ -508,7 +514,8 @@ def fix(force, paths, processes, bench=False, fixed_suffix="", logger=None, **kw
                     paths
                 ),
                 "red",
-            )
+            ),
+            err=True,
         )
         sys.exit(1)
 
@@ -755,7 +762,8 @@ def parse(
             colorize(
                 f"The path {path!r} could not be accessed. Check it exists.",
                 "red",
-            )
+            ),
+            err=True,
         )
         sys.exit(1)
 

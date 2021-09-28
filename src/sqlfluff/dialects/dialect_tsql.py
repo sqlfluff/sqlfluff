@@ -10,6 +10,7 @@ from sqlfluff.core.parser import (
     Bracketed,
     Ref,
     Anything,
+    Nothing,
     RegexLexer,
     CodeSegment,
     RegexParser,
@@ -610,4 +611,105 @@ class CreateViewStatementSegment(BaseSegment):
         Ref("ObjectReferenceSegment"),
         "AS",
         Ref("SelectableGrammar"),
+    )
+
+
+@tsql_dialect.segment(replace=True)
+class IntervalExpressionSegment(BaseSegment):
+    """An interval expression segment.
+
+    Not present in T-SQL.
+    """
+
+    type = "interval_expression"
+    match_grammar = Nothing()
+
+
+@tsql_dialect.segment(replace=True)
+class CreateExtensionStatementSegment(BaseSegment):
+    """A `CREATE EXTENSION` statement.
+
+    Not present in T-SQL.
+    """
+
+    type = "create_extension_statement"
+    match_grammar = Nothing()
+
+
+@tsql_dialect.segment(replace=True)
+class CreateModelStatementSegment(BaseSegment):
+    """A BigQuery `CREATE MODEL` statement.
+
+    Not present in T-SQL.
+    """
+
+    type = "create_model_statement"
+    match_grammar = Nothing()
+
+
+@tsql_dialect.segment(replace=True)
+class DropModelStatementSegment(BaseSegment):
+    """A `DROP MODEL` statement.
+
+    Not present in T-SQL.
+    """
+
+    type = "drop_MODELstatement"
+    match_grammar = Nothing()
+
+
+@tsql_dialect.segment(replace=True)
+class OverlapsClauseSegment(BaseSegment):
+    """An `OVERLAPS` clause like in `SELECT.
+
+    Not present in T-SQL.
+    """
+
+    type = "overlaps_clause"
+    match_grammar = Nothing()
+
+
+@tsql_dialect.segment(replace=True)
+class UnorderedSelectStatementSegment(BaseSegment):
+    """A `SELECT` statement without any ORDER clauses or later.
+
+    We need to change ANSI slightly to remove LimitClauseSegment
+    and NamedWindowSegment which don't exist in T-SQL.
+    """
+
+    type = "select_statement"
+    # Remove the LimitClauseSegment and NamedWindowSegment from ANSI
+    match_grammar = StartsWith(
+        Ref("SelectClauseSegment"),
+        terminator=OneOf(
+            Ref("SetOperatorSegment"),
+            Ref("WithNoSchemaBindingClauseSegment"),
+            Ref("OrderByClauseSegment"),
+        ),
+        enforce_whitespace_preceding_terminator=True,
+    )
+
+    parse_grammar = ansi_dialect.get_segment(
+        "UnorderedSelectStatementSegment"
+    ).parse_grammar.copy()
+
+
+@tsql_dialect.segment(replace=True)
+class SelectStatementSegment(BaseSegment):
+    """A `SELECT` statement.
+
+    We need to change ANSI slightly to remove LimitClauseSegment
+    and NamedWindowSegment which don't exist in T-SQL.
+    """
+
+    type = "select_statement"
+    match_grammar = ansi_dialect.get_segment(
+        "SelectStatementSegment"
+    ).match_grammar.copy()
+
+    # Remove the Limit and Window statements from ANSI
+    parse_grammar = UnorderedSelectStatementSegment.parse_grammar.copy(
+        insert=[
+            Ref("OrderByClauseSegment", optional=True),
+        ]
     )

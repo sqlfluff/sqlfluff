@@ -1,0 +1,132 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 36637b9aafb36b617d6652c0873162f40f248b4213159cac25bf2ba431e2c3e8
+file:
+  statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - identifier: db
+      - dot: .
+      - identifier: foo
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          identifier: col1
+          data_type:
+            primitive_type:
+              keyword: string
+      - comma: ','
+      - column_definition:
+          identifier: col2
+          data_type:
+            primitive_type:
+              keyword: int
+      - comma: ','
+      - column_definition:
+          identifier: col3
+          data_type:
+            primitive_type:
+              keyword: decimal
+      - comma: ','
+      - column_definition:
+          identifier: col4
+          data_type:
+            primitive_type:
+              keyword: decimal
+              bracketed:
+              - start_bracket: (
+              - literal: '10'
+              - comma: ','
+              - literal: '2'
+              - end_bracket: )
+      - comma: ','
+      - column_definition:
+          identifier: col5
+          data_type:
+            keyword: ARRAY
+            start_angle_bracket: <
+            data_type:
+              primitive_type:
+                keyword: double
+            end_angle_bracket: '>'
+      - comma: ','
+      - column_definition:
+          identifier: col6
+          data_type:
+            keyword: MAP
+            start_angle_bracket: <
+            primitive_type:
+              keyword: varchar
+            comma: ','
+            data_type:
+              primitive_type:
+                keyword: date
+            end_angle_bracket: '>'
+      - comma: ','
+      - column_definition:
+          identifier: col7
+          data_type:
+          - keyword: STRUCT
+          - start_angle_bracket: <
+          - identifier: field1
+          - colon: ':'
+          - data_type:
+              primitive_type:
+                keyword: boolean
+          - comma: ','
+          - identifier: field2
+          - colon: ':'
+          - data_type:
+              keyword: ARRAY
+              start_angle_bracket: <
+              data_type:
+                primitive_type:
+                - keyword: double
+                - keyword: precision
+              end_angle_bracket: '>'
+          - comma: ','
+          - identifier: field3
+          - colon: ':'
+          - data_type:
+            - keyword: UNIONTYPE
+            - start_angle_bracket: <
+            - data_type:
+                primitive_type:
+                  keyword: string
+            - comma: ','
+            - data_type:
+                primitive_type:
+                  keyword: decimal
+                  bracketed:
+                  - start_bracket: (
+                  - literal: '10'
+                  - comma: ','
+                  - literal: '2'
+                  - end_bracket: )
+            - end_angle_bracket: '>'
+          - end_angle_bracket: '>'
+      - comma: ','
+      - column_definition:
+          identifier: col8
+          data_type:
+          - keyword: UNIONTYPE
+          - start_angle_bracket: <
+          - data_type:
+              primitive_type:
+                keyword: string
+          - comma: ','
+          - data_type:
+              keyword: ARRAY
+              start_angle_bracket: <
+              data_type:
+                primitive_type:
+                  keyword: char
+              end_angle_bracket: '>'
+          - end_angle_bracket: '>'
+      - end_bracket: )
+  statement_terminator: ;

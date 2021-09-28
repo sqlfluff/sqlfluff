@@ -52,39 +52,6 @@ to be a representation of vanilla SQL before any other project adds their
 spin to it, and so may contain a slightly wider set of functions than actually
 available in true ANSI SQL.
 
-.. _postgres_dialect_ref:
-
-PostgreSQL
-----------
-
-This is based around the `PostgreSQL spec`_, and is also part of the
-inheritance chain for several other dialects which were heavily inspired
-by this one. The :ref:`snowflake_dialect_ref` dialect depends directly on
-this one, and if you're running `AWS Redshift`_ or `Greenplum`_ this is
-the dialect to use (until someone makes a specific dialect).
-
-.. _`PostgreSQL spec`: https://www.postgresql.org/docs/9.6/reference.html
-.. _`AWS Redshift`: https://aws.amazon.com/redshift/
-.. _`Greenplum`: https://greenplum.org/
-
-.. _mysql_dialect_ref:
-
-MySql
------
-
-The dialect for `MySQL`_.
-
-.. _`MySQL`: https://www.mysql.com/
-
-.. _teradata_dialect_ref:
-
-Teradata
---------
-
-The dialect for `Teradata`_.
-
-.. _`Teradata`: https://www.teradata.co.uk/
-
 .. _bigquery_dialect_ref:
 
 BigQuery
@@ -93,6 +60,47 @@ BigQuery
 The dialect for `Google BigQuery`_.
 
 .. _`Google BigQuery`: https://cloud.google.com/bigquery/
+
+.. _exasol_dialect_ref:
+
+Exasol
+------
+
+The dialect for `Exasol`_. Note that currently Exasol script and functions
+create statements are currently defined in a separate ``exasol_fs`` dialect.
+
+.. _`Exasol`: https://www.exasol.com/
+
+.. _hive_dialect_ref:
+
+Hive
+----
+
+The dialect for `Hive`_.
+
+.. _`Hive`: https://hive.apache.org/
+
+.. _mysql_dialect_ref:
+
+MySQL
+-----
+
+The dialect for `MySQL`_.
+
+.. _`MySQL`: https://www.mysql.com/
+
+.. _postgres_dialect_ref:
+
+PostgreSQL
+----------
+
+This is based around the `PostgreSQL spec`_. Many other SQL instances are often
+based on PostreSQL syntax. If you're running `AWS Redshift`_ or `Greenplum`_
+this is the dialect to use (until someone makes a specific dialect).
+
+.. _`PostgreSQL spec`: https://www.postgresql.org/docs/9.6/reference.html
+.. _`AWS Redshift`: https://aws.amazon.com/redshift/
+.. _`Greenplum`: https://greenplum.org/
 
 .. _snowflake_dialect_ref:
 
@@ -103,3 +111,30 @@ The dialect for `Snowflake`_, which has much of its syntax
 inherited from :ref:`postgres_dialect_ref`.
 
 .. _`Snowflake`: https://docs.snowflake.com/en/sql-reference.html
+
+.. _sqlite_dialect_ref:
+
+SQLite
+------
+
+The dialect for `SQLite`_.
+
+.. _`SQLite`: https://www.sqlite.org/
+
+.. _tsql_dialect_ref:
+
+T-SQL
+-----
+
+The dialect for `T-SQL`_ (aka Transact-SQL).
+
+.. _`T-SQL`: https://docs.microsoft.com/en-us/sql/t-sql/language-reference
+
+.. _teradata_dialect_ref:
+
+Teradata
+--------
+
+The dialect for `Teradata`_.
+
+.. _`Teradata`: https://www.teradata.co.uk/

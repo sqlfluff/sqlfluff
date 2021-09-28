@@ -1,4 +1,4 @@
-
+#
 # This updates the current draft release notes when a PR is merged
 #
 name: Add to Release Notes

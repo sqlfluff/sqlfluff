@@ -1,0 +1,68 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 10c15820a7467b5b0bb0aba049cf342d6c8aec36f90d37801c7ed414d0593ead
+file:
+- statement:
+    alter_user:
+    - keyword: ALTER
+    - keyword: USER
+    - identifier: user_1
+    - keyword: IDENTIFIED
+    - password_auth:
+        keyword: BY
+        identifier: '"h22_xhz"'
+    - keyword: REPLACE
+    - identifier: '"h12_xhz"'
+- statement_terminator: ;
+- statement:
+    alter_user:
+    - keyword: ALTER
+    - keyword: USER
+    - identifier: user_1
+    - keyword: IDENTIFIED
+    - password_auth:
+        keyword: BY
+        identifier: '"h12_xhz"'
+- statement_terminator: ;
+- statement:
+    alter_user:
+    - keyword: ALTER
+    - keyword: USER
+    - identifier: user_2
+    - keyword: IDENTIFIED
+    - ldap_auth:
+      - keyword: AT
+      - keyword: LDAP
+      - keyword: AS
+      - literal: "'cn=user_2,dc=authorization,dc=exasol,dc=com'"
+- statement_terminator: ;
+- statement:
+    alter_user:
+    - keyword: ALTER
+    - keyword: USER
+    - identifier: user_3
+    - keyword: PASSWORD_EXPIRY_POLICY
+    - comparison_operator: '='
+    - literal: "'42 days'"
+- statement_terminator: ;
+- statement:
+    alter_user:
+    - keyword: ALTER
+    - keyword: USER
+    - identifier: user_4
+    - keyword: PASSWORD
+    - keyword: EXPIRE
+- statement_terminator: ;
+- statement:
+    alter_user:
+    - keyword: ALTER
+    - keyword: USER
+    - identifier: user_5
+    - keyword: RESET
+    - keyword: FAILED
+    - keyword: LOGIN
+    - keyword: ATTEMPTS
+- statement_terminator: ;

@@ -945,7 +945,7 @@ class PartitionClauseSegment(BaseSegment):
     match_grammar = StartsWith(
         "PARTITION",
         terminator=OneOf("ORDER", Ref("FrameClauseUnitGrammar")),
-        enforce_whitespace_preceeding_terminator=True,
+        enforce_whitespace_preceding_terminator=True,
     )
     parse_grammar = Sequence(
         "PARTITION",
@@ -1132,7 +1132,7 @@ class SelectClauseElementSegment(BaseSegment):
         "LIMIT",
         Ref("CommaSegment"),
         Ref("SetOperatorSegment"),
-        enforce_whitespace_preceeding_terminator=True,
+        enforce_whitespace_preceding_terminator=True,
     )
 
     parse_grammar = OneOf(
@@ -1171,7 +1171,7 @@ class SelectClauseSegment(BaseSegment):
             "OVERLAPS",
             Ref("SetOperatorSegment"),
         ),
-        enforce_whitespace_preceeding_terminator=True,
+        enforce_whitespace_preceding_terminator=True,
     )
 
     parse_grammar = Sequence(
@@ -1290,7 +1290,7 @@ class FromClauseSegment(BaseSegment):
     match_grammar = StartsWith(
         "FROM",
         terminator=Ref("FromClauseTerminatorGrammar"),
-        enforce_whitespace_preceeding_terminator=True,
+        enforce_whitespace_preceding_terminator=True,
     )
     parse_grammar = Sequence(
         "FROM",
@@ -1578,7 +1578,7 @@ class WhereClauseSegment(BaseSegment):
     match_grammar = StartsWith(
         "WHERE",
         terminator=Ref("WhereClauseTerminatorGrammar"),
-        enforce_whitespace_preceeding_terminator=True,
+        enforce_whitespace_preceding_terminator=True,
     )
     parse_grammar = Sequence(
         "WHERE",
@@ -1638,7 +1638,7 @@ class GroupByClauseSegment(BaseSegment):
     match_grammar = StartsWith(
         Sequence("GROUP", "BY"),
         terminator=OneOf("ORDER", "LIMIT", "HAVING", "QUALIFY", "WINDOW"),
-        enforce_whitespace_preceeding_terminator=True,
+        enforce_whitespace_preceding_terminator=True,
     )
     parse_grammar = Sequence(
         "GROUP",
@@ -1666,7 +1666,7 @@ class HavingClauseSegment(BaseSegment):
     match_grammar = StartsWith(
         "HAVING",
         terminator=OneOf("ORDER", "LIMIT", "QUALIFY", "WINDOW"),
-        enforce_whitespace_preceeding_terminator=True,
+        enforce_whitespace_preceding_terminator=True,
     )
     parse_grammar = Sequence(
         "HAVING",
@@ -1794,7 +1794,7 @@ class UnorderedSelectStatementSegment(BaseSegment):
             Ref("LimitClauseSegment"),
             Ref("NamedWindowSegment"),
         ),
-        enforce_whitespace_preceeding_terminator=True,
+        enforce_whitespace_preceding_terminator=True,
     )
 
     parse_grammar = Sequence(
@@ -1826,7 +1826,7 @@ class SelectStatementSegment(BaseSegment):
         terminator=OneOf(
             Ref("SetOperatorSegment"), Ref("WithNoSchemaBindingClauseSegment")
         ),
-        enforce_whitespace_preceeding_terminator=True,
+        enforce_whitespace_preceding_terminator=True,
     )
 
     # Inherit most of the parse grammar from the original.
@@ -1999,6 +1999,7 @@ class ColumnConstraintSegment(BaseSegment):
         ),
         OneOf(
             Sequence(Ref.keyword("NOT", optional=True), "NULL"),  # NOT NULL or NULL
+            Sequence("CHECK", Bracketed(Ref("ExpressionSegment"))),
             Sequence(  # DEFAULT <value>
                 "DEFAULT",
                 OneOf(

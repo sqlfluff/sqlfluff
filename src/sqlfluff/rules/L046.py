@@ -11,6 +11,7 @@ class Rule_L046(BaseRule):
     | are hard to read.
 
     .. code-block:: sql
+       :force:
 
         SELECT {{    a     }} from {{ref('foo')}}
 
@@ -19,6 +20,7 @@ class Rule_L046(BaseRule):
     | longer gaps containing newlines are acceptable.
 
     .. code-block:: sql
+       :force:
 
         SELECT {{ a }} from {{ ref('foo') }};
         SELECT {{ a }} from {{
