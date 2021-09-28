@@ -707,9 +707,9 @@ class Rule_L003(BaseRule):
                         placeholder = segment
                 else:
                     memory["in_indent"] = False
-                    # we've found a non-whitespace element. This is our trigger.
-                    # Walk backwards from the segment. Is there a placeholder
-                    # earlier on the line? If so, return that instead.
+                    # we've found a non-whitespace element. This will be our
+                    # trigger unless there is a placeholder earlier on the line,
+                    # in which case we want to return that instead.
                     if placeholder:
                         return placeholder
                     return segment
