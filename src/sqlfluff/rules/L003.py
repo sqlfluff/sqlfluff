@@ -709,16 +709,9 @@ class Rule_L003(BaseRule):
                     memory["in_indent"] = False
                     # we've found a non-whitespace element. This is our trigger.
                     # Walk backwards from the segment. Is there a placeholder
-                    # immediately preceeding it? (Ignore meta and whitespace.)
-                    # If so, return that instead.
-                    for idx2 in range(idx - 1, -1, -1):
-                        if line[idx2].is_type("placeholder"):
-                            slices = templated_file.raw_slices_spanning_source_slice(
-                                            line[idx2].pos_marker.source_slice)
-                            if slices[0].slice_type == "templated":
-                                return line[idx2]
-                        if not line[idx2].is_type("whitespace") and not (line[idx2].is_meta and line[idx2].indent_val != 0):
-                            break
+                    # earlier on the line? If so, return that instead.
+                    if placeholder:
+                        return placeholder
                     return segment
             else:
                 # Not in indent and not a newline, don't trigger here.
