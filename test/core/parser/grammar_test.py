@@ -632,7 +632,7 @@ def test__parser__grammar_greedyuntil(
     """Test the GreedyUntil grammar."""
     grammar = GreedyUntil(
         StringParser(keyword, KeywordSegment),
-        enforce_whitespace_preceeding_terminator=enforce_ws,
+        enforce_whitespace_preceding_terminator=enforce_ws,
     )
     with RootParseContext(dialect=fresh_ansi_dialect) as ctx:
         assert (

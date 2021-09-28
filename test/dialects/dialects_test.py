@@ -59,7 +59,11 @@ def test__dialect__base_parse_struct(
     expected_hash, res = yaml_loader(make_dialect_path(dialect, yamlfile))
     if parsed:
         # Verify the current parse tree matches the historic parse tree.
-        assert parsed.to_tuple(code_only=code_only, show_raw=True) == res
+        parsed_tree = parsed.to_tuple(code_only=code_only, show_raw=True)
+        # The prased tree consists of a tuple of "File:", followed by the
+        # statements. So only compare when there is at least one statement.
+        if parsed_tree[1] or res[1]:
+            assert parsed_tree == res
         # Verify the current hash matches the historic hash. The main purpose of
         # this check is to force contributors to use the generator script to
         # to create these files. New contributors have sometimes been unaware of

@@ -3,7 +3,10 @@
 
 # You can set these variables from the command line, and also
 # from the environment for the first two.
-SPHINXOPTS    ?=
+# We want SPHINX to warn on error (-W) for example if we don't force SQL
+# formatting, but we also want to continue "--keep-going" and check the
+# other docs before exiting non-zero
+SPHINXOPTS    ?= -W --keep-going
 SPHINXBUILD   ?= sphinx-build
 SOURCEDIR     = source
 BUILDDIR      = build

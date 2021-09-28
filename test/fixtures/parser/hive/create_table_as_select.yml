@@ -1,0 +1,62 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 5cba98b746d617d60343630ba140761c80b7f1caf085a1b7c8245e34fa970920
+file:
+  statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        identifier: new_foo
+    - row_format_clause:
+      - keyword: ROW
+      - keyword: FORMAT
+      - keyword: SERDE
+      - literal: '"org.apache.hadoop.hive.serde2.columnar.ColumnarSerDe"'
+    - keyword: STORED
+    - keyword: AS
+    - keyword: RCFile
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            expression:
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    identifier: col1
+                  binary_operator: '%'
+                  literal: '1024'
+                end_bracket: )
+            alias_expression:
+              identifier: col
+        - comma: ','
+        - select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: concat
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    identifier: col1
+              - comma: ','
+              - expression:
+                  column_reference:
+                    identifier: col2
+              - end_bracket: )
+            alias_expression:
+              identifier: col12
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: foo
+  statement_terminator: ;

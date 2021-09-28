@@ -109,7 +109,7 @@ exasol_dialect.add(
             Ref("TablePartitionByGrammar"),
             Ref("DelimiterSegment"),
         ),
-        enforce_whitespace_preceeding_terminator=True,
+        enforce_whitespace_preceding_terminator=True,
     ),
     TablePartitionByGrammar=StartsWith(
         Sequence(
@@ -127,7 +127,7 @@ exasol_dialect.add(
             Ref("TableDistributeByGrammar"),
             Ref("DelimiterSegment"),
         ),
-        enforce_whitespace_preceeding_terminator=True,
+        enforce_whitespace_preceding_terminator=True,
     ),
     TableConstraintEnableDisableGrammar=OneOf("ENABLE", "DISABLE"),
     EscapedIdentifierSegment=RegexParser(
@@ -215,7 +215,7 @@ class SelectStatementSegment(BaseSegment):
     match_grammar = StartsWith(
         Ref("SelectClauseSegment"),
         terminator=Ref("SetOperatorSegment"),
-        enforce_whitespace_preceeding_terminator=True,
+        enforce_whitespace_preceding_terminator=True,
     )
 
     parse_grammar = Sequence(
@@ -280,7 +280,7 @@ class ConnectByClauseSegment(BaseSegment):
             "LIMIT",
             Ref("SetOperatorSegment"),
         ),
-        enforce_whitespace_preceeding_terminator=True,
+        enforce_whitespace_preceding_terminator=True,
     )
     parse_grammar = OneOf(
         Sequence(
@@ -320,7 +320,7 @@ class GroupByClauseSegment(BaseSegment):
             "QUALIFY",
             Ref("SetOperatorSegment"),
         ),
-        enforce_whitespace_preceeding_terminator=True,
+        enforce_whitespace_preceding_terminator=True,
     )
     parse_grammar = Sequence(
         "GROUP",
@@ -2437,7 +2437,7 @@ class ObjectPrivilegesSegment(BaseSegment):
     https://docs.exasol.com/database_concepts/privileges/details_rights_management.htm#System_Privileges
     """
 
-    type = "obejct_privilege"
+    type = "object_privilege"
     match_grammar = OneOf(
         "ALTER",
         "SELECT",

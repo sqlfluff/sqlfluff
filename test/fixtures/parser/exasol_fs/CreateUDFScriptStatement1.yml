@@ -1,0 +1,76 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 7030f19ab4f318f07a6ec4138a830fcf712ef0b5c80a9d35ad778ca8b1661637
+file:
+  statement:
+    create_udf_script:
+    - keyword: CREATE
+    - keyword: LUA
+    - keyword: SCALAR
+    - keyword: SCRIPT
+    - script_reference:
+        identifier: my_average
+    - bracketed:
+      - start_bracket: (
+      - column_datatype_definition:
+          identifier: a
+          data_type:
+            data_type_identifier: DOUBLE
+      - comma: ','
+      - column_datatype_definition:
+          identifier: b
+          data_type:
+            data_type_identifier: DOUBLE
+      - orderby_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - literal: '1'
+        - keyword: desc
+      - end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: DOUBLE
+    - keyword: AS
+    - script_content:
+      - raw: function
+      - raw: run
+      - bracketed:
+          start_bracket: (
+          raw: ctx
+          end_bracket: )
+      - raw: if
+      - raw: ctx
+      - raw: .
+      - raw: a
+      - raw: '='
+      - raw: '='
+      - raw: nil
+      - raw: or
+      - raw: ctx
+      - raw: .
+      - raw: b
+      - raw: '='
+      - raw: '='
+      - raw: nil
+      - raw: then
+      - raw: return
+      - raw: 'NULL'
+      - raw: end
+      - raw: return
+      - bracketed:
+        - start_bracket: (
+        - raw: ctx
+        - raw: .
+        - raw: a
+        - raw: +
+        - raw: ctx
+        - raw: .
+        - raw: b
+        - end_bracket: )
+      - raw: /
+      - raw: '2'
+      - raw: end
+  statement_terminator: /

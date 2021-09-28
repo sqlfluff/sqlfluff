@@ -23,9 +23,11 @@ Although SQL is reasonably consistent in its implementations, there are several 
 - ANSI SQL - this is the base version and on occasion may not strictly follow the ANSI/ISO SQL definition
 - [BigQuery](https://cloud.google.com/bigquery/)
 - [Exasol](https://www.exasol.com/)
+- [Hive](https://hive.apache.org/)
 - [MySQL](https://www.mysql.com/)
 - [PostgreSQL](https://www.postgresql.org/) (aka Postgres)
 - [Snowflake](https://www.snowflake.com/)
+- [SQLite](https://www.sqlite.org/)
 - [Teradata](https://www.teradata.com/)
 - [Transact-SQL](https://docs.microsoft.com/en-us/sql/t-sql/language-reference) (aka T-SQL)
 

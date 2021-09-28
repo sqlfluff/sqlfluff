@@ -15,6 +15,7 @@ from sqlfluff.core.parser import (
     NamedParser,
     SymbolSegment,
     StartsWith,
+    CommentSegment,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -27,13 +28,88 @@ postgres_dialect = ansi_dialect.copy_as("postgres")
 postgres_dialect.insert_lexer_matchers(
     # JSON Operators: https://www.postgresql.org/docs/9.5/functions-json.html
     [
+        # Explanation for the regex
+        # - (?s) Switch - .* includes newline characters
+        # - U& - must start with U&
+        # - (('')+?(?!')|('.*?(?<!')(?:'')*'(?!')))
+        #    ('')+?                                 Any non-zero number of pairs of single quotes -
+        #          (?!')                            that are not then followed by a single quote
+        #               |                           OR
+        #                ('.*?(?<!')(?:'')*'(?!'))
+        #                 '.*?                      A single quote followed by anything (non-greedy)
+        #                     (?<!')(?:'')*         Any even number of single quotes, including zero
+        #                                  '(?!')   Followed by a single quote, which is not followed by a single quote
+        # - (\s*UESCAPE\s*'[^0-9A-Fa-f'+\-\s)]')?
+        #    \s*UESCAPE\s*                          Whitespace, followed by UESCAPE, followed by whitespace
+        #                 '[^0-9A-Fa-f'+\-\s)]'     Any character that isn't A-F, a-f, 0-9, +-, or whitespace, in quotes
+        #                                       ?   This last block is optional
+        RegexLexer(
+            "unicode_single_quote",
+            r"(?s)U&(('')+?(?!')|('.*?(?<!')(?:'')*'(?!')))(\s*UESCAPE\s*'[^0-9A-Fa-f'+\-\s)]')?",
+            CodeSegment,
+        ),
+        # This is similar to the Unicode regex, the key differences being:
+        # - E - must start with E
+        # - The final quote character must be preceded by:
+        # (?<!\\)(?:\\\\)*(?<!')(?:'')     An even/zero number of \ followed by an even/zero number of '
+        # OR
+        # (?<!\\)(?:\\\\)*\\(?<!')(?:'')*' An odd number of \ followed by an odd number of '
+        # There is no UESCAPE block
+        RegexLexer(
+            "escaped_single_quote",
+            r"(?s)E(('')+?(?!')|'.*?((?<!\\)(?:\\\\)*(?<!')(?:'')*|(?<!\\)(?:\\\\)*\\(?<!')(?:'')*')'(?!'))",
+            CodeSegment,
+        ),
+        # Double quote Unicode string cannot be empty, and have no single quote escapes
+        RegexLexer(
+            "unicode_double_quote",
+            r'(?s)U&".+?"(\s*UESCAPE\s*\'[^0-9A-Fa-f\'+\-\s)]\')?',
+            CodeSegment,
+        ),
         RegexLexer(
             "json_operator",
             r"->>|#>>|->|#>|@>|<@|\?\||\?|\?&|#-",
             CodeSegment,
-        )
+        ),
     ],
     before="not_equal",
+)
+
+postgres_dialect.insert_lexer_matchers(
+    [
+        # Explanation for the regex
+        # \\([^(\\\r\n)])+((\\\\)|(?=\n)|(?=\r\n))?
+        # \\                                        Starts with backslash
+        #   ([^(\\\r\n)])+                          Anything that is not a newline or a backslash
+        #                 (
+        #                  (\\\\)                   Double backslash
+        #                        |                  OR
+        #                         (?=\n)            The next character is a newline
+        #                               |           OR
+        #                                (?=\r\n)   The next 2 characters are a carriage return and a newline
+        #                                        )
+        #                                         ? The previous clause is optional
+        RegexLexer(
+            # For now we'll just treat meta syntax like comments and so just ignore them.
+            # In future we may want to enhance this to actually parse them to ensure they are
+            # valid meta commands.
+            "meta_command",
+            r"\\([^(\\\r\n)])+((\\\\)|(?=\n)|(?=\r\n))?",
+            CommentSegment,
+        )
+    ],
+    before="code",  # Final thing to search for - as psql specific
+)
+
+postgres_dialect.patch_lexer_matchers(
+    [
+        # In Postgres, the only escape character is ' for single quote strings
+        RegexLexer(
+            "single_quote", r"(?s)('')+?(?!')|('.*?(?<!')(?:'')*'(?!'))", CodeSegment
+        ),
+        # In Postgres, there is no escape character for double quote strings
+        RegexLexer("double_quote", r'(?s)".+?"', CodeSegment),
+    ]
 )
 
 postgres_dialect.sets("reserved_keywords").update(
@@ -63,6 +139,23 @@ postgres_dialect.add(
 )
 
 postgres_dialect.replace(
+    QuotedLiteralSegment=OneOf(
+        NamedParser("single_quote", CodeSegment, name="quoted_literal", type="literal"),
+        NamedParser(
+            "unicode_single_quote", CodeSegment, name="quoted_literal", type="literal"
+        ),
+        NamedParser(
+            "escaped_single_quote", CodeSegment, name="quoted_literal", type="literal"
+        ),
+    ),
+    QuotedIdentifierSegment=OneOf(
+        NamedParser(
+            "double_quote", CodeSegment, name="quoted_identifier", type="identifier"
+        ),
+        NamedParser(
+            "unicode_double_quote", CodeSegment, name="quoted_literal", type="literal"
+        ),
+    ),
     PostFunctionGrammar=OneOf(
         Ref("WithinGroupClauseSegment"),
         Ref("OverClauseSegment"),
@@ -91,6 +184,45 @@ postgres_dialect.replace(
 )
 
 
+@postgres_dialect.segment()
+class TimeZoneGrammar(BaseSegment):
+    """Literal Date Time with optional casting to Time Zone."""
+
+    type = "time_zone_grammar"
+    match_grammar = AnyNumberOf(
+        Sequence("AT", "TIME", "ZONE", Ref("QuotedLiteralSegment")),
+    )
+
+
+@postgres_dialect.segment()
+class DateTimeTypeIdentifier(BaseSegment):
+    """Date Time Type."""
+
+    type = "datetime_type_identifier"
+    match_grammar = OneOf(
+        "DATE",
+        Sequence(
+            OneOf("TIME", "TIMESTAMP"),
+            Bracketed(Ref("NumericLiteralSegment"), optional=True),
+            Sequence(OneOf("WITH", "WITHOUT"), "TIME", "ZONE", optional=True),
+        ),
+        Sequence("TIMESTAMPTZ", Bracketed(Ref("NumericLiteralSegment"), optional=True)),
+        "INTERVAL",
+    )
+
+
+@postgres_dialect.segment(replace=True)
+class DateTimeLiteralGrammar(BaseSegment):
+    """Literal Date Time with optional casting to Time Zone."""
+
+    type = "datetime_literal"
+    match_grammar = Sequence(
+        Ref("DateTimeTypeIdentifier"),
+        Ref("QuotedLiteralSegment"),
+        Ref("TimeZoneGrammar", optional=True),
+    )
+
+
 @postgres_dialect.segment(replace=True)
 class DatatypeSegment(BaseSegment):
     """A data type segment.
@@ -101,13 +233,8 @@ class DatatypeSegment(BaseSegment):
     type = "data_type"
     match_grammar = OneOf(
         Sequence(
-            OneOf("time", "timestamp"),
-            Bracketed(Ref("NumericLiteralSegment"), optional=True),
-            OneOf(
-                Sequence(OneOf("WITH", "WITHOUT"), "TIME", "ZONE"),
-                Sequence("AT", "TIME", "ZONE", Ref("LiteralGrammar")),
-                optional=True,
-            ),
+            Ref("DateTimeTypeIdentifier"),
+            Ref("TimeZoneGrammar", optional=True),
         ),
         Sequence(
             OneOf(
