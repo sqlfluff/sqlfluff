@@ -136,7 +136,7 @@ class UnorderedSelectStatementSegment(BaseSegment):
             Ref("LimitClauseSegment"),
             Ref("NamedWindowSegment"),
         ),
-        enforce_whitespace_preceeding_terminator=True,
+        enforce_whitespace_preceding_terminator=True,
     )
 
     parse_grammar = Sequence(
@@ -169,7 +169,7 @@ class SelectStatementSegment(BaseSegment):
         terminator=OneOf(
             Ref("SetOperatorSegment"), Ref("WithNoSchemaBindingClauseSegment")
         ),
-        enforce_whitespace_preceeding_terminator=True,
+        enforce_whitespace_preceding_terminator=True,
     )
 
     # Inherit most of the parse grammar from the original.
@@ -232,7 +232,7 @@ class PivotUnpivotStatementSegment(BaseSegment):
     match_grammar = StartsWith(
         OneOf("PIVOT", "UNPIVOT"),
         terminator=Ref("FromClauseTerminatorGrammar"),
-        enforce_whitespace_preceeding_terminator=True,
+        enforce_whitespace_preceding_terminator=True,
     )
     parse_grammar = Sequence(
         OneOf(
