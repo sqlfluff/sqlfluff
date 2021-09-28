@@ -507,33 +507,43 @@ test_jinja_indent_6:
         {% endfor %}
 
 test_jinja_indent_7:
-  # Identical to test_jinja_indent_6 except considered_actions has 2 items.
+  # Identical to test_jinja_indent_6 except considered_actions has 5 items.
+  # NOTE: Comments like "the if" and "the else" are a workaround for a known
+  # limitation where SQLFluff can't always map expanded code back to the raw
+  # source (issue #1437). If that issue is addressed, these comments could be
+  # removed.
   fail_str: |
-    {% set considered_actions=['uses_personal_to', 'uses_personal_subject'] %}
+    {% set considered_actions=['a1', 'a2', 'a3', 'a4', 'a5'] %}
 
     SELECT
     foo
     FROM
     {% for action in considered_actions %}
+    -- the if
     {% if loop.first %}
     -- This next section gets very strange with forced template_blocks_indent
     {{action}}_raw_effect_sizes
+    -- the else
     {% else %}
+    -- inside the else
     JOIN {{action}}_raw_effect_sizes USING (user_id)
     {% endif %}
     {% endfor %}
 
   fix_str: |
-    {% set considered_actions=['uses_personal_to', 'uses_personal_subject'] %}
+    {% set considered_actions=['a1', 'a2', 'a3', 'a4', 'a5'] %}
 
     SELECT
         foo
     FROM
-        {% for action in considered_actions %}
-        {% if loop.first %}
+    {% for action in considered_actions %}
+    -- the if
+    {% if loop.first %}
         -- This next section gets very strange with forced template_blocks_indent
         {{action}}_raw_effect_sizes
+        -- the else
         {% else %}
-        JOIN {{action}}_raw_effect_sizes USING (user_id)
-        {% endif %}
-        {% endfor %}
+    -- inside the else
+    JOIN {{action}}_raw_effect_sizes USING (user_id)
+    {% endif %}
+    {% endfor %}
