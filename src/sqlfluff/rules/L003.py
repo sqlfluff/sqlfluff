@@ -381,9 +381,7 @@ class Rule_L003(BaseRule):
             # Don't log the line or indent buffer, it's too noisy.
             self._strip_buffers(this_line),
         )
-        trigger_segment = self._find_trigger(
-            this_line["line_buffer"], memory, templated_file
-        )
+        trigger_segment = self._find_trigger(this_line["line_buffer"], memory)
 
         # Is this line just comments?
         if all(
@@ -724,13 +722,16 @@ class Rule_L003(BaseRule):
         return LintResult(memory=memory)
 
     @classmethod
-    def _find_trigger(cls, line, memory, templated_file):
+    def _find_trigger(cls, line, memory):
+        """Given a line of code, find the "trigger" segment.
+
+        Basically, the trigger segment is the first code (regular or templated)
+        on a physical line of code. If an indentation issue is found, this
+        segment will be the "anchor" for the fix.
+        """
         memory["in_indent"] = True
         placeholder = None
         for idx, segment in enumerate(line):
-            # if segment.is_type("newline"):
-            #     memory["in_indent"] = True
-            #     # We're not going to flag on empty lines so we can safely proceed
             if memory["in_indent"]:
                 if segment.is_type("whitespace"):
                     # it's whitespace, carry on
