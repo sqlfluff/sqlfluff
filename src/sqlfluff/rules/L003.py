@@ -74,17 +74,32 @@ class Rule_L003(BaseRule):
 
     @classmethod
     def _reorder_raw_stack(cls, raw_stack, templated_file):
+        """Reorder raw_stack to simplify indentation logic.
+
+        Context: The indentation logic was mostly designed to work with normal
+        segment types. Templating introduces additional segments into the parse
+        tree, often in the "wrong" place with respect to the indentation logic,
+        for example, where do indent/dedent segments appear with respect to the
+        segments that trigger indent/dedent behavior? This function reorders
+        nodes locally (i.e. only within L003) to get the desired behavior.
+
+        If someone feels ambitious, it might be possible someday to eliminate
+        this function by making changes to _process_raw_stack() and _eval().
+        """
         lines = []
         current_line = []
         line_no = 1
+
         def element_sort_key_templated_last(elem):
             if not elem.is_type("placeholder"):
                 return 0
             slices = templated_file.raw_slices_spanning_source_slice(
-                            elem.pos_marker.source_slice)
+                elem.pos_marker.source_slice
+            )
             if slices[0].slice_type != "templated":
                 return 0
             return 1
+
         def element_sort_key_indent_first_dedent_last(elem):
             if elem.is_meta:
                 if elem.indent_val > 0:
@@ -92,10 +107,13 @@ class Rule_L003(BaseRule):
                 elif elem.indent_val < 0:
                     return 2
             return 1
+
         def sort_current_line():
             # If the current line has actual code (whether templated or not)
             # do this.
-            if cls._current_line_has_code_whether_templated_or_not(current_line, templated_file):
+            if cls._current_line_has_code_whether_templated_or_not(
+                current_line, templated_file
+            ):
                 current_line.sort(key=element_sort_key_templated_last)
             else:
                 # Otherwise, place any template code after dedent.
@@ -281,7 +299,16 @@ class Rule_L003(BaseRule):
                 return False
         return True
 
-    def _eval(self, segment, raw_stack, memory, parent_stack, siblings_post, templated_file, **kwargs):
+    def _eval(
+        self,
+        segment,
+        raw_stack,
+        memory,
+        parent_stack,
+        siblings_post,
+        templated_file,
+        **kwargs
+    ):
         """Indentation not consistent with previous lines.
 
         To set the default tab size, set the `tab_space_size` value
@@ -346,7 +373,9 @@ class Rule_L003(BaseRule):
             # Don't log the line or indent buffer, it's too noisy.
             self._strip_buffers(this_line),
         )
-        trigger_segment = self._find_trigger(this_line["line_buffer"], memory, templated_file)
+        trigger_segment = self._find_trigger(
+            this_line["line_buffer"], memory, templated_file
+        )
 
         # Is this line just comments?
         if all(
