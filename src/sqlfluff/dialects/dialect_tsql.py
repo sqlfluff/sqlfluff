@@ -469,7 +469,9 @@ class CreateFunctionStatementSegment(BaseSegment):
 
 @tsql_dialect.segment()
 class SetStatementSegment(BaseSegment):
-    """Setting an already declared variable or global variable.
+    """A Set statement.
+    
+    Setting an already declared variable or global variable.
     https://docs.microsoft.com/en-us/sql/t-sql/statements/set-statements-transact-sql?view=sql-server-ver15
     """
 
