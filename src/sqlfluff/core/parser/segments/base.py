@@ -79,11 +79,20 @@ class BaseSegment:
     # What other kwargs need to be copied when applying fixes.
     additional_kwargs: List[str] = []
 
-    def __init__(self, segments, pos_marker=None, name: Optional[str] = None):
+    def __init__(
+        self,
+        segments,
+        pos_marker=None,
+        name: Optional[str] = None,
+        fname: str = None,
+    ):
         # A cache variable for expandable
         self._is_expandable = None
         # Surrogate name option.
         self._surrogate_name = name
+        # Add the file path to FileSegment
+        self._file_path = fname
+
         if len(segments) == 0:  # pragma: no cover
             raise RuntimeError(
                 "Setting {} with a zero length segment set. This shouldn't happen.".format(
@@ -152,6 +161,14 @@ class BaseSegment:
         return [seg for seg in self.segments if not seg.is_type("comment")]
 
     # ################ PUBLIC PROPERTIES
+
+    @property
+    def file_path(self):
+        """File path of a parsed SQL file.
+
+        This returns None if the RootSegment is not a file
+        or if the segment is not the RootSegment (e.g. StatementSegment)."""
+        return self._file_path
 
     @property
     def name(self):
