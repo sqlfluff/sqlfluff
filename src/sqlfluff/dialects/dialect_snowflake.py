@@ -251,7 +251,7 @@ class GroupByClauseSegment(BaseSegment):
     match_grammar = StartsWith(
         Sequence("GROUP", "BY"),
         terminator=OneOf("ORDER", "LIMIT", "HAVING", "QUALIFY", "WINDOW"),
-        enforce_whitespace_preceeding_terminator=True,
+        enforce_whitespace_preceding_terminator=True,
     )
     parse_grammar = Sequence(
         "GROUP",
@@ -1638,7 +1638,7 @@ class DeleteUsingClauseSegment(BaseSegment):
     match_grammar = StartsWith(
         "USING",
         terminator=Ref.keyword("WHERE"),
-        enforce_whitespace_preceeding_terminator=True,
+        enforce_whitespace_preceding_terminator=True,
     )
     parse_grammar = Sequence(
         "USING",
@@ -1656,5 +1656,5 @@ class FromClauseTerminatingUsingWhereSegment(ansi_dialect.get_segment("FromClaus
     match_grammar = StartsWith(
         "FROM",
         terminator=OneOf(Ref.keyword("USING"), Ref.keyword("WHERE")),
-        enforce_whitespace_preceeding_terminator=True,
+        enforce_whitespace_preceding_terminator=True,
     )
