@@ -71,6 +71,17 @@ class RawFileSlice(NamedTuple):
         """Return the a slice object for this slice."""
         return slice(self.source_idx, self.end_source_idx())
 
+    def block(self):
+        return self.slice_type.startswith("block_")
+
+    def block_start(self):
+        return self.slice_type == "block_start" and self.slice_subtype != "block_whole"
+
+    def block_mid(self):
+        return self.slice_type == "block_mid"
+
+    def block_end(self):
+        return self.slice_type == "block_end"
 
 class TemplatedFileSlice(NamedTuple):
     """A slice referring to a templated file."""

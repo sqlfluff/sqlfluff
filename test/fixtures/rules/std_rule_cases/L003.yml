@@ -367,7 +367,75 @@ test_jinja_indent_1:
     FROM
         {{ 'table1' }}
 
-test_jinja_indent_2:
+test_jinja_indent_2_a:
+  fail_str: |
+    -- This file combines product data from individual brands into a staging table
+    {% for product in ['table1', 'table2'] %}
+    SELECT
+      brand,
+      country_code,
+      category,
+      name,
+      id
+    FROM
+      {{ product }}
+    {% if not loop.last -%} UNION ALL {%- endif %}
+    {% endfor %}
+  fix_str: |
+    -- This file combines product data from individual brands into a staging table
+    {% for product in ['table1', 'table2'] %}
+    SELECT
+        brand,
+        country_code,
+        category,
+        name,
+        id
+    FROM
+        {{ product }}
+    {% if not loop.last -%} UNION ALL {%- endif %}
+    {% endfor %}
+
+
+test_jinja_indent_2_b:
+  # Very similar to test_jinja_indent_2_a, but uses Jinja "set" to provide
+  # the list of products. This test works but may be affected by some issues
+  # with the templated_slice_to_source_slice() function in templaters/base.py.
+  fail_str: |
+    -- This file combines product data from individual brands into a staging table
+    {% set products =  [
+      'table1',
+      'table2'] %}
+
+    {% for product in products %}
+    SELECT
+      brand,
+      country_code,
+      category,
+      name,
+      id
+    FROM
+      {{ product }}
+    {% if not loop.last -%} UNION ALL {%- endif %}
+    {% endfor %}
+  fix_str: |
+    -- This file combines product data from individual brands into a staging table
+    {% set products =  [
+      'table1',
+      'table2'] %}
+
+    {% for product in products %}
+    SELECT
+        brand,
+        country_code,
+        category,
+        name,
+        id
+    FROM
+        {{ product }}
+    {% if not loop.last -%} UNION ALL {%- endif %}
+    {% endfor %}
+
+test_jinja_indent_3:
   fail_str: |
     {% set v="dummy" %}
 
@@ -390,7 +458,7 @@ test_jinja_indent_2:
         {% endfor %}
     CROSS JOIN action_states
 
-test_jinja_indent_3:
+test_jinja_indent_4:
   fail_str: |
     SELECT
         a
@@ -421,7 +489,7 @@ test_jinja_indent_3:
     indentation:
       template_blocks_indent: false
 
-test_jinja_indent_4:
+test_jinja_indent_5:
   fail_str: |
     SELECT
     {% for i in [1] %}
@@ -440,7 +508,7 @@ test_jinja_indent_4:
     indentation:
       template_blocks_indent: false
 
-test_jinja_indent_5:
+test_jinja_indent_6:
   fail_str: |
     SELECT
     a
@@ -470,7 +538,7 @@ test_jinja_indent_5:
             {% endfor %}
     FROM my_table
 
-test_jinja_indent_6:
+test_jinja_indent_7:
   fail_str: |
     {% set considered_actions=['uses_personal_to'] %}
 
@@ -506,8 +574,8 @@ test_jinja_indent_6:
     {% endif %}
         {% endfor %}
 
-test_jinja_indent_7:
-  # Identical to test_jinja_indent_6 except considered_actions has 5 items.
+test_jinja_indent_8:
+  # Identical to test_jinja_indent_7 except considered_actions has 5 items.
   # NOTE: Comments like "the if" and "the else" are a workaround for a known
   # limitation where SQLFluff can't always map expanded code back to the raw
   # source (issue #1437). If that issue is addressed, these comments could be

@@ -169,7 +169,7 @@ def test__templater_full(subpath, code_only, include_meta, yaml_loader, caplog):
         (
             "{% set thing %}FOO{% endset %} BAR",
             [
-                ("{% set thing %}", "block_mid", 0),
+                ("{% set thing %}", "block_start", 0),
                 ("FOO", "literal", 15),
                 ("{% endset %}", "block_end", 18),
                 (" BAR", "literal", 30),
