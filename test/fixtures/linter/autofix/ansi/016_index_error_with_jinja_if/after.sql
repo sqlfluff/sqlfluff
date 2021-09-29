@@ -1,7 +1,7 @@
 -- This file combines product data from individual brands into a staging table
 {% set products =  [
   'table1',
-  'table2'] %}
+  'table2'] %}    
 
 {% for product in products %}
 SELECT
@@ -11,6 +11,6 @@ SELECT
     name,
     id
 FROM
-{{ product }}
+    {{ product }}
 {% if not loop.last -%} UNION ALL {%- endif %}
 {% endfor %}
