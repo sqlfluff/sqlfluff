@@ -365,9 +365,9 @@ class JinjaTemplater(PythonTemplater):
                         if first_word == "for":
                             block_subtype = "loop"
                     else:
-                        # Not necessarily a comment, but we can treat it as one
-                        # for our purposes.
-                        block_type = "block_whole"
+                        # An entire block in one line, e.g. "{% set %}" command.
+                        block_type = "block_start"
+                        block_subtype = "block_whole"
                 yield RawFileSlice(str_buff, block_type, idx, block_subtype)
                 idx += len(str_buff)
                 str_buff = ""
