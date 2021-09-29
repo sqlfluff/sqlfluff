@@ -412,9 +412,9 @@ class Lexer:
 
                 # Calculate potential indent/dedent
                 block_slices = sum(s.block() for s in so_slices)
-                block_balance = sum(
-                    s.block_start() for s in so_slices
-                ) - sum(s.block_end() for s in so_slices)
+                block_balance = sum(s.block_start() for s in so_slices) - sum(
+                    s.block_end() for s in so_slices
+                )
                 lead_dedent = so_slices[0].block_mid() or so_slices[0].block_end()
                 trail_indent = so_slices[-1].block_start() or so_slices[-1].block_mid()
                 add_indents = self.config.get("template_blocks_indent", "indentation")
