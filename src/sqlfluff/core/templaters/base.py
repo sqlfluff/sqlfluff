@@ -68,20 +68,25 @@ class RawFileSlice(NamedTuple):
         return self.source_idx + len(self.raw)
 
     def source_slice(self):
-        """Return the a slice object for this slice."""
+        """Return a slice object for this slice."""
         return slice(self.source_idx, self.end_source_idx())
 
     def block(self):
+        """Is this slice a block?"""
         return self.slice_type.startswith("block_")
 
     def block_start(self):
+        """Does this slice start a block?"""
         return self.slice_type == "block_start" and self.slice_subtype != "block_whole"
 
     def block_mid(self):
+        """Is this slice the middle of a block (e.g. else or elif)??"""
         return self.slice_type == "block_mid"
 
     def block_end(self):
+        """Does this slice end a block?"""
         return self.slice_type == "block_end"
+
 
 class TemplatedFileSlice(NamedTuple):
     """A slice referring to a templated file."""
