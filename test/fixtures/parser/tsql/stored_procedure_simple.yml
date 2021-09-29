@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e46a8464930a5989720eeb4a17b53b6472a4d8714188e98d8888ada67b865129
+_hash: 7cd9182396a63ead72e3af742eeb05bac01bfa7f74af207d04c8ba2c7fac88e1
 file:
   statement:
     create_procedure_statement:
@@ -11,10 +11,16 @@ file:
     - keyword: PROC
     - object_reference:
         identifier: ProcedureName
+    - keyword: AS
     - procedure_statement:
-      - raw: AS
-      - raw: SELECT
-      - raw: DB_NAME
-      - bracketed:
-          start_bracket: (
-          end_bracket: )
+        statement:
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                function:
+                  function_name:
+                    function_name_identifier: DB_NAME
+                  bracketed:
+                    start_bracket: (
+                    end_bracket: )

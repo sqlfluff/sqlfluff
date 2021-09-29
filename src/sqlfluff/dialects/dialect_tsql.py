@@ -3,6 +3,7 @@
 https://docs.microsoft.com/en-us/sql/t-sql/language-elements/language-elements-transact-sql
 """
 
+from typing import Any
 from sqlfluff.core.parser import (
     BaseSegment,
     Sequence,
@@ -87,8 +88,6 @@ tsql_dialect.replace(
         "GROUP",
         "ORDER",
         "HAVING",
-        "QUALIFY",
-        "WINDOW",
         "PIVOT",
         "UNPIVOT",
         Ref("SetOperatorSegment"),
@@ -146,7 +145,6 @@ class UnorderedSelectStatementSegment(BaseSegment):
         Ref("WhereClauseSegment", optional=True),
         Ref("GroupByClauseSegment", optional=True),
         Ref("HavingClauseSegment", optional=True),
-        Ref("OverlapsClauseSegment", optional=True),
     )
 
 
@@ -563,12 +561,19 @@ class CreateProcedureStatementSegment(BaseSegment):
 
     type = "create_procedure_statement"
 
-    match_grammar = Sequence(
+    match_grammar = StartsWith(
+        Sequence(
+            "CREATE", Sequence("OR", "ALTER", optional=True), OneOf("PROCEDURE", "PROC")
+        )
+    )
+    parse_grammar = Sequence(
         "CREATE",
         Sequence("OR", "ALTER", optional=True),
         OneOf("PROCEDURE", "PROC"),
         Ref("ObjectReferenceSegment"),
         Ref("FunctionParameterListGrammar", optional=True),
+        "AS",
+        # Pending to add BEGIN END optional
         Ref("ProcedureDefinitionGrammar"),
     )
 
@@ -580,7 +585,7 @@ class ProcedureDefinitionGrammar(BaseSegment):
     type = "procedure_statement"
     name = "procedure_statement"
 
-    match_grammar = Anything()
+    match_grammar = Ref("StatementSegment")
 
 
 @tsql_dialect.segment(replace=True)
