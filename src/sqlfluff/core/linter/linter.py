@@ -181,7 +181,7 @@ class Linter:
         tokens: Sequence[BaseSegment],
         config: FluffConfig,
         recurse: bool = True,
-        fname: str = None,
+        fname: Optional[str] = None,
     ) -> Tuple[Optional[BaseSegment], List[SQLParseError]]:
         parser = Parser(config=config)
         violations = []

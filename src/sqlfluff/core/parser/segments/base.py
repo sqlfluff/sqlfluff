@@ -84,14 +84,11 @@ class BaseSegment:
         segments,
         pos_marker=None,
         name: Optional[str] = None,
-        fname: str = None,
     ):
         # A cache variable for expandable
         self._is_expandable = None
         # Surrogate name option.
         self._surrogate_name = name
-        # Add the file path to FileSegment
-        self._file_path = fname
 
         if len(segments) == 0:  # pragma: no cover
             raise RuntimeError(
@@ -1136,3 +1133,33 @@ class UnparsableSegment(BaseSegment):
         As this is an unparsable, it should yield itself.
         """
         yield self
+
+
+class BaseFileSegment(BaseSegment):
+    """A segment representing a whole file or script.
+
+    This is also the default "root" segment of the dialect,
+    and so is usually instantiated directly. It therefore
+    has no match_grammar.
+    """
+
+    type = "file"
+    # The file segment is the only one which can start or end with non-code
+    can_start_end_non_code = True
+    # A file can be empty!
+    allow_empty = True
+
+    def __init__(
+        self,
+        segments,
+        pos_marker=None,
+        name: Optional[str] = None,
+        fname: Optional[str] = None,
+    ):
+        self._file_path = fname
+        super().__init__(segments, pos_marker=pos_marker, name=name)
+
+    @property
+    def file_path(self):
+        """File path of a parsed SQL file."""
+        return self._file_path
