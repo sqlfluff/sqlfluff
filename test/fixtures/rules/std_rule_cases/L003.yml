@@ -367,7 +367,7 @@ test_jinja_indent_1:
     FROM
         {{ 'table1' }}
 
-test_jinja_indent_2_a:
+test_jinja_indent_2:
   fail_str: |
     -- This file combines product data from individual brands into a staging table
     {% for product in ['table1', 'table2'] %}
@@ -384,46 +384,6 @@ test_jinja_indent_2_a:
   fix_str: |
     -- This file combines product data from individual brands into a staging table
     {% for product in ['table1', 'table2'] %}
-    SELECT
-        brand,
-        country_code,
-        category,
-        name,
-        id
-    FROM
-        {{ product }}
-    {% if not loop.last -%} UNION ALL {%- endif %}
-    {% endfor %}
-
-
-test_jinja_indent_2_b:
-  # Very similar to test_jinja_indent_2_a, but uses Jinja "set" to provide
-  # the list of products. This test works but may be affected by some issues
-  # with the templated_slice_to_source_slice() function in templaters/base.py.
-  fail_str: |
-    -- This file combines product data from individual brands into a staging table
-    {% set products =  [
-      'table1',
-      'table2'] %}
-
-    {% for product in products %}
-    SELECT
-      brand,
-      country_code,
-      category,
-      name,
-      id
-    FROM
-      {{ product }}
-    {% if not loop.last -%} UNION ALL {%- endif %}
-    {% endfor %}
-  fix_str: |
-    -- This file combines product data from individual brands into a staging table
-    {% set products =  [
-      'table1',
-      'table2'] %}    
-
-    {% for product in products %}
     SELECT
         brand,
         country_code,
