@@ -3,7 +3,6 @@
 https://docs.microsoft.com/en-us/sql/t-sql/language-elements/language-elements-transact-sql
 """
 
-from typing import Any
 from sqlfluff.core.parser import (
     BaseSegment,
     Sequence,
