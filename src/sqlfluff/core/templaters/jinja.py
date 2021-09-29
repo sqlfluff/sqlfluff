@@ -365,10 +365,9 @@ class JinjaTemplater(PythonTemplater):
                         if first_word == "for":
                             block_subtype = "loop"
                     else:
-                        # Let's treat it as the middle of a block. It could be
-                        # lots of things, but the important thing is, block_mid
-                        # does not trigger indentation and break L003.
-                        block_type = "block_mid"
+                        # Not necessarily a comment, but we can treat it as one
+                        # for our purposes.
+                        block_type = "comment"
                 yield RawFileSlice(str_buff, block_type, idx, block_subtype)
                 idx += len(str_buff)
                 str_buff = ""
