@@ -484,6 +484,11 @@ class FileSegment(BaseSegment):
             references |= stmt.get_table_references()
         return references
 
+    @property
+    def file_path(self):
+        """File path of a parsed SQL file."""
+        return self._file_path
+
 
 @ansi_dialect.segment()
 class IntervalExpressionSegment(BaseSegment):

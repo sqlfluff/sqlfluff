@@ -163,14 +163,6 @@ class BaseSegment:
     # ################ PUBLIC PROPERTIES
 
     @property
-    def file_path(self):
-        """File path of a parsed SQL file.
-
-        This returns None if the RootSegment is not a file
-        or if the segment is not the RootSegment (e.g. StatementSegment)."""
-        return self._file_path
-
-    @property
     def name(self):
         """The name of this segment.
 

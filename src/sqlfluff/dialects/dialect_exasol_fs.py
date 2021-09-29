@@ -122,6 +122,11 @@ class FileSegment(BaseSegment):
         allow_trailing=True,
     )
 
+    @property
+    def file_path(self):
+        """File path of a parsed SQL file."""
+        return self._file_path
+
 
 ############################
 # FUNCTION
