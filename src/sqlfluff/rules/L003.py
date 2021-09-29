@@ -86,6 +86,7 @@ class Rule_L003(BaseRule):
         If someone feels ambitious, it might be possible someday to eliminate
         this function by making changes to _process_raw_stack() and _eval().
         """
+
         def element_sort_key_templated_last(elem):
             if not elem.is_type("placeholder"):
                 return 0
