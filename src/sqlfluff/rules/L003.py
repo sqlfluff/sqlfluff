@@ -344,6 +344,8 @@ class Rule_L003(BaseRule):
             # (since there may not be a newline on the very last line)..
             return LintResult(memory=memory)
 
+        if raw_stack and raw_stack[-1] is not segment:
+                raw_stack = raw_stack + (segment,)
         res = self._process_raw_stack(
             raw_stack, tab_space_size=self.tab_space_size, templated_file=templated_file
         )
