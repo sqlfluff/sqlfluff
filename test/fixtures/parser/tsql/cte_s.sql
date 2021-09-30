@@ -7,4 +7,4 @@ AS
     GROUP BY SalesPersonID  
 )  
 SELECT AVG(NumberOfOrders) AS "Average Sales Per Person"  
-FROM Sales_CTE;  
+FROM Sales_CTE;
