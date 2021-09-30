@@ -412,6 +412,10 @@ class Rule_L003(BaseRule):
         )
         trigger_segment = self._find_trigger(this_line["line_buffer"], memory)
 
+        # Is this a blank line?
+        if all(seg.is_type("newline") for seg in this_line["line_buffer"]):
+            return LintResult(memory=memory)
+
         # Is this line just comments? (Disregard trailing newline if present.)
         check_comment_line = this_line["line_buffer"]
         if check_comment_line and check_comment_line[-1].is_type("newline"):
