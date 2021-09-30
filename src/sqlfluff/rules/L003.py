@@ -381,11 +381,17 @@ class Rule_L003(BaseRule):
             tab_space_size=self.tab_space_size,
             templated_file=templated_file,
         )
-        if segment.is_type("newline"):
-            memory["old_trigger"] = None
 
         if res:
-            return self._process_current_line(res, memory)
+            trigger_segment = memory["old_trigger"]
+            if trigger_segment:
+                result = self._process_current_line(res, memory)
+                if segment.is_type("newline"):
+                    memory["old_trigger"] = None
+                return result
+            else:
+                return LintResult(memory=memory)
+            return result
         else:
             return LintResult(memory=memory)
 
@@ -405,7 +411,7 @@ class Rule_L003(BaseRule):
             # Don't log the line or indent buffer, it's too noisy.
             self._strip_buffers(this_line),
         )
-        trigger_segment = self._find_trigger(this_line["line_buffer"], memory)
+        trigger_segment = memory["old_trigger"]
 
         # Is this a blank line?
         if all(seg.is_type("newline") for seg in this_line["line_buffer"]):
@@ -751,41 +757,6 @@ class Rule_L003(BaseRule):
 
         # If we get to here, then we're all good for now.
         return LintResult(memory=memory)
-
-    @classmethod
-    def _find_trigger(cls, line, memory):
-        """Given a line of code, find the "trigger" segment.
-
-        Basically, the trigger segment is the first code (regular or templated)
-        on a physical line of code. If an indentation issue is found, this
-        segment will be the "anchor" for the fix.
-        """
-        memory["in_indent"] = True
-        placeholder = None
-        for idx, segment in enumerate(line):
-            if memory["in_indent"]:
-                if segment.is_type("whitespace"):
-                    # it's whitespace, carry on
-                    pass
-                elif segment.segments or (segment.is_meta and segment.indent_val != 0):
-                    # it's not a raw segment or placeholder. Carry on.
-                    pass
-                elif segment.is_type("placeholder"):
-                    # it's a placeholder. Remember it and carry on.
-                    if not placeholder:
-                        placeholder = segment
-                else:
-                    memory["in_indent"] = False
-                    # we've found a non-whitespace element. This will be our
-                    # trigger unless there is a placeholder earlier on the line,
-                    # in which case we want to return that instead.
-                    if placeholder:
-                        return placeholder
-                    return segment
-            else:
-                # Not in indent and not a newline, don't trigger here.
-                pass
-        return placeholder
 
     @classmethod
     def _get_element_template_info(cls, elem, templated_file):
