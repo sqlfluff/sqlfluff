@@ -1,6 +1,6 @@
 """Testing utils for rule plugins."""
 from sqlfluff.core import Linter
-from sqlfluff.core.errors import SQLParseError
+from sqlfluff.core.errors import SQLParseError, SQLTemplaterError
 from sqlfluff.core.rules import get_ruleset
 from sqlfluff.core.config import FluffConfig
 from typing import Tuple, List, NamedTuple, Optional
@@ -62,7 +62,9 @@ def assert_rule_fail_in_sql(code, sql, configs=None, line_numbers=None):
     for e in lerrs:
         if e.desc().startswith("Unexpected exception"):
             pytest.fail(f"Linter failed with {e.desc()}")  # pragma: no cover
-    parse_errors = list(filter(lambda v: type(v) == SQLParseError, lerrs))
+    parse_errors = list(
+        filter(lambda v: isinstance(v, (SQLParseError, SQLTemplaterError)), lerrs)
+    )
     if parse_errors:
         pytest.fail(f"Found the following parse errors in test case: {parse_errors}")
     if not any(v.rule.code == code for v in lerrs):
@@ -79,7 +81,11 @@ def assert_rule_fail_in_sql(code, sql, configs=None, line_numbers=None):
                 )
             )
     # The query should already have been fixed if possible so just return the raw.
-    return linted.tree.raw
+    if linted.num_violations(fixable=True) > 0:
+        fixed, _ = linted.fix_string()
+        return fixed
+    else:
+        return linted.tree.raw
 
 
 def assert_rule_pass_in_sql(code, sql, configs=None):

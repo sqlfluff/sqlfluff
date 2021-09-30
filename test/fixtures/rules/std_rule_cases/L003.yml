@@ -320,12 +320,12 @@ test_fail_clean_reindent_fix:
 test_pass_indent_snowflake:
   pass_str: |
     with source_data as (
-        select * from {{ source('source_name', 'xxx_yyy_zzz') }}   
+        select * from {{ source('source_name', 'xxx_yyy_zzz') }}
     )
 
     select *
     from source_data
-  
+
   configs:
     core:
       dialect: snowflake
@@ -334,12 +334,40 @@ test_pass_indent_snowflake:
 test_pass_indent_indent_bigquery:
   pass_str: |
     with source_data as (
-        select * from {{ source('source_name', 'xxx_yyy_zzz') }}   
+        select * from {{ source('source_name', 'xxx_yyy_zzz') }}
     )
 
     select *
     from source_data
-  
+
   configs:
     core:
       dialect: bigquery
+
+test_jinja_indent_2:
+  fail_str: |
+    -- This file combines product data from individual brands into a staging table
+    {% for product in ['table1', 'table2'] %}
+    SELECT
+      brand,
+      country_code,
+      category,
+      name,
+      id
+    FROM
+      {{ product }}
+    {% if not loop.last -%} UNION ALL {%- endif %}
+    {% endfor %}
+  fix_str: |
+    -- This file combines product data from individual brands into a staging table
+    {% for product in ['table1', 'table2'] %}
+    SELECT
+        brand,
+        country_code,
+        category,
+        name,
+        id
+    FROM
+        {{ product }}
+    {% if not loop.last -%} UNION ALL {%- endif %}
+    {% endfor %}
