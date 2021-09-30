@@ -336,6 +336,32 @@ class Rule_L003(BaseRule):
                 "comment_lines": [],
             }
 
+        # Old code. This avoids spurious hanging indents.
+        # if segment.is_type("newline"):
+        #     memory["in_indent"] = True
+        #     # We're not going to flag on empty lines so we can safely proceed
+        #     return LintResult(memory=memory)
+        # elif memory["in_indent"]:
+        #     if segment.is_type("whitespace"):
+        #         # it's whitespace, carry on
+        #         return LintResult(memory=memory)
+        #     elif segment.segments or (segment.is_meta and segment.indent_val != 0):
+        #         # it's not a raw segment or placeholder. Carry on.
+        #         return LintResult(memory=memory)
+        #     else:
+        #         memory["in_indent"] = False
+        #         # we're found a non-whitespace element. This is our trigger,
+        #         # which we'll handle after this if-statement
+        # else:
+        #     # Not in indent and not a newline, don't trigger here.
+        #     return LintResult(memory=memory)
+        #
+        # res = self._process_raw_stack(
+        #     raw_stack + (segment,), tab_space_size=self.tab_space_size
+        # )
+
+        # New code. This handles indenting templated segments correctly but
+        # causes spurious hanging indents.
         # Is this the last segment? If so, need to "flush" any leftovers.
         is_last = self._is_last_segment(segment, memory, parent_stack, siblings_post)
 
