@@ -415,7 +415,7 @@ class Rule_L003(BaseRule):
         # Is this line just comments?
         if all(
             seg.is_type(
-                "whitespace", "comment", "indent"  # dedent is a subtype of indent
+                "whitespace", "comment", "indent", "newline"  # dedent is a subtype of indent
             )
             for seg in this_line["line_buffer"]
         ):
