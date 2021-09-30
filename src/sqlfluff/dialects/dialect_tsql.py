@@ -107,7 +107,9 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref("DeclareStatementSegment"),
             Ref("SetStatementSegment"),
             Ref("AlterTableSwitchStatementSegment"),
-            Ref("CreateTableAsSelectStatementSegment"),  # Azure Synapse Analytics specific
+            Ref(
+                "CreateTableAsSelectStatementSegment"
+            ),  # Azure Synapse Analytics specific
         ],
     )
 
@@ -234,7 +236,7 @@ class PivotUnpivotStatementSegment(BaseSegment):
                         Ref("ColumnReferenceSegment"),
                         "IN",
                         Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
-                    ),
+                    )
                 ),
             ),
             Sequence(
@@ -696,7 +698,9 @@ class CreateTableStatementSegment(BaseSegment):
             # Create like syntax
             Sequence("LIKE", Ref("TableReferenceSegment")),
         ),
-        Ref("TableDistributionIndexClause", optional=True),  # Azure Synapse Analytics specific
+        Ref(
+            "TableDistributionIndexClause", optional=True
+        ),  # Azure Synapse Analytics specific
     )
 
     parse_grammar = match_grammar
