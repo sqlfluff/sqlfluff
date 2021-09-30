@@ -126,7 +126,7 @@ class Rule_L003(BaseRule):
         return tuple(raw_stack)
 
     @classmethod
-    def _process_raw_stack(cls, raw_stack, tab_space_size=4, templated_file=None):
+    def _process_raw_stack(cls, raw_stack, memory, tab_space_size=4, templated_file=None):
         """Take the raw stack, split into lines and evaluate some stats."""
         raw_stack = cls._reorder_raw_stack(raw_stack, templated_file)
         indent_balance = 0
@@ -214,7 +214,7 @@ class Rule_L003(BaseRule):
                     )
 
         # If we get to the end, and still have a buffer, add it on
-        if line_buffer:
+        if line_buffer or elem is memory["old_trigger"]:
             result_buffer[line_no] = {
                 "line_no": line_no,
                 "line_buffer": line_buffer,
@@ -226,6 +226,7 @@ class Rule_L003(BaseRule):
                 else None,
                 "clean_indent": clean_indent,
             }
+
         return result_buffer
 
     def _coerce_indent_to(self, desired_indent, current_indent_buffer, current_anchor):
@@ -334,30 +335,36 @@ class Rule_L003(BaseRule):
                 "hanging_lines": [],
                 # comment_lines keeps track of lines which are all comment.
                 "comment_lines": [],
+                "old_trigger": None,
             }
 
         # Old code. This avoids spurious hanging indents.
-        # if segment.is_type("newline"):
-        #     memory["in_indent"] = True
-        #     # We're not going to flag on empty lines so we can safely proceed
-        #     return LintResult(memory=memory)
-        # elif memory["in_indent"]:
-        #     if segment.is_type("whitespace"):
-        #         # it's whitespace, carry on
-        #         return LintResult(memory=memory)
-        #     elif segment.segments or (segment.is_meta and segment.indent_val != 0):
-        #         # it's not a raw segment or placeholder. Carry on.
-        #         return LintResult(memory=memory)
-        #     else:
-        #         memory["in_indent"] = False
-        #         # we're found a non-whitespace element. This is our trigger,
-        #         # which we'll handle after this if-statement
-        # else:
-        #     # Not in indent and not a newline, don't trigger here.
-        #     return LintResult(memory=memory)
-        #
+        if segment.is_type("newline"):
+            memory["in_indent"] = True
+            # We're not going to flag on empty lines so we can safely proceed
+            #return LintResult(memory=memory)
+        elif memory["in_indent"]:
+            if segment.is_type("whitespace"):
+                # it's whitespace, carry on
+                #return LintResult(memory=memory)
+                pass
+            elif segment.segments or (segment.is_meta and segment.indent_val != 0):
+                # it's not a raw segment or placeholder. Carry on.
+                #return LintResult(memory=memory)
+                pass
+            else:
+                memory["in_indent"] = False
+                # we're found a non-whitespace element. This is our trigger,
+                # which we'll handle after this if-statement
+                memory["old_trigger"] = segment
+                pass
+        else:
+            # Not in indent and not a newline, don't trigger here.
+            #return LintResult(memory=memory)
+            pass
+
         # res = self._process_raw_stack(
-        #     raw_stack + (segment,), tab_space_size=self.tab_space_size
+        #     raw_stack + (segment,), memory, tab_space_size=self.tab_space_size
         # )
 
         # New code. This handles indenting templated segments correctly but
@@ -371,9 +378,9 @@ class Rule_L003(BaseRule):
             return LintResult(memory=memory)
 
         if raw_stack and raw_stack[-1] is not segment:
-                raw_stack = raw_stack + (segment,)
+            raw_stack = raw_stack + (segment,)
         res = self._process_raw_stack(
-            raw_stack, tab_space_size=self.tab_space_size, templated_file=templated_file
+            raw_stack, memory, tab_space_size=self.tab_space_size, templated_file=templated_file
         )
         if res:
             return self._process_current_line(res, memory, templated_file)
