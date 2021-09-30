@@ -345,6 +345,7 @@ class Rule_L003(BaseRule):
         # Old code. This avoids spurious hanging indents.
         if segment.is_type("newline"):
             memory["in_indent"] = True
+            memory["old_trigger"] = None
             # We're not going to flag on empty lines so we can safely proceed
             #return LintResult(memory=memory)
         elif memory["in_indent"]:
