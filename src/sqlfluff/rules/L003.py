@@ -127,7 +127,7 @@ class Rule_L003(BaseRule):
 
     @classmethod
     def _process_raw_stack(
-        cls, raw_stack, memory, tab_space_size=4, templated_file=None
+        cls, raw_stack, memory=None, tab_space_size=4, templated_file=None
     ):
         """Take the raw stack, split into lines and evaluate some stats."""
         raw_stack = cls._reorder_raw_stack(raw_stack, templated_file)
@@ -216,7 +216,7 @@ class Rule_L003(BaseRule):
                     )
 
             # If we hit the old trigger, stop processing.
-            if elem is memory["old_trigger"]:
+            if memory and elem is memory["old_trigger"]:
                 break
 
         # If we get to the end, and still have a buffer, add it on
@@ -385,11 +385,11 @@ class Rule_L003(BaseRule):
             memory["old_trigger"] = None
 
         if res:
-            return self._process_current_line(res, memory, templated_file)
+            return self._process_current_line(res, memory)
         else:
             return LintResult(memory=memory)
 
-    def _process_current_line(self, res, memory, templated_file):
+    def _process_current_line(self, res, memory):
         """Checks indentation of one line of code, returning a LintResult.
 
         The _eval() function calls it for the current line of code:
