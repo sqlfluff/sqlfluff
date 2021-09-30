@@ -6,7 +6,7 @@
 _hash: 5bf591f52324f5203ac1eec5603e624ae1135c8e2fbabf3e38b53ccdc3b40fff
 file:
   statement:
-    create_udf_script:
+    create_adapter_script:
     - keyword: CREATE
     - keyword: JAVA
     - keyword: ADAPTER
