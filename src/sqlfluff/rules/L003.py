@@ -345,7 +345,6 @@ class Rule_L003(BaseRule):
         # Old code. This avoids spurious hanging indents.
         if segment.is_type("newline"):
             memory["in_indent"] = True
-            memory["old_trigger"] = None
             # We're not going to flag on empty lines so we can safely proceed
             #return LintResult(memory=memory)
         elif memory["in_indent"]:
@@ -387,6 +386,9 @@ class Rule_L003(BaseRule):
         res = self._process_raw_stack(
             raw_stack, memory, tab_space_size=self.tab_space_size, templated_file=templated_file
         )
+        if segment.is_type("newline"):
+            memory["old_trigger"] = None
+
         if res:
             return self._process_current_line(res, memory, templated_file)
         else:
