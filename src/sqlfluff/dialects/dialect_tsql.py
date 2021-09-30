@@ -107,7 +107,7 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref("DeclareStatementSegment"),
             Ref("SetStatementSegment"),
             Ref("AlterTableSwitchStatementSegment"),
-            Ref("CreateTableAsSelectStatementSegment"), # Azure Synapse Analytics specific
+            Ref("CreateTableAsSelectStatementSegment"),  # Azure Synapse Analytics specific
         ],
     )
 
@@ -234,7 +234,7 @@ class PivotUnpivotStatementSegment(BaseSegment):
                         Ref("ColumnReferenceSegment"),
                         "IN",
                         Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
-                    )
+                    ),
                 ),
             ),
             Sequence(
@@ -696,7 +696,7 @@ class CreateTableStatementSegment(BaseSegment):
             # Create like syntax
             Sequence("LIKE", Ref("TableReferenceSegment")),
         ),
-        Ref("TableDistributionIndexClause", optional=True), # Azure Synapse Analytics specific
+        Ref("TableDistributionIndexClause", optional=True),  # Azure Synapse Analytics specific
     )
 
     parse_grammar = match_grammar
@@ -705,6 +705,7 @@ class CreateTableStatementSegment(BaseSegment):
 @tsql_dialect.segment()
 class TableDistributionIndexClause(BaseSegment):
     """`CREATE TABLE` distribution / index clause.
+
     This is specific to Azure Synapse Analytics.
     """
 
@@ -734,6 +735,7 @@ class TableDistributionIndexClause(BaseSegment):
 @tsql_dialect.segment()
 class TableDistributionClause(BaseSegment):
     """`CREATE TABLE` distribution clause.
+
     This is specific to Azure Synapse Analytics.
     """
 
@@ -756,6 +758,7 @@ class TableDistributionClause(BaseSegment):
 @tsql_dialect.segment()
 class TableIndexClause(BaseSegment):
     """`CREATE TABLE` table index clause.
+
     This is specific to Azure Synapse Analytics.
     """
 
@@ -788,7 +791,7 @@ class AlterTableSwitchStatementSegment(BaseSegment):
         Sequence("PARTITION", Ref("NumericLiteralSegment"), optional=True),
         "TO",
         Ref("ObjectReferenceSegment"),
-        Sequence( # Azure Synapse Analytics specific
+        Sequence(  # Azure Synapse Analytics specific
             "WITH",
             Bracketed("TRUNCATE_TARGET", Ref("EqualsSegment"), OneOf("ON", "OFF")),
             optional=True,
@@ -799,6 +802,7 @@ class AlterTableSwitchStatementSegment(BaseSegment):
 @tsql_dialect.segment()
 class CreateTableAsSelectStatementSegment(BaseSegment):
     """A `CREATE TABLE AS SELECT` statement.
+
     This is specific to Azure Synapse Analytics.
     """
 
