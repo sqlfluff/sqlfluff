@@ -372,9 +372,6 @@ test_jinja_indent_1_a:
         {{ product }}
     {% if not loop.last -%} UNION ALL {%- endif %}
     {% endfor %}
-  configs:
-    core:
-      ignore_templated_areas: false
 
 # Like test_jinja_indent_1_a but "FROM" table not initially
 # indented.
@@ -405,6 +402,3 @@ test_jinja_indent_1_b:
         {{ product }}
     {% if not loop.last -%} UNION ALL {%- endif %}
     {% endfor %}
-  configs:
-    core:
-      ignore_templated_areas: false
