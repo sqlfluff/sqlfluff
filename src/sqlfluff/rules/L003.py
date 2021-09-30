@@ -45,7 +45,7 @@ class Rule_L003(BaseRule):
     """
 
     _works_on_unparsable = False
-    config_keywords = ["tab_space_size", "indent_unit"]
+    config_keywords = ["tab_space_size", "indent_unit", "lint_templated_tokens"]
 
     @staticmethod
     def _make_indent(num=1, tab_space_size=4, indent_unit="space"):
@@ -87,34 +87,26 @@ class Rule_L003(BaseRule):
         this function by making changes to _process_raw_stack() and _eval().
         """
 
-        def element_sort_key_templated_last(elem):
-            if not elem.is_type("placeholder"):
-                return 0
-            slices = templated_file.raw_slices_spanning_source_slice(
-                elem.pos_marker.source_slice
-            )
-            if slices[0].slice_type != "templated":
-                return 0
-            return 1
-
-        def element_sort_key_indent_first_dedent_last(elem):
-            if elem.is_meta:
-                if elem.indent_val > 0:
-                    return 0
-                elif elem.indent_val < 0:
-                    return 2
-            return 1
+        def segment_info(idx):
+            seg = current_line[idx]
+            return (seg.type, cls._get_element_template_info(seg, templated_file))
 
         def sort_current_line():
             # If the current line has actual code (whether templated or not)
             # do this.
-            if cls._current_line_has_code_whether_templated_or_not(
-                current_line, templated_file
-            ):
-                current_line.sort(key=element_sort_key_templated_last)
-            else:
-                # Otherwise, place any template code after dedent.
-                current_line.sort(key=element_sort_key_indent_first_dedent_last)
+            for idx in range(1, len(current_line)):
+                if (
+                    segment_info(idx - 1)
+                    == (
+                        "placeholder",
+                        "templated",
+                    )
+                    and segment_info(idx) == ("indent", None)
+                ):
+                    current_line[idx - 1], current_line[idx] = (
+                        current_line[idx],
+                        current_line[idx - 1],
+                    )
 
         # Break raw_stack into lines.
         lines = []
@@ -750,3 +742,13 @@ class Rule_L003(BaseRule):
                 # Not in indent and not a newline, don't trigger here.
                 pass
         return placeholder
+
+    @classmethod
+    def _get_element_template_info(cls, elem, templated_file):
+        if elem.is_type("placeholder"):
+            slices = templated_file.raw_slices_spanning_source_slice(
+                elem.pos_marker.source_slice
+            )
+            if slices:
+                return slices[0].slice_type
+        return None

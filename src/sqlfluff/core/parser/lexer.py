@@ -410,13 +410,13 @@ class Lexer:
                     templ_str,
                 )
 
-                # Calculate potential indent/dedent
-                block_slices = sum(s.block() for s in so_slices)
-                block_balance = sum(s.block_start() for s in so_slices) - sum(
-                    s.block_end() for s in so_slices
-                )
-                lead_dedent = so_slices[0].block_mid() or so_slices[0].block_end()
-                trail_indent = so_slices[-1].block_start() or so_slices[-1].block_mid()
+                # Caluculate potential indent/dedent
+                block_slices = sum(s.slice_type.startswith("block_") for s in so_slices)
+                block_balance = sum(
+                    s.slice_type == "block_start" for s in so_slices
+                ) - sum(s.slice_type == "block_end" for s in so_slices)
+                lead_dedent = so_slices[0].slice_type in ("block_end", "block_mid")
+                trail_indent = so_slices[-1].slice_type in ("block_start", "block_mid")
                 add_indents = self.config.get("template_blocks_indent", "indentation")
                 lexer_logger.debug(
                     "    Block Slices: %s. Block Balance: %s. Lead: %s, Trail: %s, Add: %s",

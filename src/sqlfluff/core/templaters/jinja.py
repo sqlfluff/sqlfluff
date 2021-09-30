@@ -354,20 +354,15 @@ class JinjaTemplater(PythonTemplater):
                         trimmed_content = str_buff[
                             len(m_open.group(0)) : -len(m_close.group(0))
                         ]
-                    first_word = trimmed_content.split()[0]
                     if trimmed_content.startswith("end"):
                         block_type = "block_end"
                     elif trimmed_content.startswith("el"):
                         # else, elif
                         block_type = "block_mid"
-                    elif first_word in ("for", "if"):
-                        block_type = "block_start"
-                        if first_word == "for":
-                            block_subtype = "loop"
                     else:
-                        # An entire block in one line, e.g. "{% set %}" command.
                         block_type = "block_start"
-                        block_subtype = "block_whole"
+                        if trimmed_content.split()[0] == "for":
+                            block_subtype = "loop"
                 yield RawFileSlice(str_buff, block_type, idx, block_subtype)
                 idx += len(str_buff)
                 str_buff = ""

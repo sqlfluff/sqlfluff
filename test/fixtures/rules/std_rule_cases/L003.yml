@@ -345,29 +345,7 @@ test_pass_indent_indent_bigquery:
       dialect: bigquery
 
 
-test_jinja_indent_1:
-  fail_str: |
-    {% set considered_actions = ['uses_personal_to'] %}
-
-    SELECT
-    foo
-    {% for action in considered_actions %}
-    ,{{action}}
-    {% endfor %}
-    FROM
-    {{ 'table1' }}
-  fix_str: |
-    {% set considered_actions = ['uses_personal_to'] %}
-
-    SELECT
-        foo
-            {% for action in considered_actions %}
-            ,{{action}}
-            {% endfor %}
-    FROM
-        {{ 'table1' }}
-
-test_jinja_indent_2:
+test_jinja_indent_1_a:
   fail_str: |
     -- This file combines product data from individual brands into a staging table
     {% for product in ['table1', 'table2'] %}
@@ -394,184 +372,39 @@ test_jinja_indent_2:
         {{ product }}
     {% if not loop.last -%} UNION ALL {%- endif %}
     {% endfor %}
-
-test_jinja_indent_3:
-  fail_str: |
-    {% set v="dummy" %}
-
-    SELECT
-    foo
-    FROM
-    {% for action in ['foo'] %}
-    {{action}}_raw_effect_sizes
-    {% endfor %}
-    CROSS JOIN action_states
-
-  fix_str: |
-    {% set v="dummy" %}
-
-    SELECT
-        foo
-    FROM
-        {% for action in ['foo'] %}
-        {{action}}_raw_effect_sizes
-        {% endfor %}
-    CROSS JOIN action_states
-
-test_jinja_indent_4:
-  fail_str: |
-    SELECT
-        a
-    {# My Comment #}
-          , b
-        {% for i in [1, 2, 3] %}
-            , c_{{i}}+42 AS the_meaning_of_li{{ 'f' * i }}
-            {% endfor %}
-        , boo
-    {% for i in [1, 2, 3] %}
-         , d_{{i}}
-            {% endfor %}
-    FROM my_table
-  fix_str: |
-    SELECT
-        a
-        {# My Comment #}
-        , b
-        {% for i in [1, 2, 3] %}
-        , c_{{i}}+42 AS the_meaning_of_li{{ 'f' * i }}
-        {% endfor %}
-        , boo
-        {% for i in [1, 2, 3] %}
-        , d_{{i}}
-        {% endfor %}
-    FROM my_table
   configs:
-    indentation:
-      template_blocks_indent: false
+    core:
+      ignore_templated_areas: false
 
-test_jinja_indent_5:
+# Like test_jinja_indent_1_a but "FROM" table not initially
+# indented.
+test_jinja_indent_1_b:
   fail_str: |
+    -- This file combines product data from individual brands into a staging table
+    {% for product in ['table1', 'table2'] %}
     SELECT
-    {% for i in [1] %}
-    c{{i}},
+      brand,
+      country_code,
+      category,
+      name,
+      id
+    FROM
+    {{ product }}
+    {% if not loop.last -%} UNION ALL {%- endif %}
     {% endfor %}
-    c10
-    FROM foo
   fix_str: |
+    -- This file combines product data from individual brands into a staging table
+    {% for product in ['table1', 'table2'] %}
     SELECT
-        {% for i in [1] %}
-        c{{i}},
-        {% endfor %}
-        c10
-    FROM foo
+        brand,
+        country_code,
+        category,
+        name,
+        id
+    FROM
+        {{ product }}
+    {% if not loop.last -%} UNION ALL {%- endif %}
+    {% endfor %}
   configs:
-    indentation:
-      template_blocks_indent: false
-
-test_jinja_indent_6:
-  fail_str: |
-    SELECT
-    a
-    {# My Comment #}
-    , b
-    {% for i in [1, 2, 3] %}
-    , c_{{i}}+42 AS the_meaning_of_li{{ 'f' * i }}
-    {% endfor %}
-    , boo
-    {% for i in [1, 2, 3] %}
-    , d_{{i}}
-    {% endfor %}
-    FROM my_table
-
-  # TODO: Review indentation of the for loops
-  fix_str: |
-    SELECT
-        a
-        {# My Comment #}
-        , b
-            {% for i in [1, 2, 3] %}
-            , c_{{i}}+42 AS the_meaning_of_li{{ 'f' * i }}
-            {% endfor %}
-        , boo
-            {% for i in [1, 2, 3] %}
-            , d_{{i}}
-            {% endfor %}
-    FROM my_table
-
-test_jinja_indent_7:
-  fail_str: |
-    {% set considered_actions=['uses_personal_to'] %}
-
-    SELECT
-    foo
-    FROM
-    {% for action in considered_actions %}
-    {% if loop.first %}
-    -- This next section gets very strange with forced template_blocks_indent
-    {{action}}_raw_effect_sizes
-    {% else %}
-    JOIN {{action}}_raw_effect_sizes USING (user_id)
-    {% endif %}
-    {% endfor %}
-
-
-  # TODO: Review the odd indentation of "else" and "endif". Interestingly:
-  # - If I move the "foo" column onto the same line as "SELECT", it indents
-  #   every line flush left.
-  # - If I remove the comment at line 8, it also indents everything flush left.
-  fix_str: |
-    {% set considered_actions=['uses_personal_to'] %}
-
-    SELECT
-        foo
-    FROM
-        {% for action in considered_actions %}
-        {% if loop.first %}
-        -- This next section gets very strange with forced template_blocks_indent
-        {{action}}_raw_effect_sizes
-    {% else %}
-    JOIN {{action}}_raw_effect_sizes USING (user_id)
-    {% endif %}
-        {% endfor %}
-
-test_jinja_indent_8:
-  # Identical to test_jinja_indent_7 except considered_actions has 5 items.
-  # NOTE: Comments like "the if" and "the else" are a workaround for a known
-  # limitation where SQLFluff can't always map expanded code back to the raw
-  # source (issue #1437). If that issue is addressed, these comments could be
-  # removed.
-  fail_str: |
-    {% set considered_actions=['a1', 'a2', 'a3', 'a4', 'a5'] %}
-
-    SELECT
-    foo
-    FROM
-    {% for action in considered_actions %}
-    -- the if
-    {% if loop.first %}
-    -- This next section gets very strange with forced template_blocks_indent
-    {{action}}_raw_effect_sizes
-    -- the else
-    {% else %}
-    -- inside the else
-    JOIN {{action}}_raw_effect_sizes USING (user_id)
-    {% endif %}
-    {% endfor %}
-
-  fix_str: |
-    {% set considered_actions=['a1', 'a2', 'a3', 'a4', 'a5'] %}
-
-    SELECT
-        foo
-    FROM
-    {% for action in considered_actions %}
-    -- the if
-    {% if loop.first %}
-        -- This next section gets very strange with forced template_blocks_indent
-        {{action}}_raw_effect_sizes
-        -- the else
-        {% else %}
-    -- inside the else
-    JOIN {{action}}_raw_effect_sizes USING (user_id)
-    {% endif %}
-    {% endfor %}
+    core:
+      ignore_templated_areas: false
