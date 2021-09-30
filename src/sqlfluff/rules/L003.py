@@ -412,12 +412,15 @@ class Rule_L003(BaseRule):
         )
         trigger_segment = self._find_trigger(this_line["line_buffer"], memory)
 
-        # Is this line just comments?
-        if all(
+        # Is this line just comments? (Disregard trailing newline if present.)
+        check_comment_line = this_line["line_buffer"]
+        if check_comment_line and check_comment_line[-1].is_type("newline"):
+            check_comment_line = check_comment_line[:-1]
+        if check_comment_line and all(
             seg.is_type(
-                "whitespace", "comment", "indent", "newline"  # dedent is a subtype of indent
+                "whitespace", "comment", "indent"  # dedent is a subtype of indent
             )
-            for seg in this_line["line_buffer"]
+            for seg in check_comment_line
         ):
             # Comment line, deal with it later.
             memory["comment_lines"].append(this_line_no)
