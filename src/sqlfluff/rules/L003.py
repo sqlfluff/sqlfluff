@@ -101,8 +101,8 @@ class Rule_L003(BaseRule):
                         "placeholder",
                         "templated",
                     )
-                    and segment_info(idx - 1) == ("indent", None) and
-                    segment_info(idx) == ('raw', None)
+                    and segment_info(idx - 1) == ("indent", None)
+                    and segment_info(idx) == ("raw", None)
                 ):
                     current_line[idx - 2], current_line[idx - 1] = (
                         current_line[idx - 1],
