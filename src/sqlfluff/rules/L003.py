@@ -94,18 +94,19 @@ class Rule_L003(BaseRule):
         def sort_current_line():
             # If the current line has actual code (whether templated or not)
             # do this.
-            for idx in range(1, len(current_line)):
+            for idx in range(2, len(current_line)):
                 if (
-                    segment_info(idx - 1)
+                    segment_info(idx - 2)
                     == (
                         "placeholder",
                         "templated",
                     )
-                    and segment_info(idx) == ("indent", None)
+                    and segment_info(idx - 1) == ("indent", None) and
+                    segment_info(idx) == ('raw', None)
                 ):
-                    current_line[idx - 1], current_line[idx] = (
-                        current_line[idx],
+                    current_line[idx - 2], current_line[idx - 1] = (
                         current_line[idx - 1],
+                        current_line[idx - 2],
                     )
 
         # Break raw_stack into lines.
