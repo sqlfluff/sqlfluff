@@ -213,8 +213,12 @@ class Rule_L003(BaseRule):
                         line_buffer[:-1], tab_space_size=tab_space_size
                     )
 
+            # If we hit the old trigger, stop processing.
+            if elem is memory["old_trigger"]:
+                break
+
         # If we get to the end, and still have a buffer, add it on
-        if line_buffer or elem is memory["old_trigger"]:
+        if line_buffer:
             result_buffer[line_no] = {
                 "line_no": line_no,
                 "line_buffer": line_buffer,
