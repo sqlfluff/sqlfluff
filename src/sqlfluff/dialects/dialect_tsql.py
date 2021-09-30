@@ -23,15 +23,16 @@ from sqlfluff.core.parser import (
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
-from sqlfluff.dialects.tsql_keywords import RESERVED_KEYWORDS
+from sqlfluff.dialects.tsql_keywords import RESERVED_KEYWORDS, UNRESERVED_KEYWORDS
 
 ansi_dialect = load_raw_dialect("ansi")
 tsql_dialect = ansi_dialect.copy_as("tsql")
 
-# Update only RESERVED Keywords
 # Should really clear down the old keywords but some are needed by certain segments
 # tsql_dialect.sets("reserved_keywords").clear()
+# tsql_dialect.sets("unreserved_keywords").clear()
 tsql_dialect.sets("reserved_keywords").update(RESERVED_KEYWORDS)
+tsql_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
 
 tsql_dialect.insert_lexer_matchers(
     [
@@ -659,3 +660,73 @@ class OverlapsClauseSegment(BaseSegment):
 
     type = "overlaps_clause"
     match_grammar = Nothing()
+
+
+@tsql_dialect.segment()
+class DateAddFunctionNameSegment(BaseSegment):
+    """DATEADD function name segment.
+
+    Need to be able to specify this as type function_name
+    so that linting rules identify it properly
+    """
+
+    type = "function_name"
+    match_grammar=Sequence("DATEADD")
+
+@tsql_dialect.segment(replace=True)
+class FunctionSegment(BaseSegment):
+    """A scalar or aggregate function.
+
+    Maybe in the future we should distinguish between
+    aggregate functions and other functions. For now
+    we treat them the same because they look the same
+    for our purposes.
+    """
+
+    type = "function"
+    match_grammar = OneOf(
+        Sequence(
+            Sequence(
+                Ref("DateAddFunctionNameSegment"),
+                Bracketed(
+                    Delimited(
+                        OneOf(
+                            "YEAR",
+                            "QUARTER",
+                            "MONTH",
+                            "DAYOFYEAR",
+                            "DAY",
+                            "WEEK",
+                            "WEEKDAY",
+                            "HOUR",
+                            "MINUTE",
+                            "SECOND",
+                            "MILLISECOND",
+                            "MICROSECOND",
+                            "NANOSECOND",
+                        ),
+                        Ref(
+                            "FunctionContentsGrammar",
+                            # The brackets might be empty for some functions...
+                            optional=True,
+                            ephemeral_name="FunctionContentsGrammar",
+                        ),
+                    )
+                )
+            )
+        ),
+        Sequence(
+            Sequence(
+                Ref("FunctionNameSegment"),
+                Bracketed(
+                    Ref(
+                        "FunctionContentsGrammar",
+                        # The brackets might be empty for some functions...
+                        optional=True,
+                        ephemeral_name="FunctionContentsGrammar",
+                    )
+                ),
+            ),
+            Ref("PostFunctionGrammar", optional=True),
+        ),
+    )

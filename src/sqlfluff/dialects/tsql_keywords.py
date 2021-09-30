@@ -230,3 +230,21 @@ RESERVED_KEYWORDS = [
     "WRITETEXT",
     "XACT_ABORT",
 ]
+
+
+UNRESERVED_KEYWORDS = [
+    "DATEADD",
+    "DAY",
+    "DAYOFYEAR",
+    "HOUR",
+    "MICROSECOND",
+    "MILLISECOND",
+    "MINUTE",
+    "MONTH",
+    "NANOSECOND",
+    "QUARTER",
+    "SECOND",
+    "WEEK",
+    "WEEKDAY",
+    "YEAR",
+]
