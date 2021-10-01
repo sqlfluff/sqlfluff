@@ -36,11 +36,28 @@ class Rule_L033(BaseRule):
         Note some dialects (e.g. Exasol) do not have concept of UNION DISTINCT,
         so rule is ignored for them.
         """
-        if dialect.name == "exasol":
+        if dialect.name not in ["ansi", "bigquery", "hive", "mysql"]:
             return LintResult()
 
         if segment.is_type("set_operator"):
-            if "UNION" in segment.raw.upper() and not (
+            if "union" in segment.raw and not (
+                "ALL" in segment.raw.upper() or "DISTINCT" in segment.raw.upper()
+            ):
+                return LintResult(
+                    anchor=segment,
+                    fixes=[
+                        LintFix(
+                            "edit",
+                            segment.segments[0],
+                            [
+                                KeywordSegment("union"),
+                                WhitespaceSegment(),
+                                KeywordSegment("distinct"),
+                            ],
+                        )
+                    ],
+                )
+            elif "UNION" in segment.raw.upper() and not (
                 "ALL" in segment.raw.upper() or "DISTINCT" in segment.raw.upper()
             ):
                 return LintResult(
