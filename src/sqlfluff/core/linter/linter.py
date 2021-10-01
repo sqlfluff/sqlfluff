@@ -178,13 +178,18 @@ class Linter:
 
     @staticmethod
     def _parse_tokens(
-        tokens: Sequence[BaseSegment], config: FluffConfig, recurse: bool = True
+        tokens: Sequence[BaseSegment],
+        config: FluffConfig,
+        recurse: bool = True,
+        fname: Optional[str] = None,
     ) -> Tuple[Optional[BaseSegment], List[SQLParseError]]:
         parser = Parser(config=config)
         violations = []
         # Parse the file and log any problems
         try:
-            parsed: Optional[BaseSegment] = parser.parse(tokens, recurse=recurse)
+            parsed: Optional[BaseSegment] = parser.parse(
+                tokens, recurse=recurse, fname=fname
+            )
         except SQLParseError as err:
             linter_logger.info("PARSING FAILED! : %s", err)
             violations.append(err)
@@ -302,7 +307,9 @@ class Linter:
         linter_logger.info("PARSING (%s)", rendered.fname)
 
         if tokens:
-            parsed, pvs = cls._parse_tokens(tokens, rendered.config, recurse=recurse)
+            parsed, pvs = cls._parse_tokens(
+                tokens, rendered.config, recurse=recurse, fname=rendered.fname
+            )
             violations += pvs
         else:
             parsed = None

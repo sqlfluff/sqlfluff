@@ -18,6 +18,7 @@ from typing import Generator, List, Tuple, NamedTuple, Optional, Union
 from sqlfluff.core.parser import (
     Matchable,
     BaseSegment,
+    BaseFileSegment,
     KeywordSegment,
     SymbolSegment,
     Sequence,
@@ -454,19 +455,13 @@ ansi_dialect.add(
 
 
 @ansi_dialect.segment()
-class FileSegment(BaseSegment):
+class FileSegment(BaseFileSegment):
     """A segment representing a whole file or script.
 
     This is also the default "root" segment of the dialect,
     and so is usually instantiated directly. It therefore
     has no match_grammar.
     """
-
-    type = "file"
-    # The file segment is the only one which can start or end with non-code
-    can_start_end_non_code = True
-    # A file can be empty!
-    allow_empty = True
 
     # NB: We don't need a match_grammar here because we're
     # going straight into instantiating it directly usually.
