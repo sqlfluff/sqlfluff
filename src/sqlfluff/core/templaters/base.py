@@ -1,7 +1,7 @@
 """Defines the templaters."""
 
 import logging
-from bisect import bisect_right
+from bisect import bisect_left
 from collections import defaultdict
 from typing import Dict, Iterator, List, Tuple, Optional, NamedTuple
 
@@ -174,7 +174,7 @@ class TemplatedFile:
         else:
             ref_str = self._templated_newlines
 
-        nl_idx = bisect_right(ref_str, char_pos)
+        nl_idx = bisect_left(ref_str, char_pos)
 
         if nl_idx > 0:
             return nl_idx + 1, char_pos - ref_str[nl_idx - 1]
