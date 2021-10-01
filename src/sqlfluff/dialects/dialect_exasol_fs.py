@@ -19,6 +19,7 @@ from sqlfluff.core.parser import (
     BaseSegment,
     Bracketed,
     Delimited,
+    BaseFileSegment,
     GreedyUntil,
     OneOf,
     Ref,
@@ -105,7 +106,7 @@ class StatementSegment(BaseSegment):
 
 
 @exasol_fs_dialect.segment(replace=True)
-class FileSegment(BaseSegment):
+class FileSegment(BaseFileSegment):
     """This ovewrites the FileSegment from ANSI.
 
     The reason is because SCRIPT and FUNCTION statements
@@ -113,9 +114,6 @@ class FileSegment(BaseSegment):
     A semicolon is the terminator of the statement within the function / script
     """
 
-    type = "file"
-    can_start_end_non_code = True
-    allow_empty = True
     parse_grammar = Delimited(
         Ref("StatementSegment"),
         delimiter=Ref("FunctionScriptTerminatorSegment"),
