@@ -345,7 +345,7 @@ test_pass_indent_indent_bigquery:
       dialect: bigquery
 
 
-test_jinja_indent_1_a:
+test_jinja_indent_templated_table_name_a:
   fail_str: |
     -- This file combines product data from individual brands into a staging table
     {% for product in ['table1', 'table2'] %}
@@ -375,7 +375,7 @@ test_jinja_indent_1_a:
 
 # Like test_jinja_indent_1_a but "FROM" table not initially
 # indented.
-test_jinja_indent_1_b:
+test_jinja_indent_templated_table_name_b:
   fail_str: |
     -- This file combines product data from individual brands into a staging table
     {% for product in ['table1', 'table2'] %}

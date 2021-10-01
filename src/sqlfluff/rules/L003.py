@@ -66,13 +66,6 @@ class Rule_L003(BaseRule):
         return indent_size
 
     @classmethod
-    def _current_line_has_code_whether_templated_or_not(cls, line, templated_file):
-        for elem in line:
-            if elem.is_code:
-                return True
-        return False
-
-    @classmethod
     def _reorder_raw_stack(cls, raw_stack, templated_file):
         """Reorder raw_stack to simplify indentation logic.
 
@@ -82,18 +75,24 @@ class Rule_L003(BaseRule):
         for example, where do indent/dedent segments appear with respect to the
         segments that trigger indent/dedent behavior? This function reorders
         nodes locally (i.e. only within L003) to get the desired behavior.
-
-        If someone feels ambitious, it might be possible someday to eliminate
-        this function by making changes to _process_raw_stack() and _eval().
         """
 
         def segment_info(idx):
+            """Helper function for sort_current_line()."""
             seg = current_line[idx]
             return (seg.type, cls._get_element_template_info(seg, templated_file))
 
-        def sort_current_line():
-            # If the current line has actual code (whether templated or not)
-            # do this.
+        def move_indent_before_templated():
+            """Swap position of template and indent segment if code follows.
+
+            This allows for correct indentation of templated table names in
+            "FROM", for example:
+
+            SELECT brand
+            FROM
+                {{ product }}
+
+            """
             for idx in range(2, len(current_line)):
                 if (
                     segment_info(idx - 2)
@@ -116,12 +115,12 @@ class Rule_L003(BaseRule):
             if not elem.is_type("newline"):
                 current_line.append(elem)
             else:
-                sort_current_line()
+                move_indent_before_templated()
                 current_line.append(elem)
                 lines.append(current_line)
                 current_line = []
         if current_line:
-            sort_current_line()
+            move_indent_before_templated()
             lines.append(current_line)
         raw_stack = [s for line in lines for s in line]
         return tuple(raw_stack)
@@ -216,8 +215,8 @@ class Rule_L003(BaseRule):
                         line_buffer[:-1], tab_space_size=tab_space_size
                     )
 
-            # If we hit the old trigger, stop processing.
-            if memory and elem is memory["old_trigger"]:
+            # If we hit the trigger element, stop processing.
+            if memory and elem is memory["trigger"]:
                 break
 
         # If we get to the end, and still have a buffer, add it on
@@ -233,7 +232,6 @@ class Rule_L003(BaseRule):
                 else None,
                 "clean_indent": clean_indent,
             }
-
         return result_buffer
 
     def _coerce_indent_to(self, desired_indent, current_indent_buffer, current_anchor):
@@ -330,8 +328,6 @@ class Rule_L003(BaseRule):
         # Memory keeps track of what we've seen
         if not memory:
             memory = {
-                # segments we've seen the last child of
-                "finished": set(),
                 # in_indent keeps track of whether we're in an indent right now
                 "in_indent": True,
                 # problem_lines keeps track of lines with problems so that we
@@ -342,10 +338,12 @@ class Rule_L003(BaseRule):
                 "hanging_lines": [],
                 # comment_lines keeps track of lines which are all comment.
                 "comment_lines": [],
-                "old_trigger": None,
+                # segments we've seen the last child of
+                "finished": set(),
+                # First non-whitespace node on a line.
+                "trigger": None,
             }
 
-        # Old code. This avoids spurious hanging indents.
         if segment.is_type("newline"):
             memory["in_indent"] = True
         elif memory["in_indent"]:
@@ -359,13 +357,11 @@ class Rule_L003(BaseRule):
                 memory["in_indent"] = False
                 # we're found a non-whitespace element. This is our trigger,
                 # which we'll handle after this if-statement
-                memory["old_trigger"] = segment
+                memory["trigger"] = segment
         else:
             # Not in indent and not a newline, don't trigger here.
             pass
 
-        # New code. This handles indenting templated segments correctly but
-        # causes spurious hanging indents.
         # Is this the last segment? If so, need to "flush" any leftovers.
         is_last = self._is_last_segment(segment, memory, parent_stack, siblings_post)
 
@@ -384,15 +380,14 @@ class Rule_L003(BaseRule):
         )
 
         if res:
-            trigger_segment = memory["old_trigger"]
+            trigger_segment = memory["trigger"]
             if trigger_segment:
                 result = self._process_current_line(res, memory)
                 if segment.is_type("newline"):
-                    memory["old_trigger"] = None
+                    memory["trigger"] = None
                 return result
             else:
                 return LintResult(memory=memory)
-            return result
         else:
             return LintResult(memory=memory)
 
@@ -412,7 +407,7 @@ class Rule_L003(BaseRule):
             # Don't log the line or indent buffer, it's too noisy.
             self._strip_buffers(this_line),
         )
-        trigger_segment = memory["old_trigger"]
+        trigger_segment = memory["trigger"]
 
         # Is this a blank line?
         if all(seg.is_type("newline") for seg in this_line["line_buffer"]):
