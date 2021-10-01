@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 06f4d585f863aeae32bcb5a4c5751c146f85ee52194ffb2b65553b57187cfd85
+_hash: f2ad261b4916d35745738a80e0a96eb019d2e38b75157d3f960cdfc942559041
 file:
 - statement:
     create_table_statement:
@@ -284,17 +284,15 @@ file:
             column_reference:
               identifier: order_id
             end_bracket: )
-      - comma: ','
-      - table_distribution_partition_clause:
-        - keyword: DISTRIBUTE
-        - keyword: BY
-        - column_reference:
-            identifier: order_id
-        - comma: ','
-        - keyword: PARTITION
-        - keyword: BY
-        - column_reference:
-            identifier: order_date
+        - unparsable:
+          - comma: ','
+          - raw: DISTRIBUTE
+          - raw: BY
+          - raw: order_id
+          - comma: ','
+          - raw: PARTITION
+          - raw: BY
+          - raw: order_date
       - end_bracket: )
     - keyword: COMMENT
     - keyword: IS
@@ -339,5 +337,93 @@ file:
                 expression:
                   literal: '20'
                 end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+      - identifier: SCHEM
+      - dot: .
+      - identifier: TAB
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          column_datatype_definition:
+            identifier: ID
+            data_type:
+              data_type_identifier: DECIMAL
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  literal: '18'
+              - comma: ','
+              - expression:
+                  literal: '0'
+              - end_bracket: )
+          column_option:
+          - keyword: IDENTITY
+          - table_constraint_definition:
+              unparsable:
+              - keyword: CONSTRAINT
+              - raw: PRIMARY
+              - raw: KEY
+              - raw: DISABLE
+          - keyword: COMMENT
+          - keyword: IS
+          - literal: "'without constraint name'"
+        end_bracket: )
+    - keyword: COMMENT
+    - keyword: IS
+    - literal: "'a nice table'"
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - identifier: SCHEM
+      - dot: .
+      - identifier: TAB
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          column_datatype_definition:
+            identifier: ID
+            data_type:
+              data_type_identifier: DECIMAL
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  literal: '18'
+              - comma: ','
+              - expression:
+                  literal: '0'
+              - end_bracket: )
+      - comma: ','
+      - column_definition:
+          column_datatype_definition:
+            identifier: C1
+            data_type:
+              data_type_identifier: CHAR
+              bracketed:
+                start_bracket: (
+                expression:
+                  literal: '1'
+                end_bracket: )
+      - comma: ','
+      - table_constraint_definition:
+          unparsable:
+          - keyword: CONSTRAINT
+          - raw: PRIMARY
+          - raw: KEY
+          - bracketed:
+              start_bracket: (
+              raw: id
+              end_bracket: )
       - end_bracket: )
 - statement_terminator: ;

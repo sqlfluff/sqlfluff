@@ -853,8 +853,16 @@ class TableInlineConstraintSegment(BaseSegment):
     """Inline table constraint for CREATE / ALTER TABLE."""
 
     type = "table_constraint_definition"
-    match_grammar = Sequence(
-        Sequence("CONSTRAINT", Ref("SingleIdentifierGrammar"), optional=True),
+    match_grammar = StartsWith(
+        OneOf("CONSTRAINT", "NOT", "NULL", "PRIMARY", "FOREIGN"),
+        terminator=OneOf("COMMENT", Ref("CommaSegment"), Ref("EndBracketSegment")),
+    )
+    parse_grammar = Sequence(
+        Sequence(
+            "CONSTRAINT",
+            Ref("NakedIdentifierSegment", optional=True),
+            optional=True,
+        ),
         OneOf(
             # (NOT) NULL
             Sequence(Ref.keyword("NOT", optional=True), "NULL"),
@@ -872,8 +880,15 @@ class TableOutOfLineConstraintSegment(BaseSegment):
     """Out of line table constraint for CREATE / ALTER TABLE."""
 
     type = "table_constraint_definition"
-    match_grammar = Sequence(
-        Sequence("CONSTRAINT", Ref("SingleIdentifierGrammar"), optional=True),
+    match_grammar = StartsWith(
+        OneOf("CONSTRAINT", "PRIMARY", "FOREIGN"),
+    )
+    parse_grammar = Sequence(
+        Sequence(
+            "CONSTRAINT",
+            Ref("NakedIdentifierSegment", optional=True),
+            optional=True,
+        ),
         OneOf(
             # PRIMARY KEY
             Sequence(
