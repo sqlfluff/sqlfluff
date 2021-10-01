@@ -414,6 +414,26 @@ ansi_dialect.add(
         "ISNULL",
         Ref("BooleanLiteralGrammar"),
     ),
+    SelectClauseSegmentGrammar=Sequence(
+        "SELECT",
+        Ref("SelectClauseModifierSegment", optional=True),
+        Indent,
+        Delimited(
+            Ref("SelectClauseElementSegment"),
+            allow_trailing=True,
+        ),
+        # NB: The Dedent for the indent above lives in the
+        # SelectStatementSegment so that it sits in the right
+        # place corresponding to the whitespace.
+    ),
+    SelectClauseElementTerminatorGrammar=OneOf(
+        "FROM",
+        "WHERE",
+        "ORDER",
+        "LIMIT",
+        Ref("CommaSegment"),
+        Ref("SetOperatorSegment"),
+    ),
     FromClauseTerminatorGrammar=OneOf(
         "WHERE",
         "LIMIT",
@@ -1121,12 +1141,7 @@ class SelectClauseElementSegment(BaseSegment):
     type = "select_clause_element"
     # Important to split elements before parsing, otherwise debugging is really hard.
     match_grammar = GreedyUntil(
-        "FROM",
-        "WHERE",
-        "ORDER",
-        "LIMIT",
-        Ref("CommaSegment"),
-        Ref("SetOperatorSegment"),
+        Ref("SelectClauseElementTerminatorGrammar"),
         enforce_whitespace_preceding_terminator=True,
     )
 
@@ -1169,18 +1184,7 @@ class SelectClauseSegment(BaseSegment):
         enforce_whitespace_preceding_terminator=True,
     )
 
-    parse_grammar = Sequence(
-        "SELECT",
-        Ref("SelectClauseModifierSegment", optional=True),
-        Indent,
-        Delimited(
-            Ref("SelectClauseElementSegment"),
-            allow_trailing=True,
-        ),
-        # NB: The Dedent for the indent above lives in the
-        # SelectStatementSegment so that it sits in the right
-        # place corresponding to the whitespace.
-    )
+    parse_grammar = Ref("SelectClauseSegmentGrammar")
 
 
 @ansi_dialect.segment()

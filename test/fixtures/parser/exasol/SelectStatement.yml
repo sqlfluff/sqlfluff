@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 26a649a78a700af5b96505cb7e682052a188dbf7f6dd8ff67f6435067cf82c5d
+_hash: a502e6d0ee55b7c41b88428cb66fbb6c3841ff11f38966ae6847daeb6e46f229
 file:
 - statement:
     select_statement:
@@ -465,18 +465,17 @@ file:
             - comma: ','
             - literal: "'d'"
             - end_bracket: )
-          - alias_expression:
-              keyword: AS
-              identifier: mylist
-              bracketed:
-                start_bracket: (
-                identifier_list:
-                - identifier: a
-                - comma: ','
-                - identifier: b
-                - comma: ','
-                - identifier: c
-                end_bracket: )
+          unparsable:
+          - raw: AS
+          - raw: mylist
+          - bracketed:
+            - start_bracket: (
+            - raw: a
+            - comma: ','
+            - raw: b
+            - comma: ','
+            - raw: c
+            - end_bracket: )
           end_bracket: )
       select_statement:
         select_clause:
@@ -581,3 +580,26 @@ file:
           identifier: col2
       - keyword: DESC
 - statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+            identifier: x
+        with_invalid_unique_clause:
+        - keyword: WITH
+        - keyword: INVALID
+        - keyword: UNIQUE
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              identifier: myid
+            end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t

@@ -11,3 +11,13 @@ WHERE U.name=V.name;
 UPDATE order_pos
 SET stocks=stocks*10
 PREFERRING HIGH (order_date) PARTITION BY (shop_id, order_id);
+----
+UPDATE 
+	t1
+SET
+	x=t2.c1,
+	w=t4.c2 
+FROM
+	t2
+	JOIN t3 g ON t2.c1=t3.c2
+	LEFT JOIN t4 ON t4.c3=t3.c1

@@ -51,3 +51,5 @@ ROW_NUMBER () OVER (
 ORDER BY
     col1 DESC,
     col2 DESC;
+----
+SELECT x WITH INVALID UNIQUE(myid) FROM t

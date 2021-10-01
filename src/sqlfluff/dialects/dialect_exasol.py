@@ -158,6 +158,28 @@ exasol_dialect.replace(
         "NULL",
         Ref("BooleanLiteralGrammar"),
     ),
+    SelectClauseSegmentGrammar=Sequence(
+        "SELECT",
+        Ref("SelectClauseModifierSegment", optional=True),
+        Indent,
+        Delimited(
+            Ref("SelectClauseElementSegment"),
+            allow_trailing=True,
+        ),
+        Ref("WithInvalidUniqueSegment", optional=True),
+        # NB: The Dedent for the indent above lives in the
+        # SelectStatementSegment so that it sits in the right
+        # place corresponding to the whitespace.
+    ),
+    SelectClauseElementTerminatorGrammar=OneOf(
+        Sequence("WITH", "INVALID", "UNIQUE"),
+        "FROM",
+        "WHERE",
+        "ORDER",
+        "LIMIT",
+        Ref("CommaSegment"),
+        Ref("SetOperatorSegment"),
+    ),
     FromClauseTerminatorGrammar=OneOf(
         "WHERE",
         "CONNECT",
@@ -232,6 +254,17 @@ class SelectStatementSegment(BaseSegment):
         Ref("QualifyClauseSegment", optional=True),
         Ref("OrderByClauseSegment", optional=True),
         Ref("LimitClauseSegment", optional=True),
+    )
+
+
+@exasol_dialect.segment()
+class WithInvalidUniqueSegment(BaseSegment):
+    """`WITH INVALID UNIQUE` clause within `SELECT`."""
+
+    type = "with_invalid_unique_clause"
+    match_grammar = StartsWith("WITH", "INVALID", "UNIQUE", terminator="FROM")
+    parse_grammar = Sequence(
+        "WITH", "INVALID", "UNIQUE", Ref("BracketedColumnReferenceListGrammar")
     )
 
 
@@ -1289,11 +1322,34 @@ class InsertStatementSegment(BaseSegment):
         "INSERT",
         Ref.keyword("INTO", optional=True),
         Ref("TableReferenceSegment"),
-        Ref("BracketedColumnReferenceListGrammar", optional=True),
-        OneOf(
+        AnyNumberOf(
             Ref("ValuesClauseSegment"),
             Sequence("DEFAULT", "VALUES"),
             Ref("SelectableGrammar"),
+            Ref("BracketedColumnReferenceListGrammar", optional=True),
+        ),
+    )
+
+
+@exasol_dialect.segment(replace=True)
+class ValuesClauseSegment(BaseSegment):
+    """A `VALUES` clause like in `INSERT`."""
+
+    type = "values_clause"
+    match_grammar = Sequence(
+        "VALUES",
+        Delimited(
+            Bracketed(
+                Delimited(
+                    Ref("LiteralGrammar"),
+                    Ref("IntervalExpressionSegment"),
+                    Ref("FunctionSegment"),
+                    Ref("BareFunctionSegment"),
+                    "DEFAULT",
+                    Ref("SelectableGrammar"),
+                    ephemeral_name="ValuesClauseElements",
+                )
+            ),
         ),
     )
 
@@ -1323,7 +1379,7 @@ class UpdateStatementSegment(BaseSegment):
         "UPDATE",
         OneOf(Ref("TableReferenceSegment"), Ref("AliasedTableReferenceGrammar")),
         Ref("SetClauseListSegment"),
-        Ref("UpdateFromClauseSegment", optional=True),
+        Ref("FromClauseSegment", optional=True),
         Ref("WhereClauseSegment", optional=True),
         Ref("PreferringClauseSegment", optional=True),
     )
@@ -1366,20 +1422,6 @@ class SetClauseSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
-class UpdateFromClauseSegment(BaseSegment):
-    """`FROM` clause within an `UPDATE` statement."""
-
-    type = "update_from_clause"
-    match_grammar = Sequence(
-        "FROM",
-        Delimited(
-            OneOf(Ref("TableReferenceSegment"), Ref("AliasedTableReferenceGrammar")),
-            terminator="WHERE",
-        ),
-    )
-
-
 ############################
 # MERGE
 ############################
@@ -1413,8 +1455,16 @@ class MergeStatementSegment(BaseSegment):
         ),
         Ref("AliasExpressionSegment", optional=True),
         Ref("JoinOnConditionSegment"),
-        Ref("MergeMatchedClauseSegment", optional=True),
-        Ref("MergeNotMatchedClauseSegment", optional=True),
+        OneOf(
+            Sequence(
+                Ref("MergeMatchedClauseSegment"),
+                Ref("MergeNotMatchedClauseSegment", optional=True),
+            ),
+            Sequence(
+                Ref("MergeNotMatchedClauseSegment"),
+                Ref("MergeMatchedClauseSegment", optional=True),
+            ),
+        ),
     )
 
 
@@ -1450,6 +1500,7 @@ class MergeNotMatchedClauseSegment(BaseSegment):
             "MATCHED",
             "THEN",
         ),
+        terminator=Ref("MergeMatchedClauseSegment"),
     )
     parse_grammar = Sequence(
         "WHEN",

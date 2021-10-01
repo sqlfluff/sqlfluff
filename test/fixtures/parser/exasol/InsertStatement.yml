@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 667fdb246fcdaaee497fed2a3427d591d8b3e70d97ba3c2c74bfb20e76be8cec
+_hash: 88f1dccb89b73f0fdbde99f18a9eb9e7aba11c9f6e0015701bb98fee33790142
 file:
 - statement:
     insert_statement:
@@ -146,3 +146,89 @@ file:
     - keyword: DEFAULT
     - keyword: VALUES
 - statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        identifier: t
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    identifier: u
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+      - identifier: s
+      - dot: .
+      - identifier: t
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          identifier: c1
+      - comma: ','
+      - column_reference:
+          identifier: c2
+      - comma: ','
+      - column_reference:
+          identifier: c3
+      - end_bracket: )
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+        - start_bracket: (
+        - bracketed:
+            start_bracket: (
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  column_reference:
+                    identifier: x
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        identifier: y
+            end_bracket: )
+        - comma: ','
+        - literal: "'val1'"
+        - comma: ','
+        - literal: "'val2'"
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        identifier: t
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          identifier: adate
+        end_bracket: )
+    - values_clause:
+        keyword: values
+        bracketed:
+          start_bracket: (
+          bare_function: current_timestamp
+          end_bracket: )
