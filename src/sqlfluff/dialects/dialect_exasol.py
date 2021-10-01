@@ -191,7 +191,7 @@ exasol_dialect.replace(
         "HAVING",
         "QUALIFY",
         Ref("SetOperatorSegment"),
-        "WITH",
+        # "WITH",
     ),
     WhereClauseTerminatorGrammar=OneOf(
         "CONNECT",
@@ -278,8 +278,57 @@ class TableExpressionSegment(BaseSegment):
         Ref("FunctionSegment"),
         Ref("TableReferenceSegment"),
         Bracketed(Ref("SelectableGrammar")),
+        Ref("ValuesRangeClauseSegment"),
         Ref("ValuesClauseSegment"),
         Ref("ImportStatementSegment"),  # subimport
+    )
+
+
+@exasol_dialect.segment(replace=True)
+class ValuesClauseSegment(BaseSegment):
+    """A `VALUES` clause within in `WITH` or `SELECT`."""
+
+    type = "values_clause"
+    match_grammar = Sequence(
+        "VALUES",
+        Delimited(
+            OneOf(
+                Bracketed(
+                    Delimited(
+                        Ref("LiteralGrammar"),
+                        Ref("IntervalExpressionSegment"),
+                        Ref("BareFunctionSegment"),
+                        Ref("FunctionSegment"),
+                        ephemeral_name="ValuesClauseElements",
+                    )
+                ),
+                Delimited(
+                    # e.g. SELECT * FROM (VALUES 1,2,3);
+                    Ref("LiteralGrammar"),
+                    Ref("BareFunctionSegment"),
+                    Ref("FunctionSegment"),
+                ),
+            ),
+        ),
+        Ref("AliasExpressionSegment", optional=True),
+    )
+
+
+@exasol_dialect.segment()
+class ValuesRangeClauseSegment(BaseSegment):
+    """A `VALUES BETWEEN` clause within a `SELECT` statement.
+
+    Supported since Exasol 7.1!
+    """
+
+    type = "values_range_clause"
+    match_grammar = Sequence(
+        "VALUES",
+        "BETWEEN",
+        Ref("NumericLiteralSegment"),
+        "AND",
+        Ref("NumericLiteralSegment"),
+        Sequence("WITH", "STEP", Ref("NumericLiteralSegment"), optional=True),
     )
 
 
@@ -1323,7 +1372,7 @@ class InsertStatementSegment(BaseSegment):
         Ref.keyword("INTO", optional=True),
         Ref("TableReferenceSegment"),
         AnyNumberOf(
-            Ref("ValuesClauseSegment"),
+            Ref("ValuesInsertClauseSegment"),
             Sequence("DEFAULT", "VALUES"),
             Ref("SelectableGrammar"),
             Ref("BracketedColumnReferenceListGrammar", optional=True),
@@ -1331,11 +1380,11 @@ class InsertStatementSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment(replace=True)
-class ValuesClauseSegment(BaseSegment):
+@exasol_dialect.segment()
+class ValuesInsertClauseSegment(BaseSegment):
     """A `VALUES` clause like in `INSERT`."""
 
-    type = "values_clause"
+    type = "values_insert_clause"
     match_grammar = Sequence(
         "VALUES",
         Delimited(

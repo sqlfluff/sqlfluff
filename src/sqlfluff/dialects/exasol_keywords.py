@@ -847,6 +847,7 @@ UNRESERVED_KEYWORDS = [
     "JDBC",
     "DRIVER",
     "CONSUMER",
+    "STEP",
 ]
 
 BARE_FUNCTIONS = [

@@ -52,4 +52,16 @@ ORDER BY
     col1 DESC,
     col2 DESC;
 ----
-SELECT x WITH INVALID UNIQUE(myid) FROM t
+SELECT x WITH INVALID UNIQUE(myid) FROM t;
+----
+SELECT * FROM values('x', 'y');
+----
+SELECT * FROM values('x', 'y') AS x(c1,c2);
+----
+SELECT * FROM values(('x','2'), ('y','2')) AS x(c1,c2);
+----
+SELECT * FROM(VALUES 1,2,3);
+----
+SELECT * FROM(VALUES 1,2,3) AS xs(n1);
+----
+SELECT * FROM VALUES BETWEEN 1 AND 15 WITH STEP 4;
