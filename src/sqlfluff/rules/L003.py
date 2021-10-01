@@ -408,14 +408,8 @@ class Rule_L003(BaseRule):
         )
         trigger_segment = memory["trigger"]
 
-        # Is this a blank line?
-        if all(seg.is_type("newline") for seg in this_line["line_buffer"]):
-            return LintResult(memory=memory)
-
         # Is this line just comments? (Disregard trailing newline if present.)
         check_comment_line = this_line["line_buffer"]
-        if check_comment_line and check_comment_line[-1].is_type("newline"):
-            check_comment_line = check_comment_line[:-1]
         if check_comment_line and all(
             seg.is_type(
                 "whitespace", "comment", "indent"  # dedent is a subtype of indent
