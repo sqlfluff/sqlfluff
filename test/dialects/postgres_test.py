@@ -23,16 +23,8 @@ from sqlfluff.dialects.postgres_keywords import get_keywords, priority_keyword_m
         ("ExpressionSegment", "c notnull"),
         ("SelectClauseElementSegment", "c is null as c_isnull"),
         ("SelectClauseElementSegment", "c is not null as c_notnull"),
-        pytest.param(
-            "SelectClauseElementSegment",
-            "c isnull as c_isnull",
-            marks=[pytest.mark.xfail],
-        ),
-        pytest.param(
-            "SelectClauseElementSegment",
-            "c notnull as c_notnull",
-            marks=[pytest.mark.xfail],
-        ),
+        ("SelectClauseElementSegment", "c isnull as c_isnull"),
+        ("SelectClauseElementSegment", "c notnull as c_notnull"),
     ],
 )
 def test_dialect_postgres_specific_segment_parses(

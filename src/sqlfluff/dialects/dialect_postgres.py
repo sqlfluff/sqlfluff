@@ -187,6 +187,10 @@ postgres_dialect.replace(
         ansi_dialect.get_segment("ColumnReferenceSegment"),
         Ref("TimeZoneGrammar", optional=True),
     ),
+    # Postgres supports the non-standard ISNULL and NONNULL comparison operators. See
+    # https://www.postgresql.org/docs/14/functions-comparison.html
+    IsNullGrammar=Ref.keyword("ISNULL"),
+    NotNullGrammar=Ref.keyword("NOTNULL"),
 )
 
 

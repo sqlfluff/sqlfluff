@@ -410,8 +410,6 @@ ansi_dialect.add(
     IsClauseGrammar=OneOf(
         "NULL",
         "NAN",
-        "NOTNULL",
-        "ISNULL",
         Ref("BooleanLiteralGrammar"),
     ),
     SelectClauseSegmentGrammar=Sequence(
@@ -434,6 +432,10 @@ ansi_dialect.add(
         Ref("CommaSegment"),
         Ref("SetOperatorSegment"),
     ),
+    # Define these as grammars to allow child dialects to enable them (since they are non-standard
+    # keywords)
+    IsNullGrammar=Nothing(),
+    NotNullGrammar=Nothing(),
     FromClauseTerminatorGrammar=OneOf(
         "WHERE",
         "LIMIT",
@@ -1434,6 +1436,8 @@ ansi_dialect.add(
                     Ref.keyword("NOT", optional=True),
                     Ref("IsClauseGrammar"),
                 ),
+                Ref("IsNullGrammar"),
+                Ref("NotNullGrammar"),
                 Sequence(
                     # e.g. NOT EXISTS, but other expressions could be met as
                     # well by inverting the condition with the NOT operator
