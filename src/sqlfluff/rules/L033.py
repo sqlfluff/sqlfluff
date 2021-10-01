@@ -33,8 +33,8 @@ class Rule_L033(BaseRule):
         The function does this by looking for a segment of type set_operator
         which has a UNION but no DISTINCT or ALL.
 
-        Note some dialects (e.g. Exasol) do not have concept of UNION DISTINCT,
-        so rule is ignored for them.
+        Note only some dialects have concept of UNION DISTINCT, so rule is only
+        applied to dialects that are known to support this syntax.
         """
         if dialect.name not in ["ansi", "bigquery", "hive", "mysql"]:
             return LintResult()
