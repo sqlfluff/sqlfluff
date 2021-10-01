@@ -1,0 +1,106 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 31f912afe0395179cd7aa42a2091697210bea065f988532de9a8ec87cbf24c22
+file:
+  statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: DATE
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  identifier: t
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: t_date
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: ROUND
+            bracketed:
+            - start_bracket: (
+            - expression:
+                column_reference:
+                  identifier: b
+            - comma: ','
+            - expression:
+                literal: '2'
+            - end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: b_round
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: LEFT
+            bracketed:
+            - start_bracket: (
+            - expression:
+                function:
+                  function_name:
+                    function_name_identifier: RIGHT
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      column_reference:
+                        identifier: s
+                  - comma: ','
+                  - expression:
+                      literal: '5'
+                  - end_bracket: )
+            - comma: ','
+            - expression:
+                function:
+                  function_name:
+                    function_name_identifier: LEN
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      column_reference:
+                        identifier: s
+                      binary_operator: +
+                      literal: '6'
+                    end_bracket: )
+            - end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: compound
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              keyword: convert
+            bracketed:
+            - start_bracket: (
+            - data_type:
+                identifier: varchar
+            - comma: ','
+            - data_type:
+              - identifier: tbl_b
+              - dot: .
+              - identifier: column1
+            - comma: ','
+            - expression:
+                literal: '23'
+            - end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: column1_varchar
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: tbl_b
