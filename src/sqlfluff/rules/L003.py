@@ -380,16 +380,15 @@ class Rule_L003(BaseRule):
         )
 
         if res:
+            # Saw a newline or end of parse tree. Is the current line empty?
             trigger_segment = memory["trigger"]
             if trigger_segment:
+                # Not empty. Process it.
                 result = self._process_current_line(res, memory)
                 if segment.is_type("newline"):
                     memory["trigger"] = None
                 return result
-            else:
-                return LintResult(memory=memory)
-        else:
-            return LintResult(memory=memory)
+        return LintResult(memory=memory)
 
     def _process_current_line(self, res, memory):
         """Checks indentation of one line of code, returning a LintResult.
