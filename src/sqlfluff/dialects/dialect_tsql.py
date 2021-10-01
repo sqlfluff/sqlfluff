@@ -20,6 +20,7 @@ from sqlfluff.core.parser import (
     StartsWith,
     OptionallyBracketed,
     Dedent,
+    AnyNumberOf,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -717,7 +718,12 @@ class FunctionSegment(BaseSegment):
         ),
         Sequence(
             Sequence(
-                Ref("FunctionNameSegment"),
+                AnyNumberOf(
+                    Ref("FunctionNameSegment"),
+                    max_times = 1,
+                    min_times = 1,
+                    exclude=Ref("DateAddFunctionNameSegment"),
+                ),
                 Bracketed(
                     Ref(
                         "FunctionContentsGrammar",
