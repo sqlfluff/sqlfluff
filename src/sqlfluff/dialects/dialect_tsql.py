@@ -672,7 +672,8 @@ class DateAddFunctionNameSegment(BaseSegment):
     """
 
     type = "function_name"
-    match_grammar=Sequence("DATEADD")
+    match_grammar = Sequence("DATEADD")
+
 
 @tsql_dialect.segment(replace=True)
 class FunctionSegment(BaseSegment):
@@ -713,15 +714,15 @@ class FunctionSegment(BaseSegment):
                             ephemeral_name="FunctionContentsGrammar",
                         ),
                     )
-                )
+                ),
             )
         ),
         Sequence(
             Sequence(
                 AnyNumberOf(
                     Ref("FunctionNameSegment"),
-                    max_times = 1,
-                    min_times = 1,
+                    max_times=1,
+                    min_times=1,
                     exclude=Ref("DateAddFunctionNameSegment"),
                 ),
                 Bracketed(
