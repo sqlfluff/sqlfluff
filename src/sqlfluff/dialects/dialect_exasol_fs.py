@@ -7,11 +7,12 @@ A semicolon is the terminator of the statement within the function / script
 https://docs.exasol.com
 """
 
-# TODO: How to turn off Jinja templating? In LUA language its possible to use {{}}. this is parsed as Jinja
 # TODO: How to prevent bracket check in script body?
 #       e.g. LUA: local _stmt = [[SOME ASSIGNMENT WITH OPEN BRACKET ( ]]
 #                 ...do some stuff ...
 #                 local _stmt = _stmt .. [[ ) ]]
+# https://github.com/sqlfluff/sqlfluff/issues/1479
+
 from sqlfluff.core.parser import (
     AnyNumberOf,
     Anything,
@@ -440,7 +441,7 @@ class CreateAdapterScriptStatementSegment(BaseSegment):
     https://docs.exasol.com/sql/create_script.htm
     """
 
-    type = "create_udf_script"
+    type = "create_adapter_script"
 
     is_ddl = True
     is_dml = False
