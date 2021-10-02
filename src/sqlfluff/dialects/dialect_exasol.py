@@ -898,6 +898,107 @@ class ColumnDatatypeSegment(BaseSegment):
 
 
 @exasol_dialect.segment(replace=True)
+class DatatypeSegment(BaseSegment):
+    """A data type segment.
+
+    Supports all Exasol datatypes and their aliases
+    https://docs.exasol.com/sql_references/data_types/datatypedetails.htm
+    https://docs.exasol.com/sql_references/data_types/datatypealiases.htm
+    .
+    """
+
+    type = "data_type"
+    match_grammar = OneOf(
+        # Numeric Data Types
+        Sequence(
+            OneOf("DECIMAL", "DEC", "NUMBER", "NUMERIC"),
+            Bracketed(
+                Ref("NumericLiteralSegment"),
+                Sequence(
+                    Ref("CommaSegment"), Ref("NumericLiteralSegment"), optional=True
+                ),
+                optional=True,
+            ),
+        ),
+        "BIGINT",
+        Sequence("DOUBLE", Ref.keyword("PRECISION", optional=True)),
+        "FLOAT",
+        "INT",
+        "INTEGER",
+        "REAL",
+        "SHORTINT",
+        "TINYINT",
+        "SMALLINT",
+        OneOf("BOOLEAN", "BOOL"),
+        OneOf(
+            "DATE",
+            Sequence(
+                "TIMESTAMP", Sequence("WITH", "LOCAL", "TIME", "ZONE", optional=True)
+            ),
+        ),
+        Sequence(
+            "INTERVAL",
+            "YEAR",
+            Bracketed(Ref("NumericLiteralSegment"), optional=True),
+            "TO",
+            "MONTH",
+        ),
+        Sequence(
+            "INTERVAL",
+            "DAY",
+            Bracketed(Ref("NumericLiteralSegment"), optional=True),
+            "TO",
+            "SECOND",
+            Bracketed(Ref("NumericLiteralSegment"), optional=True),
+        ),
+        Sequence(
+            "GEOMETRY",
+            Bracketed(Ref("NumericLiteralSegment"), optional=True),
+        ),
+        Sequence(
+            "HASHTYPE",
+            Bracketed(
+                Ref("NumericLiteralSegment"),
+                OneOf("BIT", "BYTE", optional=True),
+                optional=True,
+            ),
+        ),
+        Sequence(
+            OneOf(
+                Sequence(
+                    OneOf(
+                        Sequence("CHAR", Ref.keyword("VARYING", optional=True)),
+                        "VARCHAR",
+                        "VARCHAR2",
+                        "NCHAR",
+                        "NVARCHAR",
+                        "NVARCHAR2",
+                    ),
+                    Bracketed(
+                        Ref("NumericLiteralSegment"),
+                        OneOf("CHAR", "BYTE", optional=True),
+                        optional=True,
+                    ),
+                ),
+                Sequence("LONG", "VARCHAR"),
+                Sequence(
+                    "CHARACTER",
+                    Sequence(
+                        OneOf(Sequence("LARGE", "OBJECT"), "VARYING", optional=True),
+                        Bracketed(Ref("NumericLiteralSegment"), optional=True),
+                    ),
+                ),
+                Sequence(
+                    "CLOB",
+                    Bracketed(Ref("NumericLiteralSegment"), optional=True),
+                ),
+            ),
+            Ref("CharCharacterSetSegment", optional=True),
+        ),
+    )
+
+
+@exasol_dialect.segment(replace=True)
 class ColumnDefinitionSegment(BaseSegment):
     """Column definition within a `CREATE / ALTER TABLE` statement."""
 
@@ -1184,7 +1285,11 @@ class AlterTableConstraintSegment(BaseSegment):
             Sequence(
                 "DROP",
                 OneOf(
-                    Sequence("CONSTRAINT", Ref("SingleIdentifierGrammar")),
+                    Sequence(
+                        "CONSTRAINT",
+                        Ref("IfExistsGrammar", optional=True),
+                        Ref("SingleIdentifierGrammar"),
+                    ),
                     Ref("PrimaryKeyGrammar"),
                 ),
             ),
