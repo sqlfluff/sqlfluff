@@ -2928,7 +2928,7 @@ class MLTableExpressionSegment(BaseSegment):
 ############################
 @exasol_dialect.segment()
 class AlterSessionSegment(BaseSegment):
-    """`ALTER SESSION` statement"""
+    """`ALTER SESSION` statement."""
 
     type = "alter_session_statement"
     match_grammar = Sequence(
@@ -2943,7 +2943,7 @@ class AlterSessionSegment(BaseSegment):
 
 @exasol_dialect.segment()
 class AlterSystemSegment(BaseSegment):
-    """`ALTER SYSTEM` statement"""
+    """`ALTER SYSTEM` statement."""
 
     type = "alter_system_statement"
     match_grammar = Sequence(
@@ -2958,7 +2958,7 @@ class AlterSystemSegment(BaseSegment):
 
 @exasol_dialect.segment()
 class OpenSchemaSegment(BaseSegment):
-    """`OPEN SCHEMA` statement"""
+    """`OPEN SCHEMA` statement."""
 
     type = "open_schema_statement"
     match_grammar = Sequence("OPEN", "SCHEMA", Ref("ObjectReferenceSegment"))
@@ -2966,7 +2966,7 @@ class OpenSchemaSegment(BaseSegment):
 
 @exasol_dialect.segment()
 class CloseSchemaSegment(BaseSegment):
-    """`CLOSE SCHEMA` statement"""
+    """`CLOSE SCHEMA` statement."""
 
     type = "close_schema_statement"
     match_grammar = Sequence("CLOSE", "SCHEMA")
@@ -2974,7 +2974,7 @@ class CloseSchemaSegment(BaseSegment):
 
 @exasol_dialect.segment()
 class FlushStatisticsSegment(BaseSegment):
-    """`FLUSH STATISTICS` statement"""
+    """`FLUSH STATISTICS` statement."""
 
     type = "flush_statistics_statement"
     match_grammar = Sequence("FLUSH", "STATISTICS")
@@ -2982,7 +2982,7 @@ class FlushStatisticsSegment(BaseSegment):
 
 @exasol_dialect.segment()
 class RecompressReorganizeSegment(BaseSegment):
-    """`RECOMPRESS` and `REOGRANIZE` statement"""
+    """`RECOMPRESS` and `REOGRANIZE` statement."""
 
     type = "recompress_reorganzie_statement"
     match_grammar = Sequence(
@@ -3004,7 +3004,7 @@ class RecompressReorganizeSegment(BaseSegment):
 
 @exasol_dialect.segment()
 class PreloadSegment(BaseSegment):
-    """`PRELOAD` statement"""
+    """`PRELOAD` statement."""
 
     type = "preload_statement"
     match_grammar = Sequence(
@@ -3025,7 +3025,7 @@ class PreloadSegment(BaseSegment):
 
 @exasol_dialect.segment()
 class ImpersonateSegment(BaseSegment):
-    """`IMPERSONATE` statement"""
+    """`IMPERSONATE` statement."""
 
     type = "impersonate_statement"
     match_grammar = Sequence("IMPERSONATE", Ref("SingleIdentifierGrammar"))
@@ -3033,7 +3033,7 @@ class ImpersonateSegment(BaseSegment):
 
 @exasol_dialect.segment()
 class KillSegment(BaseSegment):
-    """`KILL` statement"""
+    """`KILL` statement."""
 
     type = "kill_statement"
     match_grammar = StartsWith("KILL")
@@ -3055,7 +3055,7 @@ class KillSegment(BaseSegment):
 
 @exasol_dialect.segment()
 class TruncateAuditLogsSegment(BaseSegment):
-    """`TRUNCATE AUDIT LOGS` statement"""
+    """`TRUNCATE AUDIT LOGS` statement."""
 
     type = "truncate_audit_logs_statement"
     match_grammar = StartsWith(Sequence("TRUNCATE", "AUDIT", "LOGS"))
@@ -3081,7 +3081,7 @@ class TruncateAuditLogsSegment(BaseSegment):
 
 @exasol_dialect.segment()
 class ExecuteScriptSegment(BaseSegment):
-    """`EXECUTE SCRIPT` statement"""
+    """`EXECUTE SCRIPT` statement."""
 
     type = "execute_script_statement"
     match_grammar = Sequence(
@@ -3098,7 +3098,7 @@ class ExecuteScriptSegment(BaseSegment):
 
 @exasol_dialect.segment()
 class ExplainVirtualSegment(BaseSegment):
-    """`EXPLAIN VIRTUAL` statement"""
+    """`EXPLAIN VIRTUAL` statement."""
 
     type = "explain_virtual_statement"
     match_grammar = Sequence("EXPLAIN", "VIRTUAL", Ref("SelectableGrammar"))
