@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 10c15820a7467b5b0bb0aba049cf342d6c8aec36f90d37801c7ed414d0593ead
+_hash: 7a4e7fe64893d26c9d498f2cc6d49b67dad25dea6b4d37e21b39ece86fe07699
 file:
 - statement:
     alter_user:
@@ -65,4 +65,24 @@ file:
     - keyword: FAILED
     - keyword: LOGIN
     - keyword: ATTEMPTS
+- statement_terminator: ;
+- statement:
+    alter_user:
+    - keyword: ALTER
+    - keyword: USER
+    - identifier: userx
+    - keyword: SET
+    - keyword: CONSUMER_GROUP
+    - comparison_operator: '='
+    - identifier: CEO
+- statement_terminator: ;
+- statement:
+    alter_user:
+    - keyword: ALTER
+    - keyword: USER
+    - identifier: userx
+    - keyword: SET
+    - keyword: CONSUMER_GROUP
+    - comparison_operator: '='
+    - keyword: 'NULL'
 - statement_terminator: ;

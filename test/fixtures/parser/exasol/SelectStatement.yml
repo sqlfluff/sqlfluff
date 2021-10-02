@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7e20289cdded1cab0996351070d66f316986eb25aa92a3ca494a0e411c5fd136
+_hash: 875ae507e1d6c98c30a1d02b3dd2362accaa1fd2a7163efb575efb70aa8d4813
 file:
 - statement:
     select_statement:
@@ -587,7 +587,7 @@ file:
         select_clause_element:
           column_reference:
             identifier: x
-        with_invalid_unique_clause:
+        with_invalid_unique_pk_clause:
         - keyword: WITH
         - keyword: INVALID
         - keyword: UNIQUE
@@ -785,4 +785,160 @@ file:
               - keyword: WITH
               - keyword: STEP
               - literal: '4'
+- statement_terminator: ;
+- statement:
+    select_statement:
+    - keyword: SELECT
+    - select_clause_element:
+        column_reference:
+          identifier: first_name
+    - comma: ','
+    - select_clause_element:
+        column_reference:
+          identifier: name
+    - with_invalid_foreign_key_clause:
+      - keyword: WITH
+      - keyword: INVALID
+      - keyword: FOREIGN
+      - keyword: KEY
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            identifier: nr
+          end_bracket: )
+      - keyword: from
+      - object_reference:
+          identifier: T1
+      - keyword: REFERENCING
+      - object_reference:
+          identifier: T2
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            identifier: id
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      keyword: SELECT
+      select_clause_element:
+        wildcard_expression:
+          wildcard_identifier:
+            star: '*'
+      with_invalid_foreign_key_clause:
+      - keyword: WITH
+      - keyword: INVALID
+      - keyword: FOREIGN
+      - keyword: KEY
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            identifier: first_name
+        - comma: ','
+        - column_reference:
+            identifier: name
+        - end_bracket: )
+      - keyword: from
+      - object_reference:
+          identifier: T1
+      - keyword: REFERENCING
+      - object_reference:
+          identifier: T2
+- statement_terminator: ;
+- statement:
+    select_statement:
+      keyword: SELECT
+      with_invalid_foreign_key_clause:
+      - keyword: INVALID
+      - keyword: FOREIGN
+      - keyword: KEY
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            identifier: nr
+        - comma: ','
+        - column_reference:
+            identifier: first_name
+        - comma: ','
+        - column_reference:
+            identifier: name
+        - end_bracket: )
+      - keyword: from
+      - object_reference:
+          identifier: T1
+      - keyword: REFERENCING
+      - object_reference:
+          identifier: T2
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            identifier: id
+        - comma: ','
+        - column_reference:
+            identifier: first_name
+        - comma: ','
+        - column_reference:
+            identifier: name
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+        into_table_clause:
+        - keyword: INTO
+        - keyword: TABLE
+        - object_reference:
+            identifier: t2
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - literal: '1'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          keyword: date
+          literal: "'2021-09-21'"
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: dual
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        with_invalid_unique_pk_clause:
+        - keyword: INVALID
+        - keyword: PRIMARY
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              identifier: first_name
+            end_bracket: )
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: T1
 - statement_terminator: ;

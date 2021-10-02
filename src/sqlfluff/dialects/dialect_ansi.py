@@ -449,6 +449,7 @@ ansi_dialect.add(
         "LIMIT", "GROUP", "ORDER", "HAVING", "QUALIFY", "WINDOW", "OVERLAPS"
     ),
     PrimaryKeyGrammar=Sequence("PRIMARY", "KEY"),
+    ForeignKeyGrammar=Sequence("FOREIGN", "KEY"),
     # Odd syntax, but prevents eager parameters being confused for data types
     FunctionParameterGrammar=OneOf(
         Sequence(
@@ -2073,8 +2074,7 @@ class TableConstraintSegment(BaseSegment):
             ),
             Sequence(  # FOREIGN KEY ( column_name [, ... ] )
                 # REFERENCES reftable [ ( refcolumn [, ... ] ) ]
-                "FOREIGN",
-                "KEY",
+                Ref("ForeignKeyGrammar"),
                 # Local columns making up FOREIGN KEY constraint
                 Ref("BracketedColumnReferenceListGrammar"),
                 "REFERENCES",

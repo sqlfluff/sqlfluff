@@ -65,3 +65,18 @@ SELECT * FROM(VALUES 1,2,3);
 SELECT * FROM(VALUES 1,2,3) AS xs(n1);
 ----
 SELECT * FROM VALUES BETWEEN 1 AND 15 WITH STEP 4;
+----
+SELECT first_name,name WITH INVALID FOREIGN KEY (nr) from T1
+REFERENCING T2 (id);
+----
+SELECT * WITH INVALID FOREIGN KEY (first_name,name) from T1
+REFERENCING T2;
+----
+SELECT INVALID FOREIGN KEY (nr,first_name,name) from T1
+REFERENCING T2 (id, first_name,name);
+----
+SELECT * INTO TABLE t2 FROM t1 ORDER BY 1;
+----
+SELECT date'2021-09-21' FROM dual;
+----
+SELECT INVALID PRIMARY KEY (first_name) from T1;
