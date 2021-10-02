@@ -731,6 +731,27 @@ class DropCascadeRestrictStatementSegment(BaseSegment):
 ############################
 
 
+@exasol_dialect.segment(replace=True)
+class CreateSchemaStatementSegment(BaseSegment):
+    """A `CREATE SCHEMA` statement.
+
+    https://docs.exasol.com/sql/create_schema.htm
+    """
+
+    type = "create_schema_statement"
+    is_ddl = True
+    is_dml = False
+    is_dql = False
+    is_dcl = False
+    match_grammar = StartsWith(Sequence("CREATE", "SCHEMA"))
+    parse_grammar = Sequence(
+        "CREATE",
+        "SCHEMA",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("SchemaReferenceSegment"),
+    )
+
+
 @exasol_dialect.segment()
 class CreateVirtualSchemaStatementSegment(BaseSegment):
     """A `CREATE VIRUTAL SCHEMA` statement.
@@ -3127,6 +3148,7 @@ class StatementSegment(BaseSegment):
         Ref("AlterSchemaStatementSegment"),
         Ref("AlterVirtualSchemaStatementSegment"),
         Ref("CommentStatementSegment"),
+        Ref("CreateSchemaStatementSegment"),
         Ref("CreateTableStatementSegment"),
         Ref("CreateViewStatementSegment"),
         Ref("CreateVirtualSchemaStatementSegment"),
