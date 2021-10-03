@@ -663,99 +663,46 @@ class OverlapsClauseSegment(BaseSegment):
     match_grammar = Nothing()
 
 
-@tsql_dialect.segment()
-class DateAddFunctionNameSegment(BaseSegment):
-    """DATEADD function name segment.
+@ansi_dialect.segment(replace=True)
+class DatePartClause(BaseSegment):
+    """DatePart clause for use within DATEADD() or related functions."""
 
-    Need to be able to specify this as type function_name
-    so that linting rules identify it properly
-    """
+    type = "date_part"
 
-    type = "function_name"
-    match_grammar = Sequence("DATEADD")
-
-
-@tsql_dialect.segment(replace=True)
-class FunctionSegment(BaseSegment):
-    """A scalar or aggregate function.
-
-    Maybe in the future we should distinguish between
-    aggregate functions and other functions. For now
-    we treat them the same because they look the same
-    for our purposes.
-    """
-
-    type = "function"
     match_grammar = OneOf(
-        Sequence(
-            Sequence(
-                Ref("DateAddFunctionNameSegment"),
-                Bracketed(
-                    Delimited(
-                        OneOf(
-                            "D",
-                            "DAY",
-                            "DAYOFYEAR",
-                            "DD",
-                            "DW",
-                            "DY",
-                            "HH",
-                            "HOUR",
-                            "M",
-                            "MCS",
-                            "MI",
-                            "MICROSECOND",
-                            "MILLISECOND",
-                            "MINUTE",
-                            "MM",
-                            "MONTH",
-                            "MS",
-                            "N",
-                            "NANOSECOND",
-                            "NS",
-                            "Q",
-                            "QQ",
-                            "QUARTER",
-                            "S",
-                            "SECOND",
-                            "SS",
-                            "W",
-                            "WEEK",
-                            "WEEKDAY",
-                            "WK",
-                            "WW",
-                            "YEAR",
-                            "Y",
-                            "YY",
-                            "YYYY",
-                        ),
-                        Ref(
-                            "FunctionContentsGrammar",
-                            # The brackets might be empty for some functions...
-                            optional=True,
-                            ephemeral_name="FunctionContentsGrammar",
-                        ),
-                    )
-                ),
-            )
-        ),
-        Sequence(
-            Sequence(
-                AnyNumberOf(
-                    Ref("FunctionNameSegment"),
-                    max_times=1,
-                    min_times=1,
-                    exclude=Ref("DateAddFunctionNameSegment"),
-                ),
-                Bracketed(
-                    Ref(
-                        "FunctionContentsGrammar",
-                        # The brackets might be empty for some functions...
-                        optional=True,
-                        ephemeral_name="FunctionContentsGrammar",
-                    )
-                ),
-            ),
-            Ref("PostFunctionGrammar", optional=True),
-        ),
+        "D",
+        "DAY",
+        "DAYOFYEAR",
+        "DD",
+        "DW",
+        "DY",
+        "HH",
+        "HOUR",
+        "M",
+        "MCS",
+        "MI",
+        "MICROSECOND",
+        "MILLISECOND",
+        "MINUTE",
+        "MM",
+        "MONTH",
+        "MS",
+        "N",
+        "NANOSECOND",
+        "NS",
+        "Q",
+        "QQ",
+        "QUARTER",
+        "S",
+        "SECOND",
+        "SS",
+        "W",
+        "WEEK",
+        "WEEKDAY",
+        "WK",
+        "WW",
+        "YEAR",
+        "Y",
+        "YY",
+        "YYYY",
     )
