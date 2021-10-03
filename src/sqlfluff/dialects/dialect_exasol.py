@@ -6,9 +6,11 @@ https://docs.exasol.com/sql_references/sqlstandardcompliance.htm
 
 from sqlfluff.core.parser import (
     AnyNumberOf,
+    Anything,
     BaseSegment,
     Bracketed,
     OptionallyBracketed,
+    BaseFileSegment,
     Dedent,
     Delimited,
     GreedyUntil,
@@ -27,6 +29,7 @@ from sqlfluff.core.parser import (
     SymbolSegment,
     StringParser,
     RegexParser,
+    NewlineSegment,
 )
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser.segments.generator import SegmentGenerator
@@ -57,6 +60,28 @@ exasol_dialect.insert_lexer_matchers(
     [
         RegexLexer("range_operator", r"\.{2}", CodeSegment),
         StringLexer("hash", "#", CodeSegment),
+        StringLexer(
+            "walrus_operator",
+            ":=",
+            CodeSegment,
+            segment_kwargs={"type": "walrus_operator"},
+        ),
+        RegexLexer(
+            "function_script_terminator",
+            r";\s+\/(?!\*)|\s+\/$",
+            CodeSegment,
+            segment_kwargs={"type": "function_script_terminator"},
+            subdivider=StringLexer(
+                "semicolon", ";", CodeSegment, segment_kwargs={"type": "semicolon"}
+            ),
+            trim_post_subdivide=RegexLexer(
+                "newline",
+                r"(\n|\r\n)+",
+                NewlineSegment,
+            ),
+        ),
+        RegexLexer("atsign_literal", r"@[a-zA-Z_][\w]*", CodeSegment),
+        RegexLexer("dollar_literal", r"[$][a-zA-Z0-9_.]*", CodeSegment),
     ],
     before="not_equal",
 )
@@ -170,6 +195,18 @@ exasol_dialect.add(
                 Sequence(Ref("RangeOperator"), Ref("DotSegment")),
             )
         ),
+    ),
+    FunctionScriptTerminatorSegment=NamedParser(
+        "function_script_terminator", CodeSegment, type="function_script_terminator"
+    ),
+    WalrusOperatorSegment=NamedParser(
+        "walrus_operator", SymbolSegment, type="assignment_operator"
+    ),
+    VariableNameSegment=RegexParser(
+        r"[A-Z][A-Z0-9_]*",
+        CodeSegment,
+        name="function_variable",
+        type="variable",
     ),
 )
 
@@ -2951,7 +2988,7 @@ class PreferringPlusPriorTermSegment(BaseSegment):
 
 @exasol_dialect.segment(replace=True)
 class MLTableExpressionSegment(BaseSegment):
-    """Not supported!"""
+    """Not supported."""
 
     match_grammar = Nothing()
 
@@ -3112,6 +3149,16 @@ class TruncateAuditLogsSegment(BaseSegment):
 ############################
 
 
+@exasol_dialect.segment(replace=True)
+class TransactionStatementSegment(BaseSegment):
+    """A `COMMIT` or `ROLLBACK` statement."""
+
+    type = "transaction_statement"
+    match_grammar = Sequence(
+        OneOf("COMMIT", "ROLLBACK"), Ref.keyword("WORK", optional=True)
+    )
+
+
 @exasol_dialect.segment()
 class ExecuteScriptSegment(BaseSegment):
     """`EXECUTE SCRIPT` statement."""
@@ -3135,6 +3182,350 @@ class ExplainVirtualSegment(BaseSegment):
 
     type = "explain_virtual_statement"
     match_grammar = Sequence("EXPLAIN", "VIRTUAL", Ref("SelectableGrammar"))
+
+
+############################
+# FUNCTION
+############################
+
+
+@exasol_dialect.segment()
+class FunctionReferenceSegment(exasol_dialect.get_segment("ObjectReferenceSegment")):  # type: ignore
+    """A reference to a function."""
+
+    type = "function_reference"
+
+
+@exasol_dialect.segment(replace=True)
+class CreateFunctionStatementSegment(BaseSegment):
+    """A `CREATE FUNCTION` statement."""
+
+    type = "create_function_statement"
+
+    is_ddl = True
+    is_dml = False
+    is_dql = False
+    is_dcl = False
+
+    match_grammar = StartsWith(
+        Sequence(
+            "CREATE",
+            Ref("OrReplaceGrammar", optional=True),
+            "FUNCTION",
+        ),
+        terminator=Ref("FunctionScriptTerminatorSegment"),
+    )
+    parse_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "FUNCTION",
+        Ref("FunctionReferenceSegment"),
+        Bracketed(
+            Delimited(
+                Sequence(
+                    Ref("SingleIdentifierGrammar"),  # Column name
+                    Ref.keyword("IN", optional=True),
+                    Ref("DatatypeSegment"),  # Column type
+                ),
+                optional=True,
+            ),
+        ),
+        "RETURN",
+        Ref("DatatypeSegment"),
+        OneOf("IS", "AS", optional=True),
+        AnyNumberOf(
+            Sequence(
+                Ref("VariableNameSegment"),
+                Ref("DatatypeSegment"),
+                Ref("DelimiterSegment"),
+            ),
+            optional=True,
+        ),
+        "BEGIN",
+        AnyNumberOf(Ref("FunctionBodySegment")),
+        "RETURN",
+        Ref("FunctionContentsExpressionGrammar"),
+        Ref("DelimiterSegment"),
+        "END",
+        Ref("FunctionReferenceSegment", optional=True),
+        Ref("SemicolonSegment", optional=True),
+    )
+
+
+@exasol_dialect.segment()
+class FunctionBodySegment(BaseSegment):
+    """The definition of the function body."""
+
+    type = "function_body"
+    match_grammar = OneOf(
+        Ref("FunctionAssignmentSegment"),
+        Ref("FunctionIfBranchSegment"),
+        Ref("FunctionForLoopSegment"),
+        Ref("FunctionWhileLoopSegment"),
+    )
+
+
+@exasol_dialect.segment()
+class FunctionAssignmentSegment(BaseSegment):
+    """The definition of a assignment within a function body."""
+
+    type = "function_assignment"
+    match_grammar = Sequence(
+        # assignment
+        Ref("VariableNameSegment"),
+        Ref("WalrusOperatorSegment"),
+        OneOf(
+            Ref("FunctionSegment"),
+            Ref("VariableNameSegment"),
+            Ref("LiteralGrammar"),
+            Ref("ExpressionSegment"),
+        ),
+        Ref("SemicolonSegment"),
+    )
+
+
+@exasol_dialect.segment()
+class FunctionIfBranchSegment(BaseSegment):
+    """The definition of a if branch within a function body."""
+
+    type = "function_if_branch"
+    match_grammar = Sequence(
+        "IF",
+        AnyNumberOf(Ref("ExpressionSegment")),
+        "THEN",
+        AnyNumberOf(Ref("FunctionBodySegment"), min_times=1),
+        AnyNumberOf(
+            Sequence(
+                OneOf("ELSIF", "ELSEIF"),
+                Ref("ExpressionSegment"),
+                "THEN",
+                AnyNumberOf(Ref("FunctionBodySegment"), min_times=1),
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "ELSE", AnyNumberOf(Ref("FunctionBodySegment"), min_times=1), optional=True
+        ),
+        "END",
+        "IF",
+        Ref("SemicolonSegment"),
+    )
+
+
+@exasol_dialect.segment()
+class FunctionForLoopSegment(BaseSegment):
+    """The definition of a for loop within a function body."""
+
+    type = "function_for_loop"
+    match_grammar = Sequence(
+        "FOR",
+        Ref("NakedIdentifierSegment"),
+        OneOf(
+            #     # for x := 1 to 10 do...
+            Sequence(
+                Ref("WalrusOperatorSegment"),
+                # Anything(),
+                Ref("ExpressionSegment"),  # could be a variable
+                "TO",
+                Ref("ExpressionSegment"),  # could be a variable
+                "DO",
+                AnyNumberOf(Ref("FunctionBodySegment"), min_times=1),
+                "END",
+                "FOR",
+            ),
+            # for x IN 1..10...
+            Sequence(
+                "IN",
+                Ref("ExpressionSegment"),  # could be a variable
+                Ref("RangeOperator"),
+                Ref("ExpressionSegment"),  # could be a variable
+                "LOOP",
+                AnyNumberOf(Ref("FunctionBodySegment"), min_times=1),
+                "END",
+                "LOOP",
+            ),
+        ),
+        Ref("SemicolonSegment"),
+    )
+
+
+@exasol_dialect.segment()
+class FunctionWhileLoopSegment(BaseSegment):
+    """The definition of a while loop within a function body."""
+
+    type = "function_while_loop"
+    match_grammar = Sequence(
+        "WHILE",
+        Ref("ExpressionSegment"),
+        "DO",
+        AnyNumberOf(Ref("FunctionBodySegment"), min_times=1),
+        "END",
+        "WHILE",
+        Ref("SemicolonSegment"),
+    )
+
+
+@exasol_dialect.segment()
+class FunctionScriptStatementSegment(BaseSegment):
+    """A generic segment, to any of its child subsegments."""
+
+    type = "statement"
+    match_grammar = OneOf(
+        Ref("CreateFunctionStatementSegment"),
+        Ref("CreateScriptingLuaScriptStatementSegment"),
+        Ref("CreateUDFScriptStatementSegment"),
+        # Ref("CreateAdapterScriptStatementSegment"),
+    )
+
+
+############################
+# SCRIPT
+############################
+@exasol_dialect.segment()
+class ScriptReferenceSegment(exasol_dialect.get_segment("ObjectReferenceSegment")):  # type: ignore
+    """A reference to a script."""
+
+    type = "script_reference"
+
+
+@exasol_dialect.segment()
+class ScriptContentSegment(BaseSegment):
+    """This represents the script content.
+
+    Because the script content could be written in
+    LUA, PYTHON, JAVA or R there is no further verification.
+    """
+
+    type = "script_content"
+    match_grammar = Anything()
+
+
+@exasol_dialect.segment()
+class CreateScriptingLuaScriptStatementSegment(BaseSegment):
+    """`CREATE SCRIPT` statement to create a Lua scripting script.
+
+    https://docs.exasol.com/sql/create_script.htm
+    """
+
+    type = "create_scripting_lua_script"
+
+    is_ddl = True
+    is_dml = False
+    is_dql = False
+    is_dcl = False
+
+    match_grammar = StartsWith(
+        Sequence(
+            "CREATE",
+            Ref("OrReplaceGrammar", optional=True),
+            Ref.keyword("LUA", optional=True),
+            "SCRIPT",
+        )
+    )
+    parse_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        Ref.keyword("LUA", optional=True),
+        "SCRIPT",
+        Ref("ScriptReferenceSegment"),
+        Bracketed(
+            Delimited(
+                Sequence(
+                    Ref.keyword("ARRAY", optional=True), Ref("SingleIdentifierGrammar")
+                ),
+                optional=True,
+            ),
+            optional=True,
+        ),
+        Sequence(Ref.keyword("RETURNS"), OneOf("TABLE", "ROWCOUNT"), optional=True),
+        "AS",
+        Ref("ScriptContentSegment"),
+    )
+
+
+@exasol_dialect.segment()
+class CreateUDFScriptStatementSegment(BaseSegment):
+    """`CREATE SCRIPT` statement create a UDF script.
+
+    https://docs.exasol.com/sql/create_script.htm
+    """
+
+    type = "create_udf_script"
+
+    is_ddl = True
+    is_dml = False
+    is_dql = False
+    is_dcl = False
+
+    match_grammar = StartsWith(
+        Sequence(
+            "CREATE",
+            Ref("OrReplaceGrammar", optional=True),
+            OneOf(
+                "JAVA",
+                "PYTHON",
+                "LUA",
+                "R",
+                Ref("SingleIdentifierGrammar"),
+                optional=True,
+            ),
+            OneOf("SCALAR", "SET"),
+            "SCRIPT",
+        )
+    )
+    parse_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        OneOf(
+            "JAVA", "PYTHON", "LUA", "R", Ref("SingleIdentifierGrammar"), optional=True
+        ),
+        OneOf("SCALAR", "SET"),
+        "SCRIPT",
+        Ref("ScriptReferenceSegment"),
+        Bracketed(
+            Sequence(
+                Delimited(Ref("ColumnDatatypeSegment")),
+                Ref("OrderByClauseSegment", optional=True),
+                optional=True,
+            ),
+            optional=True,
+        ),
+        OneOf(Sequence("RETURNS", Ref("DatatypeSegment")), Ref("EmitsGrammar")),
+        "AS",
+        Ref("ScriptContentSegment"),
+    )
+
+
+@exasol_dialect.segment()
+class CreateAdapterScriptStatementSegment(BaseSegment):
+    """`CREATE SCRIPT` statement create a adapter script.
+
+    https://docs.exasol.com/sql/create_script.htm
+    """
+
+    type = "create_adapter_script"
+
+    is_ddl = True
+    is_dml = False
+    is_dql = False
+    is_dcl = False
+
+    match_grammar = StartsWith(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        OneOf("JAVA", "PYTHON", Ref("SingleIdentifierGrammar"), optional=True),
+        "ADAPTER",
+        "SCRIPT",
+    )
+    parse_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        OneOf("JAVA", "PYTHON", Ref("SingleIdentifierGrammar"), optional=True),
+        "ADAPTER",
+        "SCRIPT",
+        Ref("ScriptReferenceSegment"),
+        Ref("ScriptContentSegment"),
+    )
 
 
 @exasol_dialect.segment(replace=True)
@@ -3191,4 +3582,25 @@ class StatementSegment(BaseSegment):
         # Others
         Ref("TransactionStatementSegment"),
         Ref("ExecuteScriptSegment"),
+    )
+
+
+@exasol_dialect.segment(replace=True)
+class FileSegment(BaseFileSegment):
+    """This overwrites the FileSegment from ANSI.
+
+    The reason is because SCRIPT and FUNCTION statements
+    are terminated by a trailing / at the end.
+    A semicolon is the terminator of the statement within the function / script
+    """
+
+    parse_grammar = AnyNumberOf(
+        Sequence(
+            Ref("FunctionScriptStatementSegment"),
+            # Ref("FunctionScriptTerminatorSegment"), # this ain't working....
+        ),
+        Sequence(
+            Ref("StatementSegment"),
+            Ref("SemicolonSegment"),
+        ),
     )
