@@ -257,7 +257,9 @@ class DbtTemplater(JinjaTemplater):
             try:
                 node = self._find_node(fname_absolute_path, config)
                 if node.depends_on.nodes:
-                    templater_logger.info("%s depends on %s", fname, node.depends_on.nodes)
+                    templater_logger.info(
+                        "%s depends on %s", fname, node.depends_on.nodes
+                    )
                 for dependent in node.depends_on.nodes:
                     yield from self._walk_dependents(
                         fname=self.dbt_manifest.nodes[dependent].original_file_path,
