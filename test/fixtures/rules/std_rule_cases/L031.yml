@@ -79,8 +79,8 @@ test_fail_avoid_aliases_3:
     order by o desc
 
 alias_single_char_identifiers:
-  pass_str: "select b from tbl as a"
-  pass_str: "select b from tbl"
+  fail_str: "select b from tbl as a"
+  fix_str: "select b from tbl"
 
 alias_with_wildcard_identifier:
   fail_str: "select * from tbl as a"
