@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 186158bea6b347950bf659fa63d12d9c9fbec7568ca9abe021164d758cf0cd23
+_hash: 0d3f06d6923749aa5debd0a1c39c3ecfa80b7cfebe2129818ed9b636d04c8d7b
 file:
 - statement:
     update_statement:
@@ -104,19 +104,25 @@ file:
             - identifier: V
             - dot: .
             - identifier: currency
-      update_from_clause:
+      from_clause:
       - keyword: FROM
-      - table_reference:
-          identifier: staff
-      - alias_expression:
-          keyword: AS
-          identifier: U
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: staff
+            alias_expression:
+              keyword: AS
+              identifier: U
       - comma: ','
-      - table_reference:
-          identifier: staff_updates
-      - alias_expression:
-          keyword: AS
-          identifier: V
+      - from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: staff_updates
+            alias_expression:
+              keyword: AS
+              identifier: V
       where_clause:
         keyword: WHERE
         expression:
@@ -172,3 +178,75 @@ file:
                 identifier: order_id
           - end_bracket: )
 - statement_terminator: ;
+- statement:
+    update_statement:
+      keyword: UPDATE
+      table_reference:
+        identifier: t1
+      set_clause_list:
+      - keyword: SET
+      - set_clause:
+          column_reference:
+            identifier: x
+          comparison_operator: '='
+          expression:
+            column_reference:
+            - identifier: t2
+            - dot: .
+            - identifier: c1
+      - comma: ','
+      - set_clause:
+          column_reference:
+            identifier: w
+          comparison_operator: '='
+          expression:
+            column_reference:
+            - identifier: t4
+            - dot: .
+            - identifier: c2
+      from_clause:
+        keyword: FROM
+        from_expression:
+        - from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t2
+        - join_clause:
+            keyword: JOIN
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: t3
+              alias_expression:
+                identifier: g
+            join_on_condition:
+              keyword: 'ON'
+              expression:
+              - column_reference:
+                - identifier: t2
+                - dot: .
+                - identifier: c1
+              - comparison_operator: '='
+              - column_reference:
+                - identifier: t3
+                - dot: .
+                - identifier: c2
+        - join_clause:
+          - keyword: LEFT
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: t4
+          - join_on_condition:
+              keyword: 'ON'
+              expression:
+              - column_reference:
+                - identifier: t4
+                - dot: .
+                - identifier: c3
+              - comparison_operator: '='
+              - column_reference:
+                - identifier: t3
+                - dot: .
+                - identifier: c1

@@ -79,7 +79,6 @@ def iter_indices(seq: List, val: Any) -> Iterator[int]:
         >>> print([i for i in iter_indices([1, 0, 2, 3, 2], 2)])
         [2, 4]
     """
-    idx = 0
-    while val in seq[idx:]:
-        idx = seq.index(val, idx) + 1
-        yield idx - 1
+    for idx, el in enumerate(seq):
+        if el == val:
+            yield idx
