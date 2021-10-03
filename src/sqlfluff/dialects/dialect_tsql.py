@@ -663,7 +663,7 @@ class OverlapsClauseSegment(BaseSegment):
     match_grammar = Nothing()
 
 
-@ansi_dialect.segment(replace=True)
+@tsql_dialect.segment(replace=True)
 class DatePartClause(BaseSegment):
     """DatePart clause for use within DATEADD() or related functions."""
 
