@@ -73,20 +73,21 @@ def test__templater_dbt_templating_result(
 
 @pytest.mark.dbt
 def test__templater_dbt_sequence_files_ephemeral_dependency(
+    project_dir,  # noqa: F811
     dbt_templater,  # noqa: F811
 ):
     """Test that dbt templater sequences files based on dependencies."""
     result = dbt_templater.sequence_files(
         [
-            "models/depends_on_ephemeral/b.sql",
-            "models/depends_on_ephemeral/c.sql",
+            os.path.join(project_dir, "models/depends_on_ephemeral/b.sql"),
+            os.path.join(project_dir, "models/depends_on_ephemeral/c.sql"),
         ],
         config=FluffConfig(configs=DBT_FLUFF_CONFIG),
     )
     # c.sql should come first because b.sql depends on c.sql.
-    assert result == [
-        "models/depends_on_ephemeral/c.sql",
-        "models/depends_on_ephemeral/b.sql",
+    assert [os.path.basename(p) for p in result] == [
+        "c.sql",
+        "b.sql",
     ]
 
 
