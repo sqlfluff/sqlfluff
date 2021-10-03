@@ -18,7 +18,6 @@ file:
       - newline: "\n"
       - whitespace: '    '
       - placeholder: '{% for action in actions %}'
-      - indent: ''
       - newline: "\n"
       - whitespace: '        '
       - comma: ','
@@ -67,7 +66,6 @@ file:
             identifier: campaign_count_c
     - newline: "\n"
     - whitespace: '    '
-    - dedent: ''
     - placeholder: '{% endfor %}'
     - newline: "\n"
     - dedent: ''
@@ -76,11 +74,9 @@ file:
       - newline: "\n"
       - whitespace: '    '
       - placeholder: '{% for action in actions %}'
-      - indent: ''
       - newline: "\n"
       - whitespace: '        '
       - placeholder: '{% if loop.first %}'
-      - indent: ''
       - newline: "\n"
       - whitespace: '            '
       - from_expression:
@@ -91,9 +87,7 @@ file:
                 identifier: a_raw_effect_sizes
         - newline: "\n"
         - whitespace: '        '
-        - dedent: ''
         - placeholder: '{% else %}'
-        - indent: ''
         - newline: "\n"
         - whitespace: '    '
         - newline: "\n"
@@ -130,11 +124,12 @@ file:
           - dedent: ''
         - newline: "\n"
         - whitespace: '        '
-        - placeholder: '{% if loop.first %}{% else %}{% endif %}'
         - newline: "\n"
         - whitespace: '    '
         - newline: "\n"
+        - placeholder: '{% if loop.first %}'
         - whitespace: '        '
+        - placeholder: "\n            {{action}}_raw_effect_sizes\n        {% else %}"
         - newline: "\n"
         - whitespace: '        '
         - join_clause:
@@ -166,11 +161,9 @@ file:
           - dedent: ''
         - newline: "\n"
         - whitespace: '        '
-        - dedent: ''
         - placeholder: '{% endif %}'
         - newline: "\n"
         - whitespace: '    '
-        - dedent: ''
         - placeholder: '{% endfor %}'
         - newline: "\n"
         - join_clause:

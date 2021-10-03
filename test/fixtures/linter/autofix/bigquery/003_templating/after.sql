@@ -21,9 +21,9 @@ FROM
         {{action}}_raw_effect_sizes
         {% else %}
         JOIN
-                    {{action}}_raw_effect_sizes
+            {{action}}_raw_effect_sizes
             USING
-                            ({{corr_states}})
-{% endif %}
+                ({{corr_states}})
+    {% endif %}
 {% endfor %}
 CROSS JOIN action_states
