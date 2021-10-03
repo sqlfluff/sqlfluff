@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 52d95d1be679d73d33336b108d289481c80953745b3df2dcdbb2fdee6bc8013a
+_hash: b5da892683d4d7e2e4ae8062d5ea1e3e62969eccf0d4071939ea1ccc89130c61
 file:
 - statement:
     merge_statement:
@@ -135,6 +135,71 @@ file:
           - identifier: U
           - dot: .
           - identifier: name
+    - merge_when_matched_clause:
+      - keyword: WHEN
+      - keyword: MATCHED
+      - keyword: THEN
+      - merge_delete_clause:
+          keyword: DELETE
+- statement_terminator: ;
+- statement:
+    merge_statement:
+    - keyword: MERGE
+    - keyword: INTO
+    - table_reference:
+        identifier: staff
+    - alias_expression:
+        identifier: T
+    - keyword: USING
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              column_reference:
+                identifier: name
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    identifier: X
+        end_bracket: )
+    - alias_expression:
+        identifier: U
+    - join_on_condition:
+        keyword: 'ON'
+        expression:
+        - column_reference:
+          - identifier: T
+          - dot: .
+          - identifier: name
+        - comparison_operator: '='
+        - column_reference:
+          - identifier: U
+          - dot: .
+          - identifier: name
+    - merge_when_not_matched_clause:
+      - keyword: WHEN
+      - keyword: NOT
+      - keyword: MATCHED
+      - keyword: THEN
+      - merge_insert_clause:
+        - keyword: INSERT
+        - keyword: VALUES
+        - bracketed:
+          - start_bracket: (
+          - expression:
+              literal: '1'
+          - comma: ','
+          - expression:
+              literal: '2'
+          - comma: ','
+          - expression:
+              literal: '3'
+          - end_bracket: )
     - merge_when_matched_clause:
       - keyword: WHEN
       - keyword: MATCHED
