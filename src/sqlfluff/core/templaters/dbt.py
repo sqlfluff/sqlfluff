@@ -238,7 +238,9 @@ class DbtTemplater(JinjaTemplater):
             )
         result = []
         for fname in fnames:
-            for dependent in self._walk_dependents(fname, self.working_dir, config=config):
+            for dependent in self._walk_dependents(
+                fname, self.working_dir, config=config
+            ):
                 if dependent not in result:
                     result.append(dependent)
             return result
