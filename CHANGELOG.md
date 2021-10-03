@@ -15,6 +15,8 @@ Lots of fixes to our rules, plus good improvements to T-SQL and Exasol dialects 
 
 ## What’s Changed
 
+* Improved test cases names [#1501](https://github.com/sqlfluff/sqlfluff/pull/1501) [@ttomasz](https://github.com/ttomasz)
+* Exasol: Fix CREATE TABLE in-/outline constraint / Adjusted DISTRIBUTE/PARTITION clause [#1491](https://github.com/sqlfluff/sqlfluff/pull/1491) [@sti0](https://github.com/sti0)
 * Add support for SnowSQL variables [#1497](https://github.com/sqlfluff/sqlfluff/pull/1497) [@samlader](https://github.com/samlader)
 * Ignore erroneous newline segments in L016 (e.g. Jinja for loops) [#1494](https://github.com/sqlfluff/sqlfluff/pull/1494) [@tunetheweb](https://github.com/tunetheweb)
 * Indentation error on Jinja templated test case [#1444](https://github.com/sqlfluff/sqlfluff/pull/1444) [@barrywhart](https://github.com/barrywhart)
