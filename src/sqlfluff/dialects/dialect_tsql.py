@@ -714,8 +714,8 @@ class FunctionSegment(BaseSegment):
                     max_times=1,
                     min_times=1,
                     exclude=OneOf(
-                    	Ref("ConvertFunctionNameSegment"),
-                    	Ref("DateAddFunctionNameSegment")
+                        Ref("ConvertFunctionNameSegment"),
+                        Ref("DateAddFunctionNameSegment"),
                     ),
                 ),
                 Bracketed(
@@ -887,7 +887,7 @@ class CreateTableAsSelectStatementSegment(BaseSegment):
         Ref("SelectableGrammar"),
     )
 
-    
+
 @tsql_dialect.segment(replace=True)
 class DatePartClause(BaseSegment):
     """DatePart clause for use within DATEADD() or related functions."""

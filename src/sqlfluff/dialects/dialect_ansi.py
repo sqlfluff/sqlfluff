@@ -932,7 +932,7 @@ class DatePartClause(BaseSegment):
 
     type = "date_part"
 
-    match_grammar=OneOf(
+    match_grammar = OneOf(
         "DAY",
         "DAYOFYEAR",
         "HOUR",
