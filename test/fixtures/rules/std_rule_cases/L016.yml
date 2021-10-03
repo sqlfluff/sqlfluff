@@ -167,8 +167,9 @@ test_for_loop:
     {% endfor %}
 
 
-test_for_loop2:
-  # A Jinja for loop
+test_for_loop_repeating_elements_starts_with_literal:
+  # A Jinja for loop with repeating elements (that are difficult to match)
+  # but starting with a literal that can be used to match
   pass_str: |
     {% set elements = 'foo' %}
     SELECT
@@ -176,6 +177,36 @@ test_for_loop2:
             {% for elem in elements %}
             WHEN '{{ elem }}' = '' THEN 1
             WHEN '{{ elem }}' = '' THEN 1
+            {% endfor %}
+        END
+
+
+test_for_loop_starting_with_templated_piece:
+  # A Jinja for loop starting with non-literals
+  # But unique parts can be used to match
+  pass_str: |
+    {% set elements = 'foo' %}
+    {% set when = 'WHEN' %}
+    SELECT
+        CASE
+            {% for elem in elements %}
+            {{ when }} '{{ elem }}' = '' THEN 1
+            {{ when }} '{{ elem }}' = '' THEN 2
+            {% endfor %}
+        END
+
+test_for_loop_fail_complex_match:
+  # Ideally this should pass, but jinja templating
+  # fails to handle this as difficult to match.
+  # Fix - TODO
+  fail_str: |
+    {% set elements = 'foo' %}
+    {% set when = 'WHEN' %}
+    SELECT
+        CASE
+            {% for elem in elements %}
+            {{ when }} '{{ elem }}' = '' THEN 1
+            {{ when }} '{{ elem }}' = '' THEN 1
             {% endfor %}
         END
 
