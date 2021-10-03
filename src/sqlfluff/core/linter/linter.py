@@ -263,22 +263,25 @@ class Linter:
 
     @staticmethod
     def remove_templated_errors(
-        linting_errors: List[SQLLintError],
-    ) -> List[SQLLintError]:
+        linting_errors: List[SQLBaseError],
+    ) -> List[SQLBaseError]:
         """Filter a list of lint errors, removing those which only occur in templated slices."""
         # Filter out any linting errors in templated sections if relevant.
-        linting_errors = list(
-            filter(
-                lambda e: (
+        result = []
+        for e in linting_errors:
+            if isinstance(e, SQLLintError):
+                if (
                     # Is it in a literal section?
                     e.segment.pos_marker.is_literal()
                     # Is it a rule that is designed to work on templated sections?
                     or e.rule.targets_templated
-                ),
-                linting_errors,
-            )
-        )
-        return linting_errors
+                ):
+                    result.append(e)
+            else:
+                # If it's another type, just keep it. (E.g. SQLParseError from
+                # malformed "noqa" comment).
+                result.append(e)
+        return result
 
     @staticmethod
     def _warn_unfixable(code: str):
@@ -342,10 +345,10 @@ class Linter:
     @classmethod
     def extract_ignore_mask(
         cls, tree: Optional[BaseSegment]
-    ) -> Tuple[List[NoQaDirective], List[SQLParseError]]:
+    ) -> Tuple[List[NoQaDirective], List[SQLBaseError]]:
         """Look for inline ignore comments and return NoQaDirectives."""
         ignore_buff: List[NoQaDirective] = []
-        violations: List[SQLParseError] = []
+        violations: List[SQLBaseError] = []
         if not tree:
             return ignore_buff, violations
         for comment in tree.recursive_crawl("comment"):
@@ -369,7 +372,7 @@ class Linter:
         fname: Optional[str] = None,
         templated_file: Optional[TemplatedFile] = None,
         formatter: Any = None,
-    ) -> Tuple[BaseSegment, List[SQLLintError], List[NoQaDirective]]:
+    ) -> Tuple[BaseSegment, List[SQLBaseError], List[NoQaDirective]]:
         """Lint and optionally fix a tree object."""
         # Keep track of the linting errors
         all_linting_errors = []
@@ -611,7 +614,7 @@ class Linter:
         config: Optional[FluffConfig] = None,
         fname: Optional[str] = None,
         templated_file: Optional[TemplatedFile] = None,
-    ) -> Tuple[BaseSegment, List[SQLLintError]]:
+    ) -> Tuple[BaseSegment, List[SQLBaseError]]:
         """Return the fixed tree and violations from lintfix when we're fixing."""
         config = config or self.config
         rule_set = self.get_ruleset(config=config)
@@ -632,7 +635,7 @@ class Linter:
         config: Optional[FluffConfig] = None,
         fname: Optional[str] = None,
         templated_file: Optional[TemplatedFile] = None,
-    ) -> List[SQLLintError]:
+    ) -> List[SQLBaseError]:
         """Return just the violations from lintfix when we're only linting."""
         config = config or self.config
         rule_set = self.get_ruleset(config=config)

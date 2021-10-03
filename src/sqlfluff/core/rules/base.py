@@ -340,7 +340,7 @@ class BaseRule:
         new_lerrs = []
         new_fixes = []
 
-        def _process_lint_result(res) -> SQLLintError:
+        def _process_lint_result(res):
             self.discard_unsafe_fixes(res, templated_file)
             lerr = res.to_linting_error(rule=self)
             ignored = False
