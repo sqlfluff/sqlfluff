@@ -414,19 +414,7 @@ class CreateUDFScriptStatementSegment(BaseSegment):
             ),
             optional=True,
         ),
-        OneOf(
-            Sequence("RETURNS", Ref("DatatypeSegment")),
-            Sequence(
-                "EMITS",
-                Bracketed(
-                    OneOf(
-                        # EMITS (A NUMBER, B VARCHAR) or EMITS(...)
-                        Delimited(Ref("ColumnDatatypeSegment")),
-                        Sequence(Ref("RangeOperator"), Ref("DotSegment")),
-                    )
-                ),
-            ),
-        ),
+        OneOf(Sequence("RETURNS", Ref("DatatypeSegment")), Ref("EmitsGrammar")),
         "AS",
         Ref("ScriptContentSegment"),
     )

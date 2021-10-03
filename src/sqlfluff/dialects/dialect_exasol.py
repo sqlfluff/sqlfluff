@@ -161,6 +161,16 @@ exasol_dialect.add(
             type="system_parameter",
         )
     ),
+    EmitsGrammar=Sequence(
+        "EMITS",
+        Bracketed(
+            OneOf(
+                # EMITS (A NUMBER, B VARCHAR) or EMITS(...)
+                Delimited(Ref("ColumnDatatypeSegment")),
+                Sequence(Ref("RangeOperator"), Ref("DotSegment")),
+            )
+        ),
+    ),
 )
 
 exasol_dialect.replace(
@@ -244,11 +254,15 @@ exasol_dialect.replace(
     BooleanLiteralGrammar=OneOf(
         Ref("TrueSegment"), Ref("FalseSegment"), Ref("UnknownSegment")
     ),
-    PostFunctionGrammar=Sequence(
-        Sequence(OneOf("IGNORE", "RESPECT"), "NULLS", optional=True),
-        Ref("OverClauseSegment"),
+    PostFunctionGrammar=OneOf(
+        Ref("EmitsGrammar"),  # e.g. JSON_EXTRACT()
+        Sequence(
+            Sequence(OneOf("IGNORE", "RESPECT"), "NULLS", optional=True),
+            Ref("OverClauseSegment"),
+        ),
     ),
 )
+
 
 ############################
 # SELECT

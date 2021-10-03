@@ -80,3 +80,11 @@ SELECT * INTO TABLE t2 FROM t1 ORDER BY 1;
 SELECT date'2021-09-21' FROM dual;
 ----
 SELECT INVALID PRIMARY KEY (first_name) from T1;
+----
+SELECT  JSON_EXTRACT(json_str, '$."@id"', '$.error()') 
+        EMITS
+        (
+            id VARCHAR(2000),
+            error_column VARCHAR(2000000)
+        )
+FROM t;
