@@ -38,7 +38,7 @@ def test__templater_dbt_profiles_dir_expanded(dbt_templater):  # noqa: F811
     dbt_templater.sqlfluff_config = FluffConfig(
         configs={"templater": {"dbt": {"profiles_dir": "~/.dbt"}}}
     )
-    profiles_dir = dbt_templater._get_profiles_dir()
+    profiles_dir = dbt_templater.profiles_dir
     # Normalise paths to control for OS variance
     assert os.path.normpath(profiles_dir) == os.path.normpath(
         os.path.expanduser("~/.dbt")
@@ -69,6 +69,17 @@ def test__templater_dbt_templating_result(
         config=FluffConfig(configs=DBT_FLUFF_CONFIG),
     )
     assert str(templated_file) == open("test/fixtures/dbt/" + fname).read()
+
+
+
+@pytest.mark.dbt
+def test__templater_dbt_sequence_files_ephemeral_dependency(project_dir, dbt_templater):
+    result = dbt_templater.sequence_files([
+        os.path.join(project_dir, "models/depends_on_ephemeral/b.sql"),
+        os.path.join("models/depends_on_ephemeral/c.sql"),
+    ], config=FluffConfig(configs=DBT_FLUFF_CONFIG))
+    #test/fixtures/dbt/dbt_project/models/depends_on_ephemeral
+    pass
 
 
 @pytest.mark.dbt
@@ -236,7 +247,7 @@ def test__project_dir_does_not_exist_error(dbt_templater, caplog):  # noqa: F811
     try:
         logger.propagate = True
         with caplog.at_level(logging.ERROR, logger="sqlfluff.templater"):
-            dbt_project_dir = dbt_templater._get_project_dir()
+            dbt_project_dir = dbt_templater.project_dir
         assert (
             f"dbt_project_dir: {dbt_project_dir} could not be accessed. Check it exists."
             in caplog.text
