@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 26a649a78a700af5b96505cb7e682052a188dbf7f6dd8ff67f6435067cf82c5d
+_hash: 5b8b0cf452a93dfd26634f0dab3fdc7127f0ae0890e56a97832e859ac04447d4
 file:
 - statement:
     select_statement:
@@ -507,35 +507,26 @@ file:
             bracketed:
               start_bracket: (
               end_bracket: )
-            over_clause:
-              keyword: OVER
-              bracketed:
-                start_bracket: (
-                window_specification:
-                  partitionby_clause:
-                  - keyword: PARTITION
-                  - keyword: BY
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
-                        column_reference:
-                          identifier: col1
-                    - comma: ','
-                    - expression:
-                        column_reference:
-                          identifier: col2
-                    - end_bracket: )
-                  orderby_clause:
-                  - keyword: ORDER
-                  - keyword: BY
-                  - column_reference:
-                      identifier: col1
-                  - keyword: DESC
-                  - comma: ','
-                  - column_reference:
-                      identifier: col2
-                  - keyword: DESC
-                end_bracket: )
+          unparsable:
+            raw: OVER
+            bracketed:
+            - start_bracket: (
+            - raw: PARTITION
+            - raw: BY
+            - bracketed:
+              - start_bracket: (
+              - raw: col1
+              - comma: ','
+              - raw: col2
+              - end_bracket: )
+            - raw: ORDER
+            - raw: BY
+            - raw: col1
+            - raw: DESC
+            - comma: ','
+            - raw: col2
+            - raw: DESC
+            - end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -551,25 +542,19 @@ file:
             bracketed:
               start_bracket: (
               end_bracket: )
-            over_clause:
-              keyword: OVER
-              bracketed:
-                start_bracket: (
-                window_specification:
-                  partitionby_clause:
-                  - keyword: PARTITION
-                  - keyword: BY
-                  - bracketed:
-                    - start_bracket: (
-                    - expression:
-                        column_reference:
-                          identifier: col1
-                    - comma: ','
-                    - expression:
-                        column_reference:
-                          identifier: col2
-                    - end_bracket: )
-                end_bracket: )
+          unparsable:
+            raw: OVER
+            bracketed:
+            - start_bracket: (
+            - raw: PARTITION
+            - raw: BY
+            - bracketed:
+              - start_bracket: (
+              - raw: col1
+              - comma: ','
+              - raw: col2
+              - end_bracket: )
+            - end_bracket: )
       orderby_clause:
       - keyword: ORDER
       - keyword: BY
