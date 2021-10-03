@@ -345,7 +345,6 @@ class TemplatedFile:
                 return self.sliced_file[-1].source_slice
         else:
             start_slices = self.sliced_file[ts_start_sf_start:ts_start_sf_stop]
-
         if ts_stop_sf_start == ts_stop_sf_stop:  # pragma: no cover TODO?
             stop_slices = [self.sliced_file[ts_stop_sf_start]]
         else:
@@ -362,7 +361,6 @@ class TemplatedFile:
             source_start = start_slices[0][1].start + offset
         else:
             source_start = start_slices[0][1].start
-
         # Stop.
         if stop_slices[-1][0] == "literal":
             offset = stop_slices[-1][2].stop - template_slice.stop

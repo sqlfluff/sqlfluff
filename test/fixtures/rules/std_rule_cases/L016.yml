@@ -196,10 +196,10 @@ test_for_loop_starting_with_templated_piece:
         END
 
 test_for_loop_fail_complex_match:
-  # Ideally this should pass, but jinja templating
-  # fails to handle this as difficult to match.
-  # Fix - TODO
-  fail_str: |
+  # A Jinja for loop starting with non-literals
+  # But non-unique parts which therefore cannot
+  # be used to match
+  pass_str: |
     {% set elements = 'foo' %}
     {% set when = 'WHEN' %}
     SELECT
