@@ -230,3 +230,14 @@ RESERVED_KEYWORDS = [
     "WRITETEXT",
     "XACT_ABORT",
 ]
+
+
+UNRESERVED_KEYWORDS = [
+    "COLUMNSTORE",
+    "DISTRIBUTION",  # Azure Synapse Analytics specific
+    "HASH",  # Azure Synapse Analytics specific
+    "REPLICATE",  # Azure Synapse Analytics specific
+    "ROUND_ROBIN",  # Azure Synapse Analytics specific
+    "SWITCH",
+    "TRUNCATE_TARGET",  # Azure Synapse Analytics specific
+]
