@@ -2,7 +2,7 @@
 
 import os.path
 import logging
-from typing import Optional
+from typing import List, Optional
 
 from dataclasses import dataclass
 from cached_property import cached_property
@@ -36,8 +36,6 @@ class DbtTemplater(JinjaTemplater):
     def __init__(self, **kwargs):
         self.sqlfluff_config = None
         self.formatter = None
-        self.project_dir = None
-        self.profiles_dir = None
         self.working_dir = os.getcwd()
         self._sequential_fails = 0
         super().__init__(**kwargs)
@@ -163,7 +161,8 @@ class DbtTemplater(JinjaTemplater):
 
         return self.dbt_selector_method
 
-    def _get_profiles_dir(self):
+    @cached_property
+    def profiles_dir(self):
         """Get the dbt profiles directory from the configuration.
 
         The default is `~/.dbt` in 0.17 but we use the
@@ -190,7 +189,8 @@ class DbtTemplater(JinjaTemplater):
 
         return dbt_profiles_dir
 
-    def _get_project_dir(self):
+    @cached_property
+    def project_dir(self):
         """Get the dbt project directory from the configuration.
 
         Defaults to the working directory.
@@ -226,6 +226,36 @@ class DbtTemplater(JinjaTemplater):
                 "please install dbt dependencies through `pip install sqlfluff[dbt]`"
             ) from e
 
+    def sequence_files(self, fnames: List[str], config=None):
+        """Reorder fnames to process dependent files first.
+
+        This avoids errors when an ephemeral model is processed before use.
+        """
+        if not config:  # pragma: no cover
+            raise ValueError(
+                "For the dbt templater, the `sequence_files()` method requires a config object."
+            )
+        result = []
+        for fname in fnames:
+            for dependent in self._walk_dependents(fname=fname, config=config):
+                if dependent not in result:
+                    result.append(dependent)
+            return result
+
+    def _walk_dependents(self, fname, config=None):
+        self.sqlfluff_config = config
+        fname_absolute_path = os.path.abspath(fname)
+        os.chdir(self.project_dir)
+        node = self._find_node(fname_absolute_path, config)
+        if node.depends_on.nodes:
+            templater_logger.info("%s depends on %s", fname, node.depends_on.nodes)
+        for dependent in node.depends_on.nodes:
+            yield from self._walk_dependents(
+                fname=self.dbt_manifest.nodes[dependent].original_file_path,
+                config=config,
+            )
+        yield fname
+
     def process(self, *, fname, in_str=None, config=None, formatter=None):
         """Compile a dbt model and return the compiled SQL.
 
@@ -246,8 +276,6 @@ class DbtTemplater(JinjaTemplater):
         )
 
         self.sqlfluff_config = config
-        self.project_dir = self._get_project_dir()
-        self.profiles_dir = self._get_profiles_dir()
         fname_absolute_path = os.path.abspath(fname)
 
         try:
@@ -284,7 +312,7 @@ class DbtTemplater(JinjaTemplater):
         finally:
             os.chdir(self.working_dir)
 
-    def _unsafe_process(self, fname, in_str=None, config=None):
+    def _find_node(self, fname, config=None):
         if not config:  # pragma: no cover
             raise ValueError(
                 "For the dbt templater, the `process()` method requires a config object."
@@ -316,9 +344,13 @@ class DbtTemplater(JinjaTemplater):
             raise RuntimeError(
                 "File %s was not found in dbt project" % fname
             )  # pragma: no cover
+        return results[0]
+
+    def _unsafe_process(self, fname, in_str=None, config=None):
+        node = self._find_node(fname, config)
 
         node = self.dbt_compiler.compile_node(
-            node=results[0],
+            node=node,
             manifest=self.dbt_manifest,
         )
 
