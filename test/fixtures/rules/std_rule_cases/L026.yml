@@ -1,6 +1,6 @@
 rule: L026
 
-test_1:
+test_pass_object_referenced_1:
   # References in quotes in bigquery
   pass_str: SELECT bar.user_id FROM `foo.far.bar`
 
@@ -8,28 +8,29 @@ test_1:
     core:
       dialect: bigquery
 
-test_2:
+test_fail_object_not_referenced_1:
+  desc: Name foo is not referenced in FROM clause. It would need to be at the end of identifier in ticks or an alias.
   fail_str: SELECT foo.user_id FROM `foo.far.bar`
 
   configs:
     core:
       dialect: bigquery
 
-test_3:
+test_fail_object_not_referenced_2:
   # References in WHERE clause
   fail_str: SELECT * FROM my_tbl WHERE foo.bar > 0
 
-test_4:
+test_pass_object_referenced_2:
   pass_str: |
     SELECT * FROM db.sc.tbl2
     WHERE a NOT IN (SELECT a FROM db.sc.tbl1)
 
-test_5:
+test_pass_object_referenced_3:
   pass_str: |
     SELECT * FROM db.sc.tbl2
     WHERE a NOT IN (SELECT tbl2.a FROM db.sc.tbl1)
 
-test_6:
+test_pass_object_referenced_4:
   # Test ambiguous column reference caused by use of BigQuery structure fields.
   # Here, 'et2' could either be a schema name or a table name.
   # https://github.com/sqlfluff/sqlfluff/issues/1079

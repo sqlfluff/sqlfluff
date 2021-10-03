@@ -1,31 +1,31 @@
 rule: L043
 
-test_1:
+test_pass_case_cannot_be_reduced_1:
   pass_str: |
     select
         fab > 0 as is_fab
     from fancy_table
-test_2:
+test_pass_case_cannot_be_reduced_2:
   pass_str: |
     select
         case when fab > 0 then true end as is_fab
     from fancy_table
-test_3:
+test_pass_case_cannot_be_reduced_3:
   pass_str: |
     select
         case when fab is not null then false end as is_fab
     from fancy_table
-test_4:
+test_pass_case_cannot_be_reduced_4:
   pass_str: |
     select
         case when fab > 0 then true else true end as is_fab
     from fancy_table
-test_5:
+test_pass_case_cannot_be_reduced_5:
   pass_str: |
     select
         case when fab <> 0 then 'just a string' end as fab_category
     from fancy_table
-test_6:
+test_pass_case_cannot_be_reduced_6:
   pass_str: |
     select
         case
@@ -33,7 +33,7 @@ test_6:
           when fab < 0 then 'not a bool'
         end as fab_category
     from fancy_table
-test_7:
+test_fail_unnecessary_case_1:
   fail_str: |
     select
         case
@@ -43,7 +43,7 @@ test_7:
     select
         coalesce(fab > 0, false) as is_fab
     from fancy_table
-test_8:
+test_fail_unnecessary_case_2:
   fail_str: |
     select
         case
@@ -53,7 +53,7 @@ test_8:
     select
         not coalesce(fab > 0, false) as is_fab
     from fancy_table
-test_9:
+test_fail_unnecessary_case_3:
   fail_str: |
     select
         case
@@ -63,7 +63,7 @@ test_9:
     select
         coalesce(fab > 0 and tot > 0, false) as is_fab
     from fancy_table
-test_10:
+test_fail_unnecessary_case_4:
   fail_str: |
     select
         case
@@ -73,7 +73,7 @@ test_10:
     select
         not coalesce(fab > 0 and tot > 0, false) as is_fab
     from fancy_table
-test_11:
+test_fail_unnecessary_case_5:
   fail_str: |
     select
         case
@@ -83,7 +83,7 @@ test_11:
     select
         not coalesce(not fab > 0 or tot > 0, false) as is_fab
     from fancy_table
-test_12:
+test_fail_unnecessary_case_6:
   fail_str: |
     select
         subscriptions_xf.metadata_migrated,
