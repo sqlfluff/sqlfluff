@@ -631,7 +631,7 @@ class PythonTemplater(RawTemplater):
             # Try to yield simply again (post trim)
             try:
                 simple_elem = int_file_slice.try_simple()
-                templater_logger.debug("        Yielding Simple: %s", simple_elem)
+                templater_logger.debug("        Yielding Simple (post-trim): %s", simple_elem)
                 yield simple_elem
                 continue
             except ValueError:
@@ -965,9 +965,6 @@ class PythonTemplater(RawTemplater):
                         # Anything up to start_idx (exclusive) is included.
                         include_start = raw_idx > elem_sub_buffer[0][2]
 
-                        # The ending point of this slice, is already decided.
-                        end_point = elem_sub_buffer[-1].end_source_idx()
-
                         # If start_idx is None, we're in luck. We don't need to include the beginning.
                         if include_start:
                             start_point = elem_sub_buffer[0].source_idx
@@ -975,10 +972,34 @@ class PythonTemplater(RawTemplater):
                         else:
                             start_point = elem_sub_buffer[cur_idx].source_idx
 
+                        # The ending point of this slice, is already decided.
+                        end_point = elem_sub_buffer[-1].end_source_idx()
+                        # However if can match beginning as a literlar, then use that
+                        start_point_template = starts[1]
+                        end_point_template = template_idx
+                        if elem_sub_buffer[0].raw == int_file_slice.slice_buffer[0].raw:
+                            end_point = elem_sub_buffer[0].end_source_idx()
+
+                            if end_point < elem_sub_buffer[-1].end_source_idx():
+                                tricky_initial_literal = TemplatedFileSlice(
+                                            "literal",
+                                            # Slicing is easy here, we have no choice
+                                            slice(start_point, end_point),
+                                            slice(starts[1], starts[1] + len(elem_sub_buffer[0].raw)),
+                                )
+                                templater_logger.debug(
+                                    "        Yielding Tricky Case Initial Literal: %s",
+                                    tricky_initial_literal,
+                                )
+                                yield tricky_initial_literal
+                                start_point = end_point
+                                end_point = elem_sub_buffer[1].end_source_idx()
+                                start_point_template = starts[1] + len(elem_sub_buffer[0].raw)
+
                         tricky = TemplatedFileSlice(
                             "templated",
                             slice(start_point, end_point),
-                            slice(starts[1], template_idx),
+                            slice(start_point_template, end_point_template),
                         )
 
                         templater_logger.debug(

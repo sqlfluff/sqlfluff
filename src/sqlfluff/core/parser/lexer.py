@@ -343,6 +343,7 @@ class Lexer:
             # Calculate Source Slice
             if idx != 0:
                 last_source_slice = stash_source_slice
+
             source_slice = templated_file.templated_slice_to_source_slice(
                 element.template_slice
             )

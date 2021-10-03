@@ -156,3 +156,35 @@ test_long_jina_comment_ignore:
       max_line_length: 80
       L016:
         ignore_comment_lines: True
+
+
+test_for_loop:
+  # A Jinja for loop
+  pass_str: |
+    {% for elem in 'foo' %}
+    SELECT '{{ elem }}' FROM table1;
+    SELECT '{{ elem }}' FROM table2;
+    {% endfor %}
+
+
+test_for_loop2:
+  # A Jinja for loop
+  pass_str: |
+    {% set elements = 'foo' %}
+    SELECT
+        CASE
+            {% for elem in elements %}
+            WHEN '{{ elem }}' = '' THEN 1
+            WHEN '{{ elem }}' = '' THEN 1
+            {% endfor %}
+        END
+
+
+test_set_statement:
+  # A Jinja set statement
+  pass_str: |
+    {% set statement = "SELECT 1 from table1;" %}
+    {{ statement }}{{ statement }}
+  configs:
+    rules:
+      max_line_length: 80
