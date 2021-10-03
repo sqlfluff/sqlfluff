@@ -230,7 +230,6 @@ exasol_dialect.replace(
         "HAVING",
         "QUALIFY",
         Ref("SetOperatorSegment"),
-        # "WITH",
     ),
     WhereClauseTerminatorGrammar=OneOf(
         "CONNECT",
@@ -279,7 +278,6 @@ class SelectStatementSegment(BaseSegment):
     type = "select_statement"
     match_grammar = StartsWith(
         "SELECT",
-        # Ref("SelectClauseSegment"),
         terminator=Ref("SetOperatorSegment"),
         enforce_whitespace_preceding_terminator=True,
     )
