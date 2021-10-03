@@ -693,6 +693,22 @@ class FunctionSegment(BaseSegment):
     match_grammar = OneOf(
         Sequence(
             Sequence(
+                Ref("DateAddFunctionNameSegment"),
+                Bracketed(
+                    Delimited(
+                        Ref("DatePartClause"),
+                        Ref(
+                            "FunctionContentsGrammar",
+                            # The brackets might be empty for some functions...
+                            optional=True,
+                            ephemeral_name="FunctionContentsGrammar",
+                        ),
+                    )
+                ),
+            )
+        ),
+        Sequence(
+            Sequence(
                 Ref("ConvertFunctionNameSegment"),
                 Bracketed(
                     Delimited(
