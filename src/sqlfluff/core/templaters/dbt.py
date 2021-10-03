@@ -254,16 +254,20 @@ class DbtTemplater(JinjaTemplater):
         try:
             os.chdir(self.project_dir)
             fname_absolute_path = os.path.join(relative_to, fname)
-            node = self._find_node(fname_absolute_path, config)
-            if node.depends_on.nodes:
-                templater_logger.info("%s depends on %s", fname, node.depends_on.nodes)
-            for dependent in node.depends_on.nodes:
-                yield from self._walk_dependents(
-                    fname=self.dbt_manifest.nodes[dependent].original_file_path,
-                    relative_to=self.project_dir,
-                    config=config,
-                )
-            yield fname
+            try:
+                node = self._find_node(fname_absolute_path, config)
+                if node.depends_on.nodes:
+                    templater_logger.info("%s depends on %s", fname, node.depends_on.nodes)
+                for dependent in node.depends_on.nodes:
+                    yield from self._walk_dependents(
+                        fname=self.dbt_manifest.nodes[dependent].original_file_path,
+                        relative_to=self.project_dir,
+                        config=config,
+                    )
+            except SQLTemplaterSkipFile:
+                pass
+            finally:
+                yield fname
         finally:
             os.chdir(self.working_dir)
 
