@@ -1020,7 +1020,7 @@ class PythonTemplater(RawTemplater):
                                 )
                             else:  # pragma: no cover
                                 # As per above, we probably won't get here as just
-                                # literals should already have been covered by not
+                                # literals should already have been covered by now
                                 # but let's add just in case
                                 template_slice_type = "literal"
                                 # Rest is all set up to be handled by below yield
