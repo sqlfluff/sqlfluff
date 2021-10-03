@@ -669,7 +669,7 @@ class OverlapsClauseSegment(BaseSegment):
 
 @tsql_dialect.segment()
 class ConvertFunctionNameSegment(BaseSegment):
-    """DATEADD function name segment.
+    """CONVERT function name segment.
 
     Need to be able to specify this as type function_name
     so that linting rules identify it properly
