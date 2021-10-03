@@ -248,9 +248,9 @@ class DbtTemplater(JinjaTemplater):
             self.project_dir = self._get_project_dir()
         if not self.profiles_dir:
             self.profiles_dir = self._get_profiles_dir()
-        fname_absolute_path = os.path.abspath(fname)
         try:
             os.chdir(self.project_dir)
+            fname_absolute_path = os.path.abspath(fname)
             node = self._find_node(fname_absolute_path, config)
             if node.depends_on.nodes:
                 templater_logger.info("%s depends on %s", fname, node.depends_on.nodes)
