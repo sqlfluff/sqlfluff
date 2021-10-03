@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: dd3f78fb96f8e11914b856f9705ecba0a61b62487a6918c980a4643d95d9246a
+_hash: 93680ec80e0f28c6e0993ed544b3001e33cbad8887f594d9908b6e1f81cef440
 file:
 - statement:
     select_statement:
@@ -305,4 +305,54 @@ file:
             - keyword: TIME
             - keyword: ZONE
             - literal: "'Africa/Cairo'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+            identifier: c_timestamp
+          time_zone_grammar:
+          - keyword: AT
+          - keyword: TIME
+          - keyword: ZONE
+          - literal: "'Africa/Cairo'"
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t_table
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  identifier: c_timestamp
+                time_zone_grammar:
+                - keyword: AT
+                - keyword: TIME
+                - keyword: ZONE
+                - literal: "'Africa/Cairo'"
+              end_bracket: )
+            cast_expression:
+              casting_operator: '::'
+              data_type:
+                datetime_type_identifier:
+                  keyword: time
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t_table
 - statement_terminator: ;

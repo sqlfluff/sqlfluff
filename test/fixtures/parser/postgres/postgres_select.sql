@@ -35,3 +35,7 @@ SELECT timestamp without time zone '2025-11-20 00:00:00+12';
 SELECT time with time zone '00:00:00+00' AT TIME ZONE 'Africa/Cairo';
 
 SELECT time without time zone '00:00:00' AT TIME ZONE 'Africa/Cairo';
+
+SELECT c_timestamp AT TIME ZONE 'Africa/Cairo' FROM t_table;
+
+SELECT (c_timestamp AT TIME ZONE 'Africa/Cairo')::time FROM t_table;
