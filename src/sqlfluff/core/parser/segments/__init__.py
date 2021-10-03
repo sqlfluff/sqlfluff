@@ -4,6 +4,7 @@
 
 from sqlfluff.core.parser.segments.base import (
     BaseSegment,
+    BaseFileSegment,
     UnparsableSegment,
     BracketedSegment,
 )
