@@ -984,10 +984,10 @@ class CreateTableStatementSegment(BaseSegment):
                         Ref("ColumnDefinitionSegment"),
                         Ref("TableOutOfLineConstraintSegment"),
                         Ref("CreateTableLikeClauseSegment"),
-                        Ref("CommaSegment", optional=True),
-                        Ref("TableDistributionPartitonClause", optional=True),
+                        Ref("CommaSegment"),
                         min_times=1,
                     ),
+                    Ref("TableDistributionPartitonClause", optional=True),
                 ),
             ),
             # Create AS syntax:
@@ -1161,8 +1161,24 @@ class TableInlineConstraintSegment(BaseSegment):
     """Inline table constraint for CREATE / ALTER TABLE."""
 
     type = "table_constraint_definition"
-    match_grammar = Sequence(
-        Sequence("CONSTRAINT", Ref("SingleIdentifierGrammar"), optional=True),
+    match_grammar = StartsWith(
+        OneOf("CONSTRAINT", "NOT", "NULL", "PRIMARY", "FOREIGN"),
+        terminator=OneOf("COMMENT", Ref("CommaSegment"), Ref("EndBracketSegment")),
+    )
+    parse_grammar = Sequence(
+        Sequence(
+            "CONSTRAINT",
+            AnyNumberOf(
+                Ref("NakedIdentifierSegment"),
+                max_times=1,
+                min_times=0,
+                # exclude UNRESERVED_KEYWORDS which could used as NakedIdentifier
+                # to make e.g. `id NUMBER CONSTRAINT PRIMARY KEY` work (which is equal to just
+                # `id NUMBER PRIMARY KEY`)
+                exclude=OneOf("NOT", "NULL", "PRIMARY", "FOREIGN"),
+            ),
+            optional=True,
+        ),
         OneOf(
             # (NOT) NULL
             Sequence(Ref.keyword("NOT", optional=True), "NULL"),
@@ -1180,8 +1196,24 @@ class TableOutOfLineConstraintSegment(BaseSegment):
     """Out of line table constraint for CREATE / ALTER TABLE."""
 
     type = "table_constraint_definition"
-    match_grammar = Sequence(
-        Sequence("CONSTRAINT", Ref("SingleIdentifierGrammar"), optional=True),
+    match_grammar = StartsWith(
+        OneOf("CONSTRAINT", "PRIMARY", "FOREIGN"),
+        terminator=OneOf(Ref("CommaSegment"), "DISTRIBUTE", "PARTITION"),
+    )
+    parse_grammar = Sequence(
+        Sequence(
+            "CONSTRAINT",
+            AnyNumberOf(
+                Ref("NakedIdentifierSegment"),
+                max_times=1,
+                min_times=0,
+                # exclude UNRESERVED_KEYWORDS which could used as NakedIdentifier
+                # to make e.g. `id NUMBER, CONSTRAINT PRIMARY KEY(id)` work (which is equal to just
+                # `id NUMBER, PRIMARY KEY(id)`)
+                exclude=OneOf("NOT", "NULL", "PRIMARY", "FOREIGN"),
+            ),
+            optional=True,
+        ),
         OneOf(
             # PRIMARY KEY
             Sequence(
