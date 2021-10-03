@@ -36,6 +36,8 @@ class DbtTemplater(JinjaTemplater):
     def __init__(self, **kwargs):
         self.sqlfluff_config = None
         self.formatter = None
+        self.project_dir = None
+        self.profiles_dir = None
         self.working_dir = os.getcwd()
         self._sequential_fails = 0
         super().__init__(**kwargs)
@@ -161,8 +163,7 @@ class DbtTemplater(JinjaTemplater):
 
         return self.dbt_selector_method
 
-    @cached_property
-    def profiles_dir(self):
+    def _get_profiles_dir(self):
         """Get the dbt profiles directory from the configuration.
 
         The default is `~/.dbt` in 0.17 but we use the
@@ -189,8 +190,7 @@ class DbtTemplater(JinjaTemplater):
 
         return dbt_profiles_dir
 
-    @cached_property
-    def project_dir(self):
+    def _get_project_dir(self):
         """Get the dbt project directory from the configuration.
 
         Defaults to the working directory.
@@ -244,17 +244,24 @@ class DbtTemplater(JinjaTemplater):
 
     def _walk_dependents(self, fname, config=None):
         self.sqlfluff_config = config
+        if not self.project_dir:
+            self.project_dir = self._get_project_dir()
+        if not self.profiles_dir:
+            self.profiles_dir = self._get_profiles_dir()
         fname_absolute_path = os.path.abspath(fname)
-        os.chdir(self.project_dir)
-        node = self._find_node(fname_absolute_path, config)
-        if node.depends_on.nodes:
-            templater_logger.info("%s depends on %s", fname, node.depends_on.nodes)
-        for dependent in node.depends_on.nodes:
-            yield from self._walk_dependents(
-                fname=self.dbt_manifest.nodes[dependent].original_file_path,
-                config=config,
-            )
-        yield fname
+        try:
+            os.chdir(self.project_dir)
+            node = self._find_node(fname_absolute_path, config)
+            if node.depends_on.nodes:
+                templater_logger.info("%s depends on %s", fname, node.depends_on.nodes)
+            for dependent in node.depends_on.nodes:
+                yield from self._walk_dependents(
+                    fname=self.dbt_manifest.nodes[dependent].original_file_path,
+                    config=config,
+                )
+            yield fname
+        finally:
+            os.chdir(self.working_dir)
 
     def process(self, *, fname, in_str=None, config=None, formatter=None):
         """Compile a dbt model and return the compiled SQL.
@@ -276,6 +283,8 @@ class DbtTemplater(JinjaTemplater):
         )
 
         self.sqlfluff_config = config
+        self.project_dir = self._get_project_dir()
+        self.profiles_dir = self._get_profiles_dir()
         fname_absolute_path = os.path.abspath(fname)
 
         try:
