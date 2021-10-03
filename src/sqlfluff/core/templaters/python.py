@@ -1018,7 +1018,7 @@ class PythonTemplater(RawTemplater):
                                 start_point_template = starts[1] + len(
                                     elem_sub_buffer[0].raw
                                 )
-                            else:  ## pragma nocover
+                            else:  # pragma: no cover
                                 # As per above, we probably won't get here as just
                                 # literals should already have been covered by not
                                 # but let's add just in case
