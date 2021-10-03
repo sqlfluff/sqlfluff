@@ -72,7 +72,10 @@ def test__templater_dbt_templating_result(
 
 
 @pytest.mark.dbt
-def test__templater_dbt_sequence_files_ephemeral_dependency(project_dir, dbt_templater):
+def test__templater_dbt_sequence_files_ephemeral_dependency(
+    dbt_templater,  # noqa: F811
+):
+    """Test that dbt templater sequences files based on dependencies."""
     result = dbt_templater.sequence_files(
         [
             "models/depends_on_ephemeral/b.sql",
