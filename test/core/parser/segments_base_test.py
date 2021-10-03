@@ -6,6 +6,7 @@ from sqlfluff.core.parser import (
     PositionMarker,
     RawSegment,
     BaseSegment,
+    BaseFileSegment,
 )
 from sqlfluff.core.templaters import TemplatedFile
 from sqlfluff.core.parser.context import RootParseContext
@@ -115,3 +116,12 @@ def test__parser__base_segments_base_compare():
     assert ds1 == ds2
     # Check a different match on the same details are not the same
     assert ds1 != dsa2
+
+
+def test__parser__base_segments_file(raw_seg_list):
+    """Test BaseFileSegment to behave as expected."""
+    base_seg = BaseFileSegment(raw_seg_list, fname="/some/dir/file.sql")
+    assert base_seg.type == "file"
+    assert base_seg.file_path == "/some/dir/file.sql"
+    assert base_seg.can_start_end_non_code
+    assert base_seg.allow_empty

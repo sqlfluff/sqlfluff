@@ -233,13 +233,16 @@ RESERVED_KEYWORDS = [
 
 
 UNRESERVED_KEYWORDS = [
+    "COLUMNSTORE",
     "D",
     "DATEADD",
     "DAY",
     "DAYOFYEAR",
     "DD",
+    "DISTRIBUTION",  # Azure Synapse Analytics specific
     "DW",
     "DY",
+    "HASH",  # Azure Synapse Analytics specific
     "HH",
     "HOUR",
     "M",
@@ -257,9 +260,13 @@ UNRESERVED_KEYWORDS = [
     "Q",
     "QQ",
     "QUARTER",
+    "REPLICATE",  # Azure Synapse Analytics specific
+    "ROUND_ROBIN",  # Azure Synapse Analytics specific
     "S",
     "SECOND",
     "SS",
+    "SWITCH",
+    "TRUNCATE_TARGET",  # Azure Synapse Analytics specific
     "W",
     "WEEK",
     "WEEKDAY",

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 849614aec33e152ee572da0d6a7aeea1888cb911581e3b1685ee6f225b5adede
+_hash: f2cf768c20b5ea229b5ebada95905a5955b74b2a487e54a90600377c5a842e36
 file:
 - statement:
     create_function_statement:
@@ -17,24 +17,23 @@ file:
       - start_bracket: (
       - identifier: fraction
       - data_type:
-          data_type_identifier: DECIMAL
+          keyword: DECIMAL
       - comma: ','
       - identifier: entirety
       - data_type:
-          data_type_identifier: DECIMAL
+          keyword: DECIMAL
       - end_bracket: )
     - keyword: RETURN
     - data_type:
-        data_type_identifier: VARCHAR
+        keyword: VARCHAR
         bracketed:
           start_bracket: (
-          expression:
-            literal: '10'
+          literal: '10'
           end_bracket: )
     - keyword: IS
     - variable: res
     - data_type:
-        data_type_identifier: DECIMAL
+        keyword: DECIMAL
     - semicolon: ;
     - keyword: BEGIN
     - function_body:
@@ -77,16 +76,15 @@ file:
         end_bracket: )
     - keyword: RETURN
     - data_type:
-        data_type_identifier: VARCHAR
+        keyword: VARCHAR
         bracketed:
           start_bracket: (
-          expression:
-            literal: '10'
+          literal: '10'
           end_bracket: )
     - keyword: AS
     - variable: res
     - data_type:
-        data_type_identifier: DECIMAL
+        keyword: DECIMAL
     - semicolon: ;
     - keyword: BEGIN
     - function_body:
@@ -125,16 +123,15 @@ file:
         end_bracket: )
     - keyword: RETURN
     - data_type:
-        data_type_identifier: VARCHAR
+        keyword: VARCHAR
         bracketed:
           start_bracket: (
-          expression:
-            literal: '10'
+          literal: '10'
           end_bracket: )
     - keyword: AS
     - variable: res
     - data_type:
-        data_type_identifier: DECIMAL
+        keyword: DECIMAL
     - semicolon: ;
     - keyword: BEGIN
     - function_body:
@@ -180,16 +177,15 @@ file:
         end_bracket: )
     - keyword: RETURN
     - data_type:
-        data_type_identifier: VARCHAR
+        keyword: VARCHAR
         bracketed:
           start_bracket: (
-          expression:
-            literal: '10'
+          literal: '10'
           end_bracket: )
     - keyword: AS
     - variable: res
     - data_type:
-        data_type_identifier: DECIMAL
+        keyword: DECIMAL
     - semicolon: ;
     - keyword: BEGIN
     - function_body:
@@ -219,16 +215,15 @@ file:
         end_bracket: )
     - keyword: RETURN
     - data_type:
-        data_type_identifier: VARCHAR
+        keyword: VARCHAR
         bracketed:
           start_bracket: (
-          expression:
-            literal: '10'
+          literal: '10'
           end_bracket: )
     - keyword: AS
     - variable: res
     - data_type:
-        data_type_identifier: DECIMAL
+        keyword: DECIMAL
     - semicolon: ;
     - keyword: BEGIN
     - function_body:
@@ -303,16 +298,15 @@ file:
         end_bracket: )
     - keyword: RETURN
     - data_type:
-        data_type_identifier: VARCHAR
+        keyword: VARCHAR
         bracketed:
           start_bracket: (
-          expression:
-            literal: '10'
+          literal: '10'
           end_bracket: )
     - keyword: AS
     - variable: res
     - data_type:
-        data_type_identifier: DECIMAL
+        keyword: DECIMAL
     - semicolon: ;
     - keyword: BEGIN
     - function_body:
@@ -361,16 +355,15 @@ file:
         end_bracket: )
     - keyword: RETURN
     - data_type:
-        data_type_identifier: VARCHAR
+        keyword: VARCHAR
         bracketed:
           start_bracket: (
-          expression:
-            literal: '10'
+          literal: '10'
           end_bracket: )
     - keyword: AS
     - variable: res
     - data_type:
-        data_type_identifier: DECIMAL
+        keyword: DECIMAL
     - semicolon: ;
     - keyword: BEGIN
     - function_body:
@@ -418,16 +411,15 @@ file:
         end_bracket: )
     - keyword: RETURN
     - data_type:
-        data_type_identifier: VARCHAR
+        keyword: VARCHAR
         bracketed:
           start_bracket: (
-          expression:
-            literal: '10'
+          literal: '10'
           end_bracket: )
     - keyword: AS
     - variable: res
     - data_type:
-        data_type_identifier: DECIMAL
+        keyword: DECIMAL
     - semicolon: ;
     - keyword: BEGIN
     - function_body:

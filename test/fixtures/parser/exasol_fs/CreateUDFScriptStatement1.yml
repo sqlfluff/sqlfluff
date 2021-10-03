@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7030f19ab4f318f07a6ec4138a830fcf712ef0b5c80a9d35ad778ca8b1661637
+_hash: 411b5129c231b4d21379dd42771c9d1e6d8bc8922aaa37d88886d03f5cf42951
 file:
   statement:
     create_udf_script:
@@ -18,12 +18,12 @@ file:
       - column_datatype_definition:
           identifier: a
           data_type:
-            data_type_identifier: DOUBLE
+            keyword: DOUBLE
       - comma: ','
       - column_datatype_definition:
           identifier: b
           data_type:
-            data_type_identifier: DOUBLE
+            keyword: DOUBLE
       - orderby_clause:
         - keyword: ORDER
         - keyword: BY
@@ -32,7 +32,7 @@ file:
       - end_bracket: )
     - keyword: RETURNS
     - data_type:
-        data_type_identifier: DOUBLE
+        keyword: DOUBLE
     - keyword: AS
     - script_content:
       - raw: function

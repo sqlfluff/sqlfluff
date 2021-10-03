@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 01adb401aa6c2ccbde3120e03a18740f04dc421fe4af091f9fab187b7db12f55
+_hash: 02cbdadde21039761a0522441d643dfeb6e6577327c18bf76b785a5b66f4da37
 file:
   statement:
     select_statement:
@@ -78,13 +78,14 @@ file:
             identifier: compound
       - comma: ','
       - select_clause_element:
-          function:
-            function_name:
-              keyword: DATEADD
-            bracketed:
+          column_reference:
+            identifier: DATEADD
+          unparsable:
+          - bracketed:
             - start_bracket: (
-            - date_part:
-                keyword: month
+            - expression:
+                column_reference:
+                  identifier: month
             - comma: ','
             - expression:
                 numeric_literal:
@@ -95,9 +96,29 @@ file:
                 column_reference:
                   identifier: column1
             - end_bracket: )
+          - raw: AS
+          - raw: column1_lastmonth
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              keyword: convert
+            bracketed:
+            - start_bracket: (
+            - data_type:
+                identifier: varchar
+            - comma: ','
+            - data_type:
+              - identifier: tbl_b
+              - dot: .
+              - identifier: column1
+            - comma: ','
+            - expression:
+                literal: '23'
+            - end_bracket: )
           alias_expression:
             keyword: AS
-            identifier: column1_lastmonth
+            identifier: column1_varchar
       from_clause:
         keyword: FROM
         from_expression:

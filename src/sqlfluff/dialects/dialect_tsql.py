@@ -107,6 +107,10 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref("IfExpressionStatement"),
             Ref("DeclareStatementSegment"),
             Ref("SetStatementSegment"),
+            Ref("AlterTableSwitchStatementSegment"),
+            Ref(
+                "CreateTableAsSelectStatementSegment"
+            ),  # Azure Synapse Analytics specific
         ],
     )
 
@@ -663,6 +667,227 @@ class OverlapsClauseSegment(BaseSegment):
     match_grammar = Nothing()
 
 
+@tsql_dialect.segment()
+class ConvertFunctionNameSegment(BaseSegment):
+    """CONVERT function name segment.
+
+    Need to be able to specify this as type function_name
+    so that linting rules identify it properly
+    """
+
+    type = "function_name"
+    match_grammar = Sequence("CONVERT")
+
+
+@tsql_dialect.segment(replace=True)
+class FunctionSegment(BaseSegment):
+    """A scalar or aggregate function.
+
+    Maybe in the future we should distinguish between
+    aggregate functions and other functions. For now
+    we treat them the same because they look the same
+    for our purposes.
+    """
+
+    type = "function"
+    match_grammar = OneOf(
+        Sequence(
+            Sequence(
+                Ref("ConvertFunctionNameSegment"),
+                Bracketed(
+                    Delimited(
+                        Ref("DatatypeSegment"),
+                        Ref(
+                            "FunctionContentsGrammar",
+                            # The brackets might be empty for some functions...
+                            optional=True,
+                            ephemeral_name="FunctionContentsGrammar",
+                        ),
+                    )
+                ),
+            )
+        ),
+        Sequence(
+            Sequence(
+                AnyNumberOf(
+                    Ref("FunctionNameSegment"),
+                    max_times=1,
+                    min_times=1,
+                    exclude=OneOf(
+                    	Ref("ConvertFunctionNameSegment"),
+                    	Ref("DateAddFunctionNameSegment")
+                    ),
+                ),
+                Bracketed(
+                    Ref(
+                        "FunctionContentsGrammar",
+                        # The brackets might be empty for some functions...
+                        optional=True,
+                        ephemeral_name="FunctionContentsGrammar",
+                    )
+                ),
+            ),
+            Ref("PostFunctionGrammar", optional=True),
+        ),
+    )
+
+
+@tsql_dialect.segment(replace=True)
+class CreateTableStatementSegment(BaseSegment):
+    """A `CREATE TABLE` statement."""
+
+    type = "create_table_statement"
+    # https://docs.microsoft.com/en-us/sql/t-sql/statements/create-table-transact-sql?view=sql-server-ver15
+    # https://docs.microsoft.com/en-us/sql/t-sql/statements/create-table-azure-sql-data-warehouse?view=aps-pdw-2016-au7
+    match_grammar = Sequence(
+        "CREATE",
+        "TABLE",
+        Ref("TableReferenceSegment"),
+        OneOf(
+            # Columns and comment syntax:
+            Sequence(
+                Bracketed(
+                    Delimited(
+                        OneOf(
+                            Ref("TableConstraintSegment"),
+                            Ref("ColumnDefinitionSegment"),
+                        ),
+                    )
+                ),
+                Ref("CommentClauseSegment", optional=True),
+            ),
+            # Create AS syntax:
+            Sequence(
+                "AS",
+                OptionallyBracketed(Ref("SelectableGrammar")),
+            ),
+            # Create like syntax
+            Sequence("LIKE", Ref("TableReferenceSegment")),
+        ),
+        Ref(
+            "TableDistributionIndexClause", optional=True
+        ),  # Azure Synapse Analytics specific
+    )
+
+    parse_grammar = match_grammar
+
+
+@tsql_dialect.segment()
+class TableDistributionIndexClause(BaseSegment):
+    """`CREATE TABLE` distribution / index clause.
+
+    This is specific to Azure Synapse Analytics.
+    """
+
+    type = "table_distribution_index_clause"
+
+    match_grammar = Sequence(
+        "WITH",
+        Bracketed(
+            OneOf(
+                Sequence(
+                    Ref("TableDistributionClause"),
+                    Ref("CommaSegment"),
+                    Ref("TableIndexClause"),
+                ),
+                Sequence(
+                    Ref("TableIndexClause"),
+                    Ref("CommaSegment"),
+                    Ref("TableDistributionClause"),
+                ),
+                Ref("TableDistributionClause"),
+                Ref("TableIndexClause"),
+            )
+        ),
+    )
+
+
+@tsql_dialect.segment()
+class TableDistributionClause(BaseSegment):
+    """`CREATE TABLE` distribution clause.
+
+    This is specific to Azure Synapse Analytics.
+    """
+
+    type = "table_distribution_clause"
+
+    match_grammar = Sequence(
+        "DISTRIBUTION",
+        Ref("EqualsSegment"),
+        OneOf(
+            "REPLICATE",
+            "ROUND_ROBIN",
+            Sequence(
+                "HASH",
+                Bracketed(Ref("ColumnReferenceSegment")),
+            ),
+        ),
+    )
+
+
+@tsql_dialect.segment()
+class TableIndexClause(BaseSegment):
+    """`CREATE TABLE` table index clause.
+
+    This is specific to Azure Synapse Analytics.
+    """
+
+    type = "table_index_clause"
+
+    match_grammar = Sequence(
+        OneOf(
+            "HEAP",
+            Sequence(
+                "CLUSTERED",
+                "COLUMNSTORE",
+                "INDEX",
+            ),
+        ),
+    )
+
+
+@tsql_dialect.segment()
+class AlterTableSwitchStatementSegment(BaseSegment):
+    """An `ALTER TABLE SWITCH` statement."""
+
+    type = "alter_table_switch_statement"
+    # https://docs.microsoft.com/en-us/sql/t-sql/statements/alter-table-transact-sql?view=sql-server-ver15
+    # T-SQL's ALTER TABLE SWITCH grammar is different enough to core ALTER TABLE grammar to merit its own definition
+    match_grammar = Sequence(
+        "ALTER",
+        "TABLE",
+        Ref("ObjectReferenceSegment"),
+        "SWITCH",
+        Sequence("PARTITION", Ref("NumericLiteralSegment"), optional=True),
+        "TO",
+        Ref("ObjectReferenceSegment"),
+        Sequence(  # Azure Synapse Analytics specific
+            "WITH",
+            Bracketed("TRUNCATE_TARGET", Ref("EqualsSegment"), OneOf("ON", "OFF")),
+            optional=True,
+        ),
+    )
+
+
+@tsql_dialect.segment()
+class CreateTableAsSelectStatementSegment(BaseSegment):
+    """A `CREATE TABLE AS SELECT` statement.
+
+    This is specific to Azure Synapse Analytics.
+    """
+
+    type = "create_table_as_select_statement"
+    # https://docs.microsoft.com/en-us/sql/t-sql/statements/create-table-as-select-azure-sql-data-warehouse?toc=/azure/synapse-analytics/sql-data-warehouse/toc.json&bc=/azure/synapse-analytics/sql-data-warehouse/breadcrumb/toc.json&view=azure-sqldw-latest&preserve-view=true
+    match_grammar = Sequence(
+        "CREATE",
+        "TABLE",
+        Ref("TableReferenceSegment"),
+        Ref("TableDistributionIndexClause"),
+        "AS",
+        Ref("SelectableGrammar"),
+    )
+
+    
 @tsql_dialect.segment(replace=True)
 class DatePartClause(BaseSegment):
     """DatePart clause for use within DATEADD() or related functions."""

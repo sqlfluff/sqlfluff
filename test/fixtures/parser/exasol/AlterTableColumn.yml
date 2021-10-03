@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3e4765275351bea02dbb2652ab33e6923c04f92c2f3a009bac8f9164157a4870
+_hash: 4b993f5364451f0d87f0ee5843812dbc14a0060ae0a2eff0a378f85a200bd2f7
 file:
 - statement:
     alter_table_statment:
@@ -22,14 +22,12 @@ file:
             column_datatype_definition:
               identifier: new_dec
               data_type:
-                data_type_identifier: DECIMAL
+                keyword: DECIMAL
                 bracketed:
                 - start_bracket: (
-                - expression:
-                    literal: '18'
+                - literal: '18'
                 - comma: ','
-                - expression:
-                    literal: '0'
+                - literal: '0'
                 - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -47,11 +45,10 @@ file:
               column_datatype_definition:
                 identifier: new_char
                 data_type:
-                  data_type_identifier: CHAR
+                  keyword: CHAR
                   bracketed:
                     start_bracket: (
-                    expression:
-                      literal: '10'
+                    literal: '10'
                     end_bracket: )
               column_option:
                 keyword: DEFAULT
@@ -96,14 +93,12 @@ file:
             start_bracket: (
             identifier: i
             data_type:
-              data_type_identifier: DECIMAL
+              keyword: DECIMAL
               bracketed:
               - start_bracket: (
-              - expression:
-                  literal: '10'
+              - literal: '10'
               - comma: ','
-              - expression:
-                  literal: '2'
+              - literal: '2'
               - end_bracket: )
             end_bracket: )
 - statement_terminator: ;
@@ -120,11 +115,10 @@ file:
             start_bracket: (
             identifier: j
             data_type:
-              data_type_identifier: VARCHAR
+              keyword: VARCHAR
               bracketed:
                 start_bracket: (
-                expression:
-                  literal: '5'
+                literal: '5'
                 end_bracket: )
             column_option:
               keyword: DEFAULT
@@ -142,7 +136,7 @@ file:
           keyword: MODIFY
           identifier: k
           data_type:
-            data_type_identifier: INTEGER
+            keyword: INTEGER
           column_option:
             keyword: IDENTITY
             bracketed:

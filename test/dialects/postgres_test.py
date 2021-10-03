@@ -7,6 +7,31 @@ from sqlfluff.dialects.postgres_keywords import get_keywords, priority_keyword_m
 
 
 @pytest.mark.parametrize(
+    "segment_reference,raw",
+    [
+        # AT TIME ZONE constucts
+        ("SelectClauseElementSegment", "c_column AT TIME ZONE 'UTC'"),
+        ("SelectClauseElementSegment", "(c_column AT TIME ZONE 'UTC')::time"),
+        (
+            "SelectClauseElementSegment",
+            "timestamp with time zone '2021-10-01' AT TIME ZONE 'UTC'",
+        ),
+    ],
+)
+def test_dialect_postgres_specific_segment_parses(
+    segment_reference, raw, caplog, dialect_specific_segment_parses
+):
+    """Test that specific segments parse as expected.
+
+    NB: We're testing the PARSE function not the MATCH function
+    although this will be a recursive parse and so the match
+    function of SUBSECTIONS will be tested if present. The match
+    function of the parent will not be tested.
+    """
+    dialect_specific_segment_parses("postgres", segment_reference, raw, caplog)
+
+
+@pytest.mark.parametrize(
     "raw",
     [
         "SELECT t1.field, EXTRACT(EPOCH FROM t1.sometime) AS myepoch FROM t1",
