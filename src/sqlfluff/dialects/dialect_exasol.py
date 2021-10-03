@@ -985,9 +985,10 @@ class CreateTableStatementSegment(BaseSegment):
                         Ref("TableOutOfLineConstraintSegment"),
                         Ref("CreateTableLikeClauseSegment"),
                         Ref("CommaSegment", optional=True),
-                        Ref("TableDistributionPartitonClause", optional=True),
                         min_times=1,
                     ),
+                    Ref("CommaSegment", optional=True),
+                    Ref("TableDistributionPartitonClause", optional=True),
                 ),
             ),
             # Create AS syntax:
@@ -1168,7 +1169,15 @@ class TableInlineConstraintSegment(BaseSegment):
     parse_grammar = Sequence(
         Sequence(
             "CONSTRAINT",
-            Ref("NakedIdentifierSegment", optional=True),
+            AnyNumberOf(
+                Ref("NakedIdentifierSegment"),
+                max_times=1,
+                min_times=0,
+                # exclude UNRESERVED_KEYWORDS which could used as NakedIdentifier
+                # to make e.g. `id NUMBER CONSTRAINT PRIMARY KEY` work (which is equal to just
+                # `id NUMBER PRIMARY KEY`)
+                exclude=OneOf("NOT", "NULL", "PRIMARY", "FOREIGN"),
+            ),
             optional=True,
         ),
         OneOf(
@@ -1190,11 +1199,20 @@ class TableOutOfLineConstraintSegment(BaseSegment):
     type = "table_constraint_definition"
     match_grammar = StartsWith(
         OneOf("CONSTRAINT", "PRIMARY", "FOREIGN"),
+        terminator=OneOf(Ref("CommaSegment"), "DISTRIBUTE", "PARTITION"),
     )
     parse_grammar = Sequence(
         Sequence(
             "CONSTRAINT",
-            Ref("NakedIdentifierSegment", optional=True),
+            AnyNumberOf(
+                Ref("NakedIdentifierSegment"),
+                max_times=1,
+                min_times=0,
+                # exclude UNRESERVED_KEYWORDS which could used as NakedIdentifier
+                # to make e.g. `id NUMBER, CONSTRAINT PRIMARY KEY(id)` work (which is equal to just
+                # `id NUMBER, PRIMARY KEY(id)`)
+                exclude=OneOf("NOT", "NULL", "PRIMARY", "FOREIGN"),
+            ),
             optional=True,
         ),
         OneOf(

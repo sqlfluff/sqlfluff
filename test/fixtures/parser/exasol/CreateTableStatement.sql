@@ -21,10 +21,11 @@ CREATE TABLE t5 (   id int IDENTITY PRIMARY KEY DISABLE,
                     );
 ----
 CREATE TABLE t6 (   order_id INT,
+                    sales_id INT,
                     order_price DOUBLE,
                     order_date DATE,
                     country VARCHAR(40),
-                    CONSTRAINT t6_pk PRIMARY KEY (order_id),
+                    CONSTRAINT t6_pk PRIMARY KEY (order_id,sales_id),
                     DISTRIBUTE BY order_id, PARTITION BY order_date)
 COMMENT IS 'a great table';
 ----
