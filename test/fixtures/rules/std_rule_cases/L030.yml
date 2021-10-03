@@ -1,12 +1,12 @@
 rule: L030
 
 # Inconsistent capitalisation of functions
-test_1:
+test_fail_inconsistent_function_capitalisation_1:
   fail_str: SELECT MAX(id), min(id) from table
 
   fix_str: SELECT MAX(id), MIN(id) from table
 
-test_2:
+test_fail_inconsistent_function_capitalisation_2:
   fail_str: SELECT MAX(id), min(id) from table
 
   fix_str: SELECT max(id), min(id) from table

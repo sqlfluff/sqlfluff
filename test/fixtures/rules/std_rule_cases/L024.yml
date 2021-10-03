@@ -1,10 +1,10 @@
 rule: L024
 
-test_1:
+test_fail_no_space_after_using_clause:
   fail_str: select * from a JOIN b USING(x)
   fix_str: select * from a JOIN b USING (x)
 
-test_2:
+test_pass_newline_after_using_clause:
   # Check L024 passes if there's a newline between
   pass_str: |
     select * from a JOIN b USING

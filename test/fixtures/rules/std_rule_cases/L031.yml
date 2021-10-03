@@ -1,6 +1,6 @@
 rule: L031
 
-test_1:
+test_pass_allow_self_join_alias:
   # L031 Allow self-joins
   pass_str: |
     select
@@ -9,7 +9,7 @@ test_1:
     from x
     left join x as x_2 on x.foreign_key = x.foreign_key
 
-test_2:
+test_fail_avoid_aliases_1:
   fail_str: |
     SELECT
       u.id,
@@ -30,7 +30,7 @@ test_2:
     JOIN customers on users.id = customers.user_id
     JOIN orders on users.id = orders.user_id;
 
-test_3:
+test_fail_avoid_aliases_2:
   # L031 order by
   fail_str: |
     SELECT
@@ -54,7 +54,7 @@ test_3:
     JOIN orders on users.id = orders.user_id
     order by orders.user_id desc
 
-test_4:
+test_fail_avoid_aliases_3:
   # L031 order by identifier which is the same raw as an alias but refers to a column
   fail_str: |
     SELECT
