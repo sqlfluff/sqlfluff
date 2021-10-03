@@ -1,6 +1,6 @@
 rule: L034
 
-test_1:
+test_pass_select_statement_order:
   pass_str: |
     select
       a,
@@ -8,7 +8,7 @@ test_1:
       c
     from x
 
-test_2:
+test_fail_select_statement_order_1:
   fail_str: |
     select
       a,
@@ -24,7 +24,7 @@ test_2:
       row_number() over (partition by id order by date) as y
     from x
 
-test_3:
+test_fail_select_statement_order_2:
   fail_str: |
     select
       row_number() over (partition by id order by date) as y,
@@ -40,7 +40,7 @@ test_3:
       row_number() over (partition by id order by date) as y
     from x
 
-test_4:
+test_fail_select_statement_order_3:
   fail_str: |
     select
       row_number() over (partition by id order by date) as y,
@@ -56,7 +56,7 @@ test_4:
       row_number() over (partition by id order by date) as y
     from x
 
-test_5:
+test_fail_select_statement_order_4:
   fail_str: |
     select
       row_number() over (partition by id order by date) as y,
@@ -72,7 +72,7 @@ test_5:
       row_number() over (partition by id order by date) as y
     from x
 
-test_6:
+test_fail_select_statement_order_5:
   fail_str: |
     select
       row_number() over (partition by id order by date) as y,

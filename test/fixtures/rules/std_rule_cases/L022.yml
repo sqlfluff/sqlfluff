@@ -1,6 +1,6 @@
 rule: L022
 
-test_1:
+test_pass_blank_line_after_cte_trailing_comma:
   # Test cases for L022, both leading and trailing commas.
   pass_str: |
     with my_cte as (
@@ -13,7 +13,7 @@ test_1:
 
     select * from my_cte cross join other_cte
 
-test_2:
+test_pass_blank_line_after_cte_leading_comma:
   pass_str: |
     with my_cte as (
         select 1
@@ -25,7 +25,7 @@ test_2:
 
     select * from my_cte cross join other_cte
 
-test_3:
+test_fail_no_blank_line_after_each_cte:
   fail_str: |
     with my_cte as (
         select 1
@@ -47,7 +47,7 @@ test_3:
 
     select * from my_cte cross join other_cte
 
-test_4:
+test_fail_no_blank_line_after_cte_before_comment:
   fail_str: |
     with my_cte as (
         select 1
@@ -71,7 +71,7 @@ test_4:
 
     select * from my_cte cross join other_cte
 
-test_5:
+test_fail_no_blank_line_after_last_cte_trailing_comma:
   fail_str: |
     with my_cte as (
         select 1
@@ -93,7 +93,7 @@ test_5:
 
     select * from my_cte cross join other_cte
 
-test_6:
+test_fail_no_blank_line_after_last_cte_leading_comma:
   fail_str: |
     with my_cte as (
         select 1
@@ -115,7 +115,7 @@ test_6:
 
     select * from my_cte cross join other_cte
 
-test_7:
+test_fail_oneline_cte_leading_comma:
   # Fixes oneline cte with leading comma style
   fail_str: |
     with my_cte as (select 1), other_cte as (select 1) select * from my_cte
@@ -133,7 +133,7 @@ test_7:
     rules:
       comma_style: leading
 
-test_8:
+test_fail_cte_floating_comma:
   # Fixes cte with a floating comma
   fail_str: |
     with my_cte as (select 1)
