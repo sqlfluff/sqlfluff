@@ -210,6 +210,17 @@ test_for_loop_fail_complex_match:
             {% endfor %}
         END
 
+test_for_loop_fail_simple_match:
+  # If for loop only contains literals it should still pass
+  pass_str: |
+    {% set elements = 'foo' %}
+    SELECT
+        CASE
+            {% for elem in elements %}
+            WHEN 'f' THEN a
+            {% endfor %}
+        END
+
 
 test_set_statement:
   # A Jinja set statement

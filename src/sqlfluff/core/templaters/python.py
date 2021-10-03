@@ -929,6 +929,15 @@ class PythonTemplater(RawTemplater):
                         # TODO: Maybe this should make two chunks instead, one
                         # working backward, and one working forward. But that's
                         # a job for another day.
+                        #
+                        # Update: #1494 made a start on working forward but still
+                        # more to do here.
+
+                        # The template start and endpoints are easy to set
+                        # (we might override these if splitting below)
+                        start_point_template = starts[1]
+                        end_point_template = template_idx
+                        template_slice_type = "templated"
 
                         # First find where we are starting this remainder
                         # in the template (as an index in the buffer).
@@ -977,17 +986,15 @@ class PythonTemplater(RawTemplater):
                         # The ending point of this slice, is already decided.
                         end_point = elem_sub_buffer[-1].end_source_idx()
 
-                        start_point_template = starts[1]
-                        end_point_template = template_idx
-
                         # However if can match beginning as a literal, then let's split
                         # to improve some (but not all) for loop use cases
                         if elem_sub_buffer[0].raw == int_file_slice.slice_buffer[0].raw:
                             end_point = elem_sub_buffer[0].end_source_idx()
 
-                            # It might be the whole beginning is a literal
+                            # It might be the whole beginning is a literal (though
+                            # think this should be covered before we get here)
                             # If not then yield the first literal, then set up the
-                            # slice points for the second part
+                            # slice points for the second, non-literal part.
                             # Otherwise we can fall out to the final yield as
                             # slice points are already set above.
                             if end_point < elem_sub_buffer[-1].end_source_idx():
@@ -1011,9 +1018,14 @@ class PythonTemplater(RawTemplater):
                                 start_point_template = starts[1] + len(
                                     elem_sub_buffer[0].raw
                                 )
+                            else: ## pragma nocover
+                                # As per above, we probably won't get here but let's
+                                # add just in case
+                                template_slice_type = "literal"
+                                # Rest is all set up to be handled by below yield
 
                         tricky = TemplatedFileSlice(
-                            "templated",
+                            template_slice_type,
                             slice(start_point, end_point),
                             slice(start_point_template, end_point_template),
                         )
