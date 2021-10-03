@@ -1,6 +1,7 @@
 """Defines the templaters."""
 
 import logging
+from bisect import bisect_left
 from collections import defaultdict
 from typing import Dict, Iterator, List, Tuple, Optional, NamedTuple
 
@@ -168,18 +169,15 @@ class TemplatedFile:
             line_number, line_position
 
         """
-        nl_idx = -1
-
         if source:
             ref_str = self._source_newlines
         else:
             ref_str = self._templated_newlines
 
-        while nl_idx + 1 < len(ref_str) and ref_str[nl_idx + 1] < char_pos:
-            nl_idx += 1
+        nl_idx = bisect_left(ref_str, char_pos)
 
-        if nl_idx >= 0:
-            return nl_idx + 2, char_pos - ref_str[nl_idx]
+        if nl_idx > 0:
+            return nl_idx + 1, char_pos - ref_str[nl_idx - 1]
         else:
             # NB: line_pos is char_pos+1 because character position is 0-indexed,
             # but the line position is 1-indexed.
