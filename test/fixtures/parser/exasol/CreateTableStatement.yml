@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 06f4d585f863aeae32bcb5a4c5751c146f85ee52194ffb2b65553b57187cfd85
+_hash: 959222a81f29fab116393c373ad27b15cc539397446934639a872a7319012abc
 file:
 - statement:
     create_table_statement:
@@ -19,26 +19,23 @@ file:
           column_datatype_definition:
             identifier: a
             data_type:
-              data_type_identifier: VARCHAR
-              bracketed:
+            - keyword: VARCHAR
+            - bracketed:
                 start_bracket: (
-                expression:
-                  literal: '20'
+                literal: '20'
                 end_bracket: )
-              keyword: UTF8
+            - keyword: UTF8
       - comma: ','
       - column_definition:
           column_datatype_definition:
             identifier: b
             data_type:
-              data_type_identifier: DECIMAL
+              keyword: DECIMAL
               bracketed:
               - start_bracket: (
-              - expression:
-                  literal: '24'
+              - literal: '24'
               - comma: ','
-              - expression:
-                  literal: '4'
+              - literal: '4'
               - end_bracket: )
           column_option:
           - table_constraint_definition:
@@ -52,7 +49,7 @@ file:
           column_datatype_definition:
             identifier: c
             data_type:
-              data_type_identifier: DECIMAL
+              keyword: DECIMAL
           column_option:
             keyword: DEFAULT
             literal: '122'
@@ -61,7 +58,7 @@ file:
           column_datatype_definition:
             identifier: d
             data_type:
-              data_type_identifier: DOUBLE
+              keyword: DOUBLE
       - comma: ','
       - column_definition:
           column_datatype_definition:
@@ -76,7 +73,7 @@ file:
           column_datatype_definition:
             identifier: f
             data_type:
-              data_type_identifier: BOOL
+              keyword: BOOL
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -206,7 +203,7 @@ file:
           column_datatype_definition:
             identifier: id
             data_type:
-              data_type_identifier: int
+              keyword: int
           column_option:
             keyword: IDENTITY
             table_constraint_definition:
@@ -225,7 +222,7 @@ file:
           column_datatype_definition:
             identifier: g
             data_type:
-              data_type_identifier: DOUBLE
+              keyword: DOUBLE
       - comma: ','
       - table_distribution_partition_clause:
         - keyword: DISTRIBUTE
@@ -249,29 +246,28 @@ file:
           column_datatype_definition:
             identifier: order_id
             data_type:
-              data_type_identifier: INT
+              keyword: INT
       - comma: ','
       - column_definition:
           column_datatype_definition:
             identifier: order_price
             data_type:
-              data_type_identifier: DOUBLE
+              keyword: DOUBLE
       - comma: ','
       - column_definition:
           column_datatype_definition:
             identifier: order_date
             data_type:
-              data_type_identifier: DATE
+              keyword: DATE
       - comma: ','
       - column_definition:
           column_datatype_definition:
             identifier: country
             data_type:
-              data_type_identifier: VARCHAR
+              keyword: VARCHAR
               bracketed:
                 start_bracket: (
-                expression:
-                  literal: '40'
+                literal: '40'
                 end_bracket: )
       - comma: ','
       - table_constraint_definition:
@@ -314,7 +310,7 @@ file:
           column_datatype_definition:
             identifier: ref_id
             data_type:
-              data_type_identifier: int
+              keyword: int
           column_option:
             table_constraint_definition:
             - keyword: CONSTRAINT
@@ -333,11 +329,10 @@ file:
           column_datatype_definition:
             identifier: b
             data_type:
-              data_type_identifier: VARCHAR
+              keyword: VARCHAR
               bracketed:
                 start_bracket: (
-                expression:
-                  literal: '20'
+                literal: '20'
                 end_bracket: )
       - end_bracket: )
 - statement_terminator: ;

@@ -1,0 +1,143 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 991916c7dbcaa79b28e8674ad765eb212b14601a5743ad37ae42e4c2c523658b
+file:
+- statement:
+    set_segment:
+    - keyword: SET
+    - keyword: ANSI_NULLS
+    - keyword: 'ON'
+- go_statement:
+    keyword: GO
+- statement:
+    set_segment:
+    - keyword: SET
+    - keyword: QUOTED_IDENTIFIER
+    - keyword: 'ON'
+- go_statement:
+    keyword: GO
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - binary_operator: OR
+    - keyword: ALTER
+    - keyword: VIEW
+    - object_reference:
+      - identifier: '[DEST]'
+      - dot: .
+      - identifier: '[V_DIFFERENCE_NURSING_HOME__INFECTED_LOCATIONS_TOTAL_PER_REGION]'
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              identifier: DATE_OF_REPORT
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: NEW_DATE_OF_REPORT_UNIX
+            alias_expression:
+              keyword: AS
+              identifier: NEW_DATE_UNIX
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: OLD_DATE_OF_REPORT_UNIX
+            alias_expression:
+              keyword: AS
+              identifier: OLD_DATE_UNIX
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+            - identifier: T1
+            - dot: .
+            - identifier: VRCODE
+        - comma: ','
+        - select_clause_element:
+            expression:
+              case_expression:
+              - keyword: CASE
+              - keyword: WHEN
+              - expression:
+                - column_reference:
+                    identifier: OLD_VALUE
+                - keyword: IS
+                - keyword: 'NULL'
+              - keyword: THEN
+              - expression:
+                  literal: '0'
+              - keyword: ELSE
+              - expression:
+                  column_reference:
+                    identifier: OLD_VALUE
+              - keyword: END
+            alias_expression:
+              keyword: AS
+              identifier: OLD_VALUE
+        - comma: ','
+        - select_clause_element:
+            expression:
+              case_expression:
+              - keyword: CASE
+              - keyword: WHEN
+              - expression:
+                - column_reference:
+                    identifier: '[DIFFERENCE]'
+                - keyword: IS
+                - keyword: 'NULL'
+              - keyword: THEN
+              - expression:
+                  literal: '0'
+              - keyword: ELSE
+              - expression:
+                  column_reference:
+                    identifier: '[DIFFERENCE]'
+              - keyword: END
+            alias_expression:
+              keyword: AS
+              identifier: '[DIFFERENCE]'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: BASE_CTE
+              alias_expression:
+                identifier: T1
+            join_clause:
+            - keyword: LEFT
+            - keyword: JOIN
+            - from_expression_element:
+                table_expression:
+                  table_reference:
+                    identifier: LAST_DATE_OF_REPORT
+                alias_expression:
+                  identifier: T2
+            - join_on_condition:
+                keyword: 'ON'
+                expression:
+                - column_reference:
+                  - identifier: T1
+                  - dot: .
+                  - identifier: '[VRCODE]'
+                - comparison_operator: '='
+                - column_reference:
+                  - identifier: T2
+                  - dot: .
+                  - identifier: '[VRCODE]'
+        where_clause:
+          keyword: WHERE
+          expression:
+          - column_reference:
+              identifier: DATE_OF_REPORT
+          - comparison_operator: '='
+          - column_reference:
+              identifier: LAST_DATE_OF_REPORT
+- statement_terminator: ;
+- go_statement:
+    keyword: GO

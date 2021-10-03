@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6ac0b0fbbd5c455f62ab409328ea68813fdca486659f221ad7fa15ed83e35d66
+_hash: af51b7ff71137070f896edbb73c84ed25fd6ea673519b3683e31a8d753d2fc7b
 file:
   statement:
     create_view_statement:
@@ -61,12 +61,11 @@ file:
             comparison_operator: '>'
             function:
               function_name:
-                function_name_identifier: CONVERT
+                keyword: CONVERT
               bracketed:
               - start_bracket: (
-              - expression:
-                  column_reference:
-                    identifier: DATETIME
+              - data_type:
+                  identifier: DATETIME
               - comma: ','
               - expression:
                   literal: "'20001231'"

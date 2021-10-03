@@ -26,15 +26,38 @@ class Rule_L033(BaseRule):
 
     """
 
-    def _eval(self, segment, raw_stack, **kwargs):
+    def _eval(self, segment, raw_stack, dialect, **kwargs):
         """Look for UNION keyword not immediately followed by DISTINCT or ALL.
 
         Note that UNION DISTINCT is valid, rule only applies to bare UNION.
         The function does this by looking for a segment of type set_operator
         which has a UNION but no DISTINCT or ALL.
+
+        Note only some dialects have concept of UNION DISTINCT, so rule is only
+        applied to dialects that are known to support this syntax.
         """
+        if dialect.name not in ["ansi", "bigquery", "hive", "mysql"]:
+            return LintResult()
+
         if segment.is_type("set_operator"):
-            if "UNION" in segment.raw.upper() and not (
+            if "union" in segment.raw and not (
+                "ALL" in segment.raw.upper() or "DISTINCT" in segment.raw.upper()
+            ):
+                return LintResult(
+                    anchor=segment,
+                    fixes=[
+                        LintFix(
+                            "edit",
+                            segment.segments[0],
+                            [
+                                KeywordSegment("union"),
+                                WhitespaceSegment(),
+                                KeywordSegment("distinct"),
+                            ],
+                        )
+                    ],
+                )
+            elif "UNION" in segment.raw.upper() and not (
                 "ALL" in segment.raw.upper() or "DISTINCT" in segment.raw.upper()
             ):
                 return LintResult(

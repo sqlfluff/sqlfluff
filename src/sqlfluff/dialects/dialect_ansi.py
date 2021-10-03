@@ -18,6 +18,7 @@ from typing import Generator, List, Tuple, NamedTuple, Optional, Union
 from sqlfluff.core.parser import (
     Matchable,
     BaseSegment,
+    BaseFileSegment,
     KeywordSegment,
     SymbolSegment,
     Sequence,
@@ -413,6 +414,26 @@ ansi_dialect.add(
         "ISNULL",
         Ref("BooleanLiteralGrammar"),
     ),
+    SelectClauseSegmentGrammar=Sequence(
+        "SELECT",
+        Ref("SelectClauseModifierSegment", optional=True),
+        Indent,
+        Delimited(
+            Ref("SelectClauseElementSegment"),
+            allow_trailing=True,
+        ),
+        # NB: The Dedent for the indent above lives in the
+        # SelectStatementSegment so that it sits in the right
+        # place corresponding to the whitespace.
+    ),
+    SelectClauseElementTerminatorGrammar=OneOf(
+        "FROM",
+        "WHERE",
+        "ORDER",
+        "LIMIT",
+        Ref("CommaSegment"),
+        Ref("SetOperatorSegment"),
+    ),
     FromClauseTerminatorGrammar=OneOf(
         "WHERE",
         "LIMIT",
@@ -428,6 +449,7 @@ ansi_dialect.add(
         "LIMIT", "GROUP", "ORDER", "HAVING", "QUALIFY", "WINDOW", "OVERLAPS"
     ),
     PrimaryKeyGrammar=Sequence("PRIMARY", "KEY"),
+    ForeignKeyGrammar=Sequence("FOREIGN", "KEY"),
     # Odd syntax, but prevents eager parameters being confused for data types
     FunctionParameterGrammar=OneOf(
         Sequence(
@@ -454,19 +476,13 @@ ansi_dialect.add(
 
 
 @ansi_dialect.segment()
-class FileSegment(BaseSegment):
+class FileSegment(BaseFileSegment):
     """A segment representing a whole file or script.
 
     This is also the default "root" segment of the dialect,
     and so is usually instantiated directly. It therefore
     has no match_grammar.
     """
-
-    type = "file"
-    # The file segment is the only one which can start or end with non-code
-    can_start_end_non_code = True
-    # A file can be empty!
-    allow_empty = True
 
     # NB: We don't need a match_grammar here because we're
     # going straight into instantiating it directly usually.
@@ -1126,12 +1142,7 @@ class SelectClauseElementSegment(BaseSegment):
     type = "select_clause_element"
     # Important to split elements before parsing, otherwise debugging is really hard.
     match_grammar = GreedyUntil(
-        "FROM",
-        "WHERE",
-        "ORDER",
-        "LIMIT",
-        Ref("CommaSegment"),
-        Ref("SetOperatorSegment"),
+        Ref("SelectClauseElementTerminatorGrammar"),
         enforce_whitespace_preceding_terminator=True,
     )
 
@@ -1174,18 +1185,7 @@ class SelectClauseSegment(BaseSegment):
         enforce_whitespace_preceding_terminator=True,
     )
 
-    parse_grammar = Sequence(
-        "SELECT",
-        Ref("SelectClauseModifierSegment", optional=True),
-        Indent,
-        Delimited(
-            Ref("SelectClauseElementSegment"),
-            allow_trailing=True,
-        ),
-        # NB: The Dedent for the indent above lives in the
-        # SelectStatementSegment so that it sits in the right
-        # place corresponding to the whitespace.
-    )
+    parse_grammar = Ref("SelectClauseSegmentGrammar")
 
 
 @ansi_dialect.segment()
@@ -2074,8 +2074,7 @@ class TableConstraintSegment(BaseSegment):
             ),
             Sequence(  # FOREIGN KEY ( column_name [, ... ] )
                 # REFERENCES reftable [ ( refcolumn [, ... ] ) ]
-                "FOREIGN",
-                "KEY",
+                Ref("ForeignKeyGrammar"),
                 # Local columns making up FOREIGN KEY constraint
                 Ref("BracketedColumnReferenceListGrammar"),
                 "REFERENCES",

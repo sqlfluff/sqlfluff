@@ -181,6 +181,12 @@ postgres_dialect.replace(
         ),
     ),
     FrameClauseUnitGrammar=OneOf("RANGE", "ROWS", "GROUPS"),
+    # In Postgres, column references may be followed by a time zone cast in all cases.
+    # For more information, see https://www.postgresql.org/docs/11/functions-datetime.html
+    ColumnReferenceSegment=Sequence(
+        ansi_dialect.get_segment("ColumnReferenceSegment"),
+        Ref("TimeZoneGrammar", optional=True),
+    ),
 )
 
 
