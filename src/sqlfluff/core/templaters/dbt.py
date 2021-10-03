@@ -1,5 +1,6 @@
 """Defines the templaters."""
 
+import os
 import os.path
 import logging
 from typing import List, Optional
@@ -237,12 +238,12 @@ class DbtTemplater(JinjaTemplater):
             )
         result = []
         for fname in fnames:
-            for dependent in self._walk_dependents(fname=fname, config=config):
+            for dependent in self._walk_dependents(fname, self.working_dir, config=config):
                 if dependent not in result:
                     result.append(dependent)
             return result
 
-    def _walk_dependents(self, fname, config=None):
+    def _walk_dependents(self, fname, relative_to, config=None):
         self.sqlfluff_config = config
         if not self.project_dir:
             self.project_dir = self._get_project_dir()
@@ -250,13 +251,14 @@ class DbtTemplater(JinjaTemplater):
             self.profiles_dir = self._get_profiles_dir()
         try:
             os.chdir(self.project_dir)
-            fname_absolute_path = os.path.abspath(fname)
+            fname_absolute_path = os.path.join(relative_to, fname)
             node = self._find_node(fname_absolute_path, config)
             if node.depends_on.nodes:
                 templater_logger.info("%s depends on %s", fname, node.depends_on.nodes)
             for dependent in node.depends_on.nodes:
                 yield from self._walk_dependents(
                     fname=self.dbt_manifest.nodes[dependent].original_file_path,
+                    relative_to=self.project_dir,
                     config=config,
                 )
             yield fname
