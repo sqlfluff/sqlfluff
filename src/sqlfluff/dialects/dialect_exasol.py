@@ -3258,5 +3258,5 @@ class DateAddFunctionNameSegment(BaseSegment):
         "ADD_MONTHS",
         "ADD_SECONDS",
         "ADD_WEEKS",
-        "ADD_YEARS"
+        "ADD_YEARS",
     )
