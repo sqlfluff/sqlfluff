@@ -39,8 +39,6 @@ from sqlfluff.dialects.bigquery_keywords import (
     bigquery_unreserved_keywords,
 )
 
-
-
 ansi_dialect = load_raw_dialect("ansi")
 bigquery_dialect = ansi_dialect.copy_as("bigquery")
 
