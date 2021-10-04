@@ -8,6 +8,9 @@ from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult
 class Rule_L033(BaseRule):
     """UNION [DISTINCT|ALL] is preferred over just UNION.
 
+    NB: This rule is only enabled for dialects that support UNION DISTINCT
+    (`ansi`, `bigquery`, `hive`, and `mysql`).
+
     | **Anti-pattern**
     | In this example, UNION DISTINCT should be preferred over UNION, because
     | explicit is better than implicit.
