@@ -289,7 +289,11 @@ class DbtTemplater(JinjaTemplater):
                 # at things it's not supposed to (e.g. directories that weren't
                 # passed to the "lint" command, files excluded by
                 # .sqlfluffignore, etc.
-                if os.path.relpath(fname, self.working_dir) in fnames:
+                if os.path.relpath(
+                    fname, self.working_dir
+                ) in fnames or os.path.relpath(
+                    os.path.join(self.working_dir, fname), self.working_dir
+                ):
                     yield fname
         finally:
             os.chdir(self.working_dir)
