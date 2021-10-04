@@ -344,7 +344,7 @@ class Linter:
 
     @classmethod
     def extract_ignore_mask(
-        cls, tree: Optional[BaseSegment]
+        cls, tree: BaseSegment
     ) -> Tuple[List[NoQaDirective], List[SQLBaseError]]:
         """Look for inline ignore comments and return NoQaDirectives."""
         ignore_buff: List[NoQaDirective] = []
