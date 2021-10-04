@@ -349,8 +349,6 @@ class Linter:
         """Look for inline ignore comments and return NoQaDirectives."""
         ignore_buff: List[NoQaDirective] = []
         violations: List[SQLBaseError] = []
-        if not tree:
-            return ignore_buff, violations
         for comment in tree.recursive_crawl("comment"):
             if comment.name == "inline_comment":
                 ignore_entry = cls.extract_ignore_from_comment(comment)
