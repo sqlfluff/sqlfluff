@@ -267,7 +267,7 @@ class Linter:
     ) -> List[SQLBaseError]:
         """Filter a list of lint errors, removing those which only occur in templated slices."""
         # Filter out any linting errors in templated sections if relevant.
-        result = []
+        result: List[SQLBaseError] = []
         for e in linting_errors:
             if isinstance(e, SQLLintError):
                 if (
@@ -482,7 +482,7 @@ class Linter:
         else:
             # If no parsed tree, set to None
             tree = None
-            ignore_buff = None
+            ignore_buff = []
 
         # We process the ignore config here if appropriate
         for violation in violations:
