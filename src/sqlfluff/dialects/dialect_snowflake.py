@@ -67,6 +67,7 @@ snowflake_dialect.sets("unreserved_keywords").update(
         "API",
         "AUTHORIZATIONS",
         "AUTO_INGEST",
+        "AUTO_REFRESH",
         "AUTO_RESUME",
         "AUTO_SUSPEND",
         "AVRO",
@@ -96,6 +97,7 @@ snowflake_dialect.sets("unreserved_keywords").update(
         "PIPES",
         "POLICY",
         "QUERIES",
+        "REFRESH_ON_CREATE",
         "REGIONS",
         "REMOVE",
         "RESOURCE_MONITOR",
@@ -423,6 +425,7 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref("AlterTableColumnStatementSegment"),
             Ref("CopyIntoStatementSegment"),
             Ref("AlterWarehouseStatementSegment"),
+            Ref("CreateExternalTableSegment"),
         ],
         remove=[
             Ref("CreateTypeStatementSegment"),
@@ -1032,6 +1035,48 @@ class WarehouseObjectParamsSegment(BaseSegment):
     )
 
 
+@snowflake_dialect.segment(replace=True)
+class CreateTableStatementSegment(BaseSegment):
+    """A `CREATE TABLE` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-table.html
+
+    Need to override ANSI as Snowflake puts the IfNotExistsGrammar
+    BEFORE and not AFTER the table name.
+    """
+
+    type = "create_table_statement2"
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        Ref("TemporaryTransientGrammar", optional=True),
+        "TABLE",
+        Ref("TableReferenceSegment"),
+        Ref("IfNotExistsGrammar", optional=True),
+        OneOf(
+            # Columns and comment syntax:
+            Sequence(
+                Bracketed(
+                    Delimited(
+                        OneOf(
+                            Ref("TableConstraintSegment"),
+                            Ref("ColumnDefinitionSegment"),
+                        ),
+                    )
+                ),
+                Ref("CommentClauseSegment", optional=True),
+            ),
+            # Create AS syntax:
+            Sequence(
+                "AS",
+                OptionallyBracketed(Ref("SelectableGrammar")),
+            ),
+            # Create like syntax
+            Sequence("LIKE", Ref("TableReferenceSegment")),
+        ),
+    )
+
+
 @snowflake_dialect.segment()
 class CreateStatementSegment(BaseSegment):
     """A snowflake `CREATE` statement.
@@ -1054,7 +1099,6 @@ class CreateStatementSegment(BaseSegment):
             Sequence("NOTIFICATION", "INTEGRATION"),
             Sequence("SECURITY", "INTEGRATION"),
             Sequence("STORAGE", "INTEGRATION"),
-            Sequence("EXTERNAL", "TABLE"),
             "VIEW",
             Sequence("MATERIALIZED", "VIEW"),
             Sequence("SECURE", "VIEW"),
@@ -1066,7 +1110,6 @@ class CreateStatementSegment(BaseSegment):
             # Objects that also support clone
             "DATABASE",
             "SCHEMA",
-            "TABLE",
             "SEQUENCE",
             Sequence("FILE", "FORMAT"),
             "STAGE",
@@ -1124,6 +1167,153 @@ class CreateStatementSegment(BaseSegment):
             ),
             Ref("CopyIntoStatementSegment"),
             optional=True,
+        ),
+    )
+
+
+@snowflake_dialect.segment()
+class CreateExternalTableSegment(BaseSegment):
+    """A snowflake `CREATE EXTERNAL TABLE` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-external-table.html
+    """
+
+    type = "create_external_table_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Sequence("OR", "REPLACE", optional=True),
+        "EXTERNAL",
+        "TABLE",
+        Sequence("IF", "NOT", "EXISTS", optional=True),
+        Ref("TableReferenceSegment"),
+        # Columns:
+        Sequence(
+            Bracketed(
+                Delimited(
+                    OneOf(
+                        Ref("TableConstraintSegment"),
+                        Ref("ColumnDefinitionSegment"),
+                    ),
+                ),
+            ),
+            optional=True,
+        ),
+        AnyNumberOf(
+            Sequence(
+                "PARTITION",
+                "BY",
+                Delimited(
+                    Ref("SingleIdentifierGrammar"),
+                ),
+                optional=True,
+            ),
+            Sequence(
+                Sequence("WITH", optional=True),
+                "LOCATION",
+                Ref("EqualsSegment"),
+                Ref("AtSignLiteralSegment"),
+                Bracketed(
+                    Ref("NakedIdentifierSegment"),
+                    Ref("DotSegment"),
+                    bracket_type="square",
+                    optional=True,
+                ),
+                AnyNumberOf(
+                    Ref("NakedIdentifierSegment"),
+                    Ref("DivideSegment"),
+                    allow_gaps=False,
+                ),
+                optional=True,
+            ),
+            Sequence(
+                "REFRESH_ON_CREATE",
+                Ref("EqualsSegment"),
+                OneOf("TRUE", "FALSE"),
+                optional=True,
+            ),
+            Sequence(
+                "AUTO_REFRESH",
+                Ref("EqualsSegment"),
+                OneOf("TRUE", "FALSE"),
+                optional=True,
+            ),
+            Sequence(
+                "PATTERN",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+                optional=True,
+            ),
+            Sequence(
+                "FILE_FORMAT",
+                Ref("EqualsSegment"),
+                Bracketed(
+                    OneOf(
+                        Sequence(
+                            "FORMAT_NAME",
+                            Ref("EqualsSegment"),
+                            Ref("QuotedLiteralSegment"),
+                        ),
+                        Sequence(
+                            "TYPE",
+                            Ref("EqualsSegment"),
+                            OneOf(
+                                "CSV",
+                                "JSON",
+                                "AVRO",
+                                "ORC",
+                                "PARQUET",
+                                "XML",
+                                Ref("QuotedLiteralSegment"),
+                            ),
+                            AnyNumberOf(
+                                # formatTypeOptions - To Do to make this more specific
+                                Ref("NakedIdentifierSegment"),
+                                Ref("EqualsSegment"),
+                                OneOf(
+                                    Ref("NakedIdentifierSegment"),
+                                    Ref("QuotedLiteralSegment"),
+                                    Bracketed(
+                                        Delimited(
+                                            Ref("QuotedLiteralSegment"),
+                                        )
+                                    ),
+                                ),
+                                optional=True,
+                            ),
+                        ),
+                    ),
+                ),
+                optional=True,
+            ),
+            Sequence(
+                "AWS_SNS_TOPIC",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+                optional=True,
+            ),
+            Sequence(
+                "COPY",
+                "GRANTS",
+                optional=True,
+            ),
+            Sequence(
+                Sequence("WITH", optional=True),
+                "ROW",
+                "ACCESS",
+                "POLICY",
+                Ref("NakedIdentifierSegment"),
+                optional=True,
+            ),
+            Sequence(
+                Sequence("WITH", optional=True),
+                "TAG",
+                Ref("NakedIdentifierSegment"),
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+                optional=True,
+            ),
+            Ref("CreateStatementCommentSegment", optional=True),
         ),
     )
 
