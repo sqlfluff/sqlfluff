@@ -839,10 +839,10 @@ class AlterWarehouseStatementSegment(BaseSegment):
             Sequence(
                 Ref("NakedIdentifierSegment"),
                 "SET",
-                Sequence(
-                    Ref("WarehouseObjectPropertiesSegment", optional=True),
-                    Ref("CommentClauseSegment", optional=True),
-                    Ref("WarehouseObjectParamsSegment", optional=True),
+                AnyNumberOf(
+                    Ref("WarehouseObjectPropertiesSegment"),
+                    Ref("CommentClauseSegment"),
+                    Ref("WarehouseObjectParamsSegment"),
                 ),
             ),
             Sequence(
@@ -1143,8 +1143,10 @@ class CreateStatementSegment(BaseSegment):
         # Next are WAREHOUSE options https://docs.snowflake.com/en/sql-reference/sql/create-warehouse.html
         Sequence(
             Sequence("WITH", optional=True),
-            Ref("WarehouseObjectPropertiesSegment", optional=True),
-            Ref("WarehouseObjectParamsSegment", optional=True),
+            AnyNumberOf(
+                Ref("WarehouseObjectPropertiesSegment"),
+                Ref("WarehouseObjectParamsSegment"),
+            ),
             optional=True,
         ),
         Ref("CreateStatementCommentSegment", optional=True),
