@@ -3049,7 +3049,7 @@ class FlushStatisticsSegment(BaseSegment):
 class RecompressReorganizeSegment(BaseSegment):
     """`RECOMPRESS` and `REOGRANIZE` statement."""
 
-    type = "recompress_reorganzie_statement"
+    type = "recompress_reorganize_statement"
     match_grammar = Sequence(
         OneOf("RECOMPRESS", "REORGANIZE"),
         OneOf(
