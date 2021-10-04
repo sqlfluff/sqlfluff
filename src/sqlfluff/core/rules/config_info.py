@@ -42,6 +42,12 @@ STANDARD_CONFIG_INFO_DICT = {
         "validation": ["consistent", "qualified", "unqualified"],
         "definition": "The expectation for references in single-table select",
     },
+    "force_enable": {
+        "validation": [True, False],
+        "definition": (
+            "Should rule be enforced even for dialects this if off for by default"
+        ),
+    },
     "unquoted_identifiers_policy": {
         "validation": ["all", "aliases", "column_aliases"],
         "definition": "Types of unquoted identifiers to flag violations for",

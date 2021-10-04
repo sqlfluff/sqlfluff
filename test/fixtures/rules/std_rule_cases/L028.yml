@@ -44,3 +44,24 @@ test_value_table_functions_do_not_require_qualification:
   configs:
     core:
       dialect: bigquery
+    rules:
+      L028:
+        force_enable: True
+
+test_object_references_1:
+  fail_str: SELECT a.bar, b FROM my_tbl
+
+test_object_references_2:
+  pass_str: SELECT a.bar, b FROM my_tbl
+  configs:
+    core:
+      dialect: bigquery
+
+test_object_references_3:
+  fail_str: SELECT a.bar, b FROM my_tbl
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      L028:
+        force_enable: True
