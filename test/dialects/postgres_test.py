@@ -16,6 +16,15 @@ from sqlfluff.dialects.postgres_keywords import get_keywords, priority_keyword_m
             "SelectClauseElementSegment",
             "timestamp with time zone '2021-10-01' AT TIME ZONE 'UTC'",
         ),
+        # Notnull and Isnull
+        ("ExpressionSegment", "c is null"),
+        ("ExpressionSegment", "c is not null"),
+        ("ExpressionSegment", "c isnull"),
+        ("ExpressionSegment", "c notnull"),
+        ("SelectClauseElementSegment", "c is null as c_isnull"),
+        ("SelectClauseElementSegment", "c is not null as c_notnull"),
+        ("SelectClauseElementSegment", "c isnull as c_isnull"),
+        ("SelectClauseElementSegment", "c notnull as c_notnull"),
     ],
 )
 def test_dialect_postgres_specific_segment_parses(
