@@ -243,13 +243,13 @@ class DbtTemplater(JinjaTemplater):
         result = []
         for fname in fnames:
             for dependent in self._walk_dependents(
-                fname, self.working_dir, config=config
+                fname, fnames, self.working_dir, config=config
             ):
                 if dependent not in result:
                     result.append(dependent)
             return result
 
-    def _walk_dependents(self, fname, relative_to, config=None):
+    def _walk_dependents(self, fname, fnames, relative_to, config=None):
         self.sqlfluff_config = config
         if not self.project_dir:
             self.project_dir = self._get_project_dir()
@@ -266,9 +266,13 @@ class DbtTemplater(JinjaTemplater):
                     )
                 for dependent in node.depends_on.nodes:
                     if dependent in self.dbt_manifest.nodes:
+                        # Note that we don't check here whether the file is in
+                        # "fnames". It's okay to *walk through these files* as
+                        # long as we don't *return* them.
                         yield from self._walk_dependents(
-                            fname=self.dbt_manifest.nodes[dependent].original_file_path,
-                            relative_to=self.project_dir,
+                            self.dbt_manifest.nodes[dependent].original_file_path,
+                            fnames,
+                            self.project_dir,
                             config=config,
                         )
                     else:
@@ -279,7 +283,14 @@ class DbtTemplater(JinjaTemplater):
             except SQLTemplaterSkipFile:
                 pass
             finally:
-                yield fname
+                # Traversing dependencies may lead us to files that are "out of
+                # scope". It's okay to traverse them, but only return files
+                # seen in the original list. This avoids having SQLFluff look
+                # at things it's not supposed to (e.g. directories that weren't
+                # passed to the "lint" command, files excluded by
+                # .sqlfluffignore, etc.
+                if fname in fnames:
+                    yield fname
         finally:
             os.chdir(self.working_dir)
 
