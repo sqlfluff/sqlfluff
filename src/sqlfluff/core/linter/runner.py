@@ -35,6 +35,9 @@ class BaseRunner(ABC):
 
     def iter_rendered(self, fnames):
         """Iterate through rendered files ready for linting."""
+        fnames = self.linter.templater.sequence_files(
+            fnames, config=self.config, formatter=self.linter.formatter
+        )
         for fname in fnames:
             yield fname, self.linter.render_file(fname, self.config)
 

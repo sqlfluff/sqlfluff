@@ -440,6 +440,11 @@ class RawTemplater:
         arguments in here.
         """
 
+    def sequence_files(self, fnames: List[str], config=None, formatter=None):
+        """Given files to be processed, return a valid processing sequence."""
+        # Default is to process in the original order.
+        return fnames
+
     def process(
         self, *, in_str: str, fname: str, config=None, formatter=None
     ) -> Tuple[Optional[TemplatedFile], list]:
