@@ -836,10 +836,10 @@ class AlterWarehouseStatementSegment(BaseSegment):
             Sequence(
                 Ref("NakedIdentifierSegment"),
                 "SET",
-                OneOf(
-                    Ref("WarehouseObjectPropertiesSegment"),
-                    Ref("CommentClauseSegment"),
-                    Ref("WarehouseObjectParamsSegment"),
+                Sequence(
+                    Ref("WarehouseObjectPropertiesSegment", optional=True),
+                    Ref("CommentClauseSegment", optional=True),
+                    Ref("WarehouseObjectParamsSegment", optional=True),
                 ),
             ),
             Sequence(
