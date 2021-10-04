@@ -34,6 +34,11 @@ from sqlfluff.core.parser import (
 
 from sqlfluff.core.dialects import load_raw_dialect
 
+from sqlfluff.dialects.bigquery_keywords import (
+    bigquery_reserved_keywords,
+    bigquery_unreserved_keywords,
+)
+
 ansi_dialect = load_raw_dialect("ansi")
 bigquery_dialect = ansi_dialect.copy_as("bigquery")
 
@@ -157,19 +162,22 @@ bigquery_dialect.replace(
 )
 
 
+# Set Keywords
+bigquery_dialect.sets("unreserved_keywords").clear()
+bigquery_dialect.sets("unreserved_keywords").update(
+    [n.strip().upper() for n in bigquery_unreserved_keywords.split("\n")]
+)
+
+bigquery_dialect.sets("reserved_keywords").clear()
+bigquery_dialect.sets("reserved_keywords").update(
+    [n.strip().upper() for n in bigquery_reserved_keywords.split("\n")]
+)
+
 # Add additional datetime units
 # https://cloud.google.com/bigquery/docs/reference/standard-sql/date_functions#extract
 bigquery_dialect.sets("datetime_units").update(
     ["MICROSECOND", "DAYOFWEEK", "ISOWEEK", "ISOYEAR", "DATE", "DATETIME", "TIME"]
 )
-
-# Unreserved Keywords
-bigquery_dialect.sets("unreserved_keywords").add("SYSTEM_TIME")
-bigquery_dialect.sets("unreserved_keywords").remove("FOR")
-bigquery_dialect.sets("unreserved_keywords").add("STRUCT")
-bigquery_dialect.sets("unreserved_keywords").add("ORDINAL")
-# Reserved Keywords
-bigquery_dialect.sets("reserved_keywords").add("FOR")
 
 # In BigQuery, UNNEST() returns a "value table".
 # https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax#value_tables
