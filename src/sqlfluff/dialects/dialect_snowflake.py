@@ -57,6 +57,7 @@ snowflake_dialect.sets("reserved_keywords").update(
         "SAMPLE",
         "SOME",
         "TABLESAMPLE",
+        "UNPIVOT",
     ]
 )
 
@@ -98,7 +99,6 @@ snowflake_dialect.sets("unreserved_keywords").update(
         "SIZE_LIMIT",
         "SUSPEND",
         "TERSE",
-        "UNPIVOT",
         "UNSET",
         "TABULAR",
     ]
