@@ -361,8 +361,7 @@ class BaseRule:
         elif isinstance(res, LintResult):
             # Extract any memory
             memory = res.memory
-            lerr = _process_lint_result(res)
-            new_fixes = res.fixes
+            _process_lint_result(res)
         elif isinstance(res, list) and all(
             isinstance(elem, LintResult) for elem in res
         ):
