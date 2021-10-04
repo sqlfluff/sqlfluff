@@ -147,11 +147,11 @@ def test__templater_python_intermediate__trim(
         ("bar foo bar foo", ["bar", "foo"], [[0, 8], [4, 12]]),
     ],
 )
-def test__templater_python_substring_occurances(mainstr, substrings, positions):
-    """Test _substring_occurances."""
-    occurances = PythonTemplater._substring_occurances(mainstr, substrings)
-    assert isinstance(occurances, dict)
-    pos_test = [occurances[substring] for substring in substrings]
+def test__templater_python_substring_occurrences(mainstr, substrings, positions):
+    """Test _substring_occurrences."""
+    occurrences = PythonTemplater._substring_occurrences(mainstr, substrings)
+    assert isinstance(occurrences, dict)
+    pos_test = [occurrences[substring] for substring in substrings]
     assert pos_test == positions
 
 
@@ -166,9 +166,9 @@ def test__templater_python_substring_occurances(mainstr, substrings, positions):
         ),
     ],
 )
-def test__templater_python_sorted_occurance_tuples(test, result):
-    """Test _sorted_occurance_tuples."""
-    assert PythonTemplater._sorted_occurance_tuples(test) == result
+def test__templater_python_sorted_occurrence_tuples(test, result):
+    """Test _sorted_occurrence_tuples."""
+    assert PythonTemplater._sorted_occurrence_tuples(test) == result
 
 
 @pytest.mark.parametrize(
@@ -203,7 +203,7 @@ def test__templater_python_slice_template(test, result):
 
 
 @pytest.mark.parametrize(
-    "raw_sliced,literals,raw_occurances,templated_occurances,templated_length,result",
+    "raw_sliced,literals,raw_occurrences,templated_occurrences,templated_length,result",
     [
         ([], [], {}, {}, 0, []),
         (
@@ -224,12 +224,12 @@ def test__templater_python_slice_template(test, result):
     ],
 )
 def test__templater_python_split_invariants(
-    raw_sliced, literals, raw_occurances, templated_occurances, templated_length, result
+    raw_sliced, literals, raw_occurrences, templated_occurrences, templated_length, result
 ):
     """Test _split_invariants."""
     resp = list(
         PythonTemplater._split_invariants(
-            raw_sliced, literals, raw_occurances, templated_occurances, templated_length
+            raw_sliced, literals, raw_occurrences, templated_occurrences, templated_length
         )
     )
     # check result
@@ -237,7 +237,7 @@ def test__templater_python_split_invariants(
 
 
 @pytest.mark.parametrize(
-    "split_file,raw_occurances,templated_occurances,templated_str,result",
+    "split_file,raw_occurrences,templated_occurrences,templated_str,result",
     [
         ([], {}, {}, "", []),
         (
@@ -367,15 +367,15 @@ def test__templater_python_split_invariants(
     ],
 )
 def test__templater_python_split_uniques_coalesce_rest(
-    split_file, raw_occurances, templated_occurances, templated_str, result, caplog
+    split_file, raw_occurrences, templated_occurrences, templated_str, result, caplog
 ):
     """Test _split_uniques_coalesce_rest."""
     with caplog.at_level(logging.DEBUG, logger="sqlfluff.templater"):
         resp = list(
             PythonTemplater._split_uniques_coalesce_rest(
                 split_file,
-                raw_occurances,
-                templated_occurances,
+                raw_occurrences,
+                templated_occurrences,
                 templated_str,
             )
         )
