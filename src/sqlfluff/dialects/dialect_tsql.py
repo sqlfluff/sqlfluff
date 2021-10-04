@@ -21,6 +21,7 @@ from sqlfluff.core.parser import (
     OptionallyBracketed,
     Dedent,
     AnyNumberOf,
+    GreedyUntil
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -101,6 +102,11 @@ tsql_dialect.replace(
 class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: ignore
     """Overriding StatementSegment to allow for additional segment parsing."""
 
+    match_grammar = OneOf(
+        Ref("BeginEndSegment"),
+        GreedyUntil(Ref("DelimiterSegment")),
+    )
+
     parse_grammar = ansi_dialect.get_segment("StatementSegment").parse_grammar.copy(
         insert=[
             Ref("CreateProcedureStatementSegment"),
@@ -111,6 +117,7 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref(
                 "CreateTableAsSelectStatementSegment"
             ),  # Azure Synapse Analytics specific
+            Ref("BeginEndSegment"),
         ],
     )
 
@@ -947,3 +954,58 @@ class DatePartClause(BaseSegment):
         "YY",
         "YYYY",
     )
+
+
+@tsql_dialect.segment()
+class BeginEndSegment(BaseSegment):
+    """A `BEGIN/END` block.
+
+    Encloses multiple statements into a single statement object.
+    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/begin-end-transact-sql?view=sql-server-ver15
+    """
+
+    type = "begin_end_block"
+    match_grammar = Sequence(
+        "BEGIN",
+        GreedyUntil(
+            "END",
+        ),
+        "END",
+    )
+
+    parse_grammar = Sequence(
+        "BEGIN",
+        AnyNumberOf(
+            Ref("StatementSegment"),
+            min_times = 1,
+        ),
+        "END",
+    )
+
+
+@tsql_dialect.segment(replace=True)
+class TransactionStatementSegment(BaseSegment):
+    """A `COMMIT`, `ROLLBACK` or `TRANSACTION` statement."""
+
+    type = "transaction_statement"
+    match_grammar = Sequence(
+        # BEGIN | SAVE TRANSACTION
+        # COMMIT [ TRANSACTION | WORK ]
+        # ROLLBACK [ TRANSACTION | WORK ] 
+        # https://docs.microsoft.com/en-us/sql/t-sql/language-elements/begin-transaction-transact-sql?view=sql-server-ver15
+        OneOf(
+            Sequence(
+                "BEGIN",
+                Sequence("DISTRIBUTED",optional=True),
+                "TRANSACTION",
+                Sequence(
+                    Ref("SingleIdentifierGrammar", optional=True)
+                ),
+                Sequence("WITH","MARK",Ref("QuotedIdentifierSegment"),optional=True),
+            ),
+            Sequence(OneOf("COMMIT","ROLLBACK"), OneOf("TRANSACTION","WORK",optional=True)),
+            Sequence("SAVE","TRANSACTION"),
+        ),
+
+    )
+

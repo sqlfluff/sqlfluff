@@ -1226,6 +1226,7 @@ class SelectClauseSegment(BaseSegment):
             "LIMIT",
             "OVERLAPS",
             Ref("SetOperatorSegment"),
+            Ref("DelimiterSegment"),
         ),
         enforce_whitespace_preceding_terminator=True,
     )
