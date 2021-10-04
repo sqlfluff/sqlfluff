@@ -11,7 +11,7 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ## [0.6.7] - 2021-10-04
 
-Lots of fixes to our rules, plus good improvements to T-SQL, Exasol, Snowflake dialects amongst others!
+Lots of bug fixes to our rules (particularly the autofixer), plus good improvements to Exasol, Snowflake, and T-SQL, dialects amongst others! Plus we added Hive and SQLite as supported dialects!
 
 ## What’s Changed
 
@@ -52,7 +52,7 @@ Lots of fixes to our rules, plus good improvements to T-SQL, Exasol, Snowflake d
 * Fix some issues where the SQL file is corrupted by lint "fixes" in or near Jinja loops [#1431](https://github.com/sqlfluff/sqlfluff/pull/1431) [@barrywhart](https://github.com/barrywhart)
 * TSQL: Remove Limit and NamedWindow segments as not supported in T-SQL [#1420](https://github.com/sqlfluff/sqlfluff/pull/1420) [@jpers36](https://github.com/jpers36)
 * Fix runtime error (IndexError ) when linting file with jinja "if" [#1430](https://github.com/sqlfluff/sqlfluff/pull/1430) [@barrywhart](https://github.com/barrywhart)
-* add hive dialect (#985) [@satish-ravi](https://github.com/satish-ravi)
+* Add hive dialect (#985) [@satish-ravi](https://github.com/satish-ravi)
 * Further fix for L036 [#1428](https://github.com/sqlfluff/sqlfluff/pull/1428) [@tunetheweb](https://github.com/tunetheweb)
 * Add default parameter to dbt "var" macro stub [#1426](https://github.com/sqlfluff/sqlfluff/pull/1426) [@CyberShadow](https://github.com/CyberShadow)
 
