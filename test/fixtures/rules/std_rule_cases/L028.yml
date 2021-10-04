@@ -48,16 +48,20 @@ test_value_table_functions_do_not_require_qualification:
       L028:
         force_enable: True
 
-test_object_references_1:
+test_object_references_1a:
+  # This should fail as "a" is an unreference object
   fail_str: SELECT a.bar, b FROM my_tbl
 
-test_object_references_2:
+test_object_references_1b:
+  # This should not-fail as "a" is potentially a STRUCT
   pass_str: SELECT a.bar, b FROM my_tbl
   configs:
     core:
       dialect: bigquery
 
-test_object_references_3:
+test_object_references_1c:
+  # This should fail as even though "a" is potenitally a STRUCT
+  # The config has been set to enforce the rule
   fail_str: SELECT a.bar, b FROM my_tbl
   configs:
     core:
