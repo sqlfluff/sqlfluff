@@ -67,18 +67,25 @@ snowflake_dialect.sets("unreserved_keywords").update(
         "API",
         "AUTHORIZATIONS",
         "AUTO_INGEST",
+        "AUTO_RESUME",
+        "AUTO_SUSPEND",
         "AVRO",
         "AWS_SNS_TOPIC",
         "BERNOULLI",
         "BLOCK",
         "CLONE",
         "DELEGATED",
+        "ECONOMY",
         "FILES",
         "FILE_FORMAT",
         "FORMAT_NAME",
         "HISTORY",
+        "INITIALLY_SUSPENDED",
         "LATERAL",
         "MASKING",
+        "MAX_CLUSTER_COUNT",
+        "MIN_CLUSTER_COUNT",
+        "MAX_CONCURRENCY_LEVEL",
         "NETWORK",
         "NEXTVAL",
         "NOTIFICATION",
@@ -91,16 +98,25 @@ snowflake_dialect.sets("unreserved_keywords").update(
         "QUERIES",
         "REGIONS",
         "REMOVE",
+        "RESOURCE_MONITOR",
         "RESUME",
         "SAMPLE",
+        "SCALING_POLICY",
         "SCHEDULE",
         "SECURE",
         "SEED",
         "SIZE_LIMIT",
+        "STANDARD",
+        "STATEMENT_QUEUED_TIMEOUT_IN_SECONDS",
+        "STATEMENT_TIMEOUT_IN_SECONDS",
         "SUSPEND",
+        "SUSPENDED",
+        "TAG",
         "TERSE",
-        "UNSET",
         "TABULAR",
+        "UNSET",
+        "WAIT_FOR_COMPLETION",
+        "WAREHOUSE_SIZE",
     ]
 )
 
@@ -174,6 +190,13 @@ snowflake_dialect.add(
             "$",
             "&",
         ),
+    ),
+    WarehouseSize=RegexParser(
+        r"(XSMALL|SMALL|MEDIUM|LARGE|XLARGE|XXLARGE|XXXLARGE|X4LARGE|X5LARGE|X6LARGE|"
+        r"'X-SMALL'|'X-LARGE'|'XX-LARGE'|'XXX-LARGE'|'X4-LARGE'|'X5-LARGE'|'X6-LARGE')",
+        CodeSegment,
+        name="warehouse_size",
+        type="identifier",
     ),
     DoubleQuotedLiteralSegment=NamedParser(
         "double_quote",
@@ -398,6 +421,7 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref("MergeStatementSegment"),
             Ref("AlterTableColumnStatementSegment"),
             Ref("CopyIntoStatementSegment"),
+            Ref("AlterWarehouseStatementSegment"),
         ],
         remove=[
             Ref("CreateTypeStatementSegment"),
@@ -770,6 +794,63 @@ class AlterTableColumnStatementSegment(BaseSegment):
     )
 
 
+@snowflake_dialect.segment()
+class AlterWarehouseStatementSegment(BaseSegment):
+    """An `ALTER WAREHOUSE` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-warehouse.html
+
+    """
+
+    type = "alter_warehouse_statement"
+    match_grammar = Sequence(
+        "ALTER",
+        "WAREHOUSE",
+        Sequence("IF", "EXISTS", optional=True),
+        OneOf(
+            Sequence(
+                Ref("NakedIdentifierSegment", optional=True),
+                OneOf(
+                    "SUSPEND",
+                    Sequence(
+                        "RESUME",
+                        Sequence("IF", "SUSPENDED", optional=True),
+                    ),
+                ),
+            ),
+            Sequence(
+                Ref("NakedIdentifierSegment", optional=True),
+                Sequence(
+                    "ABORT",
+                    "ALL",
+                    "QUERIES",
+                ),
+            ),
+            Sequence(
+                Ref("NakedIdentifierSegment"),
+                "RENAME",
+                "TO",
+                Ref("NakedIdentifierSegment"),
+            ),
+            Sequence(
+                Ref("NakedIdentifierSegment"),
+                "SET",
+                OneOf(
+                    Ref("WarehouseObjectPropertiesSegment"),
+                    Ref("WarehouseObjectParamsSegment"),
+                ),
+            ),
+            Sequence(
+                Ref("NakedIdentifierSegment"),
+                "UNSET",
+                Delimited(
+                    Ref("NakedIdentifierSegment"),
+                ),
+            ),
+        ),
+    )
+
+
 @snowflake_dialect.segment(replace=True)
 class CommentClauseSegment(BaseSegment):
     """A comment clause.
@@ -843,6 +924,115 @@ class CreateCloneStatementSegment(BaseSegment):
 
 
 @snowflake_dialect.segment()
+class WarehouseObjectPropertiesSegment(BaseSegment):
+    """A snowflake Warehouse Object Properties segment.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-warehouse.html
+    https://docs.snowflake.com/en/sql-reference/sql/alter-warehouse.html
+    """
+
+    type = "warehouse_object_properties"
+
+    match_grammar = AnyNumberOf(
+        Sequence(
+            "WAREHOUSE_SIZE",
+            Ref("EqualsSegment"),
+            Ref("WarehouseSize"),
+        ),
+        Sequence(
+            "WAIT_FOR_COMPLETION",
+            Ref("EqualsSegment"),
+            OneOf("TRUE", "FALSE"),
+        ),
+        Sequence(
+            "MAX_CLUSTER_COUNT",
+            Ref("EqualsSegment"),
+            Ref("NumericLiteralSegment"),
+        ),
+        Sequence(
+            "MIN_CLUSTER_COUNT",
+            Ref("EqualsSegment"),
+            Ref("NumericLiteralSegment"),
+        ),
+        Sequence(
+            "SCALING_POLICY",
+            Ref("EqualsSegment"),
+            OneOf(
+                "STANDARD",
+                "ECONOMY",
+            ),
+        ),
+        Sequence(
+            "AUTO_SUSPEND",
+            Ref("EqualsSegment"),
+            OneOf(
+                Ref("NumericLiteralSegment"),
+                "NULL",
+            ),
+        ),
+        Sequence(
+            "AUTO_RESUME",
+            Ref("EqualsSegment"),
+            OneOf("TRUE", "FALSE"),
+        ),
+        Sequence(
+            "INITIALLY_SUSPENDED",
+            Ref("EqualsSegment"),
+            OneOf("TRUE", "FALSE"),
+        ),
+        Sequence(
+            "RESOURCE_MONITOR",
+            Ref("EqualsSegment"),
+            Ref("NakedIdentifierSegment"),
+        ),
+        Sequence(
+            "COMMENT",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+        ),
+    )
+
+
+@snowflake_dialect.segment()
+class WarehouseObjectParamsSegment(BaseSegment):
+    """A snowflake Warehouse Object Param segment.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-warehouse.html
+    https://docs.snowflake.com/en/sql-reference/sql/alter-warehouse.html
+    """
+
+    type = "warehouse_object_properties"
+
+    match_grammar = AnyNumberOf(
+        Sequence(
+            "MAX_CONCURRENCY_LEVEL",
+            Ref("EqualsSegment"),
+            Ref("NumericLiteralSegment"),
+        ),
+        Sequence(
+            "STATEMENT_QUEUED_TIMEOUT_IN_SECONDS",
+            Ref("EqualsSegment"),
+            Ref("NumericLiteralSegment"),
+        ),
+        Sequence(
+            "STATEMENT_TIMEOUT_IN_SECONDS",
+            Ref("EqualsSegment"),
+            Ref("NumericLiteralSegment"),
+        ),
+        Sequence(
+            "TAG",
+            Delimited(
+                Sequence(
+                    Ref("NakedIdentifierSegment"),
+                    Ref("EqualsSegment"),
+                    Ref("QuotedLiteralSegment"),
+                )
+            ),
+        ),
+    )
+
+
+@snowflake_dialect.segment()
 class CreateStatementSegment(BaseSegment):
     """A snowflake `CREATE` statement.
 
@@ -905,6 +1095,13 @@ class CreateStatementSegment(BaseSegment):
                 Ref("QuotedLiteralSegment"),
                 optional=True,
             ),
+            optional=True,
+        ),
+        # Next are WAREHOUSE options https://docs.snowflake.com/en/sql-reference/sql/create-warehouse.html
+        Sequence(
+            Sequence("WITH", optional=True),
+            Ref("WarehouseObjectPropertiesSegment", optional=True),
+            Ref("WarehouseObjectParamsSegment", optional=True),
             optional=True,
         ),
         Ref("CreateStatementCommentSegment", optional=True),

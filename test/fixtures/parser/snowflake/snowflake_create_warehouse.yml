@@ -1,0 +1,51 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 1ebfd01079951c71767fc058573d94bf62ee6ef9b7c2d40e58c9c61f1fe5ef48
+file:
+- statement:
+    create_statement:
+    - keyword: create
+    - binary_operator: or
+    - keyword: replace
+    - keyword: warehouse
+    - object_reference:
+        identifier: my_wh
+    - keyword: with
+    - warehouse_object_properties:
+        keyword: warehouse_size
+        comparison_operator: '='
+        identifier: "'X-LARGE'"
+- statement_terminator: ;
+- statement:
+    create_statement:
+    - keyword: create
+    - binary_operator: or
+    - keyword: replace
+    - keyword: warehouse
+    - object_reference:
+        identifier: my_wh
+    - warehouse_object_properties:
+      - keyword: warehouse_size
+      - comparison_operator: '='
+      - identifier: large
+      - keyword: initially_suspended
+      - comparison_operator: '='
+      - keyword: 'true'
+- statement_terminator: ;
+- statement:
+    create_statement:
+    - keyword: create
+    - keyword: warehouse
+    - keyword: if
+    - keyword: not
+    - keyword: exists
+    - object_reference:
+        identifier: LOAD_WH
+    - warehouse_object_properties:
+        keyword: warehouse_size
+        comparison_operator: '='
+        identifier: medium
+- statement_terminator: ;
