@@ -11,7 +11,7 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ## [0.6.7] - 2021-10-04
 
-Lots of bug fixes to our rules (particularly the autofixer), plus good improvements to Exasol, Snowflake, and T-SQL, dialects amongst others! Plus we added Hive and SQLite as supported dialects!
+Lots of fixes to our rules (particularly when running `sqlfluff fix`, and particularly for Jinja and DBT templates). We also have good improvements to Exasol, Snowflake, and T-SQL dialects amongst others. Plus we added Hive and SQLite as supported dialects!
 
 ## What’s Changed
 
