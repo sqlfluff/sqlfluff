@@ -15,6 +15,9 @@ Lots of fixes to our rules, plus good improvements to T-SQL and Exasol dialects 
 
 ## What’s Changed
 
+* BigQuery keywords [#1506](https://github.com/sqlfluff/sqlfluff/pull/1506) [@tunetheweb](https://github.com/tunetheweb)
+* Inline --noqa not always honoured by "sqlfluff fix" [#1502](https://github.com/sqlfluff/sqlfluff/pull/1502) [@barrywhart](https://github.com/barrywhart)
+* Snowflake - fix parsing of UNPIVOT [#1505](https://github.com/sqlfluff/sqlfluff/pull/1505) [@michael-the1](https://github.com/michael-the1)
 * Better parsing of DATEADD function [#1486](https://github.com/sqlfluff/sqlfluff/pull/1486) [@jpers36](https://github.com/jpers36)
 * Fix handling of ISNULL and NOTNULL keywords [#1483](https://github.com/sqlfluff/sqlfluff/pull/1483) [@leamingrad](https://github.com/leamingrad)
 * Improved test cases names [#1501](https://github.com/sqlfluff/sqlfluff/pull/1501) [@ttomasz](https://github.com/ttomasz)
