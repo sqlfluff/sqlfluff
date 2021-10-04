@@ -950,7 +950,7 @@ class WarehouseObjectPropertiesSegment(BaseSegment):
         Sequence(
             "WAIT_FOR_COMPLETION",
             Ref("EqualsSegment"),
-            OneOf("TRUE", "FALSE"),
+            Ref("BooleanLiteralGrammar"),
         ),
         Sequence(
             "MAX_CLUSTER_COUNT",
@@ -981,12 +981,12 @@ class WarehouseObjectPropertiesSegment(BaseSegment):
         Sequence(
             "AUTO_RESUME",
             Ref("EqualsSegment"),
-            OneOf("TRUE", "FALSE"),
+            Ref("BooleanLiteralGrammar"),
         ),
         Sequence(
             "INITIALLY_SUSPENDED",
             Ref("EqualsSegment"),
-            OneOf("TRUE", "FALSE"),
+            Ref("BooleanLiteralGrammar"),
         ),
         Sequence(
             "RESOURCE_MONITOR",
@@ -1123,7 +1123,7 @@ class CreateStatementSegment(BaseSegment):
             Sequence(
                 "AUTO_INGEST",
                 Ref("EqualsSegment"),
-                OneOf("TRUE", "FALSE"),
+                Ref("BooleanLiteralGrammar"),
                 optional=True,
             ),
             Sequence(
@@ -1229,13 +1229,13 @@ class CreateExternalTableSegment(BaseSegment):
             Sequence(
                 "REFRESH_ON_CREATE",
                 Ref("EqualsSegment"),
-                OneOf("TRUE", "FALSE"),
+                Ref("BooleanLiteralGrammar"),
                 optional=True,
             ),
             Sequence(
                 "AUTO_REFRESH",
                 Ref("EqualsSegment"),
-                OneOf("TRUE", "FALSE"),
+                Ref("BooleanLiteralGrammar"),
                 optional=True,
             ),
             Sequence(
@@ -1821,7 +1821,7 @@ class AlterTaskSpecialSetClauseSegment(BaseSegment):
             Sequence(
                 "ALLOW_OVERLAPPING_EXECUTION",
                 Ref("EqualsSegment"),
-                OneOf("TRUE", "FALSE"),
+                Ref("BooleanLiteralGrammar"),
                 optional=True,
             ),
             min_times=1,
