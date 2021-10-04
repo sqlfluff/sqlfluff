@@ -1,5 +1,6 @@
 """A list of all BigQuery SQL key words."""
 
+# https://cloud.google.com/bigquery/docs/reference/standard-sql/lexical#reserved_keywords
 bigquery_reserved_keywords = """ALL
 AND
 ANY
@@ -97,7 +98,7 @@ WITH
 WITHIN"""
 
 # Note BigQuery doesn't have a list of Unreserved Keywords
-# so these are just ones we need to allow parsig to work
+# so these are just ones we need to allow parsing to work
 bigquery_unreserved_keywords = """ALTER
 BEGIN
 CLUSTER

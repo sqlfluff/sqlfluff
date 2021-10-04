@@ -179,14 +179,6 @@ bigquery_dialect.sets("datetime_units").update(
     ["MICROSECOND", "DAYOFWEEK", "ISOWEEK", "ISOYEAR", "DATE", "DATETIME", "TIME"]
 )
 
-# # Unreserved Keywords
-# bigquery_dialect.sets("unreserved_keywords").add("SYSTEM_TIME")
-# bigquery_dialect.sets("unreserved_keywords").remove("FOR")
-# bigquery_dialect.sets("unreserved_keywords").add("STRUCT")
-# bigquery_dialect.sets("unreserved_keywords").add("ORDINAL")
-# # Reserved Keywords
-# bigquery_dialect.sets("reserved_keywords").add("FOR")
-
 # In BigQuery, UNNEST() returns a "value table".
 # https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax#value_tables
 bigquery_dialect.sets("value_table_functions").update(["unnest"])
