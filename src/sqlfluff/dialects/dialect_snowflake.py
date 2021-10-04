@@ -1045,7 +1045,7 @@ class CreateTableStatementSegment(BaseSegment):
     BEFORE and not AFTER the table name.
     """
 
-    type = "create_table_statement2"
+    type = "create_table_statement"
     match_grammar = Sequence(
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),
