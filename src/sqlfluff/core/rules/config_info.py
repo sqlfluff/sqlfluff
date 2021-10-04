@@ -45,7 +45,7 @@ STANDARD_CONFIG_INFO_DICT = {
     "force_enable": {
         "validation": [True, False],
         "definition": (
-            "Should rule be enforced even for dialects this if off for by default"
+            "Run this rule even for dialects where this rule is disabled by default"
         ),
     },
     "unquoted_identifiers_policy": {
