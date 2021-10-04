@@ -3251,4 +3251,12 @@ class DateAddFunctionNameSegment(BaseSegment):
     """
 
     type = "function_name"
-    match_grammar = Sequence("ADD_DAYS")
+    match_grammar = OneOf(
+        "ADD_DAYS",
+        "ADD_HOURS",
+        "ADD_MINUTES",
+        "ADD_MONTHS",
+        "ADD_SECONDS",
+        "ADD_WEEKS",
+        "ADD_YEARS"
+    )
