@@ -261,7 +261,7 @@ class DbtTemplater(JinjaTemplater):
                         "%s depends on %s", fname, node.depends_on.nodes
                     )
                 for dependent in node.depends_on.nodes:
-                    if dependent in self.dbt_manifest.nodes[dependent]:
+                    if dependent in self.dbt_manifest.nodes:
                         yield from self._walk_dependents(
                             fname=self.dbt_manifest.nodes[dependent].original_file_path,
                             relative_to=self.project_dir,
