@@ -52,8 +52,8 @@ test_pass_object_referenced_4:
 
 test_pass_object_referenced_5a:
   # Test ambiguous column reference caused by use of BigQuery structure fields.
-  # Here, column,field should not trigger the rule as byu default this is off
-  # for bigquery
+  # Here, column,field should not trigger the rule as by default this rule is
+  # disabled for bigquery
   # https://github.com/sqlfluff/sqlfluff/issues/1503
   pass_str: |
     SELECT column.field
