@@ -272,7 +272,7 @@ class DbtTemplater(JinjaTemplater):
                             config=config,
                         )
                     else:
-                        templater_logger.warning(
+                        templater_logger.warning(  # pragma: no cover
                             "Dependent model %s not found in project. Skipping.",
                             dependent,
                         )
