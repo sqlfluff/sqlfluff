@@ -101,7 +101,7 @@ class LintedFile(NamedTuple):
             violations = [v for v in violations if not v.ignore]
             # Ignore any rules in the ignore mask
             if self.ignore_mask:
-                violations = self._ignore_masked_violations(violations)
+                violations = self.ignore_masked_violations(violations, self.ignore_mask)
         return violations
 
     @staticmethod
@@ -170,8 +170,9 @@ class LintedFile(NamedTuple):
                 result.append(v)
         return result
 
-    def _ignore_masked_violations(
-        self, violations: List[SQLBaseError]
+    @classmethod
+    def ignore_masked_violations(
+        cls, violations: List[SQLBaseError], ignore_mask: List[NoQaDirective]
     ) -> List[SQLBaseError]:
         """Remove any violations specified by ignore_mask.
 
@@ -179,12 +180,12 @@ class LintedFile(NamedTuple):
         1. Filter out violations affected by single-line "noqa" directives.
         2. Filter out violations affected by disable/enable "noqa" directives.
         """
-        ignore_specific = [ignore for ignore in self.ignore_mask if not ignore.action]
-        ignore_range = [ignore for ignore in self.ignore_mask if ignore.action]
-        violations = self._ignore_masked_violations_single_line(
+        ignore_specific = [ignore for ignore in ignore_mask if not ignore.action]
+        ignore_range = [ignore for ignore in ignore_mask if ignore.action]
+        violations = cls._ignore_masked_violations_single_line(
             violations, ignore_specific
         )
-        violations = self._ignore_masked_violations_line_range(violations, ignore_range)
+        violations = cls._ignore_masked_violations_line_range(violations, ignore_range)
         return violations
 
     def num_violations(self, **kwargs) -> int:
