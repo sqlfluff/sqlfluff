@@ -227,11 +227,15 @@ class DbtTemplater(JinjaTemplater):
                 "please install dbt dependencies through `pip install sqlfluff[dbt]`"
             ) from e
 
-    def sequence_files(self, fnames: List[str], config=None):
+    def sequence_files(self, fnames: List[str], config=None, formatter=None):
         """Reorder fnames to process dependent files first.
 
         This avoids errors when an ephemeral model is processed before use.
         """
+        # Stash the formatter if provided to use in cached methods.
+        self.formatter = formatter
+
+        self._check_dbt_installed()
         if not config:  # pragma: no cover
             raise ValueError(
                 "For the dbt templater, the `sequence_files()` method requires a config object."
