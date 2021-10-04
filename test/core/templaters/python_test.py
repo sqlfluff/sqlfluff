@@ -224,12 +224,21 @@ def test__templater_python_slice_template(test, result):
     ],
 )
 def test__templater_python_split_invariants(
-    raw_sliced, literals, raw_occurrences, templated_occurrences, templated_length, result
+    raw_sliced,
+    literals,
+    raw_occurrences,
+    templated_occurrences,
+    templated_length,
+    result,
 ):
     """Test _split_invariants."""
     resp = list(
         PythonTemplater._split_invariants(
-            raw_sliced, literals, raw_occurrences, templated_occurrences, templated_length
+            raw_sliced,
+            literals,
+            raw_occurrences,
+            templated_occurrences,
+            templated_length,
         )
     )
     # check result
