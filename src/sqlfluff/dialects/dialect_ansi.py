@@ -929,6 +929,26 @@ class FunctionNameSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
+class DatePartClause(BaseSegment):
+    """DatePart clause for use within DATEADD() or related functions."""
+
+    type = "date_part"
+
+    match_grammar = OneOf(
+        "DAY",
+        "DAYOFYEAR",
+        "HOUR",
+        "MINUTE",
+        "MONTH",
+        "QUARTER",
+        "SECOND",
+        "WEEK",
+        "WEEKDAY",
+        "YEAR",
+    )
+
+
+@ansi_dialect.segment()
 class FunctionSegment(BaseSegment):
     """A scalar or aggregate function.
 
@@ -939,19 +959,42 @@ class FunctionSegment(BaseSegment):
     """
 
     type = "function"
-    match_grammar = Sequence(
+    match_grammar = OneOf(
         Sequence(
-            Ref("FunctionNameSegment"),
-            Bracketed(
-                Ref(
-                    "FunctionContentsGrammar",
-                    # The brackets might be empty for some functions...
-                    optional=True,
-                    ephemeral_name="FunctionContentsGrammar",
-                )
-            ),
+            Sequence(
+                Ref("DateAddFunctionNameSegment"),
+                Bracketed(
+                    Delimited(
+                        Ref("DatePartClause"),
+                        Ref(
+                            "FunctionContentsGrammar",
+                            # The brackets might be empty for some functions...
+                            optional=True,
+                            ephemeral_name="FunctionContentsGrammar",
+                        ),
+                    )
+                ),
+            )
         ),
-        Ref("PostFunctionGrammar", optional=True),
+        Sequence(
+            Sequence(
+                AnyNumberOf(
+                    Ref("FunctionNameSegment"),
+                    max_times=1,
+                    min_times=1,
+                    exclude=Ref("DateAddFunctionNameSegment"),
+                ),
+                Bracketed(
+                    Ref(
+                        "FunctionContentsGrammar",
+                        # The brackets might be empty for some functions...
+                        optional=True,
+                        ephemeral_name="FunctionContentsGrammar",
+                    )
+                ),
+            ),
+            Ref("PostFunctionGrammar", optional=True),
+        ),
     )
 
 
@@ -3079,3 +3122,15 @@ class DropSequenceStatementSegment(BaseSegment):
     type = "drop_sequence_statement"
 
     match_grammar = Sequence("DROP", "SEQUENCE", Ref("SequenceReferenceSegment"))
+
+
+@ansi_dialect.segment()
+class DateAddFunctionNameSegment(BaseSegment):
+    """DATEADD function name segment.
+
+    Need to be able to specify this as type function_name
+    so that linting rules identify it properly
+    """
+
+    type = "function_name"
+    match_grammar = Sequence("DATEADD")

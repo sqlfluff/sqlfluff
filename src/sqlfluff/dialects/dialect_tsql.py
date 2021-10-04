@@ -693,6 +693,22 @@ class FunctionSegment(BaseSegment):
     match_grammar = OneOf(
         Sequence(
             Sequence(
+                Ref("DateAddFunctionNameSegment"),
+                Bracketed(
+                    Delimited(
+                        Ref("DatePartClause"),
+                        Ref(
+                            "FunctionContentsGrammar",
+                            # The brackets might be empty for some functions...
+                            optional=True,
+                            ephemeral_name="FunctionContentsGrammar",
+                        ),
+                    )
+                ),
+            )
+        ),
+        Sequence(
+            Sequence(
                 Ref("ConvertFunctionNameSegment"),
                 Bracketed(
                     Delimited(
@@ -713,7 +729,10 @@ class FunctionSegment(BaseSegment):
                     Ref("FunctionNameSegment"),
                     max_times=1,
                     min_times=1,
-                    exclude=Ref("ConvertFunctionNameSegment"),
+                    exclude=OneOf(
+                        Ref("ConvertFunctionNameSegment"),
+                        Ref("DateAddFunctionNameSegment"),
+                    ),
                 ),
                 Bracketed(
                     Ref(
@@ -882,4 +901,49 @@ class CreateTableAsSelectStatementSegment(BaseSegment):
         Ref("TableDistributionIndexClause"),
         "AS",
         Ref("SelectableGrammar"),
+    )
+
+
+@tsql_dialect.segment(replace=True)
+class DatePartClause(BaseSegment):
+    """DatePart clause for use within DATEADD() or related functions."""
+
+    type = "date_part"
+
+    match_grammar = OneOf(
+        "D",
+        "DAY",
+        "DAYOFYEAR",
+        "DD",
+        "DW",
+        "DY",
+        "HH",
+        "HOUR",
+        "M",
+        "MCS",
+        "MI",
+        "MICROSECOND",
+        "MILLISECOND",
+        "MINUTE",
+        "MM",
+        "MONTH",
+        "MS",
+        "N",
+        "NANOSECOND",
+        "NS",
+        "Q",
+        "QQ",
+        "QUARTER",
+        "S",
+        "SECOND",
+        "SS",
+        "W",
+        "WEEK",
+        "WEEKDAY",
+        "WK",
+        "WW",
+        "YEAR",
+        "Y",
+        "YY",
+        "YYYY",
     )
