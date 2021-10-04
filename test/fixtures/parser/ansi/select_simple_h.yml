@@ -3,54 +3,44 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9ff344429c098e46e4d6b084a0e53051de43f6d7c1fb0e023ca1943ea4b0f781
+_hash: 702a7117b57ed73ac259d6bc9e110e4730066c3b75e3868db6bb6f6853b64004
 file:
   statement:
     select_statement:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          expression:
-            function:
-              function_name:
-                keyword: dateadd
-              bracketed:
-              - start_bracket: (
-              - expression:
-                  literal: "'day'"
-              - comma: ','
-              - expression:
-                  function:
-                    function_name:
-                      function_name_identifier: row_number
+          function:
+            function_name:
+              keyword: DATEADD
+            bracketed:
+            - start_bracket: (
+            - date_part:
+                keyword: DAY
+            - comma: ','
+            - expression:
+                function:
+                  function_name:
+                    function_name_identifier: ROW_NUMBER
+                  bracketed:
+                    start_bracket: (
+                    end_bracket: )
+                  over_clause:
+                    keyword: OVER
                     bracketed:
                       start_bracket: (
+                      window_specification:
+                        orderby_clause:
+                        - keyword: ORDER
+                        - keyword: BY
+                        - column_reference:
+                            identifier: DateCD
+                        - keyword: ASC
                       end_bracket: )
-                    over_clause:
-                      keyword: OVER
-                      bracketed:
-                        start_bracket: (
-                        window_specification:
-                          orderby_clause:
-                          - keyword: ORDER
-                          - keyword: BY
-                          - expression:
-                              function:
-                                function_name:
-                                  function_name_identifier: seq8
-                                bracketed:
-                                  start_bracket: (
-                                  end_bracket: )
-                          - keyword: asc
-                        end_bracket: )
-              - comma: ','
-              - expression:
-                  literal: "'2014-01-01'"
-              - end_bracket: )
-            cast_expression:
-              casting_operator: '::'
-              data_type:
-                data_type_identifier: date
+            - comma: ','
+            - expression:
+                literal: "'2014-01-01'"
+            - end_bracket: )
           alias_expression:
             keyword: AS
             identifier: dt

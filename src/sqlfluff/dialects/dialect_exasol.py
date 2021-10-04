@@ -3205,17 +3205,50 @@ class FunctionSegment(BaseSegment):
     """
 
     type = "function"
-    match_grammar = Sequence(
+    match_grammar = OneOf(
         Sequence(
-            Ref("FunctionNameSegment"),
-            Bracketed(
-                Ref(
-                    "FunctionContentsGrammar",
-                    # The brackets might be empty for some functions...
-                    optional=True,
-                    ephemeral_name="FunctionContentsGrammar",
-                )
+            Sequence(
+                Ref("DateAddFunctionNameSegment"),
+                Bracketed(
+                    Ref(
+                        "FunctionContentsGrammar",
+                        # The brackets might be empty for some functions...
+                        optional=True,
+                        ephemeral_name="FunctionContentsGrammar",
+                    ),
+                ),
             ),
+            Ref("PostFunctionGrammar", optional=True),
         ),
-        Ref("PostFunctionGrammar", optional=True),
+        Sequence(
+            Sequence(
+                AnyNumberOf(
+                    Ref("FunctionNameSegment"),
+                    max_times=1,
+                    min_times=1,
+                    exclude=Ref("DateAddFunctionNameSegment"),
+                ),
+                Bracketed(
+                    Ref(
+                        "FunctionContentsGrammar",
+                        # The brackets might be empty for some functions...
+                        optional=True,
+                        ephemeral_name="FunctionContentsGrammar",
+                    )
+                ),
+            ),
+            Ref("PostFunctionGrammar", optional=True),
+        ),
     )
+
+
+@exasol_dialect.segment(replace=True)
+class DateAddFunctionNameSegment(BaseSegment):
+    """DATEADD function name segment.
+
+    Need to be able to specify this as type function_name
+    so that linting rules identify it properly
+    """
+
+    type = "function_name"
+    match_grammar = Sequence("ADD_DAYS")
