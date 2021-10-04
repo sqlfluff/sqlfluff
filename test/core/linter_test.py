@@ -556,7 +556,7 @@ def test_linted_file_ignore_masked_violations(
         templated_file=TemplatedFile.from_string(""),
         encoding="utf8",
     )
-    result = lf._ignore_masked_violations(violations)
+    result = lf.ignore_masked_violations(violations, ignore_mask)
     expected_violations = [v for i, v in enumerate(violations) if i in expected]
     assert expected_violations == result
 

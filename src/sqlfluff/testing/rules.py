@@ -100,7 +100,7 @@ def assert_rule_pass_in_sql(code, sql, configs=None):
         pytest.fail(parsed.violations[0].desc() + "\n" + parsed.tree.stringify())
     print(f"Parsed:\n {parsed.tree.stringify()}")
     lerrs, _, _, _ = r.crawl(
-        parsed.tree, dialect=cfg.get("dialect_obj"), templated_file=rendered[0]
+        parsed.tree, [], dialect=cfg.get("dialect_obj"), templated_file=rendered[0]
     )
     print(f"Errors Found: {lerrs}")
     if any(v.rule.code == code for v in lerrs):

@@ -22,6 +22,7 @@ import re
 from typing import Optional, List, Tuple
 from collections import namedtuple
 
+from sqlfluff.core.linter import LintedFile
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.errors import SQLLintError
 from sqlfluff.core.templaters.base import TemplatedFile
@@ -76,7 +77,7 @@ class LintResult:
         # store a description_override for later
         self.description = description
 
-    def to_linting_error(self, rule):
+    def to_linting_error(self, rule) -> Optional[SQLLintError]:
         """Convert a linting result to a :exc:`SQLLintError` if appropriate."""
         if self.anchor:
             # Allow description override from the LintResult
@@ -263,6 +264,7 @@ class BaseRule:
     def crawl(
         self,
         segment,
+        ignore_mask,
         dialect,
         parent_stack=None,
         siblings_pre=None,
@@ -337,17 +339,29 @@ class BaseRule:
 
         new_lerrs = []
         new_fixes = []
+
+        def _process_lint_result(res):
+            self.discard_unsafe_fixes(res, templated_file)
+            lerr = res.to_linting_error(rule=self)
+            ignored = False
+            if lerr:
+                if ignore_mask:
+                    filtered = LintedFile.ignore_masked_violations([lerr], ignore_mask)
+                    if not filtered:
+                        lerr = None
+                        ignored = True
+            if lerr:
+                new_lerrs.append(lerr)
+            if not ignored:
+                new_fixes.extend(res.fixes)
+
         if res is None:
             # Assume this means no problems (also means no memory)
             pass
         elif isinstance(res, LintResult):
             # Extract any memory
             memory = res.memory
-            self.discard_unsafe_fixes(res, templated_file)
-            lerr = res.to_linting_error(rule=self)
-            if lerr:
-                new_lerrs = [lerr]
-            new_fixes = res.fixes
+            _process_lint_result(res)
         elif isinstance(res, list) and all(
             isinstance(elem, LintResult) for elem in res
         ):
@@ -355,11 +369,7 @@ class BaseRule:
             # it was the last to be added
             memory = res[-1].memory
             for elem in res:
-                self.discard_unsafe_fixes(elem, templated_file)
-                lerr = elem.to_linting_error(rule=self)
-                if lerr:
-                    new_lerrs.append(lerr)
-                new_fixes += elem.fixes
+                _process_lint_result(elem)
         else:  # pragma: no cover
             raise TypeError(
                 "Got unexpected result [{!r}] back from linting rule: {!r}".format(
@@ -385,6 +395,7 @@ class BaseRule:
         for idx, child in enumerate(segment.segments):
             dvs, raw_stack, child_fixes, memory = self.crawl(
                 segment=child,
+                ignore_mask=ignore_mask,
                 parent_stack=parent_stack,
                 siblings_pre=segment.segments[:idx],
                 siblings_post=segment.segments[idx + 1 :],
