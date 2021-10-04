@@ -191,6 +191,7 @@ snowflake_dialect.add(
             "&",
         ),
     ),
+    # We use a RegexParser instead of keywords as some (those with dashes) require quotes:
     WarehouseSize=RegexParser(
         r"(XSMALL|SMALL|MEDIUM|LARGE|XLARGE|XXLARGE|XXXLARGE|X4LARGE|X5LARGE|X6LARGE|"
         r"'X-SMALL'|'X-LARGE'|'XX-LARGE'|'XXX-LARGE'|'X4-LARGE'|'X5-LARGE'|'X6-LARGE')",
@@ -837,6 +838,7 @@ class AlterWarehouseStatementSegment(BaseSegment):
                 "SET",
                 OneOf(
                     Ref("WarehouseObjectPropertiesSegment"),
+                    Ref("CommentClauseSegment"),
                     Ref("WarehouseObjectParamsSegment"),
                 ),
             ),
@@ -929,6 +931,9 @@ class WarehouseObjectPropertiesSegment(BaseSegment):
 
     https://docs.snowflake.com/en/sql-reference/sql/create-warehouse.html
     https://docs.snowflake.com/en/sql-reference/sql/alter-warehouse.html
+
+    Note: comments are handled seperately so not incorrectly marked as
+    warehouse object.
     """
 
     type = "warehouse_object_properties"
@@ -984,11 +989,6 @@ class WarehouseObjectPropertiesSegment(BaseSegment):
             "RESOURCE_MONITOR",
             Ref("EqualsSegment"),
             Ref("NakedIdentifierSegment"),
-        ),
-        Sequence(
-            "COMMENT",
-            Ref("EqualsSegment"),
-            Ref("QuotedLiteralSegment"),
         ),
     )
 

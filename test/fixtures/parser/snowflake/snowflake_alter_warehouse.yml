@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3e7ec52913711eeed92af92f5bbd0bb76bfa33c59cc9e25c0595021f9ab07c29
+_hash: 26b983d1158e8b289da2c3be85e5c1685eedfc8a8f72970a52e6ad9a5c61730c
 file:
 - statement:
     alter_warehouse_statement:
@@ -121,7 +121,7 @@ file:
     - keyword: warehouse
     - identifier: LOAD_WH
     - keyword: set
-    - warehouse_object_properties:
+    - comment_clause:
         keyword: COMMENT
         comparison_operator: '='
         literal: "'This is a comment'"

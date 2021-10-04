@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 706012917530afd88b9ac23cedc4d7e883d1f6e655fe6181d19d8cce102f80dd
+_hash: 2e5c28f81135718a87d0810ee181cca5f7a4e11f418f25bc269b797d5434a8e8
 file:
   statement:
     create_statement:
@@ -11,7 +11,7 @@ file:
     - keyword: view
     - object_reference:
         identifier: another_view
-    - warehouse_object_properties:
+    - snowflake_comment:
         keyword: comment
         comparison_operator: '='
         literal: "'a great description'"
