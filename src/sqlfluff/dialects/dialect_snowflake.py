@@ -67,18 +67,26 @@ snowflake_dialect.sets("unreserved_keywords").update(
         "API",
         "AUTHORIZATIONS",
         "AUTO_INGEST",
+        "AUTO_REFRESH",
+        "AUTO_RESUME",
+        "AUTO_SUSPEND",
         "AVRO",
         "AWS_SNS_TOPIC",
         "BERNOULLI",
         "BLOCK",
         "CLONE",
         "DELEGATED",
+        "ECONOMY",
         "FILES",
         "FILE_FORMAT",
         "FORMAT_NAME",
         "HISTORY",
+        "INITIALLY_SUSPENDED",
         "LATERAL",
         "MASKING",
+        "MAX_CLUSTER_COUNT",
+        "MIN_CLUSTER_COUNT",
+        "MAX_CONCURRENCY_LEVEL",
         "NETWORK",
         "NEXTVAL",
         "NOTIFICATION",
@@ -89,18 +97,28 @@ snowflake_dialect.sets("unreserved_keywords").update(
         "PIPES",
         "POLICY",
         "QUERIES",
+        "REFRESH_ON_CREATE",
         "REGIONS",
         "REMOVE",
+        "RESOURCE_MONITOR",
         "RESUME",
         "SAMPLE",
+        "SCALING_POLICY",
         "SCHEDULE",
         "SECURE",
         "SEED",
         "SIZE_LIMIT",
+        "STANDARD",
+        "STATEMENT_QUEUED_TIMEOUT_IN_SECONDS",
+        "STATEMENT_TIMEOUT_IN_SECONDS",
         "SUSPEND",
+        "SUSPENDED",
+        "TAG",
         "TERSE",
-        "UNSET",
         "TABULAR",
+        "UNSET",
+        "WAIT_FOR_COMPLETION",
+        "WAREHOUSE_SIZE",
     ]
 )
 
@@ -174,6 +192,14 @@ snowflake_dialect.add(
             "$",
             "&",
         ),
+    ),
+    # We use a RegexParser instead of keywords as some (those with dashes) require quotes:
+    WarehouseSize=RegexParser(
+        r"(XSMALL|SMALL|MEDIUM|LARGE|XLARGE|XXLARGE|XXXLARGE|X4LARGE|X5LARGE|X6LARGE|"
+        r"'X-SMALL'|'X-LARGE'|'XX-LARGE'|'XXX-LARGE'|'X4-LARGE'|'X5-LARGE'|'X6-LARGE')",
+        CodeSegment,
+        name="warehouse_size",
+        type="identifier",
     ),
     DoubleQuotedLiteralSegment=NamedParser(
         "double_quote",
@@ -398,6 +424,8 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref("MergeStatementSegment"),
             Ref("AlterTableColumnStatementSegment"),
             Ref("CopyIntoStatementSegment"),
+            Ref("AlterWarehouseStatementSegment"),
+            Ref("CreateExternalTableSegment"),
         ],
         remove=[
             Ref("CreateTypeStatementSegment"),
@@ -770,6 +798,64 @@ class AlterTableColumnStatementSegment(BaseSegment):
     )
 
 
+@snowflake_dialect.segment()
+class AlterWarehouseStatementSegment(BaseSegment):
+    """An `ALTER WAREHOUSE` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-warehouse.html
+
+    """
+
+    type = "alter_warehouse_statement"
+    match_grammar = Sequence(
+        "ALTER",
+        "WAREHOUSE",
+        Sequence("IF", "EXISTS", optional=True),
+        OneOf(
+            Sequence(
+                Ref("NakedIdentifierSegment", optional=True),
+                OneOf(
+                    "SUSPEND",
+                    Sequence(
+                        "RESUME",
+                        Sequence("IF", "SUSPENDED", optional=True),
+                    ),
+                ),
+            ),
+            Sequence(
+                Ref("NakedIdentifierSegment", optional=True),
+                Sequence(
+                    "ABORT",
+                    "ALL",
+                    "QUERIES",
+                ),
+            ),
+            Sequence(
+                Ref("NakedIdentifierSegment"),
+                "RENAME",
+                "TO",
+                Ref("NakedIdentifierSegment"),
+            ),
+            Sequence(
+                Ref("NakedIdentifierSegment"),
+                "SET",
+                AnyNumberOf(
+                    Ref("WarehouseObjectPropertiesSegment"),
+                    Ref("CommentClauseSegment"),
+                    Ref("WarehouseObjectParamsSegment"),
+                ),
+            ),
+            Sequence(
+                Ref("NakedIdentifierSegment"),
+                "UNSET",
+                Delimited(
+                    Ref("NakedIdentifierSegment"),
+                ),
+            ),
+        ),
+    )
+
+
 @snowflake_dialect.segment(replace=True)
 class CommentClauseSegment(BaseSegment):
     """A comment clause.
@@ -843,6 +929,155 @@ class CreateCloneStatementSegment(BaseSegment):
 
 
 @snowflake_dialect.segment()
+class WarehouseObjectPropertiesSegment(BaseSegment):
+    """A snowflake Warehouse Object Properties segment.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-warehouse.html
+    https://docs.snowflake.com/en/sql-reference/sql/alter-warehouse.html
+
+    Note: comments are handled seperately so not incorrectly marked as
+    warehouse object.
+    """
+
+    type = "warehouse_object_properties"
+
+    match_grammar = AnyNumberOf(
+        Sequence(
+            "WAREHOUSE_SIZE",
+            Ref("EqualsSegment"),
+            Ref("WarehouseSize"),
+        ),
+        Sequence(
+            "WAIT_FOR_COMPLETION",
+            Ref("EqualsSegment"),
+            Ref("BooleanLiteralGrammar"),
+        ),
+        Sequence(
+            "MAX_CLUSTER_COUNT",
+            Ref("EqualsSegment"),
+            Ref("NumericLiteralSegment"),
+        ),
+        Sequence(
+            "MIN_CLUSTER_COUNT",
+            Ref("EqualsSegment"),
+            Ref("NumericLiteralSegment"),
+        ),
+        Sequence(
+            "SCALING_POLICY",
+            Ref("EqualsSegment"),
+            OneOf(
+                "STANDARD",
+                "ECONOMY",
+            ),
+        ),
+        Sequence(
+            "AUTO_SUSPEND",
+            Ref("EqualsSegment"),
+            OneOf(
+                Ref("NumericLiteralSegment"),
+                "NULL",
+            ),
+        ),
+        Sequence(
+            "AUTO_RESUME",
+            Ref("EqualsSegment"),
+            Ref("BooleanLiteralGrammar"),
+        ),
+        Sequence(
+            "INITIALLY_SUSPENDED",
+            Ref("EqualsSegment"),
+            Ref("BooleanLiteralGrammar"),
+        ),
+        Sequence(
+            "RESOURCE_MONITOR",
+            Ref("EqualsSegment"),
+            Ref("NakedIdentifierSegment"),
+        ),
+    )
+
+
+@snowflake_dialect.segment()
+class WarehouseObjectParamsSegment(BaseSegment):
+    """A snowflake Warehouse Object Param segment.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-warehouse.html
+    https://docs.snowflake.com/en/sql-reference/sql/alter-warehouse.html
+    """
+
+    type = "warehouse_object_properties"
+
+    match_grammar = AnyNumberOf(
+        Sequence(
+            "MAX_CONCURRENCY_LEVEL",
+            Ref("EqualsSegment"),
+            Ref("NumericLiteralSegment"),
+        ),
+        Sequence(
+            "STATEMENT_QUEUED_TIMEOUT_IN_SECONDS",
+            Ref("EqualsSegment"),
+            Ref("NumericLiteralSegment"),
+        ),
+        Sequence(
+            "STATEMENT_TIMEOUT_IN_SECONDS",
+            Ref("EqualsSegment"),
+            Ref("NumericLiteralSegment"),
+        ),
+        Sequence(
+            "TAG",
+            Delimited(
+                Sequence(
+                    Ref("NakedIdentifierSegment"),
+                    Ref("EqualsSegment"),
+                    Ref("QuotedLiteralSegment"),
+                )
+            ),
+        ),
+    )
+
+
+@snowflake_dialect.segment(replace=True)
+class CreateTableStatementSegment(BaseSegment):
+    """A `CREATE TABLE` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-table.html
+
+    Need to override ANSI as Snowflake puts the IfNotExistsGrammar
+    BEFORE and not AFTER the table name.
+    """
+
+    type = "create_table_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        Ref("TemporaryTransientGrammar", optional=True),
+        "TABLE",
+        Ref("TableReferenceSegment"),
+        Ref("IfNotExistsGrammar", optional=True),
+        OneOf(
+            # Columns and comment syntax:
+            Sequence(
+                Bracketed(
+                    Delimited(
+                        OneOf(
+                            Ref("TableConstraintSegment"),
+                            Ref("ColumnDefinitionSegment"),
+                        ),
+                    )
+                ),
+                Ref("CommentClauseSegment", optional=True),
+            ),
+            # Create AS syntax:
+            Sequence(
+                "AS",
+                OptionallyBracketed(Ref("SelectableGrammar")),
+            ),
+            # Create like syntax
+            Sequence("LIKE", Ref("TableReferenceSegment")),
+        ),
+    )
+
+
+@snowflake_dialect.segment()
 class CreateStatementSegment(BaseSegment):
     """A snowflake `CREATE` statement.
 
@@ -864,7 +1099,6 @@ class CreateStatementSegment(BaseSegment):
             Sequence("NOTIFICATION", "INTEGRATION"),
             Sequence("SECURITY", "INTEGRATION"),
             Sequence("STORAGE", "INTEGRATION"),
-            Sequence("EXTERNAL", "TABLE"),
             "VIEW",
             Sequence("MATERIALIZED", "VIEW"),
             Sequence("SECURE", "VIEW"),
@@ -876,7 +1110,6 @@ class CreateStatementSegment(BaseSegment):
             # Objects that also support clone
             "DATABASE",
             "SCHEMA",
-            "TABLE",
             "SEQUENCE",
             Sequence("FILE", "FORMAT"),
             "STAGE",
@@ -890,7 +1123,7 @@ class CreateStatementSegment(BaseSegment):
             Sequence(
                 "AUTO_INGEST",
                 Ref("EqualsSegment"),
-                OneOf("TRUE", "FALSE"),
+                Ref("BooleanLiteralGrammar"),
                 optional=True,
             ),
             Sequence(
@@ -904,6 +1137,15 @@ class CreateStatementSegment(BaseSegment):
                 Ref("EqualsSegment"),
                 Ref("QuotedLiteralSegment"),
                 optional=True,
+            ),
+            optional=True,
+        ),
+        # Next are WAREHOUSE options https://docs.snowflake.com/en/sql-reference/sql/create-warehouse.html
+        Sequence(
+            Sequence("WITH", optional=True),
+            AnyNumberOf(
+                Ref("WarehouseObjectPropertiesSegment"),
+                Ref("WarehouseObjectParamsSegment"),
             ),
             optional=True,
         ),
@@ -927,6 +1169,153 @@ class CreateStatementSegment(BaseSegment):
             ),
             Ref("CopyIntoStatementSegment"),
             optional=True,
+        ),
+    )
+
+
+@snowflake_dialect.segment()
+class CreateExternalTableSegment(BaseSegment):
+    """A snowflake `CREATE EXTERNAL TABLE` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-external-table.html
+    """
+
+    type = "create_external_table_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Sequence("OR", "REPLACE", optional=True),
+        "EXTERNAL",
+        "TABLE",
+        Sequence("IF", "NOT", "EXISTS", optional=True),
+        Ref("TableReferenceSegment"),
+        # Columns:
+        Sequence(
+            Bracketed(
+                Delimited(
+                    OneOf(
+                        Ref("TableConstraintSegment"),
+                        Ref("ColumnDefinitionSegment"),
+                    ),
+                ),
+            ),
+            optional=True,
+        ),
+        AnyNumberOf(
+            Sequence(
+                "PARTITION",
+                "BY",
+                Delimited(
+                    Ref("SingleIdentifierGrammar"),
+                ),
+                optional=True,
+            ),
+            Sequence(
+                Sequence("WITH", optional=True),
+                "LOCATION",
+                Ref("EqualsSegment"),
+                Ref("AtSignLiteralSegment"),
+                Bracketed(
+                    Ref("NakedIdentifierSegment"),
+                    Ref("DotSegment"),
+                    bracket_type="square",
+                    optional=True,
+                ),
+                AnyNumberOf(
+                    Ref("NakedIdentifierSegment"),
+                    Ref("DivideSegment"),
+                    allow_gaps=False,
+                ),
+                optional=True,
+            ),
+            Sequence(
+                "REFRESH_ON_CREATE",
+                Ref("EqualsSegment"),
+                Ref("BooleanLiteralGrammar"),
+                optional=True,
+            ),
+            Sequence(
+                "AUTO_REFRESH",
+                Ref("EqualsSegment"),
+                Ref("BooleanLiteralGrammar"),
+                optional=True,
+            ),
+            Sequence(
+                "PATTERN",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+                optional=True,
+            ),
+            Sequence(
+                "FILE_FORMAT",
+                Ref("EqualsSegment"),
+                Bracketed(
+                    OneOf(
+                        Sequence(
+                            "FORMAT_NAME",
+                            Ref("EqualsSegment"),
+                            Ref("QuotedLiteralSegment"),
+                        ),
+                        Sequence(
+                            "TYPE",
+                            Ref("EqualsSegment"),
+                            OneOf(
+                                "CSV",
+                                "JSON",
+                                "AVRO",
+                                "ORC",
+                                "PARQUET",
+                                "XML",
+                                Ref("QuotedLiteralSegment"),
+                            ),
+                            AnyNumberOf(
+                                # formatTypeOptions - To Do to make this more specific
+                                Ref("NakedIdentifierSegment"),
+                                Ref("EqualsSegment"),
+                                OneOf(
+                                    Ref("NakedIdentifierSegment"),
+                                    Ref("QuotedLiteralSegment"),
+                                    Bracketed(
+                                        Delimited(
+                                            Ref("QuotedLiteralSegment"),
+                                        )
+                                    ),
+                                ),
+                                optional=True,
+                            ),
+                        ),
+                    ),
+                ),
+                optional=True,
+            ),
+            Sequence(
+                "AWS_SNS_TOPIC",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+                optional=True,
+            ),
+            Sequence(
+                "COPY",
+                "GRANTS",
+                optional=True,
+            ),
+            Sequence(
+                Sequence("WITH", optional=True),
+                "ROW",
+                "ACCESS",
+                "POLICY",
+                Ref("NakedIdentifierSegment"),
+                optional=True,
+            ),
+            Sequence(
+                Sequence("WITH", optional=True),
+                "TAG",
+                Ref("NakedIdentifierSegment"),
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+                optional=True,
+            ),
+            Ref("CreateStatementCommentSegment", optional=True),
         ),
     )
 
@@ -1434,7 +1823,7 @@ class AlterTaskSpecialSetClauseSegment(BaseSegment):
             Sequence(
                 "ALLOW_OVERLAPPING_EXECUTION",
                 Ref("EqualsSegment"),
-                OneOf("TRUE", "FALSE"),
+                Ref("BooleanLiteralGrammar"),
                 optional=True,
             ),
             min_times=1,
