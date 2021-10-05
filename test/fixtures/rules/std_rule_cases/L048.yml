@@ -43,3 +43,17 @@ test_pass_bigquery_udf_triple_double_quote:
   configs:
     core:
       dialect: bigquery
+
+test_pass_tsql_unicode_singe_quote:
+  pass_str: "SELECT a + N'b' + N'c' FROM tbl;"
+
+  configs:
+    core:
+      dialect: tsql
+
+test_fails_tsql_unicode_singe_quote:
+  fail_str: "SELECT a + N'b' + N'c' FROM tbl;"
+
+  configs:
+    core:
+      dialect: ansi
