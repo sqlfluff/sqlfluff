@@ -3,6 +3,7 @@
 import os.path
 import logging
 import importlib.util
+import re
 from typing import Iterator, Tuple, Optional
 
 from jinja2.sandbox import SandboxedEnvironment
@@ -53,7 +54,7 @@ class JinjaTemplater(PythonTemplater):
     def _extract_macros_from_path(cls, path, env, ctx):
         """Take a path and extract macros from it."""
         # Does the path exist? It should as this check was done on config load.
-        if not os.path.exists(path):
+        if not os.path.exists(path):  # pragma: no cover
             raise ValueError(f"Path does not exist: {path}")
 
         macro_ctx = {}
@@ -84,7 +85,7 @@ class JinjaTemplater(PythonTemplater):
             loaded_context = (
                 config.get_section((self.templater_selector, self.name, "macros")) or {}
             )
-        else:
+        else:  # pragma: no cover TODO?
             loaded_context = {}
 
         # Iterate to load macros
@@ -130,7 +131,7 @@ class JinjaTemplater(PythonTemplater):
             schema = "this_schema"
             database = "this_database"
 
-            def __str__(self):
+            def __str__(self):  # pragma: no cover TODO?
                 return self.name
 
         dbt_builtins = {
@@ -193,7 +194,7 @@ class JinjaTemplater(PythonTemplater):
             formatter (:obj:`CallbackFormatter`): Optional object for output.
 
         """
-        if not config:
+        if not config:  # pragma: no cover
             raise ValueError(
                 "For the jinja templater, the `process()` method requires a config object."
             )
@@ -257,7 +258,7 @@ class JinjaTemplater(PythonTemplater):
         try:
             syntax_tree = env.parse(in_str)
             undefined_variables = meta.find_undeclared_variables(syntax_tree)
-        except Exception as err:
+        except Exception as err:  # pragma: no cover
             # TODO: Add a url here so people can get more help.
             raise SQLTemplaterError(f"Failure in identifying Jinja variables: {err}.")
 
@@ -300,6 +301,9 @@ class JinjaTemplater(PythonTemplater):
             )
             return None, violations
 
+    re_open_tag = re.compile(r"^\s*{%[\+\-]?\s*")
+    re_close_tag = re.compile(r"\s*[\+\-]?%}\s*$")
+
     @classmethod
     def _slice_template(cls, in_str: str) -> Iterator[RawFileSlice]:
         """Slice template in jinja.
@@ -324,8 +328,9 @@ class JinjaTemplater(PythonTemplater):
             "raw_end": "block",
             "raw_begin": "block",
         }
+
         # https://jinja.palletsprojects.com/en/2.11.x/api/#jinja2.Environment.lex
-        for _, elem_type, raw in env.lex(in_str):
+        for _, elem_type, raw in env.lex(cls._preprocess_template(in_str)):
             if elem_type == "data":
                 yield RawFileSlice(raw, "literal", idx)
                 idx += len(raw)
@@ -336,10 +341,17 @@ class JinjaTemplater(PythonTemplater):
             # parts of the tag at a time.
             if elem_type.endswith("_end") or elem_type == "raw_begin":
                 block_type = block_types[elem_type]
+                block_subtype = None
                 # Handle starts and ends of blocks
                 if block_type == "block":
                     # Trim off the brackets and then the whitespace
-                    trimmed_content = str_buff[2:-2].strip()
+                    m_open = cls.re_open_tag.search(str_buff)
+                    m_close = cls.re_close_tag.search(str_buff)
+                    trimmed_content = ""
+                    if m_open and m_close:
+                        trimmed_content = str_buff[
+                            len(m_open.group(0)) : -len(m_close.group(0))
+                        ]
                     if trimmed_content.startswith("end"):
                         block_type = "block_end"
                     elif trimmed_content.startswith("el"):
@@ -347,6 +359,24 @@ class JinjaTemplater(PythonTemplater):
                         block_type = "block_mid"
                     else:
                         block_type = "block_start"
-                yield RawFileSlice(str_buff, block_type, idx)
+                        if trimmed_content.split()[0] == "for":
+                            block_subtype = "loop"
+                yield RawFileSlice(str_buff, block_type, idx, block_subtype)
                 idx += len(str_buff)
                 str_buff = ""
+
+    @classmethod
+    def _preprocess_template(cls, in_str: str) -> str:
+        """Does any preprocessing of the template required before expansion."""
+        # Using Jinja whitespace stripping (e.g. `{%-` or `-%}`) breaks the
+        # position markers between unlexed and lexed file. So let's ignore any
+        # request to do that before lexing, by replacing '-' with '+'
+        #
+        # Note: '+' is the default, so shouldn't really be needed but we
+        # explicitly state that to preserve the space for the missing '-' character
+        # so it looks the same.
+        in_str = in_str.replace("{%-", "{%+")
+        in_str = in_str.replace("-%}", "+%}")
+        in_str = in_str.replace("{#-", "{#+")
+        in_str = in_str.replace("-#}", "+#}")
+        return in_str

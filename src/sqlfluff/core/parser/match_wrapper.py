@@ -51,7 +51,7 @@ def match_wrapper(v_level=3):
             name = getattr(self_cls, "__name__", self_cls.__class__.__name__)
 
             # Validate result
-            if not isinstance(m, MatchResult):
+            if not isinstance(m, MatchResult):  # pragma: no cover
                 parse_context.logger.warning(
                     f"{name}.match, returned {type(m)} rather than MatchResult"
                 )

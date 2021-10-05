@@ -14,24 +14,26 @@ should flag on the segment FOLLOWING, the place that the desired element is
 missing.
 """
 
+import bdb
 import copy
 import logging
 import pathlib
 import re
-from typing import Optional, List, Tuple, TYPE_CHECKING
+from typing import Optional, List, Tuple
 from collections import namedtuple
 
+from sqlfluff.core.linter import LintedFile
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.errors import SQLLintError
-
-if TYPE_CHECKING:
-    from sqlfluff.core.templaters import TemplatedFile
+from sqlfluff.core.templaters.base import TemplatedFile
 
 # The ghost of a rule (mostly used for testing)
 RuleGhost = namedtuple("RuleGhost", ["code", "description"])
 
 # Instantiate the rules logger
 rules_logger = logging.getLogger("sqlfluff.rules")
+
+linter_logger: logging.Logger = logging.getLogger("sqlfluff.linter")
 
 
 class RuleLoggingAdapter(logging.LoggerAdapter):
@@ -75,7 +77,7 @@ class LintResult:
         # store a description_override for later
         self.description = description
 
-    def to_linting_error(self, rule):
+    def to_linting_error(self, rule) -> Optional[SQLLintError]:
         """Convert a linting result to a :exc:`SQLLintError` if appropriate."""
         if self.anchor:
             # Allow description override from the LintResult
@@ -109,10 +111,10 @@ class LintFix:
     """
 
     def __init__(self, edit_type, anchor: BaseSegment, edit=None):
-        if edit_type not in ["create", "edit", "delete"]:
+        if edit_type not in ["create", "edit", "delete"]:  # pragma: no cover
             raise ValueError(f"Unexpected edit_type: {edit_type}")
         self.edit_type = edit_type
-        if not anchor:
+        if not anchor:  # pragma: no cover
             raise ValueError("Fixes must provide an anchor.")
         self.anchor = anchor
         # Coerce to list
@@ -151,12 +153,12 @@ class LintFix:
         """
         if self.edit_type == "create":
             if isinstance(self.edit, BaseSegment):
-                if len(self.edit.raw) == 0:
+                if len(self.edit.raw) == 0:  # pragma: no cover TODO?
                     return True
             elif all(len(elem.raw) == 0 for elem in self.edit):
                 return True
         elif self.edit_type == "edit" and self.edit == self.anchor:
-            return True
+            return True  # pragma: no cover TODO?
         return False
 
     def __repr__(self):
@@ -164,7 +166,7 @@ class LintFix:
             detail = f"delete:{self.anchor.raw!r}"
         elif self.edit_type in ("edit", "create"):
             if hasattr(self.edit, "raw"):
-                new_detail = self.edit.raw
+                new_detail = self.edit.raw  # pragma: no cover TODO?
             else:
                 new_detail = "".join(s.raw for s in self.edit)
 
@@ -173,7 +175,7 @@ class LintFix:
             else:
                 detail = f"create:{new_detail!r}"
         else:
-            detail = ""
+            detail = ""  # pragma: no cover TODO?
         return "<LintFix: {} @{} {}>".format(
             self.edit_type, self.anchor.pos_marker, detail
         )
@@ -191,7 +193,7 @@ class LintFix:
             return False
         if not self.edit == other.edit:
             return False
-        return True
+        return True  # pragma: no cover TODO?
 
 
 class BaseRule:
@@ -205,6 +207,7 @@ class BaseRule:
 
     """
 
+    _check_docstring = True
     _works_on_unparsable = True
     targets_templated = False
 
@@ -233,7 +236,7 @@ class BaseRule:
         except AttributeError:
             self.logger.info(f"No config_keywords defined for {code}")
 
-    def _eval(self, **kwargs):
+    def _eval(self, **kwargs):  # pragma: no cover
         """Evaluate this rule against the current context.
 
         This should indicate whether a linting violation has occurred and/or
@@ -261,6 +264,7 @@ class BaseRule:
     def crawl(
         self,
         segment,
+        ignore_mask,
         dialect,
         parent_stack=None,
         siblings_pre=None,
@@ -308,6 +312,8 @@ class BaseRule:
                 path=pathlib.Path(fname) if fname else None,
                 templated_file=templated_file,
             )
+        except (bdb.BdbQuit, KeyboardInterrupt):  # pragma: no cover
+            raise
         # Any exception at this point would halt the linter and
         # cause the user to get no results
         except Exception as e:
@@ -333,16 +339,29 @@ class BaseRule:
 
         new_lerrs = []
         new_fixes = []
+
+        def _process_lint_result(res):
+            self.discard_unsafe_fixes(res, templated_file)
+            lerr = res.to_linting_error(rule=self)
+            ignored = False
+            if lerr:
+                if ignore_mask:
+                    filtered = LintedFile.ignore_masked_violations([lerr], ignore_mask)
+                    if not filtered:
+                        lerr = None
+                        ignored = True
+            if lerr:
+                new_lerrs.append(lerr)
+            if not ignored:
+                new_fixes.extend(res.fixes)
+
         if res is None:
             # Assume this means no problems (also means no memory)
             pass
         elif isinstance(res, LintResult):
             # Extract any memory
             memory = res.memory
-            lerr = res.to_linting_error(rule=self)
-            if lerr:
-                new_lerrs = [lerr]
-            new_fixes = res.fixes
+            _process_lint_result(res)
         elif isinstance(res, list) and all(
             isinstance(elem, LintResult) for elem in res
         ):
@@ -350,11 +369,8 @@ class BaseRule:
             # it was the last to be added
             memory = res[-1].memory
             for elem in res:
-                lerr = elem.to_linting_error(rule=self)
-                if lerr:
-                    new_lerrs.append(lerr)
-                new_fixes += elem.fixes
-        else:
+                _process_lint_result(elem)
+        else:  # pragma: no cover
             raise TypeError(
                 "Got unexpected result [{!r}] back from linting rule: {!r}".format(
                     res, self.code
@@ -379,6 +395,7 @@ class BaseRule:
         for idx, child in enumerate(segment.segments):
             dvs, raw_stack, child_fixes, memory = self.crawl(
                 segment=child,
+                ignore_mask=ignore_mask,
                 parent_stack=parent_stack,
                 siblings_pre=segment.segments[:idx],
                 siblings_post=segment.segments[idx + 1 :],
@@ -407,7 +424,7 @@ class BaseRule:
         return tuple(buff)
 
     @classmethod
-    def get_parent_of(cls, segment, root_segment):
+    def get_parent_of(cls, segment, root_segment):  # pragma: no cover TODO?
         """Return the segment immediately containing segment.
 
         NB: This is recursive.
@@ -439,6 +456,58 @@ class BaseRule:
         elif seg.is_type(*[elem[1] for elem in target_tuples if elem[0] == "type"]):
             return True
         return False
+
+    @staticmethod
+    def discard_unsafe_fixes(
+        lint_result: LintResult, templated_file: Optional[TemplatedFile]
+    ):
+        """Remove (discard) LintResult fixes if they are "unsafe".
+
+        By removing its fixes, a LintResult will still be reported, but it
+        will be treated as _unfixable_.
+        """
+        if not lint_result.fixes or not templated_file:
+            return
+
+        # Get the set of slices touched by any of the fixes.
+        fix_slices = set()
+        for fix in lint_result.fixes:
+            if fix.anchor:
+                fix_slices.update(
+                    templated_file.raw_slices_spanning_source_slice(
+                        fix.anchor.pos_marker.source_slice
+                    )
+                )
+
+        # Compute the set of block IDs affected by the fixes. If it's more than
+        # one, discard the fixes. Rationale: Fixes that span block boundaries
+        # may corrupt the file, e.g. by moving code in or out of a template
+        # loop.
+        block_info = templated_file.raw_slice_block_info
+        fix_block_ids = set(block_info.block_ids[slice_] for slice_ in fix_slices)
+        if len(fix_block_ids) > 1:
+            linter_logger.info(
+                "      * Discarding fixes that span blocks: %s",
+                lint_result.fixes,
+            )
+            lint_result.fixes = []
+            return
+
+        # If the fixes touch a literal-only loop, discard the fixes.
+        # Rationale: Fixes to a template loop that contains only literals are:
+        # - Difficult to correctly back to source code, so there's a risk of
+        #   accidentally "expanding" the loop body if we apply them.
+        # - Highly unusual (In practice, templated loops in SQL are usually for
+        #   expanding the same code using different column names, types, etc.,
+        #   in which case the loop body contains template variables.
+        for block_id in fix_block_ids:
+            if block_id in block_info.literal_only_loops:
+                linter_logger.info(
+                    "      * Discarding fixes to literal-only loop: %s",
+                    lint_result.fixes,
+                )
+                lint_result.fixes = []
+                return
 
 
 class RuleSet:
@@ -533,7 +602,7 @@ class RuleSet:
         """
         rule_name_match = self.valid_rule_name_regex.match(cls.__name__)
         # Validate the name
-        if not rule_name_match:
+        if not rule_name_match:  # pragma: no cover
             raise ValueError(
                 (
                     "Tried to register rule on set {!r} with unexpected "
@@ -550,7 +619,7 @@ class RuleSet:
             code = f"{plugin_name}_{code}"
 
         # Keep track of the *class* in the register. Don't instantiate yet.
-        if code in self._register:
+        if code in self._register:  # pragma: no cover
             raise ValueError(
                 "Rule {!r} has already been registered on RuleSet {!r}!".format(
                     code, self.name
@@ -590,7 +659,7 @@ class RuleSet:
         blacklisted_unknown_rule_codes = [
             r for r in blacklist if r not in self._register
         ]
-        if any(blacklisted_unknown_rule_codes):
+        if any(blacklisted_unknown_rule_codes):  # pragma: no cover
             rules_logger.warning(
                 "Tried to blacklist unknown rules: {!r}".format(
                     blacklisted_unknown_rule_codes

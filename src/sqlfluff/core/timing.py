@@ -20,7 +20,7 @@ class TimingSummary:
     def summary(self) -> Dict[str, Dict[str, float]]:
         """Generate a summary for display."""
         vals: Dict[str, List[float]] = defaultdict(list)
-        if not self.steps:
+        if not self.steps:  # pragma: no cover
             return {}
 
         for timing_dict in self._timings:

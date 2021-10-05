@@ -8,6 +8,7 @@ import json
 import oyaml as yaml
 import subprocess
 import chardet
+import sys
 
 # Testing libraries
 import pytest
@@ -19,7 +20,12 @@ from sqlfluff.cli.commands import lint, version, rules, fix, parse, dialects
 
 
 def invoke_assert_code(
-    ret_code=0, args=None, kwargs=None, cli_input=None, mix_stderr=True
+    ret_code=0,
+    args=None,
+    kwargs=None,
+    cli_input=None,
+    mix_stderr=True,
+    output_contains="",
 ):
     """Invoke a command and check return code."""
     args = args or []
@@ -31,6 +37,8 @@ def invoke_assert_code(
     # Output the CLI code for debugging
     print(result.output)
     # Check return codes
+    if output_contains != "":
+        assert output_contains in result.output
     if ret_code == 0:
         if result.exception:
             raise result.exception
@@ -40,7 +48,7 @@ def invoke_assert_code(
 
 expected_output = """== [test/fixtures/linter/indentation_error_simple.sql] FAIL
 L:   2 | P:   4 | L003 | Indentation not hanging or a multiple of 4 spaces
-L:   5 | P:  10 | L010 | Inconsistent capitalisation of keywords.
+L:   5 | P:  10 | L010 | Keywords must be consistently upper case.
 L:   5 | P:  13 | L031 | Avoid using aliases in join condition
 """
 
@@ -138,6 +146,8 @@ def test__cli__command_lint_stdin(command):
         # Check the profiler and benching commands
         (parse, ["-n", "test/fixtures/cli/passing_b.sql", "--profiler"]),
         (parse, ["-n", "test/fixtures/cli/passing_b.sql", "--bench"]),
+        (lint, ["-n", "test/fixtures/cli/passing_b.sql", "--bench"]),
+        (fix, ["-n", "test/fixtures/cli/passing_b.sql", "--bench"]),
         # Check linting works in specifying rules
         (lint, ["-n", "--rules", "L001", "test/fixtures/linter/operator_errors.sql"]),
         # Check linting works in specifying multiple rules
@@ -167,30 +177,6 @@ def test__cli__command_lint_stdin(command):
                 "test/fixtures/linter/operator_errors.sql",
             ],
         ),
-        # Check the script doesn't raise an unexpected exception with badly formed files.
-        (fix, ["--rules", "L001", "test/fixtures/cli/fail_many.sql", "-vvvvvvv"], "y"),
-        # Fix with a suffixs
-        (
-            fix,
-            [
-                "--rules",
-                "L001",
-                "--fixed-suffix",
-                "_fix",
-                "test/fixtures/cli/fail_many.sql",
-            ],
-            "y",
-        ),
-        # Fix without specifying rules
-        (
-            fix,
-            [
-                "--fixed-suffix",
-                "_fix",
-                "test/fixtures/cli/fail_many.sql",
-            ],
-            "y",
-        ),
         # Check that ignoring works (also checks that unicode files parse).
         (
             lint,
@@ -210,6 +196,53 @@ def test__cli__command_lint_stdin(command):
 def test__cli__command_lint_parse(command):
     """Check basic commands on a more complicated script."""
     invoke_assert_code(args=command)
+
+
+@pytest.mark.parametrize(
+    "command, ret_code",
+    [
+        # Check the script doesn't raise an unexpected exception with badly formed files.
+        (
+            (
+                fix,
+                ["--rules", "L001", "test/fixtures/cli/fail_many.sql", "-vvvvvvv"],
+                "y",
+            ),
+            1,
+        ),
+        # Fix with a suffixs
+        (
+            (
+                fix,
+                [
+                    "--rules",
+                    "L001",
+                    "--fixed-suffix",
+                    "_fix",
+                    "test/fixtures/cli/fail_many.sql",
+                ],
+                "y",
+            ),
+            1,
+        ),
+        # Fix without specifying rules
+        (
+            (
+                fix,
+                [
+                    "--fixed-suffix",
+                    "_fix",
+                    "test/fixtures/cli/fail_many.sql",
+                ],
+                "y",
+            ),
+            1,
+        ),
+    ],
+)
+def test__cli__command_lint_parse_with_retcode(command, ret_code):
+    """Check commands expecting a non-zero ret code."""
+    invoke_assert_code(ret_code=ret_code, args=command)
 
 
 def test__cli__command_lint_warning_explicit_file_ignored():
@@ -404,17 +437,60 @@ def test__cli__command_fix_stdin_safety():
 
 
 @pytest.mark.parametrize(
-    "rule,fname,prompt,exit_code",
+    "sql,exit_code,params,output_contains",
     [
-        ("L001", "test/fixtures/linter/indentation_errors.sql", "y", 0),
-        ("L001", "test/fixtures/linter/indentation_errors.sql", "n", 65),
+        (
+            "create TABLE {{ params.dsfsdfds }}.t (a int)",
+            1,
+            "-v",
+            "Fix aborted due to unparseable template variables.",
+        ),  # template error
+        ("create TABLE a.t (a int)", 0, "", ""),  # fixable error
+        ("create table a.t (a int)", 0, "", ""),  # perfection
+        (
+            "select col from a join b using (c)",
+            1,
+            "-v",
+            "Unfixable violations detected.",
+        ),  # unfixable error (using)
     ],
 )
-def test__cli__command__fix_no_force(rule, fname, prompt, exit_code):
+def test__cli__command_fix_stdin_error_exit_code(
+    sql, exit_code, params, output_contains
+):
+    """Check that the CLI fails nicely if fixing a templated stdin."""
+    if exit_code == 0:
+        invoke_assert_code(
+            args=[fix, ("-")],
+            cli_input=sql,
+        )
+    else:
+        with pytest.raises(SystemExit) as exc_info:
+            invoke_assert_code(
+                args=[fix, (params, "-")],
+                cli_input=sql,
+                output_contains=output_contains,
+            )
+        assert exc_info.value.args[0] == exit_code
+
+
+@pytest.mark.parametrize(
+    "rule,fname,prompt,exit_code,fix_exit_code",
+    [
+        ("L001", "test/fixtures/linter/indentation_errors.sql", "y", 0, 0),
+        ("L001", "test/fixtures/linter/indentation_errors.sql", "n", 65, 1),
+    ],
+)
+def test__cli__command__fix_no_force(rule, fname, prompt, exit_code, fix_exit_code):
     """Round trip test, using the prompts."""
     with open(fname) as test_file:
         generic_roundtrip_test(
-            test_file, rule, force=False, final_exit_code=exit_code, fix_input=prompt
+            test_file,
+            rule,
+            force=False,
+            final_exit_code=exit_code,
+            fix_input=prompt,
+            fix_exit_code=fix_exit_code,
         )
 
 
@@ -453,13 +529,13 @@ def test__cli__command_parse_serialize_from_stdin(serialize):
                             "code": "L010",
                             "line_no": 1,
                             "line_pos": 1,
-                            "description": "Inconsistent capitalisation of keywords.",
+                            "description": "Keywords must be consistently upper case.",
                         },
                         {
                             "code": "L010",
                             "line_no": 1,
                             "line_pos": 10,
-                            "description": "Inconsistent capitalisation of keywords.",
+                            "description": "Keywords must be consistently upper case.",
                         },
                     ],
                 }
@@ -567,8 +643,7 @@ def test__cli__command_lint_serialize_github_annotation():
                 "test/fixtures/linter/identifier_capitalisation.sql"
             ),
             "line": 3,
-            "message": "L012: Implicit aliasing of column not allowed. Use explicit `AS` "
-            "clause.",
+            "message": "L012: Implicit/explicit aliasing of columns.",
             "start_column": 5,
             "end_column": 5,
             "title": "SQLFluff",
@@ -580,7 +655,7 @@ def test__cli__command_lint_serialize_github_annotation():
                 "test/fixtures/linter/identifier_capitalisation.sql"
             ),
             "line": 3,
-            "message": "L014: Inconsistent capitalisation of unquoted identifiers.",
+            "message": "L014: Unquoted identifiers must be consistently lower case.",
             "start_column": 5,
             "end_column": 5,
             "title": "SQLFluff",
@@ -592,7 +667,7 @@ def test__cli__command_lint_serialize_github_annotation():
                 "test/fixtures/linter/identifier_capitalisation.sql"
             ),
             "line": 4,
-            "message": "L010: Inconsistent capitalisation of keywords.",
+            "message": "L010: Keywords must be consistently lower case.",
             "start_column": 1,
             "end_column": 1,
             "title": "SQLFluff",
@@ -604,7 +679,7 @@ def test__cli__command_lint_serialize_github_annotation():
                 "test/fixtures/linter/identifier_capitalisation.sql"
             ),
             "line": 4,
-            "message": "L014: Inconsistent capitalisation of unquoted identifiers.",
+            "message": "L014: Unquoted identifiers must be consistently lower case.",
             "start_column": 12,
             "end_column": 12,
             "title": "SQLFluff",
@@ -616,7 +691,7 @@ def test__cli__command_lint_serialize_github_annotation():
                 "test/fixtures/linter/identifier_capitalisation.sql"
             ),
             "line": 4,
-            "message": "L014: Inconsistent capitalisation of unquoted identifiers.",
+            "message": "L014: Unquoted identifiers must be consistently lower case.",
             "start_column": 18,
             "end_column": 18,
             "title": "SQLFluff",
@@ -627,7 +702,9 @@ def test__cli__command_lint_serialize_github_annotation():
 def test___main___help():
     """Test that the CLI can be access via __main__."""
     # nonzero exit is good enough
-    subprocess.check_output(["python", "-m", "sqlfluff", "--help"])
+    subprocess.check_output(
+        [sys.executable, "-m", "sqlfluff", "--help"], env=os.environ
+    )
 
 
 @pytest.mark.parametrize(

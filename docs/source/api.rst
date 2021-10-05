@@ -29,7 +29,7 @@ can import the :code:`Linter()` and :code:`FluffConfig()` classes from
 :code:`sqlfluff.core`. As of version 0.4.0 this is considered as
 *experimental only* as the internals may change without warning in any
 future release. If you come to rely on the internals of SQLFluff, please
-post an issue on github to share what you're up to. This will help shape
+post an issue on GitHub to share what you're up to. This will help shape
 a more reliable, tidy and well documented public API for use.
 
 .. automodule:: sqlfluff.core

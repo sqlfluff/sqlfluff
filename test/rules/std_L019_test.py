@@ -1,4 +1,4 @@
-"""Tests the python routines within L003."""
+"""Tests the python routines within L019."""
 
 import sqlfluff
 

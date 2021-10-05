@@ -1,0 +1,2 @@
+SELECT i, offset
+FROM UNNEST([1, 2, 3]) AS i WITH OFFSET

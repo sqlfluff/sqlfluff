@@ -9,7 +9,7 @@ from collections import namedtuple
 from sqlfluff.core.parser.helpers import join_segments_raw
 
 if TYPE_CHECKING:
-    from sqlfluff.core.parser.segments import BaseSegment
+    from sqlfluff.core.parser.segments import BaseSegment  # pragma: no cover
 
 
 class MatchResult(
@@ -72,14 +72,14 @@ class MatchResult(
 
         This allows comparison to tuples for testing.
         """
-        if isinstance(other, MatchResult):
+        if isinstance(other, MatchResult):  # pragma: no cover TODO?
             return (
                 self.matched_segments == other.matched_segments
                 and self.unmatched_segments == other.unmatched_segments
             )
-        elif isinstance(other, tuple):
+        elif isinstance(other, tuple):  # pragma: no cover TODO?
             return self.matched_segments == other
-        else:
+        else:  # pragma: no cover
             raise TypeError(f"Unexpected equality comparison: type: {type(other)}")
 
     @staticmethod
@@ -88,14 +88,14 @@ class MatchResult(
         # Is other iterable?
         try:
             iterator = iter(segs)
-        except TypeError:
+        except TypeError:  # pragma: no cover
             is_iterable = False
         else:
             is_iterable = True
 
         if is_iterable:
             return tuple(iterator)
-        else:
+        else:  # pragma: no cover TODO?
             # Blindly make into tuple here.
             return (segs,)
 
@@ -120,7 +120,7 @@ class MatchResult(
             return self.__class__(
                 matched_segments=self.matched_segments + other.matched_segments,
                 unmatched_segments=self.unmatched_segments,
-            )
+            )  # pragma: no cover TODO?
         else:
             return self.__class__(
                 matched_segments=self.matched_segments + self.seg_to_tuple(other),

@@ -1,4 +1,4 @@
-📜 The SQL Linter for humans
+📜 The SQL Linter for Humans
 ============================
 
 Bored of not having a good SQL linter that works with whichever dialect

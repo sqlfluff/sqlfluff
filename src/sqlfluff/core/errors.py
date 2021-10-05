@@ -62,11 +62,11 @@ class SQLBaseError(ValueError):
             return self.rule.description
         else:
             # Return the first element - probably a string message
-            if len(self.args) > 1:
+            if len(self.args) > 1:  # pragma: no cover TODO?
                 return self.args
             elif len(self.args) == 1:
                 return self.args[0]
-            else:
+            else:  # pragma: no cover TODO?
                 return self.__class__.__name__
 
     def get_info_dict(self):
@@ -84,7 +84,7 @@ class SQLBaseError(ValueError):
     def ignore_if_in(self, ignore_iterable):
         """Ignore this violation if it matches the iterable."""
         # Type conversion
-        if isinstance(ignore_iterable, str):
+        if isinstance(ignore_iterable, str):  # pragma: no cover TODO?
             ignore_iterable = []
         # Ignoring
         if self._identifier in ignore_iterable:

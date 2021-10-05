@@ -1,0 +1,128 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 0542922c0f23b3994d1068635810a4fefeee5036c5feb00bf0f5ddda08e6fc20
+file:
+  statement:
+    set_expression:
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              identifier: item
+        - comma: ','
+        - select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: RANK
+              bracketed:
+                start_bracket: (
+                end_bracket: )
+              over_clause:
+                keyword: OVER
+                bracketed:
+                  start_bracket: (
+                  window_specification:
+                    partitionby_clause:
+                    - keyword: PARTITION
+                    - keyword: BY
+                    - expression:
+                        column_reference:
+                          identifier: category
+                    orderby_clause:
+                    - keyword: ORDER
+                    - keyword: BY
+                    - column_reference:
+                        identifier: purchases
+                    - keyword: DESC
+                  end_bracket: )
+            alias_expression:
+              keyword: AS
+              identifier: rank
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: Produce
+        where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+            - identifier: Produce
+            - dot: .
+            - identifier: category
+            comparison_operator: '='
+            literal: "'vegetable'"
+        qualify_clause:
+          keyword: QUALIFY
+          expression:
+            column_reference:
+              identifier: rank
+            comparison_operator: <=
+            literal: '3'
+    - set_operator:
+      - keyword: UNION
+      - keyword: ALL
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              identifier: item
+        - comma: ','
+        - select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: RANK
+              bracketed:
+                start_bracket: (
+                end_bracket: )
+              over_clause:
+                keyword: OVER
+                bracketed:
+                  start_bracket: (
+                  window_specification:
+                    partitionby_clause:
+                    - keyword: PARTITION
+                    - keyword: BY
+                    - expression:
+                        column_reference:
+                          identifier: category
+                    orderby_clause:
+                    - keyword: ORDER
+                    - keyword: BY
+                    - column_reference:
+                        identifier: purchases
+                    - keyword: DESC
+                  end_bracket: )
+            alias_expression:
+              keyword: AS
+              identifier: rank
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: Produce
+        where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+            - identifier: Produce
+            - dot: .
+            - identifier: category
+            comparison_operator: '='
+            literal: "'vegetable'"
+        qualify_clause:
+          keyword: QUALIFY
+          expression:
+            column_reference:
+              identifier: rank
+            comparison_operator: <=
+            literal: '3'

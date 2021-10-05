@@ -69,6 +69,7 @@ teradata_dialect.sets("unreserved_keywords").update(
         "MACRO",
         "MAXINTERVALS",
         "MAXVALUELENGTH",
+        "MEETS",
         "MERGEBLOCKRATIO",
         "PERCENT",
         "PROFILE",
@@ -407,15 +408,15 @@ class ColumnDefinitionSegment(BaseSegment):
         Ref("DatatypeSegment"),  # Column type
         Bracketed(Anything(), optional=True),  # For types like VARCHAR(100)
         AnyNumberOf(
-            Ref("ColumnOptionSegment", optional=True),
+            Ref("ColumnConstraintSegment", optional=True),
             # Adding Teradata specific column definitions
-            Ref("TdColumnOptionSegment", optional=True),
+            Ref("TdColumnConstraintSegment", optional=True),
         ),
     )
 
 
 @teradata_dialect.segment()
-class TdColumnOptionSegment(BaseSegment):
+class TdColumnConstraintSegment(BaseSegment):
     """Teradata specific column attributes.
 
     e.g. CHARACTER SET LATIN | [NOT] (CASESPECIFIC|CS) | (UPPERCASE|UC)
@@ -718,7 +719,7 @@ class QualifyClauseSegment(BaseSegment):
     match_grammar = StartsWith(
         "QUALIFY",
         terminator=OneOf("ORDER", "LIMIT", "QUALIFY", "WINDOW"),
-        enforce_whitespace_preceeding_terminator=True,
+        enforce_whitespace_preceding_terminator=True,
     )
     parse_grammar = Sequence(
         "QUALIFY",
@@ -746,3 +747,82 @@ class SelectStatementSegment(BaseSegment):
         insert=[Ref("QualifyClauseSegment", optional=True)],
         before=Ref("OrderByClauseSegment", optional=True),
     )
+
+
+@teradata_dialect.segment(replace=True)
+class UnorderedSelectStatementSegment(BaseSegment):
+    """An unordered `SELECT` statement.
+
+    https://dev.mysql.com/doc/refman/5.7/en/select.html
+    """
+
+    type = "select_statement"
+    match_grammar = ansi_dialect.get_segment(
+        "UnorderedSelectStatementSegment"
+    ).match_grammar.copy()
+
+    parse_grammar = ansi_dialect.get_segment(
+        "UnorderedSelectStatementSegment"
+    ).parse_grammar.copy(
+        insert=[Ref("QualifyClauseSegment", optional=True)],
+        before=Ref("OverlapsClauseSegment", optional=True),
+    )
+
+
+@teradata_dialect.segment(replace=True)
+class SelectClauseModifierSegment(BaseSegment):
+    """Things that come after SELECT but before the columns.
+
+    Adds NORMALIZE clause: https://docs.teradata.com/r/2_MC9vCtAJRlKle2Rpb0mA/UuxiA0mklFgv~33X5nyKMA
+    """
+
+    type = "select_clause_modifier"
+    match_grammar = OneOf(
+        "DISTINCT",
+        "ALL",
+        Sequence(
+            "NORMALIZE",
+            OneOf(
+                Sequence(
+                    "ON",
+                    "MEETS",
+                    "OR",
+                    "OVERLAPS",
+                ),
+                Sequence(
+                    "ON",
+                    "OVERLAPS",
+                ),
+                Sequence(
+                    "ON",
+                    "OVERLAPS",
+                    "OR",
+                    "MEETS",
+                ),
+                optional=True,
+            ),
+        ),
+    )
+
+
+@teradata_dialect.segment(replace=True)
+class SelectClauseSegment(BaseSegment):
+    """A group of elements in a select target statement.
+
+    Remove OVERLAPS as a terminator as this can be part of SelectClauseModifierSegment
+    """
+
+    type = "select_clause"
+    match_grammar = StartsWith(
+        Sequence("SELECT", Ref("WildcardExpressionSegment", optional=True)),
+        terminator=OneOf(
+            "FROM",
+            "WHERE",
+            "ORDER",
+            "LIMIT",
+            Ref("SetOperatorSegment"),
+        ),
+        enforce_whitespace_preceding_terminator=True,
+    )
+
+    parse_grammar = ansi_dialect.get_segment("SelectClauseSegment").parse_grammar.copy()

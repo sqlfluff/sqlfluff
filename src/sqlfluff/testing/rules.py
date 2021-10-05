@@ -1,6 +1,6 @@
 """Testing utils for rule plugins."""
 from sqlfluff.core import Linter
-from sqlfluff.core.errors import SQLParseError
+from sqlfluff.core.errors import SQLParseError, SQLTemplaterError
 from sqlfluff.core.rules import get_ruleset
 from sqlfluff.core.config import FluffConfig
 from typing import Tuple, List, NamedTuple, Optional
@@ -61,8 +61,10 @@ def assert_rule_fail_in_sql(code, sql, configs=None, line_numbers=None):
     print(f"Errors Found: {lerrs}")
     for e in lerrs:
         if e.desc().startswith("Unexpected exception"):
-            pytest.fail(f"Linter failed with {e.desc()}")
-    parse_errors = list(filter(lambda v: type(v) == SQLParseError, lerrs))
+            pytest.fail(f"Linter failed with {e.desc()}")  # pragma: no cover
+    parse_errors = list(
+        filter(lambda v: isinstance(v, (SQLParseError, SQLTemplaterError)), lerrs)
+    )
     if parse_errors:
         pytest.fail(f"Found the following parse errors in test case: {parse_errors}")
     if not any(v.rule.code == code for v in lerrs):
@@ -72,14 +74,18 @@ def assert_rule_fail_in_sql(code, sql, configs=None, line_numbers=None):
         )
     if line_numbers:
         actual_line_numbers = [e.line_no for e in lerrs]
-        if line_numbers != actual_line_numbers:
+        if line_numbers != actual_line_numbers:  # pragma: no cover
             pytest.fail(
                 "Expected errors on lines {}, but got errors on lines {}".format(
                     line_numbers, actual_line_numbers
                 )
             )
     # The query should already have been fixed if possible so just return the raw.
-    return linted.tree.raw
+    if linted.num_violations(fixable=True) > 0:
+        fixed, _ = linted.fix_string()
+        return fixed
+    else:
+        return linted.tree.raw
 
 
 def assert_rule_pass_in_sql(code, sql, configs=None):
@@ -87,11 +93,15 @@ def assert_rule_pass_in_sql(code, sql, configs=None):
     # Configs allows overrides if we want to use them.
     cfg = FluffConfig(configs=configs)
     r = get_rule_from_set(code, config=cfg)
-    parsed = Linter(config=cfg).parse_string(sql)
+    linter = Linter(config=cfg)
+    rendered = linter.render_string(sql, fname="<STR>", config=cfg, encoding="utf-8")
+    parsed = linter.parse_rendered(rendered, recurse=True)
     if parsed.violations:
         pytest.fail(parsed.violations[0].desc() + "\n" + parsed.tree.stringify())
     print(f"Parsed:\n {parsed.tree.stringify()}")
-    lerrs, _, _, _ = r.crawl(parsed.tree, dialect=cfg.get("dialect_obj"))
+    lerrs, _, _, _ = r.crawl(
+        parsed.tree, [], dialect=cfg.get("dialect_obj"), templated_file=rendered[0]
+    )
     print(f"Errors Found: {lerrs}")
     if any(v.rule.code == code for v in lerrs):
         pytest.fail(f"Found {code} failures in query which should pass.", pytrace=False)

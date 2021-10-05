@@ -22,7 +22,7 @@ class Rule_L037(BaseRule):
 
     | **Anti-pattern**
 
-    .. code-block::
+    .. code-block:: sql
 
         SELECT
             a, b
@@ -33,7 +33,7 @@ class Rule_L037(BaseRule):
     | If any columns in the ORDER BY clause specify ASC or DESC, they should all
       do so.
 
-    .. code-block::
+    .. code-block:: sql
 
         SELECT
             a, b

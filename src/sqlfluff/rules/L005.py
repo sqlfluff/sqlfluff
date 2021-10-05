@@ -15,7 +15,8 @@ class Rule_L005(BaseRule):
     | The • character represents a space.
     | There is an extra space in line two before the comma.
 
-    .. code-block::
+    .. code-block:: sql
+       :force:
 
         SELECT
             a•,
@@ -25,7 +26,7 @@ class Rule_L005(BaseRule):
     | **Best practice**
     | Remove the space before the comma.
 
-    .. code-block::
+    .. code-block:: sql
 
         SELECT
             a,

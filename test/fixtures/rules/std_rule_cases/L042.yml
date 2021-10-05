@@ -87,3 +87,8 @@ both_clause_fail:
     rules:
       L042:
         forbid_subquery_in: both
+
+no_inner_from_pass:
+  pass_str: |
+    select a
+    from (select 1 as a)

@@ -4,7 +4,6 @@ import sys
 import json
 import logging
 import time
-
 import oyaml as yaml
 
 import click
@@ -33,6 +32,7 @@ from sqlfluff.core import (
     Linter,
     FluffConfig,
     SQLLintError,
+    SQLTemplaterError,
     dialect_selector,
     dialect_readout,
     TimingSummary,
@@ -207,7 +207,7 @@ def get_linter_and_formatter(cfg, silent=False):
     try:
         # We're just making sure it exists at this stage - it will be fetched properly in the linter
         dialect_selector(cfg.get("dialect"))
-    except KeyError:
+    except KeyError:  # pragma: no cover
         click.echo("Error: Unknown dialect {!r}".format(cfg.get("dialect")))
         sys.exit(66)
 
@@ -420,9 +420,13 @@ def do_fixes(lnt, result, formatter=None, **kwargs):
         click.echo("Done. Please check your files to confirm.")
         return True
     # If some failed then return false
-    click.echo("Done. Some operations failed. Please check your files to confirm.")
-    click.echo("Some errors cannot be fixed or there is another error blocking it.")
-    return False
+    click.echo(
+        "Done. Some operations failed. Please check your files to confirm."
+    )  # pragma: no cover
+    click.echo(
+        "Some errors cannot be fixed or there is another error blocking it."
+    )  # pragma: no cover
+    return False  # pragma: no cover
 
 
 @cli.command()
@@ -462,6 +466,7 @@ def fix(force, paths, processes, bench=False, fixed_suffix="", logger=None, **kw
     config = get_config(**kwargs)
     lnt, formatter = get_linter_and_formatter(config, silent=fixing_stdin)
     verbose = config.get("verbose")
+    exit_code = 0
 
     formatter.dispatch_config(lnt)
 
@@ -471,10 +476,30 @@ def fix(force, paths, processes, bench=False, fixed_suffix="", logger=None, **kw
     # handle stdin case. should output formatted sql to stdout and nothing else.
     if fixing_stdin:
         stdin = sys.stdin.read()
+
         result = lnt.lint_string_wrapped(stdin, fname="stdin", fix=True)
-        stdout = result.paths[0].files[0].fix_string()[0]
+        templater_error = result.num_violations(types=SQLTemplaterError) > 0
+        unfixable_error = result.num_violations(types=SQLLintError, fixable=False) > 0
+
+        if result.num_violations(types=SQLLintError, fixable=True) > 0:
+            stdout = result.paths[0].files[0].fix_string()[0]
+        else:
+            stdout = stdin
+
+        if templater_error:
+            click.echo(
+                colorize("Fix aborted due to unparseable template variables.", "red"),
+                err=True,
+            )
+            click.echo(
+                colorize("Use '--ignore templating' to attempt to fix anyway.", "red"),
+                err=True,
+            )
+        if unfixable_error:
+            click.echo(colorize("Unfixable violations detected.", "red"), err=True)
+
         click.echo(stdout, nl=False)
-        sys.exit()
+        sys.exit(1 if templater_error or unfixable_error else 0)
 
     # Lint the paths (not with the fix argument at this stage), outputting as we go.
     click.echo("==== finding fixable violations ====")
@@ -489,7 +514,8 @@ def fix(force, paths, processes, bench=False, fixed_suffix="", logger=None, **kw
                     paths
                 ),
                 "red",
-            )
+            ),
+            err=True,
         )
         sys.exit(1)
 
@@ -512,7 +538,7 @@ def fix(force, paths, processes, bench=False, fixed_suffix="", logger=None, **kw
                 fixed_file_suffix=fixed_suffix,
             )
             if not success:
-                sys.exit(1)
+                sys.exit(1)  # pragma: no cover
         else:
             click.echo(
                 "Are you sure you wish to attempt to fix these? [Y/n] ", nl=False
@@ -529,23 +555,35 @@ def fix(force, paths, processes, bench=False, fixed_suffix="", logger=None, **kw
                     fixed_file_suffix=fixed_suffix,
                 )
                 if not success:
-                    sys.exit(1)
+                    sys.exit(1)  # pragma: no cover
                 else:
                     _completion_message(config)
             elif c == "n":
                 click.echo("Aborting...")
-            else:
+                exit_code = 1
+            else:  # pragma: no cover
                 click.echo("Invalid input, please enter 'Y' or 'N'")
                 click.echo("Aborting...")
+                exit_code = 1
     else:
         click.echo("==== no fixable linting violations found ====")
-        if result.num_violations(types=SQLLintError, fixable=False) > 0:
-            click.echo(
-                "  [{} unfixable linting violations found]".format(
-                    result.num_violations(types=SQLLintError, fixable=False)
-                )
-            )
         _completion_message(config)
+
+    if result.num_violations(types=SQLLintError, fixable=False) > 0:
+        click.echo(
+            "  [{} unfixable linting violations found]".format(
+                result.num_violations(types=SQLLintError, fixable=False)
+            )
+        )
+        exit_code = 1
+
+    if result.num_violations(types=SQLTemplaterError) > 0:
+        click.echo(
+            "  [{} templating errors found]".format(
+                result.num_violations(types=SQLTemplaterError)
+            )
+        )
+        exit_code = 1
 
     if bench:
         click.echo("==== overall timings ====")
@@ -555,7 +593,7 @@ def fix(force, paths, processes, bench=False, fixed_suffix="", logger=None, **kw
             click.echo(f"=== {step} ===")
             click.echo(cli_table(timing_summary[step].items()))
 
-    sys.exit(0)
+    sys.exit(exit_code)
 
 
 def _completion_message(config):
@@ -648,7 +686,7 @@ def parse(
         # Set up the profiler if required
         try:
             import cProfile
-        except ImportError:
+        except ImportError:  # pragma: no cover
             click.echo("The cProfiler is not available on your platform.")
             sys.exit(1)
         pr = cProfile.Profile()
@@ -678,17 +716,17 @@ def parse(
                     click.echo(parsed_string.tree.stringify(code_only=code_only))
                 else:
                     # TODO: Make this prettier
-                    click.echo("...Failed to Parse...")
+                    click.echo("...Failed to Parse...")  # pragma: no cover
                 nv += len(parsed_string.violations)
                 if parsed_string.violations:
-                    click.echo("==== parsing violations ====")
+                    click.echo("==== parsing violations ====")  # pragma: no cover
                 for v in parsed_string.violations:
-                    click.echo(format_violation(v))
+                    click.echo(format_violation(v))  # pragma: no cover
                 if (
                     parsed_string.violations
                     and parsed_string.config.get("dialect") == "ansi"
                 ):
-                    click.echo(format_dialect_warning())
+                    click.echo(format_dialect_warning())  # pragma: no cover
                 if verbose >= 2:
                     click.echo("==== timings ====")
                     click.echo(cli_table(parsed_string.time_dict.items()))
@@ -719,12 +757,13 @@ def parse(
                 click.echo(yaml.dump(result))
             elif format == "json":
                 click.echo(json.dumps(result))
-    except OSError:
+    except OSError:  # pragma: no cover
         click.echo(
             colorize(
                 f"The path {path!r} could not be accessed. Check it exists.",
                 "red",
-            )
+            ),
+            err=True,
         )
         sys.exit(1)
 
@@ -738,7 +777,7 @@ def parse(
         click.echo("\n".join(profiler_buffer.getvalue().split("\n")[:50]))
 
     if nv > 0 and not nofail:
-        sys.exit(66)
+        sys.exit(66)  # pragma: no cover
     else:
         sys.exit(0)
 
@@ -747,4 +786,4 @@ def parse(
 # simplifies the use of cProfile, e.g.:
 # python -m cProfile -s cumtime -m sqlfluff.cli.commands lint slow_file.sql
 if __name__ == "__main__":
-    cli.main(sys.argv[1:])
+    cli.main(sys.argv[1:])  # pragma: no cover

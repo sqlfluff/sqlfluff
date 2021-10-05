@@ -51,7 +51,7 @@ class Sequence(BaseGrammar):
     def match(self, segments, parse_context):
         """Match a specific sequence of elements."""
         if isinstance(segments, BaseSegment):
-            segments = tuple(segments)
+            segments = tuple(segments)  # pragma: no cover TODO?
 
         matched_segments = MatchResult.from_empty()
         unmatched_segments = segments
@@ -108,7 +108,7 @@ class Sequence(BaseGrammar):
                         for e in self._elements[idx:]:
                             # If it's meta, instantiate it.
                             if e.is_meta:
-                                meta_post_nc += (e(),)
+                                meta_post_nc += (e(),)  # pragma: no cover TODO?
                             # If it's conditional and it's enabled, match it.
                             if isinstance(e, Conditional) and e.is_enabled(
                                 parse_context
@@ -220,7 +220,7 @@ class Bracketed(Sequence):
                 start_bracket = parse_context.dialect.ref(start_ref)
                 end_bracket = parse_context.dialect.ref(end_ref)
                 break
-        else:
+        else:  # pragma: no cover
             raise ValueError(
                 "bracket_type {!r} not found in bracket_pairs of {!r} dialect.".format(
                     self.bracket_type, parse_context.dialect.name
@@ -249,7 +249,7 @@ class Bracketed(Sequence):
         if self.allow_gaps:
             pre_nc, seg_buff, post_nc = trim_non_code_segments(segments)
         else:
-            seg_buff = segments
+            seg_buff = segments  # pragma: no cover TODO?
 
         # Rehydrate the bracket segments in question.
         # bracket_persits controls whether we make a BracketedSegment or not.
@@ -286,7 +286,7 @@ class Bracketed(Sequence):
                 end_bracket=end_bracket,
                 bracket_pairs_set=self.bracket_pairs_set,
             )
-            if not end_match:
+            if not end_match:  # pragma: no cover
                 raise SQLParseError(
                     "Couldn't find closing bracket for opening bracket.",
                     segment=start_match.matched_segments[0],
@@ -307,7 +307,7 @@ class Bracketed(Sequence):
         # Then trim whitespace and deal with the case of non-code content e.g. "(   )"
         if self.allow_gaps:
             pre_segs, content_segs, post_segs = trim_non_code_segments(content_segs)
-        else:
+        else:  # pragma: no cover TODO?
             pre_segs = ()
             post_segs = ()
 

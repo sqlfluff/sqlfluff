@@ -23,6 +23,15 @@ spaces_fail_custom_tab_space_size:
       tab_space_size: 2
 
 
+spaces_fail_custom_tab_space_size_not_multiple:
+  fail_str: "     \nSELECT 1"
+
+  configs:
+    rules:
+      indent_unit: tab
+      tab_space_size: 2
+
+
 tabs_fail_default:
   fail_str: "\t\tSELECT 1\n"
   fix_str: "        SELECT 1\n"

@@ -18,7 +18,7 @@ class GreedyUntil(BaseGrammar):
     """Matching for GreedyUntil works just how you'd expect.
 
     Args:
-        enforce_whitespace_preceeding (:obj:`bool`): Should the GreedyUntil
+        enforce_whitespace_preceding (:obj:`bool`): Should the GreedyUntil
             match only match the content if it's preceded by whitespace?
             (defaults to False). This is useful for some keywords which may
             have false alarms on some array accessors.
@@ -26,11 +26,11 @@ class GreedyUntil(BaseGrammar):
     """
 
     def __init__(self, *args, **kwargs):
-        self.enforce_whitespace_preceeding_terminator = kwargs.pop(
-            "enforce_whitespace_preceeding_terminator", False
+        self.enforce_whitespace_preceding_terminator = kwargs.pop(
+            "enforce_whitespace_preceding_terminator", False
         )
         super().__init__(*args, **kwargs)
-        if not self.allow_gaps:
+        if not self.allow_gaps:  # pragma: no cover
             raise NotImplementedError(
                 f"{self.__class__} does not support allow_gaps=False."
             )
@@ -43,7 +43,7 @@ class GreedyUntil(BaseGrammar):
             segments,
             parse_context,
             matchers=self._elements,
-            enforce_whitespace_preceeding_terminator=self.enforce_whitespace_preceeding_terminator,
+            enforce_whitespace_preceding_terminator=self.enforce_whitespace_preceding_terminator,
             include_terminator=False,
         )
 
@@ -53,7 +53,7 @@ class GreedyUntil(BaseGrammar):
         segments,
         parse_context,
         matchers,
-        enforce_whitespace_preceeding_terminator,
+        enforce_whitespace_preceding_terminator,
         include_terminator=False,
     ):
         """Matching for GreedyUntil works just how you'd expect."""
@@ -72,16 +72,18 @@ class GreedyUntil(BaseGrammar):
             # Do we have a match?
             if mat:
                 # Do we need to enforce whitespace preceding?
-                if enforce_whitespace_preceeding_terminator:
+                if enforce_whitespace_preceding_terminator:
                     # Does the match include some whitespace already?
                     # Work forward
                     idx = 0
                     while True:
                         elem = mat.matched_segments[idx]
-                        if elem.is_meta:
+                        if elem.is_meta:  # pragma: no cover TODO?
                             idx += 1
                             continue
-                        elif elem.is_type("whitespace", "newline"):
+                        elif elem.is_type(
+                            "whitespace", "newline"
+                        ):  # pragma: no cover TODO?
                             allowable_match = True
                             break
                         else:
@@ -93,11 +95,11 @@ class GreedyUntil(BaseGrammar):
                     if not allowable_match:
                         idx = -1
                         while True:
-                            if len(pre) < abs(idx):
+                            if len(pre) < abs(idx):  # pragma: no cover TODO?
                                 # If we're at the start, it's ok
                                 allowable_match = True
                                 break
-                            if pre[idx].is_meta:
+                            if pre[idx].is_meta:  # pragma: no cover TODO?
                                 idx -= 1
                                 continue
                             elif pre[idx].is_type("whitespace", "newline"):
@@ -139,7 +141,9 @@ class GreedyUntil(BaseGrammar):
                         trailing_nc + mat.all_segments(),
                     )
                 # No terminator, just return the whole thing.
-                return MatchResult.from_matched(mat.unmatched_segments)
+                return MatchResult.from_matched(
+                    mat.unmatched_segments
+                )  # pragma: no cover TODO?
             else:
                 # Return everything
                 return MatchResult.from_matched(segments)
@@ -177,7 +181,7 @@ class StartsWith(GreedyUntil):
         else:
             # We've trying to match on a sequence of segments which contain no code.
             # That means this isn't a match.
-            return MatchResult.from_unmatched(segments)
+            return MatchResult.from_unmatched(segments)  # pragma: no cover TODO?
         with parse_context.deeper_match() as ctx:
             match = self.target.match(
                 segments=segments[first_code_idx:], parse_context=ctx
@@ -200,7 +204,7 @@ class StartsWith(GreedyUntil):
             match.unmatched_segments,
             parse_context,
             matchers=[self.terminator],
-            enforce_whitespace_preceeding_terminator=self.enforce_whitespace_preceeding_terminator,
+            enforce_whitespace_preceding_terminator=self.enforce_whitespace_preceding_terminator,
             include_terminator=self.include_terminator,
         )
 

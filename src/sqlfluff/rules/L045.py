@@ -15,7 +15,7 @@ class Rule_L045(BaseRule):
     | Defining a CTE that is not used by the query is harmless, but it means
     | the code is unnecesary and could be removed.
 
-    .. code-block::
+    .. code-block:: sql
 
         WITH cte1 AS (
           SELECT a
@@ -32,7 +32,7 @@ class Rule_L045(BaseRule):
     | **Best practice**
     | Remove unused CTEs.
 
-    .. code-block::
+    .. code-block:: sql
 
         WITH cte1 AS (
           SELECT a

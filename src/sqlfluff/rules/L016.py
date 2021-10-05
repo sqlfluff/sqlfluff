@@ -17,6 +17,8 @@ from sqlfluff.rules.L003 import Rule_L003
 class Rule_L016(Rule_L003):
     """Line is too long."""
 
+    _check_docstring = False
+
     config_keywords = [
         "max_line_length",
         "tab_space_size",
@@ -110,7 +112,9 @@ class Rule_L016(Rule_L003):
 
                     # NOTE: Deal with commas and binary operators differently here.
                     # Maybe only deal with commas to start with?
-                    if any(seg.is_type("binary_operator") for seg in self.segments):
+                    if any(
+                        seg.is_type("binary_operator") for seg in self.segments
+                    ):  # pragma: no cover
                         raise NotImplementedError(
                             "Don't know how to deal with binary operators here yet!!"
                         )
@@ -153,7 +157,9 @@ class Rule_L016(Rule_L003):
                         )
                     )
                     return fixes
-                raise ValueError(f"Unexpected break generated at {self}")
+                raise ValueError(
+                    f"Unexpected break generated at {self}"
+                )  # pragma: no cover
 
         segment_buff = ()
         whitespace_buff = ()
@@ -254,10 +260,10 @@ class Rule_L016(Rule_L003):
             role = "pausepoint"
         elif segment_buff:
             role = "content"
-        elif indent_impulse:
+        elif indent_impulse:  # pragma: no cover
             role = "breakpoint"
         else:
-            raise ValueError("Is this possible?")
+            raise ValueError("Is this possible?")  # pragma: no cover
 
         chunk_buff.append(
             Section(
@@ -360,8 +366,68 @@ class Rule_L016(Rule_L003):
                     working_buff.insert(0, s)
                     idx -= 1
             else:
-                break
+                break  # pragma: no cover
         return working_buff
+
+    @classmethod
+    def _compute_segment_length(cls, segment):
+        if segment.is_type("newline"):
+            # Generally, we won't see newlines, but if we do, simply ignore
+            # them. Rationale: The intent of this rule is to enforce maximum
+            # line length, and newlines don't make lines longer.
+            return 0
+
+        if "\n" in segment.pos_marker.source_str():
+            # Similarly we shouldn't see newlines in source segments
+            # However for templated loops it's often not possible to
+            # accurately calculate the segments. These will be caught by
+            # the first iteration of the loop (which is non-templated)
+            # so doesn't suffer from the same bug, so we can ignore these
+            return 0
+
+        # Compute the length of this segments in SOURCE space (before template
+        # expansion).
+        slice_length = (
+            segment.pos_marker.source_slice.stop - segment.pos_marker.source_slice.start
+        )
+        if slice_length:
+            return slice_length
+        else:
+            # If a segment did not originate from the original source, its slice
+            # length slice length will be zero. This occurs, for example, when
+            # other lint rules add indentation or other whitespace. In that
+            # case, compute the length of its contents.
+            return len(segment.raw)
+
+    @classmethod
+    def _compute_source_length(cls, segments):
+        line_len = 0
+        seen_slices = set()
+        for segment in segments:
+            slice = (
+                segment.pos_marker.source_slice.start,
+                segment.pos_marker.source_slice.stop,
+            )
+            # Often, a single templated area of a source file will expand to
+            # multiple SQL tokens. Here, we use a set to avoid double counting
+            # the length of that text. For example, in BigQuery, we might
+            # see this source query:
+            #
+            # SELECT user_id
+            # FROM `{{bi_ecommerce_orders}}` {{table_at_job_start}}
+            #
+            # where 'table_at_job_start' is defined as:
+            # "FOR SYSTEM_TIME AS OF CAST('2021-03-02T01:22:59+00:00' AS TIMESTAMP)"
+            #
+            # So this one substitution results in roughly 10 segments (one per
+            # word or bit of punctuation). Each of these would have the same
+            # source slice, and if we didn't correct for this, we'd count the
+            # length of {{bi_ecommerce_orders}} roughly 10 times, resulting in
+            # vast overcount of the source length.
+            if slice not in seen_slices:
+                seen_slices.add(slice)
+                line_len += cls._compute_segment_length(segment)
+        return line_len
 
     def _eval(self, segment, raw_stack, **kwargs):
         """Line is too long.
@@ -378,19 +444,26 @@ class Rule_L016(Rule_L003):
             return None
 
         # Now we can work out the line length and deal with the content
-        line_len = sum(len(s.raw) for s in this_line)
+        line_len = self._compute_source_length(this_line)
         if line_len > self.max_line_length:
             # Problem, we'll be reporting a violation. The
             # question is, can we fix it?
 
             # We'll need the indent, so let's get it for fixing.
             line_indent = []
-            idx = 0
             for s in this_line:
                 if s.name == "whitespace":
                     line_indent.append(s)
                 else:
                     break
+
+            # Don't even attempt to handle template placeholders as gets
+            # complicated if logic changes (e.g. moving for loops). Most of
+            # these long lines will likely be single line Jinja comments.
+            # They will remain as unfixable.
+            if this_line[-1].type == "placeholder":
+                self.logger.info("Unfixable template segment: %s", this_line[-1])
+                return LintResult(anchor=segment)
 
             # Does the line end in an inline comment that we can move back?
             if this_line[-1].name == "inline_comment":
@@ -422,15 +495,26 @@ class Rule_L016(Rule_L003):
                         delete_buffer.append(LintFix("delete", this_line[idx]))
                         idx -= 1
                     else:
-                        break
+                        break  # pragma: no cover
+                create_elements = line_indent + [this_line[-1], segment]
+                if self._compute_source_length(create_elements) > self.max_line_length:
+                    # The inline comment is NOT on a line by itself, but even if
+                    # we move it onto a line by itself, it's still too long. In
+                    # this case, the rule should do nothing, otherwise it
+                    # triggers an endless cycle of "fixes" that simply keeps
+                    # adding blank lines.
+                    self.logger.info(
+                        "Unfixable inline comment, too long even on a line by itself: %s",
+                        this_line[-1],
+                    )
+                    if self.ignore_comment_lines:
+                        return LintResult()
+                    else:
+                        return LintResult(anchor=segment)
                 # Create a newline before this one with the existing comment, an
                 # identical indent AND a terminating newline, copied from the current
                 # target segment.
-                create_buffer = [
-                    LintFix(
-                        "create", this_line[0], line_indent + [this_line[-1], segment]
-                    )
-                ]
+                create_buffer = [LintFix("create", this_line[0], create_elements)]
                 return LintResult(anchor=segment, fixes=delete_buffer + create_buffer)
 
             fixes = self._eval_line_for_breaks(this_line)

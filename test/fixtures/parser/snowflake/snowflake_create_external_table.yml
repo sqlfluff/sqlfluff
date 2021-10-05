@@ -1,0 +1,67 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 1550cf52bb62bda9300c022d23e7cdcb55eb01e5d0c2d0c4d798518370ec3732
+file:
+- statement:
+    create_external_table_statement:
+    - keyword: create
+    - binary_operator: or
+    - keyword: replace
+    - keyword: external
+    - keyword: table
+    - table_reference:
+        identifier: ext_table
+    - keyword: with
+    - keyword: location
+    - comparison_operator: '='
+    - literal: '@'
+    - identifier: mystage
+    - binary_operator: /
+    - identifier: path1
+    - binary_operator: /
+    - keyword: file_format
+    - comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - keyword: type
+      - comparison_operator: '='
+      - keyword: json
+      - end_bracket: )
+    - keyword: aws_sns_topic
+    - comparison_operator: '='
+    - literal: "'arn:aws:sns:us-west-2:001234567890:s3_mybucket'"
+- statement_terminator: ;
+- statement:
+    create_external_table_statement:
+    - keyword: create
+    - binary_operator: or
+    - keyword: replace
+    - keyword: external
+    - keyword: table
+    - table_reference:
+        identifier: '"_p08"'
+    - keyword: with
+    - keyword: location
+    - comparison_operator: '='
+    - literal: '@'
+    - identifier: carpe_datastore_commercial
+    - binary_operator: /
+    - identifier: p08
+    - keyword: auto_refresh
+    - comparison_operator: '='
+    - literal: 'true'
+    - keyword: file_format
+    - comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - keyword: type
+      - comparison_operator: '='
+      - keyword: parquet
+      - end_bracket: )
+    - keyword: pattern
+    - comparison_operator: '='
+    - literal: "'.*[.]parquet.*'"
+- statement_terminator: ;

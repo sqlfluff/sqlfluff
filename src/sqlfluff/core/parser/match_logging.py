@@ -17,7 +17,7 @@ class LateLoggingObject:
         self.logger = logger
         self.msg = msg
 
-    def __str__(self):
+    def __str__(self):  # pragma: no cover TODO?
         """Actually materialise the string."""
         return self.msg
 

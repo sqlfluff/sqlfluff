@@ -47,7 +47,7 @@ class RootParseContext:
         indentation_config = config.get_section("indentation") or {}
         try:
             indentation_config = {k: bool(v) for k, v in indentation_config.items()}
-        except TypeError:
+        except TypeError:  # pragma: no cover
             raise TypeError(
                 "One of the configuration keys in the `indentation` section is not True or False: {!r}".format(
                     indentation_config
@@ -117,7 +117,7 @@ class ParseContext:
         """If the attribute doesn't exist on this, revert to the root."""
         try:
             return getattr(self._root_ctx, name)
-        except AttributeError:
+        except AttributeError:  # pragma: no cover
             raise AttributeError(
                 "Attribute {!r} not found in {!r} or {!r}".format(
                     name, type(self).__name__, type(self._root_ctx).__name__
@@ -152,7 +152,7 @@ class ParseContext:
     def deeper_parse(self):
         """Return a copy with an incremented parse depth."""
         ctx = self._copy()
-        if not isinstance(ctx.recurse, bool):
+        if not isinstance(ctx.recurse, bool):  # pragma: no cover TODO?
             ctx.recurse -= 1
         ctx.parse_depth += 1
         ctx.match_depth = 0
@@ -178,7 +178,7 @@ class ParseBlacklist:
     def __init__(self):
         self._blacklist_struct = {}
 
-    def _hashed_version(self):
+    def _hashed_version(self):  # pragma: no cover TODO?
         return {
             k: {hash(e) for e in self._blacklist_struct[k]}
             for k in self._blacklist_struct
@@ -190,7 +190,7 @@ class ParseBlacklist:
         Has this seg_tuple already been matched
         unsuccessfully against this segment name.
         """
-        if seg_name in self._blacklist_struct:
+        if seg_name in self._blacklist_struct:  # pragma: no cover TODO?
             if seg_tuple in self._blacklist_struct[seg_name]:
                 return True
         return False

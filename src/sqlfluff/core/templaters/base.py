@@ -1,8 +1,11 @@
 """Defines the templaters."""
 
 import logging
-from typing import Iterator, List, Tuple, Optional, NamedTuple
+from bisect import bisect_left
+from collections import defaultdict
+from typing import Dict, Iterator, List, Tuple, Optional, NamedTuple
 
+from cached_property import cached_property
 
 # Instantiate the templater logger
 templater_logger = logging.getLogger("sqlfluff.templater")
@@ -17,7 +20,7 @@ def iter_indices_of_newlines(raw_str: str) -> Iterator[int]:
             yield nl_pos
             init_idx = nl_pos
         else:
-            break
+            break  # pragma: no cover TODO?
 
 
 class RawFileSlice(NamedTuple):
@@ -26,6 +29,7 @@ class RawFileSlice(NamedTuple):
     raw: str
     slice_type: str
     source_idx: int
+    slice_subtype: Optional[str] = None
 
     def end_source_idx(self):
         """Return the closing index of this slice."""
@@ -42,6 +46,19 @@ class TemplatedFileSlice(NamedTuple):
     slice_type: str
     source_slice: slice
     templated_slice: slice
+
+
+class RawSliceBlockInfo(NamedTuple):
+    """Template-related info about the raw slices in a TemplateFile."""
+
+    # Given a raw file slace, return its block ID. Useful for identifying
+    # regions of a file with respect to template control structures (for, if).
+    block_ids: Dict[RawFileSlice, int]
+
+    # List of block IDs that have the following characteristics:
+    # - Loop body
+    # - Containing only literals (no templating)
+    literal_only_loops: List[int]
 
 
 class TemplatedFile:
@@ -72,7 +89,9 @@ class TemplatedFile:
         self.fname = fname
         # Assume that no sliced_file, means the file is not templated
         # TODO: Enable error handling.
-        if (not sliced_file) and self.templated_str != self.source_str:
+        if (
+            not sliced_file
+        ) and self.templated_str != self.source_str:  # pragma: no cover
             raise ValueError("Cannot instantiate a templated file unsliced!")
         # If we get here and we don't have sliced files, then it's raw, so create them.
         self.sliced_file: List[TemplatedFileSlice] = sliced_file or [
@@ -96,7 +115,7 @@ class TemplatedFile:
         """Return true if there's a templated file."""
         return bool(self.templated_str)
 
-    def __repr__(self):
+    def __repr__(self):  # pragma: no cover TODO?
         return "<TemplatedFile>"
 
     def __str__(self):
@@ -117,18 +136,15 @@ class TemplatedFile:
             line_number, line_position
 
         """
-        nl_idx = -1
-
         if source:
             ref_str = self._source_newlines
         else:
             ref_str = self._templated_newlines
 
-        while nl_idx + 1 < len(ref_str) and ref_str[nl_idx + 1] < char_pos:
-            nl_idx += 1
+        nl_idx = bisect_left(ref_str, char_pos)
 
-        if nl_idx >= 0:
-            return nl_idx + 2, char_pos - ref_str[nl_idx]
+        if nl_idx > 0:
+            return nl_idx + 1, char_pos - ref_str[nl_idx - 1]
         else:
             # NB: line_pos is char_pos+1 because character position is 0-indexed,
             # but the line position is 1-indexed.
@@ -159,9 +175,42 @@ class TemplatedFile:
         # If we got to the end add another index
         else:
             last_idx += 1
-        if first_idx is None:
+        if first_idx is None:  # pragma: no cover
             raise ValueError("Position Not Found")
         return first_idx, last_idx
+
+    @cached_property
+    def raw_slice_block_info(self) -> RawSliceBlockInfo:
+        """Returns a dict with a unique ID for each template block."""
+        block_ids = {}
+        block_content_types = defaultdict(set)
+        loops = set()
+        blocks = []
+        block_id = 0
+        for idx, raw_slice in enumerate(self.raw_sliced):
+            if raw_slice.slice_type != "block_end":
+                block_content_types[block_id].add(raw_slice.slice_type)
+            if raw_slice.slice_type == "block_start":
+                blocks.append(raw_slice)
+                templater_logger.info("%d -> %r", block_id, raw_slice.raw)
+                block_ids[raw_slice] = block_id
+                block_id += 1
+                if raw_slice.slice_subtype == "loop":
+                    loops.add(block_id)
+            elif raw_slice.slice_type == "block_end":
+                blocks.pop()
+                block_id += 1
+                templater_logger.info("%d -> %r", block_id, raw_slice.raw)
+                block_ids[raw_slice] = block_id
+            else:
+                templater_logger.info("%d -> %r", block_id, raw_slice.raw)
+                block_ids[raw_slice] = block_id
+        literal_only_loops = [
+            block_id
+            for block_id in set(block_ids.values())
+            if block_id in loops and block_content_types[block_id] == {"literal"}
+        ]
+        return RawSliceBlockInfo(block_ids, literal_only_loops)
 
     def raw_slices_spanning_source_slice(self, source_slice: slice):
         """Return a list of the raw slices spanning a set of indices."""
@@ -190,7 +239,7 @@ class TemplatedFile:
     ) -> slice:
         """Convert a template slice to a source slice."""
         if not self.sliced_file:
-            return template_slice
+            return template_slice  # pragma: no cover TODO?
 
         ts_start_sf_start, ts_start_sf_stop = self._find_slice_indices_of_templated_pos(
             template_slice.start
@@ -218,7 +267,10 @@ class TemplatedFile:
                 return slice(insertion_point, insertion_point)
             # It's within a segment.
             else:
-                if ts_start_subsliced_file[0][0] == "literal":
+                if (
+                    ts_start_subsliced_file
+                    and ts_start_subsliced_file[0][0] == "literal"
+                ):
                     offset = template_slice.start - ts_start_subsliced_file[0][2].start
                     return slice(
                         ts_start_subsliced_file[0][1].start + offset,
@@ -251,10 +303,16 @@ class TemplatedFile:
             )
         ]
         if ts_start_sf_start == ts_start_sf_stop:
-            start_slices = [self.sliced_file[ts_start_sf_start]]
+            if ts_start_sf_start > len(self.sliced_file):  # pragma: no cover
+                # We should never get here
+                raise ValueError("Starting position higher than sliced file position")
+            if ts_start_sf_start < len(self.sliced_file):
+                return self.sliced_file[1].source_slice
+            else:
+                return self.sliced_file[-1].source_slice
         else:
             start_slices = self.sliced_file[ts_start_sf_start:ts_start_sf_stop]
-        if ts_stop_sf_start == ts_stop_sf_stop:
+        if ts_stop_sf_start == ts_stop_sf_stop:  # pragma: no cover TODO?
             stop_slices = [self.sliced_file[ts_stop_sf_start]]
         else:
             stop_slices = self.sliced_file[ts_stop_sf_start:ts_stop_sf_stop]
@@ -294,13 +352,13 @@ class TemplatedFile:
     def is_source_slice_literal(self, source_slice: slice) -> bool:
         """Work out whether a slice of the source file is a literal or not."""
         # No sliced file? Everything is literal
-        if not self.raw_sliced:
+        if not self.raw_sliced:  # pragma: no cover TODO?
             return True
         # Zero length slice. It's a literal, because it's definitely not templated.
         if source_slice.start == source_slice.stop:
             return True
         is_literal = True
-        for _, seg_type, seg_idx in self.raw_sliced:
+        for _, seg_type, seg_idx, _ in self.raw_sliced:
             # Reset if we find a literal and we're up to the start
             # otherwise set false.
             if seg_idx <= source_slice.start:
@@ -347,6 +405,11 @@ class RawTemplater:
         to the linter at runtime from the cli - that would be the only time we would pass
         arguments in here.
         """
+
+    def sequence_files(self, fnames: List[str], config=None, formatter=None):
+        """Given files to be processed, return a valid processing sequence."""
+        # Default is to process in the original order.
+        return fnames
 
     def process(
         self, *, in_str: str, fname: str, config=None, formatter=None

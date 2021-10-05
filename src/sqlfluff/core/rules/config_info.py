@@ -42,6 +42,12 @@ STANDARD_CONFIG_INFO_DICT = {
         "validation": ["consistent", "qualified", "unqualified"],
         "definition": "The expectation for references in single-table select",
     },
+    "force_enable": {
+        "validation": [True, False],
+        "definition": (
+            "Run this rule even for dialects where this rule is disabled by default"
+        ),
+    },
     "unquoted_identifiers_policy": {
         "validation": ["all", "aliases", "column_aliases"],
         "definition": "Types of unquoted identifiers to flag violations for",
@@ -93,6 +99,12 @@ STANDARD_CONFIG_INFO_DICT = {
     "operator_new_lines": {
         "validation": ["before", "after"],
         "definition": ("Should operator be placed before or after newlines."),
+    },
+    "aliasing": {
+        "validation": ["implicit", "explicit"],
+        "definition": (
+            "Should alias have an explict AS or is implicit aliasing required?"
+        ),
     },
 }
 

@@ -23,7 +23,7 @@ class MetaSegment(RawSegment):
 
     @classmethod
     @match_wrapper()
-    def match(cls, segments, parse_context):
+    def match(cls, segments, parse_context):  # pragma: no cover
         """This will never be called. If it is then we're using it wrong."""
         raise NotImplementedError(
             "{} has no match method, it should only be used in a Sequence!".format(
@@ -79,7 +79,7 @@ class TemplateSegment(MetaSegment):
 
     def __init__(self, pos_marker=None, source_str="", block_type=""):
         """Initialise a placeholder with the source code embedded."""
-        if not source_str:
+        if not source_str:  # pragma: no cover
             raise ValueError("Cannot instantiate TemplateSegment without a source_str.")
         self.source_str = source_str
         self.block_type = block_type
@@ -99,5 +99,5 @@ class TemplateSegment(MetaSegment):
         """
         if include_meta:
             return (self.get_type(), self.source_str)
-        else:
+        else:  # pragma: no cover TODO?
             return (self.get_type(), self.raw)

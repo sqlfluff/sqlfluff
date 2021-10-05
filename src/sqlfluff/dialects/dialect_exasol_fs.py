@@ -7,17 +7,19 @@ A semicolon is the terminator of the statement within the function / script
 https://docs.exasol.com
 """
 
-# TODO: How to turn off Jinja templating? In LUA language its possible to use {{}}. this is parsed as Jinja
 # TODO: How to prevent bracket check in script body?
 #       e.g. LUA: local _stmt = [[SOME ASSIGNMENT WITH OPEN BRACKET ( ]]
 #                 ...do some stuff ...
 #                 local _stmt = _stmt .. [[ ) ]]
+# https://github.com/sqlfluff/sqlfluff/issues/1479
+
 from sqlfluff.core.parser import (
     AnyNumberOf,
     Anything,
     BaseSegment,
     Bracketed,
     Delimited,
+    BaseFileSegment,
     GreedyUntil,
     OneOf,
     Ref,
@@ -60,6 +62,8 @@ exasol_fs_dialect.insert_lexer_matchers(
                 NewlineSegment,
             ),
         ),
+        RegexLexer("atsign_literal", r"@[a-zA-Z_][\w]*", CodeSegment),
+        RegexLexer("dollar_literal", r"[$][a-zA-Z0-9_.]*", CodeSegment),
     ],
     before="not_equal",
 )
@@ -102,7 +106,7 @@ class StatementSegment(BaseSegment):
 
 
 @exasol_fs_dialect.segment(replace=True)
-class FileSegment(BaseSegment):
+class FileSegment(BaseFileSegment):
     """This ovewrites the FileSegment from ANSI.
 
     The reason is because SCRIPT and FUNCTION statements
@@ -110,9 +114,6 @@ class FileSegment(BaseSegment):
     A semicolon is the terminator of the statement within the function / script
     """
 
-    type = "file"
-    can_start_end_non_code = True
-    allow_empty = True
     parse_grammar = Delimited(
         Ref("StatementSegment"),
         delimiter=Ref("FunctionScriptTerminatorSegment"),
@@ -413,19 +414,7 @@ class CreateUDFScriptStatementSegment(BaseSegment):
             ),
             optional=True,
         ),
-        OneOf(
-            Sequence("RETURNS", Ref("DatatypeSegment")),
-            Sequence(
-                "EMITS",
-                Bracketed(
-                    OneOf(
-                        # EMITS (A NUMBER, B VARCHAR) or EMITS(...)
-                        Delimited(Ref("ColumnDatatypeSegment")),
-                        Sequence(Ref("RangeOperator"), Ref("DotSegment")),
-                    )
-                ),
-            ),
-        ),
+        OneOf(Sequence("RETURNS", Ref("DatatypeSegment")), Ref("EmitsGrammar")),
         "AS",
         Ref("ScriptContentSegment"),
     )
@@ -438,7 +427,7 @@ class CreateAdapterScriptStatementSegment(BaseSegment):
     https://docs.exasol.com/sql/create_script.htm
     """
 
-    type = "create_udf_script"
+    type = "create_adapter_script"
 
     is_ddl = True
     is_dml = False

@@ -59,17 +59,21 @@ class LintingResult:
         self.total_time = time.monotonic() - self._start_time
 
     @overload
-    def check_tuples(self, by_path: Literal[False]) -> List[CheckTuple]:
+    def check_tuples(
+        self, by_path: Literal[False]
+    ) -> List[CheckTuple]:  # pragma: no cover
         """Return a List of CheckTuples when by_path is False."""
         ...
 
     @overload
-    def check_tuples(self, by_path: Literal[True]) -> Dict[LintedDir, List[CheckTuple]]:
+    def check_tuples(
+        self, by_path: Literal[True]
+    ) -> Dict[LintedDir, List[CheckTuple]]:  # pragma: no cover
         """Return a Dict of LintedDir and CheckTuples when by_path is True."""
         ...
 
     @overload
-    def check_tuples(self, by_path: bool = False):
+    def check_tuples(self, by_path: bool = False):  # pragma: no cover
         """Default overload method."""
         ...
 
@@ -106,7 +110,9 @@ class LintingResult:
 
     def violation_dict(self, **kwargs):
         """Return a dict of paths and violations."""
-        return self.combine_dicts(path.violation_dict(**kwargs) for path in self.paths)
+        return self.combine_dicts(
+            path.violation_dict(**kwargs) for path in self.paths
+        )  # pragma: no cover TODO?
 
     def stats(self) -> Dict[str, Any]:
         """Return a stats dictionary of this result."""
@@ -167,7 +173,7 @@ class LintingResult:
         )
 
     @property
-    def tree(self) -> Optional[BaseSegment]:
+    def tree(self) -> Optional[BaseSegment]:  # pragma: no cover
         """A convenience method for when there is only one file and we want the tree."""
         if len(self.paths) > 1:
             raise ValueError(

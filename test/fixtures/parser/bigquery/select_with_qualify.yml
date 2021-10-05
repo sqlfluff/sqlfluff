@@ -1,5 +1,11 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 500387b7b4e68eec8b20d3067c561264ca746083639d13bce977ce7d74019dcf
 file:
-  statement:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -58,3 +64,444 @@ file:
             identifier: rank
           comparison_operator: <=
           literal: '3'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            identifier: item
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: RANK
+            bracketed:
+              start_bracket: (
+              end_bracket: )
+            over_clause:
+              keyword: OVER
+              bracketed:
+                start_bracket: (
+                window_specification:
+                  partitionby_clause:
+                  - keyword: PARTITION
+                  - keyword: BY
+                  - expression:
+                      column_reference:
+                        identifier: category
+                  orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                      identifier: purchases
+                  - keyword: DESC
+                end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: rank
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: Produce
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+          - identifier: Produce
+          - dot: .
+          - identifier: category
+          comparison_operator: '='
+          literal: "'vegetable'"
+      qualify_clause:
+        keyword: QUALIFY
+        expression:
+          column_reference:
+            identifier: rank
+          comparison_operator: <=
+          literal: '3'
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          identifier: item
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            identifier: item
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: RANK
+            bracketed:
+              start_bracket: (
+              end_bracket: )
+            over_clause:
+              keyword: OVER
+              bracketed:
+                start_bracket: (
+                window_specification:
+                  partitionby_clause:
+                  - keyword: PARTITION
+                  - keyword: BY
+                  - expression:
+                      column_reference:
+                        identifier: category
+                  orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                      identifier: purchases
+                  - keyword: DESC
+                end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: rank
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: Produce
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+          - identifier: Produce
+          - dot: .
+          - identifier: category
+          comparison_operator: '='
+          literal: "'vegetable'"
+      qualify_clause:
+        keyword: QUALIFY
+        expression:
+          column_reference:
+            identifier: rank
+          comparison_operator: <=
+          literal: '3'
+      limit_clause:
+        keyword: LIMIT
+        literal: '5'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            identifier: item
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: RANK
+            bracketed:
+              start_bracket: (
+              end_bracket: )
+            over_clause:
+              keyword: OVER
+              bracketed:
+                start_bracket: (
+                window_specification:
+                  partitionby_clause:
+                  - keyword: PARTITION
+                  - keyword: BY
+                  - expression:
+                      column_reference:
+                        identifier: category
+                  orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                      identifier: purchases
+                  - keyword: DESC
+                end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: rank
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: Produce
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+          - identifier: Produce
+          - dot: .
+          - identifier: category
+          comparison_operator: '='
+          literal: "'vegetable'"
+      qualify_clause:
+        keyword: QUALIFY
+        expression:
+          column_reference:
+            identifier: rank
+          comparison_operator: <=
+          literal: '3'
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          identifier: item
+      limit_clause:
+        keyword: LIMIT
+        literal: '5'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            identifier: item
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: RANK
+            bracketed:
+              start_bracket: (
+              end_bracket: )
+            over_clause:
+              keyword: OVER
+              bracketed:
+                start_bracket: (
+                window_specification:
+                  partitionby_clause:
+                  - keyword: PARTITION
+                  - keyword: BY
+                  - expression:
+                      column_reference:
+                        identifier: category
+                  orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                      identifier: purchases
+                  - keyword: DESC
+                end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: rank
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: Produce
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+          - identifier: Produce
+          - dot: .
+          - identifier: category
+          comparison_operator: '='
+          literal: "'vegetable'"
+      qualify_clause:
+        keyword: QUALIFY
+        expression:
+          column_reference:
+            identifier: rank
+          comparison_operator: <=
+          literal: '3'
+      limit_clause:
+        keyword: LIMIT
+        literal: '5'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            identifier: item
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: RANK
+            bracketed:
+              start_bracket: (
+              end_bracket: )
+            over_clause:
+              keyword: OVER
+              bracketed:
+                start_bracket: (
+                window_specification:
+                  partitionby_clause:
+                  - keyword: PARTITION
+                  - keyword: BY
+                  - expression:
+                      column_reference:
+                        identifier: category
+                  orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                      identifier: purchases
+                  - keyword: DESC
+                end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: rank
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: Produce
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+          - identifier: Produce
+          - dot: .
+          - identifier: category
+          comparison_operator: '='
+          literal: "'vegetable'"
+      qualify_clause:
+        keyword: QUALIFY
+        expression:
+          column_reference:
+            identifier: rank
+          comparison_operator: <=
+          literal: '3'
+      named_window:
+        keyword: WINDOW
+        named_window_expression:
+          identifier: item_window
+          keyword: AS
+          bracketed:
+            start_bracket: (
+            window_specification:
+              partitionby_clause:
+              - keyword: PARTITION
+              - keyword: BY
+              - expression:
+                  column_reference:
+                    identifier: category
+              orderby_clause:
+              - keyword: ORDER
+              - keyword: BY
+              - column_reference:
+                  identifier: purchases
+              frame_clause:
+              - keyword: ROWS
+              - keyword: BETWEEN
+              - literal: '2'
+              - keyword: PRECEDING
+              - binary_operator: AND
+              - literal: '2'
+              - keyword: FOLLOWING
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            identifier: item
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: RANK
+            bracketed:
+              start_bracket: (
+              end_bracket: )
+            over_clause:
+              keyword: OVER
+              bracketed:
+                start_bracket: (
+                window_specification:
+                  partitionby_clause:
+                  - keyword: PARTITION
+                  - keyword: BY
+                  - expression:
+                      column_reference:
+                        identifier: category
+                  orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                      identifier: purchases
+                  - keyword: DESC
+                end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: rank
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: Produce
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+          - identifier: Produce
+          - dot: .
+          - identifier: category
+          comparison_operator: '='
+          literal: "'vegetable'"
+      qualify_clause:
+        keyword: QUALIFY
+        expression:
+          column_reference:
+            identifier: rank
+          comparison_operator: <=
+          literal: '3'
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          identifier: item
+      named_window:
+        keyword: WINDOW
+        named_window_expression:
+          identifier: item_window
+          keyword: AS
+          bracketed:
+            start_bracket: (
+            window_specification:
+              partitionby_clause:
+              - keyword: PARTITION
+              - keyword: BY
+              - expression:
+                  column_reference:
+                    identifier: category
+              orderby_clause:
+              - keyword: ORDER
+              - keyword: BY
+              - column_reference:
+                  identifier: purchases
+              frame_clause:
+              - keyword: ROWS
+              - keyword: BETWEEN
+              - literal: '2'
+              - keyword: PRECEDING
+              - binary_operator: AND
+              - literal: '2'
+              - keyword: FOLLOWING
+            end_bracket: )
+- statement_terminator: ;

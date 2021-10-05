@@ -47,7 +47,7 @@ class LintedFile(NamedTuple):
     templated_file: TemplatedFile
     encoding: str
 
-    def check_tuples(self) -> List[CheckTuple]:
+    def check_tuples(self, raise_on_non_linting_violations=True) -> List[CheckTuple]:
         """Make a list of check_tuples.
 
         This assumes that all the violations found are
@@ -59,7 +59,7 @@ class LintedFile(NamedTuple):
         for v in self.get_violations():
             if hasattr(v, "check_tuple"):
                 vs.append(v.check_tuple())
-            else:
+            elif raise_on_non_linting_violations:
                 raise v
         return vs
 
@@ -83,7 +83,7 @@ class LintedFile(NamedTuple):
             if isinstance(types, type) and issubclass(types, SQLBaseError):
                 types = (types,)
             else:
-                types = tuple(types)
+                types = tuple(types)  # pragma: no cover TODO?
             violations = [v for v in violations if isinstance(v, types)]
         # Filter rules
         if rules:
@@ -101,7 +101,7 @@ class LintedFile(NamedTuple):
             violations = [v for v in violations if not v.ignore]
             # Ignore any rules in the ignore mask
             if self.ignore_mask:
-                violations = self._ignore_masked_violations(violations)
+                violations = self.ignore_masked_violations(violations, self.ignore_mask)
         return violations
 
     @staticmethod
@@ -170,8 +170,9 @@ class LintedFile(NamedTuple):
                 result.append(v)
         return result
 
-    def _ignore_masked_violations(
-        self, violations: List[SQLBaseError]
+    @classmethod
+    def ignore_masked_violations(
+        cls, violations: List[SQLBaseError], ignore_mask: List[NoQaDirective]
     ) -> List[SQLBaseError]:
         """Remove any violations specified by ignore_mask.
 
@@ -179,12 +180,12 @@ class LintedFile(NamedTuple):
         1. Filter out violations affected by single-line "noqa" directives.
         2. Filter out violations affected by disable/enable "noqa" directives.
         """
-        ignore_specific = [ignore for ignore in self.ignore_mask if not ignore.action]
-        ignore_range = [ignore for ignore in self.ignore_mask if ignore.action]
-        violations = self._ignore_masked_violations_single_line(
+        ignore_specific = [ignore for ignore in ignore_mask if not ignore.action]
+        ignore_range = [ignore for ignore in ignore_mask if ignore.action]
+        violations = cls._ignore_masked_violations_single_line(
             violations, ignore_specific
         )
-        violations = self._ignore_masked_violations_line_range(violations, ignore_range)
+        violations = cls._ignore_masked_violations_line_range(violations, ignore_range)
         return violations
 
     def num_violations(self, **kwargs) -> int:
@@ -205,15 +206,19 @@ class LintedFile(NamedTuple):
     ):
         """Log hints for debugging during patch generation."""
         # This next bit is ALL FOR LOGGING AND DEBUGGING
-        if patch.templated_slice.start >= 10:
+        max_log_length = 10
+        if patch.templated_slice.start >= max_log_length:
             pre_hint = templated_file.templated_str[
-                patch.templated_slice.start - 10 : patch.templated_slice.start
+                patch.templated_slice.start
+                - max_log_length : patch.templated_slice.start
             ]
         else:
             pre_hint = templated_file.templated_str[: patch.templated_slice.start]
-        if patch.templated_slice.stop + 10 < len(templated_file.templated_str):
+        if patch.templated_slice.stop + max_log_length < len(
+            templated_file.templated_str
+        ):
             post_hint = templated_file.templated_str[
-                patch.templated_slice.stop : patch.templated_slice.stop + 10
+                patch.templated_slice.stop : patch.templated_slice.stop + max_log_length
             ]
         else:
             post_hint = templated_file.templated_str[patch.templated_slice.stop :]
@@ -354,13 +359,15 @@ class LintedFile(NamedTuple):
                 )
             # If it's an insertion (i.e. the string in the pre-fix template is '') then we
             # won't be able to place it, so skip.
-            elif not enriched_patch.templated_str:
+            elif not enriched_patch.templated_str:  # pragma: no cover TODO?
                 linter_logger.info(
                     "      - Skipping insertion patch in templated section: %s",
                     enriched_patch,
                 )
             # If the string from the templated version isn't in the source, then we can't fix it.
-            elif enriched_patch.templated_str not in enriched_patch.source_str:
+            elif (
+                enriched_patch.templated_str not in enriched_patch.source_str
+            ):  # pragma: no cover TODO?
                 linter_logger.info(
                     "      - Skipping edit patch on templated content: %s",
                     enriched_patch,
@@ -376,7 +383,7 @@ class LintedFile(NamedTuple):
                         enriched_patch,
                     )
                     continue
-                # We have a single occurrences of the thing we want to patch. This
+                # We have a single occurrence of the thing we want to patch. This
                 # means we can use its position to place our patch.
                 new_source_slice = slice(
                     enriched_patch.source_slice.start + positions[0],

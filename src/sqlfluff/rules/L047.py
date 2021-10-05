@@ -65,7 +65,7 @@ class Rule_L047(BaseRule):
             # Get bracketed content
             bracketed = segment.get_child("bracketed")
 
-            if not bracketed:
+            if not bracketed:  # pragma: no cover
                 return None
 
             f_content = [
@@ -79,7 +79,7 @@ class Rule_L047(BaseRule):
                     "newline",
                 )
             ]
-            if len(f_content) != 1:
+            if len(f_content) != 1:  # pragma: no cover
                 return None
 
             preferred = "*"

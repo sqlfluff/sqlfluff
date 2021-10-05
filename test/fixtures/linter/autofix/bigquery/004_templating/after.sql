@@ -24,8 +24,8 @@ raw_effect_sizes AS (
     SELECT
         COUNT(1) AS campaign_count_{{action}},
         {{corr_states}}
-    -- NOTE: The L003 fix routine behaves a little strangely here around the templated
-    -- code, specifically the indentation of STDDEV_POP and preceeding comments. This
+        -- NOTE: The L003 fix routine behaves a little strangely here around the templated
+        -- code, specifically the indentation of STDDEV_POP and preceding comments. This
         -- is a bug currently with no obvious solution.
         , SAFE_DIVIDE(SAFE_MULTIPLY(CORR({{metric}}_rate_su, {{action}}), STDDEV_POP({{metric}}_rate_su)),
                         STDDEV_POP({{action}})) AS {{metric}}_{{action}}
@@ -66,7 +66,7 @@ imputed_effect_sizes AS (
         , COALESCE(IF(IS_NAN(o.{{metric}}_{{action}}), 0, o.{{metric}}_{{action}}), 0) AS {{metric}}_{{action}}
         , COALESCE(IF(IS_NAN(n.{{metric}}_{{action}}), 0, n.{{metric}}_{{action}}), 0) AS new_{{metric}}_{{action}}
         , n.campaign_count_{{action}}
-    {% endfor %}
+        {% endfor %}
     FROM
         raw_effect_sizes o
     JOIN

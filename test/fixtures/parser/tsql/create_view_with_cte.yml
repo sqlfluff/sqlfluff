@@ -1,0 +1,139 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: d2647d051261f19f1d85b209fe70b55e9b5bec8be7e6e42da004a94a45f4f5b0
+file:
+  statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: VIEW
+    - object_reference:
+        identifier: vwCTE
+    - keyword: AS
+    - with_compound_statement:
+        keyword: WITH
+        common_table_expression:
+        - identifier: cte
+        - bracketed:
+            start_bracket: (
+            identifier_list:
+            - identifier: EmployeeID
+            - comma: ','
+            - identifier: ManagerID
+            - comma: ','
+            - identifier: Title
+            end_bracket: )
+        - keyword: AS
+        - bracketed:
+            start_bracket: (
+            set_expression:
+            - select_statement:
+                select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                    column_reference:
+                      identifier: EmployeeID
+                - comma: ','
+                - select_clause_element:
+                    column_reference:
+                      identifier: ManagerID
+                - comma: ','
+                - select_clause_element:
+                    column_reference:
+                      identifier: Title
+                from_clause:
+                  keyword: FROM
+                  from_expression:
+                    from_expression_element:
+                      table_expression:
+                        table_reference:
+                        - identifier: HumanResources
+                        - dot: .
+                        - identifier: Employee
+                where_clause:
+                  keyword: WHERE
+                  expression:
+                  - column_reference:
+                      identifier: ManagerID
+                  - keyword: IS
+                  - keyword: NOT
+                  - keyword: 'NULL'
+            - set_operator:
+              - keyword: UNION
+              - keyword: ALL
+            - select_statement:
+                select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                    column_reference:
+                    - identifier: cte
+                    - dot: .
+                    - identifier: EmployeeID
+                - comma: ','
+                - select_clause_element:
+                    column_reference:
+                    - identifier: cte
+                    - dot: .
+                    - identifier: ManagerID
+                - comma: ','
+                - select_clause_element:
+                    column_reference:
+                    - identifier: cte
+                    - dot: .
+                    - identifier: Title
+                from_clause:
+                  keyword: FROM
+                  from_expression:
+                    from_expression_element:
+                      table_expression:
+                        table_reference:
+                          identifier: cte
+                    join_clause:
+                      keyword: JOIN
+                      from_expression_element:
+                        table_expression:
+                          table_reference:
+                          - identifier: HumanResources
+                          - dot: .
+                          - identifier: Employee
+                        alias_expression:
+                          keyword: AS
+                          identifier: e
+                      join_on_condition:
+                        keyword: 'ON'
+                        expression:
+                        - column_reference:
+                          - identifier: cte
+                          - dot: .
+                          - identifier: ManagerID
+                        - comparison_operator: '='
+                        - column_reference:
+                          - identifier: e
+                          - dot: .
+                          - identifier: EmployeeID
+            end_bracket: )
+        select_statement:
+          select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+              column_reference:
+                identifier: EmployeeID
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                identifier: ManagerID
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                identifier: Title
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    identifier: cte
+  go_statement:
+    keyword: GO

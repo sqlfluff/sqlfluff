@@ -3,6 +3,7 @@
 import os
 import pytest
 import logging
+from pathlib import Path
 
 from sqlfluff.core import FluffConfig, Lexer, Linter
 from sqlfluff.core.errors import SQLTemplaterSkipFile
@@ -68,6 +69,30 @@ def test__templater_dbt_templating_result(
         config=FluffConfig(configs=DBT_FLUFF_CONFIG),
     )
     assert str(templated_file) == open("test/fixtures/dbt/" + fname).read()
+
+
+@pytest.mark.dbt
+def test__templater_dbt_sequence_files_ephemeral_dependency(
+    project_dir,  # noqa: F811
+    dbt_templater,  # noqa: F811
+):
+    """Test that dbt templater sequences files based on dependencies."""
+    result = dbt_templater.sequence_files(
+        [
+            str(Path(project_dir) / "models" / "depends_on_ephemeral" / "a.sql"),
+            str(Path(project_dir) / "models" / "depends_on_ephemeral" / "b.sql"),
+            str(Path(project_dir) / "models" / "depends_on_ephemeral" / "c.sql"),
+            str(Path(project_dir) / "models" / "depends_on_ephemeral" / "d.sql"),
+        ],
+        config=FluffConfig(configs=DBT_FLUFF_CONFIG),
+    )
+    # c.sql should come first because b.sql depends on c.sql.
+    assert result == [
+        str(Path(project_dir) / "models" / "depends_on_ephemeral" / "a.sql"),
+        str(Path(project_dir) / "models" / "depends_on_ephemeral" / "c.sql"),
+        str(Path(project_dir) / "models" / "depends_on_ephemeral" / "b.sql"),
+        str(Path(project_dir) / "models" / "depends_on_ephemeral" / "d.sql"),
+    ]
 
 
 @pytest.mark.dbt

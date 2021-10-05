@@ -14,7 +14,7 @@ class Rule_L008(BaseRule):
     | The • character represents a space.
     | In this example, there is no space between the comma and 'zoo'.
 
-    .. code-block::
+    .. code-block:: sql
 
         SELECT
             *
@@ -24,7 +24,8 @@ class Rule_L008(BaseRule):
     | **Best practice**
     | Keep a single space after the comma.
 
-    .. code-block::
+    .. code-block:: sql
+       :force:
 
         SELECT
             *
@@ -47,7 +48,7 @@ class Rule_L008(BaseRule):
         cm1 = raw_stack[-1]
         if cm1.name == "comma":
             # comma followed by something that isn't whitespace?
-            if first_elem.name not in ["whitespace", "newline"]:
+            if first_elem.name not in ["whitespace", "newline", "Dedent"]:
                 self.logger.debug(
                     "Comma followed by something other than whitespace: %s", first_elem
                 )

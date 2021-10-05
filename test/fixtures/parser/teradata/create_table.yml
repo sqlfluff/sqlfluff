@@ -1,3 +1,9 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 8f0347656460f9f4a9f7b42dbf547f872bb502f636e48de5cf5ce045f074d002
 file:
 - statement:
     create_table_statement:
@@ -23,7 +29,7 @@ file:
           - keyword: character
           - keyword: set
           - identifier: unicode
-          column_constraint:
+          column_constraint_segment:
           - keyword: not
           - keyword: 'null'
       - comma: ','
@@ -41,7 +47,7 @@ file:
           - keyword: character
           - keyword: set
           - identifier: unicode
-          column_constraint:
+          column_constraint_segment:
           - keyword: not
           - keyword: 'null'
       - comma: ','
@@ -57,7 +63,7 @@ file:
               end_bracket: )
           td_column_attribute_constraint:
             keyword: uppercase
-          column_constraint:
+          column_constraint_segment:
           - keyword: not
           - keyword: 'null'
       - comma: ','
@@ -75,7 +81,7 @@ file:
           - keyword: character
           - keyword: set
           - identifier: unicode
-          column_constraint:
+          column_constraint_segment:
           - keyword: not
           - keyword: 'null'
       - comma: ','
@@ -93,7 +99,7 @@ file:
           - keyword: character
           - keyword: set
           - identifier: unicode
-          column_constraint:
+          column_constraint_segment:
           - keyword: not
           - keyword: 'null'
       - comma: ','
@@ -109,7 +115,7 @@ file:
               end_bracket: )
           td_column_attribute_constraint:
             keyword: uppercase
-          column_constraint:
+          column_constraint_segment:
           - keyword: not
           - keyword: 'null'
       - end_bracket: )

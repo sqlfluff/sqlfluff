@@ -22,7 +22,8 @@ class Rule_L004(BaseRule):
     | **Anti-pattern**
     | Using tabs instead of spaces when indent_unit config set to spaces (default).
 
-    .. code-block::
+    .. code-block:: sql
+       :force:
 
         select
         ••••a,
@@ -32,7 +33,8 @@ class Rule_L004(BaseRule):
     | **Best practice**
     | Change the line to use spaces only.
 
-    .. code-block::
+    .. code-block:: sql
+       :force:
 
         select
         ••••a,

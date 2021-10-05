@@ -34,6 +34,11 @@ from sqlfluff.core.parser import (
 
 from sqlfluff.core.dialects import load_raw_dialect
 
+from sqlfluff.dialects.bigquery_keywords import (
+    bigquery_reserved_keywords,
+    bigquery_unreserved_keywords,
+)
+
 ansi_dialect = load_raw_dialect("ansi")
 bigquery_dialect = ansi_dialect.copy_as("bigquery")
 
@@ -41,6 +46,8 @@ bigquery_dialect.insert_lexer_matchers(
     # JSON Operators: https://www.postgresql.org/docs/9.5/functions-json.html
     [
         StringLexer("right_arrow", "=>", CodeSegment),
+        StringLexer("question_mark", "?", CodeSegment),
+        RegexLexer("atsign_literal", r"@[a-zA-Z_][\w]*", CodeSegment),
     ],
     before="equals",
 )
@@ -106,6 +113,16 @@ bigquery_dialect.add(
         delimiter=Ref("CommaSegment"),
         allow_trailing=True,
     ),
+    QuestionMarkSegment=StringParser(
+        "?", SymbolSegment, name="question_mark", type="question_mark"
+    ),
+    AtSignLiteralSegment=NamedParser(
+        "atsign_literal",
+        CodeSegment,
+        name="atsign_literal",
+        type="literal",
+        trim_chars=("@",),
+    ),
 )
 
 
@@ -145,19 +162,22 @@ bigquery_dialect.replace(
 )
 
 
+# Set Keywords
+bigquery_dialect.sets("unreserved_keywords").clear()
+bigquery_dialect.sets("unreserved_keywords").update(
+    [n.strip().upper() for n in bigquery_unreserved_keywords.split("\n")]
+)
+
+bigquery_dialect.sets("reserved_keywords").clear()
+bigquery_dialect.sets("reserved_keywords").update(
+    [n.strip().upper() for n in bigquery_reserved_keywords.split("\n")]
+)
+
 # Add additional datetime units
 # https://cloud.google.com/bigquery/docs/reference/standard-sql/date_functions#extract
 bigquery_dialect.sets("datetime_units").update(
     ["MICROSECOND", "DAYOFWEEK", "ISOWEEK", "ISOYEAR", "DATE", "DATETIME", "TIME"]
 )
-
-# Unreserved Keywords
-bigquery_dialect.sets("unreserved_keywords").add("SYSTEM_TIME")
-bigquery_dialect.sets("unreserved_keywords").remove("FOR")
-bigquery_dialect.sets("unreserved_keywords").add("STRUCT")
-bigquery_dialect.sets("unreserved_keywords").add("ORDINAL")
-# Reserved Keywords
-bigquery_dialect.sets("reserved_keywords").add("FOR")
 
 # In BigQuery, UNNEST() returns a "value table".
 # https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax#value_tables
@@ -182,8 +202,8 @@ class QualifyClauseSegment(BaseSegment):
     type = "qualify_clause"
     match_grammar = StartsWith(
         "QUALIFY",
-        terminator=OneOf("WINDOW"),
-        enforce_whitespace_preceeding_terminator=True,
+        terminator=OneOf("WINDOW", "ORDER", "LIMIT"),
+        enforce_whitespace_preceding_terminator=True,
     )
 
     parse_grammar = Sequence(
@@ -196,7 +216,7 @@ class QualifyClauseSegment(BaseSegment):
 
 @bigquery_dialect.segment(replace=True)
 class SelectStatementSegment(BaseSegment):
-    """Enhance`SELECT` statement to include QUALIFY."""
+    """Enhance `SELECT` statement to include QUALIFY."""
 
     type = "select_statement"
     match_grammar = ansi_dialect.get_segment(
@@ -208,6 +228,23 @@ class SelectStatementSegment(BaseSegment):
     ).parse_grammar.copy(
         insert=[Ref("QualifyClauseSegment", optional=True)],
         before=Ref("OrderByClauseSegment", optional=True),
+    )
+
+
+@bigquery_dialect.segment(replace=True)
+class UnorderedSelectStatementSegment(BaseSegment):
+    """Enhance unordered `SELECT` statement to include QUALIFY."""
+
+    type = "select_statement"
+    match_grammar = ansi_dialect.get_segment(
+        "UnorderedSelectStatementSegment"
+    ).match_grammar.copy()
+
+    parse_grammar = ansi_dialect.get_segment(
+        "UnorderedSelectStatementSegment"
+    ).parse_grammar.copy(
+        insert=[Ref("QualifyClauseSegment", optional=True)],
+        before=Ref("OverlapsClauseSegment", optional=True),
     )
 
 
@@ -270,15 +307,24 @@ bigquery_dialect.replace(
         type="identifier",
         trim_chars=("`",),
     ),
-    # Add two elements to the ansi LiteralGrammar
+    # Add three elements to the ansi LiteralGrammar
     LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar").copy(
-        insert=[Ref("DoubleQuotedLiteralSegment"), Ref("LiteralCoercionSegment")]
+        insert=[
+            Ref("DoubleQuotedLiteralSegment"),
+            Ref("LiteralCoercionSegment"),
+            Ref("ParameterizedSegment"),
+        ]
     ),
     PostTableExpressionGrammar=Sequence(
         Sequence(
             "FOR", "SYSTEM_TIME", "AS", "OF", Ref("ExpressionSegment"), optional=True
         ),
-        Sequence("WITH", "OFFSET", "AS", Ref("SingleIdentifierGrammar"), optional=True),
+        Sequence(
+            "WITH",
+            "OFFSET",
+            Sequence("AS", Ref("SingleIdentifierGrammar"), optional=True),
+            optional=True,
+        ),
     ),
     FunctionNameIdentifierSegment=OneOf(
         # In BigQuery struct() has a special syntax, so we don't treat it as a function
@@ -588,7 +634,7 @@ class ColumnReferenceSegment(ObjectReferenceSegment):  # type: ignore
         level = self._level_to_int(level)
         refs = list(self.iter_raw_references())
         if level == self.ObjectReferenceLevel.SCHEMA.value and len(refs) >= 3:
-            return [refs[0]]
+            return [refs[0]]  # pragma: no cover
         if level == self.ObjectReferenceLevel.TABLE.value and len(refs) >= 3:
             # Ambiguous case: The table could be the first or second part, so
             # return both.
@@ -596,7 +642,7 @@ class ColumnReferenceSegment(ObjectReferenceSegment):  # type: ignore
         if level == self.ObjectReferenceLevel.OBJECT.value and len(refs) >= 3:
             # Ambiguous case: The object (i.e. column) could be the first or
             # second part, so return both.
-            return [refs[1], refs[2]]
+            return [refs[1], refs[2]]  # pragma: no cover
         return super().extract_possible_references(level)
 
 
@@ -721,7 +767,7 @@ class PartitionBySegment(BaseSegment):
     match_grammar = StartsWith(
         "PARTITION",
         terminator=OneOf("CLUSTER", "OPTIONS", "AS", Ref("DelimiterSegment")),
-        enforce_whitespace_preceeding_terminator=True,
+        enforce_whitespace_preceding_terminator=True,
     )
     parse_grammar = Sequence(
         "PARTITION",
@@ -738,7 +784,7 @@ class ClusterBySegment(BaseSegment):
     match_grammar = StartsWith(
         "CLUSTER",
         terminator=OneOf("OPTIONS", "AS", Ref("DelimiterSegment")),
-        enforce_whitespace_preceeding_terminator=True,
+        enforce_whitespace_preceding_terminator=True,
     )
     parse_grammar = Sequence(
         "CLUSTER",
@@ -803,3 +849,14 @@ class CreateTableStatementSegment(BaseSegment):
             optional=True,
         ),
     )
+
+
+@bigquery_dialect.segment()
+class ParameterizedSegment(BaseSegment):
+    """BigQuery allows named and argument based parameters to help preven SQL Injection.
+
+    https://cloud.google.com/bigquery/docs/parameterized-queries
+    """
+
+    type = "parameterized_expression"
+    match_grammar = OneOf(Ref("AtSignLiteralSegment"), Ref("QuestionMarkSegment"))

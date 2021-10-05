@@ -1,0 +1,15 @@
+ANALYZE foo;
+
+ANALYSE foo;
+
+ANALYZE VERBOSE foo;
+
+ANALYZE (VERBOSE, SKIP_LOCKED) foo;
+
+ANALYZE (VERBOSE FALSE, SKIP_LOCKED TRUE) foo;
+
+ANALYZE (SKIP_LOCKED, VERBOSE FALSE) foo;
+
+ANALYZE VERBOSE foo (bar, bat);
+
+ANALYZE foo (bar, bat), foo2 (bar2, bat2);

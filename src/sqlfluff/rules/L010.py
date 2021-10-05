@@ -46,6 +46,8 @@ class Rule_L010(BaseRule):
         ("type", "binary_operator"),
     ]
     config_keywords = ["capitalisation_policy"]
+    # Human readable target elem for description
+    _description_elem = "Keywords"
 
     def _eval(self, segment, memory, parent_stack, **kwargs):
         """Inconsistent capitalisation of keywords.
@@ -124,15 +126,10 @@ class Rule_L010(BaseRule):
                     f"Setting concrete policy '{concrete_policy}' from cap_policy"
                 )
 
+        # Set the fixed to same as initial in case any of below don't match
+        fixed_raw = segment.raw
         # We need to change the segment to match the concrete policy
         if concrete_policy in ["upper", "lower", "capitalise"]:
-            if "pascal" in cap_policy_opts and segment.raw[0].isupper():
-                # Insert undescores in transitions between lower and upper
-                fixed_raw = re.sub("(?<=[a-z0-9])(?=[A-Z])", "_", segment.raw)
-                self.logger.debug(f"Inserted underscores: {fixed_raw}")
-            else:
-                fixed_raw = segment.raw
-
             if concrete_policy == "upper":
                 fixed_raw = fixed_raw.upper()
             elif concrete_policy == "lower":
@@ -140,9 +137,14 @@ class Rule_L010(BaseRule):
             elif concrete_policy == "capitalise":
                 fixed_raw = fixed_raw.capitalize()
         elif concrete_policy == "pascal":
+            # For Pascal we set the first letter in each "word" to uppercase
+            # We do not lowercase other letters to allow for PascalCase style
+            # words. This does mean we allow all UPPERCASE and also don't
+            # correct Pascalcase to PascalCase, but there's only so much we can
+            # do. We do correct underscore_words to Underscore_Words.
             fixed_raw = re.sub(
                 "([^a-zA-Z0-9]+|^)([a-zA-Z0-9])([a-zA-Z0-9]*)",
-                lambda match: match.group(2).upper() + match.group(3).lower(),
+                lambda match: match.group(1) + match.group(2).upper() + match.group(3),
                 segment.raw,
             )
 
@@ -154,15 +156,27 @@ class Rule_L010(BaseRule):
             )
             return LintResult(memory=memory)
         else:
+            # build description based on the policy in use
+            consistency = "consistently " if cap_policy == "consistent" else ""
+
+            if concrete_policy in ["upper", "lower"]:
+                policy = f"{concrete_policy} case."
+            elif concrete_policy == "capitalise":
+                policy = "capitalised."
+            elif concrete_policy == "pascal":
+                policy = "pascal case."
+
             # Return the fixed segment
             self.logger.debug(
                 f"INCONSISTENT Capitalisation of segment '{segment.raw}', fixing to "
                 f"'{fixed_raw}' and returning with memory {memory}"
             )
+
             return LintResult(
                 anchor=segment,
                 fixes=[self._get_fix(segment, fixed_raw)],
                 memory=memory,
+                description=f"{self._description_elem} must be {consistency}{policy}",
             )
 
     def _get_fix(self, segment, fixed_raw):
@@ -171,11 +185,7 @@ class Rule_L010(BaseRule):
         May be overridden by subclasses, which is useful when the parse tree
         structure varies from this simple base case.
         """
-        return LintFix(
-            "edit",
-            segment,
-            segment.edit(fixed_raw),
-        )
+        return LintFix("edit", segment, segment.edit(fixed_raw))
 
     def _init_capitalisation_policy(self):
         """Called first time rule is evaluated to fetch & cache the policy."""

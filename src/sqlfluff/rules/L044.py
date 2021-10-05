@@ -32,7 +32,7 @@ class Rule_L044(BaseRule):
     | * `CREATE TABLE (<<column schema>>) AS SELECT *`
 
 
-    .. code-block::
+    .. code-block:: sql
 
         WITH cte AS (
             SELECT * FROM foo
@@ -45,7 +45,7 @@ class Rule_L044(BaseRule):
     | **Best practice**
     | Somewhere along the "path" to the source data, specify columns explicitly.
 
-    .. code-block::
+    .. code-block:: sql
 
         WITH cte AS (
             SELECT * FROM foo

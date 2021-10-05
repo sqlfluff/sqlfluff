@@ -3,6 +3,41 @@
 import pytest
 
 from sqlfluff.core import FluffConfig, Linter
+from sqlfluff.dialects.postgres_keywords import get_keywords, priority_keyword_merge
+
+
+@pytest.mark.parametrize(
+    "segment_reference,raw",
+    [
+        # AT TIME ZONE constucts
+        ("SelectClauseElementSegment", "c_column AT TIME ZONE 'UTC'"),
+        ("SelectClauseElementSegment", "(c_column AT TIME ZONE 'UTC')::time"),
+        (
+            "SelectClauseElementSegment",
+            "timestamp with time zone '2021-10-01' AT TIME ZONE 'UTC'",
+        ),
+        # Notnull and Isnull
+        ("ExpressionSegment", "c is null"),
+        ("ExpressionSegment", "c is not null"),
+        ("ExpressionSegment", "c isnull"),
+        ("ExpressionSegment", "c notnull"),
+        ("SelectClauseElementSegment", "c is null as c_isnull"),
+        ("SelectClauseElementSegment", "c is not null as c_notnull"),
+        ("SelectClauseElementSegment", "c isnull as c_isnull"),
+        ("SelectClauseElementSegment", "c notnull as c_notnull"),
+    ],
+)
+def test_dialect_postgres_specific_segment_parses(
+    segment_reference, raw, caplog, dialect_specific_segment_parses
+):
+    """Test that specific segments parse as expected.
+
+    NB: We're testing the PARSE function not the MATCH function
+    although this will be a recursive parse and so the match
+    function of SUBSECTIONS will be tested if present. The match
+    function of the parent will not be tested.
+    """
+    dialect_specific_segment_parses("postgres", segment_reference, raw, caplog)
 
 
 @pytest.mark.parametrize(
@@ -38,3 +73,69 @@ def test_space_is_not_reserved(raw):
     lnt = Linter(config=cfg)
     result = lnt.lint_string(raw)
     assert result.num_violations() == 0
+
+
+def test_priority_keyword_merge():
+    """Test merging on keyword lists works as expected."""
+    kw_list_1 = [("A", "not-keyword"), ("B", "non-reserved")]
+
+    kw_list_2 = [("A", "reserved"), ("C", "non-reserved")]
+
+    result = priority_keyword_merge(kw_list_1, kw_list_2)
+
+    expected_result = [("A", "reserved"), ("B", "non-reserved"), ("C", "non-reserved")]
+
+    assert sorted(result) == sorted(expected_result)
+
+    kw_list_1 = [("A", "not-keyword"), ("B", "non-reserved")]
+
+    kw_list_2 = [("A", "reserved"), ("C", "non-reserved")]
+
+    result_2 = priority_keyword_merge(kw_list_2, kw_list_1)
+
+    expected_result_2 = [
+        ("A", "not-keyword"),
+        ("B", "non-reserved"),
+        ("C", "non-reserved"),
+    ]
+
+    assert sorted(result_2) == sorted(expected_result_2)
+
+    kw_list_1 = [("A", "not-keyword"), ("B", "non-reserved")]
+
+    kw_list_2 = [("A", "reserved"), ("C", "non-reserved")]
+
+    kw_list_3 = [("B", "reserved")]
+
+    result_3 = priority_keyword_merge(kw_list_2, kw_list_1, kw_list_3)
+
+    expected_result_3 = [("A", "not-keyword"), ("B", "reserved"), ("C", "non-reserved")]
+
+    assert sorted(result_3) == sorted(expected_result_3)
+
+    kw_list_1 = [("A", "not-keyword"), ("B", "non-reserved")]
+
+    result_4 = priority_keyword_merge(kw_list_1)
+
+    expected_result_4 = kw_list_1
+
+    assert sorted(result_4) == sorted(expected_result_4)
+
+
+def test_get_keywords():
+    """Test keyword filtering works as expected."""
+    kw_list = [
+        ("A", "not-keyword"),
+        ("B", "reserved"),
+        ("C", "non-reserved"),
+        ("D", "not-keyword"),
+        ("E", "non-reserved-(cannot-be-function-or-type)"),
+    ]
+
+    expected_result = ["A", "D"]
+
+    assert sorted(get_keywords(kw_list, "not-keyword")) == sorted(expected_result)
+
+    expected_result_2 = ["C", "E"]
+
+    assert sorted(get_keywords(kw_list, "non-reserved")) == sorted(expected_result_2)

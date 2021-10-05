@@ -54,7 +54,7 @@ class SelectCrawler:
         """
         for o in cls.crawl(segment, queries, dialect, False):
             return o
-        assert False, "Should be unreachable"
+        assert False, "Should be unreachable"  # pragma: no cover
 
     @classmethod
     def crawl(

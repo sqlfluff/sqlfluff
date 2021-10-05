@@ -47,7 +47,7 @@ class Rule_Example_L001(BaseRule):
     | **Anti-pattern**
     | Using ORDER BY one some forbidden columns.
 
-    .. code-block::
+    .. code-block:: sql
 
         SELECT *
         FROM foo
@@ -58,7 +58,7 @@ class Rule_Example_L001(BaseRule):
     | **Best practice**
     | Do not order by these columns.
 
-    .. code-block::
+    .. code-block:: sql
 
         SELECT *
         FROM foo

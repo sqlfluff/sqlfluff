@@ -1,8 +1,10 @@
 """Defines the templaters."""
 
+import os
 import os.path
 import logging
-from typing import Optional
+from pathlib import Path
+from typing import List, Optional
 
 from dataclasses import dataclass
 from cached_property import cached_property
@@ -166,7 +168,6 @@ class DbtTemplater(JinjaTemplater):
 
     def _get_profiles_dir(self):
         """Get the dbt profiles directory from the configuration.
-
         The default is `~/.dbt` in 0.17 but we use the
         PROFILES_DIR variable from the dbt library to
         support a change of default in the future, as well
@@ -191,7 +192,6 @@ class DbtTemplater(JinjaTemplater):
 
     def _get_project_dir(self):
         """Get the dbt project directory from the configuration.
-
         Defaults to the working directory.
         """
         dbt_project_dir = os.path.abspath(
@@ -214,10 +214,103 @@ class DbtTemplater(JinjaTemplater):
         return self.sqlfluff_config.get_section(
             (self.templater_selector, self.name, "profile")
         )
+    def sequence_files(self, fnames: List[str], config=None, formatter=None):
+        """Reorder fnames to process dependent files first.
+        This avoids errors when an ephemeral model is processed before use.
+        """
+        # Stash the formatter if provided to use in cached methods.
+        self.formatter = formatter
+
+        self._check_dbt_installed()
+        if not config:  # pragma: no cover
+            raise ValueError(
+                "For the dbt templater, the `sequence_files()` method requires a config object."
+            )
+        result_fnames = []
+        model_fqns = set()
+        for fname in fnames:
+            # "fqn" is either a tuple or None. If a tuple, it's a dbt "fully
+            # qualified name" for the model. If an fqn is available (not None),
+            # we use it here to try and avoid confusion with multiple versions
+            # of a relative path to the same underlying file:
+            # - Most models: Relative to the working directory
+            # - Dependent/ephemeral models: Relative to the dbt project directory
+            for fqn, dependent in self._walk_dependents(
+                fname, fnames, self.working_dir, config=config
+            ):
+                add = False
+                if fqn:
+                    # We have a fully-qualified name. Use it to avoid
+                    # duplicate filenames.
+                    if fqn not in model_fqns:
+                        model_fqns.add(fqn)
+                        add = True
+                else:
+                    # Fully-qualified name not available. Assume we need to add it.
+                    add = True
+                if add and dependent not in result_fnames:
+                    result_fnames.append(dependent)
+        return result_fnames
+
+    def _walk_dependents(self, fname, fnames, relative_to, config=None):
+        self.sqlfluff_config = config
+        if not self.project_dir:
+            self.project_dir = self._get_project_dir()
+        if not self.profiles_dir:
+            self.profiles_dir = self._get_profiles_dir()
+        node = None
+        try:
+            os.chdir(self.project_dir)
+            fname_absolute_path = os.path.join(relative_to, fname)
+            try:
+                node = self._find_node(fname_absolute_path, config)
+                if node.depends_on.nodes:
+                    templater_logger.info(
+                        "%s depends on %s", fname, node.depends_on.nodes
+                    )
+                for dependent in node.depends_on.nodes:
+                    if dependent in self.dbt_manifest.nodes:
+                        # Note that we don't check here whether the file is in
+                        # "fnames". It's okay to *walk through these files* as
+                        # long as we don't *return* them.
+                        yield from self._walk_dependents(
+                            self.dbt_manifest.nodes[dependent].original_file_path,
+                            fnames,
+                            self.project_dir,
+                            config=config,
+                        )
+            except SQLTemplaterSkipFile:
+                pass
+            finally:
+                # Traversing dependencies may lead us to files that are "out of
+                # scope". It's okay to traverse them, but only return files
+                # seen in the original list. This avoids having SQLFluff look
+                # at things it's not supposed to (e.g. directories that weren't
+                # passed to the "lint" command, files excluded by
+                # .sqlfluffignore, etc.
+                if os.path.relpath(
+                    fname, self.working_dir
+                ) in fnames or os.path.relpath(
+                    os.path.join(self.working_dir, fname), self.working_dir
+                ):
+                    if node:
+                        # If we have a node object, use it to clean up the
+                        # path we return, i.e. return a path relative to the
+                        # working directory.
+                        yield tuple(node.fqn), str(
+                            (
+                                Path(node.root_path) / node.original_file_path
+                            ).relative_to(Path(self.working_dir))
+                        ),
+                    else:
+                        # If we don't have a node object, just return fname "as is"
+                        # and let the caller deal with this the best it can.
+                        yield None, fname
+        finally:
+            os.chdir(self.working_dir)
 
     def process(self, *, fname, in_str=None, config=None, formatter=None):
         """Compile a dbt model and return the compiled SQL.
-
         Args:
             fname (:obj:`str`): Path to dbt model(s)
             in_str (:obj:`str`, optional): This is ignored for dbt
@@ -241,13 +334,16 @@ class DbtTemplater(JinjaTemplater):
         except DbtCompilationException as e:
             # Increment the counter
             self._sequential_fails += 1
-            return None, [
-                SQLTemplaterError(
-                    f"dbt compilation error on file '{e.node.original_file_path}', {e.msg}",
-                    # It's fatal if we're over the limit
-                    fatal=self._sequential_fails > self.sequential_fail_limit,
-                )
-            ]
+            if e.node:
+                return None, [
+                    SQLTemplaterError(
+                        f"dbt compilation error on file '{e.node.original_file_path}', {e.msg}",
+                        # It's fatal if we're over the limit
+                        fatal=self._sequential_fails > self.sequential_fail_limit,
+                    )
+                ]
+            else:
+                raise  # pragma: no cover
         except DbtFailedToConnectException as e:
             return None, [
                 SQLTemplaterError(
@@ -359,3 +455,7 @@ class DbtTemplater(JinjaTemplater):
             # No violations returned in this way.
             [],
         )
+
+    @classmethod
+    def _preprocess_template(cls, in_str: str) -> str:
+        return in_str

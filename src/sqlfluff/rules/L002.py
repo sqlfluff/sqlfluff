@@ -19,7 +19,8 @@ class Rule_L002(BaseRule):
     | The • character represents a space and the → character represents a tab.
     | In this example, the second line contains two spaces and one tab.
 
-    .. code-block::
+    .. code-block:: sql
+       :force:
 
         SELECT
         ••→a
@@ -28,7 +29,8 @@ class Rule_L002(BaseRule):
     | **Best practice**
     | Change the line to use spaces only.
 
-    .. code-block::
+    .. code-block:: sql
+       :force:
 
         SELECT
         ••••a

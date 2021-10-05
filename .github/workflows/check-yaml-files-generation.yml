@@ -1,7 +1,7 @@
 name: "Check generated YAML files"
 on: pull_request
 jobs:
-  changelog:
+  ymlchecks:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2

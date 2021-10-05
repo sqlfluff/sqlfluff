@@ -22,7 +22,8 @@ class Rule_L003(BaseRule):
     | The • character represents a space.
     | In this example, the third line contains five spaces instead of four.
 
-    .. code-block::
+    .. code-block:: sql
+       :force:
 
         SELECT
         ••••a,
@@ -33,7 +34,8 @@ class Rule_L003(BaseRule):
     | **Best practice**
     | Change the indentation to use a multiple of four spaces.
 
-    .. code-block::
+    .. code-block:: sql
+       :force:
 
         SELECT
         ••••a,
@@ -64,8 +66,71 @@ class Rule_L003(BaseRule):
         return indent_size
 
     @classmethod
-    def _process_raw_stack(cls, raw_stack, tab_space_size=4):
+    def _reorder_raw_stack(cls, raw_stack, templated_file):
+        """Reorder raw_stack to simplify indentation logic.
+
+        Context: The indentation logic was mostly designed to work with normal
+        segment types. Templating introduces additional segments into the parse
+        tree, often in the "wrong" place with respect to the indentation logic,
+        for example, where do indent/dedent segments appear with respect to the
+        segments that trigger indent/dedent behavior? This function reorders
+        nodes locally (i.e. only within L003) to get the desired behavior.
+        """
+
+        def segment_info(idx):
+            """Helper function for sort_current_line()."""
+            seg = current_line[idx]
+            return (seg.type, cls._get_element_template_info(seg, templated_file))
+
+        def move_indent_before_templated():
+            """Swap position of template and indent segment if code follows.
+
+            This allows for correct indentation of templated table names in
+            "FROM", for example:
+
+            SELECT brand
+            FROM
+                {{ product }}
+
+            """
+            for idx in range(2, len(current_line)):
+                if (
+                    segment_info(idx - 2)
+                    == (
+                        "placeholder",
+                        "templated",
+                    )
+                    and segment_info(idx - 1) == ("indent", None)
+                    and segment_info(idx) == ("raw", None)
+                ):
+                    current_line[idx - 2], current_line[idx - 1] = (
+                        current_line[idx - 1],
+                        current_line[idx - 2],
+                    )
+
+        # Break raw_stack into lines.
+        lines = []
+        current_line = []
+        for elem in raw_stack:
+            if not elem.is_type("newline"):
+                current_line.append(elem)
+            else:
+                move_indent_before_templated()
+                current_line.append(elem)
+                lines.append(current_line)
+                current_line = []
+        if current_line:
+            move_indent_before_templated()
+            lines.append(current_line)
+        raw_stack = [s for line in lines for s in line]
+        return tuple(raw_stack)
+
+    @classmethod
+    def _process_raw_stack(
+        cls, raw_stack, memory=None, tab_space_size=4, templated_file=None
+    ):
         """Take the raw stack, split into lines and evaluate some stats."""
+        raw_stack = cls._reorder_raw_stack(raw_stack, templated_file)
         indent_balance = 0
         line_no = 1
         in_indent = True
@@ -94,7 +159,7 @@ class Rule_L003(BaseRule):
                     # Indent balance is the indent at the start of the first content
                     "indent_balance": this_indent_balance,
                     "hanging_indent": hanger_pos if line_indent_stack else None,
-                    # Clean indent is true if the line *ends* win an indent
+                    # Clean indent is true if the line *ends* with an indent
                     # or has an indent in the initial whitespace.
                     "clean_indent": clean_indent,
                 }
@@ -150,6 +215,10 @@ class Rule_L003(BaseRule):
                         line_buffer[:-1], tab_space_size=tab_space_size
                     )
 
+            # If we hit the trigger element, stop processing.
+            if memory and elem is memory["trigger"]:
+                break
+
         # If we get to the end, and still have a buffer, add it on
         if line_buffer:
             result_buffer[line_no] = {
@@ -204,7 +273,36 @@ class Rule_L003(BaseRule):
             if key not in ("line_buffer", "indent_buffer")
         }
 
-    def _eval(self, segment, raw_stack, memory, **kwargs):
+    @classmethod
+    def _is_last_segment(cls, segment, memory, parent_stack, siblings_post):
+        """Returns True if 'segment' is the very last node in the parse tree."""
+        if siblings_post:
+            # We have subsequent siblings. Not finished.
+            return False
+        elif parent_stack:
+            # No subsequent siblings. Our parent is finished.
+            memory["finished"].add(parent_stack[-1])
+        if segment.segments:
+            # We have children. Not finished.
+            return False
+
+        # We have no subsequent siblings or children. If all our parents are
+        # finished, the whole parse tree is finished.
+        for parent in parent_stack:
+            if parent not in memory["finished"]:
+                return False
+        return True
+
+    def _eval(
+        self,
+        segment,
+        raw_stack,
+        memory,
+        parent_stack,
+        siblings_post,
+        templated_file,
+        **kwargs
+    ):
         """Indentation not consistent with previous lines.
 
         To set the default tab size, set the `tab_space_size` value
@@ -227,7 +325,7 @@ class Rule_L003(BaseRule):
           indent meta segment in the previous line.
 
         """
-        # Memory keeps track of what we just saw
+        # Memory keeps track of what we've seen
         if not memory:
             memory = {
                 # in_indent keeps track of whether we're in an indent right now
@@ -240,30 +338,66 @@ class Rule_L003(BaseRule):
                 "hanging_lines": [],
                 # comment_lines keeps track of lines which are all comment.
                 "comment_lines": [],
+                # segments we've seen the last child of
+                "finished": set(),
+                # First non-whitespace node on a line.
+                "trigger": None,
             }
 
         if segment.is_type("newline"):
             memory["in_indent"] = True
-            # We're not going to flag on empty lines so we can safely proceed
-            return LintResult(memory=memory)
         elif memory["in_indent"]:
             if segment.is_type("whitespace"):
                 # it's whitespace, carry on
-                return LintResult(memory=memory)
+                pass
             elif segment.segments or (segment.is_meta and segment.indent_val != 0):
                 # it's not a raw segment or placeholder. Carry on.
-                return LintResult(memory=memory)
+                pass
             else:
                 memory["in_indent"] = False
                 # we're found a non-whitespace element. This is our trigger,
                 # which we'll handle after this if-statement
+                memory["trigger"] = segment
         else:
             # Not in indent and not a newline, don't trigger here.
+            pass
+
+        # Is this the last segment? If so, need to "flush" any leftovers.
+        is_last = self._is_last_segment(segment, memory, parent_stack, siblings_post)
+
+        if not segment.is_type("newline") and not is_last:
+            # We only process complete lines or on the very last segment
+            # (since there may not be a newline on the very last line)..
             return LintResult(memory=memory)
 
+        if raw_stack and raw_stack[-1] is not segment:
+            raw_stack = raw_stack + (segment,)
         res = self._process_raw_stack(
-            raw_stack + (segment,), tab_space_size=self.tab_space_size
+            raw_stack,
+            memory,
+            tab_space_size=self.tab_space_size,
+            templated_file=templated_file,
         )
+
+        if res:
+            # Saw a newline or end of parse tree. Is the current line empty?
+            trigger_segment = memory["trigger"]
+            if trigger_segment:
+                # Not empty. Process it.
+                result = self._process_current_line(res, memory)
+                if segment.is_type("newline"):
+                    memory["trigger"] = None
+                return result
+        return LintResult(memory=memory)
+
+    def _process_current_line(self, res, memory):
+        """Checks indentation of one line of code, returning a LintResult.
+
+        The _eval() function calls it for the current line of code:
+        - When passed a newline segment (thus ending a line)
+        - When passed the *final* segment in the entire parse tree (which may
+          not be a newline)
+        """
         this_line_no = max(res.keys())
         this_line = res.pop(this_line_no)
         self.logger.debug(
@@ -272,13 +406,15 @@ class Rule_L003(BaseRule):
             # Don't log the line or indent buffer, it's too noisy.
             self._strip_buffers(this_line),
         )
+        trigger_segment = memory["trigger"]
 
-        # Is this line just comments?
-        if all(
+        # Is this line just comments? (Disregard trailing newline if present.)
+        check_comment_line = this_line["line_buffer"]
+        if check_comment_line and all(
             seg.is_type(
                 "whitespace", "comment", "indent"  # dedent is a subtype of indent
             )
-            for seg in this_line["line_buffer"]
+            for seg in check_comment_line
         ):
             # Comment line, deal with it later.
             memory["comment_lines"].append(this_line_no)
@@ -326,24 +462,13 @@ class Rule_L003(BaseRule):
             if this_line["indent_size"] > 0:
                 self.logger.debug("    Indented First Line. #%s", this_line_no)
                 return LintResult(
-                    anchor=segment,
+                    anchor=trigger_segment,
                     memory=memory,
                     description="First line has unexpected indent",
                     fixes=[
                         LintFix("delete", elem) for elem in this_line["indent_buffer"]
                     ],
                 )
-
-        # Are we linting a placeholder, and if so are we allowed to?
-        if (not self.lint_templated_tokens) and this_line["line_buffer"][
-            len(this_line["indent_buffer"]) :
-        ][0].is_type("placeholder"):
-            # If not, make this a problem line and carry on.
-            memory["problem_lines"].append(this_line_no)
-            self.logger.debug(
-                "    Avoiding template placeholder Line. #%s", this_line_no
-            )
-            return LintResult(memory=memory)
 
         # Assuming it's not a hanger, let's compare it to the other previous
         # lines. We do it in reverse so that closer lines are more relevant.
@@ -389,13 +514,13 @@ class Rule_L003(BaseRule):
                     fixes = self._coerce_indent_to(
                         desired_indent=desired_indent,
                         current_indent_buffer=this_line["indent_buffer"],
-                        current_anchor=segment,
+                        current_anchor=trigger_segment,
                     )
                     self.logger.debug(
                         "    !! Indentation does not match #%s. Fixes: %s", k, fixes
                     )
                     return LintResult(
-                        anchor=segment,
+                        anchor=trigger_segment,
                         memory=memory,
                         description="Indentation not consistent with line #{}".format(
                             k
@@ -434,15 +559,14 @@ class Rule_L003(BaseRule):
                     )
                     # If we have a clean indent, we can just add steps in line
                     # with the difference in the indent buffers. simples.
-                    # We can also do this if we've skipped a line. I think?
-                    if this_line["clean_indent"] or this_line_no - k > 1:
+                    if this_line["clean_indent"]:
                         self.logger.debug("        Use clean indent.")
                         desired_indent = default_indent
                     # If we have the option of a hanging indent then use it.
                     elif res[k]["hanging_indent"]:
                         self.logger.debug("        Use hanging indent.")
                         desired_indent = " " * res[k]["hanging_indent"]
-                    else:
+                    else:  # pragma: no cover
                         self.logger.debug("        Use default indent.")
                         desired_indent = default_indent
 
@@ -450,11 +574,11 @@ class Rule_L003(BaseRule):
                     fixes = self._coerce_indent_to(
                         desired_indent=desired_indent,
                         current_indent_buffer=this_line["indent_buffer"],
-                        current_anchor=segment,
+                        current_anchor=trigger_segment,
                     )
 
                     return LintResult(
-                        anchor=segment,
+                        anchor=trigger_segment,
                         memory=memory,
                         description=(
                             "Indentation not hanging or a multiple of {} spaces"
@@ -498,7 +622,7 @@ class Rule_L003(BaseRule):
                                 b_idx += 1
                                 b_num += 1
                                 continue
-                            break
+                            break  # pragma: no cover
 
                     if b_num >= indent_diff:
                         # It does. This line is fine.
@@ -508,7 +632,7 @@ class Rule_L003(BaseRule):
                         # this line and we DON'T.
                         memory["problem_lines"].append(this_line_no)
                         return LintResult(
-                            anchor=segment,
+                            anchor=trigger_segment,
                             memory=memory,
                             description="Indent expected and not found compared to line #{}".format(
                                 k
@@ -517,7 +641,7 @@ class Rule_L003(BaseRule):
                             fixes=[
                                 LintFix(
                                     "create",
-                                    segment,
+                                    trigger_segment,
                                     WhitespaceSegment(
                                         raw=self._make_indent(
                                             indent_unit=self.indent_unit,
@@ -530,7 +654,7 @@ class Rule_L003(BaseRule):
                 elif this_indent_num < comp_indent_num:
                     memory["problem_lines"].append(this_line_no)
                     return LintResult(
-                        anchor=segment,
+                        anchor=trigger_segment,
                         memory=memory,
                         description="Line under-indented compared to line #{}".format(
                             k
@@ -538,7 +662,7 @@ class Rule_L003(BaseRule):
                         fixes=[
                             LintFix(
                                 "create",
-                                segment,
+                                trigger_segment,
                                 WhitespaceSegment(
                                     # Make the minimum indent for it to be ok.
                                     raw=self._make_indent(
@@ -562,12 +686,12 @@ class Rule_L003(BaseRule):
                     fixes = self._coerce_indent_to(
                         desired_indent=desired_indent,
                         current_indent_buffer=this_line["indent_buffer"],
-                        current_anchor=segment,
+                        current_anchor=trigger_segment,
                     )
 
                     memory["problem_lines"].append(this_line_no)
                     return LintResult(
-                        anchor=segment,
+                        anchor=trigger_segment,
                         memory=memory,
                         description="Line over-indented compared to line #{}".format(k),
                         fixes=fixes,
@@ -577,35 +701,41 @@ class Rule_L003(BaseRule):
             # we can assume that we're ok.
             self.logger.debug("    Indent deemed ok comparing to #%s", k)
 
-            # Given that this line is ok, consider if the previous line is a comment.
-            # If it is, lint the indentation of that comment.
-            if this_line_no - 1 in memory["comment_lines"]:
-                # The previous line WAS as comment.
-                prev_line = res[this_line_no - 1]
-                if this_line["indent_size"] != prev_line["indent_size"]:
-                    # It's not aligned.
-                    # Find the anchor first.
-                    anchor = None
-                    for seg in prev_line["line_buffer"]:
-                        if seg.is_type("comment"):
-                            anchor = seg
-                            break
-                    # Make fixes.
-                    fixes = self._coerce_indent_to(
-                        desired_indent="".join(
-                            elem.raw for elem in this_line["indent_buffer"]
-                        ),
-                        current_indent_buffer=prev_line["indent_buffer"],
-                        current_anchor=anchor,
-                    )
+            # Given that this line is ok, consider if the preceding lines are
+            # comments. If they are, lint the indentation of the comment(s).
+            fixes = []
+            for n in range(this_line_no - 1, -1, -1):
+                if n in memory["comment_lines"]:
+                    # The previous line WAS a comment.
+                    prev_line = res[n]
+                    if this_line["indent_size"] != prev_line["indent_size"]:
+                        # It's not aligned.
+                        # Find the anchor first.
+                        anchor = None
+                        for seg in prev_line["line_buffer"]:
+                            if seg.is_type("comment"):
+                                anchor = seg
+                                break
+                        # Make fixes.
+                        fixes += self._coerce_indent_to(
+                            desired_indent="".join(
+                                elem.raw for elem in this_line["indent_buffer"]
+                            ),
+                            current_indent_buffer=prev_line["indent_buffer"],
+                            current_anchor=anchor,
+                        )
 
-                    memory["problem_lines"].append(this_line_no - 1)
-                    return LintResult(
-                        anchor=anchor,
-                        memory=memory,
-                        description="Comment not aligned with following line.",
-                        fixes=fixes,
-                    )
+                        memory["problem_lines"].append(n)
+                else:
+                    break
+
+            if fixes:
+                return LintResult(
+                    anchor=anchor,
+                    memory=memory,
+                    description="Comment not aligned with following line.",
+                    fixes=fixes,
+                )
 
             # Otherwise all good.
             return LintResult(memory=memory)
@@ -616,3 +746,13 @@ class Rule_L003(BaseRule):
 
         # If we get to here, then we're all good for now.
         return LintResult(memory=memory)
+
+    @classmethod
+    def _get_element_template_info(cls, elem, templated_file):
+        if elem.is_type("placeholder"):
+            slices = templated_file.raw_slices_spanning_source_slice(
+                elem.pos_marker.source_slice
+            )
+            if slices:
+                return slices[0].slice_type
+        return None

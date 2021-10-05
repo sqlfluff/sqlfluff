@@ -169,7 +169,7 @@ class RegexParser(StringParser):
         we assume that ._template is a r"" string, and is formatted
         for use directly as a regex. This only matches on a single segment.
         """
-        if len(segment.raw) == 0:
+        if len(segment.raw) == 0:  # pragma: no cover TODO?
             # If it's of zero length it's probably a meta segment.
             # In any case, it won't match here.
             return False

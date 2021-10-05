@@ -1,7 +1,6 @@
 rule: L033
 
-test_1:
-  # Bare UNION without a DISTINCT or ALL
+test_pass_union_all:
   pass_str: |
     SELECT
       a,
@@ -13,7 +12,7 @@ test_1:
       d
     FROM tbl1
 
-test_2:
+test_fail_bare_union:
   fail_str: |
     SELECT
       a,
@@ -35,7 +34,7 @@ test_2:
       d
     FROM tbl1
 
-test_3:
+test_pass_union_distinct:
   pass_str: |
     SELECT
       a,
@@ -47,7 +46,7 @@ test_3:
       d
     FROM tbl1
 
-test_4:
+test_pass_union_distinct_with_comment:
   pass_str: |
     SELECT
       a,
@@ -63,7 +62,7 @@ test_4:
       d
     FROM tbl1
 
-test_5:
+test_fail_triple_join_with_one_bad:
   fail_str: |
     SELECT
       a,
@@ -95,7 +94,7 @@ test_5:
       f
     FROM tbl2
 
-test_6:
+test_fail_triple_join_with_one_bad_lowercase:
   fail_str: |
     select
       a,
@@ -121,8 +120,108 @@ test_6:
       c,
       d
     from tbl1
-    UNION DISTINCT
+    union distinct
     select
       e,
       f
     from tbl2
+
+test_exasol:
+  pass_str: |
+    select
+      a,
+      b
+    from tbl1
+    union
+    select
+      c,
+      d
+    from tbl2
+
+  configs:
+    core:
+      dialect: exasol
+
+test_exasol_union_all:
+  pass_str: |
+    select
+      a,
+      b
+    from tbl1
+    union all
+    select
+      c,
+      d
+    from tbl2
+
+  configs:
+    core:
+      dialect: exasol
+
+test_postgres:
+  pass_str: |
+    select
+      a,
+      b
+    from tbl1
+    union
+    select
+      c,
+      d
+    from tbl2
+
+  configs:
+    core:
+      dialect: postgres
+
+test_bigquery:
+  fail_str: |
+    SELECT
+      a,
+      b
+    FROM tbl1
+    UNION
+    SELECT
+      c,
+      d
+    FROM tbl2
+  fix_str: |
+    SELECT
+      a,
+      b
+    FROM tbl1
+    UNION DISTINCT
+    SELECT
+      c,
+      d
+    FROM tbl2
+
+  configs:
+    core:
+      dialect: bigquery
+
+test_bigquery_lower:
+  fail_str: |
+    select
+      a,
+      b
+    from tbl1
+    union
+    select
+      c,
+      d
+    from tbl2
+  fix_str: |
+    select
+      a,
+      b
+    from tbl1
+    union distinct
+    select
+      c,
+      d
+    from tbl2
+
+  configs:
+    core:
+      dialect: bigquery

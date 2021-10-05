@@ -135,7 +135,7 @@ class Linter:
             violations.append(err)
             return None, violations, config
 
-        if not tokens:
+        if not tokens:  # pragma: no cover TODO?
             return None, violations, config
 
         # Check that we've got sensible indentation from the lexer.
@@ -178,13 +178,18 @@ class Linter:
 
     @staticmethod
     def _parse_tokens(
-        tokens: Sequence[BaseSegment], config: FluffConfig, recurse: bool = True
+        tokens: Sequence[BaseSegment],
+        config: FluffConfig,
+        recurse: bool = True,
+        fname: Optional[str] = None,
     ) -> Tuple[Optional[BaseSegment], List[SQLParseError]]:
         parser = Parser(config=config)
         violations = []
         # Parse the file and log any problems
         try:
-            parsed: Optional[BaseSegment] = parser.parse(tokens, recurse=recurse)
+            parsed: Optional[BaseSegment] = parser.parse(
+                tokens, recurse=recurse, fname=fname
+            )
         except SQLParseError as err:
             linter_logger.info("PARSING FAILED! : %s", err)
             violations.append(err)
@@ -230,7 +235,7 @@ class Linter:
                     action: Optional[str]
                     if "=" in comment_remainder:
                         action, rule_part = comment_remainder.split("=", 1)
-                        if action not in {"disable", "enable"}:
+                        if action not in {"disable", "enable"}:  # pragma: no cover
                             return SQLParseError(
                                 "Malformed 'noqa' section. "
                                 "Expected 'noqa: enable=<rule>[,...] | all' "
@@ -258,22 +263,25 @@ class Linter:
 
     @staticmethod
     def remove_templated_errors(
-        linting_errors: List[SQLLintError],
-    ) -> List[SQLLintError]:
+        linting_errors: List[SQLBaseError],
+    ) -> List[SQLBaseError]:
         """Filter a list of lint errors, removing those which only occur in templated slices."""
         # Filter out any linting errors in templated sections if relevant.
-        linting_errors = list(
-            filter(
-                lambda e: (
+        result: List[SQLBaseError] = []
+        for e in linting_errors:
+            if isinstance(e, SQLLintError):
+                if (
                     # Is it in a literal section?
                     e.segment.pos_marker.is_literal()
                     # Is it a rule that is designed to work on templated sections?
                     or e.rule.targets_templated
-                ),
-                linting_errors,
-            )
-        )
-        return linting_errors
+                ):
+                    result.append(e)
+            else:
+                # If it's another type, just keep it. (E.g. SQLParseError from
+                # malformed "noqa" comment).
+                result.append(e)
+        return result
 
     @staticmethod
     def _warn_unfixable(code: str):
@@ -302,7 +310,9 @@ class Linter:
         linter_logger.info("PARSING (%s)", rendered.fname)
 
         if tokens:
-            parsed, pvs = cls._parse_tokens(tokens, rendered.config, recurse=recurse)
+            parsed, pvs = cls._parse_tokens(
+                tokens, rendered.config, recurse=recurse, fname=rendered.fname
+            )
             violations += pvs
         else:
             parsed = None
@@ -333,12 +343,12 @@ class Linter:
         return result
 
     @classmethod
-    def extract_ignore_mask(cls, tree: Optional[BaseSegment]):
+    def extract_ignore_mask(
+        cls, tree: BaseSegment
+    ) -> Tuple[List[NoQaDirective], List[SQLBaseError]]:
         """Look for inline ignore comments and return NoQaDirectives."""
         ignore_buff: List[NoQaDirective] = []
-        violations: List[SQLParseError] = []
-        if not tree:
-            return ignore_buff, violations
+        violations: List[SQLBaseError] = []
         for comment in tree.recursive_crawl("comment"):
             if comment.name == "inline_comment":
                 ignore_entry = cls.extract_ignore_from_comment(comment)
@@ -360,7 +370,7 @@ class Linter:
         fname: Optional[str] = None,
         templated_file: Optional[TemplatedFile] = None,
         formatter: Any = None,
-    ) -> Tuple[BaseSegment, List[SQLLintError]]:
+    ) -> Tuple[BaseSegment, List[SQLBaseError], List[NoQaDirective]]:
         """Lint and optionally fix a tree object."""
         # Keep track of the linting errors
         all_linting_errors = []
@@ -376,6 +386,10 @@ class Linter:
         if formatter:
             formatter.dispatch_lint_header(fname)
 
+        # Look for comment segments which might indicate lines to ignore.
+        ignore_buff, ivs = cls.extract_ignore_mask(tree)
+        all_linting_errors += ivs
+
         for loop in range(loop_limit):
             changed = False
             for crawler in rule_set:
@@ -386,6 +400,7 @@ class Linter:
                 # The second is the element to insert or create.
                 linting_errors, _, fixes, _ = crawler.crawl(
                     tree,
+                    ignore_mask=ignore_buff,
                     dialect=config.get("dialect_obj"),
                     fname=fname,
                     templated_file=templated_file,
@@ -395,7 +410,7 @@ class Linter:
                 if fix and fixes:
                     linter_logger.info(f"Applying Fixes [{crawler.code}]: {fixes}")
                     # Do some sanity checks on the fixes before applying.
-                    if fixes == last_fixes:
+                    if fixes == last_fixes:  # pragma: no cover
                         cls._warn_unfixable(crawler.code)
                     else:
                         last_fixes = fixes
@@ -429,7 +444,7 @@ class Linter:
         if config.get("ignore_templated_areas", default=True):
             initial_linting_errors = cls.remove_templated_errors(initial_linting_errors)
 
-        return tree, initial_linting_errors
+        return tree, initial_linting_errors, ignore_buff
 
     @classmethod
     def lint_parsed(
@@ -443,15 +458,11 @@ class Linter:
         """Lint a ParsedString and return a LintedFile."""
         violations = parsed.violations
         time_dict = parsed.time_dict
-        # Look for comment segments which might indicate lines to ignore.
-        ignore_buff, ivs = cls.extract_ignore_mask(parsed.tree)
-        violations += ivs
-
         tree: Optional[BaseSegment]
         if parsed.tree:
             t0 = time.monotonic()
             linter_logger.info("LINTING (%s)", parsed.fname)
-            tree, initial_linting_errors = cls.lint_fix_parsed(
+            tree, initial_linting_errors, ignore_buff = cls.lint_fix_parsed(
                 parsed.tree,
                 config=parsed.config,
                 rule_set=rule_set,
@@ -468,8 +479,8 @@ class Linter:
             violations += initial_linting_errors
         else:
             # If no parsed tree, set to None
-
             tree = None
+            ignore_buff = []
 
         # We process the ignore config here if appropriate
         for violation in violations:
@@ -495,7 +506,7 @@ class Linter:
         if parsed.config.get("dialect") == "ansi" and linted_file.get_violations(
             fixable=True if fix else None, types=SQLParseError
         ):
-            if formatter:
+            if formatter:  # pragma: no cover TODO?
                 formatter.dispatch_dialect_warning()
 
         return linted_file
@@ -544,7 +555,7 @@ class Linter:
             templated_file, templater_violations = self.templater.process(
                 in_str=in_str, fname=fname, config=config, formatter=self.formatter
             )
-        except SQLTemplaterSkipFile as s:
+        except SQLTemplaterSkipFile as s:  # pragma: no cover
             linter_logger.warning(str(s))
             templated_file = None
             templater_violations = []
@@ -601,11 +612,11 @@ class Linter:
         config: Optional[FluffConfig] = None,
         fname: Optional[str] = None,
         templated_file: Optional[TemplatedFile] = None,
-    ) -> Tuple[BaseSegment, List[SQLLintError]]:
+    ) -> Tuple[BaseSegment, List[SQLBaseError]]:
         """Return the fixed tree and violations from lintfix when we're fixing."""
         config = config or self.config
         rule_set = self.get_ruleset(config=config)
-        fixed_tree, violations = self.lint_fix_parsed(
+        fixed_tree, violations, _ = self.lint_fix_parsed(
             tree,
             config,
             rule_set,
@@ -622,11 +633,11 @@ class Linter:
         config: Optional[FluffConfig] = None,
         fname: Optional[str] = None,
         templated_file: Optional[TemplatedFile] = None,
-    ) -> List[SQLLintError]:
+    ) -> List[SQLBaseError]:
         """Return just the violations from lintfix when we're only linting."""
         config = config or self.config
         rule_set = self.get_ruleset(config=config)
-        _, violations = self.lint_fix_parsed(
+        _, violations, _ = self.lint_fix_parsed(
             tree,
             config,
             rule_set,
@@ -808,7 +819,7 @@ class Linter:
         for linted_file in runner.run(fnames, fix):
             linted_path.add(linted_file)
             # If any fatal errors, then stop iteration.
-            if any(v.fatal for v in linted_file.violations):
+            if any(v.fatal for v in linted_file.violations):  # pragma: no cover
                 linter_logger.error("Fatal linting error. Halting further linting.")
                 break
         return linted_path
@@ -823,7 +834,7 @@ class Linter:
     ) -> LintingResult:
         """Lint an iterable of paths."""
         # If no paths specified - assume local
-        if len(paths) == 0:
+        if len(paths) == 0:  # pragma: no cover
             paths = (os.getcwd(),)
         # Set up the result to hold what we get back
         result = LintingResult()

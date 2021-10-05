@@ -26,12 +26,101 @@ from sqlfluff.core.parser import (
     NamedParser,
     RegexParser,
 )
-
+from sqlfluff.core.parser.grammar.anyof import OptionallyBracketed
 
 ansi_dialect = load_raw_dialect("ansi")
-postgres_dialect = load_raw_dialect("postgres")
+snowflake_dialect = ansi_dialect.copy_as("snowflake")
 
-snowflake_dialect = postgres_dialect.copy_as("snowflake")
+# Add all Snowflake keywords
+
+
+# These are Reserved Keywords in Snowflake so move them
+snowflake_dialect.sets("unreserved_keywords").discard("ILIKE")
+snowflake_dialect.sets("unreserved_keywords").discard("INCREMENT")
+snowflake_dialect.sets("unreserved_keywords").discard("MINUS")
+snowflake_dialect.sets("unreserved_keywords").discard("QUALIFY")
+snowflake_dialect.sets("unreserved_keywords").discard("REGEXP")
+snowflake_dialect.sets("unreserved_keywords").discard("RLIKE")
+snowflake_dialect.sets("unreserved_keywords").discard("SOME")
+snowflake_dialect.sets("unreserved_keywords").discard("TABLESAMPLE")
+
+# Add above along with the
+snowflake_dialect.sets("reserved_keywords").update(
+    [
+        "ILIKE",
+        "INCREMENT",
+        "MINUS",
+        "PIVOT",
+        "QUALIFY",
+        "REGEXP",
+        "RLIKE",
+        "SAMPLE",
+        "SOME",
+        "TABLESAMPLE",
+        "UNPIVOT",
+    ]
+)
+
+snowflake_dialect.sets("unreserved_keywords").update(
+    [
+        "ALLOW_OVERLAPPING_EXECUTION",
+        "API",
+        "AUTHORIZATIONS",
+        "AUTO_INGEST",
+        "AUTO_REFRESH",
+        "AUTO_RESUME",
+        "AUTO_SUSPEND",
+        "AVRO",
+        "AWS_SNS_TOPIC",
+        "BERNOULLI",
+        "BLOCK",
+        "CLONE",
+        "DELEGATED",
+        "ECONOMY",
+        "FILES",
+        "FILE_FORMAT",
+        "FORMAT_NAME",
+        "HISTORY",
+        "INITIALLY_SUSPENDED",
+        "LATERAL",
+        "MASKING",
+        "MAX_CLUSTER_COUNT",
+        "MIN_CLUSTER_COUNT",
+        "MAX_CONCURRENCY_LEVEL",
+        "NETWORK",
+        "NEXTVAL",
+        "NOTIFICATION",
+        "ORC",
+        "PARQUET",
+        "PATTERN",
+        "PIPE",
+        "PIPES",
+        "POLICY",
+        "QUERIES",
+        "REFRESH_ON_CREATE",
+        "REGIONS",
+        "REMOVE",
+        "RESOURCE_MONITOR",
+        "RESUME",
+        "SAMPLE",
+        "SCALING_POLICY",
+        "SCHEDULE",
+        "SECURE",
+        "SEED",
+        "SIZE_LIMIT",
+        "STANDARD",
+        "STATEMENT_QUEUED_TIMEOUT_IN_SECONDS",
+        "STATEMENT_TIMEOUT_IN_SECONDS",
+        "SUSPEND",
+        "SUSPENDED",
+        "TAG",
+        "TERSE",
+        "TABULAR",
+        "UNSET",
+        "WAIT_FOR_COMPLETION",
+        "WAREHOUSE_SIZE",
+    ]
+)
 
 snowflake_dialect.patch_lexer_matchers(
     [
@@ -45,53 +134,20 @@ snowflake_dialect.insert_lexer_matchers(
     [
         # Keyword assigner needed for keyword functions.
         StringLexer("parameter_assigner", "=>", CodeSegment),
+        StringLexer("function_assigner", "->", CodeSegment),
+        StringLexer("atsign", "@", CodeSegment),
+        RegexLexer("and_literal", r"[&][a-zA-Z_][\w]*", CodeSegment),
         # Column selector
         # https://docs.snowflake.com/en/sql-reference/sql/select.html#parameters
         RegexLexer("column_selector", r"\$[0-9]+", CodeSegment),
+        RegexLexer(
+            "dollar_literal",
+            r"[$][a-zA-Z0-9_.]*",
+            CodeSegment,
+        ),
     ],
     before="not_equal",
 )
-
-snowflake_dialect.sets("unreserved_keywords").update(
-    [
-        "ALLOW_OVERLAPPING_EXECUTION",
-        "API",
-        "AUTHORIZATIONS",
-        "BERNOULLI",
-        "BLOCK",
-        "DELEGATED",
-        "HISTORY",
-        "LATERAL",
-        "NETWORK",
-        "PIPE",
-        "PIPES",
-        "QUERIES",
-        "REGIONS",
-        "RESUME",
-        "REMOVE",
-        "SCHEDULE",
-        "SECURE",
-        "SEED",
-        "SUSPEND",
-        "TERSE",
-        "UNSET",
-        "TABULAR",
-    ]
-)
-
-
-snowflake_dialect.sets("reserved_keywords").update(
-    [
-        "CLONE",
-        "MASKING",
-        "NOTIFICATION",
-        "PIVOT",
-        "SAMPLE",
-        "TABLESAMPLE",
-        "UNPIVOT",
-    ]
-)
-
 
 snowflake_dialect.add(
     # In snowflake, these are case sensitive even though they're not quoted
@@ -99,6 +155,9 @@ snowflake_dialect.add(
     # by other rules.
     ParameterAssignerSegment=StringParser(
         "=>", SymbolSegment, name="parameter_assigner", type="parameter_assigner"
+    ),
+    FunctionAssignerSegment=StringParser(
+        "->", SymbolSegment, name="function_assigner", type="function_assigner"
     ),
     NakedSemiStructuredElementSegment=RegexParser(
         r"[A-Z0-9_]*",
@@ -118,9 +177,58 @@ snowflake_dialect.add(
         name="column_index_identifier_segment",
         type="identifier",
     ),
+    LocalVariableNameSegment=RegexParser(
+        r"[a-zA-Z0-9_]*",
+        CodeSegment,
+        name="declared_variable",
+        type="variable",
+    ),
+    ReferencedVariableNameSegment=RegexParser(
+        r"(\$|\&)[A-Z][A-Z0-9_]*",
+        CodeSegment,
+        name="referenced_variable",
+        type="variable",
+        trim_chars=(
+            "$",
+            "&",
+        ),
+    ),
+    # We use a RegexParser instead of keywords as some (those with dashes) require quotes:
+    WarehouseSize=RegexParser(
+        r"(XSMALL|SMALL|MEDIUM|LARGE|XLARGE|XXLARGE|XXXLARGE|X4LARGE|X5LARGE|X6LARGE|"
+        r"'X-SMALL'|'X-LARGE'|'XX-LARGE'|'XXX-LARGE'|'X4-LARGE'|'X5-LARGE'|'X6-LARGE')",
+        CodeSegment,
+        name="warehouse_size",
+        type="identifier",
+    ),
+    DoubleQuotedLiteralSegment=NamedParser(
+        "double_quote",
+        CodeSegment,
+        name="quoted_literal",
+        type="literal",
+        trim_chars=('"',),
+    ),
+    AtSignLiteralSegment=NamedParser(
+        "atsign",
+        CodeSegment,
+        name="atsign_literal",
+        type="literal",
+        trim_chars=("@",),
+    ),
+    ReturnNRowsSegment=RegexParser(
+        r"RETURN_[0-9][0-9]*_ROWS",
+        CodeSegment,
+        name="literal",
+        type="literal",
+    ),
 )
 
 snowflake_dialect.replace(
+    LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar").copy(
+        insert=[
+            Ref("ReferencedVariableNameSegment"),
+        ]
+    ),
     Accessor_Grammar=AnyNumberOf(
         Ref("ArrayAccessorSegment"),
         # Add in semi structured expressions
@@ -130,6 +238,7 @@ snowflake_dialect.replace(
     FunctionContentsExpressionGrammar=OneOf(
         Ref("DatetimeUnitSegment"),
         Ref("NamedParameterExpressionSegment"),
+        Ref("ReferencedVariableNameSegment"),
         Sequence(
             Ref("ExpressionSegment"),
             Sequence(OneOf("IGNORE", "RESPECT"), "NULLS", optional=True),
@@ -150,6 +259,7 @@ snowflake_dialect.replace(
         Ref("NakedIdentifierSegment"),
         Ref("QuotedIdentifierSegment"),
         Ref("ColumnIndexIdentifierSegment"),
+        Ref("ReferencedVariableNameSegment"),
     ),
     PostFunctionGrammar=Sequence(
         Ref("WithinGroupClauseSegment", optional=True),
@@ -157,6 +267,143 @@ snowflake_dialect.replace(
         Ref("OverClauseSegment", optional=True),
     ),
 )
+
+
+@snowflake_dialect.segment(replace=True)
+class GroupByClauseSegment(BaseSegment):
+    """A `GROUP BY` clause like in `SELECT`.
+
+    Snowflake supports Cube, Rollup, and Grouping Sets
+
+    https://docs.snowflake.com/en/sql-reference/constructs/group-by.html
+    """
+
+    type = "group_by_clause"
+    match_grammar = StartsWith(
+        Sequence("GROUP", "BY"),
+        terminator=OneOf("ORDER", "LIMIT", "HAVING", "QUALIFY", "WINDOW"),
+        enforce_whitespace_preceding_terminator=True,
+    )
+    parse_grammar = Sequence(
+        "GROUP",
+        "BY",
+        Indent,
+        Delimited(
+            OneOf(
+                Ref("ColumnReferenceSegment"),
+                # Can `GROUP BY 1`
+                Ref("NumericLiteralSegment"),
+                # Can `GROUP BY coalesce(col, 1)`
+                Ref("ExpressionSegment"),
+                Ref("CubeRollupClauseSegment"),
+                Ref("GroupingSetsClauseSegment"),
+            ),
+            terminator=OneOf("ORDER", "LIMIT", "HAVING", "QUALIFY", "WINDOW"),
+        ),
+        Dedent,
+    )
+
+
+@snowflake_dialect.segment()
+class CubeRollupClauseSegment(BaseSegment):
+    """`CUBE` / `ROLLUP` clause within the `GROUP BY` clause."""
+
+    type = "cube_rollup_clause"
+    match_grammar = StartsWith(
+        OneOf("CUBE", "ROLLUP"),
+        terminator=OneOf(
+            "HAVING",
+            "QUALIFY",
+            "ORDER",
+            "LIMIT",
+            Ref("SetOperatorSegment"),
+        ),
+    )
+    parse_grammar = Sequence(
+        OneOf("CUBE", "ROLLUP"),
+        Bracketed(
+            Ref("GroupingExpressionList"),
+        ),
+    )
+
+
+@snowflake_dialect.segment()
+class GroupingSetsClauseSegment(BaseSegment):
+    """`GROUPING SETS` clause within the `GROUP BY` clause."""
+
+    type = "grouping_sets_clause"
+    match_grammar = StartsWith(
+        Sequence("GROUPING", "SETS"),
+        terminator=OneOf(
+            "HAVING",
+            "QUALIFY",
+            "ORDER",
+            "LIMIT",
+            Ref("SetOperatorSegment"),
+        ),
+    )
+    parse_grammar = Sequence(
+        "GROUPING",
+        "SETS",
+        Bracketed(
+            Delimited(
+                Ref("CubeRollupClauseSegment"),
+                Ref("GroupingExpressionList"),
+                Bracketed(),  # Allows empty parentheses
+            )
+        ),
+    )
+
+
+@snowflake_dialect.segment()
+class GroupingExpressionList(BaseSegment):
+    """Grouping expression list within `CUBE` / `ROLLUP` `GROUPING SETS`."""
+
+    type = "grouping_expression_list"
+    match_grammar = Delimited(
+        OneOf(
+            Bracketed(Delimited(Ref("ExpressionSegment"))),
+            Ref("ExpressionSegment"),
+        )
+    )
+
+
+@snowflake_dialect.segment(replace=True)
+class ValuesClauseSegment(BaseSegment):
+    """A `VALUES` clause like in `INSERT`."""
+
+    type = "values_clause"
+    match_grammar = Sequence(
+        OneOf("VALUE", "VALUES"),
+        Delimited(
+            Bracketed(
+                Delimited(
+                    Ref("LiteralGrammar"),
+                    Ref("IntervalExpressionSegment"),
+                    Ref("FunctionSegment"),
+                    "DEFAULT",  # not in `FROM` clause, rule?
+                    ephemeral_name="ValuesClauseElements",
+                )
+            ),
+        ),
+        Ref("AliasExpressionSegment", optional=True),
+    )
+
+
+@snowflake_dialect.segment(replace=True)
+class FunctionDefinitionGrammar(BaseSegment):
+    """This is the body of a `CREATE FUNCTION AS` statement."""
+
+    match_grammar = Sequence(
+        "AS",
+        OneOf(Ref("QuotedLiteralSegment"), Ref("DollarQuotedLiteralSegment")),
+        Sequence(
+            "LANGUAGE",
+            # Not really a parameter, but best fit for now.
+            Ref("ParameterNameSegment"),
+            optional=True,
+        ),
+    )
 
 
 @snowflake_dialect.segment(replace=True)
@@ -172,6 +419,13 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref("AlterUserSegment"),
             Ref("AlterSessionStatementSegment"),
             Ref("AlterTaskStatementSegment"),
+            Ref("SetAssignmentStatementSegment"),
+            Ref("CallStoredProcedureSegment"),
+            Ref("MergeStatementSegment"),
+            Ref("AlterTableColumnStatementSegment"),
+            Ref("CopyIntoStatementSegment"),
+            Ref("AlterWarehouseStatementSegment"),
+            Ref("CreateExternalTableSegment"),
         ],
         remove=[
             Ref("CreateTypeStatementSegment"),
@@ -180,6 +434,77 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref("DropIndexStatementSegment"),
             Ref("CreateFunctionStatementSegment"),
         ],
+    )
+
+
+@snowflake_dialect.segment()
+class SetAssignmentStatementSegment(BaseSegment):
+    """A `SET` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/set.html
+    """
+
+    type = "set_statement"
+
+    match_grammar = OneOf(
+        Sequence(
+            "SET",
+            Ref("LocalVariableNameSegment"),
+            Ref("EqualsSegment"),
+            Ref("ExpressionSegment"),
+        ),
+        Sequence(
+            "SET",
+            Bracketed(
+                Delimited(
+                    Ref("LocalVariableNameSegment"), delimiter=Ref("CommaSegment")
+                )
+            ),
+            Ref("EqualsSegment"),
+            Bracketed(
+                Delimited(
+                    Ref("ExpressionSegment"),
+                    delimiter=Ref("CommaSegment"),
+                ),
+            ),
+        ),
+    )
+
+
+@snowflake_dialect.segment()
+class CallStoredProcedureSegment(BaseSegment):
+    """This is a CALL statement used to execute a stored procedure.
+
+    https://docs.snowflake.com/en/sql-reference/sql/call.html
+    """
+
+    type = "call_segment"
+
+    match_grammar = Sequence(
+        "CALL",
+        Ref("FunctionSegment"),
+    )
+
+
+@snowflake_dialect.segment()
+class WithinGroupClauseSegment(BaseSegment):
+    """An WITHIN GROUP clause for window functions.
+
+    https://docs.snowflake.com/en/sql-reference/functions/listagg.html.
+    https://docs.snowflake.com/en/sql-reference/functions/array_agg.html.
+    """
+
+    type = "withingroup_clause"
+    match_grammar = Sequence(
+        "WITHIN",
+        "GROUP",
+        Bracketed(Anything(optional=True)),
+    )
+
+    parse_grammar = Sequence(
+        "WITHIN",
+        "GROUP",
+        Bracketed(Ref("OrderByClauseSegment", optional=True)),
     )
 
 
@@ -361,18 +686,6 @@ class SemiStructuredAccessorSegment(BaseSegment):
     )
 
 
-@snowflake_dialect.segment(replace=True)
-class SelectClauseModifierSegment(
-    ansi_dialect.get_segment("SelectClauseModifierSegment")  # type: ignore
-):
-    """Things that come after SELECT but before the columns.
-
-    In snowflake we go back to similar functionality as the ANSI
-    version in the root dialect, without the things added in
-    postgres.
-    """
-
-
 @snowflake_dialect.segment()
 class QualifyClauseSegment(BaseSegment):
     """A `QUALIFY` clause like in `SELECT`.
@@ -428,6 +741,161 @@ class SelectStatementSegment(ansi_dialect.get_segment("SelectStatementSegment"))
 
 
 @snowflake_dialect.segment()
+class AlterTableColumnStatementSegment(BaseSegment):
+    """An `ALTER TABLE .. ALTER COLUMN` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-table-column.html
+
+    """
+
+    type = "alter_table_column_statement"
+    match_grammar = Sequence(
+        "ALTER",
+        "TABLE",
+        Ref("TableReferenceSegment"),
+        OneOf("ALTER", "MODIFY"),
+        OptionallyBracketed(
+            Delimited(
+                OneOf(
+                    # Add things
+                    Sequence(
+                        Ref.keyword("COLUMN", optional=True),
+                        Ref("SingleIdentifierGrammar"),
+                        OneOf(
+                            Sequence("DROP", "DEFAULT"),
+                            Sequence(
+                                "SET",
+                                "DEFAULT",
+                                Ref("NakedIdentifierSegment"),
+                                Ref("DotSegment"),
+                                "NEXTVAL",
+                            ),
+                            Sequence(
+                                OneOf("SET", "DROP", optional=True), "NOT", "NULL"
+                            ),
+                            Sequence(
+                                Sequence(
+                                    Sequence("SET", "DATA", optional=True),
+                                    "TYPE",
+                                    optional=True,
+                                ),
+                                Ref("DatatypeSegment"),
+                            ),
+                            Sequence("COMMENT", Ref("QuotedLiteralSegment")),
+                        ),
+                    ),
+                    Sequence(
+                        "COLUMN",
+                        Ref("SingleIdentifierGrammar"),
+                        OneOf("SET", "UNSET"),
+                        "MASKING",
+                        "POLICY",
+                        Ref("FunctionNameIdentifierSegment", optional=True),
+                    ),
+                ),
+            ),
+        ),
+    )
+
+
+@snowflake_dialect.segment()
+class AlterWarehouseStatementSegment(BaseSegment):
+    """An `ALTER WAREHOUSE` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-warehouse.html
+
+    """
+
+    type = "alter_warehouse_statement"
+    match_grammar = Sequence(
+        "ALTER",
+        "WAREHOUSE",
+        Sequence("IF", "EXISTS", optional=True),
+        OneOf(
+            Sequence(
+                Ref("NakedIdentifierSegment", optional=True),
+                OneOf(
+                    "SUSPEND",
+                    Sequence(
+                        "RESUME",
+                        Sequence("IF", "SUSPENDED", optional=True),
+                    ),
+                ),
+            ),
+            Sequence(
+                Ref("NakedIdentifierSegment", optional=True),
+                Sequence(
+                    "ABORT",
+                    "ALL",
+                    "QUERIES",
+                ),
+            ),
+            Sequence(
+                Ref("NakedIdentifierSegment"),
+                "RENAME",
+                "TO",
+                Ref("NakedIdentifierSegment"),
+            ),
+            Sequence(
+                Ref("NakedIdentifierSegment"),
+                "SET",
+                AnyNumberOf(
+                    Ref("WarehouseObjectPropertiesSegment"),
+                    Ref("CommentClauseSegment"),
+                    Ref("WarehouseObjectParamsSegment"),
+                ),
+            ),
+            Sequence(
+                Ref("NakedIdentifierSegment"),
+                "UNSET",
+                Delimited(
+                    Ref("NakedIdentifierSegment"),
+                ),
+            ),
+        ),
+    )
+
+
+@snowflake_dialect.segment(replace=True)
+class CommentClauseSegment(BaseSegment):
+    """A comment clause.
+
+    e.g. COMMENT 'view/table/column description'
+    """
+
+    type = "comment_clause"
+    match_grammar = Sequence(
+        "COMMENT", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")
+    )
+
+
+@snowflake_dialect.segment(replace=True)
+class UnorderedSelectStatementSegment(ansi_dialect.get_segment("SelectStatementSegment")):  # type: ignore
+    """A snowflake unordered `SELECT` statement including optional Qualify.
+
+    https://docs.snowflake.com/en/sql-reference/constructs/qualify.html
+    """
+
+    type = "select_statement"
+    match_grammar = StartsWith(
+        # NB: In bigquery, the select clause may include an EXCEPT, which
+        # will also match the set operator, but by starting with the whole
+        # select clause rather than just the SELECT keyword, we normally
+        # mitigate that here. But this isn't BigQuery! So we can be more
+        # efficient and just just the keyword.
+        "SELECT",
+        terminator=Ref("SetOperatorSegment"),
+    )
+
+    parse_grammar = ansi_dialect.get_segment(
+        "UnorderedSelectStatementSegment"
+    ).parse_grammar.copy(
+        insert=[Ref("QualifyClauseSegment", optional=True)],
+        before=Ref("OverlapsClauseSegment", optional=True),
+    )
+
+
+@snowflake_dialect.segment()
 class CreateCloneStatementSegment(BaseSegment):
     """A snowflake `CREATE ... CLONE` statement.
 
@@ -461,6 +929,155 @@ class CreateCloneStatementSegment(BaseSegment):
 
 
 @snowflake_dialect.segment()
+class WarehouseObjectPropertiesSegment(BaseSegment):
+    """A snowflake Warehouse Object Properties segment.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-warehouse.html
+    https://docs.snowflake.com/en/sql-reference/sql/alter-warehouse.html
+
+    Note: comments are handled seperately so not incorrectly marked as
+    warehouse object.
+    """
+
+    type = "warehouse_object_properties"
+
+    match_grammar = AnyNumberOf(
+        Sequence(
+            "WAREHOUSE_SIZE",
+            Ref("EqualsSegment"),
+            Ref("WarehouseSize"),
+        ),
+        Sequence(
+            "WAIT_FOR_COMPLETION",
+            Ref("EqualsSegment"),
+            Ref("BooleanLiteralGrammar"),
+        ),
+        Sequence(
+            "MAX_CLUSTER_COUNT",
+            Ref("EqualsSegment"),
+            Ref("NumericLiteralSegment"),
+        ),
+        Sequence(
+            "MIN_CLUSTER_COUNT",
+            Ref("EqualsSegment"),
+            Ref("NumericLiteralSegment"),
+        ),
+        Sequence(
+            "SCALING_POLICY",
+            Ref("EqualsSegment"),
+            OneOf(
+                "STANDARD",
+                "ECONOMY",
+            ),
+        ),
+        Sequence(
+            "AUTO_SUSPEND",
+            Ref("EqualsSegment"),
+            OneOf(
+                Ref("NumericLiteralSegment"),
+                "NULL",
+            ),
+        ),
+        Sequence(
+            "AUTO_RESUME",
+            Ref("EqualsSegment"),
+            Ref("BooleanLiteralGrammar"),
+        ),
+        Sequence(
+            "INITIALLY_SUSPENDED",
+            Ref("EqualsSegment"),
+            Ref("BooleanLiteralGrammar"),
+        ),
+        Sequence(
+            "RESOURCE_MONITOR",
+            Ref("EqualsSegment"),
+            Ref("NakedIdentifierSegment"),
+        ),
+    )
+
+
+@snowflake_dialect.segment()
+class WarehouseObjectParamsSegment(BaseSegment):
+    """A snowflake Warehouse Object Param segment.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-warehouse.html
+    https://docs.snowflake.com/en/sql-reference/sql/alter-warehouse.html
+    """
+
+    type = "warehouse_object_properties"
+
+    match_grammar = AnyNumberOf(
+        Sequence(
+            "MAX_CONCURRENCY_LEVEL",
+            Ref("EqualsSegment"),
+            Ref("NumericLiteralSegment"),
+        ),
+        Sequence(
+            "STATEMENT_QUEUED_TIMEOUT_IN_SECONDS",
+            Ref("EqualsSegment"),
+            Ref("NumericLiteralSegment"),
+        ),
+        Sequence(
+            "STATEMENT_TIMEOUT_IN_SECONDS",
+            Ref("EqualsSegment"),
+            Ref("NumericLiteralSegment"),
+        ),
+        Sequence(
+            "TAG",
+            Delimited(
+                Sequence(
+                    Ref("NakedIdentifierSegment"),
+                    Ref("EqualsSegment"),
+                    Ref("QuotedLiteralSegment"),
+                )
+            ),
+        ),
+    )
+
+
+@snowflake_dialect.segment(replace=True)
+class CreateTableStatementSegment(BaseSegment):
+    """A `CREATE TABLE` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-table.html
+
+    Need to override ANSI as Snowflake puts the IfNotExistsGrammar
+    BEFORE and not AFTER the table name.
+    """
+
+    type = "create_table_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        Ref("TemporaryTransientGrammar", optional=True),
+        "TABLE",
+        Ref("TableReferenceSegment"),
+        Ref("IfNotExistsGrammar", optional=True),
+        OneOf(
+            # Columns and comment syntax:
+            Sequence(
+                Bracketed(
+                    Delimited(
+                        OneOf(
+                            Ref("TableConstraintSegment"),
+                            Ref("ColumnDefinitionSegment"),
+                        ),
+                    )
+                ),
+                Ref("CommentClauseSegment", optional=True),
+            ),
+            # Create AS syntax:
+            Sequence(
+                "AS",
+                OptionallyBracketed(Ref("SelectableGrammar")),
+            ),
+            # Create like syntax
+            Sequence("LIKE", Ref("TableReferenceSegment")),
+        ),
+    )
+
+
+@snowflake_dialect.segment()
 class CreateStatementSegment(BaseSegment):
     """A snowflake `CREATE` statement.
 
@@ -482,7 +1099,6 @@ class CreateStatementSegment(BaseSegment):
             Sequence("NOTIFICATION", "INTEGRATION"),
             Sequence("SECURITY", "INTEGRATION"),
             Sequence("STORAGE", "INTEGRATION"),
-            Sequence("EXTERNAL", "TABLE"),
             "VIEW",
             Sequence("MATERIALIZED", "VIEW"),
             Sequence("SECURE", "VIEW"),
@@ -494,7 +1110,6 @@ class CreateStatementSegment(BaseSegment):
             # Objects that also support clone
             "DATABASE",
             "SCHEMA",
-            "TABLE",
             "SEQUENCE",
             Sequence("FILE", "FORMAT"),
             "STAGE",
@@ -503,9 +1118,343 @@ class CreateStatementSegment(BaseSegment):
         ),
         Sequence("IF", "NOT", "EXISTS", optional=True),
         Ref("ObjectReferenceSegment"),
+        # Next set are Pipe statements https://docs.snowflake.com/en/sql-reference/sql/create-pipe.html
+        Sequence(
+            Sequence(
+                "AUTO_INGEST",
+                Ref("EqualsSegment"),
+                Ref("BooleanLiteralGrammar"),
+                optional=True,
+            ),
+            Sequence(
+                "AWS_SNS_TOPIC",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+                optional=True,
+            ),
+            Sequence(
+                "INTEGRATION",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+                optional=True,
+            ),
+            optional=True,
+        ),
+        # Next are WAREHOUSE options https://docs.snowflake.com/en/sql-reference/sql/create-warehouse.html
+        Sequence(
+            Sequence("WITH", optional=True),
+            AnyNumberOf(
+                Ref("WarehouseObjectPropertiesSegment"),
+                Ref("WarehouseObjectParamsSegment"),
+            ),
+            optional=True,
+        ),
         Ref("CreateStatementCommentSegment", optional=True),
         Ref.keyword("AS", optional=True),
-        Ref("SelectStatementSegment", optional=True),
+        OneOf(
+            Ref("SelectStatementSegment", optional=True),
+            Sequence(
+                Bracketed(Ref("FunctionContentsGrammar"), optional=True),
+                "RETURNS",
+                Ref("DatatypeSegment"),
+                Ref("FunctionAssignerSegment"),
+                Ref("ExpressionSegment"),
+                Sequence(
+                    "COMMENT",
+                    Ref("EqualsSegment"),
+                    Ref("QuotedLiteralSegment"),
+                    optional=True,
+                ),
+                optional=True,
+            ),
+            Ref("CopyIntoStatementSegment"),
+            optional=True,
+        ),
+    )
+
+
+@snowflake_dialect.segment()
+class CreateExternalTableSegment(BaseSegment):
+    """A snowflake `CREATE EXTERNAL TABLE` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-external-table.html
+    """
+
+    type = "create_external_table_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Sequence("OR", "REPLACE", optional=True),
+        "EXTERNAL",
+        "TABLE",
+        Sequence("IF", "NOT", "EXISTS", optional=True),
+        Ref("TableReferenceSegment"),
+        # Columns:
+        Sequence(
+            Bracketed(
+                Delimited(
+                    OneOf(
+                        Ref("TableConstraintSegment"),
+                        Ref("ColumnDefinitionSegment"),
+                    ),
+                ),
+            ),
+            optional=True,
+        ),
+        AnyNumberOf(
+            Sequence(
+                "PARTITION",
+                "BY",
+                Delimited(
+                    Ref("SingleIdentifierGrammar"),
+                ),
+                optional=True,
+            ),
+            Sequence(
+                Sequence("WITH", optional=True),
+                "LOCATION",
+                Ref("EqualsSegment"),
+                Ref("AtSignLiteralSegment"),
+                Bracketed(
+                    Ref("NakedIdentifierSegment"),
+                    Ref("DotSegment"),
+                    bracket_type="square",
+                    optional=True,
+                ),
+                AnyNumberOf(
+                    Ref("NakedIdentifierSegment"),
+                    Ref("DivideSegment"),
+                    allow_gaps=False,
+                ),
+                optional=True,
+            ),
+            Sequence(
+                "REFRESH_ON_CREATE",
+                Ref("EqualsSegment"),
+                Ref("BooleanLiteralGrammar"),
+                optional=True,
+            ),
+            Sequence(
+                "AUTO_REFRESH",
+                Ref("EqualsSegment"),
+                Ref("BooleanLiteralGrammar"),
+                optional=True,
+            ),
+            Sequence(
+                "PATTERN",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+                optional=True,
+            ),
+            Sequence(
+                "FILE_FORMAT",
+                Ref("EqualsSegment"),
+                Bracketed(
+                    OneOf(
+                        Sequence(
+                            "FORMAT_NAME",
+                            Ref("EqualsSegment"),
+                            Ref("QuotedLiteralSegment"),
+                        ),
+                        Sequence(
+                            "TYPE",
+                            Ref("EqualsSegment"),
+                            OneOf(
+                                "CSV",
+                                "JSON",
+                                "AVRO",
+                                "ORC",
+                                "PARQUET",
+                                "XML",
+                                Ref("QuotedLiteralSegment"),
+                            ),
+                            AnyNumberOf(
+                                # formatTypeOptions - To Do to make this more specific
+                                Ref("NakedIdentifierSegment"),
+                                Ref("EqualsSegment"),
+                                OneOf(
+                                    Ref("NakedIdentifierSegment"),
+                                    Ref("QuotedLiteralSegment"),
+                                    Bracketed(
+                                        Delimited(
+                                            Ref("QuotedLiteralSegment"),
+                                        )
+                                    ),
+                                ),
+                                optional=True,
+                            ),
+                        ),
+                    ),
+                ),
+                optional=True,
+            ),
+            Sequence(
+                "AWS_SNS_TOPIC",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+                optional=True,
+            ),
+            Sequence(
+                "COPY",
+                "GRANTS",
+                optional=True,
+            ),
+            Sequence(
+                Sequence("WITH", optional=True),
+                "ROW",
+                "ACCESS",
+                "POLICY",
+                Ref("NakedIdentifierSegment"),
+                optional=True,
+            ),
+            Sequence(
+                Sequence("WITH", optional=True),
+                "TAG",
+                Ref("NakedIdentifierSegment"),
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+                optional=True,
+            ),
+            Ref("CreateStatementCommentSegment", optional=True),
+        ),
+    )
+
+
+@snowflake_dialect.segment()
+class CopyIntoStatementSegment(BaseSegment):
+    """A snowflake `COPY INTO` statement.
+
+    # https://docs.snowflake.com/en/sql-reference/sql/copy-into-table.html
+    """
+
+    type = "copy_into_statement"
+
+    match_grammar = Sequence(
+        "COPY",
+        "INTO",
+        Ref("ObjectReferenceSegment"),
+        Sequence(
+            "FROM",
+            OneOf(
+                Ref("IntExtStageLocation"),
+                Ref("QuotedLiteralSegment"),
+                Ref("SelectStatementSegment"),
+            ),
+            AnyNumberOf(
+                Sequence(
+                    "FILES",
+                    Ref("EqualsSegment"),
+                    Bracketed(
+                        Delimited(
+                            Ref("QuotedLiteralSegment"),
+                        ),
+                    ),
+                    optional=True,
+                ),
+                Sequence(
+                    "PATTERN",
+                    Ref("EqualsSegment"),
+                    Ref("QuotedLiteralSegment"),
+                    optional=True,
+                ),
+                Sequence(
+                    "FILE_FORMAT",
+                    Ref("EqualsSegment"),
+                    Bracketed(
+                        OneOf(
+                            Sequence(
+                                "FORMAT_NAME",
+                                Ref("EqualsSegment"),
+                                OneOf(
+                                    Ref("NakedIdentifierSegment"),
+                                    Ref("QuotedLiteralSegment"),
+                                ),
+                            ),
+                            Sequence(
+                                "TYPE",
+                                Ref("EqualsSegment"),
+                                OneOf(
+                                    "CSV",
+                                    "JSON",
+                                    "AVRO",
+                                    "ORC",
+                                    "PARQUET",
+                                    "XML",
+                                    Ref("QuotedLiteralSegment"),
+                                ),
+                                AnyNumberOf(
+                                    # Copy Options
+                                    Ref("NakedIdentifierSegment"),
+                                    Ref("EqualsSegment"),
+                                    OneOf(
+                                        Ref("NakedIdentifierSegment"),
+                                        Ref("QuotedLiteralSegment"),
+                                        Bracketed(
+                                            Delimited(
+                                                Ref("QuotedLiteralSegment"),
+                                            )
+                                        ),
+                                    ),
+                                    optional=True,
+                                ),
+                            ),
+                        ),
+                    ),
+                    optional=True,
+                ),
+            ),
+            optional=True,
+        ),
+        # Copy Options
+        AnyNumberOf(
+            Ref("NakedIdentifierSegment"),
+            Ref("EqualsSegment"),
+            OneOf(
+                Ref("NakedIdentifierSegment"),
+                Ref("QuotedLiteralSegment"),
+                Bracketed(
+                    Delimited(
+                        Ref("QuotedLiteralSegment"),
+                    )
+                ),
+            ),
+        ),
+        Sequence(
+            "VALIDATION_MODE",
+            Ref("EqualsSegment"),
+            OneOf(
+                Ref("ReturnNRowsSegment"),
+                "RETURN_ERRORS",
+                "RETURN_ALL_ERRORS",
+            ),
+            optional=True,
+        ),
+    )
+
+
+@snowflake_dialect.segment()
+class IntExtStageLocation(BaseSegment):
+    """A snowflake internalStage / externalStage segment used by copy into tables.
+
+    https://docs.snowflake.com/en/sql-reference/sql/copy-into-table.html#syntax
+    """
+
+    type = "internal_external_stage"
+
+    # TODO - currently Paths are not supported nor External Locations
+    match_grammar = Sequence(
+        Ref("AtSignLiteralSegment"),
+        Sequence(
+            AnyNumberOf(
+                Sequence(
+                    Ref("NakedIdentifierSegment"),
+                    Ref("DotSegment"),
+                ),
+                optional=True,
+            ),
+            Ref("ModuloSegment", optional=True),
+            Ref("NakedIdentifierSegment"),
+        ),
     )
 
 
@@ -874,7 +1823,7 @@ class AlterTaskSpecialSetClauseSegment(BaseSegment):
             Sequence(
                 "ALLOW_OVERLAPPING_EXECUTION",
                 Ref("EqualsSegment"),
-                OneOf("TRUE", "FALSE"),
+                Ref("BooleanLiteralGrammar"),
                 optional=True,
             ),
             min_times=1,
@@ -929,4 +1878,177 @@ class AlterTaskUnsetClauseSegment(BaseSegment):
     match_grammar = Sequence(
         "UNSET",
         Delimited(Ref("ParameterNameSegment"), delimiter=Ref("CommaSegment")),
+    )
+
+
+############################
+# MERGE
+############################
+@snowflake_dialect.segment()
+class MergeStatementSegment(BaseSegment):
+    """`MERGE` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/merge.html
+    """
+
+    type = "merge_statement"
+
+    is_ddl = False
+    is_dml = True
+    is_dql = False
+    is_dcl = False
+
+    match_grammar = StartsWith(
+        Sequence("MERGE", "INTO"),
+    )
+    parse_grammar = Sequence(
+        "MERGE",
+        "INTO",
+        OneOf(Ref("TableReferenceSegment"), Ref("AliasedTableReferenceGrammar")),
+        "USING",
+        OneOf(
+            Ref("TableReferenceSegment"),  # tables/views
+            Bracketed(
+                Ref("SelectableGrammar"),
+            ),  # subquery
+        ),
+        Ref("AliasExpressionSegment", optional=True),
+        Ref("JoinOnConditionSegment"),
+        Ref("MergeMatchedClauseSegment", optional=True),
+        Ref("MergeNotMatchedClauseSegment", optional=True),
+    )
+
+
+@snowflake_dialect.segment()
+class MergeMatchedClauseSegment(BaseSegment):
+    """The `WHEN MATCHED` clause within a `MERGE` statement."""
+
+    type = "merge_when_matched_clause"
+    match_grammar = StartsWith(
+        Sequence(
+            "WHEN",
+            "MATCHED",
+            Sequence("AND", Ref("ExpressionSegment"), optional=True),
+            "THEN",
+            OneOf("UPDATE", "DELETE"),
+        ),
+        terminator=Ref("MergeNotMatchedClauseSegment"),
+    )
+    parse_grammar = Sequence(
+        "WHEN",
+        "MATCHED",
+        Sequence("AND", Ref("ExpressionSegment"), optional=True),
+        "THEN",
+        OneOf(
+            Ref("MergeUpdateClauseSegment"),
+            Ref("MergeDeleteClauseSegment"),
+        ),
+    )
+
+
+@snowflake_dialect.segment()
+class MergeNotMatchedClauseSegment(BaseSegment):
+    """The `WHEN NOT MATCHED` clause within a `MERGE` statement."""
+
+    type = "merge_when_not_matched_clause"
+    match_grammar = StartsWith(
+        Sequence(
+            "WHEN",
+            "NOT",
+            "MATCHED",
+            "THEN",
+        ),
+    )
+    parse_grammar = Sequence(
+        "WHEN",
+        "NOT",
+        "MATCHED",
+        "THEN",
+        Ref("MergeInsertClauseSegment"),
+    )
+
+
+@snowflake_dialect.segment()
+class MergeUpdateClauseSegment(BaseSegment):
+    """`UPDATE` clause within the `MERGE` statement."""
+
+    type = "merge_update_clause"
+    match_grammar = Sequence(
+        "UPDATE",
+        Ref("SetClauseListSegment"),
+        Ref("WhereClauseSegment", optional=True),
+    )
+
+
+@snowflake_dialect.segment()
+class MergeDeleteClauseSegment(BaseSegment):
+    """`DELETE` clause within the `MERGE` statement."""
+
+    type = "merge_delete_clause"
+    match_grammar = Sequence(
+        "DELETE",
+        Ref("WhereClauseSegment", optional=True),
+    )
+
+
+@snowflake_dialect.segment()
+class MergeInsertClauseSegment(BaseSegment):
+    """`INSERT` clause within the `MERGE` statement."""
+
+    type = "merge_insert_clause"
+    match_grammar = Sequence(
+        "INSERT",
+        Ref("BracketedColumnReferenceListGrammar", optional=True),
+        "VALUES",
+        Bracketed(
+            Delimited(
+                OneOf(
+                    "DEFAULT",
+                    Ref("ExpressionSegment"),
+                ),
+            )
+        ),
+        Ref("WhereClauseSegment", optional=True),
+    )
+
+
+@snowflake_dialect.segment(replace=True)
+class DeleteStatementSegment(ansi_dialect.get_segment("DeleteStatementSegment")):  # type: ignore
+    """Update `DELETE` statement to support `USING`."""
+
+    parse_grammar = Sequence(
+        "DELETE",
+        Ref("FromClauseTerminatingUsingWhereSegment"),
+        Ref("DeleteUsingClauseSegment", optional=True),
+        Ref("WhereClauseSegment", optional=True),
+    )
+
+
+@snowflake_dialect.segment()
+class DeleteUsingClauseSegment(BaseSegment):
+    """`USING` clause within the `DELETE` statement."""
+
+    type = "using_clause"
+    match_grammar = StartsWith(
+        "USING",
+        terminator=Ref.keyword("WHERE"),
+        enforce_whitespace_preceding_terminator=True,
+    )
+    parse_grammar = Sequence(
+        "USING",
+        Delimited(
+            Ref("FromExpressionElementSegment"),
+        ),
+        Ref("AliasExpressionSegment", optional=True),
+    )
+
+
+@snowflake_dialect.segment()
+class FromClauseTerminatingUsingWhereSegment(ansi_dialect.get_segment("FromClauseSegment")):  # type: ignore
+    """Copy `FROM` terminator statement to support `USING` in specific circumstances."""
+
+    match_grammar = StartsWith(
+        "FROM",
+        terminator=OneOf(Ref.keyword("USING"), Ref.keyword("WHERE")),
+        enforce_whitespace_preceding_terminator=True,
     )

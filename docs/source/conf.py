@@ -79,15 +79,19 @@ html_static_path = ["_static"]
 # -- Options for Alabaster Theme ---------------------------------------------
 
 html_theme_options = {
+    # Set branch to main (used by Codecov button)
+    "badge_branch": "main",
     "logo": "images/sqlfluff-lrg.png",
     # Icon for iOS shortcuts
     "touch_icon": "images/sqlfluff-sm2-sq.png",
     "github_user": "sqlfluff",
     "github_repo": "sqlfluff",
-    # Github Fork button
+    # GitHub Fork button
     "github_banner": True,
-    # Github link button
-    "github_button": True,
+    # GitHub star button
+    "github_type": "star",
+    # Use `"true"` instead of `True` for counting GitHub star, see https://ghbtns.com for details
+    "github_count": "true",
     # Codecov button
     "codecov_button": True,
 }

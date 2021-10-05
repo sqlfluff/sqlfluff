@@ -1,2 +1,13 @@
--- Backslash escapes work in postgres
-select 'c\' ' as escaped
+SELECT E'\'';
+
+SELECT E'''';
+
+SELECT E'''\'';
+
+SELECT E'\\\'''';
+
+SELECT E'
+
+\\
+''
+\\';

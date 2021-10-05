@@ -11,7 +11,7 @@ result = sqlfluff.lint(my_bad_query, dialect="bigquery")
 
 # result =
 # [
-#     {"code": "L010", "line_no": 1, "line_pos": 1, "description": "Inconsistent capitalisation of keywords."}
+#     {"code": "L010", "line_no": 1, "line_pos": 1, "description": "Keywords must be consistently upper case."}
 #     ...
 # ]
 

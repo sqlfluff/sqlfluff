@@ -1,10 +1,11 @@
 rule: L032
 
-test_1:
+test_pass_specify_join_keys:
   pass_str: select x.a from x inner join y on x.id = y.id
 
-test_2:
+test_fail_specify_join_keys_1:
   fail_str: select x.a from x inner join y using (id)
 
-test_3:
+test_fail_specify_join_keys_2:
+  desc: Keys were specified for first join but not the second one.
   fail_str: select x.a from x inner join y on x.id = y.id inner join z using (id)
