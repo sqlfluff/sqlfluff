@@ -240,14 +240,22 @@ class DbtTemplater(JinjaTemplater):
             raise ValueError(
                 "For the dbt templater, the `sequence_files()` method requires a config object."
             )
-        result = []
+        result_fnames = []
+        model_fqns = set()
         for fname in fnames:
-            for dependent in self._walk_dependents(
+            for fqn, dependent in self._walk_dependents(
                 fname, fnames, self.working_dir, config=config
             ):
-                if dependent not in result:
-                    result.append(dependent)
-            return result
+                add = False
+                if fqn:
+                    if fqn not in model_fqns:
+                        model_fqns.add(fqn)
+                        add = True
+                else:
+                    add = True
+                if add and dependent not in result_fnames:
+                    result_fnames.append(dependent)
+        return result_fnames
 
     def _walk_dependents(self, fname, fnames, relative_to, config=None):
         self.sqlfluff_config = config
@@ -255,6 +263,7 @@ class DbtTemplater(JinjaTemplater):
             self.project_dir = self._get_project_dir()
         if not self.profiles_dir:
             self.profiles_dir = self._get_profiles_dir()
+        node = None
         try:
             os.chdir(self.project_dir)
             fname_absolute_path = os.path.join(relative_to, fname)
@@ -275,11 +284,6 @@ class DbtTemplater(JinjaTemplater):
                             self.project_dir,
                             config=config,
                         )
-                    else:
-                        templater_logger.warning(  # pragma: no cover
-                            "Dependent model %s not found in project. Skipping.",
-                            dependent,
-                        )
             except SQLTemplaterSkipFile:
                 pass
             finally:
@@ -294,7 +298,13 @@ class DbtTemplater(JinjaTemplater):
                 ) in fnames or os.path.relpath(
                     os.path.join(self.working_dir, fname), self.working_dir
                 ):
-                    yield fname
+                    if node:
+                        yield tuple(node.fqn), os.path.relpath(
+                            os.path.join(node.root_path, node.original_file_path),
+                            self.working_dir,
+                        )
+                    else:
+                        yield None, fname
         finally:
             os.chdir(self.working_dir)
 
