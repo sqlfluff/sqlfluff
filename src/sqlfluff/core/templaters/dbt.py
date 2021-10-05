@@ -243,15 +243,24 @@ class DbtTemplater(JinjaTemplater):
         result_fnames = []
         model_fqns = set()
         for fname in fnames:
+            # "fqn" is either a tuple or None. If a tuple, it's a dbt "fully
+            # qualified name" for the model. If an fqn is available (not None),
+            # we use it here to try and avoid confusion with multiple versions
+            # of a relative path to the same underlying file:
+            # - Most models: Relative to the working directory
+            # - Dependent/ephemeral models: Relative to the dbt project directory
             for fqn, dependent in self._walk_dependents(
                 fname, fnames, self.working_dir, config=config
             ):
                 add = False
                 if fqn:
+                    # We have a fully-qualified name. Use it to avoid
+                    # duplicate filenames.
                     if fqn not in model_fqns:
                         model_fqns.add(fqn)
                         add = True
                 else:
+                    # Fully-qualified name not available. Assume we need to add it.
                     add = True
                 if add and dependent not in result_fnames:
                     result_fnames.append(dependent)
@@ -299,11 +308,16 @@ class DbtTemplater(JinjaTemplater):
                     os.path.join(self.working_dir, fname), self.working_dir
                 ):
                     if node:
+                        # If we have a node object, use it to clean up the
+                        # path we return, i.e. return a path relative to the
+                        # working directory.
                         yield tuple(node.fqn), os.path.relpath(
                             os.path.join(node.root_path, node.original_file_path),
                             self.working_dir,
                         )
                     else:
+                        # If we don't have a node object, just return fname "as is"
+                        # and let the caller deal with this the best it can.
                         yield None, fname
         finally:
             os.chdir(self.working_dir)
