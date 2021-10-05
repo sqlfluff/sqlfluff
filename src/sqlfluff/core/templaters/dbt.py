@@ -3,6 +3,7 @@
 import os
 import os.path
 import logging
+from pathlib import Path
 from typing import List, Optional
 
 from dataclasses import dataclass
@@ -311,10 +312,11 @@ class DbtTemplater(JinjaTemplater):
                         # If we have a node object, use it to clean up the
                         # path we return, i.e. return a path relative to the
                         # working directory.
-                        yield tuple(node.fqn), os.path.relpath(
-                            os.path.join(node.root_path, node.original_file_path),
-                            self.working_dir,
-                        )
+                        yield tuple(node.fqn), str(
+                            (
+                                Path(node.root_path) / node.original_file_path
+                            ).relative_to(Path(self.working_dir))
+                        ),
                     else:
                         # If we don't have a node object, just return fname "as is"
                         # and let the caller deal with this the best it can.
