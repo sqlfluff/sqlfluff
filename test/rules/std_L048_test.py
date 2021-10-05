@@ -3,7 +3,7 @@ import sqlfluff
 
 
 def test__rules__std_L048_raised() -> None:
-    """L0048 is raised for quoted literals not surrounded by a single whitespace."""
+    """L048 is raised for quoted literals not surrounded by a single whitespace."""
     sql = "SELECT a +'b'+'c' FROM tbl;"
     result = sqlfluff.lint(sql)
 
