@@ -58,7 +58,7 @@ class DbtTemplater(JinjaTemplater):
         self._sequential_fails = 0
         super().__init__(**kwargs)
 
-    def config_pairs(self):
+    def config_pairs(self):  # pragma: no cover TODO?
         """Returns info about the given templater for output by the cli."""
         return [("templater", self.name), ("dbt", self.dbt_version)]
 
@@ -107,7 +107,7 @@ class DbtTemplater(JinjaTemplater):
 
         if self.dbt_version_tuple <= (0, 19):
 
-            if self.dbt_version_tuple == (0, 17):
+            if self.dbt_version_tuple == (0, 17):  # pragma: no cover TODO?
                 # dbt version 0.17.*
                 from dbt.parser.manifest import (
                     load_internal_manifest as load_macro_manifest,
@@ -137,12 +137,12 @@ class DbtTemplater(JinjaTemplater):
     @cached_property
     def dbt_selector_method(self):
         """Loads the dbt selector method."""
-        if self.formatter:
+        if self.formatter:  # pragma: no cover TODO?
             self.formatter.dispatch_compilation_header(
                 "dbt templater", "Compiling dbt project..."
             )
 
-        if self.dbt_version_tuple == (0, 17):
+        if self.dbt_version_tuple == (0, 17):  # pragma: no cover TODO?
             from dbt.graph.selector import PathSelector
 
             self.dbt_selector_method = PathSelector(self.dbt_manifest)
@@ -159,7 +159,7 @@ class DbtTemplater(JinjaTemplater):
                 DbtMethodName.Path, method_arguments=[]
             )
 
-        if self.formatter:
+        if self.formatter:  # pragma: no cover TODO?
             self.formatter.dispatch_compilation_header(
                 "dbt templater", "Project Compiled."
             )
@@ -168,6 +168,7 @@ class DbtTemplater(JinjaTemplater):
 
     def _get_profiles_dir(self):
         """Get the dbt profiles directory from the configuration.
+
         The default is `~/.dbt` in 0.17 but we use the
         PROFILES_DIR variable from the dbt library to
         support a change of default in the future, as well
@@ -192,6 +193,7 @@ class DbtTemplater(JinjaTemplater):
 
     def _get_project_dir(self):
         """Get the dbt project directory from the configuration.
+
         Defaults to the working directory.
         """
         dbt_project_dir = os.path.abspath(
@@ -214,18 +216,14 @@ class DbtTemplater(JinjaTemplater):
         return self.sqlfluff_config.get_section(
             (self.templater_selector, self.name, "profile")
         )
+
     def sequence_files(self, fnames: List[str], config=None, formatter=None):
         """Reorder fnames to process dependent files first.
+
         This avoids errors when an ephemeral model is processed before use.
         """
         # Stash the formatter if provided to use in cached methods.
         self.formatter = formatter
-
-        self._check_dbt_installed()
-        if not config:  # pragma: no cover
-            raise ValueError(
-                "For the dbt templater, the `sequence_files()` method requires a config object."
-            )
         result_fnames = []
         model_fqns = set()
         for fname in fnames:
@@ -311,6 +309,7 @@ class DbtTemplater(JinjaTemplater):
 
     def process(self, *, fname, in_str=None, config=None, formatter=None):
         """Compile a dbt model and return the compiled SQL.
+
         Args:
             fname (:obj:`str`): Path to dbt model(s)
             in_str (:obj:`str`, optional): This is ignored for dbt
@@ -354,21 +353,21 @@ class DbtTemplater(JinjaTemplater):
                 )
             ]
         # If a SQLFluff error is raised, just pass it through
-        except SQLTemplaterError as e:
+        except SQLTemplaterError as e:  # pragma: no cover
             return None, [e]
         finally:
             os.chdir(self.working_dir)
 
-    def _unsafe_process(self, fname, in_str=None, config=None):
-        if not config:
+    def _find_node(self, fname, config=None):
+        if not config:  # pragma: no cover
             raise ValueError(
                 "For the dbt templater, the `process()` method requires a config object."
             )
-        if not fname:
+        if not fname:  # pragma: no cover
             raise ValueError(
                 "For the dbt templater, the `process()` method requires a file name"
             )
-        elif fname == "stdin":
+        elif fname == "stdin":  # pragma: no cover
             raise ValueError(
                 "The dbt templater does not support stdin input, provide a path instead"
             )
@@ -388,10 +387,16 @@ class DbtTemplater(JinjaTemplater):
                 raise SQLTemplaterSkipFile(
                     f"Skipped file {fname} because the model was disabled"
                 )
-            raise RuntimeError("File %s was not found in dbt project" % fname)
+            raise RuntimeError(
+                "File %s was not found in dbt project" % fname
+            )  # pragma: no cover
+        return results[0]
+
+    def _unsafe_process(self, fname, in_str=None, config=None):
+        node = self._find_node(fname, config)
 
         node = self.dbt_compiler.compile_node(
-            node=results[0],
+            node=node,
             manifest=self.dbt_manifest,
         )
 
@@ -403,7 +408,7 @@ class DbtTemplater(JinjaTemplater):
         else:
             compiled_sql = node.compiled_sql
 
-        if not compiled_sql:
+        if not compiled_sql:  # pragma: no cover
             raise SQLTemplaterError(
                 "dbt templater compilation failed silently, check your configuration "
                 "by running `dbt compile` directly."
