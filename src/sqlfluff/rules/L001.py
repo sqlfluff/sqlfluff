@@ -1,6 +1,10 @@
 """Implementation of Rule L001."""
+from typing import Tuple
+
+from sqlfluff.core.parser.segments import AnySegmentType
 from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
+from sqlfluff.core.templaters import TemplatedFile
 
 
 @document_fix_compatible
@@ -27,7 +31,13 @@ class Rule_L001(BaseRule):
         FROM foo
     """
 
-    def _eval(self, segment, raw_stack, templated_file, **kwargs):
+    def _eval(
+        self,
+        segment: AnySegmentType,
+        raw_stack: Tuple[AnySegmentType],
+        templated_file: TemplatedFile,
+        **kwargs
+    ) -> LintResult:
         """Unnecessary trailing whitespace.
 
         Look for newline segments, and then evaluate what

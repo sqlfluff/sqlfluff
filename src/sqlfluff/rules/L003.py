@@ -1,12 +1,14 @@
 """Implementation of Rule L003."""
+from typing import List, Optional, Sequence, Tuple
 
 from sqlfluff.core.parser import WhitespaceSegment
-
+from sqlfluff.core.parser.segments import AnySegmentType
 from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix
 from sqlfluff.core.rules.doc_decorators import (
     document_fix_compatible,
     document_configuration,
 )
+from sqlfluff.core.templaters import TemplatedFile
 
 
 @document_fix_compatible
@@ -48,15 +50,23 @@ class Rule_L003(BaseRule):
     config_keywords = ["tab_space_size", "indent_unit", "lint_templated_tokens"]
 
     @staticmethod
-    def _make_indent(num=1, tab_space_size=4, indent_unit="space"):
+    def _make_indent(
+        num: int = 1, tab_space_size: int = 4, indent_unit: str = "space"
+    ) -> str:
         if indent_unit == "tab":
             base_unit = "\t"
         elif indent_unit == "space":
             base_unit = " " * tab_space_size
+        else:
+            raise ValueError(
+                f"Parameter indent_unit has unexpected value: `{indent_unit}`. Expected `tab` or `space`."
+            )
         return base_unit * num
 
     @staticmethod
-    def _indent_size(segments, tab_space_size=4):
+    def _indent_size(
+        segments: Sequence[AnySegmentType], tab_space_size: int = 4
+    ) -> int:
         indent_size = 0
         for elem in segments:
             raw = elem.raw
@@ -66,7 +76,9 @@ class Rule_L003(BaseRule):
         return indent_size
 
     @classmethod
-    def _reorder_raw_stack(cls, raw_stack, templated_file):
+    def _reorder_raw_stack(
+        cls, raw_stack: Tuple[AnySegmentType], templated_file: TemplatedFile
+    ) -> Tuple[AnySegmentType]:
         """Reorder raw_stack to simplify indentation logic.
 
         Context: The indentation logic was mostly designed to work with normal
@@ -77,12 +89,12 @@ class Rule_L003(BaseRule):
         nodes locally (i.e. only within L003) to get the desired behavior.
         """
 
-        def segment_info(idx):
+        def segment_info(idx: int) -> Tuple[str, Optional[str]]:
             """Helper function for sort_current_line()."""
             seg = current_line[idx]
-            return (seg.type, cls._get_element_template_info(seg, templated_file))
+            return seg.type, cls._get_element_template_info(seg, templated_file)
 
-        def move_indent_before_templated():
+        def move_indent_before_templated() -> None:
             """Swap position of template and indent segment if code follows.
 
             This allows for correct indentation of templated table names in
@@ -127,8 +139,12 @@ class Rule_L003(BaseRule):
 
     @classmethod
     def _process_raw_stack(
-        cls, raw_stack, memory=None, tab_space_size=4, templated_file=None
-    ):
+        cls,
+        raw_stack: Tuple[AnySegmentType],
+        memory: dict = None,
+        tab_space_size: int = 4,
+        templated_file: TemplatedFile = None,
+    ) -> dict:
         """Take the raw stack, split into lines and evaluate some stats."""
         raw_stack = cls._reorder_raw_stack(raw_stack, templated_file)
         indent_balance = 0
@@ -234,7 +250,12 @@ class Rule_L003(BaseRule):
             }
         return result_buffer
 
-    def _coerce_indent_to(self, desired_indent, current_indent_buffer, current_anchor):
+    def _coerce_indent_to(
+        self,
+        desired_indent: str,
+        current_indent_buffer: Tuple[AnySegmentType],
+        current_anchor: AnySegmentType,
+    ) -> List[LintFix]:
         """Generate fixes to make an indent a certain size."""
         # If there shouldn't be an indent at all, just delete.
         if len(desired_indent) == 0:
@@ -265,7 +286,7 @@ class Rule_L003(BaseRule):
         return fixes
 
     @staticmethod
-    def _strip_buffers(line_dict):
+    def _strip_buffers(line_dict: dict) -> dict:
         """Strip a line dict of buffers for logging."""
         return {
             key: line_dict[key]
@@ -274,7 +295,13 @@ class Rule_L003(BaseRule):
         }
 
     @classmethod
-    def _is_last_segment(cls, segment, memory, parent_stack, siblings_post):
+    def _is_last_segment(
+        cls,
+        segment: AnySegmentType,
+        memory: dict,
+        parent_stack: Tuple[AnySegmentType],
+        siblings_post: Tuple[AnySegmentType],
+    ) -> bool:
         """Returns True if 'segment' is the very last node in the parse tree."""
         if siblings_post:
             # We have subsequent siblings. Not finished.
@@ -295,14 +322,14 @@ class Rule_L003(BaseRule):
 
     def _eval(
         self,
-        segment,
-        raw_stack,
-        memory,
-        parent_stack,
-        siblings_post,
-        templated_file,
-        **kwargs
-    ):
+        segment: AnySegmentType,
+        raw_stack: Tuple[AnySegmentType],
+        memory: dict,
+        parent_stack: Tuple[AnySegmentType],
+        siblings_post: Tuple[AnySegmentType],
+        templated_file: TemplatedFile,
+        **kwargs,
+    ) -> Optional[LintResult]:
         """Indentation not consistent with previous lines.
 
         To set the default tab size, set the `tab_space_size` value
@@ -327,7 +354,7 @@ class Rule_L003(BaseRule):
         """
         # Memory keeps track of what we've seen
         if not memory:
-            memory = {
+            memory: dict = {
                 # in_indent keeps track of whether we're in an indent right now
                 "in_indent": True,
                 # problem_lines keeps track of lines with problems so that we
@@ -390,7 +417,7 @@ class Rule_L003(BaseRule):
                 return result
         return LintResult(memory=memory)
 
-    def _process_current_line(self, res, memory):
+    def _process_current_line(self, res: dict, memory: dict) -> LintResult:
         """Checks indentation of one line of code, returning a LintResult.
 
         The _eval() function calls it for the current line of code:
@@ -748,7 +775,9 @@ class Rule_L003(BaseRule):
         return LintResult(memory=memory)
 
     @classmethod
-    def _get_element_template_info(cls, elem, templated_file):
+    def _get_element_template_info(
+        cls, elem: AnySegmentType, templated_file: TemplatedFile
+    ) -> Optional[str]:
         if elem.is_type("placeholder"):
             slices = templated_file.raw_slices_spanning_source_slice(
                 elem.pos_marker.source_slice

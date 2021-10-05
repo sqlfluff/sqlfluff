@@ -1,5 +1,7 @@
 """Implementation of Rule L002."""
+from typing import Optional, Tuple
 
+from sqlfluff.core.parser.segments import AnySegmentType
 from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
@@ -40,7 +42,9 @@ class Rule_L002(BaseRule):
 
     config_keywords = ["tab_space_size"]
 
-    def _eval(self, segment, raw_stack, **kwargs):
+    def _eval(
+        self, segment: AnySegmentType, raw_stack: Tuple[AnySegmentType], **kwargs
+    ) -> Optional[LintResult]:
         """Mixed Tabs and Spaces in single whitespace.
 
         Only trigger from whitespace segments if they contain
