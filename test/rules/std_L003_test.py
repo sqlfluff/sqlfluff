@@ -152,6 +152,12 @@ def test__rules__std_L003_make_indent(indent_unit, num, tab_space_size, result):
     assert res == result
 
 
+def test__rules__std_L003_make_indent_invalid_param():
+    """Test Rule_L003._make_indent with invalid indent_unit parameter."""
+    with pytest.raises(ValueError):
+        Rule_L003._make_indent(indent_unit="aaa")
+
+
 class ProtoSeg:
     """Proto Seg for testing."""
 
