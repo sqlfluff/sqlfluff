@@ -21,7 +21,8 @@ from sqlfluff.core.parser import (
     OptionallyBracketed,
     Dedent,
     AnyNumberOf,
-    GreedyUntil
+    GreedyUntil,
+    BaseFileSegment,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -56,16 +57,13 @@ tsql_dialect.add(
     BracketedIdentifierSegment=NamedParser(
         "square_quote", CodeSegment, name="quoted_identifier", type="identifier"
     ),
+    BatchDelimiterSegment=Ref("GoStatementSegment"),
 )
 
 tsql_dialect.replace(
     # Below delimiterstatement might need to be removed in the future as delimiting
     # is optional with semicolon and GO is a end of statement indicator.
-    DelimiterSegment=OneOf(
-        Sequence(Ref("SemicolonSegment"), Ref("GoStatementSegment")),
-        Ref("SemicolonSegment"),
-        Ref("GoStatementSegment"),
-    ),
+    DelimiterSegment=Ref("SemicolonSegment"),
     SingleIdentifierGrammar=OneOf(
         Ref("NakedIdentifierSegment"),
         Ref("QuotedIdentifierSegment"),
@@ -102,9 +100,17 @@ tsql_dialect.replace(
 class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: ignore
     """Overriding StatementSegment to allow for additional segment parsing."""
 
-    match_grammar = OneOf(
-        Ref("BeginEndSegment"),
-        GreedyUntil(Ref("DelimiterSegment")),
+    match_grammar = ansi_dialect.get_segment("StatementSegment").parse_grammar.copy(
+        insert=[
+            Ref("CreateProcedureStatementSegment"),
+            Ref("IfExpressionStatement"),
+            Ref("DeclareStatementSegment"),
+            Ref("SetStatementSegment"),
+            Ref("AlterTableSwitchStatementSegment"),
+            Ref(
+                "CreateTableAsSelectStatementSegment"
+            ),  # Azure Synapse Analytics specific
+        ],
     )
 
     parse_grammar = ansi_dialect.get_segment("StatementSegment").parse_grammar.copy(
@@ -117,7 +123,6 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref(
                 "CreateTableAsSelectStatementSegment"
             ),  # Azure Synapse Analytics specific
-            Ref("BeginEndSegment"),
         ],
     )
 
@@ -956,33 +961,6 @@ class DatePartClause(BaseSegment):
     )
 
 
-@tsql_dialect.segment()
-class BeginEndSegment(BaseSegment):
-    """A `BEGIN/END` block.
-
-    Encloses multiple statements into a single statement object.
-    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/begin-end-transact-sql?view=sql-server-ver15
-    """
-
-    type = "begin_end_block"
-    match_grammar = Sequence(
-        "BEGIN",
-        GreedyUntil(
-            "END",
-        ),
-        "END",
-    )
-
-    parse_grammar = Sequence(
-        "BEGIN",
-        AnyNumberOf(
-            Ref("StatementSegment"),
-            min_times = 1,
-        ),
-        "END",
-    )
-
-
 @tsql_dialect.segment(replace=True)
 class TransactionStatementSegment(BaseSegment):
     """A `COMMIT`, `ROLLBACK` or `TRANSACTION` statement."""
@@ -1009,3 +987,95 @@ class TransactionStatementSegment(BaseSegment):
 
     )
 
+
+@tsql_dialect.segment(replace=True)
+class FileSegment(BaseFileSegment):
+    """A segment representing a whole file or script.
+
+    This is also the default "root" segment of the dialect,
+    and so is usually instantiated directly. It therefore
+    has no match_grammar.
+    """
+
+    # NB: We don't need a match_grammar here because we're
+    # going straight into instantiating it directly usually.
+    parse_grammar = Delimited(
+        Ref("BatchSegment"),
+        delimiter=Ref("BatchDelimiterSegment"),
+        allow_gaps=True,
+        allow_trailing=True,
+    )
+
+    def get_table_references(self):
+        """Use parsed tree to extract table references."""
+        references = set()
+        for stmt in self.get_children("statement"):
+            references |= stmt.get_table_references()
+        return references
+
+
+@tsql_dialect.segment()
+class BeginEndSegment(BaseSegment):
+    """A `BEGIN/END` block.
+
+    Encloses multiple statements into a single statement object.
+    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/begin-end-transact-sql?view=sql-server-ver15
+    """
+
+    type = "begin_end_block"
+    match_grammar = StartsWith(
+        "BEGIN",
+        terminator="END",
+        enforce_whitespace_preceding_terminator=True,
+        include_terminator=True,
+    )
+
+    parse_grammar = Sequence(
+        "BEGIN",
+        Ref("BatchSegment"),
+        "END",
+    )
+
+
+@tsql_dialect.segment()
+class BatchSegment(BaseSegment):
+    """A segment representing a GO batch within a file or script."""
+
+    type="batch"
+    match_grammar=OneOf(
+        Ref("BeginEndSegment"),
+        Delimited(
+            Ref("StatementSegment"),
+            delimiter=Ref("DelimiterSegment"),
+            allow_gaps=True,
+            allow_trailing=True,
+        ),
+    )
+
+    def get_table_references(self):
+        """Use parsed tree to extract table references."""
+        references = set()
+        for stmt in self.get_children("statement"):
+            references |= stmt.get_table_references()
+        return references
+
+
+@tsql_dialect.segment(replace=True)
+class SelectClauseSegment(BaseSegment):
+    """A group of elements in a select target statement."""
+
+    type = "select_clause"
+    match_grammar = StartsWith(
+        Sequence("SELECT", Ref("WildcardExpressionSegment", optional=True)),
+        terminator=OneOf(
+            "FROM",
+            "WHERE",
+            "ORDER",
+            Ref("SetOperatorSegment"),
+            Ref("DelimiterSegment"),
+            "END",
+        ),
+        enforce_whitespace_preceding_terminator=True,
+    )
+
+    parse_grammar = Ref("SelectClauseSegmentGrammar")
