@@ -1,4 +1,4 @@
-"""Implementation of Rule L006."""
+"""Implementation of Rule L049."""
 
 
 from sqlfluff.core.rules.base import BaseRule, LintResult
