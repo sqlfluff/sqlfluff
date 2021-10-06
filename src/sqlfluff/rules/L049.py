@@ -10,14 +10,14 @@ class Rule_L049(BaseRule):
     """Comparisons with NULL should use "IS" or "IS NOT".
 
     | **Anti-pattern**
-    | In this example, the <> is used to check for NULL values'.
+    | In this example, the "=" operator is used to check for NULL values'.
 
     .. code-block:: sql
 
         SELECT
             a
         FROM foo
-        WHERE a <> NULL
+        WHERE a = NULL
 
 
     | **Best practice**
@@ -28,7 +28,7 @@ class Rule_L049(BaseRule):
         SELECT
             a
         FROM foo
-        WHERE a IS NOT NULL
+        WHERE a IS NULL
     """
 
     def _eval(self, segment, **kwargs):
