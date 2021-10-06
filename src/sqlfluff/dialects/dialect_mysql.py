@@ -19,6 +19,7 @@ from sqlfluff.core.parser import (
     SymbolSegment,
     Delimited,
     RegexParser,
+    Anything,
 )
 from sqlfluff.core.dialects import load_raw_dialect
 
@@ -142,6 +143,59 @@ mysql_dialect.add(
         trim_chars=("@",),
     ),
 )
+
+
+@mysql_dialect.segment(replace=True)
+class ColumnDefinitionSegment(BaseSegment):
+    """A column definition, e.g. for CREATE TABLE or ALTER TABLE."""
+
+    type = "column_definition"
+    match_grammar = Sequence(
+        Ref("SingleIdentifierGrammar"),  # Column name
+        OneOf(  # Column type
+            # DATETIME and TIMESTAMP take special logic
+            AnyNumberOf(
+                Ref("DatatypeSegment"),
+                max_times=1,
+                min_times=1,
+                exclude=OneOf("DATETIME", "TIMESTAMP"),
+            ),
+            Sequence(
+                OneOf("DATETIME", "TIMESTAMP"),
+                Sequence(
+                    Bracketed(Ref("NumericLiteralSegment"), optional=True),
+                    optional=True,
+                ),
+                Sequence(Sequence("NOT", optional=True), "NULL", optional=True),
+                Sequence("DEFAULT", optional=True),
+                OneOf(
+                    Sequence(
+                        "CURRENT_TIMESTAMP",
+                        Sequence(
+                            Bracketed(Ref("NumericLiteralSegment")),
+                            optional=True,
+                        ),
+                    ),
+                    Ref("NumericLiteralSegment"),
+                    Ref("QuotedLiteralSegment"),
+                    optional=True,
+                ),
+                Sequence(
+                    Sequence("ON", "UPDATE", optional=True),
+                    "CURRENT_TIMESTAMP",
+                    Sequence(
+                        Bracketed(Ref("NumericLiteralSegment")),
+                        optional=True,
+                    ),
+                    optional=True,
+                ),
+            ),
+        ),
+        Bracketed(Anything(), optional=True),  # For types like VARCHAR(100)
+        AnyNumberOf(
+            Ref("ColumnConstraintSegment", optional=True),
+        ),
+    )
 
 
 @mysql_dialect.segment(replace=True)
