@@ -58,6 +58,8 @@ exasol_dialect.sets("system_parameters").update(SYSTEM_PARAMETERS)
 
 exasol_dialect.insert_lexer_matchers(
     [
+        RegexLexer("lua_nested_quotes", r"\[={1,3}\[.*\]={1,3}\]", CodeSegment),
+        RegexLexer("lua_multiline_quotes", r"\[{2}([^[\\]|\\.)*\]{2}", CodeSegment),
         RegexLexer("range_operator", r"\.{2}", CodeSegment),
         StringLexer("hash", "#", CodeSegment),
         StringLexer(

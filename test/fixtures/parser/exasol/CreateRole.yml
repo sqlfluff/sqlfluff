@@ -3,12 +3,11 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 94ac432dbd00530e6c35c873d32085f9993483a07eef38ce1e83fdd6c994f6c4
+_hash: 3a3eebaac6c489de8156407e5afce28c79276cd52ecdb3333735cc91991a06ba
 file:
   statement:
-    create_adapter_script:
-      unparsable:
-      - keyword: CREATE
-      - raw: ROLE
-      - raw: test_role
-      - raw: ;
+    create_role:
+    - keyword: CREATE
+    - keyword: ROLE
+    - identifier: test_role
+  statement_terminator: ;

@@ -3,19 +3,22 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8d7e662713319fd111d75f092601b4db04dfb1aa344f00bd416ea7c6ddbc43c5
+_hash: cf8a90ec5be1aaf5fd3fea2a30a502c617b044bb45c8248fc8f57375cf64f181
 file:
-  statement:
-    create_adapter_script:
-      unparsable:
-      - keyword: CREATE
-      - raw: SCHEMA
-      - raw: s1
-      - raw: ;
-      - raw: CREATE
-      - raw: SCHEMA
-      - raw: IF
-      - raw: NOT
-      - raw: EXISTS
-      - raw: s2
-      - raw: ;
+- statement:
+    create_schema_statement:
+    - keyword: CREATE
+    - keyword: SCHEMA
+    - schema_reference:
+        identifier: s1
+- statement_terminator: ;
+- statement:
+    create_schema_statement:
+    - keyword: CREATE
+    - keyword: SCHEMA
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - schema_reference:
+        identifier: s2
+- statement_terminator: ;

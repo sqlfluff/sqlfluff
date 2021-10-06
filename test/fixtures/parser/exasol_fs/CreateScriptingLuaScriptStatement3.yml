@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f18635a0c2ff9c41e41e9787cf4f64c051c07e4d385a30d7555f2e1469b6165d
+_hash: db2d3263e557aa79b15730dbff10eca20415dd10963a31c5940cdd6f6ed2f749
 file:
   statement:
     create_scripting_lua_script:
@@ -44,22 +44,7 @@ file:
       - raw: query
       - bracketed:
         - start_bracket: (
-        - start_square_bracket: '['
-        - start_square_bracket: '['
-        - raw: INSERT
-        - raw: INTO
-        - raw: t
-        - raw: VALUES
-        - bracketed:
-          - start_bracket: (
-          - raw: ':'
-          - raw: x
-          - comma: ','
-          - raw: ':'
-          - raw: y
-          - end_bracket: )
-        - end_square_bracket: ']'
-        - end_square_bracket: ']'
+        - raw: '[[INSERT INTO t VALUES (:x, :y)]]'
         - comma: ','
         - start_curly_bracket: '{'
         - raw: x

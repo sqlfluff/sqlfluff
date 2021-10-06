@@ -3,33 +3,34 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: de34c2270ee2e202b43481016b3e592f3a43796e51589cdc692c062cb4a478ad
+_hash: 257f3991bcc94c363f79c28b5b2fe8adc540770b35840ba31afe051c69009f3a
 file:
   statement:
-    create_adapter_script:
-      unparsable:
-      - keyword: CREATE
-      - raw: VIRTUAL
-      - raw: SCHEMA
-      - raw: hive
-      - raw: USING
-      - raw: adapter
-      - raw: .
-      - raw: jdbc_adapter
-      - raw: WITH
-      - raw: SQL_DIALECT
-      - raw: '='
-      - raw: "'HIVE'"
-      - raw: CONNECTION_STRING
-      - raw: '='
-      - raw: "'jdbc:hive2://localhost:10000/default'"
-      - raw: SCHEMA_NAME
-      - raw: '='
-      - raw: "'default'"
-      - raw: USERNAME
-      - raw: '='
-      - raw: "'hive-usr'"
-      - raw: PASSWORD
-      - raw: '='
-      - raw: "'hive-pwd'"
-      - raw: ;
+    create_virtual_schema_statement:
+    - keyword: CREATE
+    - keyword: VIRTUAL
+    - keyword: SCHEMA
+    - schema_reference:
+        identifier: hive
+    - keyword: USING
+    - object_reference:
+      - identifier: adapter
+      - dot: .
+      - identifier: jdbc_adapter
+    - keyword: WITH
+    - parameter: SQL_DIALECT
+    - comparison_operator: '='
+    - literal: "'HIVE'"
+    - parameter: CONNECTION_STRING
+    - comparison_operator: '='
+    - literal: "'jdbc:hive2://localhost:10000/default'"
+    - parameter: SCHEMA_NAME
+    - comparison_operator: '='
+    - literal: "'default'"
+    - parameter: USERNAME
+    - comparison_operator: '='
+    - literal: "'hive-usr'"
+    - parameter: PASSWORD
+    - comparison_operator: '='
+    - literal: "'hive-pwd'"
+  statement_terminator: ;
