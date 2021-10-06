@@ -72,46 +72,47 @@ def test__templater_dbt_templating_result(
     assert str(templated_file) == open("test/fixtures/dbt/" + fname).read()
 
 
-examples = [
+@pytest.mark.parametrize(
+    "fnames_input, fnames_expected_sequence",
     [
-        (
-            Path("models") / "depends_on_ephemeral" / "a.sql",
-            Path("models") / "depends_on_ephemeral" / "b.sql",
-            Path("models") / "depends_on_ephemeral" / "d.sql",
-        ),
-        # c.sql is not present in the original list and should not appear here, even
-        # though b.sql depends on it.
-        (
-            Path("models") / "depends_on_ephemeral" / "a.sql",
-            Path("models") / "depends_on_ephemeral" / "b.sql",
-            Path("models") / "depends_on_ephemeral" / "d.sql",
-        ),
+        [
+            (
+                Path("models") / "depends_on_ephemeral" / "a.sql",
+                Path("models") / "depends_on_ephemeral" / "b.sql",
+                Path("models") / "depends_on_ephemeral" / "d.sql",
+            ),
+            # c.sql is not present in the original list and should not appear here,
+            # even though b.sql depends on it. This test ensures that "out of scope"
+            # files, e.g. those ignored using ".sqlfluffignore" or in directories
+            # outside what was specified, are not inadvertently processed.
+            (
+                Path("models") / "depends_on_ephemeral" / "a.sql",
+                Path("models") / "depends_on_ephemeral" / "b.sql",
+                Path("models") / "depends_on_ephemeral" / "d.sql",
+            ),
+        ],
+        [
+            (
+                Path("models") / "depends_on_ephemeral" / "a.sql",
+                Path("models") / "depends_on_ephemeral" / "b.sql",
+                Path("models") / "depends_on_ephemeral" / "c.sql",
+                Path("models") / "depends_on_ephemeral" / "d.sql",
+            ),
+            # c.sql should come first because b.sql depends on c.sql.
+            (
+                Path("models") / "depends_on_ephemeral" / "a.sql",
+                Path("models") / "depends_on_ephemeral" / "c.sql",
+                Path("models") / "depends_on_ephemeral" / "b.sql",
+                Path("models") / "depends_on_ephemeral" / "d.sql",
+            ),
+        ],
     ],
-    [
-        (
-            Path("models") / "depends_on_ephemeral" / "a.sql",
-            Path("models") / "depends_on_ephemeral" / "b.sql",
-            Path("models") / "depends_on_ephemeral" / "c.sql",
-            Path("models") / "depends_on_ephemeral" / "d.sql",
-        ),
-        # c.sql should come first because b.sql depends on c.sql.
-        (
-            Path("models") / "depends_on_ephemeral" / "a.sql",
-            Path("models") / "depends_on_ephemeral" / "c.sql",
-            Path("models") / "depends_on_ephemeral" / "b.sql",
-            Path("models") / "depends_on_ephemeral" / "d.sql",
-        ),
-    ],
-]
-
-
-@pytest.mark.parametrize("fnames", examples)
+)
 @pytest.mark.dbt
 def test__templater_dbt_sequence_files_ephemeral_dependency(
-    project_dir, dbt_templater, fnames  # noqa: F811  # noqa: F811
+    project_dir, dbt_templater, fnames_input, fnames_expected_sequence  # noqa: F811
 ):
     """Test that dbt templater sequences files based on dependencies."""
-    fnames_input, fnames_expected_sequence = fnames
     result = dbt_templater.sequence_files(
         [str(Path(project_dir) / fn) for fn in fnames_input],
         config=FluffConfig(configs=DBT_FLUFF_CONFIG),
