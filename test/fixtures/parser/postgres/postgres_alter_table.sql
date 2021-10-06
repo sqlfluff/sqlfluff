@@ -75,6 +75,9 @@ ALTER TABLE cities
 ALTER TABLE measurement
     DETACH PARTITION measurement_y2015m12;
 
+ALTER TABLE measurement
+    DETACH PARTITION measurement_y2021m10 CONCURRENTLY FINALIZE;
+
 ALTER TABLE landing.workorderhistory
 ADD CONSTRAINT workorder_id_foreign_key
 FOREIGN KEY(workorderid) REFERENCES landing.workorder(id);
