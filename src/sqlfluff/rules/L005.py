@@ -36,8 +36,8 @@ class Rule_L005(BaseRule):
         FROM foo
     """
 
-    def _eval(
-        self, segment: AnySegmentType, raw_stack: Tuple[AnySegmentType], **kwargs
+    def _eval(  # type: ignore
+        self, segment: AnySegmentType, raw_stack: Tuple[AnySegmentType, ...], **kwargs
     ) -> Optional[LintResult]:
         """Commas should not have whitespace directly before them.
 

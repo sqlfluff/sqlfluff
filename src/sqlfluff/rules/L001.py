@@ -31,10 +31,10 @@ class Rule_L001(BaseRule):
         FROM foo
     """
 
-    def _eval(
+    def _eval(  # type: ignore
         self,
         segment: AnySegmentType,
-        raw_stack: Tuple[AnySegmentType],
+        raw_stack: Tuple[AnySegmentType, ...],
         templated_file: TemplatedFile,
         **kwargs
     ) -> LintResult:

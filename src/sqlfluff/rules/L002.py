@@ -42,8 +42,8 @@ class Rule_L002(BaseRule):
 
     config_keywords = ["tab_space_size"]
 
-    def _eval(
-        self, segment: AnySegmentType, raw_stack: Tuple[AnySegmentType], **kwargs
+    def _eval(  # type: ignore
+        self, segment: AnySegmentType, raw_stack: Tuple[AnySegmentType, ...], **kwargs
     ) -> Optional[LintResult]:
         """Mixed Tabs and Spaces in single whitespace.
 
@@ -63,8 +63,9 @@ class Rule_L002(BaseRule):
                                 "edit",
                                 segment,
                                 segment.edit(
-                                    segment.raw.replace("\t", " " * self.tab_space_size)
+                                    segment.raw.replace("\t", " " * self.tab_space_size)  # type: ignore
                                 ),
                             )
                         ],
                     )
+        return None

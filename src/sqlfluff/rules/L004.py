@@ -46,17 +46,17 @@ class Rule_L004(BaseRule):
     config_keywords = ["indent_unit", "tab_space_size"]
 
     # TODO fix indents after text: https://github.com/sqlfluff/sqlfluff/pull/590#issuecomment-739484190
-    def _eval(
-        self, segment: AnySegmentType, raw_stack: Tuple[AnySegmentType], **kwargs
+    def _eval(  # type: ignore
+        self, segment: AnySegmentType, raw_stack: Tuple[AnySegmentType, ...], **kwargs
     ) -> Optional[LintResult]:
         """Incorrect indentation found in file."""
         tab = "\t"
         space = " "
         correct_indent = (
-            space * self.tab_space_size if self.indent_unit == "space" else tab
+            space * self.tab_space_size if self.indent_unit == "space" else tab  # type: ignore
         )
         wrong_indent = (
-            tab if self.indent_unit == "space" else space * self.tab_space_size
+            tab if self.indent_unit == "space" else space * self.tab_space_size  # type: ignore
         )
         if segment.is_type("whitespace") and wrong_indent in segment.raw:
             fixes = []
@@ -67,8 +67,8 @@ class Rule_L004(BaseRule):
             # unless we are converted tabs to spaces (indent_unit = space)
             if (
                 (
-                    self.indent_unit == "space"
-                    or segment.raw.count(space) % self.tab_space_size == 0
+                    self.indent_unit == "space"  # type: ignore
+                    or segment.raw.count(space) % self.tab_space_size == 0  # type: ignore
                 )
                 # Only attempt a fix at the start of a newline for now
                 and (len(raw_stack) == 0 or raw_stack[-1].is_type("newline"))

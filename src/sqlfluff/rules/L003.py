@@ -77,8 +77,10 @@ class Rule_L003(BaseRule):
 
     @classmethod
     def _reorder_raw_stack(
-        cls, raw_stack: Tuple[AnySegmentType], templated_file: TemplatedFile
-    ) -> Tuple[AnySegmentType]:
+        cls,
+        raw_stack: Tuple[AnySegmentType, ...],
+        templated_file: Optional[TemplatedFile],
+    ) -> Tuple[AnySegmentType, ...]:
         """Reorder raw_stack to simplify indentation logic.
 
         Context: The indentation logic was mostly designed to work with normal
@@ -134,27 +136,27 @@ class Rule_L003(BaseRule):
         if current_line:
             move_indent_before_templated()
             lines.append(current_line)
-        raw_stack = [s for line in lines for s in line]
-        return tuple(raw_stack)
+        new_raw_stack = [s for line in lines for s in line]
+        return tuple(new_raw_stack)
 
     @classmethod
     def _process_raw_stack(
         cls,
-        raw_stack: Tuple[AnySegmentType],
+        raw_stack: Tuple[AnySegmentType, ...],
         memory: dict = None,
         tab_space_size: int = 4,
-        templated_file: TemplatedFile = None,
+        templated_file: Optional[TemplatedFile] = None,
     ) -> dict:
         """Take the raw stack, split into lines and evaluate some stats."""
         raw_stack = cls._reorder_raw_stack(raw_stack, templated_file)
         indent_balance = 0
         line_no = 1
         in_indent = True
-        indent_buffer = []
-        line_buffer = []
+        indent_buffer: List[AnySegmentType] = []
+        line_buffer: List[AnySegmentType] = []
         result_buffer = {}
         indent_size = 0
-        line_indent_stack = []
+        line_indent_stack: List[int] = []
         this_indent_balance = 0
         clean_indent = False
         hanger_pos = None
@@ -190,7 +192,7 @@ class Rule_L003(BaseRule):
                 # ended with an indent then we might be ok.
                 clean_indent = False
                 # Was there an indent after the last code element of the previous line?
-                for search_elem in reversed(result_buffer[line_no - 1]["line_buffer"]):
+                for search_elem in reversed(result_buffer[line_no - 1]["line_buffer"]):  # type: ignore
                     if not search_elem.is_code and not search_elem.is_meta:
                         continue
                     elif search_elem.is_meta and search_elem.indent_val > 0:
@@ -199,9 +201,9 @@ class Rule_L003(BaseRule):
             elif in_indent:
                 if elem.is_type("whitespace"):
                     indent_buffer.append(elem)
-                elif elem.is_meta and elem.indent_val != 0:
-                    indent_balance += elem.indent_val
-                    if elem.indent_val > 0:
+                elif elem.is_meta and elem.indent_val != 0:  # type: ignore
+                    indent_balance += elem.indent_val  # type: ignore
+                    if elem.indent_val > 0:  # type: ignore
                         # a "clean" indent is one where it contains
                         # an increase in indentation? Can't quite
                         # remember the logic here. Let's go with that.
@@ -212,9 +214,9 @@ class Rule_L003(BaseRule):
                     indent_size = cls._indent_size(
                         indent_buffer, tab_space_size=tab_space_size
                     )
-            elif elem.is_meta and elem.indent_val != 0:
-                indent_balance += elem.indent_val
-                if elem.indent_val > 0:
+            elif elem.is_meta and elem.indent_val != 0:  # type: ignore
+                indent_balance += elem.indent_val  # type: ignore
+                if elem.indent_val > 0:  # type: ignore
                     # Keep track of the indent at the last ... indent
                     line_indent_stack.append(
                         cls._indent_size(line_buffer, tab_space_size=tab_space_size)
@@ -253,7 +255,7 @@ class Rule_L003(BaseRule):
     def _coerce_indent_to(
         self,
         desired_indent: str,
-        current_indent_buffer: Tuple[AnySegmentType],
+        current_indent_buffer: Tuple[AnySegmentType, ...],
         current_anchor: AnySegmentType,
     ) -> List[LintFix]:
         """Generate fixes to make an indent a certain size."""
@@ -299,8 +301,8 @@ class Rule_L003(BaseRule):
         cls,
         segment: AnySegmentType,
         memory: dict,
-        parent_stack: Tuple[AnySegmentType],
-        siblings_post: Tuple[AnySegmentType],
+        parent_stack: Tuple[AnySegmentType, ...],
+        siblings_post: Tuple[AnySegmentType, ...],
     ) -> bool:
         """Returns True if 'segment' is the very last node in the parse tree."""
         if siblings_post:
@@ -320,13 +322,13 @@ class Rule_L003(BaseRule):
                 return False
         return True
 
-    def _eval(
+    def _eval(  # type: ignore
         self,
         segment: AnySegmentType,
-        raw_stack: Tuple[AnySegmentType],
+        raw_stack: Tuple[AnySegmentType, ...],
         memory: dict,
-        parent_stack: Tuple[AnySegmentType],
-        siblings_post: Tuple[AnySegmentType],
+        parent_stack: Tuple[AnySegmentType, ...],
+        siblings_post: Tuple[AnySegmentType, ...],
         templated_file: TemplatedFile,
         **kwargs,
     ) -> Optional[LintResult]:
@@ -354,7 +356,7 @@ class Rule_L003(BaseRule):
         """
         # Memory keeps track of what we've seen
         if not memory:
-            memory: dict = {
+            memory: dict = {  # type: ignore
                 # in_indent keeps track of whether we're in an indent right now
                 "in_indent": True,
                 # problem_lines keeps track of lines with problems so that we
@@ -377,7 +379,7 @@ class Rule_L003(BaseRule):
             if segment.is_type("whitespace"):
                 # it's whitespace, carry on
                 pass
-            elif segment.segments or (segment.is_meta and segment.indent_val != 0):
+            elif segment.segments or (segment.is_meta and segment.indent_val != 0):  # type: ignore
                 # it's not a raw segment or placeholder. Carry on.
                 pass
             else:
@@ -402,7 +404,7 @@ class Rule_L003(BaseRule):
         res = self._process_raw_stack(
             raw_stack,
             memory,
-            tab_space_size=self.tab_space_size,
+            tab_space_size=self.tab_space_size,  # type: ignore
             templated_file=templated_file,
         )
 
@@ -528,8 +530,8 @@ class Rule_L003(BaseRule):
                         desired_indent = ""
                     elif this_line["indent_size"] == 0:
                         desired_indent = self._make_indent(
-                            indent_unit=self.indent_unit,
-                            tab_space_size=self.tab_space_size,
+                            indent_unit=self.indent_unit,  # type: ignore
+                            tab_space_size=self.tab_space_size,  # type: ignore
                         )
                     else:
                         # The previous indent.
@@ -572,7 +574,7 @@ class Rule_L003(BaseRule):
                 # point to do the repairs. We need a sensible previous line
                 # to base the repairs off. If there's no indent at all, then
                 # we should also take this route because there SHOULD be one.
-                if this_line["indent_size"] % self.tab_space_size != 0:
+                if this_line["indent_size"] % self.tab_space_size != 0:  # type: ignore
                     memory["problem_lines"].append(this_line_no)
 
                     # The default indent is the one just reconstructs it from
@@ -580,8 +582,8 @@ class Rule_L003(BaseRule):
                     default_indent = "".join(
                         elem.raw for elem in res[k]["indent_buffer"]
                     ) + self._make_indent(
-                        indent_unit=self.indent_unit,
-                        tab_space_size=self.tab_space_size,
+                        indent_unit=self.indent_unit,  # type: ignore
+                        tab_space_size=self.tab_space_size,  # type: ignore
                         num=indent_diff,
                     )
                     # If we have a clean indent, we can just add steps in line
@@ -609,17 +611,19 @@ class Rule_L003(BaseRule):
                         memory=memory,
                         description=(
                             "Indentation not hanging or a multiple of {} spaces"
-                        ).format(self.tab_space_size),
+                        ).format(
+                            self.tab_space_size  # type: ignore
+                        ),
                         fixes=fixes,
                     )
                 else:
                     # We'll need this value later.
-                    this_indent_num = this_line["indent_size"] // self.tab_space_size
+                    this_indent_num = this_line["indent_size"] // self.tab_space_size  # type: ignore
 
                 # We know that the indent balance is higher, what actually is
                 # the difference in indent counts? It should be a whole number
                 # if we're still here.
-                comp_indent_num = res[k]["indent_size"] // self.tab_space_size
+                comp_indent_num = res[k]["indent_size"] // self.tab_space_size  # type: ignore
 
                 # The indent number should be at least 1, and can be UP TO
                 # and including the difference in the indent balance.
@@ -671,8 +675,8 @@ class Rule_L003(BaseRule):
                                     trigger_segment,
                                     WhitespaceSegment(
                                         raw=self._make_indent(
-                                            indent_unit=self.indent_unit,
-                                            tab_space_size=self.tab_space_size,
+                                            indent_unit=self.indent_unit,  # type: ignore
+                                            tab_space_size=self.tab_space_size,  # type: ignore
                                         ),
                                     ),
                                 )
@@ -694,8 +698,8 @@ class Rule_L003(BaseRule):
                                     # Make the minimum indent for it to be ok.
                                     raw=self._make_indent(
                                         num=comp_indent_num - this_indent_num,
-                                        indent_unit=self.indent_unit,
-                                        tab_space_size=self.tab_space_size,
+                                        indent_unit=self.indent_unit,  # type: ignore
+                                        tab_space_size=self.tab_space_size,  # type: ignore
                                     ),
                                 ),
                             )
@@ -705,8 +709,8 @@ class Rule_L003(BaseRule):
                     # Calculate the lowest ok indent:
                     desired_indent = self._make_indent(
                         num=comp_indent_num - this_indent_num,
-                        indent_unit=self.indent_unit,
-                        tab_space_size=self.tab_space_size,
+                        indent_unit=self.indent_unit,  # type: ignore
+                        tab_space_size=self.tab_space_size,  # type: ignore
                     )
 
                     # Make fixes
@@ -738,7 +742,7 @@ class Rule_L003(BaseRule):
                     if this_line["indent_size"] != prev_line["indent_size"]:
                         # It's not aligned.
                         # Find the anchor first.
-                        anchor = None
+                        anchor: AnySegmentType = None  # type: ignore
                         for seg in prev_line["line_buffer"]:
                             if seg.is_type("comment"):
                                 anchor = seg
@@ -776,9 +780,11 @@ class Rule_L003(BaseRule):
 
     @classmethod
     def _get_element_template_info(
-        cls, elem: AnySegmentType, templated_file: TemplatedFile
+        cls, elem: AnySegmentType, templated_file: Optional[TemplatedFile]
     ) -> Optional[str]:
         if elem.is_type("placeholder"):
+            if templated_file is None:
+                raise ValueError("Parameter templated_file cannot be: None.")
             slices = templated_file.raw_slices_spanning_source_slice(
                 elem.pos_marker.source_slice
             )
