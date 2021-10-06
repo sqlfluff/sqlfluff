@@ -1,5 +1,4 @@
 """The PostgreSQL dialect."""
-
 from sqlfluff.core.parser import (
     OneOf,
     AnyNumberOf,
@@ -19,6 +18,7 @@ from sqlfluff.core.parser import (
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
+from sqlfluff.dialects.dialect_ansi import JoinClauseSegment as JoinClauseSegmentAnsi
 from sqlfluff.dialects.postgres_keywords import postgres_keywords, get_keywords
 
 ansi_dialect = load_raw_dialect("ansi")
@@ -1814,3 +1814,19 @@ class FunctionSegment(BaseSegment):
         ),
         Ref("PostFunctionGrammar", optional=True),
     )
+
+
+@postgres_dialect.segment(replace=True)
+class JoinClauseSegment(JoinClauseSegmentAnsi):
+    """Any number of join clauses, including the `JOIN` keyword.
+
+    The postgres version allows for lateral joins.
+    """
+
+    sequence_list_with_lateral = (
+        *JoinClauseSegmentAnsi.sequence_list[:2],
+        Sequence("LATERAL", optional=True),
+        *JoinClauseSegmentAnsi.sequence_list[2:],
+    )
+
+    match_grammar = Sequence(*sequence_list_with_lateral)
