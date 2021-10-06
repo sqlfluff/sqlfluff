@@ -1,7 +1,8 @@
 """Implementation of Rule L049."""
 
 
-from sqlfluff.core.rules.base import BaseRule, LintResult
+from sqlfluff.core.parser import KeywordSegment, WhitespaceSegment
+from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
 
@@ -61,7 +62,28 @@ class Rule_L049(BaseRule):
                         sub_seg.pos_marker,
                         sub_seg.raw,
                     )
-                    return LintResult(anchor=operator)
+                    if sub_seg.raw[0] == "N":
+                        is_seg = KeywordSegment("IS")
+                        not_seg = KeywordSegment("NOT")
+                    else:
+                        is_seg = KeywordSegment("is")
+                        not_seg = KeywordSegment("not")
+                    return LintResult(
+                        anchor=operator,
+                        fixes=[
+                            LintFix(
+                                "edit",
+                                operator,
+                                [is_seg]
+                                if operator.name == "equals"
+                                else [
+                                    is_seg,
+                                    WhitespaceSegment(),
+                                    not_seg,
+                                ],
+                            )
+                        ],
+                    )
 
                 else:
                     operator = None
