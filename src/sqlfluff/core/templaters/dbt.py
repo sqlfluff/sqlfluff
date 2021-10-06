@@ -253,6 +253,12 @@ class DbtTemplater(JinjaTemplater):
             for fqn, dependent in self._walk_dependents(
                 fname, fnames, self.working_dir, config=config
             ):
+                # Skip filenames we didn't have already. sequence_files() is
+                # not allowed to add new files, only resequence the existing
+                # ones.
+                if dependent not in fnames:
+                    continue
+
                 add = False
                 if fqn:
                     # We have a fully-qualified name. Use it to avoid
