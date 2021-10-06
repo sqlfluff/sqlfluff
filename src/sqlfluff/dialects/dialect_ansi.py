@@ -2149,7 +2149,7 @@ class TableEndClauseSegment(BaseSegment):
     """
 
     type = "table_end_clause_segment"
-    match_grammar=Nothing()
+    match_grammar = Nothing()
 
 
 @ansi_dialect.segment()
