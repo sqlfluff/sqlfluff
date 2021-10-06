@@ -6,6 +6,8 @@ https://www.sqlite.org/
 from sqlfluff.core.parser import (
     OneOf,
     Ref,
+    Sequence,
+    BaseSegment,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -19,3 +21,14 @@ sqlite_dialect.replace(
         Ref("AndKeywordSegment"), Ref("OrKeywordSegment"), "REGEXP"
     ),
 )
+
+
+@sqlite_dialect.segment(replace=True)
+class TableEndClauseSegment(BaseSegment):
+    """Allow for additional table endings.
+
+    (like WITHOUT ROWID for SQLite)
+    """
+
+    type = "table_end_clause_segment"
+    match_grammar=Sequence("WITHOUT", "ROWID")

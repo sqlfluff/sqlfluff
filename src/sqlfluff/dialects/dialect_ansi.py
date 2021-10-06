@@ -2142,6 +2142,17 @@ class TableConstraintSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
+class TableEndClauseSegment(BaseSegment):
+    """Allow for additional table endings.
+
+    (like WITHOUT ROWID for SQLite)
+    """
+
+    type = "table_end_clause_segment"
+    match_grammar=Nothing()
+
+
+@ansi_dialect.segment()
 class CreateTableStatementSegment(BaseSegment):
     """A `CREATE TABLE` statement."""
 
@@ -2176,6 +2187,7 @@ class CreateTableStatementSegment(BaseSegment):
             # Create like syntax
             Sequence("LIKE", Ref("TableReferenceSegment")),
         ),
+        Ref("TableEndClauseSegment", optional=True),
     )
 
 
