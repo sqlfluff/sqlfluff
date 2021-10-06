@@ -1235,14 +1235,13 @@ class SelectClauseSegment(BaseSegment):
 
 @ansi_dialect.segment()
 class JoinClauseSegment(BaseSegment):
-    """Any number of join clauses, including the `JOIN` keyword.
-
-    The list of elements is moved to separate attribute, because in that way it can
-    be used in postgres' version, where the `LATERAL` is inserted in between.
-    """
+    """Any number of join clauses, including the `JOIN` keyword."""
 
     type = "join_clause"
-    sequence_list = (
+    match_grammar = Sequence(
+        # NB These qualifiers are optional
+        # TODO: Allow nested joins like:
+        # ....FROM S1.T1 t1 LEFT JOIN ( S2.T2 t2 JOIN S3.T3 t3 ON t2.col1=t3.col1) ON tab1.col1 = tab2.col1
         OneOf(
             "CROSS",
             "INNER",
@@ -1291,12 +1290,6 @@ class JoinClauseSegment(BaseSegment):
         ),
         Dedent,
     )
-    match_grammar = Sequence(
-        # NB These qualifiers are optional
-        # TODO: Allow nested joins like:
-        # ....FROM S1.T1 t1 LEFT JOIN ( S2.T2 t2 JOIN S3.T3 t3 ON t2.col1=t3.col1) ON tab1.col1 = tab2.col1
-        *sequence_list,
-    )
 
     def get_eventual_alias(self) -> AliasInfo:
         """Return the eventual table name referred to by this join clause."""
@@ -1329,7 +1322,7 @@ class FromClauseSegment(BaseSegment):
 
     NOTE: this is a delimited set of table expressions, with a variable
     number of optional join clauses with those table expressions. The
-    delimited aspect is the higher of the two such that the following is
+    delmited aspect is the higher of the two such that the following is
     valid (albeit unusual):
 
     ```

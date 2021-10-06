@@ -9,7 +9,7 @@ from sqlfluff.dialects.postgres_keywords import get_keywords, priority_keyword_m
 @pytest.mark.parametrize(
     "segment_reference,raw",
     [
-        # AT TIME ZONE constructs
+        # AT TIME ZONE constucts
         ("SelectClauseElementSegment", "c_column AT TIME ZONE 'UTC'"),
         ("SelectClauseElementSegment", "(c_column AT TIME ZONE 'UTC')::time"),
         (
@@ -139,26 +139,3 @@ def test_get_keywords():
     expected_result_2 = ["C", "E"]
 
     assert sorted(get_keywords(kw_list, "non-reserved")) == sorted(expected_result_2)
-
-
-@pytest.mark.parametrize(
-    "raw",
-    [
-        "select tbl1.id from tbl1 join tbl2 on tbl1.id = tbl2.id;",
-        "select tbl1.id from tbl1 join lateral tbl2 on tbl1.id = tbl2.id;",
-        (
-            "select tbl1.id from tbl1 "
-            "full outer join lateral tbl2 on tbl1.id = tbl2.id "
-            "cross join tbl3 on tbl1.id = tbl3.id "
-            "left join lateral tbl4 on tbl1.id = tbl4.id;"
-        ),
-    ],
-)
-def test_join_can_be_lateral(raw: str) -> None:
-    """Postgres can have a lateral joins."""
-    cfg = FluffConfig(
-        configs={"core": {"exclude_rules": "L009", "dialect": "postgres"}}
-    )
-    lnt = Linter(config=cfg)
-    result = lnt.lint_string(raw)
-    assert result.num_violations() == 0
