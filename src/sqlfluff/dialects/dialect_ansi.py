@@ -547,6 +547,7 @@ class DatatypeSegment(BaseSegment):
             Bracketed(Ref("NumericLiteralSegment"), optional=True),
             Sequence(OneOf("WITH", "WITHOUT"), "TIME", "ZONE", optional=True),
         ),
+        Sequence("DOUBLE", Sequence("PRECISION", optional=True),),
         Sequence(
             OneOf(
                 Sequence(
