@@ -3,76 +3,63 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 86f6771f34ef09dbc4d8ec329f93dffdb72d1f629e3cdd171d7203018c0d0e7b
+_hash: 2a64b4e97930e27b1df192e9e2a53e99119ae90604b23d7ed020ad70c4d21862
 file:
-- statement:
-    create_consumer_group_statement:
-    - keyword: CREATE
-    - keyword: CONSUMER
-    - keyword: GROUP
-    - identifier: CEO
-    - keyword: WITH
-    - consumer_group_parameter:
-        keyword: PRECEDENCE
-        comparison_operator: '='
-        literal: "'1000'"
-    - comma: ','
-    - consumer_group_parameter:
-        keyword: CPU_WEIGHT
-        comparison_operator: '='
-        literal: "'900'"
-- statement_terminator: ;
-- statement:
-    create_consumer_group_statement:
-    - keyword: CREATE
-    - keyword: CONSUMER
-    - keyword: GROUP
-    - identifier: BI_TEAM
-    - keyword: WITH
-    - consumer_group_parameter:
-        keyword: PRECEDENCE
-        comparison_operator: '='
-        literal: "'900'"
-    - comma: ','
-    - consumer_group_parameter:
-        keyword: CPU_WEIGHT
-        comparison_operator: '='
-        literal: "'500'"
-    - comma: ','
-    - consumer_group_parameter:
-        keyword: GROUP_TEMP_DB_RAM_LIMIT
-        comparison_operator: '='
-        literal: "'200G'"
-    - comma: ','
-    - consumer_group_parameter:
-        keyword: USER_TEMP_DB_RAM_LIMIT
-        comparison_operator: '='
-        literal: "'100G'"
-- statement_terminator: ;
-- statement:
-    create_consumer_group_statement:
-    - keyword: CREATE
-    - keyword: CONSUMER
-    - keyword: GROUP
-    - identifier: TEST_TEAM
-    - keyword: WITH
-    - consumer_group_parameter:
-        keyword: PRECEDENCE
-        comparison_operator: '='
-        literal: "'800'"
-    - comma: ','
-    - consumer_group_parameter:
-        keyword: CPU_WEIGHT
-        comparison_operator: '='
-        literal: "'100'"
-    - comma: ','
-    - consumer_group_parameter:
-        keyword: GROUP_TEMP_DB_RAM_LIMIT
-        comparison_operator: '='
-        literal: "'10G'"
-    - comma: ','
-    - consumer_group_parameter:
-        keyword: SESSION_TEMP_DB_RAM_LIMIT
-        comparison_operator: '='
-        literal: "'5G'"
-- statement_terminator: ;
+  statement:
+    create_adapter_script:
+      unparsable:
+      - keyword: CREATE
+      - raw: CONSUMER
+      - raw: GROUP
+      - raw: CEO
+      - raw: WITH
+      - raw: PRECEDENCE
+      - raw: '='
+      - raw: "'1000'"
+      - comma: ','
+      - raw: CPU_WEIGHT
+      - raw: '='
+      - raw: "'900'"
+      - raw: ;
+      - raw: CREATE
+      - raw: CONSUMER
+      - raw: GROUP
+      - raw: BI_TEAM
+      - raw: WITH
+      - raw: PRECEDENCE
+      - raw: '='
+      - raw: "'900'"
+      - comma: ','
+      - raw: CPU_WEIGHT
+      - raw: '='
+      - raw: "'500'"
+      - comma: ','
+      - raw: GROUP_TEMP_DB_RAM_LIMIT
+      - raw: '='
+      - raw: "'200G'"
+      - comma: ','
+      - raw: USER_TEMP_DB_RAM_LIMIT
+      - raw: '='
+      - raw: "'100G'"
+      - raw: ;
+      - raw: CREATE
+      - raw: CONSUMER
+      - raw: GROUP
+      - raw: TEST_TEAM
+      - raw: WITH
+      - raw: PRECEDENCE
+      - raw: '='
+      - raw: "'800'"
+      - comma: ','
+      - raw: CPU_WEIGHT
+      - raw: '='
+      - raw: "'100'"
+      - comma: ','
+      - raw: GROUP_TEMP_DB_RAM_LIMIT
+      - raw: '='
+      - raw: "'10G'"
+      - comma: ','
+      - raw: SESSION_TEMP_DB_RAM_LIMIT
+      - raw: '='
+      - raw: "'5G'"
+      - raw: ;

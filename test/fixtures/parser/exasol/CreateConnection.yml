@@ -3,56 +3,44 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 249a6974e8059778910e46fb476812cf37d690e2a6db7c8aa5664605f77c5fd2
+_hash: 28831ace7d916b202d2bed20ece2b9292a90e893cbf83f6dcf5b52ec2e80c6ac
 file:
-- statement:
-    create_connection:
-    - keyword: CREATE
-    - keyword: CONNECTION
-    - identifier: ftp_connection
-    - keyword: TO
-    - connection_definition:
-      - literal: "'ftp://192.168.1.1/'"
-      - keyword: USER
-      - literal: "'agent_007'"
-      - keyword: IDENTIFIED
-      - keyword: BY
-      - literal: "'secret'"
-- statement_terminator: ;
-- statement:
-    create_connection:
-    - keyword: CREATE
-    - keyword: CONNECTION
-    - identifier: exa_connection
-    - keyword: TO
-    - connection_definition:
-        literal: "'192.168.6.11..14:8563'"
-- statement_terminator: ;
-- statement:
-    create_connection:
-    - keyword: CREATE
-    - keyword: CONNECTION
-    - identifier: ora_connection
-    - keyword: TO
-    - connection_definition:
-        literal: "'(DESCRIPTION =\n    (ADDRESS = (PROTOCOL = TCP)(HOST = 192.168.6.54)(PORT\
+  statement:
+    create_adapter_script:
+      unparsable:
+      - keyword: CREATE
+      - raw: CONNECTION
+      - raw: ftp_connection
+      - raw: TO
+      - raw: "'ftp://192.168.1.1/'"
+      - raw: USER
+      - raw: "'agent_007'"
+      - raw: IDENTIFIED
+      - raw: BY
+      - raw: "'secret'"
+      - raw: ;
+      - raw: CREATE
+      - raw: CONNECTION
+      - raw: exa_connection
+      - raw: TO
+      - raw: "'192.168.6.11..14:8563'"
+      - raw: ;
+      - raw: CREATE
+      - raw: CONNECTION
+      - raw: ora_connection
+      - raw: TO
+      - raw: "'(DESCRIPTION =\n    (ADDRESS = (PROTOCOL = TCP)(HOST = 192.168.6.54)(PORT\
           \ = 1521))\n    (CONNECT_DATA = (SERVER = DEDICATED)(SERVICE_NAME = orcl)))'"
-- statement_terminator: ;
-- statement:
-    create_connection:
-    - keyword: CREATE
-    - keyword: CONNECTION
-    - identifier: jdbc_connection_1
-    - keyword: TO
-    - connection_definition:
-        literal: "'jdbc:mysql://192.168.6.1/my_db'"
-- statement_terminator: ;
-- statement:
-    create_connection:
-    - keyword: CREATE
-    - keyword: CONNECTION
-    - identifier: jdbc_connection_2
-    - keyword: TO
-    - connection_definition:
-        literal: "'jdbc:postgresql://192.168.6.2:5432/my_db?stringtype=unspecified'"
-- statement_terminator: ;
+      - raw: ;
+      - raw: CREATE
+      - raw: CONNECTION
+      - raw: jdbc_connection_1
+      - raw: TO
+      - raw: "'jdbc:mysql://192.168.6.1/my_db'"
+      - raw: ;
+      - raw: CREATE
+      - raw: CONNECTION
+      - raw: jdbc_connection_2
+      - raw: TO
+      - raw: "'jdbc:postgresql://192.168.6.2:5432/my_db?stringtype=unspecified'"
+      - raw: ;

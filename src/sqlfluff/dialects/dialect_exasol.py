@@ -3627,17 +3627,22 @@ class FileSegment(BaseFileSegment):
     """
 
     parse_grammar = AnyNumberOf(
-        Sequence(
+        Delimited(
             Ref("FunctionScriptStatementSegment"),
-            # Ref("FunctionScriptTerminatorSegment"), # this ain't working....
+            delimiter=Ref("FunctionScriptTerminatorSegment"),
+            allow_gaps=True,
+            allow_trailing=True,
         ),
-        Sequence(
+        Delimited(
             Ref("StatementSegment"),
-            Ref("SemicolonSegment"),
+            delimiter=Ref("DelimiterSegment"),
+            allow_gaps=True,
+            allow_trailing=True,
         ),
     )
 
 
+@exasol_dialect.segment(replace=True)
 class FunctionSegment(BaseSegment):
     """A scalar or aggregate function.
 
