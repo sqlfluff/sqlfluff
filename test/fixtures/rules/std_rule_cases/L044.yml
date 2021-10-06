@@ -1,12 +1,13 @@
 rule: L044
 
-test_1:
+test_pass_known_number_of_result_columns_1:
   pass_str: select a, b from t
 
-test_2:
+test_fail_unknown_number_of_result_columns_1:
   fail_str: select * from t
 
-test_3:
+test_pass_known_number_of_result_columns_2:
+  desc: Columns are specified in CTE so * in final query will return only columns specified earlier.
   pass_str: |
     with cte as (
         select
@@ -16,7 +17,7 @@ test_3:
     )
     select * from cte
 
-test_4:
+test_fail_unknown_number_of_result_columns_2:
   fail_str: |
     with cte as (
         select
@@ -27,7 +28,7 @@ test_4:
     select * from cte
 
 
-test_5:
+test_pass_known_number_of_result_columns_3:
   pass_str: |
     with cte as (
         select
@@ -37,7 +38,10 @@ test_5:
     )
     select a, b from cte
 
-test_6:
+test_pass_known_number_of_result_columns_4:
+  desc: |
+    CTE1 has * but columns are specified in final select.
+    CTE2 has columns specified so cte2.* in final select will return only columns specified in CTE2's body.
   pass_str: |
     with cte1 as (
         select
@@ -58,7 +62,7 @@ test_6:
     join cte2
     using (a)
 
-test_7:
+test_fail_unknown_number_of_result_columns_3:
   fail_str: |
     with cte1 as (
         select
@@ -79,7 +83,8 @@ test_7:
     join cte2
     using (a)
 
-test_8:
+test_pass_known_number_of_result_columns_5:
+  desc: Columns specified in subquery so * in final select will return only those columns.
   pass_str: |
     select * from (
         select
@@ -88,7 +93,8 @@ test_8:
             t
     )
 
-test_9:
+test_fail_unknown_number_of_result_columns_4:
+  desc: Select t.* will return unknown number of columns.
   fail_str: |
     with cte as (
         select
@@ -103,7 +109,8 @@ test_9:
     join t
     using (a)
 
-test_10:
+test_fail_unknown_number_of_result_columns_5:
+  desc: Select t_alias.* will return unknown number of columns since the * is used in subquery.
   fail_str: |
     with cte as (
         select
@@ -118,7 +125,8 @@ test_10:
     join (select * from t) as t_alias
     using (a)
 
-test_11:
+test_pass_known_number_of_result_columns_6:
+  desc: Select t_alias.* will return known number of columns since they are defined in subquery.
   pass_str: |
     select
         t_alias.*
@@ -126,7 +134,7 @@ test_11:
     join (select a from t) as t_alias
     using (a)
 
-test_12:
+test_fail_unknown_number_of_result_columns_6:
   fail_str: |
     select
         t_alias.*
@@ -134,7 +142,7 @@ test_12:
     join (select * from t) as t_alias
     using (a)
 
-test_13:
+test_pass_known_number_of_result_columns_7:
   pass_str: |
     with cte as (
         select
@@ -149,28 +157,28 @@ test_13:
     join (select * from t) as t_alias
     using (a)
 
-test_14:
+test_fail_unknown_number_of_result_columns_7:
   fail_str: select *, t.*, t.a, b from t
 
-test_15:
+test_pass_known_number_of_result_columns_8:
   pass_str: |
     select a from t1
     union all
     select b from t2
 
-test_16:
+test_fail_unknown_number_of_result_columns_8:
   fail_str: |
     select a from t1
     union all
     select * from t2
 
-test_17:
+test_fail_unknown_number_of_result_columns_9:
   fail_str: |
     select * from t1
     union all
     select b from t2
 
-test_18:
+test_fail_unknown_number_of_result_columns_10:
   fail_str: |
     with cte as (
       select * from t1
@@ -182,7 +190,7 @@ test_18:
     union all
     select b from t3
 
-test_19:
+test_pass_known_number_of_result_columns_9:
   pass_str: |
     with cte as (
       select a from t1
@@ -194,7 +202,8 @@ test_19:
     union all
     select b from t3
 
-test_20:
+test_pass_known_number_of_result_columns_10:
+  desc: Columns are specified in cte_orders's body so cte_orders.* will return only these columns.
   pass_str: |
     WITH cte_orders AS (
       SELECT customer_id, total
@@ -208,7 +217,8 @@ test_20:
     WHERE
       clients.id = orders.clientId
 
-test_21:
+test_pass_known_number_of_result_columns_11:
+  desc: Columns are specified in cte_orders's body so cte_orders.* will return only these columns.
   pass_str: |
     WITH cte_orders AS (
       SELECT customer_id, total
@@ -219,7 +229,7 @@ test_21:
     FROM
       cte_orders AS orders
 
-test_22:
+test_fail_unknown_number_of_result_columns_11:
   fail_str: |
     WITH cte_orders AS (
       SELECT *
@@ -230,7 +240,8 @@ test_22:
     FROM
       cte_orders AS orders
 
-test_23:
+test_fail_unknown_number_of_result_columns_12:
+  desc: CTE is unused. We select * from orders table which means it's unknown what columns will be returned.
   fail_str: |
     WITH cte_orders AS (
       SELECT customer_id, total
@@ -241,16 +252,17 @@ test_23:
     FROM
       orders AS cte_orders
 
-test_24:
+test_fail_unknown_number_of_result_columns_13:
   fail_str: SELECT p.* FROM races, UNNEST(participants) AS p
 
-test_25:
+test_pass_known_number_of_result_columns_12:
   pass_str: SELECT p FROM races, UNNEST(participants) AS p
 
-test_26:
+test_fail_unknown_number_of_result_columns_14:
   fail_str: SELECT * FROM a JOIN b
 
-test_27:
+test_fail_unknown_number_of_result_columns_15:
+  desc: We know what columns will cte return but we don't know what columns will be returned from joined table b.
   fail_str: |
     WITH cte AS (
       SELECT a
@@ -260,7 +272,8 @@ test_27:
     FROM cte
     JOIN b
 
-test_28:
+test_pass_known_number_of_result_columns_13:
+  desc: Both CTEs define returned columns so * in final select will return known number of columns.
   pass_str: |
     WITH cte1 AS (
       SELECT a
@@ -274,23 +287,23 @@ test_28:
     FROM cte1
     JOIN cte2
 
-test_29:
+test_pass_known_number_of_result_columns_14:
   pass_str: select a, b from `d.t`
   configs:
     core:
       dialect: bigquery
 
-test_30:
+test_fail_unknown_number_of_result_columns_16:
   fail_str: select * from `d.t`
   configs:
     core:
       dialect: bigquery
 
-test_31:
+test_pass_known_number_of_result_columns_15:
   # Issue 915: Crash on statements that don't have a SELECT
   pass_str: CREATE TABLE my_table (id INTEGER)
 
-test_32:
+test_fail_unknown_number_of_result_columns_17:
   # Issue 930: Infinite recursion if CTE queries itself.
   fail_str: |
     with
@@ -300,7 +313,7 @@ test_32:
 
       select * from hubspot__engagement_calls
 
-test_33:
+test_fail_unknown_number_of_result_columns_18:
   # Another test for issue #930
   fail_str: |
     with

@@ -47,6 +47,8 @@ tsql_dialect.insert_lexer_matchers(
             r"\[([a-zA-Z0-9][^\[\]]*)*\]",
             CodeSegment,
         ),
+        # T-SQL unicode strings
+        RegexLexer("single_quote_with_n", r"N'([^'\\]|\\.)*'", CodeSegment),
     ],
     before="back_quote",
 )
@@ -54,6 +56,9 @@ tsql_dialect.insert_lexer_matchers(
 tsql_dialect.add(
     BracketedIdentifierSegment=NamedParser(
         "square_quote", CodeSegment, name="quoted_identifier", type="identifier"
+    ),
+    QuotedLiteralSegmentWithN=NamedParser(
+        "single_quote_with_n", CodeSegment, name="quoted_literal", type="literal"
     ),
 )
 
@@ -69,6 +74,17 @@ tsql_dialect.replace(
         Ref("NakedIdentifierSegment"),
         Ref("QuotedIdentifierSegment"),
         Ref("BracketedIdentifierSegment"),
+    ),
+    LiteralGrammar=OneOf(
+        Ref("QuotedLiteralSegment"),
+        Ref("QuotedLiteralSegmentWithN"),
+        Ref("NumericLiteralSegment"),
+        Ref("BooleanLiteralGrammar"),
+        Ref("QualifiedNumericLiteralSegment"),
+        # NB: Null is included in the literals, because it is a keyword which
+        # can otherwise be easily mistaken for an identifier.
+        Ref("NullLiteralSegment"),
+        Ref("DateTimeLiteralGrammar"),
     ),
     ParameterNameSegment=RegexParser(
         r"[@][A-Za-z0-9_]+", CodeSegment, name="parameter", type="parameter"
@@ -289,7 +305,7 @@ class ObjectReferenceSegment(BaseSegment):
     """A reference to an object.
 
     Update ObjectReferenceSegment to only allow dot separated SingleIdentifierGrammar
-    So Square Bracketed identifers can be matched.
+    So Square Bracketed identifiers can be matched.
     """
 
     type = "object_reference"
@@ -693,6 +709,22 @@ class FunctionSegment(BaseSegment):
     match_grammar = OneOf(
         Sequence(
             Sequence(
+                Ref("DateAddFunctionNameSegment"),
+                Bracketed(
+                    Delimited(
+                        Ref("DatePartClause"),
+                        Ref(
+                            "FunctionContentsGrammar",
+                            # The brackets might be empty for some functions...
+                            optional=True,
+                            ephemeral_name="FunctionContentsGrammar",
+                        ),
+                    )
+                ),
+            )
+        ),
+        Sequence(
+            Sequence(
                 Ref("ConvertFunctionNameSegment"),
                 Bracketed(
                     Delimited(
@@ -713,7 +745,10 @@ class FunctionSegment(BaseSegment):
                     Ref("FunctionNameSegment"),
                     max_times=1,
                     min_times=1,
-                    exclude=Ref("ConvertFunctionNameSegment"),
+                    exclude=OneOf(
+                        Ref("ConvertFunctionNameSegment"),
+                        Ref("DateAddFunctionNameSegment"),
+                    ),
                 ),
                 Bracketed(
                     Ref(
@@ -882,4 +917,49 @@ class CreateTableAsSelectStatementSegment(BaseSegment):
         Ref("TableDistributionIndexClause"),
         "AS",
         Ref("SelectableGrammar"),
+    )
+
+
+@tsql_dialect.segment(replace=True)
+class DatePartClause(BaseSegment):
+    """DatePart clause for use within DATEADD() or related functions."""
+
+    type = "date_part"
+
+    match_grammar = OneOf(
+        "D",
+        "DAY",
+        "DAYOFYEAR",
+        "DD",
+        "DW",
+        "DY",
+        "HH",
+        "HOUR",
+        "M",
+        "MCS",
+        "MI",
+        "MICROSECOND",
+        "MILLISECOND",
+        "MINUTE",
+        "MM",
+        "MONTH",
+        "MS",
+        "N",
+        "NANOSECOND",
+        "NS",
+        "Q",
+        "QQ",
+        "QUARTER",
+        "S",
+        "SECOND",
+        "SS",
+        "W",
+        "WEEK",
+        "WEEKDAY",
+        "WK",
+        "WW",
+        "YEAR",
+        "Y",
+        "YY",
+        "YYYY",
     )

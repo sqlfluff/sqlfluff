@@ -1021,10 +1021,10 @@ class CreateTableStatementSegment(BaseSegment):
                         Ref("ColumnDefinitionSegment"),
                         Ref("TableOutOfLineConstraintSegment"),
                         Ref("CreateTableLikeClauseSegment"),
-                        Ref("CommaSegment", optional=True),
-                        Ref("TableDistributionPartitonClause", optional=True),
+                        Ref("CommaSegment"),
                         min_times=1,
                     ),
+                    Ref("TableDistributionPartitonClause", optional=True),
                 ),
             ),
             # Create AS syntax:
@@ -1198,8 +1198,24 @@ class TableInlineConstraintSegment(BaseSegment):
     """Inline table constraint for CREATE / ALTER TABLE."""
 
     type = "table_constraint_definition"
-    match_grammar = Sequence(
-        Sequence("CONSTRAINT", Ref("SingleIdentifierGrammar"), optional=True),
+    match_grammar = StartsWith(
+        OneOf("CONSTRAINT", "NOT", "NULL", "PRIMARY", "FOREIGN"),
+        terminator=OneOf("COMMENT", Ref("CommaSegment"), Ref("EndBracketSegment")),
+    )
+    parse_grammar = Sequence(
+        Sequence(
+            "CONSTRAINT",
+            AnyNumberOf(
+                Ref("NakedIdentifierSegment"),
+                max_times=1,
+                min_times=0,
+                # exclude UNRESERVED_KEYWORDS which could used as NakedIdentifier
+                # to make e.g. `id NUMBER CONSTRAINT PRIMARY KEY` work (which is equal to just
+                # `id NUMBER PRIMARY KEY`)
+                exclude=OneOf("NOT", "NULL", "PRIMARY", "FOREIGN"),
+            ),
+            optional=True,
+        ),
         OneOf(
             # (NOT) NULL
             Sequence(Ref.keyword("NOT", optional=True), "NULL"),
@@ -1217,8 +1233,24 @@ class TableOutOfLineConstraintSegment(BaseSegment):
     """Out of line table constraint for CREATE / ALTER TABLE."""
 
     type = "table_constraint_definition"
-    match_grammar = Sequence(
-        Sequence("CONSTRAINT", Ref("SingleIdentifierGrammar"), optional=True),
+    match_grammar = StartsWith(
+        OneOf("CONSTRAINT", "PRIMARY", "FOREIGN"),
+        terminator=OneOf(Ref("CommaSegment"), "DISTRIBUTE", "PARTITION"),
+    )
+    parse_grammar = Sequence(
+        Sequence(
+            "CONSTRAINT",
+            AnyNumberOf(
+                Ref("NakedIdentifierSegment"),
+                max_times=1,
+                min_times=0,
+                # exclude UNRESERVED_KEYWORDS which could used as NakedIdentifier
+                # to make e.g. `id NUMBER, CONSTRAINT PRIMARY KEY(id)` work (which is equal to just
+                # `id NUMBER, PRIMARY KEY(id)`)
+                exclude=OneOf("NOT", "NULL", "PRIMARY", "FOREIGN"),
+            ),
+            optional=True,
+        ),
         OneOf(
             # PRIMARY KEY
             Sequence(
@@ -3054,7 +3086,7 @@ class FlushStatisticsSegment(BaseSegment):
 class RecompressReorganizeSegment(BaseSegment):
     """`RECOMPRESS` and `REOGRANIZE` statement."""
 
-    type = "recompress_reorganzie_statement"
+    type = "recompress_reorganize_statement"
     match_grammar = Sequence(
         OneOf("RECOMPRESS", "REORGANIZE"),
         OneOf(
@@ -3603,4 +3635,71 @@ class FileSegment(BaseFileSegment):
             Ref("StatementSegment"),
             Ref("SemicolonSegment"),
         ),
+    )
+
+
+class FunctionSegment(BaseSegment):
+    """A scalar or aggregate function.
+
+    Maybe in the future we should distinguish between
+    aggregate functions and other functions. For now
+    we treat them the same because they look the same
+    for our purposes.
+    """
+
+    type = "function"
+    match_grammar = OneOf(
+        Sequence(
+            Sequence(
+                Ref("DateAddFunctionNameSegment"),
+                Bracketed(
+                    Ref(
+                        "FunctionContentsGrammar",
+                        # The brackets might be empty for some functions...
+                        optional=True,
+                        ephemeral_name="FunctionContentsGrammar",
+                    ),
+                ),
+            ),
+            Ref("PostFunctionGrammar", optional=True),
+        ),
+        Sequence(
+            Sequence(
+                AnyNumberOf(
+                    Ref("FunctionNameSegment"),
+                    max_times=1,
+                    min_times=1,
+                    exclude=Ref("DateAddFunctionNameSegment"),
+                ),
+                Bracketed(
+                    Ref(
+                        "FunctionContentsGrammar",
+                        # The brackets might be empty for some functions...
+                        optional=True,
+                        ephemeral_name="FunctionContentsGrammar",
+                    )
+                ),
+            ),
+            Ref("PostFunctionGrammar", optional=True),
+        ),
+    )
+
+
+@exasol_dialect.segment(replace=True)
+class DateAddFunctionNameSegment(BaseSegment):
+    """DATEADD function name segment.
+
+    Need to be able to specify this as type function_name
+    so that linting rules identify it properly
+    """
+
+    type = "function_name"
+    match_grammar = OneOf(
+        "ADD_DAYS",
+        "ADD_HOURS",
+        "ADD_MINUTES",
+        "ADD_MONTHS",
+        "ADD_SECONDS",
+        "ADD_WEEKS",
+        "ADD_YEARS",
     )

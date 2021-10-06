@@ -1,36 +1,36 @@
 rule: L029
 
-test_1:
+test_pass_valid_identifiers_1:
   pass_str: CREATE TABLE artist(artist_name TEXT)
 
-test_2:
+test_fail_keyword_as_identifier_1:
   fail_str: CREATE TABLE artist(create TEXT)
 
-test_3:
+test_fail_keyword_as_identifier_2:
   fail_str: SELECT 1 as parameter
 
-test_4:
+test_fail_keyword_as_identifier_3:
   fail_str: SELECT x FROM tbl AS parameter
 
-test_5:
+test_pass_valid_identifiers_2:
   # should pass on default config as not alias
   pass_str: SELECT parameter
 
-test_6:
+test_fail_keyword_as_identifier_4:
   fail_str: SELECT parameter
   configs:
     rules:
       L029:
         unquoted_identifiers_policy: all
 
-test_7:
+test_pass_valid_identifiers_3:
   pass_str: SELECT x FROM tbl AS parameter
   configs:
     rules:
       L029:
         unquoted_identifiers_policy: column_aliases
 
-test_8:
+test_fail_keyword_as_identifier_5:
   fail_str: SELECT x AS date FROM tbl AS parameter
   configs:
     rules:

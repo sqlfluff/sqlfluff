@@ -187,6 +187,10 @@ postgres_dialect.replace(
         ansi_dialect.get_segment("ColumnReferenceSegment"),
         Ref("TimeZoneGrammar", optional=True),
     ),
+    # Postgres supports the non-standard ISNULL and NONNULL comparison operators. See
+    # https://www.postgresql.org/docs/14/functions-comparison.html
+    IsNullGrammar=Ref.keyword("ISNULL"),
+    NotNullGrammar=Ref.keyword("NOTNULL"),
 )
 
 
@@ -1783,3 +1787,30 @@ class StatementSegment(BaseSegment):
     )
 
     match_grammar = ansi_dialect.get_segment("StatementSegment").match_grammar.copy()
+
+
+@postgres_dialect.segment(replace=True)
+class FunctionSegment(BaseSegment):
+    """A scalar or aggregate function.
+
+    Maybe in the future we should distinguish between
+    aggregate functions and other functions. For now
+    we treat them the same because they look the same
+    for our purposes.
+    """
+
+    type = "function"
+    match_grammar = Sequence(
+        Sequence(
+            Ref("FunctionNameSegment"),
+            Bracketed(
+                Ref(
+                    "FunctionContentsGrammar",
+                    # The brackets might be empty for some functions...
+                    optional=True,
+                    ephemeral_name="FunctionContentsGrammar",
+                )
+            ),
+        ),
+        Ref("PostFunctionGrammar", optional=True),
+    )

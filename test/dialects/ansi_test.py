@@ -108,9 +108,10 @@ def test__dialect__ansi__file_lex(raw, res, caplog):
             "concat(left(uaid, 2), '|', right(concat('0000000', SPLIT_PART(uaid, '|', 4)), 10), '|', '00000000')",
         ),
         # Notnull and Isnull
-        ("ExpressionSegment", "c notnull"),
         ("ExpressionSegment", "c is null"),
-        ("ExpressionSegment", "c isnull"),
+        ("ExpressionSegment", "c is not null"),
+        ("SelectClauseElementSegment", "c is null as c_isnull"),
+        ("SelectClauseElementSegment", "c is not null as c_notnull"),
         # Shorthand casting
         ("ExpressionSegment", "NULL::INT"),
         ("SelectClauseElementSegment", "NULL::INT AS user_id"),

@@ -1,9 +1,9 @@
 rule: L045
 
-test_1:
+test_pass_no_cte_defined_1:
   pass_str: select * from t
 
-test_2:
+test_pass_cte_defined_and_used_1:
   pass_str: |
     with cte as (
         select
@@ -13,7 +13,7 @@ test_2:
     )
     select * from cte
 
-test_3:
+test_pass_cte_defined_and_used_2:
   pass_str: |
     WITH cte1 AS (
       SELECT a
@@ -27,7 +27,8 @@ test_3:
     FROM cte1
     JOIN cte2
 
-test_4:
+test_fail_cte_defined_but_unused_1:
+  desc: Two CTEs defined but only one used in final query.
   fail_str: |
     WITH cte1 AS (
       SELECT a
@@ -40,7 +41,8 @@ test_4:
     SELECT *
     FROM cte1
 
-test_5:
+test_fail_cte_defined_but_unused_2:
+  desc: CTE defined but unused in final query even though table alias mimics CTE's name.
   fail_str: |
     WITH cte_orders AS (
       SELECT customer_id, total
@@ -51,7 +53,7 @@ test_5:
     FROM
       orders AS cte_orders
 
-test_6:
+test_pass_cte_defined_and_used_3:
   pass_str: |
     WITH cte1 AS (
       SELECT a
@@ -64,7 +66,8 @@ test_6:
     SELECT *
     FROM cte2
 
-test_7:
+test_fail_cte_defined_but_unused_3:
+  desc: Two CTEs are defined. CTE2 references CTE1 but in final query only CTE1 is used.
   fail_str: |
     WITH cte1 AS (
       SELECT a
@@ -77,11 +80,11 @@ test_7:
     SELECT *
     FROM cte1
 
-test_8:
+test_pass_no_cte_defined_2:
   # Issue 915: Crash on statements that don't have a SELECT
   pass_str: CREATE TABLE my_table (id INTEGER)
 
-test_9:
+test_pass_cte_defined_and_used_4:
   # Issue 944: Detecting use of CTE in nested SELECT
   pass_str: |
     WITH max_date_cte AS (
@@ -93,7 +96,7 @@ test_9:
     FROM warehouse.updated_weekly
     WHERE row_updated_date <= (SELECT max_date FROM max_date_cte)
 
-test_10:
+test_pass_cte_defined_and_used_5:
   # Variant on test_9, the WHERE with a nested SELECT is in a CTE
   pass_str: |
     WITH max_date_cte AS (
@@ -109,7 +112,7 @@ test_10:
     SELECT stuff
     FROM uses_max_date_cte
 
-test_11:
+test_pass_cte_defined_and_used_6:
   # Issue 963: Infinite recursion when a CTE references itself
   pass_str: |
     with pages_xf as (
@@ -124,7 +127,7 @@ test_11:
 
     select * from final
 
-test_12:
+test_fail_cte_defined_but_unused_4:
   # Variant on test_11 where there *is* an unused CTE
   fail_str: |
     with pages_xf as (
@@ -142,7 +145,7 @@ test_12:
 
     select * from final
 
-test_13:
+test_pass_cte_defined_and_used_7:
   # Variant on test_11 where the CTE references itself indirectly
   pass_str: |
     with pages_xf as (
