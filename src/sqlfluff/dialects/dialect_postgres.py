@@ -323,6 +323,7 @@ class CreateFunctionStatementSegment(BaseSegment):
                     ),
                     optional=True,
                 ),
+                Sequence("SETOF", Ref("DatatypeSegment"),),
                 Ref("DatatypeSegment"),
             ),
             optional=True,
