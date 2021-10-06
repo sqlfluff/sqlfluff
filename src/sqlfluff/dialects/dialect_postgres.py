@@ -191,6 +191,7 @@ postgres_dialect.replace(
     # https://www.postgresql.org/docs/14/functions-comparison.html
     IsNullGrammar=Ref.keyword("ISNULL"),
     NotNullGrammar=Ref.keyword("NOTNULL"),
+    JoinKeywords=Sequence("JOIN", Sequence("LATERAL", optional=True)),
 )
 
 
@@ -322,6 +323,10 @@ class CreateFunctionStatementSegment(BaseSegment):
                         )
                     ),
                     optional=True,
+                ),
+                Sequence(
+                    "SETOF",
+                    Ref("DatatypeSegment"),
                 ),
                 Ref("DatatypeSegment"),
             ),

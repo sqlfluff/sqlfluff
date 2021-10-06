@@ -474,6 +474,8 @@ ansi_dialect.add(
         "FILTER", Bracketed(Sequence("WHERE", Ref("ExpressionSegment")))
     ),
     FrameClauseUnitGrammar=OneOf("ROWS", "RANGE"),
+    # It's as a sequence to allow to parametrize that in Postgres dialect with LATERAL
+    JoinKeywords=Sequence("JOIN"),
 )
 
 
@@ -546,6 +548,10 @@ class DatatypeSegment(BaseSegment):
             OneOf("time", "timestamp"),
             Bracketed(Ref("NumericLiteralSegment"), optional=True),
             Sequence(OneOf("WITH", "WITHOUT"), "TIME", "ZONE", optional=True),
+        ),
+        Sequence(
+            "DOUBLE",
+            "PRECISION",
         ),
         Sequence(
             OneOf(
@@ -1255,7 +1261,7 @@ class JoinClauseSegment(BaseSegment):
             ),
             optional=True,
         ),
-        "JOIN",
+        Ref("JoinKeywords"),
         Indent,
         Sequence(
             Ref("FromExpressionElementSegment"),
