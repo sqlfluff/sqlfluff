@@ -3,7 +3,7 @@
 import pytest
 import logging
 
-from sqlfluff.core import FluffConfig, Linter
+from sqlfluff.core import FluffConfig, Linter, SQLParseError
 from sqlfluff.core.parser import Lexer
 
 
@@ -214,3 +214,28 @@ def test__dialect__ansi_parse_indented_joins(sql_string, indented_joins, meta_lo
         idx for idx, raw_seg in enumerate(parsed.tree.iter_raw_seg()) if raw_seg.is_meta
     )
     assert res_meta_locs == meta_loc
+
+
+@pytest.mark.parametrize(
+    "raw,expected_unparsable",
+    [
+        (";;", True),
+        ("select id from tbl;", False),
+        ("select id from tbl;;", True),
+        ("select id from tbl;;;;;;", True),
+        ("select id from tbl;select id2 from tbl2;", False),
+        ("select id from tbl;;select id2 from tbl2;", True),
+    ],
+)
+def test__dialect__ansi_multiple_semicolons(
+    raw: str, expected_unparsable: bool
+) -> None:
+    """Multiple semicolons should be recognized as an unparsable section."""
+    lnt = Linter()
+    parsed = lnt.parse_string(raw)
+
+    assert len(parsed.violations) == (1 if expected_unparsable else 0)
+    if expected_unparsable:
+        violation = parsed.violations[0]
+        assert isinstance(violation, SQLParseError)
+        assert "Found unparsable section:" in violation.desc()
