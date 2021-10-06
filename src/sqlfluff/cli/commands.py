@@ -4,6 +4,18 @@ import sys
 import json
 import logging
 import time
+from typing import (
+    Callable,
+    Tuple,
+    NoReturn,
+    Optional,
+    Union,
+    Iterator,
+    List,
+    Any,
+    Dict,
+)
+
 import oyaml as yaml
 
 import click
@@ -37,6 +49,7 @@ from sqlfluff.core import (
     dialect_readout,
     TimingSummary,
 )
+from sqlfluff.core.linter import ParsedString
 
 
 class RedWarningsFilter(logging.Filter):
@@ -49,7 +62,9 @@ class RedWarningsFilter(logging.Filter):
         return True
 
 
-def set_logging_level(verbosity, logger=None, stderr_output=False):
+def set_logging_level(
+    verbosity: int, logger: Optional[logging.Logger] = None, stderr_output: bool = False
+) -> None:
     """Set up logging for the CLI.
 
     We either set up global logging based on the verbosity
@@ -101,7 +116,7 @@ def set_logging_level(verbosity, logger=None, stderr_output=False):
         parser_logger.setLevel(logging.DEBUG)
 
 
-def common_options(f):
+def common_options(f: Callable) -> Callable:
     """Add common options to commands via a decorator.
 
     These are applied to all of the cli commands.
@@ -122,10 +137,11 @@ def common_options(f):
         is_flag=True,
         help="No color - if this is set then the output will be without ANSI color codes.",
     )(f)
+
     return f
 
 
-def core_options(f):
+def core_options(f: Callable) -> Callable:
     """Add core operation options to commands via a decorator.
 
     These are applied to the main (but not all) cli commands like
@@ -188,27 +204,29 @@ def core_options(f):
     return f
 
 
-def get_config(**kwargs):
+def get_config(**kwargs) -> FluffConfig:
     """Get a config object from kwargs."""
-    if kwargs.get("dialect", None):
+    if "dialect" in kwargs:
         try:
             # We're just making sure it exists at this stage - it will be fetched properly in the linter
             dialect_selector(kwargs["dialect"])
         except KeyError:
-            click.echo("Error: Unknown dialect {!r}".format(kwargs["dialect"]))
+            click.echo(f"Error: Unknown dialect {kwargs['dialect']}")
             sys.exit(66)
     # Instantiate a config object (filtering out the nulls)
     overrides = {k: kwargs[k] for k in kwargs if kwargs[k] is not None}
     return FluffConfig.from_root(overrides=overrides)
 
 
-def get_linter_and_formatter(cfg, silent=False):
+def get_linter_and_formatter(
+    cfg: FluffConfig, silent: bool = False
+) -> Tuple[Linter, CallbackFormatter]:
     """Get a linter object given a config."""
     try:
         # We're just making sure it exists at this stage - it will be fetched properly in the linter
         dialect_selector(cfg.get("dialect"))
     except KeyError:  # pragma: no cover
-        click.echo("Error: Unknown dialect {!r}".format(cfg.get("dialect")))
+        click.echo(f"Error: Unknown dialect {cfg.get('dialect')}")
         sys.exit(66)
 
     if not silent:
@@ -234,7 +252,7 @@ def cli():
 
 @cli.command()
 @common_options
-def version(**kwargs):
+def version(**kwargs) -> None:
     """Show the version of sqlfluff."""
     c = get_config(**kwargs)
     if c.get("verbose") > 0:
@@ -249,7 +267,7 @@ def version(**kwargs):
 
 @cli.command()
 @common_options
-def rules(**kwargs):
+def rules(**kwargs) -> None:
     """Show the current rules in use."""
     c = get_config(**kwargs)
     lnt, _ = get_linter_and_formatter(c)
@@ -258,7 +276,7 @@ def rules(**kwargs):
 
 @cli.command()
 @common_options
-def dialects(**kwargs):
+def dialects(**kwargs) -> None:
     """Show the current dialects available."""
     c = get_config(**kwargs)
     click.echo(format_dialects(dialect_readout), color=c.get("color"))
@@ -294,7 +312,7 @@ def dialects(**kwargs):
 @click.option(
     "--disregard-sqlfluffignores",
     is_flag=True,
-    help=("Perform the operation regardless of .sqlfluffignore configurations"),
+    help="Perform the operation regardless of .sqlfluffignore configurations",
 )
 @click.option(
     "-p",
@@ -305,16 +323,16 @@ def dialects(**kwargs):
 )
 @click.argument("paths", nargs=-1)
 def lint(
-    paths,
-    processes,
-    format,
-    annotation_level,
-    nofail,
-    disregard_sqlfluffignores,
-    logger=None,
-    bench=False,
+    paths: Tuple[str],
+    processes: int,
+    format: str,
+    annotation_level: str,
+    nofail: bool,
+    disregard_sqlfluffignores: bool,
+    logger: Optional[logging.Logger] = None,
+    bench: bool = False,
     **kwargs,
-):
+) -> NoReturn:
     """Lint SQL files via passing a list of files or using stdin.
 
     PATH is the path to a sql file or directory to lint. This can be either a
@@ -359,9 +377,7 @@ def lint(
         except OSError:
             click.echo(
                 colorize(
-                    "The path(s) {!r} could not be accessed. Check it/they exist(s).".format(
-                        paths
-                    ),
+                    f"The path(s) {paths} could not be accessed. Check it/they exist(s).",
                     "red",
                 )
             )
@@ -452,7 +468,15 @@ def do_fixes(lnt, result, formatter=None, **kwargs):
     help="The number of parallel processes to run.",
 )
 @click.argument("paths", nargs=-1)
-def fix(force, paths, processes, bench=False, fixed_suffix="", logger=None, **kwargs):
+def fix(
+    force: bool,
+    paths: Tuple[str],
+    processes: int,
+    bench: bool = False,
+    fixed_suffix: str = "",
+    logger: Optional[logging.Logger] = None,
+    **kwargs,
+) -> NoReturn:
     """Fix SQL files.
 
     PATH is the path to a sql file or directory to lint. This can be either a
@@ -510,9 +534,7 @@ def fix(force, paths, processes, bench=False, fixed_suffix="", logger=None, **kw
     except OSError:
         click.echo(
             colorize(
-                "The path(s) {!r} could not be accessed. Check it/they exist(s).".format(
-                    paths
-                ),
+                f"The path(s) {paths} could not be accessed. Check it/they exist(s).",
                 "red",
             ),
             err=True,
@@ -524,9 +546,7 @@ def fix(force, paths, processes, bench=False, fixed_suffix="", logger=None, **kw
     if result.num_violations(types=SQLLintError, fixable=True) > 0:
         click.echo("==== fixing violations ====")
         click.echo(
-            "{} fixable linting violations found".format(
-                result.num_violations(types=SQLLintError, fixable=True)
-            )
+            f"{result.num_violations(types=SQLLintError, fixable=True)} fixable linting violations found"
         )
         if force:
             click.echo(colorize("FORCE MODE", "red") + ": Attempting fixes...")
@@ -571,17 +591,13 @@ def fix(force, paths, processes, bench=False, fixed_suffix="", logger=None, **kw
 
     if result.num_violations(types=SQLLintError, fixable=False) > 0:
         click.echo(
-            "  [{} unfixable linting violations found]".format(
-                result.num_violations(types=SQLLintError, fixable=False)
-            )
+            f"  [{result.num_violations(types=SQLLintError, fixable=False)} unfixable linting violations found]"
         )
         exit_code = 1
 
     if result.num_violations(types=SQLTemplaterError) > 0:
         click.echo(
-            "  [{} templating errors found]".format(
-                result.num_violations(types=SQLTemplaterError)
-            )
+            f"  [{result.num_violations(types=SQLTemplaterError)} templating errors found]"
         )
         exit_code = 1
 
@@ -596,10 +612,8 @@ def fix(force, paths, processes, bench=False, fixed_suffix="", logger=None, **kw
     sys.exit(exit_code)
 
 
-def _completion_message(config):
-    click.echo(
-        "All Finished{emojis}!".format(emojis="" if config.get("nocolor") else " 📜 🎉")
-    )
+def _completion_message(config: FluffConfig) -> None:
+    click.echo(f"All Finished{'' if config.get('nocolor') else ' 📜 🎉'}!")
 
 
 def quoted_presenter(dumper, data):
@@ -651,16 +665,16 @@ def quoted_presenter(dumper, data):
     ),
 )
 def parse(
-    path,
-    code_only,
-    include_meta,
-    format,
-    profiler,
-    bench,
-    nofail,
-    logger=None,
+    path: str,
+    code_only: bool,
+    include_meta: bool,
+    format: str,
+    profiler: bool,
+    bench: bool,
+    nofail: bool,
+    logger: Optional[logging.Logger] = None,
     **kwargs,
-):
+) -> NoReturn:
     """Parse SQL files and just spit out the result.
 
     PATH is the path to a sql file or directory to lint. This can be either a
@@ -695,6 +709,7 @@ def parse(
     try:
         t0 = time.monotonic()
         # handle stdin if specified via lone '-'
+        result: Union[Iterator[ParsedString], List[ParsedString], List[Dict[str, Any]]]
         if "-" == path:
             # put the parser result in a list to iterate later
             result = [
