@@ -735,7 +735,13 @@ class AlterTableStatementSegment(BaseSegment):
                             "DEFAULT",
                         ),
                     ),
-                    Sequence("DETACH", "PARTITION", Ref("ParameterNameSegment")),
+                    Sequence(
+                        "DETACH",
+                        "PARTITION",
+                        Ref("ParameterNameSegment"),
+                        Ref.keyword("CONCURRENTLY", optional=True),
+                        Ref.keyword("FINALIZE", optional=True),
+                    ),
                 ),
             ),
             Sequence(
