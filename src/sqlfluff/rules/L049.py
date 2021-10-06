@@ -2,12 +2,13 @@
 
 
 from sqlfluff.core.parser import KeywordSegment, WhitespaceSegment
-from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix
+from sqlfluff.core.rules.base import LintResult, LintFix
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
+from sqlfluff.rules.L006 import Rule_L006
 
 
 @document_fix_compatible
-class Rule_L049(BaseRule):
+class Rule_L049(Rule_L006):
     """Comparisons with NULL should use "IS" or "IS NOT".
 
     | **Anti-pattern**
@@ -31,41 +32,6 @@ class Rule_L049(BaseRule):
         FROM foo
         WHERE a IS NULL
     """
-
-    @staticmethod
-    def _missing_whitespace(seg, before=True):
-        """Check whether we're missing whitespace given an adjoining segment."""
-        # There is a segment
-        if not seg:
-            return False
-        # And it's not whitespace
-        if seg.is_whitespace:
-            return False
-        # And it's not an opening/closing bracket
-        if seg.name.endswith("_bracket"):
-            if seg.name.startswith("start_" if before else "end_"):
-                return False
-        if seg.is_meta:  # pragma: no cover
-            if before:
-                if seg.source_str.endswith(" ") or seg.source_str.endswith("\n"):
-                    return False
-            else:
-                if seg.source_str.startswith(" ") or seg.source_str.startswith("\n"):
-                    return False
-        return True
-
-    @staticmethod
-    def _find_segment(idx, segments, before=True):
-        """Go back or forward to find the next relevant segment."""
-        step = -1 if before else 1
-        j = idx + step
-        while (j >= 0) if before else (j < len(segments)):
-            # Don't trigger on indents, but placeholders are allowed.
-            if segments[j].is_type("indent"):
-                j += step
-            else:
-                return segments[j]
-        return None
 
     def _eval(self, segment, **kwargs):
         """Relational operators should not be used to check for NULL values."""
