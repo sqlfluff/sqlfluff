@@ -33,16 +33,20 @@ class Rule_L049(BaseRule):
 
     def _eval(self, segment, **kwargs):
         """Relational operators should not be used to check for NULL values."""
-        # Iterate through children of this segment looking for equals or "not
-        # equals".
+        # Context/motivation for this rule:
+        # https://news.ycombinator.com/item?id=28772289
+        # https://stackoverflow.com/questions/9581745/sql-is-null-and-null
         if len(segment.segments) <= 2:
             return LintResult()
 
+        # Iterate through children of this segment looking for equals or "not
+        # equals". Once found, check if the next code segment is a NULL literal.
         operator = None
         for idx, sub_seg in enumerate(segment.segments):
             # Skip anything which is whitespace or non-code.
             if sub_seg.is_whitespace or not sub_seg.is_code:
                 continue
+
             # Look for "=" or "<>".
             if not operator and sub_seg.name in ("equals", "not_equal_to"):
                 self.logger.debug(
@@ -50,9 +54,7 @@ class Rule_L049(BaseRule):
                 )
                 operator = sub_seg
             elif operator:
-                # Skip anything which is whitespace or non-code.
-                if sub_seg.is_whitespace or not sub_seg.is_code:
-                    continue
+                # Look for a "NULL" literal.
                 if sub_seg.name == "null_literal":
                     self.logger.debug(
                         "Found NULL literal following equals/not equals @%s: %r",
