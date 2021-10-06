@@ -91,7 +91,7 @@ class Rule_L049(Rule_L006):
                         edit = [WhitespaceSegment()] + edit
                     if self._missing_whitespace(next_seg, before=False):
                         edit = edit + [WhitespaceSegment()]
-                    violation = LintResult(
+                    return LintResult(
                         anchor=operator,
                         fixes=[
                             LintFix(
@@ -101,4 +101,3 @@ class Rule_L049(Rule_L006):
                             )
                         ],
                     )
-                    return violation
