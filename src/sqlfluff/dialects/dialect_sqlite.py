@@ -25,10 +25,10 @@ sqlite_dialect.replace(
 
 @sqlite_dialect.segment(replace=True)
 class TableEndClauseSegment(BaseSegment):
-    """Allow for additional table endings.
+    """Support WITHOUT ROWID at end of tables.
 
-    (like WITHOUT ROWID for SQLite)
+    https://www.sqlite.org/withoutrowid.html
     """
 
     type = "table_end_clause_segment"
-    match_grammar=Sequence("WITHOUT", "ROWID")
+    match_grammar = Sequence("WITHOUT", "ROWID")
