@@ -92,3 +92,12 @@ $$  LANGUAGE plpgsql
 REVOKE ALL ON FUNCTION check_password(uname TEXT, pass TEXT) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION check_password(uname TEXT, pass TEXT) TO admins;
 COMMIT;
+
+CREATE OR REPLACE FUNCTION public.setof_test()
+RETURNS SETOF text
+LANGUAGE sql
+STABLE STRICT
+AS $function$
+select unnest(array['hi', 'test'])
+$function$
+;

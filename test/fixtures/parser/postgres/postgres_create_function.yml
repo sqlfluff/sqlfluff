@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5d503776245af71e84cb00d1487c4f06f0b6ab9d6307478e0a84d9207a693262
+_hash: eac5ff2a6ac7137c4ecd4296a967e807932fb33ec25b347b8676442e7e7ceec1
 file:
 - statement:
     create_function_statement:
@@ -511,4 +511,30 @@ file:
 - statement:
     transaction_statement:
       keyword: COMMIT
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - binary_operator: OR
+    - keyword: REPLACE
+    - keyword: FUNCTION
+    - function_name:
+        identifier: public
+        dot: .
+        function_name_identifier: setof_test
+    - base:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: RETURNS
+    - keyword: SETOF
+    - data_type:
+        data_type_identifier: text
+    - base:
+      - keyword: LANGUAGE
+      - parameter: sql
+      - keyword: STABLE
+      - keyword: STRICT
+      - keyword: AS
+      - literal: "$function$\nselect unnest(array['hi', 'test'])\n$function$"
 - statement_terminator: ;
