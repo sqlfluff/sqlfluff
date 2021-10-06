@@ -549,7 +549,7 @@ class DatatypeSegment(BaseSegment):
         ),
         Sequence(
             "DOUBLE",
-            Sequence("PRECISION", optional=True),
+            "PRECISION",
         ),
         Sequence(
             OneOf(
