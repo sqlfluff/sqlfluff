@@ -249,13 +249,6 @@ class ObjectReferenceSegment(BaseSegment):
 
 
 @tsql_dialect.segment()
-class PivotReferenceSegment(ObjectReferenceSegment):
-    """A reference to an PIVOT to differentiate it from tables."""
-
-    type = "pivot_reference"
-
-
-@tsql_dialect.segment()
 class PivotColumnReferenceSegment(ObjectReferenceSegment):
     """A reference to a PIVOT column to differentiate it from a regular column reference."""
 
@@ -303,7 +296,7 @@ class PivotUnpivotStatementSegment(BaseSegment):
             ),
         ),
         "AS",
-        Ref("PivotReferenceSegment"),
+        Ref("TableReferenceSegment"),
     )
 
 

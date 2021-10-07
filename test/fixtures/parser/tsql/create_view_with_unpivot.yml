@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 67ad8d60439556b1f018f6046fccd2a5047eaa2fc8a6a2f17ec1d88f6afc7eac
+_hash: 7162f5ea26d07ef60b5fe1d0181a7702ec0efce6d26c1f480f515076c3d391a7
 file:
   statement:
     create_view_statement:
@@ -98,6 +98,6 @@ file:
             - end_bracket: )
           - end_bracket: )
         - keyword: AS
-        - pivot_reference:
+        - table_reference:
             identifier: unpvt
   statement_terminator: ;

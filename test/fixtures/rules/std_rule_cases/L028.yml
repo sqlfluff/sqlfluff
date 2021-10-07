@@ -72,8 +72,8 @@ test_object_references_1c:
 
 
 test_tsql_pivot_are_excluded:
-  # This should fail as even though "a" is potenitally a STRUCT
-  # The config has been set to enforce the rule
+  # This should pass as tsql PIVOT columns do not need to be
+  # qualified
   pass_str: |
     select
       t1._id
