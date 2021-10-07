@@ -110,6 +110,7 @@ tsql_dialect.replace(
         Ref("SetOperatorSegment"),
         Ref("WithNoSchemaBindingClauseSegment"),
     ),
+    JoinKeywords=OneOf("JOIN", "APPLY", Sequence("OUTER", "APPLY")),
 )
 
 
@@ -128,6 +129,23 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
                 "CreateTableAsSelectStatementSegment"
             ),  # Azure Synapse Analytics specific
         ],
+    )
+
+
+@tsql_dialect.segment(replace=True)
+class SelectClauseModifierSegment(BaseSegment):
+    """Things that come after SELECT but before the columns."""
+
+    type = "select_clause_modifier"
+    match_grammar = OneOf(
+        "DISTINCT",
+        "ALL",
+        Sequence(
+            "TOP",
+            OptionallyBracketed(Ref("ExpressionSegment")),
+            Sequence("PERCENT", optional=True),
+            Sequence("WITH", "TIES", optional=True),
+        ),
     )
 
 
