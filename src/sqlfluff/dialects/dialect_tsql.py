@@ -1029,7 +1029,6 @@ class BatchSegment(BaseSegment):
             min_times=1,
         ),
         Ref("CreateProcedureStatementSegment"),
-        Ref("CreateFunctionStatementSegment"),
         Delimited(
             Ref("StatementSegment"),
             delimiter=Ref("DelimiterSegment"),
