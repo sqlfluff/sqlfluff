@@ -80,7 +80,7 @@ postgres_dialect.insert_lexer_matchers(
         # Explanation for the regex
         # \\([^(\\\r\n)])+((\\\\)|(?=\n)|(?=\r\n))?
         # \\                                        Starts with backslash
-        #   ([^\\\r\n])+                          Anything that is not a newline or a backslash
+        #   ([^\\\r\n])+                            Anything that is not a newline or a backslash
         #                 (
         #                  (\\\\)                   Double backslash
         #                        |                  OR
