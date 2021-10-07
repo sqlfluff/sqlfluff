@@ -3,22 +3,22 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: dcca321af8746a30b49bd00e003b0ce14d01511121a1182faf0141890288163c
+_hash: 3c730589a01220d38a0c81122ec7f8341ddcfc003c7da7d35cf33f07dff82ef6
 file:
-- statement:
-    unparsable:
-    - raw: CREATE
-    - raw: JAVA
-    - raw: ADAPTER
-    - raw: SCRIPT
-    - raw: my_script
-    - raw: AS
-    - raw: '%'
-    - raw: jar
-    - raw: hive_jdbc_adapter
-    - raw: .
-    - raw: jar
-- statement_terminator: ;
-- statement:
-    unparsable:
-      function_script_terminator: /
+  statement:
+    create_adapter_script:
+    - keyword: CREATE
+    - keyword: JAVA
+    - keyword: ADAPTER
+    - keyword: SCRIPT
+    - script_reference:
+        identifier: my_script
+    - script_content:
+      - raw: AS
+      - raw: '%'
+      - raw: jar
+      - raw: hive_jdbc_adapter
+      - raw: .
+      - raw: jar
+      - semicolon: ;
+  function_script_terminator: /

@@ -3408,7 +3408,7 @@ class FunctionScriptStatementSegment(BaseSegment):
         Ref("CreateFunctionStatementSegment"),
         Ref("CreateScriptingLuaScriptStatementSegment"),
         Ref("CreateUDFScriptStatementSegment"),
-        # Ref("CreateAdapterScriptStatementSegment"),
+        Ref("CreateAdapterScriptStatementSegment"),
     )
 
 
@@ -3545,11 +3545,13 @@ class CreateAdapterScriptStatementSegment(BaseSegment):
     is_dcl = False
 
     match_grammar = StartsWith(
-        "CREATE",
-        Ref("OrReplaceGrammar", optional=True),
-        OneOf("JAVA", "PYTHON", Ref("SingleIdentifierGrammar"), optional=True),
-        "ADAPTER",
-        "SCRIPT",
+        Sequence(
+            "CREATE",
+            Ref("OrReplaceGrammar", optional=True),
+            OneOf("JAVA", "PYTHON", Ref("SingleIdentifierGrammar"), optional=True),
+            "ADAPTER",
+            "SCRIPT",
+        )
     )
     parse_grammar = Sequence(
         "CREATE",
