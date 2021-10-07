@@ -1058,7 +1058,6 @@ class SelectClauseSegment(BaseSegment):
             "ORDER",
             Ref("SetOperatorSegment"),
             Ref("DelimiterSegment"),
-            "END",
         ),
         enforce_whitespace_preceding_terminator=True,
     )
