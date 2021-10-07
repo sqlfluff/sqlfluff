@@ -21,7 +21,6 @@ from sqlfluff.core.parser import (
     OptionallyBracketed,
     Dedent,
     AnyNumberOf,
-    GreedyUntil,
     BaseFileSegment,
 )
 
