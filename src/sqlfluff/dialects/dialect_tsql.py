@@ -229,6 +229,39 @@ class CreateIndexStatementSegment(BaseSegment):
     )
 
 
+@tsql_dialect.segment(replace=True)
+class ObjectReferenceSegment(BaseSegment):
+    """A reference to an object.
+
+    Update ObjectReferenceSegment to only allow dot separated SingleIdentifierGrammar
+    So Square Bracketed identifiers can be matched.
+    """
+
+    type = "object_reference"
+    # match grammar (don't allow whitespace)
+    match_grammar: Matchable = Delimited(
+        Ref("SingleIdentifierGrammar"),
+        delimiter=OneOf(
+            Ref("DotSegment"), Sequence(Ref("DotSegment"), Ref("DotSegment"))
+        ),
+        allow_gaps=False,
+    )
+
+
+@tsql_dialect.segment()
+class PivotReferenceSegment(ObjectReferenceSegment):
+    """A reference to an PIVOT to differentiate it from tables."""
+
+    type = "pivot_reference"
+
+
+@tsql_dialect.segment()
+class PivotColumnReferenceSegment(ObjectReferenceSegment):
+    """A reference to a PIVOT column to differentiate it from a regular column reference."""
+
+    type = "pivot_column_reference"
+
+
 @tsql_dialect.segment()
 class PivotUnpivotStatementSegment(BaseSegment):
     """Declaration of a variable.
@@ -236,7 +269,7 @@ class PivotUnpivotStatementSegment(BaseSegment):
     https://docs.microsoft.com/en-us/sql/t-sql/queries/from-using-pivot-and-unpivot?view=sql-server-ver15
     """
 
-    type = "pivotunpivot_segment"
+    type = "from_pivot_expression"
     match_grammar = StartsWith(
         OneOf("PIVOT", "UNPIVOT"),
         terminator=Ref("FromClauseTerminatorGrammar"),
@@ -252,7 +285,7 @@ class PivotUnpivotStatementSegment(BaseSegment):
                         "FOR",
                         Ref("ColumnReferenceSegment"),
                         "IN",
-                        Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+                        Bracketed(Delimited(Ref("PivotColumnReferenceSegment"))),
                     )
                 ),
             ),
@@ -264,13 +297,13 @@ class PivotUnpivotStatementSegment(BaseSegment):
                         "FOR",
                         Ref("ColumnReferenceSegment"),
                         "IN",
-                        Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+                        Bracketed(Delimited(Ref("PivotColumnReferenceSegment"))),
                     )
                 ),
             ),
         ),
         "AS",
-        Ref("TableReferenceSegment"),
+        Ref("PivotReferenceSegment"),
     )
 
 
@@ -297,25 +330,6 @@ class DeclareStatementSegment(BaseSegment):
             ),
             optional=True,
         ),
-    )
-
-
-@tsql_dialect.segment(replace=True)
-class ObjectReferenceSegment(BaseSegment):
-    """A reference to an object.
-
-    Update ObjectReferenceSegment to only allow dot separated SingleIdentifierGrammar
-    So Square Bracketed identifiers can be matched.
-    """
-
-    type = "object_reference"
-    # match grammar (don't allow whitespace)
-    match_grammar: Matchable = Delimited(
-        Ref("SingleIdentifierGrammar"),
-        delimiter=OneOf(
-            Ref("DotSegment"), Sequence(Ref("DotSegment"), Ref("DotSegment"))
-        ),
-        allow_gaps=False,
     )
 
 

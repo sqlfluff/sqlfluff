@@ -47,7 +47,7 @@ class Rule_L028(Rule_L025):
     def _lint_references_and_aliases(
         self,
         table_aliases,
-        value_table_function_aliases,
+        standalone_aliases,
         references,
         col_aliases,
         using_cols,
@@ -57,7 +57,6 @@ class Rule_L028(Rule_L025):
         # How many aliases are there? If more than one then abort.
         if len(table_aliases) > 1:
             return None
-        standalone_aliases = [t[0] for t in value_table_function_aliases]
         # A buffer to keep any violations.
         violation_buff = []
         # Check all the references that we have.
