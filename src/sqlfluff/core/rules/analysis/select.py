@@ -113,7 +113,7 @@ def get_aliases_from_select(segment, dialect=None):
     # We only want table aliases, so filter out aliases for value table
     # functions and pivot columns.
     table_aliases = []
-    standalone_aliases = _get_pivot_table_column(segment, dialect)
+    standalone_aliases = _get_pivot_table_columns(segment, dialect)
     for table_expr, alias_info in aliases:
         if _has_value_table_function(table_expr, dialect):
             standalone_aliases.append(alias_info[0])
@@ -137,11 +137,10 @@ def _has_value_table_function(table_expr, dialect):
     return False
 
 
-def _get_pivot_table_column(segment, dialect):
+def _get_pivot_table_columns(segment, dialect):
     if not dialect:
-        # We need the dialect to get the value table function names. If
-        # we don't have it, assume the clause does not have a value table
-        # function.
+        # We need the dialect to get the pivot table coumn names. If
+        # we don't have it, assume the clause does not have a pivot table
         return []
 
     fc = segment.get_child("from_pivot_expression")
