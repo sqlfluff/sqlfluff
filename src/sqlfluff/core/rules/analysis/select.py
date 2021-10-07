@@ -116,9 +116,11 @@ def get_aliases_from_select(segment, dialect=None):
     standalone_aliases = _get_pivot_table_columns(segment, dialect)
     for table_expr, alias_info in aliases:
         if _has_value_table_function(table_expr, dialect):
-            standalone_aliases.append(alias_info[0])
+            if alias_info[0] not in standalone_aliases:
+                standalone_aliases.append(alias_info[0])
         elif alias_info not in standalone_aliases:
             table_aliases.append(alias_info)
+
     return table_aliases, standalone_aliases
 
 
