@@ -102,7 +102,6 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
 
     match_grammar = ansi_dialect.get_segment("StatementSegment").parse_grammar.copy(
         insert=[
-            Ref("CreateProcedureStatementSegment"),
             Ref("IfExpressionStatement"),
             Ref("DeclareStatementSegment"),
             Ref("SetStatementSegment"),
@@ -113,6 +112,7 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
         ],
     )
 
+    parse_grammar=match_grammar
 
 @tsql_dialect.segment(replace=True)
 class UnorderedSelectStatementSegment(BaseSegment):
@@ -577,7 +577,6 @@ class CreateProcedureStatementSegment(BaseSegment):
         Ref("ObjectReferenceSegment"),
         Ref("FunctionParameterListGrammar", optional=True),
         "AS",
-        # Pending to add BEGIN END optional
         Ref("ProcedureDefinitionGrammar"),
     )
 
@@ -589,7 +588,10 @@ class ProcedureDefinitionGrammar(BaseSegment):
     type = "procedure_statement"
     name = "procedure_statement"
 
-    match_grammar = Ref("StatementSegment")
+    match_grammar = OneOf(
+        Ref("StatementSegment"),
+        Ref("BeginEndSegment"),
+    )
 
 
 @tsql_dialect.segment(replace=True)
@@ -1022,7 +1024,12 @@ class BatchSegment(BaseSegment):
     """A segment representing a GO batch within a file or script."""
 
     match_grammar=OneOf(
-        Ref("BeginEndSegment"),
+        AnyNumberOf(
+            Ref("BeginEndSegment"),
+            min_times=1,
+        ),
+        Ref("CreateProcedureStatementSegment"),
+        Ref("CreateFunctionStatementSegment"),
         Delimited(
             Ref("StatementSegment"),
             delimiter=Ref("DelimiterSegment"),
