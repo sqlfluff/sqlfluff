@@ -110,7 +110,7 @@ tsql_dialect.replace(
         Ref("SetOperatorSegment"),
         Ref("WithNoSchemaBindingClauseSegment"),
     ),
-    JoinKeywords=OneOf("JOIN", "APPLY", Sequence("OUTER","APPLY")),
+    JoinKeywords=OneOf("JOIN", "APPLY", Sequence("OUTER", "APPLY")),
 )
 
 
