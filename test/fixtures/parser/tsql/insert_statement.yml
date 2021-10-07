@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 92e9b93e858b7ade91614c91c4d99ce6540797bc1ea5521f48e8ea8ea9fc61d5
+_hash: d3aeeda4d580f92ff80b7dfaac287a961f4aff8ec4ae8263dbe2f27da395d0f2
 file:
-  base:
+  batch:
     statement:
       insert_statement:
       - keyword: INSERT

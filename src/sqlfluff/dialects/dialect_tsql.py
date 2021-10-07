@@ -1057,6 +1057,7 @@ class BeginEndSegment(BaseSegment):
 class BatchSegment(BaseSegment):
     """A segment representing a GO batch within a file or script."""
 
+    type="batch"
     match_grammar=OneOf(
         AnyNumberOf(
             Ref("BeginEndSegment"),
