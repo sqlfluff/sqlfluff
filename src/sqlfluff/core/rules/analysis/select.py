@@ -141,7 +141,7 @@ def _has_value_table_function(table_expr, dialect):
 
 def _get_pivot_table_columns(segment, dialect):
     if not dialect:
-        # We need the dialect to get the pivot table coumn names. If
+        # We need the dialect to get the pivot table column names. If
         # we don't have it, assume the clause does not have a pivot table
         return []
 
