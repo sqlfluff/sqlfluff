@@ -21,7 +21,6 @@ from sqlfluff.core.parser import (
     OptionallyBracketed,
     Dedent,
     AnyNumberOf,
-    GreedyUntil,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
