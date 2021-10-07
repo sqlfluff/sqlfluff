@@ -102,8 +102,8 @@ tsql_dialect.replace(
     FromClauseTerminatorGrammar=OneOf(
         "WHERE",
         "LIMIT",
-        "GROUP",
-        "ORDER",
+        Sequence("GROUP", "BY"),
+        Sequence("ORDER", "BY"),
         "HAVING",
         "PIVOT",
         "UNPIVOT",

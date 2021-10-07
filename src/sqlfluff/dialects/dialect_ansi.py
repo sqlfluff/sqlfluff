@@ -439,8 +439,8 @@ ansi_dialect.add(
     FromClauseTerminatorGrammar=OneOf(
         "WHERE",
         "LIMIT",
-        "GROUP",
-        "ORDER",
+        Sequence("GROUP", "BY"),
+        Sequence("ORDER", "BY"),
         "HAVING",
         "QUALIFY",
         "WINDOW",
@@ -448,7 +448,13 @@ ansi_dialect.add(
         Ref("WithNoSchemaBindingClauseSegment"),
     ),
     WhereClauseTerminatorGrammar=OneOf(
-        "LIMIT", "GROUP", "ORDER", "HAVING", "QUALIFY", "WINDOW", "OVERLAPS"
+        "LIMIT",
+        Sequence("GROUP", "BY"),
+        Sequence("ORDER", "BY"),
+        "HAVING",
+        "QUALIFY",
+        "WINDOW",
+        "OVERLAPS",
     ),
     PrimaryKeyGrammar=Sequence("PRIMARY", "KEY"),
     ForeignKeyGrammar=Sequence("FOREIGN", "KEY"),
