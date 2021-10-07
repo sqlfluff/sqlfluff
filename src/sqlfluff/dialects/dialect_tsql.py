@@ -1078,23 +1078,3 @@ class BatchSegment(BaseSegment):
         for stmt in self.get_children("statement"):
             references |= stmt.get_table_references()
         return references
-
-
-@tsql_dialect.segment(replace=True)
-class SelectClauseSegment(BaseSegment):
-    """A group of elements in a select target statement."""
-
-    type = "select_clause"
-    match_grammar = StartsWith(
-        Sequence("SELECT", Ref("WildcardExpressionSegment", optional=True)),
-        terminator=OneOf(
-            "FROM",
-            "WHERE",
-            "ORDER",
-            Ref("SetOperatorSegment"),
-            Ref("DelimiterSegment"),
-        ),
-        enforce_whitespace_preceding_terminator=True,
-    )
-
-    parse_grammar = Ref("SelectClauseSegmentGrammar")
