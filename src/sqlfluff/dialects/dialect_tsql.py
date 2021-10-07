@@ -129,7 +129,8 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
         ],
     )
 
-    parse_grammar=match_grammar
+    parse_grammar = match_grammar
+
 
 @tsql_dialect.segment(replace=True)
 class SelectClauseModifierSegment(BaseSegment):
@@ -992,22 +993,21 @@ class TransactionStatementSegment(BaseSegment):
     match_grammar = Sequence(
         # BEGIN | SAVE TRANSACTION
         # COMMIT [ TRANSACTION | WORK ]
-        # ROLLBACK [ TRANSACTION | WORK ] 
+        # ROLLBACK [ TRANSACTION | WORK ]
         # https://docs.microsoft.com/en-us/sql/t-sql/language-elements/begin-transaction-transact-sql?view=sql-server-ver15
         OneOf(
             Sequence(
                 "BEGIN",
-                Sequence("DISTRIBUTED",optional=True),
+                Sequence("DISTRIBUTED", optional=True),
                 "TRANSACTION",
-                Sequence(
-                    Ref("SingleIdentifierGrammar", optional=True)
-                ),
-                Sequence("WITH","MARK",Ref("QuotedIdentifierSegment"),optional=True),
+                Sequence(Ref("SingleIdentifierGrammar", optional=True)),
+                Sequence("WITH", "MARK", Ref("QuotedIdentifierSegment"), optional=True),
             ),
-            Sequence(OneOf("COMMIT","ROLLBACK"), OneOf("TRANSACTION","WORK",optional=True)),
-            Sequence("SAVE","TRANSACTION"),
+            Sequence(
+                OneOf("COMMIT", "ROLLBACK"), OneOf("TRANSACTION", "WORK", optional=True)
+            ),
+            Sequence("SAVE", "TRANSACTION"),
         ),
-
     )
 
 
@@ -1057,8 +1057,8 @@ class BeginEndSegment(BaseSegment):
 class BatchSegment(BaseSegment):
     """A segment representing a GO batch within a file or script."""
 
-    type="batch"
-    match_grammar=OneOf(
+    type = "batch"
+    match_grammar = OneOf(
         AnyNumberOf(
             Ref("BeginEndSegment"),
             min_times=1,
