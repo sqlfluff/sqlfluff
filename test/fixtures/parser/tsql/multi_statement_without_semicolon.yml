@@ -3,37 +3,39 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 502f22560130938bff6c35560e869e8254de36e5c71c0aa476e74e459c1c81b5
+_hash: 6fbf761661c899e48d82bf399a72c62ca39526a32efcbedb93b23e1c52f22b8d
 file:
-- statement:
-    select_statement:
-      select_clause:
-        keyword: select
-        select_clause_element:
-          column_reference:
-            identifier: a
-      from_clause:
-        keyword: from
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                identifier: tbl1
+- base:
+    statement:
+      select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            column_reference:
+              identifier: a
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: tbl1
 - go_statement:
     keyword: GO
-- statement:
-    select_statement:
-      select_clause:
-        keyword: select
-        select_clause_element:
-          column_reference:
-            identifier: b
-      from_clause:
-        keyword: from
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                identifier: tbl2
+- base:
+    statement:
+      select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            column_reference:
+              identifier: b
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: tbl2
 - go_statement:
     keyword: GO

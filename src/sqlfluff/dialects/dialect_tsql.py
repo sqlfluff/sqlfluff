@@ -113,19 +113,6 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
         ],
     )
 
-    parse_grammar = ansi_dialect.get_segment("StatementSegment").parse_grammar.copy(
-        insert=[
-            Ref("CreateProcedureStatementSegment"),
-            Ref("IfExpressionStatement"),
-            Ref("DeclareStatementSegment"),
-            Ref("SetStatementSegment"),
-            Ref("AlterTableSwitchStatementSegment"),
-            Ref(
-                "CreateTableAsSelectStatementSegment"
-            ),  # Azure Synapse Analytics specific
-        ],
-    )
-
 
 @tsql_dialect.segment(replace=True)
 class UnorderedSelectStatementSegment(BaseSegment):
@@ -1023,14 +1010,7 @@ class BeginEndSegment(BaseSegment):
     """
 
     type = "begin_end_block"
-    match_grammar = StartsWith(
-        "BEGIN",
-        terminator="END",
-        enforce_whitespace_preceding_terminator=True,
-        include_terminator=True,
-    )
-
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "BEGIN",
         Ref("BatchSegment"),
         "END",
@@ -1041,7 +1021,6 @@ class BeginEndSegment(BaseSegment):
 class BatchSegment(BaseSegment):
     """A segment representing a GO batch within a file or script."""
 
-    type="batch"
     match_grammar=OneOf(
         Ref("BeginEndSegment"),
         Delimited(

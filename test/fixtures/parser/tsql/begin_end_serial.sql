@@ -1,0 +1,7 @@
+BEGIN
+	SELECT 'Weekend';
+END
+
+BEGIN
+	SELECT 'Weekday';
+END
