@@ -1256,7 +1256,6 @@ class JoinClauseSegment(BaseSegment):
                     "FULL",
                     "LEFT",
                     "RIGHT",
-                    optional=True
                 ),
                 Ref.keyword("OUTER", optional=True),
             ),

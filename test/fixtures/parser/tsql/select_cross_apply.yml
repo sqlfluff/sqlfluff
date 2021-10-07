@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c1465e29ed9fd6c3adac7d74cbb775cb91eeccf9c59e82ffad4447092add2e08
+_hash: 7f98469e366e82df67d7e016dbbb0459813af48459b70f6de3e7e5cd60e3b7ba
 file:
 - statement:
     select_statement:
@@ -41,24 +41,18 @@ file:
                 identifier: Departments
             alias_expression:
               identifier: d
-          join_clause:
-          - keyword: CROSS
-          - keyword: APPLY
-          - from_expression_element:
-              table_expression:
-                function:
-                  function_name:
-                    identifier: dbo
-                    dot: .
-                    function_name_identifier: GetReports
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                      - identifier: d
-                      - dot: .
-                      - identifier: DeptMgrID
-                    end_bracket: )
+        unparsable:
+        - raw: CROSS
+        - raw: APPLY
+        - raw: dbo
+        - raw: .
+        - raw: GetReports
+        - bracketed:
+          - start_bracket: (
+          - raw: d
+          - raw: .
+          - raw: DeptMgrID
+          - end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -121,39 +115,26 @@ file:
             alias_expression:
               keyword: as
               identifier: s
-          join_clause:
-          - keyword: cross
-          - keyword: apply
-          - from_expression_element:
-              table_expression:
-                function:
-                  function_name:
-                    function_name_identifier: string_split
-                  bracketed:
-                  - start_bracket: (
-                  - expression:
-                      function:
-                        function_name:
-                          function_name_identifier: replace
-                        bracketed:
-                        - start_bracket: (
-                        - expression:
-                            column_reference:
-                            - identifier: s
-                            - dot: .
-                            - identifier: some_path
-                        - comma: ','
-                        - expression:
-                            literal: "'->'"
-                        - comma: ','
-                        - expression:
-                            literal: "'{'"
-                        - end_bracket: )
-                  - comma: ','
-                  - expression:
-                      literal: "'{'"
-                  - end_bracket: )
-              alias_expression:
-                keyword: as
-                identifier: sp
+        unparsable:
+        - raw: cross
+        - raw: apply
+        - raw: string_split
+        - bracketed:
+          - start_bracket: (
+          - raw: replace
+          - bracketed:
+            - start_bracket: (
+            - raw: s
+            - raw: .
+            - raw: some_path
+            - comma: ','
+            - raw: "'->'"
+            - comma: ','
+            - raw: "'{'"
+            - end_bracket: )
+          - comma: ','
+          - raw: "'{'"
+          - end_bracket: )
+        - raw: as
+        - raw: sp
 - statement_terminator: ;
