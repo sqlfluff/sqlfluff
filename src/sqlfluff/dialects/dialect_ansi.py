@@ -1467,8 +1467,7 @@ ansi_dialect.add(
                     Bracketed(
                         OneOf(
                             Delimited(
-                                Ref("LiteralGrammar"),
-                                Ref("IntervalExpressionSegment"),
+                                Ref("Expression_A_Grammar"),
                             ),
                             Ref("SelectableGrammar"),
                             ephemeral_name="InExpression",
