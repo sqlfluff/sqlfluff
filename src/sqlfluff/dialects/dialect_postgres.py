@@ -191,6 +191,7 @@ postgres_dialect.replace(
     # https://www.postgresql.org/docs/14/functions-comparison.html
     IsNullGrammar=Ref.keyword("ISNULL"),
     NotNullGrammar=Ref.keyword("NOTNULL"),
+    JoinKeywords=Sequence("JOIN", Sequence("LATERAL", optional=True)),
 )
 
 
@@ -322,6 +323,10 @@ class CreateFunctionStatementSegment(BaseSegment):
                         )
                     ),
                     optional=True,
+                ),
+                Sequence(
+                    "SETOF",
+                    Ref("DatatypeSegment"),
                 ),
                 Ref("DatatypeSegment"),
             ),
@@ -730,7 +735,13 @@ class AlterTableStatementSegment(BaseSegment):
                             "DEFAULT",
                         ),
                     ),
-                    Sequence("DETACH", "PARTITION", Ref("ParameterNameSegment")),
+                    Sequence(
+                        "DETACH",
+                        "PARTITION",
+                        Ref("ParameterNameSegment"),
+                        Ref.keyword("CONCURRENTLY", optional=True),
+                        Ref.keyword("FINALIZE", optional=True),
+                    ),
                 ),
             ),
             Sequence(

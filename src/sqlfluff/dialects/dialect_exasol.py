@@ -225,8 +225,8 @@ exasol_dialect.replace(
         "START",
         "PREFERRING",
         "LIMIT",
-        "GROUP",
-        "ORDER",
+        Sequence("GROUP", "BY"),
+        Sequence("ORDER", "BY"),
         "HAVING",
         "QUALIFY",
         Ref("SetOperatorSegment"),
@@ -236,8 +236,8 @@ exasol_dialect.replace(
         "START",
         "PREFERRING",
         "LIMIT",
-        "GROUP",
-        "ORDER",
+        Sequence("GROUP", "BY"),
+        Sequence("ORDER", "BY"),
         "HAVING",
         "QUALIFY",
         Ref("SetOperatorSegment"),
@@ -459,9 +459,9 @@ class ConnectByClauseSegment(BaseSegment):
         ),
         terminator=OneOf(
             "PREFERRING",
-            "GROUP",
+            Sequence("GROUP", "BY"),
             "QUALIFY",
-            "ORDER",
+            Sequence("ORDER", "BY"),
             "LIMIT",
             Ref("SetOperatorSegment"),
         ),
@@ -3049,7 +3049,7 @@ class FlushStatisticsSegment(BaseSegment):
 class RecompressReorganizeSegment(BaseSegment):
     """`RECOMPRESS` and `REOGRANIZE` statement."""
 
-    type = "recompress_reorganzie_statement"
+    type = "recompress_reorganize_statement"
     match_grammar = Sequence(
         OneOf("RECOMPRESS", "REORGANIZE"),
         OneOf(

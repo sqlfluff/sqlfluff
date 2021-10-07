@@ -1,0 +1,69 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: eceb1338124c97da645a1c603a5a361c08a881511cd0411ad4e373044d6ca0ce
+file:
+  statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          column_reference:
+          - identifier: t
+          - dot: .
+          - identifier: column1
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - identifier: sch
+              - dot: .
+              - identifier: table1
+            alias_expression:
+              keyword: as
+              identifier: t
+      where_clause:
+        keyword: where
+        expression:
+          column_reference:
+          - identifier: t
+          - dot: .
+          - identifier: b_year
+          keyword: in
+          bracketed:
+          - start_bracket: (
+          - function:
+              function_name:
+                function_name_identifier: year
+              bracketed:
+                start_bracket: (
+                expression:
+                  function:
+                    function_name:
+                      function_name_identifier: getdate
+                    bracketed:
+                      start_bracket: (
+                      end_bracket: )
+                end_bracket: )
+          - comma: ','
+          - function:
+              function_name:
+                function_name_identifier: year
+              bracketed:
+                start_bracket: (
+                expression:
+                  function:
+                    function_name:
+                      function_name_identifier: getdate
+                    bracketed:
+                      start_bracket: (
+                      end_bracket: )
+                end_bracket: )
+          - binary_operator: '-'
+          - literal: '1'
+          - end_bracket: )
+  statement_terminator: ;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 65e16750eeef815826780f7438f9bf2b74232c481ba5709b825105bbcd8404b0
+_hash: c6231cfc5ab8f3694fffb07b171c4be0f860af625a55ec825f8b403c8573fe57
 file:
 - base:
     statement:
@@ -45,9 +45,7 @@ file:
                           bracketed:
                             start_bracket: (
                             expression:
-                              data_type:
-                                identifier: N
-                              literal: "'[dbo].[SEQ_SCHEMA_NAME_TABLE_NAME]'"
+                              literal: "N'[dbo].[SEQ_SCHEMA_NAME_TABLE_NAME]'"
                             end_bracket: )
                       - binary_operator: AND
                       - column_reference:
@@ -211,9 +209,7 @@ file:
                           bracketed:
                             start_bracket: (
                             expression:
-                              data_type:
-                                identifier: N
-                              literal: "'[dbo].[SEQ_STAGE_CBS_POPULATION_BASE]'"
+                              literal: "N'[dbo].[SEQ_STAGE_CBS_POPULATION_BASE]'"
                             end_bracket: )
                       - binary_operator: AND
                       - column_reference:

@@ -49,6 +49,8 @@ tsql_dialect.insert_lexer_matchers(
             r"\[([a-zA-Z0-9][^\[\]]*)*\]",
             CodeSegment,
         ),
+        # T-SQL unicode strings
+        RegexLexer("single_quote_with_n", r"N'([^'\\]|\\.)*'", CodeSegment),
     ],
     before="back_quote",
 )
@@ -58,6 +60,9 @@ tsql_dialect.add(
         "square_quote", CodeSegment, name="quoted_identifier", type="identifier"
     ),
     BatchDelimiterSegment=Ref("GoStatementSegment"),
+    QuotedLiteralSegmentWithN=NamedParser(
+        "single_quote_with_n", CodeSegment, name="quoted_literal", type="literal"
+    ),
 )
 
 tsql_dialect.replace(
@@ -68,6 +73,17 @@ tsql_dialect.replace(
         Ref("NakedIdentifierSegment"),
         Ref("QuotedIdentifierSegment"),
         Ref("BracketedIdentifierSegment"),
+    ),
+    LiteralGrammar=OneOf(
+        Ref("QuotedLiteralSegment"),
+        Ref("QuotedLiteralSegmentWithN"),
+        Ref("NumericLiteralSegment"),
+        Ref("BooleanLiteralGrammar"),
+        Ref("QualifiedNumericLiteralSegment"),
+        # NB: Null is included in the literals, because it is a keyword which
+        # can otherwise be easily mistaken for an identifier.
+        Ref("NullLiteralSegment"),
+        Ref("DateTimeLiteralGrammar"),
     ),
     ParameterNameSegment=RegexParser(
         r"[@][A-Za-z0-9_]+", CodeSegment, name="parameter", type="parameter"
@@ -85,14 +101,15 @@ tsql_dialect.replace(
     FromClauseTerminatorGrammar=OneOf(
         "WHERE",
         "LIMIT",
-        "GROUP",
-        "ORDER",
+        Sequence("GROUP", "BY"),
+        Sequence("ORDER", "BY"),
         "HAVING",
         "PIVOT",
         "UNPIVOT",
         Ref("SetOperatorSegment"),
         Ref("WithNoSchemaBindingClauseSegment"),
     ),
+    JoinKeywords=OneOf("JOIN", "APPLY", Sequence("OUTER", "APPLY")),
 )
 
 
@@ -113,6 +130,23 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
     )
 
     parse_grammar=match_grammar
+
+@tsql_dialect.segment(replace=True)
+class SelectClauseModifierSegment(BaseSegment):
+    """Things that come after SELECT but before the columns."""
+
+    type = "select_clause_modifier"
+    match_grammar = OneOf(
+        "DISTINCT",
+        "ALL",
+        Sequence(
+            "TOP",
+            OptionallyBracketed(Ref("ExpressionSegment")),
+            Sequence("PERCENT", optional=True),
+            Sequence("WITH", "TIES", optional=True),
+        ),
+    )
+
 
 @tsql_dialect.segment(replace=True)
 class UnorderedSelectStatementSegment(BaseSegment):
@@ -288,7 +322,7 @@ class ObjectReferenceSegment(BaseSegment):
     """A reference to an object.
 
     Update ObjectReferenceSegment to only allow dot separated SingleIdentifierGrammar
-    So Square Bracketed identifers can be matched.
+    So Square Bracketed identifiers can be matched.
     """
 
     type = "object_reference"
