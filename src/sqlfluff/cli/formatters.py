@@ -2,6 +2,7 @@
 
 
 from io import StringIO
+from typing import Callable, List, Union
 
 from sqlfluff.cli.helpers import (
     colorize,
@@ -12,10 +13,13 @@ from sqlfluff.cli.helpers import (
     pad_line,
 )
 
-from sqlfluff.core import SQLBaseError
+from sqlfluff.core import SQLBaseError, FluffConfig, Linter
+from sqlfluff.core.linter import LintedFile
 
 
-def format_filename(filename, success=False, success_text="PASS"):
+def format_filename(
+    filename: str, success: Union[str, bool] = False, success_text: str = "PASS"
+) -> str:
     """Format filenames."""
     if isinstance(success, str):
         status_string = success
@@ -26,7 +30,7 @@ def format_filename(filename, success=False, success_text="PASS"):
     return "== [" + colorize(f"{filename}", "lightgrey") + "] " + status_string
 
 
-def split_string_on_spaces(s, line_length=100):
+def split_string_on_spaces(s: str, line_length: int = 100) -> List[str]:
     """Split a string into lines based on whitespace."""
     line_buff = []
     str_buff = ""
@@ -48,7 +52,7 @@ def split_string_on_spaces(s, line_length=100):
     return line_buff
 
 
-def format_violation(violation, max_line_length=90):
+def format_violation(violation: SQLBaseError, max_line_length: int = 90) -> str:
     """Format a violation."""
     if isinstance(violation, SQLBaseError):
         desc = violation.desc()
@@ -72,9 +76,7 @@ def format_violation(violation, max_line_length=90):
     for idx, line in enumerate(split_desc):
         if idx == 0:
             out_buff += colorize(
-                "L:{} | P:{} | {} | ".format(
-                    line_elem, pos_elem, violation.rule_code().rjust(4)
-                ),
+                f"L:{line_elem} | P:{pos_elem} | {violation.rule_code().rjust(4)} | ",
                 # Grey out the violation if we're ignoring it.
                 "lightgrey" if violation.ignore else "blue",
             )
@@ -143,7 +145,7 @@ def format_config_vals(config_vals):
     return text_buffer.getvalue()
 
 
-def format_rules(linter, verbose=0):
+def format_rules(linter: Linter, verbose: int = 0) -> str:
     """Format the a set of rules given a `Linter`."""
     text_buffer = StringIO()
     text_buffer.write("==== sqlfluff - rules ====\n")
@@ -166,9 +168,7 @@ def format_dialects(dialect_readout, verbose=0):
     readouts = [
         (
             dialect.label,
-            "{dialect.name} dialect [inherits from '{dialect.inherits_from}']".format(
-                dialect=dialect
-            ),
+            f"{dialect.name} dialect [inherits from '{dialect.inherits_from}']",
         )
         for dialect in dialect_readout()
     ]
@@ -211,22 +211,28 @@ class CallbackFormatter:
 
     """
 
-    def __init__(self, callback, verbosity=0, filter_empty=True, output_line_length=80):
+    def __init__(
+        self,
+        callback: Callable,
+        verbosity: int = 0,
+        filter_empty: bool = True,
+        output_line_length: int = 80,
+    ):
         self._callback = callback
         self._verbosity = verbosity
         self._filter_empty = filter_empty
         self.output_line_length = output_line_length
 
-    def _dispatch(self, s):
+    def _dispatch(self, s: str) -> None:
         """Dispatch a string to the callback.
 
         This method is designed as a point for subclassing.
         """
         # The strip here is to filter out any empty messages
         if (not self._filter_empty) or s.strip(" \n\t"):
-            return self._callback(s)
+            self._callback(s)
 
-    def _format_config(self, linter):
+    def _format_config(self, linter: Linter) -> str:
         """Format the config of a `Linter`."""
         text_buffer = StringIO()
         # Only show version information if verbosity is high enough
@@ -255,9 +261,9 @@ class CallbackFormatter:
                 text_buffer.write(format_config_vals(linter.config.iter_vals()))
         return text_buffer.getvalue()
 
-    def dispatch_config(self, linter):
+    def dispatch_config(self, linter: Linter) -> None:
         """Dispatch configuration output appropriately."""
-        return self._dispatch(self._format_config(linter))
+        self._dispatch(self._format_config(linter))
 
     def dispatch_persist_filename(self, filename, result):
         """Dispatch filenames during a persist operation."""
@@ -266,16 +272,18 @@ class CallbackFormatter:
             self._dispatch(format_filename(filename=filename, success=result))
 
     @staticmethod
-    def _format_path(path):
+    def _format_path(path: str) -> str:
         """Format paths."""
-        return "=== [ path: {} ] ===\n".format(colorize(path, "lightgrey"))
+        return f"=== [ path: {colorize(path, 'lightgrey')} ] ===\n"
 
-    def dispatch_path(self, path):
+    def dispatch_path(self, path: str) -> None:
         """Dispatch paths for display."""
         if self._verbosity > 0:
             self._dispatch(self._format_path(path))
 
-    def dispatch_template_header(self, fname, linter_config, file_config):
+    def dispatch_template_header(
+        self, fname: str, linter_config: FluffConfig, file_config: FluffConfig
+    ) -> None:
         """Dispatch the header displayed before templating."""
         if self._verbosity > 1:
             self._dispatch(format_filename(filename=fname, success="TEMPLATING"))
@@ -289,12 +297,12 @@ class CallbackFormatter:
                         format_config_vals(linter_config.iter_vals(cfg=config_diff))
                     )
 
-    def dispatch_parse_header(self, fname):
+    def dispatch_parse_header(self, fname: str) -> None:
         """Dispatch the header displayed before parsing."""
         if self._verbosity > 1:
             self._dispatch(format_filename(filename=fname, success="PARSING"))
 
-    def dispatch_lint_header(self, fname):
+    def dispatch_lint_header(self, fname: str) -> None:
         """Dispatch the header displayed before linting."""
         if self._verbosity > 1:
             self._dispatch(format_filename(filename=fname, success="LINTING"))
@@ -305,11 +313,13 @@ class CallbackFormatter:
             "=== [" + colorize(templater, "lightgrey") + "] " + message
         )  # pragma: no cover
 
-    def dispatch_dialect_warning(self):
+    def dispatch_dialect_warning(self) -> None:
         """Dispatch a warning for dialects."""
         self._dispatch(format_dialect_warning())  # pragma: no cover
 
-    def _format_file_violations(self, fname, violations):
+    def _format_file_violations(
+        self, fname: str, violations: List[SQLBaseError]
+    ) -> str:
         """Format a set of violations in a `LintingResult`."""
         text_buffer = StringIO()
         # Success is having no violations (which aren't ignored)
@@ -335,7 +345,9 @@ class CallbackFormatter:
             str_buffer = str_buffer[:-1]
         return str_buffer
 
-    def dispatch_file_violations(self, fname, linted_file, only_fixable):
+    def dispatch_file_violations(
+        self, fname: str, linted_file: LintedFile, only_fixable: bool
+    ) -> None:
         """Dispatch any violations found in a file."""
         s = self._format_file_violations(
             fname, linted_file.get_violations(fixable=True if only_fixable else None)
