@@ -13,6 +13,7 @@ from sqlfluff.cli.helpers import (
 )
 
 from sqlfluff.core import SQLBaseError
+from sqlfluff.core.enums import Color
 
 
 def format_filename(filename, success=False, success_text="PASS"):
@@ -21,9 +22,10 @@ def format_filename(filename, success=False, success_text="PASS"):
         status_string = success
     else:
         status_string = colorize(
-            success_text if success else "FAIL", "green" if success else "red"
+            success_text if success else "FAIL",
+            Color.green if success else Color.red,
         )
-    return "== [" + colorize(f"{filename}", "lightgrey") + "] " + status_string
+    return f"== [{colorize(filename, Color.lightgrey)}] {status_string}"
 
 
 def split_string_on_spaces(s, line_length=100):
@@ -76,13 +78,16 @@ def format_violation(violation, max_line_length=90):
                     line_elem, pos_elem, violation.rule_code().rjust(4)
                 ),
                 # Grey out the violation if we're ignoring it.
-                "lightgrey" if violation.ignore else "blue",
+                Color.lightgrey if violation.ignore else Color.blue,
             )
         else:
             out_buff += (
                 "\n"
                 + (" " * 23)
-                + colorize("| ", "lightgrey" if violation.ignore else "blue")
+                + colorize(
+                    "| ",
+                    Color.lightgrey if violation.ignore else Color.blue,
+                )
             )
         out_buff += line
     return out_buff
@@ -136,7 +141,7 @@ def format_config_vals(config_vals):
         val = "" if v is None else str(v)
         text_buffer.write(
             ("    " * i)
-            + colorize(pad_line(str(k) + ":", 20, "left"), color="lightgrey")
+            + colorize(pad_line(str(k) + ":", 20, "left"), color=Color.lightgrey)
             + pad_line(val, 20, "left")
             + "\n"
         )
@@ -152,7 +157,7 @@ def format_rules(linter, verbose=0):
             linter.rule_tuples(),
             col_width=80,
             cols=1,
-            label_color="blue",
+            label_color=Color.blue,
             val_align="left",
         )
     )
@@ -173,7 +178,13 @@ def format_dialects(dialect_readout, verbose=0):
         for dialect in dialect_readout()
     ]
     text_buffer.write(
-        cli_table(readouts, col_width=60, cols=1, label_color="blue", val_align="right")
+        cli_table(
+            readouts,
+            col_width=60,
+            cols=1,
+            label_color=Color.blue,
+            val_align="right",
+        )
     )
     return text_buffer.getvalue()
 
@@ -185,7 +196,7 @@ def format_dialect_warning():  # pragma: no cover
             "WARNING: Parsing errors found and dialect is set to "
             "'ansi'. Have you configured your dialect?"
         ),
-        "lightgrey",
+        Color.lightgrey,
     )
 
 
@@ -266,9 +277,9 @@ class CallbackFormatter:
             self._dispatch(format_filename(filename=filename, success=result))
 
     @staticmethod
-    def _format_path(path):
+    def _format_path(path: str) -> str:
         """Format paths."""
-        return "=== [ path: {} ] ===\n".format(colorize(path, "lightgrey"))
+        return f"=== [ path: {colorize(path, Color.lightgrey)} ] ===\n"
 
     def dispatch_path(self, path):
         """Dispatch paths for display."""
@@ -302,7 +313,7 @@ class CallbackFormatter:
     def dispatch_compilation_header(self, templater, message):
         """Dispatch the header displayed before linting."""
         self._dispatch(
-            "=== [" + colorize(templater, "lightgrey") + "] " + message
+            f"=== [{colorize(templater, Color.lightgrey)}] {message}"
         )  # pragma: no cover
 
     def dispatch_dialect_warning(self):

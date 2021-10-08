@@ -3,29 +3,21 @@
 from io import StringIO
 import sys
 import textwrap
-from colorama import Fore, Style
+from typing import Optional
+
+from colorama import Style
 
 from sqlfluff import __version__ as pkg_version
+from sqlfluff.core.enums import Color
 
 
-color_lookup = {
-    # Unicode literals here are important for PY2
-    "red": Fore.RED,
-    "green": Fore.GREEN,
-    "blue": Fore.BLUE,
-    "lightgrey": Fore.BLACK + Style.BRIGHT,
-}
-
-
-def colorize(s, color=None):
+def colorize(s: str, color: Optional[Color] = None) -> str:
     """Use ANSI colour codes to colour a string.
 
     The name of this function is in American. I'm sorry :(.
     """
     if color:
-        start_tag = color_lookup[color]
-        end_tag = Style.RESET_ALL
-        return start_tag + s + end_tag
+        return f"{color.value}{s}{Style.RESET_ALL}"
     else:
         return s
 
@@ -98,7 +90,7 @@ def cli_table_row(
     max_label_width=10,
     sep_char=": ",
     divider_char=" ",
-    label_color="lightgrey",
+    label_color=Color.lightgrey,
     val_align="right",
 ):
     """Make a row of a CLI table, using wrapped values."""
@@ -158,7 +150,7 @@ def cli_table(
     cols=2,
     divider_char=" ",
     sep_char=": ",
-    label_color="lightgrey",
+    label_color=Color.lightgrey,
     float_format="{0:.2f}",
     max_label_width=10,
     val_align="right",
