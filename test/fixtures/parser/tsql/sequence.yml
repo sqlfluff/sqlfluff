@@ -3,19 +3,20 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d542fc03a57fbb094b7e14baff05909a16980d246896fc017956ca240ef092d3
+_hash: 4bf4f4edeaac5286379526a4187cc60a9c048430ef38e4a4cb3fb3a9fe35f513
 file:
-  statement:
-    create_sequence_statement:
-    - keyword: CREATE
-    - keyword: SEQUENCE
-    - sequence_reference:
-        identifier: SEQ_MELDER
-    - create_sequence_options_segment:
-      - keyword: START
-      - keyword: WITH
-      - literal: '1'
-    - create_sequence_options_segment:
-      - keyword: INCREMENT
-      - keyword: BY
-      - literal: '1'
+  batch:
+    statement:
+      create_sequence_statement:
+      - keyword: CREATE
+      - keyword: SEQUENCE
+      - sequence_reference:
+          identifier: SEQ_MELDER
+      - create_sequence_options_segment:
+        - keyword: START
+        - keyword: WITH
+        - literal: '1'
+      - create_sequence_options_segment:
+        - keyword: INCREMENT
+        - keyword: BY
+        - literal: '1'

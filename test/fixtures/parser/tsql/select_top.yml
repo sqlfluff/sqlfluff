@@ -3,250 +3,251 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 638b17dd30fb11a2cb006c0ef9e7550cca51aedfbf7d52de4807a56b8f241875
+_hash: 2fb2c3524a0d1e3aa0bb02f597f70213a2875c216b42f9460360c6b3892ec84f
 file:
-- statement:
-    select_statement:
-      select_clause:
-        keyword: select
-        select_clause_modifier:
-          keyword: top
-          expression:
-            literal: '1'
-        select_clause_element:
-          column_reference:
+  batch:
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: select
+          select_clause_modifier:
+            keyword: top
+            expression:
+              literal: '1'
+          select_clause_element:
+            column_reference:
+            - identifier: t
+            - dot: .
+            - identifier: date_column1
+            alias_expression:
+              keyword: as
+              identifier: last_date_column1
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: t2
+                - dot: .
+                - identifier: table_name
+              alias_expression:
+                identifier: t
+        orderby_clause:
+        - keyword: order
+        - keyword: by
+        - column_reference:
           - identifier: t
           - dot: .
-          - identifier: date_column1
-          alias_expression:
-            keyword: as
-            identifier: last_date_column1
-      from_clause:
-        keyword: from
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-              - identifier: t1
-              - dot: .
-              - identifier: t2
-              - dot: .
-              - identifier: table_name
-            alias_expression:
-              identifier: t
-      orderby_clause:
-      - keyword: order
-      - keyword: by
-      - column_reference:
-        - identifier: t
-        - dot: .
-        - identifier: column1
-      - keyword: desc
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-      - keyword: SELECT
-      - select_clause_modifier:
-          keyword: TOP
-          bracketed:
-            start_bracket: (
-            expression:
-              literal: '10'
-            end_bracket: )
-      - select_clause_element:
-          column_reference:
-            identifier: JobTitle
-      - comma: ','
-      - select_clause_element:
-          column_reference:
-            identifier: HireDate
-      from_clause:
-        keyword: FROM
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-              - identifier: HumanResources
-              - dot: .
-              - identifier: Employee
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-      - keyword: SELECT
-      - select_clause_modifier:
-          keyword: TOP
-          bracketed:
-            start_bracket: (
-            expression:
-              literal: '10'
-            end_bracket: )
-      - select_clause_element:
-          column_reference:
-            identifier: JobTitle
-      - comma: ','
-      - select_clause_element:
-          column_reference:
-            identifier: HireDate
-      from_clause:
-        keyword: FROM
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-              - identifier: HumanResources
-              - dot: .
-              - identifier: Employee
-      orderby_clause:
-      - keyword: ORDER
-      - keyword: BY
-      - column_reference:
-          identifier: HireDate
-      - keyword: DESC
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-      - keyword: SELECT
-      - select_clause_modifier:
-        - keyword: TOP
-        - bracketed:
-            start_bracket: (
-            expression:
-              literal: '5'
-            end_bracket: )
-        - keyword: PERCENT
-      - select_clause_element:
-          column_reference:
-            identifier: JobTitle
-      - comma: ','
-      - select_clause_element:
-          column_reference:
-            identifier: HireDate
-      from_clause:
-        keyword: FROM
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-              - identifier: HumanResources
-              - dot: .
-              - identifier: Employee
-      orderby_clause:
-      - keyword: ORDER
-      - keyword: BY
-      - column_reference:
-          identifier: HireDate
-      - keyword: DESC
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-      - keyword: SELECT
-      - select_clause_modifier:
-        - keyword: TOP
-        - bracketed:
-            start_bracket: (
-            expression:
-              literal: '10'
-            end_bracket: )
-        - keyword: PERCENT
-        - keyword: WITH
-        - keyword: TIES
-      - select_clause_element:
-          column_reference:
-          - identifier: pp
-          - dot: .
-          - identifier: FirstName
-      - comma: ','
-      - select_clause_element:
-          column_reference:
-          - identifier: pp
-          - dot: .
-          - identifier: LastName
-      - comma: ','
-      - select_clause_element:
-          column_reference:
-          - identifier: e
-          - dot: .
-          - identifier: JobTitle
-      - comma: ','
-      - select_clause_element:
-          column_reference:
-          - identifier: e
-          - dot: .
-          - identifier: Gender
-      - comma: ','
-      - select_clause_element:
-          column_reference:
-          - identifier: r
-          - dot: .
-          - identifier: Rate
-      from_clause:
-        keyword: FROM
-        from_expression:
-        - from_expression_element:
-            table_expression:
-              table_reference:
-              - identifier: Person
-              - dot: .
-              - identifier: Person
-            alias_expression:
-              keyword: AS
-              identifier: pp
-        - join_clause:
-          - keyword: INNER
-          - keyword: JOIN
-          - from_expression_element:
+          - identifier: column1
+        - keyword: desc
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_modifier:
+            keyword: TOP
+            bracketed:
+              start_bracket: (
+              expression:
+                literal: '10'
+              end_bracket: )
+        - select_clause_element:
+            column_reference:
+              identifier: JobTitle
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: HireDate
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
               table_expression:
                 table_reference:
                 - identifier: HumanResources
                 - dot: .
                 - identifier: Employee
-              alias_expression:
-                keyword: AS
-                identifier: e
-          - join_on_condition:
-              keyword: 'ON'
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_modifier:
+            keyword: TOP
+            bracketed:
+              start_bracket: (
               expression:
-              - column_reference:
-                - identifier: pp
-                - dot: .
-                - identifier: BusinessEntityID
-              - comparison_operator: '='
-              - column_reference:
-                - identifier: e
-                - dot: .
-                - identifier: BusinessEntityID
-        - join_clause:
-          - keyword: INNER
-          - keyword: JOIN
-          - from_expression_element:
+                literal: '10'
+              end_bracket: )
+        - select_clause_element:
+            column_reference:
+              identifier: JobTitle
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: HireDate
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
               table_expression:
                 table_reference:
                 - identifier: HumanResources
                 - dot: .
-                - identifier: EmployeePayHistory
+                - identifier: Employee
+        orderby_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+            identifier: HireDate
+        - keyword: DESC
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_modifier:
+          - keyword: TOP
+          - bracketed:
+              start_bracket: (
+              expression:
+                literal: '5'
+              end_bracket: )
+          - keyword: PERCENT
+        - select_clause_element:
+            column_reference:
+              identifier: JobTitle
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: HireDate
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - identifier: HumanResources
+                - dot: .
+                - identifier: Employee
+        orderby_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+            identifier: HireDate
+        - keyword: DESC
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_modifier:
+          - keyword: TOP
+          - bracketed:
+              start_bracket: (
+              expression:
+                literal: '10'
+              end_bracket: )
+          - keyword: PERCENT
+          - keyword: WITH
+          - keyword: TIES
+        - select_clause_element:
+            column_reference:
+            - identifier: pp
+            - dot: .
+            - identifier: FirstName
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+            - identifier: pp
+            - dot: .
+            - identifier: LastName
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+            - identifier: e
+            - dot: .
+            - identifier: JobTitle
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+            - identifier: e
+            - dot: .
+            - identifier: Gender
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+            - identifier: r
+            - dot: .
+            - identifier: Rate
+        from_clause:
+          keyword: FROM
+          from_expression:
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                - identifier: Person
+                - dot: .
+                - identifier: Person
               alias_expression:
                 keyword: AS
-                identifier: r
-          - join_on_condition:
-              keyword: 'ON'
-              expression:
-              - column_reference:
-                - identifier: r
-                - dot: .
-                - identifier: BusinessEntityID
-              - comparison_operator: '='
-              - column_reference:
-                - identifier: e
-                - dot: .
-                - identifier: BusinessEntityID
-      orderby_clause:
-      - keyword: ORDER
-      - keyword: BY
-      - column_reference:
-          identifier: Rate
-      - keyword: DESC
-- statement_terminator: ;
+                identifier: pp
+          - join_clause:
+            - keyword: INNER
+            - keyword: JOIN
+            - from_expression_element:
+                table_expression:
+                  table_reference:
+                  - identifier: HumanResources
+                  - dot: .
+                  - identifier: Employee
+                alias_expression:
+                  keyword: AS
+                  identifier: e
+            - join_on_condition:
+                keyword: 'ON'
+                expression:
+                - column_reference:
+                  - identifier: pp
+                  - dot: .
+                  - identifier: BusinessEntityID
+                - comparison_operator: '='
+                - column_reference:
+                  - identifier: e
+                  - dot: .
+                  - identifier: BusinessEntityID
+          - join_clause:
+            - keyword: INNER
+            - keyword: JOIN
+            - from_expression_element:
+                table_expression:
+                  table_reference:
+                  - identifier: HumanResources
+                  - dot: .
+                  - identifier: EmployeePayHistory
+                alias_expression:
+                  keyword: AS
+                  identifier: r
+            - join_on_condition:
+                keyword: 'ON'
+                expression:
+                - column_reference:
+                  - identifier: r
+                  - dot: .
+                  - identifier: BusinessEntityID
+                - comparison_operator: '='
+                - column_reference:
+                  - identifier: e
+                  - dot: .
+                  - identifier: BusinessEntityID
+        orderby_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+            identifier: Rate
+        - keyword: DESC
+  - statement_terminator: ;

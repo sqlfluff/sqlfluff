@@ -3,157 +3,158 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c1465e29ed9fd6c3adac7d74cbb775cb91eeccf9c59e82ffad4447092add2e08
+_hash: 73aa8578d5053d367ebde5ddaca73333a6ef80897367a32be4828fea911396ed
 file:
-- statement:
-    select_statement:
-      select_clause:
-      - keyword: SELECT
-      - select_clause_element:
-          column_reference:
-            identifier: DeptID
-      - comma: ','
-      - select_clause_element:
-          column_reference:
-            identifier: DeptName
-      - comma: ','
-      - select_clause_element:
-          column_reference:
-            identifier: DeptMgrID
-      - comma: ','
-      - select_clause_element:
-          column_reference:
-            identifier: EmpID
-      - comma: ','
-      - select_clause_element:
-          column_reference:
-            identifier: EmpLastName
-      - comma: ','
-      - select_clause_element:
-          column_reference:
-            identifier: EmpSalary
-      from_clause:
-        keyword: FROM
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                identifier: Departments
-            alias_expression:
-              identifier: d
-          join_clause:
-          - keyword: CROSS
-          - keyword: APPLY
-          - from_expression_element:
+  batch:
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              identifier: DeptID
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: DeptName
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: DeptMgrID
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: EmpID
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: EmpLastName
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: EmpSalary
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
               table_expression:
-                function:
-                  function_name:
-                    identifier: dbo
-                    dot: .
-                    function_name_identifier: GetReports
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                      - identifier: d
-                      - dot: .
-                      - identifier: DeptMgrID
-                    end_bracket: )
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-        keyword: SELECT
-        select_clause_element:
-          wildcard_expression:
-            wildcard_identifier:
-              star: '*'
-      from_clause:
-        keyword: FROM
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                identifier: Department
-            alias_expression:
-              identifier: D
-          join_clause:
-          - keyword: OUTER
-          - keyword: APPLY
-          - from_expression_element:
+                table_reference:
+                  identifier: Departments
+              alias_expression:
+                identifier: d
+            join_clause:
+            - keyword: CROSS
+            - keyword: APPLY
+            - from_expression_element:
+                table_expression:
+                  function:
+                    function_name:
+                      identifier: dbo
+                      dot: .
+                      function_name_identifier: GetReports
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                        - identifier: d
+                        - dot: .
+                        - identifier: DeptMgrID
+                      end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
               table_expression:
-                function:
-                  function_name:
-                    identifier: dbo
-                    dot: .
-                    function_name_identifier: fn_GetAllEmployeeOfADepartment
-                  bracketed:
-                    start_bracket: (
-                    expression:
-                      column_reference:
-                      - identifier: D
-                      - dot: .
-                      - identifier: DepartmentID
-                    end_bracket: )
-- statement_terminator: ;
-- statement:
-    select_statement:
-      select_clause:
-      - keyword: select
-      - select_clause_element:
-          column_reference:
-          - identifier: s
-          - dot: .
-          - identifier: column_id
-      - comma: ','
-      - select_clause_element:
-          column_reference:
-          - identifier: sp
-          - dot: .
-          - identifier: value
-      from_clause:
-        keyword: from
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                identifier: table1
-            alias_expression:
-              keyword: as
-              identifier: s
-          join_clause:
-          - keyword: cross
-          - keyword: apply
-          - from_expression_element:
+                table_reference:
+                  identifier: Department
+              alias_expression:
+                identifier: D
+            join_clause:
+            - keyword: OUTER
+            - keyword: APPLY
+            - from_expression_element:
+                table_expression:
+                  function:
+                    function_name:
+                      identifier: dbo
+                      dot: .
+                      function_name_identifier: fn_GetAllEmployeeOfADepartment
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        column_reference:
+                        - identifier: D
+                        - dot: .
+                        - identifier: DepartmentID
+                      end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: select
+        - select_clause_element:
+            column_reference:
+            - identifier: s
+            - dot: .
+            - identifier: column_id
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+            - identifier: sp
+            - dot: .
+            - identifier: value
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
               table_expression:
-                function:
-                  function_name:
-                    function_name_identifier: string_split
-                  bracketed:
-                  - start_bracket: (
-                  - expression:
-                      function:
-                        function_name:
-                          function_name_identifier: replace
-                        bracketed:
-                        - start_bracket: (
-                        - expression:
-                            column_reference:
-                            - identifier: s
-                            - dot: .
-                            - identifier: some_path
-                        - comma: ','
-                        - expression:
-                            literal: "'->'"
-                        - comma: ','
-                        - expression:
-                            literal: "'{'"
-                        - end_bracket: )
-                  - comma: ','
-                  - expression:
-                      literal: "'{'"
-                  - end_bracket: )
+                table_reference:
+                  identifier: table1
               alias_expression:
                 keyword: as
-                identifier: sp
-- statement_terminator: ;
+                identifier: s
+            join_clause:
+            - keyword: cross
+            - keyword: apply
+            - from_expression_element:
+                table_expression:
+                  function:
+                    function_name:
+                      function_name_identifier: string_split
+                    bracketed:
+                    - start_bracket: (
+                    - expression:
+                        function:
+                          function_name:
+                            function_name_identifier: replace
+                          bracketed:
+                          - start_bracket: (
+                          - expression:
+                              column_reference:
+                              - identifier: s
+                              - dot: .
+                              - identifier: some_path
+                          - comma: ','
+                          - expression:
+                              literal: "'->'"
+                          - comma: ','
+                          - expression:
+                              literal: "'{'"
+                          - end_bracket: )
+                    - comma: ','
+                    - expression:
+                        literal: "'{'"
+                    - end_bracket: )
+                alias_expression:
+                  keyword: as
+                  identifier: sp
+  - statement_terminator: ;
