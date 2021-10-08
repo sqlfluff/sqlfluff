@@ -119,7 +119,7 @@ def test__templater_dbt_sequence_files_ephemeral_dependency(
     )
     pd = Path(project_dir)
     expected = [str(pd / fn) for fn in fnames_expected_sequence]
-    assert result == expected
+    assert list(result) == expected
 
 
 @pytest.mark.dbt
