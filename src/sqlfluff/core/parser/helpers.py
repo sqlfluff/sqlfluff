@@ -26,9 +26,14 @@ def check_still_complete(
     """Check that the segments in are the same as the segments out."""
     initial_str = join_segments_raw(segments_in)
     current_str = join_segments_raw(matched_segments + unmatched_segments)
-    if initial_str != current_str:  # pragma: no cover
-        raise RuntimeError(
-            f"Dropped elements in sequence matching! {initial_str} != {current_str}"
+
+    if initial_str != current_str:
+        # imports is here to avoid circular imports
+        from sqlfluff.core import SQLParseError
+
+        raise SQLParseError(
+            f"Could not parse: {current_str}",
+            segment=unmatched_segments[0],
         )
     return True
 

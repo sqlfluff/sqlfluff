@@ -117,7 +117,7 @@ ansi_dialect.set_lexer_matchers(
         StringLexer("crly_bracket_open", "{", CodeSegment),
         StringLexer("crly_bracket_close", "}", CodeSegment),
         StringLexer("colon", ":", CodeSegment),
-        RegexLexer("semicolon", r";+", CodeSegment),
+        StringLexer("semicolon", ";", CodeSegment),
         RegexLexer("code", r"[0-9a-zA-Z_]+", CodeSegment),
     ]
 )

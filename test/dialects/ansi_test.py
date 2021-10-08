@@ -217,25 +217,26 @@ def test__dialect__ansi_parse_indented_joins(sql_string, indented_joins, meta_lo
 
 
 @pytest.mark.parametrize(
-    "raw,expected_unparsable",
+    "raw,expected_message",
     [
-        (";;", True),
-        ("select id from tbl;", False),
-        ("select id from tbl;;", True),
-        ("select id from tbl;;;;;;", True),
-        ("select id from tbl;select id2 from tbl2;", False),
-        ("select id from tbl;;select id2 from tbl2;", True),
+        (";;", "Line 1, Position 1: Found unparsable section: ';;'"),
+        ("select id from tbl;", ""),
+        ("select id from tbl;;", "Could not parse: ;"),
+        ("select id from tbl;;;;;;", "Could not parse: ;;;;;"),
+        ("select id from tbl;select id2 from tbl2;", ""),
+        (
+            "select id from tbl;;select id2 from tbl2;",
+            "Could not parse: ;select id2 from tbl2;",
+        ),
     ],
 )
-def test__dialect__ansi_multiple_semicolons(
-    raw: str, expected_unparsable: bool
-) -> None:
-    """Multiple semicolons should be recognized as an unparsable section."""
+def test__dialect__ansi_multiple_semicolons(raw: str, expected_message: str) -> None:
+    """Multiple semicolons should be properly handled."""
     lnt = Linter()
     parsed = lnt.parse_string(raw)
 
-    assert len(parsed.violations) == (1 if expected_unparsable else 0)
-    if expected_unparsable:
+    assert len(parsed.violations) == (1 if expected_message else 0)
+    if expected_message:
         violation = parsed.violations[0]
         assert isinstance(violation, SQLParseError)
-        assert "Found unparsable section:" in violation.desc()
+        assert violation.desc() == expected_message
