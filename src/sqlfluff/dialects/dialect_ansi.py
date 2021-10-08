@@ -503,13 +503,6 @@ class FileSegment(BaseFileSegment):
         allow_trailing=True,
     )
 
-    def get_table_references(self):
-        """Use parsed tree to extract table references."""
-        references = set()
-        for stmt in self.get_children("statement"):
-            references |= stmt.get_table_references()
-        return references
-
 
 @ansi_dialect.segment()
 class IntervalExpressionSegment(BaseSegment):
