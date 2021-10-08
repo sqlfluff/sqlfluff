@@ -1,0 +1,123 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 013b2074e27888ef71f9cdba874a0c26095ac790416ad2bd00e6355438015e72
+file:
+  statement:
+    select_statement:
+      select_clause:
+      - keyword: select
+      - select_clause_element:
+          function:
+            function_name:
+              keyword: string_agg
+            bracketed:
+              start_bracket: (
+              data_type:
+              - identifier: t
+              - dot: .
+              - identifier: v
+              comma: ','
+              expression:
+                literal: "'; '"
+              end_bracket: )
+            within_group_clause:
+            - keyword: within
+            - keyword: group
+            - bracketed:
+                start_bracket: (
+                orderby_clause:
+                - keyword: order
+                - keyword: by
+                - column_reference:
+                    identifier: v
+                end_bracket: )
+          alias_expression:
+            keyword: as
+            identifier: column_name1
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              keyword: PERCENTILE_CONT
+            bracketed:
+              start_bracket: (
+              expression:
+                literal: '0.5'
+              end_bracket: )
+            within_group_clause:
+            - keyword: WITHIN
+            - keyword: GROUP
+            - bracketed:
+                start_bracket: (
+                orderby_clause:
+                - keyword: ORDER
+                - keyword: BY
+                - column_reference:
+                  - identifier: t
+                  - dot: .
+                  - identifier: Rate
+                end_bracket: )
+            - keyword: OVER
+            - bracketed:
+                start_bracket: (
+                partition_by_clause:
+                - keyword: PARTITION
+                - keyword: BY
+                - column_reference:
+                    identifier: Name
+                end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: MedianCont
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              keyword: PERCENTILE_DISC
+            bracketed:
+              start_bracket: (
+              expression:
+                literal: '0.5'
+              end_bracket: )
+            within_group_clause:
+            - keyword: WITHIN
+            - keyword: GROUP
+            - bracketed:
+                start_bracket: (
+                orderby_clause:
+                - keyword: ORDER
+                - keyword: BY
+                - column_reference:
+                  - identifier: t
+                  - dot: .
+                  - identifier: Rate
+                end_bracket: )
+            - keyword: OVER
+            - bracketed:
+                start_bracket: (
+                partition_by_clause:
+                - keyword: PARTITION
+                - keyword: BY
+                - column_reference:
+                    identifier: Name
+                end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: MedianDisc
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: table1
+            alias_expression:
+              identifier: t
+      groupby_clause:
+      - keyword: group
+      - keyword: by
+      - column_reference:
+          identifier: employee_id

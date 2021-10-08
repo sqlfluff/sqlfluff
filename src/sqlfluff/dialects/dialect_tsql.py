@@ -713,6 +713,66 @@ class ConvertFunctionNameSegment(BaseSegment):
     match_grammar = Sequence("CONVERT")
 
 
+@tsql_dialect.segment()
+class WithinGroupFunctionNameSegment(BaseSegment):
+    """WITHIN GROUP function name segment.
+
+    For aggregation functions that use the WITHIN GROUP clause.
+    https://docs.microsoft.com/en-us/sql/t-sql/functions/string-agg-transact-sql?view=sql-server-ver15
+    https://docs.microsoft.com/en-us/sql/t-sql/functions/percentile-cont-transact-sql?view=sql-server-ver15
+    https://docs.microsoft.com/en-us/sql/t-sql/functions/percentile-disc-transact-sql?view=sql-server-ver15
+
+    Need to be able to specify this as type function_name
+    so that linting rules identify it properly
+    """
+
+    type = "function_name"
+    match_grammar = OneOf(
+        "STRING_AGG",
+        "PERCENTILE_CONT",
+        "PERCENTILE_DISC",
+    )
+
+
+@tsql_dialect.segment()
+class WithinGroupClause(BaseSegment):
+    """WITHIN GROUP clause.
+
+    For a small set of aggregation functions.
+    https://docs.microsoft.com/en-us/sql/t-sql/functions/string-agg-transact-sql?view=sql-server-ver15
+    https://docs.microsoft.com/en-us/sql/t-sql/functions/percentile-cont-transact-sql?view=sql-server-ver15
+    """
+
+    type = "within_group_clause"
+    match_grammar = Sequence(
+        "WITHIN",
+        "GROUP",
+        Bracketed(
+            Ref("OrderByClauseSegment"),
+        ),
+        Sequence(
+            "OVER",
+            Bracketed(Ref("PartitionByClause")),
+            optional=True,
+        ),
+    )
+
+
+@tsql_dialect.segment()
+class PartitionByClause(BaseSegment):
+    """PARTITION BY clause.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/queries/select-over-clause-transact-sql?view=sql-server-ver15#partition-by
+    """
+
+    type = "partition_by_clause"
+    match_grammar = Sequence(
+        "PARTITION",
+        "BY",
+        Ref("ColumnReferenceSegment"),
+    )
+
+
 @tsql_dialect.segment(replace=True)
 class FunctionSegment(BaseSegment):
     """A scalar or aggregate function.
@@ -759,13 +819,29 @@ class FunctionSegment(BaseSegment):
         ),
         Sequence(
             Sequence(
-                AnyNumberOf(
+                Ref("WithinGroupFunctionNameSegment"),
+                Bracketed(
+                    Delimited(
+                        Ref("DatatypeSegment"),
+                        Ref(
+                            "FunctionContentsGrammar",
+                            # The brackets might be empty for some functions...
+                            optional=True,
+                            ephemeral_name="FunctionContentsGrammar",
+                        ),
+                    ),
+                ),
+                Ref("WithinGroupClause", optional=True),
+            )
+        ),
+        Sequence(
+            Sequence(
+                OneOf(
                     Ref("FunctionNameSegment"),
-                    max_times=1,
-                    min_times=1,
                     exclude=OneOf(
                         Ref("ConvertFunctionNameSegment"),
                         Ref("DateAddFunctionNameSegment"),
+                        Ref("WithinGroupFunctionNameSegment"),
                     ),
                 ),
                 Bracketed(
