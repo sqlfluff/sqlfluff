@@ -67,7 +67,7 @@ class BaseSegment:
     parse_grammar: Optional[Matchable] = None
     # We define the type here but no value. Subclasses must provide a value.
     match_grammar: Matchable
-    comment_seperate = False
+    comment_separate = False
     optional = False  # NB: See the sequence grammar for details
     _name: Optional[str] = None
     is_meta = False
@@ -550,7 +550,7 @@ class BaseSegment:
         buff = StringIO()
         preface = self._preface(ident=ident, tabsize=tabsize)
         buff.write(preface + "\n")
-        if not code_only and self.comment_seperate and len(self._comments) > 0:
+        if not code_only and self.comment_separate and len(self._comments) > 0:
             if self._comments:  # pragma: no cover TODO?
                 buff.write((" " * ((ident + 1) * tabsize)) + "Comments:" + "\n")
                 for seg in self._comments:
@@ -1113,7 +1113,7 @@ class UnparsableSegment(BaseSegment):
 
     type = "unparsable"
     # From here down, comments are printed separately.
-    comment_seperate = True
+    comment_separate = True
     _expected = ""
 
     def __init__(self, *args, expected="", **kwargs):
@@ -1163,3 +1163,10 @@ class BaseFileSegment(BaseSegment):
     def file_path(self):
         """File path of a parsed SQL file."""
         return self._file_path
+
+    def get_table_references(self):
+        """Use parsed tree to extract table references."""
+        references = set()
+        for stmt in self.get_children("statement"):
+            references |= stmt.get_table_references()
+        return references
