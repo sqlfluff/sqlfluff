@@ -16,7 +16,8 @@ class SQLFluffViolationReporter(BaseViolationReporter):
         """Calls the base class constructor to set the object's name."""
         super().__init__("sqlfluff")
 
-    def violations(self, src_path: str) -> List[Violation]:
+    @staticmethod
+    def violations(src_path: str) -> List[Violation]:
         """Return list of violations.
 
         Given the path to a .sql file, analyze it and return a list of
