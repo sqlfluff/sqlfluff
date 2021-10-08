@@ -22,6 +22,7 @@ from sqlfluff.core.parser import (
     Dedent,
     AnyNumberOf,
     BaseFileSegment,
+    Indent,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -65,9 +66,6 @@ tsql_dialect.add(
 )
 
 tsql_dialect.replace(
-    # Below delimiterstatement might need to be removed in the future as delimiting
-    # is optional with semicolon and GO is a end of statement indicator.
-    DelimiterSegment=Ref("SemicolonSegment"),
     SingleIdentifierGrammar=OneOf(
         Ref("NakedIdentifierSegment"),
         Ref("QuotedIdentifierSegment"),
@@ -1008,25 +1006,6 @@ class TransactionStatementSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment(replace=True)
-class FileSegment(BaseFileSegment):
-    """A segment representing a whole file or script.
-
-    This is also the default "root" segment of the dialect,
-    and so is usually instantiated directly. It therefore
-    has no match_grammar.
-    """
-
-    # NB: We don't need a match_grammar here because we're
-    # going straight into instantiating it directly usually.
-    parse_grammar = Delimited(
-        Ref("BatchSegment"),
-        delimiter=Ref("BatchDelimiterSegment"),
-        allow_gaps=True,
-        allow_trailing=True,
-    )
-
-
 @tsql_dialect.segment()
 class BeginEndSegment(BaseSegment):
     """A `BEGIN/END` block.
@@ -1038,7 +1017,9 @@ class BeginEndSegment(BaseSegment):
     type = "begin_end_block"
     match_grammar = Sequence(
         "BEGIN",
+        Indent,
         Ref("BatchSegment"),
+        Dedent,
         "END",
     )
 
@@ -1060,4 +1041,27 @@ class BatchSegment(BaseSegment):
             allow_gaps=True,
             allow_trailing=True,
         ),
+    )
+
+
+@tsql_dialect.segment(replace=True)
+class FileSegment(BaseFileSegment):
+    """A segment representing a whole file or script.
+
+    We override default as T-SQL allows concept of several
+    batches of commands separated by GO as well as usual
+    Semi-colon statement separated lines.
+
+    This is also the default "root" segment of the dialect,
+    and so is usually instantiated directly. It therefore
+    has no match_grammar.
+    """
+
+    # NB: We don't need a match_grammar here because we're
+    # going straight into instantiating it directly usually.
+    parse_grammar = Delimited(
+        Ref("BatchSegment"),
+        delimiter=Ref("BatchDelimiterSegment"),
+        allow_gaps=True,
+        allow_trailing=True,
     )
