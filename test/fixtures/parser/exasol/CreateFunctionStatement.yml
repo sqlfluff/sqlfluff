@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f1b17ed5eff8e8d83a2f37f4423452fad2bc4c1e5d40d640c82314d7d29ceea1
+_hash: 82a7e047718b1f973395d09965806bbc8bc319713d4dc32b931f6e6f4b16eb03
 file:
 - statement:
     create_function_statement:
@@ -34,7 +34,7 @@ file:
     - variable: res
     - data_type:
         keyword: DECIMAL
-    - semicolon: ;
+    - statement_terminator: ;
     - keyword: BEGIN
     - function_body:
         function_assignment:
@@ -52,18 +52,18 @@ file:
             binary_operator: /
             column_reference:
               identifier: entirety
-          semicolon: ;
+          statement_terminator: ;
     - keyword: RETURN
     - expression:
         column_reference:
           identifier: res
         binary_operator: '||'
         literal: "' %'"
-    - semicolon: ;
+    - statement_terminator: ;
     - keyword: END
     - function_reference:
         identifier: percentage
-    - semicolon: ;
+    - statement_terminator: ;
 - function_script_terminator: /
 - statement:
     create_function_statement:
@@ -85,7 +85,7 @@ file:
     - variable: res
     - data_type:
         keyword: DECIMAL
-    - semicolon: ;
+    - statement_terminator: ;
     - keyword: BEGIN
     - function_body:
         function_assignment:
@@ -102,15 +102,15 @@ file:
                 column_reference:
                   identifier: '"no"'
               end_bracket: )
-          semicolon: ;
+          statement_terminator: ;
     - keyword: RETURN
     - expression:
         literal: "'HELLO'"
-    - semicolon: ;
+    - statement_terminator: ;
     - keyword: END
     - function_reference:
         identifier: hello
-    - semicolon: ;
+    - statement_terminator: ;
 - function_script_terminator: /
 - statement:
     create_function_statement:
@@ -132,7 +132,7 @@ file:
     - variable: res
     - data_type:
         keyword: DECIMAL
-    - semicolon: ;
+    - statement_terminator: ;
     - keyword: BEGIN
     - function_body:
         function_assignment:
@@ -155,16 +155,16 @@ file:
                 column_reference:
                   identifier: input_variable
             - keyword: END
-          semicolon: ;
+          statement_terminator: ;
     - keyword: RETURN
     - expression:
         column_reference:
           identifier: res
-    - semicolon: ;
+    - statement_terminator: ;
     - keyword: END
     - function_reference:
         identifier: case_function
-    - semicolon: ;
+    - statement_terminator: ;
 - function_script_terminator: /
 - statement:
     create_function_statement:
@@ -186,23 +186,23 @@ file:
     - variable: res
     - data_type:
         keyword: DECIMAL
-    - semicolon: ;
+    - statement_terminator: ;
     - keyword: BEGIN
     - function_body:
         function_assignment:
           variable: res
           assignment_operator: :=
           literal: "'Hello World'"
-          semicolon: ;
+          statement_terminator: ;
     - keyword: RETURN
     - expression:
         column_reference:
           identifier: res
-    - semicolon: ;
+    - statement_terminator: ;
     - keyword: END
     - function_reference:
         identifier: assignment_function
-    - semicolon: ;
+    - statement_terminator: ;
 - function_script_terminator: /
 - statement:
     create_function_statement:
@@ -224,7 +224,7 @@ file:
     - variable: res
     - data_type:
         keyword: DECIMAL
-    - semicolon: ;
+    - statement_terminator: ;
     - keyword: BEGIN
     - function_body:
         function_if_branch:
@@ -240,7 +240,7 @@ file:
             - variable: res
             - assignment_operator: :=
             - variable: 'NULL'
-            - semicolon: ;
+            - statement_terminator: ;
         - keyword: ELSEIF
         - expression:
             column_reference:
@@ -253,7 +253,7 @@ file:
               variable: res
               assignment_operator: :=
               literal: "'HELLO'"
-              semicolon: ;
+              statement_terminator: ;
         - keyword: ELSEIF
         - expression:
             column_reference:
@@ -266,26 +266,26 @@ file:
               variable: res
               assignment_operator: :=
               literal: "'HALLO'"
-              semicolon: ;
+              statement_terminator: ;
         - keyword: ELSE
         - function_body:
             function_assignment:
             - variable: res
             - assignment_operator: :=
             - variable: input_variable
-            - semicolon: ;
+            - statement_terminator: ;
         - keyword: END
         - keyword: IF
-        - semicolon: ;
+        - statement_terminator: ;
     - keyword: RETURN
     - expression:
         column_reference:
           identifier: res
-    - semicolon: ;
+    - statement_terminator: ;
     - keyword: END
     - function_reference:
         identifier: if_function
-    - semicolon: ;
+    - statement_terminator: ;
 - function_script_terminator: /
 - statement:
     create_function_statement:
@@ -307,7 +307,7 @@ file:
     - variable: res
     - data_type:
         keyword: DECIMAL
-    - semicolon: ;
+    - statement_terminator: ;
     - keyword: BEGIN
     - function_body:
         function_for_loop:
@@ -330,19 +330,19 @@ file:
                   identifier: res
                 binary_operator: '*'
                 literal: '2'
-              semicolon: ;
+              statement_terminator: ;
         - keyword: END
         - keyword: FOR
-        - semicolon: ;
+        - statement_terminator: ;
     - keyword: RETURN
     - expression:
         column_reference:
           identifier: res
-    - semicolon: ;
+    - statement_terminator: ;
     - keyword: END
     - function_reference:
         identifier: for_loop_function
-    - semicolon: ;
+    - statement_terminator: ;
 - function_script_terminator: /
 - statement:
     create_function_statement:
@@ -364,7 +364,7 @@ file:
     - variable: res
     - data_type:
         keyword: DECIMAL
-    - semicolon: ;
+    - statement_terminator: ;
     - keyword: BEGIN
     - function_body:
         function_for_loop:
@@ -386,19 +386,19 @@ file:
                   identifier: res
                 binary_operator: '*'
                 literal: '2'
-              semicolon: ;
+              statement_terminator: ;
         - keyword: END
         - keyword: LOOP
-        - semicolon: ;
+        - statement_terminator: ;
     - keyword: RETURN
     - expression:
         column_reference:
           identifier: res
-    - semicolon: ;
+    - statement_terminator: ;
     - keyword: END
     - function_reference:
         identifier: for_loop_function2
-    - semicolon: ;
+    - statement_terminator: ;
 - function_script_terminator: /
 - statement:
     create_function_statement:
@@ -420,7 +420,7 @@ file:
     - variable: res
     - data_type:
         keyword: DECIMAL
-    - semicolon: ;
+    - statement_terminator: ;
     - keyword: BEGIN
     - function_body:
         function_while_loop:
@@ -441,7 +441,7 @@ file:
                   identifier: res
                 binary_operator: '*'
                 literal: '2'
-              semicolon: ;
+              statement_terminator: ;
         - function_body:
             function_assignment:
               variable: cnt
@@ -451,17 +451,17 @@ file:
                   identifier: cnt
                 binary_operator: +
                 literal: '1'
-              semicolon: ;
+              statement_terminator: ;
         - keyword: END
         - keyword: WHILE
-        - semicolon: ;
+        - statement_terminator: ;
     - keyword: RETURN
     - expression:
         column_reference:
           identifier: res
-    - semicolon: ;
+    - statement_terminator: ;
     - keyword: END
     - function_reference:
         identifier: for_loop_function3
-    - semicolon: ;
+    - statement_terminator: ;
 - function_script_terminator: /

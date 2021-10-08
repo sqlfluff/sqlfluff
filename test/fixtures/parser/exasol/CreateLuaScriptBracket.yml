@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4eb024e2ca5ae60474bec31f46de2015891304314e9e9765a091b46d031fffa1
+_hash: 67d918930d504d591c4aa1f56f6644788a35303a8e42c7b66b33cdd3d24cb272
 file:
   statement:
     create_scripting_lua_script:
@@ -13,14 +13,30 @@ file:
     - keyword: LUA
     - keyword: SCRIPT
     - script_reference:
-      - identifier: aschema
+      - identifier: BRACKET
       - dot: .
-      - identifier: hello
-    - bracketed:
-        start_bracket: (
-        end_bracket: )
+      - identifier: SCRIPT_EXAMPLE
+    - keyword: RETURNS
+    - keyword: ROWCOUNT
     - keyword: AS
     - script_content:
+      - raw: local
+      - raw: _stmt
+      - raw: '='
+      - raw: '[[SOME ASSIGNMENT WITH OPEN BRACKET ( ]]'
+      - raw: x
+      - raw: '='
+      - raw: '1'
+      - raw: local
+      - raw: _stmt
+      - raw: '='
+      - raw: _stmt
+      - raw: ..
+      - raw: '[[ ) ]]'
+      - raw: local
+      - raw: _nsted
+      - raw: '='
+      - raw: '[=[one ([[two]] one]=]'
       - raw: return
-      - raw: "'HELLO'"
+      - raw: '1'
   function_script_terminator: /

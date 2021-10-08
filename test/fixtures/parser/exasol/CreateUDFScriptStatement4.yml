@@ -3,20 +3,20 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1784db2285774a54e9535d85a7f4cbf16860c6e9547678d60791415fe519126c
+_hash: 261ee2579d2aa2004c0d27b29e9ce4376c545ffd9733a969478d33a2934f5766
 file:
   statement:
     create_udf_script:
     - keyword: CREATE
     - binary_operator: OR
     - keyword: REPLACE
-    - keyword: JAVA
+    - keyword: PYTHON
     - keyword: SCALAR
     - keyword: SCRIPT
     - script_reference:
-      - identifier: LIB
+      - identifier: TEST
       - dot: .
-      - identifier: MYLIB
+      - identifier: MYHELLOWORLD
     - bracketed:
         start_bracket: (
         end_bracket: )
@@ -29,19 +29,27 @@ file:
           end_bracket: )
     - keyword: AS
     - script_content:
-      - raw: class
-      - raw: MYLIB
-      - start_curly_bracket: '{'
-      - raw: static
-      - raw: String
+      - raw: l
+      - raw: '='
+      - raw: exa
+      - raw: .
+      - raw: import_script
+      - bracketed:
+          start_bracket: (
+          raw: "'LIB.MYLIB'"
+          end_bracket: )
+      - raw: def
+      - raw: run
+      - bracketed:
+          start_bracket: (
+          raw: ctx
+          end_bracket: )
+      - raw: ':'
+      - raw: return
+      - raw: l
+      - raw: .
       - raw: helloWorld
       - bracketed:
           start_bracket: (
           end_bracket: )
-      - start_curly_bracket: '{'
-      - raw: return
-      - raw: '"Hello Java World!"'
-      - raw: ;
-      - end_curly_bracket: '}'
-      - end_curly_bracket: '}'
   function_script_terminator: /
