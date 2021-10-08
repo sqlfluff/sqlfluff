@@ -88,3 +88,5 @@ SELECT  JSON_EXTRACT(json_str, '$."@id"', '$.error()')
             error_column VARCHAR(2000000)
         )
 FROM t;
+----
+SELECT 10 / 2;

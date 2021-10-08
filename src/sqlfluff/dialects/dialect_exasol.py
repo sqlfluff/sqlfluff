@@ -70,7 +70,7 @@ exasol_dialect.insert_lexer_matchers(
         ),
         RegexLexer(
             "function_script_terminator",
-            r";\s+\/(?!\*)|\s+\/",
+            r";\s+(?!\*)\/(?!\*)|\s+(?!\*)\/(?!\*)",
             CodeSegment,
             segment_kwargs={"type": "function_script_terminator"},
             subdivider=StringLexer(
