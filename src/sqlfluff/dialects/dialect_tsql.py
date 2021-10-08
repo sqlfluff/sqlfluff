@@ -3,8 +3,6 @@
 https://docs.microsoft.com/en-us/sql/t-sql/language-elements/language-elements-transact-sql
 """
 
-from typing import List, Tuple
-
 from sqlfluff.core.parser import (
     BaseSegment,
     Sequence,
@@ -28,7 +26,6 @@ from sqlfluff.core.parser import (
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
-from sqlfluff.core.dialects.common import AliasInfo
 from sqlfluff.dialects.tsql_keywords import RESERVED_KEYWORDS, UNRESERVED_KEYWORDS
 
 ansi_dialect = load_raw_dialect("ansi")
