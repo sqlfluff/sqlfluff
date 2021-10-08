@@ -316,6 +316,7 @@ class DbtTemplater(JinjaTemplater):
         # Stash the formatter if provided to use in cached methods.
         self.formatter = formatter
 
+        self._check_dbt_installed()
         from dbt.exceptions import (
             CompilationException as DbtCompilationException,
             FailedToConnectException as DbtFailedToConnectException,
