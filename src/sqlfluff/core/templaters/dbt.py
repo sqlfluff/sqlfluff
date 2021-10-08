@@ -290,7 +290,7 @@ class DbtTemplater(JinjaTemplater):
                     "- Requeuing ephemeral with dependents: %r", fpath
                 )
                 # Requeue it for later
-                ephemeral_nodes.append(key)
+                ephemeral_buffer.append(key)
             # Otherwise yield it.
             else:
                 templater_logger.debug("- Yielding Ephemeral: %r", fpath)
