@@ -3,78 +3,78 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: af51b7ff71137070f896edbb73c84ed25fd6ea673519b3683e31a8d753d2fc7b
+_hash: dd5bc831bfcf59b4eac75c4b19aaf1d7296fc810db987496b68404da34785c39
 file:
-  statement:
-    create_view_statement:
-    - keyword: CREATE
-    - binary_operator: OR
-    - keyword: ALTER
-    - keyword: VIEW
-    - object_reference:
-      - identifier: Sales
-      - dot: .
-      - identifier: SalesPersonPerform
-    - keyword: AS
-    - select_statement:
-        select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-            function:
-              function_name:
-                function_name_identifier: TOP
+  batch:
+    statement:
+      create_view_statement:
+      - keyword: CREATE
+      - binary_operator: OR
+      - keyword: ALTER
+      - keyword: VIEW
+      - object_reference:
+        - identifier: Sales
+        - dot: .
+        - identifier: SalesPersonPerform
+      - keyword: AS
+      - select_statement:
+          select_clause:
+          - keyword: SELECT
+          - select_clause_modifier:
+              keyword: TOP
               bracketed:
                 start_bracket: (
                 expression:
                   literal: '100'
                 end_bracket: )
-            alias_expression:
+          - select_clause_element:
+              column_reference:
+                identifier: SalesPersonID
+          - comma: ','
+          - select_clause_element:
+              function:
+                function_name:
+                  function_name_identifier: SUM
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      identifier: TotalDue
+                  end_bracket: )
+              alias_expression:
+                keyword: AS
+                identifier: TotalSales
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                  - identifier: Sales
+                  - dot: .
+                  - identifier: SalesOrderHeader
+          where_clause:
+            keyword: WHERE
+            expression:
+              column_reference:
+                identifier: OrderDate
+              comparison_operator: '>'
+              function:
+                function_name:
+                  keyword: CONVERT
+                bracketed:
+                - start_bracket: (
+                - data_type:
+                    identifier: DATETIME
+                - comma: ','
+                - expression:
+                    literal: "'20001231'"
+                - comma: ','
+                - expression:
+                    literal: '101'
+                - end_bracket: )
+          groupby_clause:
+          - keyword: GROUP
+          - keyword: BY
+          - column_reference:
               identifier: SalesPersonID
-        - comma: ','
-        - select_clause_element:
-            function:
-              function_name:
-                function_name_identifier: SUM
-              bracketed:
-                start_bracket: (
-                expression:
-                  column_reference:
-                    identifier: TotalDue
-                end_bracket: )
-            alias_expression:
-              keyword: AS
-              identifier: TotalSales
-        from_clause:
-          keyword: FROM
-          from_expression:
-            from_expression_element:
-              table_expression:
-                table_reference:
-                - identifier: Sales
-                - dot: .
-                - identifier: SalesOrderHeader
-        where_clause:
-          keyword: WHERE
-          expression:
-            column_reference:
-              identifier: OrderDate
-            comparison_operator: '>'
-            function:
-              function_name:
-                keyword: CONVERT
-              bracketed:
-              - start_bracket: (
-              - data_type:
-                  identifier: DATETIME
-              - comma: ','
-              - expression:
-                  literal: "'20001231'"
-              - comma: ','
-              - expression:
-                  literal: '101'
-              - end_bracket: )
-        groupby_clause:
-        - keyword: GROUP
-        - keyword: BY
-        - column_reference:
-            identifier: SalesPersonID

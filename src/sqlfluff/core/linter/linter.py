@@ -5,7 +5,6 @@ import time
 import logging
 from typing import (
     Any,
-    Generator,
     List,
     Sequence,
     Optional,
@@ -13,6 +12,7 @@ from typing import (
     Union,
     cast,
     Iterable,
+    Iterator,
 )
 
 import pathspec
@@ -853,9 +853,7 @@ class Linter:
         result.stop_timer()
         return result
 
-    def parse_path(
-        self, path: str, recurse: bool = True
-    ) -> Generator[ParsedString, None, None]:
+    def parse_path(self, path: str, recurse: bool = True) -> Iterator[ParsedString]:
         """Parse a path of sql files.
 
         NB: This a generator which will yield the result of each file

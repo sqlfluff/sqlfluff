@@ -21,6 +21,8 @@ from sqlfluff.core.parser import (
     OptionallyBracketed,
     Dedent,
     AnyNumberOf,
+    BaseFileSegment,
+    Indent,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -57,19 +59,13 @@ tsql_dialect.add(
     BracketedIdentifierSegment=NamedParser(
         "square_quote", CodeSegment, name="quoted_identifier", type="identifier"
     ),
+    BatchDelimiterSegment=Ref("GoStatementSegment"),
     QuotedLiteralSegmentWithN=NamedParser(
         "single_quote_with_n", CodeSegment, name="quoted_literal", type="literal"
     ),
 )
 
 tsql_dialect.replace(
-    # Below delimiterstatement might need to be removed in the future as delimiting
-    # is optional with semicolon and GO is a end of statement indicator.
-    DelimiterSegment=OneOf(
-        Sequence(Ref("SemicolonSegment"), Ref("GoStatementSegment")),
-        Ref("SemicolonSegment"),
-        Ref("GoStatementSegment"),
-    ),
     SingleIdentifierGrammar=OneOf(
         Ref("NakedIdentifierSegment"),
         Ref("QuotedIdentifierSegment"),
@@ -102,14 +98,15 @@ tsql_dialect.replace(
     FromClauseTerminatorGrammar=OneOf(
         "WHERE",
         "LIMIT",
-        "GROUP",
-        "ORDER",
+        Sequence("GROUP", "BY"),
+        Sequence("ORDER", "BY"),
         "HAVING",
         "PIVOT",
         "UNPIVOT",
         Ref("SetOperatorSegment"),
         Ref("WithNoSchemaBindingClauseSegment"),
     ),
+    JoinKeywords=OneOf("JOIN", "APPLY", Sequence("OUTER", "APPLY")),
 )
 
 
@@ -117,9 +114,8 @@ tsql_dialect.replace(
 class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: ignore
     """Overriding StatementSegment to allow for additional segment parsing."""
 
-    parse_grammar = ansi_dialect.get_segment("StatementSegment").parse_grammar.copy(
+    match_grammar = ansi_dialect.get_segment("StatementSegment").parse_grammar.copy(
         insert=[
-            Ref("CreateProcedureStatementSegment"),
             Ref("IfExpressionStatement"),
             Ref("DeclareStatementSegment"),
             Ref("SetStatementSegment"),
@@ -128,6 +124,25 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
                 "CreateTableAsSelectStatementSegment"
             ),  # Azure Synapse Analytics specific
         ],
+    )
+
+    parse_grammar = match_grammar
+
+
+@tsql_dialect.segment(replace=True)
+class SelectClauseModifierSegment(BaseSegment):
+    """Things that come after SELECT but before the columns."""
+
+    type = "select_clause_modifier"
+    match_grammar = OneOf(
+        "DISTINCT",
+        "ALL",
+        Sequence(
+            "TOP",
+            OptionallyBracketed(Ref("ExpressionSegment")),
+            Sequence("PERCENT", optional=True),
+            Sequence("WITH", "TIES", optional=True),
+        ),
     )
 
 
@@ -601,7 +616,6 @@ class CreateProcedureStatementSegment(BaseSegment):
         Ref("ObjectReferenceSegment"),
         Ref("FunctionParameterListGrammar", optional=True),
         "AS",
-        # Pending to add BEGIN END optional
         Ref("ProcedureDefinitionGrammar"),
     )
 
@@ -613,7 +627,10 @@ class ProcedureDefinitionGrammar(BaseSegment):
     type = "procedure_statement"
     name = "procedure_statement"
 
-    match_grammar = Ref("StatementSegment")
+    match_grammar = OneOf(
+        Ref("StatementSegment"),
+        Ref("BeginEndSegment"),
+    )
 
 
 @tsql_dialect.segment(replace=True)
@@ -969,4 +986,89 @@ class DatePartClause(BaseSegment):
         "Y",
         "YY",
         "YYYY",
+    )
+
+
+@tsql_dialect.segment(replace=True)
+class TransactionStatementSegment(BaseSegment):
+    """A `COMMIT`, `ROLLBACK` or `TRANSACTION` statement."""
+
+    type = "transaction_statement"
+    match_grammar = OneOf(
+        # BEGIN | SAVE TRANSACTION
+        # COMMIT [ TRANSACTION | WORK ]
+        # ROLLBACK [ TRANSACTION | WORK ]
+        # https://docs.microsoft.com/en-us/sql/t-sql/language-elements/begin-transaction-transact-sql?view=sql-server-ver15
+        Sequence(
+            "BEGIN",
+            Sequence("DISTRIBUTED", optional=True),
+            "TRANSACTION",
+            Ref("SingleIdentifierGrammar", optional=True),
+            Sequence("WITH", "MARK", Ref("QuotedIdentifierSegment"), optional=True),
+        ),
+        Sequence(
+            OneOf("COMMIT", "ROLLBACK"), OneOf("TRANSACTION", "WORK", optional=True)
+        ),
+        Sequence("SAVE", "TRANSACTION"),
+    )
+
+
+@tsql_dialect.segment()
+class BeginEndSegment(BaseSegment):
+    """A `BEGIN/END` block.
+
+    Encloses multiple statements into a single statement object.
+    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/begin-end-transact-sql?view=sql-server-ver15
+    """
+
+    type = "begin_end_block"
+    match_grammar = Sequence(
+        "BEGIN",
+        Indent,
+        Ref("BatchSegment"),
+        Dedent,
+        "END",
+    )
+
+
+@tsql_dialect.segment()
+class BatchSegment(BaseSegment):
+    """A segment representing a GO batch within a file or script."""
+
+    type = "batch"
+    match_grammar = OneOf(
+        AnyNumberOf(
+            Ref("BeginEndSegment"),
+            min_times=1,
+        ),
+        Ref("CreateProcedureStatementSegment"),
+        Delimited(
+            Ref("StatementSegment"),
+            delimiter=Ref("DelimiterSegment"),
+            allow_gaps=True,
+            allow_trailing=True,
+        ),
+    )
+
+
+@tsql_dialect.segment(replace=True)
+class FileSegment(BaseFileSegment):
+    """A segment representing a whole file or script.
+
+    We override default as T-SQL allows concept of several
+    batches of commands separated by GO as well as usual
+    semicolon-separated statement lines.
+
+    This is also the default "root" segment of the dialect,
+    and so is usually instantiated directly. It therefore
+    has no match_grammar.
+    """
+
+    # NB: We don't need a match_grammar here because we're
+    # going straight into instantiating it directly usually.
+    parse_grammar = Delimited(
+        Ref("BatchSegment"),
+        delimiter=Ref("BatchDelimiterSegment"),
+        allow_gaps=True,
+        allow_trailing=True,
     )

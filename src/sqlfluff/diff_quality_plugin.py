@@ -1,4 +1,6 @@
 """This module integrates SQLFluff with diff_cover's "diff-quality" tool."""
+from typing import List
+
 from diff_cover.hook import hookimpl as diff_cover_hookimpl
 from diff_cover.violationsreporters.base import BaseViolationReporter, Violation
 
@@ -15,14 +17,11 @@ class SQLFluffViolationReporter(BaseViolationReporter):
         super().__init__("sqlfluff")
 
     @staticmethod
-    def violations(src_path):
+    def violations(src_path: str) -> List[Violation]:
         """Return list of violations.
 
         Given the path to a .sql file, analyze it and return a list of
         violations (i.e. formatting or style issues).
-
-        :param src_path:
-        :return: list of Violation
         """
         linter = Linter(config=FluffConfig.from_root())
         linted_path = linter.lint_path(src_path, ignore_non_existent_files=True)
@@ -37,13 +36,12 @@ class SQLFluffViolationReporter(BaseViolationReporter):
             result.append(Violation(violation.line_no, message))
         return result
 
-    def measured_lines(self, src_path):  # pragma: no cover
+    def measured_lines(self, src_path: str) -> None:  # pragma: no cover
         """Return list of the lines in src_path that were measured."""
-        return None
 
 
 @diff_cover_hookimpl
-def diff_cover_report_quality():
+def diff_cover_report_quality() -> SQLFluffViolationReporter:
     """Returns the SQLFluff plugin.
 
     This function is registered as a diff_cover entry point. diff-quality calls
