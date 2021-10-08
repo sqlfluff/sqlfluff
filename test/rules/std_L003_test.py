@@ -1,4 +1,5 @@
 """Tests the python routines within L003."""
+from unittest.mock import Mock
 
 import pytest
 
@@ -156,6 +157,14 @@ def test__rules__std_L003_make_indent_invalid_param():
     """Test Rule_L003._make_indent with invalid indent_unit parameter."""
     with pytest.raises(ValueError):
         Rule_L003._make_indent(indent_unit="aaa")
+
+
+def test__rules__std_L003__get_element_template_info():
+    """Test Rule_L003._get_element_template_info with invalid templated_file parameter."""
+    mock_segment = Mock()
+    mock_segment.return_value.is_type = True
+    with pytest.raises(ValueError):
+        Rule_L003._get_element_template_info(elem=mock_segment, templated_file=None)
 
 
 class ProtoSeg:
