@@ -36,6 +36,9 @@ test-reports
 /test*.py
 /.hypothesis/
 
+# Ignore dbt outputs from testing
+/target
+
 # Ignore conda environment.yml contributors might be using and direnv config
 environment.yml
 .envrc

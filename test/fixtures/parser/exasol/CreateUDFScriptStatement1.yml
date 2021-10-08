@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bf965d2e6c44560ec3422b2be849990f7becdff0ccae527088fe1e5eedaca1e7
+_hash: c5956544fbd6a21511378de416652aa980fadaf7484641aa83e0345944dfb213
 file:
-  statement:
+- statement:
     create_udf_script:
     - keyword: CREATE
     - keyword: LUA
@@ -73,4 +73,73 @@ file:
       - raw: /
       - raw: '2'
       - raw: end
-  function_script_terminator: /
+- function_script_terminator: /
+- statement:
+    create_udf_script:
+    - keyword: CREATE
+    - keyword: LUA
+    - keyword: SCALAR
+    - keyword: SCRIPT
+    - script_reference:
+        identifier: my_average
+    - bracketed:
+      - start_bracket: (
+      - column_datatype_definition:
+          identifier: a
+          data_type:
+            keyword: DOUBLE
+      - comma: ','
+      - column_datatype_definition:
+          identifier: b
+          data_type:
+            keyword: DOUBLE
+      - orderby_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - literal: '1'
+        - keyword: desc
+      - end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        keyword: DOUBLE
+    - keyword: AS
+    - script_content:
+      - raw: function
+      - raw: run
+      - bracketed:
+          start_bracket: (
+          raw: ctx
+          end_bracket: )
+      - raw: if
+      - raw: ctx
+      - raw: .
+      - raw: a
+      - raw: '='
+      - raw: '='
+      - raw: nil
+      - raw: or
+      - raw: ctx
+      - raw: .
+      - raw: b
+      - raw: '='
+      - raw: '='
+      - raw: nil
+      - raw: then
+      - raw: return
+      - raw: 'NULL'
+      - raw: end
+      - raw: return
+      - bracketed:
+        - start_bracket: (
+        - raw: ctx
+        - raw: .
+        - raw: a
+        - raw: +
+        - raw: ctx
+        - raw: .
+        - raw: b
+        - end_bracket: )
+      - raw: /
+      - raw: '2'
+      - raw: end
+- function_script_terminator: /

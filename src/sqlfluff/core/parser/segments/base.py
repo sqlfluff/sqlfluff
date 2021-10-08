@@ -1163,3 +1163,10 @@ class BaseFileSegment(BaseSegment):
     def file_path(self):
         """File path of a parsed SQL file."""
         return self._file_path
+
+    def get_table_references(self):
+        """Use parsed tree to extract table references."""
+        references = set()
+        for stmt in self.get_children("statement"):
+            references |= stmt.get_table_references()
+        return references

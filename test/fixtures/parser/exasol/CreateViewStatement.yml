@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ce10c5bd93b5c265cb0bdd1fa3667c351db47019096e7aef283565aa690bd032
+_hash: 58b25106d8887ebd4a10cae8483c0907e6c1a7ed10e9f52812748cd41eb63b04
 file:
 - statement:
     create_view_statement:
@@ -125,4 +125,66 @@ file:
               table_expression:
                 table_reference:
                   identifier: t
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: VIEW
+    - view_reference:
+      - identifier: schem
+      - dot: .
+      - identifier: few
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          identifier: col1
+        end_bracket: )
+    - keyword: as
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: select
+            select_clause_element:
+              column_reference:
+                identifier: x
+          from_clause:
+            keyword: from
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    identifier: t
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: VIEW
+    - view_reference:
+      - identifier: schem
+      - dot: .
+      - identifier: few
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          identifier: col1
+        end_bracket: )
+    - keyword: as
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: select
+            select_clause_element:
+              column_reference:
+                identifier: x
+          from_clause:
+            keyword: from
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    identifier: t
+        end_bracket: )
 - statement_terminator: ;

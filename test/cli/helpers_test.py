@@ -3,11 +3,12 @@
 import pytest
 
 from sqlfluff.cli.helpers import colorize, cli_table, wrap_elem, wrap_field, pad_line
+from sqlfluff.core.enums import Color
 
 
 def test__cli__helpers__colorize():
     """Test ANSI colouring."""
-    assert colorize("foo", "red") == "\u001b[31mfoo\u001b[0m"
+    assert colorize("foo", Color.red) == "\u001b[31mfoo\u001b[0m"
 
 
 def test__cli__helpers__cli_table():

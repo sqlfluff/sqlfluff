@@ -108,7 +108,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        dbt-version: [ 'dbt018', 'dbt019', 'dbt020' ]
+        dbt-version: [ 'dbt018', 'dbt019', 'dbt020', 'dbt021' ]
     name: DBT ${{ matrix.dbt-version }} tests
     steps:
     - uses: actions/checkout@v2
