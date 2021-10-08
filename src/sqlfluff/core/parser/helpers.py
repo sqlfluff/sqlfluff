@@ -2,6 +2,7 @@
 
 from typing import Tuple, List, Any, Iterator, TYPE_CHECKING
 
+from sqlfluff.core.errors import SQLParseError
 from sqlfluff.core.string_helpers import curtail_string
 
 if TYPE_CHECKING:
@@ -28,9 +29,6 @@ def check_still_complete(
     current_str = join_segments_raw(matched_segments + unmatched_segments)
 
     if initial_str != current_str:
-        # imports is here to avoid circular imports
-        from sqlfluff.core import SQLParseError
-
         raise SQLParseError(
             f"Could not parse: {current_str}",
             segment=unmatched_segments[0],
