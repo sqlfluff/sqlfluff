@@ -440,7 +440,9 @@ class RawTemplater:
         arguments in here.
         """
 
-    def sequence_files(self, fnames: List[str], config=None, formatter=None) -> Iterable[str]:
+    def sequence_files(
+        self, fnames: List[str], config=None, formatter=None
+    ) -> Iterable[str]:
         """Given files to be processed, return a valid processing sequence."""
         # Default is to process in the original order.
         return fnames

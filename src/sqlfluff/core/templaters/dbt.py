@@ -227,16 +227,15 @@ class DbtTemplater(JinjaTemplater):
                 "please install dbt dependencies through `pip install sqlfluff[dbt]`"
             ) from e
 
-    def sequence_files(self, fnames: List[str], config=None, formatter=None) -> Iterator[str]:
+    def sequence_files(
+        self, fnames: List[str], config=None, formatter=None
+    ) -> Iterator[str]:
         """Reorder fnames to process dependent files first.
 
         This avoids errors when an ephemeral model is processed before use.
         """
-
         if formatter:
-            formatter.dispatch_compilation_header(
-                "dbt templater", "Sorting Nodes..."
-            )
+            formatter.dispatch_compilation_header("dbt templater", "Sorting Nodes...")
 
         self._check_dbt_installed()
         if not config:  # pragma: no cover
@@ -263,10 +262,13 @@ class DbtTemplater(JinjaTemplater):
 
         # Extract the ephemeral models
         for key, node in self.dbt_manifest.nodes.items():
-            if node.config.materialized == 'ephemeral':
+            if node.config.materialized == "ephemeral":
                 # The key is the full filepath.
                 # The value tuple, with the filepath and a list of dependent keys
-                ephemeral_nodes[key] = (os.path.join(self.working_dir, node.original_file_path), node.depends_on.nodes)
+                ephemeral_nodes[key] = (
+                    os.path.join(self.working_dir, node.original_file_path),
+                    node.depends_on.nodes,
+                )
             else:
                 other_nodes.append((key, node.original_file_path))
 
@@ -281,7 +283,9 @@ class DbtTemplater(JinjaTemplater):
                     templater_logger.debug("- Purging unselected ephemeral: %r", fpath)
                 # If there are dependent nodes in the set, don't process it yet.
                 elif any(dependent in ephemeral_buffer for dependent in dependents):
-                    templater_logger.debug("- Requeuing ephemeral with dependents: %r", fpath)
+                    templater_logger.debug(
+                        "- Requeuing ephemeral with dependents: %r", fpath
+                    )
                     # Requeue it for later
                     ephemeral_nodes[key] = (fpath, dependents)
                 # Otherwise yield it.
