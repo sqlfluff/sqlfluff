@@ -1203,10 +1203,8 @@ class CopyOptionsSegment(BaseSegment):
 class CreateTableStatementSegment(BaseSegment):
     """A `CREATE TABLE` statement.
 
+    A lot more options than ANSI
     https://docs.snowflake.com/en/sql-reference/sql/create-table.html
-
-    Need to override ANSI as Snowflake puts the IfNotExistsGrammar
-    BEFORE and not AFTER the table name.
     """
 
     type = "create_table_statement"
