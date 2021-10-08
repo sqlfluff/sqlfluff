@@ -9,11 +9,7 @@ from typing import (
     Tuple,
     NoReturn,
     Optional,
-    Union,
-    Iterator,
     List,
-    Any,
-    Dict,
 )
 
 import oyaml as yaml
@@ -211,7 +207,7 @@ def get_config(**kwargs) -> FluffConfig:
             # We're just making sure it exists at this stage - it will be fetched properly in the linter
             dialect_selector(kwargs["dialect"])
         except KeyError:
-            click.echo(f"Error: Unknown dialect {kwargs['dialect']}")
+            click.echo(f"Error: Unknown dialect '{kwargs['dialect']}'")
             sys.exit(66)
     # Instantiate a config object (filtering out the nulls)
     overrides = {k: kwargs[k] for k in kwargs if kwargs[k] is not None}
@@ -226,7 +222,7 @@ def get_linter_and_formatter(
         # We're just making sure it exists at this stage - it will be fetched properly in the linter
         dialect_selector(cfg.get("dialect"))
     except KeyError:  # pragma: no cover
-        click.echo(f"Error: Unknown dialect {cfg.get('dialect')}")
+        click.echo(f"Error: Unknown dialect '{cfg.get('dialect')}'")
         sys.exit(66)
 
     if not silent:
@@ -377,7 +373,7 @@ def lint(
         except OSError:
             click.echo(
                 colorize(
-                    f"The path(s) {paths} could not be accessed. Check it/they exist(s).",
+                    f"The path(s) '{paths}' could not be accessed. Check it/they exist(s).",
                     "red",
                 )
             )
@@ -534,7 +530,7 @@ def fix(
     except OSError:
         click.echo(
             colorize(
-                f"The path(s) {paths} could not be accessed. Check it/they exist(s).",
+                f"The path(s) '{paths}' could not be accessed. Check it/they exist(s).",
                 "red",
             ),
             err=True,
@@ -695,7 +691,7 @@ def parse(
     set_logging_level(verbosity=verbose, logger=logger, stderr_output=non_human_output)
 
     # TODO: do this better
-    nv = 0
+
     if profiler:
         # Set up the profiler if required
         try:
@@ -708,52 +704,28 @@ def parse(
 
     try:
         t0 = time.monotonic()
+
         # handle stdin if specified via lone '-'
-        result: Union[Iterator[ParsedString], List[ParsedString], List[Dict[str, Any]]]
         if "-" == path:
-            # put the parser result in a list to iterate later
-            result = [
+            parsed_strings = [
                 lnt.parse_string(
                     sys.stdin.read(), "stdin", recurse=recurse, config=lnt.config
                 ),
             ]
         else:
             # A single path must be specified for this command
-            result = lnt.parse_path(path, recurse=recurse)
+            parsed_strings = list(lnt.parse_path(path, recurse=recurse))
+
         total_time = time.monotonic() - t0
+        violations_count = 0
 
         # iterative print for human readout
         if format == "human":
-            timing = TimingSummary()
-            for parsed_string in result:
-                timing.add(parsed_string.time_dict)
-                if parsed_string.tree:
-                    click.echo(parsed_string.tree.stringify(code_only=code_only))
-                else:
-                    # TODO: Make this prettier
-                    click.echo("...Failed to Parse...")  # pragma: no cover
-                nv += len(parsed_string.violations)
-                if parsed_string.violations:
-                    click.echo("==== parsing violations ====")  # pragma: no cover
-                for v in parsed_string.violations:
-                    click.echo(format_violation(v))  # pragma: no cover
-                if (
-                    parsed_string.violations
-                    and parsed_string.config.get("dialect") == "ansi"
-                ):
-                    click.echo(format_dialect_warning())  # pragma: no cover
-                if verbose >= 2:
-                    click.echo("==== timings ====")
-                    click.echo(cli_table(parsed_string.time_dict.items()))
-            if verbose >= 2 or bench:
-                click.echo("==== overall timings ====")
-                click.echo(cli_table([("Clock time", total_time)]))
-                timing_summary = timing.summary()
-                for step in timing_summary:
-                    click.echo(f"=== {step} ===")
-                    click.echo(cli_table(timing_summary[step].items()))
+            violations_count = _print_out_violations_and_timing(
+                bench, code_only, total_time, verbose, parsed_strings
+            )
         else:
-            result = [
+            parsed_strings_dict = [
                 dict(
                     filepath=linted_result.fname,
                     segments=linted_result.tree.as_record(
@@ -762,20 +734,21 @@ def parse(
                     if linted_result.tree
                     else None,
                 )
-                for linted_result in result
+                for linted_result in parsed_strings
             ]
 
             if format == "yaml":
                 # For yaml dumping always dump double quoted strings if they contain tabs or newlines.
                 yaml.add_representer(str, quoted_presenter)
+                click.echo(yaml.dump(parsed_strings_dict))
 
-                click.echo(yaml.dump(result))
             elif format == "json":
-                click.echo(json.dumps(result))
+                click.echo(json.dumps(parsed_strings_dict))
+
     except OSError:  # pragma: no cover
         click.echo(
             colorize(
-                f"The path {path!r} could not be accessed. Check it exists.",
+                f"The path '{path}' could not be accessed. Check it exists.",
                 "red",
             ),
             err=True,
@@ -791,10 +764,53 @@ def parse(
         # Only print the first 50 lines of it
         click.echo("\n".join(profiler_buffer.getvalue().split("\n")[:50]))
 
-    if nv > 0 and not nofail:
+    if violations_count > 0 and not nofail:
         sys.exit(66)  # pragma: no cover
     else:
         sys.exit(0)
+
+
+def _print_out_violations_and_timing(
+    bench: bool,
+    code_only: bool,
+    total_time: float,
+    verbose: int,
+    parsed_strings: List[ParsedString],
+) -> int:
+    """Used by human formatting during the pars."""
+    violations_count = 0
+    timing = TimingSummary()
+
+    for parsed_string in parsed_strings:
+        timing.add(parsed_string.time_dict)
+
+        if parsed_string.tree:
+            click.echo(parsed_string.tree.stringify(code_only=code_only))
+        else:
+            # TODO: Make this prettier
+            click.echo("...Failed to Parse...")  # pragma: no cover
+
+        violations_count += len(parsed_string.violations)
+        if parsed_string.violations:
+            click.echo("==== parsing violations ====")  # pragma: no cover
+        for v in parsed_string.violations:
+            click.echo(format_violation(v))  # pragma: no cover
+        if parsed_string.violations and parsed_string.config.get("dialect") == "ansi":
+            click.echo(format_dialect_warning())  # pragma: no cover
+
+        if verbose >= 2:
+            click.echo("==== timings ====")
+            click.echo(cli_table(parsed_string.time_dict.items()))
+
+    if verbose >= 2 or bench:
+        click.echo("==== overall timings ====")
+        click.echo(cli_table([("Clock time", total_time)]))
+        timing_summary = timing.summary()
+        for step in timing_summary:
+            click.echo(f"=== {step} ===")
+            click.echo(cli_table(timing_summary[step].items()))
+
+    return violations_count
 
 
 # This "__main__" handler allows invoking SQLFluff using "python -m", which
