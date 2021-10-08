@@ -80,7 +80,7 @@ postgres_dialect.insert_lexer_matchers(
         # Explanation for the regex
         # \\([^(\\\r\n)])+((\\\\)|(?=\n)|(?=\r\n))?
         # \\                                        Starts with backslash
-        #   ([^(\\\r\n)])+                          Anything that is not a newline or a backslash
+        #   ([^\\\r\n])+                            Anything that is not a newline or a backslash
         #                 (
         #                  (\\\\)                   Double backslash
         #                        |                  OR
@@ -94,7 +94,7 @@ postgres_dialect.insert_lexer_matchers(
             # In future we may want to enhance this to actually parse them to ensure they are
             # valid meta commands.
             "meta_command",
-            r"\\([^(\\\r\n)])+((\\\\)|(?=\n)|(?=\r\n))?",
+            r"\\([^\\\r\n])+((\\\\)|(?=\n)|(?=\r\n))?",
             CommentSegment,
         )
     ],
