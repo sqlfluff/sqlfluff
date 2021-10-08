@@ -3,82 +3,83 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a011f41e268e7cdb399c35525404e6dadcde9e6752bac3bf8d54d453a7b12a47
+_hash: 1281cc966ce84538a5bee498fda3df69087f70a51e8297cc2fcc854d76cb7d97
 file:
-  statement:
-    with_compound_statement:
-      keyword: WITH
-      common_table_expression:
-      - identifier: Sales_CTE
-      - bracketed:
-          start_bracket: (
-          identifier_list:
-          - identifier: SalesPersonID
-          - comma: ','
-          - identifier: NumberOfOrders
-          end_bracket: )
-      - keyword: AS
-      - bracketed:
-          start_bracket: (
-          select_statement:
-            select_clause:
-            - keyword: SELECT
-            - select_clause_element:
-                column_reference:
-                  identifier: SalesPersonID
+  batch:
+    statement:
+      with_compound_statement:
+        keyword: WITH
+        common_table_expression:
+        - identifier: Sales_CTE
+        - bracketed:
+            start_bracket: (
+            identifier_list:
+            - identifier: SalesPersonID
             - comma: ','
-            - select_clause_element:
-                function:
-                  function_name:
-                    function_name_identifier: COUNT
-                  bracketed:
-                    start_bracket: (
-                    star: '*'
-                    end_bracket: )
-            from_clause:
-              keyword: FROM
-              from_expression:
-                from_expression_element:
-                  table_expression:
-                    table_reference:
-                    - identifier: Sales
-                    - dot: .
-                    - identifier: SalesOrderHeader
-            where_clause:
-              keyword: WHERE
-              expression:
+            - identifier: NumberOfOrders
+            end_bracket: )
+        - keyword: AS
+        - bracketed:
+            start_bracket: (
+            select_statement:
+              select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                  column_reference:
+                    identifier: SalesPersonID
+              - comma: ','
+              - select_clause_element:
+                  function:
+                    function_name:
+                      function_name_identifier: COUNT
+                    bracketed:
+                      start_bracket: (
+                      star: '*'
+                      end_bracket: )
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                      - identifier: Sales
+                      - dot: .
+                      - identifier: SalesOrderHeader
+              where_clause:
+                keyword: WHERE
+                expression:
+                - column_reference:
+                    identifier: SalesPersonID
+                - keyword: IS
+                - keyword: NOT
+                - keyword: 'NULL'
+              groupby_clause:
+              - keyword: GROUP
+              - keyword: BY
               - column_reference:
                   identifier: SalesPersonID
-              - keyword: IS
-              - keyword: NOT
-              - keyword: 'NULL'
-            groupby_clause:
-            - keyword: GROUP
-            - keyword: BY
-            - column_reference:
-                identifier: SalesPersonID
-          end_bracket: )
-      select_statement:
-        select_clause:
-          keyword: SELECT
-          select_clause_element:
-            function:
-              function_name:
-                function_name_identifier: AVG
-              bracketed:
-                start_bracket: (
-                expression:
-                  column_reference:
-                    identifier: NumberOfOrders
-                end_bracket: )
-            alias_expression:
-              keyword: AS
-              identifier: '"Average Sales Per Person"'
-        from_clause:
-          keyword: FROM
-          from_expression:
-            from_expression_element:
-              table_expression:
-                table_reference:
-                  identifier: Sales_CTE
-  statement_terminator: ;
+            end_bracket: )
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              function:
+                function_name:
+                  function_name_identifier: AVG
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      identifier: NumberOfOrders
+                  end_bracket: )
+              alias_expression:
+                keyword: AS
+                identifier: '"Average Sales Per Person"'
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    identifier: Sales_CTE
+    statement_terminator: ;

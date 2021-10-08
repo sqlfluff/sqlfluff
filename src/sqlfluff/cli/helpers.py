@@ -3,7 +3,7 @@
 from io import StringIO
 import sys
 import textwrap
-from typing import Optional
+from typing import Optional, List, Dict, Tuple
 
 from colorama import Style
 
@@ -22,12 +22,12 @@ def colorize(s: str, color: Optional[Color] = None) -> str:
         return s
 
 
-def get_python_version():
+def get_python_version() -> str:
     """Get the current python version as a string."""
     return "{0[0]}.{0[1]}.{0[2]}".format(sys.version_info)
 
 
-def get_python_implementation():
+def get_python_implementation() -> str:
     """Get the current python implementation as a string.
 
     This is useful if testing in pypy or similar.
@@ -35,17 +35,19 @@ def get_python_implementation():
     return sys.implementation.name
 
 
-def get_package_version():
+def get_package_version() -> str:
     """Get the current version of the sqlfluff package."""
     return pkg_version
 
 
-def wrap_elem(s, width):
+def wrap_elem(s: str, width: int) -> List[str]:
     """Take a string, and attempt to wrap into a list of strings all less than <width>."""
     return textwrap.wrap(s, width=width)
 
 
-def wrap_field(label, val, width, max_label_width=10, sep_char=": "):
+def wrap_field(
+    label: str, val: str, width: int, max_label_width: int = 10, sep_char: str = ": "
+) -> Dict:
     """Wrap a field (label, val).
 
     Returns:
@@ -71,7 +73,7 @@ def wrap_field(label, val, width, max_label_width=10, sep_char=": "):
     )
 
 
-def pad_line(s, width, align="left"):
+def pad_line(s: str, width: int, align: str = "left") -> str:
     """Pad a string with a given alignment to a specific width with spaces."""
     gap = width - len(s)
     if gap <= 0:
@@ -85,14 +87,14 @@ def pad_line(s, width, align="left"):
 
 
 def cli_table_row(
-    fields,
+    fields: List[Tuple[str, str]],
     col_width,
     max_label_width=10,
     sep_char=": ",
     divider_char=" ",
     label_color=Color.lightgrey,
     val_align="right",
-):
+) -> str:
     """Make a row of a CLI table, using wrapped values."""
     # Do some intel first
     cols = len(fields)
@@ -154,7 +156,7 @@ def cli_table(
     float_format="{0:.2f}",
     max_label_width=10,
     val_align="right",
-):
+) -> str:
     """Make a crude ascii table, assuming that `fields` is an iterable of (label, value) pairs."""
     # First format all the values into strings
     formatted_fields = []
@@ -169,7 +171,7 @@ def cli_table(
     # Set up a buffer to hold the whole table
     buff = StringIO()
     while len(formatted_fields) > 0:
-        row_buff = []
+        row_buff: List[Tuple[str, str]] = []
         while len(row_buff) < cols and len(formatted_fields) > 0:
             row_buff.append(formatted_fields.pop(0))
         buff.write(

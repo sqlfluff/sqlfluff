@@ -9,6 +9,8 @@ TEST_DIALECT = "exasol"
     "segmentref,raw",
     [
         ("RangeOperator", ".."),
+        ("WalrusOperatorSegment", ":="),
+        ("VariableNameSegment", "var1"),
     ],
 )
 def test_dialect_exasol_specific_segment_parses(

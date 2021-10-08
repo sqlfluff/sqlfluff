@@ -3,71 +3,72 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8e09dccdafcc970282f3b5027d00344c2bbc420160d37dc5f4ec964fe2a9f2b0
+_hash: 9d5c74baf73423683a79124863529787475d326af6aa4fec49e9843efa603dce
 file:
-  statement:
-    create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-      - identifier: DEST
-      - dot: .
-      - identifier: MELDER
-    - bracketed:
-      - start_bracket: (
-      - column_definition:
-        - identifier: '[ID]'
-        - data_type:
-            identifier: INT
-        - column_constraint_segment:
-          - keyword: PRIMARY
-          - keyword: KEY
-        - column_constraint_segment:
-          - keyword: NOT
-          - keyword: 'NULL'
-        - column_constraint_segment:
-            keyword: DEFAULT
-            sequence_next_value:
-            - keyword: NEXT
-            - keyword: VALUE
-            - keyword: FOR
-            - object_reference:
-              - identifier: '[dbo]'
-              - dot: .
-              - identifier: '[SEQ_MELDER]'
-      - comma: ','
-      - column_definition:
-          identifier: '[DOWNLOADED_TOTAL]'
-          data_type:
-            identifier: INT
-          column_constraint_segment:
-            keyword: 'NULL'
-      - comma: ','
-      - column_definition:
-          identifier: '[WARNED_DAILY]'
-          data_type:
-            identifier: INT
-          column_constraint_segment:
-            keyword: 'NULL'
-      - comma: ','
-      - column_definition:
-          identifier: '[DATE_OF_REPORT]'
-          data_type:
-            identifier: DATETIME
-          column_constraint_segment:
-            keyword: 'NULL'
-      - comma: ','
-      - column_definition:
-          identifier: DATE_LAST_INSERTED
-          data_type:
-            identifier: DATETIME
-          column_constraint_segment:
-            keyword: DEFAULT
-            function:
-              function_name:
-                function_name_identifier: GETDATE
-              bracketed:
-                start_bracket: (
-                end_bracket: )
-      - end_bracket: )
-  statement_terminator: ;
+  batch:
+    statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - identifier: DEST
+        - dot: .
+        - identifier: MELDER
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+          - identifier: '[ID]'
+          - data_type:
+              identifier: INT
+          - column_constraint_segment:
+            - keyword: PRIMARY
+            - keyword: KEY
+          - column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+          - column_constraint_segment:
+              keyword: DEFAULT
+              sequence_next_value:
+              - keyword: NEXT
+              - keyword: VALUE
+              - keyword: FOR
+              - object_reference:
+                - identifier: '[dbo]'
+                - dot: .
+                - identifier: '[SEQ_MELDER]'
+        - comma: ','
+        - column_definition:
+            identifier: '[DOWNLOADED_TOTAL]'
+            data_type:
+              identifier: INT
+            column_constraint_segment:
+              keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+            identifier: '[WARNED_DAILY]'
+            data_type:
+              identifier: INT
+            column_constraint_segment:
+              keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+            identifier: '[DATE_OF_REPORT]'
+            data_type:
+              identifier: DATETIME
+            column_constraint_segment:
+              keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+            identifier: DATE_LAST_INSERTED
+            data_type:
+              identifier: DATETIME
+            column_constraint_segment:
+              keyword: DEFAULT
+              function:
+                function_name:
+                  function_name_identifier: GETDATE
+                bracketed:
+                  start_bracket: (
+                  end_bracket: )
+        - end_bracket: )
+    statement_terminator: ;
