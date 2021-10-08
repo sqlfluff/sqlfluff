@@ -9,6 +9,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfluff/sqlfluff/releases) and will be copied in here on each release (please remember to update the issues and contributors to links!). There is no need to manually edit this file going forward.
 -->
 
+## [0.6.9] - 2021-10-08
+
+Another dbt bugfix from 0.6.7 and 0.6.8, plus a host of dialect and syntax improvements.
+
+## What’s Changed
+
+* TSQL IF/ELSE [#1564](https://github.com/sqlfluff/sqlfluff/pull/1564) [@jpers36](https://github.com/jpers36)
+* Enums for format types and colors added [#1558](https://github.com/sqlfluff/sqlfluff/pull/1558) [@adam-tokarski](https://github.com/adam-tokarski)
+* Rethink sequence_files in dbt templater. [#1563](https://github.com/sqlfluff/sqlfluff/pull/1563) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Add dbt 0.21.0 to the test suite [#1566](https://github.com/sqlfluff/sqlfluff/pull/1566) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Merge EXASOL_FS dialect into EXASOL dialect [#1498](https://github.com/sqlfluff/sqlfluff/pull/1498) [@sti0](https://github.com/sti0)
+* TSQL: fix STRING_AGG() WITHIN GROUP clause [#1559](https://github.com/sqlfluff/sqlfluff/pull/1559) [@jpers36](https://github.com/jpers36)
+* TSQL - BEGIN/END blocks [#1553](https://github.com/sqlfluff/sqlfluff/pull/1553) [@jpers36](https://github.com/jpers36)
+* Small refactor with type hints and string formattings [#1525](https://github.com/sqlfluff/sqlfluff/pull/1525) [@adam-tokarski](https://github.com/adam-tokarski)
+* Add Github Preview Image [#1557](https://github.com/sqlfluff/sqlfluff/pull/1557) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* "Found unparsable section" instead of stack trace when multiple semicolons provided [#1517](https://github.com/sqlfluff/sqlfluff/pull/1517) [@adam-tokarski](https://github.com/adam-tokarski)
+* Support Group and Groups as table names [#1546](https://github.com/sqlfluff/sqlfluff/pull/1546) [@tunetheweb](https://github.com/tunetheweb)
+* Support more complex IN (...) expressions [#1550](https://github.com/sqlfluff/sqlfluff/pull/1550) [@tunetheweb](https://github.com/tunetheweb)
+* Support CROSS APPLY and OUTER APPLY and TOP in T-SQL [#1551](https://github.com/sqlfluff/sqlfluff/pull/1551) [@tunetheweb](https://github.com/tunetheweb)
+* Add support for WITHOUT ROWID to SQLite [#1531](https://github.com/sqlfluff/sqlfluff/pull/1531) [@tunetheweb](https://github.com/tunetheweb)
+* Postgres: add `CONCURRENTLY` and `FINALIZE` keywords to `DETACH PARTITION` [#1529](https://github.com/sqlfluff/sqlfluff/pull/1529) [@kevinmarsh](https://github.com/kevinmarsh)
+* Better support of MySQL CREATE TABLE TIMESTAMP/DATESTAMP [#1530](https://github.com/sqlfluff/sqlfluff/pull/1530) [@tunetheweb](https://github.com/tunetheweb)
+* Add a rule to warn on "= NULL" or "<> NULL" comparisons [#1527](https://github.com/sqlfluff/sqlfluff/pull/1527) [@barrywhart](https://github.com/barrywhart)
+* Support SETOF in Postgres [#1522](https://github.com/sqlfluff/sqlfluff/pull/1522) [@tunetheweb](https://github.com/tunetheweb)
+* Support Double Precision in ANSI [#1524](https://github.com/sqlfluff/sqlfluff/pull/1524) [@tunetheweb](https://github.com/tunetheweb)
+* Support LATERAL joins in Postgres [#1519](https://github.com/sqlfluff/sqlfluff/pull/1519) [@adam-tokarski](https://github.com/adam-tokarski)
+* fix spelling: occurance>occurrence [#1507](https://github.com/sqlfluff/sqlfluff/pull/1507) [@jpers36](https://github.com/jpers36)
+
+
 ## [0.6.8] - 2021-10-05
 
 Fixed a DBT bug introduced in 0.6.7 - apologies!
