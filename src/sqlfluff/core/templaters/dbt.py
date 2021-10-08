@@ -1,9 +1,10 @@
 """Defines the templaters."""
 
+from collections import deque
 import os
 import os.path
 import logging
-from typing import List, Optional, Iterator, Tuple, Any, Dict
+from typing import List, Optional, Iterator, Tuple, Any, Dict, Deque
 
 from dataclasses import dataclass
 from cached_property import cached_property
@@ -270,27 +271,31 @@ class DbtTemplater(JinjaTemplater):
                     node.depends_on.nodes,
                 )
 
-        # Yield ephemeral nodes first.
+        # Yield ephemeral nodes first. We use a Deque for efficient requeing.
+        # We iterate through the deque, yielding any nodes without dependents,
+        # or where those dependents have already yielded, first. The original
+        # mapping is still used to hold the metadata on each key.
         already_yielded = set()
-        while ephemeral_nodes:
-            ephemeral_buffer = ephemeral_nodes
-            ephemeral_nodes = {}
-            for key, (fpath, dependents) in ephemeral_buffer.items():
-                # If it's not in our selection, skip it
-                if fpath not in selected_files:
-                    templater_logger.debug("- Purging unselected ephemeral: %r", fpath)
-                # If there are dependent nodes in the set, don't process it yet.
-                elif any(dependent in ephemeral_buffer for dependent in dependents):
-                    templater_logger.debug(
-                        "- Requeuing ephemeral with dependents: %r", fpath
-                    )
-                    # Requeue it for later
-                    ephemeral_nodes[key] = (fpath, dependents)
-                # Otherwise yield it.
-                else:
-                    templater_logger.debug("- Yielding Ephemeral: %r", fpath)
-                    yield full_paths[fpath]
-                    already_yielded.add(full_paths[fpath])
+        ephemeral_buffer: Deque[str] = deque(ephemeral_nodes.keys())
+        while ephemeral_buffer:
+            key = ephemeral_buffer.popleft()
+            fpath, dependents = ephemeral_nodes[key]
+
+            # If it's not in our selection, skip it
+            if fpath not in selected_files:
+                templater_logger.debug("- Purging unselected ephemeral: %r", fpath)
+            # If there are dependent nodes in the set, don't process it yet.
+            elif any(dependent in ephemeral_buffer for dependent in dependents):
+                templater_logger.debug(
+                    "- Requeuing ephemeral with dependents: %r", fpath
+                )
+                # Requeue it for later
+                ephemeral_nodes.append(key)
+            # Otherwise yield it.
+            else:
+                templater_logger.debug("- Yielding Ephemeral: %r", fpath)
+                yield full_paths[fpath]
+                already_yielded.add(full_paths[fpath])
 
         for fname in fnames:
             if fname not in already_yielded:
