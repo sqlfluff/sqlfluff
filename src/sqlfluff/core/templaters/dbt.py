@@ -3,6 +3,7 @@
 import os
 import os.path
 import logging
+from re import template
 from typing import List, Optional, Iterator, Tuple, Any, Dict
 
 from dataclasses import dataclass
@@ -259,7 +260,6 @@ class DbtTemplater(JinjaTemplater):
             selected_files.add(fpath)
 
         ephemeral_nodes: Dict[str, Tuple[str, Any]] = {}
-        other_nodes: List[Tuple[str, str]] = []
 
         # Extract the ephemeral models
         for key, node in self.dbt_manifest.nodes.items():
@@ -267,11 +267,9 @@ class DbtTemplater(JinjaTemplater):
                 # The key is the full filepath.
                 # The value tuple, with the filepath and a list of dependent keys
                 ephemeral_nodes[key] = (
-                    os.path.join(self.working_dir, node.original_file_path),
+                    os.path.join(self.project_dir, node.original_file_path),
                     node.depends_on.nodes,
                 )
-            else:
-                other_nodes.append((key, node.original_file_path))
 
         # Yield ephemeral nodes first.
         already_yielded = set()
