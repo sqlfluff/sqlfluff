@@ -1050,7 +1050,7 @@ class FileSegment(BaseFileSegment):
 
     We override default as T-SQL allows concept of several
     batches of commands separated by GO as well as usual
-    Semi-colon statement separated lines.
+    semicolon-separated statement lines.
 
     This is also the default "root" segment of the dialect,
     and so is usually instantiated directly. It therefore
