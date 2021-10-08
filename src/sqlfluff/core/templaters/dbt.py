@@ -254,8 +254,9 @@ class DbtTemplater(JinjaTemplater):
         full_paths: Dict[str, str] = {}
         selected_files = set()
         for fname in fnames:
-            full_paths[os.path.join(self.working_dir, fname)] = fname
-            selected_files.add(full_paths[fname])
+            fpath = os.path.join(self.working_dir, fname)
+            full_paths[fpath] = fname
+            selected_files.add(fpath)
 
         ephemeral_nodes: Dict[str, Tuple[str, Any]] = {}
         other_nodes: List[Tuple[str, str]] = []
