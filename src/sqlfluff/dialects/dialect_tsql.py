@@ -22,6 +22,7 @@ from sqlfluff.core.parser import (
     Dedent,
     BaseFileSegment,
     Indent,
+    AnyNumberOf,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
