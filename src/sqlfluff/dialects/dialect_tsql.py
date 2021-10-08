@@ -20,7 +20,6 @@ from sqlfluff.core.parser import (
     StartsWith,
     OptionallyBracketed,
     Dedent,
-    AnyNumberOf,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
