@@ -98,10 +98,11 @@ def test__templater_dbt_templating_result(
                 Path("models") / "depends_on_ephemeral" / "c.sql",
                 Path("models") / "depends_on_ephemeral" / "d.sql",
             ),
-            # c.sql should come first because b.sql depends on c.sql.
+            # c.sql should come before b.sql because b.sql depends on c.sql.
+            # It also comes first overall because ephemeral models come first.
             (
-                Path("models") / "depends_on_ephemeral" / "a.sql",
                 Path("models") / "depends_on_ephemeral" / "c.sql",
+                Path("models") / "depends_on_ephemeral" / "a.sql",
                 Path("models") / "depends_on_ephemeral" / "b.sql",
                 Path("models") / "depends_on_ephemeral" / "d.sql",
             ),
