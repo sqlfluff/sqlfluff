@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f2cf768c20b5ea229b5ebada95905a5955b74b2a487e54a90600377c5a842e36
+_hash: f1b17ed5eff8e8d83a2f37f4423452fad2bc4c1e5d40d640c82314d7d29ceea1
 file:
 - statement:
     create_function_statement:
@@ -64,7 +64,7 @@ file:
     - function_reference:
         identifier: percentage
     - semicolon: ;
-- statement_terminator: /
+- function_script_terminator: /
 - statement:
     create_function_statement:
     - keyword: CREATE
@@ -111,7 +111,7 @@ file:
     - function_reference:
         identifier: hello
     - semicolon: ;
-- statement_terminator: /
+- function_script_terminator: /
 - statement:
     create_function_statement:
     - keyword: CREATE
@@ -165,7 +165,7 @@ file:
     - function_reference:
         identifier: case_function
     - semicolon: ;
-- statement_terminator: /
+- function_script_terminator: /
 - statement:
     create_function_statement:
     - keyword: CREATE
@@ -203,7 +203,7 @@ file:
     - function_reference:
         identifier: assignment_function
     - semicolon: ;
-- statement_terminator: /
+- function_script_terminator: /
 - statement:
     create_function_statement:
     - keyword: CREATE
@@ -286,7 +286,7 @@ file:
     - function_reference:
         identifier: if_function
     - semicolon: ;
-- statement_terminator: /
+- function_script_terminator: /
 - statement:
     create_function_statement:
     - keyword: CREATE
@@ -343,7 +343,7 @@ file:
     - function_reference:
         identifier: for_loop_function
     - semicolon: ;
-- statement_terminator: /
+- function_script_terminator: /
 - statement:
     create_function_statement:
     - keyword: CREATE
@@ -399,7 +399,7 @@ file:
     - function_reference:
         identifier: for_loop_function2
     - semicolon: ;
-- statement_terminator: /
+- function_script_terminator: /
 - statement:
     create_function_statement:
     - keyword: CREATE
@@ -464,4 +464,4 @@ file:
     - function_reference:
         identifier: for_loop_function3
     - semicolon: ;
-- statement_terminator: /
+- function_script_terminator: /

@@ -439,8 +439,8 @@ ansi_dialect.add(
     FromClauseTerminatorGrammar=OneOf(
         "WHERE",
         "LIMIT",
-        "GROUP",
-        "ORDER",
+        Sequence("GROUP", "BY"),
+        Sequence("ORDER", "BY"),
         "HAVING",
         "QUALIFY",
         "WINDOW",
@@ -448,7 +448,13 @@ ansi_dialect.add(
         Ref("WithNoSchemaBindingClauseSegment"),
     ),
     WhereClauseTerminatorGrammar=OneOf(
-        "LIMIT", "GROUP", "ORDER", "HAVING", "QUALIFY", "WINDOW", "OVERLAPS"
+        "LIMIT",
+        Sequence("GROUP", "BY"),
+        Sequence("ORDER", "BY"),
+        "HAVING",
+        "QUALIFY",
+        "WINDOW",
+        "OVERLAPS",
     ),
     PrimaryKeyGrammar=Sequence("PRIMARY", "KEY"),
     ForeignKeyGrammar=Sequence("FOREIGN", "KEY"),
@@ -496,13 +502,6 @@ class FileSegment(BaseFileSegment):
         allow_gaps=True,
         allow_trailing=True,
     )
-
-    def get_table_references(self):
-        """Use parsed tree to extract table references."""
-        references = set()
-        for stmt in self.get_children("statement"):
-            references |= stmt.get_table_references()
-        return references
 
 
 @ansi_dialect.segment()
@@ -1467,8 +1466,7 @@ ansi_dialect.add(
                     Bracketed(
                         OneOf(
                             Delimited(
-                                Ref("LiteralGrammar"),
-                                Ref("IntervalExpressionSegment"),
+                                Ref("Expression_A_Grammar"),
                             ),
                             Ref("SelectableGrammar"),
                             ephemeral_name="InExpression",

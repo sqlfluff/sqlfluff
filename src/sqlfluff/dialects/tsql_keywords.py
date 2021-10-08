@@ -226,7 +226,6 @@ RESERVED_KEYWORDS = [
     "WHERE",
     "WHILE",
     "WITH",
-    "WITHIN GROUP",
     "WRITETEXT",
     "XACT_ABORT",
 ]
@@ -265,11 +264,13 @@ UNRESERVED_KEYWORDS = [
     "S",
     "SECOND",
     "SS",
+    "STRING_AGG",
     "SWITCH",
     "TRUNCATE_TARGET",  # Azure Synapse Analytics specific
     "W",
     "WEEK",
     "WEEKDAY",
+    "WITHIN",
     "WK",
     "WW",
     "YEAR",
