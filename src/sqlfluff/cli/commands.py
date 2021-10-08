@@ -777,7 +777,7 @@ def _print_out_violations_and_timing(
     verbose: int,
     parsed_strings: List[ParsedString],
 ) -> int:
-    """Used by human formatting during the pars."""
+    """Used by human formatting during the parse."""
     violations_count = 0
     timing = TimingSummary()
 
