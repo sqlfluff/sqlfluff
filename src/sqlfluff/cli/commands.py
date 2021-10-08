@@ -45,16 +45,18 @@ from sqlfluff.core import (
     dialect_readout,
     TimingSummary,
 )
+
+from sqlfluff.core.enums import FormatType, Color
 from sqlfluff.core.linter import ParsedString
 
 
 class RedWarningsFilter(logging.Filter):
     """This filter makes all warnings or above red."""
 
-    def filter(self, record):
+    def filter(self, record: logging.LogRecord) -> bool:
         """Filter any warnings (or above) to turn them red."""
         if record.levelno >= logging.WARNING:
-            record.msg = colorize(record.msg, "red") + " "
+            record.msg = f"{colorize(record.msg, Color.red)} "
         return True
 
 
@@ -286,9 +288,7 @@ def dialects(**kwargs) -> None:
     "--format",
     "format",
     default="human",
-    type=click.Choice(
-        ["human", "json", "yaml", "github-annotation"], case_sensitive=False
-    ),
+    type=click.Choice([ft.value for ft in FormatType], case_sensitive=False),
     help="What format to return the lint result in (default=human).",
 )
 @click.option(
@@ -348,7 +348,7 @@ def lint(
 
     """
     config = get_config(**kwargs)
-    non_human_output = format != "human"
+    non_human_output = format != FormatType.human.value
     lnt, formatter = get_linter_and_formatter(config, silent=non_human_output)
     verbose = config.get("verbose")
 
@@ -374,7 +374,7 @@ def lint(
             click.echo(
                 colorize(
                     f"The path(s) '{paths}' could not be accessed. Check it/they exist(s).",
-                    "red",
+                    Color.red,
                 )
             )
             sys.exit(1)
@@ -382,11 +382,11 @@ def lint(
         if verbose >= 1:
             click.echo(format_linting_stats(result, verbose=verbose))
 
-    if format == "json":
+    if format == FormatType.json.value:
         click.echo(json.dumps(result.as_records()))
-    elif format == "yaml":
+    elif format == FormatType.yaml.value:
         click.echo(yaml.dump(result.as_records()))
-    elif format == "github-annotation":
+    elif format == FormatType.github_annotation.value:
         github_result = []
         for record in result.as_records():
             filepath = record["filepath"]
@@ -508,15 +508,21 @@ def fix(
 
         if templater_error:
             click.echo(
-                colorize("Fix aborted due to unparseable template variables.", "red"),
+                colorize(
+                    "Fix aborted due to unparseable template variables.",
+                    Color.red,
+                ),
                 err=True,
             )
             click.echo(
-                colorize("Use '--ignore templating' to attempt to fix anyway.", "red"),
+                colorize(
+                    "Use '--ignore templating' to attempt to fix anyway.",
+                    Color.red,
+                ),
                 err=True,
             )
         if unfixable_error:
-            click.echo(colorize("Unfixable violations detected.", "red"), err=True)
+            click.echo(colorize("Unfixable violations detected.", Color.red), err=True)
 
         click.echo(stdout, nl=False)
         sys.exit(1 if templater_error or unfixable_error else 0)
@@ -531,7 +537,7 @@ def fix(
         click.echo(
             colorize(
                 f"The path(s) '{paths}' could not be accessed. Check it/they exist(s).",
-                "red",
+                Color.red,
             ),
             err=True,
         )
@@ -545,7 +551,7 @@ def fix(
             f"{result.num_violations(types=SQLLintError, fixable=True)} fixable linting violations found"
         )
         if force:
-            click.echo(colorize("FORCE MODE", "red") + ": Attempting fixes...")
+            click.echo(f"{colorize('FORCE MODE', Color.red)}: Attempting fixes...")
             success = do_fixes(
                 lnt,
                 result,
@@ -645,8 +651,15 @@ def quoted_presenter(dumper, data):
 @click.option(
     "-f",
     "--format",
-    default="human",
-    type=click.Choice(["human", "json", "yaml"], case_sensitive=False),
+    default=FormatType.human.value,
+    type=click.Choice(
+        [
+            FormatType.human.value,
+            FormatType.json.value,
+            FormatType.yaml.value,
+        ],
+        case_sensitive=False,
+    ),
     help="What format to return the parse result in.",
 )
 @click.option(
@@ -680,7 +693,7 @@ def parse(
     """
     c = get_config(**kwargs)
     # We don't want anything else to be logged if we want json or yaml output
-    non_human_output = format in ("json", "yaml")
+    non_human_output = format in (FormatType.json.value, FormatType.yaml.value)
     lnt, formatter = get_linter_and_formatter(c, silent=non_human_output)
     verbose = c.get("verbose")
     recurse = c.get("recurse")
@@ -720,7 +733,7 @@ def parse(
         violations_count = 0
 
         # iterative print for human readout
-        if format == "human":
+        if format == FormatType.human.value:
             violations_count = _print_out_violations_and_timing(
                 bench, code_only, total_time, verbose, parsed_strings
             )
@@ -737,19 +750,18 @@ def parse(
                 for linted_result in parsed_strings
             ]
 
-            if format == "yaml":
+            if format == FormatType.yaml.value:
                 # For yaml dumping always dump double quoted strings if they contain tabs or newlines.
                 yaml.add_representer(str, quoted_presenter)
                 click.echo(yaml.dump(parsed_strings_dict))
-
-            elif format == "json":
+            elif format == FormatType.json.value:
                 click.echo(json.dumps(parsed_strings_dict))
 
     except OSError:  # pragma: no cover
         click.echo(
             colorize(
                 f"The path '{path}' could not be accessed. Check it exists.",
-                "red",
+                Color.red,
             ),
             err=True,
         )
