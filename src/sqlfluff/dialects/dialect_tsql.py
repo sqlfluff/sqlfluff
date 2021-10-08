@@ -105,6 +105,7 @@ tsql_dialect.replace(
         "UNPIVOT",
         Ref("SetOperatorSegment"),
         Ref("WithNoSchemaBindingClauseSegment"),
+        Ref("DelimiterSegment"),
     ),
     JoinKeywords=OneOf("JOIN", "APPLY", Sequence("OUTER", "APPLY")),
 )
@@ -152,26 +153,14 @@ class UnorderedSelectStatementSegment(BaseSegment):
 
     We need to change ANSI slightly to remove LimitClauseSegment
     and NamedWindowSegment which don't exist in T-SQL.
+
+    We also need to get away from ANSI's use of StartsWith.
+    There's not a clean list of terminators that can be used
+    to identify the end of a TSQL select statement.  Semi-colon is optional.
     """
 
     type = "select_statement"
-    # match grammar. This one makes sense in the context of knowing that it's
-    # definitely a statement, we just don't know what type yet.
-    match_grammar = StartsWith(
-        # NB: In bigquery, the select clause may include an EXCEPT, which
-        # will also match the set operator, but by starting with the whole
-        # select clause rather than just the SELECT keyword, we mitigate that
-        # here.
-        Ref("SelectClauseSegment"),
-        terminator=OneOf(
-            Ref("SetOperatorSegment"),
-            Ref("WithNoSchemaBindingClauseSegment"),
-            Ref("OrderByClauseSegment"),
-        ),
-        enforce_whitespace_preceding_terminator=True,
-    )
-
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         Ref("SelectClauseSegment"),
         # Dedent for the indent in the select clause.
         # It's here so that it can come AFTER any whitespace.
@@ -190,18 +179,36 @@ class SelectStatementSegment(BaseSegment):
 
     We need to change ANSI slightly to remove LimitClauseSegment
     and NamedWindowSegment which don't exist in T-SQL.
+
+    We also need to get away from ANSI's use of StartsWith.
+    There's not a clean list of terminators that can be used
+    to identify the end of a TSQL select statement.  Semi-colon is optional.
     """
 
     type = "select_statement"
-    match_grammar = ansi_dialect.get_segment(
-        "SelectStatementSegment"
-    ).match_grammar.copy()
-
     # Remove the Limit and Window statements from ANSI
-    parse_grammar = UnorderedSelectStatementSegment.parse_grammar.copy(
+    match_grammar = UnorderedSelectStatementSegment.match_grammar.copy(
         insert=[
             Ref("OrderByClauseSegment", optional=True),
         ]
+    )
+
+
+@tsql_dialect.segment(replace=True)
+class WhereClauseSegment(BaseSegment):
+    """A `WHERE` clause like in `SELECT` or `INSERT`.
+
+    Overriding ANSI in order to get away from the use of
+    StartsWith. There's not a clean list of terminators that can be used
+    to identify the end of a TSQL select statement.  Semi-colon is optional.
+    """
+
+    type = "where_clause"
+    match_grammar = Sequence(
+        "WHERE",
+        Indent,
+        OptionallyBracketed(Ref("ExpressionSegment")),
+        Dedent,
     )
 
 
@@ -394,7 +401,7 @@ class NextValueSequenceSegment(BaseSegment):
 
 @tsql_dialect.segment()
 class IfExpressionStatement(BaseSegment):
-    """IF-ELSE-END IF statement.
+    """IF-ELSE statement.
 
     https://docs.microsoft.com/en-us/sql/t-sql/language-elements/if-else-transact-sql?view=sql-server-ver15
     """
@@ -405,11 +412,30 @@ class IfExpressionStatement(BaseSegment):
         OneOf(
             Sequence(Ref("IfNotExistsGrammar"), Ref("SelectStatementSegment")),
             Sequence(Ref("IfExistsGrammar"), Ref("SelectStatementSegment")),
-            "IF",
-            Ref("ExpressionSegment"),
+            Sequence("IF", Ref("ExpressionSegment")),
         ),
-        Ref("StatementSegment"),
-        Sequence("ELSE", Ref("StatementSegment"), optional=True),
+        Indent,
+        OneOf(
+            Ref("BeginEndSegment"),
+            Sequence(
+                Ref("StatementSegment"),
+                Ref("DelimiterSegment", optional=True),
+            ),
+        ),
+        Dedent,
+        Sequence(
+            "ELSE",
+            Indent,
+            OneOf(
+                Ref("BeginEndSegment"),
+                Sequence(
+                    Ref("StatementSegment"),
+                    Ref("DelimiterSegment", optional=True),
+                ),
+            ),
+            Dedent,
+            optional=True,
+        ),
     )
 
 
@@ -1110,6 +1136,7 @@ class BatchSegment(BaseSegment):
             min_times=1,
         ),
         Ref("CreateProcedureStatementSegment"),
+        Ref("IfExpressionStatement"),
         Delimited(
             Ref("StatementSegment"),
             delimiter=Ref("DelimiterSegment"),
