@@ -2,6 +2,7 @@
 
 from typing import Tuple, List, Any, Iterator, TYPE_CHECKING
 
+from sqlfluff.core.errors import SQLParseError
 from sqlfluff.core.string_helpers import curtail_string
 
 if TYPE_CHECKING:
@@ -26,11 +27,11 @@ def check_still_complete(
     """Check that the segments in are the same as the segments out."""
     initial_str = join_segments_raw(segments_in)
     current_str = join_segments_raw(matched_segments + unmatched_segments)
-    if initial_str != current_str:  # pragma: no cover
-        raise RuntimeError(
-            "Dropped elements in sequence matching! {!r} != {!r}".format(
-                initial_str, current_str
-            )
+
+    if initial_str != current_str:
+        raise SQLParseError(
+            f"Could not parse: {current_str}",
+            segment=unmatched_segments[0],
         )
     return True
 

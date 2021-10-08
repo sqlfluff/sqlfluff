@@ -3,37 +3,38 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8796101a597443fdbc7e056390657d125081bfe093808514d3b4e4820fa2ef42
+_hash: a6d9e047340ab2e644dded7f192f27a80d93d065a353769feeab6dd1490109aa
 file:
-  statement:
-    create_function_statement:
-    - keyword: CREATE
-    - binary_operator: OR
-    - keyword: ALTER
-    - keyword: FUNCTION
-    - object_reference:
-      - identifier: '[dbo]'
-      - dot: .
-      - identifier: '[add]'
-    - base:
-        bracketed:
-        - start_bracket: (
-        - parameter: '@add_1'
-        - data_type:
-            identifier: int
-        - comma: ','
-        - parameter: '@add_2'
-        - data_type:
-            identifier: int
-        - end_bracket: )
-    - keyword: RETURNS
-    - data_type:
-        identifier: integer
-    - function_statement:
-      - keyword: AS
-      - raw: BEGIN
-      - raw: RETURN
-      - raw: '@add_1'
-      - raw: +
-      - raw: '@add_2'
-      - raw: END
+  batch:
+    statement:
+      create_function_statement:
+      - keyword: CREATE
+      - binary_operator: OR
+      - keyword: ALTER
+      - keyword: FUNCTION
+      - object_reference:
+        - identifier: '[dbo]'
+        - dot: .
+        - identifier: '[add]'
+      - base:
+          bracketed:
+          - start_bracket: (
+          - parameter: '@add_1'
+          - data_type:
+              identifier: int
+          - comma: ','
+          - parameter: '@add_2'
+          - data_type:
+              identifier: int
+          - end_bracket: )
+      - keyword: RETURNS
+      - data_type:
+          identifier: integer
+      - function_statement:
+        - keyword: AS
+        - raw: BEGIN
+        - raw: RETURN
+        - raw: '@add_1'
+        - raw: +
+        - raw: '@add_2'
+        - raw: END

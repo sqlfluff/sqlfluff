@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: dcfa7d689c0b44df6919c9da2f574211959f343f126a1b38763f815f75543abc
+_hash: 264cddb2818c93bf82d95c4cd2a9ad35998aea040cba3ce7ec840dd50c3ad71b
 file:
 - statement:
     alter_table_statement:
@@ -617,6 +617,18 @@ file:
     - keyword: DETACH
     - keyword: PARTITION
     - parameter: measurement_y2015m12
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        identifier: measurement
+    - keyword: DETACH
+    - keyword: PARTITION
+    - parameter: measurement_y2021m10
+    - keyword: CONCURRENTLY
+    - keyword: FINALIZE
 - statement_terminator: ;
 - statement:
     alter_table_statement:

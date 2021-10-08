@@ -11,12 +11,14 @@ Within .dialects, each dialect is free to depend on other dialects as
 required. Any dependent dialects will be loaded as needed.
 """
 
-from typing import NamedTuple
+from typing import NamedTuple, Iterator, Any
 from importlib import import_module
 
 
 # Eventually it would be a good to dynamically discover dialects
 # from any module beginning with "dialect_" within this folder.
+from sqlfluff.core.dialects.base import Dialect
+
 _dialect_lookup = {
     "ansi": ("dialect_ansi", "ansi_dialect"),
     "bigquery": ("dialect_bigquery", "bigquery_dialect"),
@@ -32,7 +34,7 @@ _dialect_lookup = {
 }
 
 
-def load_raw_dialect(label, base_module="sqlfluff.dialects"):
+def load_raw_dialect(label: str, base_module: str = "sqlfluff.dialects") -> Any:
     """Dynamically load a dialect."""
     module, name = _dialect_lookup[label]
     return getattr(import_module(f"{base_module}.{module}"), name)
@@ -46,7 +48,7 @@ class DialectTuple(NamedTuple):
     inherits_from: str
 
 
-def dialect_readout():
+def dialect_readout() -> Iterator[DialectTuple]:
     """Generate a readout of available dialects."""
     for dialect_label in sorted(_dialect_lookup):
         dialect = load_raw_dialect(dialect_label)
@@ -57,7 +59,7 @@ def dialect_readout():
         )
 
 
-def dialect_selector(s):
+def dialect_selector(s: str) -> Dialect:
     """Return a dialect given its name."""
     dialect = load_raw_dialect(s or "ansi")
     # Expand any callable references at this point.

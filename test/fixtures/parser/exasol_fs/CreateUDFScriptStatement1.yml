@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 411b5129c231b4d21379dd42771c9d1e6d8bc8922aaa37d88886d03f5cf42951
+_hash: bf965d2e6c44560ec3422b2be849990f7becdff0ccae527088fe1e5eedaca1e7
 file:
   statement:
     create_udf_script:
@@ -73,4 +73,4 @@ file:
       - raw: /
       - raw: '2'
       - raw: end
-  statement_terminator: /
+  function_script_terminator: /

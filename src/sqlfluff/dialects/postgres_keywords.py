@@ -306,6 +306,7 @@ postgres_docs_keywords = [
     ("FILE", "not-keyword"),
     ("FILTER", "non-reserved"),
     ("FINAL", "not-keyword"),
+    ("FINALIZE", "non-reserved"),
     ("FINISH", "not-keyword"),
     ("FIRST", "non-reserved"),
     ("FIRST_VALUE", "not-keyword"),
