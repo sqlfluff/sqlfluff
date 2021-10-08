@@ -821,7 +821,6 @@ class FunctionSegment(BaseSegment):
                 Ref("WithinGroupFunctionNameSegment"),
                 Bracketed(
                     Delimited(
-                        Ref("DatatypeSegment"),
                         Ref(
                             "FunctionContentsGrammar",
                             # The brackets might be empty for some functions...

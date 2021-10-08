@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 03bcf8c1434e7922922d8f2bc5423ebe504004a01fd4acc108cbfe237022dd98
+_hash: a44bc5bbe60224dec2fd3a31f8f662e74abbad7e321e5190c747dc13dabd67a5
 file:
   batch:
     statement:
@@ -15,15 +15,16 @@ file:
               function_name:
                 keyword: string_agg
               bracketed:
-                start_bracket: (
-                data_type:
-                - identifier: t
-                - dot: .
-                - identifier: v
-                comma: ','
-                expression:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                  - identifier: t
+                  - dot: .
+                  - identifier: v
+              - comma: ','
+              - expression:
                   literal: "'; '"
-                end_bracket: )
+              - end_bracket: )
               within_group_clause:
               - keyword: within
               - keyword: group
