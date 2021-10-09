@@ -3,17 +3,17 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: da599b79c5cd3941cd87f73128defec5d954ec122266c3328cd780706b954b54
+_hash: b48d870d15a189cd5e4cdd5b4ed87721616b177904ba78ea96fdf8e90cb5a9c8
 file:
-  statement:
+- statement:
     create_table_statement:
     - keyword: create
     - keyword: table
-    - table_reference:
-        identifier: '"p08_base"'
     - keyword: if
     - keyword: not
     - keyword: exists
+    - table_reference:
+        identifier: '"p08_base"'
     - keyword: as
     - select_statement:
         select_clause:
@@ -38,4 +38,507 @@ file:
               table_expression:
                 table_reference:
                   identifier: '"_p08"'
-  statement_terminator: ;
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+        identifier: table_name
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          identifier: col1
+          data_type:
+            data_type_identifier: VARCHAR
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        identifier: mytable
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          identifier: amount
+          data_type:
+            data_type_identifier: number
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        identifier: mytable_copy2
+    - keyword: as
+    - select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            expression:
+              column_reference:
+                identifier: b
+              binary_operator: +
+              literal: '1'
+            alias_expression:
+              keyword: as
+              identifier: c
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: mytable_copy
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        identifier: mytable_2
+    - keyword: like
+    - table_reference:
+        identifier: mytable
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: temporary
+    - keyword: table
+    - table_reference:
+        identifier: demo_temporary
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          identifier: i
+          data_type:
+            data_type_identifier: integer
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: temp
+    - keyword: table
+    - table_reference:
+        identifier: demo_temp
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          identifier: i
+          data_type:
+            data_type_identifier: integer
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: local
+    - keyword: temporary
+    - keyword: table
+    - table_reference:
+        identifier: demo_local_temporary
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          identifier: i
+          data_type:
+            data_type_identifier: integer
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: local
+    - keyword: temp
+    - keyword: table
+    - table_reference:
+        identifier: demo_local_temp
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          identifier: i
+          data_type:
+            data_type_identifier: integer
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: global
+    - keyword: temporary
+    - keyword: table
+    - table_reference:
+        identifier: demo_global_temporary
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          identifier: i
+          data_type:
+            data_type_identifier: integer
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: global
+    - keyword: temp
+    - keyword: table
+    - table_reference:
+        identifier: demo_global_temp
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          identifier: i
+          data_type:
+            data_type_identifier: integer
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: volatile
+    - keyword: table
+    - table_reference:
+        identifier: demo_volatile
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          identifier: i
+          data_type:
+            data_type_identifier: integer
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        identifier: example
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          identifier: col1
+          data_type:
+            data_type_identifier: number
+        comment_clause:
+          keyword: comment
+          literal: "'a column comment'"
+        end_bracket: )
+    - comment_clause:
+        keyword: comment
+        comparison_operator: '='
+        literal: "'a table comment'"
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        identifier: testtable_summary
+    - bracketed:
+      - start_bracket: (
+      - identifier: name
+      - comma: ','
+      - identifier: summary_amount
+      - end_bracket: )
+    - keyword: as
+    - select_statement:
+        select_clause:
+        - keyword: select
+        - select_clause_element:
+            column_reference:
+              identifier: name
+        - comma: ','
+        - select_clause_element:
+            expression:
+            - column_reference:
+                identifier: amount1
+            - binary_operator: +
+            - column_reference:
+                identifier: amount2
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: testtable
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        identifier: testtable_summary
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          identifier: barry
+          data_type:
+            data_type_identifier: char
+        end_bracket: )
+    - keyword: as
+    - select_statement:
+        select_clause:
+        - keyword: select
+        - select_clause_element:
+            column_reference:
+              identifier: name
+        - comma: ','
+        - select_clause_element:
+            expression:
+            - column_reference:
+                identifier: amount1
+            - binary_operator: +
+            - column_reference:
+                identifier: amount2
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: testtable
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        identifier: testtable_summary
+    - keyword: as
+    - select_statement:
+        select_clause:
+        - keyword: select
+        - select_clause_element:
+            column_reference:
+              identifier: name
+        - comma: ','
+        - select_clause_element:
+            expression:
+            - column_reference:
+                identifier: amount1
+            - binary_operator: +
+            - column_reference:
+                identifier: amount2
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: testtable
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - binary_operator: or
+    - keyword: replace
+    - keyword: table
+    - table_reference:
+        identifier: parquet_col
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          identifier: custkey
+          data_type:
+            data_type_identifier: number
+          column_constraint_segment:
+            keyword: default
+            literal: 'null'
+      - comma: ','
+      - column_definition:
+          identifier: orderdate
+          data_type:
+            data_type_identifier: date
+          column_constraint_segment:
+            keyword: default
+            literal: 'null'
+      - comma: ','
+      - column_definition:
+          identifier: orderstatus
+          data_type:
+            data_type_identifier: varchar
+            bracketed:
+              start_bracket: (
+              expression:
+                literal: '100'
+              end_bracket: )
+          column_constraint_segment:
+            keyword: default
+            literal: 'null'
+      - comma: ','
+      - column_definition:
+          identifier: price
+          data_type:
+            data_type_identifier: varchar
+            bracketed:
+              start_bracket: (
+              expression:
+                literal: '255'
+              end_bracket: )
+      - end_bracket: )
+    - keyword: as
+    - select_statement:
+        select_clause:
+        - keyword: select
+        - select_clause_element:
+            expression:
+              column_reference:
+                identifier: $1
+              snowflake_semi_structured_expression:
+                colon: ':'
+                semi_structured_element: o_custkey
+              cast_expression:
+                casting_operator: '::'
+                data_type:
+                  data_type_identifier: number
+        - comma: ','
+        - select_clause_element:
+            expression:
+              column_reference:
+                identifier: $1
+              snowflake_semi_structured_expression:
+                colon: ':'
+                semi_structured_element: o_orderdate
+              cast_expression:
+                casting_operator: '::'
+                data_type:
+                  data_type_identifier: date
+        - comma: ','
+        - select_clause_element:
+            expression:
+              column_reference:
+                identifier: $1
+              snowflake_semi_structured_expression:
+                colon: ':'
+                semi_structured_element: o_orderstatus
+              cast_expression:
+                casting_operator: '::'
+                data_type:
+                  data_type_identifier: text
+        - comma: ','
+        - select_clause_element:
+            expression:
+              column_reference:
+                identifier: $1
+              snowflake_semi_structured_expression:
+                colon: ':'
+                semi_structured_element: o_totalprice
+              cast_expression:
+                casting_operator: '::'
+                data_type:
+                  data_type_identifier: text
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  literal: '@'
+              alias_expression:
+                identifier: my_stage
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        identifier: collation_demo
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          identifier: uncollated_phrase
+          data_type:
+            data_type_identifier: varchar
+      - comma: ','
+      - column_definition:
+          identifier: utf8_phrase
+          data_type:
+            data_type_identifier: varchar
+          column_constraint_segment:
+            keyword: collate
+            literal: "'utf8'"
+      - comma: ','
+      - column_definition:
+          identifier: english_phrase
+          data_type:
+            data_type_identifier: varchar
+          column_constraint_segment:
+            keyword: collate
+            literal: "'en'"
+      - comma: ','
+      - column_definition:
+          identifier: spanish_phrase
+          data_type:
+            data_type_identifier: varchar
+          column_constraint_segment:
+            keyword: collate
+            literal: "'sp'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        identifier: mytable
+    - keyword: using
+    - keyword: template
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: select
+            select_clause_element:
+              function:
+                function_name:
+                  function_name_identifier: array_agg
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    function:
+                      function_name:
+                        function_name_identifier: object_construct
+                      bracketed:
+                        start_bracket: (
+                        star: '*'
+                        end_bracket: )
+                  end_bracket: )
+          from_clause:
+            keyword: from
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  function:
+                    function_name:
+                      function_name_identifier: table
+                    bracketed:
+                      start_bracket: (
+                      expression:
+                        function:
+                          function_name:
+                            function_name_identifier: infer_schema
+                          bracketed:
+                          - start_bracket: (
+                          - snowflake_keyword_expression:
+                              parameter: location
+                              parameter_assigner: =>
+                              literal: "'@mystage'"
+                          - comma: ','
+                          - snowflake_keyword_expression:
+                              parameter: file_format
+                              parameter_assigner: =>
+                              literal: "'my_parquet_format'"
+                          - end_bracket: )
+                      end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
