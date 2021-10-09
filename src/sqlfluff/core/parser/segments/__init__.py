@@ -1,8 +1,6 @@
 """Definitions of the segment classes."""
 
 # flake8: noqa: F401
-from typing import Union
-
 from sqlfluff.core.parser.segments.base import (
     BaseSegment,
     BaseFileSegment,
@@ -27,23 +25,3 @@ from sqlfluff.core.parser.segments.meta import (
     Dedent,
     TemplateSegment,
 )
-
-AnySegmentType = Union[
-    BaseSegment,
-    BaseFileSegment,
-    UnparsableSegment,
-    BracketedSegment,
-    RawSegment,
-    CodeSegment,
-    UnlexableSegment,
-    CommentSegment,
-    WhitespaceSegment,
-    NewlineSegment,
-    KeywordSegment,
-    SymbolSegment,
-    EphemeralSegment,
-    MetaSegment,
-    Indent,
-    Dedent,
-    TemplateSegment,
-]

@@ -1,7 +1,7 @@
 """Implementation of Rule L001."""
 from typing import Tuple
 
-from sqlfluff.core.parser.segments import AnySegmentType
+from sqlfluff.core.parser.segments import BaseSegment, RawSegment
 from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 from sqlfluff.core.templaters import TemplatedFile
@@ -33,8 +33,8 @@ class Rule_L001(BaseRule):
 
     def _eval(  # type: ignore
         self,
-        segment: AnySegmentType,
-        raw_stack: Tuple[AnySegmentType, ...],
+        segment: BaseSegment,
+        raw_stack: Tuple[RawSegment, ...],
         templated_file: TemplatedFile,
         **kwargs
     ) -> LintResult:

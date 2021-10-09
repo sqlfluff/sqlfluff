@@ -2,7 +2,7 @@
 from typing import Optional, Tuple
 
 from sqlfluff.core.parser import WhitespaceSegment
-from sqlfluff.core.parser.segments import AnySegmentType
+from sqlfluff.core.parser.segments import BaseSegment, RawSegment
 from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix
 from sqlfluff.core.rules.doc_decorators import (
     document_fix_compatible,
@@ -47,7 +47,7 @@ class Rule_L004(BaseRule):
 
     # TODO fix indents after text: https://github.com/sqlfluff/sqlfluff/pull/590#issuecomment-739484190
     def _eval(  # type: ignore
-        self, segment: AnySegmentType, raw_stack: Tuple[AnySegmentType, ...], **kwargs
+        self, segment: BaseSegment, raw_stack: Tuple[RawSegment, ...], **kwargs
     ) -> Optional[LintResult]:
         """Incorrect indentation found in file."""
         tab = "\t"
