@@ -6,7 +6,6 @@
 
 -- Force indentation linting.
 -- sqlfluff: indentation: template_blocks_indent: force
--- sqlfluff: rules: L003: lint_templated_tokens: True
 
 SELECT
     {{corr_states}}

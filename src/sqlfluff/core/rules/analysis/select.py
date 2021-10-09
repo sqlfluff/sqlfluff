@@ -11,7 +11,7 @@ class SelectStatementColumnsAndTables(NamedTuple):
 
     select_statement: BaseSegment
     table_aliases: List[AliasInfo]
-    value_table_function_aliases: List[AliasInfo]
+    standalone_aliases: List[str]
     reference_buffer: List[BaseSegment]
     select_targets: List[BaseSegment]
     col_aliases: List[str]
@@ -23,10 +23,8 @@ def get_select_statement_info(
 ) -> Optional[SelectStatementColumnsAndTables]:
     """Analyze a select statement: targets, aliases, etc. Return info."""
     assert segment.is_type("select_statement")
-    table_aliases, value_table_function_aliases = get_aliases_from_select(
-        segment, dialect
-    )
-    if early_exit and not table_aliases and not value_table_function_aliases:
+    table_aliases, standalone_aliases = get_aliases_from_select(segment, dialect)
+    if early_exit and not table_aliases and not standalone_aliases:
         return None
 
     # Iterate through all the references, both in the select clause, but also
@@ -91,7 +89,7 @@ def get_select_statement_info(
     return SelectStatementColumnsAndTables(
         select_statement=segment,
         table_aliases=table_aliases or [],
-        value_table_function_aliases=value_table_function_aliases or [],
+        standalone_aliases=standalone_aliases or [],
         reference_buffer=reference_buffer,
         select_targets=select_targets,
         col_aliases=col_aliases,
@@ -113,15 +111,17 @@ def get_aliases_from_select(segment, dialect=None):
     aliases = fc.get_eventual_aliases()
 
     # We only want table aliases, so filter out aliases for value table
-    # functions.
+    # functions and pivot columns.
     table_aliases = []
-    value_table_function_aliases = []
+    standalone_aliases = _get_pivot_table_columns(segment, dialect)
     for table_expr, alias_info in aliases:
-        if not _has_value_table_function(table_expr, dialect):
+        if _has_value_table_function(table_expr, dialect):
+            if alias_info[0] not in standalone_aliases:
+                standalone_aliases.append(alias_info[0])
+        elif alias_info not in standalone_aliases:
             table_aliases.append(alias_info)
-        else:
-            value_table_function_aliases.append(alias_info)
-    return table_aliases, value_table_function_aliases
+
+    return table_aliases, standalone_aliases
 
 
 def _has_value_table_function(table_expr, dialect):
@@ -137,3 +137,23 @@ def _has_value_table_function(table_expr, dialect):
         if function_name.raw.lower().strip() in dialect.sets("value_table_functions"):
             return True
     return False
+
+
+def _get_pivot_table_columns(segment, dialect):
+    if not dialect:
+        # We need the dialect to get the pivot table column names. If
+        # we don't have it, assume the clause does not have a pivot table
+        return []
+
+    fc = segment.get_child("from_pivot_expression")
+    if not fc:
+        # If there's no pivot clause then just abort.
+        return []
+
+    pivot_table_column_aliases = []
+
+    for pivot_table_column_alias in segment.recursive_crawl("pivot_column_reference"):
+        if pivot_table_column_alias.raw not in pivot_table_column_aliases:
+            pivot_table_column_aliases.append(pivot_table_column_alias.raw)
+
+    return pivot_table_column_aliases

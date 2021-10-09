@@ -1,10 +1,10 @@
 """Defines the templaters."""
 
+from collections import deque
 import os
 import os.path
 import logging
-from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Iterator, Tuple, Any, Dict, Deque
 
 from dataclasses import dataclass
 from cached_property import cached_property
@@ -217,95 +217,74 @@ class DbtTemplater(JinjaTemplater):
             (self.templater_selector, self.name, "profile")
         )
 
-    def sequence_files(self, fnames: List[str], config=None, formatter=None):
+    def sequence_files(
+        self, fnames: List[str], config=None, formatter=None
+    ) -> Iterator[str]:
         """Reorder fnames to process dependent files first.
 
         This avoids errors when an ephemeral model is processed before use.
         """
-        # Stash the formatter if provided to use in cached methods.
-        self.formatter = formatter
-        result_fnames = []
-        model_fqns = set()
-        for fname in fnames:
-            # "fqn" is either a tuple or None. If a tuple, it's a dbt "fully
-            # qualified name" for the model. If an fqn is available (not None),
-            # we use it here to try and avoid confusion with multiple versions
-            # of a relative path to the same underlying file:
-            # - Most models: Relative to the working directory
-            # - Dependent/ephemeral models: Relative to the dbt project directory
-            for fqn, dependent in self._walk_dependents(
-                fname, fnames, self.working_dir, config=config
-            ):
-                add = False
-                if fqn:
-                    # We have a fully-qualified name. Use it to avoid
-                    # duplicate filenames.
-                    if fqn not in model_fqns:
-                        model_fqns.add(fqn)
-                        add = True
-                else:
-                    # Fully-qualified name not available. Assume we need to add it.
-                    add = True
-                if add and dependent not in result_fnames:
-                    result_fnames.append(dependent)
-        return result_fnames
+        if formatter:  # pragma: no cover
+            formatter.dispatch_compilation_header("dbt templater", "Sorting Nodes...")
 
-    def _walk_dependents(self, fname, fnames, relative_to, config=None):
+        # Initialise config if not already done
         self.sqlfluff_config = config
         if not self.project_dir:
             self.project_dir = self._get_project_dir()
         if not self.profiles_dir:
             self.profiles_dir = self._get_profiles_dir()
-        node = None
-        try:
-            os.chdir(self.project_dir)
-            fname_absolute_path = os.path.join(relative_to, fname)
-            try:
-                node = self._find_node(fname_absolute_path, config)
-                if node.depends_on.nodes:
-                    templater_logger.info(
-                        "%s depends on %s", fname, node.depends_on.nodes
-                    )
-                for dependent in node.depends_on.nodes:
-                    if dependent in self.dbt_manifest.nodes:
-                        # Note that we don't check here whether the file is in
-                        # "fnames". It's okay to *walk through these files* as
-                        # long as we don't *return* them.
-                        yield from self._walk_dependents(
-                            self.dbt_manifest.nodes[dependent].original_file_path,
-                            fnames,
-                            self.project_dir,
-                            config=config,
-                        )
-            except SQLTemplaterSkipFile:
-                pass
-            finally:
-                # Traversing dependencies may lead us to files that are "out of
-                # scope". It's okay to traverse them, but only return files
-                # seen in the original list. This avoids having SQLFluff look
-                # at things it's not supposed to (e.g. directories that weren't
-                # passed to the "lint" command, files excluded by
-                # .sqlfluffignore, etc.
-                if os.path.relpath(
-                    fname, self.working_dir
-                ) in fnames or os.path.relpath(
-                    os.path.join(self.working_dir, fname), self.working_dir
-                ):
-                    if node:
-                        # If we have a node object, use it to clean up the
-                        # path we return, i.e. return a path relative to the
-                        # working directory.
-                        yield tuple(node.fqn), str(
-                            (
-                                Path(node.root_path) / node.original_file_path
-                            ).relative_to(Path(self.working_dir))
-                        ),
-                    else:
-                        # If we don't have a node object, just return fname "as is"
-                        # and let the caller deal with this the best it can.
-                        yield None, fname
-        finally:
-            os.chdir(self.working_dir)
+
+        # Populate full paths for selected files
+        full_paths: Dict[str, str] = {}
+        selected_files = set()
+        for fname in fnames:
+            fpath = os.path.join(self.working_dir, fname)
+            full_paths[fpath] = fname
+            selected_files.add(fpath)
+
+        ephemeral_nodes: Dict[str, Tuple[str, Any]] = {}
+
+        # Extract the ephemeral models
+        for key, node in self.dbt_manifest.nodes.items():
+            if node.config.materialized == "ephemeral":
+                # The key is the full filepath.
+                # The value tuple, with the filepath and a list of dependent keys
+                ephemeral_nodes[key] = (
+                    os.path.join(self.project_dir, node.original_file_path),
+                    node.depends_on.nodes,
+                )
+
+        # Yield ephemeral nodes first. We use a Deque for efficient requeing.
+        # We iterate through the deque, yielding any nodes without dependents,
+        # or where those dependents have already yielded, first. The original
+        # mapping is still used to hold the metadata on each key.
+        already_yielded = set()
+        ephemeral_buffer: Deque[str] = deque(ephemeral_nodes.keys())
+        while ephemeral_buffer:
+            key = ephemeral_buffer.popleft()
+            fpath, dependents = ephemeral_nodes[key]
+
+            # If it's not in our selection, skip it
+            if fpath not in selected_files:
+                templater_logger.debug("- Purging unselected ephemeral: %r", fpath)
+            # If there are dependent nodes in the set, don't process it yet.
+            elif any(
+                dependent in ephemeral_buffer for dependent in dependents
+            ):  # pragma: no cover
+                templater_logger.debug(
+                    "- Requeuing ephemeral with dependents: %r", fpath
+                )
+                # Requeue it for later
+                ephemeral_buffer.append(key)
+            # Otherwise yield it.
+            else:
+                templater_logger.debug("- Yielding Ephemeral: %r", fpath)
+                yield full_paths[fpath]
+                already_yielded.add(full_paths[fpath])
+
+        for fname in fnames:
+            if fname not in already_yielded:
+                yield fname
 
     def process(self, *, fname, in_str=None, config=None, formatter=None):
         """Compile a dbt model and return the compiled SQL.

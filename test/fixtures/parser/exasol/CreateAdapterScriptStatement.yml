@@ -1,0 +1,24 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 3c730589a01220d38a0c81122ec7f8341ddcfc003c7da7d35cf33f07dff82ef6
+file:
+  statement:
+    create_adapter_script:
+    - keyword: CREATE
+    - keyword: JAVA
+    - keyword: ADAPTER
+    - keyword: SCRIPT
+    - script_reference:
+        identifier: my_script
+    - script_content:
+      - raw: AS
+      - raw: '%'
+      - raw: jar
+      - raw: hive_jdbc_adapter
+      - raw: .
+      - raw: jar
+      - semicolon: ;
+  function_script_terminator: /

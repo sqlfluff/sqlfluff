@@ -1,0 +1,109 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: eefd69da6bc95727bbc5900d2af1b35925fc181801aea362a5a8793b7451dc71
+file:
+  batch:
+    if_then_statement:
+    - keyword: IF
+    - expression:
+        literal: '1'
+        comparison_operator: <=
+        bracketed:
+          start_bracket: (
+          expression:
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  column_reference:
+                    identifier: Weight
+              from_clause:
+                keyword: from
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        identifier: DimProduct
+              where_clause:
+                keyword: WHERE
+                expression:
+                  column_reference:
+                    identifier: ProductKey
+                  comparison_operator: '='
+                  literal: '1'
+          end_bracket: )
+    - statement:
+        select_statement:
+          select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+              column_reference:
+                identifier: ProductKey
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                identifier: EnglishDescription
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                identifier: Weight
+          - comma: ','
+          - select_clause_element:
+              literal: "'This product is too heavy to ship and is only available for\
+                \ pickup.'"
+              alias_expression:
+                keyword: AS
+                identifier: ShippingStatus
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    identifier: DimProduct
+          where_clause:
+            keyword: WHERE
+            expression:
+              column_reference:
+                identifier: ProductKey
+              comparison_operator: '='
+              literal: '1'
+    - keyword: ELSE
+    - statement:
+        select_statement:
+          select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+              column_reference:
+                identifier: ProductKey
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                identifier: EnglishDescription
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                identifier: Weight
+          - comma: ','
+          - select_clause_element:
+              literal: "'This product is available for shipping or pickup.'"
+              alias_expression:
+                keyword: AS
+                identifier: ShippingStatus
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    identifier: DimProduct
+          where_clause:
+            keyword: WHERE
+            expression:
+              column_reference:
+                identifier: ProductKey
+              comparison_operator: '='
+              literal: '1'

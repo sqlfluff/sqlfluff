@@ -439,8 +439,8 @@ ansi_dialect.add(
     FromClauseTerminatorGrammar=OneOf(
         "WHERE",
         "LIMIT",
-        "GROUP",
-        "ORDER",
+        Sequence("GROUP", "BY"),
+        Sequence("ORDER", "BY"),
         "HAVING",
         "QUALIFY",
         "WINDOW",
@@ -448,7 +448,13 @@ ansi_dialect.add(
         Ref("WithNoSchemaBindingClauseSegment"),
     ),
     WhereClauseTerminatorGrammar=OneOf(
-        "LIMIT", "GROUP", "ORDER", "HAVING", "QUALIFY", "WINDOW", "OVERLAPS"
+        "LIMIT",
+        Sequence("GROUP", "BY"),
+        Sequence("ORDER", "BY"),
+        "HAVING",
+        "QUALIFY",
+        "WINDOW",
+        "OVERLAPS",
     ),
     PrimaryKeyGrammar=Sequence("PRIMARY", "KEY"),
     ForeignKeyGrammar=Sequence("FOREIGN", "KEY"),
@@ -474,6 +480,8 @@ ansi_dialect.add(
         "FILTER", Bracketed(Sequence("WHERE", Ref("ExpressionSegment")))
     ),
     FrameClauseUnitGrammar=OneOf("ROWS", "RANGE"),
+    # It's as a sequence to allow to parametrize that in Postgres dialect with LATERAL
+    JoinKeywords=Sequence("JOIN"),
 )
 
 
@@ -494,13 +502,6 @@ class FileSegment(BaseFileSegment):
         allow_gaps=True,
         allow_trailing=True,
     )
-
-    def get_table_references(self):
-        """Use parsed tree to extract table references."""
-        references = set()
-        for stmt in self.get_children("statement"):
-            references |= stmt.get_table_references()
-        return references
 
 
 @ansi_dialect.segment()
@@ -546,6 +547,10 @@ class DatatypeSegment(BaseSegment):
             OneOf("time", "timestamp"),
             Bracketed(Ref("NumericLiteralSegment"), optional=True),
             Sequence(OneOf("WITH", "WITHOUT"), "TIME", "ZONE", optional=True),
+        ),
+        Sequence(
+            "DOUBLE",
+            "PRECISION",
         ),
         Sequence(
             OneOf(
@@ -1255,7 +1260,7 @@ class JoinClauseSegment(BaseSegment):
             ),
             optional=True,
         ),
-        "JOIN",
+        Ref("JoinKeywords"),
         Indent,
         Sequence(
             Ref("FromExpressionElementSegment"),
@@ -1461,8 +1466,7 @@ ansi_dialect.add(
                     Bracketed(
                         OneOf(
                             Delimited(
-                                Ref("LiteralGrammar"),
-                                Ref("IntervalExpressionSegment"),
+                                Ref("Expression_A_Grammar"),
                             ),
                             Ref("SelectableGrammar"),
                             ephemeral_name="InExpression",
@@ -2136,6 +2140,17 @@ class TableConstraintSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
+class TableEndClauseSegment(BaseSegment):
+    """Allow for additional table endings.
+
+    (like WITHOUT ROWID for SQLite)
+    """
+
+    type = "table_end_clause_segment"
+    match_grammar = Nothing()
+
+
+@ansi_dialect.segment()
 class CreateTableStatementSegment(BaseSegment):
     """A `CREATE TABLE` statement."""
 
@@ -2170,6 +2185,7 @@ class CreateTableStatementSegment(BaseSegment):
             # Create like syntax
             Sequence("LIKE", Ref("TableReferenceSegment")),
         ),
+        Ref("TableEndClauseSegment", optional=True),
     )
 
 

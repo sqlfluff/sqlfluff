@@ -1,7 +1,6 @@
 """Definitions of the segment classes."""
 
 # flake8: noqa: F401
-
 from sqlfluff.core.parser.segments.base import (
     BaseSegment,
     BaseFileSegment,
