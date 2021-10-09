@@ -1113,7 +1113,7 @@ class ColumnConstraintSegment(BaseSegment):
     type = "column_constraint_segment"
     match_grammar = AnyNumberOf(
         Sequence("COLLATE", Ref("QuotedLiteralSegment")),
-        Sequence("DEFAULT", Ref("QuotedLiteralSegment")),
+        Sequence("DEFAULT", OneOf(Ref("QuotedLiteralSegment"), "CURRENT_TIMESTAMP")),
         Sequence(
             OneOf("AUTOINCREMENT", "IDENTITY"),
             OneOf(

@@ -4,7 +4,8 @@ select
 from "_p08";
 
 CREATE TABLE IF NOT EXISTS table_name (
-   col1 VARCHAR
+   col1 VARCHAR,
+   timestamp_col TIMESTAMP_TZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 create table mytable (amount number);
