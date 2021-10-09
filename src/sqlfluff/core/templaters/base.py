@@ -84,7 +84,8 @@ class TemplatedFile:
         is the same as the source view.
         """
         self.source_str = source_str
-        self.templated_str = templated_str or source_str
+        # An empty string is still allowed as the templated string.
+        self.templated_str = source_str if templated_str is None else templated_str
         # If no fname, we assume this is from a string or stdin.
         self.fname = fname
         # Assume that no sliced_file, means the file is not templated
@@ -297,7 +298,7 @@ class TemplatedFile:
                     break
 
         subslices = self.sliced_file[
-            # Ver inclusive slice
+            # Very inclusive slice
             min(ts_start_sf_start, ts_stop_sf_start) : max(
                 ts_start_sf_stop, ts_stop_sf_stop
             )
