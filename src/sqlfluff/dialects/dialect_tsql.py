@@ -54,7 +54,7 @@ tsql_dialect.insert_lexer_matchers(
         RegexLexer("single_quote_with_n", r"N'([^'\\]|\\.)*'", CodeSegment),
         RegexLexer(
             "hash_prefix",
-            r"[#]+[a-zA-Z0-9_]+",
+            r"[#][#]?[a-zA-Z0-9_]+",
             CodeSegment,
         ),
     ],
