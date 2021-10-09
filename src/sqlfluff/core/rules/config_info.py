@@ -64,13 +64,6 @@ STANDARD_CONFIG_INFO_DICT = {
             "applied to keywords."
         ),
     },
-    "lint_templated_tokens": {
-        "validation": [True, False],
-        "definition": (
-            "Should lines starting with a templating placeholder"
-            " such as `{{blah}}` have their indentation linted"
-        ),
-    },
     "select_clause_trailing_comma": {
         "validation": ["forbid", "require"],
         "definition": (
