@@ -13,7 +13,6 @@ import jinja2.nodes
 from sqlfluff.core.errors import SQLTemplaterError
 
 from sqlfluff.core.templaters.base import (
-    register_templater,
     TemplatedFile,
     RawFileSlice,
 )
@@ -23,7 +22,6 @@ from sqlfluff.core.templaters.python import PythonTemplater
 templater_logger = logging.getLogger("sqlfluff.templater")
 
 
-@register_templater
 class JinjaTemplater(PythonTemplater):
     """A templater using the jinja2 library.
 
