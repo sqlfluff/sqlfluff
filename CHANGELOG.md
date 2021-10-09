@@ -14,6 +14,7 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 Another dbt bugfix from 0.6.7 and 0.6.8, plus a host of dialect and syntax improvements.
 
 ## 🚀 Enhancements
+* Support brackets in Postgres Meta commands [#1548](https://github.com/sqlfluff/sqlfluff/pull/1548) [@tunetheweb](https://github.com/tunetheweb)
 * added type hints to rule files [#1515](https://github.com/sqlfluff/sqlfluff/pull/1515) [@ttomasz](https://github.com/ttomasz)
 * Update Rule L028 to handle TSQL PIVOT columns [#1545](https://github.com/sqlfluff/sqlfluff/pull/1545) [@tunetheweb](https://github.com/tunetheweb)
 * TSQL IF/ELSE [#1564](https://github.com/sqlfluff/sqlfluff/pull/1564) [@jpers36](https://github.com/jpers36)
@@ -36,6 +37,8 @@ Another dbt bugfix from 0.6.7 and 0.6.8, plus a host of dialect and syntax impro
 * "Found unparsable section" instead of stack trace when multiple semicolons provided [#1517](https://github.com/sqlfluff/sqlfluff/pull/1517) [@adam-tokarski](https://github.com/adam-tokarski)
 
 ## 🐛 Bug Fixes
+* Remove lint_templated_tokens as no longer does anything [#1570](https://github.com/sqlfluff/sqlfluff/pull/1570) [@tunetheweb](https://github.com/tunetheweb)
+* Fix broken block comments in exasol [#1565](https://github.com/sqlfluff/sqlfluff/pull/1565) [@sti0](https://github.com/sti0)
 * Rethink sequence_files in dbt templater. [#1563](https://github.com/sqlfluff/sqlfluff/pull/1563) [@alanmcruickshank](https://github.com/alanmcruickshank)
 * TSQL: fix STRING_AGG() WITHIN GROUP clause [#1559](https://github.com/sqlfluff/sqlfluff/pull/1559) [@jpers36](https://github.com/jpers36)
 * fix spelling: occurance>occurrence [#1507](https://github.com/sqlfluff/sqlfluff/pull/1507) [@jpers36](https://github.com/jpers36)
