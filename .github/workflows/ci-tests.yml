@@ -16,6 +16,9 @@ on:
     # 2am each night
     - cron: '00 2 * * *'
   pull_request:
+  push:
+    branches:
+      - main
 
 jobs:
   linting:
