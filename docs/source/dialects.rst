@@ -66,8 +66,7 @@ The dialect for `Google BigQuery`_.
 Exasol
 ------
 
-The dialect for `Exasol`_. Note that currently Exasol script and functions
-create statements are currently defined in a separate ``exasol_fs`` dialect.
+The dialect for `Exasol`_.
 
 .. _`Exasol`: https://www.exasol.com/
 
