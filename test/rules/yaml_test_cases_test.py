@@ -26,3 +26,13 @@ def test__rule_test_case(test_case, caplog):
             assert is_fix_compatible(
                 rule
             ), f'Rule {test_case.rule} returned fixes but does not specify "@document_fix_compatible".'
+
+
+def test__rule_test_case_config():
+    """Run the tests."""
+    ids, test_cases = load_test_cases(
+        os.path.join("test/fixtures/rules/R001_config_test.yml")
+    )
+    assert len(test_cases) == 2
+    assert test_cases[0].configs["core"]["dialect"] == "ansi"
+    assert test_cases[1].configs["core"]["dialect"] == "exasol"
