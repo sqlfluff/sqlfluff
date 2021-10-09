@@ -195,3 +195,7 @@ class SQLLintError(SQLBaseError):
             len(self.fixes),
             self.description,
         )
+
+
+class SQLFluffUserError(ValueError):
+    """An error which should be fed back to the user."""
