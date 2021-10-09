@@ -77,13 +77,13 @@ def test__templater_jinja_error_catatrophic():
 
 def test__templater_jinja_lint_empty():
     """Check that parsing a file which renders to an empty string.
-    
+
     No exception should be raised, but the parsed tree should be None.
     """
     lntr = Linter()
     parsed = lntr.parse_string(in_str='{{ "" }}')
     assert parsed.templated_file.source_str == '{{ "" }}'
-    assert parsed.templated_file.templated_str ==  ""
+    assert parsed.templated_file.templated_str == ""
     assert parsed.tree is None
 
 
