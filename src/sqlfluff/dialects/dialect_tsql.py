@@ -23,6 +23,7 @@ from sqlfluff.core.parser import (
     BaseFileSegment,
     Indent,
     AnyNumberOf,
+    CommentSegment,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -51,13 +52,33 @@ tsql_dialect.insert_lexer_matchers(
         ),
         # T-SQL unicode strings
         RegexLexer("single_quote_with_n", r"N'([^'\\]|\\.)*'", CodeSegment),
+        RegexLexer(
+            "hash_prefix",
+            r"[#]+[a-zA-Z0-9_]+",
+            CodeSegment,
+        ),
     ],
     before="back_quote",
+)
+
+tsql_dialect.patch_lexer_matchers(
+    [
+        # Patching comments to remove hash comments
+        RegexLexer(
+            "inline_comment",
+            r"(--)[^\n]*",
+            CommentSegment,
+            segment_kwargs={"trim_start": ("--")},
+        ),
+    ]
 )
 
 tsql_dialect.add(
     BracketedIdentifierSegment=NamedParser(
         "square_quote", CodeSegment, name="quoted_identifier", type="identifier"
+    ),
+    HashIdentifierSegment=NamedParser(
+        "hash_prefix", CodeSegment, name="hash_identifier", type="identifier"
     ),
     BatchDelimiterSegment=Ref("GoStatementSegment"),
     QuotedLiteralSegmentWithN=NamedParser(
@@ -70,6 +91,7 @@ tsql_dialect.replace(
         Ref("NakedIdentifierSegment"),
         Ref("QuotedIdentifierSegment"),
         Ref("BracketedIdentifierSegment"),
+        Ref("HashIdentifierSegment"),
     ),
     LiteralGrammar=OneOf(
         Ref("QuotedLiteralSegment"),
