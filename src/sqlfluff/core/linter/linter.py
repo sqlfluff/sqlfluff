@@ -159,8 +159,6 @@ class Linter:
                 )
                 # Don't enable the templating blocks.
                 templating_blocks_indent = False
-                # Disable the linting of L003 on templated tokens.
-                config.set_value(["rules", "L003", "lint_templated_tokens"], False)
 
         # The file will have been lexed without config, so check all indents
         # are enabled.

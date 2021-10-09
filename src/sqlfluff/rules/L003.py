@@ -45,7 +45,7 @@ class Rule_L003(BaseRule):
     """
 
     _works_on_unparsable = False
-    config_keywords = ["tab_space_size", "indent_unit", "lint_templated_tokens"]
+    config_keywords = ["tab_space_size", "indent_unit"]
 
     @staticmethod
     def _make_indent(num=1, tab_space_size=4, indent_unit="space"):
