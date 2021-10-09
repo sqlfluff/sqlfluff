@@ -40,7 +40,8 @@ def load_test_cases(
         global_config = y.pop("configs", None)
         if global_config:
             for i in y:
-                y[i].update({"configs": global_config})
+                if not ("configs" in y[i].keys()):
+                    y[i].update({"configs": global_config})
         ids.extend([rule + "_" + t for t in y])
         test_cases.extend([RuleTestCase(rule=rule, **v) for k, v in y.items()])
 
