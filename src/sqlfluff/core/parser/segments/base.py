@@ -1056,6 +1056,10 @@ class BaseSegment:
                     patch_category="end_point",
                 )
 
+    def edit(self, **kwargs):
+        """Stub."""
+        raise NotImplementedError()
+
 
 class BracketedSegment(BaseSegment):
     """A segment containing a bracketed expression."""

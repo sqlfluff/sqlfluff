@@ -46,6 +46,16 @@ def test__parser__base_segments_type():
     assert DummySegment.class_is_type("base", "foo", "bar")
 
 
+def test__parser__base_segments_stubs():
+    """Test stub methods that have no implementation in base class."""
+    template = TemplatedFile.from_string("foobar")
+    rs1 = RawSegment("foobar", PositionMarker(slice(0, 6), slice(0, 6), template))
+    base_segment = BaseSegment(segments=[rs1])
+
+    with pytest.raises(NotImplementedError):
+        base_segment.edit()
+
+
 def test__parser__base_segments_raw(raw_seg):
     """Test raw segments behave as expected."""
     # Check Segment Return

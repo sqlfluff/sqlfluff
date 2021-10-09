@@ -235,7 +235,7 @@ class DbtTemplater(JinjaTemplater):
 
         This avoids errors when an ephemeral model is processed before use.
         """
-        if formatter:
+        if formatter:  # pragma: no cover
             formatter.dispatch_compilation_header("dbt templater", "Sorting Nodes...")
 
         self._check_dbt_installed()
@@ -285,7 +285,9 @@ class DbtTemplater(JinjaTemplater):
             if fpath not in selected_files:
                 templater_logger.debug("- Purging unselected ephemeral: %r", fpath)
             # If there are dependent nodes in the set, don't process it yet.
-            elif any(dependent in ephemeral_buffer for dependent in dependents):
+            elif any(
+                dependent in ephemeral_buffer for dependent in dependents
+            ):  # pragma: no cover
                 templater_logger.debug(
                     "- Requeuing ephemeral with dependents: %r", fpath
                 )
