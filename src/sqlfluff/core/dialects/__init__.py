@@ -18,6 +18,7 @@ from importlib import import_module
 # Eventually it would be a good to dynamically discover dialects
 # from any module beginning with "dialect_" within this folder.
 from sqlfluff.core.dialects.base import Dialect
+from sqlfluff.core.errors import SQLFluffUserError
 
 _dialect_lookup = {
     "ansi": ("dialect_ansi", "ansi_dialect"),
@@ -27,15 +28,24 @@ _dialect_lookup = {
     "postgres": ("dialect_postgres", "postgres_dialect"),
     "snowflake": ("dialect_snowflake", "snowflake_dialect"),
     "exasol": ("dialect_exasol", "exasol_dialect"),
-    "exasol_fs": ("dialect_exasol_fs", "exasol_fs_dialect"),
     "tsql": ("dialect_tsql", "tsql_dialect"),
     "hive": ("dialect_hive", "hive_dialect"),
     "sqlite": ("dialect_sqlite", "sqlite_dialect"),
 }
 
+_legacy_dialects = {
+    "exasol_fs": (
+        "As of 0.7.0 the 'exasol_fs' dialect has been combined with "
+        "the 'exasol' dialect, and is no longer a standalone dialect. "
+        "Please use the 'exasol' dialect instead."
+    )
+}
+
 
 def load_raw_dialect(label: str, base_module: str = "sqlfluff.dialects") -> Any:
     """Dynamically load a dialect."""
+    if label in _legacy_dialects:
+        raise SQLFluffUserError(_legacy_dialects[label])
     module, name = _dialect_lookup[label]
     return getattr(import_module(f"{base_module}.{module}"), name)
 

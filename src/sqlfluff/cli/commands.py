@@ -41,6 +41,7 @@ from sqlfluff.core import (
     FluffConfig,
     SQLLintError,
     SQLTemplaterError,
+    SQLFluffUserError,
     dialect_selector,
     dialect_readout,
     TimingSummary,
@@ -208,8 +209,20 @@ def get_config(**kwargs) -> FluffConfig:
         try:
             # We're just making sure it exists at this stage - it will be fetched properly in the linter
             dialect_selector(kwargs["dialect"])
+        except SQLFluffUserError as err:
+            click.echo(
+                colorize(
+                    f"Error loading dialect '{kwargs['dialect']}': {str(err)}",
+                    color=Color.red,
+                )
+            )
+            sys.exit(66)
         except KeyError:
-            click.echo(f"Error: Unknown dialect '{kwargs['dialect']}'")
+            click.echo(
+                colorize(
+                    f"Error: Unknown dialect '{kwargs['dialect']}'", color=Color.red
+                )
+            )
             sys.exit(66)
     # Instantiate a config object (filtering out the nulls)
     overrides = {k: kwargs[k] for k in kwargs if kwargs[k] is not None}

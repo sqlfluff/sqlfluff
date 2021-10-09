@@ -87,6 +87,23 @@ def test__cli__command_dialect():
     )
 
 
+def test__cli__command_dialect_legacy():
+    """Check the script raises the right exception on a legacy dialect."""
+    result = invoke_assert_code(
+        ret_code=66,
+        args=[
+            lint,
+            [
+                "-n",
+                "--dialect",
+                "exasol_fs",
+                "test/fixtures/linter/indentation_error_simple.sql",
+            ],
+        ],
+    )
+    assert "Please use the 'exasol' dialect instead." in result.stdout
+
+
 @pytest.mark.parametrize(
     "command",
     [

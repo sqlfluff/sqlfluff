@@ -20,6 +20,7 @@ from sqlfluff.core.errors import (
     SQLLexError,
     SQLParseError,
     SQLLintError,
+    SQLFluffUserError,
 )
 
 # Timing objects
