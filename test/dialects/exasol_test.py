@@ -16,5 +16,5 @@ TEST_DIALECT = "exasol"
 def test_dialect_exasol_specific_segment_parses(
     segmentref, raw, caplog, dialect_specific_segment_parses
 ):
-    """Test exasol_fs specific segments."""
+    """Test exasol specific segments."""
     dialect_specific_segment_parses(TEST_DIALECT, segmentref, raw, caplog)
