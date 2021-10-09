@@ -1,5 +1,7 @@
 """Implementation of Rule L005."""
+from typing import Optional, Tuple
 
+from sqlfluff.core.parser.segments import BaseSegment, RawSegment
 from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
@@ -34,7 +36,9 @@ class Rule_L005(BaseRule):
         FROM foo
     """
 
-    def _eval(self, segment, raw_stack, **kwargs):
+    def _eval(  # type: ignore
+        self, segment: BaseSegment, raw_stack: Tuple[RawSegment, ...], **kwargs
+    ) -> Optional[LintResult]:
         """Commas should not have whitespace directly before them.
 
         We need at least one segment behind us for this to work.
