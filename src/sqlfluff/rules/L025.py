@@ -39,7 +39,7 @@ class Rule_L025(Rule_L020):
     def _lint_references_and_aliases(
         self,
         table_aliases,
-        value_table_function_aliases,
+        standalone_aliases,
         references,
         col_aliases,
         using_cols,

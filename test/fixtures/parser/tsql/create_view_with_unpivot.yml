@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 92b083ebe9e52d47b2107b41ea7b5ebcec4dc4e9d3131f950a8a67f51035158b
+_hash: ce096098b5a75599fab12135126689dc932552655af5d99c181b38c25652b0ee
 file:
   batch:
     statement:
@@ -70,7 +70,7 @@ file:
                     end_bracket: )
                 alias_expression:
                   identifier: p
-          pivotunpivot_segment:
+          from_pivot_expression:
           - keyword: UNPIVOT
           - bracketed:
             - start_bracket: (
@@ -82,19 +82,19 @@ file:
             - keyword: IN
             - bracketed:
               - start_bracket: (
-              - column_reference:
+              - pivot_column_reference:
                   identifier: Emp1
               - comma: ','
-              - column_reference:
+              - pivot_column_reference:
                   identifier: Emp2
               - comma: ','
-              - column_reference:
+              - pivot_column_reference:
                   identifier: Emp3
               - comma: ','
-              - column_reference:
+              - pivot_column_reference:
                   identifier: Emp4
               - comma: ','
-              - column_reference:
+              - pivot_column_reference:
                   identifier: Emp5
               - end_bracket: )
             - end_bracket: )

@@ -69,3 +69,21 @@ test_object_references_1c:
     rules:
       L028:
         force_enable: True
+
+
+test_tsql_pivot_are_excluded:
+  # This should pass as tsql PIVOT columns do not need to be
+  # qualified
+  pass_str: |
+    select
+      t1._id
+      , [1] as lvl_1
+      , [2] as lvl_2
+      , [3] as lvl_3
+    from
+      table1 t1
+    pivot
+      (max(value) for rn in([1], [2], [3]) ) as pvt
+  configs:
+    core:
+      dialect: tsql
