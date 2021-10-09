@@ -10,13 +10,28 @@ from dataclasses import dataclass
 from cached_property import cached_property
 from functools import partial
 
+from dbt.version import get_installed_version
+from dbt.config.profile import PROFILES_DIR
+from dbt.config.runtime import RuntimeConfig as DbtRuntimeConfig
+from dbt.adapters.factory import register_adapter
+from dbt.compilation import Compiler as DbtCompiler
+from dbt.exceptions import (
+    CompilationException as DbtCompilationException,
+    FailedToConnectException as DbtFailedToConnectException,
+)
+
 from sqlfluff.core.errors import SQLTemplaterError, SQLTemplaterSkipFile
 
-from sqlfluff.core.templaters.base import register_templater, TemplatedFile
+from sqlfluff.core.templaters.base import TemplatedFile
 from sqlfluff.core.templaters.jinja import JinjaTemplater
 
 # Instantiate the templater logger
 templater_logger = logging.getLogger("sqlfluff.templater")
+
+
+DBT_VERSION = get_installed_version()
+DBT_VERSION_STRING = DBT_VERSION.to_version_string()
+DBT_VERSION_TUPLE = (int(DBT_VERSION.major), int(DBT_VERSION.minor))
 
 
 @dataclass
@@ -28,7 +43,6 @@ class DbtConfigArgs:
     profile: Optional[str] = None
 
 
-@register_templater
 class DbtTemplater(JinjaTemplater):
     """A templater using dbt."""
 
@@ -48,30 +62,19 @@ class DbtTemplater(JinjaTemplater):
         """Returns info about the given templater for output by the cli."""
         return [("templater", self.name), ("dbt", self.dbt_version)]
 
-    @cached_property
+    @property
     def dbt_version(self):
         """Gets the dbt version."""
-        from dbt.version import get_installed_version
+        return DBT_VERSION_STRING
 
-        self.dbt_version = get_installed_version().to_version_string()
-        return self.dbt_version
-
-    @cached_property
+    @property
     def dbt_version_tuple(self):
         """Gets the dbt version as a tuple on (major, minor)."""
-        from dbt.version import get_installed_version
-
-        version = get_installed_version()
-
-        self.dbt_version_tuple = (int(version.major), int(version.minor))
-        return self.dbt_version_tuple
+        return DBT_VERSION_TUPLE
 
     @cached_property
     def dbt_config(self):
         """Loads the dbt config."""
-        from dbt.config.runtime import RuntimeConfig as DbtRuntimeConfig
-        from dbt.adapters.factory import register_adapter
-
         self.dbt_config = DbtRuntimeConfig.from_args(
             DbtConfigArgs(
                 project_dir=self.project_dir,
@@ -85,8 +88,6 @@ class DbtTemplater(JinjaTemplater):
     @cached_property
     def dbt_compiler(self):
         """Loads the dbt compiler."""
-        from dbt.compilation import Compiler as DbtCompiler
-
         self.dbt_compiler = DbtCompiler(self.dbt_config)
         return self.dbt_compiler
 
@@ -141,7 +142,7 @@ class DbtTemplater(JinjaTemplater):
                 "dbt templater", "Compiling dbt project..."
             )
 
-        if "0.17" in self.dbt_version:  # pragma: no cover TODO?
+        if self.dbt_version_tuple == (0, 17):  # pragma: no cover TODO?
             from dbt.graph.selector import PathSelector
 
             self.dbt_selector_method = PathSelector(self.dbt_manifest)
@@ -174,8 +175,6 @@ class DbtTemplater(JinjaTemplater):
         as to support the same overwriting mechanism as
         dbt (currently an environment variable).
         """
-        from dbt.config.profile import PROFILES_DIR
-
         dbt_profiles_dir = os.path.abspath(
             os.path.expanduser(
                 self.sqlfluff_config.get_section(
@@ -218,16 +217,6 @@ class DbtTemplater(JinjaTemplater):
             (self.templater_selector, self.name, "profile")
         )
 
-    @staticmethod
-    def _check_dbt_installed():
-        try:
-            import dbt  # noqa: F401
-        except ModuleNotFoundError as e:  # pragma: no cover TODO?
-            raise ModuleNotFoundError(
-                "Module dbt was not found while trying to use dbt templating, "
-                "please install dbt dependencies through `pip install sqlfluff[dbt]`"
-            ) from e
-
     def sequence_files(
         self, fnames: List[str], config=None, formatter=None
     ) -> Iterator[str]:
@@ -237,12 +226,6 @@ class DbtTemplater(JinjaTemplater):
         """
         if formatter:  # pragma: no cover
             formatter.dispatch_compilation_header("dbt templater", "Sorting Nodes...")
-
-        self._check_dbt_installed()
-        if not config:  # pragma: no cover
-            raise ValueError(
-                "For the dbt templater, the `sequence_files()` method requires a config object."
-            )
 
         # Initialise config if not already done
         self.sqlfluff_config = config
@@ -315,13 +298,6 @@ class DbtTemplater(JinjaTemplater):
         """
         # Stash the formatter if provided to use in cached methods.
         self.formatter = formatter
-
-        self._check_dbt_installed()
-        from dbt.exceptions import (
-            CompilationException as DbtCompilationException,
-            FailedToConnectException as DbtFailedToConnectException,
-        )
-
         self.sqlfluff_config = config
         self.project_dir = self._get_project_dir()
         self.profiles_dir = self._get_profiles_dir()

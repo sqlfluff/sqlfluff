@@ -9,7 +9,6 @@ from sqlfluff.core.string_helpers import findall
 
 from sqlfluff.core.templaters.base import (
     RawTemplater,
-    register_templater,
     TemplatedFile,
     templater_logger,
     RawFileSlice,
@@ -145,7 +144,6 @@ class IntermediateFileSlice(NamedTuple):
         )
 
 
-@register_templater
 class PythonTemplater(RawTemplater):
     """A templater using python format strings.
 
