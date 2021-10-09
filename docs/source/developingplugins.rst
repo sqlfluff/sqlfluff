@@ -14,15 +14,18 @@ Creating a plugin
 -----------------
 
 We have an example plugin in `sqlfluff/plugins/sqlfluff-plugin-example`_
-which you can use as a template.
+which you can use as a template for rules, or the `sqlfluff/plugins/sqlfluff-templater-dbt`_
+which you can use as a template for templater plugins.
 
 Few things to note about plugins:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Right now, only Rules can be added through plugins. Each plugin can
-implement multiple Rules.
+Currently, only Rules and Templaters can be added through plugins. Over time
+we expect more elements of SQLFluff will be extensible with plugins. Each plugin
+can implement multiple Rules or Templaters.
 
-The name of a plugin should start with *"sqlfluff-plugin"* to be valid.
+We recomment that the name of a plugin should start with *"sqlfluff-"* to be
+clear on the purpose of your plugin.
 
 A plugin may need to include a default configuration if its rules
 are configurable: use plugin default configurations **only for that reason**!
@@ -46,6 +49,7 @@ We make it easy for plugin developers to test their rules by
 exposing a testing library in *sqlfluff.testing*.
 
 .. _`sqlfluff/plugins/sqlfluff-plugin-example`: https://github.com/sqlfluff/sqlfluff/tree/main/plugins/sqlfluff-plugin-example
+.. _`sqlfluff/plugins/sqlfluff-templater-dbt`: https://github.com/sqlfluff/sqlfluff/tree/main/plugins/sqlfluff-templater-dbt
 
 Giving feedback
 ---------------
