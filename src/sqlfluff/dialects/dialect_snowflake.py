@@ -1113,13 +1113,21 @@ class ColumnConstraintSegment(BaseSegment):
     type = "column_constraint_segment"
     match_grammar = AnyNumberOf(
         Sequence("COLLATE", Ref("QuotedLiteralSegment")),
-        Sequence("DEFAULT", OneOf(
-            Ref("QuotedLiteralSegment"),
-            # https://docs.snowflake.com/en/sql-reference/functions/current_timestamp.html
-            Sequence("CURRENT_TIMESTAMP", Bracketed(Ref("NumericLiteralSegment", optional=True), optional=True)),
-            # https://docs.snowflake.com/en/sql-reference/functions/sysdate.html
-            Sequence("SYSDATE", Bracketed()),
-        )),
+        Sequence(
+            "DEFAULT",
+            OneOf(
+                Ref("QuotedLiteralSegment"),
+                # https://docs.snowflake.com/en/sql-reference/functions/current_timestamp.html
+                Sequence(
+                    "CURRENT_TIMESTAMP",
+                    Bracketed(
+                        Ref("NumericLiteralSegment", optional=True), optional=True
+                    ),
+                ),
+                # https://docs.snowflake.com/en/sql-reference/functions/sysdate.html
+                Sequence("SYSDATE", Bracketed()),
+            ),
+        ),
         Sequence(
             OneOf("AUTOINCREMENT", "IDENTITY"),
             OneOf(
