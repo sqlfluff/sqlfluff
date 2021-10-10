@@ -1016,6 +1016,7 @@ class ColumnConstraintSegment(BaseSegment):
                 Ref("BracketedColumnReferenceListGrammar", optional=True),
             ),
         ),
+        Sequence("ON", "DELETE", Ref("ReferentialActionSegment"), optional=True),
         OneOf("DEFERRABLE", Sequence("NOT", "DEFERRABLE"), optional=True),
         OneOf(
             Sequence("INITIALLY", "DEFERRED"),
