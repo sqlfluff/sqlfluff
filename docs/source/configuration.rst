@@ -305,7 +305,7 @@ dbt Project Configuration
 
 .. note::
     From sqlfluff version 0.7.0 onwards, the dbt templater has been moved
-    to a seperate plugin and python package. You may find that projects
+    to a separate plugin and python package. You may find that projects
     already using the templater may initially fail after an upgrade to
     0.7.0+. See install instructions below to install the dbt templater.
 
