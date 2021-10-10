@@ -4,8 +4,7 @@ select
 from "_p08";
 
 CREATE TABLE IF NOT EXISTS table_name (
-   col1 VARCHAR,
-   timestamp_col TIMESTAMP_TZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+   col1 VARCHAR
 );
 
 create table mytable (amount number);
@@ -63,3 +62,10 @@ create table mytable
           file_format=>'my_parquet_format'
         )
       ));
+
+CREATE TABLE timestamp_column_default_value_demo (
+	timestamp_col1 TIMESTAMP_TZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	timestamp_col2 TIMESTAMP_TZ DEFAULT CURRENT_TIMESTAMP(),
+	timestamp_col3 TIMESTAMP_TZ DEFAULT CURRENT_TIMESTAMP(2),
+	sysdate_col4 TIMESTAMP_TZ DEFAULT SYSDATE()
+);
