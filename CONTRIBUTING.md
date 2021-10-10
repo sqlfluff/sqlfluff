@@ -102,6 +102,17 @@ python setup.py develop
 > `python setup.py develop` installs the package using a link to the source code so that any changes
 > which you make will immediately be available for use.
 
+### Developing plugins
+
+If you're working on plugins (like the dbt templater), you'll also need to install
+those plugins too in an editable mode. This works the same way as the main project
+but you'll need to do each one explicitly. e.g.
+
+```shell
+pip install -Ur requirements.txt -Ur requirements_dev.txt
+python setup.py develop
+```
+
 ### Testing
 
 To test locally, SQLFluff uses `tox`, which means you can build locally using...
