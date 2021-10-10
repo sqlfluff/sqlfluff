@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: de7d9828ae7d4652505283b621ce1f85c36a79bd7b5502fdcab9191950f34ae8
+_hash: 463feff7c6b4deebbfc0bdd82d953eb4544d40a5e359724a4c64a6631ad6c37a
 file:
 - statement:
     create_table_statement:
@@ -1295,5 +1295,23 @@ file:
         - keyword: DELETE
         - referential_action:
             keyword: CASCADE
+      - comma: ','
+      - column_reference:
+          identifier: domain_id
+      - data_type:
+          data_type_identifier: INTEGER
+      - column_constraint_segment:
+        - keyword: REFERENCES
+        - column_reference:
+            identifier: groups
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              identifier: group_id
+            end_bracket: )
+        - keyword: 'ON'
+        - keyword: UPDATE
+        - referential_action:
+            keyword: RESTRICT
       - end_bracket: )
 - statement_terminator: ;

@@ -1014,9 +1014,14 @@ class ColumnConstraintSegment(BaseSegment):
                 Ref("ColumnReferenceSegment"),
                 # Foreign columns making up FOREIGN KEY constraint
                 Ref("BracketedColumnReferenceListGrammar", optional=True),
+                Sequence(
+                    "ON",
+                    OneOf("DELETE", "UPDATE"),
+                    Ref("ReferentialActionSegment"),
+                    optional=True,
+                ),
             ),
         ),
-        Sequence("ON", "DELETE", Ref("ReferentialActionSegment"), optional=True),
         OneOf("DEFERRABLE", Sequence("NOT", "DEFERRABLE"), optional=True),
         OneOf(
             Sequence("INITIALLY", "DEFERRED"),
