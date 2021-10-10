@@ -33,7 +33,7 @@ from sqlfluff.core.parser import (
 )
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser.segments.generator import SegmentGenerator
-from sqlfluff.dialects.exasol_keywords import (
+from sqlfluff.dialects.dialect_exasol_keywords import (
     BARE_FUNCTIONS,
     RESERVED_KEYWORDS,
     SESSION_PARAMETERS,

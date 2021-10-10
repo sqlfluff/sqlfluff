@@ -15,7 +15,7 @@ from sqlfluff.core.parser import (
 
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser.segments.raw import CodeSegment
-from sqlfluff.dialects.hive_keywords import RESERVED_KEYWORDS, UNRESERVED_KEYWORDS
+from sqlfluff.dialects.dialect_hive_keywords import RESERVED_KEYWORDS, UNRESERVED_KEYWORDS
 
 ansi_dialect = load_raw_dialect("ansi")
 hive_dialect = ansi_dialect.copy_as("hive")
