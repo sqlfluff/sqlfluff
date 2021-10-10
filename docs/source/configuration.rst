@@ -308,7 +308,7 @@ dbt Project Configuration
     to a seperate plugin and python package. You may find that projects
     already using the templater may initially fail after an upgrade to
     0.7.0+. See install instructions below to install the dbt templater.
-    
+
     dbt templating is still a relatively new feature added in 0.4.0 and
     is still in very active development! If you encounter an issue, please
     let us know in a GitHub issue or on the SQLFluff slack workspace.
