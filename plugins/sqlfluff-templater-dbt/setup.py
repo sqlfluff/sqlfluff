@@ -1,5 +1,14 @@
 """Setup file for example plugin."""
 from setuptools import find_packages, setup
+import configparser
+
+
+# Get the global config info as currently stated
+# (we use the config file to avoid actually loading any python here)
+config = configparser.ConfigParser()
+config.read(["src/sqlfluff/config.ini"])
+version = config.get("sqlfluff", "version")
+
 
 long_description = """
 # dbt plugin for SQLFluff
@@ -12,7 +21,7 @@ SQL linter for humans, to correctly parse and compile SQL projects using
 
 setup(
     name="sqlfluff-templater-dbt",
-    version="0.0.1a1",
+    version=version,
     include_package_data=True,
     license="MIT License",
     description="Lint your dbt project SQL.",
@@ -21,6 +30,10 @@ setup(
     long_description_content_type="text/markdown",
     package_dir={"": "src"},
     packages=find_packages(where="src"),
-    install_requires=["sqlfluff>=0.7.0a1", "dbt>=0.17"],
+    # Make sure sqlfluff is at least as updated at this plugin.
+    # We might break this in the future, but for now while
+    # the two are bundled, this makes sense given the release
+    # cycles are coupled.
+    install_requires=[f"sqlfluff>={version}", "dbt>=0.17"],
     entry_points={"sqlfluff": ["sqlfluff_templater_dbt = sqlfluff_templater_dbt"]},
 )
