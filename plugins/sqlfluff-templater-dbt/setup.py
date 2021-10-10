@@ -1,7 +1,6 @@
 """Setup file for example plugin."""
 from setuptools import find_packages, setup
 from os.path import dirname, join
-import configparser
 
 
 def read(*names, **kwargs):
@@ -72,6 +71,6 @@ setup(
         "Topic :: Utilities",
         "Topic :: Software Development :: Quality Assurance",
     ],
-    install_requires=[f"sqlfluff>=0.7.0a2", "dbt>=0.17"],
+    install_requires=["sqlfluff>=0.7.0a2", "dbt>=0.17"],
     entry_points={"sqlfluff": ["sqlfluff_templater_dbt = sqlfluff_templater_dbt"]},
 )
