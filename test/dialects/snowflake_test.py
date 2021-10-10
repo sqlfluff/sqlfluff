@@ -6,8 +6,8 @@ from sqlfluff.core import Linter
 from sqlfluff.core.dialects import dialect_selector
 
 
-# Deprecated: All new tests should be added as .sql and .yml files under `test/fixtures/parser/snowflake`.
-# See test/fixtures/parser/README.md for more details.
+# Deprecated: All new tests should be added as .sql and .yml files under `test/fixtures/dialects/snowflake`.
+# See test/fixtures/dialects/README.md for more details.
 @pytest.mark.parametrize(
     "segment_cls,raw",
     [
