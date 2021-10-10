@@ -228,7 +228,7 @@ def get_config(**kwargs) -> FluffConfig:
     overrides = {k: kwargs[k] for k in kwargs if kwargs[k] is not None}
     try:
         return FluffConfig.from_root(overrides=overrides)
-    except SQLFluffUserError as err:
+    except SQLFluffUserError as err:  # pragma: no cover
         click.echo(
             colorize(
                 f"Error loading config: {str(err)}",
