@@ -1,0 +1,3 @@
+BEGIN
+		SELECT 1
+END

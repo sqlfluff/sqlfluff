@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 07931a42221549599e8dc934a850c844e413378012ad5c9e33aae02458d9d97a
+_hash: 489be3e5cda07a9b936a6e4ae49c60dd54d12cec9d6a1e62331d1cb8249f6374
 file:
   batch:
     create_procedure_statement:
@@ -16,8 +16,8 @@ file:
     - keyword: AS
     - procedure_statement:
         begin_end_block:
-        - keyword: BEGIN
-        - batch:
+          begin_clause_begin: BEGIN
+          batch:
           - statement:
               select_statement:
                 select_clause:
@@ -55,4 +55,4 @@ file:
                         table_reference:
                           identifier: tbl2
           - statement_terminator: ;
-        - keyword: END
+          begin_clause_end: END

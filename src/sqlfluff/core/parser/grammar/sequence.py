@@ -200,6 +200,7 @@ class Bracketed(Sequence):
         # Allow optional override for special bracket-like things
         self.start_bracket = kwargs.pop("start_bracket", None)
         self.end_bracket = kwargs.pop("end_bracket", None)
+        self.dedicated_bracket_symbols=kwargs.pop("dedicated_bracket_symbols", True)
         super().__init__(*args, **kwargs)
 
     @cached_method_for_parse_context
@@ -285,13 +286,17 @@ class Bracketed(Sequence):
                 start_bracket=start_bracket,
                 end_bracket=end_bracket,
                 bracket_pairs_set=self.bracket_pairs_set,
+                dedicated_bracket_symbols=self.dedicated_bracket_symbols
             )
             if not end_match:  # pragma: no cover
-                raise SQLParseError(
-                    "Couldn't find closing bracket for opening bracket.",
-                    segment=start_match.matched_segments[0],
-                )
-
+                if self.dedicated_bracket_symbols:
+                    raise SQLParseError(
+                        "Couldn't find closing bracket for opening bracket.",
+                        segment=start_match.matched_segments[0],
+                    )
+                else:
+                    return MatchResult.from_unmatched(segments)
+                    
             # Construct a bracket segment
             bracket_segment = BracketedSegment(
                 segments=(

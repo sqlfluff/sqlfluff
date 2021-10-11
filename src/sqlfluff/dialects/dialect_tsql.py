@@ -24,6 +24,7 @@ from sqlfluff.core.parser import (
     Indent,
     AnyNumberOf,
     CommentSegment,
+    StringParser,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -37,6 +38,15 @@ tsql_dialect = ansi_dialect.copy_as("tsql")
 # tsql_dialect.sets("unreserved_keywords").clear()
 tsql_dialect.sets("reserved_keywords").update(RESERVED_KEYWORDS)
 tsql_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
+
+
+
+tsql_dialect.sets("begin_end_pairs").update(
+    [
+        ("begin_end", "BeginClauseBeginSegment", "BeginClauseEndSegment", False),
+    ]
+)
+
 
 tsql_dialect.insert_lexer_matchers(
     [
@@ -83,6 +93,12 @@ tsql_dialect.add(
     BatchDelimiterSegment=Ref("GoStatementSegment"),
     QuotedLiteralSegmentWithN=NamedParser(
         "single_quote_with_n", CodeSegment, name="quoted_literal", type="literal"
+    ),
+    BeginClauseBeginSegment=StringParser(
+        "BEGIN", CodeSegment, name="begin_clause_begin", type="begin_clause_begin"
+    ),
+    BeginClauseEndSegment=StringParser(
+        "END", CodeSegment, name="begin_clause_end", type="begin_clause_end"
     ),
 )
 
@@ -1146,11 +1162,16 @@ class BeginEndSegment(BaseSegment):
 
     type = "begin_end_block"
     match_grammar = Sequence(
-        "BEGIN",
-        Indent,
-        Ref("BatchSegment"),
-        Dedent,
-        "END",
+        Bracketed(
+            Sequence(
+                Indent,
+                Ref("BatchSegment"),
+                Dedent,
+            ),
+            bracket_type="begin_end",
+            bracket_pairs_set="begin_end_pairs",
+            dedicated_bracket_symbols=False,
+        ),
     )
 
 

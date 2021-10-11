@@ -452,6 +452,7 @@ class BaseGrammar(Matchable):
         start_bracket=None,
         end_bracket=None,
         bracket_pairs_set="bracket_pairs",
+        dedicated_bracket_symbols=True,
     ) -> Tuple[Tuple[BaseSegment, ...], MatchResult, Optional[MatchableType]]:
         """Same as `_look_ahead_match` but with bracket counting.
 
@@ -592,7 +593,7 @@ class BaseGrammar(Matchable):
 
                         else:  # pragma: no cover
                             raise RuntimeError("I don't know how we get here?!")
-                    else:  # pragma: no cover
+                    elif dedicated_bracket_symbols:  # pragma: no cover
                         # No match, we're in a bracket stack. Error.
                         raise SQLParseError(
                             "Couldn't find closing bracket for opening bracket.",
