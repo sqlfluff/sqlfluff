@@ -19,7 +19,7 @@ from sqlfluff.core.parser import (
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
-from sqlfluff.dialects.postgres_keywords import postgres_keywords, get_keywords
+from sqlfluff.dialects.dialect_postgres_keywords import postgres_keywords, get_keywords
 
 ansi_dialect = load_raw_dialect("ansi")
 
@@ -1029,6 +1029,12 @@ class ColumnConstraintSegment(BaseSegment):
                 Ref("ColumnReferenceSegment"),
                 # Foreign columns making up FOREIGN KEY constraint
                 Ref("BracketedColumnReferenceListGrammar", optional=True),
+                Sequence(
+                    "ON",
+                    OneOf("DELETE", "UPDATE"),
+                    Ref("ReferentialActionSegment"),
+                    optional=True,
+                ),
             ),
         ),
         OneOf("DEFERRABLE", Sequence("NOT", "DEFERRABLE"), optional=True),

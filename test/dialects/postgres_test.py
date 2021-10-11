@@ -5,7 +5,7 @@ import pytest
 from _pytest.logging import LogCaptureFixture
 
 from sqlfluff.core import FluffConfig, Linter
-from sqlfluff.dialects.postgres_keywords import (
+from sqlfluff.dialects.dialect_postgres_keywords import (
     get_keywords,
     priority_keyword_merge,
 )
