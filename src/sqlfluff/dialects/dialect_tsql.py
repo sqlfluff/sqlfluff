@@ -40,7 +40,6 @@ tsql_dialect.sets("reserved_keywords").update(RESERVED_KEYWORDS)
 tsql_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
 
 
-
 tsql_dialect.sets("begin_end_pairs").update(
     [
         ("begin_end", "BeginClauseBeginSegment", "BeginClauseEndSegment", False),
