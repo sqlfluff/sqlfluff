@@ -250,7 +250,7 @@ repositories of sql files which could potentially benefit from some linting.
     It is the recommended templater for dbt projects and removes the need for the
     overwrites described in this section.
 
-    To use the dbt templater, go to `Dbt Project Configuration`_.
+    To use the dbt templater, go to `dbt Project Configuration`_.
 
 *SQLFluff* anticipates this use case and provides some built in macro blocks
 in the `Default Configuration`_ which assist in getting started with `dbt`_
@@ -268,8 +268,6 @@ projects. In particular it provides mock objects for:
 
 .. _`dbt`: https://www.getdbt.com/
 .. _`github`: https://www.github.com/sqlfluff/sqlfluff
-
-.. _dbt-project-configuration:
 
 Library Templating
 ^^^^^^^^^^^^^^^^^^
@@ -304,8 +302,13 @@ dbt Project Configuration
 -------------------------
 
 .. note::
-    dbt templating is a new feature added in 0.4.0 and has not benefited
-    from widespread use and testing yet! If you encounter an issue, please
+    From sqlfluff version 0.7.0 onwards, the dbt templater has been moved
+    to a separate plugin and python package. You may find that projects
+    already using the templater may initially fail after an upgrade to
+    0.7.0+. See install instructions below to install the dbt templater.
+
+    dbt templating is still a relatively new feature added in 0.4.0 and
+    is still in very active development! If you encounter an issue, please
     let us know in a GitHub issue or on the SQLFluff slack workspace.
 
 dbt is not the default templater for *SQLFluff* (it is Jinja). For using
@@ -326,8 +329,14 @@ A simple rule of thumb might be:
   of response may be more important, then the `jinja` templater may
   be more appropriate.
 
+Installation & Configuration
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
 In order to get started using *SQLFluff* with a dbt project you will
-need the following configuration:
+first need to install the :code:`sqlfluff-templater-dbt` package using
+your package manager of choice (e.g.
+:code:`pip install sqlfluff-templater-dbt`) and then will need the
+following configuration:
 
 In *.sqlfluff*:
 
