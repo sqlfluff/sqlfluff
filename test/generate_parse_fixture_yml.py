@@ -14,7 +14,7 @@ def generate_parse_fixture(example):
     _hash = compute_parse_tree_hash(tree)
     # Remove the .sql file extension
     root = sqlfile[:-4]
-    path = os.path.join("test", "fixtures", "parser", dialect, root + ".yml")
+    path = os.path.join("test", "fixtures", "dialects", dialect, root + ".yml")
     with open(path, "w", newline="\n") as f:
         r = None
         if tree:
