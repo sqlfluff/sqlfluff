@@ -62,3 +62,6 @@ create table mytable
           file_format=>'my_parquet_format'
         )
       ));
+
+create table dollar_sign_table (foo$bar boolean);
+create table dollar_sign_schema.dollar_sign_table (foo$bar boolean);

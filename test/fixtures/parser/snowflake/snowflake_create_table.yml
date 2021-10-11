@@ -542,3 +542,33 @@ file:
                       end_bracket: )
         end_bracket: )
 - statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        identifier: dollar_sign_table
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          identifier: foo$bar
+          data_type:
+            data_type_identifier: boolean
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+      - identifier: dollar_sign_schema
+      - dot: .
+      - identifier: dollar_sign_table
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          identifier: foo$bar
+          data_type:
+            data_type_identifier: boolean
+        end_bracket: )
+- statement_terminator: ;
