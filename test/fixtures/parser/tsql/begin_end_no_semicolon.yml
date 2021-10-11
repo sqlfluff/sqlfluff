@@ -3,21 +3,16 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d8cf7fb76f8c643dc6bbdbc034968a1a5143c10043ba16fa904d616d8aec2b59
+_hash: eea83d9ea162bd122e58478bab58400a359ab88869ff4a1751294f10f7484252
 file:
   batch:
     begin_end_block:
     - keyword: BEGIN
     - batch:
-        begin_end_block:
-        - keyword: BEGIN
-        - batch:
-            statement:
-              select_statement:
-                select_clause:
-                  keyword: SELECT
-                  select_clause_element:
-                    literal: "'Weekend'"
-                statement_terminator: ;
-        - keyword: END
+        statement:
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                literal: '1'
     - keyword: END

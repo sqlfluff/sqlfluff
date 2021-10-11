@@ -153,6 +153,22 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
 
 
 @tsql_dialect.segment(replace=True)
+class SelectClauseElementSegment(BaseSegment):
+    """An element in the targets of a select statement."""
+
+    type = "select_clause_element"
+    # Important to split elements before parsing, otherwise debugging is really hard.
+    match_grammar = OneOf(
+        # *, blah.*, blah.blah.*, etc.
+        Ref("WildcardExpressionSegment"),
+        Sequence(
+            Ref("BaseExpressionElementGrammar"),
+            Ref("AliasExpressionSegment", optional=True),
+        ),
+    )
+
+
+@tsql_dialect.segment(replace=True)
 class SelectClauseModifierSegment(BaseSegment):
     """Things that come after SELECT but before the columns."""
 
@@ -167,6 +183,14 @@ class SelectClauseModifierSegment(BaseSegment):
             Sequence("WITH", "TIES", optional=True),
         ),
     )
+
+
+@tsql_dialect.segment(replace=True)
+class SelectClauseSegment(BaseSegment):
+    """A group of elements in a select target statement."""
+
+    type = "select_clause"
+    match_grammar = Ref("SelectClauseSegmentGrammar")
 
 
 @tsql_dialect.segment(replace=True)
@@ -212,6 +236,7 @@ class SelectStatementSegment(BaseSegment):
     match_grammar = UnorderedSelectStatementSegment.match_grammar.copy(
         insert=[
             Ref("OrderByClauseSegment", optional=True),
+            Ref("DelimiterSegment", optional=True),
         ]
     )
 
@@ -270,6 +295,7 @@ class CreateIndexStatementSegment(BaseSegment):
             ),
             optional=True,
         ),
+        Ref("DelimiterSegment", optional=True),
     )
 
 
@@ -307,12 +333,7 @@ class PivotUnpivotStatementSegment(BaseSegment):
     """
 
     type = "from_pivot_expression"
-    match_grammar = StartsWith(
-        OneOf("PIVOT", "UNPIVOT"),
-        terminator=Ref("FromClauseTerminatorGrammar"),
-        enforce_whitespace_preceding_terminator=True,
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         OneOf(
             Sequence(
                 "PIVOT",
@@ -698,6 +719,7 @@ class CreateViewStatementSegment(BaseSegment):
         Ref("ObjectReferenceSegment"),
         "AS",
         Ref("SelectableGrammar"),
+        Ref("DelimiterSegment", optional=True),
     )
 
 
@@ -947,6 +969,7 @@ class CreateTableStatementSegment(BaseSegment):
         Ref(
             "TableDistributionIndexClause", optional=True
         ),  # Azure Synapse Analytics specific
+        Ref("DelimiterSegment", optional=True),
     )
 
     parse_grammar = match_grammar
@@ -1046,6 +1069,7 @@ class AlterTableSwitchStatementSegment(BaseSegment):
             Bracketed("TRUNCATE_TARGET", Ref("EqualsSegment"), OneOf("ON", "OFF")),
             optional=True,
         ),
+        Ref("DelimiterSegment", optional=True),
     )
 
 
@@ -1129,11 +1153,13 @@ class TransactionStatementSegment(BaseSegment):
             "TRANSACTION",
             Ref("SingleIdentifierGrammar", optional=True),
             Sequence("WITH", "MARK", Ref("QuotedIdentifierSegment"), optional=True),
+            Ref("DelimiterSegment", optional=True),
         ),
         Sequence(
-            OneOf("COMMIT", "ROLLBACK"), OneOf("TRANSACTION", "WORK", optional=True)
+            OneOf("COMMIT", "ROLLBACK"), OneOf("TRANSACTION", "WORK", optional=True),
+            Ref("DelimiterSegment", optional=True),
         ),
-        Sequence("SAVE", "TRANSACTION"),
+        Sequence("SAVE", "TRANSACTION", Ref("DelimiterSegment", optional=True)),
     )
 
 
@@ -1163,8 +1189,6 @@ class BatchSegment(BaseSegment):
     match_grammar = AnyNumberOf(
         OneOf(
             Ref("BeginEndSegment"),
-            Ref("CreateProcedureStatementSegment"),
-            Ref("IfExpressionStatement"),
             Ref("StatementSegment"),
         ),
         min_times=1,
@@ -1191,4 +1215,47 @@ class FileSegment(BaseFileSegment):
         delimiter=Ref("BatchDelimiterSegment"),
         allow_gaps=True,
         allow_trailing=True,
+    )
+
+
+@tsql_dialect.segment(replace=True)
+class DeleteStatementSegment(BaseSegment):
+    """A `DELETE` statement.
+
+    DELETE FROM <table name> [ WHERE <search condition> ]
+    """
+
+    type = "delete_statement"
+    # match grammar. This one makes sense in the context of knowing that it's
+    # definitely a statement, we just don't know what type yet.
+    match_grammar = Sequence(
+        "DELETE",
+        Ref("FromClauseSegment"),
+        Ref("WhereClauseSegment", optional=True),
+        Ref("DelimiterSegment", optional=True),
+    )
+
+
+@tsql_dialect.segment(replace=True)
+class FromClauseSegment(BaseSegment):
+    """A `FROM` clause like in `SELECT`.
+
+    NOTE: this is a delimited set of table expressions, with a variable
+    number of optional join clauses with those table expressions. The
+    delmited aspect is the higher of the two such that the following is
+    valid (albeit unusual):
+
+    ```
+    SELECT *
+    FROM a JOIN b, c JOIN d
+    ```
+    """
+
+    type = "from_clause"
+    match_grammar = Sequence(
+        "FROM",
+        Delimited(
+            Ref("FromExpressionSegment"),
+        ),
+        Ref("DelimiterSegment", optional=True),
     )
