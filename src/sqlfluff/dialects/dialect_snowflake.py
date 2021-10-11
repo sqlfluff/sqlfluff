@@ -426,22 +426,6 @@ class ValuesClauseSegment(BaseSegment):
 
 
 @snowflake_dialect.segment(replace=True)
-class FunctionDefinitionGrammar(BaseSegment):
-    """This is the body of a `CREATE FUNCTION AS` statement."""
-
-    match_grammar = Sequence(
-        "AS",
-        OneOf(Ref("QuotedLiteralSegment"), Ref("DollarQuotedLiteralSegment")),
-        Sequence(
-            "LANGUAGE",
-            # Not really a parameter, but best fit for now.
-            Ref("ParameterNameSegment"),
-            optional=True,
-        ),
-    )
-
-
-@snowflake_dialect.segment(replace=True)
 class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: ignore
     """A generic segment, to any of its child subsegments."""
 
