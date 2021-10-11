@@ -72,7 +72,7 @@ def test__dialect__base_parse_struct(
         assert expected_hash == actual_hash, (
             "Parse tree hash does not match. Please run "
             "'python test/generate_parse_fixture_yml.py' to create YAML files "
-            "in test/fixtures/parser."
+            "in test/fixtures/dialects."
         )
     else:
         assert parsed == res
