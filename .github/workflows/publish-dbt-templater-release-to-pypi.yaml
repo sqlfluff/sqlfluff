@@ -1,4 +1,4 @@
-name: Publish PyPI Version
+name: Publish dbt templater PyPI Version
 
 on:
   release:
@@ -18,9 +18,6 @@ jobs:
         run: |
           pip install --upgrade pip
           pip install twine wheel --upgrade
-
-      - name: Build Distribution (Core)
-        run: python setup.py sdist bdist_wheel
       
       - name: Build Distribution (dbt plugin)
         run: python plugins/sqlfluff-templater-dbt/setup.py sdist bdist_wheel
@@ -29,5 +26,5 @@ jobs:
         uses: pypa/gh-action-pypi-publish@master
         with:
           user: __token__
-          password: ${{ secrets.PYPI_TOKEN }}
+          password: ${{ secrets.PYPI_DBT_TEMPLATER_TOKEN }}
           skip_existing: true
