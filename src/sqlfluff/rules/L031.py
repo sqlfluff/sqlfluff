@@ -54,7 +54,7 @@ class Rule_L031(BaseRule):
         """
         if segment.is_type("select_statement"):
             # A buffer for all table expressions in join conditions
-            table_expression_segments = []
+            from_expression_elements = []
             column_reference_segments = []
 
             from_clause_segment = segment.get_child("from_clause")
@@ -87,14 +87,14 @@ class Rule_L031(BaseRule):
                 for from_expression_element in clause.recursive_crawl(
                     "from_expression_element"
                 ):
-                    table_expression_segments.append(from_expression_element)
+                    from_expression_elements.append(from_expression_element)
                 for column_reference in clause.recursive_crawl("column_reference"):
                     column_reference_segments.append(column_reference)
 
             return (
                 self._lint_aliases_in_join(
                     base_table,
-                    table_expression_segments,
+                    from_expression_elements,
                     column_reference_segments,
                     segment,
                 )
@@ -112,12 +112,13 @@ class Rule_L031(BaseRule):
 
     @classmethod
     def _filter_table_expressions(
-        cls, base_table, table_expression_segments
+        cls, base_table, from_expression_elements
     ) -> Generator[TableAliasInfo, None, None]:
-        for table_exp in table_expression_segments:
-            table_ref = table_exp.get_child("table_expression").get_child(
-                "object_reference"
-            )
+        for from_expression in from_expression_elements:
+            table_expression = from_expression.get_child("table_expression")
+            if not table_expression:
+                continue
+            table_ref = table_expression.get_child("object_reference")
 
             # If the from_expression_element has no object_references - skip it
             # An example case is a lateral flatten, where we have a function segment
@@ -133,10 +134,10 @@ class Rule_L031(BaseRule):
             ):
                 continue
 
-            whitespace_ref = table_exp.get_child("whitespace")
+            whitespace_ref = from_expression.get_child("whitespace")
 
             # If there's no alias expression - skip it
-            alias_exp_ref = table_exp.get_child("alias_expression")
+            alias_exp_ref = from_expression.get_child("alias_expression")
             if alias_exp_ref is None:
                 continue
 
@@ -146,14 +147,14 @@ class Rule_L031(BaseRule):
             )
 
     def _lint_aliases_in_join(
-        self, base_table, table_expression_segments, column_reference_segments, segment
+        self, base_table, from_expression_elements, column_reference_segments, segment
     ):
         """Lint and fix all aliases in joins - except for self-joins."""
         # A buffer to keep any violations.
         violation_buff = []
 
         to_check = list(
-            self._filter_table_expressions(base_table, table_expression_segments)
+            self._filter_table_expressions(base_table, from_expression_elements)
         )
 
         # How many times does each table appear in the FROM clause?

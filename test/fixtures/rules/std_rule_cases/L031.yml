@@ -157,3 +157,14 @@ issue_610:
     FROM aaaaaa
     JOIN bbbbbb AS b ON b.a = aaaaaa.id
     JOIN bbbbbb AS b2 ON b2.other = b.id
+
+issue_1589:
+  pass_str: |
+    select *
+    from (select random() as v from (values(1))) t1,
+         (select max(repl) as m from data) t2,
+         (select * from data
+         where repl=t2.m and
+              rnd>=t.v
+         order by rnd
+         limit 1)
