@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0ef79bbd602bc4202e929d6764458043407d864a13ed41260627d3ad66420b22
+_hash: 463feff7c6b4deebbfc0bdd82d953eb4544d40a5e359724a4c64a6631ad6c37a
 file:
 - statement:
     create_table_statement:
@@ -1232,4 +1232,86 @@ file:
         - keyword: NOT
         - keyword: 'NULL'
         end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        identifier: groups
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          identifier: group_id
+      - data_type:
+          data_type_identifier: INTEGER
+      - column_constraint_segment:
+        - keyword: PRIMARY
+        - keyword: KEY
+      - column_constraint_segment:
+        - keyword: generated
+        - keyword: BY
+        - keyword: DEFAULT
+        - keyword: AS
+        - keyword: IDENTITY
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        identifier: users
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          identifier: user_id
+      - data_type:
+          data_type_identifier: INTEGER
+      - column_constraint_segment:
+        - keyword: PRIMARY
+        - keyword: KEY
+      - column_constraint_segment:
+        - keyword: generated
+        - keyword: BY
+        - keyword: DEFAULT
+        - keyword: AS
+        - keyword: IDENTITY
+      - comma: ','
+      - column_reference:
+          identifier: group_id
+      - data_type:
+          data_type_identifier: INTEGER
+      - column_constraint_segment:
+        - keyword: REFERENCES
+        - column_reference:
+            identifier: groups
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              identifier: group_id
+            end_bracket: )
+        - keyword: 'ON'
+        - keyword: DELETE
+        - referential_action:
+            keyword: CASCADE
+      - comma: ','
+      - column_reference:
+          identifier: domain_id
+      - data_type:
+          data_type_identifier: INTEGER
+      - column_constraint_segment:
+        - keyword: REFERENCES
+        - column_reference:
+            identifier: groups
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              identifier: group_id
+            end_bracket: )
+        - keyword: 'ON'
+        - keyword: UPDATE
+        - referential_action:
+            keyword: RESTRICT
+      - end_bracket: )
 - statement_terminator: ;
