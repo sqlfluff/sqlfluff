@@ -39,8 +39,7 @@ setup(
         "Twitter": "https://twitter.com/SQLFluff",
         "Chat": "https://github.com/sqlfluff/sqlfluff#sqlfluff-on-slack",
     },
-    package_dir={"": join(dirname(__file__), "src")},
-    packages=find_packages(where="src"),
+    packages=find_packages(where="sqlfluff_templater_dbt"),
     classifiers=[
         # complete classifier list: http://pypi.python.org/pypi?%3Aaction=list_classifiers
         "Development Status :: 4 - Beta",

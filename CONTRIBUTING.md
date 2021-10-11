@@ -92,14 +92,14 @@ Once you are in a virtual environment, run:
 
 ```shell
 pip install -Ur requirements.txt -Ur requirements_dev.txt
-python setup.py develop
+pip install -e .
 ```
 
 > `pip install -Ur requirements.txt -Ur requirements_dev.txt` installs the project dependencies
 > as well as the dependencies needed to run linting, formatting, and testing commands. This will
 > install the most up-to-date package versions for all dependencies (-U).
 
-> `python setup.py develop` installs the package using a link to the source code so that any changes
+> `pip install -e .` installs the package using a link to the source code so that any changes
 > which you make will immediately be available for use.
 
 ### Developing plugins
@@ -109,9 +109,12 @@ those plugins too in an editable mode. This works the same way as the main proje
 but you'll need to do each one explicitly. e.g.
 
 ```shell
-pip install -Ur requirements.txt -Ur requirements_dev.txt
-python setup.py develop
+pip install -e plugins/sqlfluff-templater-dbt/.
 ```
+
+> NOTE: For packages intended to be installed like this, the source code must be directy
+> within a subdirectory with the name of the package and not in a subdirectory such as
+> src. This is due to a restriction in the implementation of setup.py in editable mode.
 
 ### Testing
 
