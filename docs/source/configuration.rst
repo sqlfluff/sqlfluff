@@ -250,7 +250,7 @@ repositories of sql files which could potentially benefit from some linting.
     It is the recommended templater for dbt projects and removes the need for the
     overwrites described in this section.
 
-    To use the dbt templater, go to `Dbt Project Configuration`_.
+    To use the dbt templater, go to `dbt Project Configuration`_.
 
 *SQLFluff* anticipates this use case and provides some built in macro blocks
 in the `Default Configuration`_ which assist in getting started with `dbt`_
@@ -268,8 +268,6 @@ projects. In particular it provides mock objects for:
 
 .. _`dbt`: https://www.getdbt.com/
 .. _`github`: https://www.github.com/sqlfluff/sqlfluff
-
-.. _dbt-project-configuration:
 
 Library Templating
 ^^^^^^^^^^^^^^^^^^
