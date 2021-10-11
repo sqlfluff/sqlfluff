@@ -1,5 +1,5 @@
 """Setup file for example plugin."""
-from setuptools import find_packages, setup
+from setuptools import setup
 from os.path import dirname, join
 
 
@@ -39,7 +39,7 @@ setup(
         "Twitter": "https://twitter.com/SQLFluff",
         "Chat": "https://github.com/sqlfluff/sqlfluff#sqlfluff-on-slack",
     },
-    packages=find_packages(where="sqlfluff_templater_dbt"),
+    packages=["sqlfluff_templater_dbt"],
     classifiers=[
         # complete classifier list: http://pypi.python.org/pypi?%3Aaction=list_classifiers
         "Development Status :: 4 - Beta",
