@@ -226,7 +226,16 @@ def get_config(**kwargs) -> FluffConfig:
             sys.exit(66)
     # Instantiate a config object (filtering out the nulls)
     overrides = {k: kwargs[k] for k in kwargs if kwargs[k] is not None}
-    return FluffConfig.from_root(overrides=overrides)
+    try:
+        return FluffConfig.from_root(overrides=overrides)
+    except SQLFluffUserError as err:  # pragma: no cover
+        click.echo(
+            colorize(
+                f"Error loading config: {str(err)}",
+                color=Color.red,
+            )
+        )
+        sys.exit(66)
 
 
 def get_linter_and_formatter(
