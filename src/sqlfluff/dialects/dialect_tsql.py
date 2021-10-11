@@ -353,6 +353,7 @@ class DeclareStatementSegment(BaseSegment):
 
     type = "declare_segment"
     match_grammar = StartsWith("DECLARE")
+
     parse_grammar = Sequence(
         "DECLARE",
         Delimited(Ref("ParameterNameSegment")),
@@ -1159,19 +1160,14 @@ class BatchSegment(BaseSegment):
     """A segment representing a GO batch within a file or script."""
 
     type = "batch"
-    match_grammar = OneOf(
-        AnyNumberOf(
+    match_grammar = AnyNumberOf(
+        OneOf(
             Ref("BeginEndSegment"),
-            min_times=1,
-        ),
-        Ref("CreateProcedureStatementSegment"),
-        Ref("IfExpressionStatement"),
-        Delimited(
+            Ref("CreateProcedureStatementSegment"),
+            Ref("IfExpressionStatement"),
             Ref("StatementSegment"),
-            delimiter=Ref("DelimiterSegment"),
-            allow_gaps=True,
-            allow_trailing=True,
         ),
+        min_times=1,
     )
 
 
