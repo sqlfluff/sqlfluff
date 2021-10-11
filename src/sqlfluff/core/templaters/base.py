@@ -3,45 +3,12 @@
 import logging
 from bisect import bisect_left
 from collections import defaultdict
-from typing import Dict, Iterator, List, Tuple, Optional, NamedTuple
+from typing import Dict, Iterator, List, Tuple, Optional, NamedTuple, Iterable
 
 from cached_property import cached_property
 
-_templater_lookup: Dict[str, "RawTemplater"] = {}
-
 # Instantiate the templater logger
 templater_logger = logging.getLogger("sqlfluff.templater")
-
-
-def templater_selector(s=None, **kwargs):
-    """Instantiate a new templater by name."""
-    s = s or "jinja"  # default to jinja
-    try:
-        cls = _templater_lookup[s]
-        # Instantiate here, optionally with kwargs
-        return cls(**kwargs)
-    except KeyError:
-        raise ValueError(
-            "Requested templater {!r} which is not currently available. Try one of {}".format(
-                s, ", ".join(_templater_lookup.keys())
-            )
-        )
-
-
-def register_templater(cls):
-    """Register a new templater by name.
-
-    This is designed as a decorator for templaters.
-
-    e.g.
-    @register_templater()
-    class RawTemplater(BaseSegment):
-        blah blah blah
-
-    """
-    n = cls.name
-    _templater_lookup[n] = cls
-    return cls
 
 
 def iter_indices_of_newlines(raw_str: str) -> Iterator[int]:
@@ -117,7 +84,8 @@ class TemplatedFile:
         is the same as the source view.
         """
         self.source_str = source_str
-        self.templated_str = templated_str or source_str
+        # An empty string is still allowed as the templated string.
+        self.templated_str = source_str if templated_str is None else templated_str
         # If no fname, we assume this is from a string or stdin.
         self.fname = fname
         # Assume that no sliced_file, means the file is not templated
@@ -330,7 +298,7 @@ class TemplatedFile:
                     break
 
         subslices = self.sliced_file[
-            # Ver inclusive slice
+            # Very inclusive slice
             min(ts_start_sf_start, ts_stop_sf_start) : max(
                 ts_start_sf_stop, ts_stop_sf_stop
             )
@@ -420,7 +388,6 @@ class TemplatedFile:
         return ret_buff
 
 
-@register_templater
 class RawTemplater:
     """A templater which does nothing.
 
@@ -439,6 +406,13 @@ class RawTemplater:
         to the linter at runtime from the cli - that would be the only time we would pass
         arguments in here.
         """
+
+    def sequence_files(
+        self, fnames: List[str], config=None, formatter=None
+    ) -> Iterable[str]:
+        """Given files to be processed, return a valid processing sequence."""
+        # Default is to process in the original order.
+        return fnames
 
     def process(
         self, *, in_str: str, fname: str, config=None, formatter=None

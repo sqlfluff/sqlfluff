@@ -1,16 +1,16 @@
 rule: L028
 
 # Mixed qualification of references.
-test_1:
+test_fail_single_table_mixed_qualification_of_references:
   fail_str: SELECT my_tbl.bar, baz FROM my_tbl
 
-test_2:
+test_pass_single_table_consistent_references_1:
   pass_str: SELECT bar FROM my_tbl
 
-test_3:
+test_pass_single_table_consistent_references_2:
   pass_str: SELECT my_tbl.bar FROM my_tbl
 
-test_4:
+test_fail_single_table_reference_when_unqualified_config:
   fail_str: SELECT my_tbl.bar FROM my_tbl
 
   configs:
@@ -18,7 +18,7 @@ test_4:
       L028:
         single_table_references: unqualified
 
-test_5:
+test_fail_single_table_reference_when_qualified_config:
   fail_str: SELECT bar FROM my_tbl
 
   configs:
@@ -26,7 +26,7 @@ test_5:
       L028:
         single_table_references: qualified
 
-test_6:
+test_pass_single_table_reference_in_subquery:
   # Catch issues with subqueries properly
   pass_str: |
     SELECT * FROM db.sc.tbl2
@@ -44,3 +44,46 @@ test_value_table_functions_do_not_require_qualification:
   configs:
     core:
       dialect: bigquery
+    rules:
+      L028:
+        force_enable: True
+
+test_object_references_1a:
+  # This should fail as "a" is an unreference object
+  fail_str: SELECT a.bar, b FROM my_tbl
+
+test_object_references_1b:
+  # This should not-fail as "a" is potentially a STRUCT
+  pass_str: SELECT a.bar, b FROM my_tbl
+  configs:
+    core:
+      dialect: bigquery
+
+test_object_references_1c:
+  # This should fail as even though "a" is potenitally a STRUCT
+  # The config has been set to enforce the rule
+  fail_str: SELECT a.bar, b FROM my_tbl
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      L028:
+        force_enable: True
+
+
+test_tsql_pivot_are_excluded:
+  # This should pass as tsql PIVOT columns do not need to be
+  # qualified
+  pass_str: |
+    select
+      t1._id
+      , [1] as lvl_1
+      , [2] as lvl_2
+      , [3] as lvl_3
+    from
+      table1 t1
+    pivot
+      (max(value) for rn in([1], [2], [3]) ) as pvt
+  configs:
+    core:
+      dialect: tsql

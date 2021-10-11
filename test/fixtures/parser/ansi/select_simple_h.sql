@@ -1,4 +1,4 @@
 -- test window functions in functions with casting
 SELECT
-    dateadd('day', row_number() OVER (ORDER BY seq8() asc), '2014-01-01')::date AS dt
+    DATEADD(DAY, ROW_NUMBER() OVER (ORDER BY DateCD ASC), '2014-01-01') AS dt
 FROM boo

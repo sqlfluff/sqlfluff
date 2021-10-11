@@ -9,6 +9,10 @@ from sqlfluff.rules.L025 import Rule_L025
 class Rule_L028(Rule_L025):
     """References should be consistent in statements with a single table.
 
+    NB: This rule is disabled by default for BigQuery due to its use of
+    structs which trigger false positives. It can be enabled with the
+    `force_enable = True` flag.
+
     | **Anti-pattern**
     | In this example, only the field `b` is referenced.
 
@@ -38,12 +42,12 @@ class Rule_L028(Rule_L025):
 
     """
 
-    config_keywords = ["single_table_references"]
+    config_keywords = ["single_table_references", "force_enable"]
 
     def _lint_references_and_aliases(
         self,
         table_aliases,
-        value_table_function_aliases,
+        standalone_aliases,
         references,
         col_aliases,
         using_cols,
@@ -53,7 +57,6 @@ class Rule_L028(Rule_L025):
         # How many aliases are there? If more than one then abort.
         if len(table_aliases) > 1:
             return None
-        standalone_aliases = [t[0] for t in value_table_function_aliases]
         # A buffer to keep any violations.
         violation_buff = []
         # Check all the references that we have.
@@ -92,3 +95,14 @@ class Rule_L028(Rule_L025):
             seen_ref_types.add(this_ref_type)
 
         return violation_buff or None
+
+    def _eval(self, segment, parent_stack, dialect, **kwargs):
+        """Override Rule L025 for dialects that use structs.
+
+        Some dialects use structs (e.g. column.field) which look like
+        table references and so incorrectly trigger this rule.
+        """
+        if dialect.name in ["bigquery"] and not self.force_enable:
+            return LintResult()
+
+        return super()._eval(segment, parent_stack, dialect, **kwargs)

@@ -1,6 +1,8 @@
 """Tests specific to the postgres dialect."""
+from typing import Callable
 
 import pytest
+from _pytest.logging import LogCaptureFixture
 
 from sqlfluff.core import FluffConfig, Linter
 from sqlfluff.dialects.postgres_keywords import get_keywords, priority_keyword_merge
@@ -9,18 +11,30 @@ from sqlfluff.dialects.postgres_keywords import get_keywords, priority_keyword_m
 @pytest.mark.parametrize(
     "segment_reference,raw",
     [
-        # AT TIME ZONE constucts
+        # AT TIME ZONE constructs
         ("SelectClauseElementSegment", "c_column AT TIME ZONE 'UTC'"),
         ("SelectClauseElementSegment", "(c_column AT TIME ZONE 'UTC')::time"),
         (
             "SelectClauseElementSegment",
             "timestamp with time zone '2021-10-01' AT TIME ZONE 'UTC'",
         ),
+        # Notnull and Isnull
+        ("ExpressionSegment", "c is null"),
+        ("ExpressionSegment", "c is not null"),
+        ("ExpressionSegment", "c isnull"),
+        ("ExpressionSegment", "c notnull"),
+        ("SelectClauseElementSegment", "c is null as c_isnull"),
+        ("SelectClauseElementSegment", "c is not null as c_notnull"),
+        ("SelectClauseElementSegment", "c isnull as c_isnull"),
+        ("SelectClauseElementSegment", "c notnull as c_notnull"),
     ],
 )
 def test_dialect_postgres_specific_segment_parses(
-    segment_reference, raw, caplog, dialect_specific_segment_parses
-):
+    segment_reference: str,
+    raw: str,
+    caplog: LogCaptureFixture,
+    dialect_specific_segment_parses: Callable,
+) -> None:
     """Test that specific segments parse as expected.
 
     NB: We're testing the PARSE function not the MATCH function
@@ -38,7 +52,7 @@ def test_dialect_postgres_specific_segment_parses(
         "SELECT t1.field, EXTRACT(EPOCH FROM t1.sometime - t1.othertime) AS myepoch FROM t1",
     ],
 )
-def test_epoch_datetime_unit(raw):
+def test_epoch_datetime_unit(raw: str) -> None:
     """Test the EPOCH keyword for postgres dialect."""
     # Don't test for new lines or capitalisation
     cfg = FluffConfig(
@@ -56,7 +70,7 @@ def test_epoch_datetime_unit(raw):
         "SELECT space.something FROM t1 AS space",
     ],
 )
-def test_space_is_not_reserved(raw):
+def test_space_is_not_reserved(raw: str) -> None:
     """Ensure that SPACE is not treated as reserved."""
     cfg = FluffConfig(
         configs={"core": {"exclude_rules": "L009,L016,L031", "dialect": "postgres"}}
@@ -66,7 +80,7 @@ def test_space_is_not_reserved(raw):
     assert result.num_violations() == 0
 
 
-def test_priority_keyword_merge():
+def test_priority_keyword_merge() -> None:
     """Test merging on keyword lists works as expected."""
     kw_list_1 = [("A", "not-keyword"), ("B", "non-reserved")]
 
@@ -113,7 +127,7 @@ def test_priority_keyword_merge():
     assert sorted(result_4) == sorted(expected_result_4)
 
 
-def test_get_keywords():
+def test_get_keywords() -> None:
     """Test keyword filtering works as expected."""
     kw_list = [
         ("A", "not-keyword"),

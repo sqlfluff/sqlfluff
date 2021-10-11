@@ -226,7 +226,6 @@ RESERVED_KEYWORDS = [
     "WHERE",
     "WHILE",
     "WITH",
-    "WITHIN GROUP",
     "WRITETEXT",
     "XACT_ABORT",
 ]
@@ -234,10 +233,48 @@ RESERVED_KEYWORDS = [
 
 UNRESERVED_KEYWORDS = [
     "COLUMNSTORE",
+    "D",
+    "DATEADD",
+    "DAY",
+    "DAYOFYEAR",
+    "DD",
     "DISTRIBUTION",  # Azure Synapse Analytics specific
+    "DW",
+    "DY",
     "HASH",  # Azure Synapse Analytics specific
+    "HH",
+    "HOUR",
+    "M",
+    "MCS",
+    "MI",
+    "MICROSECOND",
+    "MILLISECOND",
+    "MINUTE",
+    "MM",
+    "MONTH",
+    "MS",
+    "N",
+    "NANOSECOND",
+    "NS",
+    "Q",
+    "QQ",
+    "QUARTER",
     "REPLICATE",  # Azure Synapse Analytics specific
     "ROUND_ROBIN",  # Azure Synapse Analytics specific
+    "S",
+    "SECOND",
+    "SS",
+    "STRING_AGG",
     "SWITCH",
     "TRUNCATE_TARGET",  # Azure Synapse Analytics specific
+    "W",
+    "WEEK",
+    "WEEKDAY",
+    "WITHIN",
+    "WK",
+    "WW",
+    "YEAR",
+    "Y",
+    "YY",
+    "YYYY",
 ]

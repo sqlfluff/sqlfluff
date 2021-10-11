@@ -556,7 +556,7 @@ def test_linted_file_ignore_masked_violations(
         templated_file=TemplatedFile.from_string(""),
         encoding="utf8",
     )
-    result = lf._ignore_masked_violations(violations)
+    result = lf.ignore_masked_violations(violations, ignore_mask)
     expected_violations = [v for i, v in enumerate(violations) if i in expected]
     assert expected_violations == result
 
@@ -647,7 +647,7 @@ def test__attempt_to_change_templater_warning(caplog):
     """Test warning if user tries to change templater in .sqlfluff file in subdirectory."""
     initial_config = FluffConfig(configs={"core": {"templater": "jinja"}})
     lntr = Linter(config=initial_config)
-    updated_config = FluffConfig(configs={"core": {"templater": "dbt"}})
+    updated_config = FluffConfig(configs={"core": {"templater": "python"}})
     logger = logging.getLogger("sqlfluff")
     original_propagate_value = logger.propagate
     try:

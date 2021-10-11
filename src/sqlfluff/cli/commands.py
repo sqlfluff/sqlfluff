@@ -4,6 +4,14 @@ import sys
 import json
 import logging
 import time
+from typing import (
+    Callable,
+    Tuple,
+    NoReturn,
+    Optional,
+    List,
+)
+
 import oyaml as yaml
 
 import click
@@ -33,23 +41,29 @@ from sqlfluff.core import (
     FluffConfig,
     SQLLintError,
     SQLTemplaterError,
+    SQLFluffUserError,
     dialect_selector,
     dialect_readout,
     TimingSummary,
 )
 
+from sqlfluff.core.enums import FormatType, Color
+from sqlfluff.core.linter import ParsedString
+
 
 class RedWarningsFilter(logging.Filter):
     """This filter makes all warnings or above red."""
 
-    def filter(self, record):
+    def filter(self, record: logging.LogRecord) -> bool:
         """Filter any warnings (or above) to turn them red."""
         if record.levelno >= logging.WARNING:
-            record.msg = colorize(record.msg, "red") + " "
+            record.msg = f"{colorize(record.msg, Color.red)} "
         return True
 
 
-def set_logging_level(verbosity, logger=None, stderr_output=False):
+def set_logging_level(
+    verbosity: int, logger: Optional[logging.Logger] = None, stderr_output: bool = False
+) -> None:
     """Set up logging for the CLI.
 
     We either set up global logging based on the verbosity
@@ -101,7 +115,7 @@ def set_logging_level(verbosity, logger=None, stderr_output=False):
         parser_logger.setLevel(logging.DEBUG)
 
 
-def common_options(f):
+def common_options(f: Callable) -> Callable:
     """Add common options to commands via a decorator.
 
     These are applied to all of the cli commands.
@@ -122,10 +136,11 @@ def common_options(f):
         is_flag=True,
         help="No color - if this is set then the output will be without ANSI color codes.",
     )(f)
+
     return f
 
 
-def core_options(f):
+def core_options(f: Callable) -> Callable:
     """Add core operation options to commands via a decorator.
 
     These are applied to the main (but not all) cli commands like
@@ -188,27 +203,50 @@ def core_options(f):
     return f
 
 
-def get_config(**kwargs):
+def get_config(**kwargs) -> FluffConfig:
     """Get a config object from kwargs."""
-    if kwargs.get("dialect", None):
+    if "dialect" in kwargs:
         try:
             # We're just making sure it exists at this stage - it will be fetched properly in the linter
             dialect_selector(kwargs["dialect"])
+        except SQLFluffUserError as err:
+            click.echo(
+                colorize(
+                    f"Error loading dialect '{kwargs['dialect']}': {str(err)}",
+                    color=Color.red,
+                )
+            )
+            sys.exit(66)
         except KeyError:
-            click.echo("Error: Unknown dialect {!r}".format(kwargs["dialect"]))
+            click.echo(
+                colorize(
+                    f"Error: Unknown dialect '{kwargs['dialect']}'", color=Color.red
+                )
+            )
             sys.exit(66)
     # Instantiate a config object (filtering out the nulls)
     overrides = {k: kwargs[k] for k in kwargs if kwargs[k] is not None}
-    return FluffConfig.from_root(overrides=overrides)
+    try:
+        return FluffConfig.from_root(overrides=overrides)
+    except SQLFluffUserError as err:  # pragma: no cover
+        click.echo(
+            colorize(
+                f"Error loading config: {str(err)}",
+                color=Color.red,
+            )
+        )
+        sys.exit(66)
 
 
-def get_linter_and_formatter(cfg, silent=False):
+def get_linter_and_formatter(
+    cfg: FluffConfig, silent: bool = False
+) -> Tuple[Linter, CallbackFormatter]:
     """Get a linter object given a config."""
     try:
         # We're just making sure it exists at this stage - it will be fetched properly in the linter
         dialect_selector(cfg.get("dialect"))
     except KeyError:  # pragma: no cover
-        click.echo("Error: Unknown dialect {!r}".format(cfg.get("dialect")))
+        click.echo(f"Error: Unknown dialect '{cfg.get('dialect')}'")
         sys.exit(66)
 
     if not silent:
@@ -234,7 +272,7 @@ def cli():
 
 @cli.command()
 @common_options
-def version(**kwargs):
+def version(**kwargs) -> None:
     """Show the version of sqlfluff."""
     c = get_config(**kwargs)
     if c.get("verbose") > 0:
@@ -249,7 +287,7 @@ def version(**kwargs):
 
 @cli.command()
 @common_options
-def rules(**kwargs):
+def rules(**kwargs) -> None:
     """Show the current rules in use."""
     c = get_config(**kwargs)
     lnt, _ = get_linter_and_formatter(c)
@@ -258,7 +296,7 @@ def rules(**kwargs):
 
 @cli.command()
 @common_options
-def dialects(**kwargs):
+def dialects(**kwargs) -> None:
     """Show the current dialects available."""
     c = get_config(**kwargs)
     click.echo(format_dialects(dialect_readout), color=c.get("color"))
@@ -272,9 +310,7 @@ def dialects(**kwargs):
     "--format",
     "format",
     default="human",
-    type=click.Choice(
-        ["human", "json", "yaml", "github-annotation"], case_sensitive=False
-    ),
+    type=click.Choice([ft.value for ft in FormatType], case_sensitive=False),
     help="What format to return the lint result in (default=human).",
 )
 @click.option(
@@ -294,7 +330,7 @@ def dialects(**kwargs):
 @click.option(
     "--disregard-sqlfluffignores",
     is_flag=True,
-    help=("Perform the operation regardless of .sqlfluffignore configurations"),
+    help="Perform the operation regardless of .sqlfluffignore configurations",
 )
 @click.option(
     "-p",
@@ -305,16 +341,16 @@ def dialects(**kwargs):
 )
 @click.argument("paths", nargs=-1)
 def lint(
-    paths,
-    processes,
-    format,
-    annotation_level,
-    nofail,
-    disregard_sqlfluffignores,
-    logger=None,
-    bench=False,
+    paths: Tuple[str],
+    processes: int,
+    format: str,
+    annotation_level: str,
+    nofail: bool,
+    disregard_sqlfluffignores: bool,
+    logger: Optional[logging.Logger] = None,
+    bench: bool = False,
     **kwargs,
-):
+) -> NoReturn:
     """Lint SQL files via passing a list of files or using stdin.
 
     PATH is the path to a sql file or directory to lint. This can be either a
@@ -334,7 +370,7 @@ def lint(
 
     """
     config = get_config(**kwargs)
-    non_human_output = format != "human"
+    non_human_output = format != FormatType.human.value
     lnt, formatter = get_linter_and_formatter(config, silent=non_human_output)
     verbose = config.get("verbose")
 
@@ -359,10 +395,8 @@ def lint(
         except OSError:
             click.echo(
                 colorize(
-                    "The path(s) {!r} could not be accessed. Check it/they exist(s).".format(
-                        paths
-                    ),
-                    "red",
+                    f"The path(s) '{paths}' could not be accessed. Check it/they exist(s).",
+                    Color.red,
                 )
             )
             sys.exit(1)
@@ -370,11 +404,11 @@ def lint(
         if verbose >= 1:
             click.echo(format_linting_stats(result, verbose=verbose))
 
-    if format == "json":
+    if format == FormatType.json.value:
         click.echo(json.dumps(result.as_records()))
-    elif format == "yaml":
+    elif format == FormatType.yaml.value:
         click.echo(yaml.dump(result.as_records()))
-    elif format == "github-annotation":
+    elif format == FormatType.github_annotation.value:
         github_result = []
         for record in result.as_records():
             filepath = record["filepath"]
@@ -452,7 +486,15 @@ def do_fixes(lnt, result, formatter=None, **kwargs):
     help="The number of parallel processes to run.",
 )
 @click.argument("paths", nargs=-1)
-def fix(force, paths, processes, bench=False, fixed_suffix="", logger=None, **kwargs):
+def fix(
+    force: bool,
+    paths: Tuple[str],
+    processes: int,
+    bench: bool = False,
+    fixed_suffix: str = "",
+    logger: Optional[logging.Logger] = None,
+    **kwargs,
+) -> NoReturn:
     """Fix SQL files.
 
     PATH is the path to a sql file or directory to lint. This can be either a
@@ -488,15 +530,21 @@ def fix(force, paths, processes, bench=False, fixed_suffix="", logger=None, **kw
 
         if templater_error:
             click.echo(
-                colorize("Fix aborted due to unparseable template variables.", "red"),
+                colorize(
+                    "Fix aborted due to unparseable template variables.",
+                    Color.red,
+                ),
                 err=True,
             )
             click.echo(
-                colorize("Use '--ignore templating' to attempt to fix anyway.", "red"),
+                colorize(
+                    "Use '--ignore templating' to attempt to fix anyway.",
+                    Color.red,
+                ),
                 err=True,
             )
         if unfixable_error:
-            click.echo(colorize("Unfixable violations detected.", "red"), err=True)
+            click.echo(colorize("Unfixable violations detected.", Color.red), err=True)
 
         click.echo(stdout, nl=False)
         sys.exit(1 if templater_error or unfixable_error else 0)
@@ -510,10 +558,8 @@ def fix(force, paths, processes, bench=False, fixed_suffix="", logger=None, **kw
     except OSError:
         click.echo(
             colorize(
-                "The path(s) {!r} could not be accessed. Check it/they exist(s).".format(
-                    paths
-                ),
-                "red",
+                f"The path(s) '{paths}' could not be accessed. Check it/they exist(s).",
+                Color.red,
             ),
             err=True,
         )
@@ -524,12 +570,10 @@ def fix(force, paths, processes, bench=False, fixed_suffix="", logger=None, **kw
     if result.num_violations(types=SQLLintError, fixable=True) > 0:
         click.echo("==== fixing violations ====")
         click.echo(
-            "{} fixable linting violations found".format(
-                result.num_violations(types=SQLLintError, fixable=True)
-            )
+            f"{result.num_violations(types=SQLLintError, fixable=True)} fixable linting violations found"
         )
         if force:
-            click.echo(colorize("FORCE MODE", "red") + ": Attempting fixes...")
+            click.echo(f"{colorize('FORCE MODE', Color.red)}: Attempting fixes...")
             success = do_fixes(
                 lnt,
                 result,
@@ -571,17 +615,13 @@ def fix(force, paths, processes, bench=False, fixed_suffix="", logger=None, **kw
 
     if result.num_violations(types=SQLLintError, fixable=False) > 0:
         click.echo(
-            "  [{} unfixable linting violations found]".format(
-                result.num_violations(types=SQLLintError, fixable=False)
-            )
+            f"  [{result.num_violations(types=SQLLintError, fixable=False)} unfixable linting violations found]"
         )
         exit_code = 1
 
     if result.num_violations(types=SQLTemplaterError) > 0:
         click.echo(
-            "  [{} templating errors found]".format(
-                result.num_violations(types=SQLTemplaterError)
-            )
+            f"  [{result.num_violations(types=SQLTemplaterError)} templating errors found]"
         )
         exit_code = 1
 
@@ -596,10 +636,8 @@ def fix(force, paths, processes, bench=False, fixed_suffix="", logger=None, **kw
     sys.exit(exit_code)
 
 
-def _completion_message(config):
-    click.echo(
-        "All Finished{emojis}!".format(emojis="" if config.get("nocolor") else " 📜 🎉")
-    )
+def _completion_message(config: FluffConfig) -> None:
+    click.echo(f"All Finished{'' if config.get('nocolor') else ' 📜 🎉'}!")
 
 
 def quoted_presenter(dumper, data):
@@ -635,8 +673,15 @@ def quoted_presenter(dumper, data):
 @click.option(
     "-f",
     "--format",
-    default="human",
-    type=click.Choice(["human", "json", "yaml"], case_sensitive=False),
+    default=FormatType.human.value,
+    type=click.Choice(
+        [
+            FormatType.human.value,
+            FormatType.json.value,
+            FormatType.yaml.value,
+        ],
+        case_sensitive=False,
+    ),
     help="What format to return the parse result in.",
 )
 @click.option(
@@ -651,16 +696,16 @@ def quoted_presenter(dumper, data):
     ),
 )
 def parse(
-    path,
-    code_only,
-    include_meta,
-    format,
-    profiler,
-    bench,
-    nofail,
-    logger=None,
+    path: str,
+    code_only: bool,
+    include_meta: bool,
+    format: str,
+    profiler: bool,
+    bench: bool,
+    nofail: bool,
+    logger: Optional[logging.Logger] = None,
     **kwargs,
-):
+) -> NoReturn:
     """Parse SQL files and just spit out the result.
 
     PATH is the path to a sql file or directory to lint. This can be either a
@@ -670,7 +715,7 @@ def parse(
     """
     c = get_config(**kwargs)
     # We don't want anything else to be logged if we want json or yaml output
-    non_human_output = format in ("json", "yaml")
+    non_human_output = format in (FormatType.json.value, FormatType.yaml.value)
     lnt, formatter = get_linter_and_formatter(c, silent=non_human_output)
     verbose = c.get("verbose")
     recurse = c.get("recurse")
@@ -681,7 +726,7 @@ def parse(
     set_logging_level(verbosity=verbose, logger=logger, stderr_output=non_human_output)
 
     # TODO: do this better
-    nv = 0
+
     if profiler:
         # Set up the profiler if required
         try:
@@ -694,51 +739,28 @@ def parse(
 
     try:
         t0 = time.monotonic()
+
         # handle stdin if specified via lone '-'
         if "-" == path:
-            # put the parser result in a list to iterate later
-            result = [
+            parsed_strings = [
                 lnt.parse_string(
                     sys.stdin.read(), "stdin", recurse=recurse, config=lnt.config
                 ),
             ]
         else:
             # A single path must be specified for this command
-            result = lnt.parse_path(path, recurse=recurse)
+            parsed_strings = list(lnt.parse_path(path, recurse=recurse))
+
         total_time = time.monotonic() - t0
+        violations_count = 0
 
         # iterative print for human readout
-        if format == "human":
-            timing = TimingSummary()
-            for parsed_string in result:
-                timing.add(parsed_string.time_dict)
-                if parsed_string.tree:
-                    click.echo(parsed_string.tree.stringify(code_only=code_only))
-                else:
-                    # TODO: Make this prettier
-                    click.echo("...Failed to Parse...")  # pragma: no cover
-                nv += len(parsed_string.violations)
-                if parsed_string.violations:
-                    click.echo("==== parsing violations ====")  # pragma: no cover
-                for v in parsed_string.violations:
-                    click.echo(format_violation(v))  # pragma: no cover
-                if (
-                    parsed_string.violations
-                    and parsed_string.config.get("dialect") == "ansi"
-                ):
-                    click.echo(format_dialect_warning())  # pragma: no cover
-                if verbose >= 2:
-                    click.echo("==== timings ====")
-                    click.echo(cli_table(parsed_string.time_dict.items()))
-            if verbose >= 2 or bench:
-                click.echo("==== overall timings ====")
-                click.echo(cli_table([("Clock time", total_time)]))
-                timing_summary = timing.summary()
-                for step in timing_summary:
-                    click.echo(f"=== {step} ===")
-                    click.echo(cli_table(timing_summary[step].items()))
+        if format == FormatType.human.value:
+            violations_count = _print_out_violations_and_timing(
+                bench, code_only, total_time, verbose, parsed_strings
+            )
         else:
-            result = [
+            parsed_strings_dict = [
                 dict(
                     filepath=linted_result.fname,
                     segments=linted_result.tree.as_record(
@@ -747,21 +769,21 @@ def parse(
                     if linted_result.tree
                     else None,
                 )
-                for linted_result in result
+                for linted_result in parsed_strings
             ]
 
-            if format == "yaml":
+            if format == FormatType.yaml.value:
                 # For yaml dumping always dump double quoted strings if they contain tabs or newlines.
                 yaml.add_representer(str, quoted_presenter)
+                click.echo(yaml.dump(parsed_strings_dict))
+            elif format == FormatType.json.value:
+                click.echo(json.dumps(parsed_strings_dict))
 
-                click.echo(yaml.dump(result))
-            elif format == "json":
-                click.echo(json.dumps(result))
     except OSError:  # pragma: no cover
         click.echo(
             colorize(
-                f"The path {path!r} could not be accessed. Check it exists.",
-                "red",
+                f"The path '{path}' could not be accessed. Check it exists.",
+                Color.red,
             ),
             err=True,
         )
@@ -776,10 +798,53 @@ def parse(
         # Only print the first 50 lines of it
         click.echo("\n".join(profiler_buffer.getvalue().split("\n")[:50]))
 
-    if nv > 0 and not nofail:
+    if violations_count > 0 and not nofail:
         sys.exit(66)  # pragma: no cover
     else:
         sys.exit(0)
+
+
+def _print_out_violations_and_timing(
+    bench: bool,
+    code_only: bool,
+    total_time: float,
+    verbose: int,
+    parsed_strings: List[ParsedString],
+) -> int:
+    """Used by human formatting during the parse."""
+    violations_count = 0
+    timing = TimingSummary()
+
+    for parsed_string in parsed_strings:
+        timing.add(parsed_string.time_dict)
+
+        if parsed_string.tree:
+            click.echo(parsed_string.tree.stringify(code_only=code_only))
+        else:
+            # TODO: Make this prettier
+            click.echo("...Failed to Parse...")  # pragma: no cover
+
+        violations_count += len(parsed_string.violations)
+        if parsed_string.violations:
+            click.echo("==== parsing violations ====")  # pragma: no cover
+        for v in parsed_string.violations:
+            click.echo(format_violation(v))  # pragma: no cover
+        if parsed_string.violations and parsed_string.config.get("dialect") == "ansi":
+            click.echo(format_dialect_warning())  # pragma: no cover
+
+        if verbose >= 2:
+            click.echo("==== timings ====")
+            click.echo(cli_table(parsed_string.time_dict.items()))
+
+    if verbose >= 2 or bench:
+        click.echo("==== overall timings ====")
+        click.echo(cli_table([("Clock time", total_time)]))
+        timing_summary = timing.summary()
+        for step in timing_summary:
+            click.echo(f"=== {step} ===")
+            click.echo(cli_table(timing_summary[step].items()))
+
+    return violations_count
 
 
 # This "__main__" handler allows invoking SQLFluff using "python -m", which

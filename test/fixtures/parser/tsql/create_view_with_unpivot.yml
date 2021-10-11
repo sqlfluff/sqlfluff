@@ -3,101 +3,102 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8ffff6eb34e478b2f5a6938254e28c9adf414355f341149161beb12f2e00de54
+_hash: ce096098b5a75599fab12135126689dc932552655af5d99c181b38c25652b0ee
 file:
-  statement:
-    create_view_statement:
-    - keyword: CREATE
-    - keyword: VIEW
-    - object_reference:
-        identifier: UnpivotView
-    - keyword: AS
-    - select_statement:
-        select_clause:
-        - keyword: SELECT
-        - select_clause_element:
-            column_reference:
-              identifier: VendorID
-        - comma: ','
-        - select_clause_element:
-            column_reference:
-              identifier: Employee
-        - comma: ','
-        - select_clause_element:
-            column_reference:
-              identifier: Orders
-        from_clause:
-          keyword: FROM
-          from_expression:
-            from_expression_element:
-              table_expression:
-                bracketed:
-                  start_bracket: (
-                  select_statement:
-                    select_clause:
-                    - keyword: SELECT
-                    - select_clause_element:
-                        column_reference:
-                          identifier: VendorID
-                    - comma: ','
-                    - select_clause_element:
-                        column_reference:
-                          identifier: Emp1
-                    - comma: ','
-                    - select_clause_element:
-                        column_reference:
-                          identifier: Emp2
-                    - comma: ','
-                    - select_clause_element:
-                        column_reference:
-                          identifier: Emp3
-                    - comma: ','
-                    - select_clause_element:
-                        column_reference:
-                          identifier: Emp4
-                    - comma: ','
-                    - select_clause_element:
-                        column_reference:
-                          identifier: Emp5
-                    from_clause:
-                      keyword: FROM
-                      from_expression:
-                        from_expression_element:
-                          table_expression:
-                            table_reference:
-                              identifier: pvt
-                  end_bracket: )
-              alias_expression:
-                identifier: p
-        pivotunpivot_segment:
-        - keyword: UNPIVOT
-        - bracketed:
-          - start_bracket: (
-          - column_reference:
-              identifier: Orders
-          - keyword: FOR
-          - column_reference:
-              identifier: Employee
-          - keyword: IN
+  batch:
+    statement:
+      create_view_statement:
+      - keyword: CREATE
+      - keyword: VIEW
+      - object_reference:
+          identifier: UnpivotView
+      - keyword: AS
+      - select_statement:
+          select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+              column_reference:
+                identifier: VendorID
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                identifier: Employee
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                identifier: Orders
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  bracketed:
+                    start_bracket: (
+                    select_statement:
+                      select_clause:
+                      - keyword: SELECT
+                      - select_clause_element:
+                          column_reference:
+                            identifier: VendorID
+                      - comma: ','
+                      - select_clause_element:
+                          column_reference:
+                            identifier: Emp1
+                      - comma: ','
+                      - select_clause_element:
+                          column_reference:
+                            identifier: Emp2
+                      - comma: ','
+                      - select_clause_element:
+                          column_reference:
+                            identifier: Emp3
+                      - comma: ','
+                      - select_clause_element:
+                          column_reference:
+                            identifier: Emp4
+                      - comma: ','
+                      - select_clause_element:
+                          column_reference:
+                            identifier: Emp5
+                      from_clause:
+                        keyword: FROM
+                        from_expression:
+                          from_expression_element:
+                            table_expression:
+                              table_reference:
+                                identifier: pvt
+                    end_bracket: )
+                alias_expression:
+                  identifier: p
+          from_pivot_expression:
+          - keyword: UNPIVOT
           - bracketed:
             - start_bracket: (
             - column_reference:
-                identifier: Emp1
-            - comma: ','
+                identifier: Orders
+            - keyword: FOR
             - column_reference:
-                identifier: Emp2
-            - comma: ','
-            - column_reference:
-                identifier: Emp3
-            - comma: ','
-            - column_reference:
-                identifier: Emp4
-            - comma: ','
-            - column_reference:
-                identifier: Emp5
+                identifier: Employee
+            - keyword: IN
+            - bracketed:
+              - start_bracket: (
+              - pivot_column_reference:
+                  identifier: Emp1
+              - comma: ','
+              - pivot_column_reference:
+                  identifier: Emp2
+              - comma: ','
+              - pivot_column_reference:
+                  identifier: Emp3
+              - comma: ','
+              - pivot_column_reference:
+                  identifier: Emp4
+              - comma: ','
+              - pivot_column_reference:
+                  identifier: Emp5
+              - end_bracket: )
             - end_bracket: )
-          - end_bracket: )
-        - keyword: AS
-        - table_reference:
-            identifier: unpvt
-  statement_terminator: ;
+          - keyword: AS
+          - table_reference:
+              identifier: unpvt
+    statement_terminator: ;

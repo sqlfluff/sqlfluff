@@ -21,3 +21,4 @@ FROM
 	t2
 	JOIN t3 g ON t2.c1=t3.c2
 	LEFT JOIN t4 ON t4.c3=t3.c1
+;

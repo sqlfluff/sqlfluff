@@ -3,10 +3,10 @@
 import os
 import pytest
 import logging
+from pathlib import Path
 
 from sqlfluff.core import FluffConfig, Lexer, Linter
 from sqlfluff.core.errors import SQLTemplaterSkipFile
-from sqlfluff.core.templaters.dbt import DbtTemplater
 from test.fixtures.dbt.templater import (  # noqa: F401
     DBT_FLUFF_CONFIG,
     dbt_templater,
@@ -71,6 +71,57 @@ def test__templater_dbt_templating_result(
     assert str(templated_file) == open("test/fixtures/dbt/" + fname).read()
 
 
+@pytest.mark.parametrize(
+    "fnames_input, fnames_expected_sequence",
+    [
+        [
+            (
+                Path("models") / "depends_on_ephemeral" / "a.sql",
+                Path("models") / "depends_on_ephemeral" / "b.sql",
+                Path("models") / "depends_on_ephemeral" / "d.sql",
+            ),
+            # c.sql is not present in the original list and should not appear here,
+            # even though b.sql depends on it. This test ensures that "out of scope"
+            # files, e.g. those ignored using ".sqlfluffignore" or in directories
+            # outside what was specified, are not inadvertently processed.
+            (
+                Path("models") / "depends_on_ephemeral" / "a.sql",
+                Path("models") / "depends_on_ephemeral" / "b.sql",
+                Path("models") / "depends_on_ephemeral" / "d.sql",
+            ),
+        ],
+        [
+            (
+                Path("models") / "depends_on_ephemeral" / "a.sql",
+                Path("models") / "depends_on_ephemeral" / "b.sql",
+                Path("models") / "depends_on_ephemeral" / "c.sql",
+                Path("models") / "depends_on_ephemeral" / "d.sql",
+            ),
+            # c.sql should come before b.sql because b.sql depends on c.sql.
+            # It also comes first overall because ephemeral models come first.
+            (
+                Path("models") / "depends_on_ephemeral" / "c.sql",
+                Path("models") / "depends_on_ephemeral" / "a.sql",
+                Path("models") / "depends_on_ephemeral" / "b.sql",
+                Path("models") / "depends_on_ephemeral" / "d.sql",
+            ),
+        ],
+    ],
+)
+@pytest.mark.dbt
+def test__templater_dbt_sequence_files_ephemeral_dependency(
+    project_dir, dbt_templater, fnames_input, fnames_expected_sequence  # noqa: F811
+):
+    """Test that dbt templater sequences files based on dependencies."""
+    result = dbt_templater.sequence_files(
+        [str(Path(project_dir) / fn) for fn in fnames_input],
+        config=FluffConfig(configs=DBT_FLUFF_CONFIG),
+    )
+    pd = Path(project_dir)
+    expected = [str(pd / fn) for fn in fnames_expected_sequence]
+    assert list(result) == expected
+
+
 @pytest.mark.dbt
 @pytest.mark.parametrize(
     "raw_file,templated_file,result",
@@ -90,11 +141,11 @@ select * from a
     ],
 )
 def test__templater_dbt_slice_file_wrapped_test(
-    raw_file, templated_file, result, caplog
+    raw_file, templated_file, result, dbt_templater, caplog  # noqa: F811
 ):
     """Test that wrapped queries are sliced safely using _check_for_wrapped()."""
     with caplog.at_level(logging.DEBUG, logger="sqlfluff.templater"):
-        _, resp, _ = DbtTemplater.slice_file(
+        _, resp, _ = dbt_templater.slice_file(
             raw_file,
             templated_file,
         )

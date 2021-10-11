@@ -52,7 +52,7 @@ class Rule_L020(BaseRule):
     def _lint_references_and_aliases(
         self,
         table_aliases,
-        value_table_function_aliases,
+        standalone_aliases,
         references,
         col_aliases,
         using_cols,
@@ -108,7 +108,7 @@ class Rule_L020(BaseRule):
             # NB: Subclasses of this rules should override the function below
             return self._lint_references_and_aliases(
                 select_info.table_aliases,
-                select_info.value_table_function_aliases,
+                select_info.standalone_aliases,
                 select_info.reference_buffer,
                 select_info.col_aliases,
                 select_info.using_cols,

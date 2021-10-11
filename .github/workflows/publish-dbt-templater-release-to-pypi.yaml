@@ -1,0 +1,36 @@
+name: Publish dbt templater PyPI Version
+
+on:
+  release:
+    types:
+      - published
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v1
+        with:
+          python-version: "3.7"
+
+      - name: Install Dependencies
+        run: |
+          pip install --upgrade pip
+          pip install twine wheel --upgrade
+      
+      - name: Build Distribution (dbt plugin)
+        # Run this in the right directory so that we get the right Manifest
+        working-directory: plugins/sqlfluff-templater-dbt
+        run: python plugins/sqlfluff-templater-dbt/setup.py sdist bdist_wheel
+      
+      - name: Copy builds to main dist folder
+        # We move them here so that the github action can still access them
+        run: cp plugins/sqlfluff-templater-dbt/dist/. dist/.
+
+      - name: Publish Python distribution to PyPI
+        uses: pypa/gh-action-pypi-publish@master
+        with:
+          user: __token__
+          password: ${{ secrets.PYPI_DBT_TEMPLATER_TOKEN }}
+          skip_existing: true

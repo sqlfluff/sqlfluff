@@ -80,7 +80,7 @@ postgres_dialect.insert_lexer_matchers(
         # Explanation for the regex
         # \\([^(\\\r\n)])+((\\\\)|(?=\n)|(?=\r\n))?
         # \\                                        Starts with backslash
-        #   ([^(\\\r\n)])+                          Anything that is not a newline or a backslash
+        #   ([^\\\r\n])+                            Anything that is not a newline or a backslash
         #                 (
         #                  (\\\\)                   Double backslash
         #                        |                  OR
@@ -94,7 +94,7 @@ postgres_dialect.insert_lexer_matchers(
             # In future we may want to enhance this to actually parse them to ensure they are
             # valid meta commands.
             "meta_command",
-            r"\\([^(\\\r\n)])+((\\\\)|(?=\n)|(?=\r\n))?",
+            r"\\([^\\\r\n])+((\\\\)|(?=\n)|(?=\r\n))?",
             CommentSegment,
         )
     ],
@@ -187,6 +187,11 @@ postgres_dialect.replace(
         ansi_dialect.get_segment("ColumnReferenceSegment"),
         Ref("TimeZoneGrammar", optional=True),
     ),
+    # Postgres supports the non-standard ISNULL and NONNULL comparison operators. See
+    # https://www.postgresql.org/docs/14/functions-comparison.html
+    IsNullGrammar=Ref.keyword("ISNULL"),
+    NotNullGrammar=Ref.keyword("NOTNULL"),
+    JoinKeywords=Sequence("JOIN", Sequence("LATERAL", optional=True)),
 )
 
 
@@ -318,6 +323,10 @@ class CreateFunctionStatementSegment(BaseSegment):
                         )
                     ),
                     optional=True,
+                ),
+                Sequence(
+                    "SETOF",
+                    Ref("DatatypeSegment"),
                 ),
                 Ref("DatatypeSegment"),
             ),
@@ -726,7 +735,13 @@ class AlterTableStatementSegment(BaseSegment):
                             "DEFAULT",
                         ),
                     ),
-                    Sequence("DETACH", "PARTITION", Ref("ParameterNameSegment")),
+                    Sequence(
+                        "DETACH",
+                        "PARTITION",
+                        Ref("ParameterNameSegment"),
+                        Ref.keyword("CONCURRENTLY", optional=True),
+                        Ref.keyword("FINALIZE", optional=True),
+                    ),
                 ),
             ),
             Sequence(
@@ -1789,3 +1804,30 @@ class StatementSegment(BaseSegment):
     )
 
     match_grammar = ansi_dialect.get_segment("StatementSegment").match_grammar.copy()
+
+
+@postgres_dialect.segment(replace=True)
+class FunctionSegment(BaseSegment):
+    """A scalar or aggregate function.
+
+    Maybe in the future we should distinguish between
+    aggregate functions and other functions. For now
+    we treat them the same because they look the same
+    for our purposes.
+    """
+
+    type = "function"
+    match_grammar = Sequence(
+        Sequence(
+            Ref("FunctionNameSegment"),
+            Bracketed(
+                Ref(
+                    "FunctionContentsGrammar",
+                    # The brackets might be empty for some functions...
+                    optional=True,
+                    ephemeral_name="FunctionContentsGrammar",
+                )
+            ),
+        ),
+        Ref("PostFunctionGrammar", optional=True),
+    )

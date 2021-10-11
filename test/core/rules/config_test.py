@@ -87,10 +87,9 @@ def test_rules_configs_are_dynamically_documented():
     class RuleWithConfig(BaseRule):
         """A new rule with configuration."""
 
-        config_keywords = ["comma_style", "lint_templated_tokens"]
+        config_keywords = ["comma_style"]
 
     assert "comma_style" in RuleWithConfig.__doc__
-    assert "lint_templated_tokens" in RuleWithConfig.__doc__
 
     @document_configuration
     class RuleWithoutConfig(BaseRule):

@@ -2,11 +2,17 @@
 
 from sqlfluff.core.rules.analysis.select import get_aliases_from_select
 from sqlfluff.core.rules.base import LintResult
+from sqlfluff.core.rules.doc_decorators import document_configuration
 from sqlfluff.rules.L025 import Rule_L020
 
 
+@document_configuration
 class Rule_L026(Rule_L020):
     """References cannot reference objects not present in FROM clause.
+
+    NB: This rule is disabled by default for BigQuery due to its use of
+    structs which trigger false positives. It can be enabled with the
+    `force_enable = True` flag.
 
     | **Anti-pattern**
     | In this example, the reference 'vee' has not been declared.
@@ -27,6 +33,8 @@ class Rule_L026(Rule_L020):
         FROM foo
 
     """
+
+    config_keywords = ["force_enable"]
 
     @staticmethod
     def _is_bad_tbl_ref(table_aliases, parent_select, tbl_ref):
@@ -50,7 +58,7 @@ class Rule_L026(Rule_L020):
     def _lint_references_and_aliases(
         self,
         table_aliases,
-        value_table_function_aliases,
+        standalone_aliases,
         references,
         col_aliases,
         using_cols,
@@ -76,3 +84,14 @@ class Rule_L026(Rule_L020):
                     )
                 )
         return violation_buff or None
+
+    def _eval(self, segment, parent_stack, dialect, **kwargs):
+        """Override Rule L020 for dialects that use structs.
+
+        Some dialects use structs (e.g. column.field) which look like
+        table references and so incorrectly trigger this rule.
+        """
+        if dialect.name in ["bigquery"] and not self.force_enable:
+            return LintResult()
+
+        return super()._eval(segment, parent_stack, dialect, **kwargs)

@@ -9,7 +9,6 @@ from sqlfluff.core.string_helpers import findall
 
 from sqlfluff.core.templaters.base import (
     RawTemplater,
-    register_templater,
     TemplatedFile,
     templater_logger,
     RawFileSlice,
@@ -145,7 +144,6 @@ class IntermediateFileSlice(NamedTuple):
         )
 
 
-@register_templater
 class PythonTemplater(RawTemplater):
     """A templater using python format strings.
 
@@ -271,12 +269,12 @@ class PythonTemplater(RawTemplater):
         for loop_idx in range(2):
             templater_logger.debug("    # Slice Loop %s", loop_idx)
             # Calculate occurrences
-            raw_occurrences = cls._substring_occurances(raw_str, literals)
-            templated_occurances = cls._substring_occurances(templated_str, literals)
+            raw_occurrences = cls._substring_occurrences(raw_str, literals)
+            templated_occurrences = cls._substring_occurrences(templated_str, literals)
             templater_logger.debug(
-                "    Occurances: Raw: %s, Templated: %s",
+                "    Occurrences: Raw: %s, Templated: %s",
                 raw_occurrences,
-                templated_occurances,
+                templated_occurrences,
             )
             # Split on invariants
             split_sliced = list(
@@ -284,7 +282,7 @@ class PythonTemplater(RawTemplater):
                     raw_sliced,
                     literals,
                     raw_occurrences,
-                    templated_occurances,
+                    templated_occurrences,
                     templated_str,
                 )
             )
@@ -294,7 +292,7 @@ class PythonTemplater(RawTemplater):
             # Deal with uniques and coalesce the rest
             sliced_file = list(
                 cls._split_uniques_coalesce_rest(
-                    split_sliced, raw_occurrences, templated_occurances, templated_str
+                    split_sliced, raw_occurrences, templated_occurrences, templated_str
                 )
             )
             templater_logger.debug("    Fully Sliced:")
@@ -377,22 +375,22 @@ class PythonTemplater(RawTemplater):
         return slices, templated_str
 
     @classmethod
-    def _substring_occurances(
+    def _substring_occurrences(
         cls, in_str: str, substrings: Iterable[str]
     ) -> Dict[str, List[int]]:
         """Find every occurrence of the given substrings."""
-        occurances = {}
+        occurrences = {}
         for substring in substrings:
-            occurances[substring] = list(findall(substring, in_str))
-        return occurances
+            occurrences[substring] = list(findall(substring, in_str))
+        return occurrences
 
     @staticmethod
-    def _sorted_occurance_tuples(
-        occurances: Dict[str, List[int]]
+    def _sorted_occurrence_tuples(
+        occurrences: Dict[str, List[int]]
     ) -> List[Tuple[str, int]]:
         """Sort a dict of occurrences into a sorted list of tuples."""
         return sorted(
-            ((raw, idx) for raw in occurances.keys() for idx in occurances[raw]),
+            ((raw, idx) for raw in occurrences.keys() for idx in occurrences[raw]),
             # Sort first by position, then by lexical (for stability)
             key=lambda x: (x[1], x[0]),
         )
@@ -408,8 +406,8 @@ class PythonTemplater(RawTemplater):
         in_idx = 0
         for literal_text, field_name, format_spec, conversion in fmt.parse(in_str):
             if literal_text:
-                escape_chars = cls._sorted_occurance_tuples(
-                    cls._substring_occurances(literal_text, ["}", "{"])
+                escape_chars = cls._sorted_occurrence_tuples(
+                    cls._substring_occurrences(literal_text, ["}", "{"])
                 )
                 idx = 0
                 while escape_chars:
@@ -449,8 +447,8 @@ class PythonTemplater(RawTemplater):
         cls,
         raw_sliced: List[RawFileSlice],
         literals: List[str],
-        raw_occurances: Dict[str, List[int]],
-        templated_occurances: Dict[str, List[int]],
+        raw_occurrences: Dict[str, List[int]],
+        templated_occurrences: Dict[str, List[int]],
         templated_str: str,
     ) -> Iterator[IntermediateFileSlice]:
         """Split a sliced file on its invariant literals.
@@ -462,8 +460,8 @@ class PythonTemplater(RawTemplater):
         invariants = [
             literal
             for literal in literals
-            if len(raw_occurances[literal]) == 1
-            and len(templated_occurances[literal]) == 1
+            if len(raw_occurrences[literal]) == 1
+            and len(templated_occurrences[literal]) == 1
         ]
         # Work through the invariants and make sure they appear
         # in order.
@@ -476,12 +474,12 @@ class PythonTemplater(RawTemplater):
             if linv not in invariants:
                 continue
 
-            source_pos, templ_pos = raw_occurances[linv], templated_occurances[linv]
+            source_pos, templ_pos = raw_occurrences[linv], templated_occurrences[linv]
             # Copy the list before iterating because we're going to edit it.
             for tinv in invariants.copy():
                 if tinv != linv:
-                    src_dir = source_pos > raw_occurances[tinv]
-                    tmp_dir = templ_pos > templated_occurances[tinv]
+                    src_dir = source_pos > raw_occurrences[tinv]
+                    tmp_dir = templ_pos > templated_occurrences[tinv]
                     # If it's not in the same direction in the source and template remove it.
                     if src_dir != tmp_dir:
                         templater_logger.debug(
@@ -500,7 +498,7 @@ class PythonTemplater(RawTemplater):
                     yield IntermediateFileSlice(
                         "compound",
                         slice(idx, raw_pos),
-                        slice(templ_idx, templated_occurances[raw][0]),
+                        slice(templ_idx, templated_occurrences[raw][0]),
                         buffer,
                     )
                 buffer = []
@@ -509,12 +507,12 @@ class PythonTemplater(RawTemplater):
                     "invariant",
                     slice(raw_pos, raw_pos + len(raw)),
                     slice(
-                        templated_occurances[raw][0],
-                        templated_occurances[raw][0] + len(raw),
+                        templated_occurrences[raw][0],
+                        templated_occurrences[raw][0] + len(raw),
                     ),
-                    [RawFileSlice(raw, token_type, templated_occurances[raw][0])],
+                    [RawFileSlice(raw, token_type, templated_occurrences[raw][0])],
                 )
-                templ_idx = templated_occurances[raw][0] + len(raw)
+                templ_idx = templated_occurrences[raw][0] + len(raw)
             else:
                 buffer.append(RawFileSlice(raw, token_type, raw_pos))
                 if idx is None:
@@ -529,17 +527,17 @@ class PythonTemplater(RawTemplater):
             )
 
     @staticmethod
-    def _filter_occurances(
-        file_slice: slice, occurances: Dict[str, List[int]]
+    def _filter_occurrences(
+        file_slice: slice, occurrences: Dict[str, List[int]]
     ) -> Dict[str, List[int]]:
         """Filter a dict of occurrences to just those within a slice."""
         filtered = {
             key: [
                 pos
-                for pos in occurances[key]
+                for pos in occurrences[key]
                 if pos >= file_slice.start and pos < file_slice.stop
             ]
-            for key in occurances.keys()
+            for key in occurrences.keys()
         }
         return {key: filtered[key] for key in filtered.keys() if filtered[key]}
 
@@ -569,8 +567,8 @@ class PythonTemplater(RawTemplater):
     def _split_uniques_coalesce_rest(
         cls,
         split_file: List[IntermediateFileSlice],
-        raw_occurances: Dict[str, List[int]],
-        templ_occurances: Dict[str, List[int]],
+        raw_occurrences: Dict[str, List[int]],
+        templ_occurrences: Dict[str, List[int]],
         templated_str: str,
     ) -> Iterator[TemplatedFileSlice]:
         """Within each of the compound sections split on unique literals.
@@ -642,11 +640,11 @@ class PythonTemplater(RawTemplater):
             coalesced = int_file_slice.coalesce()
 
             # Look for anchors
-            raw_occs = cls._filter_occurances(
-                int_file_slice.source_slice, raw_occurances
+            raw_occs = cls._filter_occurrences(
+                int_file_slice.source_slice, raw_occurrences
             )
-            templ_occs = cls._filter_occurances(
-                int_file_slice.templated_slice, templ_occurances
+            templ_occs = cls._filter_occurrences(
+                int_file_slice.templated_slice, templ_occurrences
             )
             # Do we have any uniques to split on?
             # NB: We use `get` on the templated occurrences, because it's possible
@@ -820,7 +818,7 @@ class PythonTemplater(RawTemplater):
             # formatting, but this class is also the base for the jinja templater
             # (and others?) so it may be used there.
             # One way uniques give us landmarks to try and estimate what to do with them.
-            owu_templ_tuples = cls._sorted_occurance_tuples(
+            owu_templ_tuples = cls._sorted_occurrence_tuples(
                 {key: templ_occs[key] for key in one_way_uniques}
             )
 

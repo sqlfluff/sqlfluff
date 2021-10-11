@@ -376,6 +376,15 @@ class Rule_L016(Rule_L003):
             # them. Rationale: The intent of this rule is to enforce maximum
             # line length, and newlines don't make lines longer.
             return 0
+
+        if "\n" in segment.pos_marker.source_str():
+            # Similarly we shouldn't see newlines in source segments
+            # However for templated loops it's often not possible to
+            # accurately calculate the segments. These will be caught by
+            # the first iteration of the loop (which is non-templated)
+            # so doesn't suffer from the same bug, so we can ignore these
+            return 0
+
         # Compute the length of this segments in SOURCE space (before template
         # expansion).
         slice_length = (
