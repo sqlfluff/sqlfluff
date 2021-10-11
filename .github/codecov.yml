@@ -10,9 +10,7 @@ codecov:
   disable_default_path_fixes: no
   require_ci_to_pass: yes
   notify:
-    # We have 4 versions of python, 4 dbt and 2 windows checks
-    # So we need at least 9 runs to ensure we cover all 3 types
-    after_n_builds: 9
+    after_n_builds: 10
     wait_for_ci: yes
 
 coverage:
