@@ -25,6 +25,7 @@ from sqlfluff.core.parser import (
     StringParser,
     NamedParser,
     RegexParser,
+    SegmentGenerator,
 )
 from sqlfluff.core.parser.grammar.anyof import OptionallyBracketed
 
@@ -153,6 +154,7 @@ snowflake_dialect.insert_lexer_matchers(
             r"[$][a-zA-Z0-9_.]*",
             CodeSegment,
         ),
+        RegexLexer("inline_dollar_sign", r"[a-zA-Z0-9_][a-zA-Z_$]*", CodeSegment),
     ],
     before="not_equal",
 )
@@ -238,6 +240,17 @@ snowflake_dialect.add(
 )
 
 snowflake_dialect.replace(
+    NakedIdentifierSegment=SegmentGenerator(
+        # Generate the anti template from the set of reserved keywords
+        lambda dialect: RegexParser(
+            # See https://docs.snowflake.com/en/sql-reference/identifiers-syntax.html
+            r"[a-zA-Z0-9_][a-zA-Z_$]*",
+            CodeSegment,
+            name="naked_identifier",
+            type="identifier",
+            anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
+        )
+    ),
     LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar").copy(
         insert=[
             Ref("ReferencedVariableNameSegment"),
@@ -1949,6 +1962,22 @@ class ExplainStatementSegment(ansi_dialect.get_segment("ExplainStatementSegment"
             optional=True,
         ),
         ansi_dialect.get_segment("ExplainStatementSegment").explainable_stmt,
+    )
+
+
+@snowflake_dialect.segment(replace=True)
+class FunctionDefinitionGrammar(BaseSegment):
+    """This is the body of a `CREATE FUNCTION AS` statement."""
+
+    match_grammar = Sequence(
+        "AS",
+        OneOf(Ref("QuotedLiteralSegment"), Ref("DollarQuotedLiteralSegment")),
+        Sequence(
+            "LANGUAGE",
+            # Not really a parameter, but best fit for now.
+            Ref("ParameterNameSegment"),
+            optional=True,
+        ),
     )
 
 
