@@ -8,7 +8,6 @@ to common configuration and dialects, logging and also the parse
 and match depth of the current operation.
 """
 
-from __future__ import annotations
 import logging
 import uuid
 
@@ -45,7 +44,7 @@ class RootParseContext:
         self.uuid = uuid.uuid4()
 
     @classmethod
-    def from_config(cls, config, **overrides: Dict[str, bool]) -> RootParseContext:
+    def from_config(cls, config, **overrides: Dict[str, bool]) -> "RootParseContext":
         """Construct a `RootParseContext` from a `FluffConfig`."""
         indentation_config = config.get_section("indentation") or {}
         try:
