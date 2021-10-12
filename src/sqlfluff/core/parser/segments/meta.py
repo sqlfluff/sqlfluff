@@ -41,7 +41,7 @@ class MetaSegment(RawSegment):
         complicated segments will be assumed to overwrite this method
         if they wish to be considered simple.
         """
-        return ""
+        return [""]
 
 
 class Indent(MetaSegment):
