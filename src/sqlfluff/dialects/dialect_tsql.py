@@ -1270,7 +1270,7 @@ class DeleteStatementSegment(BaseSegment):
 
 
 @tsql_dialect.segment(replace=True)
-class FromClauseSegment(ansi_dialect.get_segment("FromClauseSegment")):
+class FromClauseSegment(BaseSegment):
     """A `FROM` clause like in `SELECT`.
 
     NOTE: this is a delimited set of table expressions, with a variable
@@ -1299,7 +1299,7 @@ class FromClauseSegment(ansi_dialect.get_segment("FromClauseSegment")):
         Ref("DelimiterSegment", optional=True),
     )
 
-    parse_grammar = match_grammar
+    get_eventual_aliases = ansi_dialect.get_segment("FromClauseSegment").get_eventual_aliases
 
 
 @tsql_dialect.segment(replace=True)
