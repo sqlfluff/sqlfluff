@@ -1299,6 +1299,18 @@ class FromClauseSegment(ansi_dialect.get_segment("FromClauseSegment")):
         Ref("DelimiterSegment", optional=True),
     )
 
+    parse_grammar = Sequence(
+        "FROM",
+        AnyNumberOf(
+            Sequence(
+                Ref("FromExpressionSegment"),
+                Ref("CommaSegment"),
+            ),
+        ),
+        Ref("FromExpressionSegment"),
+        Ref("DelimiterSegment", optional=True),
+    )
+
 
 @tsql_dialect.segment(replace=True)
 class OrderByClauseSegment(BaseSegment):
