@@ -120,6 +120,7 @@ tsql_dialect.replace(
     PrimaryKeyGrammar=Sequence(
         "PRIMARY", "KEY", OneOf("CLUSTERED", "NONCLUSTERED", optional=True)
     ),
+    # Overriding SelectClauseSegmentGrammar to remove Delimited logic which assumes statements have been delimited
     SelectClauseSegmentGrammar=Sequence(
         "SELECT",
         Ref("SelectClauseModifierSegment", optional=True),
@@ -172,7 +173,10 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
 
 @tsql_dialect.segment(replace=True)
 class SelectClauseElementSegment(BaseSegment):
-    """An element in the targets of a select statement."""
+    """An element in the targets of a select statement.
+
+    Overriding ANSI to remove GreedyUntil logic which assumes statements have been delimited
+    """
 
     type = "select_clause_element"
     # Important to split elements before parsing, otherwise debugging is really hard.
@@ -205,7 +209,11 @@ class SelectClauseModifierSegment(BaseSegment):
 
 @tsql_dialect.segment(replace=True)
 class SelectClauseSegment(BaseSegment):
-    """A group of elements in a select target statement."""
+    """A group of elements in a select target statement.
+
+    Overriding ANSI to remove StartsWith logic which assumes statements have been delimited
+    """"
+
 
     type = "select_clause"
     match_grammar = Ref("SelectClauseSegmentGrammar")
@@ -392,7 +400,6 @@ class DeclareStatementSegment(BaseSegment):
 
     type = "declare_segment"
     match_grammar = StartsWith("DECLARE")
-
     parse_grammar = Sequence(
         "DECLARE",
         Delimited(Ref("ParameterNameSegment")),
@@ -1248,6 +1255,7 @@ class DeleteStatementSegment(BaseSegment):
     """A `DELETE` statement.
 
     DELETE FROM <table name> [ WHERE <search condition> ]
+    Overriding ANSI to remove StartsWith logic which assumes statements have been delimited
     """
 
     type = "delete_statement"
@@ -1274,6 +1282,8 @@ class FromClauseSegment(BaseSegment):
     SELECT *
     FROM a JOIN b, c JOIN d
     ```
+
+    Overriding ANSI to remove Delimited logic which assumes statements have been delimited
     """
 
     type = "from_clause"
@@ -1292,7 +1302,10 @@ class FromClauseSegment(BaseSegment):
 
 @tsql_dialect.segment(replace=True)
 class OrderByClauseSegment(BaseSegment):
-    """A `ORDER BY` clause like in `SELECT`."""
+    """A `ORDER BY` clause like in `SELECT`.
+
+    Overriding ANSI to remove StartsWith logic which assumes statements have been delimited
+    """
 
     type = "orderby_clause"
     match_grammar = Sequence(
