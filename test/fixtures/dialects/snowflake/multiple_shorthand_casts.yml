@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f0ae131c968b3bb8ac99c4439451208f030ae46b59235e46a52fb2aac57d0425
+_hash: f1ee0fab94f2e2ade22759250f5e8ce286b26eab9f33624c98e1f781b606de25
 file:
-  statement:
+- statement:
     select_statement:
       select_clause:
         keyword: select
@@ -23,4 +23,35 @@ file:
           alias_expression:
             keyword: as
             identifier: bool
-  statement_terminator: ;
+- statement_terminator: ;
+- statement:
+    update_statement:
+      keyword: update
+      table_reference:
+        identifier: table_name
+      set_clause_list:
+      - keyword: set
+      - set_clause:
+          column_reference:
+            identifier: col1
+          comparison_operator: '='
+          bare_function: CURRENT_TIMESTAMP
+          cast_expression:
+            casting_operator: '::'
+            data_type:
+              data_type_identifier: TIMESTAMP_TZ
+      - comma: ','
+      - set_clause:
+        - column_reference:
+            identifier: col2
+        - comparison_operator: '='
+        - literal: "'1'"
+        - cast_expression:
+            casting_operator: '::'
+            data_type:
+              data_type_identifier: int
+        - cast_expression:
+            casting_operator: '::'
+            data_type:
+              data_type_identifier: boolean
+- statement_terminator: ;
