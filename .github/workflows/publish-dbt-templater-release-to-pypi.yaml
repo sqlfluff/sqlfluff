@@ -26,7 +26,7 @@ jobs:
       
       - name: Copy builds to main dist folder
         # We move them here so that the github action can still access them
-        run: cp plugins/sqlfluff-templater-dbt/dist/. dist/.
+        run: cp -r plugins/sqlfluff-templater-dbt/dist/. dist/
 
       - name: Publish Python distribution to PyPI
         uses: pypa/gh-action-pypi-publish@master
