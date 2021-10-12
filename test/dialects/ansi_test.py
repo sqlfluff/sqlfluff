@@ -176,7 +176,7 @@ def test__dialect__ansi_specific_segment_not_parse(raw, err_locations, caplog):
 def test__dialect__ansi_is_whitespace():
     """Test proper tagging with is_whitespace."""
     lnt = Linter()
-    with open("test/fixtures/parser/ansi/select_in_multiline_comment.sql") as f:
+    with open("test/fixtures/dialects/ansi/select_in_multiline_comment.sql") as f:
         parsed = lnt.parse_string(f.read())
     # Check all the segments that *should* be whitespace, ARE
     for raw_seg in parsed.tree.iter_raw_seg():
