@@ -1279,3 +1279,40 @@ class FromClauseSegment(BaseSegment):
         Ref("FromExpressionSegment"),
         Ref("DelimiterSegment", optional=True),
     )
+
+
+@tsql_dialect.segment(replace=True)
+class OrderByClauseSegment(BaseSegment):
+    """A `ORDER BY` clause like in `SELECT`."""
+
+    type = "orderby_clause"
+    match_grammar = Sequence(
+        "ORDER",
+        "BY",
+        Indent,
+        Sequence(
+            OneOf(
+                Ref("ColumnReferenceSegment"),
+                # Can `ORDER BY 1`
+                Ref("NumericLiteralSegment"),
+                # Can order by an expression
+                Ref("ExpressionSegment"),
+            ),
+            OneOf("ASC", "DESC", optional=True),
+        ),
+        AnyNumberOf(
+            Ref("CommaSegment"),
+            Sequence(
+                OneOf(
+                    Ref("ColumnReferenceSegment"),
+                    # Can `ORDER BY 1`
+                    Ref("NumericLiteralSegment"),
+                    # Can order by an expression
+                    Ref("ExpressionSegment"),
+                ),
+                OneOf("ASC", "DESC", optional=True),
+            ),
+        ),
+        Dedent,
+        Ref("DelimiterSegment", optional=True),
+    )
