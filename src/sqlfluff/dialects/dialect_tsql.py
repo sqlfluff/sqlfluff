@@ -1299,7 +1299,9 @@ class FromClauseSegment(BaseSegment):
         Ref("DelimiterSegment", optional=True),
     )
 
-    get_eventual_aliases = ansi_dialect.get_segment("FromClauseSegment").get_eventual_aliases
+    get_eventual_aliases = ansi_dialect.get_segment(
+        "FromClauseSegment"
+    ).get_eventual_aliases
 
 
 @tsql_dialect.segment(replace=True)
