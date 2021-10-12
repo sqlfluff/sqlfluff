@@ -2,8 +2,6 @@
 
 import pytest
 import logging
-import os
-import os.path
 from typing import List
 from unittest.mock import patch
 

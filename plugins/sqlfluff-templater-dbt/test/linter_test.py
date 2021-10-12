@@ -1,6 +1,5 @@
 """The Test file for the linter class."""
 
-import pytest
 import os
 import os.path
 

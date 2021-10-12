@@ -11,6 +11,7 @@ from test.fixtures.dbt.templater import (  # noqa
     dbt_templater,
 )
 
+
 @pytest.mark.parametrize(
     "rule,path,violations",
     [

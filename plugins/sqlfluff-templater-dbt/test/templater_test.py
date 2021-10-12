@@ -65,7 +65,10 @@ def test__templater_dbt_templating_result(
         fname=os.path.join(project_dir, "models/my_new_project/", fname),
         config=FluffConfig(configs=DBT_FLUFF_CONFIG),
     )
-    assert str(templated_file) == open("plugins/sqlfluff-templater-dbt/test/fixtures/dbt/" + fname).read()
+    assert (
+        str(templated_file)
+        == open("plugins/sqlfluff-templater-dbt/test/fixtures/dbt/" + fname).read()
+    )
 
 
 @pytest.mark.parametrize(
