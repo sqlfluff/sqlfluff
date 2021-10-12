@@ -183,13 +183,17 @@ class Linter:
         config: FluffConfig,
         recurse: bool = True,
         fname: Optional[str] = None,
+        disable_progress_bar: bool = False,
     ) -> Tuple[Optional[BaseSegment], List[SQLParseError]]:
         parser = Parser(config=config)
         violations = []
         # Parse the file and log any problems
         try:
             parsed: Optional[BaseSegment] = parser.parse(
-                tokens, recurse=recurse, fname=fname
+                tokens,
+                recurse=recurse,
+                fname=fname,
+                disable_progress_bar=disable_progress_bar,
             )
         except SQLParseError as err:
             linter_logger.info("PARSING FAILED! : %s", err)
@@ -294,7 +298,12 @@ class Linter:
     # These compose the base static methods into useful recipes.
 
     @classmethod
-    def parse_rendered(cls, rendered: RenderedFile, recurse: bool = True):
+    def parse_rendered(
+        cls,
+        rendered: RenderedFile,
+        recurse: bool = True,
+        disable_progress_bar: bool = False,
+    ):
         """Parse a rendered file."""
         t0 = time.monotonic()
         violations = cast(List[SQLBaseError], rendered.templater_violations)
@@ -312,7 +321,11 @@ class Linter:
 
         if tokens:
             parsed, pvs = cls._parse_tokens(
-                tokens, rendered.config, recurse=recurse, fname=rendered.fname
+                tokens,
+                rendered.config,
+                recurse=recurse,
+                fname=rendered.fname,
+                disable_progress_bar=disable_progress_bar,
             )
             violations += pvs
         else:
@@ -371,6 +384,7 @@ class Linter:
         fname: Optional[str] = None,
         templated_file: Optional[TemplatedFile] = None,
         formatter: Any = None,
+        disable_progress_bar: bool = False,
     ) -> Tuple[BaseSegment, List[SQLBaseError], List[NoQaDirective]]:
         """Lint and optionally fix a tree object."""
         # Keep track of the linting errors
@@ -394,9 +408,15 @@ class Linter:
         for loop in range(loop_limit):
             changed = False
 
-            progress_bar_crawler = tqdm(rule_set, desc="lint by rules", leave=False)
+            progress_bar_crawler = (
+                rule_set
+                if disable_progress_bar
+                else tqdm(rule_set, desc="lint by rules", leave=False)
+            )
+
             for crawler in progress_bar_crawler:
-                progress_bar_crawler.set_description(f"rule {crawler.code}")
+                if not disable_progress_bar:
+                    progress_bar_crawler.set_description(f"rule {crawler.code}")
 
                 # fixes should be a dict {} with keys edit, delete, create
                 # delete is just a list of segments to delete
@@ -459,6 +479,7 @@ class Linter:
         fix: bool = False,
         formatter: Any = None,
         encoding: str = "utf8",
+        disable_progress_bar: bool = False,
     ):
         """Lint a ParsedString and return a LintedFile."""
         violations = parsed.violations
@@ -475,6 +496,7 @@ class Linter:
                 fname=parsed.fname,
                 templated_file=parsed.templated_file,
                 formatter=formatter,
+                disable_progress_bar=disable_progress_bar,
             )
             # Update the timing dict
             time_dict["linting"] = time.monotonic() - t0
@@ -523,15 +545,17 @@ class Linter:
         rule_set: List[BaseRule],
         fix: bool = False,
         formatter: Any = None,
+        disable_progress_bar: bool = False,
     ) -> LintedFile:
         """Take a RenderedFile and return a LintedFile."""
-        parsed = cls.parse_rendered(rendered)
+        parsed = cls.parse_rendered(rendered, disable_progress_bar=disable_progress_bar)
         return cls.lint_parsed(
             parsed,
             rule_set=rule_set,
             fix=fix,
             formatter=formatter,
             encoding=rendered.encoding,
+            disable_progress_bar=disable_progress_bar,
         )
 
     # ### Instance Methods
@@ -589,6 +613,7 @@ class Linter:
         recurse: bool = True,
         config: Optional[FluffConfig] = None,
         encoding: str = "utf-8",
+        disable_progress_bar: bool = False,
     ) -> ParsedString:
         """Parse a string."""
         violations: List[SQLBaseError] = []
@@ -609,7 +634,9 @@ class Linter:
         if self.formatter:
             self.formatter.dispatch_parse_header(fname)
 
-        return self.parse_rendered(rendered, recurse=recurse)
+        return self.parse_rendered(
+            rendered, recurse=recurse, disable_progress_bar=disable_progress_bar
+        )
 
     def fix(
         self,
@@ -660,6 +687,7 @@ class Linter:
         fix: bool = False,
         config: Optional[FluffConfig] = None,
         encoding: str = "utf8",
+        disable_progress_bar: bool = False,
     ) -> LintedFile:
         """Lint a string.
 
@@ -670,12 +698,22 @@ class Linter:
         # Sort out config, defaulting to the built in config if no override
         config = config or self.config
         # Parse the string.
-        parsed = self.parse_string(in_str=in_str, fname=fname, config=config)
+        parsed = self.parse_string(
+            in_str=in_str,
+            fname=fname,
+            config=config,
+            disable_progress_bar=disable_progress_bar,
+        )
         # Get rules as appropriate
         rule_set = self.get_ruleset(config=config)
         # Lint the file and return the LintedFile
         return self.lint_parsed(
-            parsed, rule_set, fix=fix, formatter=self.formatter, encoding=encoding
+            parsed,
+            rule_set,
+            fix=fix,
+            formatter=self.formatter,
+            encoding=encoding,
+            disable_progress_bar=disable_progress_bar,
         )
 
     def paths_from_path(
@@ -794,12 +832,20 @@ class Linter:
         return sorted(filtered_buffer)
 
     def lint_string_wrapped(
-        self, string: str, fname: str = "<string input>", fix: bool = False
+        self,
+        string: str,
+        fname: str = "<string input>",
+        fix: bool = False,
+        disable_progress_bar: bool = False,
     ) -> LintingResult:
         """Lint strings directly."""
         result = LintingResult()
         linted_path = LintedDir(fname)
-        linted_path.add(self.lint_string(string, fname=fname, fix=fix))
+        linted_path.add(
+            self.lint_string(
+                string, fname=fname, fix=fix, disable_progress_bar=disable_progress_bar
+            )
+        )
         result.add(linted_path)
         result.stop_timer()
         return result
@@ -811,6 +857,7 @@ class Linter:
         ignore_non_existent_files: bool = False,
         ignore_files: bool = True,
         processes: int = 1,
+        disable_progress_bar: bool = False,
     ) -> LintedDir:
         """Lint a path."""
         linted_path = LintedDir(path)
@@ -832,14 +879,16 @@ class Linter:
 
         # Show files progress bar only when there is more than one.
         files_count = len(fnames)
-        if files_count > 1:
+        if not disable_progress_bar and files_count > 1:
             progress_bar_linter = tqdm(
                 total=files_count,
                 desc=f"file {os.path.basename(fnames[0])}",
                 leave=False,
             )
 
-        for i, linted_file in enumerate(runner.run(fnames, fix), start=1):
+        for i, linted_file in enumerate(
+            runner.run(fnames, fix, disable_progress_bar=disable_progress_bar), start=1
+        ):
             linted_path.add(linted_file)
             # If any fatal errors, then stop iteration.
             if any(v.fatal for v in linted_file.violations):  # pragma: no cover
@@ -850,7 +899,7 @@ class Linter:
             # Additionally as it's updated after each loop, we need to get file name
             # from the next loop. This is why `enumerate` starts with `1` and there
             # is `i < len` to not exceed files list length.
-            if files_count > 1:
+            if not disable_progress_bar and files_count > 1:
                 progress_bar_linter.update(n=1)
                 if i < len(fnames):
                     progress_bar_linter.set_description(
@@ -866,6 +915,7 @@ class Linter:
         ignore_non_existent_files: bool = False,
         ignore_files: bool = True,
         processes: int = 1,
+        disable_progress_bar: bool = False,
     ) -> LintingResult:
         """Lint an iterable of paths."""
         paths_count = len(paths)
@@ -876,11 +926,11 @@ class Linter:
         # Set up the result to hold what we get back
         result = LintingResult()
 
-        if paths_count > 1:
+        if not disable_progress_bar and paths_count > 1:
             progress_bar = tqdm(total=paths_count, desc="path", leave=False)
 
         for path in paths:
-            if paths_count > 1:
+            if not disable_progress_bar and paths_count > 1:
                 progress_bar.set_description(f"path {path}")
 
             # Iterate through files recursively in the specified directory (if it's a directory)
@@ -892,15 +942,18 @@ class Linter:
                     ignore_non_existent_files=ignore_non_existent_files,
                     ignore_files=ignore_files,
                     processes=processes,
+                    disable_progress_bar=disable_progress_bar,
                 )
             )
-            if paths_count > 1:
+            if not disable_progress_bar and paths_count > 1:
                 progress_bar.update(1)
 
         result.stop_timer()
         return result
 
-    def parse_path(self, path: str, recurse: bool = True) -> Iterator[ParsedString]:
+    def parse_path(
+        self, path: str, recurse: bool = True, disable_progress_bar: bool = False
+    ) -> Iterator[ParsedString]:
         """Parse a path of sql files.
 
         NB: This a generator which will yield the result of each file
@@ -914,5 +967,10 @@ class Linter:
                 fname, self.config
             )
             yield self.parse_string(
-                raw_file, fname=fname, recurse=recurse, config=config, encoding=encoding
+                raw_file,
+                fname=fname,
+                recurse=recurse,
+                config=config,
+                encoding=encoding,
+                disable_progress_bar=disable_progress_bar,
             )

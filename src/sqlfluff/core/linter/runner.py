@@ -42,7 +42,10 @@ class BaseRunner(ABC):
             yield fname, self.linter.render_file(fname, self.config)
 
     def iter_partials(
-        self, fnames: List[str], fix: bool = False
+        self,
+        fnames: List[str],
+        fix: bool = False,
+        disable_progress_bar: bool = False,
     ) -> Iterator[Tuple[str, Callable]]:
         """Iterate through partials for linted files.
 
@@ -61,10 +64,11 @@ class BaseRunner(ABC):
                     # Formatters may or may not be passed. They don't pickle
                     # nicely so aren't appropriate in a multiprocessing world.
                     self.linter.formatter if self.pass_formatter else None,
+                    disable_progress_bar=disable_progress_bar,
                 ),
             )
 
-    def run(self, fnames: List[str], fix: bool):
+    def run(self, fnames: List[str], fix: bool, disable_progress_bar: bool):
         """Run linting on the specified list of files."""
         raise NotImplementedError  # pragma: no cover
 
@@ -93,9 +97,13 @@ To hide this warning, add the failing file to .sqlfluffignore
 class SequentialRunner(BaseRunner):
     """Simple runner that does sequential processing."""
 
-    def run(self, fnames: List[str], fix: bool) -> Iterator[LintedFile]:
+    def run(
+        self, fnames: List[str], fix: bool, disable_progress_bar: bool = False
+    ) -> Iterator[LintedFile]:
         """Sequential implementation."""
-        for fname, partial in self.iter_partials(fnames, fix=fix):
+        for fname, partial in self.iter_partials(
+            fnames, fix=fix, disable_progress_bar=disable_progress_bar
+        ):
             try:
                 yield partial()
             except (bdb.BdbQuit, KeyboardInterrupt):  # pragma: no cover
@@ -117,7 +125,7 @@ class ParallelRunner(BaseRunner):
         super().__init__(linter, config)
         self.processes = processes
 
-    def run(self, fnames, fix):
+    def run(self, fnames: List[str], fix: bool, disable_progress_bar: bool):
         """Parallel implementation.
 
         Note that the partials are generated one at a time then
@@ -132,7 +140,11 @@ class ParallelRunner(BaseRunner):
         ) as pool:
             try:
                 for lint_result in self._map(
-                    pool, self._apply, self.iter_partials(fnames, fix=fix)
+                    pool,
+                    self._apply,
+                    self.iter_partials(
+                        fnames, fix=fix, disable_progress_bar=disable_progress_bar
+                    ),
                 ):
                     if isinstance(lint_result, DelayedException):
                         try:

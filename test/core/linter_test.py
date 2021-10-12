@@ -196,6 +196,7 @@ def test__linter__linting_result_get_violations(processes):
             "test/fixtures/linter/whitespace_errors.sql",
         ],
         processes=processes,
+        disable_progress_bar=True,
     )
 
     all([type(v) == SQLLintError for v in result.get_violations()])
@@ -235,6 +236,7 @@ def test__linter__linting_parallel_thread(force_error, monkeypatch):
     result = lntr.lint_paths(
         ("test/fixtures/linter/comma_errors.sql",),
         processes=2,
+        disable_progress_bar=True,
     )
 
     all([type(v) == SQLLintError for v in result.get_violations()])
@@ -248,7 +250,9 @@ def test_lint_path_parallel_wrapper_exception(patched_lint):
     """
     patched_lint.side_effect = ValueError("Something unexpected happened")
     for result in runner.MultiThreadRunner(Linter(), FluffConfig(), processes=1).run(
-        ["test/fixtures/linter/passing.sql"], fix=False
+        ["test/fixtures/linter/passing.sql"],
+        fix=False,
+        disable_progress_bar=True,
     ):
         assert isinstance(result, runner.DelayedException)
         with pytest.raises(ValueError):

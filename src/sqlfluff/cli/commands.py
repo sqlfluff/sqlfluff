@@ -339,6 +339,11 @@ def dialects(**kwargs) -> None:
     default=1,
     help="The number of parallel processes to run.",
 )
+@click.option(
+    "--disable_progress_bar",
+    is_flag=True,
+    help="Disables progress bars when set.",
+)
 @click.argument("paths", nargs=-1)
 def lint(
     paths: Tuple[str],
@@ -349,6 +354,7 @@ def lint(
     disregard_sqlfluffignores: bool,
     logger: Optional[logging.Logger] = None,
     bench: bool = False,
+    disable_progress_bar: bool = False,
     **kwargs,
 ) -> NoReturn:
     """Lint SQL files via passing a list of files or using stdin.
@@ -380,7 +386,9 @@ def lint(
     set_logging_level(verbosity=verbose, logger=logger, stderr_output=non_human_output)
     # add stdin if specified via lone '-'
     if ("-",) == paths:
-        result = lnt.lint_string_wrapped(sys.stdin.read(), fname="stdin")
+        result = lnt.lint_string_wrapped(
+            sys.stdin.read(), fname="stdin", disable_progress_bar=disable_progress_bar
+        )
     else:
         # Output the results as we go
         if verbose >= 1:
@@ -391,6 +399,7 @@ def lint(
                 ignore_non_existent_files=False,
                 ignore_files=not disregard_sqlfluffignores,
                 processes=processes,
+                disable_progress_bar=disable_progress_bar,
             )
         except OSError:
             click.echo(
@@ -485,6 +494,11 @@ def do_fixes(lnt, result, formatter=None, **kwargs):
     default=1,
     help="The number of parallel processes to run.",
 )
+@click.option(
+    "--disable_progress_bar",
+    is_flag=True,
+    help="Disables progress bars when set.",
+)
 @click.argument("paths", nargs=-1)
 def fix(
     force: bool,
@@ -493,6 +507,7 @@ def fix(
     bench: bool = False,
     fixed_suffix: str = "",
     logger: Optional[logging.Logger] = None,
+    disable_progress_bar: bool = False,
     **kwargs,
 ) -> NoReturn:
     """Fix SQL files.
@@ -519,7 +534,9 @@ def fix(
     if fixing_stdin:
         stdin = sys.stdin.read()
 
-        result = lnt.lint_string_wrapped(stdin, fname="stdin", fix=True)
+        result = lnt.lint_string_wrapped(
+            stdin, fname="stdin", fix=True, disable_progress_bar=disable_progress_bar
+        )
         templater_error = result.num_violations(types=SQLTemplaterError) > 0
         unfixable_error = result.num_violations(types=SQLLintError, fixable=False) > 0
 
@@ -553,7 +570,11 @@ def fix(
     click.echo("==== finding fixable violations ====")
     try:
         result = lnt.lint_paths(
-            paths, fix=True, ignore_non_existent_files=False, processes=processes
+            paths,
+            fix=True,
+            ignore_non_existent_files=False,
+            processes=processes,
+            disable_progress_bar=disable_progress_bar,
         )
     except OSError:
         click.echo(
@@ -746,12 +767,18 @@ def parse(
         if "-" == path:
             parsed_strings = [
                 lnt.parse_string(
-                    sys.stdin.read(), "stdin", recurse=recurse, config=lnt.config
+                    sys.stdin.read(),
+                    "stdin",
+                    recurse=recurse,
+                    config=lnt.config,
+                    disable_progress_bar=True,
                 ),
             ]
         else:
             # A single path must be specified for this command
-            parsed_strings = list(lnt.parse_path(path, recurse=recurse))
+            parsed_strings = list(
+                lnt.parse_path(path, recurse=recurse, disable_progress_bar=True)
+            )
 
         total_time = time.monotonic() - t0
         violations_count = 0

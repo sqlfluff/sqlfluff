@@ -57,7 +57,13 @@ def test__cli__command_directed():
     """Basic checking of lint functionality."""
     result = invoke_assert_code(
         ret_code=65,
-        args=[lint, ["test/fixtures/linter/indentation_error_simple.sql"]],
+        args=[
+            lint,
+            [
+                "--disable_progress_bar",
+                "test/fixtures/linter/indentation_error_simple.sql",
+            ],
+        ],
     )
     # We should get a readout of what the error was
     check_a = "L:   2 | P:   4 | L003"
@@ -421,7 +427,9 @@ def test__cli__command__fix(rule, fname):
 )
 def test__cli__command_fix_stdin(stdin, rules, stdout):
     """Check stdin input for fix works."""
-    result = invoke_assert_code(args=[fix, ("-", "--rules", rules)], cli_input=stdin)
+    result = invoke_assert_code(
+        args=[fix, ("-", "--rules", rules, "--disable_progress_bar")], cli_input=stdin
+    )
     assert result.output == stdout
 
 
@@ -449,7 +457,9 @@ def test__cli__command_fix_stdin_safety():
     perfect_sql = "select col from table"
 
     # just prints the very same thing
-    result = invoke_assert_code(args=[fix, ("-",)], cli_input=perfect_sql)
+    result = invoke_assert_code(
+        args=[fix, ("-", "--disable_progress_bar")], cli_input=perfect_sql
+    )
     assert result.output.strip() == perfect_sql
 
 
@@ -564,7 +574,10 @@ def test__cli__command_parse_serialize_from_stdin(serialize):
 def test__cli__command_lint_serialize_from_stdin(serialize, sql, expected, exit_code):
     """Check an explicit serialized return value for a single error."""
     result = invoke_assert_code(
-        args=[lint, ("-", "--rules", "L010", "--format", serialize)],
+        args=[
+            lint,
+            ("-", "--rules", "L010", "--format", serialize, "--disable_progress_bar"),
+        ],
         cli_input=sql,
         ret_code=exit_code,
     )
@@ -597,7 +610,7 @@ def test__cli__command_lint_serialize_multiple_files(serialize):
 
     # note the file is in here twice. two files = two payloads.
     result = invoke_assert_code(
-        args=[lint, (fpath, fpath, "--format", serialize)],
+        args=[lint, (fpath, fpath, "--format", serialize, "--disable_progress_bar")],
         ret_code=65,
     )
 
@@ -621,7 +634,14 @@ def test__cli__command_lint_serialize_github_annotation():
     result = invoke_assert_code(
         args=[
             lint,
-            (fpath, "--format", "github-annotation", "--annotation-level", "warning"),
+            (
+                fpath,
+                "--format",
+                "github-annotation",
+                "--annotation-level",
+                "warning",
+                "--disable_progress_bar",
+            ),
         ],
         ret_code=65,
     )
