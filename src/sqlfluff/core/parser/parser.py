@@ -2,6 +2,8 @@
 
 from typing import Optional, Sequence, TYPE_CHECKING
 
+from tqdm import tqdm
+
 from sqlfluff.core.parser.context import RootParseContext
 from sqlfluff.core.config import FluffConfig
 
@@ -28,6 +30,12 @@ class Parser:
         # Instantiate the root segment
         root_segment = self.RootSegment(segments=segments, fname=fname)
         # Call .parse() on that segment
+
+        progress_bar_dummy = tqdm(desc="parsing", leave=False)
+
         with RootParseContext.from_config(config=self.config, recurse=recurse) as ctx:
             parsed = root_segment.parse(parse_context=ctx)
+
+        progress_bar_dummy.update(1)
+
         return parsed

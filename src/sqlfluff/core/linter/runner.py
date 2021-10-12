@@ -14,8 +14,9 @@ import multiprocessing.dummy
 import signal
 import sys
 import traceback
-from typing import Callable, List
+from typing import Callable, List, Tuple, Iterator
 
+from sqlfluff.core.linter import LintedFile
 
 linter_logger: logging.Logger = logging.getLogger("sqlfluff.linter")
 
@@ -33,14 +34,16 @@ class BaseRunner(ABC):
 
     pass_formatter = True
 
-    def iter_rendered(self, fnames):
+    def iter_rendered(self, fnames: List[str]) -> Iterator[Tuple]:
         """Iterate through rendered files ready for linting."""
         for fname in self.linter.templater.sequence_files(
             fnames, config=self.config, formatter=self.linter.formatter
         ):
             yield fname, self.linter.render_file(fname, self.config)
 
-    def iter_partials(self, fnames, fix: bool = False):
+    def iter_partials(
+        self, fnames: List[str], fix: bool = False
+    ) -> Iterator[Tuple[str, Callable]]:
         """Iterate through partials for linted files.
 
         Generates filenames and objects which return LintedFiles.
@@ -90,7 +93,7 @@ To hide this warning, add the failing file to .sqlfluffignore
 class SequentialRunner(BaseRunner):
     """Simple runner that does sequential processing."""
 
-    def run(self, fnames, fix):
+    def run(self, fnames: List[str], fix: bool) -> Iterator[LintedFile]:
         """Sequential implementation."""
         for fname, partial in self.iter_partials(fnames, fix=fix):
             try:

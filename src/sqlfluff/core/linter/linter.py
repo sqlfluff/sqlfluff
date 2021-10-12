@@ -17,6 +17,8 @@ from typing import (
 
 import pathspec
 
+from tqdm import tqdm
+
 from sqlfluff.core.errors import (
     SQLBaseError,
     SQLLexError,
@@ -171,6 +173,7 @@ class Linter:
                     if not templating_blocks_indent:
                         continue
             new_tokens.append(token)
+
         # Return new buffer
         return new_tokens, violations, config
 
@@ -390,7 +393,11 @@ class Linter:
 
         for loop in range(loop_limit):
             changed = False
-            for crawler in rule_set:
+
+            progress_bar_crawler = tqdm(rule_set, desc="lint by rules", leave=False)
+            for crawler in progress_bar_crawler:
+                progress_bar_crawler.set_description(f"rule {crawler.code}")
+
                 # fixes should be a dict {} with keys edit, delete, create
                 # delete is just a list of segments to delete
                 # edit and create are list of tuples. The first element is the
@@ -822,12 +829,34 @@ class Linter:
             processes=processes,
             allow_process_parallelism=self.allow_process_parallelism,
         )
-        for linted_file in runner.run(fnames, fix):
+
+        # Show files progress bar only when there is more than one.
+        files_count = len(fnames)
+        if files_count > 1:
+            progress_bar_linter = tqdm(
+                total=files_count,
+                desc=f"file {os.path.basename(fnames[0])}",
+                leave=False,
+            )
+
+        for i, linted_file in enumerate(runner.run(fnames, fix), start=1):
             linted_path.add(linted_file)
             # If any fatal errors, then stop iteration.
             if any(v.fatal for v in linted_file.violations):  # pragma: no cover
                 linter_logger.error("Fatal linting error. Halting further linting.")
                 break
+
+            # Progress bar for files is rendered only when there is more than one file.
+            # Additionally as it's updated after each loop, we need to get file name
+            # from the next loop. This is why `enumerate` starts with `1` and there
+            # is `i < len` to not exceed files list length.
+            if files_count > 1:
+                progress_bar_linter.update(n=1)
+                if i < len(fnames):
+                    progress_bar_linter.set_description(
+                        f"file {os.path.basename(fnames[i])}"
+                    )
+
         return linted_path
 
     def lint_paths(
@@ -839,12 +868,21 @@ class Linter:
         processes: int = 1,
     ) -> LintingResult:
         """Lint an iterable of paths."""
+        paths_count = len(paths)
+
         # If no paths specified - assume local
-        if len(paths) == 0:  # pragma: no cover
+        if not paths_count:  # pragma: no cover
             paths = (os.getcwd(),)
         # Set up the result to hold what we get back
         result = LintingResult()
+
+        if paths_count > 1:
+            progress_bar = tqdm(total=paths_count, desc="path", leave=False)
+
         for path in paths:
+            if paths_count > 1:
+                progress_bar.set_description(f"path {path}")
+
             # Iterate through files recursively in the specified directory (if it's a directory)
             # or read the file directly if it's not
             result.add(
@@ -856,6 +894,9 @@ class Linter:
                     processes=processes,
                 )
             )
+            if paths_count > 1:
+                progress_bar.update(1)
+
         result.stop_timer()
         return result
 
