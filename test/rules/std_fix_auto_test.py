@@ -39,7 +39,7 @@ for dialect in os.listdir(os.path.join(*base_auto_fix_path)):
 
 def make_dialect_path(dialect, fname):
     """Work out how to find paths given a dialect and a file name."""
-    return os.path.join("test", "fixtures", "parser", dialect, fname)
+    return os.path.join("test", "fixtures", "dialects", dialect, fname)
 
 
 def auto_fix_test(dialect, folder, caplog):

@@ -1,39 +1,67 @@
 """Setup file for example plugin."""
-from setuptools import find_packages, setup
-import configparser
+from setuptools import setup
+from os.path import dirname, join
 
 
-# Get the global config info as currently stated
-# (we use the config file to avoid actually loading any python here)
-config = configparser.ConfigParser()
-config.read(["src/sqlfluff/config.ini"])
-version = config.get("sqlfluff", "version")
-
-
-long_description = """
-# dbt plugin for SQLFluff
-
-This plugin works with [SQLFluff](https://pypi.org/project/sqlfluff/), the
-SQL linter for humans, to correctly parse and compile SQL projects using
-[dbt](https://pypi.org/project/dbt/).
-"""
+def read(*names, **kwargs):
+    """Read a file and return the contents as a string."""
+    return open(
+        join(dirname(__file__), *names), encoding=kwargs.get("encoding", "utf8")
+    ).read()
 
 
 setup(
     name="sqlfluff-templater-dbt",
-    version=version,
-    include_package_data=True,
+    version="0.7.0a8",
+    include_package_data=False,
     license="MIT License",
     description="Lint your dbt project SQL.",
-    long_description=long_description,
+    long_description=read("README.md"),
     # Make sure pypi is expecting markdown!
     long_description_content_type="text/markdown",
-    package_dir={"": "src"},
-    packages=find_packages(where="src"),
-    # Make sure sqlfluff is at least as updated at this plugin.
-    # We might break this in the future, but for now while
-    # the two are bundled, this makes sense given the release
-    # cycles are coupled.
-    install_requires=[f"sqlfluff>={version}", "dbt>=0.17"],
+    author="Alan Cruickshank",
+    author_email="alan@designingoverload.com",
+    url="https://github.com/sqlfluff/sqlfluff",
+    python_requires=">=3.6",
+    keywords=[
+        "sqlfluff",
+        "sql",
+        "linter",
+        "formatter",
+        "dbt",
+    ],
+    project_urls={
+        "Homepage": "https://www.sqlfluff.com",
+        "Documentation": "https://docs.sqlfluff.com",
+        "Changes": "https://github.com/sqlfluff/sqlfluff/blob/main/CHANGELOG.md",
+        "Source": "https://github.com/sqlfluff/sqlfluff",
+        "Issue Tracker": "https://github.com/sqlfluff/sqlfluff/issues",
+        "Twitter": "https://twitter.com/SQLFluff",
+        "Chat": "https://github.com/sqlfluff/sqlfluff#sqlfluff-on-slack",
+    },
+    packages=["sqlfluff_templater_dbt"],
+    classifiers=[
+        # complete classifier list: http://pypi.python.org/pypi?%3Aaction=list_classifiers
+        "Development Status :: 4 - Beta",
+        # 'Development Status :: 5 - Production/Stable',
+        "Environment :: Console",
+        "Intended Audience :: Developers",
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: Unix",
+        "Operating System :: POSIX",
+        "Operating System :: MacOS",
+        "Operating System :: Microsoft :: Windows",
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: Implementation :: CPython",
+        "Programming Language :: Python :: Implementation :: PyPy",
+        "Topic :: Utilities",
+        "Topic :: Software Development :: Quality Assurance",
+    ],
+    install_requires=["sqlfluff>=0.7.0a2", "dbt>=0.17"],
     entry_points={"sqlfluff": ["sqlfluff_templater_dbt = sqlfluff_templater_dbt"]},
 )

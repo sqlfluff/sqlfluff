@@ -34,7 +34,7 @@ from sqlfluff.core.parser import (
 
 from sqlfluff.core.dialects import load_raw_dialect
 
-from sqlfluff.dialects.bigquery_keywords import (
+from sqlfluff.dialects.dialect_bigquery_keywords import (
     bigquery_reserved_keywords,
     bigquery_unreserved_keywords,
 )

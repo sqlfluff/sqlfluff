@@ -27,7 +27,10 @@ from sqlfluff.core.parser import (
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
-from sqlfluff.dialects.tsql_keywords import RESERVED_KEYWORDS, UNRESERVED_KEYWORDS
+from sqlfluff.dialects.dialect_tsql_keywords import (
+    RESERVED_KEYWORDS,
+    UNRESERVED_KEYWORDS,
+)
 
 ansi_dialect = load_raw_dialect("ansi")
 tsql_dialect = ansi_dialect.copy_as("tsql")

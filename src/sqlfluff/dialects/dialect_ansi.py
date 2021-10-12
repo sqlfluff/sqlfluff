@@ -51,7 +51,7 @@ from sqlfluff.core.dialects.base import Dialect
 from sqlfluff.core.dialects.common import AliasInfo
 from sqlfluff.core.parser.segments.base import BracketedSegment
 
-from sqlfluff.dialects.ansi_keywords import (
+from sqlfluff.dialects.dialect_ansi_keywords import (
     ansi_reserved_keywords,
     ansi_unreserved_keywords,
 )
@@ -2719,6 +2719,7 @@ class SetClauseSegment(BaseSegment):
             Ref("ColumnReferenceSegment"),
             "DEFAULT",
         ),
+        AnyNumberOf(Ref("ShorthandCastSegment")),
     )
 
 

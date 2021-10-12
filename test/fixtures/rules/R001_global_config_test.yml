@@ -1,0 +1,16 @@
+rule: R001
+configs:
+    core:
+      dialect: exasol
+
+
+tc1:
+  pass_str: |
+    create table if not exists tab.xxx (col1 varchar(10))
+  configs:
+    core:
+      dialect: ansi
+
+tc2:
+  pass_str: |
+    create table tab.xxx (col1 varchar(10))

@@ -9,6 +9,7 @@ from itertools import chain
 from typing import Dict, List, Tuple, Any, Optional, Union, Iterable
 from pathlib import Path
 from sqlfluff.core.plugin.host import get_plugin_manager
+from sqlfluff.core.errors import SQLFluffUserError
 
 import appdirs
 
@@ -538,7 +539,7 @@ class FluffConfig:
                     "Starting in sqlfluff version 0.7.0 the dbt templater is distributed as a "
                     "seperate python package. Please pip install sqlfluff-templater-dbt to use it."
                 )
-            raise ValueError(
+            raise SQLFluffUserError(
                 "Requested templater {!r} which is not currently available. Try one of {}".format(
                     templater_name, ", ".join(templater_lookup.keys())
                 )

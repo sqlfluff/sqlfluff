@@ -20,7 +20,13 @@ jobs:
           pip install twine wheel --upgrade
       
       - name: Build Distribution (dbt plugin)
-        run: python plugins/sqlfluff-templater-dbt/setup.py sdist bdist_wheel
+        # Run this in the right directory so that we get the right Manifest
+        working-directory: plugins/sqlfluff-templater-dbt
+        run: python setup.py sdist bdist_wheel
+      
+      - name: Copy builds to main dist folder
+        # We move them here so that the github action can still access them
+        run: cp -r plugins/sqlfluff-templater-dbt/dist/. dist/
 
       - name: Publish Python distribution to PyPI
         uses: pypa/gh-action-pypi-publish@master

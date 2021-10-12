@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b48d870d15a189cd5e4cdd5b4ed87721616b177904ba78ea96fdf8e90cb5a9c8
+_hash: 42d41ad60a4693f4fce33fdc6d8a2da40c5ac054ee5cca2951debc2672c56a12
 file:
 - statement:
     create_table_statement:
@@ -541,4 +541,87 @@ file:
                           - end_bracket: )
                       end_bracket: )
         end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        identifier: dollar_sign_table
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          identifier: foo$bar
+          data_type:
+            data_type_identifier: boolean
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+      - identifier: dollar_sign_schema
+      - dot: .
+      - identifier: dollar_sign_table
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          identifier: foo$bar
+          data_type:
+            data_type_identifier: boolean
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        identifier: timestamp_column_default_value_demo
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          identifier: timestamp_col1
+          data_type:
+            data_type_identifier: TIMESTAMP_TZ
+          column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+          - keyword: DEFAULT
+          - keyword: CURRENT_TIMESTAMP
+      - comma: ','
+      - column_definition:
+          identifier: timestamp_col2
+          data_type:
+            data_type_identifier: TIMESTAMP_TZ
+          column_constraint_segment:
+          - keyword: DEFAULT
+          - keyword: CURRENT_TIMESTAMP
+          - bracketed:
+              start_bracket: (
+              end_bracket: )
+      - comma: ','
+      - column_definition:
+          identifier: timestamp_col3
+          data_type:
+            data_type_identifier: TIMESTAMP_TZ
+          column_constraint_segment:
+          - keyword: DEFAULT
+          - keyword: CURRENT_TIMESTAMP
+          - bracketed:
+              start_bracket: (
+              literal: '2'
+              end_bracket: )
+      - comma: ','
+      - column_definition:
+          identifier: sysdate_col4
+          data_type:
+            data_type_identifier: TIMESTAMP_TZ
+          column_constraint_segment:
+          - keyword: DEFAULT
+          - keyword: SYSDATE
+          - bracketed:
+              start_bracket: (
+              end_bracket: )
+      - end_bracket: )
 - statement_terminator: ;

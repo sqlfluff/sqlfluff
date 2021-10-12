@@ -1,1 +1,0 @@
-select '1'::int::boolean as bool;
