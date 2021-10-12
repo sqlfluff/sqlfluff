@@ -761,3 +761,81 @@ def test_encoding(encoding_in, encoding_out):
             input_file_encoding=encoding_in,
             output_file_encoding=encoding_out,
         )
+
+
+class TestProgressBars:
+    """Progress bars test cases."""
+
+    def test_cli_lint_disabled_progress_bar(self) -> None:
+        """When progress bar is disabled, nothing should be printed into output."""
+        result = invoke_assert_code(
+            ret_code=65,
+            args=[
+                lint,
+                [
+                    "--disable_progress_bar",
+                    "test/fixtures/linter/passing.sql",
+                ],
+            ],
+        )
+        raw_output = repr(result.output)
+
+        assert "\rpath test/fixtures/linter/passing.sql:" not in raw_output
+        assert "\rparsing: 0it" not in raw_output
+        assert "\r\rlint by rules:" not in raw_output
+
+    def test_cli_lint_enabled_progress_bar(self) -> None:
+        """When progress bar is enabled, there should be some tracks in output."""
+        result = invoke_assert_code(
+            ret_code=65,
+            args=[
+                lint,
+                [
+                    "test/fixtures/linter/passing.sql",
+                ],
+            ],
+        )
+        raw_output = repr(result.output)
+
+        assert r"\rparsing: 0it" in raw_output
+        assert r"\rlint by rules:" in raw_output
+        assert r"\rrule L001:" in raw_output
+
+    def test_cli_lint_enabled_progress_bar_multiple_paths(self) -> None:
+        """When progress bar is enabled, there should be some tracks in output."""
+        result = invoke_assert_code(
+            ret_code=65,
+            args=[
+                lint,
+                [
+                    "test/fixtures/linter/passing.sql",
+                    "test/fixtures/linter/indentation_errors.sql",
+                ],
+            ],
+        )
+        raw_output = repr(result.output)
+
+        assert r"\rpath test/fixtures/linter/passing.sql:" in raw_output
+        assert r"\rpath test/fixtures/linter/indentation_errors.sql:" in raw_output
+        assert r"\rparsing: 0it" in raw_output
+        assert r"\rlint by rules:" in raw_output
+        assert r"\rrule L001:" in raw_output
+
+    def test_cli_lint_enabled_progress_bar_multiple_files(self) -> None:
+        """When progress bar is enabled, there should be some tracks in output."""
+        result = invoke_assert_code(
+            args=[
+                lint,
+                [
+                    "test/fixtures/linter/multiple_files",
+                ],
+            ],
+        )
+        raw_output = repr(result.output)
+
+        assert r"\rparsing: 0it" in raw_output
+        assert r"\rfile passing.1.sql:" in raw_output
+        assert r"\rfile passing.2.sql:" in raw_output
+        assert r"\rfile passing.3.sql:" in raw_output
+        assert r"\rlint by rules:" in raw_output
+        assert r"\rrule L001:" in raw_output
