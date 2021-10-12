@@ -3,13 +3,13 @@
 -- because that requires a database connection.
 
 select
-    {#- Attributes #}
+    {# Attributes #}
     products.product_id,
     products._fivetran_deleted
 from products
 inner join dispensaries
 where not products._fivetran_deleted
-    {% if true -%}
+    {% if true %}
     and products.valid_date_local >= (
         select max(valid_date_local) from {{ this }})
-    {% endif -%}
+    {% endif %}
