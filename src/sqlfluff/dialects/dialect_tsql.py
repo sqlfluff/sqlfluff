@@ -117,6 +117,22 @@ tsql_dialect.replace(
     PrimaryKeyGrammar=Sequence(
         "PRIMARY", "KEY", OneOf("CLUSTERED", "NONCLUSTERED", optional=True)
     ),
+    SelectClauseSegmentGrammar=Sequence(
+        "SELECT",
+        Ref("SelectClauseModifierSegment", optional=True),
+        Indent,
+        AnyNumberOf
+        (
+            Sequence(
+                Ref("SelectClauseElementSegment"),
+                Ref("CommaSegment"),
+            ),
+        ),
+        Ref("SelectClauseElementSegment"),
+        # NB: The Dedent for the indent above lives in the
+        # SelectStatementSegment so that it sits in the right
+        # place corresponding to the whitespace.
+    ),
     FromClauseTerminatorGrammar=OneOf(
         "WHERE",
         "LIMIT",
@@ -1254,8 +1270,12 @@ class FromClauseSegment(BaseSegment):
     type = "from_clause"
     match_grammar = Sequence(
         "FROM",
-        Delimited(
-            Ref("FromExpressionSegment"),
+        AnyNumberOf(
+            Sequence(
+                Ref("FromExpressionSegment"),
+                Ref("CommaSegment"),
+            ),
         ),
+        Ref("FromExpressionSegment"),
         Ref("DelimiterSegment", optional=True),
     )

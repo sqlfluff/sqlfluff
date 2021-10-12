@@ -3,115 +3,116 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ac147308a8df8aa6a9a3647d6dde70bcd4eca96f39dcdcf187f3f4bcb0fe689b
+_hash: 1e1831fa6502137d44d2667b451c47e83a26bd109ebdcfbefcc15d8ccc5a5375
 file:
   batch:
-    if_then_statement:
-    - keyword: IF
-    - expression:
-        literal: '1'
-        comparison_operator: <=
-        bracketed:
-          start_bracket: (
-          expression:
-            select_statement:
-              select_clause:
-                keyword: SELECT
-                select_clause_element:
-                  column_reference:
-                    identifier: Weight
-              from_clause:
-                keyword: from
-                from_expression:
-                  from_expression_element:
-                    table_expression:
-                      table_reference:
-                        identifier: DimProduct
-              where_clause:
-                keyword: WHERE
-                expression:
-                  column_reference:
-                    identifier: ProductKey
-                  comparison_operator: '='
-                  literal: '1'
-          end_bracket: )
-    - begin_end_block:
-      - keyword: BEGIN
-      - batch:
-          statement:
-            select_statement:
-              select_clause:
-              - keyword: SELECT
-              - select_clause_element:
-                  column_reference:
-                    identifier: ProductKey
-              - comma: ','
-              - select_clause_element:
-                  column_reference:
-                    identifier: EnglishDescription
-              - comma: ','
-              - select_clause_element:
-                  column_reference:
-                    identifier: Weight
-              - comma: ','
-              - select_clause_element:
-                  literal: "'This product is too heavy to ship and is only available\
-                    \ for pickup.'"
-                  alias_expression:
-                    keyword: AS
-                    identifier: ShippingStatus
-              from_clause:
-                keyword: FROM
-                from_expression:
-                  from_expression_element:
-                    table_expression:
-                      table_reference:
-                        identifier: DimProduct
-              where_clause:
-                keyword: WHERE
-                expression:
-                  column_reference:
-                    identifier: ProductKey
-                  comparison_operator: '='
-                  literal: '1'
-      - keyword: END
-    - keyword: ELSE
-    - begin_end_block:
-      - keyword: BEGIN
-      - batch:
-          statement:
-            select_statement:
-              select_clause:
-              - keyword: SELECT
-              - select_clause_element:
-                  column_reference:
-                    identifier: ProductKey
-              - comma: ','
-              - select_clause_element:
-                  column_reference:
-                    identifier: EnglishDescription
-              - comma: ','
-              - select_clause_element:
-                  column_reference:
-                    identifier: Weight
-              - comma: ','
-              - select_clause_element:
-                  literal: "'This product is available for shipping or pickup.'"
-                  alias_expression:
-                    keyword: AS
-                    identifier: ShippingStatus
-              from_clause:
-                keyword: FROM
-                from_expression:
-                  from_expression_element:
-                    table_expression:
-                      table_reference:
-                        identifier: DimProduct
-              where_clause:
-                keyword: WHERE
-                expression:
-                  column_reference:
-                    identifier: ProductKey
-                  comparison_operator: '='
-                  literal: '1'
-      - keyword: END
+    statement:
+      if_then_statement:
+      - keyword: IF
+      - expression:
+          literal: '1'
+          comparison_operator: <=
+          bracketed:
+            start_bracket: (
+            expression:
+              select_statement:
+                select_clause:
+                  keyword: SELECT
+                  select_clause_element:
+                    column_reference:
+                      identifier: Weight
+                from_clause:
+                  keyword: from
+                  from_expression:
+                    from_expression_element:
+                      table_expression:
+                        table_reference:
+                          identifier: DimProduct
+                where_clause:
+                  keyword: WHERE
+                  expression:
+                    column_reference:
+                      identifier: ProductKey
+                    comparison_operator: '='
+                    literal: '1'
+            end_bracket: )
+      - begin_end_block:
+        - keyword: BEGIN
+        - batch:
+            statement:
+              select_statement:
+                select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                    column_reference:
+                      identifier: ProductKey
+                - comma: ','
+                - select_clause_element:
+                    column_reference:
+                      identifier: EnglishDescription
+                - comma: ','
+                - select_clause_element:
+                    column_reference:
+                      identifier: Weight
+                - comma: ','
+                - select_clause_element:
+                    literal: "'This product is too heavy to ship and is only available\
+                      \ for pickup.'"
+                    alias_expression:
+                      keyword: AS
+                      identifier: ShippingStatus
+                from_clause:
+                  keyword: FROM
+                  from_expression:
+                    from_expression_element:
+                      table_expression:
+                        table_reference:
+                          identifier: DimProduct
+                where_clause:
+                  keyword: WHERE
+                  expression:
+                    column_reference:
+                      identifier: ProductKey
+                    comparison_operator: '='
+                    literal: '1'
+        - keyword: END
+      - keyword: ELSE
+      - begin_end_block:
+        - keyword: BEGIN
+        - batch:
+            statement:
+              select_statement:
+                select_clause:
+                - keyword: SELECT
+                - select_clause_element:
+                    column_reference:
+                      identifier: ProductKey
+                - comma: ','
+                - select_clause_element:
+                    column_reference:
+                      identifier: EnglishDescription
+                - comma: ','
+                - select_clause_element:
+                    column_reference:
+                      identifier: Weight
+                - comma: ','
+                - select_clause_element:
+                    literal: "'This product is available for shipping or pickup.'"
+                    alias_expression:
+                      keyword: AS
+                      identifier: ShippingStatus
+                from_clause:
+                  keyword: FROM
+                  from_expression:
+                    from_expression_element:
+                      table_expression:
+                        table_reference:
+                          identifier: DimProduct
+                where_clause:
+                  keyword: WHERE
+                  expression:
+                    column_reference:
+                      identifier: ProductKey
+                    comparison_operator: '='
+                    literal: '1'
+        - keyword: END

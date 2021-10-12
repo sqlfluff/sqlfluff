@@ -2,6 +2,8 @@
 
 from sqlfluff.core.parser.match_wrapper import match_wrapper
 from sqlfluff.core.parser.segments.raw import RawSegment
+from sqlfluff.core.parser.context import ParseContext
+from typing import Optional, List
 
 
 class MetaSegment(RawSegment):
@@ -30,6 +32,16 @@ class MetaSegment(RawSegment):
                 cls.__name__
             )
         )
+
+    @classmethod
+    def simple(cls, parse_context: ParseContext) -> Optional[List[str]]:
+        """Does this matcher support an uppercase hash matching route?
+
+        This should be true if the MATCH grammar is simple. Most more
+        complicated segments will be assumed to overwrite this method
+        if they wish to be considered simple.
+        """
+        return ""
 
 
 class Indent(MetaSegment):
