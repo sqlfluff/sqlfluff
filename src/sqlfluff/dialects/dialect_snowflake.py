@@ -25,6 +25,7 @@ from sqlfluff.core.parser import (
     StringParser,
     NamedParser,
     RegexParser,
+    SegmentGenerator,
 )
 from sqlfluff.core.parser.grammar.anyof import OptionallyBracketed
 
@@ -153,6 +154,7 @@ snowflake_dialect.insert_lexer_matchers(
             r"[$][a-zA-Z0-9_.]*",
             CodeSegment,
         ),
+        RegexLexer("inline_dollar_sign", r"[a-zA-Z_][a-zA-Z0-9_$]*", CodeSegment),
     ],
     before="not_equal",
 )
@@ -238,6 +240,17 @@ snowflake_dialect.add(
 )
 
 snowflake_dialect.replace(
+    NakedIdentifierSegment=SegmentGenerator(
+        # Generate the anti template from the set of reserved keywords
+        lambda dialect: RegexParser(
+            # See https://docs.snowflake.com/en/sql-reference/identifiers-syntax.html
+            r"[a-zA-Z_][a-zA-Z0-9_$]*",
+            CodeSegment,
+            name="naked_identifier",
+            type="identifier",
+            anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
+        )
+    ),
     LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar").copy(
         insert=[
             Ref("ReferencedVariableNameSegment"),
