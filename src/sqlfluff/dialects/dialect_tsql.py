@@ -214,7 +214,6 @@ class SelectClauseSegment(BaseSegment):
     Overriding ANSI to remove StartsWith logic which assumes statements have been delimited
     """
 
-
     type = "select_clause"
     match_grammar = Ref("SelectClauseSegmentGrammar")
 
