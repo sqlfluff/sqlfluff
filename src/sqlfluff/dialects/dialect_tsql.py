@@ -212,7 +212,7 @@ class SelectClauseSegment(BaseSegment):
     """A group of elements in a select target statement.
 
     Overriding ANSI to remove StartsWith logic which assumes statements have been delimited
-    """"
+    """
 
 
     type = "select_clause"
