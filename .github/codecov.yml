@@ -10,11 +10,7 @@ codecov:
   disable_default_path_fixes: no
   require_ci_to_pass: yes
   notify:
-    # We have 4 versions of python, 4 dbt and 2 windows checks
-    # So after 6 tests at least one python and one dbt check will
-    # have run, meaning we should have accurate coverage. We'll
-    # go with 7 for luck and in case we add any other tests.
-    after_n_builds: 7
+    after_n_builds: 10
     wait_for_ci: yes
 
 coverage:

@@ -30,12 +30,12 @@ def get_parse_fixtures(fail_on_missing_yml=False):
     parse_success_examples = []
     parse_structure_examples = []
     # Generate the filenames for each dialect from the parser test directory
-    for d in os.listdir(os.path.join("test", "fixtures", "parser")):
+    for d in os.listdir(os.path.join("test", "fixtures", "dialects")):
         # Ignore documentation
         if d.endswith(".md"):
             continue
         # assume that d is now the name of a dialect
-        dirlist = os.listdir(os.path.join("test", "fixtures", "parser", d))
+        dirlist = os.listdir(os.path.join("test", "fixtures", "dialects", d))
         for f in dirlist:
             has_yml = False
             if f.endswith(".sql"):
@@ -63,7 +63,7 @@ def get_parse_fixtures(fail_on_missing_yml=False):
 
 def make_dialect_path(dialect, fname):
     """Work out how to find paths given a dialect and a file name."""
-    return os.path.join("test", "fixtures", "parser", dialect, fname)
+    return os.path.join("test", "fixtures", "dialects", dialect, fname)
 
 
 def load_file(dialect, fname):

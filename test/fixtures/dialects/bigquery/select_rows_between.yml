@@ -1,0 +1,71 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 5ffbd4722e9644ee5869aec87685fef9b6692871e3d4d7959c41be398247e5bf
+file:
+  statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            identifier: is_sensitive
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: breach_date
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: total_number_of_affected_accounts
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: SUM
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  identifier: total_number_of_affected_accounts
+              end_bracket: )
+            over_clause:
+              keyword: OVER
+              bracketed:
+                start_bracket: (
+                window_specification:
+                  partitionby_clause:
+                  - keyword: PARTITION
+                  - keyword: BY
+                  - expression:
+                      column_reference:
+                        identifier: is_sensitive
+                  orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                      identifier: is_sensitive
+                  - comma: ','
+                  - column_reference:
+                      identifier: breach_date
+                  frame_clause:
+                  - keyword: ROWS
+                  - keyword: BETWEEN
+                  - keyword: UNBOUNDED
+                  - keyword: PRECEDING
+                  - binary_operator: AND
+                  - keyword: CURRENT
+                  - keyword: ROW
+                end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: cumulative_number_of_affected_accounts
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: table1

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 664b516a658b02ee7ecce50f430926d515f59f5ef1fe33c007e33c14f42ea6cb
+_hash: 42d41ad60a4693f4fce33fdc6d8a2da40c5ac054ee5cca2951debc2672c56a12
 file:
 - statement:
     create_table_statement:
@@ -571,4 +571,57 @@ file:
           data_type:
             data_type_identifier: boolean
         end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        identifier: timestamp_column_default_value_demo
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          identifier: timestamp_col1
+          data_type:
+            data_type_identifier: TIMESTAMP_TZ
+          column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+          - keyword: DEFAULT
+          - keyword: CURRENT_TIMESTAMP
+      - comma: ','
+      - column_definition:
+          identifier: timestamp_col2
+          data_type:
+            data_type_identifier: TIMESTAMP_TZ
+          column_constraint_segment:
+          - keyword: DEFAULT
+          - keyword: CURRENT_TIMESTAMP
+          - bracketed:
+              start_bracket: (
+              end_bracket: )
+      - comma: ','
+      - column_definition:
+          identifier: timestamp_col3
+          data_type:
+            data_type_identifier: TIMESTAMP_TZ
+          column_constraint_segment:
+          - keyword: DEFAULT
+          - keyword: CURRENT_TIMESTAMP
+          - bracketed:
+              start_bracket: (
+              literal: '2'
+              end_bracket: )
+      - comma: ','
+      - column_definition:
+          identifier: sysdate_col4
+          data_type:
+            data_type_identifier: TIMESTAMP_TZ
+          column_constraint_segment:
+          - keyword: DEFAULT
+          - keyword: SYSDATE
+          - bracketed:
+              start_bracket: (
+              end_bracket: )
+      - end_bracket: )
 - statement_terminator: ;
