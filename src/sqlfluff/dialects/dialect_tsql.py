@@ -690,12 +690,7 @@ class CreateProcedureStatementSegment(BaseSegment):
 
     type = "create_procedure_statement"
 
-    match_grammar = StartsWith(
-        Sequence(
-            "CREATE", Sequence("OR", "ALTER", optional=True), OneOf("PROCEDURE", "PROC")
-        )
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "CREATE",
         Sequence("OR", "ALTER", optional=True),
         OneOf("PROCEDURE", "PROC"),
@@ -1191,7 +1186,13 @@ class BeginEndSegment(BaseSegment):
     match_grammar = Sequence(
         "BEGIN",
         Indent,
-        Ref("BatchSegment"),
+        AnyNumberOf(
+            OneOf(
+                Ref("BeginEndSegment"),
+                Ref("StatementSegment"),
+            ),
+            min_times=1,
+        ),
         Dedent,
         "END",
     )
@@ -1202,12 +1203,17 @@ class BatchSegment(BaseSegment):
     """A segment representing a GO batch within a file or script."""
 
     type = "batch"
-    match_grammar = AnyNumberOf(
-        OneOf(
-            Ref("BeginEndSegment"),
-            Ref("StatementSegment"),
+    match_grammar = OneOf(
+        #Things that can be bundled
+        AnyNumberOf(
+            OneOf(
+                Ref("BeginEndSegment"),
+                Ref("StatementSegment"),
+            ),
+            min_times=1,
         ),
-        min_times=1,
+        #Things that can't be bundled
+        Ref("CreateProcedureStatementSegment"),
     )
 
 
