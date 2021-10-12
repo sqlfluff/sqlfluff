@@ -12,7 +12,7 @@ def read(*names, **kwargs):
 
 setup(
     name="sqlfluff-templater-dbt",
-    version="0.7.0a4",
+    version="0.7.0a5",
     include_package_data=False,
     license="MIT License",
     description="Lint your dbt project SQL.",
