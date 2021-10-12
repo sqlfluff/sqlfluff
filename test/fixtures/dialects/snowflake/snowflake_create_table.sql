@@ -63,6 +63,8 @@ create table mytable
         )
       ));
 
+create table dollar_sign_table (foo$bar boolean);
+create table dollar_sign_schema.dollar_sign_table (foo$bar boolean);
 CREATE TABLE timestamp_column_default_value_demo (
 	timestamp_col1 TIMESTAMP_TZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	timestamp_col2 TIMESTAMP_TZ DEFAULT CURRENT_TIMESTAMP(),

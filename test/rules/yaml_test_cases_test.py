@@ -26,3 +26,15 @@ def test__rule_test_case(test_case, caplog):
             assert is_fix_compatible(
                 rule
             ), f'Rule {test_case.rule} returned fixes but does not specify "@document_fix_compatible".'
+
+
+def test__rule_test_global_config():
+    """Test global config in rule test cases."""
+    ids, test_cases = load_test_cases(
+        os.path.join("test/fixtures/rules/R001_global_config_test.yml")
+    )
+    assert len(test_cases) == 2
+    # tc1: overwrites global config
+    assert test_cases[0].configs["core"]["dialect"] == "ansi"
+    # tc2: global config is used
+    assert test_cases[1].configs["core"]["dialect"] == "exasol"
