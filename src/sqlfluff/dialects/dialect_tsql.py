@@ -124,8 +124,7 @@ tsql_dialect.replace(
         "SELECT",
         Ref("SelectClauseModifierSegment", optional=True),
         Indent,
-        AnyNumberOf
-        (
+        AnyNumberOf(
             Sequence(
                 Ref("SelectClauseElementSegment"),
                 Ref("CommaSegment"),
@@ -1170,7 +1169,8 @@ class TransactionStatementSegment(BaseSegment):
             Ref("DelimiterSegment", optional=True),
         ),
         Sequence(
-            OneOf("COMMIT", "ROLLBACK"), OneOf("TRANSACTION", "WORK", optional=True),
+            OneOf("COMMIT", "ROLLBACK"),
+            OneOf("TRANSACTION", "WORK", optional=True),
             Ref("DelimiterSegment", optional=True),
         ),
         Sequence("SAVE", "TRANSACTION", Ref("DelimiterSegment", optional=True)),
@@ -1207,7 +1207,7 @@ class BatchSegment(BaseSegment):
 
     type = "batch"
     match_grammar = OneOf(
-        #Things that can be bundled
+        # Things that can be bundled
         AnyNumberOf(
             OneOf(
                 Ref("BeginEndSegment"),
@@ -1215,7 +1215,7 @@ class BatchSegment(BaseSegment):
             ),
             min_times=1,
         ),
-        #Things that can't be bundled
+        # Things that can't be bundled
         Ref("CreateProcedureStatementSegment"),
     )
 
