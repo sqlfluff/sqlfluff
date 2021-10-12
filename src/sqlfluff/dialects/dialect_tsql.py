@@ -1274,7 +1274,7 @@ class DeleteStatementSegment(BaseSegment):
 
 
 @tsql_dialect.segment(replace=True)
-class FromClauseSegment(BaseSegment):
+class FromClauseSegment(ansi_dialect.get_segment("FromClauseSegment")):
     """A `FROM` clause like in `SELECT`.
 
     NOTE: this is a delimited set of table expressions, with a variable
@@ -1302,35 +1302,6 @@ class FromClauseSegment(BaseSegment):
         Ref("FromExpressionSegment"),
         Ref("DelimiterSegment", optional=True),
     )
-
-    def get_eventual_aliases(self) -> List[Tuple[BaseSegment, AliasInfo]]:
-        """List the eventual aliases of this from clause.
-
-        Comes as a list of tuples (table expr, tuple (string, segment, bool)).
-        """
-        buff = []
-        direct_table_children = []
-        join_clauses = []
-
-        for from_expression in self.get_children("from_expression"):
-            direct_table_children += from_expression.get_children(
-                "from_expression_element"
-            )
-            join_clauses += from_expression.get_children("join_clause")
-
-        # Iterate through the potential sources of aliases
-        for clause in (*direct_table_children, *join_clauses):
-            ref: AliasInfo = clause.get_eventual_alias()
-            # Only append if non null. A None reference, may
-            # indicate a generator expression or similar.
-            table_expr = (
-                clause
-                if clause in direct_table_children
-                else clause.get_child("from_expression_element")
-            )
-            if ref:
-                buff.append((table_expr, ref))
-        return buff
 
 
 @tsql_dialect.segment(replace=True)
