@@ -1,6 +1,7 @@
 """Implementation of Rule L040."""
+from typing import Optional
 
-from sqlfluff.core.parser import NewlineSegment, WhitespaceSegment
+from sqlfluff.core.parser import BaseSegment, NewlineSegment, WhitespaceSegment
 
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
@@ -31,7 +32,7 @@ class Rule_L041(BaseRule):
 
     """
 
-    def _eval(self, segment, **kwargs):
+    def _eval(self, segment: BaseSegment, **kwargs) -> Optional[LintResult]:  # type: ignore
         """Select clause modifiers must appear on same line as SELECT."""
         if segment.is_type("select_clause"):
             # Does the select clause have modifiers?
@@ -78,3 +79,5 @@ class Rule_L041(BaseRule):
                 anchor=segment,
                 fixes=fixes,
             )
+
+        return None

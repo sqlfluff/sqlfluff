@@ -1,6 +1,7 @@
 """Implementation of Rule L038."""
+from typing import Optional, Tuple
 
-from sqlfluff.core.parser import SymbolSegment
+from sqlfluff.core.parser import BaseSegment, SymbolSegment
 
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult
 from sqlfluff.core.rules.doc_decorators import (
@@ -39,17 +40,19 @@ class Rule_L038(BaseRule):
 
     config_keywords = ["select_clause_trailing_comma"]
 
-    def _eval(self, segment, parent_stack, **kwargs):
+    def _eval(  # type: ignore
+        self, segment: BaseSegment, parent_stack: Tuple[BaseSegment, ...], **kwargs
+    ) -> Optional[LintResult]:
         """Trailing commas within select clause."""
         if segment.is_type("select_clause"):
             # Iterate content to find last element
-            last_content = None
+            last_content: BaseSegment = None  # type: ignore
             for seg in segment.segments:
                 if seg.is_code:
                     last_content = seg
 
             # What mode are we in?
-            if self.select_clause_trailing_comma == "forbid":
+            if self.select_clause_trailing_comma == "forbid":  # type: ignore
                 # Is it a comma?
                 if last_content.is_type("comma"):
                     return LintResult(
@@ -57,7 +60,7 @@ class Rule_L038(BaseRule):
                         fixes=[LintFix("delete", last_content)],
                         description="Trailing comma in select statement forbidden",
                     )
-            elif self.select_clause_trailing_comma == "require":
+            elif self.select_clause_trailing_comma == "require":  # type: ignore
                 if not last_content.is_type("comma"):
                     new_comma = SymbolSegment(",", name="comma", type="comma")
                     return LintResult(

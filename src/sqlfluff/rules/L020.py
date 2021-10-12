@@ -1,7 +1,11 @@
 """Implementation of Rule L020."""
 
 import itertools
+from typing import List, Optional, Tuple
 
+from sqlfluff.core.dialects import Dialect
+from sqlfluff.core.dialects.common import AliasInfo
+from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules.base import BaseRule, LintResult
 from sqlfluff.core.rules.analysis.select import get_select_statement_info
 
@@ -51,13 +55,13 @@ class Rule_L020(BaseRule):
 
     def _lint_references_and_aliases(
         self,
-        table_aliases,
-        standalone_aliases,
-        references,
-        col_aliases,
-        using_cols,
-        parent_select,
-    ):
+        table_aliases: List[AliasInfo],
+        standalone_aliases: List[str],
+        references: List[BaseSegment],
+        col_aliases: List[str],
+        using_cols: List[str],
+        parent_select: Optional[BaseSegment],
+    ) -> Optional[List[LintResult]]:
         """Check whether any aliases are duplicates.
 
         NB: Subclasses of this error should override this function.
@@ -83,7 +87,13 @@ class Rule_L020(BaseRule):
         else:
             return None
 
-    def _eval(self, segment, parent_stack, dialect, **kwargs):
+    def _eval(  # type: ignore
+        self,
+        segment: BaseSegment,
+        parent_stack: Tuple[BaseSegment, ...],
+        dialect: Optional[Dialect],
+        **kwargs
+    ) -> Optional[List[LintResult]]:
         """Get References and Aliases and allow linting.
 
         This rule covers a lot of potential cases of odd usages of

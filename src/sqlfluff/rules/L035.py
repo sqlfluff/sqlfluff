@@ -1,5 +1,7 @@
 """Implementation of Rule L035."""
+from typing import List, Optional
 
+from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
@@ -33,7 +35,7 @@ class Rule_L035(BaseRule):
         from x
     """
 
-    def _eval(self, segment, **kwargs):
+    def _eval(self, segment: BaseSegment, **kwargs) -> Optional[LintResult]:  # type: ignore
         """Find rule violations and provide fixes.
 
         0. Look for a case expression
@@ -45,7 +47,7 @@ class Rule_L035(BaseRule):
         5.b. We reach the end of case when without matching "NULL": the rule passes
         """
         if segment.is_type("case_expression"):
-            fixes = []
+            fixes: List[LintFix] = []
             for idx, seg in enumerate(segment.segments):
                 # When we find ELSE we delete
                 # everything up to NULL
@@ -67,3 +69,4 @@ class Rule_L035(BaseRule):
                     ):
                         fixes.append(LintFix("delete", segment.segments[walk_idx]))
                         walk_idx = walk_idx - 1
+        return None

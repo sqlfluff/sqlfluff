@@ -1,5 +1,7 @@
 """Implementation of Rule L042."""
+from typing import Optional
 
+from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules.base import BaseRule, LintResult
 from sqlfluff.core.rules.doc_decorators import document_configuration
 
@@ -49,13 +51,13 @@ class Rule_L042(BaseRule):
         "both": ["join_clause", "from_expression"],
     }
 
-    def _eval(self, segment, **kwargs):
+    def _eval(self, segment: BaseSegment, **kwargs) -> Optional[LintResult]:  # type: ignore
         """Join/From clauses should not contain subqueries. Use CTEs instead.
 
         NB: No fix for this routine because it would be very complex to
         implement reliably.
         """
-        parent_types = self._config_mapping[self.forbid_subquery_in]
+        parent_types = self._config_mapping[self.forbid_subquery_in]  # type: ignore
         for parent_type in parent_types:
             if segment.is_type(parent_type):
                 # Get the referenced table segment
@@ -87,3 +89,4 @@ class Rule_L042(BaseRule):
                             anchor=seg,
                             description=f"{parent_type} clauses should not contain subqueries. Use CTEs instead",
                         )
+        return None

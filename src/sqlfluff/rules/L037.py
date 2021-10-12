@@ -1,6 +1,6 @@
 """Implementation of Rule L037."""
 
-from typing import NamedTuple, Optional, List
+from typing import NamedTuple, Optional, List, Tuple
 
 from sqlfluff.core.parser import WhitespaceSegment, KeywordSegment
 
@@ -79,7 +79,9 @@ class Rule_L037(BaseRule):
             )
         return result
 
-    def _eval(self, segment, parent_stack, **kwargs):
+    def _eval(  # type: ignore
+        self, segment: BaseSegment, parent_stack: Tuple[BaseSegment, ...], **kwargs
+    ) -> Optional[List[LintResult]]:
         """Ambiguous ordering directions for columns in order by clause.
 
         This rule checks if some ORDER BY columns explicitly specify ASC or

@@ -1,6 +1,7 @@
 """Implementation of Rule L009."""
+from typing import Optional, Tuple
 
-from sqlfluff.core.parser import NewlineSegment
+from sqlfluff.core.parser import BaseSegment, NewlineSegment
 
 from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
@@ -64,7 +65,13 @@ class Rule_L009(BaseRule):
 
     """
 
-    def _eval(self, segment, siblings_post, parent_stack, **kwargs):
+    def _eval(  # type: ignore
+        self,
+        segment: BaseSegment,
+        siblings_post: Tuple[BaseSegment, ...],
+        parent_stack: Tuple[BaseSegment, ...],
+        **kwargs
+    ) -> Optional[LintResult]:
         """Files must end with a trailing newline.
 
         We only care about the segment and the siblings which come after it

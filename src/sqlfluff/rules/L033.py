@@ -1,6 +1,13 @@
 """Implementation of Rule L033."""
+from typing import Tuple
 
-from sqlfluff.core.parser import WhitespaceSegment, KeywordSegment
+from sqlfluff.core.dialects import Dialect
+from sqlfluff.core.parser import (
+    BaseSegment,
+    RawSegment,
+    WhitespaceSegment,
+    KeywordSegment,
+)
 
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult
 
@@ -29,7 +36,13 @@ class Rule_L033(BaseRule):
 
     """
 
-    def _eval(self, segment, raw_stack, dialect, **kwargs):
+    def _eval(  # type: ignore
+        self,
+        segment: BaseSegment,
+        raw_stack: Tuple[RawSegment],
+        dialect: Dialect,
+        **kwargs
+    ) -> LintResult:
         """Look for UNION keyword not immediately followed by DISTINCT or ALL.
 
         Note that UNION DISTINCT is valid, rule only applies to bare UNION.

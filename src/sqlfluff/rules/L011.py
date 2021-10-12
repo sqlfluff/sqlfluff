@@ -1,6 +1,12 @@
 """Implementation of Rule L011."""
+from typing import List, Optional, Tuple, Union
 
-from sqlfluff.core.parser import WhitespaceSegment, KeywordSegment
+from sqlfluff.core.parser import (
+    BaseSegment,
+    RawSegment,
+    WhitespaceSegment,
+    KeywordSegment,
+)
 
 from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
@@ -37,7 +43,13 @@ class Rule_L011(BaseRule):
 
     _target_elems = ("from_expression_element",)
 
-    def _eval(self, segment, parent_stack, raw_stack, **kwargs):
+    def _eval(  # type: ignore
+        self,
+        segment: BaseSegment,
+        parent_stack: Tuple[BaseSegment, ...],
+        raw_stack: Tuple[RawSegment, ...],
+        **kwargs
+    ) -> Optional[LintResult]:
         """Implicit aliasing of table/column not allowed. Use explicit `AS` clause.
 
         We look for the alias segment, and then evaluate its parent and whether
@@ -51,7 +63,7 @@ class Rule_L011(BaseRule):
         if segment.is_type("alias_expression"):
             if parent_stack[-1].is_type(*self._target_elems):
                 if any(e.name.lower() == "as" for e in segment.segments):
-                    if self.aliasing == "implicit":
+                    if self.aliasing == "implicit":  # type: ignore
                         if segment.segments[0].name.lower() == "as":
 
                             # Remove the AS as we're using implict aliasing
@@ -73,7 +85,7 @@ class Rule_L011(BaseRule):
                             return LintResult(anchor=anchor, fixes=fixes)
 
                 else:
-                    insert_buff = []
+                    insert_buff: List[Union[WhitespaceSegment, KeywordSegment]] = []
 
                     # Add initial whitespace if we need to...
                     if raw_stack[-1].name not in ["whitespace", "newline"]:

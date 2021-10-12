@@ -1,6 +1,7 @@
 """Implementation of Rule L021."""
+from typing import Optional
 
-
+from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules.base import BaseRule, LintResult
 
 
@@ -27,7 +28,7 @@ class Rule_L021(BaseRule):
         FROM foo
     """
 
-    def _eval(self, segment, **kwargs):
+    def _eval(self, segment: BaseSegment, **kwargs) -> Optional[LintResult]:  # type: ignore
         """Ambiguous use of DISTINCT in select statement with GROUP BY."""
         if segment.is_type("select_statement"):
             # Do we have a group by clause

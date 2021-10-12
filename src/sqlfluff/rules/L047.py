@@ -1,5 +1,7 @@
 """Implementation of Rule L047."""
+from typing import Optional
 
+from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
@@ -56,7 +58,7 @@ class Rule_L047(BaseRule):
 
     config_keywords = ["prefer_count_1", "prefer_count_0"]
 
-    def _eval(self, segment, **kwargs):
+    def _eval(self, segment: BaseSegment, **kwargs) -> Optional[LintResult]:  # type: ignore
         """Find rule violations and provide fixes."""
         if (
             segment.is_type("function")
@@ -83,13 +85,13 @@ class Rule_L047(BaseRule):
                 return None
 
             preferred = "*"
-            if self.prefer_count_1:
+            if self.prefer_count_1:  # type: ignore
                 preferred = "1"
-            elif self.prefer_count_0:
+            elif self.prefer_count_0:  # type: ignore
                 preferred = "0"
 
             if f_content[0].is_type("star") and (
-                self.prefer_count_1 or self.prefer_count_0
+                self.prefer_count_1 or self.prefer_count_0  # type: ignore
             ):
                 return LintResult(
                     anchor=segment,
@@ -127,3 +129,4 @@ class Rule_L047(BaseRule):
                             ),
                         ],
                     )
+        return None

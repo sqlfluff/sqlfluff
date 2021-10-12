@@ -2,7 +2,7 @@
 
 from typing import Optional, List
 
-from sqlfluff.core.parser import WhitespaceSegment
+from sqlfluff.core.parser import BaseSegment, WhitespaceSegment
 
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
@@ -44,12 +44,12 @@ class Rule_L023(BaseRule):
     allow_newline = False
     expand_children: Optional[List[str]] = ["common_table_expression"]
 
-    def _eval(self, segment, **kwargs):
+    def _eval(self, segment: BaseSegment, **kwargs) -> Optional[List[LintResult]]:  # type: ignore
         """Single whitespace expected in mother segment between pre and post segments."""
-        error_buffer = []
+        error_buffer: List[LintResult] = []
         if segment.is_type(self.expected_mother_segment_type):
             last_code = None
-            mid_segs = []
+            mid_segs: List[BaseSegment] = []
             for seg in segment.iter_segments(expanding=self.expand_children):
                 if seg.is_code:
                     if (

@@ -1,5 +1,7 @@
 """Implementation of Rule L046."""
+from typing import Set, Tuple
 
+from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules.base import BaseRule, LintResult
 
 
@@ -31,7 +33,7 @@ class Rule_L046(BaseRule):
     targets_templated = True
 
     @staticmethod
-    def _get_whitespace_ends(s):
+    def _get_whitespace_ends(s: str) -> Tuple[str, str, str]:
         """Remove tag ends and partition off any whitespace ends."""
         # Jinja tags all have a length of two. We can use slicing
         # to remove them easily.
@@ -47,7 +49,7 @@ class Rule_L046(BaseRule):
         pos = main.find(inner)
         return main[:pos], inner, main[pos + len(inner) :]
 
-    def _eval(self, segment, memory, **kwargs):
+    def _eval(self, segment: BaseSegment, memory: Set[int], **kwargs) -> LintResult:  # type: ignore
         """Look for non-literal segments."""
         if not segment.pos_marker.is_literal():
             # Does it actually look like a tag?

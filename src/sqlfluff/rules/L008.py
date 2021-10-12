@@ -1,6 +1,7 @@
 """Implementation of Rule L008."""
+from typing import Optional, Tuple
 
-from sqlfluff.core.parser import WhitespaceSegment
+from sqlfluff.core.parser import BaseSegment, RawSegment, WhitespaceSegment
 
 from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
@@ -33,7 +34,9 @@ class Rule_L008(BaseRule):
         WHERE a IN ('plop',•'zoo')
     """
 
-    def _eval(self, segment, raw_stack, **kwargs):
+    def _eval(  # type: ignore
+        self, segment: BaseSegment, raw_stack: Tuple[RawSegment, ...], **kwargs
+    ) -> Optional[LintResult]:
         """Commas should be followed by a single whitespace unless followed by a comment.
 
         This is a slightly odd one, because we'll almost always evaluate from a point a few places

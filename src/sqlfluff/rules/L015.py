@@ -1,6 +1,7 @@
 """Implementation of Rule L015."""
+from typing import Optional, Tuple
 
-from sqlfluff.core.parser import WhitespaceSegment
+from sqlfluff.core.parser import BaseSegment, RawSegment, WhitespaceSegment
 
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
@@ -29,7 +30,9 @@ class Rule_L015(BaseRule):
 
     """
 
-    def _eval(self, segment, raw_stack, **kwargs):
+    def _eval(  # type: ignore
+        self, segment: BaseSegment, raw_stack: Tuple[RawSegment, ...], **kwargs
+    ) -> Optional[LintResult]:
         """Looking for DISTINCT before a bracket.
 
         Look for DISTINCT keyword immediately followed by open parenthesis.

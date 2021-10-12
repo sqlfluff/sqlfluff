@@ -1,6 +1,8 @@
 """Implementation of Rule L029."""
+from typing import Optional, Tuple
 
-
+from sqlfluff.core.dialects import Dialect
+from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules.base import BaseRule, LintResult
 from sqlfluff.core.rules.doc_decorators import document_configuration
 from sqlfluff.rules.L014 import unquoted_ids_policy_applicable
@@ -32,12 +34,18 @@ class Rule_L029(BaseRule):
 
     config_keywords = ["unquoted_identifiers_policy"]
 
-    def _eval(self, segment, dialect, parent_stack, **kwargs):
+    def _eval(  # type: ignore
+        self,
+        segment: BaseSegment,
+        dialect: Dialect,
+        parent_stack: Tuple[BaseSegment, ...],
+        **kwargs
+    ) -> Optional[LintResult]:
         """Keywords should not be used as identifiers."""
         if (
             segment.name == "naked_identifier"
             and unquoted_ids_policy_applicable(
-                self.unquoted_identifiers_policy, parent_stack
+                self.unquoted_identifiers_policy, parent_stack  # type: ignore
             )
             and (segment.raw.upper() in dialect.sets("unreserved_keywords"))
         ):

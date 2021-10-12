@@ -1,6 +1,12 @@
 """Implementation of Rule L043."""
+from typing import Optional
 
-from sqlfluff.core.parser import WhitespaceSegment, SymbolSegment, KeywordSegment
+from sqlfluff.core.parser import (
+    BaseSegment,
+    WhitespaceSegment,
+    SymbolSegment,
+    KeywordSegment,
+)
 
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
@@ -34,7 +40,7 @@ class Rule_L043(BaseRule):
 
     """
 
-    def _eval(self, segment, **kwargs):
+    def _eval(self, segment: BaseSegment, **kwargs) -> Optional[LintResult]:  # type: ignore
         """Find rule violations and provide fixes.
 
         0. Look for a case expression
@@ -143,3 +149,4 @@ class Rule_L043(BaseRule):
                     fixes=fixes,
                     description="Case when returns booleans.",
                 )
+        return None

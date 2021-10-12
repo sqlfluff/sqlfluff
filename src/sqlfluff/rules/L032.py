@@ -1,5 +1,7 @@
 """Implementation of Rule L032."""
+from typing import List, Optional
 
+from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules.base import BaseRule, LintResult
 
 
@@ -32,7 +34,7 @@ class Rule_L032(BaseRule):
 
     """
 
-    def _eval(self, segment, **kwargs):
+    def _eval(self, segment: BaseSegment, **kwargs) -> Optional[List[LintResult]]:  # type: ignore
         """Look for USING in a join clause."""
         if segment.is_type("join_clause"):
             for seg in segment.segments:

@@ -1,5 +1,7 @@
 """Implementation of Rule L013."""
+from typing import Optional, Tuple
 
+from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules.base import BaseRule, LintResult
 from sqlfluff.core.rules.doc_decorators import document_configuration
 
@@ -32,7 +34,9 @@ class Rule_L013(BaseRule):
 
     config_keywords = ["allow_scalar"]
 
-    def _eval(self, segment, parent_stack, **kwargs):
+    def _eval(  # type: ignore
+        self, segment: BaseSegment, parent_stack: Tuple[BaseSegment, ...], **kwargs
+    ) -> Optional[LintResult]:
         """Column expression without alias. Use explicit `AS` clause.
 
         We look for the select_clause_element segment, and then evaluate
@@ -53,7 +57,7 @@ class Rule_L013(BaseRule):
                 if len(unallowed_types) > 0:
                     # No fixes, because we don't know what the alias should be,
                     # the user should document it themselves.
-                    if self.allow_scalar:
+                    if self.allow_scalar:  # type: ignore
                         # Check *how many* elements there are in the select
                         # statement. If this is the only one, then we won't
                         # report an error.

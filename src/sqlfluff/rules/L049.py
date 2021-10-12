@@ -1,7 +1,7 @@
 """Implementation of Rule L049."""
+from typing import List, Union
 
-
-from sqlfluff.core.parser import KeywordSegment, WhitespaceSegment
+from sqlfluff.core.parser import BaseSegment, KeywordSegment, WhitespaceSegment
 from sqlfluff.core.rules.base import LintResult, LintFix
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 from sqlfluff.rules.L006 import Rule_L006
@@ -33,7 +33,7 @@ class Rule_L049(Rule_L006):
         WHERE a IS NULL
     """
 
-    def _eval(self, segment, **kwargs):
+    def _eval(self, segment: BaseSegment, **kwargs) -> LintResult:  # type: ignore
         """Relational operators should not be used to check for NULL values."""
         # Context/motivation for this rule:
         # https://news.ycombinator.com/item?id=28772289
@@ -72,7 +72,7 @@ class Rule_L049(Rule_L006):
                         is_seg = KeywordSegment("is")
                         not_seg = KeywordSegment("not")
 
-                    edit = (
+                    edit: List[Union[WhitespaceSegment, KeywordSegment]] = (
                         [is_seg]
                         if operator.name == "equals"
                         else [
@@ -88,7 +88,10 @@ class Rule_L049(Rule_L006):
                         idx_operator, segment.segments, before=False
                     )
                     if self._missing_whitespace(prev_seg, before=True):
-                        edit = [WhitespaceSegment()] + edit
+                        whitespace_segment: List[
+                            Union[WhitespaceSegment, KeywordSegment]
+                        ] = [WhitespaceSegment()]
+                        edit = whitespace_segment + edit
                     if self._missing_whitespace(next_seg, before=False):
                         edit = edit + [WhitespaceSegment()]
                     return LintResult(

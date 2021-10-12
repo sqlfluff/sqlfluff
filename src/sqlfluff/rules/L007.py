@@ -1,5 +1,7 @@
 """Implementation of Rule L007."""
+from typing import Tuple
 
+from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules.base import BaseRule, LintResult
 
 after_description = "Operators near newlines should be after, not before the newline"
@@ -46,7 +48,13 @@ class Rule_L007(BaseRule):
 
     config_keywords = ["operator_new_lines"]
 
-    def _eval(self, segment, memory, parent_stack, **kwargs):
+    def _eval(  # type: ignore
+        self,
+        segment: BaseSegment,
+        memory: dict,
+        parent_stack: Tuple[BaseSegment, ...],
+        **kwargs
+    ) -> LintResult:
         """Operators should follow a standard for being before/after newlines.
 
         We use the memory to keep track of whitespace up to now, and
@@ -59,7 +67,7 @@ class Rule_L007(BaseRule):
         """
         anchor = None
         description = after_description
-        if self.operator_new_lines == "before":
+        if self.operator_new_lines == "before":  # type: ignore
             description = before_description
 
         # The parent stack tells us whether we're in an expression or not.
@@ -68,7 +76,7 @@ class Rule_L007(BaseRule):
                 # This is code, what kind?
                 if segment.is_type("binary_operator", "comparison_operator"):
                     # If it's an operator, then check if in "before" mode
-                    if self.operator_new_lines == "before":
+                    if self.operator_new_lines == "before":  # type: ignore
                         # If we're in "before" mode, then check if newline since last code
                         for s in memory["since_code"]:
                             if s.name == "newline":
@@ -79,7 +87,7 @@ class Rule_L007(BaseRule):
                     "binary_operator", "comparison_operator"
                 ):
                     # It's not an operator, but the last code was.
-                    if self.operator_new_lines != "before":
+                    if self.operator_new_lines != "before":  # type: ignore
                         # If in "after" mode, then check to see
                         # there is a newline between us and the last operator.
                         for s in memory["since_code"]:
