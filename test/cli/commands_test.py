@@ -847,8 +847,7 @@ class TestProgressBars:
             args=[
                 lint,
                 [
-                    "-v"
-                    "test/fixtures/linter/passing.sql",
+                    "-v" "test/fixtures/linter/passing.sql",
                 ],
             ],
         )
