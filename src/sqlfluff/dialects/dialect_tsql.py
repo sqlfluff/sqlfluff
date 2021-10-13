@@ -1334,8 +1334,6 @@ class FromClauseSegment(BaseSegment):
     ).get_eventual_aliases
 
 
-
-
 @tsql_dialect.segment(replace=True)
 class GroupByClauseSegment(BaseSegment):
     """A `GROUP BY` clause like in `SELECT`.
