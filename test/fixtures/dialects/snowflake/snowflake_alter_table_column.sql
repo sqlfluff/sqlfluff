@@ -27,3 +27,6 @@ alter table empl_info modify
     column empl_id unset masking policy
   , column empl_dob unset masking policy
 ;
+
+alter table test_table column test_column;
+alter table test_schema.test_table column test_column;
