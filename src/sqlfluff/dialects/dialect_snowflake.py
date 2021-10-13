@@ -791,44 +791,55 @@ class AlterTableColumnStatementSegment(BaseSegment):
         "ALTER",
         "TABLE",
         Ref("TableReferenceSegment"),
-        OneOf("ALTER", "MODIFY"),
-        OptionallyBracketed(
-            Delimited(
-                OneOf(
-                    # Add things
-                    Sequence(
-                        Ref.keyword("COLUMN", optional=True),
-                        Ref("SingleIdentifierGrammar"),
+        OneOf(
+            Sequence(
+                "DROP",
+                Ref.keyword("COLUMN", optional=True),
+                Ref("SingleIdentifierGrammar"),
+            ),
+            Sequence(
+                OneOf("ALTER", "MODIFY"),
+                OptionallyBracketed(
+                    Delimited(
                         OneOf(
-                            Sequence("DROP", "DEFAULT"),
+                            # Add things
                             Sequence(
-                                "SET",
-                                "DEFAULT",
-                                Ref("NakedIdentifierSegment"),
-                                Ref("DotSegment"),
-                                "NEXTVAL",
-                            ),
-                            Sequence(
-                                OneOf("SET", "DROP", optional=True), "NOT", "NULL"
-                            ),
-                            Sequence(
-                                Sequence(
-                                    Sequence("SET", "DATA", optional=True),
-                                    "TYPE",
-                                    optional=True,
+                                Ref.keyword("COLUMN", optional=True),
+                                Ref("SingleIdentifierGrammar"),
+                                OneOf(
+                                    Sequence("DROP", "DEFAULT"),
+                                    Sequence(
+                                        "SET",
+                                        "DEFAULT",
+                                        Ref("NakedIdentifierSegment"),
+                                        Ref("DotSegment"),
+                                        "NEXTVAL",
+                                    ),
+                                    Sequence(
+                                        OneOf("SET", "DROP", optional=True),
+                                        "NOT",
+                                        "NULL",
+                                    ),
+                                    Sequence(
+                                        Sequence(
+                                            Sequence("SET", "DATA", optional=True),
+                                            "TYPE",
+                                            optional=True,
+                                        ),
+                                        Ref("DatatypeSegment"),
+                                    ),
+                                    Sequence("COMMENT", Ref("QuotedLiteralSegment")),
                                 ),
-                                Ref("DatatypeSegment"),
                             ),
-                            Sequence("COMMENT", Ref("QuotedLiteralSegment")),
+                            Sequence(
+                                "COLUMN",
+                                Ref("SingleIdentifierGrammar"),
+                                OneOf("SET", "UNSET"),
+                                "MASKING",
+                                "POLICY",
+                                Ref("FunctionNameIdentifierSegment", optional=True),
+                            ),
                         ),
-                    ),
-                    Sequence(
-                        "COLUMN",
-                        Ref("SingleIdentifierGrammar"),
-                        OneOf("SET", "UNSET"),
-                        "MASKING",
-                        "POLICY",
-                        Ref("FunctionNameIdentifierSegment", optional=True),
                     ),
                 ),
             ),
@@ -1147,12 +1158,12 @@ class ColumnConstraintSegment(BaseSegment):
         Sequence(
             OneOf("AUTOINCREMENT", "IDENTITY"),
             OneOf(
-                Bracketed(Delimited(Ref("NumericLiteralValue"))),
+                Bracketed(Delimited(Ref("NumericLiteralSegment"))),
                 Sequence(
                     "START",
-                    Ref("NumericLiteralValue"),
+                    Ref("NumericLiteralSegment"),
                     "INCREMENT",
-                    Ref("NumericLiteralValue"),
+                    Ref("NumericLiteralSegment"),
                 ),
             ),
         ),
