@@ -813,7 +813,9 @@ class AlterTableColumnStatementSegment(BaseSegment):
                                         "NEXTVAL",
                                     ),
                                     Sequence(
-                                        OneOf("SET", "DROP", optional=True), "NOT", "NULL"
+                                        OneOf("SET", "DROP", optional=True),
+                                        "NOT",
+                                        "NULL",
                                     ),
                                     Sequence(
                                         Sequence(
