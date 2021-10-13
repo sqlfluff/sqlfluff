@@ -881,7 +881,7 @@ class Linter:
         files_count = len(fnames)
         progress_bar_linter = tqdm(
             total=files_count,
-            desc=f"file {os.path.basename(fnames[0])}",
+            desc=f"file {os.path.basename(fnames[0] if fnames else '')}",
             leave=False,
             disable=disable_progress_bar or files_count <= 1,
         )
@@ -931,10 +931,8 @@ class Linter:
             leave=False,
             disable=disable_progress_bar or paths_count <= 1,
         )
-
         for path in paths:
-            if not disable_progress_bar and paths_count > 1:
-                progress_bar.set_description(f"path {path}")
+            progress_bar.set_description(f"path {path}")
 
             # Iterate through files recursively in the specified directory (if it's a directory)
             # or read the file directly if it's not
@@ -948,6 +946,7 @@ class Linter:
                     disable_progress_bar=disable_progress_bar,
                 )
             )
+
             progress_bar.update(1)
 
         result.stop_timer()
