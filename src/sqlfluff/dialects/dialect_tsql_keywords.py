@@ -232,6 +232,7 @@ RESERVED_KEYWORDS = [
 
 
 UNRESERVED_KEYWORDS = [
+    "CAST",
     "COLUMNSTORE",
     "D",
     "DATEADD",
