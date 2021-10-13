@@ -1,0 +1,77 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: bd969666e6e2415a9f49056f8869f4b8977bba43d852a45a89a2b7e68ba5e16b
+file:
+  batch:
+  - statement:
+      create_table_as_select_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+          identifier: '#n'
+      - table_distribution_index_clause:
+          keyword: WITH
+          bracketed:
+            start_bracket: (
+            table_distribution_clause:
+            - keyword: DISTRIBUTION
+            - comparison_operator: '='
+            - keyword: ROUND_ROBIN
+            end_bracket: )
+      - keyword: AS
+      - bracketed:
+          start_bracket: (
+          select_statement:
+            select_clause:
+              keyword: Select
+              select_clause_element:
+                column_reference:
+                - identifier: acto
+                - dot: .
+                - identifier: ActionDTS
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      identifier: Orders_Action
+                  alias_expression:
+                    identifier: acto
+          end_bracket: )
+  - statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+            - identifier: t
+            - dot: .
+            - identifier: actiondts
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: '#n'
+              alias_expression:
+                identifier: t
+        groupby_clause:
+        - keyword: GROUP
+        - keyword: BY
+        - column_reference:
+          - identifier: t
+          - dot: .
+          - identifier: ActionDTS
+        statement_terminator: ;
+  - statement:
+      drop_statement:
+      - keyword: DROP
+      - keyword: TABLE
+      - table_reference:
+          identifier: '#n'
+      - statement_terminator: ;
