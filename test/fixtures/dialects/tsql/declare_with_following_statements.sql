@@ -1,0 +1,8 @@
+CREATE PROC Reporting.DeclareProblem AS
+BEGIN
+
+	DECLARE @DateNow DATE = GETDATE();
+
+	IF OBJECT_ID('tempdb..#UP') IS NOT NULL DROP TABLE #UP;
+
+END
