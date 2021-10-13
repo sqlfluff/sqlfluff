@@ -1391,3 +1391,18 @@ class RenameStatementSegment(BaseSegment):
         Ref("SingleIdentifierGrammar"),
         Ref("DelimiterSegment", optional=True),
     )
+
+
+@tsql_dialect.segment(replace=True)
+class DropStatementSegment(BaseSegment):
+    """A `DROP` statement.
+
+    Overriding ANSI to add optional delimiter.
+    """
+
+    type = "drop_statement"
+    match_grammar = ansi_dialect.get_segment("DropStatementSegment").match_grammar.copy(
+        insert=[
+            Ref("DelimiterSegment", optional=True),
+        ],
+    )
