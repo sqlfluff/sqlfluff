@@ -399,8 +399,7 @@ class DeclareStatementSegment(BaseSegment):
     """
 
     type = "declare_segment"
-    match_grammar = StartsWith("DECLARE")
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "DECLARE",
         Delimited(Ref("ParameterNameSegment")),
         Ref("DatatypeSegment"),
@@ -414,6 +413,7 @@ class DeclareStatementSegment(BaseSegment):
             ),
             optional=True,
         ),
+        Ref("DelimiterSegment", optional=True),
     )
 
 
