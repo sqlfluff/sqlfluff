@@ -96,6 +96,7 @@ tsql_dialect.replace(
         Ref("QuotedIdentifierSegment"),
         Ref("BracketedIdentifierSegment"),
         Ref("HashIdentifierSegment"),
+        Ref("ParameterNameSegment"),
     ),
     LiteralGrammar=OneOf(
         Ref("QuotedLiteralSegment"),
@@ -402,7 +403,11 @@ class DeclareStatementSegment(BaseSegment):
     type = "declare_segment"
     match_grammar = Sequence(
         "DECLARE",
-        Delimited(Ref("ParameterNameSegment")),
+        Ref("ParameterNameSegment"),
+        AnyNumberOf(
+            Ref("ParameterNameSegment"),
+            Ref("CommaSegment", optional=True),
+        ),
         Ref("DatatypeSegment"),
         Sequence(
             Ref("EqualsSegment"),
@@ -812,6 +817,18 @@ class ConvertFunctionNameSegment(BaseSegment):
 
 
 @tsql_dialect.segment()
+class CastFunctionNameSegment(BaseSegment):
+    """CAST function name segment.
+
+    Need to be able to specify this as type function_name
+    so that linting rules identify it properly
+    """
+
+    type = "function_name"
+    match_grammar = Sequence("CAST")
+
+
+@tsql_dialect.segment()
 class WithinGroupFunctionNameSegment(BaseSegment):
     """WITHIN GROUP function name segment.
 
@@ -917,6 +934,16 @@ class FunctionSegment(BaseSegment):
         ),
         Sequence(
             Sequence(
+                Ref("CastFunctionNameSegment"),
+                Bracketed(
+                    Ref("ExpressionSegment"),
+                    "AS",
+                    Ref("DatatypeSegment"),
+                ),
+            ),
+        ),
+        Sequence(
+            Sequence(
                 Ref("WithinGroupFunctionNameSegment"),
                 Bracketed(
                     Delimited(
@@ -936,6 +963,8 @@ class FunctionSegment(BaseSegment):
                 OneOf(
                     Ref("FunctionNameSegment"),
                     exclude=OneOf(
+                        # List of special functions handled differently
+                        Ref("CastFunctionNameSegment"),
                         Ref("ConvertFunctionNameSegment"),
                         Ref("DateAddFunctionNameSegment"),
                         Ref("WithinGroupFunctionNameSegment"),
