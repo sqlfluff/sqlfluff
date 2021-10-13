@@ -342,7 +342,7 @@ def dialects(**kwargs) -> None:
 @click.option(
     "--disable_progress_bar",
     is_flag=True,
-    help="Disables progress bars when set.",
+    help="Disables progress bars when set. It's set automatically when in verbose mode.",
 )
 @click.argument("paths", nargs=-1)
 def lint(
@@ -379,6 +379,10 @@ def lint(
     non_human_output = format != FormatType.human.value
     lnt, formatter = get_linter_and_formatter(config, silent=non_human_output)
     verbose = config.get("verbose")
+
+    # suppress progressbar when in verbose mode
+    if verbose:
+        disable_progress_bar = True
 
     formatter.dispatch_config(lnt)
 
@@ -497,7 +501,7 @@ def do_fixes(lnt, result, formatter=None, **kwargs):
 @click.option(
     "--disable_progress_bar",
     is_flag=True,
-    help="Disables progress bars when set.",
+    help="Disables progress bars when set. It's set automatically when in verbose mode.",
 )
 @click.argument("paths", nargs=-1)
 def fix(
@@ -523,6 +527,10 @@ def fix(
     config = get_config(**kwargs)
     lnt, formatter = get_linter_and_formatter(config, silent=fixing_stdin)
     verbose = config.get("verbose")
+    # suppress progressbar when in verbose mode
+    if verbose:
+        disable_progress_bar = True
+
     exit_code = 0
 
     formatter.dispatch_config(lnt)

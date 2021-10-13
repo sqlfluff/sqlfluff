@@ -879,12 +879,12 @@ class Linter:
 
         # Show files progress bar only when there is more than one.
         files_count = len(fnames)
-        if not disable_progress_bar and files_count > 1:
-            progress_bar_linter = tqdm(
-                total=files_count,
-                desc=f"file {os.path.basename(fnames[0])}",
-                leave=False,
-            )
+        progress_bar_linter = tqdm(
+            total=files_count,
+            desc=f"file {os.path.basename(fnames[0])}",
+            leave=False,
+            disable=disable_progress_bar or files_count <= 1,
+        )
 
         for i, linted_file in enumerate(
             runner.run(fnames, fix, disable_progress_bar=disable_progress_bar), start=1
@@ -899,12 +899,11 @@ class Linter:
             # Additionally as it's updated after each loop, we need to get file name
             # from the next loop. This is why `enumerate` starts with `1` and there
             # is `i < len` to not exceed files list length.
-            if not disable_progress_bar and files_count > 1:
-                progress_bar_linter.update(n=1)
-                if i < len(fnames):
-                    progress_bar_linter.set_description(
-                        f"file {os.path.basename(fnames[i])}"
-                    )
+            progress_bar_linter.update(n=1)
+            if i < len(fnames):
+                progress_bar_linter.set_description(
+                    f"file {os.path.basename(fnames[i])}"
+                )
 
         return linted_path
 
@@ -926,8 +925,12 @@ class Linter:
         # Set up the result to hold what we get back
         result = LintingResult()
 
-        if not disable_progress_bar and paths_count > 1:
-            progress_bar = tqdm(total=paths_count, desc="path", leave=False)
+        progress_bar = tqdm(
+            total=paths_count,
+            desc="path",
+            leave=False,
+            disable=disable_progress_bar or paths_count <= 1,
+        )
 
         for path in paths:
             if not disable_progress_bar and paths_count > 1:
@@ -945,8 +948,7 @@ class Linter:
                     disable_progress_bar=disable_progress_bar,
                 )
             )
-            if not disable_progress_bar and paths_count > 1:
-                progress_bar.update(1)
+            progress_bar.update(1)
 
         result.stop_timer()
         return result

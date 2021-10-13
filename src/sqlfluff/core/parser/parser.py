@@ -35,13 +35,13 @@ class Parser:
         root_segment = self.RootSegment(segments=segments, fname=fname)
         # Call .parse() on that segment
 
-        if not disable_progress_bar:
-            progress_bar_dummy = tqdm(desc="parsing", leave=False)
+        progress_bar_dummy = tqdm(
+            desc="parsing", leave=False, disable=disable_progress_bar
+        )
 
         with RootParseContext.from_config(config=self.config, recurse=recurse) as ctx:
             parsed = root_segment.parse(parse_context=ctx)
 
-        if not disable_progress_bar:
-            progress_bar_dummy.update(1)
+        progress_bar_dummy.update(1)
 
         return parsed
