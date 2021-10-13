@@ -20,6 +20,13 @@ your database.
 * **0.3.x** drops support for python 2.7 and 3.4, and also reworks the
   handling of indentation linting in a potentially not backward
   compatible way.
+* **0.4.x** dropped python 3.5, the dbt templater, source mapping and also
+  introduced the python API
+* **0.5.x** introduced some breaking changes to the API.
+* **0.6.x** introduced parallel processing, which necessitated a big re-write
+  of several innards
+* **0.7.x** extracted the dbt templater to a separate plugin and removed the
+  `exasol_fs` dialect (now merged in with the main `exasol`)
 
 Want to see where and how people are using SQLFluff in their projects?
 Head over to :ref:`inthewildref` for inspiration.
