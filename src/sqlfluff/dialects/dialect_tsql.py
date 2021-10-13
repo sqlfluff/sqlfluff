@@ -413,7 +413,7 @@ class DeclareStatementSegment(BaseSegment):
             ),
             optional=True,
         ),
-        Ref("DelimiterSegment", optional=True)
+        Ref("DelimiterSegment", optional=True),
     )
 
 
