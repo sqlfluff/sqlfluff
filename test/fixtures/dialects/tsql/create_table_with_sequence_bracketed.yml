@@ -3,68 +3,69 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 735fdda0125c608988734d064d2b5d2b2b300c62e865fa73cfc369cce08474da
+_hash: 6a5466882f1e7f393f438ac173939d68c75ebb24bcb35b603fc1e2586bc09c83
 file:
 - batch:
-    if_then_statement:
-      keyword: IF
-      expression:
-      - keyword: NOT
-      - keyword: EXISTS
-      - bracketed:
-          start_bracket: (
-          expression:
-            select_statement:
-              select_clause:
-                keyword: SELECT
-                select_clause_element:
-                  wildcard_expression:
-                    wildcard_identifier:
-                      star: '*'
-              from_clause:
-                keyword: FROM
-                from_expression:
-                  from_expression_element:
-                    table_expression:
-                      table_reference:
-                      - identifier: sys
-                      - dot: .
-                      - identifier: sequences
-              where_clause:
-                keyword: WHERE
-                expression:
-                - column_reference:
-                    identifier: object_id
-                - comparison_operator: '='
-                - function:
-                    function_name:
-                      function_name_identifier: OBJECT_ID
-                    bracketed:
-                      start_bracket: (
-                      expression:
-                        literal: "N'[dbo].[SEQ_SCHEMA_NAME_TABLE_NAME]'"
-                      end_bracket: )
-                - binary_operator: AND
-                - column_reference:
-                    identifier: type
-                - comparison_operator: '='
-                - literal: "'SO'"
-          end_bracket: )
-      statement:
-        create_sequence_statement:
-        - keyword: CREATE
-        - keyword: SEQUENCE
-        - sequence_reference:
-            identifier: SEQ_SCHEMA_NAME_TABLE_NAME
-        - create_sequence_options_segment:
-          - keyword: START
-          - keyword: WITH
-          - literal: '1'
-        - create_sequence_options_segment:
-          - keyword: INCREMENT
-          - keyword: BY
-          - literal: '1'
-      statement_terminator: ;
+    statement:
+      if_then_statement:
+        keyword: IF
+        expression:
+        - keyword: NOT
+        - keyword: EXISTS
+        - bracketed:
+            start_bracket: (
+            expression:
+              select_statement:
+                select_clause:
+                  keyword: SELECT
+                  select_clause_element:
+                    wildcard_expression:
+                      wildcard_identifier:
+                        star: '*'
+                from_clause:
+                  keyword: FROM
+                  from_expression:
+                    from_expression_element:
+                      table_expression:
+                        table_reference:
+                        - identifier: sys
+                        - dot: .
+                        - identifier: sequences
+                where_clause:
+                  keyword: WHERE
+                  expression:
+                  - column_reference:
+                      identifier: object_id
+                  - comparison_operator: '='
+                  - function:
+                      function_name:
+                        function_name_identifier: OBJECT_ID
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          literal: "N'[dbo].[SEQ_SCHEMA_NAME_TABLE_NAME]'"
+                        end_bracket: )
+                  - binary_operator: AND
+                  - column_reference:
+                      identifier: type
+                  - comparison_operator: '='
+                  - literal: "'SO'"
+            end_bracket: )
+        statement:
+          create_sequence_statement:
+          - keyword: CREATE
+          - keyword: SEQUENCE
+          - sequence_reference:
+              identifier: SEQ_SCHEMA_NAME_TABLE_NAME
+          - create_sequence_options_segment:
+            - keyword: START
+            - keyword: WITH
+            - literal: '1'
+          - create_sequence_options_segment:
+            - keyword: INCREMENT
+            - keyword: BY
+            - literal: '1'
+        statement_terminator: ;
 - go_statement:
     keyword: GO
 - batch:
@@ -166,7 +167,7 @@ file:
                   start_bracket: (
                   end_bracket: )
         - end_bracket: )
-  - statement_terminator: ;
+      - statement_terminator: ;
   - statement:
       if_then_statement:
         keyword: IF
@@ -226,7 +227,7 @@ file:
             - keyword: INCREMENT
             - keyword: BY
             - literal: '1'
-  - statement_terminator: ;
+        statement_terminator: ;
 - go_statement:
     keyword: GO
 - batch:
@@ -422,7 +423,7 @@ file:
                   start_bracket: (
                   end_bracket: )
         - end_bracket: )
-    statement_terminator: ;
+      - statement_terminator: ;
 - go_statement:
     keyword: GO
 - batch:
@@ -499,7 +500,7 @@ file:
         - index_column_definition:
             identifier: GGD_NAAM
         - end_bracket: )
-  - statement_terminator: ;
+      - statement_terminator: ;
   - statement:
       create_table_statement:
       - keyword: CREATE
@@ -637,4 +638,4 @@ file:
                   literal: '2'
               - end_bracket: )
         - end_bracket: )
-  - statement_terminator: ;
+      - statement_terminator: ;
