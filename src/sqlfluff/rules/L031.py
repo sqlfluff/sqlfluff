@@ -193,7 +193,7 @@ class Rule_L031(BaseRule):
             for exp_ref in column_reference_segments:
                 used_alias_ref = exp_ref.get_child("identifier")
                 # exp_ref.get_child('dot') ensures that the column reference includes a table reference
-                if used_alias_ref.raw == alias_name and exp_ref.get_child("dot"):
+                if used_alias_ref and used_alias_ref.raw == alias_name and exp_ref.get_child("dot"):
                     ids_refs.append(used_alias_ref)
 
             # Fixes for deleting ` as sth` and for editing references to aliased tables
