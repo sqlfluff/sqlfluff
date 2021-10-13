@@ -1,3 +1,6 @@
-DECLARE @DateNow date = '1900-01-01';
+DECLARE @DateNow date = ISNULL(Shared.GetESTDateTime(GETDATE()), GETDATE())
 
-select cast(@DateNow as datetime2(7));
+select enc.personid as personid,
+				 cast('1900-01-01' as datetime2(7)) as DataRefreshDate
+from encounter enc;
+
