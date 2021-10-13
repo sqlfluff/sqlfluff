@@ -37,6 +37,7 @@ redshift_dialect.sets("reserved_keywords").update(
 @redshift_dialect.segment(replace=True)
 class DateAddFunctionNameSegment(BaseSegment):
     """DATEADD function name segment.
+
     Override to support DATEDIFF as well
     """
 
