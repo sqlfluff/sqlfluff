@@ -125,6 +125,8 @@ snowflake_dialect.sets("unreserved_keywords").update(
         "TERSE",
         "TABULAR",
         "UNSET",
+        "USER_TASK_TIMEOUT_MS",
+        "USER_TASK_MANAGED_INITIAL_WAREHOUSE_SIZE",
         "WAIT_FOR_COMPLETION",
         "WAREHOUSE_SIZE",
     ]
@@ -449,6 +451,7 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
         insert=[
             Ref("UseStatementSegment"),
             Ref("CreateStatementSegment"),
+            Ref("CreateTaskSegment"),
             Ref("CreateCloneStatementSegment"),
             Ref("ShowStatementSegment"),
             Ref("AlterUserSegment"),
@@ -1380,6 +1383,93 @@ class CreateTableStatementSegment(BaseSegment):
 
 
 @snowflake_dialect.segment()
+class CreateTaskSegment(BaseSegment):
+    """A snowflake `CREATE TASK` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-task.html
+    """
+
+    type = "create_task_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Sequence("OR", "REPLACE", optional=True),
+        "TASK",
+        Sequence("IF", "NOT", "EXISTS", optional=True),
+        Ref("ObjectReferenceSegment"),
+        Indent,
+        Sequence(
+            "WAREHOUSE",
+            Ref("EqualsSegment"),
+            Ref("ObjectReferenceSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "SCHEDULE",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "ALLOW_OVERLAPPING_EXECUTION",
+            Ref("EqualsSegment"),
+            Ref("BooleanLiteralGrammar"),
+            optional=True,
+        ),
+        Delimited(
+            Sequence(
+                Ref("ParameterNameSegment"),
+                Ref("EqualsSegment"),
+                OneOf(
+                    Ref("BooleanLiteralGrammar"),
+                    Ref("QuotedLiteralSegment"),
+                    Ref("NumericLiteralSegment"),
+                ),
+            ),
+            delimiter=Ref("CommaSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "USER_TASK_TIMEOUT_MS",
+            Ref("EqualsSegment"),
+            Ref("NumericLiteralSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "USER_TASK_MANAGED_INITIAL_WAREHOUSE_SIZE",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "COPY",
+            "GRANTS",
+            optional=True,
+        ),
+        Ref("CreateStatementCommentSegment", optional=True),
+        Sequence(
+            "AFTER",
+            Ref("ObjectReferenceSegment"),
+            optional=True,
+        ),
+        Dedent,
+        Sequence(
+            "WHEN",
+            Indent,
+            Ref("ExpressionSegment"),
+            Dedent,
+            optional=True,
+        ),
+        Sequence(
+            Ref.keyword("AS"),
+            Indent,
+            Ref("StatementSegment"),
+            Dedent,
+        ),
+    )
+
+
+@snowflake_dialect.segment()
 class CreateStatementSegment(BaseSegment):
     """A snowflake `CREATE` statement.
 
@@ -1416,7 +1506,6 @@ class CreateStatementSegment(BaseSegment):
             Sequence("FILE", "FORMAT"),
             "STAGE",
             "STREAM",
-            "TASK",
         ),
         Sequence("IF", "NOT", "EXISTS", optional=True),
         Ref("ObjectReferenceSegment"),

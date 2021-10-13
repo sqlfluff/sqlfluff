@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 07931a42221549599e8dc934a850c844e413378012ad5c9e33aae02458d9d97a
+_hash: 9187d81b1ed5bc9a79aae00206e2ae0bca51a4f8fb22189cc863e103eb5aa6e8
 file:
   batch:
     create_procedure_statement:
@@ -17,42 +17,41 @@ file:
     - procedure_statement:
         begin_end_block:
         - keyword: BEGIN
-        - batch:
-          - statement:
-              select_statement:
-                select_clause:
-                  keyword: SELECT
-                  select_clause_element:
-                    literal: "'Weekend'"
-          - statement_terminator: ;
-          - statement:
-              select_statement:
-                select_clause:
-                  keyword: select
-                  select_clause_element:
-                    column_reference:
-                      identifier: a
-                from_clause:
-                  keyword: from
-                  from_expression:
-                    from_expression_element:
-                      table_expression:
-                        table_reference:
-                          identifier: tbl1
-          - statement_terminator: ;
-          - statement:
-              select_statement:
-                select_clause:
-                  keyword: select
-                  select_clause_element:
-                    column_reference:
-                      identifier: b
-                from_clause:
-                  keyword: from
-                  from_expression:
-                    from_expression_element:
-                      table_expression:
-                        table_reference:
-                          identifier: tbl2
-          - statement_terminator: ;
+        - statement:
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  literal: "'Weekend'"
+              statement_terminator: ;
+        - statement:
+            select_statement:
+              select_clause:
+                keyword: select
+                select_clause_element:
+                  column_reference:
+                    identifier: a
+              from_clause:
+                keyword: from
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        identifier: tbl1
+                statement_terminator: ;
+        - statement:
+            select_statement:
+              select_clause:
+                keyword: select
+                select_clause_element:
+                  column_reference:
+                    identifier: b
+              from_clause:
+                keyword: from
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        identifier: tbl2
+                statement_terminator: ;
         - keyword: END
