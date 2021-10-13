@@ -3,14 +3,14 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 71ac6e34a041b0049eb86cdd0a2c765dd23e322db40a024789dd6e049b2067dd
+_hash: 455fbc87378f6996811989411cf92023c4ad93fa6e5518965a4e7c6831baae14
 file:
   batch:
   - statement:
       transaction_statement:
       - keyword: BEGIN
       - keyword: TRANSACTION
-  - statement_terminator: ;
+      - statement_terminator: ;
   - statement:
       delete_statement:
         keyword: DELETE
@@ -30,8 +30,8 @@ file:
               identifier: JobCandidateID
             comparison_operator: '='
             literal: '13'
-  - statement_terminator: ;
+        statement_terminator: ;
   - statement:
       transaction_statement:
         keyword: COMMIT
-  - statement_terminator: ;
+        statement_terminator: ;
