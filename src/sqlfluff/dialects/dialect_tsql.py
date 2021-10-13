@@ -24,6 +24,8 @@ from sqlfluff.core.parser import (
     Indent,
     AnyNumberOf,
     CommentSegment,
+    StringParser,
+    SymbolSegment,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -74,6 +76,9 @@ tsql_dialect.patch_lexer_matchers(
             CommentSegment,
             segment_kwargs={"trim_start": ("--")},
         ),
+        # Patching to add !<, !>
+        RegexLexer("greater_than_or_equal", ">=|!<", CodeSegment),
+        RegexLexer("less_than_or_equal", "<=|!>", CodeSegment),
     ]
 )
 
@@ -88,9 +93,27 @@ tsql_dialect.add(
     QuotedLiteralSegmentWithN=NamedParser(
         "single_quote_with_n", CodeSegment, name="quoted_literal", type="literal"
     ),
+    NotGreaterThanSegment=StringParser(
+        "!>", SymbolSegment, name="less_than_equal_to", type="comparison_operator"
+    ),
+    NotLessThanSegment=StringParser(
+        "!<", SymbolSegment, name="greater_than_equal_to", type="comparison_operator"
+    ),
 )
 
 tsql_dialect.replace(
+    ComparisonOperatorGrammar=OneOf(
+        Ref("EqualsSegment"),
+        Ref("GreaterThanSegment"),
+        Ref("LessThanSegment"),
+        Ref("GreaterThanOrEqualToSegment"),
+        Ref("LessThanOrEqualToSegment"),
+        Ref("NotEqualToSegment_a"),
+        Ref("NotEqualToSegment_b"),
+        Ref("LikeOperatorSegment"),
+        Ref("NotGreaterThanSegment"),
+        Ref("NotLessThanSegment"),
+    ),
     SingleIdentifierGrammar=OneOf(
         Ref("NakedIdentifierSegment"),
         Ref("QuotedIdentifierSegment"),
