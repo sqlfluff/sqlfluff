@@ -44,6 +44,10 @@ class Rule_L048(Rule_L006):
         https://github.com/sqlfluff/sqlfluff/issues/943
         """
         simple_res = Rule_L006._missing_whitespace(seg, before=before)
-        if not before and seg and (seg.is_type("comma") or seg.is_type("statement_terminator")):
+        if (
+            not before
+            and seg
+            and (seg.is_type("comma") or seg.is_type("statement_terminator"))
+        ):
             return False
         return simple_res
