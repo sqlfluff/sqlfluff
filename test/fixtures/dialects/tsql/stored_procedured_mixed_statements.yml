@@ -1,0 +1,39 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 36d43ecf327cda8bbaee155a8ed7aff51164bb7e387dd40917e97c2e478bca97
+file:
+  batch:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: PROC
+    - object_reference:
+      - identifier: '[Reporting]'
+      - dot: .
+      - identifier: '[PowerPlan]'
+    - keyword: AS
+    - procedure_statement:
+        statement:
+          declare_segment:
+            keyword: DECLARE
+            parameter: '@DATEFUNCTION'
+            data_type:
+              identifier: DATE
+            comparison_operator: '='
+            function:
+              function_name:
+                function_name_identifier: GETDATE
+              bracketed:
+                start_bracket: (
+                end_bracket: )
+        begin_end_block:
+        - keyword: BEGIN
+        - statement:
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  literal: '1'
+        - keyword: END
