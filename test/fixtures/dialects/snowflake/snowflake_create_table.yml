@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 42d41ad60a4693f4fce33fdc6d8a2da40c5ac054ee5cca2951debc2672c56a12
+_hash: 63464647b2201f8b0742e86153275af74f2954ad95b1dab8d7043977e27c2bc3
 file:
 - statement:
     create_table_statement:
@@ -624,4 +624,76 @@ file:
               start_bracket: (
               end_bracket: )
       - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        identifier: test_table
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          identifier: test_column
+          data_type:
+            data_type_identifier: NUMBER
+          column_constraint_segment:
+            keyword: autoincrement
+            bracketed:
+            - start_bracket: (
+            - literal: '0'
+            - comma: ','
+            - literal: '1'
+            - end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+      - identifier: test_schema
+      - dot: .
+      - identifier: test_table
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          identifier: test_column
+          data_type:
+            data_type_identifier: NUMBER
+          column_constraint_segment:
+            keyword: autoincrement
+            bracketed:
+            - start_bracket: (
+            - literal: '0'
+            - comma: ','
+            - literal: '1'
+            - end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - binary_operator: or
+    - keyword: replace
+    - keyword: table
+    - table_reference:
+      - identifier: test_schema
+      - dot: .
+      - identifier: test_table
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          identifier: test_column
+          data_type:
+            data_type_identifier: NUMBER
+          column_constraint_segment:
+            keyword: autoincrement
+            bracketed:
+            - start_bracket: (
+            - literal: '0'
+            - comma: ','
+            - literal: '1'
+            - end_bracket: )
+        end_bracket: )
 - statement_terminator: ;
