@@ -788,12 +788,13 @@ class AlterTableColumnStatementSegment(BaseSegment):
         "ALTER",
         "TABLE",
         Ref("TableReferenceSegment"),
-        OneOf("ALTER", "MODIFY", "DROP"),
+        OneOf("ALTER", "MODIFY"),
         OptionallyBracketed(
             Delimited(
                 OneOf(
                     # Add things
                     Sequence(
+                        "DROP",
                         Ref.keyword("COLUMN", optional=True),
                         Ref("SingleIdentifierGrammar"),
                     ),
