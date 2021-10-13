@@ -1158,12 +1158,12 @@ class ColumnConstraintSegment(BaseSegment):
         Sequence(
             OneOf("AUTOINCREMENT", "IDENTITY"),
             OneOf(
-                Bracketed(Delimited(Ref("NumericLiteralValue"))),
+                Bracketed(Delimited(Ref("NumericLiteralSegment"))),
                 Sequence(
                     "START",
-                    Ref("NumericLiteralValue"),
+                    Ref("NumericLiteralSegment"),
                     "INCREMENT",
-                    Ref("NumericLiteralValue"),
+                    Ref("NumericLiteralSegment"),
                 ),
             ),
         ),

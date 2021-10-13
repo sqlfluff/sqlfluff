@@ -71,3 +71,7 @@ CREATE TABLE timestamp_column_default_value_demo (
 	timestamp_col3 TIMESTAMP_TZ DEFAULT CURRENT_TIMESTAMP(2),
 	sysdate_col4 TIMESTAMP_TZ DEFAULT SYSDATE()
 );
+
+create table test_table (test_column NUMBER autoincrement (0, 1));
+create table test_schema.test_table (test_column NUMBER autoincrement (0, 1));
+create or replace table test_schema.test_table (test_column NUMBER autoincrement (0, 1));
