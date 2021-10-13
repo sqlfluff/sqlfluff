@@ -166,6 +166,7 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref(
                 "CreateTableAsSelectStatementSegment"
             ),  # Azure Synapse Analytics specific
+            Ref("RenameStatementSegment"),  # Azure Synapse Analytics specific
         ],
     )
 
@@ -1340,5 +1341,24 @@ class OrderByClauseSegment(BaseSegment):
             ),
         ),
         Dedent,
+        Ref("DelimiterSegment", optional=True),
+    )
+
+
+@tsql_dialect.segment()
+class RenameStatementSegment(BaseSegment):
+    """`RENAME` statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/rename-transact-sql?view=aps-pdw-2016-au7
+    Azure Synapse Analytics-specific.
+    """
+
+    type = "rename_statement"
+    match_grammar = Sequence(
+        "RENAME",
+        "OBJECT",
+        Ref("ObjectReferenceSegment"),
+        "TO",
+        Ref("SingleIdentifierGrammar"),
         Ref("DelimiterSegment", optional=True),
     )
