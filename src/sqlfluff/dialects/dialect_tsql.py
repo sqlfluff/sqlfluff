@@ -746,9 +746,12 @@ class ProcedureDefinitionGrammar(BaseSegment):
     type = "procedure_statement"
     name = "procedure_statement"
 
-    match_grammar = OneOf(
-        Ref("StatementSegment"),
-        Ref("BeginEndSegment"),
+    match_grammar = AnyNumberOf(
+        OneOf(
+            Ref("BeginEndSegment"),
+            Ref("StatementSegment"),
+        ),
+        min_times=1,
     )
 
 
