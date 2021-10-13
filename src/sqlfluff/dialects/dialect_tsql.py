@@ -27,6 +27,7 @@ from sqlfluff.core.parser import (
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
+
 from sqlfluff.dialects.dialect_tsql_keywords import (
     RESERVED_KEYWORDS,
     UNRESERVED_KEYWORDS,
@@ -95,6 +96,7 @@ tsql_dialect.replace(
         Ref("QuotedIdentifierSegment"),
         Ref("BracketedIdentifierSegment"),
         Ref("HashIdentifierSegment"),
+        Ref("ParameterNameSegment"),
     ),
     LiteralGrammar=OneOf(
         Ref("QuotedLiteralSegment"),
@@ -119,6 +121,22 @@ tsql_dialect.replace(
     DatatypeIdentifierSegment=Ref("SingleIdentifierGrammar"),
     PrimaryKeyGrammar=Sequence(
         "PRIMARY", "KEY", OneOf("CLUSTERED", "NONCLUSTERED", optional=True)
+    ),
+    # Overriding SelectClauseSegmentGrammar to remove Delimited logic which assumes statements have been delimited
+    SelectClauseSegmentGrammar=Sequence(
+        "SELECT",
+        Ref("SelectClauseModifierSegment", optional=True),
+        Indent,
+        AnyNumberOf(
+            Sequence(
+                Ref("SelectClauseElementSegment"),
+                Ref("CommaSegment"),
+            ),
+        ),
+        Ref("SelectClauseElementSegment"),
+        # NB: The Dedent for the indent above lives in the
+        # SelectStatementSegment so that it sits in the right
+        # place corresponding to the whitespace.
     ),
     FromClauseTerminatorGrammar=OneOf(
         "WHERE",
@@ -149,10 +167,30 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref(
                 "CreateTableAsSelectStatementSegment"
             ),  # Azure Synapse Analytics specific
+            Ref("RenameStatementSegment"),  # Azure Synapse Analytics specific
         ],
     )
 
     parse_grammar = match_grammar
+
+
+@tsql_dialect.segment(replace=True)
+class SelectClauseElementSegment(BaseSegment):
+    """An element in the targets of a select statement.
+
+    Overriding ANSI to remove GreedyUntil logic which assumes statements have been delimited
+    """
+
+    type = "select_clause_element"
+    # Important to split elements before parsing, otherwise debugging is really hard.
+    match_grammar = OneOf(
+        # *, blah.*, blah.blah.*, etc.
+        Ref("WildcardExpressionSegment"),
+        Sequence(
+            Ref("BaseExpressionElementGrammar"),
+            Ref("AliasExpressionSegment", optional=True),
+        ),
+    )
 
 
 @tsql_dialect.segment(replace=True)
@@ -170,6 +208,17 @@ class SelectClauseModifierSegment(BaseSegment):
             Sequence("WITH", "TIES", optional=True),
         ),
     )
+
+
+@tsql_dialect.segment(replace=True)
+class SelectClauseSegment(BaseSegment):
+    """A group of elements in a select target statement.
+
+    Overriding ANSI to remove StartsWith logic which assumes statements have been delimited
+    """
+
+    type = "select_clause"
+    match_grammar = Ref("SelectClauseSegmentGrammar")
 
 
 @tsql_dialect.segment(replace=True)
@@ -215,6 +264,7 @@ class SelectStatementSegment(BaseSegment):
     match_grammar = UnorderedSelectStatementSegment.match_grammar.copy(
         insert=[
             Ref("OrderByClauseSegment", optional=True),
+            Ref("DelimiterSegment", optional=True),
         ]
     )
 
@@ -273,6 +323,7 @@ class CreateIndexStatementSegment(BaseSegment):
             ),
             optional=True,
         ),
+        Ref("DelimiterSegment", optional=True),
     )
 
 
@@ -310,12 +361,7 @@ class PivotUnpivotStatementSegment(BaseSegment):
     """
 
     type = "from_pivot_expression"
-    match_grammar = StartsWith(
-        OneOf("PIVOT", "UNPIVOT"),
-        terminator=Ref("FromClauseTerminatorGrammar"),
-        enforce_whitespace_preceding_terminator=True,
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         OneOf(
             Sequence(
                 "PIVOT",
@@ -355,10 +401,13 @@ class DeclareStatementSegment(BaseSegment):
     """
 
     type = "declare_segment"
-    match_grammar = StartsWith("DECLARE")
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "DECLARE",
-        Delimited(Ref("ParameterNameSegment")),
+        Ref("ParameterNameSegment"),
+        AnyNumberOf(
+            Ref("ParameterNameSegment"),
+            Ref("CommaSegment", optional=True),
+        ),
         Ref("DatatypeSegment"),
         Sequence(
             Ref("EqualsSegment"),
@@ -370,6 +419,7 @@ class DeclareStatementSegment(BaseSegment):
             ),
             optional=True,
         ),
+        Ref("DelimiterSegment", optional=True),
     )
 
 
@@ -655,12 +705,7 @@ class CreateProcedureStatementSegment(BaseSegment):
 
     type = "create_procedure_statement"
 
-    match_grammar = StartsWith(
-        Sequence(
-            "CREATE", Sequence("OR", "ALTER", optional=True), OneOf("PROCEDURE", "PROC")
-        )
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "CREATE",
         Sequence("OR", "ALTER", optional=True),
         OneOf("PROCEDURE", "PROC"),
@@ -700,6 +745,7 @@ class CreateViewStatementSegment(BaseSegment):
         Ref("ObjectReferenceSegment"),
         "AS",
         Ref("SelectableGrammar"),
+        Ref("DelimiterSegment", optional=True),
     )
 
 
@@ -768,6 +814,18 @@ class ConvertFunctionNameSegment(BaseSegment):
 
     type = "function_name"
     match_grammar = Sequence("CONVERT")
+
+
+@tsql_dialect.segment()
+class CastFunctionNameSegment(BaseSegment):
+    """CAST function name segment.
+
+    Need to be able to specify this as type function_name
+    so that linting rules identify it properly
+    """
+
+    type = "function_name"
+    match_grammar = Sequence("CAST")
 
 
 @tsql_dialect.segment()
@@ -876,6 +934,16 @@ class FunctionSegment(BaseSegment):
         ),
         Sequence(
             Sequence(
+                Ref("CastFunctionNameSegment"),
+                Bracketed(
+                    Ref("ExpressionSegment"),
+                    "AS",
+                    Ref("DatatypeSegment"),
+                ),
+            ),
+        ),
+        Sequence(
+            Sequence(
                 Ref("WithinGroupFunctionNameSegment"),
                 Bracketed(
                     Delimited(
@@ -895,6 +963,8 @@ class FunctionSegment(BaseSegment):
                 OneOf(
                     Ref("FunctionNameSegment"),
                     exclude=OneOf(
+                        # List of special functions handled differently
+                        Ref("CastFunctionNameSegment"),
                         Ref("ConvertFunctionNameSegment"),
                         Ref("DateAddFunctionNameSegment"),
                         Ref("WithinGroupFunctionNameSegment"),
@@ -949,6 +1019,7 @@ class CreateTableStatementSegment(BaseSegment):
         Ref(
             "TableDistributionIndexClause", optional=True
         ),  # Azure Synapse Analytics specific
+        Ref("DelimiterSegment", optional=True),
     )
 
     parse_grammar = match_grammar
@@ -1048,6 +1119,7 @@ class AlterTableSwitchStatementSegment(BaseSegment):
             Bracketed("TRUNCATE_TARGET", Ref("EqualsSegment"), OneOf("ON", "OFF")),
             optional=True,
         ),
+        Ref("DelimiterSegment", optional=True),
     )
 
 
@@ -1131,11 +1203,14 @@ class TransactionStatementSegment(BaseSegment):
             "TRANSACTION",
             Ref("SingleIdentifierGrammar", optional=True),
             Sequence("WITH", "MARK", Ref("QuotedIdentifierSegment"), optional=True),
+            Ref("DelimiterSegment", optional=True),
         ),
         Sequence(
-            OneOf("COMMIT", "ROLLBACK"), OneOf("TRANSACTION", "WORK", optional=True)
+            OneOf("COMMIT", "ROLLBACK"),
+            OneOf("TRANSACTION", "WORK", optional=True),
+            Ref("DelimiterSegment", optional=True),
         ),
-        Sequence("SAVE", "TRANSACTION"),
+        Sequence("SAVE", "TRANSACTION", Ref("DelimiterSegment", optional=True)),
     )
 
 
@@ -1151,7 +1226,13 @@ class BeginEndSegment(BaseSegment):
     match_grammar = Sequence(
         "BEGIN",
         Indent,
-        Ref("BatchSegment"),
+        AnyNumberOf(
+            OneOf(
+                Ref("BeginEndSegment"),
+                Ref("StatementSegment"),
+            ),
+            min_times=1,
+        ),
         Dedent,
         "END",
     )
@@ -1163,18 +1244,16 @@ class BatchSegment(BaseSegment):
 
     type = "batch"
     match_grammar = OneOf(
+        # Things that can be bundled
         AnyNumberOf(
-            Ref("BeginEndSegment"),
+            OneOf(
+                Ref("BeginEndSegment"),
+                Ref("StatementSegment"),
+            ),
             min_times=1,
         ),
+        # Things that can't be bundled
         Ref("CreateProcedureStatementSegment"),
-        Ref("IfExpressionStatement"),
-        Delimited(
-            Ref("StatementSegment"),
-            delimiter=Ref("DelimiterSegment"),
-            allow_gaps=True,
-            allow_trailing=True,
-        ),
     )
 
 
@@ -1198,4 +1277,132 @@ class FileSegment(BaseFileSegment):
         delimiter=Ref("BatchDelimiterSegment"),
         allow_gaps=True,
         allow_trailing=True,
+    )
+
+
+@tsql_dialect.segment(replace=True)
+class DeleteStatementSegment(BaseSegment):
+    """A `DELETE` statement.
+
+    DELETE FROM <table name> [ WHERE <search condition> ]
+    Overriding ANSI to remove StartsWith logic which assumes statements have been delimited
+    """
+
+    type = "delete_statement"
+    # match grammar. This one makes sense in the context of knowing that it's
+    # definitely a statement, we just don't know what type yet.
+    match_grammar = Sequence(
+        "DELETE",
+        Ref("FromClauseSegment"),
+        Ref("WhereClauseSegment", optional=True),
+        Ref("DelimiterSegment", optional=True),
+    )
+
+
+@tsql_dialect.segment(replace=True)
+class FromClauseSegment(BaseSegment):
+    """A `FROM` clause like in `SELECT`.
+
+    NOTE: this is a delimited set of table expressions, with a variable
+    number of optional join clauses with those table expressions. The
+    delmited aspect is the higher of the two such that the following is
+    valid (albeit unusual):
+
+    ```
+    SELECT *
+    FROM a JOIN b, c JOIN d
+    ```
+
+    Overriding ANSI to remove Delimited logic which assumes statements have been delimited
+    """
+
+    type = "from_clause"
+    match_grammar = Sequence(
+        "FROM",
+        AnyNumberOf(
+            Sequence(
+                Ref("FromExpressionSegment"),
+                Ref("CommaSegment"),
+            ),
+        ),
+        Ref("FromExpressionSegment"),
+        Ref("DelimiterSegment", optional=True),
+    )
+
+    get_eventual_aliases = ansi_dialect.get_segment(
+        "FromClauseSegment"
+    ).get_eventual_aliases
+
+
+@tsql_dialect.segment(replace=True)
+class OrderByClauseSegment(BaseSegment):
+    """A `ORDER BY` clause like in `SELECT`.
+
+    Overriding ANSI to remove StartsWith logic which assumes statements have been delimited
+    """
+
+    type = "orderby_clause"
+    match_grammar = Sequence(
+        "ORDER",
+        "BY",
+        Indent,
+        Sequence(
+            OneOf(
+                Ref("ColumnReferenceSegment"),
+                # Can `ORDER BY 1`
+                Ref("NumericLiteralSegment"),
+                # Can order by an expression
+                Ref("ExpressionSegment"),
+            ),
+            OneOf("ASC", "DESC", optional=True),
+        ),
+        AnyNumberOf(
+            Ref("CommaSegment"),
+            Sequence(
+                OneOf(
+                    Ref("ColumnReferenceSegment"),
+                    # Can `ORDER BY 1`
+                    Ref("NumericLiteralSegment"),
+                    # Can order by an expression
+                    Ref("ExpressionSegment"),
+                ),
+                OneOf("ASC", "DESC", optional=True),
+            ),
+        ),
+        Dedent,
+        Ref("DelimiterSegment", optional=True),
+    )
+
+
+@tsql_dialect.segment()
+class RenameStatementSegment(BaseSegment):
+    """`RENAME` statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/rename-transact-sql?view=aps-pdw-2016-au7
+    Azure Synapse Analytics-specific.
+    """
+
+    type = "rename_statement"
+    match_grammar = Sequence(
+        "RENAME",
+        "OBJECT",
+        Ref("ObjectReferenceSegment"),
+        "TO",
+        Ref("SingleIdentifierGrammar"),
+        Ref("DelimiterSegment", optional=True),
+    )
+
+
+@tsql_dialect.segment(replace=True)
+class DropStatementSegment(BaseSegment):
+    """A `DROP` statement.
+
+    Overriding ANSI to add optional delimiter.
+    """
+
+    type = "drop_statement"
+    match_grammar = ansi_dialect.get_segment("DropStatementSegment").match_grammar.copy(
+        insert=[
+            Ref("DelimiterSegment", optional=True),
+        ],
     )

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 05c85512b6faf6acfd23b4189629c90c2471900a538fb57fb36d7856fab5329a
+_hash: 9c1157cd65726ca63928fc6950d032abe49606e1fbfcfae3ea9fc4cbf9b6cd5c
 file:
   batch:
     create_procedure_statement:
@@ -97,7 +97,7 @@ file:
               - select_clause_element:
                   function:
                     function_name:
-                      function_name_identifier: CAST
+                      keyword: CAST
                     bracketed:
                       start_bracket: (
                       expression:
@@ -118,7 +118,7 @@ file:
               - select_clause_element:
                   function:
                     function_name:
-                      function_name_identifier: CAST
+                      keyword: CAST
                     bracketed:
                       start_bracket: (
                       expression:
@@ -139,7 +139,7 @@ file:
               - select_clause_element:
                   function:
                     function_name:
-                      function_name_identifier: CAST
+                      keyword: CAST
                     bracketed:
                       start_bracket: (
                       expression:
@@ -189,7 +189,7 @@ file:
               - select_clause_element:
                   function:
                     function_name:
-                      function_name_identifier: CAST
+                      keyword: CAST
                     bracketed:
                       start_bracket: (
                       expression:
@@ -248,7 +248,7 @@ file:
               - select_clause_element:
                   function:
                     function_name:
-                      function_name_identifier: CAST
+                      keyword: CAST
                     bracketed:
                       start_bracket: (
                       expression:
@@ -265,7 +265,7 @@ file:
               - select_clause_element:
                   function:
                     function_name:
-                      function_name_identifier: CAST
+                      keyword: CAST
                     bracketed:
                       start_bracket: (
                       expression:
