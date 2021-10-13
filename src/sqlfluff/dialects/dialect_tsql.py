@@ -1334,6 +1334,41 @@ class FromClauseSegment(BaseSegment):
     ).get_eventual_aliases
 
 
+
+
+@tsql_dialect.segment(replace=True)
+class GroupByClauseSegment(BaseSegment):
+    """A `GROUP BY` clause like in `SELECT`.
+
+    Overriding ANSI to remove Delimited logic which assumes statements have been delimited
+    """
+
+    type = "groupby_clause"
+    match_grammar = Sequence(
+        "GROUP",
+        "BY",
+        Indent,
+        OneOf(
+            Ref("ColumnReferenceSegment"),
+            # Can `GROUP BY 1`
+            Ref("NumericLiteralSegment"),
+            # Can `GROUP BY coalesce(col, 1)`
+            Ref("ExpressionSegment"),
+        ),
+        AnyNumberOf(
+            Ref("CommaSegment"),
+            OneOf(
+                Ref("ColumnReferenceSegment"),
+                # Can `GROUP BY 1`
+                Ref("NumericLiteralSegment"),
+                # Can `GROUP BY coalesce(col, 1)`
+                Ref("ExpressionSegment"),
+            ),
+        ),
+        Dedent,
+    )
+
+
 @tsql_dialect.segment(replace=True)
 class OrderByClauseSegment(BaseSegment):
     """A `ORDER BY` clause like in `SELECT`.
