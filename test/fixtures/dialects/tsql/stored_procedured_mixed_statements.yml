@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 36d43ecf327cda8bbaee155a8ed7aff51164bb7e387dd40917e97c2e478bca97
+_hash: 5a9199e249ff2e03ef14c6833eb96ea0924cd942867ba7b8fa5f128d3a0f3986
 file:
   batch:
     create_procedure_statement:
@@ -15,7 +15,7 @@ file:
       - identifier: '[PowerPlan]'
     - keyword: AS
     - procedure_statement:
-        statement:
+      - statement:
           declare_segment:
             keyword: DECLARE
             parameter: '@DATEFUNCTION'
@@ -28,7 +28,16 @@ file:
               bracketed:
                 start_bracket: (
                 end_bracket: )
-        begin_end_block:
+      - statement:
+          drop_statement:
+          - keyword: DROP
+          - keyword: TABLE
+          - table_reference:
+            - identifier: '[Reporting]'
+            - dot: .
+            - identifier: '[PowerPlan_BASE]'
+          - statement_terminator: ;
+      - begin_end_block:
         - keyword: BEGIN
         - statement:
             select_statement:
@@ -36,4 +45,46 @@ file:
                 keyword: SELECT
                 select_clause_element:
                   literal: '1'
+        - statement:
+            create_table_as_select_statement:
+            - keyword: CREATE
+            - keyword: TABLE
+            - table_reference:
+                identifier: '#TempTest'
+            - table_distribution_index_clause:
+                keyword: WITH
+                bracketed:
+                  start_bracket: (
+                  table_distribution_clause:
+                  - keyword: DISTRIBUTION
+                  - comparison_operator: '='
+                  - keyword: ROUND_ROBIN
+                  comma: ','
+                  table_index_clause:
+                    keyword: HEAP
+                  end_bracket: )
+            - keyword: AS
+            - bracketed:
+                start_bracket: (
+                select_statement:
+                  select_clause:
+                  - keyword: SELECT
+                  - select_clause_element:
+                      literal: '2'
+                      alias_expression:
+                        keyword: AS
+                        identifier: Two
+                  - comma: ','
+                  - select_clause_element:
+                      literal: '3'
+                      alias_expression:
+                        keyword: AS
+                        identifier: Three
+                  - comma: ','
+                  - select_clause_element:
+                      literal: '4'
+                      alias_expression:
+                        keyword: AS
+                        identifier: Four
+                end_bracket: )
         - keyword: END
