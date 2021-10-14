@@ -112,7 +112,7 @@ jobs:
     strategy:
       matrix:
         dbt-version: [ 'dbt018', 'dbt019', 'dbt020', 'dbt021' ]
-    name: DBT ${{ matrix.dbt-version }} tests
+    name: DBT Plugin ${{ matrix.dbt-version }} tests
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python
@@ -124,7 +124,7 @@ jobs:
         pip install tox
     - name: Run the tests
       run: |
-        tox -e ${{ matrix.dbt-version }} -- -m dbt
+        tox -e ${{ matrix.dbt-version }} -- plugins/sqlfluff-templater-dbt
     - name: Upload Coverage Report
       uses: codecov/codecov-action@v1
       with:
@@ -164,7 +164,7 @@ jobs:
         files: ./coverage.xml
   python-windows-dbt-tests:
     runs-on: windows-latest
-    name: Python 3.8 Windows dbt tests
+    name: DBT Plugin Python 3.8 Windows tests
     steps:
     - name: Set git to use LF
       run: |
@@ -184,7 +184,7 @@ jobs:
       # Do not set explicitly temp dir for dbt as causes problems
       # None of these test need temp dir set
       run: |
-        python -m tox -e dbt018-winpy -- -m dbt
+        python -m tox -e dbt018-winpy -- plugins/sqlfluff-templater-dbt
     - name: Upload Coverage Report
       uses: codecov/codecov-action@v1
       with:
