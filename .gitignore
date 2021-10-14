@@ -42,4 +42,4 @@ test-reports
 # Ignore conda environment.yml contributors might be using and direnv config
 environment.yml
 .envrc
-/plugins/sqlfluff-templater-dbt/test/fixtures/dbt/dbt_project/models/my_new_project/issue_1608FIXED.sql
+**/*FIXED.sql
