@@ -187,6 +187,7 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref("DeclareStatementSegment"),
             Ref("SetStatementSegment"),
             Ref("AlterTableSwitchStatementSegment"),
+            Ref("PrintStatementSegment"),
             Ref(
                 "CreateTableAsSelectStatementSegment"
             ),  # Azure Synapse Analytics specific
@@ -1454,3 +1455,15 @@ class DatePartFunctionNameSegment(BaseSegment):
 
     type = "function_name"
     match_grammar = OneOf("DATEADD", "DATEDIFF", "DATEDIFF_BIG", "DATENAME")
+
+
+@tsql_dialect.segment()
+class PrintStatementSegment(BaseSegment):
+    """PRINT statement segment."""
+
+    type = "print_statement"
+    match_grammar = Sequence(
+        "PRINT",
+        Ref("ExpressionSegment"),
+        Ref("DelimiterSegment", optional=True),
+    )
