@@ -87,3 +87,19 @@ test_tsql_pivot_are_excluded:
   configs:
     core:
       dialect: tsql
+
+
+test_date_functions_are_excluded:
+  # This should pass as date keywords columns do not need to be
+  # qualified
+  pass_str: |
+    SELECT
+        a.[hello],
+        DATEDIFF(day, a.[mydate], GETDATE()) AS [test]
+    FROM
+        mytable AS a
+  configs:
+    core:
+      dialect: tsql
+
+
