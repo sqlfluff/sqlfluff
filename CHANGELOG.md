@@ -17,7 +17,7 @@ This release extracts the dbt templater to a seperately installable plugin
 [sqlfluff-templater-dbt](https://pypi.org/project/sqlfluff-templater-dbt/).
 For users who take advantage of the dbt templater see the
 [updated docs on how to migrate](https://docs.sqlfluff.com/en/latest/configuration.html#installation-configuration).
-It also add the `redshift` dialect and removes the `exasol_fs` dialect which has been merged
+It also adds the `redshift` dialect and removes the `exasol_fs` dialect which has been merged
 into the `exasol` dialect.
 
 ## What’s Changed
