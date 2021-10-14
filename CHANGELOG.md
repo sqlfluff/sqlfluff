@@ -9,6 +9,60 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfluff/sqlfluff/releases) and will be copied in here on each release (please remember to update the issues and contributors to links!). There is no need to manually edit this file going forward.
 -->
 
+## [0.7.0] - 2021-10-14
+
+This release extracts the dbt templater to a seperately installable plugin [sqlfluff-templater-dbt](https://pypi.org/project/sqlfluff-templater-dbt/).
+It also add the `redshift` dialect and removes the `exasol_fs` dialect which has been merged
+into the `exasol` dialect.
+
+## What’s Changed
+
+* src/sqlfluff/core/linter: Improve ignore file processing [#1650](https://github.com/sqlfluff/sqlfluff/pull/1650) [@CyberShadow](https://github.com/CyberShadow)
+* Misc documentation updates [#1644](https://github.com/sqlfluff/sqlfluff/pull/1644) [@tunetheweb](https://github.com/tunetheweb)
+* Segregate dbt plugin tests [#1610](https://github.com/sqlfluff/sqlfluff/pull/1610) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Add initial Redshift support [#1641](https://github.com/sqlfluff/sqlfluff/pull/1641) [@tunetheweb](https://github.com/tunetheweb)
+* Update docs for dbt templater, improve error messages when not installed. [#1583](https://github.com/sqlfluff/sqlfluff/pull/1583) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Make templaters pluggable and move the dbt templater into a plugin [#1264](https://github.com/sqlfluff/sqlfluff/pull/1264) [@alanmcruickshank](https://github.com/alanmcruickshank)
+
+## 🚀 Enhancements
+
+* TSQL: CTAS delimiter [#1652](https://github.com/sqlfluff/sqlfluff/pull/1652) [@jpers36](https://github.com/jpers36)
+* TSQL: Allow for multiple variables DECLAREd in the same statement [#1651](https://github.com/sqlfluff/sqlfluff/pull/1651) [@jpers36](https://github.com/jpers36)
+* TSQL: Allow DECLARE/SET statements to parse using ExpressionStatement [#1649](https://github.com/sqlfluff/sqlfluff/pull/1649) [@jpers36](https://github.com/jpers36)
+* TSQL PRINT statement parsing [#1648](https://github.com/sqlfluff/sqlfluff/pull/1648) [@jpers36](https://github.com/jpers36)
+* Better date function for tsql [#1636](https://github.com/sqlfluff/sqlfluff/pull/1636) [@tunetheweb](https://github.com/tunetheweb)
+* TSQL: Allow for multiple statements in a procedure [#1637](https://github.com/sqlfluff/sqlfluff/pull/1637) [@jpers36](https://github.com/jpers36)
+* TSQL: Allow for !>, !< operators [#1640](https://github.com/sqlfluff/sqlfluff/pull/1640) [@jpers36](https://github.com/jpers36)
+* TSQL: Fix GROUP BY delimiter [#1635](https://github.com/sqlfluff/sqlfluff/pull/1635) [@jpers36](https://github.com/jpers36)
+* TSQL: Fix DROP delimiter [#1633](https://github.com/sqlfluff/sqlfluff/pull/1633) [@jpers36](https://github.com/jpers36)
+* TSQL: +RENAME statement for Azure Synapse Analytics [#1631](https://github.com/sqlfluff/sqlfluff/pull/1631) [@jpers36](https://github.com/jpers36)
+* TSQL: Fix CASTing variables [#1627](https://github.com/sqlfluff/sqlfluff/pull/1627) [@jpers36](https://github.com/jpers36)
+* Snowflake: Add implementation for CREATE TASK statement [#1597](https://github.com/sqlfluff/sqlfluff/pull/1597) [#1603](https://github.com/sqlfluff/sqlfluff/pull/1603) [@JoeHut](https://github.com/JoeHut)
+* Allow global config for rule testcases [#1580](https://github.com/sqlfluff/sqlfluff/pull/1580) [@sti0](https://github.com/sti0)
+* Snowflake dollar sign literals [#1591](https://github.com/sqlfluff/sqlfluff/pull/1591) [@myschkyna](https://github.com/myschkyna)
+* Rename test/fixtures/parser directory to test/fixtures/dialects [#1585](https://github.com/sqlfluff/sqlfluff/pull/1585) [@tunetheweb](https://github.com/tunetheweb)
+* Rename keyword files [#1584](https://github.com/sqlfluff/sqlfluff/pull/1584) [@tunetheweb](https://github.com/tunetheweb)
+* Add some more unreserved keywords to BigQuery [#1588](https://github.com/sqlfluff/sqlfluff/pull/1588) [@tunetheweb](https://github.com/tunetheweb)
+* Increase minimum runs before coverage report is issued [#1596](https://github.com/sqlfluff/sqlfluff/pull/1596) [@tunetheweb](https://github.com/tunetheweb)
+* Snowflake: Support CURRENT_TIMESTAMP as a column default value [#1578](https://github.com/sqlfluff/sqlfluff/pull/1578) [@wong-codaio](https://github.com/wong-codaio)
+* TSQL temp tables [#1574](https://github.com/sqlfluff/sqlfluff/pull/1574) [@jpers36](https://github.com/jpers36)
+
+## 🐛 Bug Fixes
+
+* Fix NoneType exception in L031 [#1643](https://github.com/sqlfluff/sqlfluff/pull/1643) [@tunetheweb](https://github.com/tunetheweb)
+* Stop rule L048 complaining if literal is followed by a semicolon [#1638](https://github.com/sqlfluff/sqlfluff/pull/1638) [@tunetheweb](https://github.com/tunetheweb)
+* L031 desc updated to cover both 'from' and 'join' [#1625](https://github.com/sqlfluff/sqlfluff/pull/1625) [@nevado](https://github.com/nevado)
+* Snowflake auto increments fixes [#1620](https://github.com/sqlfluff/sqlfluff/pull/1620) [@myschkyna](https://github.com/myschkyna)
+* Fix DECLARE Delimitation [#1615](https://github.com/sqlfluff/sqlfluff/pull/1615) [@jpers36](https://github.com/jpers36)
+* Snowflake drop column fixes [#1618](https://github.com/sqlfluff/sqlfluff/pull/1618) [@myschkyna](https://github.com/myschkyna)
+* TSQL: fix statement delimitation [#1612](https://github.com/sqlfluff/sqlfluff/pull/1612) [@jpers36](https://github.com/jpers36)
+* Snowflake: Fixed data type casting not working in `SET` statement [#1604](https://github.com/sqlfluff/sqlfluff/pull/1604) [@wong-codaio](https://github.com/wong-codaio)
+* Postgres dialect: Fix parse error for "on delete", "on update" clauses in column constraints [#1586](https://github.com/sqlfluff/sqlfluff/pull/1586) [@samlader](https://github.com/samlader)
+* Fix AttributeError: 'NoneType' object has no attribute 'get_child' error with rule L031 [#1595](https://github.com/sqlfluff/sqlfluff/pull/1595) [@barrywhart](https://github.com/barrywhart)
+* Fix zero length templated file bug. [#1577](https://github.com/sqlfluff/sqlfluff/pull/1577) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Fully remove exasol_fs dialect and bump version [#1573](https://github.com/sqlfluff/sqlfluff/pull/1573) [@alanmcruickshank](https://github.com/alanmcruickshank)
+
+
 ## [0.6.9] - 2021-10-08
 
 Another dbt bugfix from 0.6.7 and 0.6.8, plus a host of dialect and syntax improvements.
