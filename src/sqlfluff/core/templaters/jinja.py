@@ -337,7 +337,7 @@ class JinjaTemplater(PythonTemplater):
                 continue
             str_buff += raw
 
-            if elem_type in ("block_begin", "variable_begin"):
+            if elem_type.endswith("_begin"):
                 # If the template uses whitespace stripping, lex() may have
                 # skipped over some whitespace. Verify the skipped text was
                 # whitespace and treat it as a literal.
