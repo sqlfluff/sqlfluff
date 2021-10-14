@@ -96,7 +96,7 @@ pip install -Ur requirements.txt -Ur requirements_dev.txt
 pip install -e .
 ```
 
-> `pip install tox` installs the `tox` testing package. They are not part of the project
+> `pip install tox` installs the `tox` testing package. It is not part of the project
 > dependencies as the test suite runs through `tox`.
 
 > `pip install -Ur requirements.txt -Ur requirements_dev.txt` installs the project dependencies
