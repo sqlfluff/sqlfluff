@@ -49,9 +49,13 @@ class RawTemplatedTestCase(NamedTuple):
     name: str
     instr: str
     templated_str: str
-    expected_ts_source_list: List[str]
-    expected_ts_templated_list: List[str]
-    expected_rs_source_list: List[str]
+
+    # These fields are used to check TemplatedFile.sliced_file.
+    expected_templated_sliced__source_list: List[str]
+    expected_templated_sliced__templated_list__source_list: List[str]
+
+    # This field is used to check TemplatedFile.raw_sliced.
+    expected_raw_sliced__source_list: List[str]
 
 
 @pytest.mark.parametrize(
@@ -61,25 +65,57 @@ class RawTemplatedTestCase(NamedTuple):
             name="basic_block",
             instr="\n\n{% set x = 42 %}\nSELECT 1, 2\n",
             templated_str="\n\n\nSELECT 1, 2\n",
-            expected_ts_source_list=["\n\n", "{% set x = 42 %}", "\nSELECT 1, 2\n"],
-            expected_ts_templated_list=["\n\n", "", "\nSELECT 1, 2\n"],
-            expected_rs_source_list=["\n\n", "{% set x = 42 %}", "\nSELECT 1, 2\n"],
+            expected_templated_sliced__source_list=[
+                "\n\n",
+                "{% set x = 42 %}",
+                "\nSELECT 1, 2\n",
+            ],
+            expected_templated_sliced__templated_list__source_list=[
+                "\n\n",
+                "",
+                "\nSELECT 1, 2\n",
+            ],
+            expected_raw_sliced__source_list=[
+                "\n\n",
+                "{% set x = 42 %}",
+                "\nSELECT 1, 2\n",
+            ],
         ),
         RawTemplatedTestCase(
             name="strip_left_block",
             instr="\n\n{%- set x = 42 %}\nSELECT 1, 2\n",
             templated_str="\nSELECT 1, 2\n",
-            expected_ts_source_list=["\n\n{%- set x = 42 %}", "\nSELECT 1, 2\n"],
-            expected_ts_templated_list=["", "\nSELECT 1, 2\n"],
-            expected_rs_source_list=["\n\n", "{%- set x = 42 %}", "\nSELECT 1, 2\n"],
+            expected_templated_sliced__source_list=[
+                "\n\n{%- set x = 42 %}",
+                "\nSELECT 1, 2\n",
+            ],
+            expected_templated_sliced__templated_list__source_list=[
+                "",
+                "\nSELECT 1, 2\n",
+            ],
+            expected_raw_sliced__source_list=[
+                "\n\n",
+                "{%- set x = 42 %}",
+                "\nSELECT 1, 2\n",
+            ],
         ),
         RawTemplatedTestCase(
             name="strip_both_block",
             instr="\n\n{%- set x = 42 -%}\nSELECT 1, 2\n",
             templated_str="SELECT 1, 2\n",
-            expected_ts_source_list=["\n\n{%- set x = 42 -%}\n", "SELECT 1, 2\n"],
-            expected_ts_templated_list=["", "SELECT 1, 2\n"],
-            expected_rs_source_list=["\n\n", "{%- set x = 42 -%}\n", "SELECT 1, 2\n"],
+            expected_templated_sliced__source_list=[
+                "\n\n{%- set x = 42 -%}\n",
+                "SELECT 1, 2\n",
+            ],
+            expected_templated_sliced__templated_list__source_list=[
+                "",
+                "SELECT 1, 2\n",
+            ],
+            expected_raw_sliced__source_list=[
+                "\n\n",
+                "{%- set x = 42 -%}\n",
+                "SELECT 1, 2\n",
+            ],
         ),
         RawTemplatedTestCase(
             name="basic_data",
@@ -91,13 +127,17 @@ class RawTemplatedTestCase(NamedTuple):
     c1,
     c2 as user_id
 """,
-            expected_ts_source_list=[
+            expected_templated_sliced__source_list=[
                 "select\n    c1,\n    ",
                 "{{ 'c' }}",
                 "2 as user_id\n",
             ],
-            expected_ts_templated_list=["select\n    c1,\n    ", "c", "2 as user_id\n"],
-            expected_rs_source_list=[
+            expected_templated_sliced__templated_list__source_list=[
+                "select\n    c1,\n    ",
+                "c",
+                "2 as user_id\n",
+            ],
+            expected_raw_sliced__source_list=[
                 "select\n    c1,\n    ",
                 "{{ 'c' }}",
                 "2 as user_id\n",
@@ -115,13 +155,17 @@ class RawTemplatedTestCase(NamedTuple):
     c1,
     c2 as user_id
 """,
-            expected_ts_source_list=[
+            expected_templated_sliced__source_list=[
                 "select\n    c1,\n    ",
                 "{{ 'c' -}}",
                 "2 as user_id\n",
             ],
-            expected_ts_templated_list=["select\n    c1,\n    ", "c", "2 as user_id\n"],
-            expected_rs_source_list=[
+            expected_templated_sliced__templated_list__source_list=[
+                "select\n    c1,\n    ",
+                "c",
+                "2 as user_id\n",
+            ],
+            expected_raw_sliced__source_list=[
                 "select\n    c1,\n    ",
                 "{{ 'c' -}}",
                 "2 as user_id\n",
@@ -136,13 +180,17 @@ class RawTemplatedTestCase(NamedTuple):
             templated_str="""select
     c1,c2 as user_id
 """,
-            expected_ts_source_list=[
+            expected_templated_sliced__source_list=[
                 "select\n    c1,",
                 "\n    {{- 'c' -}}",
                 "2 as user_id\n",
             ],
-            expected_ts_templated_list=["select\n    c1,", "c", "2 as user_id\n"],
-            expected_rs_source_list=[
+            expected_templated_sliced__templated_list__source_list=[
+                "select\n    c1,",
+                "c",
+                "2 as user_id\n",
+            ],
+            expected_raw_sliced__source_list=[
                 "select\n    c1,",
                 "\n    ",
                 "{{- 'c' -}}",
@@ -158,13 +206,17 @@ class RawTemplatedTestCase(NamedTuple):
             templated_str="""select
     c1,c2 as user_id
 """,
-            expected_ts_source_list=[
+            expected_templated_sliced__source_list=[
                 "select\n    c1,",
                 "\n    {#- Column 2 -#} ",
                 "c2 as user_id\n",
             ],
-            expected_ts_templated_list=["select\n    c1,", "", "c2 as user_id\n"],
-            expected_rs_source_list=[
+            expected_templated_sliced__templated_list__source_list=[
+                "select\n    c1,",
+                "",
+                "c2 as user_id\n",
+            ],
+            expected_raw_sliced__source_list=[
                 "select\n    c1,",
                 "\n    ",
                 "{#- Column 2 -#} ",
@@ -180,23 +232,23 @@ def test__templater_jinja_slices(case: RawTemplatedTestCase):
     templated_file, _ = t.process(in_str=case.instr, fname="test", config=FluffConfig())
     assert templated_file.source_str == case.instr
     assert templated_file.templated_str == case.templated_str
-    print("\nexpected_ts_source_list:")
-    for ts in templated_file.sliced_file:
-        print(repr(case.instr[ts.source_slice]))
+    # Build and check the list of source strings referenced by "sliced_file".
     actual_ts_source_list = [
         case.instr[ts.source_slice] for ts in templated_file.sliced_file
     ]
-    assert actual_ts_source_list == case.expected_ts_source_list
+    assert actual_ts_source_list == case.expected_templated_sliced__source_list
 
-    print("\nexpected_ts_templated_list:")
-    for ts in templated_file.sliced_file:
-        print(repr(case.templated_str[ts.templated_slice]))
+    # Build and check the list of templated strings referenced by "sliced_file".
     actual_ts_templated_list = [
         templated_file.templated_str[ts.templated_slice]
         for ts in templated_file.sliced_file
     ]
-    assert actual_ts_templated_list == case.expected_ts_templated_list
+    assert (
+        actual_ts_templated_list
+        == case.expected_templated_sliced__templated_list__source_list
+    )
 
+    # Build and check the list of source strings referenced by "raw_sliced".
     previous_rs = None
     actual_rs_source_list = []
     for rs in templated_file.raw_sliced + [None]:
@@ -207,7 +259,7 @@ def test__templater_jinja_slices(case: RawTemplatedTestCase):
                 actual_source = case.instr[previous_rs.source_idx :]
             actual_rs_source_list.append(actual_source)
         previous_rs = rs
-    assert actual_rs_source_list == case.expected_rs_source_list
+    assert actual_rs_source_list == case.expected_raw_sliced__source_list
 
 
 def test__templater_jinja_error_variable():
