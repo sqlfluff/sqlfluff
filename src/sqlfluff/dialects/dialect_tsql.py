@@ -372,54 +372,73 @@ class ObjectReferenceSegment(BaseSegment):
         ),
     )
 
-    parse_grammar = match_grammar
-
 
 @tsql_dialect.segment(replace=True)
 class TableReferenceSegment(ObjectReferenceSegment):
-    """A reference to an table, CTE, subquery or alias."""
+    """A reference to an table, CTE, subquery or alias.
+
+    Overriding to capture TSQL's override of ObjectReferenceSegment
+    """
 
     type = "table_reference"
 
 
 @tsql_dialect.segment(replace=True)
 class SchemaReferenceSegment(ObjectReferenceSegment):
-    """A reference to a schema."""
+    """A reference to a schema.
+
+    Overriding to capture TSQL's override of ObjectReferenceSegment
+    """
 
     type = "schema_reference"
 
 
 @tsql_dialect.segment(replace=True)
 class DatabaseReferenceSegment(ObjectReferenceSegment):
-    """A reference to a database."""
+    """A reference to a database.
+
+    Overriding to capture TSQL's override of ObjectReferenceSegment
+    """
 
     type = "database_reference"
 
 
 @tsql_dialect.segment(replace=True)
 class IndexReferenceSegment(ObjectReferenceSegment):
-    """A reference to an index."""
+    """A reference to an index.
+
+    Overriding to capture TSQL's override of ObjectReferenceSegment
+    """
 
     type = "index_reference"
 
 
 @tsql_dialect.segment(replace=True)
 class ExtensionReferenceSegment(ObjectReferenceSegment):
-    """A reference to an extension."""
+    """A reference to an extension.
+
+    Overriding to capture TSQL's override of ObjectReferenceSegment
+    """
 
     type = "extension_reference"
 
 
 @tsql_dialect.segment(replace=True)
 class ColumnReferenceSegment(ObjectReferenceSegment):
-    """A reference to column, field or alias."""
+    """A reference to column, field or alias.
+
+    Overriding to capture TSQL's override of ObjectReferenceSegment
+    """
 
     type = "column_reference"
 
 
 @tsql_dialect.segment(replace=True)
 class SequenceReferenceSegment(ObjectReferenceSegment):
-    """A reference to a sequence."""
+    """A reference to a sequence.
+
+    Overriding to capture TSQL's override of ObjectReferenceSegment
+    """
 
     type = "sequence_reference"
 
