@@ -61,6 +61,14 @@ class RawTemplatedTestCase(NamedTuple):
     "case",
     [
         RawTemplatedTestCase(
+            name="basic",
+            instr="\n\n{% set x = 42 %}\nSELECT 1, 2\n",
+            templated_str="\n\n\nSELECT 1, 2\n",
+            expected_ts_source_list=["\n\n", "{% set x = 42 %}", "\nSELECT 1, 2\n"],
+            expected_ts_templated_list=["\n\n", "", "\nSELECT 1, 2\n"],
+            expected_rs_source_list=["\n\n", "{% set x = 42 %}", "\nSELECT 1, 2\n"],
+        ),
+        RawTemplatedTestCase(
             name="whitespace_control",
             instr="\n\n{%- set x = 42 %}\nSELECT 1, 2\n",
             templated_str="\nSELECT 1, 2\n",
@@ -96,7 +104,7 @@ class RawTemplatedTestCase(NamedTuple):
             #         slice_subtype=None,
             #     ),
             # ]
-        )
+        ),
     ],
     ids=lambda case: case.name,
 )
@@ -106,12 +114,20 @@ def test__templater_jinja_slices(case: RawTemplatedTestCase):
     templated_file, _ = t.process(in_str=case.instr, fname="test", config=FluffConfig())
     assert templated_file.source_str == case.instr
     assert templated_file.templated_str == case.templated_str
-    for ts, expected_source, expected_templated in zip(
-        templated_file.sliced_file,
-        case.expected_ts_source_list,
-        case.expected_ts_templated_list,
+    print("\nexpected_ts_source_list:")
+    for ts in templated_file.sliced_file:
+        print(repr(case.instr[ts.source_slice]))
+    for ts, expected_source in zip(
+        templated_file.sliced_file, case.expected_ts_source_list
     ):
         assert case.instr[ts.source_slice] == expected_source
+    print("\nexpected_ts_templated_list:")
+    for ts in templated_file.sliced_file:
+        print(repr(case.templated_str[ts.templated_slice]))
+    for ts, expected_templated in zip(
+        templated_file.sliced_file,
+        case.expected_ts_templated_list,
+    ):
         assert templated_file.templated_str[ts.templated_slice] == expected_templated
     previous_rs = None
     for rs, expected_source in zip(
