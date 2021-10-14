@@ -967,7 +967,7 @@ class FunctionSegment(BaseSegment):
     match_grammar = OneOf(
         Sequence(
             Sequence(
-                Ref("DateAddFunctionNameSegment"),
+                Ref("DatePartFunctionNameSegment"),
                 Bracketed(
                     Delimited(
                         Ref("DatePartClause"),
@@ -987,7 +987,7 @@ class FunctionSegment(BaseSegment):
                     Ref("FunctionNameSegment"),
                     max_times=1,
                     min_times=1,
-                    exclude=Ref("DateAddFunctionNameSegment"),
+                    exclude=Ref("DatePartFunctionNameSegment"),
                 ),
                 Bracketed(
                     Ref(
@@ -3142,7 +3142,7 @@ class DropSequenceStatementSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
-class DateAddFunctionNameSegment(BaseSegment):
+class DatePartFunctionNameSegment(BaseSegment):
     """DATEADD function name segment.
 
     Need to be able to specify this as type function_name

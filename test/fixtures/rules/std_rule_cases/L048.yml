@@ -20,6 +20,13 @@ test_pass_comma:
     FROM some_table
     WHERE col2 IN ('a', 'b', 'c', 'd');
 
+test_pass_semicolon:
+  pass_str: |
+   ALTER SESSION SET TIMEZONE = 'UTC';
+  configs:
+    core:
+      dialect: snowflake
+
 test_pass_bigquery_udf_triple_single_quote:
   pass_str: |
    CREATE TEMPORARY FUNCTION a()

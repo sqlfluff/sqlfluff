@@ -91,9 +91,13 @@ source .venv/bin/activate
 Once you are in a virtual environment, run:
 
 ```shell
+pip install -U tox
 pip install -Ur requirements.txt -Ur requirements_dev.txt
 pip install -e .
 ```
+
+> `pip install tox` installs the `tox` testing package. It is not part of the project
+> dependencies as the test suite runs through `tox`.
 
 > `pip install -Ur requirements.txt -Ur requirements_dev.txt` installs the project dependencies
 > as well as the dependencies needed to run linting, formatting, and testing commands. This will
@@ -155,7 +159,7 @@ pytest -k L012 -v
 To run the dbt-related tests you will have to explicitly include these tests:
 
 ```shell
-tox -e cov-init,dbt018-py38,cov-report-dbt -- -m "dbt"
+tox -e cov-init,dbt018-py38,cov-report-dbt -- plugins/sqlfluff-templater-dbt
 ```
 
 For more information on adding and running test cases see the [Parser Test README](test/fixtures/dialects/README.md) and the [Rules Test README](test/fixtures/rules/std_rule_cases/README.md).

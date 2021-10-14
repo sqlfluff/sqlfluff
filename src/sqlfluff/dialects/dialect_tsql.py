@@ -17,7 +17,6 @@ from sqlfluff.core.parser import (
     Delimited,
     Matchable,
     NamedParser,
-    StartsWith,
     OptionallyBracketed,
     Dedent,
     BaseFileSegment,
@@ -187,6 +186,7 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref("DeclareStatementSegment"),
             Ref("SetStatementSegment"),
             Ref("AlterTableSwitchStatementSegment"),
+            Ref("PrintStatementSegment"),
             Ref(
                 "CreateTableAsSelectStatementSegment"
             ),  # Azure Synapse Analytics specific
@@ -427,20 +427,21 @@ class DeclareStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "DECLARE",
         Ref("ParameterNameSegment"),
-        AnyNumberOf(
-            Ref("ParameterNameSegment"),
-            Ref("CommaSegment", optional=True),
-        ),
         Ref("DatatypeSegment"),
         Sequence(
             Ref("EqualsSegment"),
-            OneOf(
-                Ref("LiteralGrammar"),
-                Bracketed(Ref("SelectStatementSegment")),
-                Ref("BareFunctionSegment"),
-                Ref("FunctionSegment"),
-            ),
+            Ref("ExpressionSegment"),
             optional=True,
+        ),
+        AnyNumberOf(
+            Ref("CommaSegment"),
+            Ref("ParameterNameSegment"),
+            Ref("DatatypeSegment"),
+            Sequence(
+                Ref("EqualsSegment"),
+                Ref("ExpressionSegment"),
+                optional=True,
+            ),
         ),
         Ref("DelimiterSegment", optional=True),
     )
@@ -627,11 +628,12 @@ class SetStatementSegment(BaseSegment):
 
     Setting an already declared variable or global variable.
     https://docs.microsoft.com/en-us/sql/t-sql/statements/set-statements-transact-sql?view=sql-server-ver15
+
+    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/set-local-variable-transact-sql?view=sql-server-ver15
     """
 
     type = "set_segment"
-    match_grammar = StartsWith("SET")
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "SET",
         OneOf(
             Ref("ParameterNameSegment"),
@@ -681,25 +683,7 @@ class SetStatementSegment(BaseSegment):
             "OFF",
             Sequence(
                 Ref("EqualsSegment"),
-                OneOf(
-                    Delimited(
-                        OneOf(
-                            Ref("LiteralGrammar"),
-                            Bracketed(Ref("SelectStatementSegment")),
-                            Ref("FunctionSegment"),
-                            Bracketed(
-                                Delimited(
-                                    OneOf(
-                                        Ref("LiteralGrammar"),
-                                        Bracketed(Ref("SelectStatementSegment")),
-                                        Ref("BareFunctionSegment"),
-                                        Ref("FunctionSegment"),
-                                    )
-                                )
-                            ),
-                        )
-                    )
-                ),
+                Ref("ExpressionSegment"),
             ),
         ),
     )
@@ -928,7 +912,7 @@ class FunctionSegment(BaseSegment):
     match_grammar = OneOf(
         Sequence(
             Sequence(
-                Ref("DateAddFunctionNameSegment"),
+                Ref("DatePartFunctionNameSegment"),
                 Bracketed(
                     Delimited(
                         Ref("DatePartClause"),
@@ -992,7 +976,7 @@ class FunctionSegment(BaseSegment):
                         # List of special functions handled differently
                         Ref("CastFunctionNameSegment"),
                         Ref("ConvertFunctionNameSegment"),
-                        Ref("DateAddFunctionNameSegment"),
+                        Ref("DatePartFunctionNameSegment"),
                         Ref("WithinGroupFunctionNameSegment"),
                     ),
                 ),
@@ -1165,6 +1149,7 @@ class CreateTableAsSelectStatementSegment(BaseSegment):
         Ref("TableDistributionIndexClause"),
         "AS",
         Ref("SelectableGrammar"),
+        Ref("DelimiterSegment", optional=True),
     )
 
 
@@ -1464,4 +1449,27 @@ class DropStatementSegment(BaseSegment):
         insert=[
             Ref("DelimiterSegment", optional=True),
         ],
+    )
+
+
+@tsql_dialect.segment(replace=True)
+class DatePartFunctionNameSegment(BaseSegment):
+    """DATEADD function name segment.
+
+    Override to support DATEDIFF as well
+    """
+
+    type = "function_name"
+    match_grammar = OneOf("DATEADD", "DATEDIFF", "DATEDIFF_BIG", "DATENAME")
+
+
+@tsql_dialect.segment()
+class PrintStatementSegment(BaseSegment):
+    """PRINT statement segment."""
+
+    type = "print_statement"
+    match_grammar = Sequence(
+        "PRINT",
+        Ref("ExpressionSegment"),
+        Ref("DelimiterSegment", optional=True),
     )
