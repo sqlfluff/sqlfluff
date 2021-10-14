@@ -168,3 +168,28 @@ issue_1589:
               rnd>=t.v
          order by rnd
          limit 1)
+
+issue_1639:
+  fail_str: |
+    DECLARE @VariableE date = GETDATE()
+
+    CREATE TABLE #TempTable
+    AS
+    (
+      Select ColumnD
+      from SchemaA.TableB AliasC
+      where ColumnD  >= @VariableE
+    )
+  fix_str: |
+    DECLARE @VariableE date = GETDATE()
+
+    CREATE TABLE #TempTable
+    AS
+    (
+      Select ColumnD
+      from SchemaA.TableB
+      where ColumnD  >= @VariableE
+    )
+  configs:
+    core:
+      dialect: tsql
