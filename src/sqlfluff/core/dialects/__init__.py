@@ -23,14 +23,15 @@ from sqlfluff.core.errors import SQLFluffUserError
 _dialect_lookup = {
     "ansi": ("dialect_ansi", "ansi_dialect"),
     "bigquery": ("dialect_bigquery", "bigquery_dialect"),
-    "mysql": ("dialect_mysql", "mysql_dialect"),
-    "teradata": ("dialect_teradata", "teradata_dialect"),
-    "postgres": ("dialect_postgres", "postgres_dialect"),
-    "snowflake": ("dialect_snowflake", "snowflake_dialect"),
     "exasol": ("dialect_exasol", "exasol_dialect"),
-    "tsql": ("dialect_tsql", "tsql_dialect"),
     "hive": ("dialect_hive", "hive_dialect"),
+    "mysql": ("dialect_mysql", "mysql_dialect"),
+    "postgres": ("dialect_postgres", "postgres_dialect"),
+    "redshift": ("dialect_redshift", "redshift_dialect"),
+    "snowflake": ("dialect_snowflake", "snowflake_dialect"),
     "sqlite": ("dialect_sqlite", "sqlite_dialect"),
+    "teradata": ("dialect_teradata", "teradata_dialect"),
+    "tsql": ("dialect_tsql", "tsql_dialect"),
 }
 
 _legacy_dialects = {
