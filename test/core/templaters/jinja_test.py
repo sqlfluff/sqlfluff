@@ -1,7 +1,9 @@
 """Tests for templaters."""
 
-import pytest
 import logging
+from typing import List, NamedTuple, Optional
+
+import pytest
 
 from sqlfluff.core.templaters.base import RawFileSlice, TemplatedFileSlice
 from sqlfluff.core.templaters import JinjaTemplater
@@ -42,62 +44,92 @@ def test__templater_jinja(instr, expected_outstr):
     assert str(outstr) == expected_outstr
 
 
-def test__templater_jinja_slices():
+class RawTemplatedTestCase(NamedTuple):
+    """Instances of this object are test cases for test__templater_jinja_slices."""
+
+    name: str
+    instr: str
+    templated_str: str
+    expected_ts_source_list: List[str]
+    expected_ts_templated_list: List[str]
+    expected_rs_source_list: List[str]
+    sliced_file: Optional[List[TemplatedFileSlice]] = None
+    raw_sliced: Optional[List[RawFileSlice]] = None
+
+
+@pytest.mark.parametrize(
+    "case",
+    [
+        RawTemplatedTestCase(
+            name="whitespace_control",
+            instr="\n\n{%- set x = 42 %}\nSELECT 1, 2\n",
+            templated_str="\nSELECT 1, 2\n",
+            expected_ts_source_list=["\n\n{%- set x = 42 %}", "\nSELECT 1, 2\n"],
+            expected_ts_templated_list=["", "\nSELECT 1, 2\n"],
+            expected_rs_source_list=["\n\n", "{%- set x = 42 %}", "\nSELECT 1, 2\n"],
+            # sliced_file=[
+            #     TemplatedFileSlice(
+            #         slice_type="templated",
+            #         source_slice=slice(0, 19, None),
+            #         templated_slice=slice(0, 0, None),
+            #     ),
+            #     TemplatedFileSlice(
+            #         slice_type="literal",
+            #         source_slice=slice(19, 32, None),
+            #         templated_slice=slice(0, 13, None),
+            #     ),
+            # ],
+            # raw_sliced=[
+            #     RawFileSlice(
+            #         raw="\n\n", slice_type="literal", source_idx=0, slice_subtype=None
+            #     ),
+            #     RawFileSlice(
+            #         raw="{%+ set x = 42 %}",
+            #         slice_type="block_start",
+            #         source_idx=2,
+            #         slice_subtype=None,
+            #     ),
+            #     RawFileSlice(
+            #         raw="\nSELECT 1, 2\n",
+            #         slice_type="literal",
+            #         source_idx=19,
+            #         slice_subtype=None,
+            #     ),
+            # ]
+        )
+    ],
+    ids=lambda case: case.name,
+)
+def test__templater_jinja_slices(case: RawTemplatedTestCase):
     """Test that Jinja templater slices raw and templated file correctly."""
-    instr = "\n\n{%- set x = 42 %}\nSELECT 1, 2\n"
     t = JinjaTemplater()
-    templated_file, _ = t.process(in_str=instr, fname="test", config=FluffConfig())
-    assert templated_file.source_str == instr
-    assert templated_file.templated_str == "\nSELECT 1, 2\n"
-    assert templated_file.sliced_file == [
-        TemplatedFileSlice(
-            slice_type="templated",
-            source_slice=slice(0, 19, None),
-            templated_slice=slice(0, 0, None),
-        ),
-        TemplatedFileSlice(
-            slice_type="literal",
-            source_slice=slice(19, 32, None),
-            templated_slice=slice(0, 13, None),
-        ),
-    ]
-    assert templated_file.raw_sliced == [
-        RawFileSlice(
-            raw="\n\n", slice_type="literal", source_idx=0, slice_subtype=None
-        ),
-        RawFileSlice(
-            raw="{%+ set x = 42 %}",
-            slice_type="block_start",
-            source_idx=2,
-            slice_subtype=None,
-        ),
-        RawFileSlice(
-            raw="\nSELECT 1, 2\n",
-            slice_type="literal",
-            source_idx=19,
-            slice_subtype=None,
-        ),
-    ]
-    expected_ts_source_list = ["\n\n{%- set x = 42 %}", "\nSELECT 1, 2\n"]
-    expected_ts_templated_list = ["", "\nSELECT 1, 2\n"]
+    templated_file, _ = t.process(in_str=case.instr, fname="test", config=FluffConfig())
+    assert templated_file.source_str == case.instr
+    assert templated_file.templated_str == case.templated_str
     for ts, expected_source, expected_templated in zip(
-        templated_file.sliced_file, expected_ts_source_list, expected_ts_templated_list
+        templated_file.sliced_file,
+        case.expected_ts_source_list,
+        case.expected_ts_templated_list,
     ):
-        assert instr[ts.source_slice] == expected_source
+        assert case.instr[ts.source_slice] == expected_source
         assert templated_file.templated_str[ts.templated_slice] == expected_templated
-    expected_rs_source_list = [None, "\n\n", "{%- set x = 42 %}", "\nSELECT 1, 2\n"]
     previous_rs = None
     for rs, expected_source in zip(
-        templated_file.raw_sliced + [None], expected_rs_source_list
+        templated_file.raw_sliced + [None], [None] + case.expected_rs_source_list
     ):
         if previous_rs:
             if rs:
-                actual_source = instr[previous_rs.source_idx : rs.source_idx]
+                actual_source = case.instr[previous_rs.source_idx : rs.source_idx]
             else:
-                actual_source = instr[previous_rs.source_idx :]
-            print(repr(actual_source))
+                actual_source = case.instr[previous_rs.source_idx :]
             assert actual_source == expected_source
         previous_rs = rs
+    # These last two fields are very detailed and often unnecessary, so it's
+    # okay to omit them from a test case.
+    if case.sliced_file is not None:
+        assert templated_file.sliced_file == case.sliced_file
+    if case.raw_sliced is not None:
+        assert templated_file.raw_sliced == case.raw_sliced
 
 
 def test__templater_jinja_error_variable():
