@@ -3412,7 +3412,7 @@ class FunctionSegment(BaseSegment):
     match_grammar = OneOf(
         Sequence(
             Sequence(
-                Ref("DateAddFunctionNameSegment"),
+                Ref("DatePartFunctionNameSegment"),
                 Bracketed(
                     Ref(
                         "FunctionContentsGrammar",
@@ -3430,7 +3430,7 @@ class FunctionSegment(BaseSegment):
                     Ref("FunctionNameSegment"),
                     max_times=1,
                     min_times=1,
-                    exclude=Ref("DateAddFunctionNameSegment"),
+                    exclude=Ref("DatePartFunctionNameSegment"),
                 ),
                 Bracketed(
                     Ref(
@@ -3447,7 +3447,7 @@ class FunctionSegment(BaseSegment):
 
 
 @exasol_dialect.segment(replace=True)
-class DateAddFunctionNameSegment(BaseSegment):
+class DatePartFunctionNameSegment(BaseSegment):
     """DATEADD function name segment.
 
     Need to be able to specify this as type function_name

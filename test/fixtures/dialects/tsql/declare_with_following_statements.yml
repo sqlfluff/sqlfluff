@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 15bacd81d8b826a7ae2fef591b17ea988be9763d23b09a1f00b58be87c65310f
+_hash: 9f92368365708cb2c3720db344c9a1e4f43acb64808c7d59336769be0ff7932a
 file:
   batch:
     create_procedure_statement:
@@ -24,13 +24,38 @@ file:
               data_type:
                 identifier: DATE
               comparison_operator: '='
-              function:
-                function_name:
-                  function_name_identifier: GETDATE
+              expression:
+                function:
+                  function_name:
+                    function_name_identifier: GETDATE
+                  bracketed:
+                    start_bracket: (
+                    end_bracket: )
+              statement_terminator: ;
+        - statement:
+            declare_segment:
+              keyword: DECLARE
+              parameter: '@EOMONTH'
+              data_type:
+                identifier: DATE
+              comparison_operator: '='
+              expression:
                 bracketed:
                   start_bracket: (
+                  expression:
+                    literal: "'1900-01-01'"
                   end_bracket: )
-              statement_terminator: ;
+        - statement:
+            set_segment:
+              keyword: SET
+              parameter: '@EOMONTH'
+              comparison_operator: '='
+              expression:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    literal: "'2000-01-01'"
+                  end_bracket: )
         - statement:
             if_then_statement:
               keyword: IF

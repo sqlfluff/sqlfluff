@@ -155,7 +155,7 @@ pytest -k L012 -v
 To run the dbt-related tests you will have to explicitly include these tests:
 
 ```shell
-tox -e cov-init,dbt018-py38,cov-report-dbt -- -m "dbt"
+tox -e cov-init,dbt018-py38,cov-report-dbt -- plugins/sqlfluff-templater-dbt
 ```
 
 For more information on adding and running test cases see the [Parser Test README](test/fixtures/dialects/README.md) and the [Rules Test README](test/fixtures/rules/std_rule_cases/README.md).
