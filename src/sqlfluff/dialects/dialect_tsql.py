@@ -17,7 +17,6 @@ from sqlfluff.core.parser import (
     Delimited,
     Matchable,
     NamedParser,
-    StartsWith,
     OptionallyBracketed,
     Dedent,
     BaseFileSegment,
