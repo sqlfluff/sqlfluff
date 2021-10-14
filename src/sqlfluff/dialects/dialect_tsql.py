@@ -359,14 +359,69 @@ class ObjectReferenceSegment(BaseSegment):
     """
 
     type = "object_reference"
-    # match grammar (don't allow whitespace)
-    match_grammar: Matchable = Delimited(
+    # match grammar (allow whitespace)
+    match_grammar: Matchable = Sequence(
         Ref("SingleIdentifierGrammar"),
-        delimiter=OneOf(
-            Ref("DotSegment"), Sequence(Ref("DotSegment"), Ref("DotSegment"))
+        AnyNumberOf(
+            Sequence(
+                Ref("DotSegment"),
+                Ref("SingleIdentifierGrammar", optional=True),
+            ),
+            min_times=0,
+            max_times=3,
         ),
-        allow_gaps=False,
     )
+
+    parse_grammar = match_grammar
+
+
+@tsql_dialect.segment(replace=True)
+class TableReferenceSegment(ObjectReferenceSegment):
+    """A reference to an table, CTE, subquery or alias."""
+
+    type = "table_reference"
+
+
+@tsql_dialect.segment(replace=True)
+class SchemaReferenceSegment(ObjectReferenceSegment):
+    """A reference to a schema."""
+
+    type = "schema_reference"
+
+
+@tsql_dialect.segment(replace=True)
+class DatabaseReferenceSegment(ObjectReferenceSegment):
+    """A reference to a database."""
+
+    type = "database_reference"
+
+
+@tsql_dialect.segment(replace=True)
+class IndexReferenceSegment(ObjectReferenceSegment):
+    """A reference to an index."""
+
+    type = "index_reference"
+
+
+@tsql_dialect.segment(replace=True)
+class ExtensionReferenceSegment(ObjectReferenceSegment):
+    """A reference to an extension."""
+
+    type = "extension_reference"
+
+
+@tsql_dialect.segment(replace=True)
+class ColumnReferenceSegment(ObjectReferenceSegment):
+    """A reference to column, field or alias."""
+
+    type = "column_reference"
+
+
+@tsql_dialect.segment(replace=True)
+class SequenceReferenceSegment(ObjectReferenceSegment):
+    """A reference to a sequence."""
+
+    type = "sequence_reference"
 
 
 @tsql_dialect.segment()

@@ -10,4 +10,7 @@ SELECT
 		 WHEN 1 != 1 THEN 'False'
 		 WHEN 1 !> 1 THEN 'NULL Handling, Probably'
 		 ELSE 'Silly Tests'
-	END
+	END,
+	all_pop. [Arrival Date]
+FROM dbo . all_pop	
+
