@@ -91,9 +91,13 @@ source .venv/bin/activate
 Once you are in a virtual environment, run:
 
 ```shell
+pip install -U tox
 pip install -Ur requirements.txt -Ur requirements_dev.txt
 pip install -e .
 ```
+
+> `pip install tox` installs the `tox` testing package. It is not part of the project
+> dependencies as the test suite runs through `tox`.
 
 > `pip install -Ur requirements.txt -Ur requirements_dev.txt` installs the project dependencies
 > as well as the dependencies needed to run linting, formatting, and testing commands. This will
