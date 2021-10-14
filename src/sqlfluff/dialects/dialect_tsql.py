@@ -24,6 +24,8 @@ from sqlfluff.core.parser import (
     Indent,
     AnyNumberOf,
     CommentSegment,
+    StringParser,
+    SymbolSegment,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -74,6 +76,9 @@ tsql_dialect.patch_lexer_matchers(
             CommentSegment,
             segment_kwargs={"trim_start": ("--")},
         ),
+        # Patching to add !<, !>
+        RegexLexer("greater_than_or_equal", ">=|!<", CodeSegment),
+        RegexLexer("less_than_or_equal", "<=|!>", CodeSegment),
     ]
 )
 
@@ -88,9 +93,27 @@ tsql_dialect.add(
     QuotedLiteralSegmentWithN=NamedParser(
         "single_quote_with_n", CodeSegment, name="quoted_literal", type="literal"
     ),
+    NotGreaterThanSegment=StringParser(
+        "!>", SymbolSegment, name="less_than_equal_to", type="comparison_operator"
+    ),
+    NotLessThanSegment=StringParser(
+        "!<", SymbolSegment, name="greater_than_equal_to", type="comparison_operator"
+    ),
 )
 
 tsql_dialect.replace(
+    ComparisonOperatorGrammar=OneOf(
+        Ref("EqualsSegment"),
+        Ref("GreaterThanSegment"),
+        Ref("LessThanSegment"),
+        Ref("GreaterThanOrEqualToSegment"),
+        Ref("LessThanOrEqualToSegment"),
+        Ref("NotEqualToSegment_a"),
+        Ref("NotEqualToSegment_b"),
+        Ref("LikeOperatorSegment"),
+        Ref("NotGreaterThanSegment"),
+        Ref("NotLessThanSegment"),
+    ),
     SingleIdentifierGrammar=OneOf(
         Ref("NakedIdentifierSegment"),
         Ref("QuotedIdentifierSegment"),
@@ -723,9 +746,12 @@ class ProcedureDefinitionGrammar(BaseSegment):
     type = "procedure_statement"
     name = "procedure_statement"
 
-    match_grammar = OneOf(
-        Ref("StatementSegment"),
-        Ref("BeginEndSegment"),
+    match_grammar = AnyNumberOf(
+        OneOf(
+            Ref("BeginEndSegment"),
+            Ref("StatementSegment"),
+        ),
+        min_times=1,
     )
 
 
@@ -902,7 +928,7 @@ class FunctionSegment(BaseSegment):
     match_grammar = OneOf(
         Sequence(
             Sequence(
-                Ref("DateAddFunctionNameSegment"),
+                Ref("DatePartFunctionNameSegment"),
                 Bracketed(
                     Delimited(
                         Ref("DatePartClause"),
@@ -966,7 +992,7 @@ class FunctionSegment(BaseSegment):
                         # List of special functions handled differently
                         Ref("CastFunctionNameSegment"),
                         Ref("ConvertFunctionNameSegment"),
-                        Ref("DateAddFunctionNameSegment"),
+                        Ref("DatePartFunctionNameSegment"),
                         Ref("WithinGroupFunctionNameSegment"),
                     ),
                 ),
@@ -1439,3 +1465,14 @@ class DropStatementSegment(BaseSegment):
             Ref("DelimiterSegment", optional=True),
         ],
     )
+
+
+@tsql_dialect.segment(replace=True)
+class DatePartFunctionNameSegment(BaseSegment):
+    """DATEADD function name segment.
+
+    Override to support DATEDIFF as well
+    """
+
+    type = "function_name"
+    match_grammar = OneOf("DATEADD", "DATEDIFF", "DATEDIFF_BIG", "DATENAME")

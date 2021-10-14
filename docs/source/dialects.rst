@@ -94,12 +94,20 @@ PostgreSQL
 ----------
 
 This is based around the `PostgreSQL spec`_. Many other SQL instances are often
-based on PostreSQL syntax. If you're running `AWS Redshift`_ or `Greenplum`_
-this is the dialect to use (until someone makes a specific dialect).
+based on PostreSQL syntax. If you're running an unsupported dialect, then
+this is often the dialect to use (until someone makes a specific dialect).
 
 .. _`PostgreSQL spec`: https://www.postgresql.org/docs/9.6/reference.html
-.. _`AWS Redshift`: https://aws.amazon.com/redshift/
-.. _`Greenplum`: https://greenplum.org/
+
+.. _redshift_dialect_ref:
+
+Redshift
+----------
+
+
+The dialect for `Amazon Redshift`_.
+
+.. _`Amazon Redshift`: https://aws.amazon.com/redshift/
 
 .. _snowflake_dialect_ref:
 
