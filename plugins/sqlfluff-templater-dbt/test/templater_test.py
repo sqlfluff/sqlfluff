@@ -201,6 +201,7 @@ def test__templater_dbt_skips_disabled_model(dbt_templater, project_dir):  # noq
         "single_trailing_newline.sql",
         "multiple_trailing_newline.sql",
         "L034_test.sql",
+        "issue_1608.sql",
     ],
 )
 def test__dbt_templated_models_do_not_raise_lint_error(
