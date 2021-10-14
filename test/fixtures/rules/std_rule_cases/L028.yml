@@ -90,7 +90,7 @@ test_tsql_pivot_are_excluded:
 
 
 test_date_functions_are_excluded:
-  # This should pass as tsql PIVOT columns do not need to be
+  # This should pass as date keywords columns do not need to be
   # qualified
   pass_str: |
     SELECT
