@@ -344,7 +344,7 @@ class JinjaTemplater(PythonTemplater):
                 num_chars_skipped = in_str.index(raw, idx) - idx
                 if num_chars_skipped:
                     skipped_str = in_str[idx : idx + num_chars_skipped]
-                    if not skipped_str.isspace():
+                    if not skipped_str.isspace():  # pragma: no cover
                         templater_logger.warning(
                             "Jinja lex() skipped non-whitespace: %s", skipped_str
                         )
