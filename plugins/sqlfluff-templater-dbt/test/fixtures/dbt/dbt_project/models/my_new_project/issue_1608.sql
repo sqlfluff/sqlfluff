@@ -1,10 +1,11 @@
 {{ config(materialized='view') }}
 
 with cte_example as (
-    select 1 as col_name
+     select 1 as col_name
 ),
 
-final as (
+final as
+(
     select
         col_name,
         {{- echo('col_name') -}} as col_name2

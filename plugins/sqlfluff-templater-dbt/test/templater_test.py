@@ -201,7 +201,6 @@ def test__templater_dbt_skips_disabled_model(dbt_templater, project_dir):  # noq
         "single_trailing_newline.sql",
         "multiple_trailing_newline.sql",
         "L034_test.sql",
-        "issue_1608.sql",
     ],
 )
 def test__dbt_templated_models_do_not_raise_lint_error(
@@ -214,6 +213,24 @@ def test__dbt_templated_models_do_not_raise_lint_error(
     )
     violations = lnt.check_tuples()
     assert len(violations) == 0
+
+
+def test__dbt_templated_models_fix_does_not_corrupt_file(project_dir):  # noqa: F811
+    """Test fix for issue 1608. Previously "sqlfluff fix" corrupted the file."""
+    lntr = Linter(config=FluffConfig(configs=DBT_FLUFF_CONFIG))
+    lnt = lntr.lint_path(
+        os.path.join(project_dir, "models/my_new_project/issue_1608.sql"), fix=True
+    )
+    lnt.persist_changes(fixed_file_suffix="FIXED")
+    with open(
+        os.path.join(project_dir, "models/my_new_project/issue_1608.sql.after")
+    ) as f:
+        comp_buff = f.read()
+    with open(
+        os.path.join(project_dir, "models/my_new_project/issue_1608FIXED.sql")
+    ) as f:
+        fixed_buff = f.read()
+    assert fixed_buff == comp_buff
 
 
 def test__templater_dbt_templating_absolute_path(
