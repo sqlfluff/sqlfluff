@@ -17,7 +17,6 @@ from sqlfluff.core.parser import (
     Delimited,
     Matchable,
     NamedParser,
-    StartsWith,
     OptionallyBracketed,
     Dedent,
     BaseFileSegment,
@@ -435,12 +434,7 @@ class DeclareStatementSegment(BaseSegment):
         Ref("DatatypeSegment"),
         Sequence(
             Ref("EqualsSegment"),
-            OneOf(
-                Ref("LiteralGrammar"),
-                Bracketed(Ref("SelectStatementSegment")),
-                Ref("BareFunctionSegment"),
-                Ref("FunctionSegment"),
-            ),
+            Ref("ExpressionSegment"),
             optional=True,
         ),
         Ref("DelimiterSegment", optional=True),
@@ -628,11 +622,12 @@ class SetStatementSegment(BaseSegment):
 
     Setting an already declared variable or global variable.
     https://docs.microsoft.com/en-us/sql/t-sql/statements/set-statements-transact-sql?view=sql-server-ver15
+
+    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/set-local-variable-transact-sql?view=sql-server-ver15
     """
 
     type = "set_segment"
-    match_grammar = StartsWith("SET")
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "SET",
         OneOf(
             Ref("ParameterNameSegment"),
@@ -682,25 +677,7 @@ class SetStatementSegment(BaseSegment):
             "OFF",
             Sequence(
                 Ref("EqualsSegment"),
-                OneOf(
-                    Delimited(
-                        OneOf(
-                            Ref("LiteralGrammar"),
-                            Bracketed(Ref("SelectStatementSegment")),
-                            Ref("FunctionSegment"),
-                            Bracketed(
-                                Delimited(
-                                    OneOf(
-                                        Ref("LiteralGrammar"),
-                                        Bracketed(Ref("SelectStatementSegment")),
-                                        Ref("BareFunctionSegment"),
-                                        Ref("FunctionSegment"),
-                                    )
-                                )
-                            ),
-                        )
-                    )
-                ),
+                Ref("ExpressionSegment"),
             ),
         ),
     )
