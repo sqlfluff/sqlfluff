@@ -928,7 +928,7 @@ class FunctionSegment(BaseSegment):
     match_grammar = OneOf(
         Sequence(
             Sequence(
-                Ref("DateAddFunctionNameSegment"),
+                Ref("DatePartFunctionNameSegment"),
                 Bracketed(
                     Delimited(
                         Ref("DatePartClause"),
@@ -992,7 +992,7 @@ class FunctionSegment(BaseSegment):
                         # List of special functions handled differently
                         Ref("CastFunctionNameSegment"),
                         Ref("ConvertFunctionNameSegment"),
-                        Ref("DateAddFunctionNameSegment"),
+                        Ref("DatePartFunctionNameSegment"),
                         Ref("WithinGroupFunctionNameSegment"),
                     ),
                 ),
@@ -1465,3 +1465,14 @@ class DropStatementSegment(BaseSegment):
             Ref("DelimiterSegment", optional=True),
         ],
     )
+
+
+@tsql_dialect.segment(replace=True)
+class DatePartFunctionNameSegment(BaseSegment):
+    """DATEADD function name segment.
+
+    Override to support DATEDIFF as well
+    """
+
+    type = "function_name"
+    match_grammar = OneOf("DATEADD", "DATEDIFF", "DATEDIFF_BIG", "DATENAME")

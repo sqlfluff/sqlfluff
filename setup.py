@@ -51,6 +51,7 @@ setup(
         "hive",
         "mysql",
         "postgres",
+        "redshift",
         "snowflake",
         "sqlite",
         "teradata",
