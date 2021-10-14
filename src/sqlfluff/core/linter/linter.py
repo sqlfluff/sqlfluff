@@ -757,8 +757,8 @@ class Linter:
         filtered_buffer = []
 
         for fpath in buffer:
+            abs_fpath = os.path.abspath(fpath)
             for ignore_base, ignore_spec in ignores.items():
-                abs_fpath = os.path.abspath(fpath)
                 abs_ignore_base = os.path.abspath(ignore_base)
                 if abs_fpath.startswith(
                     abs_ignore_base + os.sep
