@@ -336,6 +336,21 @@ class JinjaTemplater(PythonTemplater):
                 idx += len(raw)
                 continue
             str_buff += raw
+
+            if elem_type == "block_begin":
+                # If the template uses whitespace stripping, lex() may have
+                # skipped over some whitespace. Verify the skipped text was
+                # whitespace and treat it as a literal.
+                num_chars_skipped = in_str.index(raw, idx) - idx
+                if num_chars_skipped:
+                    skipped_str = in_str[idx:num_chars_skipped]
+                    if not skipped_str.isspace():
+                        templater_logger.warning(
+                            "Jinja lex() skipped non-whitespace: %s", skipped_str
+                        )
+                    yield RawFileSlice(skipped_str, "literal", idx)
+                    idx += num_chars_skipped
+
             # raw_end and raw_begin behave a little differently in
             # that the whole tag shows up in one go rather than getting
             # parts of the tag at a time.
