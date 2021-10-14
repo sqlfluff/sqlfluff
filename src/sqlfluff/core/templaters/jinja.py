@@ -337,13 +337,13 @@ class JinjaTemplater(PythonTemplater):
                 continue
             str_buff += raw
 
-            if elem_type == "block_begin":
+            if elem_type in ("block_begin", "variable_begin"):
                 # If the template uses whitespace stripping, lex() may have
                 # skipped over some whitespace. Verify the skipped text was
                 # whitespace and treat it as a literal.
                 num_chars_skipped = in_str.index(raw, idx) - idx
                 if num_chars_skipped:
-                    skipped_str = in_str[idx:num_chars_skipped]
+                    skipped_str = in_str[idx : idx + num_chars_skipped]
                     if not skipped_str.isspace():
                         templater_logger.warning(
                             "Jinja lex() skipped non-whitespace: %s", skipped_str
