@@ -346,21 +346,24 @@ class JinjaTemplater(PythonTemplater):
                 # function in this file:
                 # https://github.com/pallets/jinja/blob/main/src/jinja2/lexer.py
                 # We want to detect and correct for this in order to:
-                # - Correctly update "idx"
-                # - Guarantee that the slices we return fully "cover"the
+                # - Correctly update "idx" (if this is wrong, that's a
+                #   potential DISASTER because lint fixes use this info to
+                #   update the source file, and incorrect values often result in
+                #   CORRUPTING the user's file so it's no longer valid SQL. :-O
+                # - Guarantee that the slices we return fully "cover" the
                 #   contents of in_str.
                 #
-                # We do this by looking ahead in in_str for the token it
-                # returned. It'll either be at the current 'idx' position (if
-                # whitespace stripping did not occur) OR it'll be later in
-                # in_str, but we're GUARANTEED that it only skipped over
-                # WHITESPACE; nothing else.
+                # We detect skipped characters by looking ahead in in_str for
+                # the token just returned from lex(). The token text will either
+                # be at the current 'idx' position (if whitespace stripping did
+                # not occur) OR it'll be farther along in in_str, but we're
+                # GUARANTEED that lex() only skips over WHITESPACE; nothing else.
 
                 # Find the token returned. Did lex() skip over any characters?
                 num_chars_skipped = in_str.index(raw, idx) - idx
                 if num_chars_skipped:
-                    # Yes. It skipped over some characters. Grab a slice from
-                    # in_str with the characters that were skipped.
+                    # Yes. It skipped over some characters. Compute a string
+                    # containing the skipped characters.
                     skipped_str = in_str[idx : idx + num_chars_skipped]
 
                     # Sanity check: Verify that Jinja only skips over
