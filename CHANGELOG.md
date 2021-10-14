@@ -12,7 +12,7 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 ## [0.7.0] - 2021-10-14
 
 This release extracts the dbt templater to a seperately installable plugin [sqlfluff-templater-dbt](https://pypi.org/project/sqlfluff-templater-dbt/).
-It also add the `redshift` dialect and removes the `exasol_fs` dialect which has been merged
+It also adds the `redshift` dialect and removes the `exasol_fs` dialect which has been merged
 into the `exasol` dialect.
 
 ## What’s Changed
