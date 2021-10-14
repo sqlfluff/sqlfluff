@@ -9,11 +9,6 @@ from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.parser import NewlineSegment
 from sqlfluff.testing.rules import get_rule_from_set
 
-from test.fixtures.dbt.templater import (  # noqa
-    DBT_FLUFF_CONFIG,
-    project_dir,
-    dbt_templater,
-)
 from test.fixtures.rules.custom.L000 import Rule_L000
 from test.fixtures.rules.custom.S000 import Rule_S000
 from sqlfluff.core.rules.loader import get_rules_from_path
