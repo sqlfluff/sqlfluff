@@ -73,6 +73,14 @@ class RawTemplatedTestCase(NamedTuple):
             expected_ts_templated_list=["", "\nSELECT 1, 2\n"],
             expected_rs_source_list=["\n\n", "{%- set x = 42 %}", "\nSELECT 1, 2\n"],
         ),
+        RawTemplatedTestCase(
+            name="strip_both",
+            instr="\n\n{%- set x = 42 -%}\nSELECT 1, 2\n",
+            templated_str="SELECT 1, 2\n",
+            expected_ts_source_list=["\n\n{%- set x = 42 -%}\n", "SELECT 1, 2\n"],
+            expected_ts_templated_list=["", "SELECT 1, 2\n"],
+            expected_rs_source_list=["\n\n", "{%- set x = 42 -%}\n", "SELECT 1, 2\n"],
+        ),
     ],
     ids=lambda case: case.name,
 )
