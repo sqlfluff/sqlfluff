@@ -427,15 +427,21 @@ class DeclareStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "DECLARE",
         Ref("ParameterNameSegment"),
-        AnyNumberOf(
-            Ref("ParameterNameSegment"),
-            Ref("CommaSegment", optional=True),
-        ),
         Ref("DatatypeSegment"),
         Sequence(
             Ref("EqualsSegment"),
             Ref("ExpressionSegment"),
             optional=True,
+        ),
+        AnyNumberOf(
+            Ref("CommaSegment"),
+            Ref("ParameterNameSegment"),
+            Ref("DatatypeSegment"),
+            Sequence(
+                Ref("EqualsSegment"),
+                Ref("ExpressionSegment"),
+                optional=True,
+            ),
         ),
         Ref("DelimiterSegment", optional=True),
     )
