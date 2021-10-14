@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3d192101863839cd9986226349997c05860b078d7ee86e86b8fb500cbe75db12
+_hash: bcaa47623a370156fcde8a3ab393a378bb4481d0ffb4b5681113e56001a0942b
 file:
   batch:
     statement:
@@ -229,6 +229,22 @@ file:
             function:
               function_name:
                 keyword: DATEDIFF
+              bracketed:
+              - start_bracket: (
+              - date_part:
+                  keyword: microsecond
+              - comma: ','
+              - expression:
+                  literal: "'2005-12-31 23:59:59.9999999'"
+              - comma: ','
+              - expression:
+                  literal: "'2006-01-01 00:00:00.0000000'"
+              - end_bracket: )
+        - comma: ','
+        - select_clause_element:
+            function:
+              function_name:
+                keyword: DATEDIFF_BIG
               bracketed:
               - start_bracket: (
               - date_part:
