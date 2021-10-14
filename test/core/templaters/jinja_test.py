@@ -82,6 +82,52 @@ class RawTemplatedTestCase(NamedTuple):
             expected_rs_source_list=["\n\n", "{%- set x = 42 -%}\n", "SELECT 1, 2\n"],
         ),
         RawTemplatedTestCase(
+            name="basic_data",
+            instr="""select
+    c1,
+    {{ 'c' }}2 as user_id
+""",
+            templated_str="""select
+    c1,
+    c2 as user_id
+""",
+            expected_ts_source_list=[
+                "select\n    c1,\n    ",
+                "{{ 'c' }}",
+                "2 as user_id\n",
+            ],
+            expected_ts_templated_list=["select\n    c1,\n    ", "c", "2 as user_id\n"],
+            expected_rs_source_list=[
+                "select\n    c1,\n    ",
+                "{{ 'c' }}",
+                "2 as user_id\n",
+            ],
+        ),
+        # Note this is basically identical to the "basic_data" case above.
+        # "Right strip" is not actually a thing in Jinja.
+        RawTemplatedTestCase(
+            name="strip_right_data",
+            instr="""select
+    c1,
+    {{ 'c' -}}2 as user_id
+""",
+            templated_str="""select
+    c1,
+    c2 as user_id
+""",
+            expected_ts_source_list=[
+                "select\n    c1,\n    ",
+                "{{ 'c' -}}",
+                "2 as user_id\n",
+            ],
+            expected_ts_templated_list=["select\n    c1,\n    ", "c", "2 as user_id\n"],
+            expected_rs_source_list=[
+                "select\n    c1,\n    ",
+                "{{ 'c' -}}",
+                "2 as user_id\n",
+            ],
+        ),
+        RawTemplatedTestCase(
             name="strip_both_data",
             instr="""select
     c1,
