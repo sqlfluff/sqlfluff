@@ -384,13 +384,9 @@ class ObjectReferenceSegment(BaseSegment):
         "ObjectReferenceSegment"
     ).iter_raw_references
 
-    is_qualified = ansi_dialect.get_segment(
-        "ObjectReferenceSegment"
-    ).is_qualified
+    is_qualified = ansi_dialect.get_segment("ObjectReferenceSegment").is_qualified
 
-    qualification = ansi_dialect.get_segment(
-        "ObjectReferenceSegment"
-    ).qualification
+    qualification = ansi_dialect.get_segment("ObjectReferenceSegment").qualification
 
     ObjectReferenceLevel = ansi_dialect.get_segment(
         "ObjectReferenceSegment"
@@ -400,9 +396,7 @@ class ObjectReferenceSegment(BaseSegment):
         "ObjectReferenceSegment"
     ).extract_possible_references
 
-    _level_to_int = ansi_dialect.get_segment(
-        "ObjectReferenceSegment"
-    )._level_to_int
+    _level_to_int = ansi_dialect.get_segment("ObjectReferenceSegment")._level_to_int
 
 
 @tsql_dialect.segment(replace=True)
