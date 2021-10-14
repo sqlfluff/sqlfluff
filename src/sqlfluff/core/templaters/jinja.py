@@ -338,16 +338,38 @@ class JinjaTemplater(PythonTemplater):
             str_buff += raw
 
             if elem_type.endswith("_begin"):
-                # If the template uses whitespace stripping, lex() may have
-                # skipped over some whitespace. Verify the skipped text was
-                # whitespace and treat it as a literal.
+                # When a "begin" tag (whether block, comment, or data) uses
+                # whitespace stripping
+                # (https://jinja.palletsprojects.com/en/3.0.x/templates/#whitespace-control),
+                # the Jinja lex() function handles this by discarding adjacent
+                # whitespace from in_str. For more insight, see the tokeniter()
+                # function in this file:
+                # https://github.com/pallets/jinja/blob/main/src/jinja2/lexer.py
+                # We want to detect and correct for this in order to:
+                # - Correctly update "idx"
+                # - Guarantee that the slices we return fully "cover"the
+                #   contents of in_str.
+                #
+                # We do this by looking ahead in in_str for the token it
+                # returned. It'll either be at the current 'idx' position (if
+                # whitespace stripping did not occur) OR it'll be later in
+                # in_str, but we're GUARANTEED that it only skipped over
+                # WHITESPACE; nothing else.
+
+                # Find the token returned. Did lex() skip over any characters?
                 num_chars_skipped = in_str.index(raw, idx) - idx
                 if num_chars_skipped:
+                    # Yes. It skipped over some characters. Grab a slice from
+                    # in_str with the characters that were skipped.
                     skipped_str = in_str[idx : idx + num_chars_skipped]
+
+                    # Sanity check: Verify that Jinja only skips over
+                    # WHITESPACE, never anything else.
                     if not skipped_str.isspace():  # pragma: no cover
                         templater_logger.warning(
                             "Jinja lex() skipped non-whitespace: %s", skipped_str
                         )
+                    # Treat the skipped whitespace as a literal.
                     yield RawFileSlice(skipped_str, "literal", idx)
                     idx += num_chars_skipped
 
