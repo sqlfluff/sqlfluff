@@ -180,6 +180,16 @@ issue_1639:
       from SchemaA.TableB AliasC
       where ColumnD  >= @VariableE
     )
+  fix_str: |
+    DECLARE @VariableE date = GETDATE()
+
+    CREATE TABLE #TempTable
+    AS
+    (
+      Select ColumnD
+      from SchemaA.TableB
+      where ColumnD  >= @VariableE
+    )
   configs:
     core:
       dialect: tsql
