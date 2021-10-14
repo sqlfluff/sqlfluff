@@ -729,7 +729,7 @@ class Linter:
 
         # If it's a directory then expand the path!
         buffer = []
-        ignore_set = set()
+        ignores = {}
         for dirpath, _, filenames in path_walk:
             for fname in filenames:
                 fpath = os.path.join(dirpath, fname)
@@ -737,10 +737,7 @@ class Linter:
                 if ignore_files and fname == ignore_file_name:
                     with open(fpath) as fh:
                         spec = pathspec.PathSpec.from_lines("gitwildmatch", fh)
-                    matches = spec.match_tree(dirpath)
-                    for m in matches:
-                        ignore_path = os.path.join(dirpath, m)
-                        ignore_set.add(os.path.abspath(ignore_path))
+                        ignores[dirpath] = spec
                     # We don't need to process the ignore file any futher
                     continue
 
@@ -760,20 +757,31 @@ class Linter:
         filtered_buffer = []
 
         for fpath in buffer:
-            if os.path.abspath(fpath) not in ignore_set:
+            for ignore_base, ignore_spec in ignores.items():
+                abs_fpath = os.path.abspath(fpath)
+                abs_ignore_base = os.path.abspath(ignore_base)
+                if abs_fpath.startswith(
+                    abs_ignore_base + os.sep
+                ) and ignore_spec.match_file(
+                    os.path.relpath(abs_fpath, abs_ignore_base)
+                ):
+                    # This file is ignored, skip it.
+                    if is_exact_file:
+                        linter_logger.warning(
+                            "Exact file path %s was given but "
+                            "it was ignored by a %s pattern in %s, "
+                            "re-run with `--disregard-sqlfluffignores` to "
+                            "skip %s"
+                            % (
+                                path,
+                                ignore_file_name,
+                                ignore_base,
+                                ignore_file_name,
+                            )
+                        )
+                    break
+            else:
                 filtered_buffer.append(os.path.normpath(fpath))
-            elif is_exact_file:
-                linter_logger.warning(
-                    "Exact file path %s was given but "
-                    "it was ignored by a %s pattern, "
-                    "re-run with `--disregard-sqlfluffignores` to "
-                    "skip %s"
-                    % (
-                        path,
-                        ignore_file_name,
-                        ignore_file_name,
-                    )
-                )
 
         # Return
         return sorted(filtered_buffer)
