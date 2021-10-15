@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9c1157cd65726ca63928fc6950d032abe49606e1fbfcfae3ea9fc4cbf9b6cd5c
+_hash: 88e6ff245768b21e27b4eac19ecdfa68cc0e0aa8052a0159c201906ac9d55f62
 file:
   batch:
     create_procedure_statement:
@@ -15,7 +15,7 @@ file:
       - identifier: DBO
       - dot: .
       - identifier: SP_ECDC_CASES_INTER
-    - base:
+    - function_parameter_list:
         bracketed:
         - start_bracket: (
         - parameter: '@Apple'
