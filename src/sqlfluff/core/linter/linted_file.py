@@ -382,31 +382,31 @@ class LintedFile(NamedTuple):
                         "        - Skipping edit patch on non-unique templated content: %s",
                         enriched_patch,
                     )
-                    continue
-                # We have a single occurrence of the thing we want to patch. This
-                # means we can use its position to place our patch.
-                new_source_slice = slice(
-                    enriched_patch.source_slice.start + positions[0],
-                    enriched_patch.source_slice.start
-                    + positions[0]
-                    + len(enriched_patch.templated_str),
-                )
-                enriched_patch = EnrichedFixPatch(
-                    source_slice=new_source_slice,
-                    templated_slice=enriched_patch.templated_slice,
-                    patch_category=enriched_patch.patch_category,
-                    fixed_raw=enriched_patch.fixed_raw,
-                    templated_str=enriched_patch.templated_str,
-                    source_str=enriched_patch.source_str,
-                )
-                linter_logger.debug(
-                    "      * Keeping Tricky Case. Positions: %s, New Slice: %s, Patch: %s",
-                    positions,
-                    new_source_slice,
-                    enriched_patch,
-                )
-                filtered_source_patches.append(enriched_patch)
-                dedupe_buffer.append(enriched_patch.dedupe_tuple())
+                else:  # pragma: no cover
+                    # We have a single occurrence of the thing we want to patch. This
+                    # means we can use its position to place our patch.
+                    new_source_slice = slice(
+                        enriched_patch.source_slice.start + positions[0],
+                        enriched_patch.source_slice.start
+                        + positions[0]
+                        + len(enriched_patch.templated_str),
+                    )
+                    enriched_patch = EnrichedFixPatch(
+                        source_slice=new_source_slice,
+                        templated_slice=enriched_patch.templated_slice,
+                        patch_category=enriched_patch.patch_category,
+                        fixed_raw=enriched_patch.fixed_raw,
+                        templated_str=enriched_patch.templated_str,
+                        source_str=enriched_patch.source_str,
+                    )
+                    linter_logger.debug(
+                        "      * Keeping Tricky Case. Positions: %s, New Slice: %s, Patch: %s",
+                        positions,
+                        new_source_slice,
+                        enriched_patch,
+                    )
+                    filtered_source_patches.append(enriched_patch)
+                    dedupe_buffer.append(enriched_patch.dedupe_tuple())
                 continue
 
         # Sort the patches before building up the file.
