@@ -401,6 +401,23 @@ class JinjaTemplater(PythonTemplater):
                         block_type = "block_start"
                         if trimmed_content.split()[0] == "for":
                             block_subtype = "loop"
-                yield RawFileSlice(str_buff, block_type, idx, block_subtype)
-                idx += len(str_buff)
+                m = re.search(r"\s+$", raw, re.MULTILINE | re.DOTALL)
+                if raw.startswith("-") and m:
+                    # Right whitespace was stripped. Split off the trailing
+                    # whitespace into a separate slice. The desired behavior is
+                    # to behave similarly as the left stripping case above.
+                    # Note that the stakes are a bit different, because lex()
+                    # hasn't *omitted* any characters from the strings it
+                    # returns, it has simply grouped them differently than we
+                    # want.
+                    trailing_chars = len(m.group(0))
+                    yield RawFileSlice(
+                        str_buff[:-trailing_chars], block_type, idx, block_subtype
+                    )
+                    idx += len(str_buff) - trailing_chars
+                    yield RawFileSlice(str_buff[-trailing_chars:], "literal", idx)
+                    idx += trailing_chars
+                else:
+                    yield RawFileSlice(str_buff, block_type, idx, block_subtype)
+                    idx += len(str_buff)
                 str_buff = ""

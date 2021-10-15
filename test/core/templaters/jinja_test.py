@@ -52,7 +52,7 @@ class RawTemplatedTestCase(NamedTuple):
 
     # These fields are used to check TemplatedFile.sliced_file.
     expected_templated_sliced__source_list: List[str]
-    expected_templated_sliced__templated_list__source_list: List[str]
+    expected_templated_sliced__templated_list: List[str]
 
     # This field is used to check TemplatedFile.raw_sliced.
     expected_raw_sliced__source_list: List[str]
@@ -70,7 +70,7 @@ class RawTemplatedTestCase(NamedTuple):
                 "{% set x = 42 %}",
                 "\nSELECT 1, 2\n",
             ],
-            expected_templated_sliced__templated_list__source_list=[
+            expected_templated_sliced__templated_list=[
                 "\n\n",
                 "",
                 "\nSELECT 1, 2\n",
@@ -89,7 +89,7 @@ class RawTemplatedTestCase(NamedTuple):
                 "\n\n{%- set x = 42 %}",
                 "\nSELECT 1, 2\n",
             ],
-            expected_templated_sliced__templated_list__source_list=[
+            expected_templated_sliced__templated_list=[
                 "",
                 "\nSELECT 1, 2\n",
             ],
@@ -107,13 +107,14 @@ class RawTemplatedTestCase(NamedTuple):
                 "\n\n{%- set x = 42 -%}\n",
                 "SELECT 1, 2\n",
             ],
-            expected_templated_sliced__templated_list__source_list=[
+            expected_templated_sliced__templated_list=[
                 "",
                 "SELECT 1, 2\n",
             ],
             expected_raw_sliced__source_list=[
                 "\n\n",
-                "{%- set x = 42 -%}\n",
+                "{%- set x = 42 -%}",
+                "\n",
                 "SELECT 1, 2\n",
             ],
         ),
@@ -132,7 +133,7 @@ class RawTemplatedTestCase(NamedTuple):
                 "{{ 'c' }}",
                 "2 as user_id\n",
             ],
-            expected_templated_sliced__templated_list__source_list=[
+            expected_templated_sliced__templated_list=[
                 "select\n    c1,\n    ",
                 "c",
                 "2 as user_id\n",
@@ -147,28 +148,28 @@ class RawTemplatedTestCase(NamedTuple):
         # "Right strip" is not actually a thing in Jinja.
         RawTemplatedTestCase(
             name="strip_right_data",
-            instr="""select
-    c1,
-    {{ 'c' -}}2 as user_id
+            instr="""SELECT
+  {{ 'col1,' -}}
+  col2
 """,
-            templated_str="""select
-    c1,
-    c2 as user_id
+            templated_str="""SELECT
+  col1,col2
 """,
             expected_templated_sliced__source_list=[
-                "select\n    c1,\n    ",
-                "{{ 'c' -}}",
-                "2 as user_id\n",
+                "SELECT\n  ",
+                "{{ 'col1,' -}}\n  ",
+                "col2\n",
             ],
-            expected_templated_sliced__templated_list__source_list=[
-                "select\n    c1,\n    ",
-                "c",
-                "2 as user_id\n",
+            expected_templated_sliced__templated_list=[
+                "SELECT\n  ",
+                "col1,",
+                "col2\n",
             ],
             expected_raw_sliced__source_list=[
-                "select\n    c1,\n    ",
-                "{{ 'c' -}}",
-                "2 as user_id\n",
+                "SELECT\n  ",
+                "{{ 'col1,' -}}",
+                "\n  ",
+                "col2\n",
             ],
         ),
         RawTemplatedTestCase(
@@ -185,7 +186,7 @@ class RawTemplatedTestCase(NamedTuple):
                 "\n    {{- 'c' -}}",
                 "2 as user_id\n",
             ],
-            expected_templated_sliced__templated_list__source_list=[
+            expected_templated_sliced__templated_list=[
                 "select\n    c1,",
                 "c",
                 "2 as user_id\n",
@@ -211,7 +212,7 @@ class RawTemplatedTestCase(NamedTuple):
                 "\n    {#- Column 2 -#} ",
                 "c2 as user_id\n",
             ],
-            expected_templated_sliced__templated_list__source_list=[
+            expected_templated_sliced__templated_list=[
                 "select\n    c1,",
                 "",
                 "c2 as user_id\n",
@@ -219,7 +220,8 @@ class RawTemplatedTestCase(NamedTuple):
             expected_raw_sliced__source_list=[
                 "select\n    c1,",
                 "\n    ",
-                "{#- Column 2 -#} ",
+                "{#- Column 2 -#}",
+                " ",
                 "c2 as user_id\n",
             ],
         ),
@@ -243,10 +245,7 @@ def test__templater_jinja_slices(case: RawTemplatedTestCase):
         templated_file.templated_str[ts.templated_slice]
         for ts in templated_file.sliced_file
     ]
-    assert (
-        actual_ts_templated_list
-        == case.expected_templated_sliced__templated_list__source_list
-    )
+    assert actual_ts_templated_list == case.expected_templated_sliced__templated_list
 
     # Build and check the list of source strings referenced by "raw_sliced".
     previous_rs = None
