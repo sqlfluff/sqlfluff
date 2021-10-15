@@ -360,14 +360,114 @@ class ObjectReferenceSegment(BaseSegment):
     """
 
     type = "object_reference"
-    # match grammar (don't allow whitespace)
-    match_grammar: Matchable = Delimited(
+    # match grammar (allow whitespace)
+    match_grammar: Matchable = Sequence(
         Ref("SingleIdentifierGrammar"),
-        delimiter=OneOf(
-            Ref("DotSegment"), Sequence(Ref("DotSegment"), Ref("DotSegment"))
+        AnyNumberOf(
+            Sequence(
+                Ref("DotSegment"),
+                Ref("SingleIdentifierGrammar", optional=True),
+            ),
+            min_times=0,
+            max_times=3,
         ),
-        allow_gaps=False,
     )
+
+    ObjectReferencePart = ansi_dialect.get_segment(
+        "ObjectReferenceSegment"
+    ).ObjectReferencePart
+
+    _iter_reference_parts = ansi_dialect.get_segment(
+        "ObjectReferenceSegment"
+    )._iter_reference_parts
+
+    iter_raw_references = ansi_dialect.get_segment(
+        "ObjectReferenceSegment"
+    ).iter_raw_references
+
+    is_qualified = ansi_dialect.get_segment("ObjectReferenceSegment").is_qualified
+
+    qualification = ansi_dialect.get_segment("ObjectReferenceSegment").qualification
+
+    ObjectReferenceLevel = ansi_dialect.get_segment(
+        "ObjectReferenceSegment"
+    ).ObjectReferenceLevel
+
+    extract_possible_references = ansi_dialect.get_segment(
+        "ObjectReferenceSegment"
+    ).extract_possible_references
+
+    _level_to_int = ansi_dialect.get_segment("ObjectReferenceSegment")._level_to_int
+
+
+@tsql_dialect.segment(replace=True)
+class TableReferenceSegment(ObjectReferenceSegment):
+    """A reference to an table, CTE, subquery or alias.
+
+    Overriding to capture TSQL's override of ObjectReferenceSegment
+    """
+
+    type = "table_reference"
+
+
+@tsql_dialect.segment(replace=True)
+class SchemaReferenceSegment(ObjectReferenceSegment):
+    """A reference to a schema.
+
+    Overriding to capture TSQL's override of ObjectReferenceSegment
+    """
+
+    type = "schema_reference"
+
+
+@tsql_dialect.segment(replace=True)
+class DatabaseReferenceSegment(ObjectReferenceSegment):
+    """A reference to a database.
+
+    Overriding to capture TSQL's override of ObjectReferenceSegment
+    """
+
+    type = "database_reference"
+
+
+@tsql_dialect.segment(replace=True)
+class IndexReferenceSegment(ObjectReferenceSegment):
+    """A reference to an index.
+
+    Overriding to capture TSQL's override of ObjectReferenceSegment
+    """
+
+    type = "index_reference"
+
+
+@tsql_dialect.segment(replace=True)
+class ExtensionReferenceSegment(ObjectReferenceSegment):
+    """A reference to an extension.
+
+    Overriding to capture TSQL's override of ObjectReferenceSegment
+    """
+
+    type = "extension_reference"
+
+
+@tsql_dialect.segment(replace=True)
+class ColumnReferenceSegment(ObjectReferenceSegment):
+    """A reference to column, field or alias.
+
+    Overriding to capture TSQL's override of ObjectReferenceSegment
+    """
+
+    type = "column_reference"
+
+
+@tsql_dialect.segment(replace=True)
+class SequenceReferenceSegment(ObjectReferenceSegment):
+    """A reference to a sequence.
+
+    Overriding to capture TSQL's override of ObjectReferenceSegment
+    """
+
+    type = "sequence_reference"
 
 
 @tsql_dialect.segment()
