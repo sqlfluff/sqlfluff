@@ -287,6 +287,7 @@ class SelectStatementSegment(BaseSegment):
     match_grammar = UnorderedSelectStatementSegment.match_grammar.copy(
         insert=[
             Ref("OrderByClauseSegment", optional=True),
+            Ref("OptionClauseSegment", optional=True),
             Ref("DelimiterSegment", optional=True),
         ]
     )
@@ -312,9 +313,10 @@ class WhereClauseSegment(BaseSegment):
 
 @tsql_dialect.segment(replace=True)
 class CreateIndexStatementSegment(BaseSegment):
-    """A `CREATE INDEX` statement.
+    """A `CREATE INDEX` or `CREATE STATISTICS` statement.
 
     https://docs.microsoft.com/en-us/sql/t-sql/statements/create-index-transact-sql?view=sql-server-ver15
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-statistics-transact-sql?view=sql-server-ver15
     """
 
     type = "create_index_statement"
@@ -323,7 +325,7 @@ class CreateIndexStatementSegment(BaseSegment):
         Ref("OrReplaceGrammar", optional=True),
         Sequence("UNIQUE", optional=True),
         OneOf("CLUSTERED", "NONCLUSTERED", optional=True),
-        "INDEX",
+        OneOf("INDEX", "STATISTICS"),
         Ref("IfNotExistsGrammar", optional=True),
         Ref("IndexReferenceSegment"),
         "ON",
@@ -680,6 +682,24 @@ class ColumnConstraintSegment(BaseSegment):
                 Ref("BracketedColumnReferenceListGrammar", optional=True),
             ),
             Ref("CommentClauseSegment"),
+        ),
+    )
+
+
+@tsql_dialect.segment(replace=True)
+class FunctionParameterListGrammar(BaseSegment):
+    """The parameters for a function ie. `(@city_name NVARCHAR(30), @postal_code NVARCHAR(15))`.
+
+    Overriding ANSI (1) to optionally bracket and (2) remove Delimited
+    """
+
+    type = "function_parameter_list"
+    # Function parameter list
+    match_grammar = OptionallyBracketed(
+        Ref("FunctionParameterGrammar"),
+        AnyNumberOf(
+            Ref("CommaSegment"),
+            Ref("FunctionParameterGrammar"),
         ),
     )
 
@@ -1501,21 +1521,24 @@ class OrderByClauseSegment(BaseSegment):
             OneOf("ASC", "DESC", optional=True),
         ),
         AnyNumberOf(
-            Ref("CommaSegment"),
             Sequence(
-                OneOf(
-                    Ref("ColumnReferenceSegment"),
-                    # Can `ORDER BY 1`
-                    Ref("NumericLiteralSegment"),
-                    # Can order by an expression
-                    Ref("ExpressionSegment"),
+                Ref("CommaSegment"),
+                Sequence(
+                    OneOf(
+                        Ref("ColumnReferenceSegment"),
+                        # Can `ORDER BY 1`
+                        Ref("NumericLiteralSegment"),
+                        # Can order by an expression
+                        Ref("ExpressionSegment"),
+                    ),
+                    OneOf("ASC", "DESC", optional=True),
                 ),
-                OneOf("ASC", "DESC", optional=True),
             ),
         ),
         Dedent,
-        Ref("DelimiterSegment", optional=True),
     )
+
+    parse_grammar = None
 
 
 @tsql_dialect.segment()
@@ -1553,6 +1576,62 @@ class DropStatementSegment(BaseSegment):
 
 
 @tsql_dialect.segment(replace=True)
+class UpdateStatementSegment(BaseSegment):
+    """An `Update` statement.
+
+    UPDATE <table name> SET <set clause list> [ WHERE <search condition> ]
+    Overriding ANSI in order to allow for PostTableExpressionGrammar (table hints)
+    """
+
+    type = "update_statement"
+    match_grammar = Sequence(
+        "UPDATE",
+        OneOf(Ref("TableReferenceSegment"), Ref("AliasedTableReferenceGrammar")),
+        Ref("PostTableExpressionGrammar", optional=True),
+        Ref("SetClauseListSegment"),
+        Ref("FromClauseSegment", optional=True),
+        Ref("WhereClauseSegment", optional=True),
+        Ref("DelimiterSegment", optional=True),
+    )
+
+
+@tsql_dialect.segment(replace=True)
+class SetClauseListSegment(BaseSegment):
+    """set clause list.
+
+    Overriding ANSI to remove Delimited
+    """
+
+    type = "set_clause_list"
+    match_grammar = Sequence(
+        "SET",
+        Indent,
+        Ref("SetClauseSegment"),
+        AnyNumberOf(
+            Ref("CommaSegment"),
+            Ref("SetClauseSegment"),
+        ),
+        Dedent,
+    )
+
+
+@tsql_dialect.segment(replace=True)
+class SetClauseSegment(BaseSegment):
+    """Set clause.
+
+    Overriding ANSI to allow for ExpressionSegment on the right
+    """
+
+    type = "set_clause"
+
+    match_grammar = Sequence(
+        Ref("ColumnReferenceSegment"),
+        Ref("EqualsSegment"),
+        Ref("ExpressionSegment"),
+    )
+
+
+@tsql_dialect.segment(replace=True)
 class DatePartFunctionNameSegment(BaseSegment):
     """DATEADD function name segment.
 
@@ -1571,5 +1650,239 @@ class PrintStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "PRINT",
         Ref("ExpressionSegment"),
+        Ref("DelimiterSegment", optional=True),
+    )
+
+
+@tsql_dialect.segment()
+class OptionClauseSegment(BaseSegment):
+    """Query Hint clause.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/queries/hints-transact-sql-query?view=sql-server-ver15
+    """
+
+    type = "option_clause"
+    match_grammar = Sequence(
+        Sequence("OPTION", optional=True),
+        Bracketed(
+            Ref("QueryHintSegment"),
+            AnyNumberOf(
+                Ref("CommaSegment"),
+                Ref("QueryHintSegment"),
+            ),
+        ),
+    )
+
+
+@tsql_dialect.segment()
+class QueryHintSegment(BaseSegment):
+    """Query Hint segment.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/queries/hints-transact-sql-query?view=sql-server-ver15
+    """
+
+    type = "query_hint_segment"
+    match_grammar = OneOf(
+        Sequence(  # Azure Synapse Analytics specific
+            "LABEL",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+        ),
+        Sequence(
+            OneOf("HASH", "ORDER"),
+            "GROUP",
+        ),
+        Sequence(OneOf("MERGE", "HASH", "CONCAT"), "UNION"),
+        Sequence(OneOf("LOOP", "MERGE", "HASH"), "JOIN"),
+        Sequence("EXPAND", "VIEWS"),
+        Sequence(
+            OneOf(
+                "FAST",
+                "MAXDOP",
+                "MAXRECURSION",
+                "QUERYTRACEON",
+                Sequence(
+                    OneOf(
+                        "MAX_GRANT_PERCENT",
+                        "MIN_GRANT_PERCENT",
+                    ),
+                    Ref("EqualsSegment"),
+                ),
+            ),
+            Ref("NumericLiteralSegment"),
+        ),
+        Sequence("FORCE", "ORDER"),
+        Sequence(
+            OneOf("FORCE", "DISABLE"),
+            OneOf("EXTERNALPUSHDOWN", "SCALEOUTEXECUTION"),
+        ),
+        Sequence(
+            OneOf(
+                "KEEP",
+                "KEEPFIXED",
+                "ROBUST",
+            ),
+            "PLAN",
+        ),
+        "IGNORE_NONCLUSTERED_COLUMNSTORE_INDEX",
+        "NO_PERFORMANCE_SPOOL",
+        Sequence(
+            "OPTIMIZE",
+            "FOR",
+            OneOf(
+                "UNKNOWN",
+                Bracketed(
+                    Ref("ParameterNameSegment"),
+                    OneOf(
+                        "UNKNOWN", Sequence(Ref("EqualsSegment"), Ref("LiteralGrammar"))
+                    ),
+                    AnyNumberOf(
+                        Ref("CommaSegment"),
+                        Ref("ParameterNameSegment"),
+                        OneOf(
+                            "UNKNOWN",
+                            Sequence(Ref("EqualsSegment"), Ref("LiteralGrammar")),
+                        ),
+                    ),
+                ),
+            ),
+        ),
+        Sequence("PARAMETERIZATION", OneOf("SIMPLE", "FORCED")),
+        "RECOMPILE",
+        Sequence(
+            "USE",
+            "HINT",
+            Bracketed(
+                Ref("QuotedLiteralSegment"),
+                AnyNumberOf(Ref("CommaSegment"), Ref("QuotedLiteralSegment")),
+            ),
+        ),
+        Sequence(
+            "USE",
+            "PLAN",
+            OneOf(Ref("QuotedLiteralSegment"), Ref("QuotedLiteralSegmentWithN")),
+        ),
+        Sequence(
+            "TABLE",
+            "HINT",
+            Ref("ObjectReferenceSegment"),
+            Ref("TableHintSegment"),
+            AnyNumberOf(
+                Ref("CommaSegment"),
+                Ref("TableHintSegment"),
+            ),
+        ),
+    )
+
+
+@tsql_dialect.segment(replace=True)
+class PostTableExpressionGrammar(BaseSegment):
+    """Table Hint clause.  Overloading the PostTableExpressionGrammar to implement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/queries/hints-transact-sql-table?view=sql-server-ver15
+    """
+
+    match_grammar = Sequence(
+        Sequence("WITH", optional=True),
+        Bracketed(
+            Ref("TableHintSegment"),
+            AnyNumberOf(
+                Ref("CommaSegment"),
+                Ref("TableHintSegment"),
+            ),
+        ),
+    )
+
+
+@tsql_dialect.segment()
+class TableHintSegment(BaseSegment):
+    """Table Hint segment.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/queries/hints-transact-sql-table?view=sql-server-ver15
+    """
+
+    type = "query_hint_segment"
+    match_grammar = OneOf(
+        "NOEXPAND",
+        Sequence(
+            "INDEX",
+            Bracketed(
+                OneOf(Ref("IndexReferenceSegment"), Ref("NumericLiteralSegment")),
+                AnyNumberOf(
+                    Ref("CommaSegment"),
+                    OneOf(
+                        Ref("IndexReferenceSegment"),
+                        Ref("NumericLiteralSegment"),
+                    ),
+                ),
+            ),
+        ),
+        Sequence(
+            "INDEX",
+            Ref("EqualsSegment"),
+            Bracketed(
+                OneOf(Ref("IndexReferenceSegment"), Ref("NumericLiteralSegment")),
+            ),
+        ),
+        "KEEPIDENTITY",
+        "KEEPDEFAULTS",
+        Sequence(
+            "FORCESEEK",
+            Bracketed(
+                Ref("IndexReferenceSegment"),
+                Bracketed(
+                    Ref("SingleIdentifierGrammar"),
+                    AnyNumberOf(Ref("CommaSegment"), Ref("SingleIdentifierGrammar")),
+                ),
+                optional=True,
+            ),
+        ),
+        "FORCESCAN",
+        "HOLDLOCK",
+        "IGNORE_CONSTRAINTS",
+        "IGNORE_TRIGGERS",
+        "NOLOCK",
+        "NOWAIT",
+        "PAGLOCK",
+        "READCOMMITTED",
+        "READCOMMITTEDLOCK",
+        "READPAST",
+        "READUNCOMMITTED",
+        "REPEATABLEREAD",
+        "ROWLOCK",
+        "SERIALIZABLE",
+        "SNAPSHOT",
+        Sequence(
+            "SPATIAL_WINDOW_MAX_CELLS",
+            Ref("EqualsSegment"),
+            Ref("NumericLiteralSegment"),
+        ),
+        "TABLOCK",
+        "TABLOCKX",
+        "UPDLOCK",
+        "XLOCK",
+    )
+
+
+@tsql_dialect.segment(replace=True)
+class SetExpressionSegment(BaseSegment):
+    """A set expression with either Union, Minus, Except or Intersect.
+
+    Overriding ANSI to include OPTION clause.
+    """
+
+    type = "set_expression"
+    # match grammar
+    match_grammar = Sequence(
+        Ref("NonSetSelectableGrammar"),
+        AnyNumberOf(
+            Sequence(
+                Ref("SetOperatorSegment"),
+                Ref("NonSetSelectableGrammar"),
+            ),
+            min_times=1,
+        ),
+        Ref("OrderByClauseSegment", optional=True),
+        Ref("OptionClauseSegment", optional=True),
         Ref("DelimiterSegment", optional=True),
     )
