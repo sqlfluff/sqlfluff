@@ -347,6 +347,8 @@ class Rule_L003(BaseRule):
         self.tab_space_size: int
         self.indent_unit: str
 
+        raw_stack = context.raw_stack
+
         # Memory keeps track of what we've seen
         if not context.memory:
             memory: dict = {
@@ -396,8 +398,8 @@ class Rule_L003(BaseRule):
             # (since there may not be a newline on the very last line)..
             return LintResult(memory=memory)
 
-        if context.raw_stack and context.raw_stack[-1] is not context.segment:
-            raw_stack = context.raw_stack + (context.segment,)
+        if raw_stack and raw_stack[-1] is not context.segment:
+            raw_stack = raw_stack + (context.segment,)
         res = self._process_raw_stack(
             raw_stack,
             memory,
