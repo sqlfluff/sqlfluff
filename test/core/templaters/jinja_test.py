@@ -176,14 +176,15 @@ class RawTemplatedTestCase(NamedTuple):
             name="strip_both_data",
             instr="""select
     c1,
-    {{- 'c' -}}2 as user_id
+    {{- 'c' -}}
+2 as user_id
 """,
             templated_str="""select
     c1,c2 as user_id
 """,
             expected_templated_sliced__source_list=[
                 "select\n    c1,",
-                "\n    {{- 'c' -}}",
+                "\n    {{- 'c' -}}\n",
                 "2 as user_id\n",
             ],
             expected_templated_sliced__templated_list=[
@@ -195,6 +196,7 @@ class RawTemplatedTestCase(NamedTuple):
                 "select\n    c1,",
                 "\n    ",
                 "{{- 'c' -}}",
+                "\n",
                 "2 as user_id\n",
             ],
         ),
