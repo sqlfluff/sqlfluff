@@ -1365,6 +1365,7 @@ class BeginEndSegment(BaseSegment):
         ),
         Dedent,
         "END",
+        Ref("DelimiterSegment", optional=True),
     )
 
 
