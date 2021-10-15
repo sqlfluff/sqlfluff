@@ -687,10 +687,9 @@ class ColumnConstraintSegment(BaseSegment):
 
 @tsql_dialect.segment(replace=True)
 class FunctionParameterListGrammar(BaseSegment):
-    """The parameters for a function ie. `(@city_name NVARCHAR(30), @postal_code NVARCHAR(15)`
-    )`.
+    """The parameters for a function ie. `(@city_name NVARCHAR(30), @postal_code NVARCHAR(15))`.
 
-        Overriding ANSI (1) to optionally bracket and (2) remove Delimited
+    Overriding ANSI (1) to optionally bracket and (2) remove Delimited
     """
 
     type = "function_parameter_list"

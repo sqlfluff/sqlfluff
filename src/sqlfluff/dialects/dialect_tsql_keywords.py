@@ -261,7 +261,7 @@ UNRESERVED_KEYWORDS = [
     "KEEPDEFAULTS",
     "KEEPFIXED",
     "KEEPIDENTITY",
-    "LABEL", # Azure Synapse Analytics specific, reserved keyword but could break TSQL parsing to add there
+    "LABEL",  # Azure Synapse Analytics specific, reserved keyword but could break TSQL parsing to add there
     "M",
     "MAX_GRANT_PERCENT",
     "MIN_GRANT_PERCENT",
