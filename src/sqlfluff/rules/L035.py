@@ -1,8 +1,7 @@
 """Implementation of Rule L035."""
 from typing import List, Optional
 
-from sqlfluff.core.parser import BaseSegment
-from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult
+from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
 
@@ -35,7 +34,7 @@ class Rule_L035(BaseRule):
         from x
     """
 
-    def _eval(self, segment: BaseSegment, **kwargs) -> Optional[LintResult]:  # type: ignore
+    def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Find rule violations and provide fixes.
 
         0. Look for a case expression
@@ -46,9 +45,9 @@ class Rule_L035(BaseRule):
         5.a. The raw "NULL" segment is found, we mark it for deletion and return
         5.b. We reach the end of case when without matching "NULL": the rule passes
         """
-        if segment.is_type("case_expression"):
+        if context.segment.is_type("case_expression"):
             fixes: List[LintFix] = []
-            for idx, seg in enumerate(segment.segments):
+            for idx, seg in enumerate(context.segment.segments):
                 # When we find ELSE we delete
                 # everything up to NULL
                 if fixes:
@@ -56,17 +55,19 @@ class Rule_L035(BaseRule):
                     # Safe to look for NULL, as an expression
                     # would contain NULL but not be == NULL
                     if seg.raw_upper == "NULL":
-                        return LintResult(anchor=segment, fixes=fixes)
+                        return LintResult(anchor=context.segment, fixes=fixes)
 
                 if not fixes and seg.name == "else":
                     fixes.append(LintFix("delete", seg))
                     # Walk back to remove indents/whitespaces
                     walk_idx = idx - 1
                     while (
-                        segment.segments[walk_idx].name == "whitespace"
-                        or segment.segments[walk_idx].name == "newline"
-                        or segment.segments[walk_idx].is_meta
+                        context.segment.segments[walk_idx].name == "whitespace"
+                        or context.segment.segments[walk_idx].name == "newline"
+                        or context.segment.segments[walk_idx].is_meta
                     ):
-                        fixes.append(LintFix("delete", segment.segments[walk_idx]))
+                        fixes.append(
+                            LintFix("delete", context.segment.segments[walk_idx])
+                        )
                         walk_idx = walk_idx - 1
         return None

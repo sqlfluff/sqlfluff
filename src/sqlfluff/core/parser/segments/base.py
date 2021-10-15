@@ -1056,7 +1056,7 @@ class BaseSegment:
                     patch_category="end_point",
                 )
 
-    def edit(self, **kwargs):
+    def edit(self, raw):
         """Stub."""
         raise NotImplementedError()
 

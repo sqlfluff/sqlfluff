@@ -3,7 +3,7 @@
 from typing import Tuple, List
 
 from sqlfluff.core.parser import BaseSegment
-from sqlfluff.core.rules.base import LintResult
+from sqlfluff.core.rules.base import LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
@@ -69,16 +69,10 @@ class Rule_L014(Rule_L010):
     config_keywords = ["extended_capitalisation_policy", "unquoted_identifiers_policy"]
     _description_elem = "Unquoted identifiers"
 
-    def _eval(  # type: ignore
-        self,
-        segment: BaseSegment,
-        memory: dict,
-        parent_stack: Tuple[BaseSegment, ...],
-        **kwargs
-    ):
+    def _eval(self, context: RuleContext) -> LintResult:
         if unquoted_ids_policy_applicable(
-            self.unquoted_identifiers_policy, parent_stack  # type: ignore
+            self.unquoted_identifiers_policy, context.parent_stack  # type: ignore
         ):
-            return super()._eval(segment, memory, parent_stack, **kwargs)
+            return super()._eval(context=context)
         else:
-            return LintResult(memory=memory)
+            return LintResult(memory=context.memory)

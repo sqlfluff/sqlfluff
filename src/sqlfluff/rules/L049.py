@@ -1,8 +1,8 @@
 """Implementation of Rule L049."""
 from typing import List, Union
 
-from sqlfluff.core.parser import BaseSegment, KeywordSegment, WhitespaceSegment
-from sqlfluff.core.rules.base import LintResult, LintFix
+from sqlfluff.core.parser import KeywordSegment, WhitespaceSegment
+from sqlfluff.core.rules.base import LintResult, LintFix, RuleContext
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 from sqlfluff.rules.L006 import Rule_L006
 
@@ -33,19 +33,19 @@ class Rule_L049(Rule_L006):
         WHERE a IS NULL
     """
 
-    def _eval(self, segment: BaseSegment, **kwargs) -> LintResult:  # type: ignore
+    def _eval(self, context: RuleContext) -> LintResult:
         """Relational operators should not be used to check for NULL values."""
         # Context/motivation for this rule:
         # https://news.ycombinator.com/item?id=28772289
         # https://stackoverflow.com/questions/9581745/sql-is-null-and-null
-        if len(segment.segments) <= 2:
+        if len(context.segment.segments) <= 2:
             return LintResult()
 
         # Iterate through children of this segment looking for equals or "not
         # equals". Once found, check if the next code segment is a NULL literal.
         idx_operator = None
         operator = None
-        for idx, sub_seg in enumerate(segment.segments):
+        for idx, sub_seg in enumerate(context.segment.segments):
             # Skip anything which is whitespace or non-code.
             if sub_seg.is_whitespace or not sub_seg.is_code:
                 continue
@@ -82,10 +82,10 @@ class Rule_L049(Rule_L006):
                         ]
                     )
                     prev_seg = self._find_segment(
-                        idx_operator, segment.segments, before=True
+                        idx_operator, context.segment.segments, before=True
                     )
                     next_seg = self._find_segment(
-                        idx_operator, segment.segments, before=False
+                        idx_operator, context.segment.segments, before=False
                     )
                     if self._missing_whitespace(prev_seg, before=True):
                         whitespace_segment: List[
@@ -104,3 +104,5 @@ class Rule_L049(Rule_L006):
                             )
                         ],
                     )
+        # If we get to here, it's not a violation
+        return LintResult()

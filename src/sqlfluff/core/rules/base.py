@@ -19,11 +19,13 @@ import copy
 import logging
 import pathlib
 import re
-from typing import Optional, List, Tuple
+from typing import Optional, List, Tuple, Union, Any
 from collections import namedtuple
+from dataclasses import dataclass
 
 from sqlfluff.core.linter import LintedFile
-from sqlfluff.core.parser import BaseSegment
+from sqlfluff.core.parser import BaseSegment, RawSegment
+from sqlfluff.core.dialects import Dialect
 from sqlfluff.core.errors import SQLLintError
 from sqlfluff.core.templaters.base import TemplatedFile
 
@@ -196,6 +198,24 @@ class LintFix:
         return True  # pragma: no cover TODO?
 
 
+EvalResultType = Union[LintResult, List[LintResult], None]
+
+
+@dataclass
+class RuleContext:
+    """Class for holding the context passed to rule eval functions."""
+
+    segment: BaseSegment
+    parent_stack: Tuple[BaseSegment, ...]
+    siblings_pre: Tuple[BaseSegment, ...]
+    siblings_post: Tuple[BaseSegment, ...]
+    raw_stack: Tuple[RawSegment, ...]
+    memory: Any
+    dialect: Dialect
+    path: Optional[pathlib.Path]
+    templated_file: Optional[TemplatedFile]
+
+
 class BaseRule:
     """The base class for a rule.
 
@@ -236,7 +256,7 @@ class BaseRule:
         except AttributeError:
             self.logger.info(f"No config_keywords defined for {code}")
 
-    def _eval(self, **kwargs):  # pragma: no cover
+    def _eval(self, context: RuleContext) -> EvalResultType:
         """Evaluate this rule against the current context.
 
         This should indicate whether a linting violation has occurred and/or
@@ -247,7 +267,7 @@ class BaseRule:
         them out at definition.
 
         Returns:
-            :obj:`LintResult` or :obj:`None`.
+            :obj:`LintResult`, list of :obj:`LintResult` or :obj:`None`.
 
         The reason that this method is called :meth:`_eval` and not `eval` is
         a bit of a hack with sphinx autodoc, to make it so that the rule
@@ -302,15 +322,17 @@ class BaseRule:
         # TODO: Document what options are available to the evaluation function.
         try:
             res = self._eval(
-                segment=segment,
-                parent_stack=parent_stack,
-                siblings_pre=siblings_pre,
-                siblings_post=siblings_post,
-                raw_stack=raw_stack,
-                memory=memory,
-                dialect=dialect,
-                path=pathlib.Path(fname) if fname else None,
-                templated_file=templated_file,
+                context=RuleContext(
+                    segment=segment,
+                    parent_stack=parent_stack,
+                    siblings_pre=siblings_pre,
+                    siblings_post=siblings_post,
+                    raw_stack=raw_stack,
+                    memory=memory,
+                    dialect=dialect,
+                    path=pathlib.Path(fname) if fname else None,
+                    templated_file=templated_file,
+                )
             )
         except (bdb.BdbQuit, KeyboardInterrupt):  # pragma: no cover
             raise

@@ -1,10 +1,10 @@
 """Implementation of Rule L037."""
 
-from typing import NamedTuple, Optional, List, Tuple
+from typing import NamedTuple, Optional, List
 
 from sqlfluff.core.parser import WhitespaceSegment, KeywordSegment
 
-from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult
+from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
@@ -79,18 +79,16 @@ class Rule_L037(BaseRule):
             )
         return result
 
-    def _eval(  # type: ignore
-        self, segment: BaseSegment, parent_stack: Tuple[BaseSegment, ...], **kwargs
-    ) -> Optional[List[LintResult]]:
+    def _eval(self, context: RuleContext) -> Optional[List[LintResult]]:
         """Ambiguous ordering directions for columns in order by clause.
 
         This rule checks if some ORDER BY columns explicitly specify ASC or
         DESC and some don't.
         """
         # We only trigger on orderby_clause
-        if segment.is_type("orderby_clause"):
+        if context.segment.is_type("orderby_clause"):
             lint_fixes = []
-            orderby_spec = self._get_orderby_info(segment)
+            orderby_spec = self._get_orderby_info(context.segment)
             order_types = {o.order for o in orderby_spec}
             # If ALL columns or NO columns explicitly specify ASC/DESC, all is
             # well.
@@ -112,7 +110,7 @@ class Rule_L037(BaseRule):
 
             return [
                 LintResult(
-                    anchor=segment,
+                    anchor=context.segment,
                     fixes=lint_fixes,
                     description=(
                         "Ambiguous order by clause. Order by "

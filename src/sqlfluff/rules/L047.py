@@ -1,8 +1,7 @@
 """Implementation of Rule L047."""
 from typing import Optional
 
-from sqlfluff.core.parser import BaseSegment
-from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult
+from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
@@ -58,14 +57,18 @@ class Rule_L047(BaseRule):
 
     config_keywords = ["prefer_count_1", "prefer_count_0"]
 
-    def _eval(self, segment: BaseSegment, **kwargs) -> Optional[LintResult]:  # type: ignore
+    def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Find rule violations and provide fixes."""
+        # Config type hints
+        self.prefer_count_0: bool
+        self.prefer_count_1: bool
+
         if (
-            segment.is_type("function")
-            and segment.get_child("function_name").raw_upper == "COUNT"
+            context.segment.is_type("function")
+            and context.segment.get_child("function_name").raw_upper == "COUNT"
         ):
             # Get bracketed content
-            bracketed = segment.get_child("bracketed")
+            bracketed = context.segment.get_child("bracketed")
 
             if not bracketed:  # pragma: no cover
                 return None
@@ -85,16 +88,16 @@ class Rule_L047(BaseRule):
                 return None
 
             preferred = "*"
-            if self.prefer_count_1:  # type: ignore
+            if self.prefer_count_1:
                 preferred = "1"
-            elif self.prefer_count_0:  # type: ignore
+            elif self.prefer_count_0:
                 preferred = "0"
 
             if f_content[0].is_type("star") and (
-                self.prefer_count_1 or self.prefer_count_0  # type: ignore
+                self.prefer_count_1 or self.prefer_count_0
             ):
                 return LintResult(
-                    anchor=segment,
+                    anchor=context.segment,
                     fixes=[
                         LintFix(
                             "edit",
@@ -116,7 +119,7 @@ class Rule_L047(BaseRule):
                     and expression_content[0].raw != preferred
                 ):
                     return LintResult(
-                        anchor=segment,
+                        anchor=context.segment,
                         fixes=[
                             LintFix(
                                 "edit",

@@ -1,9 +1,9 @@
 """Implementation of Rule L009."""
-from typing import Optional, Tuple
+from typing import Optional
 
-from sqlfluff.core.parser import BaseSegment, NewlineSegment
+from sqlfluff.core.parser import NewlineSegment
 
-from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix
+from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix, RuleContext
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
 
@@ -65,29 +65,23 @@ class Rule_L009(BaseRule):
 
     """
 
-    def _eval(  # type: ignore
-        self,
-        segment: BaseSegment,
-        siblings_post: Tuple[BaseSegment, ...],
-        parent_stack: Tuple[BaseSegment, ...],
-        **kwargs
-    ) -> Optional[LintResult]:
+    def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Files must end with a trailing newline.
 
         We only care about the segment and the siblings which come after it
         for this rule, we discard the others into the kwargs argument.
 
         """
-        if len(self.filter_meta(siblings_post)) > 0:
+        if len(self.filter_meta(context.siblings_post)) > 0:
             # This can only fail on the last segment
             return None
-        elif len(segment.segments) > 0:
+        elif len(context.segment.segments) > 0:
             # This can only fail on the last base segment
             return None
-        elif segment.name == "newline":
+        elif context.segment.name == "newline":
             # If this is the last segment, and it's a newline then we're good
             return None
-        elif segment.is_meta:
+        elif context.segment.is_meta:
             # We can't fail on a meta segment
             return None
         else:
@@ -95,8 +89,8 @@ class Rule_L009(BaseRule):
             # need to check that each parent segment is also the last.
             # We do this with reference to the templated file, because it's
             # the best we can do given the information available.
-            file_len = len(segment.pos_marker.templated_file.templated_str)
-            pos = segment.pos_marker.templated_slice.stop
+            file_len = len(context.segment.pos_marker.templated_file.templated_str)
+            pos = context.segment.pos_marker.templated_slice.stop
             # Does the length of the file equal the end of the templated position?
             if file_len != pos:
                 return None
@@ -104,6 +98,8 @@ class Rule_L009(BaseRule):
         # We're going to make an edit because we're appending to the end and there's
         # no segment after it to match on. Otherwise we would never get a match!
         return LintResult(
-            anchor=segment,
-            fixes=[LintFix("edit", segment, [segment, NewlineSegment()])],
+            anchor=context.segment,
+            fixes=[
+                LintFix("edit", context.segment, [context.segment, NewlineSegment()])
+            ],
         )

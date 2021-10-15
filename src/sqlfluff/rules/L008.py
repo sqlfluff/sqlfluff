@@ -1,9 +1,9 @@
 """Implementation of Rule L008."""
-from typing import Optional, Tuple
+from typing import Optional
 
-from sqlfluff.core.parser import BaseSegment, RawSegment, WhitespaceSegment
+from sqlfluff.core.parser import WhitespaceSegment
 
-from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix
+from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix, RuleContext
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
 
@@ -34,21 +34,19 @@ class Rule_L008(BaseRule):
         WHERE a IN ('plop',•'zoo')
     """
 
-    def _eval(  # type: ignore
-        self, segment: BaseSegment, raw_stack: Tuple[RawSegment, ...], **kwargs
-    ) -> Optional[LintResult]:
+    def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Commas should be followed by a single whitespace unless followed by a comment.
 
         This is a slightly odd one, because we'll almost always evaluate from a point a few places
         after the problem site. NB: We need at least two segments behind us for this to work.
         """
-        if len(raw_stack) < 1:
+        if len(context.raw_stack) < 1:
             return None
 
         # Get the first element of this segment.
-        first_elem = next(segment.iter_raw_seg())
+        first_elem = next(context.segment.iter_raw_seg())
 
-        cm1 = raw_stack[-1]
+        cm1 = context.raw_stack[-1]
         if cm1.name == "comma":
             # comma followed by something that isn't whitespace?
             if first_elem.name not in ["whitespace", "newline", "Dedent"]:
@@ -57,13 +55,14 @@ class Rule_L008(BaseRule):
                 )
                 ins = WhitespaceSegment(raw=" ")
                 return LintResult(
-                    anchor=cm1, fixes=[LintFix("edit", segment, [ins, segment])]
+                    anchor=cm1,
+                    fixes=[LintFix("edit", context.segment, [ins, context.segment])],
                 )
 
-        if len(raw_stack) < 2:
+        if len(context.raw_stack) < 2:
             return None
 
-        cm2 = raw_stack[-2]
+        cm2 = context.raw_stack[-2]
         if cm2.name == "comma":
             # comma followed by too much whitespace?
             if (
