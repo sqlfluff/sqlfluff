@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9709be101bf56f190488880a44218c79a39e091a13d097089e1c95901fe1a324
+_hash: 24c483809d03195c08dee59affa00f68e5ca4cd341980be72bf47065b3138d16
 file:
   batch:
   - statement:
@@ -43,7 +43,7 @@ file:
           - dot: .
           - identifier: column1
         - keyword: desc
-        - statement_terminator: ;
+        statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -107,7 +107,7 @@ file:
         - column_reference:
             identifier: HireDate
         - keyword: DESC
-        - statement_terminator: ;
+        statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -143,7 +143,7 @@ file:
         - column_reference:
             identifier: HireDate
         - keyword: DESC
-        - statement_terminator: ;
+        statement_terminator: ;
   - statement:
       select_statement:
         select_clause:
@@ -254,4 +254,4 @@ file:
         - column_reference:
             identifier: Rate
         - keyword: DESC
-        - statement_terminator: ;
+        statement_terminator: ;
