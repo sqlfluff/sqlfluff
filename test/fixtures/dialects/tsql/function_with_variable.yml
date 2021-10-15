@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 367aba2305179b06005826f62924fca7b7261ff612f1fceb6181ee1c4de67799
+_hash: 48d8c348827f95622f0ace38bf1eec6f735ef098b5f96aecfdf763819c291c45
 file:
   batch:
     statement:
@@ -16,7 +16,7 @@ file:
         - identifier: '[dbo]'
         - dot: .
         - identifier: '[CONVERT_ISO_WEEK_TO_UNIX]'
-      - base:
+      - function_parameter_list:
           bracketed:
           - start_bracket: (
           - parameter: '@year'

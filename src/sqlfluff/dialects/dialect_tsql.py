@@ -586,6 +586,25 @@ class ColumnConstraintSegment(BaseSegment):
 
 
 @tsql_dialect.segment(replace=True)
+class FunctionParameterListGrammar(BaseSegment):
+    """The parameters for a function ie. `(@city_name NVARCHAR(30), @postal_code NVARCHAR(15)`
+    )`.
+
+        Overriding ANSI (1) to optionally bracket and (2) remove Delimited
+    """
+
+    type = "function_parameter_list"
+    # Function parameter list
+    match_grammar = OptionallyBracketed(
+        Ref("FunctionParameterGrammar"),
+        AnyNumberOf(
+            Ref("CommaSegment"),
+            Ref("FunctionParameterGrammar"),
+        ),
+    )
+
+
+@tsql_dialect.segment(replace=True)
 class CreateFunctionStatementSegment(BaseSegment):
     """A `CREATE FUNCTION` statement.
 
@@ -1402,21 +1421,24 @@ class OrderByClauseSegment(BaseSegment):
             OneOf("ASC", "DESC", optional=True),
         ),
         AnyNumberOf(
-            Ref("CommaSegment"),
             Sequence(
-                OneOf(
-                    Ref("ColumnReferenceSegment"),
-                    # Can `ORDER BY 1`
-                    Ref("NumericLiteralSegment"),
-                    # Can order by an expression
-                    Ref("ExpressionSegment"),
+                Ref("CommaSegment"),
+                Sequence(
+                    OneOf(
+                        Ref("ColumnReferenceSegment"),
+                        # Can `ORDER BY 1`
+                        Ref("NumericLiteralSegment"),
+                        # Can order by an expression
+                        Ref("ExpressionSegment"),
+                    ),
+                    OneOf("ASC", "DESC", optional=True),
                 ),
-                OneOf("ASC", "DESC", optional=True),
             ),
         ),
         Dedent,
-        Ref("DelimiterSegment", optional=True),
     )
+
+    parse_grammar = match_grammar
 
 
 @tsql_dialect.segment()
@@ -1454,6 +1476,62 @@ class DropStatementSegment(BaseSegment):
 
 
 @tsql_dialect.segment(replace=True)
+class UpdateStatementSegment(BaseSegment):
+    """An `Update` statement.
+
+    UPDATE <table name> SET <set clause list> [ WHERE <search condition> ]
+    Overriding ANSI in order to allow for PostTableExpressionGrammar (table hints)
+    """
+
+    type = "update_statement"
+    match_grammar = Sequence(
+        "UPDATE",
+        OneOf(Ref("TableReferenceSegment"), Ref("AliasedTableReferenceGrammar")),
+        Ref("PostTableExpressionGrammar", optional=True),
+        Ref("SetClauseListSegment"),
+        Ref("FromClauseSegment", optional=True),
+        Ref("WhereClauseSegment", optional=True),
+        Ref("DelimiterSegment", optional=True),
+    )
+
+
+@tsql_dialect.segment(replace=True)
+class SetClauseListSegment(BaseSegment):
+    """set clause list.
+
+    Overriding ANSI to remove Delimited
+    """
+
+    type = "set_clause_list"
+    match_grammar = Sequence(
+        "SET",
+        Indent,
+        Ref("SetClauseSegment"),
+        AnyNumberOf(
+            Ref("CommaSegment"),
+            Ref("SetClauseSegment"),
+        ),
+        Dedent,
+    )
+
+
+@tsql_dialect.segment(replace=True)
+class SetClauseSegment(BaseSegment):
+    """Set clause.
+
+    Overriding ANSI to allow for ExpressionSegment on the right
+    """
+
+    type = "set_clause"
+
+    match_grammar = Sequence(
+        Ref("ColumnReferenceSegment"),
+        Ref("EqualsSegment"),
+        Ref("ExpressionSegment"),
+    )
+
+
+@tsql_dialect.segment(replace=True)
 class DatePartFunctionNameSegment(BaseSegment):
     """DATEADD function name segment.
 
@@ -1483,6 +1561,7 @@ class OptionClauseSegment(BaseSegment):
     https://docs.microsoft.com/en-us/sql/t-sql/queries/hints-transact-sql-query?view=sql-server-ver15
     """
 
+    type = "option_clause"
     match_grammar = Sequence(
         Sequence("OPTION", optional=True),
         Bracketed(
@@ -1552,18 +1631,32 @@ class QueryHintSegment(BaseSegment):
             "FOR",
             OneOf(
                 "UNKNOWN",
-                Ref("ParameterNameSegment"),
-                OneOf("UNKNOWN", Sequence("=", Ref("LiteralGrammar"))),
-                AnyNumberOf(
-                    Ref("CommaSegment"),
+                Bracketed(
                     Ref("ParameterNameSegment"),
-                    OneOf("UNKNOWN", Sequence("=", Ref("LiteralGrammar"))),
+                    OneOf(
+                        "UNKNOWN", Sequence(Ref("EqualsSegment"), Ref("LiteralGrammar"))
+                    ),
+                    AnyNumberOf(
+                        Ref("CommaSegment"),
+                        Ref("ParameterNameSegment"),
+                        OneOf(
+                            "UNKNOWN",
+                            Sequence(Ref("EqualsSegment"), Ref("LiteralGrammar")),
+                        ),
+                    ),
                 ),
             ),
         ),
         Sequence("PARAMETERIZATION", OneOf("SIMPLE", "FORCED")),
         "RECOMPILE",
-        Sequence("USE", "HINT", Ref("QuotedLiteralSegment")),
+        Sequence(
+            "USE",
+            "HINT",
+            Bracketed(
+                Ref("QuotedLiteralSegment"),
+                AnyNumberOf(Ref("CommaSegment"), Ref("QuotedLiteralSegment")),
+            ),
+        ),
         Sequence(
             "USE",
             "PLAN",
@@ -1668,4 +1761,28 @@ class TableHintSegment(BaseSegment):
         "TABLOCKX",
         "UPDLOCK",
         "XLOCK",
+    )
+
+
+@tsql_dialect.segment(replace=True)
+class SetExpressionSegment(BaseSegment):
+    """A set expression with either Union, Minus, Except or Intersect.
+
+    Overriding ANSI to include OPTION clause.
+    """
+
+    type = "set_expression"
+    # match grammar
+    match_grammar = Sequence(
+        Ref("NonSetSelectableGrammar"),
+        AnyNumberOf(
+            Sequence(
+                Ref("SetOperatorSegment"),
+                Ref("NonSetSelectableGrammar"),
+            ),
+            min_times=1,
+        ),
+        Ref("OrderByClauseSegment", optional=True),
+        Ref("OptionClauseSegment", optional=True),
+        Ref("DelimiterSegment", optional=True),
     )
