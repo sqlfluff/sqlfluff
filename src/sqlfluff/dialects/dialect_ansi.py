@@ -2643,7 +2643,7 @@ class DeleteStatementSegment(BaseSegment):
 
 @ansi_dialect.segment()
 class UpdateStatementSegment(BaseSegment):
-    """A `Update` statement.
+    """An `Update` statement.
 
     UPDATE <table name> SET <set clause list> [ WHERE <search condition> ]
     """
