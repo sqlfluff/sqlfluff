@@ -1528,11 +1528,10 @@ ansi_dialect.add(
             "EXISTS", Bracketed(Ref("SelectStatementSegment"))
         ),  # should be first priority, otherwise EXISTS() would be matched as a function
         Sequence(
-            Ref("Expression_D_Grammar"),
-            AnyNumberOf(Ref("ShorthandCastSegment")),
-        ),
-        Sequence(
-            Ref("CaseExpressionSegment"),
+            OneOf(
+                Ref("Expression_D_Grammar"),
+                Ref("CaseExpressionSegment"),
+            ),
             AnyNumberOf(Ref("ShorthandCastSegment")),
         ),
     ),
