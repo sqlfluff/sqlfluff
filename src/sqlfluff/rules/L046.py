@@ -82,4 +82,5 @@ class Rule_L046(BaseRule):
             if not ws_post or (ws_post != " " and "\n" not in ws_post):
                 return LintResult(memory=memory, anchor=context.segment)
 
-        return LintResult(memory=memory)
+            return LintResult(memory=memory)
+        return LintResult(memory=context.memory)
