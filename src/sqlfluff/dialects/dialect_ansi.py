@@ -1528,7 +1528,6 @@ ansi_dialect.add(
             "EXISTS", Bracketed(Ref("SelectStatementSegment"))
         ),  # should be first priority, otherwise EXISTS() would be matched as a function
         Ref("Expression_D_Grammar"),
-        # Ref("CaseExpressionSegment"),
         Sequence(
             Ref("CaseExpressionSegment"), Ref("ShorthandCastSegment", optional=True)
         ),
