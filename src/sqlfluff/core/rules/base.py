@@ -279,7 +279,7 @@ class BaseRule:
                 "{} has not had its `eval` function defined. This is a problem "
                 "with the rule setup."
             ).format(self.__class__.__name__)
-        )
+        )  # pragma: no cover
 
     def crawl(
         self,
