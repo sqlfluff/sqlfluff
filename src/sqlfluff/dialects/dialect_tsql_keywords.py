@@ -234,6 +234,7 @@ RESERVED_KEYWORDS = [
 UNRESERVED_KEYWORDS = [
     "CAST",
     "COLUMNSTORE",
+    "CONCAT",
     "D",
     "DATEADD",
     "DATEDIFF",
@@ -245,10 +246,19 @@ UNRESERVED_KEYWORDS = [
     "DISTRIBUTION",  # Azure Synapse Analytics specific
     "DW",
     "DY",
+    "EXPAND",
+    "FAST",
     "HASH",  # Azure Synapse Analytics specific
     "HH",
     "HOUR",
+    "KEEP",
+    "KEEPFIXED",
+    "LABEL", # Azure Synapse Analytics specific, reserved keyword but could break TSQL parsing to add there
     "M",
+    "MAX_GRANT_PERCENT",
+    "MIN_GRANT_PERCENT",
+    "MAXDOP",
+    "MAXRECURSION",
     "MCS",
     "MI",
     "MICROSECOND",
@@ -263,7 +273,9 @@ UNRESERVED_KEYWORDS = [
     "Q",
     "QQ",
     "QUARTER",
+    "QUERYTRACEON",
     "REPLICATE",  # Azure Synapse Analytics specific
+    "ROBUST",
     "ROUND_ROBIN",  # Azure Synapse Analytics specific
     "S",
     "SECOND",

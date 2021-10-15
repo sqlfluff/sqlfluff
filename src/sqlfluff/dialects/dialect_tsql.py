@@ -287,6 +287,7 @@ class SelectStatementSegment(BaseSegment):
     match_grammar = UnorderedSelectStatementSegment.match_grammar.copy(
         insert=[
             Ref("OrderByClauseSegment", optional=True),
+            Ref("OptionClauseSegment", optional=True),
             Ref("DelimiterSegment", optional=True),
         ]
     )
@@ -1472,4 +1473,199 @@ class PrintStatementSegment(BaseSegment):
         "PRINT",
         Ref("ExpressionSegment"),
         Ref("DelimiterSegment", optional=True),
+    )
+
+
+@tsql_dialect.segment()
+class OptionClauseSegment(BaseSegment):
+    """Query Hint clause.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/queries/hints-transact-sql-query?view=sql-server-ver15
+    """
+
+    match_grammar = Sequence(
+        Sequence("OPTION", optional=True),
+        Bracketed(
+            Ref("QueryHintSegment"),
+            AnyNumberOf(
+                Ref("CommaSegment"),
+                Ref("QueryHintSegment"),
+            ),
+        ),
+    )
+
+
+@tsql_dialect.segment()
+class QueryHintSegment(BaseSegment):
+    """Query Hint segment.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/queries/hints-transact-sql-query?view=sql-server-ver15
+    """
+
+    type = "query_hint_segment"
+    match_grammar = OneOf(
+        Sequence(  # Azure Synapse Analytics specific
+            "LABEL",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+        ),
+        Sequence(
+            OneOf("HASH", "ORDER"),
+            "GROUP",
+        ),
+        Sequence(OneOf("MERGE", "HASH", "CONCAT"), "UNION"),
+        Sequence(OneOf("LOOP", "MERGE", "HASH"), "JOIN"),
+        Sequence("EXPAND", "VIEWS"),
+        Sequence(
+            OneOf(
+                "FAST",
+                "MAXDOP",
+                "MAXRECURSION",
+                "QUERYTRACEON",
+                Sequence(
+                    OneOf(
+                        "MAX_GRANT_PERCENT",
+                        "MIN_GRANT_PERCENT",
+                    ),
+                    Ref("EqualsSegment"),
+                ),
+            ),
+            Ref("NumericLiteralSegment"),
+        ),
+        Sequence("FORCE", "ORDER"),
+        Sequence(
+            OneOf("FORCE", "DISABLE"),
+            OneOf("EXTERNALPUSHDOWN", "SCALEOUTEXECUTION"),
+        ),
+        Sequence(
+            OneOf(
+                "KEEP",
+                "KEEPFIXED",
+                "ROBUST",
+            ),
+            "PLAN",
+        ),
+        "IGNORE_NONCLUSTERED_COLUMNSTORE_INDEX",
+        "NO_PERFORMANCE_SPOOL",
+        Sequence(
+            "OPTIMIZE",
+            "FOR",
+            OneOf(
+                "UNKNOWN",
+                Ref("ParameterNameSegment"),
+                OneOf("UNKNOWN", Sequence("=", Ref("LiteralGrammar"))),
+                AnyNumberOf(
+                    Ref("CommaSegment"),
+                    Ref("ParameterNameSegment"),
+                    OneOf("UNKNOWN", Sequence("=", Ref("LiteralGrammar"))),
+                ),
+            ),
+        ),
+        Sequence("PARAMETERIZATION", OneOf("SIMPLE", "FORCED")),
+        "RECOMPILE",
+        Sequence("USE", "HINT", Ref("QuotedLiteralSegment")),
+        Sequence(
+            "USE",
+            "PLAN",
+            OneOf(Ref("QuotedLiteralSegment"), Ref("QuotedLiteralSegmentWithN")),
+        ),
+        Sequence(
+            "TABLE",
+            "HINT",
+            Ref("ObjectReferenceSegment"),
+            Ref("TableHintSegment"),
+            AnyNumberOf(
+                Ref("CommaSegment"),
+                Ref("TableHintSegment"),
+            ),
+        ),
+    )
+
+
+@tsql_dialect.segment(replace=True)
+class PostTableExpressionGrammar(BaseSegment):
+    """Table Hint clause.  Overloading the PostTableExpressionGrammar to implement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/queries/hints-transact-sql-table?view=sql-server-ver15
+    """
+
+    match_grammar = Sequence(
+        Sequence("WITH", optional=True),
+        Bracketed(
+            Ref("TableHintSegment"),
+            AnyNumberOf(
+                Ref("CommaSegment"),
+                Ref("TableHintSegment"),
+            ),
+        ),
+    )
+
+
+@tsql_dialect.segment()
+class TableHintSegment(BaseSegment):
+    """Table Hint segment.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/queries/hints-transact-sql-table?view=sql-server-ver15
+    """
+
+    type = "query_hint_segment"
+    match_grammar = OneOf(
+        "NOEXPAND",
+        Sequence(
+            "INDEX",
+            Bracketed(
+                OneOf(Ref("IndexReferenceSegment"), Ref("NumericLiteralSegment")),
+                AnyNumberOf(
+                    Ref("CommaSegment"),
+                    OneOf(
+                        Ref("IndexReferenceSegment"),
+                        Ref("NumericLiteralSegment"),
+                    ),
+                ),
+            ),
+        ),
+        Sequence(
+            "INDEX",
+            Ref("EqualsSegment"),
+            Bracketed(
+                OneOf(Ref("IndexReferenceSegment"), Ref("NumericLiteralSegment")),
+            ),
+        ),
+        "KEEPIDENTITY",
+        "KEEPDEFAULTS",
+        Sequence(
+            "FORCESEEK",
+            Bracketed(
+                Ref("IndexReferenceSegment"),
+                Bracketed(
+                    Ref("SingleIdentifierGrammar"),
+                    AnyNumberOf(Ref("CommaSegment"), Ref("SingleIdentifierGrammar")),
+                ),
+                optional=True,
+            ),
+        ),
+        "FORCESCAN",
+        "HOLDLOCK",
+        "IGNORE_CONSTRAINTS",
+        "IGNORE_TRIGGERS",
+        "NOLOCK",
+        "NOWAIT",
+        "PAGLOCK",
+        "READCOMMITTED",
+        "READCOMMITTEDLOCK",
+        "READPAST",
+        "READUNCOMMITTED",
+        "REPEATABLEREAD",
+        "ROWLOCK",
+        "SERIALIZABLE",
+        "SNAPSHOT",
+        Sequence(
+            "SPATIAL_WINDOW_MAX_CELLS",
+            Ref("EqualsSegment"),
+            Ref("NumericLiteralSegment"),
+        ),
+        "TABLOCK",
+        "TABLOCKX",
+        "UPDLOCK",
+        "XLOCK",
     )
