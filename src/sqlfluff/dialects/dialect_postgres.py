@@ -417,7 +417,9 @@ class FunctionDefinitionGrammar(BaseSegment):
 @postgres_dialect.segment()
 class IntoClauseSegment(BaseSegment):
     """Into Clause Segment.
-    As specified in https://www.postgresql.org/docs/14/sql-selectinto.html"""
+
+    As specified in https://www.postgresql.org/docs/14/sql-selectinto.html
+    """
 
     type = "into_clause"
 
