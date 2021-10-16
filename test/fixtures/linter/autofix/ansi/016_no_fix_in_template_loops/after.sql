@@ -7,9 +7,9 @@ SELECT
     10;
 
 SELECT
-    1,
-     {%- for _ in [1, 2, 3] %}    2{%endfor %};
+    1, 
+    {%- for _ in [1, 2, 3] %}    2{%endfor %};
 
 SELECT
     1,
-    {% for _ in [1, 2, 3] %}    2{%endfor %}
+        {% for _ in [1, 2, 3] %}    2{%endfor %}
