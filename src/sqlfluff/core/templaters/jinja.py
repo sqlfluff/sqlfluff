@@ -330,12 +330,52 @@ class JinjaTemplater(PythonTemplater):
         }
 
         # https://jinja.palletsprojects.com/en/2.11.x/api/#jinja2.Environment.lex
-        for _, elem_type, raw in env.lex(cls._preprocess_template(in_str)):
+        for _, elem_type, raw in env.lex(in_str):
             if elem_type == "data":
                 yield RawFileSlice(raw, "literal", idx)
                 idx += len(raw)
                 continue
             str_buff += raw
+
+            if elem_type.endswith("_begin"):
+                # When a "begin" tag (whether block, comment, or data) uses
+                # whitespace stripping
+                # (https://jinja.palletsprojects.com/en/3.0.x/templates/#whitespace-control),
+                # the Jinja lex() function handles this by discarding adjacent
+                # whitespace from in_str. For more insight, see the tokeniter()
+                # function in this file:
+                # https://github.com/pallets/jinja/blob/main/src/jinja2/lexer.py
+                # We want to detect and correct for this in order to:
+                # - Correctly update "idx" (if this is wrong, that's a
+                #   potential DISASTER because lint fixes use this info to
+                #   update the source file, and incorrect values often result in
+                #   CORRUPTING the user's file so it's no longer valid SQL. :-O
+                # - Guarantee that the slices we return fully "cover" the
+                #   contents of in_str.
+                #
+                # We detect skipped characters by looking ahead in in_str for
+                # the token just returned from lex(). The token text will either
+                # be at the current 'idx' position (if whitespace stripping did
+                # not occur) OR it'll be farther along in in_str, but we're
+                # GUARANTEED that lex() only skips over WHITESPACE; nothing else.
+
+                # Find the token returned. Did lex() skip over any characters?
+                num_chars_skipped = in_str.index(raw, idx) - idx
+                if num_chars_skipped:
+                    # Yes. It skipped over some characters. Compute a string
+                    # containing the skipped characters.
+                    skipped_str = in_str[idx : idx + num_chars_skipped]
+
+                    # Sanity check: Verify that Jinja only skips over
+                    # WHITESPACE, never anything else.
+                    if not skipped_str.isspace():  # pragma: no cover
+                        templater_logger.warning(
+                            "Jinja lex() skipped non-whitespace: %s", skipped_str
+                        )
+                    # Treat the skipped whitespace as a literal.
+                    yield RawFileSlice(skipped_str, "literal", idx)
+                    idx += num_chars_skipped
+
             # raw_end and raw_begin behave a little differently in
             # that the whole tag shows up in one go rather than getting
             # parts of the tag at a time.
@@ -361,22 +401,23 @@ class JinjaTemplater(PythonTemplater):
                         block_type = "block_start"
                         if trimmed_content.split()[0] == "for":
                             block_subtype = "loop"
-                yield RawFileSlice(str_buff, block_type, idx, block_subtype)
-                idx += len(str_buff)
+                m = re.search(r"\s+$", raw, re.MULTILINE | re.DOTALL)
+                if raw.startswith("-") and m:
+                    # Right whitespace was stripped. Split off the trailing
+                    # whitespace into a separate slice. The desired behavior is
+                    # to behave similarly as the left stripping case above.
+                    # Note that the stakes are a bit different, because lex()
+                    # hasn't *omitted* any characters from the strings it
+                    # returns, it has simply grouped them differently than we
+                    # want.
+                    trailing_chars = len(m.group(0))
+                    yield RawFileSlice(
+                        str_buff[:-trailing_chars], block_type, idx, block_subtype
+                    )
+                    idx += len(str_buff) - trailing_chars
+                    yield RawFileSlice(str_buff[-trailing_chars:], "literal", idx)
+                    idx += trailing_chars
+                else:
+                    yield RawFileSlice(str_buff, block_type, idx, block_subtype)
+                    idx += len(str_buff)
                 str_buff = ""
-
-    @classmethod
-    def _preprocess_template(cls, in_str: str) -> str:
-        """Does any preprocessing of the template required before expansion."""
-        # Using Jinja whitespace stripping (e.g. `{%-` or `-%}`) breaks the
-        # position markers between unlexed and lexed file. So let's ignore any
-        # request to do that before lexing, by replacing '-' with '+'
-        #
-        # Note: '+' is the default, so shouldn't really be needed but we
-        # explicitly state that to preserve the space for the missing '-' character
-        # so it looks the same.
-        in_str = in_str.replace("{%-", "{%+")
-        in_str = in_str.replace("-%}", "+%}")
-        in_str = in_str.replace("{#-", "{#+")
-        in_str = in_str.replace("-#}", "+#}")
-        return in_str
