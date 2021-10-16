@@ -16,6 +16,7 @@ from sqlfluff.core.parser import (
     SymbolSegment,
     StartsWith,
     CommentSegment,
+    Dedent,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -192,6 +193,15 @@ postgres_dialect.replace(
     IsNullGrammar=Ref.keyword("ISNULL"),
     NotNullGrammar=Ref.keyword("NOTNULL"),
     JoinKeywords=Sequence("JOIN", Sequence("LATERAL", optional=True)),
+    SelectClauseElementTerminatorGrammar=OneOf(
+        "INTO",
+        "FROM",
+        "WHERE",
+        Sequence("ORDER", "BY"),
+        "LIMIT",
+        Ref("CommaSegment"),
+        Ref("SetOperatorSegment"),
+    ),
 )
 
 
@@ -402,6 +412,90 @@ class FunctionDefinitionGrammar(BaseSegment):
             optional=True,
         ),
     )
+
+
+@postgres_dialect.segment()
+class IntoClauseSegment(BaseSegment):
+    """Into Clause Segment.
+
+    As specified in https://www.postgresql.org/docs/14/sql-selectinto.html
+    """
+
+    type = "into_clause"
+
+    match_grammar = Sequence(
+        "INTO",
+        OneOf("TEMPORARY", "TEMP", "UNLOGGED", optional=True),
+        Ref.keyword("TABLE", optional=True),
+        Ref("TableReferenceSegment"),
+    )
+
+
+@postgres_dialect.segment(replace=True)
+class UnorderedSelectStatementSegment(BaseSegment):
+    """Overrides ANSI Statement, to allow for SELECT INTO statements."""
+
+    type = "select_statement"
+
+    match_grammar = ansi_dialect.get_segment(
+        "UnorderedSelectStatementSegment"
+    ).match_grammar.copy()
+
+    parse_grammar = Sequence(
+        Ref("SelectClauseSegment"),
+        # Dedent for the indent in the select clause.
+        # It's here so that it can come AFTER any whitespace.
+        Dedent,
+        Ref("IntoClauseSegment", optional=True),
+        Ref("FromClauseSegment", optional=True),
+        Ref("WhereClauseSegment", optional=True),
+        Ref("GroupByClauseSegment", optional=True),
+        Ref("HavingClauseSegment", optional=True),
+        Ref("OverlapsClauseSegment", optional=True),
+    )
+
+
+@postgres_dialect.segment(replace=True)
+class SelectStatementSegment(BaseSegment):
+    """Overrides ANSI as the parse grammar copy needs to be reapplied."""
+
+    type = "select_statement"
+
+    match_grammar = ansi_dialect.get_segment(
+        "SelectStatementSegment"
+    ).match_grammar.copy()
+
+    parse_grammar = postgres_dialect.get_segment(
+        "UnorderedSelectStatementSegment"
+    ).parse_grammar.copy(
+        insert=[
+            Ref("OrderByClauseSegment", optional=True),
+            Ref("LimitClauseSegment", optional=True),
+            Ref("NamedWindowSegment", optional=True),
+        ]
+    )
+
+
+@postgres_dialect.segment(replace=True)
+class SelectClauseSegment(BaseSegment):
+    """Overrides ANSI to allow INTO as a terminator."""
+
+    type = "select_clause"
+    match_grammar = StartsWith(
+        Sequence("SELECT", Ref("WildcardExpressionSegment", optional=True)),
+        terminator=OneOf(
+            "INTO",
+            "FROM",
+            "WHERE",
+            Sequence("ORDER", "BY"),
+            "LIMIT",
+            "OVERLAPS",
+            Ref("SetOperatorSegment"),
+        ),
+        enforce_whitespace_preceding_terminator=True,
+    )
+
+    parse_grammar = Ref("SelectClauseSegmentGrammar")
 
 
 @postgres_dialect.segment(replace=True)
