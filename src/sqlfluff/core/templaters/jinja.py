@@ -4,6 +4,7 @@ import os.path
 import logging
 import importlib.util
 import re
+import uuid
 from typing import Iterator, List, Tuple, Optional
 
 from jinja2.sandbox import SandboxedEnvironment
@@ -234,9 +235,12 @@ class JinjaTemplater(PythonTemplater):
 
         live_context.update(self._extract_libraries_from_config(config=config))
 
+        def make_template(in_str):
+            return env.from_string(in_str, globals=live_context)
+
         # Load the template, passing the global context.
         try:
-            template = env.from_string(in_str, globals=live_context)
+            template = make_template(in_str)
         except TemplateSyntaxError as err:
             # Something in the template didn't parse, return the original
             # and a violation around what happened.
@@ -278,7 +282,11 @@ class JinjaTemplater(PythonTemplater):
             out_str = template.render()
             # Slice the file once rendered.
             raw_sliced, sliced_file, out_str = self.slice_file(
-                in_str, out_str, config=config
+                in_str,
+                out_str,
+                config=config,
+                template=template,
+                make_template=make_template,
             )
             return (
                 TemplatedFile(
@@ -333,7 +341,9 @@ class JinjaTemplater(PythonTemplater):
         # https://jinja.palletsprojects.com/en/2.11.x/api/#jinja2.Environment.lex
         for _, elem_type, raw in env.lex(in_str):
             if elem_type == "data":
-                yield RawFileSlice(raw, "literal", idx)
+                yield RawFileSlice(
+                    raw, "literal", idx, kindred_raw=f"<<{uuid.uuid1().hex}>>"
+                )
                 idx += len(raw)
                 continue
             str_buff += raw
@@ -425,17 +435,67 @@ class JinjaTemplater(PythonTemplater):
 
     @classmethod
     def slice_file(
-        cls,
-        raw_str: str,
-        templated_str: str,
-        config=None,
+        cls, raw_str: str, templated_str: str, config=None, **kwargs
     ) -> Tuple[List[RawFileSlice], List[TemplatedFileSlice], str]:
         """Slice the file to determine regions where we can fix."""
+        template = kwargs.pop("template", None)
+        make_template = kwargs.pop("make_template", None)
+        if template is None or make_template is None:
+            return super().slice_file(raw_str, templated_str, config, **kwargs)
+
         templater_logger.info("Slicing File Template")
         templater_logger.debug("    Raw String: %r", raw_str)
         templater_logger.debug("    Templated String: %r", templated_str)
         # Slice the raw file
         raw_sliced = list(cls._slice_template(raw_str))
+        kindred_template = make_template(
+            "".join(rs.kindred_raw or rs.raw for rs in raw_sliced)
+        )
+        sliced_file = []
+        source_idx = 0
+        last_raw_slice_idx = 0
+        for s1, s2 in zip(template.generate(), kindred_template.generate()):
+            # print(f"actual:  {s1!r}")
+            # print(f"kindred: {s2}")
+            # print()
+            raw_slices_search_result = [
+                (idx, rs) for idx, rs in enumerate(raw_sliced) if rs.kindred_raw == s2
+            ]
+            if raw_slices_search_result:
+                raw_slice_idx, raw_slice = raw_slices_search_result[0]
+                for idx in range(last_raw_slice_idx, raw_slice_idx):
+                    sliced_file.append(
+                        TemplatedFileSlice(
+                            raw_sliced[idx].slice_type,
+                            slice(
+                                raw_sliced[idx].source_idx,
+                                raw_sliced[idx + 1].source_idx,
+                            ),
+                            slice(source_idx, source_idx),
+                        )
+                    )
+                last_raw_slice_idx = raw_slice_idx
+            source_idx += len(s1)
+        for idx in range(last_raw_slice_idx, len(raw_sliced)):
+            sliced_file.append(
+                TemplatedFileSlice(
+                    raw_sliced[idx].slice_type,
+                    slice(
+                        raw_sliced[idx].source_idx,
+                        raw_sliced[idx + 1].source_idx
+                        if idx + 1 < len(raw_sliced)
+                        else len(raw_str),
+                    ),
+                    slice(source_idx, source_idx),
+                )
+            )
+        for ts in sliced_file:
+            print(
+                f"{ts.slice_type} templated:{templated_str[ts.templated_slice]!r} raw:{raw_str[ts.source_slice]!r}"
+            )
+        return raw_sliced, sliced_file, templated_str
+
+        # Old code from PythonTemplater follows
         templater_logger.debug("    Raw Sliced:")
         for idx, raw_slice in enumerate(raw_sliced):
             templater_logger.debug("        %s: %r", idx, raw_slice)
