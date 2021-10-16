@@ -497,38 +497,6 @@ class SelectClauseSegment(BaseSegment):
 
 
 @postgres_dialect.segment(replace=True)
-class SelectStatementSegment(BaseSegment):
-    """A `SELECT` statement."""
-
-    type = "select_statement"
-
-    match_grammar = StartsWith(
-        Ref("SelectClauseSegment"),
-        terminator=OneOf(
-            Ref("SetOperatorSegment"), Ref("WithNoSchemaBindingClauseSegment")
-        ),
-        enforce_whitespace_preceding_terminator=True,
-    )
-
-    # Inherit most of the parse grammar from the original.
-    parse_grammar = Sequence(
-        Ref("SelectClauseSegment"),
-        # Dedent for the indent in the select clause.
-        # It's here so that it can come AFTER any whitespace.
-        Dedent,
-        Ref("IntoClauseSegment", optional=True),
-        Ref("FromClauseSegment", optional=True),
-        Ref("WhereClauseSegment", optional=True),
-        Ref("GroupByClauseSegment", optional=True),
-        Ref("HavingClauseSegment", optional=True),
-        Ref("OverlapsClauseSegment", optional=True),
-        Ref("OrderByClauseSegment", optional=True),
-        Ref("LimitClauseSegment", optional=True),
-        Ref("NamedWindowSegment", optional=True),
-    )
-
-
-@postgres_dialect.segment(replace=True)
 class SelectClauseModifierSegment(BaseSegment):
     """Things that come after SELECT but before the columns."""
 
