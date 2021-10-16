@@ -1527,8 +1527,13 @@ ansi_dialect.add(
         Sequence(
             "EXISTS", Bracketed(Ref("SelectStatementSegment"))
         ),  # should be first priority, otherwise EXISTS() would be matched as a function
-        Ref("Expression_D_Grammar"),
-        Ref("CaseExpressionSegment"),
+        Sequence(
+            OneOf(
+                Ref("Expression_D_Grammar"),
+                Ref("CaseExpressionSegment"),
+            ),
+            AnyNumberOf(Ref("ShorthandCastSegment")),
+        ),
     ),
     # Expression_D_Grammar https://www.cockroachlabs.com/docs/v20.2/sql-grammar.htm#d_expr
     Expression_D_Grammar=Sequence(
@@ -1573,7 +1578,6 @@ ansi_dialect.add(
             ),
         ),
         Ref("Accessor_Grammar", optional=True),
-        AnyNumberOf(Ref("ShorthandCastSegment")),
         allow_gaps=True,
     ),
     Accessor_Grammar=AnyNumberOf(Ref("ArrayAccessorSegment")),
