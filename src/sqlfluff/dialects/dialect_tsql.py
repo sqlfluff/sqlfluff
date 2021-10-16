@@ -313,9 +313,10 @@ class WhereClauseSegment(BaseSegment):
 
 @tsql_dialect.segment(replace=True)
 class CreateIndexStatementSegment(BaseSegment):
-    """A `CREATE INDEX` statement.
+    """A `CREATE INDEX` or `CREATE STATISTICS` statement.
 
     https://docs.microsoft.com/en-us/sql/t-sql/statements/create-index-transact-sql?view=sql-server-ver15
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-statistics-transact-sql?view=sql-server-ver15
     """
 
     type = "create_index_statement"
@@ -324,7 +325,7 @@ class CreateIndexStatementSegment(BaseSegment):
         Ref("OrReplaceGrammar", optional=True),
         Sequence("UNIQUE", optional=True),
         OneOf("CLUSTERED", "NONCLUSTERED", optional=True),
-        "INDEX",
+        OneOf("INDEX", "STATISTICS"),
         Ref("IfNotExistsGrammar", optional=True),
         Ref("IndexReferenceSegment"),
         "ON",
@@ -1365,6 +1366,7 @@ class BeginEndSegment(BaseSegment):
         ),
         Dedent,
         "END",
+        Ref("DelimiterSegment", optional=True),
     )
 
 
