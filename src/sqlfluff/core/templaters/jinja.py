@@ -418,7 +418,8 @@ class JinjaTemplater(PythonTemplater):
                         # effects, but return a UUID.
                         if trimmed_content:
                             unique_alternate = (
-                                f'[{trimmed_content}, "{uuid.uuid1().hex}"][0]'
+                                f"{m_open.group(0)}[{trimmed_content}, "
+                                f'"<<{uuid.uuid1().hex}>>"][1]{m_close.group(0)}'
                             )
                 m = re.search(r"\s+$", raw, re.MULTILINE | re.DOTALL)
                 if raw.startswith("-") and m:
