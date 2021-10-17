@@ -32,7 +32,8 @@ class RawFileSlice:
     slice_type: str
     source_idx: int
     slice_subtype: Optional[str] = None
-    unique_alternate: Optional[str] = None
+    unique_alternate_id: Optional[str] = None
+    alternate_code: Optional[str] = None
     next_slice_indices: Optional[List[int]] = field(default_factory=list)
 
     def end_source_idx(self):

@@ -5,6 +5,7 @@ import logging
 import importlib.util
 import re
 import uuid
+from itertools import chain
 from typing import List, Tuple, Optional
 
 from jinja2.sandbox import SandboxedEnvironment
@@ -164,7 +165,7 @@ class JinjaTemplater(PythonTemplater):
             )
 
     @staticmethod
-    def _get_jinja_env():
+    def get_jinja_env():
         """Get a properly configured jinja environment."""
         # We explicitly want to preserve newlines.
         return SandboxedEnvironment(
@@ -217,7 +218,7 @@ class JinjaTemplater(PythonTemplater):
                 if name not in live_context:
                     live_context[name] = dbt_builtins[name]
 
-        env = self._get_jinja_env()
+        env = self.get_jinja_env()
 
         # Load macros from path (if applicable)
         macros_path = config.get_section(
@@ -309,8 +310,92 @@ class JinjaTemplater(PythonTemplater):
             )
             return None, violations
 
+    @classmethod
+    def slice_file(
+        cls, raw_str: str, templated_str: str, config=None, **kwargs
+    ) -> Tuple[List[RawFileSlice], List[TemplatedFileSlice], str]:
+        """Slice the file to determine regions where we can fix."""
+        make_template = kwargs.pop("make_template", None)
+        if make_template is None:
+            return super().slice_file(raw_str, templated_str, config, **kwargs)
+
+        templater_logger.info("Slicing File Template")
+        templater_logger.debug("    Raw String: %r", raw_str)
+        templater_logger.debug("    Templated String: %r", templated_str)
+        tracer = TemplateTracer(raw_str, make_template)
+        tracer.process()
+        # for ts in tracer.sliced_file:
+        #     print(
+        #         f"{ts.slice_type} templated:{templated_str[ts.templated_slice]!r} raw:{raw_str[ts.source_slice]!r}"
+        #     )
+        return tracer.raw_sliced, tracer.sliced_file, templated_str
+
+
+class TemplateTracer:
     re_open_tag = re.compile(r"^\s*{[{%][\+\-]?\s*")
     re_close_tag = re.compile(r"\s*[\+\-]?[}%]}\s*$")
+
+    def __init__(self, raw_str, make_template):
+        self.raw_str = raw_str
+        self.make_template = make_template
+        self.program_counter = 0
+        self.raw_sliced = self._slice_template(self.raw_str)
+        self.sliced_file = []
+        self.source_idx = 0
+
+    def process(self):
+        unique_alternate = self.make_template(
+            "".join(rs.alternate_code or rs.raw for rs in self.raw_sliced)
+        )
+        template = self.make_template(self.raw_str)
+        for s1, s2 in zip(template.generate(), unique_alternate.generate()):
+            # print(f"actual:           {s1!r}")
+            # print(f"unique alternate: {s2}")
+            # print()
+            target_slice_idx = self.find_slice_index(s2)
+            self.move_to_slice(target_slice_idx)
+            self.source_idx += len(s1)
+
+    def find_slice_index(self, slice_identifier) -> int:
+        raw_slices_search_result = [
+            idx
+            for idx, rs in enumerate(self.raw_sliced)
+            if rs.unique_alternate_id == slice_identifier
+        ]
+        if len(raw_slices_search_result) != 1:
+            raise ValueError(
+                f"Internal error. Unable to locate slice for {slice_identifier}."
+            )
+        return raw_slices_search_result[0]
+
+    def move_to_slice(self, target_slice_idx):
+        while self.program_counter != target_slice_idx:
+            self.sliced_file.append(
+                TemplatedFileSlice(
+                    self.raw_sliced[self.program_counter].slice_type,
+                    slice(
+                        self.raw_sliced[self.program_counter].source_idx,
+                        self.raw_sliced[self.program_counter + 1].source_idx,
+                    ),
+                    slice(self.source_idx, self.source_idx),
+                )
+            )
+            current_raw_slice = self.raw_sliced[self.program_counter]
+            if not current_raw_slice.next_slice_indices:
+                # No choice available. Go to next location.
+                self.program_counter += 1
+            else:
+                # We have choices. Which to choose?
+                candidates = []
+                for next_slice_idx in chain(
+                    current_raw_slice.next_slice_indices, [self.program_counter + 1]
+                ):
+                    if next_slice_idx > target_slice_idx:
+                        # Takes us past the target. No good.
+                        continue
+                    candidates.append(next_slice_idx)
+                candidates.sort(key=lambda c: abs(target_slice_idx - c))
+                self.program_counter = candidates[0]
 
     @classmethod
     def _slice_template(cls, in_str: str) -> List[RawFileSlice]:
@@ -318,7 +403,7 @@ class JinjaTemplater(PythonTemplater):
 
         NB: Starts and ends of blocks are not distinguished.
         """
-        env = cls._get_jinja_env()
+        env = JinjaTemplater.get_jinja_env()
         str_buff = ""
         idx = 0
         # We decide the "kind" of element we're dealing with
@@ -342,9 +427,14 @@ class JinjaTemplater(PythonTemplater):
         result = []
         for _, elem_type, raw in env.lex(in_str):
             if elem_type == "data":
+                unique_id = uuid.uuid4().hex
                 result.append(
                     RawFileSlice(
-                        raw, "literal", idx, unique_alternate=f"<<{uuid.uuid1().hex}>>"
+                        raw,
+                        "literal",
+                        idx,
+                        unique_alternate_id=f"<<{unique_id}>>",
+                        alternate_code=f"<<{unique_id}>>",
                     )
                 )
                 idx += len(raw)
@@ -393,7 +483,8 @@ class JinjaTemplater(PythonTemplater):
             # raw_end and raw_begin behave a little differently in
             # that the whole tag shows up in one go rather than getting
             # parts of the tag at a time.
-            unique_alternate = None
+            unique_alternate_id = None
+            alternate_code = None
             if elem_type.endswith("_end") or elem_type == "raw_begin":
                 block_type = block_types[elem_type]
                 block_subtype = None
@@ -421,9 +512,11 @@ class JinjaTemplater(PythonTemplater):
                         # For "templated", evaluate the content in case of side
                         # effects, but return a UUID.
                         if trimmed_content:
-                            unique_alternate = (
+                            unique_id = uuid.uuid4().hex
+                            unique_alternate_id = f"<<{unique_id}>>"
+                            alternate_code = (
                                 f"{m_open.group(0)}[{trimmed_content}, "
-                                f'"<<{uuid.uuid1().hex}>>"][1]{m_close.group(0)}'
+                                f'"<<{unique_id}>>"][1]{m_close.group(0)}'
                             )
                 m = re.search(r"\s+$", raw, re.MULTILINE | re.DOTALL)
                 if raw.startswith("-") and m:
@@ -441,7 +534,8 @@ class JinjaTemplater(PythonTemplater):
                             block_type,
                             idx,
                             block_subtype,
-                            unique_alternate=unique_alternate,
+                            unique_alternate_id=unique_alternate_id,
+                            alternate_code=alternate_code,
                         )
                     )
                     block_idx = len(result) - 1
@@ -457,7 +551,8 @@ class JinjaTemplater(PythonTemplater):
                             block_type,
                             idx,
                             block_subtype,
-                            unique_alternate=unique_alternate,
+                            unique_alternate_id=unique_alternate_id,
+                            alternate_code=alternate_code,
                         )
                     )
                     block_idx = len(result) - 1
@@ -481,129 +576,3 @@ class JinjaTemplater(PythonTemplater):
                     stack.pop()
                 str_buff = ""
         return result
-
-    @classmethod
-    def slice_file(
-        cls, raw_str: str, templated_str: str, config=None, **kwargs
-    ) -> Tuple[List[RawFileSlice], List[TemplatedFileSlice], str]:
-        """Slice the file to determine regions where we can fix."""
-        make_template = kwargs.pop("make_template", None)
-        if make_template is None:
-            return super().slice_file(raw_str, templated_str, config, **kwargs)
-
-        templater_logger.info("Slicing File Template")
-        templater_logger.debug("    Raw String: %r", raw_str)
-        templater_logger.debug("    Templated String: %r", templated_str)
-        # Slice the raw file
-        raw_sliced = cls._slice_template(raw_str)
-        unique_alternate = make_template(
-            "".join(rs.unique_alternate or rs.raw for rs in raw_sliced)
-        )
-        sliced_file = []
-        source_idx = 0
-        last_raw_slice_idx = 0
-        template = make_template(raw_str)
-        # TODO: Replace the rest of this function with a new class, TemplateTracer.
-        for s1, s2 in zip(template.generate(), unique_alternate.generate()):
-            # print(f"actual:           {s1!r}")
-            # print(f"unique alternate: {s2}")
-            # print()
-            raw_slices_search_result = [
-                (idx, rs)
-                for idx, rs in enumerate(raw_sliced)
-                if rs.unique_alternate == s2
-            ]
-            if raw_slices_search_result:
-                raw_slice_idx, raw_slice = raw_slices_search_result[0]
-                for idx in range(last_raw_slice_idx, raw_slice_idx):
-                    sliced_file.append(
-                        TemplatedFileSlice(
-                            raw_sliced[idx].slice_type,
-                            slice(
-                                raw_sliced[idx].source_idx,
-                                raw_sliced[idx + 1].source_idx,
-                            ),
-                            slice(source_idx, source_idx),
-                        )
-                    )
-                last_raw_slice_idx = raw_slice_idx
-            source_idx += len(s1)
-        for idx in range(last_raw_slice_idx, len(raw_sliced)):
-            sliced_file.append(
-                TemplatedFileSlice(
-                    raw_sliced[idx].slice_type,
-                    slice(
-                        raw_sliced[idx].source_idx,
-                        raw_sliced[idx + 1].source_idx
-                        if idx + 1 < len(raw_sliced)
-                        else len(raw_str),
-                    ),
-                    slice(source_idx, source_idx),
-                )
-            )
-        for ts in sliced_file:
-            print(
-                f"{ts.slice_type} templated:{templated_str[ts.templated_slice]!r} raw:{raw_str[ts.source_slice]!r}"
-            )
-        return raw_sliced, sliced_file, templated_str
-
-        # Old code from PythonTemplater follows
-        templater_logger.debug("    Raw Sliced:")
-        for idx, raw_slice in enumerate(raw_sliced):
-            templater_logger.debug("        %s: %r", idx, raw_slice)
-        # Find the literals
-        literals = [
-            raw_slice.raw
-            for raw_slice in raw_sliced
-            if raw_slice.slice_type == "literal"
-        ]
-        templater_logger.debug("    Literals: %s", literals)
-        for loop_idx in range(2):
-            templater_logger.debug("    # Slice Loop %s", loop_idx)
-            # Calculate occurrences
-            raw_occurrences = cls._substring_occurrences(raw_str, literals)
-            templated_occurrences = cls._substring_occurrences(templated_str, literals)
-            templater_logger.debug(
-                "    Occurrences: Raw: %s, Templated: %s",
-                raw_occurrences,
-                templated_occurrences,
-            )
-            # Split on invariants
-            split_sliced = list(
-                cls._split_invariants(
-                    raw_sliced,
-                    literals,
-                    raw_occurrences,
-                    templated_occurrences,
-                    templated_str,
-                )
-            )
-            templater_logger.debug("    Split Sliced:")
-            for idx, split_slice in enumerate(split_sliced):
-                templater_logger.debug("        %s: %r", idx, split_slice)
-            # Deal with uniques and coalesce the rest
-            sliced_file = list(
-                cls._split_uniques_coalesce_rest(
-                    split_sliced, raw_occurrences, templated_occurrences, templated_str
-                )
-            )
-            templater_logger.debug("    Fully Sliced:")
-            for idx, templ_slice in enumerate(sliced_file):
-                templater_logger.debug("        %s: %r", idx, templ_slice)
-            unwrap_wrapped = (
-                True
-                if config is None
-                else config.get(
-                    "unwrap_wrapped_queries", section="templater", default=True
-                )
-            )
-            sliced_file, new_templated_str = cls._check_for_wrapped(
-                sliced_file, templated_str, unwrap_wrapped=unwrap_wrapped
-            )
-            if new_templated_str == templated_str:
-                # If we didn't change it then we're done.
-                break
-            else:
-                # If it's not equal, loop around
-                templated_str = new_templated_str
-        return raw_sliced, sliced_file, new_templated_str
