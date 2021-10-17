@@ -353,7 +353,7 @@ class CreateFunctionStatementSegment(BaseSegment):
 
 @postgres_dialect.segment()
 class WellKnownTextGeometrySegment(BaseSegment):
-    """A Data Type Segment to identify Well Known Text Geometric Data Types
+    """A Data Type Segment to identify Well Known Text Geometric Data Types.
 
     As specified in https://postgis.net/stuff/postgis-3.1.pdf
 
