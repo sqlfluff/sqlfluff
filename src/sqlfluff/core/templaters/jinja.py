@@ -310,8 +310,8 @@ class JinjaTemplater(PythonTemplater):
             )
             return None, violations
 
-    re_open_tag = re.compile(r"^\s*{%[\+\-]?\s*")
-    re_close_tag = re.compile(r"\s*[\+\-]?%}\s*$")
+    re_open_tag = re.compile(r"^\s*{[{%][\+\-]?\s*")
+    re_close_tag = re.compile(r"\s*[\+\-]?[}%]}\s*$")
 
     @classmethod
     def _slice_template(cls, in_str: str) -> Iterator[RawFileSlice]:
@@ -390,11 +390,12 @@ class JinjaTemplater(PythonTemplater):
             # raw_end and raw_begin behave a little differently in
             # that the whole tag shows up in one go rather than getting
             # parts of the tag at a time.
+            kindred_raw = None
             if elem_type.endswith("_end") or elem_type == "raw_begin":
                 block_type = block_types[elem_type]
                 block_subtype = None
                 # Handle starts and ends of blocks
-                if block_type == "block":
+                if block_type in ("block", "templated"):
                     # Trim off the brackets and then the whitespace
                     m_open = cls.re_open_tag.search(str_buff)
                     m_close = cls.re_close_tag.search(str_buff)
@@ -403,15 +404,23 @@ class JinjaTemplater(PythonTemplater):
                         trimmed_content = str_buff[
                             len(m_open.group(0)) : -len(m_close.group(0))
                         ]
-                    if trimmed_content.startswith("end"):
-                        block_type = "block_end"
-                    elif trimmed_content.startswith("el"):
-                        # else, elif
-                        block_type = "block_mid"
+                    if block_type == "block":
+                        if trimmed_content.startswith("end"):
+                            block_type = "block_end"
+                        elif trimmed_content.startswith("el"):
+                            # else, elif
+                            block_type = "block_mid"
+                        else:
+                            block_type = "block_start"
+                            if trimmed_content.split()[0] == "for":
+                                block_subtype = "loop"
                     else:
-                        block_type = "block_start"
-                        if trimmed_content.split()[0] == "for":
-                            block_subtype = "loop"
+                        # For "templated", evaluate the content in case of side
+                        # effects, but return a UUID.
+                        if trimmed_content:
+                            kindred_raw = (
+                                f'[{trimmed_content}, "{uuid.uuid1().hex}"][0]'
+                            )
                 m = re.search(r"\s+$", raw, re.MULTILINE | re.DOTALL)
                 if raw.startswith("-") and m:
                     # Right whitespace was stripped. Split off the trailing
@@ -423,13 +432,23 @@ class JinjaTemplater(PythonTemplater):
                     # want.
                     trailing_chars = len(m.group(0))
                     yield RawFileSlice(
-                        str_buff[:-trailing_chars], block_type, idx, block_subtype
+                        str_buff[:-trailing_chars],
+                        block_type,
+                        idx,
+                        block_subtype,
+                        kindred_raw=kindred_raw,
                     )
                     idx += len(str_buff) - trailing_chars
                     yield RawFileSlice(str_buff[-trailing_chars:], "literal", idx)
                     idx += trailing_chars
                 else:
-                    yield RawFileSlice(str_buff, block_type, idx, block_subtype)
+                    yield RawFileSlice(
+                        str_buff,
+                        block_type,
+                        idx,
+                        block_subtype,
+                        kindred_raw=kindred_raw,
+                    )
                     idx += len(str_buff)
                 str_buff = ""
 
