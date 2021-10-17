@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c7a8c8c96aefea96c6baa958c8c95dbe028d2d03f49edc28770e0df4385af84c
+_hash: cf422399c294273732c90493883d5657060c0c3e5d028d2a660650d9bbd31509
 file:
   statement:
     create_table_statement:
@@ -140,34 +140,36 @@ file:
             keyword: GEOMETRYCOLLECTION
             bracketed:
             - start_bracket: (
-            - keyword: POINT
-            - bracketed:
-              - start_bracket: (
-              - literal: '2'
-              - literal: '0'
-              - end_bracket: )
-            - comma: ','
-            - keyword: POLYGON
-            - bracketed:
-                start_bracket: (
+            - wkt_geometry_type:
+                keyword: POINT
                 bracketed:
                 - start_bracket: (
-                - literal: '0'
-                - literal: '0'
-                - comma: ','
-                - literal: '1'
-                - literal: '0'
-                - comma: ','
-                - literal: '1'
-                - literal: '1'
-                - comma: ','
-                - literal: '0'
-                - literal: '1'
-                - comma: ','
-                - literal: '0'
+                - literal: '2'
                 - literal: '0'
                 - end_bracket: )
-                end_bracket: )
+            - comma: ','
+            - wkt_geometry_type:
+                keyword: POLYGON
+                bracketed:
+                  start_bracket: (
+                  bracketed:
+                  - start_bracket: (
+                  - literal: '0'
+                  - literal: '0'
+                  - comma: ','
+                  - literal: '1'
+                  - literal: '0'
+                  - comma: ','
+                  - literal: '1'
+                  - literal: '1'
+                  - comma: ','
+                  - literal: '0'
+                  - literal: '1'
+                  - comma: ','
+                  - literal: '0'
+                  - literal: '0'
+                  - end_bracket: )
+                  end_bracket: )
             - end_bracket: )
       - comma: ','
       - column_reference:
@@ -224,8 +226,8 @@ file:
           wkt_geometry_type:
             keyword: MULTICURVE
             bracketed:
-            - start_bracket: (
-            - bracketed:
+              start_bracket: (
+              bracketed:
               - start_bracket: (
               - literal: '0'
               - literal: '0'
@@ -233,20 +235,21 @@ file:
               - literal: '5'
               - literal: '5'
               - end_bracket: )
-            - comma: ','
-            - keyword: CIRCULARSTRING
-            - bracketed:
-              - start_bracket: (
-              - literal: '4'
-              - literal: '0'
-              - comma: ','
-              - literal: '4'
-              - literal: '4'
-              - comma: ','
-              - literal: '8'
-              - literal: '4'
-              - end_bracket: )
-            - end_bracket: )
+              comma: ','
+              wkt_geometry_type:
+                keyword: CIRCULARSTRING
+                bracketed:
+                - start_bracket: (
+                - literal: '4'
+                - literal: '0'
+                - comma: ','
+                - literal: '4'
+                - literal: '4'
+                - comma: ','
+                - literal: '8'
+                - literal: '4'
+                - end_bracket: )
+              end_bracket: )
       - comma: ','
       - column_reference:
           identifier: my_tin
@@ -494,25 +497,27 @@ file:
             keyword: GEOMETRYCOLLECTIONM
             bracketed:
             - start_bracket: (
-            - keyword: POINTM
-            - bracketed:
-              - start_bracket: (
-              - literal: '2'
-              - literal: '3'
-              - literal: '9'
-              - end_bracket: )
+            - wkt_geometry_type:
+                keyword: POINTM
+                bracketed:
+                - start_bracket: (
+                - literal: '2'
+                - literal: '3'
+                - literal: '9'
+                - end_bracket: )
             - comma: ','
-            - keyword: LINESTRINGM
-            - bracketed:
-              - start_bracket: (
-              - literal: '2'
-              - literal: '3'
-              - literal: '4'
-              - comma: ','
-              - literal: '3'
-              - literal: '4'
-              - literal: '5'
-              - end_bracket: )
+            - wkt_geometry_type:
+                keyword: LINESTRINGM
+                bracketed:
+                - start_bracket: (
+                - literal: '2'
+                - literal: '3'
+                - literal: '4'
+                - comma: ','
+                - literal: '3'
+                - literal: '4'
+                - literal: '5'
+                - end_bracket: )
             - end_bracket: )
       - comma: ','
       - column_reference:
@@ -521,28 +526,29 @@ file:
           wkt_geometry_type:
             keyword: CURVEPOLYGON
             bracketed:
-            - start_bracket: (
-            - keyword: CIRCULARSTRING
-            - bracketed:
+              start_bracket: (
+              wkt_geometry_type:
+                keyword: CIRCULARSTRING
+                bracketed:
+                - start_bracket: (
+                - literal: '0'
+                - literal: '0'
+                - comma: ','
+                - literal: '4'
+                - literal: '0'
+                - comma: ','
+                - literal: '4'
+                - literal: '4'
+                - comma: ','
+                - literal: '0'
+                - literal: '4'
+                - comma: ','
+                - literal: '0'
+                - literal: '0'
+                - end_bracket: )
+              comma: ','
+              bracketed:
               - start_bracket: (
-              - literal: '0'
-              - literal: '0'
-              - comma: ','
-              - literal: '4'
-              - literal: '0'
-              - comma: ','
-              - literal: '4'
-              - literal: '4'
-              - comma: ','
-              - literal: '0'
-              - literal: '4'
-              - comma: ','
-              - literal: '0'
-              - literal: '0'
-              - end_bracket: )
-            - comma: ','
-            - bracketed:
-              - start_bracket: (
               - literal: '1'
               - literal: '1'
               - comma: ','
@@ -555,7 +561,7 @@ file:
               - literal: '1'
               - literal: '1'
               - end_bracket: )
-            - end_bracket: )
+              end_bracket: )
       - comma: ','
       - column_reference:
           identifier: my_multisurface
@@ -563,46 +569,48 @@ file:
           wkt_geometry_type:
             keyword: MULTISURFACE
             bracketed:
-            - start_bracket: (
-            - keyword: CURVEPOLYGON
-            - bracketed:
-              - start_bracket: (
-              - keyword: CIRCULARSTRING
-              - bracketed:
-                - start_bracket: (
-                - literal: '0'
-                - literal: '0'
-                - comma: ','
-                - literal: '4'
-                - literal: '0'
-                - comma: ','
-                - literal: '4'
-                - literal: '4'
-                - comma: ','
-                - literal: '0'
-                - literal: '4'
-                - comma: ','
-                - literal: '0'
-                - literal: '0'
-                - end_bracket: )
-              - comma: ','
-              - bracketed:
-                - start_bracket: (
-                - literal: '1'
-                - literal: '1'
-                - comma: ','
-                - literal: '3'
-                - literal: '3'
-                - comma: ','
-                - literal: '3'
-                - literal: '1'
-                - comma: ','
-                - literal: '1'
-                - literal: '1'
-                - end_bracket: )
-              - end_bracket: )
-            - comma: ','
-            - bracketed:
+              start_bracket: (
+              wkt_geometry_type:
+                keyword: CURVEPOLYGON
+                bracketed:
+                  start_bracket: (
+                  wkt_geometry_type:
+                    keyword: CIRCULARSTRING
+                    bracketed:
+                    - start_bracket: (
+                    - literal: '0'
+                    - literal: '0'
+                    - comma: ','
+                    - literal: '4'
+                    - literal: '0'
+                    - comma: ','
+                    - literal: '4'
+                    - literal: '4'
+                    - comma: ','
+                    - literal: '0'
+                    - literal: '4'
+                    - comma: ','
+                    - literal: '0'
+                    - literal: '0'
+                    - end_bracket: )
+                  comma: ','
+                  bracketed:
+                  - start_bracket: (
+                  - literal: '1'
+                  - literal: '1'
+                  - comma: ','
+                  - literal: '3'
+                  - literal: '3'
+                  - comma: ','
+                  - literal: '3'
+                  - literal: '1'
+                  - comma: ','
+                  - literal: '1'
+                  - literal: '1'
+                  - end_bracket: )
+                  end_bracket: )
+              comma: ','
+              bracketed:
               - start_bracket: (
               - bracketed:
                 - start_bracket: (
@@ -634,7 +642,7 @@ file:
                 - literal: '11'
                 - end_bracket: )
               - end_bracket: )
-            - end_bracket: )
+              end_bracket: )
       - comma: ','
       - column_reference:
           identifier: my_circularstring

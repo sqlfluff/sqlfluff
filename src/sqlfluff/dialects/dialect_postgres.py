@@ -141,6 +141,7 @@ postgres_dialect.add(
     DollarQuotedLiteralSegment=NamedParser(
         "dollar_quote", CodeSegment, name="dollar_quoted_literal", type="literal"
     ),
+    SimpleGeometryGrammar=AnyNumberOf(Ref("NumericLiteralSegment")),
 )
 
 postgres_dialect.replace(
@@ -362,58 +363,32 @@ class WellKnownTextGeometrySegment(BaseSegment):
 
     type = "wkt_geometry_type"
 
-    _simple_geometry = AnyNumberOf(Ref("NumericLiteralSegment"))
-
     _geometry_type_keywords = [x[0] for x in postgres_postgis_datatype_keywords]
 
-    _simple_geometry_type = Sequence(
-        OneOf(*_geometry_type_keywords),
-        OneOf("EMPTY", Bracketed(OptionallyBracketed(Delimited(_simple_geometry)))),
-    )
-
-    _simple_geometry_type_collection = Sequence(
-        OneOf(*_geometry_type_keywords),
-        OneOf(
-            "EMPTY",
+    match_grammar = OneOf(
+        Sequence(
+            OneOf(*_geometry_type_keywords),
             Bracketed(
                 Delimited(
-                    Bracketed(OptionallyBracketed(Delimited(_simple_geometry))),
-                    _simple_geometry_type,
+                    OptionallyBracketed(Delimited(Ref("SimpleGeometryGrammar"))),
+                    # 2D Arrays of coordinates - to specify surfaces
+                    Bracketed(
+                        Delimited(Bracketed(Delimited(Ref("SimpleGeometryGrammar"))))
+                    ),
+                    Ref("WellKnownTextGeometrySegment"),
                 )
             ),
         ),
-    )
-
-    _complex_geometry_type = Sequence(
-        OneOf(*_geometry_type_keywords),
-        Bracketed(
-            Delimited(
-                Bracketed(OptionallyBracketed(Delimited(_simple_geometry))),
-                # 2D Arrays of coordinates - to specify surfaces
-                Bracketed(Delimited(Bracketed(Delimited(_simple_geometry)))),
-                _simple_geometry_type,
-                _simple_geometry_type_collection,
-                Ref("WellKnownTextGeometrySegment"),
-            )
+        Sequence(
+            OneOf("GEOMETRY", "GEOGRAPHY"),
+            Bracketed(
+                Sequence(
+                    OneOf(*_geometry_type_keywords, "GEOMETRY", "GEOGRAPHY"),
+                    Ref("CommaSegment"),
+                    Ref("NumericLiteralSegment"),
+                )
+            ),
         ),
-    )
-
-    _ambiguous_geometry_type = Sequence(
-        OneOf("GEOMETRY", "GEOGRAPHY"),
-        Bracketed(
-            Sequence(
-                OneOf(*_geometry_type_keywords, "GEOMETRY", "GEOGRAPHY"),
-                Ref("CommaSegment"),
-                Ref("NumericLiteralSegment"),
-            )
-        ),
-    )
-
-    match_grammar = OneOf(
-        _simple_geometry_type,
-        _simple_geometry_type_collection,
-        _complex_geometry_type,
-        _ambiguous_geometry_type,
     )
 
 
