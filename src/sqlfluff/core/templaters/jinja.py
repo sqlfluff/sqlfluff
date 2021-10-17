@@ -5,7 +5,7 @@ import logging
 import importlib.util
 import re
 import uuid
-from typing import Iterator, List, Tuple, Optional
+from typing import List, Tuple, Optional
 
 from jinja2.sandbox import SandboxedEnvironment
 from jinja2 import meta, TemplateSyntaxError, TemplateError
@@ -313,7 +313,7 @@ class JinjaTemplater(PythonTemplater):
     re_close_tag = re.compile(r"\s*[\+\-]?[}%]}\s*$")
 
     @classmethod
-    def _slice_template(cls, in_str: str) -> Iterator[RawFileSlice]:
+    def _slice_template(cls, in_str: str) -> List[RawFileSlice]:
         """Slice template in jinja.
 
         NB: Starts and ends of blocks are not distinguished.
@@ -338,10 +338,14 @@ class JinjaTemplater(PythonTemplater):
         }
 
         # https://jinja.palletsprojects.com/en/2.11.x/api/#jinja2.Environment.lex
+        stack = []
+        result = []
         for _, elem_type, raw in env.lex(in_str):
             if elem_type == "data":
-                yield RawFileSlice(
-                    raw, "literal", idx, unique_alternate=f"<<{uuid.uuid1().hex}>>"
+                result.append(
+                    RawFileSlice(
+                        raw, "literal", idx, unique_alternate=f"<<{uuid.uuid1().hex}>>"
+                    )
                 )
                 idx += len(raw)
                 continue
@@ -383,7 +387,7 @@ class JinjaTemplater(PythonTemplater):
                             "Jinja lex() skipped non-whitespace: %s", skipped_str
                         )
                     # Treat the skipped whitespace as a literal.
-                    yield RawFileSlice(skipped_str, "literal", idx)
+                    result.append(RawFileSlice(skipped_str, "literal", idx))
                     idx += num_chars_skipped
 
             # raw_end and raw_begin behave a little differently in
@@ -431,26 +435,52 @@ class JinjaTemplater(PythonTemplater):
                     # returns, it has simply grouped them differently than we
                     # want.
                     trailing_chars = len(m.group(0))
-                    yield RawFileSlice(
-                        str_buff[:-trailing_chars],
-                        block_type,
-                        idx,
-                        block_subtype,
-                        unique_alternate=unique_alternate,
+                    result.append(
+                        RawFileSlice(
+                            str_buff[:-trailing_chars],
+                            block_type,
+                            idx,
+                            block_subtype,
+                            unique_alternate=unique_alternate,
+                        )
                     )
+                    block_idx = len(result) - 1
                     idx += len(str_buff) - trailing_chars
-                    yield RawFileSlice(str_buff[-trailing_chars:], "literal", idx)
+                    result.append(
+                        RawFileSlice(str_buff[-trailing_chars:], "literal", idx)
+                    )
                     idx += trailing_chars
                 else:
-                    yield RawFileSlice(
-                        str_buff,
-                        block_type,
-                        idx,
-                        block_subtype,
-                        unique_alternate=unique_alternate,
+                    result.append(
+                        RawFileSlice(
+                            str_buff,
+                            block_type,
+                            idx,
+                            block_subtype,
+                            unique_alternate=unique_alternate,
+                        )
                     )
+                    block_idx = len(result) - 1
                     idx += len(str_buff)
+                if block_type == "block_start" and trimmed_content.split()[0] in (
+                    "for",
+                    "if",
+                ):
+                    stack.append(block_idx)
+                elif block_type == "block_mid":
+                    # Record potential forward jump over this block.
+                    result[stack[-1]].next_slice_indices.append(block_idx)
+                    stack.pop()
+                    stack.append(block_idx)
+                elif block_type == "block_end":
+                    # Record potential forward jump over this block.
+                    result[stack[-1]].next_slice_indices.append(block_idx)
+                    if result[stack[-1]].slice_subtype == "loop":
+                        # Record potential backward jump to the loop beginning.
+                        result[block_idx].next_slice_indices.append(stack[-1])
+                    stack.pop()
                 str_buff = ""
+        return result
 
     @classmethod
     def slice_file(
@@ -465,7 +495,7 @@ class JinjaTemplater(PythonTemplater):
         templater_logger.debug("    Raw String: %r", raw_str)
         templater_logger.debug("    Templated String: %r", templated_str)
         # Slice the raw file
-        raw_sliced = list(cls._slice_template(raw_str))
+        raw_sliced = cls._slice_template(raw_str)
         unique_alternate = make_template(
             "".join(rs.unique_alternate or rs.raw for rs in raw_sliced)
         )

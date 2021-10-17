@@ -3,6 +3,7 @@
 import logging
 from bisect import bisect_left
 from collections import defaultdict
+from dataclasses import dataclass, field
 from typing import Dict, Iterator, List, Tuple, Optional, NamedTuple, Iterable
 
 from cached_property import cached_property
@@ -23,7 +24,8 @@ def iter_indices_of_newlines(raw_str: str) -> Iterator[int]:
             break  # pragma: no cover TODO?
 
 
-class RawFileSlice(NamedTuple):
+@dataclass
+class RawFileSlice:
     """A slice referring to a raw file."""
 
     raw: str
@@ -31,6 +33,7 @@ class RawFileSlice(NamedTuple):
     source_idx: int
     slice_subtype: Optional[str] = None
     unique_alternate: Optional[str] = None
+    next_slice_indices: Optional[List[int]] = field(default_factory=list)
 
     def end_source_idx(self):
         """Return the closing index of this slice."""
