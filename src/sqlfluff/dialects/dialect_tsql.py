@@ -398,7 +398,9 @@ class ObjectReferenceSegment(BaseSegment):
         "ObjectReferenceSegment"
     ).extract_possible_references
 
-    _level_to_int = ansi_dialect.get_segment("ObjectReferenceSegment")._level_to_int
+    _level_to_int = staticmethod(
+        ansi_dialect.get_segment("ObjectReferenceSegment")._level_to_int
+    )
 
 
 @tsql_dialect.segment(replace=True)
