@@ -30,7 +30,7 @@ class RawFileSlice(NamedTuple):
     slice_type: str
     source_idx: int
     slice_subtype: Optional[str] = None
-    kindred_raw: Optional[str] = None
+    unique_alternate: Optional[str] = None
 
     def end_source_idx(self):
         """Return the closing index of this slice."""

@@ -342,7 +342,7 @@ class JinjaTemplater(PythonTemplater):
         for _, elem_type, raw in env.lex(in_str):
             if elem_type == "data":
                 yield RawFileSlice(
-                    raw, "literal", idx, kindred_raw=f"<<{uuid.uuid1().hex}>>"
+                    raw, "literal", idx, unique_alternate=f"<<{uuid.uuid1().hex}>>"
                 )
                 idx += len(raw)
                 continue
@@ -390,7 +390,7 @@ class JinjaTemplater(PythonTemplater):
             # raw_end and raw_begin behave a little differently in
             # that the whole tag shows up in one go rather than getting
             # parts of the tag at a time.
-            kindred_raw = None
+            unique_alternate = None
             if elem_type.endswith("_end") or elem_type == "raw_begin":
                 block_type = block_types[elem_type]
                 block_subtype = None
@@ -418,7 +418,7 @@ class JinjaTemplater(PythonTemplater):
                         # For "templated", evaluate the content in case of side
                         # effects, but return a UUID.
                         if trimmed_content:
-                            kindred_raw = (
+                            unique_alternate = (
                                 f'[{trimmed_content}, "{uuid.uuid1().hex}"][0]'
                             )
                 m = re.search(r"\s+$", raw, re.MULTILINE | re.DOTALL)
@@ -436,7 +436,7 @@ class JinjaTemplater(PythonTemplater):
                         block_type,
                         idx,
                         block_subtype,
-                        kindred_raw=kindred_raw,
+                        unique_alternate=unique_alternate,
                     )
                     idx += len(str_buff) - trailing_chars
                     yield RawFileSlice(str_buff[-trailing_chars:], "literal", idx)
@@ -447,7 +447,7 @@ class JinjaTemplater(PythonTemplater):
                         block_type,
                         idx,
                         block_subtype,
-                        kindred_raw=kindred_raw,
+                        unique_alternate=unique_alternate,
                     )
                     idx += len(str_buff)
                 str_buff = ""
@@ -468,7 +468,7 @@ class JinjaTemplater(PythonTemplater):
         # Slice the raw file
         raw_sliced = list(cls._slice_template(raw_str))
         kindred_template = make_template(
-            "".join(rs.kindred_raw or rs.raw for rs in raw_sliced)
+            "".join(rs.unique_alternate or rs.raw for rs in raw_sliced)
         )
         sliced_file = []
         source_idx = 0
@@ -478,7 +478,9 @@ class JinjaTemplater(PythonTemplater):
             # print(f"kindred: {s2}")
             # print()
             raw_slices_search_result = [
-                (idx, rs) for idx, rs in enumerate(raw_sliced) if rs.kindred_raw == s2
+                (idx, rs)
+                for idx, rs in enumerate(raw_sliced)
+                if rs.unique_alternate == s2
             ]
             if raw_slices_search_result:
                 raw_slice_idx, raw_slice = raw_slices_search_result[0]
