@@ -20,7 +20,11 @@ from sqlfluff.core.parser import (
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
-from sqlfluff.dialects.dialect_postgres_keywords import postgres_keywords, get_keywords
+from sqlfluff.dialects.dialect_postgres_keywords import (
+    postgres_keywords,
+    get_keywords,
+    postgres_postgis_datatype_keywords,
+)
 
 ansi_dialect = load_raw_dialect("ansi")
 
@@ -253,6 +257,7 @@ class DatatypeSegment(BaseSegment):
 
     type = "data_type"
     match_grammar = OneOf(
+        Ref("WellKnownTextGeometrySegment"),
         Sequence(
             Ref("DateTimeTypeIdentifier"),
             Ref("TimeZoneGrammar", optional=True),
@@ -343,6 +348,72 @@ class CreateFunctionStatementSegment(BaseSegment):
             optional=True,
         ),
         Ref("FunctionDefinitionGrammar"),
+    )
+
+
+@postgres_dialect.segment()
+class WellKnownTextGeometrySegment(BaseSegment):
+    """A Data Type Segment to identify Well Known Text Geometric Data Types
+
+    As specified in https://postgis.net/stuff/postgis-3.1.pdf
+
+    This approach is to maximise 'accepted code' for the parser, rather than be overly restrictive.
+    """
+
+    type = "wkt_geometry_type"
+
+    _simple_geometry = AnyNumberOf(Ref("NumericLiteralSegment"))
+
+    _geometry_type_keywords = [x[0] for x in postgres_postgis_datatype_keywords]
+
+    _simple_geometry_type = Sequence(
+        OneOf(*_geometry_type_keywords),
+        OneOf("EMPTY", Bracketed(OptionallyBracketed(Delimited(_simple_geometry)))),
+    )
+
+    _simple_geometry_type_collection = Sequence(
+        OneOf(*_geometry_type_keywords),
+        OneOf(
+            "EMPTY",
+            Bracketed(
+                Delimited(
+                    Bracketed(OptionallyBracketed(Delimited(_simple_geometry))),
+                    _simple_geometry_type,
+                )
+            ),
+        ),
+    )
+
+    _complex_geometry_type = Sequence(
+        OneOf(*_geometry_type_keywords),
+        Bracketed(
+            Delimited(
+                Bracketed(OptionallyBracketed(Delimited(_simple_geometry))),
+                # 2D Arrays of coordinates - to specify surfaces
+                Bracketed(Delimited(Bracketed(Delimited(_simple_geometry)))),
+                _simple_geometry_type,
+                _simple_geometry_type_collection,
+                Ref("WellKnownTextGeometrySegment"),
+            )
+        ),
+    )
+
+    _ambiguous_geometry_type = Sequence(
+        OneOf("GEOMETRY", "GEOGRAPHY"),
+        Bracketed(
+            Sequence(
+                OneOf(*_geometry_type_keywords, "GEOMETRY", "GEOGRAPHY"),
+                Ref("CommaSegment"),
+                Ref("NumericLiteralSegment"),
+            )
+        ),
+    )
+
+    match_grammar = OneOf(
+        _simple_geometry_type,
+        _simple_geometry_type_collection,
+        _complex_geometry_type,
+        _ambiguous_geometry_type,
     )
 
 
