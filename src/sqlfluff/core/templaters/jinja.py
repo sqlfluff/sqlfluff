@@ -285,7 +285,6 @@ class JinjaTemplater(PythonTemplater):
                 in_str,
                 out_str,
                 config=config,
-                template=template,
                 make_template=make_template,
             )
             return (
@@ -457,9 +456,8 @@ class JinjaTemplater(PythonTemplater):
         cls, raw_str: str, templated_str: str, config=None, **kwargs
     ) -> Tuple[List[RawFileSlice], List[TemplatedFileSlice], str]:
         """Slice the file to determine regions where we can fix."""
-        template = kwargs.pop("template", None)
         make_template = kwargs.pop("make_template", None)
-        if template is None or make_template is None:
+        if make_template is None:
             return super().slice_file(raw_str, templated_str, config, **kwargs)
 
         templater_logger.info("Slicing File Template")
@@ -467,15 +465,17 @@ class JinjaTemplater(PythonTemplater):
         templater_logger.debug("    Templated String: %r", templated_str)
         # Slice the raw file
         raw_sliced = list(cls._slice_template(raw_str))
-        kindred_template = make_template(
+        unique_alternate = make_template(
             "".join(rs.unique_alternate or rs.raw for rs in raw_sliced)
         )
         sliced_file = []
         source_idx = 0
         last_raw_slice_idx = 0
-        for s1, s2 in zip(template.generate(), kindred_template.generate()):
-            # print(f"actual:  {s1!r}")
-            # print(f"kindred: {s2}")
+        template = make_template(raw_str)
+        # TODO: Replace the rest of this function with a new class, TemplateTracer.
+        for s1, s2 in zip(template.generate(), unique_alternate.generate()):
+            # print(f"actual:           {s1!r}")
+            # print(f"unique alternate: {s2}")
             # print()
             raw_slices_search_result = [
                 (idx, rs)
