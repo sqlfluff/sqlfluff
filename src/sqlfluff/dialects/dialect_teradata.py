@@ -719,7 +719,7 @@ class QualifyClauseSegment(BaseSegment):
     type = "qualify_clause"
     match_grammar = StartsWith(
         "QUALIFY",
-        terminator=OneOf("ORDER", "LIMIT", "QUALIFY", "WINDOW"),
+        terminator=OneOf(Sequence("ORDER", "BY"), "LIMIT", "QUALIFY", "WINDOW"),
         enforce_whitespace_preceding_terminator=True,
     )
     parse_grammar = Sequence(
@@ -819,7 +819,7 @@ class SelectClauseSegment(BaseSegment):
         terminator=OneOf(
             "FROM",
             "WHERE",
-            "ORDER",
+            Sequence("ORDER", "BY"),
             "LIMIT",
             Ref("SetOperatorSegment"),
         ),
