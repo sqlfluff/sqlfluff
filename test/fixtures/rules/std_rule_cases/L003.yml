@@ -421,7 +421,7 @@ test_limit_and_qualify_single_line:
       dialect: bigquery
 
 # Exasol LUA script
-test_limit_and_qualify_single_line:
+test_exasol_script:
   pass_str: |
     CREATE OR REPLACE LUA SCRIPT ASCRIPT (APARAM) RETURNS ROWCOUNT AS
         res = 1
