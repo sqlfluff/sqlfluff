@@ -47,6 +47,7 @@ class Rule_L003(BaseRule):
     """
 
     _works_on_unparsable = False
+    _ignore_types: List[str] = ["script_content"]
     config_keywords = ["tab_space_size", "indent_unit"]
 
     @staticmethod
@@ -352,6 +353,14 @@ class Rule_L003(BaseRule):
           indent meta segment in the previous line.
 
         """
+        # We ignore certain types (e.g. non-SQL scripts in functions)
+        # so check if on ignore list
+        if segment.type in self._ignore_types:
+            return
+        for parent in parent_stack:
+            if parent.type in self._ignore_types:
+                return
+
         # Memory keeps track of what we've seen
         if not memory:
             memory: dict = {  # type: ignore
