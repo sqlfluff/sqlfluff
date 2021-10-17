@@ -1738,6 +1738,7 @@ class LimitClauseSegment(BaseSegment):
     type = "limit_clause"
     match_grammar = Sequence(
         "LIMIT",
+        Indent,
         OneOf(
             Ref("NumericLiteralSegment"),
             Sequence(
@@ -1749,6 +1750,7 @@ class LimitClauseSegment(BaseSegment):
                 Ref("NumericLiteralSegment"),
             ),
         ),
+        Dedent,
     )
 
 

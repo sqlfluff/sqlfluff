@@ -53,3 +53,12 @@ test_pass_bigquery_aliased_table_with_ticks_referenced:
   configs:
     core:
       dialect: bigquery
+
+test_pass_tsql_object_reference_override:
+  # T-SQL Overrides the ObjectReferenceSegment so needs to have the _level_to_int
+  # static method set (as a static method!) or rule L025 fails.
+  # https://github.com/sqlfluff/sqlfluff/issues/1669
+  pass_str: SELECT a FROM b
+  configs:
+    core:
+      dialect: tsql
