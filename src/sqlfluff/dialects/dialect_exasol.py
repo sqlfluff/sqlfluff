@@ -253,7 +253,7 @@ exasol_dialect.replace(
         Sequence("INTO", "TABLE"),
         "FROM",
         "WHERE",
-        "ORDER",
+        Sequence("ORDER", "BY"),
         "LIMIT",
         Ref("CommaSegment"),
         Ref("SetOperatorSegment"),
@@ -538,7 +538,7 @@ class GroupByClauseSegment(BaseSegment):
     match_grammar = StartsWith(
         Sequence("GROUP", "BY"),
         terminator=OneOf(
-            "ORDER",
+            Sequence("ORDER", "BY"),
             "LIMIT",
             "HAVING",
             "QUALIFY",
@@ -562,7 +562,7 @@ class GroupByClauseSegment(BaseSegment):
                 Bracketed(),  # Allows empty parentheses
             ),
             terminator=OneOf(
-                "ORDER",
+                Sequence("ORDER", "BY"),
                 "LIMIT",
                 "HAVING",
                 "QUALIFY",
@@ -583,7 +583,7 @@ class CubeRollupClauseSegment(BaseSegment):
         terminator=OneOf(
             "HAVING",
             "QUALIFY",
-            "ORDER",
+            Sequence("ORDER", "BY"),
             "LIMIT",
             Ref("SetOperatorSegment"),
         ),
@@ -606,7 +606,7 @@ class GroupingSetsClauseSegment(BaseSegment):
         terminator=OneOf(
             "HAVING",
             "QUALIFY",
-            "ORDER",
+            Sequence("ORDER", "BY"),
             "LIMIT",
             Ref("SetOperatorSegment"),
         ),
@@ -645,7 +645,7 @@ class QualifyClauseSegment(BaseSegment):
     match_grammar = StartsWith(
         "QUALIFY",
         terminator=OneOf(
-            "ORDER",
+            Sequence("ORDER", "BY"),
             "LIMIT",
             Ref("SetOperatorSegment"),
         ),
@@ -2956,8 +2956,8 @@ class PreferringClauseSegment(BaseSegment):
         "PREFERRING",
         terminator=OneOf(
             "LIMIT",
-            "GROUP",
-            "ORDER",
+            Sequence("GROUP", "BY"),
+            Sequence("ORDER", "BY"),
             "HAVING",
             "QUALIFY",
             Ref("SetOperatorSegment"),
