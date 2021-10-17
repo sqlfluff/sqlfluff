@@ -353,8 +353,7 @@ class TemplateTracer:
             # print(f"unique alternate: {s2}")
             # print()
             target_slice_idx = self.find_slice_index(s2)
-            self.move_to_slice(target_slice_idx)
-            self.source_idx += len(s1)
+            self.move_to_slice(target_slice_idx, len(s1))
 
     def find_slice_index(self, slice_identifier) -> int:
         raw_slices_search_result = [
@@ -368,20 +367,15 @@ class TemplateTracer:
             )
         return raw_slices_search_result[0]
 
-    def move_to_slice(self, target_slice_idx):
-        while self.program_counter != target_slice_idx:
-            self.sliced_file.append(
-                TemplatedFileSlice(
-                    self.raw_sliced[self.program_counter].slice_type,
-                    slice(
-                        self.raw_sliced[self.program_counter].source_idx,
-                        self.raw_sliced[self.program_counter + 1].source_idx,
-                    ),
-                    slice(self.source_idx, self.source_idx),
-                )
-            )
+    def move_to_slice(self, target_slice_idx, source_slice_length):
+        while self.program_counter < len(self.raw_sliced):
+            self.record_trace(source_slice_length)
             current_raw_slice = self.raw_sliced[self.program_counter]
-            if not current_raw_slice.next_slice_indices:
+            if self.program_counter == target_slice_idx:
+                # Reached the target slice. Go to next location and stop.
+                self.program_counter += 1
+                break
+            elif not current_raw_slice.next_slice_indices:
                 # No choice available. Go to next location.
                 self.program_counter += 1
             else:
@@ -396,6 +390,28 @@ class TemplateTracer:
                     candidates.append(next_slice_idx)
                 candidates.sort(key=lambda c: abs(target_slice_idx - c))
                 self.program_counter = candidates[0]
+
+    def record_trace(self, source_slice_length):
+        slice_type = self.raw_sliced[self.program_counter].slice_type
+        self.sliced_file.append(
+            TemplatedFileSlice(
+                slice_type,
+                slice(
+                    self.raw_sliced[self.program_counter].source_idx,
+                    self.raw_sliced[self.program_counter + 1].source_idx
+                    if self.program_counter + 1 < len(self.raw_sliced)
+                    else len(self.raw_str),
+                ),
+                slice(
+                    self.source_idx,
+                    self.source_idx
+                    if slice_type not in ("literal", "templated")
+                    else self.source_idx + source_slice_length,
+                ),
+            )
+        )
+        if slice_type in ("literal", "templated"):
+            self.source_idx += source_slice_length
 
     @classmethod
     def _slice_template(cls, in_str: str) -> List[RawFileSlice]:
