@@ -13,3 +13,12 @@ EXECUTE dbo.ProcTestDefaults DEFAULT, @p3 = 'Local', @p2 = 'E';
 -- Using the DEFAULT keyword for the first and third parameters.  
 EXECUTE dbo.ProcTestDefaults DEFAULT, 'H', DEFAULT;  
 EXECUTE dbo.ProcTestDefaults DEFAULT, 'I', @p3 = DEFAULT;  
+
+
+EXECUTE sp_addextendedproperty 
+@name = N'MS_Description', 
+@value = 'my text description', 
+@level0type = N'SCHEMA',
+@level0name = N'my_schema_name', 
+@level1type = N'my_object_type', 
+@level1name = N'my_object_name'

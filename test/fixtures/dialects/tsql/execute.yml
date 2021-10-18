@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2cb0e5887ebe308a3f1a873f460d50787229b1580045ce77c90d0c152ad7c091
+_hash: fbfd89cdc5e7abb7d1cad5c8dab9e5b4809bb68bdda042b4cd6683b97cab0c8b
 file:
   batch:
   - statement:
@@ -108,3 +108,31 @@ file:
       - comparison_operator: '='
       - keyword: DEFAULT
       - statement_terminator: ;
+  - statement:
+      execute_script_statement:
+      - keyword: EXECUTE
+      - object_reference:
+          identifier: sp_addextendedproperty
+      - parameter: '@name'
+      - comparison_operator: '='
+      - literal: "N'MS_Description'"
+      - comma: ','
+      - parameter: '@value'
+      - comparison_operator: '='
+      - literal: "'my text description'"
+      - comma: ','
+      - parameter: '@level0type'
+      - comparison_operator: '='
+      - literal: "N'SCHEMA'"
+      - comma: ','
+      - parameter: '@level0name'
+      - comparison_operator: '='
+      - literal: "N'my_schema_name'"
+      - comma: ','
+      - parameter: '@level1type'
+      - comparison_operator: '='
+      - literal: "N'my_object_type'"
+      - comma: ','
+      - parameter: '@level1name'
+      - comparison_operator: '='
+      - literal: "N'my_object_name'"
