@@ -1151,15 +1151,27 @@ class CreateTableStatementSegment(BaseSegment):
         Ref(
             "TableDistributionIndexClause", optional=True
         ),  # Azure Synapse Analytics specific
-        Sequence(
-            "ON",
-            Ref("SingleIdentifierGrammar"),
-            optional=True,
-        ),  # Filegroup reference
+        Ref(
+            "FilegroupClause", optional=True
+        ),
         Ref("DelimiterSegment", optional=True),
     )
 
     parse_grammar = match_grammar
+
+
+@tsql_dialect.segment()
+class FilegroupClause(BaseSegment):
+    """Filegroup Clause segment.
+
+    https://docs.microsoft.com/en-us/sql/relational-databases/databases/database-files-and-filegroups?view=sql-server-ver15
+    """
+
+    type = "filegroup_clause"
+    match_grammar = Sequence(
+        "ON",
+        Ref("SingleIdentifierGrammar"),
+    )
 
 
 @tsql_dialect.segment()
