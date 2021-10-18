@@ -419,3 +419,18 @@ test_limit_and_qualify_single_line:
   configs:
     core:
       dialect: bigquery
+
+# Exasol LUA script
+test_exasol_script:
+  pass_str: |
+    CREATE OR REPLACE LUA SCRIPT ASCRIPT (APARAM) RETURNS ROWCOUNT AS
+        res = 1
+        suc = true
+        if not suc then
+            error("ERROR")
+        end
+        return res
+    /
+  configs:
+    core:
+      dialect: exasol
