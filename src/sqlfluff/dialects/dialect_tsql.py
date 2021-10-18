@@ -1294,6 +1294,11 @@ class TableIndexClause(BaseSegment):
                 "COLUMNSTORE",
                 "INDEX",
             ),
+            Sequence(
+                "LOCATION",
+                Ref("EqualsSegment"),
+                "USER_DB",
+            ),
         ),
     )
 
