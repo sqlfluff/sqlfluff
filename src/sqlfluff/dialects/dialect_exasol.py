@@ -3619,6 +3619,7 @@ class CreateAdapterScriptStatementSegment(BaseSegment):
         "ADAPTER",
         "SCRIPT",
         Ref("ScriptReferenceSegment"),
+        "AS",
         Indent,
         Ref("ScriptContentSegment"),
         Dedent,
