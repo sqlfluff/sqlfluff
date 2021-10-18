@@ -1151,9 +1151,7 @@ class CreateTableStatementSegment(BaseSegment):
         Ref(
             "TableDistributionIndexClause", optional=True
         ),  # Azure Synapse Analytics specific
-        Ref(
-            "FilegroupClause", optional=True
-        ),
+        Ref("FilegroupClause", optional=True),
         Ref("DelimiterSegment", optional=True),
     )
 
