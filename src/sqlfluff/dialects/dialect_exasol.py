@@ -1017,13 +1017,20 @@ class CreateTableStatementSegment(BaseSegment):
             Bracketed(
                 Sequence(
                     AnyNumberOf(
-                        Ref("ColumnDefinitionSegment"),
-                        Ref("TableOutOfLineConstraintSegment"),
-                        Ref("CreateTableLikeClauseSegment"),
-                        Ref("CommaSegment"),
-                        min_times=1,
+                        Sequence(
+                            Ref("CommaSegment", optional=True),
+                            OneOf(
+                                Ref("ColumnDefinitionSegment"),
+                                Ref("TableOutOfLineConstraintSegment"),
+                                Ref("CreateTableLikeClauseSegment"),
+                            ),
+                        )
                     ),
-                    Ref("TableDistributionPartitonClause", optional=True),
+                    Sequence(
+                        Ref("CommaSegment"),
+                        Ref("TableDistributionPartitonClause"),
+                        optional=True,
+                    ),
                 ),
             ),
             # Create AS syntax:
