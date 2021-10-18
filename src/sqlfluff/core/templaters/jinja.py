@@ -323,7 +323,7 @@ class JinjaTemplater(PythonTemplater):
         templater_logger.info("Slicing File Template")
         templater_logger.debug("    Raw String: %r", raw_str)
         templater_logger.debug("    Templated String: %r", templated_str)
-        tracer = TemplateTracer(raw_str, make_template)
+        tracer = TemplateTracer(raw_str, templated_str, make_template)
         tracer.process()
         # for ts in tracer.sliced_file:
         #     print(
@@ -336,8 +336,9 @@ class TemplateTracer:
     re_open_tag = re.compile(r"^\s*{[{%][\+\-]?\s*")
     re_close_tag = re.compile(r"\s*[\+\-]?[}%]}\s*$")
 
-    def __init__(self, raw_str, make_template):
+    def __init__(self, raw_str, templated_str, make_template):
         self.raw_str = raw_str
+        self.templated_str = templated_str
         self.make_template = make_template
         self.program_counter = 0
         self.raw_sliced = self._slice_template(self.raw_str)
@@ -373,15 +374,15 @@ class TemplateTracer:
                 target_slice_idx = self.find_slice_index(alt_id)
                 # s1_part = self.raw_sliced[target_slice_idx].raw
                 # steps.append(self.raw_sliced[target_slice_idx])
-                if isinstance(content_info, int):
+                if alt_id.endswith("_len"):
                     self.move_to_slice(target_slice_idx, content_info)
-                elif isinstance(content_info, str):
-                    self.move_to_slice(target_slice_idx, len(content_info))
-                # else:
+                else:
+                    self.move_to_slice(target_slice_idx, len(str(content_info)))
+                # Sanity check that the template slices we're recording match up
+                # precisely with templated_str.
+                # if self.templated_str[self.sliced_file[-1].templated_slice] != s1:
                 #     import pdb; pdb.set_trace()
                 #     pass
-        # import pdb; pdb.set_trace()
-        # pass
 
     def find_slice_index(self, slice_identifier) -> int:
         raw_slices_search_result = [
@@ -473,7 +474,7 @@ class TemplateTracer:
         result = []
         for _, elem_type, raw in env.lex(in_str):
             if elem_type == "data":
-                unique_id = uuid.uuid4().hex
+                unique_id = uuid.uuid4().hex + "_len"
                 result.append(
                     RawFileSlice(
                         raw,
