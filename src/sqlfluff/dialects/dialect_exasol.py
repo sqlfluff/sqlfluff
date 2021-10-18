@@ -1024,7 +1024,8 @@ class CreateTableStatementSegment(BaseSegment):
                                 Ref("TableOutOfLineConstraintSegment"),
                                 Ref("CreateTableLikeClauseSegment"),
                             ),
-                        )
+                        ),
+                        min_times=1,
                     ),
                     Sequence(
                         Ref("CommaSegment"),
