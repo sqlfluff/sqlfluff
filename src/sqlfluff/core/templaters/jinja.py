@@ -611,7 +611,10 @@ class TemplateTracer:
                     result[stack[-1]].next_slice_indices.append(block_idx)
                     stack.pop()
                     stack.append(block_idx)
-                elif block_type == "block_end":
+                elif block_type == "block_end" and trimmed_content.split()[0] in (
+                    "for",
+                    "if",
+                ):
                     # Record potential forward jump over this block.
                     result[stack[-1]].next_slice_indices.append(block_idx)
                     if result[stack[-1]].slice_subtype == "loop":
