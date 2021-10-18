@@ -53,7 +53,7 @@ tsql_dialect.insert_lexer_matchers(
         ),
         RegexLexer(
             "square_quote",
-            r"\[([a-zA-Z0-9][^\[\]]*)*\]",
+            r"\[([^\[\]]*)*\]",
             CodeSegment,
         ),
         # T-SQL unicode strings
