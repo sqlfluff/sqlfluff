@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3c730589a01220d38a0c81122ec7f8341ddcfc003c7da7d35cf33f07dff82ef6
+_hash: c9a0016a05391d0b1aeb51de5473e40834f6b97376d0cf3296566b31bf53bfe5
 file:
   statement:
     create_adapter_script:
@@ -13,12 +13,12 @@ file:
     - keyword: SCRIPT
     - script_reference:
         identifier: my_script
+    - keyword: AS
     - script_content:
-      - raw: AS
       - raw: '%'
       - raw: jar
       - raw: hive_jdbc_adapter
       - raw: .
       - raw: jar
-      - semicolon: ;
+      - raw: ;
   function_script_terminator: /
