@@ -53,7 +53,7 @@ tsql_dialect.insert_lexer_matchers(
         ),
         RegexLexer(
             "square_quote",
-            r"\[([a-zA-Z0-9][^\[\]]*)*\]",
+            r"\[([^\[\]]*)*\]",
             CodeSegment,
         ),
         # T-SQL unicode strings
@@ -1395,6 +1395,7 @@ class BeginEndSegment(BaseSegment):
     type = "begin_end_block"
     match_grammar = Sequence(
         "BEGIN",
+        Ref("DelimiterSegment", optional=True),
         Indent,
         AnyNumberOf(
             OneOf(
