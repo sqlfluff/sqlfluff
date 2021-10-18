@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 56af05bcacbc11b6e52f53d6f419d3e67b1c3dbceb18e26d52f481c30a2e8f24
+_hash: a7f29577de31102beaa9149a5d84ef3c2232e50a6e3c4aa37874be9ec2fca570
 file:
 - batch:
     statement:
@@ -189,5 +189,33 @@ file:
         - index_column_definition:
             identifier: '[Population]'
         - end_bracket: )
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
+      drop_statement:
+      - keyword: DROP
+      - keyword: STATISTICS
+      - index_reference:
+        - identifier: Reporting
+        - dot: .
+        - identifier: Population
+        - dot: .
+        - identifier: Stats_Population
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
+      drop_statement:
+      - keyword: DROP
+      - keyword: INDEX
+      - index_reference:
+          identifier: IX_INTER_VIMR_REPRODUCTION_NUMBER
+      - keyword: 'ON'
+      - table_reference:
+        - identifier: dbo
+        - dot: .
+        - identifier: VIMR_INFECTIOUS_PEOPLE
+      - statement_terminator: ;
 - go_statement:
     keyword: GO
