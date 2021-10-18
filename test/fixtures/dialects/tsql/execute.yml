@@ -1,0 +1,110 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 2cb0e5887ebe308a3f1a873f460d50787229b1580045ce77c90d0c152ad7c091
+file:
+  batch:
+  - statement:
+      execute_script_statement:
+        keyword: EXEC
+        object_reference:
+        - identifier: '[Reporting]'
+        - dot: .
+        - identifier: '[Load_CLL]'
+  - statement:
+      execute_script_statement:
+        keyword: EXECUTE
+        object_reference:
+        - identifier: dbo
+        - dot: .
+        - identifier: ProcTestDefaults
+        parameter: '@p2'
+        comparison_operator: '='
+        literal: "'A'"
+        statement_terminator: ;
+  - statement:
+      execute_script_statement:
+      - keyword: EXECUTE
+      - object_reference:
+        - identifier: dbo
+        - dot: .
+        - identifier: ProcTestDefaults
+      - literal: '68'
+      - comma: ','
+      - literal: "'B'"
+      - statement_terminator: ;
+  - statement:
+      execute_script_statement:
+      - keyword: EXECUTE
+      - object_reference:
+        - identifier: dbo
+        - dot: .
+        - identifier: ProcTestDefaults
+      - literal: '68'
+      - comma: ','
+      - literal: "'C'"
+      - comma: ','
+      - literal: "'House'"
+      - statement_terminator: ;
+  - statement:
+      execute_script_statement:
+      - keyword: EXECUTE
+      - object_reference:
+        - identifier: dbo
+        - dot: .
+        - identifier: ProcTestDefaults
+      - parameter: '@p1'
+      - comparison_operator: '='
+      - keyword: DEFAULT
+      - comma: ','
+      - parameter: '@p2'
+      - comparison_operator: '='
+      - literal: "'D'"
+      - statement_terminator: ;
+  - statement:
+      execute_script_statement:
+      - keyword: EXECUTE
+      - object_reference:
+        - identifier: dbo
+        - dot: .
+        - identifier: ProcTestDefaults
+      - keyword: DEFAULT
+      - comma: ','
+      - parameter: '@p3'
+      - comparison_operator: '='
+      - literal: "'Local'"
+      - comma: ','
+      - parameter: '@p2'
+      - comparison_operator: '='
+      - literal: "'E'"
+      - statement_terminator: ;
+  - statement:
+      execute_script_statement:
+      - keyword: EXECUTE
+      - object_reference:
+        - identifier: dbo
+        - dot: .
+        - identifier: ProcTestDefaults
+      - keyword: DEFAULT
+      - comma: ','
+      - literal: "'H'"
+      - comma: ','
+      - keyword: DEFAULT
+      - statement_terminator: ;
+  - statement:
+      execute_script_statement:
+      - keyword: EXECUTE
+      - object_reference:
+        - identifier: dbo
+        - dot: .
+        - identifier: ProcTestDefaults
+      - keyword: DEFAULT
+      - comma: ','
+      - literal: "'I'"
+      - comma: ','
+      - parameter: '@p3'
+      - comparison_operator: '='
+      - keyword: DEFAULT
+      - statement_terminator: ;
