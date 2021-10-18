@@ -381,9 +381,11 @@ class TemplateTracer:
             )
         return raw_slices_search_result[0]
 
-    def move_to_slice(self, target_slice_idx, source_slice_length):
+    def move_to_slice(self, target_slice_idx, target_slice_length):
         while self.program_counter < len(self.raw_sliced):
-            self.record_trace(source_slice_length)
+            self.record_trace(
+                target_slice_length if self.program_counter == target_slice_idx else 0
+            )
             current_raw_slice = self.raw_sliced[self.program_counter]
             if self.program_counter == target_slice_idx:
                 # Reached the target slice. Go to next location and stop.
@@ -405,7 +407,7 @@ class TemplateTracer:
                 candidates.sort(key=lambda c: abs(target_slice_idx - c))
                 self.program_counter = candidates[0]
 
-    def record_trace(self, source_slice_length):
+    def record_trace(self, target_slice_length):
         slice_type = self.raw_sliced[self.program_counter].slice_type
         self.sliced_file.append(
             TemplatedFileSlice(
@@ -418,14 +420,14 @@ class TemplateTracer:
                 ),
                 slice(
                     self.source_idx,
-                    self.source_idx
-                    if slice_type not in ("literal", "templated")
-                    else self.source_idx + source_slice_length,
+                    self.source_idx + target_slice_length
+                    # if slice_type not in ("literal", "templated")
+                    # else self.source_idx + target_slice_length,
                 ),
             )
         )
         if slice_type in ("literal", "templated"):
-            self.source_idx += source_slice_length
+            self.source_idx += target_slice_length
 
     @classmethod
     def _slice_template(cls, in_str: str) -> List[RawFileSlice]:

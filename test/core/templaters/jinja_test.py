@@ -92,6 +92,7 @@ class RawTemplatedTestCase(NamedTuple):
             ],
             expected_templated_sliced__templated_list=[
                 "",
+                "",
                 "\nSELECT 1, 2\n",
             ],
             expected_raw_sliced__source_list=[
@@ -105,10 +106,14 @@ class RawTemplatedTestCase(NamedTuple):
             instr="\n\n{%- set x = 42 -%}\nSELECT 1, 2\n",
             templated_str="SELECT 1, 2\n",
             expected_templated_sliced__source_list=[
-                "\n\n{%- set x = 42 -%}\n",
+                "\n\n",
+                "{%- set x = 42 -%}",
+                "\n",
                 "SELECT 1, 2\n",
             ],
             expected_templated_sliced__templated_list=[
+                "",
+                "",
                 "",
                 "SELECT 1, 2\n",
             ],
@@ -158,12 +163,14 @@ class RawTemplatedTestCase(NamedTuple):
 """,
             expected_templated_sliced__source_list=[
                 "SELECT\n  ",
-                "{{ 'col1,' -}}\n  ",
+                "{{ 'col1,' -}}",
+                "\n  ",
                 "col2\n",
             ],
             expected_templated_sliced__templated_list=[
                 "SELECT\n  ",
                 "col1,",
+                "",
                 "col2\n",
             ],
             expected_raw_sliced__source_list=[
@@ -185,12 +192,16 @@ class RawTemplatedTestCase(NamedTuple):
 """,
             expected_templated_sliced__source_list=[
                 "select\n    c1,",
-                "\n    {{- 'c' -}}\n",
+                "\n    ",
+                "{{- 'c' -}}",
+                "\n",
                 "2 as user_id\n",
             ],
             expected_templated_sliced__templated_list=[
                 "select\n    c1,",
+                "",
                 "c",
+                "",
                 "2 as user_id\n",
             ],
             expected_raw_sliced__source_list=[
