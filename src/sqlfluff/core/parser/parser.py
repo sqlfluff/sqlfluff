@@ -26,7 +26,7 @@ class Parser:
         segments: Sequence["BaseSegment"],
         recurse=True,
         fname: str = None,
-        disable_progress_bar: bool = False,
+        disable_progress_bar: Optional[bool] = False,
     ) -> Optional["BaseSegment"]:
         """Parse a series of lexed tokens using the current dialect."""
         if not segments:

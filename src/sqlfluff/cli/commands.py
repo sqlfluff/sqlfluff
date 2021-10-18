@@ -354,7 +354,7 @@ def lint(
     disregard_sqlfluffignores: bool,
     logger: Optional[logging.Logger] = None,
     bench: bool = False,
-    disable_progress_bar: bool = False,
+    disable_progress_bar: Optional[bool] = False,
     **kwargs,
 ) -> NoReturn:
     """Lint SQL files via passing a list of files or using stdin.
@@ -378,11 +378,13 @@ def lint(
     config = get_config(**kwargs)
     non_human_output = format != FormatType.human.value
     lnt, formatter = get_linter_and_formatter(config, silent=non_human_output)
-    verbose = config.get("verbose")
 
+    verbose = config.get("verbose")
     # suppress progressbar when in verbose mode
     if verbose:
         disable_progress_bar = True
+    # From tqdm documentation: "If set to None, disable on non-TTY."
+    disable_progress_bar = disable_progress_bar or None
 
     formatter.dispatch_config(lnt)
 
@@ -511,7 +513,7 @@ def fix(
     bench: bool = False,
     fixed_suffix: str = "",
     logger: Optional[logging.Logger] = None,
-    disable_progress_bar: bool = False,
+    disable_progress_bar: Optional[bool] = False,
     **kwargs,
 ) -> NoReturn:
     """Fix SQL files.
@@ -526,10 +528,13 @@ def fix(
 
     config = get_config(**kwargs)
     lnt, formatter = get_linter_and_formatter(config, silent=fixing_stdin)
+
     verbose = config.get("verbose")
     # suppress progressbar when in verbose mode
     if verbose:
         disable_progress_bar = True
+    # From tqdm documentation: "If set to None, disable on non-TTY."
+    disable_progress_bar = disable_progress_bar or None
 
     exit_code = 0
 

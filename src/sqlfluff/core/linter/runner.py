@@ -14,7 +14,7 @@ import multiprocessing.dummy
 import signal
 import sys
 import traceback
-from typing import Callable, List, Tuple, Iterator
+from typing import Callable, List, Tuple, Iterator, Optional
 
 from sqlfluff.core.linter import LintedFile
 
@@ -45,7 +45,7 @@ class BaseRunner(ABC):
         self,
         fnames: List[str],
         fix: bool = False,
-        disable_progress_bar: bool = False,
+        disable_progress_bar: Optional[bool] = False,
     ) -> Iterator[Tuple[str, Callable]]:
         """Iterate through partials for linted files.
 
@@ -68,7 +68,7 @@ class BaseRunner(ABC):
                 ),
             )
 
-    def run(self, fnames: List[str], fix: bool, disable_progress_bar: bool):
+    def run(self, fnames: List[str], fix: bool, disable_progress_bar: Optional[bool]):
         """Run linting on the specified list of files."""
         raise NotImplementedError  # pragma: no cover
 
@@ -98,7 +98,7 @@ class SequentialRunner(BaseRunner):
     """Simple runner that does sequential processing."""
 
     def run(
-        self, fnames: List[str], fix: bool, disable_progress_bar: bool = False
+        self, fnames: List[str], fix: bool, disable_progress_bar: Optional[bool] = False
     ) -> Iterator[LintedFile]:
         """Sequential implementation."""
         for fname, partial in self.iter_partials(
@@ -125,7 +125,7 @@ class ParallelRunner(BaseRunner):
         super().__init__(linter, config)
         self.processes = processes
 
-    def run(self, fnames: List[str], fix: bool, disable_progress_bar: bool):
+    def run(self, fnames: List[str], fix: bool, disable_progress_bar: Optional[bool]):
         """Parallel implementation.
 
         Note that the partials are generated one at a time then

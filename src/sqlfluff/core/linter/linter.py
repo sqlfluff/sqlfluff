@@ -183,7 +183,7 @@ class Linter:
         config: FluffConfig,
         recurse: bool = True,
         fname: Optional[str] = None,
-        disable_progress_bar: bool = False,
+        disable_progress_bar: Optional[bool] = False,
     ) -> Tuple[Optional[BaseSegment], List[SQLParseError]]:
         parser = Parser(config=config)
         violations = []
@@ -302,7 +302,7 @@ class Linter:
         cls,
         rendered: RenderedFile,
         recurse: bool = True,
-        disable_progress_bar: bool = False,
+        disable_progress_bar: Optional[bool] = False,
     ):
         """Parse a rendered file."""
         t0 = time.monotonic()
@@ -384,7 +384,7 @@ class Linter:
         fname: Optional[str] = None,
         templated_file: Optional[TemplatedFile] = None,
         formatter: Any = None,
-        disable_progress_bar: bool = False,
+        disable_progress_bar: Optional[bool] = False,
     ) -> Tuple[BaseSegment, List[SQLBaseError], List[NoQaDirective]]:
         """Lint and optionally fix a tree object."""
         # Keep track of the linting errors
@@ -479,7 +479,7 @@ class Linter:
         fix: bool = False,
         formatter: Any = None,
         encoding: str = "utf8",
-        disable_progress_bar: bool = False,
+        disable_progress_bar: Optional[bool] = False,
     ):
         """Lint a ParsedString and return a LintedFile."""
         violations = parsed.violations
@@ -545,7 +545,7 @@ class Linter:
         rule_set: List[BaseRule],
         fix: bool = False,
         formatter: Any = None,
-        disable_progress_bar: bool = False,
+        disable_progress_bar: Optional[bool] = False,
     ) -> LintedFile:
         """Take a RenderedFile and return a LintedFile."""
         parsed = cls.parse_rendered(rendered, disable_progress_bar=disable_progress_bar)
@@ -613,7 +613,7 @@ class Linter:
         recurse: bool = True,
         config: Optional[FluffConfig] = None,
         encoding: str = "utf-8",
-        disable_progress_bar: bool = False,
+        disable_progress_bar: Optional[bool] = False,
     ) -> ParsedString:
         """Parse a string."""
         violations: List[SQLBaseError] = []
@@ -687,7 +687,7 @@ class Linter:
         fix: bool = False,
         config: Optional[FluffConfig] = None,
         encoding: str = "utf8",
-        disable_progress_bar: bool = False,
+        disable_progress_bar: Optional[bool] = False,
     ) -> LintedFile:
         """Lint a string.
 
@@ -836,7 +836,7 @@ class Linter:
         string: str,
         fname: str = "<string input>",
         fix: bool = False,
-        disable_progress_bar: bool = False,
+        disable_progress_bar: Optional[bool] = False,
     ) -> LintingResult:
         """Lint strings directly."""
         result = LintingResult()
@@ -857,7 +857,7 @@ class Linter:
         ignore_non_existent_files: bool = False,
         ignore_files: bool = True,
         processes: int = 1,
-        disable_progress_bar: bool = False,
+        disable_progress_bar: Optional[bool] = False,
     ) -> LintedDir:
         """Lint a path."""
         linted_path = LintedDir(path)
@@ -914,7 +914,7 @@ class Linter:
         ignore_non_existent_files: bool = False,
         ignore_files: bool = True,
         processes: int = 1,
-        disable_progress_bar: bool = False,
+        disable_progress_bar: Optional[bool] = False,
     ) -> LintingResult:
         """Lint an iterable of paths."""
         paths_count = len(paths)
@@ -953,7 +953,10 @@ class Linter:
         return result
 
     def parse_path(
-        self, path: str, recurse: bool = True, disable_progress_bar: bool = False
+        self,
+        path: str,
+        recurse: bool = True,
+        disable_progress_bar: Optional[bool] = False,
     ) -> Iterator[ParsedString]:
         """Parse a path of sql files.
 

@@ -797,9 +797,9 @@ class TestProgressBars:
         )
         raw_output = repr(result.output)
 
-        assert r"\rparsing: 0it" in raw_output
         assert r"\rlint by rules:" in raw_output
         assert r"\rrule L001:" in raw_output
+        assert r"\rrule L049:" in raw_output
 
     def test_cli_lint_enabled_progress_bar_multiple_paths(self) -> None:
         """When progress bar is enabled, there should be some tracks in output."""
@@ -817,9 +817,9 @@ class TestProgressBars:
 
         assert r"\rpath test/fixtures/linter/passing.sql:" in raw_output
         assert r"\rpath test/fixtures/linter/indentation_errors.sql:" in raw_output
-        assert r"\rparsing: 0it" in raw_output
         assert r"\rlint by rules:" in raw_output
         assert r"\rrule L001:" in raw_output
+        assert r"\rrule L049:" in raw_output
 
     def test_cli_lint_enabled_progress_bar_multiple_files(self) -> None:
         """When progress bar is enabled, there should be some tracks in output."""
@@ -833,12 +833,12 @@ class TestProgressBars:
         )
         raw_output = repr(result.output)
 
-        assert r"\rparsing: 0it" in raw_output
         assert r"\rfile passing.1.sql:" in raw_output
         assert r"\rfile passing.2.sql:" in raw_output
         assert r"\rfile passing.3.sql:" in raw_output
         assert r"\rlint by rules:" in raw_output
         assert r"\rrule L001:" in raw_output
+        assert r"\rrule L049:" in raw_output
 
     def test_cli_lint_disabled_progress_bar_when_verbose_mode(self) -> None:
         """Progressbar is disabled when verbose mode is set."""
