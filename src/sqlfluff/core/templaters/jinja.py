@@ -1,5 +1,6 @@
 """Defines the templaters."""
 
+import ast
 import os.path
 import logging
 import importlib.util
@@ -344,16 +345,29 @@ class TemplateTracer:
         self.source_idx = 0
 
     def process(self):
-        unique_alternate = self.make_template(
-            "".join(rs.alternate_code or rs.raw for rs in self.raw_sliced)
+        alternate_template = "".join(
+            rs.alternate_code or rs.raw for rs in self.raw_sliced
         )
+        # print(alternate_template)
+        unique_alternate = self.make_template(alternate_template)
         template = self.make_template(self.raw_str)
         for s1, s2 in zip(template.generate(), unique_alternate.generate()):
             # print(f"actual:           {s1!r}")
             # print(f"unique alternate: {s2}")
-            # print()
-            target_slice_idx = self.find_slice_index(s2)
-            self.move_to_slice(target_slice_idx, len(s1))
+            parts = [ast.literal_eval(f"{p}]") for p in s2.split("]") if p]
+            for alt_id, content_info in parts:
+                target_slice_idx = self.find_slice_index(alt_id)
+                # s1_part = self.raw_sliced[target_slice_idx].raw
+                # steps.append(self.raw_sliced[target_slice_idx])
+                if isinstance(content_info, int):
+                    self.move_to_slice(target_slice_idx, content_info)
+                elif isinstance(content_info, str):
+                    self.move_to_slice(target_slice_idx, len(content_info))
+                # else:
+                #     import pdb; pdb.set_trace()
+                #     pass
+        # import pdb; pdb.set_trace()
+        # pass
 
     def find_slice_index(self, slice_identifier) -> int:
         raw_slices_search_result = [
@@ -449,8 +463,8 @@ class TemplateTracer:
                         raw,
                         "literal",
                         idx,
-                        unique_alternate_id=f"<<{unique_id}>>",
-                        alternate_code=f"<<{unique_id}>>",
+                        unique_alternate_id=unique_id,
+                        alternate_code=f"[{unique_id!r}, {len(raw)}]",
                     )
                 )
                 idx += len(raw)
@@ -529,11 +543,8 @@ class TemplateTracer:
                         # effects, but return a UUID.
                         if trimmed_content:
                             unique_id = uuid.uuid4().hex
-                            unique_alternate_id = f"<<{unique_id}>>"
-                            alternate_code = (
-                                f"{m_open.group(0)}[{trimmed_content}, "
-                                f'"<<{unique_id}>>"][1]{m_close.group(0)}'
-                            )
+                            unique_alternate_id = unique_id
+                            alternate_code = f"{m_open.group(0)}[{unique_id!r}, {trimmed_content}]{m_close.group(0)}"
                 m = re.search(r"\s+$", raw, re.MULTILINE | re.DOTALL)
                 if raw.startswith("-") and m:
                     # Right whitespace was stripped. Split off the trailing

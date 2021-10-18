@@ -86,7 +86,8 @@ class RawTemplatedTestCase(NamedTuple):
             instr="\n\n{%- set x = 42 %}\nSELECT 1, 2\n",
             templated_str="\nSELECT 1, 2\n",
             expected_templated_sliced__source_list=[
-                "\n\n{%- set x = 42 %}",
+                "\n\n",
+                "{%- set x = 42 %}",
                 "\nSELECT 1, 2\n",
             ],
             expected_templated_sliced__templated_list=[
