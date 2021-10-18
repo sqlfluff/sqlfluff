@@ -1390,6 +1390,7 @@ class BeginEndSegment(BaseSegment):
     type = "begin_end_block"
     match_grammar = Sequence(
         "BEGIN",
+        Ref("DelimiterSegment", optional=True),
         Indent,
         AnyNumberOf(
             OneOf(
