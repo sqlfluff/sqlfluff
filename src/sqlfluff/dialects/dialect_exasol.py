@@ -70,13 +70,10 @@ exasol_dialect.insert_lexer_matchers(
         ),
         RegexLexer(
             "function_script_terminator",
-            r";\s+(?!\*)\/(?!\*)|\s+(?!\*)\/(?!\*)",
+            r"\n/\n|\n/$",
             CodeSegment,
             segment_kwargs={"type": "function_script_terminator"},
-            subdivider=StringLexer(
-                "semicolon", ";", CodeSegment, segment_kwargs={"type": "semicolon"}
-            ),
-            trim_post_subdivide=RegexLexer(
+            subdivider=RegexLexer(
                 "newline",
                 r"(\n|\r\n)+",
                 NewlineSegment,
