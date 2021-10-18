@@ -25,6 +25,7 @@ from sqlfluff.core.parser import (
     CommentSegment,
     StringParser,
     SymbolSegment,
+    SegmentGenerator,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -78,6 +79,9 @@ tsql_dialect.patch_lexer_matchers(
         # Patching to add !<, !>
         RegexLexer("greater_than_or_equal", ">=|!<", CodeSegment),
         RegexLexer("less_than_or_equal", "<=|!>", CodeSegment),
+        RegexLexer(
+            "code", r"[0-9a-zA-Z_#@]+", CodeSegment
+        ),  # overriding to allow hash mark and at-sign in code
     ]
 )
 
@@ -101,6 +105,18 @@ tsql_dialect.add(
 )
 
 tsql_dialect.replace(
+    # Overriding to cover TSQL allowed identifier name characters
+    # https://docs.microsoft.com/en-us/sql/relational-databases/databases/database-identifiers?view=sql-server-ver15
+    NakedIdentifierSegment=SegmentGenerator(
+        # Generate the anti template from the set of reserved keywords
+        lambda dialect: RegexParser(
+            r"[A-Z_][A-Z0-9_@$#]*",
+            CodeSegment,
+            name="naked_identifier",
+            type="identifier",
+            anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
+        )
+    ),
     ComparisonOperatorGrammar=OneOf(
         Ref("EqualsSegment"),
         Ref("GreaterThanSegment"),
