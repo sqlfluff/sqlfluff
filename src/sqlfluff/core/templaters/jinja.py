@@ -421,6 +421,10 @@ class TemplateTracer:
                     candidates.append(next_slice_idx)
                 candidates.sort(key=lambda c: abs(target_slice_idx - c))
                 self.program_counter = candidates[0]
+        # if self.program_counter == len(self.raw_sliced) and self.program_counter == target_slice_idx:
+        #     # Reached the end of the template without finding target_slice_idx.
+        #     import pdb; pdb.set_trace()
+        #     pass
 
     def record_trace(self, target_slice_length):
         slice_type = self.raw_sliced[self.program_counter].slice_type
@@ -612,8 +616,8 @@ class TemplateTracer:
                     stack.pop()
                     stack.append(block_idx)
                 elif block_type == "block_end" and trimmed_content.split()[0] in (
-                    "for",
-                    "if",
+                    "endfor",
+                    "endif",
                 ):
                     # Record potential forward jump over this block.
                     result[stack[-1]].next_slice_indices.append(block_idx)
