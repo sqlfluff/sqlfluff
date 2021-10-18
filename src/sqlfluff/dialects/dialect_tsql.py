@@ -208,6 +208,7 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             ),  # Azure Synapse Analytics specific
             Ref("RenameStatementSegment"),  # Azure Synapse Analytics specific
             Ref("ExecuteScriptSegment"),
+            Ref("DropStatisticsStatementSegment"),
         ],
     )
 
@@ -366,6 +367,40 @@ class CreateIndexStatementSegment(BaseSegment):
             optional=True,
         ),
         Ref("DelimiterSegment", optional=True),
+    )
+
+
+@tsql_dialect.segment(replace=True)
+class DropIndexStatementSegment(BaseSegment):
+    """A `DROP INDEX` statement.
+
+    Overriding ANSI to include required ON clause.
+    """
+
+    type = "drop_statement"
+    # DROP INDEX <Index name> [CONCURRENTLY] [IF EXISTS] {RESTRICT | CASCADE}
+    match_grammar = Sequence(
+        "DROP",
+        "INDEX",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("IndexReferenceSegment"),
+        "ON",
+        Ref("TableReferenceSegment"),
+        Ref("DelimiterSegment", optional=True),
+    )
+
+
+@tsql_dialect.segment()
+class DropStatisticsStatementSegment(BaseSegment):
+    """A `DROP STATISTICS` statement."""
+
+    type = "drop_statement"
+    # DROP INDEX <Index name> [CONCURRENTLY] [IF EXISTS] {RESTRICT | CASCADE}
+    match_grammar = Sequence(
+        "DROP",
+        OneOf("STATISTICS"),
+        Ref("IndexReferenceSegment"),
+        Ref("DelimiterSegment",optional=True),
     )
 
 
