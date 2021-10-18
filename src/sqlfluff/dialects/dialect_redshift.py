@@ -4,10 +4,7 @@ This is based on postgres dialect, since it was initially based off of Postgres 
 We should monitor in future and see if it should be rebased off of ANSI
 """
 
-from sqlfluff.core.parser import (
-    OneOf,
-    BaseSegment,
-)
+from sqlfluff.core.parser import OneOf, BaseSegment, Nothing
 
 from sqlfluff.core.dialects import load_raw_dialect
 
@@ -32,6 +29,8 @@ redshift_dialect.sets("reserved_keywords").clear()
 redshift_dialect.sets("reserved_keywords").update(
     [n.strip().upper() for n in redshift_reserved_keywords.split("\n")]
 )
+
+redshift_dialect.replace(WellKnownTextGeometrySegment=Nothing())
 
 
 @redshift_dialect.segment(replace=True)

@@ -899,6 +899,54 @@ postgres_nondocs_keywords = [
     ("USAGE", "reserved"),
 ]
 
+postgres_postgis_datatype_keywords = [
+    ("POINT", "non-reserved"),
+    ("LINESTRING", "non-reserved"),
+    ("POLYGON", "non-reserved"),
+    ("MULTIPOINT", "non-reserved"),
+    ("MULTILINESTRING", "non-reserved"),
+    ("MULTIPOLYGON", "non-reserved"),
+    ("GEOMETRYCOLLECTION", "non-reserved"),
+    ("POINTZ", "non-reserved"),
+    ("LINESTRINGZ", "non-reserved"),
+    ("POLYGONZ", "non-reserved"),
+    ("MULTIPOINTZ", "non-reserved"),
+    ("MULTILINESTRINGZ", "non-reserved"),
+    ("MULTIPOLYGONZ", "non-reserved"),
+    ("GEOMETRYCOLLECTIONZ", "non-reserved"),
+    ("POINTM", "non-reserved"),
+    ("LINESTRINGM", "non-reserved"),
+    ("POLYGONM", "non-reserved"),
+    ("MULTIPOINTM", "non-reserved"),
+    ("MULTILINESTRINGM", "non-reserved"),
+    ("MULTIPOLYGONM", "non-reserved"),
+    ("GEOMETRYCOLLECTIONM", "non-reserved"),
+    ("POINTZM", "non-reserved"),
+    ("LINESTRINGZM", "non-reserved"),
+    ("POLYGONZM", "non-reserved"),
+    ("MULTIPOINTZM", "non-reserved"),
+    ("MULTILINESTRINGZM", "non-reserved"),
+    ("MULTIPOLYGONZM", "non-reserved"),
+    ("GEOMETRYCOLLECTIONZM", "non-reserved"),
+    ("CIRCULARSTRING", "non-reserved"),
+    ("COMPOUNDCURVE", "non-reserved"),
+    ("CURVEPOLYGON", "non-reserved"),
+    ("MULTICURVE", "non-reserved"),
+    ("MULTISURFACE", "non-reserved"),
+    ("POLYHEDRALSURFACE", "non-reserved"),
+    ("TRIANGLE", "non-reserved"),
+    ("TIN", "non-reserved"),
+]
+
+postgres_postgis_other_keywords = [
+    ("GEOMETRY", "non-reserved"),
+    ("GEOGRAPHY", "non-reserved"),
+    ("EMPTY", "non-reserved"),
+]
+
 postgres_keywords = priority_keyword_merge(
-    postgres_docs_keywords, postgres_nondocs_keywords
+    postgres_docs_keywords,
+    postgres_nondocs_keywords,
+    postgres_postgis_datatype_keywords,
+    postgres_postgis_other_keywords,
 )
