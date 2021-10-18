@@ -207,6 +207,7 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
                 "CreateTableAsSelectStatementSegment"
             ),  # Azure Synapse Analytics specific
             Ref("RenameStatementSegment"),  # Azure Synapse Analytics specific
+            Ref("ExecuteScriptSegment"),
         ],
     )
 
@@ -1918,5 +1919,45 @@ class SetExpressionSegment(BaseSegment):
         ),
         Ref("OrderByClauseSegment", optional=True),
         Ref("OptionClauseSegment", optional=True),
+        Ref("DelimiterSegment", optional=True),
+    )
+
+
+@tsql_dialect.segment()
+class ExecuteScriptSegment(BaseSegment):
+    """`EXECUTE` statement.
+
+    Matching segment name and type from exasol.
+    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/execute-transact-sql?view=sql-server-ver15
+    """
+
+    type = "execute_script_statement"
+    match_grammar = Sequence(
+        OneOf("EXEC", "EXECUTE"),
+        Ref("ObjectReferenceSegment"),
+        Sequence(
+            Sequence(Ref("ParameterNameSegment"), Ref("EqualsSegment"), optional=True),
+            OneOf(
+                "DEFAULT",
+                Ref("LiteralGrammar"),
+                Ref("ParameterNameSegment"),
+                Ref("SingleIdentifierGrammar"),
+            ),
+            Sequence("OUTPUT", optional=True),
+            AnyNumberOf(
+                Ref("CommaSegment"),
+                Sequence(
+                    Ref("ParameterNameSegment"), Ref("EqualsSegment"), optional=True
+                ),
+                OneOf(
+                    "DEFAULT",
+                    Ref("LiteralGrammar"),
+                    Ref("ParameterNameSegment"),
+                    Ref("SingleIdentifierGrammar"),
+                ),
+                Sequence("OUTPUT", optional=True),
+            ),
+            optional=True,
+        ),
         Ref("DelimiterSegment", optional=True),
     )
