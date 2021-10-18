@@ -354,7 +354,21 @@ class TemplateTracer:
         for s1, s2 in zip(template.generate(), unique_alternate.generate()):
             # print(f"actual:           {s1!r}")
             # print(f"unique alternate: {s2}")
-            parts = [ast.literal_eval(f"{p}]") for p in s2.split("]") if p]
+            parts = []
+            for p in s2.split("]"):
+                if p:
+                    try:
+                        value = ast.literal_eval(f"{p}]")
+                    except ValueError:
+                        # HACK: This typically means the template has an
+                        # undefined value. We'll have a string like this:
+                        # "['8ec52833861446cda98a030cac45badd', Undefined"
+                        # where "Undefined" comes from Jinja. In this case, we
+                        # extract the first value from the string and provide
+                        # None as the second value. There may be a better way to
+                        # do this, but at least this avoids a runtime crash.
+                        value = ast.literal_eval(f"{p.split(',', 1)[0]}]") + [None]
+                    parts.append(value)
             for alt_id, content_info in parts:
                 target_slice_idx = self.find_slice_index(alt_id)
                 # s1_part = self.raw_sliced[target_slice_idx].raw
