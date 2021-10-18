@@ -12,6 +12,11 @@ from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 class Rule_L031(BaseRule):
     """Avoid table aliases in from clauses and join conditions.
 
+    NB: This rule is disabled by default for Hive due to the fact that database/schemas
+    names can make the full table names quite long which makes the code very tedious
+    if the full name has to be repeated in SELECT statements and ON clauses,
+
+
     | **Anti-pattern**
     | In this example, alias 'o' is used for the orders table, and 'c' is used for 'customers' table.
 
@@ -46,12 +51,15 @@ class Rule_L031(BaseRule):
 
     """
 
-    def _eval(self, segment, **kwargs):
+    def _eval(self, segment, raw_stack, dialect, **kwargs):
         """Identify aliases in from clause and join conditions.
 
         Find base table, table expressions in join, and other expressions in select clause
         and decide if it's needed to report them.
         """
+        if dialect.name in ["hive"] and not self.force_enable:
+            return LintResult()
+
         if segment.is_type("select_statement"):
             # A buffer for all table expressions in join conditions
             from_expression_elements = []
