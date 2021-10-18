@@ -1,0 +1,52 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: c798ae808af9425dca834acea136a0fb4e4920762c2998fe8b3600afc6fc8a52
+file:
+  statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          column_reference:
+          - identifier: a
+          - dot: .
+          - identifier: col1
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - identifier: chloesoftware_shared
+              - dot: .
+              - identifier: hive_test1
+            alias_expression:
+              keyword: as
+              identifier: a
+          join_clause:
+            keyword: join
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - identifier: chloesoftware_shared
+                - dot: .
+                - identifier: hive_test2
+              alias_expression:
+                keyword: as
+                identifier: b
+            join_on_condition:
+              keyword: 'on'
+              expression:
+              - column_reference:
+                - identifier: a
+                - dot: .
+                - identifier: col2
+              - comparison_operator: '='
+              - column_reference:
+                - identifier: b
+                - dot: .
+                - identifier: col2
+  statement_terminator: ;
