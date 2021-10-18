@@ -13,6 +13,7 @@ SELECT
 	END,
 	all_pop. [Arrival Date],
 	all_pop.Row#,
-	all_pop.b@nanas
+	all_pop.b@nanas,
+	[# POAs]
 FROM dbo . all_pop	
 
