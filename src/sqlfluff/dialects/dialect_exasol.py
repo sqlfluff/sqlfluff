@@ -3528,7 +3528,9 @@ class CreateScriptingLuaScriptStatementSegment(BaseSegment):
         ),
         Sequence(Ref.keyword("RETURNS"), OneOf("TABLE", "ROWCOUNT"), optional=True),
         "AS",
+        Indent,
         Ref("ScriptContentSegment"),
+        Dedent,
     )
 
 
@@ -3581,7 +3583,9 @@ class CreateUDFScriptStatementSegment(BaseSegment):
         ),
         OneOf(Sequence("RETURNS", Ref("DatatypeSegment")), Ref("EmitsGrammar")),
         "AS",
+        Indent,
         Ref("ScriptContentSegment"),
+        Dedent,
     )
 
 
@@ -3615,7 +3619,9 @@ class CreateAdapterScriptStatementSegment(BaseSegment):
         "ADAPTER",
         "SCRIPT",
         Ref("ScriptReferenceSegment"),
+        Indent,
         Ref("ScriptContentSegment"),
+        Dedent,
     )
 
 
