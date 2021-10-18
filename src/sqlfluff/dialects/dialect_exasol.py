@@ -73,10 +73,7 @@ exasol_dialect.insert_lexer_matchers(
             r"\n/\n|\n/$",
             CodeSegment,
             segment_kwargs={"type": "function_script_terminator"},
-            subdivider=StringLexer(
-                "newline", "\n", NewlineSegment, segment_kwargs={"type": "newline"}
-            ),
-            trim_post_subdivide=RegexLexer(
+            subdivider=RegexLexer(
                 "newline",
                 r"(\n|\r\n)+",
                 NewlineSegment,
