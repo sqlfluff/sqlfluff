@@ -399,7 +399,7 @@ class DropStatisticsStatementSegment(BaseSegment):
         "DROP",
         OneOf("STATISTICS"),
         Ref("IndexReferenceSegment"),
-        Ref("DelimiterSegment",optional=True),
+        Ref("DelimiterSegment", optional=True),
     )
 
 
