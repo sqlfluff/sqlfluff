@@ -20,7 +20,11 @@ from sqlfluff.core.parser import (
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
-from sqlfluff.dialects.dialect_postgres_keywords import postgres_keywords, get_keywords
+from sqlfluff.dialects.dialect_postgres_keywords import (
+    postgres_keywords,
+    get_keywords,
+    postgres_postgis_datatype_keywords,
+)
 
 ansi_dialect = load_raw_dialect("ansi")
 
@@ -137,6 +141,7 @@ postgres_dialect.add(
     DollarQuotedLiteralSegment=NamedParser(
         "dollar_quote", CodeSegment, name="dollar_quoted_literal", type="literal"
     ),
+    SimpleGeometryGrammar=AnyNumberOf(Ref("NumericLiteralSegment")),
 )
 
 postgres_dialect.replace(
@@ -253,6 +258,7 @@ class DatatypeSegment(BaseSegment):
 
     type = "data_type"
     match_grammar = OneOf(
+        Ref("WellKnownTextGeometrySegment"),
         Sequence(
             Ref("DateTimeTypeIdentifier"),
             Ref("TimeZoneGrammar", optional=True),
@@ -343,6 +349,46 @@ class CreateFunctionStatementSegment(BaseSegment):
             optional=True,
         ),
         Ref("FunctionDefinitionGrammar"),
+    )
+
+
+@postgres_dialect.segment()
+class WellKnownTextGeometrySegment(BaseSegment):
+    """A Data Type Segment to identify Well Known Text Geometric Data Types.
+
+    As specified in https://postgis.net/stuff/postgis-3.1.pdf
+
+    This approach is to maximise 'accepted code' for the parser, rather than be overly restrictive.
+    """
+
+    type = "wkt_geometry_type"
+
+    _geometry_type_keywords = [x[0] for x in postgres_postgis_datatype_keywords]
+
+    match_grammar = OneOf(
+        Sequence(
+            OneOf(*_geometry_type_keywords),
+            Bracketed(
+                Delimited(
+                    OptionallyBracketed(Delimited(Ref("SimpleGeometryGrammar"))),
+                    # 2D Arrays of coordinates - to specify surfaces
+                    Bracketed(
+                        Delimited(Bracketed(Delimited(Ref("SimpleGeometryGrammar"))))
+                    ),
+                    Ref("WellKnownTextGeometrySegment"),
+                )
+            ),
+        ),
+        Sequence(
+            OneOf("GEOMETRY", "GEOGRAPHY"),
+            Bracketed(
+                Sequence(
+                    OneOf(*_geometry_type_keywords, "GEOMETRY", "GEOGRAPHY"),
+                    Ref("CommaSegment"),
+                    Ref("NumericLiteralSegment"),
+                )
+            ),
+        ),
     )
 
 
