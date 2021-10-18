@@ -378,7 +378,6 @@ class DropIndexStatementSegment(BaseSegment):
     """
 
     type = "drop_statement"
-    # DROP INDEX <Index name> [CONCURRENTLY] [IF EXISTS] {RESTRICT | CASCADE}
     match_grammar = Sequence(
         "DROP",
         "INDEX",
