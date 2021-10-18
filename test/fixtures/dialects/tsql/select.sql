@@ -11,6 +11,8 @@ SELECT
 		 WHEN 1 !> 1 THEN 'NULL Handling, Probably'
 		 ELSE 'Silly Tests'
 	END,
-	all_pop. [Arrival Date]
+	all_pop. [Arrival Date],
+	all_pop.Row#,
+	all_pop.b@nanas
 FROM dbo . all_pop	
 
