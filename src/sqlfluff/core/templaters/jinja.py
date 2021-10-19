@@ -356,10 +356,10 @@ class TemplateTracer:
             # print(f"actual:           {s1!r}")
             # print(f"unique alternate: {s2}")
             parts = []
-            for p in s2.split("]"):
+            for p in s2.split("|"):
                 if p:
                     try:
-                        value = ast.literal_eval(f"{p}]")
+                        value = ast.literal_eval(p)
                     except ValueError:
                         # HACK: This typically means the template has an
                         # undefined value. We'll have a string like this:
@@ -369,20 +369,29 @@ class TemplateTracer:
                         # None as the second value. There may be a better way to
                         # do this, but at least this avoids a runtime crash.
                         value = ast.literal_eval(f"{p.split(',', 1)[0]}]") + [None]
+                    if isinstance(value, str):
+                        # E.g. "2e8577c1d045439ba8d3b9bf47561de3_83"
+                        value = [value.split("_")[0], int(value.split("_")[1]), True]
+                    else:
+                        value.append(False)
                     parts.append(value)
-            for alt_id, content_info in parts:
+            for alt_id, content_info, literal in parts:
                 target_slice_idx = self.find_slice_index(alt_id)
                 # s1_part = self.raw_sliced[target_slice_idx].raw
                 # steps.append(self.raw_sliced[target_slice_idx])
-                if alt_id.endswith("_len"):
+                if literal:
                     self.move_to_slice(target_slice_idx, content_info)
                 else:
                     self.move_to_slice(target_slice_idx, len(str(content_info)))
                 # Sanity check that the template slices we're recording match up
                 # precisely with templated_str.
-                # if self.templated_str[self.sliced_file[-1].templated_slice] != s1:
-                #     import pdb; pdb.set_trace()
-                #     pass
+                templated_slice = self.templated_str[
+                    self.sliced_file[-1].templated_slice
+                ]
+                if templated_slice != s1:
+                    raise ValueError(
+                        f"Internal error: Templated slice string mismatch: {templated_slice} != {s1}"
+                    )
 
     def find_slice_index(self, slice_identifier) -> int:
         raw_slices_search_result = [
@@ -476,16 +485,25 @@ class TemplateTracer:
         # https://jinja.palletsprojects.com/en/2.11.x/api/#jinja2.Environment.lex
         stack = []
         result = []
+        set_idx = None
         for _, elem_type, raw in env.lex(in_str):
+            # Replace literal text with a unique ID, except for "set"
+            # statements, which don't emit output and thus don't need this
+            # treatment.
             if elem_type == "data":
-                unique_id = uuid.uuid4().hex + "_len"
+                if set_idx is None:
+                    unique_alternate_id = uuid.uuid4().hex
+                    alternate_code = f"'{unique_alternate_id}_{len(raw)}'|"
+                else:
+                    unique_alternate_id = None
+                    alternate_code = None
                 result.append(
                     RawFileSlice(
                         raw,
                         "literal",
                         idx,
-                        unique_alternate_id=unique_id,
-                        alternate_code=f"[{unique_id!r}, {len(raw)}]",
+                        unique_alternate_id=unique_alternate_id,
+                        alternate_code=alternate_code,
                     )
                 )
                 idx += len(raw)
@@ -565,7 +583,11 @@ class TemplateTracer:
                         if trimmed_content:
                             unique_id = uuid.uuid4().hex
                             unique_alternate_id = unique_id
-                            alternate_code = f"{m_open.group(0)}[{unique_id!r}, {trimmed_content}]{m_close.group(0)}"
+                            alternate_code = f"{m_open.group(0)}[{unique_id!r}, {trimmed_content}]{m_close.group(0)}|"
+                if block_type == "block_start" and trimmed_content.split()[0] == "set":
+                    set_idx = len(result)
+                elif block_type == "block_end" and set_idx is not None:
+                    set_idx = None
                 m = re.search(r"\s+$", raw, re.MULTILINE | re.DOTALL)
                 if raw.startswith("-") and m:
                     # Right whitespace was stripped. Split off the trailing
