@@ -19,7 +19,11 @@ CREATE STATISTICS Stats_Population ON [Reporting].[Population]
 
 GO
 
-UPDATE STATISTICS Reporting.Population (Stats_Population);
+UPDATE STATISTICS Reporting.Population Stats_Population;
+
+GO
+
+UPDATE STATISTICS Reporting.Population (Stats_Facility, Stats_Population);
 
 GO
 

@@ -419,9 +419,7 @@ class UpdateStatisticsStatementSegment(BaseSegment):
         OneOf(
             Ref("SingleIdentifierGrammar"),
             Bracketed(
-                Ref("SingleIdentifierGrammar"),
-                AnyNumberOf(
-                    Ref("CommaSegment"),
+                Delimited(
                     Ref("SingleIdentifierGrammar"),
                 ),
             ),
