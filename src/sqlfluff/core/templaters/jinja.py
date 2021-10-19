@@ -356,45 +356,56 @@ class TemplateTracer:
             # print(f"actual:           {s1!r}")
             # print(f"unique alternate: {s2}")
             parts = []
-            # for p in s2.split("|"):
-            # if p:
-            p = s2
-            if p.endswith("|"):
-                p = p[:-1]
-            try:
-                value = ast.literal_eval(p)
-            except ValueError:
-                # HACK: This typically means the template has an
-                # undefined value. We'll have a string like this:
-                # "['8ec52833861446cda98a030cac45badd', Undefined"
-                # where "Undefined" comes from Jinja. In this case, we
-                # extract the first value from the string and provide
-                # None as the second value. There may be a better way to
-                # do this, but at least this avoids a runtime crash.
-                value = ast.literal_eval(f"{p.split(',', 1)[0]}]") + [False]
-            if isinstance(value, str):
-                # E.g. "2e8577c1d045439ba8d3b9bf47561de3_83"
-                value = [value.split("_")[0], int(value.split("_")[1]), True]
-            else:
-                value.append(False)
-            parts.append(value)
+            # Ideally, we'd like to receive one section of Jinja output at a
+            # time. In practice, Jinja internals determine how many section we
+            # get at a time. Here, we split s2 into one string per section.
+            # Each section is one of:
+            # - UUID, underscore, length, |, e.g.: '7193287fc88c412c904a1279215fe73a_19'|
+            # - Square bracket array literal with 2 values
+            #   e.g. {{ ['9f6ab9ed86304e8897a87b5b78edd6a1', 'c'] }}
+            #    - UUID
+            #    - Code that appears in templated Jinja block in raw_str
+            for p1, p2 in re.findall(
+                r"(\['[^']*(?:''[^']*)*', '[^']*(?:''[^']*)*'\])|('[a-f0-9]+_\d+'\|)",
+                s2,
+                re.MULTILINE | re.DOTALL,
+            ):
+                p = p1 or p2
+                if p.endswith("|"):
+                    p = p[:-1]
+                try:
+                    value = ast.literal_eval(p)
+                except ValueError:
+                    # HACK: This typically means the template has an
+                    # undefined value. We'll have a string like this:
+                    # "['8ec52833861446cda98a030cac45badd', Undefined"
+                    # where "Undefined" comes from Jinja. In this case, we
+                    # extract the first value from the string and provide
+                    # None as the second value. There may be a better way to
+                    # do this, but at least this avoids a runtime crash.
+                    value = ast.literal_eval(f"{p.split(',', 1)[0]}]") + [False]
+                if isinstance(value, str):
+                    # E.g. "2e8577c1d045439ba8d3b9bf47561de3_83"
+                    value = [value.split("_")[0], int(value.split("_")[1]), True]
+                else:
+                    value.append(False)
+                parts.append(value)
             for alt_id, content_info, literal in parts:
                 target_slice_idx = self.find_slice_index(alt_id)
-                # s1_part = self.raw_sliced[target_slice_idx].raw
-                # steps.append(self.raw_sliced[target_slice_idx])
                 if literal:
                     self.move_to_slice(target_slice_idx, content_info)
                 else:
                     self.move_to_slice(target_slice_idx, len(str(content_info)))
-                # Sanity check that the template slices we're recording match up
-                # precisely with templated_str.
-                templated_slice = self.templated_str[
-                    self.sliced_file[-1].templated_slice
-                ]
-                if templated_slice != s1:
-                    raise ValueError(
-                        f"Internal error: Templated slice string mismatch: {templated_slice} != {s1}"
-                    )
+            # Sanity check that the template slices we're recording match up
+            # precisely with templated_str.
+            templated_slice = "".join(
+                self.templated_str[tfs.templated_slice]
+                for tfs in self.sliced_file[-len(parts) :]
+            )
+            if templated_slice != s1:
+                raise ValueError(
+                    f"Internal error: Templated slice string mismatch: {templated_slice} != {s1}"
+                )
 
     def find_slice_index(self, slice_identifier) -> int:
         raw_slices_search_result = [
