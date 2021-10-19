@@ -207,7 +207,35 @@ postgres_dialect.replace(
         Ref("CommaSegment"),
         Ref("SetOperatorSegment"),
     ),
+    LiteralGrammar=OneOf(
+        Ref("QuotedLiteralSegment"),
+        Ref("NumericLiteralSegment"),
+        Ref("BooleanLiteralGrammar"),
+        Ref("QualifiedNumericLiteralSegment"),
+        # NB: Null is included in the literals, because it is a keyword which
+        # can otherwise be easily mistaken for an identifier.
+        Ref("NullLiteralSegment"),
+        Ref("DateTimeLiteralGrammar"),
+        Ref("PsqlVariableGrammar"),
+    ),
 )
+
+
+@postgres_dialect.segment()
+class PsqlVariableGrammar(BaseSegment):
+
+    type = "psql_variable"
+
+    match_grammar = Sequence(
+        OptionallyBracketed(
+            Ref("ColonSegment"),
+            OneOf(
+                Ref("ParameterNameSegment"),
+                Ref("QuotedLiteralSegment"),
+                Ref("QuotedIdentifierSegment"),
+            ),
+        )
+    )
 
 
 @postgres_dialect.segment()
