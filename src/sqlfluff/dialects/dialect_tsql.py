@@ -582,6 +582,7 @@ class DeclareStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "DECLARE",
         Ref("ParameterNameSegment"),
+        Sequence("AS", optional=True),
         Ref("DatatypeSegment"),
         Sequence(
             Ref("EqualsSegment"),
