@@ -30,3 +30,4 @@ AS
 	FROM dbo.Encounter e
 	JOIN dbo.Finance f ON e.[ID] = f.[ID]
 )
+OPTION (LABEL = 'Test_Label')		
