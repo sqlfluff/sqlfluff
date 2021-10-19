@@ -1590,7 +1590,7 @@ class HavingClauseSegment(BaseSegment):
         Dedent,
     )
 
-    parse_grammar = match_grammar
+    parse_grammar = None
 
 
 @tsql_dialect.segment(replace=True)
