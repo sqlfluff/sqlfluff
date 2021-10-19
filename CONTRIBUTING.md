@@ -156,9 +156,10 @@ working on an issue, before running full tests at the end:
 pytest -k L012 -v test
 ```
 
-Alternatively you can also run specific tests file with
+Alternatively, you can also run tests from specific directory or file only:
 ```
-pytest test/dialects/dialects_test.py
+pytest test/cli
+pytest test/cli/commands_test.py
 ```
 
 To run the dbt-related tests you will have to explicitly include these tests:
