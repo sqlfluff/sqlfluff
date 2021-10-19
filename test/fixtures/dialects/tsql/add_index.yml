@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a7f29577de31102beaa9149a5d84ef3c2232e50a6e3c4aa37874be9ec2fca570
+_hash: 909550a9666bd38b39a8adb4df7fdba6a0319465de9c37a6195fd0f7a94a11ae
 file:
 - batch:
     statement:
@@ -189,6 +189,22 @@ file:
         - index_column_definition:
             identifier: '[Population]'
         - end_bracket: )
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
+      update_statistics_statement:
+      - keyword: UPDATE
+      - keyword: STATISTICS
+      - object_reference:
+        - identifier: Reporting
+        - dot: .
+        - identifier: Population
+      - bracketed:
+          start_bracket: (
+          identifier: Stats_Population
+          end_bracket: )
+      - statement_terminator: ;
 - go_statement:
     keyword: GO
 - batch:
