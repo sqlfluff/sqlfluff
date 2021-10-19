@@ -223,6 +223,7 @@ postgres_dialect.replace(
 
 @postgres_dialect.segment()
 class PsqlVariableGrammar(BaseSegment):
+    """PSQl Variables :thing, :'thing', :"thing". """
 
     type = "psql_variable"
 
