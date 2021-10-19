@@ -563,7 +563,7 @@ class CreateFunctionStatementSegment(BaseSegment):
 
 
 @spark3_dialect.segment(replace=True)
-class CreateTableStatementSegment(ansi_dialect.get_segment("CreateTableStatementSegment")):
+class CreateTableStatementSegment(BaseSegment):
     """
         A `CREATE TABLE` statement using a Data Source.
         http://spark.apache.org/docs/latest/sql-ref-syntax-ddl-create-table-datasource.html
@@ -608,17 +608,109 @@ class CreateTableStatementSegment(ansi_dialect.get_segment("CreateTableStatement
     )
 
 
-# TODO - complex datatypes in create_hiveformat_table sql script causes below error:
-#  ValueError: bracket_type 'round' not found in bracket_pairs of 'spark3' dialect.
-#  Lines causing error are commented out for now.
 @spark3_dialect.segment()
-class CreateHiveFormatTableStatementSegment(hive_dialect.get_segment("CreateTableStatementSegment")):
+class CreateHiveFormatTableStatementSegment(CreateTableStatementSegment):
     """
         A `CREATE TABLE` statement using Hive format.
         https://spark.apache.org/docs/latest/sql-ref-syntax-ddl-create-table-hiveformat.html
+
+        Copied from src/sqlfluff/dialects/dialect_hive.py
+        Unable to inherit using hive_dialect.get("CreateTableStatementSegment):
     """
 
     type = "create_table_statement"
+    match_grammar = StartsWith(
+        Sequence(
+            "CREATE",
+            Ref.keyword("EXTERNAL", optional=True),
+            Ref.keyword("TEMPORARY", optional=True),
+            "TABLE",
+        )
+    )
+
+    parse_grammar = Sequence(
+        "CREATE",
+        Ref.keyword("EXTERNAL", optional=True),
+        Ref.keyword("TEMPORARY", optional=True),
+        "TABLE",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        OneOf(
+            # Columns and comment syntax:
+            Sequence(
+                Bracketed(
+                    Delimited(
+                        OneOf(
+                            # TODO: support all constraints
+                            Ref("TableConstraintSegment"),
+                            Sequence(
+                                Ref("ColumnDefinitionSegment"),
+                                Ref("CommentGrammar", optional=True),
+                            ),
+                        ),
+                    ),
+                    optional=True,
+                ),
+                Ref("CommentGrammar", optional=True),
+                # TODO : Is it possible to specify anyOrderOf
+                #  That would avoid second call to StoredAsGrammar
+                Ref("StoredAsGrammar", optional=True),
+                Sequence(
+                    "PARTITIONED",
+                    "BY",
+                    Bracketed(
+                        Delimited(
+                            Sequence(
+                                Ref("ColumnDefinitionSegment"),
+                                Ref("CommentGrammar", optional=True),
+                            ),
+                        ),
+                    ),
+                    optional=True,
+                ),
+                Sequence(
+                    "CLUSTERED",
+                    "BY",
+                    Ref("BracketedColumnReferenceListGrammar"),
+                    Sequence(
+                        "SORTED",
+                        "BY",
+                        Bracketed(
+                            Delimited(
+                                Sequence(
+                                    Ref("ColumnReferenceSegment"),
+                                    OneOf("ASC", "DESC", optional=True),
+                                )
+                            )
+                        ),
+                        optional=True,
+                    ),
+                    "INTO",
+                    Ref("NumericLiteralSegment"),
+                    "BUCKETS",
+                    optional=True,
+                ),
+                Ref("StoredAsGrammar", optional=True),
+                Ref("SkewedByClauseSegment", optional=True),
+                Ref("StorageFormatGrammar", optional=True),
+                Ref("LocationGrammar", optional=True),
+                Ref("TablePropertiesGrammar", optional=True),
+                Ref("CommentGrammar", optional=True),
+                Sequence(
+                    "AS",
+                    OptionallyBracketed(Ref("SelectStatementSegment")),
+                    optional=True
+                ),
+            ),
+            # Create like syntax
+            Sequence(
+                "LIKE",
+                Ref("TableReferenceSegment"),
+                Ref("LocationGrammar", optional=True),
+                Ref("TablePropertiesGrammar", optional=True),
+            ),
+        ),
+    )
 
 
 @spark3_dialect.segment()
