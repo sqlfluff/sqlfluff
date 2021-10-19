@@ -209,6 +209,7 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref("RenameStatementSegment"),  # Azure Synapse Analytics specific
             Ref("ExecuteScriptSegment"),
             Ref("DropStatisticsStatementSegment"),
+            Ref("UpdateStatisticsStatementSegment"),
         ],
     )
 
@@ -399,6 +400,31 @@ class DropStatisticsStatementSegment(BaseSegment):
         "DROP",
         OneOf("STATISTICS"),
         Ref("IndexReferenceSegment"),
+        Ref("DelimiterSegment", optional=True),
+    )
+
+
+@tsql_dialect.segment()
+class UpdateStatisticsStatementSegment(BaseSegment):
+    """An `UPDATE STATISTICS` statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/update-statistics-transact-sql?view=sql-server-ver15
+    """
+
+    type = "update_statistics_statement"
+    match_grammar = Sequence(
+        "UPDATE",
+        "STATISTICS",
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Ref("SingleIdentifierGrammar"),
+            Bracketed(
+                Delimited(
+                    Ref("SingleIdentifierGrammar"),
+                ),
+            ),
+            optional=True,
+        ),
         Ref("DelimiterSegment", optional=True),
     )
 
