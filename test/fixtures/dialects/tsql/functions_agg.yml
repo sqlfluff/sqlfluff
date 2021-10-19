@@ -3,13 +3,13 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a44bc5bbe60224dec2fd3a31f8f662e74abbad7e321e5190c747dc13dabd67a5
+_hash: 5e625eda78c73b9e1a56a210f0746362cace706b3ea090d9e6a542ba5d9e80e9
 file:
   batch:
-    statement:
+  - statement:
       select_statement:
         select_clause:
-        - keyword: select
+        - keyword: SELECT
         - select_clause_element:
             function:
               function_name:
@@ -123,3 +123,32 @@ file:
         - keyword: by
         - column_reference:
             identifier: employee_id
+        having_clause:
+          keyword: HAVING
+          expression:
+          - function:
+              function_name:
+                function_name_identifier: MIN
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    identifier: '[ArrivalDt]'
+                end_bracket: )
+          - comparison_operator: <=
+          - function:
+              function_name:
+                function_name_identifier: MAX
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    identifier: '[DischargeDt]'
+                end_bracket: )
+  - statement:
+      drop_statement:
+      - keyword: DROP
+      - keyword: TABLE
+      - table_reference:
+          identifier: '#Mercury'
+      - statement_terminator: ;

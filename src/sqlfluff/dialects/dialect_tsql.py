@@ -1576,6 +1576,24 @@ class GroupByClauseSegment(BaseSegment):
 
 
 @tsql_dialect.segment(replace=True)
+class HavingClauseSegment(BaseSegment):
+    """A `HAVING` clause like in `SELECT`.
+
+    Overriding ANSI to remove StartsWith
+    """
+
+    type = "having_clause"
+    match_grammar = Sequence(
+        "HAVING",
+        Indent,
+        OptionallyBracketed(Ref("ExpressionSegment")),
+        Dedent,
+    )
+
+    parse_grammar = match_grammar
+
+
+@tsql_dialect.segment(replace=True)
 class OrderByClauseSegment(BaseSegment):
     """A `ORDER BY` clause like in `SELECT`.
 
