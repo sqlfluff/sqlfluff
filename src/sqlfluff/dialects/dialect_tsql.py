@@ -1236,13 +1236,7 @@ class TableDistributionIndexClause(BaseSegment):
     match_grammar = Sequence(
         "WITH",
         Bracketed(
-            OneOf(
-                Ref("TableDistributionClause"),
-                Ref("TableIndexClause"),
-                Ref("TableLocationClause"),
-            ),
-            AnyNumberOf(
-                Ref("CommaSegment"),
+            Delimited(
                 OneOf(
                     Ref("TableDistributionClause"),
                     Ref("TableIndexClause"),
