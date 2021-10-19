@@ -406,7 +406,10 @@ class DropStatisticsStatementSegment(BaseSegment):
 
 @tsql_dialect.segment()
 class UpdateStatisticsStatementSegment(BaseSegment):
-    """An `UPDATE STATISTICS` statement."""
+    """An `UPDATE STATISTICS` statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/update-statistics-transact-sql?view=sql-server-ver15
+    """
 
     type = "update_statistics_statement"
     match_grammar = Sequence(
