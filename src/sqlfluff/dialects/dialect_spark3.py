@@ -7,7 +7,7 @@ Inherits from ANSI.
 Based on:
 - https://spark.apache.org/docs/latest/sql-ref.html
 - https://spark.apache.org/docs/latest/sql-ref-ansi-compliance.html
-https://github.com/apache/spark/blob/master/sql/catalyst/src/main/antlr4/org/apache/spark/sql/catalyst/parser/SqlBase.g4
+- https://github.com/apache/spark/blob/master/sql/catalyst/src/main/antlr4/org/apache/spark/sql/catalyst/parser/SqlBase.g4
 """
 
 from sqlfluff.core.parser import (
@@ -93,6 +93,11 @@ ansi_dialect.sets("datetime_units").update(
 spark3_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
 spark3_dialect.sets("reserved_keywords").update(RESERVED_KEYWORDS)
 
+# Set Bracket Pairs
+spark3_dialect.sets("bracket_pairs").update(
+    hive_dialect.sets("angle_bracket_pairs")
+)
+
 # Real Segments
 spark3_dialect.replace(
     ComparisonOperatorGrammar=OneOf(
@@ -111,13 +116,31 @@ spark3_dialect.replace(
 
 
 spark3_dialect.add(
-    # Add Hive Segments TODO : Is there a way to retrive this w/o redefining?
+    # Add Hive Segments TODO : Is there a way to retrieve this w/o redefining?
     DoubleQuotedLiteralSegment=NamedParser(
         "double_quote",
         CodeSegment,
         name="quoted_literal",
         type="literal",
         trim_chars=('"',),
+    ),
+    JsonfileKeywordSegment=StringParser(
+        "JSONFILE", KeywordSegment, name="json_file", type="file_format",
+    ),
+    RcfileKeywordSegment=StringParser(
+        "RCFILE", KeywordSegment, name="rc_file", type="file_format"
+    ),
+    SequencefileKeywordSegment=StringParser(
+        "SEQUENCEFILE", KeywordSegment, name="sequence_file", type="file_format"
+    ),
+    TextfileKeywordSegment=StringParser(
+        "TEXTFILE", KeywordSegment, name="text_file", type="file_format"
+    ),
+    StartAngleBracketSegment=StringParser(
+        "<", SymbolSegment, name="start_angle_bracket", type="start_angle_bracket"
+    ),
+    EndAngleBracketSegment=StringParser(
+        ">", SymbolSegment, name="end_angle_bracket", type="end_angle_bracket"
     ),
     # Add Spark Segments
     EqualsSegment_a=StringParser(
@@ -126,16 +149,31 @@ spark3_dialect.add(
     EqualsSegment_b=StringParser(
         "<=>", SymbolSegment, name="equals", type="comparison_operator"
     ),
+    FileKeywordSegment=StringParser(
+        "FILE", KeywordSegment, name="file", type="file_type"
+    ),
     JarKeywordSegment=StringParser(
         "JAR", KeywordSegment, name="jar", type="file_type"
     ),
+    WhlKeywordSegment=StringParser(
+        "WHL", KeywordSegment, name="whl", type="file_type"
+    ),
     # Add relevant Hive Grammar
-    BracketedPropertyListGrammar=hive_dialect.get_grammar("BracketedPropertyListGrammar"),
+    BracketedPropertyListGrammar=hive_dialect.get_grammar(
+        "BracketedPropertyListGrammar"
+    ),
     CommentGrammar=hive_dialect.get_grammar("CommentGrammar"),
+    FileFormatGrammar=hive_dialect.get_grammar("FileFormatGrammar"),
     LocationGrammar=hive_dialect.get_grammar("LocationGrammar"),
     PropertyGrammar=hive_dialect.get_grammar("PropertyGrammar"),
     SerdePropertiesGrammar=hive_dialect.get_grammar("SerdePropertiesGrammar"),
-    SingleOrDoubleQuotedLiteralGrammar=hive_dialect.get_grammar("SingleOrDoubleQuotedLiteralGrammar"),
+    StoredAsGrammar=hive_dialect.get_grammar("StoredAsGrammar"),
+    StoredByGrammar=hive_dialect.get_grammar("StoredByGrammar"),
+    StorageFormatGrammar=hive_dialect.get_grammar("StorageFormatGrammar"),
+    SingleOrDoubleQuotedLiteralGrammar=hive_dialect.get_grammar(
+        "SingleOrDoubleQuotedLiteralGrammar"
+    ),
+    TerminatedByGrammar=hive_dialect.get_grammar("TerminatedByGrammar"),
     # Add Spark Grammar
     BucketSpecGrammar=Sequence(
         Ref("ClusterSpecGrammar"),
@@ -171,13 +209,15 @@ spark3_dialect.add(
                     Ref("ColumnReferenceSegment"),
                     Ref("EqualsSegment", optional=True),
                     Ref("LiteralGrammar", optional=True),
+                    Ref("CommentGrammar", optional=True),
                 ),
             ),
         ),
     ),
     ResourceFileGrammar=OneOf(
-        "JAR",
-        "FILE",
+        Ref("JarKeywordSegment"),
+        Ref("WhlKeywordSegment"),
+        Ref("FileKeywordSegment"),
     ),
     ResourceLocationGrammar=Sequence(
         "USING",
@@ -207,6 +247,25 @@ spark3_dialect.add(
         "TBLPROPERTIES", Ref("BracketedPropertyListGrammar")
     ),
 )
+
+
+# Hive Segments
+@spark3_dialect.segment()
+class RowFormatClauseSegment(hive_dialect.get_segment("RowFormatClauseSegment")):
+    """`ROW FORMAT` clause in a CREATE HIVEFORMAT TABLE statement."""
+
+    type = "row_format_clause"
+
+
+@spark3_dialect.segment()
+class SkewedByClauseSegment(hive_dialect.get_segment("SkewedByClauseSegment")):
+    """
+        `SKEWED BY` clause in a CREATE HIVEFORMAT TABLE statement.
+    """
+
+    type = "skewed_by_clause"
+
+
 # Primitive Data Types
 @spark3_dialect.segment()
 class PrimitiveTypeSegment(BaseSegment):
@@ -268,19 +327,15 @@ class DatatypeSegment(BaseSegment):
             Bracketed(
                 Ref("DatatypeSegment"),
                 bracket_pairs_set="angle_bracket_pairs",
-                bracket_type="angle",
             ),
         ),
         Sequence(
             "MAP",
             Bracketed(
-                Sequence(
-                    Ref("PrimitiveTypeSegment"),
-                    Ref("CommaSegment"),
+                Delimited(
                     Ref("DatatypeSegment"),
+                    bracket_pairs_set="angle_bracket_pairs",
                 ),
-                bracket_pairs_set="angle_bracket_pairs",
-                bracket_type="angle",
             ),
         ),
         Sequence(
@@ -293,10 +348,8 @@ class DatatypeSegment(BaseSegment):
                         Ref("DatatypeSegment"),
                         Ref("CommentGrammar", optional=True),
                     ),
-                    bracket_pairs_set="angle_bracket_pairs",
                 ),
                 bracket_pairs_set="angle_bracket_pairs",
-                bracket_type="angle",
             ),
         ),
     )
@@ -368,7 +421,6 @@ class AlterTableStatementSegment(BaseSegment):
                     "TYPE", Ref("DatatypeSegment"), optional=True
                 ),
                 Ref("CommentGrammar", optional=True),
-                # # TODO : Add to Spark dialect - ColPositionGrammar
                 OneOf(
                     "FIRST",
                     Sequence(
@@ -517,6 +569,8 @@ class CreateTableStatementSegment(ansi_dialect.get_segment("CreateTableStatement
         http://spark.apache.org/docs/latest/sql-ref-syntax-ddl-create-table-datasource.html
     """
 
+    type = "create_table_statement"
+
     match_grammar = Sequence(
         "CREATE",
         "TABLE",
@@ -554,16 +608,31 @@ class CreateTableStatementSegment(ansi_dialect.get_segment("CreateTableStatement
     )
 
 
-#
-#
-# @spark_dialect.segment()
-# class CreateHiveFormatTableStatementSegment(hive_dialect.get_segment("CreateTableStatementSegment")):
-#     """
-#         A `CREATE TABLE` statement using Hive format.
-#         https://spark.apache.org/docs/latest/sql-ref-syntax-ddl-create-table-hiveformat.html
-#     """
-#
-#
+# TODO - complex datatypes in create_hiveformat_table sql script causes below error:
+#  ValueError: bracket_type 'round' not found in bracket_pairs of 'spark3' dialect.
+#  Lines causing error are commented out for now.
+@spark3_dialect.segment()
+class CreateHiveFormatTableStatementSegment(hive_dialect.get_segment("CreateTableStatementSegment")):
+    """
+        A `CREATE TABLE` statement using Hive format.
+        https://spark.apache.org/docs/latest/sql-ref-syntax-ddl-create-table-hiveformat.html
+    """
+
+    type = "create_table_statement"
+
+
+@spark3_dialect.segment()
+class AddExecutablePackage(BaseSegment):
+
+    type = "add_executable_package"
+
+    match_grammar = Sequence(
+        "ADD",
+        Ref("ResourceFileGrammar"),
+        Ref("SingleOrDoubleQuotedLiteralGrammar"),
+    )
+
+
 # @spark_dialect.segment()
 # class CreateTableLikeStatement(BaseSegment):
 #     """
@@ -583,6 +652,8 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref("AlterDatabaseStatementSegment"),
             Ref("AlterTableStatementSegment"),
             Ref("AlterViewStatementSegment"),
+            Ref("CreateHiveFormatTableStatementSegment"),
+            Ref("AddExecutablePackage"),
         ],
         # remove=[
         #     Ref("TransactionStatementSegment"),

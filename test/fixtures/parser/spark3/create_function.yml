@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e11b43af618ab2f70df2cd78d6d93fc707a0bc8d001e0b55b6821df2e57a7de2
+_hash: 5faeef6a5afe42cd1790a4dc2aa6596d22d5c75818cc7cfc8848782ad97bf36a
 file:
 - statement:
     create_function_statement:
@@ -19,7 +19,7 @@ file:
     - keyword: AS
     - literal: '"class_name"'
     - keyword: USING
-    - keyword: FILE
+    - file_type: FILE
     - literal: '"resource_locations"'
 - statement_terminator: ;
 - statement:
