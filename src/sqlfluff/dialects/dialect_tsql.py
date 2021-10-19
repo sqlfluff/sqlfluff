@@ -57,7 +57,7 @@ tsql_dialect.insert_lexer_matchers(
             CodeSegment,
         ),
         # T-SQL unicode strings
-        RegexLexer("single_quote_with_n", r"N'([^'\\]|\\.)*'", CodeSegment),
+        RegexLexer("single_quote_with_n", r"N'(^'|'')+'", CodeSegment),
         RegexLexer(
             "hash_prefix",
             r"[#][#]?[a-zA-Z0-9_]+",
@@ -70,6 +70,7 @@ tsql_dialect.insert_lexer_matchers(
 tsql_dialect.patch_lexer_matchers(
     [
         # Patching comments to remove hash comments
+        RegexLexer("single_quote", r"'(^'|'')+'", CodeSegment),
         RegexLexer(
             "inline_comment",
             r"(--)[^\n]*",
