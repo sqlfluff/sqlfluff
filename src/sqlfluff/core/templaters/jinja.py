@@ -365,6 +365,7 @@ class TemplateTracer:
             #   e.g. {{ ['9f6ab9ed86304e8897a87b5b78edd6a1', 'c'] }}
             #    - UUID
             #    - Code that appears in templated Jinja block in raw_str
+            old_sliced_file_len = len(self.sliced_file)
             for p1, p2 in re.findall(
                 r"(\['[^']*(?:''[^']*)*', '[^']*(?:''[^']*)*'\])|('[a-f0-9]+_\d+'\|)",
                 s2,
@@ -398,13 +399,14 @@ class TemplateTracer:
                     self.move_to_slice(target_slice_idx, len(str(content_info)))
             # Sanity check that the template slices we're recording match up
             # precisely with templated_str.
-            templated_slice = "".join(
+            templated_slice_parts = [
                 self.templated_str[tfs.templated_slice]
-                for tfs in self.sliced_file[-len(parts) :]
-            )
-            if templated_slice != s1:
+                for tfs in self.sliced_file[old_sliced_file_len:]
+            ]
+            templated_slice_str = "".join(templated_slice_parts)
+            if templated_slice_str != s1:
                 raise ValueError(
-                    f"Internal error: Templated slice string mismatch: {templated_slice} != {s1}"
+                    f"Internal error: Templated slice string mismatch: {templated_slice_str} != {s1}"
                 )
 
     def find_slice_index(self, slice_identifier) -> int:
