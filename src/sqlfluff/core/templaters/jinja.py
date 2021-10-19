@@ -356,25 +356,28 @@ class TemplateTracer:
             # print(f"actual:           {s1!r}")
             # print(f"unique alternate: {s2}")
             parts = []
-            for p in s2.split("|"):
-                if p:
-                    try:
-                        value = ast.literal_eval(p)
-                    except ValueError:
-                        # HACK: This typically means the template has an
-                        # undefined value. We'll have a string like this:
-                        # "['8ec52833861446cda98a030cac45badd', Undefined"
-                        # where "Undefined" comes from Jinja. In this case, we
-                        # extract the first value from the string and provide
-                        # None as the second value. There may be a better way to
-                        # do this, but at least this avoids a runtime crash.
-                        value = ast.literal_eval(f"{p.split(',', 1)[0]}]") + [None]
-                    if isinstance(value, str):
-                        # E.g. "2e8577c1d045439ba8d3b9bf47561de3_83"
-                        value = [value.split("_")[0], int(value.split("_")[1]), True]
-                    else:
-                        value.append(False)
-                    parts.append(value)
+            # for p in s2.split("|"):
+            # if p:
+            p = s2
+            if p.endswith("|"):
+                p = p[:-1]
+            try:
+                value = ast.literal_eval(p)
+            except ValueError:
+                # HACK: This typically means the template has an
+                # undefined value. We'll have a string like this:
+                # "['8ec52833861446cda98a030cac45badd', Undefined"
+                # where "Undefined" comes from Jinja. In this case, we
+                # extract the first value from the string and provide
+                # None as the second value. There may be a better way to
+                # do this, but at least this avoids a runtime crash.
+                value = ast.literal_eval(f"{p.split(',', 1)[0]}]") + [False]
+            if isinstance(value, str):
+                # E.g. "2e8577c1d045439ba8d3b9bf47561de3_83"
+                value = [value.split("_")[0], int(value.split("_")[1]), True]
+            else:
+                value.append(False)
+            parts.append(value)
             for alt_id, content_info, literal in parts:
                 target_slice_idx = self.find_slice_index(alt_id)
                 # s1_part = self.raw_sliced[target_slice_idx].raw
@@ -583,9 +586,21 @@ class TemplateTracer:
                         if trimmed_content:
                             unique_id = uuid.uuid4().hex
                             unique_alternate_id = unique_id
-                            alternate_code = f"{m_open.group(0)}[{unique_id!r}, {trimmed_content}]{m_close.group(0)}|"
+                            alternate_code = f"{m_open.group(0)}[{unique_id!r}, {trimmed_content}]{m_close.group(0)}"
                 if block_type == "block_start" and trimmed_content.split()[0] == "set":
-                    set_idx = len(result)
+                    # Jinja supports two forms of {% set %}:
+                    # - {% set variable = value %}
+                    # - {% set variable %}value{% endset %}
+                    # https://jinja.palletsprojects.com/en/2.10.x/templates/#block-assignments
+                    # When the second format is used, leave the value "as is".
+                    # It won't be rendered directly to the template output
+                    # anyway, so substituting our special UUID values would just
+                    # confuse things.
+                    trimmed_content_parts = trimmed_content.split(maxsplit=2)
+                    if len(trimmed_content_parts) <= 2 or not trimmed_content_parts[
+                        2
+                    ].startswith("="):
+                        set_idx = len(result)
                 elif block_type == "block_end" and set_idx is not None:
                     set_idx = None
                 m = re.search(r"\s+$", raw, re.MULTILINE | re.DOTALL)
