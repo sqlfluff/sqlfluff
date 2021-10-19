@@ -1237,19 +1237,18 @@ class TableDistributionIndexClause(BaseSegment):
         "WITH",
         Bracketed(
             OneOf(
-                Sequence(
-                    Ref("TableDistributionClause"),
-                    Ref("CommaSegment"),
-                    Ref("TableIndexClause"),
-                ),
-                Sequence(
-                    Ref("TableIndexClause"),
-                    Ref("CommaSegment"),
-                    Ref("TableDistributionClause"),
-                ),
                 Ref("TableDistributionClause"),
                 Ref("TableIndexClause"),
-            )
+                Ref("TableLocationClause"),
+            ),
+            AnyNumberOf(
+                Ref("CommaSegment"),
+                OneOf(
+                    Ref("TableDistributionClause"),
+                    Ref("TableIndexClause"),
+                    Ref("TableLocationClause"),
+                ),
+            ),
         ),
     )
 
@@ -1294,11 +1293,25 @@ class TableIndexClause(BaseSegment):
                 "COLUMNSTORE",
                 "INDEX",
             ),
-            Sequence(
-                "LOCATION",
-                Ref("EqualsSegment"),
-                "USER_DB",
-            ),
+        ),
+    )
+
+
+@tsql_dialect.segment()
+class TableLocationClause(BaseSegment):
+    """`CREATE TABLE` location clause.
+
+    This is specific to Azure Synapse Analytics (deprecated) or to an external table.
+    """
+
+    type = "table_location_clause"
+
+    match_grammar = Sequence(
+        "LOCATION",
+        Ref("EqualsSegment"),
+        OneOf(
+            "USER_DB",  # Azure Synapse Analytics specific
+            Ref("QuotedLiteralSegment"),  # External Table
         ),
     )
 
