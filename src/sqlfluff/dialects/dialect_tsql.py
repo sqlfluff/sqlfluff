@@ -1371,6 +1371,7 @@ class CreateTableAsSelectStatementSegment(BaseSegment):
         Ref("TableDistributionIndexClause"),
         "AS",
         OptionallyBracketed(Ref("SelectableGrammar")),
+        Ref("OptionClauseSegment", optional=True),
         Ref("DelimiterSegment", optional=True),
     )
 
