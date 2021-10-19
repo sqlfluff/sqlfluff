@@ -1579,7 +1579,7 @@ class GroupByClauseSegment(BaseSegment):
 class HavingClauseSegment(BaseSegment):
     """A `HAVING` clause like in `SELECT`.
 
-    Overriding ANSI to remove StartsWith
+    Overriding ANSI to remove StartsWith with greedy terminator
     """
 
     type = "having_clause"
