@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 903c99939216547d7a354af7d1523dd1c1b86a454267e7e7ff4a191787259a9b
+_hash: 2955c661ec6568e26534634e327b0adc80e7d01632c48b6d2a239405f4afe410
 file:
-  statement:
+- statement:
     select_statement:
       select_clause:
         keyword: SELECT
@@ -24,4 +24,57 @@ file:
           - comma: ','
           - raw: '4'
           - end_square_bracket: ']'
-  statement_terminator: ;
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        identifier: sal_emp
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          identifier: name
+      - data_type:
+          data_type_identifier: text
+      - comma: ','
+      - column_reference:
+          identifier: pay_by_quarter
+      - data_type:
+          data_type_identifier: integer
+          array:
+            start_square_bracket: '['
+            end_square_bracket: ']'
+      - comma: ','
+      - column_reference:
+          identifier: schedule
+      - data_type:
+          data_type_identifier: text
+          array:
+          - start_square_bracket: '['
+          - end_square_bracket: ']'
+          - start_square_bracket: '['
+          - end_square_bracket: ']'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        identifier: tictactoe
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          identifier: squares
+        data_type:
+          data_type_identifier: integer
+          array:
+          - start_square_bracket: '['
+          - literal: '3'
+          - end_square_bracket: ']'
+          - start_square_bracket: '['
+          - literal: '3'
+          - end_square_bracket: ']'
+        end_bracket: )
+- statement_terminator: ;

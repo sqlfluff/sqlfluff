@@ -225,9 +225,60 @@ class ArrayGrammar(BaseSegment):
 
     type = 'array'
 
-    match_grammar = Sequence(
-        Ref("StartSquareBracketSegment"),
+    match_grammar = AnyNumberOf(
+        Bracketed(
+            Sequence(
+                Ref("NumericLiteralSegment"),
+                Sequence(
+                    Ref("SliceSegment"),
+                    Ref("NumericLiteralSegment"),
+                    optional=True
+                ),
+                optional=True
+            ),
+            bracket_type='square'
+        )
+    )
 
+
+@postgres_dialect.segment()
+class SimpleArrayContentsGrammar(BaseSegment):
+
+    type = "simple_array_contents_grammar"
+
+    match_grammar = Bracketed(
+        Delimited(
+            Ref("NumericLiteralSegment")
+        ),
+        bracket_type='square'
+    )
+
+
+@postgres_dialect.segment()
+class ArrayContentsGrammar(BaseSegment):
+    type = "array_contents_grammar"
+
+    match_grammar = Sequence(
+        OneOf(
+            Ref("SimpleArrayContentsGrammar"),
+            Bracketed(
+                Delimited(
+                    Ref("ArrayContentsGrammar")
+                ),
+                bracket_type='square'
+            )
+        )
+
+    )
+
+
+@postgres_dialect.segment()
+class ArrayLiteralGrammar(BaseSegment):
+    type = "array_literal_grammar"
+
+    match_grammar = Sequence(
+        "ARRAY",
+        Ref("ArrayContentsGrammar")
     )
 
 
@@ -289,6 +340,11 @@ class DatatypeSegment(BaseSegment):
                         optional=True,
                     ),
                     Ref("DatatypeIdentifierSegment"),
+                    OneOf(
+                        Ref("ArrayGrammar"),
+                        Ref("ArrayLiteralGrammar"),
+                        optional=True
+                    ),
                     allow_gaps=False,
                 ),
             ),
