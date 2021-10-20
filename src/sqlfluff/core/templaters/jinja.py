@@ -364,7 +364,7 @@ class TemplateTracer:
         #    - UUID
         #    - Code that appears in templated Jinja block in raw_str
         old_sliced_file_len = len(self.sliced_file)
-        for p in output2.split("🔢🤛"):
+        for p in output2.split("\0"):
             if not p:
                 continue
             # E.g. "2e8577c1d045439ba8d3b9bf47561de3_83"
@@ -498,7 +498,7 @@ class TemplateTracer:
             if elem_type == "data":
                 if set_idx is None:
                     unique_alternate_id = uuid.uuid4().hex
-                    alternate_code = f"{unique_alternate_id}_{len(raw)}🔢🤛"
+                    alternate_code = f"{unique_alternate_id}_{len(raw)}\0"
                 else:
                     unique_alternate_id = None
                     alternate_code = None
@@ -588,7 +588,7 @@ class TemplateTracer:
                         if trimmed_content:
                             unique_id = uuid.uuid4().hex
                             unique_alternate_id = unique_id
-                            alternate_code = f"{unique_alternate_id} {m_open.group(0)}{trimmed_content}{m_close.group(0)}🔢🤛"
+                            alternate_code = f"{unique_alternate_id} {m_open.group(0)}{trimmed_content}{m_close.group(0)}\0"
                 if block_type == "block_start" and trimmed_content.split()[0] == "set":
                     # Jinja supports two forms of {% set %}:
                     # - {% set variable = value %}
