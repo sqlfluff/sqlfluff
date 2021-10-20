@@ -31,7 +31,7 @@ from sqlfluff.core.parser import (
 
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser.segments.raw import CodeSegment, KeywordSegment
-from sqlfluff.dialects.spark3_keywords import (
+from sqlfluff.dialects.dialect_spark3_keywords import (
     RESERVED_KEYWORDS,
     UNRESERVED_KEYWORDS,
 )
