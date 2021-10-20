@@ -1,8 +1,9 @@
 """Implementation of Rule L039."""
+from typing import List, Optional
 
 from sqlfluff.core.parser import WhitespaceSegment
 
-from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult
+from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
 
@@ -29,13 +30,13 @@ class Rule_L039(BaseRule):
         FROM foo
     """
 
-    def _eval(self, segment, parent_stack, **kwargs):
+    def _eval(self, context: RuleContext) -> Optional[List[LintResult]]:
         """Unnecessary whitespace."""
         # For the given segment, lint whitespace directly within it.
         prev_newline = True
         prev_whitespace = None
         violations = []
-        for seg in segment.segments:
+        for seg in context.segment.segments:
             if seg.is_type("newline"):
                 prev_newline = True
                 prev_whitespace = None
@@ -64,5 +65,4 @@ class Rule_L039(BaseRule):
                         )
                 prev_newline = False
                 prev_whitespace = None
-        if violations:
-            return violations
+        return violations or None

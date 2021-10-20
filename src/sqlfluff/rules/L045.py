@@ -1,8 +1,8 @@
 """Implementation of Rule L045."""
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 from sqlfluff.core.dialects.base import Dialect
-from sqlfluff.core.rules.base import BaseRule, LintResult
+from sqlfluff.core.rules.base import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.analysis.select_crawler import SelectCrawler
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
@@ -48,7 +48,7 @@ class Rule_L045(BaseRule):
         cls,
         select_info_list: List[SelectCrawler],
         dialect: Dialect,
-        queries: Dict[str, List[SelectCrawler]],
+        queries: Dict[Optional[str], List[SelectCrawler]],
     ):
         for select_info in select_info_list:
             for source in SelectCrawler.crawl(
@@ -57,12 +57,12 @@ class Rule_L045(BaseRule):
                 if isinstance(source, list):
                     cls._visit_sources(source, dialect, queries)
 
-    def _eval(self, segment, dialect, **kwargs):
-        if segment.is_type("statement"):
-            queries = SelectCrawler.gather(segment, dialect)
+    def _eval(self, context: RuleContext) -> Optional[LintResult]:
+        if context.segment.is_type("statement"):
+            queries = SelectCrawler.gather(context.segment, context.dialect)
             if None in queries:
                 # Begin analysis at the final, outer query (key=None).
-                self._visit_sources(queries.pop(None), dialect, queries)
+                self._visit_sources(queries.pop(None), context.dialect, queries)
                 if queries:
-                    return LintResult(anchor=segment)
+                    return LintResult(anchor=context.segment)
         return None

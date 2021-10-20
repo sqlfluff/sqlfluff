@@ -26,6 +26,7 @@ Although SQL is reasonably consistent in its implementations, there are several 
 - [Hive](https://hive.apache.org/)
 - [MySQL](https://www.mysql.com/)
 - [PostgreSQL](https://www.postgresql.org/) (aka Postgres)
+- [Redshift](https://docs.aws.amazon.com/redshift/index.html)
 - [Snowflake](https://www.snowflake.com/)
 - [SQLite](https://www.sqlite.org/)
 - [Teradata](https://www.teradata.com/)
