@@ -921,6 +921,7 @@ class SetStatementSegment(BaseSegment):
                 Ref("ExpressionSegment"),
             ),
         ),
+        Ref("DelimiterSegment", optional=True),
     )
 
 
