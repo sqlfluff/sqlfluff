@@ -639,14 +639,18 @@ def test__templater_jinja_slice_template(test, result):
                 ("templated", slice(48, 53, None), slice(24, 25, None)),
                 ("literal", slice(53, 77, None), slice(25, 49, None)),
                 # NB: A templated section which loops back, spans the whole section.
-                # We get to match it more accurately here because we're lucky.
-                ("templated", slice(77, 95, None), slice(49, 55, None)),
+                ("templated", slice(77, 90, None), slice(49, 50, None)),
+                ("literal", slice(90, 95, None), slice(50, 55, None)),
+                ("block_end", slice(95, 107, None), slice(55, 55, None)),
+                ("block_start", slice(11, 35, None), slice(55, 55, None)),
                 ("literal", slice(35, 48, None), slice(55, 68, None)),
                 ("templated", slice(48, 53, None), slice(68, 69, None)),
                 ("literal", slice(53, 77, None), slice(69, 93, None)),
                 # NB: A templated section which loops back, spans the whole section.
-                # We get to match it more accurately here because we're lucky.
-                ("templated", slice(77, 95, None), slice(93, 100, None)),
+                ("templated", slice(77, 90, None), slice(93, 95, None)),
+                ("literal", slice(90, 95, None), slice(95, 100, None)),
+                ("block_end", slice(95, 107, None), slice(100, 100, None)),
+                ("block_start", slice(11, 35, None), slice(100, 100, None)),
                 ("literal", slice(35, 48, None), slice(100, 113, None)),
                 ("templated", slice(48, 53, None), slice(113, 114, None)),
                 ("literal", slice(53, 77, None), slice(114, 138, None)),
