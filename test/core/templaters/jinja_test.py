@@ -274,7 +274,6 @@ FROM
                 "{%- endif %}",
                 "\n",
                 "{% endfor %}",
-                "{% for product in products %}",
                 "\nSELECT\n  brand\nFROM\n  ",
                 "{{ product }}",
                 "\n",
@@ -297,7 +296,6 @@ FROM
                 "",
                 "",
                 "\n",
-                "",
                 "",
                 "\nSELECT\n  brand\nFROM\n  ",
                 "table2",
@@ -561,12 +559,10 @@ def test__templater_jinja_slice_template(test, result):
                 ("templated", slice(62, 67, None), slice(21, 22, None)),
                 ("literal", slice(67, 69, None), slice(22, 24, None)),
                 ("block_end", slice(69, 81, None), slice(24, 24, None)),
-                ("block_start", slice(33, 56, None), slice(24, 24, None)),
                 ("literal", slice(56, 62, None), slice(24, 30, None)),
                 ("templated", slice(62, 67, None), slice(30, 31, None)),
                 ("literal", slice(67, 69, None), slice(31, 33, None)),
                 ("block_end", slice(69, 81, None), slice(33, 33, None)),
-                ("block_start", slice(33, 56, None), slice(33, 33, None)),
                 ("literal", slice(56, 62, None), slice(33, 39, None)),
                 ("templated", slice(62, 67, None), slice(39, 40, None)),
                 ("literal", slice(67, 69, None), slice(40, 42, None)),
@@ -591,11 +587,9 @@ def test__templater_jinja_slice_template(test, result):
                 ("literal", slice(56, 62, None), slice(15, 21, None)),
                 ("templated", slice(62, 67, None), slice(21, 22, None)),
                 ("block_end", slice(67, 79, None), slice(22, 22, None)),
-                ("block_start", slice(33, 56, None), slice(22, 22, None)),
                 ("literal", slice(56, 62, None), slice(22, 28, None)),
                 ("templated", slice(62, 67, None), slice(28, 29, None)),
                 ("block_end", slice(67, 79, None), slice(29, 29, None)),
-                ("block_start", slice(33, 56, None), slice(29, 29, None)),
                 ("literal", slice(56, 62, None), slice(29, 35, None)),
                 ("templated", slice(62, 67, None), slice(35, 36, None)),
                 ("block_end", slice(67, 79, None), slice(36, 36, None)),
@@ -638,19 +632,15 @@ def test__templater_jinja_slice_template(test, result):
                 ("literal", slice(35, 48, None), slice(11, 24, None)),
                 ("templated", slice(48, 53, None), slice(24, 25, None)),
                 ("literal", slice(53, 77, None), slice(25, 49, None)),
-                # NB: A templated section which loops back, spans the whole section.
                 ("templated", slice(77, 90, None), slice(49, 50, None)),
                 ("literal", slice(90, 95, None), slice(50, 55, None)),
                 ("block_end", slice(95, 107, None), slice(55, 55, None)),
-                ("block_start", slice(11, 35, None), slice(55, 55, None)),
                 ("literal", slice(35, 48, None), slice(55, 68, None)),
                 ("templated", slice(48, 53, None), slice(68, 69, None)),
                 ("literal", slice(53, 77, None), slice(69, 93, None)),
-                # NB: A templated section which loops back, spans the whole section.
                 ("templated", slice(77, 90, None), slice(93, 95, None)),
                 ("literal", slice(90, 95, None), slice(95, 100, None)),
                 ("block_end", slice(95, 107, None), slice(100, 100, None)),
-                ("block_start", slice(11, 35, None), slice(100, 100, None)),
                 ("literal", slice(35, 48, None), slice(100, 113, None)),
                 ("templated", slice(48, 53, None), slice(113, 114, None)),
                 ("literal", slice(53, 77, None), slice(114, 138, None)),
@@ -705,11 +695,12 @@ def test__templater_jinja_slice_file(
         if elem[0] == "literal":
             assert elem[1] is not None
     # check result
-    assert [
+    actual = [
         (
             templated_file_slice.slice_type,
             templated_file_slice.source_slice,
             templated_file_slice.templated_slice,
         )
         for templated_file_slice in resp
-    ] == result
+    ]
+    assert actual == result

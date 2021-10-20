@@ -673,7 +673,7 @@ class TemplateTracer:
                     result[stack[-1]].next_slice_indices.append(block_idx)
                     if result[stack[-1]].slice_subtype == "loop":
                         # Record potential backward jump to the loop beginning.
-                        result[block_idx].next_slice_indices.append(stack[-1])
+                        result[block_idx].next_slice_indices.append(stack[-1] + 1)
                     stack.pop()
                 str_buff = ""
         return result
