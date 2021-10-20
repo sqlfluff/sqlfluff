@@ -44,6 +44,9 @@ class RawFileSlice:
         """Return the a slice object for this slice."""
         return slice(self.source_idx, self.end_source_idx())
 
+    def as_tuple(self):
+        return (self.raw, self.slice_type, self.source_idx, self.slice_subtype)
+
 
 class TemplatedFileSlice(NamedTuple):
     """A slice referring to a templated file."""
@@ -199,7 +202,7 @@ class TemplatedFile:
             if raw_slice.slice_type == "block_start":
                 blocks.append(raw_slice)
                 templater_logger.info("%d -> %r", block_id, raw_slice.raw)
-                block_ids[raw_slice] = block_id
+                block_ids[raw_slice.as_tuple()] = block_id
                 block_id += 1
                 if raw_slice.slice_subtype == "loop":
                     loops.add(block_id)
@@ -207,10 +210,10 @@ class TemplatedFile:
                 blocks.pop()
                 block_id += 1
                 templater_logger.info("%d -> %r", block_id, raw_slice.raw)
-                block_ids[raw_slice] = block_id
+                block_ids[raw_slice.as_tuple()] = block_id
             else:
                 templater_logger.info("%d -> %r", block_id, raw_slice.raw)
-                block_ids[raw_slice] = block_id
+                block_ids[raw_slice.as_tuple()] = block_id
         literal_only_loops = [
             block_id
             for block_id in set(block_ids.values())
@@ -364,17 +367,17 @@ class TemplatedFile:
         if source_slice.start == source_slice.stop:
             return True
         is_literal = True
-        for _, seg_type, seg_idx, _ in self.raw_sliced:
+        for raw_slice in self.raw_sliced:
             # Reset if we find a literal and we're up to the start
             # otherwise set false.
-            if seg_idx <= source_slice.start:
-                is_literal = seg_type == "literal"
-            elif seg_idx >= source_slice.stop:
+            if raw_slice.source_idx <= source_slice.start:
+                is_literal = raw_slice.slice_type == "literal"
+            elif raw_slice.source_idx >= source_slice.stop:
                 # We've gone past the end. Break and Return.
                 break
             else:
                 # We're in the middle. Check type
-                if seg_type != "literal":
+                if raw_slice.slice_type != "literal":
                     is_literal = False
         return is_literal
 
