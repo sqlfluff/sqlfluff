@@ -17,19 +17,19 @@ from sqlfluff.core.rules.loader import get_rules_from_path
 class Rule_T042(BaseRule):
     """A dummy rule."""
 
-    def _eval(self, segment, raw_stack, **kwargs):
+    def _eval(self, context):
         pass
 
 
 class Rule_T001(BaseRule):
     """A deliberately malicious rule."""
 
-    def _eval(self, segment, raw_stack, **kwargs):
+    def _eval(self, context):
         """Stars make newlines."""
-        if segment.is_type("star"):
+        if context.segment.is_type("star"):
             return LintResult(
-                anchor=segment,
-                fixes=[LintFix("create", segment, NewlineSegment())],
+                anchor=context.segment,
+                fixes=[LintFix("create", context.segment, NewlineSegment())],
             )
 
 

@@ -1,8 +1,9 @@
 """Implementation of Rule L022."""
 
+from typing import Optional, List
 from sqlfluff.core.parser import NewlineSegment
 
-from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult
+from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
 
@@ -36,17 +37,20 @@ class Rule_L022(BaseRule):
 
     config_keywords = ["comma_style"]
 
-    def _eval(self, segment, **kwargs):
+    def _eval(self, context: RuleContext) -> Optional[List[LintResult]]:
         """Blank line expected but not found after CTE definition."""
+        # Config type hints
+        self.comma_style: str
+
         error_buffer = []
-        if segment.is_type("with_compound_statement"):
+        if context.segment.is_type("with_compound_statement"):
             # First we need to find all the commas, the end brackets, the
             # things that come after that and the blank lines in between.
 
             # Find all the closing brackets. They are our anchor points.
             bracket_indices = []
             expanded_segments = list(
-                segment.iter_segments(expanding=["common_table_expression"])
+                context.segment.iter_segments(expanding=["common_table_expression"])
             )
             for idx, seg in enumerate(expanded_segments):
                 if seg.is_type("bracketed"):
@@ -57,7 +61,7 @@ class Rule_L022(BaseRule):
                 forward_slice = expanded_segments[bracket_idx:]
                 seg_idx = 1
                 line_idx = 0
-                comma_seg_idx = None
+                comma_seg_idx = 0
                 blank_lines = 0
                 comma_line_idx = None
                 line_blank = False

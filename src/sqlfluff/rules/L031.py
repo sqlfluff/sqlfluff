@@ -1,10 +1,10 @@
 """Implementation of Rule L031."""
 
 from collections import Counter, defaultdict
-from typing import Generator, NamedTuple
+from typing import Generator, NamedTuple, Optional
 
 from sqlfluff.core.parser import BaseSegment
-from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult
+from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
 
@@ -46,18 +46,18 @@ class Rule_L031(BaseRule):
 
     """
 
-    def _eval(self, segment, **kwargs):
+    def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Identify aliases in from clause and join conditions.
 
         Find base table, table expressions in join, and other expressions in select clause
         and decide if it's needed to report them.
         """
-        if segment.is_type("select_statement"):
+        if context.segment.is_type("select_statement"):
             # A buffer for all table expressions in join conditions
             from_expression_elements = []
             column_reference_segments = []
 
-            from_clause_segment = segment.get_child("from_clause")
+            from_clause_segment = context.segment.get_child("from_clause")
 
             if not from_clause_segment:
                 return None
@@ -80,8 +80,8 @@ class Rule_L031(BaseRule):
             if from_expression_element:
                 base_table = from_expression_element.get_child("object_reference")
 
-            from_clause_index = segment.segments.index(from_clause_segment)
-            from_clause_and_after = segment.segments[from_clause_index:]
+            from_clause_index = context.segment.segments.index(from_clause_segment)
+            from_clause_and_after = context.segment.segments[from_clause_index:]
 
             for clause in from_clause_and_after:
                 for from_expression_element in clause.recursive_crawl(
@@ -96,7 +96,7 @@ class Rule_L031(BaseRule):
                     base_table,
                     from_expression_elements,
                     column_reference_segments,
-                    segment,
+                    context.segment,
                 )
                 or None
             )

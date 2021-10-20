@@ -44,7 +44,7 @@ class SelectCrawler:
     def get(
         cls,
         segment: BaseSegment,
-        queries: Dict[str, List["SelectCrawler"]],
+        queries: Dict[Optional[str], List["SelectCrawler"]],
         dialect: Dialect,
     ) -> Union[str, List["SelectCrawler"]]:
         """Find SELECTs, table refs, or value table function calls in segment.
@@ -60,7 +60,7 @@ class SelectCrawler:
     def crawl(
         cls,
         segment: BaseSegment,
-        queries: Dict[str, List["SelectCrawler"]],
+        queries: Dict[Optional[str], List["SelectCrawler"]],
         dialect: Dialect,
         recurse_into=True,
     ) -> Generator[Union[str, List["SelectCrawler"]], None, None]:
