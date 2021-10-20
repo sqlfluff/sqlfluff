@@ -34,7 +34,6 @@ hive_dialect.sets("angle_bracket_pairs").update(
     ]
 )
 
-
 hive_dialect.add(
     DoubleQuotedLiteralSegment=NamedParser(
         "double_quote",
@@ -178,7 +177,7 @@ class CreateTableStatementSegment(BaseSegment):
                                 Ref("CommentGrammar", optional=True),
                             ),
                         ),
-                    bracket_pairs_set="angle_bracket_pairs",
+                        bracket_pairs_set="angle_bracket_pairs",
                     ),
                     optional=True,
                 ),
