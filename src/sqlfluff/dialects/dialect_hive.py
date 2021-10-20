@@ -178,6 +178,7 @@ class CreateTableStatementSegment(BaseSegment):
                                 Ref("CommentGrammar", optional=True),
                             ),
                         ),
+                    bracket_pairs_set="angle_bracket_pairs",
                     ),
                     optional=True,
                 ),

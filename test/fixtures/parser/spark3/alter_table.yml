@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 56083c3941b7f2bd175a36d0a44e352234b153fc2c970f7dc583069993f9eb3d
+_hash: a2a50b71a82690ae3c164a8739b6c202fdbe4411b2a9a05e3b9af1b46b5dc2c5
 file:
-- statement:
+- base:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -16,7 +16,7 @@ file:
     - table_reference:
         identifier: StudentInfo
 - statement_terminator: ;
-- statement:
+- base:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -43,7 +43,7 @@ file:
         literal: "'15'"
         end_bracket: )
 - statement_terminator: ;
-- statement:
+- base:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -66,7 +66,7 @@ file:
               keyword: TIMESTAMP
       - end_bracket: )
 - statement_terminator: ;
-- statement:
+- base:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -79,7 +79,7 @@ file:
     - keyword: COMMENT
     - literal: '"new comment"'
 - statement_terminator: ;
-- statement:
+- base:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -92,7 +92,7 @@ file:
     - keyword: COMMENT
     - literal: '"new comment"'
 - statement_terminator: ;
-- statement:
+- base:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -111,7 +111,7 @@ file:
         literal: '18'
         end_bracket: )
 - statement_terminator: ;
-- statement:
+- base:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -138,7 +138,7 @@ file:
         literal: '20'
         end_bracket: )
 - statement_terminator: ;
-- statement:
+- base:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -156,7 +156,7 @@ file:
         literal: '18'
         end_bracket: )
 - statement_terminator: ;
-- statement:
+- base:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -173,7 +173,7 @@ file:
       - literal: "'loser'"
       - end_bracket: )
 - statement_terminator: ;
-- statement:
+- base:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -190,7 +190,7 @@ file:
       - literal: "'A table comment.'"
       - end_bracket: )
 - statement_terminator: ;
-- statement:
+- base:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -207,7 +207,7 @@ file:
       - literal: "'This is a new comment.'"
       - end_bracket: )
 - statement_terminator: ;
-- statement:
+- base:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -222,7 +222,7 @@ file:
         literal: "'winner'"
         end_bracket: )
 - statement_terminator: ;
-- statement:
+- base:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -241,7 +241,7 @@ file:
       - literal: '"val2"'
       - end_bracket: )
 - statement_terminator: ;
-- statement:
+- base:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -251,7 +251,7 @@ file:
     - keyword: SERDE
     - literal: "'org.apache.hadoop.hive.serde2.columnar.LazyBinaryColumnarSerDe'"
 - statement_terminator: ;
-- statement:
+- base:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -275,7 +275,7 @@ file:
       - literal: "'vee'"
       - end_bracket: )
 - statement_terminator: ;
-- statement:
+- base:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -285,7 +285,7 @@ file:
     - keyword: FILEFORMAT
     - keyword: ORC
 - statement_terminator: ;
-- statement:
+- base:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -308,7 +308,7 @@ file:
     - keyword: FILEFORMAT
     - keyword: PARQUET
 - statement_terminator: ;
-- statement:
+- base:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
