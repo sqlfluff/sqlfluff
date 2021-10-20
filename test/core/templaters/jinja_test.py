@@ -665,11 +665,10 @@ def test__templater_jinja_slice_template(test, result):
             "{% set thing %}FOO{% endset %} SELECT 1",
             " SELECT 1",
             None,
-            # There should be a zero length templated part at the start.
             [
-                # The templated section at the start should be entirely
-                # templated and not include a distinct literal within it.
-                ("templated", slice(0, 30, None), slice(0, 0, None)),
+                ("block_start", slice(0, 15, None), slice(0, 0, None)),
+                ("literal", slice(15, 18, None), slice(0, 0, None)),
+                ("block_end", slice(18, 30, None), slice(0, 0, None)),
                 ("literal", slice(30, 39, None), slice(0, 9, None)),
             ],
         ),
