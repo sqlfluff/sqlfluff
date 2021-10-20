@@ -15,6 +15,7 @@ SELECT
 	all_pop.Row#,
 	all_pop.b@nanas,
 	[# POAs],
+	'TSQLs escaping quotes test',
 	'TSQL''s escaping quotes test',
 	'',
 	''''
