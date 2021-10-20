@@ -210,6 +210,7 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref("RenameStatementSegment"),  # Azure Synapse Analytics specific
             Ref("ExecuteScriptSegment"),
             Ref("DropStatisticsStatementSegment"),
+            Ref("UpdateStatisticsStatementSegment"),
         ],
     )
 
@@ -400,6 +401,31 @@ class DropStatisticsStatementSegment(BaseSegment):
         "DROP",
         OneOf("STATISTICS"),
         Ref("IndexReferenceSegment"),
+        Ref("DelimiterSegment", optional=True),
+    )
+
+
+@tsql_dialect.segment()
+class UpdateStatisticsStatementSegment(BaseSegment):
+    """An `UPDATE STATISTICS` statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/update-statistics-transact-sql?view=sql-server-ver15
+    """
+
+    type = "update_statistics_statement"
+    match_grammar = Sequence(
+        "UPDATE",
+        "STATISTICS",
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Ref("SingleIdentifierGrammar"),
+            Bracketed(
+                Delimited(
+                    Ref("SingleIdentifierGrammar"),
+                ),
+            ),
+            optional=True,
+        ),
         Ref("DelimiterSegment", optional=True),
     )
 
@@ -1237,20 +1263,11 @@ class TableDistributionIndexClause(BaseSegment):
     match_grammar = Sequence(
         "WITH",
         Bracketed(
-            OneOf(
-                Sequence(
-                    Ref("TableDistributionClause"),
-                    Ref("CommaSegment"),
-                    Ref("TableIndexClause"),
-                ),
-                Sequence(
-                    Ref("TableIndexClause"),
-                    Ref("CommaSegment"),
-                    Ref("TableDistributionClause"),
-                ),
+            Delimited(
                 Ref("TableDistributionClause"),
                 Ref("TableIndexClause"),
-            )
+                Ref("TableLocationClause"),
+            ),
         ),
     )
 
@@ -1295,11 +1312,25 @@ class TableIndexClause(BaseSegment):
                 "COLUMNSTORE",
                 "INDEX",
             ),
-            Sequence(
-                "LOCATION",
-                Ref("EqualsSegment"),
-                "USER_DB",
-            ),
+        ),
+    )
+
+
+@tsql_dialect.segment()
+class TableLocationClause(BaseSegment):
+    """`CREATE TABLE` location clause.
+
+    This is specific to Azure Synapse Analytics (deprecated) or to an external table.
+    """
+
+    type = "table_location_clause"
+
+    match_grammar = Sequence(
+        "LOCATION",
+        Ref("EqualsSegment"),
+        OneOf(
+            "USER_DB",  # Azure Synapse Analytics specific
+            Ref("QuotedLiteralSegment"),  # External Table
         ),
     )
 
@@ -1572,6 +1603,22 @@ class GroupByClauseSegment(BaseSegment):
                 Ref("ExpressionSegment"),
             ),
         ),
+        Dedent,
+    )
+
+
+@tsql_dialect.segment(replace=True)
+class HavingClauseSegment(BaseSegment):
+    """A `HAVING` clause like in `SELECT`.
+
+    Overriding ANSI to remove StartsWith with greedy terminator
+    """
+
+    type = "having_clause"
+    match_grammar = Sequence(
+        "HAVING",
+        Indent,
+        OptionallyBracketed(Ref("ExpressionSegment")),
         Dedent,
     )
 
