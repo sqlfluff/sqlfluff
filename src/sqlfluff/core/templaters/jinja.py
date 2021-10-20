@@ -332,8 +332,8 @@ class JinjaTemplater(PythonTemplater):
 
 
 class TemplateTracer:
-    re_open_tag = re.compile(r"^\s*{[{%][\+\-]?\s*")
-    re_close_tag = re.compile(r"\s*[\+\-]?[}%]}\s*$")
+    re_open_tag = re.compile(r"^\s*({[{%])[\+\-]?\s*")
+    re_close_tag = re.compile(r"\s*[\+\-]?([}%]})\s*$")
 
     def __init__(self, raw_str, templated_str, make_template):
         self.raw_str = raw_str
@@ -346,7 +346,8 @@ class TemplateTracer:
 
     def process(self):
         alternate_template = "".join(
-            rs.alternate_code or rs.raw for rs in self.raw_sliced
+            rs.alternate_code if rs.alternate_code is not None else rs.raw
+            for rs in self.raw_sliced
         )
         # print(alternate_template)
         unique_alternate = self.make_template(alternate_template)
@@ -588,7 +589,7 @@ class TemplateTracer:
                         if trimmed_content:
                             unique_id = uuid.uuid4().hex
                             unique_alternate_id = unique_id
-                            alternate_code = f"{unique_alternate_id} {m_open.group(0)}{trimmed_content}{m_close.group(0)}\0"
+                            alternate_code = f"{unique_alternate_id} {m_open.group(1)} {trimmed_content} {m_close.group(1)}\0"
                 if block_type == "block_start" and trimmed_content.split()[0] == "set":
                     # Jinja supports two forms of {% set %}:
                     # - {% set variable = value %}
@@ -627,8 +628,14 @@ class TemplateTracer:
                     )
                     block_idx = len(result) - 1
                     idx += len(str_buff) - trailing_chars
+                    alternate_code = ""
                     result.append(
-                        RawFileSlice(str_buff[-trailing_chars:], "literal", idx)
+                        RawFileSlice(
+                            str_buff[-trailing_chars:],
+                            "literal",
+                            idx,
+                            alternate_code=alternate_code,
+                        )
                     )
                     idx += trailing_chars
                 else:
