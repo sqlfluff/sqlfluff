@@ -221,6 +221,17 @@ class TimeZoneGrammar(BaseSegment):
 
 
 @postgres_dialect.segment()
+class ArrayGrammar(BaseSegment):
+
+    type = 'array'
+
+    match_grammar = Sequence(
+        Ref("StartSquareBracketSegment"),
+
+    )
+
+
+@postgres_dialect.segment()
 class DateTimeTypeIdentifier(BaseSegment):
     """Date Time Type."""
 

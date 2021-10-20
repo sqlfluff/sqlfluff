@@ -1,0 +1,1 @@
+SELECT ARRAY[1,2] || ARRAY[3,4];
