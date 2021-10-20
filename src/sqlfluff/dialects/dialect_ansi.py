@@ -427,7 +427,7 @@ ansi_dialect.add(
     SelectClauseElementTerminatorGrammar=OneOf(
         "FROM",
         "WHERE",
-        "ORDER",
+        Sequence("ORDER", "BY"),
         "LIMIT",
         Ref("CommaSegment"),
         Ref("SetOperatorSegment"),
@@ -1227,7 +1227,7 @@ class SelectClauseSegment(BaseSegment):
         terminator=OneOf(
             "FROM",
             "WHERE",
-            "ORDER",
+            Sequence("ORDER", "BY"),
             "LIMIT",
             "OVERLAPS",
             Ref("SetOperatorSegment"),
@@ -1527,8 +1527,13 @@ ansi_dialect.add(
         Sequence(
             "EXISTS", Bracketed(Ref("SelectStatementSegment"))
         ),  # should be first priority, otherwise EXISTS() would be matched as a function
-        Ref("Expression_D_Grammar"),
-        Ref("CaseExpressionSegment"),
+        Sequence(
+            OneOf(
+                Ref("Expression_D_Grammar"),
+                Ref("CaseExpressionSegment"),
+            ),
+            AnyNumberOf(Ref("ShorthandCastSegment")),
+        ),
     ),
     # Expression_D_Grammar https://www.cockroachlabs.com/docs/v20.2/sql-grammar.htm#d_expr
     Expression_D_Grammar=Sequence(
@@ -1573,7 +1578,6 @@ ansi_dialect.add(
             ),
         ),
         Ref("Accessor_Grammar", optional=True),
-        AnyNumberOf(Ref("ShorthandCastSegment")),
         allow_gaps=True,
     ),
     Accessor_Grammar=AnyNumberOf(Ref("ArrayAccessorSegment")),
@@ -1645,7 +1649,7 @@ class OrderByClauseSegment(BaseSegment):
 
     type = "orderby_clause"
     match_grammar = StartsWith(
-        "ORDER",
+        Sequence("ORDER", "BY"),
         terminator=OneOf(
             "LIMIT",
             "HAVING",
@@ -1734,6 +1738,7 @@ class LimitClauseSegment(BaseSegment):
     type = "limit_clause"
     match_grammar = Sequence(
         "LIMIT",
+        Indent,
         OneOf(
             Ref("NumericLiteralSegment"),
             Sequence(
@@ -1745,6 +1750,7 @@ class LimitClauseSegment(BaseSegment):
                 Ref("NumericLiteralSegment"),
             ),
         ),
+        Dedent,
     )
 
 

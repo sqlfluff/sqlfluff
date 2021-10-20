@@ -18,3 +18,20 @@ CREATE STATISTICS Stats_Population ON [Reporting].[Population]
 ([ID],[Facility],[Population])
 
 GO
+
+UPDATE STATISTICS Reporting.Population Stats_Population;
+
+GO
+
+UPDATE STATISTICS Reporting.Population (Stats_Facility, Stats_Population);
+
+GO
+
+DROP STATISTICS Reporting.Population.Stats_Population
+
+GO
+
+DROP INDEX IX_INTER_VIMR_REPRODUCTION_NUMBER
+    ON dbo.VIMR_INFECTIOUS_PEOPLE;
+
+GO
