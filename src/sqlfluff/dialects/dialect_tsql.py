@@ -281,6 +281,7 @@ class UnorderedSelectStatementSegment(BaseSegment):
         # Dedent for the indent in the select clause.
         # It's here so that it can come AFTER any whitespace.
         Dedent,
+        Ref("IntoTableSegment", optional=True),
         Ref("FromClauseSegment", optional=True),
         Ref("PivotUnpivotStatementSegment", optional=True),
         Ref("WhereClauseSegment", optional=True),
@@ -310,6 +311,14 @@ class SelectStatementSegment(BaseSegment):
             Ref("DelimiterSegment", optional=True),
         ]
     )
+
+
+@tsql_dialect.segment()
+class IntoTableSegment(BaseSegment):
+    """`INTO` clause within `SELECT`."""
+
+    type = "into_table_clause"
+    match_grammar = Sequence("INTO", Ref("ObjectReferenceSegment"))
 
 
 @tsql_dialect.segment(replace=True)
