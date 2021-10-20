@@ -1,6 +1,5 @@
 """Defines the templaters."""
 
-import ast
 import os.path
 import logging
 import importlib.util
@@ -352,62 +351,52 @@ class TemplateTracer:
         # print(alternate_template)
         unique_alternate = self.make_template(alternate_template)
         template = self.make_template(self.raw_str)
-        for s1, s2 in zip(template.generate(), unique_alternate.generate()):
-            # print(f"actual:           {s1!r}")
-            # print(f"unique alternate: {s2}")
-            parts = []
-            # Ideally, we'd like to receive one section of Jinja output at a
-            # time. In practice, Jinja internals determine how many section we
-            # get at a time. Here, we split s2 into one string per section.
-            # Each section is one of:
-            # - UUID, underscore, length, |, e.g.: '7193287fc88c412c904a1279215fe73a_19'|
-            # - Square bracket array literal with 2 values
-            #   e.g. {{ ['9f6ab9ed86304e8897a87b5b78edd6a1', 'c'] }}
-            #    - UUID
-            #    - Code that appears in templated Jinja block in raw_str
-            old_sliced_file_len = len(self.sliced_file)
-            for p1, p2 in re.findall(
-                r"(\['[^']*(?:''[^']*)*', '[^']*(?:''[^']*)*'\])|('[a-f0-9]+_\d+'\|)",
-                s2,
-                re.MULTILINE | re.DOTALL,
-            ):
-                p = p1 or p2
-                if p.endswith("|"):
-                    p = p[:-1]
-                try:
-                    value = ast.literal_eval(p)
-                except ValueError:
-                    # HACK: This typically means the template has an
-                    # undefined value. We'll have a string like this:
-                    # "['8ec52833861446cda98a030cac45badd', Undefined"
-                    # where "Undefined" comes from Jinja. In this case, we
-                    # extract the first value from the string and provide
-                    # None as the second value. There may be a better way to
-                    # do this, but at least this avoids a runtime crash.
-                    value = ast.literal_eval(f"{p.split(',', 1)[0]}]") + [False]
-                if isinstance(value, str):
-                    # E.g. "2e8577c1d045439ba8d3b9bf47561de3_83"
-                    value = [value.split("_")[0], int(value.split("_")[1]), True]
-                else:
-                    value.append(False)
-                parts.append(value)
-            for alt_id, content_info, literal in parts:
-                target_slice_idx = self.find_slice_index(alt_id)
-                if literal:
-                    self.move_to_slice(target_slice_idx, content_info)
-                else:
-                    self.move_to_slice(target_slice_idx, len(str(content_info)))
-            # Sanity check that the template slices we're recording match up
-            # precisely with templated_str.
-            templated_slice_parts = [
-                self.templated_str[tfs.templated_slice]
-                for tfs in self.sliced_file[old_sliced_file_len:]
-            ]
-            templated_slice_str = "".join(templated_slice_parts)
-            if templated_slice_str != s1:
-                raise ValueError(
-                    f"Internal error: Templated slice string mismatch: {templated_slice_str} != {s1}"
-                )
+        output1 = template.render()
+        output2 = unique_alternate.render()
+        parts = []
+        # Ideally, we'd like to receive one section of Jinja output at a
+        # time. In practice, Jinja internals determine how many section we
+        # get at a time. Here, we split s2 into one string per section.
+        # Each section is one of:
+        # - UUID, underscore, length, |, e.g.: '7193287fc88c412c904a1279215fe73a_19'|
+        # - Square bracket array literal with 2 values
+        #   e.g. {{ ['9f6ab9ed86304e8897a87b5b78edd6a1', 'c'] }}
+        #    - UUID
+        #    - Code that appears in templated Jinja block in raw_str
+        old_sliced_file_len = len(self.sliced_file)
+        for p in output2.split("🔢🤛"):
+            if not p:
+                continue
+            # E.g. "2e8577c1d045439ba8d3b9bf47561de3_83"
+            m_id_len = re.match(r"^([0-9a-f]+)_(\d+)$", p)
+            if m_id_len:
+                value = [m_id_len.group(1), int(m_id_len.group(2)), True]
+            else:
+                m_id_start = re.search(r"^([0-9a-f]+)", p)
+                value = [m_id_start.group(0), p[len(m_id_start.group(0)) + 1 :], False]
+            parts.append(value)
+        for alt_id, content_info, literal in parts:
+            target_slice_idx = self.find_slice_index(alt_id)
+            if literal:
+                self.move_to_slice(target_slice_idx, content_info)
+            else:
+                self.move_to_slice(target_slice_idx, len(str(content_info)))
+        # Sanity check that the template slices we're recording match up
+        # precisely with templated_str.
+        templated_slice_parts = [
+            self.templated_str[tfs.templated_slice]
+            for tfs in self.sliced_file[old_sliced_file_len:]
+        ]
+        templated_slice_str = "".join(templated_slice_parts)
+        sliced_file_str = output1[
+            self.sliced_file[old_sliced_file_len]
+            .templated_slice.start : self.sliced_file[-1]
+            .templated_slice.stop
+        ]
+        if templated_slice_str != sliced_file_str:
+            raise ValueError(
+                f"Internal error: Templated slice string mismatch: {templated_slice_str} != {sliced_file_str}"
+            )
 
     def find_slice_index(self, slice_identifier) -> int:
         raw_slices_search_result = [
@@ -509,7 +498,7 @@ class TemplateTracer:
             if elem_type == "data":
                 if set_idx is None:
                     unique_alternate_id = uuid.uuid4().hex
-                    alternate_code = f"'{unique_alternate_id}_{len(raw)}'|"
+                    alternate_code = f"{unique_alternate_id}_{len(raw)}🔢🤛"
                 else:
                     unique_alternate_id = None
                     alternate_code = None
@@ -599,7 +588,7 @@ class TemplateTracer:
                         if trimmed_content:
                             unique_id = uuid.uuid4().hex
                             unique_alternate_id = unique_id
-                            alternate_code = f"{m_open.group(0)}[{unique_id!r}, {trimmed_content}]{m_close.group(0)}"
+                            alternate_code = f"{unique_alternate_id} {m_open.group(0)}{trimmed_content}{m_close.group(0)}🔢🤛"
                 if block_type == "block_start" and trimmed_content.split()[0] == "set":
                     # Jinja supports two forms of {% set %}:
                     # - {% set variable = value %}
