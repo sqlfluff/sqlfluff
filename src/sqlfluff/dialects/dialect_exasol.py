@@ -1016,13 +1016,11 @@ class CreateTableStatementSegment(BaseSegment):
             # Columns and comment syntax:
             Bracketed(
                 Sequence(
-                    Sequence(
-                        Ref("TableContentDefinitionSegment"),
-                        AnyNumberOf(
-                            Sequence(
-                                Ref("CommaSegment"),
-                                Ref("TableContentDefinitionSegment"),
-                            ),
+                    Ref("TableContentDefinitionSegment"),
+                    AnyNumberOf(
+                        Sequence(
+                            Ref("CommaSegment"),
+                            Ref("TableContentDefinitionSegment"),
                         ),
                     ),
                     Sequence(
