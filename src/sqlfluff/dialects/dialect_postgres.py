@@ -11,7 +11,6 @@ from sqlfluff.core.parser import (
     BaseSegment,
     Delimited,
     RegexLexer,
-    RegexParser,
     CodeSegment,
     NamedParser,
     SymbolSegment,
