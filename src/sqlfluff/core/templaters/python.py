@@ -489,31 +489,49 @@ class PythonTemplater(RawTemplater):
         idx: Optional[int] = None
         templ_idx = 0
         # Loop through
-        for raw, token_type, raw_pos, _, _ in raw_sliced:
-            if raw in invariants:
+        for raw_file_slice in raw_sliced:
+            if raw_file_slice.raw in invariants:
                 if buffer:
                     yield IntermediateFileSlice(
                         "compound",
-                        slice(idx, raw_pos),
-                        slice(templ_idx, templated_occurrences[raw][0]),
+                        slice(idx, raw_file_slice.source_idx),
+                        slice(templ_idx, templated_occurrences[raw_file_slice.raw][0]),
                         buffer,
                     )
                 buffer = []
                 idx = None
                 yield IntermediateFileSlice(
                     "invariant",
-                    slice(raw_pos, raw_pos + len(raw)),
                     slice(
-                        templated_occurrences[raw][0],
-                        templated_occurrences[raw][0] + len(raw),
+                        raw_file_slice.source_idx,
+                        raw_file_slice.source_idx + len(raw_file_slice.raw),
                     ),
-                    [RawFileSlice(raw, token_type, templated_occurrences[raw][0])],
+                    slice(
+                        templated_occurrences[raw_file_slice.raw][0],
+                        templated_occurrences[raw_file_slice.raw][0]
+                        + len(raw_file_slice.raw),
+                    ),
+                    [
+                        RawFileSlice(
+                            raw_file_slice.raw,
+                            raw_file_slice.slice_type,
+                            templated_occurrences[raw_file_slice.raw][0],
+                        )
+                    ],
                 )
-                templ_idx = templated_occurrences[raw][0] + len(raw)
+                templ_idx = templated_occurrences[raw_file_slice.raw][0] + len(
+                    raw_file_slice.raw
+                )
             else:
-                buffer.append(RawFileSlice(raw, token_type, raw_pos))
+                buffer.append(
+                    RawFileSlice(
+                        raw_file_slice.raw,
+                        raw_file_slice.slice_type,
+                        raw_file_slice.source_idx,
+                    )
+                )
                 if idx is None:
-                    idx = raw_pos
+                    idx = raw_file_slice.source_idx
         # If we have a final buffer, yield it
         if buffer:
             yield IntermediateFileSlice(
