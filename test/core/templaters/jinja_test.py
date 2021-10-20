@@ -6,6 +6,7 @@ from typing import List, NamedTuple
 import pytest
 
 from sqlfluff.core.templaters import JinjaTemplater
+from sqlfluff.core.templaters.jinja import TemplateTracer
 from sqlfluff.core import Linter, FluffConfig
 
 
@@ -510,17 +511,20 @@ def test__templater_full(subpath, code_only, include_meta, yaml_loader, caplog):
 )
 def test__templater_jinja_slice_template(test, result):
     """Test _slice_template."""
-    resp = list(JinjaTemplater._slice_template(test))
+    resp = list(TemplateTracer._slice_template(test))
     # check contigious (unless there's a comment in it)
     if "{#" not in test:
-        assert "".join(elem[0] for elem in resp) == test
+        assert "".join(elem.raw for elem in resp) == test
         # check indices
         idx = 0
-        for literal, _, pos, _ in resp:
-            assert pos == idx
-            idx += len(literal)
+        for raw_slice in resp:
+            assert raw_slice.source_idx == idx
+            idx += len(raw_slice.raw)
     # Check total result
-    assert [r[:3] for r in resp] == result
+    assert [
+        (raw_slice.raw, raw_slice.slice_type, raw_slice.source_idx)
+        for raw_slice in resp
+    ] == result
 
 
 @pytest.mark.parametrize(

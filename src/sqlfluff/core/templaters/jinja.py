@@ -552,7 +552,9 @@ class TemplateTracer:
                             "Jinja lex() skipped non-whitespace: %s", skipped_str
                         )
                     # Treat the skipped whitespace as a literal.
-                    result.append(RawFileSlice(skipped_str, "literal", idx))
+                    result.append(
+                        RawFileSlice(skipped_str, "literal", idx, alternate_code="")
+                    )
                     idx += num_chars_skipped
 
             # raw_end and raw_begin behave a little differently in
@@ -628,13 +630,12 @@ class TemplateTracer:
                     )
                     block_idx = len(result) - 1
                     idx += len(str_buff) - trailing_chars
-                    alternate_code = ""
                     result.append(
                         RawFileSlice(
                             str_buff[-trailing_chars:],
                             "literal",
                             idx,
-                            alternate_code=alternate_code,
+                            alternate_code="",
                         )
                     )
                     idx += trailing_chars
