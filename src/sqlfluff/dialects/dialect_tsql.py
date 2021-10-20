@@ -57,7 +57,7 @@ tsql_dialect.insert_lexer_matchers(
             CodeSegment,
         ),
         # T-SQL unicode strings
-        RegexLexer("single_quote_with_n", r"N'([^'\\]|\\.)*'", CodeSegment),
+        RegexLexer("single_quote_with_n", r"N'([^']|'')*'", CodeSegment),
         RegexLexer(
             "hash_prefix",
             r"[#][#]?[a-zA-Z0-9_]+",
@@ -69,6 +69,8 @@ tsql_dialect.insert_lexer_matchers(
 
 tsql_dialect.patch_lexer_matchers(
     [
+        # Patching single_quote to allow for TSQL-style escaped quotes
+        RegexLexer("single_quote", r"'([^']|'')*'", CodeSegment),
         # Patching comments to remove hash comments
         RegexLexer(
             "inline_comment",
@@ -193,6 +195,27 @@ tsql_dialect.replace(
 
 
 @tsql_dialect.segment(replace=True)
+class AliasExpressionSegment(BaseSegment):
+    """A reference to an object with an `AS` clause.
+
+    The optional AS keyword allows both implicit and explicit aliasing.
+    Overriding ANSI to remove QuotedLiteralSegment
+    """
+
+    type = "alias_expression"
+    match_grammar = Sequence(
+        Ref.keyword("AS", optional=True),
+        OneOf(
+            Sequence(
+                Ref("SingleIdentifierGrammar"),
+                # Column alias in VALUES clause
+                Bracketed(Ref("SingleIdentifierListSegment"), optional=True),
+            ),
+        ),
+    )
+
+
+@tsql_dialect.segment(replace=True)
 class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: ignore
     """Overriding StatementSegment to allow for additional segment parsing."""
 
@@ -208,6 +231,8 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             ),  # Azure Synapse Analytics specific
             Ref("RenameStatementSegment"),  # Azure Synapse Analytics specific
             Ref("ExecuteScriptSegment"),
+            Ref("DropStatisticsStatementSegment"),
+            Ref("UpdateStatisticsStatementSegment"),
         ],
     )
 
@@ -279,6 +304,7 @@ class UnorderedSelectStatementSegment(BaseSegment):
         # Dedent for the indent in the select clause.
         # It's here so that it can come AFTER any whitespace.
         Dedent,
+        Ref("IntoTableSegment", optional=True),
         Ref("FromClauseSegment", optional=True),
         Ref("PivotUnpivotStatementSegment", optional=True),
         Ref("WhereClauseSegment", optional=True),
@@ -308,6 +334,17 @@ class SelectStatementSegment(BaseSegment):
             Ref("DelimiterSegment", optional=True),
         ]
     )
+
+
+@tsql_dialect.segment()
+class IntoTableSegment(BaseSegment):
+    """`INTO` clause within `SELECT`.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/queries/select-into-clause-transact-sql?view=sql-server-ver15
+    """
+
+    type = "into_table_clause"
+    match_grammar = Sequence("INTO", Ref("ObjectReferenceSegment"))
 
 
 @tsql_dialect.segment(replace=True)
@@ -362,6 +399,64 @@ class CreateIndexStatementSegment(BaseSegment):
                         Ref("IndexColumnDefinitionSegment"),
                     ),
                 )
+            ),
+            optional=True,
+        ),
+        Ref("DelimiterSegment", optional=True),
+    )
+
+
+@tsql_dialect.segment(replace=True)
+class DropIndexStatementSegment(BaseSegment):
+    """A `DROP INDEX` statement.
+
+    Overriding ANSI to include required ON clause.
+    """
+
+    type = "drop_statement"
+    match_grammar = Sequence(
+        "DROP",
+        "INDEX",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("IndexReferenceSegment"),
+        "ON",
+        Ref("TableReferenceSegment"),
+        Ref("DelimiterSegment", optional=True),
+    )
+
+
+@tsql_dialect.segment()
+class DropStatisticsStatementSegment(BaseSegment):
+    """A `DROP STATISTICS` statement."""
+
+    type = "drop_statement"
+    # DROP INDEX <Index name> [CONCURRENTLY] [IF EXISTS] {RESTRICT | CASCADE}
+    match_grammar = Sequence(
+        "DROP",
+        OneOf("STATISTICS"),
+        Ref("IndexReferenceSegment"),
+        Ref("DelimiterSegment", optional=True),
+    )
+
+
+@tsql_dialect.segment()
+class UpdateStatisticsStatementSegment(BaseSegment):
+    """An `UPDATE STATISTICS` statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/update-statistics-transact-sql?view=sql-server-ver15
+    """
+
+    type = "update_statistics_statement"
+    match_grammar = Sequence(
+        "UPDATE",
+        "STATISTICS",
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Ref("SingleIdentifierGrammar"),
+            Bracketed(
+                Delimited(
+                    Ref("SingleIdentifierGrammar"),
+                ),
             ),
             optional=True,
         ),
@@ -548,6 +643,7 @@ class DeclareStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "DECLARE",
         Ref("ParameterNameSegment"),
+        Sequence("AS", optional=True),
         Ref("DatatypeSegment"),
         Sequence(
             Ref("EqualsSegment"),
@@ -825,6 +921,7 @@ class SetStatementSegment(BaseSegment):
                 Ref("ExpressionSegment"),
             ),
         ),
+        Ref("DelimiterSegment", optional=True),
     )
 
 
@@ -1201,20 +1298,11 @@ class TableDistributionIndexClause(BaseSegment):
     match_grammar = Sequence(
         "WITH",
         Bracketed(
-            OneOf(
-                Sequence(
-                    Ref("TableDistributionClause"),
-                    Ref("CommaSegment"),
-                    Ref("TableIndexClause"),
-                ),
-                Sequence(
-                    Ref("TableIndexClause"),
-                    Ref("CommaSegment"),
-                    Ref("TableDistributionClause"),
-                ),
+            Delimited(
                 Ref("TableDistributionClause"),
                 Ref("TableIndexClause"),
-            )
+                Ref("TableLocationClause"),
+            ),
         ),
     )
 
@@ -1259,11 +1347,25 @@ class TableIndexClause(BaseSegment):
                 "COLUMNSTORE",
                 "INDEX",
             ),
-            Sequence(
-                "LOCATION",
-                Ref("EqualsSegment"),
-                "USER_DB",
-            ),
+        ),
+    )
+
+
+@tsql_dialect.segment()
+class TableLocationClause(BaseSegment):
+    """`CREATE TABLE` location clause.
+
+    This is specific to Azure Synapse Analytics (deprecated) or to an external table.
+    """
+
+    type = "table_location_clause"
+
+    match_grammar = Sequence(
+        "LOCATION",
+        Ref("EqualsSegment"),
+        OneOf(
+            "USER_DB",  # Azure Synapse Analytics specific
+            Ref("QuotedLiteralSegment"),  # External Table
         ),
     )
 
@@ -1307,7 +1409,8 @@ class CreateTableAsSelectStatementSegment(BaseSegment):
         Ref("TableReferenceSegment"),
         Ref("TableDistributionIndexClause"),
         "AS",
-        Ref("SelectableGrammar"),
+        OptionallyBracketed(Ref("SelectableGrammar")),
+        Ref("OptionClauseSegment", optional=True),
         Ref("DelimiterSegment", optional=True),
     )
 
@@ -1535,6 +1638,22 @@ class GroupByClauseSegment(BaseSegment):
                 Ref("ExpressionSegment"),
             ),
         ),
+        Dedent,
+    )
+
+
+@tsql_dialect.segment(replace=True)
+class HavingClauseSegment(BaseSegment):
+    """A `HAVING` clause like in `SELECT`.
+
+    Overriding ANSI to remove StartsWith with greedy terminator
+    """
+
+    type = "having_clause"
+    match_grammar = Sequence(
+        "HAVING",
+        Indent,
+        OptionallyBracketed(Ref("ExpressionSegment")),
         Dedent,
     )
 

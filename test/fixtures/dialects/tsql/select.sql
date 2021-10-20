@@ -14,6 +14,10 @@ SELECT
 	all_pop. [Arrival Date],
 	all_pop.Row#,
 	all_pop.b@nanas,
-	[# POAs]
+	[# POAs],
+	'TSQLs escaping quotes test',
+	'TSQL''s escaping quotes test',
+	'',
+	''''
 FROM dbo . all_pop	
 
