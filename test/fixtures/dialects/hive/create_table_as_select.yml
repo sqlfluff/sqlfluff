@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5cba98b746d617d60343630ba140761c80b7f1caf085a1b7c8245e34fa970920
+_hash: c3505a8882802ab7db86cbc5ce32950c387cba21e15c6a50b92a456aaa01c119
 file:
   statement:
     create_table_statement:
@@ -18,7 +18,7 @@ file:
       - literal: '"org.apache.hadoop.hive.serde2.columnar.ColumnarSerDe"'
     - keyword: STORED
     - keyword: AS
-    - keyword: RCFile
+    - file_format: RCFile
     - keyword: AS
     - select_statement:
         select_clause:
