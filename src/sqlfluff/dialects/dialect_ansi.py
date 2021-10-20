@@ -427,7 +427,7 @@ ansi_dialect.add(
     SelectClauseElementTerminatorGrammar=OneOf(
         "FROM",
         "WHERE",
-        "ORDER",
+        Sequence("ORDER", "BY"),
         "LIMIT",
         Ref("CommaSegment"),
         Ref("SetOperatorSegment"),
@@ -1227,7 +1227,7 @@ class SelectClauseSegment(BaseSegment):
         terminator=OneOf(
             "FROM",
             "WHERE",
-            "ORDER",
+            Sequence("ORDER", "BY"),
             "LIMIT",
             "OVERLAPS",
             Ref("SetOperatorSegment"),
@@ -1649,7 +1649,7 @@ class OrderByClauseSegment(BaseSegment):
 
     type = "orderby_clause"
     match_grammar = StartsWith(
-        "ORDER",
+        Sequence("ORDER", "BY"),
         terminator=OneOf(
             "LIMIT",
             "HAVING",
@@ -1738,6 +1738,7 @@ class LimitClauseSegment(BaseSegment):
     type = "limit_clause"
     match_grammar = Sequence(
         "LIMIT",
+        Indent,
         OneOf(
             Ref("NumericLiteralSegment"),
             Sequence(
@@ -1749,6 +1750,7 @@ class LimitClauseSegment(BaseSegment):
                 Ref("NumericLiteralSegment"),
             ),
         ),
+        Dedent,
     )
 
 
