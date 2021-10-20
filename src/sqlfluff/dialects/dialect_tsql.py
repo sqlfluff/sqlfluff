@@ -1263,11 +1263,9 @@ class TableDistributionIndexClause(BaseSegment):
         "WITH",
         Bracketed(
             Delimited(
-                OneOf(
-                    Ref("TableDistributionClause"),
-                    Ref("TableIndexClause"),
-                    Ref("TableLocationClause"),
-                ),
+                Ref("TableDistributionClause"),
+                Ref("TableIndexClause"),
+                Ref("TableLocationClause"),
             ),
         ),
     )
