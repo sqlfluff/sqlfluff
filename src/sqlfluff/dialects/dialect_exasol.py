@@ -1016,16 +1016,14 @@ class CreateTableStatementSegment(BaseSegment):
             # Columns and comment syntax:
             Bracketed(
                 Sequence(
-                    AnyNumberOf(
-                        Sequence(
-                            Ref("CommaSegment", optional=True),
-                            OneOf(
-                                Ref("ColumnDefinitionSegment"),
-                                Ref("TableOutOfLineConstraintSegment"),
-                                Ref("CreateTableLikeClauseSegment"),
+                    Sequence(
+                        Ref("TableContentDefinitionSegment"),
+                        AnyNumberOf(
+                            Sequence(
+                                Ref("CommaSegment"),
+                                Ref("TableContentDefinitionSegment"),
                             ),
                         ),
-                        min_times=1,
                     ),
                     Sequence(
                         Ref("CommaSegment"),
@@ -1052,6 +1050,18 @@ class CreateTableStatementSegment(BaseSegment):
             Ref("CreateTableLikeClauseSegment"),
         ),
         Ref("CommentIsGrammar", optional=True),
+    )
+
+
+@exasol_dialect.segment()
+class TableContentDefinitionSegment(BaseSegment):
+    """The table content definition."""
+
+    type = "table_content_definition"
+    match_grammar = OneOf(
+        Ref("ColumnDefinitionSegment"),
+        Ref("TableOutOfLineConstraintSegment"),
+        Ref("CreateTableLikeClauseSegment"),
     )
 
 
