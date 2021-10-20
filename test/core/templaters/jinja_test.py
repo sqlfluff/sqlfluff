@@ -668,10 +668,16 @@ def test__templater_jinja_slice_template(test, result):
 )
 def test__templater_jinja_slice_file(raw_file, templated_file, result, caplog):
     """Test slice_file."""
+    templater = JinjaTemplater()
+    env = templater.get_jinja_env()
+    live_context = templater.get_context()
+
+    def make_template(in_str):
+        return env.from_string(in_str, globals=live_context)
+
     with caplog.at_level(logging.DEBUG, logger="sqlfluff.templater"):
         _, resp, _ = JinjaTemplater.slice_file(
-            raw_file,
-            templated_file,
+            raw_file, templated_file, make_template=make_template
         )
     # Check contigious on the TEMPLATED VERSION
     print(resp)

@@ -389,11 +389,14 @@ class TemplateTracer:
             for tfs in self.sliced_file[old_sliced_file_len:]
         ]
         templated_slice_str = "".join(templated_slice_parts)
-        sliced_file_str = output1[
-            self.sliced_file[old_sliced_file_len]
-            .templated_slice.start : self.sliced_file[-1]
-            .templated_slice.stop
-        ]
+        if self.sliced_file:
+            sliced_file_str = output1[
+                self.sliced_file[old_sliced_file_len]
+                .templated_slice.start : self.sliced_file[-1]
+                .templated_slice.stop
+            ]
+        else:
+            sliced_file_str = ""
         if templated_slice_str != sliced_file_str:
             raise ValueError(
                 f"Internal error: Templated slice string mismatch: {templated_slice_str} != {sliced_file_str}"
