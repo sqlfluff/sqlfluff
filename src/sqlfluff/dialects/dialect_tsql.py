@@ -315,7 +315,10 @@ class SelectStatementSegment(BaseSegment):
 
 @tsql_dialect.segment()
 class IntoTableSegment(BaseSegment):
-    """`INTO` clause within `SELECT`."""
+    """`INTO` clause within `SELECT`.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/queries/select-into-clause-transact-sql?view=sql-server-ver15
+    """
 
     type = "into_table_clause"
     match_grammar = Sequence("INTO", Ref("ObjectReferenceSegment"))
