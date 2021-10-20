@@ -11,6 +11,7 @@ from sqlfluff.core.parser import (
     BaseSegment,
     Delimited,
     RegexLexer,
+    RegexParser,
     CodeSegment,
     NamedParser,
     SymbolSegment,
@@ -191,6 +192,7 @@ postgres_dialect.replace(
     # For more information, see https://www.postgresql.org/docs/11/functions-datetime.html
     ColumnReferenceSegment=Sequence(
         ansi_dialect.get_segment("ColumnReferenceSegment"),
+        Ref("ArrayAccessorSegment", optional=True),
         Ref("TimeZoneGrammar", optional=True),
     ),
     # Postgres supports the non-standard ISNULL and NONNULL comparison operators. See
@@ -217,7 +219,9 @@ postgres_dialect.replace(
         Ref("NullLiteralSegment"),
         Ref("DateTimeLiteralGrammar"),
         Ref("PsqlVariableGrammar"),
+        Sequence(Ref("SimpleArrayTypeGrammar"), Ref("ArrayLiteralSegment")),
     ),
+    SimpleArrayTypeGrammar=Ref.keyword("ARRAY"),
 )
 
 
@@ -249,65 +253,56 @@ class TimeZoneGrammar(BaseSegment):
     )
 
 
-@postgres_dialect.segment()
-class ArrayGrammar(BaseSegment):
+@postgres_dialect.segment(replace=True)
+class ArrayAccessorSegment(BaseSegment):
+    """Overwrites Array Accessor in ANSI to allow n many consecutive brackets."""
 
-    type = 'array'
+    type = "array_accessor"
 
-    match_grammar = AnyNumberOf(
-        Bracketed(
-            Sequence(
-                Ref("NumericLiteralSegment"),
+    match_grammar = Sequence(
+        AnyNumberOf(
+            Bracketed(
                 Sequence(
-                    Ref("SliceSegment"),
-                    Ref("NumericLiteralSegment"),
-                    optional=True
+                    OneOf(
+                        Ref("QualifiedNumericLiteralSegment"),
+                        Ref("NumericLiteralSegment"),
+                    ),
+                    Sequence(
+                        Ref("SliceSegment"),
+                        OneOf(
+                            Ref("QualifiedNumericLiteralSegment"),
+                            Ref("NumericLiteralSegment"),
+                        ),
+                        optional=True,
+                    ),
+                    optional=True,
                 ),
-                optional=True
-            ),
-            bracket_type='square'
+                bracket_type="square",
+            )
         )
     )
 
 
 @postgres_dialect.segment()
 class SimpleArrayContentsGrammar(BaseSegment):
+    """This Grammar is Literals in Square Brackets, comma delimited."""
 
     type = "simple_array_contents_grammar"
 
-    match_grammar = Bracketed(
-        Delimited(
-            Ref("NumericLiteralSegment")
-        ),
-        bracket_type='square'
-    )
+    match_grammar = Bracketed(Delimited(Ref("LiteralGrammar")), bracket_type="square")
 
 
-@postgres_dialect.segment()
-class ArrayContentsGrammar(BaseSegment):
+@postgres_dialect.segment(replace=True)
+class ArrayLiteralSegment(BaseSegment):
+    """Overwrites ANSI to allow for nested Arrays."""
+
     type = "array_contents_grammar"
 
     match_grammar = Sequence(
         OneOf(
             Ref("SimpleArrayContentsGrammar"),
-            Bracketed(
-                Delimited(
-                    Ref("ArrayContentsGrammar")
-                ),
-                bracket_type='square'
-            )
+            Bracketed(Delimited(Ref("ArrayLiteralSegment")), bracket_type="square"),
         )
-
-    )
-
-
-@postgres_dialect.segment()
-class ArrayLiteralGrammar(BaseSegment):
-    type = "array_literal_grammar"
-
-    match_grammar = Sequence(
-        "ARRAY",
-        Ref("ArrayContentsGrammar")
     )
 
 
@@ -370,9 +365,11 @@ class DatatypeSegment(BaseSegment):
                     ),
                     Ref("DatatypeIdentifierSegment"),
                     OneOf(
-                        Ref("ArrayGrammar"),
-                        Ref("ArrayLiteralGrammar"),
-                        optional=True
+                        Ref("ArrayAccessorSegment"),
+                        Sequence(
+                            Ref("SimpleArrayTypeGrammar"), Ref("ArrayLiteralSegment")
+                        ),
+                        optional=True,
                     ),
                     allow_gaps=False,
                 ),
