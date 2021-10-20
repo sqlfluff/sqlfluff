@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 218509f39d3d4ba1a929341cf7ae70e98cfd28f1fdeb8a7db39082b396438e4b
+_hash: b87f3a3980afe193145d52dac614d424e692e16c69d73cdbd3b5d99c639f0573
 file:
-- statement:
+- base:
     create_database_statement:
     - keyword: CREATE
     - keyword: DATABASE
@@ -27,7 +27,7 @@ file:
       - literal: '"property_value"'
       - end_bracket: )
 - statement_terminator: ;
-- statement:
+- base:
     create_database_statement:
     - keyword: CREATE
     - keyword: SCHEMA
@@ -49,14 +49,14 @@ file:
       - literal: '"property_value"'
       - end_bracket: )
 - statement_terminator: ;
-- statement:
+- base:
     create_database_statement:
     - keyword: CREATE
     - keyword: DATABASE
     - database_reference:
         identifier: customer_db
 - statement_terminator: ;
-- statement:
+- base:
     create_database_statement:
     - keyword: CREATE
     - keyword: DATABASE
@@ -66,7 +66,7 @@ file:
     - database_reference:
         identifier: customer_db
 - statement_terminator: ;
-- statement:
+- base:
     create_database_statement:
     - keyword: CREATE
     - keyword: DATABASE

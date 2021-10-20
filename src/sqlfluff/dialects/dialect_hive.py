@@ -172,7 +172,7 @@ class CreateTableStatementSegment(BaseSegment):
                     Delimited(
                         OneOf(
                             # TODO: support all constraints
-                            Ref("TableConstraintSegment"),
+                            Ref("TableConstraintSegment", optional=True),
                             Sequence(
                                 Ref("ColumnDefinitionSegment"),
                                 Ref("CommentGrammar", optional=True),

@@ -49,9 +49,8 @@ STORED AS TEXTFILE;
 --Use complex datatype
 CREATE EXTERNAL TABLE family(
     student_name STRING,
-    friends ARRAY<STRING>--,
---    children MAP<STRING, INT>,
---    address STRUCT<street: STRING, city: STRING>
+    friends ARRAY<STRING>,
+    address STRUCT<street: STRING, city: STRING>
 )
 ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' ESCAPED BY '\\'
 COLLECTION ITEMS TERMINATED BY '_'
