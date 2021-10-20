@@ -332,6 +332,8 @@ class JinjaTemplater(PythonTemplater):
 
 
 class TemplateTracer:
+    """Deduces and records execution path of a Jinja template."""
+
     re_open_tag = re.compile(r"^\s*({[{%])[\+\-]?\s*")
     re_close_tag = re.compile(r"\s*[\+\-]?([}%]})\s*$")
 
@@ -345,6 +347,7 @@ class TemplateTracer:
         self.source_idx = 0
 
     def process(self):
+        """Captures the trace."""
         alternate_template = "".join(
             rs.alternate_code if rs.alternate_code is not None else rs.raw
             for rs in self.raw_sliced
@@ -403,6 +406,7 @@ class TemplateTracer:
             )
 
     def find_slice_index(self, slice_identifier) -> int:
+        """Given a slice identifier (UUID string), return its index."""
         raw_slices_search_result = [
             idx
             for idx, rs in enumerate(self.raw_sliced)
@@ -415,6 +419,7 @@ class TemplateTracer:
         return raw_slices_search_result[0]
 
     def move_to_slice(self, target_slice_idx, target_slice_length):
+        """Given a template location, walk execution to that point."""
         while self.program_counter < len(self.raw_sliced):
             self.record_trace(
                 target_slice_length if self.program_counter == target_slice_idx else 0
@@ -445,6 +450,7 @@ class TemplateTracer:
         #     pass
 
     def record_trace(self, target_slice_length):
+        """Add the current location to the trace."""
         slice_type = self.raw_sliced[self.program_counter].slice_type
         self.sliced_file.append(
             TemplatedFileSlice(
