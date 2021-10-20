@@ -50,6 +50,7 @@ STORED AS TEXTFILE;
 CREATE EXTERNAL TABLE family(
     student_name STRING,
     friends ARRAY<STRING>,
+    children MAP<STRING, INT>,
     address STRUCT<street: STRING, city: STRING>
 )
 ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' ESCAPED BY '\\'
