@@ -344,7 +344,6 @@ class Rule_L003(BaseRule):
           indent meta segment in the previous line.
 
         """
-
         # Config type hints
         self.tab_space_size: int
         self.indent_unit: str
