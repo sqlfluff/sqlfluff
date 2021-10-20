@@ -313,7 +313,7 @@ class PrimitiveTypeSegment(BaseSegment):
 
 
 @spark3_dialect.segment(replace=True)
-class DatatypeSegment(BaseSegment):
+class DatatypeSegment(PrimitiveTypeSegment):
     """
         Spark SQL Data types.
         https://spark.apache.org/docs/latest/sql-ref-datatypes.html
@@ -734,8 +734,10 @@ class AddExecutablePackage(BaseSegment):
 
 
 @spark3_dialect.segment(replace=True)
-class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: ignore
+class StatementSegment(BaseSegment):  # type: ignore
     """Overriding StatementSegment to allow for additional segment parsing."""
+
+    match_grammar = ansi_dialect.get_segment("StatementSegment").parse_grammar.copy()
 
     parse_grammar = ansi_dialect.get_segment("StatementSegment").parse_grammar.copy(
         # Segments defined in Spark3 dialect
