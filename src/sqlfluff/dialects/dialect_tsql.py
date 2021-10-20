@@ -57,7 +57,7 @@ tsql_dialect.insert_lexer_matchers(
             CodeSegment,
         ),
         # T-SQL unicode strings
-        RegexLexer("single_quote_with_n", r"N'([^'\\]|\\.)*'", CodeSegment),
+        RegexLexer("single_quote_with_n", r"N'([^']|'')*'", CodeSegment),
         RegexLexer(
             "hash_prefix",
             r"[#][#]?[a-zA-Z0-9_]+",
@@ -69,6 +69,8 @@ tsql_dialect.insert_lexer_matchers(
 
 tsql_dialect.patch_lexer_matchers(
     [
+        # Patching single_quote to allow for TSQL-style escaped quotes
+        RegexLexer("single_quote", r"'([^']|'')*'", CodeSegment),
         # Patching comments to remove hash comments
         RegexLexer(
             "inline_comment",
@@ -190,6 +192,27 @@ tsql_dialect.replace(
     ),
     JoinKeywords=OneOf("JOIN", "APPLY", Sequence("OUTER", "APPLY")),
 )
+
+
+@tsql_dialect.segment(replace=True)
+class AliasExpressionSegment(BaseSegment):
+    """A reference to an object with an `AS` clause.
+
+    The optional AS keyword allows both implicit and explicit aliasing.
+    Overriding ANSI to remove QuotedLiteralSegment
+    """
+
+    type = "alias_expression"
+    match_grammar = Sequence(
+        Ref.keyword("AS", optional=True),
+        OneOf(
+            Sequence(
+                Ref("SingleIdentifierGrammar"),
+                # Column alias in VALUES clause
+                Bracketed(Ref("SingleIdentifierListSegment"), optional=True),
+            ),
+        ),
+    )
 
 
 @tsql_dialect.segment(replace=True)
