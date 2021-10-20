@@ -439,7 +439,3 @@ class DbtTemplater(JinjaTemplater):
             # No violations returned in this way.
             [],
         )
-
-    @classmethod
-    def _preprocess_template(cls, in_str: str) -> str:
-        return in_str

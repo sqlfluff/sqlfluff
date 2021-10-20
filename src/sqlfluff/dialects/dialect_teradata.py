@@ -44,7 +44,6 @@ teradata_dialect.sets("unreserved_keywords").difference_update(
         # The following are moved to being reserved keywords
         "UNION",
         "TIMESTAMP",
-        "DATE",
     ]
 )
 
@@ -85,7 +84,9 @@ teradata_dialect.sets("unreserved_keywords").update(
     ]
 )
 
-teradata_dialect.sets("reserved_keywords").update(["UNION", "TIMESTAMP", "DATE"])
+teradata_dialect.sets("reserved_keywords").update(["UNION", "TIMESTAMP"])
+
+teradata_dialect.sets("bare_functions").update(["DATE"])
 
 
 # BTEQ statement
@@ -718,7 +719,7 @@ class QualifyClauseSegment(BaseSegment):
     type = "qualify_clause"
     match_grammar = StartsWith(
         "QUALIFY",
-        terminator=OneOf("ORDER", "LIMIT", "QUALIFY", "WINDOW"),
+        terminator=OneOf(Sequence("ORDER", "BY"), "LIMIT", "QUALIFY", "WINDOW"),
         enforce_whitespace_preceding_terminator=True,
     )
     parse_grammar = Sequence(
@@ -818,7 +819,7 @@ class SelectClauseSegment(BaseSegment):
         terminator=OneOf(
             "FROM",
             "WHERE",
-            "ORDER",
+            Sequence("ORDER", "BY"),
             "LIMIT",
             Ref("SetOperatorSegment"),
         ),

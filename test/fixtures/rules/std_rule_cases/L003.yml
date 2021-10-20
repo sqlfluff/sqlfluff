@@ -42,13 +42,11 @@ test_fail_tab_indentation:
     	a,
     b
     FROM my_tbl
-
   fix_str: |
     SELECT
     	a,
     	b
     FROM my_tbl
-
   configs:
     rules:
       indent_unit: tab
@@ -67,7 +65,6 @@ test_pass_indented_joins_false:
     SELECT a, b, c
     FROM my_tbl
     LEFT JOIN another_tbl USING(a)
-
   configs:
     indentation:
       indented_joins: false
@@ -89,12 +86,10 @@ test_fail_indented_joins_true_fix:
     SELECT a, b, c
     FROM my_tbl
     LEFT JOIN another_tbl USING(a)
-
   fix_str: |
     SELECT a, b, c
     FROM my_tbl
         LEFT JOIN another_tbl USING(a)
-
   configs:
     indentation:
       indented_joins: true
@@ -105,12 +100,10 @@ test_fail_indented_joins_false_fix:
     SELECT a, b, c
     FROM my_tbl
         LEFT JOIN another_tbl USING(a)
-
   fix_str: |
     SELECT a, b, c
     FROM my_tbl
     LEFT JOIN another_tbl USING(a)
-
   configs:
     indentation:
       indented_joins: false
@@ -131,7 +124,6 @@ test_pass_indented_using_on_true:
     FROM my_tbl
         LEFT JOIN another_tbl
             USING(a)
-
   configs:
     indentation:
       indented_joins: true
@@ -144,7 +136,6 @@ test_pass_indented_using_on_false:
     FROM my_tbl
         LEFT JOIN another_tbl
         USING(a)
-
   configs:
     indentation:
       indented_joins: true
@@ -157,13 +148,11 @@ test_fail_indented_using_on_false:
     FROM my_tbl
         LEFT JOIN another_tbl
             USING(a)
-
   fix_str: |
     SELECT a, b, c
     FROM my_tbl
         LEFT JOIN another_tbl
         USING(a)
-
   configs:
     indentation:
       indented_joins: true
@@ -176,13 +165,11 @@ test_fail_indented_joins_using_on_false:
     FROM my_tbl
         LEFT JOIN another_tbl
         USING(a)
-
   fix_str: |
     SELECT a, b, c
     FROM my_tbl
         LEFT JOIN another_tbl
             USING(a)
-
   configs:
     indentation:
       indented_joins: true
@@ -195,13 +182,11 @@ test_fail_indented_joins_using_on_false:
     FROM my_tbl
         LEFT JOIN another_tbl
             USING(a)
-
   fix_str: |
     SELECT a, b, c
     FROM my_tbl
     LEFT JOIN another_tbl
     USING(a)
-
   configs:
     indentation:
       indented_joins: false
@@ -222,7 +207,6 @@ test_fail_indented_from_with_comment_fix:
         t1
         -- Comment
     JOIN t2 USING (user_id)
-
   fix_str: |
     SELECT *
     FROM
@@ -258,7 +242,6 @@ test_fail_attempted_hanger_fix:
     SELECT coalesce(foo,
                   bar)
        FROM tbl
-
   fix_str: |
     SELECT coalesce(foo,
                     bar)
@@ -272,7 +255,6 @@ test_fail_possible_hanger_fix:
     SELECT coalesce(foo,
      bar)
        FROM tbl
-
   fix_str: |
     SELECT coalesce(foo,
                     bar)
@@ -288,7 +270,6 @@ test_fail_consecutive_hangers:
       and d like 'd%'
       and e like 'e%'
       and f like 'f%'
-
   fix_str: |
     select *
     from foo
@@ -309,7 +290,6 @@ test_fail_clean_reindent_fix:
     foo,
                     bar)
        FROM tbl
-
   fix_str: |
     SELECT coalesce(
         foo,
@@ -325,7 +305,6 @@ test_pass_indent_snowflake:
 
     select *
     from source_data
-
   configs:
     core:
       dialect: snowflake
@@ -336,10 +315,8 @@ test_pass_indent_indent_bigquery:
     with source_data as (
         select * from {{ source('source_name', 'xxx_yyy_zzz') }}
     )
-
     select *
     from source_data
-
   configs:
     core:
       dialect: bigquery
@@ -402,3 +379,58 @@ test_jinja_indent_templated_table_name_b:
         {{ product }}
     {% if not loop.last -%} UNION ALL {%- endif %}
     {% endfor %}
+
+# LIMIT and QUALIFY both indent
+test_limit_and_qualify_indent:
+  fail_str: |
+    SELECT
+        a,
+        b
+    FROM
+    my_tbl
+    QUALIFY
+    1
+    LIMIT
+    1
+  fix_str: |
+    SELECT
+        a,
+        b
+    FROM
+        my_tbl
+    QUALIFY
+        1
+    LIMIT
+        1
+  configs:
+    core:
+      dialect: bigquery
+
+# LIMIT and QUALIFY both acceptable on single line
+test_limit_and_qualify_single_line:
+  pass_str: |
+    SELECT
+        a,
+        b
+    FROM
+        my_tbl
+    QUALIFY 1
+    LIMIT 1
+  configs:
+    core:
+      dialect: bigquery
+
+# Exasol LUA script
+test_exasol_script:
+  pass_str: |
+    CREATE OR REPLACE LUA SCRIPT ASCRIPT (APARAM) RETURNS ROWCOUNT AS
+        res = 1
+        suc = true
+        if not suc then
+            error("ERROR")
+        end
+        return res
+    /
+  configs:
+    core:
+      dialect: exasol

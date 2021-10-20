@@ -15,6 +15,10 @@ RETURNS DOUBLE AS
         if ctx.a == nil or ctx.b==nil
             then return NULL
         end
-        return (ctx.a+ctx.b)/2
+        x = 10
+            /
+            2
+        return (ctx.a+ctx.b)
+                    / 2
     end
 /

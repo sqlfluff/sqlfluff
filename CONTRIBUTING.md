@@ -153,7 +153,13 @@ For example below will only run the tests for rule L012 which is much faster whi
 working on an issue, before running full tests at the end:
 
 ```
-pytest -k L012 -v
+pytest -k L012 -v test
+```
+
+Alternatively, you can also run tests from specific directory or file only:
+```
+pytest test/cli
+pytest test/cli/commands_test.py
 ```
 
 To run the dbt-related tests you will have to explicitly include these tests:

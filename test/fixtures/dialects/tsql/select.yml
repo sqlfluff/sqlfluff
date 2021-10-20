@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a9ba36322c00ee61edc62ebab4df214cb3111c2f60c07d8b417eba0c9ea9d65b
+_hash: 6136ffd1d4e696977225fc17ab70fad6a6810debe2f4e3ab32a2aa4b579dc0fc
 file:
   batch:
     statement:
@@ -96,6 +96,34 @@ file:
             - identifier: all_pop
             - dot: .
             - identifier: '[Arrival Date]'
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+            - identifier: all_pop
+            - dot: .
+            - identifier: Row#
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+            - identifier: all_pop
+            - dot: .
+            - identifier: b@nanas
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: '[# POAs]'
+        - comma: ','
+        - select_clause_element:
+            literal: "'TSQLs escaping quotes test'"
+        - comma: ','
+        - select_clause_element:
+            literal: "'TSQL''s escaping quotes test'"
+        - comma: ','
+        - select_clause_element:
+            literal: "''"
+        - comma: ','
+        - select_clause_element:
+            literal: "''''"
         from_clause:
           keyword: FROM
           from_expression:

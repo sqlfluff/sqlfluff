@@ -16,10 +16,15 @@ from sqlfluff.core.parser import (
     SymbolSegment,
     StartsWith,
     CommentSegment,
+    Dedent,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
-from sqlfluff.dialects.dialect_postgres_keywords import postgres_keywords, get_keywords
+from sqlfluff.dialects.dialect_postgres_keywords import (
+    postgres_keywords,
+    get_keywords,
+    postgres_postgis_datatype_keywords,
+)
 
 ansi_dialect = load_raw_dialect("ansi")
 
@@ -136,6 +141,7 @@ postgres_dialect.add(
     DollarQuotedLiteralSegment=NamedParser(
         "dollar_quote", CodeSegment, name="dollar_quoted_literal", type="literal"
     ),
+    SimpleGeometryGrammar=AnyNumberOf(Ref("NumericLiteralSegment")),
 )
 
 postgres_dialect.replace(
@@ -192,7 +198,45 @@ postgres_dialect.replace(
     IsNullGrammar=Ref.keyword("ISNULL"),
     NotNullGrammar=Ref.keyword("NOTNULL"),
     JoinKeywords=Sequence("JOIN", Sequence("LATERAL", optional=True)),
+    SelectClauseElementTerminatorGrammar=OneOf(
+        "INTO",
+        "FROM",
+        "WHERE",
+        Sequence("ORDER", "BY"),
+        "LIMIT",
+        Ref("CommaSegment"),
+        Ref("SetOperatorSegment"),
+    ),
+    LiteralGrammar=OneOf(
+        Ref("QuotedLiteralSegment"),
+        Ref("NumericLiteralSegment"),
+        Ref("BooleanLiteralGrammar"),
+        Ref("QualifiedNumericLiteralSegment"),
+        # NB: Null is included in the literals, because it is a keyword which
+        # can otherwise be easily mistaken for an identifier.
+        Ref("NullLiteralSegment"),
+        Ref("DateTimeLiteralGrammar"),
+        Ref("PsqlVariableGrammar"),
+    ),
 )
+
+
+@postgres_dialect.segment()
+class PsqlVariableGrammar(BaseSegment):
+    """PSQl Variables :thing, :'thing', :"thing"."""
+
+    type = "psql_variable"
+
+    match_grammar = Sequence(
+        OptionallyBracketed(
+            Ref("ColonSegment"),
+            OneOf(
+                Ref("ParameterNameSegment"),
+                Ref("QuotedLiteralSegment"),
+                Ref("QuotedIdentifierSegment"),
+            ),
+        )
+    )
 
 
 @postgres_dialect.segment()
@@ -243,6 +287,7 @@ class DatatypeSegment(BaseSegment):
 
     type = "data_type"
     match_grammar = OneOf(
+        Ref("WellKnownTextGeometrySegment"),
         Sequence(
             Ref("DateTimeTypeIdentifier"),
             Ref("TimeZoneGrammar", optional=True),
@@ -336,6 +381,46 @@ class CreateFunctionStatementSegment(BaseSegment):
     )
 
 
+@postgres_dialect.segment()
+class WellKnownTextGeometrySegment(BaseSegment):
+    """A Data Type Segment to identify Well Known Text Geometric Data Types.
+
+    As specified in https://postgis.net/stuff/postgis-3.1.pdf
+
+    This approach is to maximise 'accepted code' for the parser, rather than be overly restrictive.
+    """
+
+    type = "wkt_geometry_type"
+
+    _geometry_type_keywords = [x[0] for x in postgres_postgis_datatype_keywords]
+
+    match_grammar = OneOf(
+        Sequence(
+            OneOf(*_geometry_type_keywords),
+            Bracketed(
+                Delimited(
+                    OptionallyBracketed(Delimited(Ref("SimpleGeometryGrammar"))),
+                    # 2D Arrays of coordinates - to specify surfaces
+                    Bracketed(
+                        Delimited(Bracketed(Delimited(Ref("SimpleGeometryGrammar"))))
+                    ),
+                    Ref("WellKnownTextGeometrySegment"),
+                )
+            ),
+        ),
+        Sequence(
+            OneOf("GEOMETRY", "GEOGRAPHY"),
+            Bracketed(
+                Sequence(
+                    OneOf(*_geometry_type_keywords, "GEOMETRY", "GEOGRAPHY"),
+                    Ref("CommaSegment"),
+                    Ref("NumericLiteralSegment"),
+                )
+            ),
+        ),
+    )
+
+
 @postgres_dialect.segment(replace=True)
 class FunctionDefinitionGrammar(BaseSegment):
     """This is the body of a `CREATE FUNCTION AS` statement.
@@ -402,6 +487,90 @@ class FunctionDefinitionGrammar(BaseSegment):
             optional=True,
         ),
     )
+
+
+@postgres_dialect.segment()
+class IntoClauseSegment(BaseSegment):
+    """Into Clause Segment.
+
+    As specified in https://www.postgresql.org/docs/14/sql-selectinto.html
+    """
+
+    type = "into_clause"
+
+    match_grammar = Sequence(
+        "INTO",
+        OneOf("TEMPORARY", "TEMP", "UNLOGGED", optional=True),
+        Ref.keyword("TABLE", optional=True),
+        Ref("TableReferenceSegment"),
+    )
+
+
+@postgres_dialect.segment(replace=True)
+class UnorderedSelectStatementSegment(BaseSegment):
+    """Overrides ANSI Statement, to allow for SELECT INTO statements."""
+
+    type = "select_statement"
+
+    match_grammar = ansi_dialect.get_segment(
+        "UnorderedSelectStatementSegment"
+    ).match_grammar.copy()
+
+    parse_grammar = Sequence(
+        Ref("SelectClauseSegment"),
+        # Dedent for the indent in the select clause.
+        # It's here so that it can come AFTER any whitespace.
+        Dedent,
+        Ref("IntoClauseSegment", optional=True),
+        Ref("FromClauseSegment", optional=True),
+        Ref("WhereClauseSegment", optional=True),
+        Ref("GroupByClauseSegment", optional=True),
+        Ref("HavingClauseSegment", optional=True),
+        Ref("OverlapsClauseSegment", optional=True),
+    )
+
+
+@postgres_dialect.segment(replace=True)
+class SelectStatementSegment(BaseSegment):
+    """Overrides ANSI as the parse grammar copy needs to be reapplied."""
+
+    type = "select_statement"
+
+    match_grammar = ansi_dialect.get_segment(
+        "SelectStatementSegment"
+    ).match_grammar.copy()
+
+    parse_grammar = postgres_dialect.get_segment(
+        "UnorderedSelectStatementSegment"
+    ).parse_grammar.copy(
+        insert=[
+            Ref("OrderByClauseSegment", optional=True),
+            Ref("LimitClauseSegment", optional=True),
+            Ref("NamedWindowSegment", optional=True),
+        ]
+    )
+
+
+@postgres_dialect.segment(replace=True)
+class SelectClauseSegment(BaseSegment):
+    """Overrides ANSI to allow INTO as a terminator."""
+
+    type = "select_clause"
+    match_grammar = StartsWith(
+        Sequence("SELECT", Ref("WildcardExpressionSegment", optional=True)),
+        terminator=OneOf(
+            "INTO",
+            "FROM",
+            "WHERE",
+            Sequence("ORDER", "BY"),
+            "LIMIT",
+            "OVERLAPS",
+            Ref("SetOperatorSegment"),
+        ),
+        enforce_whitespace_preceding_terminator=True,
+    )
+
+    parse_grammar = Ref("SelectClauseSegmentGrammar")
 
 
 @postgres_dialect.segment(replace=True)
