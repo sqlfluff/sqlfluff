@@ -528,14 +528,15 @@ def test__templater_jinja_slice_template(test, result):
 
 
 @pytest.mark.parametrize(
-    "raw_file,templated_file,result",
+    "raw_file,templated_file,override_context,result",
     [
-        ("", "", []),
-        ("foo", "foo", [("literal", slice(0, 3, None), slice(0, 3, None))]),
+        ("", "", None, []),
+        ("foo", "foo", None, [("literal", slice(0, 3, None), slice(0, 3, None))]),
         # Example with no loops
         (
             "SELECT {{blah}}, boo {# comment #} from something",
             "SELECT foobar, boo  from something",
+            dict(blah="foobar"),
             [
                 ("literal", slice(0, 7, None), slice(0, 7, None)),
                 ("templated", slice(7, 15, None), slice(7, 13, None)),
@@ -548,6 +549,7 @@ def test__templater_jinja_slice_template(test, result):
         (
             "SELECT {# A comment #} {{field}} {% for i in [1, 3, 7]%}, fld_{{i}}_x{% endfor %} FROM my_schema.{{my_table}} ",
             "SELECT  foobar , fld_1_x, fld_3_x, fld_7_x FROM my_schema.barfoo ",
+            dict(field="foobar", my_table="barfoo"),
             [
                 ("literal", slice(0, 7, None), slice(0, 7, None)),
                 ("comment", slice(7, 22, None), slice(7, 7, None)),
@@ -558,9 +560,13 @@ def test__templater_jinja_slice_template(test, result):
                 ("literal", slice(56, 62, None), slice(15, 21, None)),
                 ("templated", slice(62, 67, None), slice(21, 22, None)),
                 ("literal", slice(67, 69, None), slice(22, 24, None)),
+                ("block_end", slice(69, 81, None), slice(24, 24, None)),
+                ("block_start", slice(33, 56, None), slice(24, 24, None)),
                 ("literal", slice(56, 62, None), slice(24, 30, None)),
                 ("templated", slice(62, 67, None), slice(30, 31, None)),
                 ("literal", slice(67, 69, None), slice(31, 33, None)),
+                ("block_end", slice(69, 81, None), slice(33, 33, None)),
+                ("block_start", slice(33, 56, None), slice(33, 33, None)),
                 ("literal", slice(56, 62, None), slice(33, 39, None)),
                 ("templated", slice(62, 67, None), slice(39, 40, None)),
                 ("literal", slice(67, 69, None), slice(40, 42, None)),
@@ -574,6 +580,7 @@ def test__templater_jinja_slice_template(test, result):
         (
             "SELECT {# A comment #} {{field}} {% for i in [1, 3, 7]%}, fld_{{i}}{% endfor %} FROM my_schema.{{my_table}} ",
             "SELECT  foobar , fld_1, fld_3, fld_7 FROM my_schema.barfoo ",
+            dict(field="foobar", my_table="barfoo"),
             [
                 ("literal", slice(0, 7, None), slice(0, 7, None)),
                 ("comment", slice(7, 22, None), slice(7, 7, None)),
@@ -583,8 +590,12 @@ def test__templater_jinja_slice_template(test, result):
                 ("block_start", slice(33, 56, None), slice(15, 15, None)),
                 ("literal", slice(56, 62, None), slice(15, 21, None)),
                 ("templated", slice(62, 67, None), slice(21, 22, None)),
+                ("block_end", slice(67, 79, None), slice(22, 22, None)),
+                ("block_start", slice(33, 56, None), slice(22, 22, None)),
                 ("literal", slice(56, 62, None), slice(22, 28, None)),
                 ("templated", slice(62, 67, None), slice(28, 29, None)),
+                ("block_end", slice(67, 79, None), slice(29, 29, None)),
+                ("block_start", slice(33, 56, None), slice(29, 29, None)),
                 ("literal", slice(56, 62, None), slice(29, 35, None)),
                 ("templated", slice(62, 67, None), slice(35, 36, None)),
                 ("block_end", slice(67, 79, None), slice(36, 36, None)),
@@ -597,6 +608,10 @@ def test__templater_jinja_slice_template(test, result):
         (
             "{{ config(materialized='view') }}\n\nSELECT 1 FROM {{ source('finance', 'reconciled_cash_facts') }}\n\n",
             "\n\nSELECT 1 FROM finance_reconciled_cash_facts\n\n",
+            dict(
+                config=lambda *args, **kwargs: "",
+                source=lambda *args, **kwargs: "finance_reconciled_cash_facts",
+            ),
             [
                 ("templated", slice(0, 33, None), slice(0, 0, None)),
                 ("literal", slice(33, 49, None), slice(0, 16, None)),
@@ -616,6 +631,7 @@ def test__templater_jinja_slice_template(test, result):
             "c_2+42 AS the_meaning_of_liff\n    \n        , "
             "c_3+42 AS the_meaning_of_lifff\n    \n"
             "FROM my_table",
+            None,
             [
                 ("literal", slice(0, 11, None), slice(0, 11, None)),
                 ("block_start", slice(11, 35, None), slice(11, 11, None)),
@@ -640,22 +656,11 @@ def test__templater_jinja_slice_template(test, result):
                 ("literal", slice(107, 121, None), slice(146, 160, None)),
             ],
         ),
-        # Test a wrapped example. Given the default config is to unwrap any wrapped
-        # queries, it should ignore the ends in the sliced file.
-        (
-            "SELECT {{blah}} FROM something",
-            "WITH wrap AS (SELECT nothing FROM something) SELECT * FROM wrap",
-            # The sliced version should have trimmed the ends
-            [
-                ("literal", slice(0, 7, None), slice(0, 7, None)),
-                ("templated", slice(7, 15, None), slice(7, 14, None)),
-                ("literal", slice(15, 30, None), slice(14, 29, None)),
-            ],
-        ),
         # Test an example where a block is removed entirely.
         (
             "{% set thing %}FOO{% endset %} SELECT 1",
             " SELECT 1",
+            None,
             # There should be a zero length templated part at the start.
             [
                 # The templated section at the start should be entirely
@@ -666,15 +671,20 @@ def test__templater_jinja_slice_template(test, result):
         ),
     ],
 )
-def test__templater_jinja_slice_file(raw_file, templated_file, result, caplog):
+def test__templater_jinja_slice_file(
+    raw_file, templated_file, override_context, result, caplog
+):
     """Test slice_file."""
-    templater = JinjaTemplater()
+    templater = JinjaTemplater(override_context=override_context)
     env = templater.get_jinja_env()
     live_context = templater.get_context()
 
     def make_template(in_str):
         return env.from_string(in_str, globals=live_context)
 
+    # TODO: Now that we're generating "templated_file", eliminate this field
+    # from the parametrized test cases.
+    templated_file = make_template(raw_file).render()
     with caplog.at_level(logging.DEBUG, logger="sqlfluff.templater"):
         _, resp, _ = JinjaTemplater.slice_file(
             raw_file, templated_file, make_template=make_template
@@ -692,4 +702,11 @@ def test__templater_jinja_slice_file(raw_file, templated_file, result, caplog):
         if elem[0] == "literal":
             assert elem[1] is not None
     # check result
-    assert resp == result
+    assert [
+        (
+            templated_file_slice.slice_type,
+            templated_file_slice.source_slice,
+            templated_file_slice.templated_slice,
+        )
+        for templated_file_slice in resp
+    ] == result
