@@ -19,6 +19,14 @@ CREATE STATISTICS Stats_Population ON [Reporting].[Population]
 
 GO
 
+UPDATE STATISTICS Reporting.Population Stats_Population;
+
+GO
+
+UPDATE STATISTICS Reporting.Population (Stats_Facility, Stats_Population);
+
+GO
+
 DROP STATISTICS Reporting.Population.Stats_Population
 
 GO
