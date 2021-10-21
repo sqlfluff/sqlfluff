@@ -1,7 +1,9 @@
 """Tests for templaters."""
 
-import pytest
 import logging
+from typing import List, NamedTuple
+
+import pytest
 
 from sqlfluff.core.templaters import JinjaTemplater
 from sqlfluff.core import Linter, FluffConfig
@@ -39,6 +41,226 @@ def test__templater_jinja(instr, expected_outstr):
     t = JinjaTemplater(override_context=dict(blah="foo", condition="a < 10"))
     outstr, _ = t.process(in_str=instr, fname="test", config=FluffConfig())
     assert str(outstr) == expected_outstr
+
+
+class RawTemplatedTestCase(NamedTuple):
+    """Instances of this object are test cases for test__templater_jinja_slices."""
+
+    name: str
+    instr: str
+    templated_str: str
+
+    # These fields are used to check TemplatedFile.sliced_file.
+    expected_templated_sliced__source_list: List[str]
+    expected_templated_sliced__templated_list: List[str]
+
+    # This field is used to check TemplatedFile.raw_sliced.
+    expected_raw_sliced__source_list: List[str]
+
+
+@pytest.mark.parametrize(
+    "case",
+    [
+        RawTemplatedTestCase(
+            name="basic_block",
+            instr="\n\n{% set x = 42 %}\nSELECT 1, 2\n",
+            templated_str="\n\n\nSELECT 1, 2\n",
+            expected_templated_sliced__source_list=[
+                "\n\n",
+                "{% set x = 42 %}",
+                "\nSELECT 1, 2\n",
+            ],
+            expected_templated_sliced__templated_list=[
+                "\n\n",
+                "",
+                "\nSELECT 1, 2\n",
+            ],
+            expected_raw_sliced__source_list=[
+                "\n\n",
+                "{% set x = 42 %}",
+                "\nSELECT 1, 2\n",
+            ],
+        ),
+        RawTemplatedTestCase(
+            name="strip_left_block",
+            instr="\n\n{%- set x = 42 %}\nSELECT 1, 2\n",
+            templated_str="\nSELECT 1, 2\n",
+            expected_templated_sliced__source_list=[
+                "\n\n{%- set x = 42 %}",
+                "\nSELECT 1, 2\n",
+            ],
+            expected_templated_sliced__templated_list=[
+                "",
+                "\nSELECT 1, 2\n",
+            ],
+            expected_raw_sliced__source_list=[
+                "\n\n",
+                "{%- set x = 42 %}",
+                "\nSELECT 1, 2\n",
+            ],
+        ),
+        RawTemplatedTestCase(
+            name="strip_both_block",
+            instr="\n\n{%- set x = 42 -%}\nSELECT 1, 2\n",
+            templated_str="SELECT 1, 2\n",
+            expected_templated_sliced__source_list=[
+                "\n\n{%- set x = 42 -%}\n",
+                "SELECT 1, 2\n",
+            ],
+            expected_templated_sliced__templated_list=[
+                "",
+                "SELECT 1, 2\n",
+            ],
+            expected_raw_sliced__source_list=[
+                "\n\n",
+                "{%- set x = 42 -%}",
+                "\n",
+                "SELECT 1, 2\n",
+            ],
+        ),
+        RawTemplatedTestCase(
+            name="basic_data",
+            instr="""select
+    c1,
+    {{ 'c' }}2 as user_id
+""",
+            templated_str="""select
+    c1,
+    c2 as user_id
+""",
+            expected_templated_sliced__source_list=[
+                "select\n    c1,\n    ",
+                "{{ 'c' }}",
+                "2 as user_id\n",
+            ],
+            expected_templated_sliced__templated_list=[
+                "select\n    c1,\n    ",
+                "c",
+                "2 as user_id\n",
+            ],
+            expected_raw_sliced__source_list=[
+                "select\n    c1,\n    ",
+                "{{ 'c' }}",
+                "2 as user_id\n",
+            ],
+        ),
+        # Note this is basically identical to the "basic_data" case above.
+        # "Right strip" is not actually a thing in Jinja.
+        RawTemplatedTestCase(
+            name="strip_right_data",
+            instr="""SELECT
+  {{ 'col1,' -}}
+  col2
+""",
+            templated_str="""SELECT
+  col1,col2
+""",
+            expected_templated_sliced__source_list=[
+                "SELECT\n  ",
+                "{{ 'col1,' -}}\n  ",
+                "col2\n",
+            ],
+            expected_templated_sliced__templated_list=[
+                "SELECT\n  ",
+                "col1,",
+                "col2\n",
+            ],
+            expected_raw_sliced__source_list=[
+                "SELECT\n  ",
+                "{{ 'col1,' -}}",
+                "\n  ",
+                "col2\n",
+            ],
+        ),
+        RawTemplatedTestCase(
+            name="strip_both_data",
+            instr="""select
+    c1,
+    {{- 'c' -}}
+2 as user_id
+""",
+            templated_str="""select
+    c1,c2 as user_id
+""",
+            expected_templated_sliced__source_list=[
+                "select\n    c1,",
+                "\n    {{- 'c' -}}\n",
+                "2 as user_id\n",
+            ],
+            expected_templated_sliced__templated_list=[
+                "select\n    c1,",
+                "c",
+                "2 as user_id\n",
+            ],
+            expected_raw_sliced__source_list=[
+                "select\n    c1,",
+                "\n    ",
+                "{{- 'c' -}}",
+                "\n",
+                "2 as user_id\n",
+            ],
+        ),
+        RawTemplatedTestCase(
+            name="strip_both_comment",
+            instr="""select
+    c1,
+    {#- Column 2 -#} c2 as user_id
+""",
+            templated_str="""select
+    c1,c2 as user_id
+""",
+            expected_templated_sliced__source_list=[
+                "select\n    c1,",
+                "\n    {#- Column 2 -#} ",
+                "c2 as user_id\n",
+            ],
+            expected_templated_sliced__templated_list=[
+                "select\n    c1,",
+                "",
+                "c2 as user_id\n",
+            ],
+            expected_raw_sliced__source_list=[
+                "select\n    c1,",
+                "\n    ",
+                "{#- Column 2 -#}",
+                " ",
+                "c2 as user_id\n",
+            ],
+        ),
+    ],
+    ids=lambda case: case.name,
+)
+def test__templater_jinja_slices(case: RawTemplatedTestCase):
+    """Test that Jinja templater slices raw and templated file correctly."""
+    t = JinjaTemplater()
+    templated_file, _ = t.process(in_str=case.instr, fname="test", config=FluffConfig())
+    assert templated_file.source_str == case.instr
+    assert templated_file.templated_str == case.templated_str
+    # Build and check the list of source strings referenced by "sliced_file".
+    actual_ts_source_list = [
+        case.instr[ts.source_slice] for ts in templated_file.sliced_file
+    ]
+    assert actual_ts_source_list == case.expected_templated_sliced__source_list
+
+    # Build and check the list of templated strings referenced by "sliced_file".
+    actual_ts_templated_list = [
+        templated_file.templated_str[ts.templated_slice]
+        for ts in templated_file.sliced_file
+    ]
+    assert actual_ts_templated_list == case.expected_templated_sliced__templated_list
+
+    # Build and check the list of source strings referenced by "raw_sliced".
+    previous_rs = None
+    actual_rs_source_list = []
+    for rs in templated_file.raw_sliced + [None]:
+        if previous_rs:
+            if rs:
+                actual_source = case.instr[previous_rs.source_idx : rs.source_idx]
+            else:
+                actual_source = case.instr[previous_rs.source_idx :]
+            actual_rs_source_list.append(actual_source)
+        previous_rs = rs
+    assert actual_rs_source_list == case.expected_raw_sliced__source_list
 
 
 def test__templater_jinja_error_variable():

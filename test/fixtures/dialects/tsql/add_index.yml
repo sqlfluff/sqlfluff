@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2122ec7aca5f6835c66088ad5d48be7e9bda62f0ec75767628621cb82f94e0a9
+_hash: 946e3a5e8e4f7e1d198b83d4b45999c073f327845770ec527b2d2131afc5cfc7
 file:
 - batch:
     statement:
@@ -164,5 +164,89 @@ file:
                 identifier: DATE_LAST_INSERTED
               end_bracket: )
           - statement_terminator: ;
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
+      create_index_statement:
+      - keyword: CREATE
+      - keyword: STATISTICS
+      - index_reference:
+          identifier: Stats_Population
+      - keyword: 'ON'
+      - table_reference:
+        - identifier: '[Reporting]'
+        - dot: .
+        - identifier: '[Population]'
+      - bracketed:
+        - start_bracket: (
+        - index_column_definition:
+            identifier: '[ID]'
+        - comma: ','
+        - index_column_definition:
+            identifier: '[Facility]'
+        - comma: ','
+        - index_column_definition:
+            identifier: '[Population]'
+        - end_bracket: )
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
+      update_statistics_statement:
+      - keyword: UPDATE
+      - keyword: STATISTICS
+      - object_reference:
+        - identifier: Reporting
+        - dot: .
+        - identifier: Population
+      - identifier: Stats_Population
+      - statement_terminator: ;
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
+      update_statistics_statement:
+      - keyword: UPDATE
+      - keyword: STATISTICS
+      - object_reference:
+        - identifier: Reporting
+        - dot: .
+        - identifier: Population
+      - bracketed:
+        - start_bracket: (
+        - identifier: Stats_Facility
+        - comma: ','
+        - identifier: Stats_Population
+        - end_bracket: )
+      - statement_terminator: ;
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
+      drop_statement:
+      - keyword: DROP
+      - keyword: STATISTICS
+      - index_reference:
+        - identifier: Reporting
+        - dot: .
+        - identifier: Population
+        - dot: .
+        - identifier: Stats_Population
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
+      drop_statement:
+      - keyword: DROP
+      - keyword: INDEX
+      - index_reference:
+          identifier: IX_INTER_VIMR_REPRODUCTION_NUMBER
+      - keyword: 'ON'
+      - table_reference:
+        - identifier: dbo
+        - dot: .
+        - identifier: VIMR_INFECTIOUS_PEOPLE
+      - statement_terminator: ;
 - go_statement:
     keyword: GO
