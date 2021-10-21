@@ -191,6 +191,41 @@ tsql_dialect.replace(
         Ref("DelimiterSegment"),
     ),
     JoinKeywords=OneOf("JOIN", "APPLY", Sequence("OUTER", "APPLY")),
+    # Replace Expression_D_Grammar to remove casting syntax invalid in TSQL
+    Expression_D_Grammar=Sequence(
+        OneOf(
+            Ref("BareFunctionSegment"),
+            Ref("FunctionSegment"),
+            Bracketed(
+                OneOf(
+                    # We're using the expression segment here rather than the grammar so
+                    # that in the parsed structure we get nested elements.
+                    Ref("ExpressionSegment"),
+                    Ref("SelectableGrammar"),
+                    Delimited(
+                        Ref(
+                            "ColumnReferenceSegment"
+                        ),  # WHERE (a,b,c) IN (select a,b,c FROM...)
+                        Ref(
+                            "FunctionSegment"
+                        ),  # WHERE (a, substr(b,1,3)) IN (select c,d FROM...)
+                        Ref("LiteralGrammar"),  # WHERE (a, 2) IN (SELECT b, c FROM ...)
+                    ),
+                    ephemeral_name="BracketedExpression",
+                ),
+            ),
+            # Allow potential select statement without brackets
+            Ref("SelectStatementSegment"),
+            Ref("LiteralGrammar"),
+            Ref("IntervalExpressionSegment"),
+            Ref("ColumnReferenceSegment"),
+            Sequence(
+                Ref("SimpleArrayTypeGrammar", optional=True), Ref("ArrayLiteralSegment")
+            ),
+        ),
+        Ref("Accessor_Grammar", optional=True),
+        allow_gaps=True,
+    ),
 )
 
 
