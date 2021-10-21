@@ -53,7 +53,7 @@ def test__parser__base_segments_stubs():
     base_segment = BaseSegment(segments=[rs1])
 
     with pytest.raises(NotImplementedError):
-        base_segment.edit()
+        base_segment.edit("foo")
 
 
 def test__parser__base_segments_raw(raw_seg):

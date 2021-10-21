@@ -4,6 +4,7 @@ from sqlfluff.core.plugin import hookimpl
 from sqlfluff.core.rules.base import (
     BaseRule,
     LintResult,
+    RuleContext,
 )
 from sqlfluff.core.rules.doc_decorators import (
     document_fix_compatible,
@@ -74,10 +75,10 @@ class Rule_Example_L001(BaseRule):
             col.strip() for col in self.forbidden_columns.split(",")
         ]
 
-    def _eval(self, segment, raw_stack, **kwargs):
+    def _eval(self, context: RuleContext):
         """We should not use ORDER BY."""
-        if segment.is_type("orderby_clause"):
-            for seg in segment.segments:
+        if context.segment.is_type("orderby_clause"):
+            for seg in context.segment.segments:
                 col_name = seg.raw.lower()
                 if (
                     seg.is_type("column_reference")

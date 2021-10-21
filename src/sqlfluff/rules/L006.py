@@ -5,7 +5,13 @@ from typing import Tuple, List
 
 from sqlfluff.core.parser import WhitespaceSegment
 
-from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix
+from sqlfluff.core.rules.base import (
+    BaseRule,
+    LintResult,
+    LintFix,
+    RuleContext,
+    EvalResultType,
+)
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
 
@@ -73,7 +79,7 @@ class Rule_L006(BaseRule):
                 return segments[j]
         return None
 
-    def _eval(self, segment, **kwargs):
+    def _eval(self, context: RuleContext) -> EvalResultType:
         """Operators should be surrounded by a single whitespace.
 
         Rewritten to assess direct children of a segment to make
@@ -92,12 +98,12 @@ class Rule_L006(BaseRule):
         # be dealt with by the parent segment. That also means that we need
         # to have at least three children.
 
-        if len(segment.segments) <= 2:
+        if len(context.segment.segments) <= 2:
             return LintResult()
 
         violations = []
 
-        for idx, sub_seg in enumerate(segment.segments):
+        for idx, sub_seg in enumerate(context.segment.segments):
             check_before = False
             check_after = False
             before_anchor = sub_seg
@@ -141,7 +147,9 @@ class Rule_L006(BaseRule):
                         check_after = True
 
             if check_before:
-                prev_seg = self._find_segment(idx, segment.segments, before=True)
+                prev_seg = self._find_segment(
+                    idx, context.segment.segments, before=True
+                )
                 if self._missing_whitespace(prev_seg, before=True):
                     self.logger.debug(
                         "Missing Whitespace Before %r. Found %r instead.",
@@ -166,7 +174,9 @@ class Rule_L006(BaseRule):
                     )
 
             if check_after:
-                next_seg = self._find_segment(idx, segment.segments, before=False)
+                next_seg = self._find_segment(
+                    idx, context.segment.segments, before=False
+                )
                 if self._missing_whitespace(next_seg, before=False):
                     self.logger.debug(
                         "Missing Whitespace After %r. Found %r instead.",
@@ -192,3 +202,5 @@ class Rule_L006(BaseRule):
 
         if violations:
             return violations
+
+        return LintResult()

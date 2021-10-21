@@ -1,8 +1,9 @@
 """Implementation of Rule L038."""
+from typing import Optional
 
-from sqlfluff.core.parser import SymbolSegment
+from sqlfluff.core.parser import BaseSegment, SymbolSegment
 
-from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult
+from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import (
     document_fix_compatible,
     document_configuration,
@@ -39,12 +40,15 @@ class Rule_L038(BaseRule):
 
     config_keywords = ["select_clause_trailing_comma"]
 
-    def _eval(self, segment, parent_stack, **kwargs):
+    def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Trailing commas within select clause."""
-        if segment.is_type("select_clause"):
+        # Config type hints
+        self.select_clause_trailing_comma: str
+
+        if context.segment.is_type("select_clause"):
             # Iterate content to find last element
-            last_content = None
-            for seg in segment.segments:
+            last_content: BaseSegment = None  # type: ignore
+            for seg in context.segment.segments:
                 if seg.is_code:
                     last_content = seg
 
