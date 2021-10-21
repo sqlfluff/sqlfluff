@@ -1,8 +1,9 @@
 """Implementation of Rule L040."""
+from typing import Optional
 
 from sqlfluff.core.parser import NewlineSegment, WhitespaceSegment
 
-from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult
+from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
 
@@ -31,20 +32,20 @@ class Rule_L041(BaseRule):
 
     """
 
-    def _eval(self, segment, **kwargs):
+    def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Select clause modifiers must appear on same line as SELECT."""
-        if segment.is_type("select_clause"):
+        if context.segment.is_type("select_clause"):
             # Does the select clause have modifiers?
-            select_modifier = segment.get_child("select_clause_modifier")
+            select_modifier = context.segment.get_child("select_clause_modifier")
             if not select_modifier:
                 return None  # No. We're done.
-            select_modifier_idx = segment.segments.index(select_modifier)
+            select_modifier_idx = context.segment.segments.index(select_modifier)
 
             # Does the select clause contain a newline?
-            newline = segment.get_child("newline")
+            newline = context.segment.get_child("newline")
             if not newline:
                 return None  # No. We're done.
-            newline_idx = segment.segments.index(newline)
+            newline_idx = context.segment.segments.index(newline)
 
             # Is there a newline before the select modifier?
             if newline_idx > select_modifier_idx:
@@ -66,7 +67,7 @@ class Rule_L041(BaseRule):
             ]
 
             # E.g. " " after "DISTINCT"
-            ws_to_delete = segment.select_children(
+            ws_to_delete = context.segment.select_children(
                 start_seg=select_modifier,
                 select_if=lambda s: s.is_type("whitespace"),
                 loop_while=lambda s: s.is_type("whitespace") or s.is_meta,
@@ -75,6 +76,8 @@ class Rule_L041(BaseRule):
             # E.g. " " -> X
             fixes += [LintFix("delete", ws) for ws in ws_to_delete]
             return LintResult(
-                anchor=segment,
+                anchor=context.segment,
                 fixes=fixes,
             )
+
+        return None

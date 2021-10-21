@@ -5,7 +5,7 @@ from typing import List, NamedTuple
 from sqlfluff.core.parser import WhitespaceSegment
 
 from sqlfluff.core.parser import BaseSegment, NewlineSegment
-from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult
+from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
 
@@ -44,17 +44,16 @@ class Rule_L036(BaseRule):
 
     """
 
-    def _eval(self, segment, raw_stack, **kwargs):
-        if segment.is_type("select_clause"):
-            select_targets_info = self._get_indexes(segment)
+    def _eval(self, context: RuleContext):
+        if context.segment.is_type("select_clause"):
+            select_targets_info = self._get_indexes(context.segment)
             if len(select_targets_info.select_targets) == 1:
-                parent_stack = kwargs.get("parent_stack")
                 return self._eval_single_select_target_element(
-                    select_targets_info, segment, parent_stack
+                    select_targets_info, context.segment, context.parent_stack
                 )
             elif len(select_targets_info.select_targets) > 1:
                 return self._eval_multiple_select_target_elements(
-                    select_targets_info, segment
+                    select_targets_info, context.segment
                 )
 
     @staticmethod
