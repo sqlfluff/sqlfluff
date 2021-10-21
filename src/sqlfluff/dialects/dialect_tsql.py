@@ -1083,7 +1083,7 @@ class RankFunctionNameSegment(BaseSegment):
     """
 
     type = "function_name"
-    match_grammar = OneOf("DENSE_RANK","NTILE","RANK","ROW_NUMBER")
+    match_grammar = OneOf("DENSE_RANK", "NTILE", "RANK", "ROW_NUMBER")
 
 
 @tsql_dialect.segment()
@@ -1174,7 +1174,9 @@ class FunctionSegment(BaseSegment):
         ),
         Sequence(
             Ref("RankFunctionNameSegment"),
-            Bracketed(Ref("NumericLiteralSegment", optional=True),),
+            Bracketed(
+                Ref("NumericLiteralSegment", optional=True),
+            ),
             "OVER",
             Bracketed(
                 Ref("PartitionByClause", optional=True),
