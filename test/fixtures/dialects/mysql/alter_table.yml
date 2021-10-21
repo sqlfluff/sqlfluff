@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 58d5de301d45cbee14a06aed404dc92d347eca4acb9b1104cd2cb64956b2ff0f
+_hash: 334ab689c5b966ac68643b7eaea3e499a10b695e5428c3a92753ea7a4f7705e5
 file:
-  statement:
+- statement:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -28,4 +28,139 @@ file:
     - comma: ','
     - parameter: COMMENT
     - literal: '"name of user"'
-  statement_terminator: ;
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        identifier: '`users`'
+    - keyword: RENAME
+    - keyword: TO
+    - table_reference:
+        identifier: '`user`'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        identifier: '`user`'
+    - keyword: RENAME
+    - keyword: AS
+    - table_reference:
+        identifier: '`users`'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        identifier: '`users`'
+    - keyword: RENAME
+    - table_reference:
+        identifier: '`user`'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        identifier: '`users`'
+    - keyword: CHANGE
+    - keyword: COLUMN
+    - column_reference:
+        identifier: '`birthday`'
+    - column_definition:
+      - identifier: '`date_of_birth`'
+      - data_type:
+          data_type_identifier: INT
+          bracketed:
+            start_bracket: (
+            expression:
+              literal: '11'
+            end_bracket: )
+      - column_constraint_segment:
+          keyword: 'NULL'
+      - column_constraint_segment:
+          keyword: DEFAULT
+          literal: 'NULL'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        identifier: '`users`'
+    - keyword: CHANGE
+    - keyword: COLUMN
+    - column_reference:
+        identifier: '`birthday`'
+    - column_definition:
+        identifier: '`date_of_birth`'
+        data_type:
+          data_type_identifier: INT
+          bracketed:
+            start_bracket: (
+            expression:
+              literal: '11'
+            end_bracket: )
+        column_constraint_segment:
+        - keyword: NOT
+        - keyword: 'NULL'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        identifier: '`users`'
+    - keyword: CHANGE
+    - keyword: COLUMN
+    - column_reference:
+        identifier: '`birthday`'
+    - column_definition:
+        identifier: '`date_of_birth`'
+        data_type:
+          data_type_identifier: INT
+          bracketed:
+            start_bracket: (
+            expression:
+              literal: '11'
+            end_bracket: )
+    - keyword: FIRST
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        identifier: '`users`'
+    - keyword: CHANGE
+    - keyword: COLUMN
+    - column_reference:
+        identifier: '`birthday`'
+    - column_definition:
+        identifier: '`date_of_birth`'
+        data_type:
+          data_type_identifier: INT
+          bracketed:
+            start_bracket: (
+            expression:
+              literal: '11'
+            end_bracket: )
+    - keyword: AFTER
+    - column_reference:
+        identifier: '`name`'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        identifier: '`users`'
+    - keyword: DROP
+    - keyword: COLUMN
+    - column_reference:
+        identifier: '`age`'
+- statement_terminator: ;

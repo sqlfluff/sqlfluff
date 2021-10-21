@@ -77,7 +77,7 @@ the line _numbers_, not the character position. If you need the character
 position, you will need to run SQLFluff directly.
 
 For more information on `diff-quality`, see the
-[documentation](https://diff-cover.readthedocs.io/en/latest/). It covers topics
+`documentation <https://diff-cover.readthedocs.io/en/latest/>`_. It covers topics
 such as:
 
 * Generating HTML reports
@@ -134,11 +134,11 @@ through the CLI using ``args:``.
 Using `GitHub Actions`_ to Annotate PRs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 When `sqlfluff lint` is run with the `--format github-annotation` option, it
-produces output compatible with this [action](https://github.com/yuzutech/annotations-action).
+produces output compatible with this `action <https://github.com/yuzutech/annotations-action>`_.
 You can use this to annotate the SQL in `GitHub pull requests`.
 
 For more information and examples on using SQLFluff in GitHub Actions, see the
-[`sqlfluff-github-actions` repository](https://github.com/sqlfluff/sqlfluff-github-actions).
+`sqlfluff-github-actions repository <https://github.com/sqlfluff/sqlfluff-github-actions>`_.
 
 .. _`pre-commit`: https://pre-commit.com/
 .. _`git hook`: https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks

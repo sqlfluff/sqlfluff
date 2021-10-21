@@ -1,9 +1,9 @@
 """Implementation of Rule L044."""
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 from sqlfluff.core.rules.analysis.select_crawler import SelectCrawler
 from sqlfluff.core.dialects.base import Dialect
-from sqlfluff.core.rules.base import BaseRule, LintResult
+from sqlfluff.core.rules.base import BaseRule, LintResult, RuleContext
 
 
 class RuleFailure(Exception):
@@ -79,7 +79,7 @@ class Rule_L044(BaseRule):
         self,
         select_info_list: List[SelectCrawler],
         dialect: Dialect,
-        queries: Dict[str, List[SelectCrawler]],
+        queries: Dict[Optional[str], List[SelectCrawler]],
     ):
         """Given info on a list of SELECTs, determine whether to warn."""
         # Recursively walk from the given query (select_info_list) to any
@@ -126,16 +126,18 @@ class Rule_L044(BaseRule):
                         queries,
                     )
 
-    def _eval(self, segment, dialect, **kwargs):
+    def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Outermost query should produce known number of columns."""
-        if segment.is_type("statement"):
-            queries = SelectCrawler.gather(segment, dialect)
+        if context.segment.is_type("statement"):
+            queries = SelectCrawler.gather(context.segment, context.dialect)
 
             # Begin analysis at the final, outer query (key=None).
             if None in queries:
                 select_info = queries[None]
                 try:
-                    return self._analyze_result_columns(select_info, dialect, queries)
+                    return self._analyze_result_columns(
+                        select_info, context.dialect, queries
+                    )
                 except RuleFailure:
                     return LintResult(
                         anchor=queries[None][0].select_info.select_statement

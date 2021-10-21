@@ -1,7 +1,7 @@
 """Implementation of Rule L026."""
 
 from sqlfluff.core.rules.analysis.select import get_aliases_from_select
-from sqlfluff.core.rules.base import LintResult
+from sqlfluff.core.rules.base import EvalResultType, LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import document_configuration
 from sqlfluff.rules.L025 import Rule_L020
 
@@ -85,13 +85,16 @@ class Rule_L026(Rule_L020):
                 )
         return violation_buff or None
 
-    def _eval(self, segment, parent_stack, dialect, **kwargs):
+    def _eval(self, context: RuleContext) -> EvalResultType:
         """Override Rule L020 for dialects that use structs.
 
         Some dialects use structs (e.g. column.field) which look like
         table references and so incorrectly trigger this rule.
         """
-        if dialect.name in ["bigquery"] and not self.force_enable:
+        # Config type hints
+        self.force_enable: bool
+
+        if context.dialect.name in ["bigquery"] and not self.force_enable:
             return LintResult()
 
-        return super()._eval(segment, parent_stack, dialect, **kwargs)
+        return super()._eval(context=context)
