@@ -92,12 +92,13 @@ file:
         - newline: "\n"
         - whitespace: '        '
         - dedent: ''
-        - placeholder: '{% else %}'
-        - indent: ''
+        - placeholder: '{% else %}... [103 omitted] ...{% endif %}'
         - newline: "\n"
         - whitespace: '    '
         - newline: "\n"
         - whitespace: '        '
+        - placeholder: '{% if loop.first %}... [49 omitted] ...{% else %}'
+        - indent: ''
         - newline: "\n"
         - whitespace: '        '
         - dedent: ''
@@ -130,12 +131,15 @@ file:
           - dedent: ''
         - newline: "\n"
         - whitespace: '        '
-        - placeholder: '{% if loop.first %}{% else %}{% endif %}'
+        - placeholder: '{% endif %}'
         - newline: "\n"
         - whitespace: '    '
         - newline: "\n"
         - whitespace: '        '
-        - newline: "\n"
+        - placeholder: '{% if loop.first %}... [49 omitted] ...{% else %}'
+        # TODO: The addition of this "- indent: '\n'" looks like a possible bug.
+        # Elsewhere in this file, "indent" always has an empty string value: "".
+        - indent: '\n'
         - whitespace: '        '
         - join_clause:
           - keyword: JOIN
