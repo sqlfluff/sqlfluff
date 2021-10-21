@@ -383,6 +383,7 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref("ResignalSegment"),
             Ref("CursorOpenCloseSegment"),
             Ref("CursorFetchSegment"),
+            Ref("AlterTableStatementSegment"),
         ],
     )
 
@@ -466,6 +467,76 @@ class CreateFunctionStatementSegment(BaseSegment):
         Ref("CommentClauseSegment", optional=True),
         Ref("CharacteristicStatement"),
         Ref("FunctionDefinitionGrammar"),
+    )
+
+
+@mysql_dialect.segment(replace=True)
+class AlterTableStatementSegment(BaseSegment):
+    """An `ALTER TABLE .. ALTER COLUMN` statement.
+
+    Overriding ANSI to add `CHANGE COLUMN` and `DROP COLUMN` support.
+
+    https://dev.mysql.com/doc/refman/8.0/en/alter-table.html
+
+    """
+
+    type = "alter_table_statement"
+    match_grammar = Sequence(
+        "ALTER",
+        "TABLE",
+        Ref("TableReferenceSegment"),
+        Delimited(
+            OneOf(
+                # Table options
+                Sequence(
+                    Ref("ParameterNameSegment"),
+                    Ref("EqualsSegment", optional=True),
+                    OneOf(Ref("LiteralGrammar"), Ref("NakedIdentifierSegment")),
+                ),
+                # Add things
+                Sequence(
+                    OneOf("ADD", "MODIFY"),
+                    Ref.keyword("COLUMN", optional=True),
+                    Ref("ColumnDefinitionSegment"),
+                    OneOf(
+                        Sequence(
+                            OneOf("FIRST", "AFTER"), Ref("ColumnReferenceSegment")
+                        ),
+                        # Bracketed Version of the same
+                        Ref("BracketedColumnReferenceListGrammar"),
+                        optional=True,
+                    ),
+                ),
+                # Change column
+                Sequence(
+                    "CHANGE",
+                    Ref.keyword("COLUMN", optional=True),
+                    Ref("ColumnReferenceSegment"),
+                    Ref("ColumnDefinitionSegment"),
+                    OneOf(
+                        Sequence(
+                            OneOf(
+                                "FIRST",
+                                Sequence("AFTER", Ref("ColumnReferenceSegment")),
+                            ),
+                        ),
+                        optional=True,
+                    ),
+                ),
+                # Drop column
+                Sequence(
+                    "DROP",
+                    Ref.keyword("COLUMN", optional=True),
+                    Ref("ColumnReferenceSegment"),
+                ),
+                # Rename
+                Sequence(
+                    "RENAME",
+                    OneOf("AS", "TO", optional=True),
+                    Ref("TableReferenceSegment"),
+                ),
+            ),
+        ),
     )
 
 
