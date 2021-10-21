@@ -1,6 +1,6 @@
-"""
-    A List of Spark SQL keywords.
-    https://spark.apache.org/docs/latest/sql-ref-ansi-compliance.html#sql-keywords
+"""A List of Spark SQL keywords.
+
+https://spark.apache.org/docs/latest/sql-ref-ansi-compliance.html#sql-keywords
 """
 
 RESERVED_KEYWORDS = [

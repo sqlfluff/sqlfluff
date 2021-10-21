@@ -21,12 +21,10 @@ from sqlfluff.core.parser import (
     OptionallyBracketed,
     Ref,
     RegexLexer,
-    RegexParser,
-    StringLexer,
     Sequence,
-    StartsWith,
     StringParser,
-    SymbolSegment, Anything,
+    SymbolSegment,
+    Anything,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -127,7 +125,10 @@ spark3_dialect.add(
         trim_chars=('"',),
     ),
     JsonfileKeywordSegment=StringParser(
-        "JSONFILE", KeywordSegment, name="json_file", type="file_format",
+        "JSONFILE",
+        KeywordSegment,
+        name="json_file",
+        type="file_format",
     ),
     RcfileKeywordSegment=StringParser(
         "RCFILE", KeywordSegment, name="rc_file", type="file_format"
@@ -154,12 +155,8 @@ spark3_dialect.add(
     FileKeywordSegment=StringParser(
         "FILE", KeywordSegment, name="file", type="file_type"
     ),
-    JarKeywordSegment=StringParser(
-        "JAR", KeywordSegment, name="jar", type="file_type"
-    ),
-    WhlKeywordSegment=StringParser(
-        "WHL", KeywordSegment, name="whl", type="file_type"
-    ),
+    JarKeywordSegment=StringParser("JAR", KeywordSegment, name="jar", type="file_type"),
+    WhlKeywordSegment=StringParser("WHL", KeywordSegment, name="whl", type="file_type"),
     # Add relevant Hive Grammar
     BracketedPropertyListGrammar=hive_dialect.get_grammar(
         "BracketedPropertyListGrammar"
@@ -189,7 +186,9 @@ spark3_dialect.add(
         "BY",
         Ref("BracketedColumnReferenceListGrammar"),
     ),
-    DatabasePropertiesGrammar=Sequence("DBPROPERTIES", Ref("BracketedPropertyListGrammar")),
+    DatabasePropertiesGrammar=Sequence(
+        "DBPROPERTIES", Ref("BracketedPropertyListGrammar")
+    ),
     DataSourceFormatGrammar=OneOf(
         # Spark Core Data Sources
         # https://spark.apache.org/docs/latest/sql-data-sources.html
@@ -261,9 +260,7 @@ class RowFormatClauseSegment(hive_dialect.get_segment("RowFormatClauseSegment"))
 
 @spark3_dialect.segment()
 class SkewedByClauseSegment(hive_dialect.get_segment("SkewedByClauseSegment")):  # type: ignore
-    """
-        `SKEWED BY` clause in a CREATE HIVEFORMAT TABLE statement.
-    """
+    """`SKEWED BY` clause in a CREATE HIVEFORMAT TABLE statement."""
 
     type = "skewed_by_clause"
 
@@ -271,9 +268,9 @@ class SkewedByClauseSegment(hive_dialect.get_segment("SkewedByClauseSegment")): 
 # Primitive Data Types
 @spark3_dialect.segment()
 class PrimitiveTypeSegment(BaseSegment):
-    """
-        Spark SQL Primitive data types.
-        https://spark.apache.org/docs/latest/sql-ref-datatypes.html
+    """Spark SQL Primitive data types.
+
+    https://spark.apache.org/docs/latest/sql-ref-datatypes.html
     """
 
     type = "primitive_type"
@@ -295,10 +292,7 @@ class PrimitiveTypeSegment(BaseSegment):
         "STRING",
         Sequence(
             OneOf("CHAR", "CHARACTER", "VARCHAR"),
-            Bracketed(
-                Ref("NumericLiteralSegment"),
-                optional=True
-            ),
+            Bracketed(Ref("NumericLiteralSegment"), optional=True),
         ),
         "BINARY",
         Sequence(
@@ -316,9 +310,9 @@ class PrimitiveTypeSegment(BaseSegment):
 
 @spark3_dialect.segment(replace=True)
 class DatatypeSegment(PrimitiveTypeSegment):
-    """
-        Spark SQL Data types.
-        https://spark.apache.org/docs/latest/sql-ref-datatypes.html
+    """Spark SQL Data types.
+
+    https://spark.apache.org/docs/latest/sql-ref-datatypes.html
     """
 
     type = "data_type"
@@ -366,9 +360,9 @@ class DatatypeSegment(PrimitiveTypeSegment):
 # http://spark.apache.org/docs/latest/sql-ref-syntax-ddl.html
 @spark3_dialect.segment()
 class AlterDatabaseStatementSegment(BaseSegment):
-    """
-        An `ALTER DATABASE/SCHEMA` statement.
-        http://spark.apache.org/docs/latest/sql-ref-syntax-ddl-alter-database.html
+    """An `ALTER DATABASE/SCHEMA` statement.
+
+    http://spark.apache.org/docs/latest/sql-ref-syntax-ddl-alter-database.html
     """
 
     type = "alter_database_statement"
@@ -378,15 +372,15 @@ class AlterDatabaseStatementSegment(BaseSegment):
         OneOf("DATABASE", "SCHEMA"),
         Ref("DatabaseReferenceSegment"),
         "SET",
-        Ref("DatabasePropertiesGrammar")
+        Ref("DatabasePropertiesGrammar"),
     )
 
 
 @spark3_dialect.segment(replace=True)
 class AlterTableStatementSegment(BaseSegment):
-    """
-        A `ALTER TABLE` statement to change the table schema or properties.
-        http://spark.apache.org/docs/latest/sql-ref-syntax-ddl-alter-table.html
+    """A `ALTER TABLE` statement to change the table schema or properties.
+
+    http://spark.apache.org/docs/latest/sql-ref-syntax-ddl-alter-table.html
     """
 
     type = "alter_table_statement"
@@ -424,26 +418,20 @@ class AlterTableStatementSegment(BaseSegment):
                 OneOf("ALTER", "CHANGE"),
                 "COLUMN",
                 Ref("ColumnReferenceSegment"),
-                Sequence(
-                    "TYPE", Ref("DatatypeSegment"), optional=True
-                ),
+                Sequence("TYPE", Ref("DatatypeSegment"), optional=True),
                 Ref("CommentGrammar", optional=True),
                 OneOf(
                     "FIRST",
-                    Sequence(
-                        "AFTER", Ref("ColumnReferenceSegment")
-                    ),
-                    optional=True
+                    Sequence("AFTER", Ref("ColumnReferenceSegment")),
+                    optional=True,
                 ),
-                Sequence(
-                    OneOf("SET", "DROP"), "NOT NULL", optional=True
-                ),
+                Sequence(OneOf("SET", "DROP"), "NOT NULL", optional=True),
             ),
             # ALTER TABLE - ADD PARTITION
             Sequence(
                 "ADD",
                 Ref("IfNotExistsGrammar", optional=True),
-                AnyNumberOf(Ref("PartitionSpecGrammar"))
+                AnyNumberOf(Ref("PartitionSpecGrammar")),
             ),
             # ALTER TABLE - DROP PARTITION
             Sequence(
@@ -491,9 +479,9 @@ class AlterTableStatementSegment(BaseSegment):
 
 @spark3_dialect.segment()
 class AlterViewStatementSegment(BaseSegment):
-    """
-        A `ALTER VIEW` statement to change the view schema or properties.
-        https://spark.apache.org/docs/latest/sql-ref-syntax-ddl-alter-view.html
+    """A `ALTER VIEW` statement to change the view schema or properties.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-ddl-alter-view.html
     """
 
     type = "alter_view_statement"
@@ -520,9 +508,9 @@ class AlterViewStatementSegment(BaseSegment):
 
 @spark3_dialect.segment(replace=True)
 class CreateDatabaseStatementSegment(BaseSegment):
-    """
-        A `CREATE DATABASE` statement.
-        https://spark.apache.org/docs/latest/sql-ref-syntax-ddl-create-database.html
+    """A `CREATE DATABASE` statement.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-ddl-create-database.html
     """
 
     type = "create_database_statement"
@@ -541,9 +529,9 @@ class CreateDatabaseStatementSegment(BaseSegment):
 
 @spark3_dialect.segment(replace=True)
 class CreateFunctionStatementSegment(BaseSegment):
-    """
-        A `CREATE FUNCTION` statement.
-        https://spark.apache.org/docs/latest/sql-ref-syntax-ddl-create-function.html
+    """A `CREATE FUNCTION` statement.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-ddl-create-function.html
     """
 
     type = "create_function_statement"
@@ -571,9 +559,9 @@ class CreateFunctionStatementSegment(BaseSegment):
 
 @spark3_dialect.segment(replace=True)
 class CreateTableStatementSegment(BaseSegment):
-    """
-        A `CREATE TABLE` statement using a Data Source.
-        http://spark.apache.org/docs/latest/sql-ref-syntax-ddl-create-table-datasource.html
+    """A `CREATE TABLE` statement using a Data Source.
+
+    http://spark.apache.org/docs/latest/sql-ref-syntax-ddl-create-table-datasource.html
     """
 
     type = "create_table_statement"
@@ -593,14 +581,10 @@ class CreateTableStatementSegment(BaseSegment):
                     ),
                 ),
             ),
-            optional=True
+            optional=True,
         ),
         Sequence("USING", Ref("DataSourceFormatGrammar"), optional=True),
-        Sequence(
-            "OPTIONS",
-            Ref("BracketedPropertyListGrammar"),
-            optional=True
-        ),
+        Sequence("OPTIONS", Ref("BracketedPropertyListGrammar"), optional=True),
         Ref("PartitionSpecGrammar", optional=True),
         Ref("BucketSpecGrammar", optional=True),
         Ref("LocationGrammar", optional=True),
@@ -617,24 +601,12 @@ class CreateTableStatementSegment(BaseSegment):
 
 @spark3_dialect.segment()
 class CreateHiveFormatTableStatementSegment(hive_dialect.get_segment("CreateTableStatementSegment")):  # type: ignore
-    """
-        A `CREATE TABLE` statement using Hive format.
-        https://spark.apache.org/docs/latest/sql-ref-syntax-ddl-create-table-hiveformat.html
+    """A `CREATE TABLE` statement using Hive format.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-ddl-create-table-hiveformat.html
     """
 
     type = "create_table_statement"
-
-
-@spark3_dialect.segment()
-class AddExecutablePackage(BaseSegment):
-
-    type = "add_executable_package"
-
-    match_grammar = Sequence(
-        "ADD",
-        Ref("ResourceFileGrammar"),
-        Ref("SingleOrDoubleQuotedLiteralGrammar"),
-    )
 
 
 # @spark_dialect.segment()
@@ -643,6 +615,23 @@ class AddExecutablePackage(BaseSegment):
 #         A 'CREATE TABLE` statement using the definition/metadata of an existing table or view.
 #         http://spark.apache.org/docs/latest/sql-ref-syntax-ddl-create-table-like.html
 #     """
+
+
+# Auxiliary Statements
+@spark3_dialect.segment()
+class AddExecutablePackage(BaseSegment):
+    """A `ADD JAR` statement.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-aux-resource-mgmt-add-jar.html
+    """
+
+    type = "add_executable_package"
+
+    match_grammar = Sequence(
+        "ADD",
+        Ref("ResourceFileGrammar"),
+        Ref("SingleOrDoubleQuotedLiteralGrammar"),
+    )
 
 
 @spark3_dialect.segment(replace=True)

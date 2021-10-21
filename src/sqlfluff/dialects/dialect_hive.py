@@ -238,7 +238,7 @@ class CreateTableStatementSegment(BaseSegment):
                 Sequence(
                     "AS",
                     OptionallyBracketed(Ref("SelectStatementSegment")),
-                    optional=True
+                    optional=True,
                 ),
             ),
             # Create like syntax
