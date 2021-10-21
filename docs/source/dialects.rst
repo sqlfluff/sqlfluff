@@ -124,11 +124,13 @@ inherited from :ref:`postgres_dialect_ref`.
 Spark3
 ------
 
-The dialect for `Spark3`_. It inherits from :ref:`ansi_dialect_ref` and includes relevant syntax from
-:ref:`hive_dialect_ref` for commands that permit Hive Format.
+The dialect for `Spark3`_. It inherits from :ref:`ansi_dialect_ref` and
+includes relevant syntax from :ref:`hive_dialect_ref` for commands that
+permit Hive Format.
 
-This implementation focuses on the `ANSI Compliant dialect`_ introduced in Spark3, instead of being Hive Compliant. The
-introduction of ANSI Compliance provides better data quality and easier migration from traditional DBMS.
+This implementation focuses on the `ANSI Compliant dialect`_ introduced in
+Spark3, instead of being Hive Compliant. The introduction of ANSI Compliance
+provides better data quality and easier migration from traditional DBMS.
 
 Versions of Spark prior to 3.x will only support the Hive dialect.
 

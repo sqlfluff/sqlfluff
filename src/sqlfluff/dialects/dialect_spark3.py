@@ -253,14 +253,14 @@ spark3_dialect.add(
 
 # Hive Segments
 @spark3_dialect.segment()
-class RowFormatClauseSegment(hive_dialect.get_segment("RowFormatClauseSegment")):
+class RowFormatClauseSegment(hive_dialect.get_segment("RowFormatClauseSegment")):  # type: ignore
     """`ROW FORMAT` clause in a CREATE HIVEFORMAT TABLE statement."""
 
     type = "row_format_clause"
 
 
 @spark3_dialect.segment()
-class SkewedByClauseSegment(hive_dialect.get_segment("SkewedByClauseSegment")):
+class SkewedByClauseSegment(hive_dialect.get_segment("SkewedByClauseSegment")):  # type: ignore
     """
         `SKEWED BY` clause in a CREATE HIVEFORMAT TABLE statement.
     """
@@ -616,7 +616,7 @@ class CreateTableStatementSegment(BaseSegment):
 
 
 @spark3_dialect.segment()
-class CreateHiveFormatTableStatementSegment(hive_dialect.get_segment("CreateTableStatementSegment")):
+class CreateHiveFormatTableStatementSegment(hive_dialect.get_segment("CreateTableStatementSegment")):  # type: ignore
     """
         A `CREATE TABLE` statement using Hive format.
         https://spark.apache.org/docs/latest/sql-ref-syntax-ddl-create-table-hiveformat.html
@@ -646,7 +646,7 @@ class AddExecutablePackage(BaseSegment):
 
 
 @spark3_dialect.segment(replace=True)
-class StatementSegment(BaseSegment):  # type: ignore
+class StatementSegment(BaseSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
     match_grammar = ansi_dialect.get_segment("StatementSegment").match_grammar.copy()
