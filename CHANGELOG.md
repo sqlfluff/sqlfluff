@@ -13,10 +13,11 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ## What’s Changed
 
-This release contains a lot of T-SQL dialect improvements as well as a number of other improvements.
+This release contains a lot of T-SQL dialect improvements (shout out to @jpers36 for most of these!) as well as a number of other improvements. We also added Spark3 as a new dialect thanks to @R7L208.
 
 ## 🚀 Enhancements
 
+* Spark3 Dialect Support [#1706](https://github.com/sqlfluff/sqlfluff/pull/1706) [@R7L208](https://github.com/R7L208)
 * Postgres Array Support [#1722](https://github.com/sqlfluff/sqlfluff/pull/1722) [@WittierDinosaur](https://github.com/WittierDinosaur)
 * Hive: Add LEFT SEMI JOIN support [#1718](https://github.com/sqlfluff/sqlfluff/pull/1718) [@fatelei](https://github.com/fatelei)
 * MySQL: Change and drop column in alter table [#1670](https://github.com/sqlfluff/sqlfluff/pull/1670) [@MontealegreLuis](https://github.com/MontealegreLuis)
