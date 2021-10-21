@@ -3,11 +3,11 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6644f49269ab87d7067d1864de5df81634b015e235bea353319c593bf89639c8
+_hash: f185a02aa9335ee847cf05a61e09d9795c2750bec0d500610cd753a2e5c99548
 file:
 - statement:
     alter_table_statement:
-      alter_table_distribute_partion_statement:
+      alter_table_distribute_partition_statement:
       - keyword: ALTER
       - keyword: TABLE
       - table_reference:
@@ -18,7 +18,7 @@ file:
 - statement_terminator: ;
 - statement:
     alter_table_statement:
-      alter_table_distribute_partion_statement:
+      alter_table_distribute_partition_statement:
       - keyword: ALTER
       - keyword: TABLE
       - table_reference:
@@ -31,7 +31,7 @@ file:
 - statement_terminator: ;
 - statement:
     alter_table_statement:
-      alter_table_distribute_partion_statement:
+      alter_table_distribute_partition_statement:
       - keyword: ALTER
       - keyword: TABLE
       - table_reference:
@@ -49,7 +49,7 @@ file:
 - statement_terminator: ;
 - statement:
     alter_table_statement:
-      alter_table_distribute_partion_statement:
+      alter_table_distribute_partition_statement:
       - keyword: ALTER
       - keyword: TABLE
       - table_reference:
@@ -69,7 +69,7 @@ file:
 - statement_terminator: ;
 - statement:
     alter_table_statement:
-      alter_table_distribute_partion_statement:
+      alter_table_distribute_partition_statement:
       - keyword: ALTER
       - keyword: TABLE
       - table_reference:
@@ -82,7 +82,7 @@ file:
 - statement_terminator: ;
 - statement:
     alter_table_statement:
-      alter_table_distribute_partion_statement:
+      alter_table_distribute_partition_statement:
       - keyword: ALTER
       - keyword: TABLE
       - table_reference:

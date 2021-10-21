@@ -1519,7 +1519,7 @@ class AlterTableDistributePartitionSegment(BaseSegment):
     https://docs.exasol.com/sql/alter_table(distribution_partitioning).htm
     """
 
-    type = "alter_table_distribute_partion_statement"
+    type = "alter_table_distribute_partition_statement"
 
     is_ddl = True
     is_dml = False
