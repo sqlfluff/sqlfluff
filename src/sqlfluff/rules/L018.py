@@ -2,7 +2,7 @@
 
 from sqlfluff.core.parser import NewlineSegment, WhitespaceSegment
 
-from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult
+from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
 
@@ -39,23 +39,23 @@ class Rule_L018(BaseRule):
     _works_on_unparsable = False
     config_keywords = ["tab_space_size"]
 
-    def _eval(self, segment, raw_stack, **kwargs):
+    def _eval(self, context: RuleContext) -> LintResult:
         """WITH clause closing bracket should be aligned with WITH keyword.
 
         Look for a with clause and evaluate the position of closing brackets.
         """
         # We only trigger on start_bracket (open parenthesis)
-        if segment.is_type("with_compound_statement"):
-            raw_stack_buff = list(raw_stack)
+        if context.segment.is_type("with_compound_statement"):
+            raw_stack_buff = list(context.raw_stack)
             # Look for the with keyword
-            for seg in segment.segments:
+            for seg in context.segment.segments:
                 if seg.name.lower() == "with":
                     seg_line_no = seg.pos_marker.line_no
                     break
             else:  # pragma: no cover
                 # This *could* happen if the with statement is unparsable,
                 # in which case then the user will have to fix that first.
-                if any(s.is_type("unparsable") for s in segment.segments):
+                if any(s.is_type("unparsable") for s in context.segment.segments):
                     return LintResult()
                 # If it's parsable but we still didn't find a with, then
                 # we should raise that.
@@ -82,7 +82,7 @@ class Rule_L018(BaseRule):
 
             balance = 0
             with_indent, with_indent_str = indent_size_up_to(raw_stack_buff)
-            for seg in segment.iter_segments(
+            for seg in context.segment.iter_segments(
                 expanding=["common_table_expression", "bracketed"], pass_through=True
             ):
                 if seg.name == "start_bracket":
@@ -112,7 +112,7 @@ class Rule_L018(BaseRule):
                             # Is it all whitespace before the bracket on this line?
                             prev_segs_on_line = [
                                 elem
-                                for elem in segment.iter_segments(
+                                for elem in context.segment.iter_segments(
                                     expanding=["common_table_expression", "bracketed"],
                                     pass_through=True,
                                 )

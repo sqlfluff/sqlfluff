@@ -1,6 +1,8 @@
 """Implementation of Rule L034."""
+from typing import List, Optional
 
-from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult
+from sqlfluff.core.parser import BaseSegment
+from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
 
@@ -34,7 +36,7 @@ class Rule_L034(BaseRule):
 
     """
 
-    def _validate(self, i, segment):
+    def _validate(self, i: int, segment: BaseSegment) -> None:
         # Check if we've seen a more complex select target element already
         if self.seen_band_elements[i + 1 : :] != [[]] * len(
             self.seen_band_elements[i + 1 : :]
@@ -42,10 +44,10 @@ class Rule_L034(BaseRule):
             # Found a violation (i.e. a simpler element that *follows* a more
             # complex element.
             self.violation_exists = True
-        self.current_element_band = i
+        self.current_element_band: Optional[int] = i
         self.seen_band_elements[i].append(segment)
 
-    def _eval(self, segment, parent_stack, **kwargs):
+    def _eval(self, context: RuleContext) -> Optional[List[LintResult]]:
         self.violation_buff = []
         self.violation_exists = False
         # Bands of select targets in order to be enforced
@@ -62,9 +64,9 @@ class Rule_L034(BaseRule):
 
         # Track which bands have been seen, with additional empty list for the non-matching elements
         # If we find a matching target element, we append the element to the corresponding index
-        self.seen_band_elements = [[] for i in select_element_order_preference] + [[]]
+        self.seen_band_elements: List[List[BaseSegment]] = [[] for _ in select_element_order_preference] + [[]]  # type: ignore
 
-        if segment.is_type("select_clause"):
+        if context.segment.is_type("select_clause"):
             # Ignore select clauses which belong to:
             # - set expression, which is most commonly a union
             # - insert_statement
@@ -72,17 +74,19 @@ class Rule_L034(BaseRule):
             #
             # In each of these contexts, the order of columns in a select should
             # be preserved.
-            if len(parent_stack) >= 2 and parent_stack[-2].is_type(
+            if len(context.parent_stack) >= 2 and context.parent_stack[-2].is_type(
                 "insert_statement", "set_expression"
             ):
                 return None
-            if len(parent_stack) >= 3 and parent_stack[-3].is_type(
+            if len(context.parent_stack) >= 3 and context.parent_stack[-3].is_type(
                 "create_table_statement"
             ):
                 return None
 
-            select_clause_segment = segment
-            select_target_elements = segment.get_children("select_clause_element")
+            select_clause_segment = context.segment
+            select_target_elements = context.segment.get_children(
+                "select_clause_element"
+            )
             if not select_target_elements:
                 return None
 

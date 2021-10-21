@@ -1,8 +1,13 @@
 """Implementation of Rule L043."""
+from typing import Optional
 
-from sqlfluff.core.parser import WhitespaceSegment, SymbolSegment, KeywordSegment
+from sqlfluff.core.parser import (
+    WhitespaceSegment,
+    SymbolSegment,
+    KeywordSegment,
+)
 
-from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult
+from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
 
@@ -34,7 +39,7 @@ class Rule_L043(BaseRule):
 
     """
 
-    def _eval(self, segment, **kwargs):
+    def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Find rule violations and provide fixes.
 
         0. Look for a case expression
@@ -51,31 +56,34 @@ class Rule_L043(BaseRule):
             * wrap with parenthesis and coalesce
         """
         # Look for a case expression
-        if segment.is_type("case_expression") and segment.segments[0].name == "case":
+        if (
+            context.segment.is_type("case_expression")
+            and context.segment.segments[0].name == "case"
+        ):
             # Find the first expression and "then"
             idx = 0
-            while segment.segments[idx].name != "then":
-                if segment.segments[idx].is_type("expression"):
+            while context.segment.segments[idx].name != "then":
+                if context.segment.segments[idx].is_type("expression"):
                     expression_idx = idx
                 idx += 1
             # Determine if "then" is followed by a boolean
             then_bool_type = None
-            while segment.segments[idx].name not in ["when", "else", "end"]:
-                if segment.segments[idx].raw_upper in ["TRUE", "FALSE"]:
-                    then_bool_type = segment.segments[idx].raw_upper
+            while context.segment.segments[idx].name not in ["when", "else", "end"]:
+                if context.segment.segments[idx].raw_upper in ["TRUE", "FALSE"]:
+                    then_bool_type = context.segment.segments[idx].raw_upper
                 idx += 1
             if then_bool_type:
                 # Determine if the first then-bool is followed by an else-bool
-                while segment.segments[idx].name != "else":
+                while context.segment.segments[idx].name != "else":
                     # If the first then-bool is followed by a "WHEN" or "END", exit
-                    if segment.segments[idx].name in ["when", "end"]:
+                    if context.segment.segments[idx].name in ["when", "end"]:
                         return None
                     idx += 1  # pragma: no cover
                 # Determine if "else" is followed by a boolean
                 else_bool_type = None
-                while segment.segments[idx].name != "end":
-                    if segment.segments[idx].raw_upper in ["TRUE", "FALSE"]:
-                        else_bool_type = segment.segments[idx].raw_upper
+                while context.segment.segments[idx].name != "end":
+                    if context.segment.segments[idx].raw_upper in ["TRUE", "FALSE"]:
+                        else_bool_type = context.segment.segments[idx].raw_upper
                     idx += 1
             # If then-bool-else-bool, return fixes
             if (
@@ -86,8 +94,8 @@ class Rule_L043(BaseRule):
                 # Generate list of segments to delete -- everything but the
                 # first expression.
                 delete_segments = []
-                for s in segment.segments:
-                    if s != segment.segments[expression_idx]:
+                for s in context.segment.segments:
+                    if s != context.segment.segments[expression_idx]:
                         delete_segments.append(s)
                 # If then-false, add "not" and space
                 edits = []
@@ -105,7 +113,7 @@ class Rule_L043(BaseRule):
                         SymbolSegment("(", name="start_bracket", type="start_bracket"),
                     ]
                 )
-                edit_coalesce_target = segment.segments[0]
+                edit_coalesce_target = context.segment.segments[0]
                 fixes = []
                 fixes.append(
                     LintFix(
@@ -115,7 +123,7 @@ class Rule_L043(BaseRule):
                     )
                 )
                 # Add comma, bool, closing parenthesis
-                expression = segment.segments[expression_idx + 1]
+                expression = context.segment.segments[expression_idx + 1]
                 closing_parenthesis = [
                     SymbolSegment(",", name="comma", type="comma"),
                     WhitespaceSegment(),
@@ -139,7 +147,8 @@ class Rule_L043(BaseRule):
                     if s is not edit_coalesce_target
                 ]
                 return LintResult(
-                    anchor=segment.segments[expression_idx],
+                    anchor=context.segment.segments[expression_idx],
                     fixes=fixes,
                     description="Case when returns booleans.",
                 )
+        return None
