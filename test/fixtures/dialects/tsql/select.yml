@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6136ffd1d4e696977225fc17ab70fad6a6810debe2f4e3ab32a2aa4b579dc0fc
+_hash: e100455e4e62d5620c6f9ad9c31055057c9ee0ba1f42f63786dd17c37a2c22a0
 file:
   batch:
     statement:
@@ -124,12 +124,112 @@ file:
         - comma: ','
         - select_clause_element:
             literal: "''''"
-        from_clause:
-          keyword: FROM
-          from_expression:
-            from_expression_element:
-              table_expression:
-                table_reference:
-                - identifier: dbo
-                - dot: .
-                - identifier: all_pop
+        - comma: ','
+        - select_clause_element:
+            function:
+            - function_name:
+                keyword: ROW_NUMBER
+            - bracketed:
+                start_bracket: (
+                end_bracket: )
+            - keyword: OVER
+            - bracketed:
+                start_bracket: (
+                partition_by_clause:
+                - keyword: PARTITION
+                - keyword: BY
+                - column_reference:
+                    identifier: '[EventNM]'
+                orderby_clause:
+                - keyword: ORDER
+                - keyword: BY
+                - column_reference:
+                    identifier: '[DateofEvent]'
+                - keyword: desc
+                end_bracket: )
+            alias_expression:
+              keyword: AS
+              identifier: '[RN]'
+        - comma: ','
+        - select_clause_element:
+            function:
+            - function_name:
+                keyword: RANK
+            - bracketed:
+                start_bracket: (
+                end_bracket: )
+            - keyword: OVER
+            - bracketed:
+                start_bracket: (
+                partition_by_clause:
+                - keyword: PARTITION
+                - keyword: BY
+                - column_reference:
+                    identifier: '[EventNM]'
+                orderby_clause:
+                - keyword: ORDER
+                - keyword: BY
+                - column_reference:
+                    identifier: '[DateofEvent]'
+                - keyword: desc
+                end_bracket: )
+            alias_expression:
+              keyword: AS
+              identifier: '[R]'
+        - comma: ','
+        - select_clause_element:
+            function:
+            - function_name:
+                keyword: DENSE_RANK
+            - bracketed:
+                start_bracket: (
+                end_bracket: )
+            - keyword: OVER
+            - bracketed:
+                start_bracket: (
+                partition_by_clause:
+                - keyword: PARTITION
+                - keyword: BY
+                - column_reference:
+                    identifier: '[EventNM]'
+                orderby_clause:
+                - keyword: ORDER
+                - keyword: BY
+                - column_reference:
+                    identifier: '[DateofEvent]'
+                - keyword: desc
+                end_bracket: )
+            alias_expression:
+              keyword: AS
+              identifier: '[DR]'
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: NTILE
+  unparsable:
+  - bracketed:
+      start_bracket: (
+      expression:
+        literal: '5'
+      end_bracket: )
+  - raw: OVER
+  - bracketed:
+      start_bracket: (
+      partition_by_clause:
+      - keyword: PARTITION
+      - keyword: BY
+      - column_reference:
+          identifier: '[EventNM]'
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          identifier: '[DateofEvent]'
+      - keyword: desc
+      end_bracket: )
+  - raw: AS
+  - raw: '[NT]'
+  - raw: FROM
+  - raw: dbo
+  - raw: .
+  - raw: all_pop

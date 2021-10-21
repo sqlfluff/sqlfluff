@@ -1075,6 +1075,18 @@ class CastFunctionNameSegment(BaseSegment):
 
 
 @tsql_dialect.segment()
+class RankFunctionNameSegment(BaseSegment):
+    """Rank function name segment.
+
+    Need to be able to specify this as type function_name
+    so that linting rules identify it properly
+    """
+
+    type = "function_name"
+    match_grammar = OneOf("DENSE_RANK","NTILE","RANK","ROW_NUMBER")
+
+
+@tsql_dialect.segment()
 class WithinGroupFunctionNameSegment(BaseSegment):
     """WITHIN GROUP function name segment.
 
@@ -1147,86 +1159,86 @@ class FunctionSegment(BaseSegment):
     type = "function"
     match_grammar = OneOf(
         Sequence(
-            Sequence(
-                Ref("DatePartFunctionNameSegment"),
-                Bracketed(
-                    Delimited(
-                        Ref("DatePartClause"),
-                        Ref(
-                            "FunctionContentsGrammar",
-                            # The brackets might be empty for some functions...
-                            optional=True,
-                            ephemeral_name="FunctionContentsGrammar",
-                        ),
-                    )
-                ),
-            )
-        ),
-        Sequence(
-            Sequence(
-                Ref("ConvertFunctionNameSegment"),
-                Bracketed(
-                    Delimited(
-                        Ref("DatatypeSegment"),
-                        Ref(
-                            "FunctionContentsGrammar",
-                            # The brackets might be empty for some functions...
-                            optional=True,
-                            ephemeral_name="FunctionContentsGrammar",
-                        ),
-                    )
-                ),
-            )
-        ),
-        Sequence(
-            Sequence(
-                Ref("CastFunctionNameSegment"),
-                Bracketed(
-                    Ref("ExpressionSegment"),
-                    "AS",
-                    Ref("DatatypeSegment"),
-                ),
-            ),
-        ),
-        Sequence(
-            Sequence(
-                Ref("WithinGroupFunctionNameSegment"),
-                Bracketed(
-                    Delimited(
-                        Ref(
-                            "FunctionContentsGrammar",
-                            # The brackets might be empty for some functions...
-                            optional=True,
-                            ephemeral_name="FunctionContentsGrammar",
-                        ),
-                    ),
-                ),
-                Ref("WithinGroupClause", optional=True),
-            )
-        ),
-        Sequence(
-            Sequence(
-                OneOf(
-                    Ref("FunctionNameSegment"),
-                    exclude=OneOf(
-                        # List of special functions handled differently
-                        Ref("CastFunctionNameSegment"),
-                        Ref("ConvertFunctionNameSegment"),
-                        Ref("DatePartFunctionNameSegment"),
-                        Ref("WithinGroupFunctionNameSegment"),
-                    ),
-                ),
-                Bracketed(
+            Ref("DatePartFunctionNameSegment"),
+            Bracketed(
+                Delimited(
+                    Ref("DatePartClause"),
                     Ref(
                         "FunctionContentsGrammar",
                         # The brackets might be empty for some functions...
                         optional=True,
                         ephemeral_name="FunctionContentsGrammar",
-                    )
+                    ),
+                )
+            ),
+        ),
+        Sequence(
+            Ref("RankFunctionNameSegment"),
+            Bracketed(Ref("NumericLiteralSegment", optional=True),),
+            "OVER",
+            Bracketed(
+                Ref("PartitionByClause", optional=True),
+                Ref("OrderByClauseSegment"),
+            ),
+        ),
+        Sequence(
+            Ref("ConvertFunctionNameSegment"),
+            Bracketed(
+                Delimited(
+                    Ref("DatatypeSegment"),
+                    Ref(
+                        "FunctionContentsGrammar",
+                        # The brackets might be empty for some functions...
+                        optional=True,
+                        ephemeral_name="FunctionContentsGrammar",
+                    ),
+                )
+            ),
+        ),
+        Sequence(
+            Ref("CastFunctionNameSegment"),
+            Bracketed(
+                Ref("ExpressionSegment"),
+                "AS",
+                Ref("DatatypeSegment"),
+            ),
+        ),
+        Sequence(
+            Ref("WithinGroupFunctionNameSegment"),
+            Bracketed(
+                Delimited(
+                    Ref(
+                        "FunctionContentsGrammar",
+                        # The brackets might be empty for some functions...
+                        optional=True,
+                        ephemeral_name="FunctionContentsGrammar",
+                    ),
                 ),
             ),
-            Ref("PostFunctionGrammar", optional=True),
+            Ref("WithinGroupClause", optional=True),
         ),
+        Sequence(
+            OneOf(
+                Ref("FunctionNameSegment"),
+                exclude=OneOf(
+                    # List of special functions handled differently
+                    Ref("CastFunctionNameSegment"),
+                    Ref("ConvertFunctionNameSegment"),
+                    Ref("DatePartFunctionNameSegment"),
+                    Ref("WithinGroupFunctionNameSegment"),
+                    Ref("RankFunctionNameSegment"),
+                ),
+            ),
+            Bracketed(
+                Ref(
+                    "FunctionContentsGrammar",
+                    # The brackets might be empty for some functions...
+                    optional=True,
+                    ephemeral_name="FunctionContentsGrammar",
+                )
+            ),
+        ),
+        Ref("PostFunctionGrammar", optional=True),
     )
 
 

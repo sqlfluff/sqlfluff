@@ -281,6 +281,7 @@ UNRESERVED_KEYWORDS = [
     "NOEXPAND",
     "NOLOCK",
     "NS",
+    "NTILE",
     "PAGLOCK",
     "PARAMETERIZATION",
     "Q",
