@@ -17,7 +17,10 @@ This release contains a lot of T-SQL dialect improvements as well as a number of
 
 ## 🚀 Enhancements
 
-* added type hints to some rule files [#1616](https://github.com/sqlfluff/sqlfluff/pull/1616) [@ttomasz](https://github.com/ttomasz)
+* Postgres Array Support [#1722](https://github.com/sqlfluff/sqlfluff/pull/1722) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Hive: Add LEFT SEMI JOIN support [#1718](https://github.com/sqlfluff/sqlfluff/pull/1718) [@fatelei](https://github.com/fatelei)
+* MySQL: Change and drop column in alter table [#1670](https://github.com/sqlfluff/sqlfluff/pull/1670) [@MontealegreLuis](https://github.com/MontealegreLuis)
+* Added type hints to some rule files [#1616](https://github.com/sqlfluff/sqlfluff/pull/1616) [@ttomasz](https://github.com/ttomasz)
 * Added Redshift to README [#1720](https://github.com/sqlfluff/sqlfluff/pull/1720) [@WittierDinosaur](https://github.com/WittierDinosaur)
 * Exasol: Fix create table statement [#1700](https://github.com/sqlfluff/sqlfluff/pull/1700) [@sti0](https://github.com/sti0)
 * TSQL: Add optional delimiter to SET [#1717](https://github.com/sqlfluff/sqlfluff/pull/1717) [@jpers36](https://github.com/jpers36)
