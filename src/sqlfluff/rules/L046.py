@@ -1,6 +1,7 @@
 """Implementation of Rule L046."""
+from typing import Tuple
 
-from sqlfluff.core.rules.base import BaseRule, LintResult
+from sqlfluff.core.rules.base import BaseRule, LintResult, RuleContext
 
 
 class Rule_L046(BaseRule):
@@ -31,7 +32,7 @@ class Rule_L046(BaseRule):
     targets_templated = True
 
     @staticmethod
-    def _get_whitespace_ends(s):
+    def _get_whitespace_ends(s: str) -> Tuple[str, str, str]:
         """Remove tag ends and partition off any whitespace ends."""
         # Jinja tags all have a length of two. We can use slicing
         # to remove them easily.
@@ -47,23 +48,25 @@ class Rule_L046(BaseRule):
         pos = main.find(inner)
         return main[:pos], inner, main[pos + len(inner) :]
 
-    def _eval(self, segment, memory, **kwargs):
+    def _eval(self, context: RuleContext) -> LintResult:
         """Look for non-literal segments."""
-        if not segment.pos_marker.is_literal():
+        if not context.segment.pos_marker.is_literal():
             # Does it actually look like a tag?
-            src_raw = segment.pos_marker.source_str()
+            src_raw = context.segment.pos_marker.source_str()
             if not src_raw or src_raw[0] != "{" or src_raw[-1] != "}":
-                return LintResult(memory=memory)
+                return LintResult(memory=context.memory)
 
             # Dedupe using a memory of source indexes.
             # This is important because several positions in the
             # templated file may refer to the same position in the
             # source file and we only want to get one violation.
-            src_idx = segment.pos_marker.source_slice.start
-            if memory and src_idx in memory:
-                return LintResult(memory=memory)
-            if not memory:
+            src_idx = context.segment.pos_marker.source_slice.start
+            if context.memory and src_idx in context.memory:
+                return LintResult(memory=context.memory)
+            if not context.memory:
                 memory = set()
+            else:
+                memory = context.memory
             memory.add(src_idx)
 
             # Get the inner section
@@ -74,9 +77,10 @@ class Rule_L046(BaseRule):
 
             # Check the initial whitespace.
             if not ws_pre or (ws_pre != " " and "\n" not in ws_pre):
-                return LintResult(memory=memory, anchor=segment)
+                return LintResult(memory=memory, anchor=context.segment)
             # Check latter whitespace.
             if not ws_post or (ws_post != " " and "\n" not in ws_post):
-                return LintResult(memory=memory, anchor=segment)
+                return LintResult(memory=memory, anchor=context.segment)
 
-        return LintResult(memory=memory)
+            return LintResult(memory=memory)
+        return LintResult(memory=context.memory)

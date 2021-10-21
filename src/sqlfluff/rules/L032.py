@@ -1,6 +1,7 @@
 """Implementation of Rule L032."""
+from typing import List, Optional
 
-from sqlfluff.core.rules.base import BaseRule, LintResult
+from sqlfluff.core.rules.base import BaseRule, LintResult, RuleContext
 
 
 class Rule_L032(BaseRule):
@@ -32,10 +33,10 @@ class Rule_L032(BaseRule):
 
     """
 
-    def _eval(self, segment, **kwargs):
+    def _eval(self, context: RuleContext) -> Optional[List[LintResult]]:
         """Look for USING in a join clause."""
-        if segment.is_type("join_clause"):
-            for seg in segment.segments:
+        if context.segment.is_type("join_clause"):
+            for seg in context.segment.segments:
                 if seg.is_type("keyword") and seg.name == "using":
                     return [
                         LintResult(

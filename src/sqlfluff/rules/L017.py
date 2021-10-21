@@ -1,6 +1,6 @@
 """Implementation of Rule L017."""
 
-from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult
+from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
 
@@ -28,28 +28,30 @@ class Rule_L017(BaseRule):
 
     """
 
-    def _eval(self, segment, **kwargs):
+    def _eval(self, context: RuleContext) -> LintResult:
         """Function name not immediately followed by bracket.
 
         Look for Function Segment with anything other than the
         function name before brackets
         """
         # We only trigger on start_bracket (open parenthesis)
-        if segment.is_type("function"):
+        if context.segment.is_type("function"):
             # Look for the function name
-            for fname_idx, seg in enumerate(segment.segments):
+            for fname_idx, seg in enumerate(context.segment.segments):
                 if seg.is_type("function_name"):
                     break
 
             # Look for the start bracket
-            for bracket_idx, seg in enumerate(segment.segments):
+            for bracket_idx, seg in enumerate(context.segment.segments):
                 if seg.is_type("bracketed"):
                     break
 
             if bracket_idx != fname_idx + 1:
                 # It's only safe to fix if there is only whitespace
                 # or newlines in the intervening section.
-                intermediate_segments = segment.segments[fname_idx + 1 : bracket_idx]
+                intermediate_segments = context.segment.segments[
+                    fname_idx + 1 : bracket_idx
+                ]
                 if all(
                     seg.is_type("whitespace", "newline")
                     for seg in intermediate_segments

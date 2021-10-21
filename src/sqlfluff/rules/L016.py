@@ -1,10 +1,10 @@
 """Implementation of Rule L016."""
 
-from typing import Tuple
+from typing import Optional, Tuple
 
 from sqlfluff.core.parser import NewlineSegment, WhitespaceSegment
 
-from sqlfluff.core.rules.base import LintFix, LintResult
+from sqlfluff.core.rules.base import LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import (
     document_fix_compatible,
     document_configuration,
@@ -429,16 +429,20 @@ class Rule_L016(Rule_L003):
                 line_len += cls._compute_segment_length(segment)
         return line_len
 
-    def _eval(self, segment, raw_stack, **kwargs):
+    def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Line is too long.
 
         This only triggers on newline segments, evaluating the whole line.
         The detection is simple, the fixing is much trickier.
 
         """
-        if segment.name == "newline":
+        # Config type hints
+        self.max_line_length: int
+        self.ignore_comment_lines: bool
+
+        if context.segment.name == "newline":
             # iterate to buffer the whole line up to this point
-            this_line = self._gen_line_so_far(raw_stack, [])
+            this_line = self._gen_line_so_far(context.raw_stack, [])
         else:
             # Otherwise we're all good
             return None
@@ -463,7 +467,7 @@ class Rule_L016(Rule_L003):
             # They will remain as unfixable.
             if this_line[-1].type == "placeholder":
                 self.logger.info("Unfixable template segment: %s", this_line[-1])
-                return LintResult(anchor=segment)
+                return LintResult(anchor=context.segment)
 
             # Does the line end in an inline comment that we can move back?
             if this_line[-1].name == "inline_comment":
@@ -478,7 +482,7 @@ class Rule_L016(Rule_L003):
                     if self.ignore_comment_lines:
                         return LintResult()
                     else:
-                        return LintResult(anchor=segment)
+                        return LintResult(anchor=context.segment)
 
                 self.logger.info(
                     "Attempting move of inline comment at end of line: %s",
@@ -496,7 +500,7 @@ class Rule_L016(Rule_L003):
                         idx -= 1
                     else:
                         break  # pragma: no cover
-                create_elements = line_indent + [this_line[-1], segment]
+                create_elements = line_indent + [this_line[-1], context.segment]
                 if self._compute_source_length(create_elements) > self.max_line_length:
                     # The inline comment is NOT on a line by itself, but even if
                     # we move it onto a line by itself, it's still too long. In
@@ -510,14 +514,17 @@ class Rule_L016(Rule_L003):
                     if self.ignore_comment_lines:
                         return LintResult()
                     else:
-                        return LintResult(anchor=segment)
+                        return LintResult(anchor=context.segment)
                 # Create a newline before this one with the existing comment, an
                 # identical indent AND a terminating newline, copied from the current
                 # target segment.
                 create_buffer = [LintFix("create", this_line[0], create_elements)]
-                return LintResult(anchor=segment, fixes=delete_buffer + create_buffer)
+                return LintResult(
+                    anchor=context.segment, fixes=delete_buffer + create_buffer
+                )
 
             fixes = self._eval_line_for_breaks(this_line)
             if fixes:
-                return LintResult(anchor=segment, fixes=fixes)
-            return LintResult(anchor=segment)
+                return LintResult(anchor=context.segment, fixes=fixes)
+            return LintResult(anchor=context.segment)
+        return LintResult()

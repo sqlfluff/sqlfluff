@@ -1,8 +1,9 @@
 """Implementation of Rule L015."""
+from typing import Optional
 
 from sqlfluff.core.parser import WhitespaceSegment
 
-from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult
+from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
 
@@ -29,17 +30,17 @@ class Rule_L015(BaseRule):
 
     """
 
-    def _eval(self, segment, raw_stack, **kwargs):
+    def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Looking for DISTINCT before a bracket.
 
         Look for DISTINCT keyword immediately followed by open parenthesis.
         """
         # We trigger on `select_clause` and look for `select_clause_modifier`
-        if segment.is_type("select_clause"):
-            modifier = segment.get_child("select_clause_modifier")
+        if context.segment.is_type("select_clause"):
+            modifier = context.segment.get_child("select_clause_modifier")
             if not modifier:
                 return None
-            first_element = segment.get_child("select_clause_element")
+            first_element = context.segment.get_child("select_clause_element")
             if not first_element:
                 return None  # pragma: no cover
             # is the first element only an expression with only brackets?
@@ -59,10 +60,11 @@ class Rule_L015(BaseRule):
                     ),
                 ]
             # Is there any whitespace between DISTINCT and the expression?
-            distinct_idx = segment.segments.index(modifier)
-            elem_idx = segment.segments.index(first_element)
+            distinct_idx = context.segment.segments.index(modifier)
+            elem_idx = context.segment.segments.index(first_element)
             if not any(
-                seg.is_whitespace for seg in segment.segments[distinct_idx:elem_idx]
+                seg.is_whitespace
+                for seg in context.segment.segments[distinct_idx:elem_idx]
             ):
                 fixes.append(
                     LintFix(
