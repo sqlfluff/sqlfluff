@@ -191,8 +191,7 @@ class CreateTableStatementSegment(BaseSegment):
                     optional=True,
                 ),
                 Ref("CommentGrammar", optional=True),
-                # TODO : Is it possible to specify anyOrderOf
-                #  That would avoid second call to StoredAsGrammar
+                # `STORED AS` can be called before or after the additional table properties below
                 Ref("StoredAsGrammar", optional=True),
                 Sequence(
                     "PARTITIONED",
@@ -229,6 +228,7 @@ class CreateTableStatementSegment(BaseSegment):
                     "BUCKETS",
                     optional=True,
                 ),
+                # Second call of `STORED AS` to match when appears after
                 Ref("StoredAsGrammar", optional=True),
                 Ref("SkewedByClauseSegment", optional=True),
                 Ref("StorageFormatGrammar", optional=True),
