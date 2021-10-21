@@ -1,8 +1,9 @@
 """The Spark SQL dialect for ANSI Compliant Spark3.
 
 Inherits from ANSI.
-  Spark SQL ANSI Mode is more restrictive regarding
-  keywords than the Default Mode.
+Spark SQL ANSI Mode is more restrictive regarding
+keywords than the Default Mode, and still shares
+some syntax with hive.
 
 Based on:
 - https://spark.apache.org/docs/latest/sql-ref.html
