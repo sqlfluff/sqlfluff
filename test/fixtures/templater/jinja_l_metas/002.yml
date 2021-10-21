@@ -131,15 +131,15 @@ file:
           - dedent: ''
         - newline: "\n"
         - whitespace: '        '
+        - dedent: ''
         - placeholder: '{% endif %}'
         - newline: "\n"
         - whitespace: '    '
         - newline: "\n"
         - whitespace: '        '
         - placeholder: '{% if loop.first %}... [49 omitted] ...{% else %}'
-        # TODO: The addition of this "- indent: '\n'" looks like a possible bug.
-        # Elsewhere in this file, "indent" always has an empty string value: "".
-        - indent: '\n'
+        - indent: ''
+        - newline: "\n"
         - whitespace: '        '
         - join_clause:
           - keyword: JOIN

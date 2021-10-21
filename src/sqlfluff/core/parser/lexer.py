@@ -435,9 +435,12 @@ class Lexer:
                                 has_gap = True
 
                                 # Generate a string documenting the gap.
-                                gap_placeholder_parts.append(
-                                    f"... [{num_omitted} omitted] ..."
-                                )
+                                if num_omitted >= 10:
+                                    gap_placeholder_parts.append(
+                                        f"... [{num_omitted} omitted] ..."
+                                    )
+                                else:
+                                    gap_placeholder_parts.append("...")
                         # Now add the slice's source.
                         gap_placeholder_parts.append(so_slice.raw)
                         last_slice = so_slice
