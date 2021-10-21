@@ -367,7 +367,6 @@ class TemplateTracer:
         #   e.g. {{ ['9f6ab9ed86304e8897a87b5b78edd6a1', 'c'] }}
         #    - UUID
         #    - Code that appears in templated Jinja block in raw_str
-        old_sliced_file_len = len(self.sliced_file)
         for p in output2.split("\0"):
             if not p:
                 continue
@@ -380,30 +379,32 @@ class TemplateTracer:
                 value = [m_id_start.group(0), p[len(m_id_start.group(0)) + 1 :], False]
             parts.append(value)
         for alt_id, content_info, literal in parts:
+            old_sliced_file_len = len(self.sliced_file)
             target_slice_idx = self.find_slice_index(alt_id)
             if literal:
                 self.move_to_slice(target_slice_idx, content_info)
             else:
                 self.move_to_slice(target_slice_idx, len(str(content_info)))
-        # Sanity check that the template slices we're recording match up
-        # precisely with templated_str.
-        templated_slice_parts = [
-            self.templated_str[tfs.templated_slice]
-            for tfs in self.sliced_file[old_sliced_file_len:]
-        ]
-        templated_slice_str = "".join(templated_slice_parts)
-        if self.sliced_file:
-            sliced_file_str = output1[
-                self.sliced_file[old_sliced_file_len]
-                .templated_slice.start : self.sliced_file[-1]
-                .templated_slice.stop
+
+            # Sanity check that the template slices we're recording match up
+            # precisely with templated_str.
+            templated_slice_parts = [
+                self.templated_str[tfs.templated_slice]
+                for tfs in self.sliced_file[old_sliced_file_len:]
             ]
-        else:
-            sliced_file_str = ""
-        if templated_slice_str != sliced_file_str:
-            raise ValueError(
-                f"Internal error: Templated slice string mismatch: {templated_slice_str} != {sliced_file_str}"
-            )
+            templated_slice_str = "".join(templated_slice_parts)
+            if self.sliced_file:
+                sliced_file_str = output1[
+                    self.sliced_file[old_sliced_file_len]
+                    .templated_slice.start : self.sliced_file[-1]
+                    .templated_slice.stop
+                ]
+            else:
+                sliced_file_str = ""
+            if templated_slice_str != sliced_file_str:
+                raise ValueError(
+                    f"Internal error: Templated slice string mismatch: {templated_slice_str} != {sliced_file_str}"
+                )
 
     def find_slice_index(self, slice_identifier) -> int:
         """Given a slice identifier (UUID string), return its index."""
