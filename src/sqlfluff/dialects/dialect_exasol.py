@@ -1334,7 +1334,7 @@ class TableDistributionPartitonClause(BaseSegment):
 class AlterTableStatementSegment(BaseSegment):
     """`ALTER TABLE` statement."""
 
-    type = "alter_table_statment"
+    type = "alter_table_statement"
 
     is_ddl = True
     is_dml = False
@@ -1355,7 +1355,7 @@ class AlterTableColumnSegment(BaseSegment):
     https://docs.exasol.com/sql/alter_table(column).htm
     """
 
-    type = "alter_table_statement"
+    type = "alter_table_column_statement"
 
     is_ddl = True
     is_dml = False
@@ -1469,7 +1469,7 @@ class AlterTableConstraintSegment(BaseSegment):
     https://docs.exasol.com/sql/alter_table(constraints).htm
     """
 
-    type = "alter_table_statement"
+    type = "alter_table_constraint_statement"
 
     is_ddl = True
     is_dml = False
@@ -1519,7 +1519,7 @@ class AlterTableDistributePartitionSegment(BaseSegment):
     https://docs.exasol.com/sql/alter_table(distribution_partitioning).htm
     """
 
-    type = "alter_table_statement"
+    type = "alter_table_distribute_partion_statement"
 
     is_ddl = True
     is_dml = False
