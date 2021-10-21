@@ -609,14 +609,6 @@ class CreateHiveFormatTableStatementSegment(hive_dialect.get_segment("CreateTabl
     type = "create_table_statement"
 
 
-# @spark_dialect.segment()
-# class CreateTableLikeStatement(BaseSegment):
-#     """
-#         A 'CREATE TABLE` statement using the definition/metadata of an existing table or view.
-#         http://spark.apache.org/docs/latest/sql-ref-syntax-ddl-create-table-like.html
-#     """
-
-
 # Auxiliary Statements
 @spark3_dialect.segment()
 class AddExecutablePackage(BaseSegment):
@@ -648,15 +640,16 @@ class StatementSegment(BaseSegment):
             Ref("AlterTableStatementSegment"),
             Ref("AlterViewStatementSegment"),
             Ref("CreateHiveFormatTableStatementSegment"),
+            # Auxiliary Statements
             Ref("AddExecutablePackage"),
         ],
-        # remove=[
-        #     Ref("TransactionStatementSegment"),
-        #     Ref("CreateSchemaStatementSegment"),
-        #     Ref("SetSchemaStatementSegment"),
-        #     Ref("DropSchemaStatementSegment"),
-        #     Ref("CreateExtensionStatementSegment"),
-        #     Ref("CreateModelStatementSegment"),
-        #     Ref("DropModelStatementSegment"),
-        # ],
+        remove=[
+            Ref("TransactionStatementSegment"),
+            Ref("CreateSchemaStatementSegment"),
+            Ref("SetSchemaStatementSegment"),
+            Ref("DropSchemaStatementSegment"),
+            Ref("CreateExtensionStatementSegment"),
+            Ref("CreateModelStatementSegment"),
+            Ref("DropModelStatementSegment"),
+        ],
     )
