@@ -1240,7 +1240,6 @@ class FunctionSegment(BaseSegment):
                 )
             ),
         ),
-        Ref("PostFunctionGrammar", optional=True),
     )
 
 
@@ -1711,8 +1710,6 @@ class OrderByClauseSegment(BaseSegment):
         ),
         Dedent,
     )
-
-    parse_grammar = None
 
 
 @tsql_dialect.segment()
