@@ -1,8 +1,10 @@
 """Implementation of Rule L033."""
+from sqlfluff.core.parser import (
+    WhitespaceSegment,
+    KeywordSegment,
+)
 
-from sqlfluff.core.parser import WhitespaceSegment, KeywordSegment
-
-from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult
+from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
 
 
 class Rule_L033(BaseRule):
@@ -29,7 +31,7 @@ class Rule_L033(BaseRule):
 
     """
 
-    def _eval(self, segment, raw_stack, dialect, **kwargs):
+    def _eval(self, context: RuleContext) -> LintResult:
         """Look for UNION keyword not immediately followed by DISTINCT or ALL.
 
         Note that UNION DISTINCT is valid, rule only applies to bare UNION.
@@ -39,19 +41,20 @@ class Rule_L033(BaseRule):
         Note only some dialects have concept of UNION DISTINCT, so rule is only
         applied to dialects that are known to support this syntax.
         """
-        if dialect.name not in ["ansi", "bigquery", "hive", "mysql"]:
+        if context.dialect.name not in ["ansi", "bigquery", "hive", "mysql"]:
             return LintResult()
 
-        if segment.is_type("set_operator"):
-            if "union" in segment.raw and not (
-                "ALL" in segment.raw.upper() or "DISTINCT" in segment.raw.upper()
+        if context.segment.is_type("set_operator"):
+            if "union" in context.segment.raw and not (
+                "ALL" in context.segment.raw.upper()
+                or "DISTINCT" in context.segment.raw.upper()
             ):
                 return LintResult(
-                    anchor=segment,
+                    anchor=context.segment,
                     fixes=[
                         LintFix(
                             "edit",
-                            segment.segments[0],
+                            context.segment.segments[0],
                             [
                                 KeywordSegment("union"),
                                 WhitespaceSegment(),
@@ -60,15 +63,16 @@ class Rule_L033(BaseRule):
                         )
                     ],
                 )
-            elif "UNION" in segment.raw.upper() and not (
-                "ALL" in segment.raw.upper() or "DISTINCT" in segment.raw.upper()
+            elif "UNION" in context.segment.raw.upper() and not (
+                "ALL" in context.segment.raw.upper()
+                or "DISTINCT" in context.segment.raw.upper()
             ):
                 return LintResult(
-                    anchor=segment,
+                    anchor=context.segment,
                     fixes=[
                         LintFix(
                             "edit",
-                            segment.segments[0],
+                            context.segment.segments[0],
                             [
                                 KeywordSegment("UNION"),
                                 WhitespaceSegment(),

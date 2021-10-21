@@ -1,8 +1,11 @@
 """Implementation of Rule L020."""
 
 import itertools
+from typing import List, Optional
 
-from sqlfluff.core.rules.base import BaseRule, LintResult
+from sqlfluff.core.dialects.common import AliasInfo
+from sqlfluff.core.parser import BaseSegment
+from sqlfluff.core.rules.base import BaseRule, LintResult, RuleContext, EvalResultType
 from sqlfluff.core.rules.analysis.select import get_select_statement_info
 
 
@@ -51,13 +54,13 @@ class Rule_L020(BaseRule):
 
     def _lint_references_and_aliases(
         self,
-        table_aliases,
-        standalone_aliases,
-        references,
-        col_aliases,
-        using_cols,
-        parent_select,
-    ):
+        table_aliases: List[AliasInfo],
+        standalone_aliases: List[str],
+        references: List[BaseSegment],
+        col_aliases: List[str],
+        using_cols: List[str],
+        parent_select: Optional[BaseSegment],
+    ) -> Optional[List[LintResult]]:
         """Check whether any aliases are duplicates.
 
         NB: Subclasses of this error should override this function.
@@ -83,7 +86,7 @@ class Rule_L020(BaseRule):
         else:
             return None
 
-    def _eval(self, segment, parent_stack, dialect, **kwargs):
+    def _eval(self, context: RuleContext) -> EvalResultType:
         """Get References and Aliases and allow linting.
 
         This rule covers a lot of potential cases of odd usages of
@@ -92,14 +95,14 @@ class Rule_L020(BaseRule):
         Subclasses of this rule should override the
         `_lint_references_and_aliases` method.
         """
-        if segment.is_type("select_statement"):
-            select_info = get_select_statement_info(segment, dialect)
+        if context.segment.is_type("select_statement"):
+            select_info = get_select_statement_info(context.segment, context.dialect)
             if not select_info:
                 return None
 
             # Work out if we have a parent select function
             parent_select = None
-            for seg in reversed(parent_stack):
+            for seg in reversed(context.parent_stack):
                 if seg.is_type("select_statement"):
                     parent_select = seg
                     break
