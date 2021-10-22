@@ -3,7 +3,7 @@
 import pytest
 import logging
 
-from sqlfluff.core.parser import Lexer, CodeSegment
+from sqlfluff.core.parser import Lexer, CodeSegment, NewlineSegment
 from sqlfluff.core.parser.lexer import (
     StringLexer,
     LexMatch,
@@ -136,3 +136,28 @@ def test__parser__lexer_fail_via_parse():
     err = vs[0]
     assert isinstance(err, SQLLexError)
     assert err.line_pos == 8
+
+
+def test__parser__lexer_trim_post_subdivide(caplog):
+    """Test a RegexLexer with a trim_post_subdivide function."""
+    matcher = [
+        RegexLexer(
+            "function_script_terminator",
+            r";\s+(?!\*)\/(?!\*)|\s+(?!\*)\/(?!\*)",
+            CodeSegment,
+            segment_kwargs={"type": "function_script_terminator"},
+            subdivider=StringLexer(
+                "semicolon", ";", CodeSegment, segment_kwargs={"type": "semicolon"}
+            ),
+            trim_post_subdivide=RegexLexer(
+                "newline",
+                r"(\n|\r\n)+",
+                NewlineSegment,
+            ),
+        )
+    ]
+    with caplog.at_level(logging.DEBUG):
+        res = Lexer.lex_match(";\n/\n", matcher)
+        assert res.elements[0].raw == ";"
+        assert res.elements[1].raw == "\n"
+        assert res.elements[2].raw == "/"
