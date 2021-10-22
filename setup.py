@@ -53,6 +53,7 @@ setup(
         "postgres",
         "redshift",
         "snowflake",
+        "spark3",
         "sqlite",
         "teradata",
         "tsql",
