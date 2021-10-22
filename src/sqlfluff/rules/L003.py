@@ -147,6 +147,8 @@ class Rule_L003(BaseRule):
         templated_file: Optional[TemplatedFile] = None,
     ) -> dict:
         """Take the raw stack, split into lines and evaluate some stats."""
+        # TODO: Is this needed anymore? Perhaps we can roll back most or all of
+        # the work from https://github.com/sqlfluff/sqlfluff/pull/1444.
         # raw_stack = cls._reorder_raw_stack(raw_stack, templated_file)
         indent_balance = 0
         line_no = 1
@@ -508,58 +510,66 @@ class Rule_L003(BaseRule):
                     ],
                 )
 
-        # Special handling for template end blocks.
-        template_dedent_targets = []
-        if len(res) > 0 and any(
-            seg
-            for seg in this_line["line_buffer"]
-            if seg.is_type("placeholder") and seg.block_type == "block_end"
-        ):
-            indent_diff_previous_line = (
-                this_line["indent_balance"] - res[max(res.keys())]["indent_balance"]
-            )
-            if indent_diff_previous_line < 0:
-                # Indentation decreased by 2 or more from the previous line.
-                # Look for previous lines with indent balance in this range.
-                template_dedent_targets = list(
-                    range(
-                        this_line["indent_balance"],
-                        this_line["indent_balance"] + abs(indent_diff_previous_line),
-                    )
-                )
-
-        # Assuming it's not a hanger, let's compare it to the other previous
-        # lines. We do it in reverse so that closer lines are more relevant.
-        for k in sorted(res.keys(), reverse=True):
-
-            # Is this a problem line?
-            if k in memory["problem_lines"] + memory["hanging_lines"]:
-                # Skip it if it is
-                continue
-
-            # Is this an empty line?
-            if not any(
-                elem.is_code or elem.is_type("placeholder")
-                for elem in res[k]["line_buffer"]
-            ):
-                # Skip if it is
-                continue
-
-            # Special handling for template "end block" lines. We usually want
-            # to match the indentation of template end blocks (e.g. endfor,
-            # endif) with the corresponding start blocks for, if). Question:
-            # Could we potentially avoid treating this as a special case?
-            # It has some similarities to the non-templated test case
-            # test/fixtures/linter/indentation_error_contained.sql, in that both
-            # have lines where indent_balance drops 2 levels from one line to
-            # the next, making it a bit unclear how to indent that line.
-            if template_dedent_targets and any(
+        # Special handling for template end blocks on a line by themselves.
+        if (
+            len(res) > 0
+            and any(
                 seg
-                for seg in res[k]["line_buffer"]
-                if seg.is_type("placeholder") and seg.block_type == "block_start"
-            ):
-                self.logger.debug("    [template block end] Comparing to #%s", k)
-                if this_line["indent_size"] != res[k]["indent_size"]:
+                for seg in this_line["line_buffer"]
+                if seg.is_type("placeholder") and seg.block_type == "block_end"
+            )
+            and (
+                1
+                == sum(
+                    1
+                    for seg in this_line["line_buffer"]
+                    if seg.is_type("placeholder") or seg.is_code
+                )
+            )
+        ):
+            # For a template block end on a line by itself, search for a
+            # matching block start on a line by itself. If there is one, match
+            # its indentation. Question: Could we avoid treating this as a
+            # special case? It has some similarities to the non-templated test
+            # case test/fixtures/linter/indentation_error_contained.sql, in tha
+            # both have lines where indent_balance drops 2 levels from one line
+            # to the next, making it a bit unclear how to indent that line.
+            template_block_level = -1
+            for k in sorted(res.keys(), reverse=True):
+                for seg in reversed(res[k]["line_buffer"]):
+                    if seg.is_type("placeholder"):
+                        if seg.block_type == "block_end":
+                            template_block_level -= 1
+                        elif seg.block_type == "block_start":
+                            template_block_level += 1
+
+                # Is this a problem line?
+                if k in memory["problem_lines"] + memory["hanging_lines"]:
+                    # Skip it if it is
+                    continue
+
+                if (
+                    template_block_level == 0
+                    and any(
+                        seg
+                        for seg in res[k]["line_buffer"]
+                        if seg.is_type("placeholder")
+                        and seg.block_type == "block_start"
+                    )
+                    and (
+                        1
+                        == sum(
+                            1
+                            for seg in res[k]["line_buffer"]
+                            if seg.is_type("placeholder") or seg.is_code
+                        )
+                    )
+                ):
+                    self.logger.debug("    [template block end] Comparing to #%s", k)
+                    if this_line["indent_size"] == res[k]["indent_size"]:
+                        # All good.
+                        return LintResult(memory=memory)
+
                     # Indents don't match even though balance is the same...
                     memory["problem_lines"].append(this_line_no)
 
@@ -587,6 +597,23 @@ class Rule_L003(BaseRule):
                         fixes=fixes,
                     )
 
+        # Assuming it's not a hanger, let's compare it to the other previous
+        # lines. We do it in reverse so that closer lines are more relevant.
+        for k in sorted(res.keys(), reverse=True):
+
+            # Is this a problem line?
+            if k in memory["problem_lines"] + memory["hanging_lines"]:
+                # Skip it if it is
+                continue
+
+            # Is this an empty line?
+            if not any(
+                elem.is_code or elem.is_type("placeholder")
+                for elem in res[k]["line_buffer"]
+            ):
+                # Skip if it is
+                continue
+
             # Work out the difference in indent
             indent_diff = this_line["indent_balance"] - res[k]["indent_balance"]
             # If we're comparing to a previous, more deeply indented line, then skip and keep looking.
@@ -594,7 +621,7 @@ class Rule_L003(BaseRule):
                 continue
 
             # Is the indent balance the same?
-            if indent_diff == 0 or res[k]["indent_balance"] in template_dedent_targets:
+            if indent_diff == 0:
                 self.logger.debug("    [same indent balance] Comparing to #%s", k)
                 if this_line["indent_size"] != res[k]["indent_size"]:
                     # Indents don't match even though balance is the same...
