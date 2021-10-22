@@ -19,10 +19,10 @@ FROM
         -- This next section gets very strange with forced template_blocks_indent
         {{action}}_raw_effect_sizes
     {% else %}
-        JOIN
+    JOIN
             {{action}}_raw_effect_sizes
-            USING
-                ({{corr_states}})
+        USING
+                    ({{corr_states}})
     {% endif %}
 {% endfor %}
 CROSS JOIN action_states

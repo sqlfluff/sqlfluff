@@ -393,7 +393,6 @@ test_jinja_nested_blocks:
     )
     SELECT 1
 
-
   fix_str: |
     WITH
     raw_effect_sizes AS (
