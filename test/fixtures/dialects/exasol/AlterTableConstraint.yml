@@ -3,11 +3,11 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c6cfcf2e7f65d1c976b71e5ed8a26fa6da90f8d65d0f5844c6a2f8559e07e273
+_hash: 848145908fea6f380a3d0bfda64d92403b0de27dfc1e28a2e7c703f8c31281f0
 file:
 - statement:
-    alter_table_statment:
-      alter_table_statement:
+    alter_table_statement:
+      alter_table_constraint_statement:
       - keyword: ALTER
       - keyword: TABLE
       - table_reference:
@@ -25,8 +25,8 @@ file:
             end_bracket: )
 - statement_terminator: ;
 - statement:
-    alter_table_statment:
-      alter_table_statement:
+    alter_table_statement:
+      alter_table_constraint_statement:
       - keyword: ALTER
       - keyword: TABLE
       - table_reference:
@@ -47,8 +47,8 @@ file:
             identifier: t1
 - statement_terminator: ;
 - statement:
-    alter_table_statment:
-      alter_table_statement:
+    alter_table_statement:
+      alter_table_constraint_statement:
       - keyword: ALTER
       - keyword: TABLE
       - table_reference:
@@ -59,8 +59,8 @@ file:
       - keyword: DISABLE
 - statement_terminator: ;
 - statement:
-    alter_table_statment:
-      alter_table_statement:
+    alter_table_statement:
+      alter_table_constraint_statement:
       - keyword: ALTER
       - keyword: TABLE
       - table_reference:
@@ -72,8 +72,8 @@ file:
       - identifier: my_fk
 - statement_terminator: ;
 - statement:
-    alter_table_statment:
-      alter_table_statement:
+    alter_table_statement:
+      alter_table_constraint_statement:
       - keyword: ALTER
       - keyword: TABLE
       - table_reference:
@@ -83,8 +83,8 @@ file:
       - identifier: my_fk
 - statement_terminator: ;
 - statement:
-    alter_table_statment:
-      alter_table_statement:
+    alter_table_statement:
+      alter_table_constraint_statement:
       - keyword: ALTER
       - keyword: TABLE
       - table_reference:
