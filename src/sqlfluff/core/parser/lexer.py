@@ -455,7 +455,7 @@ class Lexer:
                     templ_str,
                 )
 
-                # Caluculate potential indent/dedent
+                # Calculate potential indent/dedent
                 block_slices = sum(s.slice_type.startswith("block_") for s in so_slices)
                 block_balance = sum(
                     s.slice_type == "block_start" for s in so_slices
@@ -503,19 +503,20 @@ class Lexer:
                     )
                 )
                 lexer_logger.debug(
-                    "      Placholder: %s, %r", segment_buffer[-1], placeholder_str
+                    "      Placeholder: %s, %r", segment_buffer[-1], placeholder_str
                 )
 
-                # Add a dedent if appropriate.
+                # Add an indent if appropriate.
                 if trail_indent and add_indents:
                     lexer_logger.debug("      INDENT")
                     segment_buffer.append(
                         Indent(
+                            template=True,
                             pos_marker=PositionMarker.from_point(
                                 placeholder_slice.stop,
                                 element.template_slice.start,
                                 templated_file,
-                            )
+                            ),
                         )
                     )
 

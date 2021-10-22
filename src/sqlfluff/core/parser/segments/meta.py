@@ -15,6 +15,10 @@ class MetaSegment(RawSegment):
     indent_val = 0
     is_meta = True
 
+    def __init__(self, template=False, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.template = template
+
     @staticmethod
     def _suffix():
         """Return any extra output required at the end when logging.

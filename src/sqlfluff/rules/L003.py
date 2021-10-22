@@ -147,7 +147,7 @@ class Rule_L003(BaseRule):
         templated_file: Optional[TemplatedFile] = None,
     ) -> dict:
         """Take the raw stack, split into lines and evaluate some stats."""
-        raw_stack = cls._reorder_raw_stack(raw_stack, templated_file)
+        # raw_stack = cls._reorder_raw_stack(raw_stack, templated_file)
         indent_balance = 0
         line_no = 1
         in_indent = True
@@ -507,6 +507,21 @@ class Rule_L003(BaseRule):
                     ],
                 )
 
+        multi_dedent_targets = []
+        if len(res) > 0:
+            indent_diff_previous_line = (
+                this_line["indent_balance"] - res[max(res.keys())]["indent_balance"]
+            )
+            if indent_diff_previous_line < -1:
+                # Indentation decreased by 2 or more from the previous line.
+                # Look for previous lines with indent balance in this range.
+                multi_dedent_targets = list(
+                    range(
+                        this_line["indent_balance"],
+                        this_line["indent_balance"] + abs(indent_diff_previous_line),
+                    )
+                )
+
         # Assuming it's not a hanger, let's compare it to the other previous
         # lines. We do it in reverse so that closer lines are more relevant.
         for k in sorted(res.keys(), reverse=True):
@@ -517,18 +532,27 @@ class Rule_L003(BaseRule):
                 continue
 
             # Is this an empty line?
-            if not any(elem.is_code for elem in res[k]["line_buffer"]):
+            if not any(
+                elem.is_code or elem.is_type("placeholder")
+                for elem in res[k]["line_buffer"]
+            ):
                 # Skip if it is
                 continue
 
             # Work out the difference in indent
             indent_diff = this_line["indent_balance"] - res[k]["indent_balance"]
             # If we're comparing to a previous, more deeply indented line, then skip and keep looking.
-            if indent_diff < 0:
+            if indent_diff < 0 and res[k]["indent_balance"] not in multi_dedent_targets:
                 continue
+
             # Is the indent balance the same?
-            elif indent_diff == 0:
-                self.logger.debug("    [same indent balance] Comparing to #%s", k)
+            if indent_diff == 0 or res[k]["indent_balance"] in multi_dedent_targets:
+                if indent_diff == 0:
+                    self.logger.debug("    [same indent balance] Comparing to #%s", k)
+                else:
+                    self.logger.debug(
+                        "    [close enough indent balance] Comparing to #%s", k
+                    )
                 if this_line["indent_size"] != res[k]["indent_size"]:
                     # Indents don't match even though balance is the same...
                     memory["problem_lines"].append(this_line_no)
