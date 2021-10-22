@@ -274,7 +274,8 @@ class Rule_L003(BaseRule):
             ]
         # Otherwise edit the first element to be the right size
         else:
-            # Edit the first element of this line's indent.
+            # Edit the first element of this line's indent and remove any other
+            # indents.
             fixes = [
                 LintFix(
                     "edit",
@@ -283,7 +284,7 @@ class Rule_L003(BaseRule):
                         raw=desired_indent,
                     ),
                 )
-            ]
+            ] + [LintFix("delete", elem) for elem in current_indent_buffer[1:]]
         return fixes
 
     @staticmethod
@@ -507,15 +508,20 @@ class Rule_L003(BaseRule):
                     ],
                 )
 
-        multi_dedent_targets = []
-        if len(res) > 0:
+        # Special handling for template end blocks.
+        template_dedent_targets = []
+        if len(res) > 0 and any(
+            seg
+            for seg in this_line["line_buffer"]
+            if seg.is_type("placeholder") and seg.block_type == "block_end"
+        ):
             indent_diff_previous_line = (
                 this_line["indent_balance"] - res[max(res.keys())]["indent_balance"]
             )
-            if indent_diff_previous_line < -1:
+            if indent_diff_previous_line < 0:
                 # Indentation decreased by 2 or more from the previous line.
                 # Look for previous lines with indent balance in this range.
-                multi_dedent_targets = list(
+                template_dedent_targets = list(
                     range(
                         this_line["indent_balance"],
                         this_line["indent_balance"] + abs(indent_diff_previous_line),
@@ -539,20 +545,57 @@ class Rule_L003(BaseRule):
                 # Skip if it is
                 continue
 
+            # Special handling for template "end block" lines. We usually want
+            # to match the indentation of template end blocks (e.g. endfor,
+            # endif) with the corresponding start blocks for, if). Question:
+            # Could we potentially avoid treating this as a special case?
+            # It has some similarities to the non-templated test case
+            # test/fixtures/linter/indentation_error_contained.sql, in that both
+            # have lines where indent_balance drops 2 levels from one line to
+            # the next, making it a bit unclear how to indent that line.
+            if template_dedent_targets and any(
+                seg
+                for seg in res[k]["line_buffer"]
+                if seg.is_type("placeholder") and seg.block_type == "block_start"
+            ):
+                self.logger.debug("    [template block end] Comparing to #%s", k)
+                if this_line["indent_size"] != res[k]["indent_size"]:
+                    # Indents don't match even though balance is the same...
+                    memory["problem_lines"].append(this_line_no)
+
+                    # The previous indent.
+                    desired_indent = "".join(
+                        elem.raw for elem in res[k]["indent_buffer"]
+                    )
+
+                    # Make fixes
+                    fixes = self._coerce_indent_to(
+                        desired_indent=desired_indent,
+                        current_indent_buffer=this_line["indent_buffer"],
+                        current_anchor=trigger_segment,
+                    )
+                    self.logger.debug(
+                        "    !! Indentation does not match #%s. Fixes: %s", k, fixes
+                    )
+                    return LintResult(
+                        anchor=trigger_segment,
+                        memory=memory,
+                        description="Indentation not consistent with line #{}".format(
+                            k
+                        ),
+                        # See above for logic
+                        fixes=fixes,
+                    )
+
             # Work out the difference in indent
             indent_diff = this_line["indent_balance"] - res[k]["indent_balance"]
             # If we're comparing to a previous, more deeply indented line, then skip and keep looking.
-            if indent_diff < 0 and res[k]["indent_balance"] not in multi_dedent_targets:
+            if indent_diff < 0:
                 continue
 
             # Is the indent balance the same?
-            if indent_diff == 0 or res[k]["indent_balance"] in multi_dedent_targets:
-                if indent_diff == 0:
-                    self.logger.debug("    [same indent balance] Comparing to #%s", k)
-                else:
-                    self.logger.debug(
-                        "    [close enough indent balance] Comparing to #%s", k
-                    )
+            if indent_diff == 0 or res[k]["indent_balance"] in template_dedent_targets:
+                self.logger.debug("    [same indent balance] Comparing to #%s", k)
                 if this_line["indent_size"] != res[k]["indent_size"]:
                     # Indents don't match even though balance is the same...
                     memory["problem_lines"].append(this_line_no)
