@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5e8e29e172712caaf198546e2a15103d2798bf997a26a54b207fd56a9f4fe69e
+_hash: 745cbe9f0c1ad4706118354dc7c2966b63759e0b6649baa40509c4bd502e6057
 file:
   batch:
     statement:
@@ -229,6 +229,39 @@ file:
             alias_expression:
               keyword: AS
               identifier: '[NT]'
+        - comma: ','
+        - select_clause_element:
+            function:
+              function_name:
+                function_name_identifier: sum
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                  - identifier: t
+                  - dot: .
+                  - identifier: col1
+                end_bracket: )
+              over_clause:
+                keyword: over
+                bracketed:
+                  start_bracket: (
+                  window_specification:
+                    partitionby_clause:
+                    - keyword: partition
+                    - keyword: by
+                    - expression:
+                        column_reference:
+                        - identifier: t
+                        - dot: .
+                        - identifier: col2
+                    - comma: ','
+                    - expression:
+                        column_reference:
+                        - identifier: t
+                        - dot: .
+                        - identifier: col3
+                  end_bracket: )
         from_clause:
           keyword: FROM
           from_expression:
