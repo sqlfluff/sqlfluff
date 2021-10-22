@@ -11,10 +11,11 @@ from sqlfluff.core.parser import (
     NamedParser,
     SymbolSegment,
     StringParser,
+    OptionallyBracketed,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
-from sqlfluff.core.parser.segments.raw import CodeSegment
+from sqlfluff.core.parser.segments.raw import CodeSegment, KeywordSegment
 from sqlfluff.dialects.dialect_hive_keywords import (
     RESERVED_KEYWORDS,
     UNRESERVED_KEYWORDS,
@@ -37,7 +38,6 @@ hive_dialect.sets("angle_bracket_pairs").update(
     ]
 )
 
-
 hive_dialect.add(
     DoubleQuotedLiteralSegment=NamedParser(
         "double_quote",
@@ -54,6 +54,18 @@ hive_dialect.add(
     ),
     EndAngleBracketSegment=StringParser(
         ">", SymbolSegment, name="end_angle_bracket", type="end_angle_bracket"
+    ),
+    JsonfileKeywordSegment=StringParser(
+        "JSONFILE", KeywordSegment, name="json_file", type="file_format"
+    ),
+    RcfileKeywordSegment=StringParser(
+        "RCFILE", KeywordSegment, name="rc_file", type="file_format"
+    ),
+    SequencefileKeywordSegment=StringParser(
+        "SEQUENCEFILE", KeywordSegment, name="sequence_file", type="file_format"
+    ),
+    TextfileKeywordSegment=StringParser(
+        "TEXTFILE", KeywordSegment, name="text_file", type="file_format"
     ),
     LocationGrammar=Sequence("LOCATION", Ref("SingleOrDoubleQuotedLiteralGrammar")),
     PropertyGrammar=Sequence(
@@ -168,18 +180,30 @@ class CreateTableStatementSegment(BaseSegment):
                     Delimited(
                         OneOf(
                             # TODO: support all constraints
-                            Ref("TableConstraintSegment"),
-                            Ref("ColumnDefinitionSegment"),
+                            Ref("TableConstraintSegment", optional=True),
+                            Sequence(
+                                Ref("ColumnDefinitionSegment"),
+                                Ref("CommentGrammar", optional=True),
+                            ),
                         ),
                         bracket_pairs_set="angle_bracket_pairs",
                     ),
                     optional=True,
                 ),
                 Ref("CommentGrammar", optional=True),
+                # `STORED AS` can be called before or after the additional table properties below
+                Ref("StoredAsGrammar", optional=True),
                 Sequence(
                     "PARTITIONED",
                     "BY",
-                    Bracketed(Delimited(Ref("ColumnDefinitionSegment"))),
+                    Bracketed(
+                        Delimited(
+                            Sequence(
+                                Ref("ColumnDefinitionSegment"),
+                                Ref("CommentGrammar", optional=True),
+                            ),
+                        ),
+                    ),
                     optional=True,
                 ),
                 Sequence(
@@ -204,11 +228,18 @@ class CreateTableStatementSegment(BaseSegment):
                     "BUCKETS",
                     optional=True,
                 ),
+                # Second call of `STORED AS` to match when appears after
+                Ref("StoredAsGrammar", optional=True),
                 Ref("SkewedByClauseSegment", optional=True),
                 Ref("StorageFormatGrammar", optional=True),
                 Ref("LocationGrammar", optional=True),
                 Ref("TablePropertiesGrammar", optional=True),
-                Sequence("AS", Ref("SelectStatementSegment"), optional=True),
+                Ref("CommentGrammar", optional=True),
+                Sequence(
+                    "AS",
+                    OptionallyBracketed(Ref("SelectStatementSegment")),
+                    optional=True,
+                ),
             ),
             # Create like syntax
             Sequence(
