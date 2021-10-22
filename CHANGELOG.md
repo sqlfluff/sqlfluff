@@ -13,10 +13,11 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ## What’s Changed
 
-This release contains a lot of T-SQL dialect improvements (shout out to @jpers36 for most of these!) as well as a number of other improvements. We also added Spark3 as a new dialect thanks to @R7L208.
+Highlights of this release contains a lot of T-SQL dialect improvements (shout out to @jpers36 for most of these!). We also added Spark3 as a new dialect thanks to @R7L208. The complete list of changes are shown below.
 
 ## 🚀 Enhancements
 
+* TSQL: Add rank functions  [#1725](https://github.com/sqlfluff/sqlfluff/pull/1725) [@jpers36](https://github.com/jpers36)
 * Spark3 Dialect Support [#1706](https://github.com/sqlfluff/sqlfluff/pull/1706) [@R7L208](https://github.com/R7L208)
 * Postgres Array Support [#1722](https://github.com/sqlfluff/sqlfluff/pull/1722) [@WittierDinosaur](https://github.com/WittierDinosaur)
 * Hive: Add LEFT SEMI JOIN support [#1718](https://github.com/sqlfluff/sqlfluff/pull/1718) [@fatelei](https://github.com/fatelei)
@@ -57,6 +58,7 @@ This release contains a lot of T-SQL dialect improvements (shout out to @jpers36
 
 ## 🐛 Bug Fixes
 
+* EXASOL: Fix typo in alter_table_statement [#1726](https://github.com/sqlfluff/sqlfluff/pull/1726) [@sti0](https://github.com/sti0)
 * Fix markdown links in production.rst [#1721](https://github.com/sqlfluff/sqlfluff/pull/1721) [@asottile](https://github.com/asottile)
 * Correct contributing testing information [#1702](https://github.com/sqlfluff/sqlfluff/pull/1702) [@adam-tokarski](https://github.com/adam-tokarski)
 * More ORDER BY clarifications [#1681](https://github.com/sqlfluff/sqlfluff/pull/1681) [@tunetheweb](https://github.com/tunetheweb)
