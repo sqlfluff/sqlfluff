@@ -9,6 +9,63 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfluff/sqlfluff/releases) and will be copied in here on each release (please remember to update the issues and contributors to links!). There is no need to manually edit this file going forward.
 -->
 
+## [0.7.1] - 2021-10-22
+
+## What’s Changed
+
+Highlights of this release contains a lot of T-SQL dialect improvements (shout out to @jpers36 for most of these!). We also added Spark3 as a new dialect thanks to @R7L208. The complete list of changes are shown below.
+
+## 🚀 Enhancements
+
+* TSQL: Add rank functions  [#1725](https://github.com/sqlfluff/sqlfluff/pull/1725) [@jpers36](https://github.com/jpers36)
+* Spark3 Dialect Support [#1706](https://github.com/sqlfluff/sqlfluff/pull/1706) [@R7L208](https://github.com/R7L208)
+* Postgres Array Support [#1722](https://github.com/sqlfluff/sqlfluff/pull/1722) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Hive: Add LEFT SEMI JOIN support [#1718](https://github.com/sqlfluff/sqlfluff/pull/1718) [@fatelei](https://github.com/fatelei)
+* MySQL: Change and drop column in alter table [#1670](https://github.com/sqlfluff/sqlfluff/pull/1670) [@MontealegreLuis](https://github.com/MontealegreLuis)
+* Added type hints to some rule files [#1616](https://github.com/sqlfluff/sqlfluff/pull/1616) [@ttomasz](https://github.com/ttomasz)
+* Added Redshift to README [#1720](https://github.com/sqlfluff/sqlfluff/pull/1720) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Exasol: Fix create table statement [#1700](https://github.com/sqlfluff/sqlfluff/pull/1700) [@sti0](https://github.com/sti0)
+* TSQL: Add optional delimiter to SET [#1717](https://github.com/sqlfluff/sqlfluff/pull/1717) [@jpers36](https://github.com/jpers36)
+* TSQL: Escaped quotes [#1715](https://github.com/sqlfluff/sqlfluff/pull/1715) [@jpers36](https://github.com/jpers36)
+* TSQL: SELECT INTO [#1714](https://github.com/sqlfluff/sqlfluff/pull/1714) [@jpers36](https://github.com/jpers36)
+* Postgres: Added support for psql variables [#1709](https://github.com/sqlfluff/sqlfluff/pull/1709) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* TSQL: split location clause out from index clause [#1711](https://github.com/sqlfluff/sqlfluff/pull/1711) [@jpers36](https://github.com/jpers36)
+* TSQL: Override ANSI HAVING [#1707](https://github.com/sqlfluff/sqlfluff/pull/1707) [@jpers36](https://github.com/jpers36)
+* TSQL: Add UPDATE STATISTICS [#1703](https://github.com/sqlfluff/sqlfluff/pull/1703) [@jpers36](https://github.com/jpers36)
+* TSQL: CTAS Option Clause [#1705](https://github.com/sqlfluff/sqlfluff/pull/1705) [@jpers36](https://github.com/jpers36)
+* TSQL: DECLARE has optional AS [#1704](https://github.com/sqlfluff/sqlfluff/pull/1704) [@jpers36](https://github.com/jpers36)
+* TSQL: DROP STATISTICS and INDEX [#1698](https://github.com/sqlfluff/sqlfluff/pull/1698) [@jpers36](https://github.com/jpers36)
+* TSQL: CTAS select can be optionally bracketed [#1697](https://github.com/sqlfluff/sqlfluff/pull/1697) [@jpers36](https://github.com/jpers36)
+* Exasol: Make function_script_terminator more strict [#1696](https://github.com/sqlfluff/sqlfluff/pull/1696) [@sti0](https://github.com/sti0)
+* TSQL distribution index location [#1695](https://github.com/sqlfluff/sqlfluff/pull/1695) [@jpers36](https://github.com/jpers36)
+* TSQL: allow for non-alphanumeric initial characters in delimited identifiers [#1693](https://github.com/sqlfluff/sqlfluff/pull/1693) [@jpers36](https://github.com/jpers36)
+* TSQL: allow for semi-colon after BEGIN in a BEGIN/END block [#1694](https://github.com/sqlfluff/sqlfluff/pull/1694) [@jpers36](https://github.com/jpers36)
+* Exasol: Fix adapter script syntax [#1692](https://github.com/sqlfluff/sqlfluff/pull/1692) [@sti0](https://github.com/sti0)
+* TSQL: Basic EXECUTE functionality [#1691](https://github.com/sqlfluff/sqlfluff/pull/1691) [@jpers36](https://github.com/jpers36)
+* TSQL: Add #, @ to valid identifier characters [#1690](https://github.com/sqlfluff/sqlfluff/pull/1690) [@jpers36](https://github.com/jpers36)
+* TSQL - add support for Filegroups in table create [#1689](https://github.com/sqlfluff/sqlfluff/pull/1689) [@nevado](https://github.com/nevado)
+* Exclude Exasol scripts from rule L003 [#1684](https://github.com/sqlfluff/sqlfluff/pull/1684) [@tunetheweb](https://github.com/tunetheweb)
+* Added PostGIS keyword data types to Postgres [#1686](https://github.com/sqlfluff/sqlfluff/pull/1686) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Indent LIMIT values if on separate line [#1683](https://github.com/sqlfluff/sqlfluff/pull/1683) [@tunetheweb](https://github.com/tunetheweb)
+* Postgres: Added support for SELECT INTO statements [#1676](https://github.com/sqlfluff/sqlfluff/pull/1676) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Allow :: casting of CASE statements [#1657](https://github.com/sqlfluff/sqlfluff/pull/1657) [@tunetheweb](https://github.com/tunetheweb)
+* Add more keywords to Redhift and BigQuery to avoid errors [#1671](https://github.com/sqlfluff/sqlfluff/pull/1671) [@tunetheweb](https://github.com/tunetheweb)
+* TSQL begin end delimiter [#1664](https://github.com/sqlfluff/sqlfluff/pull/1664) [@jpers36](https://github.com/jpers36)
+* Teradata: Added date as bare function for [#1663](https://github.com/sqlfluff/sqlfluff/pull/1663) [@anzelpwj](https://github.com/anzelpwj)
+* TSQL: CREATE STATISTICS [#1662](https://github.com/sqlfluff/sqlfluff/pull/1662) [@jpers36](https://github.com/jpers36)
+* TSQL table and query hints [#1661](https://github.com/sqlfluff/sqlfluff/pull/1661) [@jpers36](https://github.com/jpers36)
+* TSQL: Allow spaces in qualified names [#1654](https://github.com/sqlfluff/sqlfluff/pull/1654) [@jpers36](https://github.com/jpers36)
+
+## 🐛 Bug Fixes
+
+* EXASOL: Fix typo in alter_table_statement [#1726](https://github.com/sqlfluff/sqlfluff/pull/1726) [@sti0](https://github.com/sti0)
+* Fix markdown links in production.rst [#1721](https://github.com/sqlfluff/sqlfluff/pull/1721) [@asottile](https://github.com/asottile)
+* Correct contributing testing information [#1702](https://github.com/sqlfluff/sqlfluff/pull/1702) [@adam-tokarski](https://github.com/adam-tokarski)
+* More ORDER BY clarifications [#1681](https://github.com/sqlfluff/sqlfluff/pull/1681) [@tunetheweb](https://github.com/tunetheweb)
+* Fix TSQL L025 linter exception [#1677](https://github.com/sqlfluff/sqlfluff/pull/1677) [@tunetheweb](https://github.com/tunetheweb)
+* Improve Jinja whitespace handling in rules [#1647](https://github.com/sqlfluff/sqlfluff/pull/1647) [@barrywhart](https://github.com/barrywhart)
+
+
 ## [0.7.0] - 2021-10-14
 
 *** BREAKING CHANGE ***

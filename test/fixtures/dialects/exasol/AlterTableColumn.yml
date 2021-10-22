@@ -3,11 +3,11 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4b993f5364451f0d87f0ee5843812dbc14a0060ae0a2eff0a378f85a200bd2f7
+_hash: 6138f83f26b04fb2bb50c6bd85c2e0e3b71ef9cdd56ca3bb89cfd9d76fc8db3e
 file:
 - statement:
-    alter_table_statment:
-      alter_table_statement:
+    alter_table_statement:
+      alter_table_column_statement:
       - keyword: ALTER
       - keyword: TABLE
       - table_reference:
@@ -31,8 +31,8 @@ file:
                 - end_bracket: )
 - statement_terminator: ;
 - statement:
-    alter_table_statment:
-      alter_table_statement:
+    alter_table_statement:
+      alter_table_column_statement:
       - keyword: ALTER
       - keyword: TABLE
       - table_reference:
@@ -56,8 +56,8 @@ file:
             end_bracket: )
 - statement_terminator: ;
 - statement:
-    alter_table_statment:
-      alter_table_statement:
+    alter_table_statement:
+      alter_table_column_statement:
       - keyword: ALTER
       - keyword: TABLE
       - table_reference:
@@ -70,8 +70,8 @@ file:
         - identifier: i
 - statement_terminator: ;
 - statement:
-    alter_table_statment:
-      alter_table_statement:
+    alter_table_statement:
+      alter_table_column_statement:
       - keyword: ALTER
       - keyword: TABLE
       - table_reference:
@@ -81,8 +81,8 @@ file:
           identifier: j
 - statement_terminator: ;
 - statement:
-    alter_table_statment:
-      alter_table_statement:
+    alter_table_statement:
+      alter_table_column_statement:
       - keyword: ALTER
       - keyword: TABLE
       - table_reference:
@@ -103,8 +103,8 @@ file:
             end_bracket: )
 - statement_terminator: ;
 - statement:
-    alter_table_statment:
-      alter_table_statement:
+    alter_table_statement:
+      alter_table_column_statement:
       - keyword: ALTER
       - keyword: TABLE
       - table_reference:
@@ -126,8 +126,8 @@ file:
             end_bracket: )
 - statement_terminator: ;
 - statement:
-    alter_table_statment:
-      alter_table_statement:
+    alter_table_statement:
+      alter_table_column_statement:
       - keyword: ALTER
       - keyword: TABLE
       - table_reference:
@@ -145,8 +145,8 @@ file:
               end_bracket: )
 - statement_terminator: ;
 - statement:
-    alter_table_statment:
-      alter_table_statement:
+    alter_table_statement:
+      alter_table_column_statement:
       - keyword: ALTER
       - keyword: TABLE
       - table_reference:
@@ -159,8 +159,8 @@ file:
         - identifier: j
 - statement_terminator: ;
 - statement:
-    alter_table_statment:
-      alter_table_statement:
+    alter_table_statement:
+      alter_table_column_statement:
       - keyword: ALTER
       - keyword: TABLE
       - table_reference:
@@ -174,8 +174,8 @@ file:
         - bare_function: CURRENT_USER
 - statement_terminator: ;
 - statement:
-    alter_table_statment:
-      alter_table_statement:
+    alter_table_statement:
+      alter_table_column_statement:
       - keyword: ALTER
       - keyword: TABLE
       - table_reference:
@@ -190,8 +190,8 @@ file:
         - keyword: DEFAULT
 - statement_terminator: ;
 - statement:
-    alter_table_statment:
-      alter_table_statement:
+    alter_table_statement:
+      alter_table_column_statement:
       - keyword: ALTER
       - keyword: TABLE
       - table_reference:
@@ -205,8 +205,8 @@ file:
         - literal: '1000'
 - statement_terminator: ;
 - statement:
-    alter_table_statment:
-      alter_table_statement:
+    alter_table_statement:
+      alter_table_column_statement:
       - keyword: ALTER
       - keyword: TABLE
       - table_reference:

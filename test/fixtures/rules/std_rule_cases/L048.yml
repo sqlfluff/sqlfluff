@@ -73,13 +73,6 @@ test_fail_tsql_unicode_single_quote:
     core:
       dialect: tsql
 
-test_fail_tsql_unicode_single_quote_lower_n:
-  fail_str: "SELECT a + N'b'+ n'c' FROM tbl;"
-
-  configs:
-    core:
-      dialect: tsql
-
 test_fail_ansi_unicode_single_quote:
   fail_str: "SELECT a + N'b' + N'c' FROM tbl;"
 
