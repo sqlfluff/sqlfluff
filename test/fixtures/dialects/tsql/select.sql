@@ -22,7 +22,8 @@ SELECT
     ROW_NUMBER()OVER(PARTITION BY [EventNM] ORDER BY [DateofEvent] desc) AS [RN],
     RANK()OVER(PARTITION BY [EventNM] ORDER BY [DateofEvent] desc) AS [R],
     DENSE_RANK()OVER(PARTITION BY [EventNM] ORDER BY [DateofEvent] desc) AS [DR],
-    NTILE(5)OVER(PARTITION BY [EventNM] ORDER BY [DateofEvent] desc) AS [NT]
+    NTILE(5)OVER(PARTITION BY [EventNM] ORDER BY [DateofEvent] desc) AS [NT],
+	sum(t.col1) over (partition by t.col2, t.col3)
 
 FROM dbo . all_pop	
 
