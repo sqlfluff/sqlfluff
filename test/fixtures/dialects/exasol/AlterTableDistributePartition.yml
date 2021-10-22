@@ -3,11 +3,11 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: be9fb04dae55e497359a66308352420f1be32e598756edffeb4c8d17ec224bc5
+_hash: f185a02aa9335ee847cf05a61e09d9795c2750bec0d500610cd753a2e5c99548
 file:
 - statement:
-    alter_table_statment:
-      alter_table_statement:
+    alter_table_statement:
+      alter_table_distribute_partition_statement:
       - keyword: ALTER
       - keyword: TABLE
       - table_reference:
@@ -17,8 +17,8 @@ file:
       - keyword: KEYS
 - statement_terminator: ;
 - statement:
-    alter_table_statment:
-      alter_table_statement:
+    alter_table_statement:
+      alter_table_distribute_partition_statement:
       - keyword: ALTER
       - keyword: TABLE
       - table_reference:
@@ -30,8 +30,8 @@ file:
       - keyword: KEYS
 - statement_terminator: ;
 - statement:
-    alter_table_statment:
-      alter_table_statement:
+    alter_table_statement:
+      alter_table_distribute_partition_statement:
       - keyword: ALTER
       - keyword: TABLE
       - table_reference:
@@ -48,8 +48,8 @@ file:
             identifier: order_date
 - statement_terminator: ;
 - statement:
-    alter_table_statment:
-      alter_table_statement:
+    alter_table_statement:
+      alter_table_distribute_partition_statement:
       - keyword: ALTER
       - keyword: TABLE
       - table_reference:
@@ -68,8 +68,8 @@ file:
         - raw: branch_no
 - statement_terminator: ;
 - statement:
-    alter_table_statment:
-      alter_table_statement:
+    alter_table_statement:
+      alter_table_distribute_partition_statement:
       - keyword: ALTER
       - keyword: TABLE
       - table_reference:
@@ -81,8 +81,8 @@ file:
             identifier: order_date
 - statement_terminator: ;
 - statement:
-    alter_table_statment:
-      alter_table_statement:
+    alter_table_statement:
+      alter_table_distribute_partition_statement:
       - keyword: ALTER
       - keyword: TABLE
       - table_reference:
