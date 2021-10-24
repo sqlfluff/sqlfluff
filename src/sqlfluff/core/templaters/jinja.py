@@ -355,22 +355,20 @@ class TemplateTracer:
         # print(trace_template_str)
         trace_template = self.make_template(trace_template_str)
         trace_template_output = trace_template.render()
-        parts = []
         # Split output into one string per section. Each section is one of:
         # - UUID, underscore, length, |, e.g.: '7193287fc88c412c904a1279215fe73a_19'|
         # - UUID followed by code in templated Jinja block in raw_str
         for p in trace_template_output.split("\0"):
             if not p:
                 continue
-            # E.g. "2e8577c1d045439ba8d3b9bf47561de3_83"
             m_id = re.match(r"^([0-9a-f]+)(_(\d+))?", p)
             if m_id.group(3):
+                # E.g. "2e8577c1d045439ba8d3b9bf47561de3_83"
                 value = [m_id.group(1), int(m_id.group(3)), True]
             else:
                 # E.g. "adc15d2a41d14ead97411bce3fb55e32 a < 10"
                 value = [m_id.group(0), p[len(m_id.group(0)) + 1 :], False]
-            parts.append(value)
-        for alt_id, content_info, literal in parts:
+            alt_id, content_info, literal = value
             target_slice_idx = self.find_slice_index(alt_id)
             if literal:
                 self.move_to_slice(target_slice_idx, content_info)
