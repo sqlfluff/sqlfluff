@@ -161,3 +161,4 @@ def test__parser__lexer_trim_post_subdivide(caplog):
         assert res.elements[0].raw == ";"
         assert res.elements[1].raw == "\n"
         assert res.elements[2].raw == "/"
+        assert len(res.elements) == 3
