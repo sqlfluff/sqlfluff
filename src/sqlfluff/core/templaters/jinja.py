@@ -315,8 +315,13 @@ class JinjaTemplater(PythonTemplater):
         cls, raw_str: str, templated_str: str, config=None, **kwargs
     ) -> Tuple[List[RawFileSlice], List[TemplatedFileSlice], str]:
         """Slice the file to determine regions where we can fix."""
+        # The TemplateTracer slicing algorithm is more robust, but it requires
+        # us to create and render a second template (not raw_str) and is only
+        # enabled if the caller passes a make_template() function.
         make_template = kwargs.pop("make_template", None)
         if make_template is None:
+            # make_template() was not provided. Use the base class
+            # implementation instead.
             return super().slice_file(raw_str, templated_str, config, **kwargs)
 
         templater_logger.info("Slicing File Template")
@@ -324,10 +329,6 @@ class JinjaTemplater(PythonTemplater):
         templater_logger.debug("    Templated String: %r", templated_str)
         tracer = TemplateTracer(raw_str, templated_str, make_template)
         tracer.process()
-        # for ts in tracer.sliced_file:
-        #     print(
-        #         f"{ts.slice_type} templated:{templated_str[ts.templated_slice]!r} raw:{raw_str[ts.source_slice]!r}"
-        #     )
         return tracer.raw_sliced, tracer.sliced_file, templated_str
 
 
