@@ -47,7 +47,6 @@ class Rule_L039(BaseRule):
                 # We won't set prev_newline to False, just for whitespace
                 # in case there's multiple indents, inserted by other rule
                 # fixes (see #1713)
-                prev_newline = False
             elif seg.is_type("comment"):
                 prev_newline = False
                 prev_whitespace = None
