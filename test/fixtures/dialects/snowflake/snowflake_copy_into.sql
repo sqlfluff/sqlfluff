@@ -27,3 +27,11 @@ copy into mytable validation_mode = 'RETURN_ERRORS';
 copy into mytable validation_mode = 'RETURN_2_ROWS';
 
 copy into mytable validation_mode = 'RETURN_3_ROWS';
+
+COPY INTO target_table
+FROM (
+  SELECT $1
+  FROM @source_stage
+);
+
+
