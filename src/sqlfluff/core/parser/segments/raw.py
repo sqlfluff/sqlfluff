@@ -5,7 +5,7 @@ any children, and the output of the lexer.
 """
 
 from typing import Optional, Tuple
-
+from cached_property import cached_property
 from sqlfluff.core.parser.segments.base import BaseSegment
 from sqlfluff.core.parser.markers import PositionMarker
 
@@ -41,6 +41,8 @@ class RawSegment(BaseSegment):
         else:
             self._raw = self._default_raw
         self._raw_upper = self._raw.upper()
+        self.raw = self._raw
+        self.raw_upper = self._raw_upper
         # pos marker is required here. We ignore the typing initially
         # because it might *initially* be unset, but it will be reset
         # later.
@@ -53,6 +55,7 @@ class RawSegment(BaseSegment):
         self.trim_chars = trim_chars
         # A cache variable for expandable
         self._is_expandable = None
+        self.raw_segments = [self]
 
     def __repr__(self):
         return "<{}: ({}) {!r}>".format(
@@ -85,11 +88,6 @@ class RawSegment(BaseSegment):
     def is_whitespace(self):
         """Return True if this segment is whitespace."""
         return self._is_whitespace
-
-    @property
-    def raw_upper(self):
-        """Make an uppercase string from the segments of this segment."""
-        return self._raw_upper
 
     @property
     def segments(self):

@@ -181,8 +181,7 @@ class BaseGrammar(Matchable):
 
     @staticmethod
     def _iter_raw_segs(segments):
-        for segment in segments:
-            yield from segment.iter_raw_seg()
+        return [item for segment in segments for item in segment.raw_segments]
 
     @classmethod
     def _longest_trimmed_match(

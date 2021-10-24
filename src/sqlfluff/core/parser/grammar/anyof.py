@@ -52,7 +52,7 @@ class AnyNumberOf(BaseGrammar):
         self, segments: Tuple[BaseSegment, ...], parse_context: ParseContext
     ) -> Tuple[List[MatchableType], List[str]]:
         """Use the simple matchers to prune which options to match on."""
-        str_buff = [segment.raw_upper for segment in self._iter_raw_segs(segments)]
+        str_buff = [segment.raw_upper for segment in segments]
 
         available_options = []
         simple_opts = []

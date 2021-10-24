@@ -107,6 +107,8 @@ class BaseSegment:
         else:  # pragma: no cover
             raise TypeError(f"Unexpected type passed to BaseSegment: {type(segments)}")
 
+        self.raw_segments = self.iter_raw_seg()
+
         if not pos_marker:
             # If no pos given, it's the pos of the first segment.
             if isinstance(segments, (tuple, list)):
@@ -118,6 +120,8 @@ class BaseSegment:
                     f"Unexpected type passed to BaseSegment: {type(segments)}"
                 )
         self.pos_marker: PositionMarker = pos_marker
+
+        self._recalculate_caches()
 
     def __eq__(self, other):
         # NB: this should also work for RawSegment
@@ -195,31 +199,6 @@ class BaseSegment:
             # Cache the variable
             self._is_expandable = False
             return False
-
-    @cached_property
-    def is_code(self):
-        """Return True if this segment contains any code."""
-        return any(seg.is_code for seg in self.segments)
-
-    @cached_property
-    def is_comment(self):  # pragma: no cover TODO?
-        """Return True if this is entirely made of comments."""
-        return all(seg.is_comment for seg in self.segments)
-
-    @cached_property
-    def is_whitespace(self):
-        """Return True if this segment is entirely whitespace."""
-        return all(seg.is_whitespace for seg in self.segments)
-
-    @cached_property
-    def raw(self):
-        """Make a string from the segments of this segment."""
-        return self._reconstruct()
-
-    @cached_property
-    def raw_upper(self):
-        """Make an uppercase string from the segments of this segment."""
-        return self._reconstruct().upper()
 
     @cached_property
     def matched_length(self):
@@ -489,6 +468,14 @@ class BaseSegment:
 
     # ################ PRIVATE INSTANCE METHODS
 
+    def _recalculate_caches(self):
+
+        self.is_code = any(seg.is_code for seg in self.segments)
+        self.is_comment = all(seg.is_comment for seg in self.segments)
+        self.is_whitespace = all(seg.is_whitespace for seg in self.segments)
+        self.raw = "".join(seg.raw for seg in self.segments)
+        self.raw_upper = self.raw.upper()
+
     def _reconstruct(self):
         """Make a string from the segments of this segment."""
         return "".join(seg.raw for seg in self.segments)
@@ -524,8 +511,10 @@ class BaseSegment:
         This should be called whenever the segments within this
         segment is mutated.
         """
-        for key in ["is_code", "is_comment", "raw", "raw_upper", "matched_length"]:
-            self.__dict__.pop(key, None)
+        for seg in self.segments:
+            seg.invalidate_caches()
+
+        self._recalculate_caches()
 
     def get_start_point_marker(self):
         """Get a point marker at the start of this segment."""
@@ -635,8 +624,7 @@ class BaseSegment:
 
     def iter_raw_seg(self):
         """Iterate raw segments, mostly for searching."""
-        for s in self.segments:
-            yield from s.iter_raw_seg()
+        return [item for s in self.segments for item in s.raw_segments]
 
     def iter_segments(self, expanding=None, pass_through=False):
         """Iterate raw segments, optionally expanding some chldren."""
