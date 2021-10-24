@@ -328,8 +328,7 @@ class JinjaTemplater(PythonTemplater):
         templater_logger.debug("    Raw String: %r", raw_str)
         templater_logger.debug("    Templated String: %r", templated_str)
         tracer = TemplateTracer(raw_str, templated_str, make_template)
-        tracer.process()
-        return tracer.raw_sliced, tracer.sliced_file, templated_str
+        return tracer.process()
 
 
 class TemplateTracer:
@@ -376,6 +375,7 @@ class TemplateTracer:
                 self.move_to_slice(target_slice_idx, content_info)
             else:
                 self.move_to_slice(target_slice_idx, len(str(content_info)))
+        return self.raw_sliced, self.sliced_file, self.templated_str
 
     def find_slice_index(self, slice_identifier) -> int:
         """Given a slice identifier (UUID string), return its index."""
