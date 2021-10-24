@@ -348,63 +348,34 @@ class TemplateTracer:
 
     def process(self):
         """Captures the trace."""
-        alternate_template = "".join(
+        trace_template_str = "".join(
             rs.alternate_code if rs.alternate_code is not None else rs.raw
             for rs in self.raw_sliced
         )
-        # print(alternate_template)
-        unique_alternate = self.make_template(alternate_template)
-        template = self.make_template(self.raw_str)
-        output1 = template.render()
-        output2 = unique_alternate.render()
+        # print(trace_template_str)
+        trace_template = self.make_template(trace_template_str)
+        trace_template_output = trace_template.render()
         parts = []
-        # Ideally, we'd like to receive one section of Jinja output at a
-        # time. In practice, Jinja internals determine how many section we
-        # get at a time. Here, we split s2 into one string per section.
-        # Each section is one of:
+        # Split output into one string per section. Each section is one of:
         # - UUID, underscore, length, |, e.g.: '7193287fc88c412c904a1279215fe73a_19'|
-        # - Square bracket array literal with 2 values
-        #   e.g. {{ ['9f6ab9ed86304e8897a87b5b78edd6a1', 'c'] }}
-        #    - UUID
-        #    - Code that appears in templated Jinja block in raw_str
-        for p in output2.split("\0"):
+        # - UUID followed by code in templated Jinja block in raw_str
+        for p in trace_template_output.split("\0"):
             if not p:
                 continue
             # E.g. "2e8577c1d045439ba8d3b9bf47561de3_83"
-            m_id_len = re.match(r"^([0-9a-f]+)_(\d+)$", p)
-            if m_id_len:
-                value = [m_id_len.group(1), int(m_id_len.group(2)), True]
+            m_id = re.match(r"^([0-9a-f]+)(_(\d+))?", p)
+            if m_id.group(3):
+                value = [m_id.group(1), int(m_id.group(3)), True]
             else:
-                m_id_start = re.search(r"^([0-9a-f]+)", p)
-                value = [m_id_start.group(0), p[len(m_id_start.group(0)) + 1 :], False]
+                # E.g. "adc15d2a41d14ead97411bce3fb55e32 a < 10"
+                value = [m_id.group(0), p[len(m_id.group(0)) + 1 :], False]
             parts.append(value)
         for alt_id, content_info, literal in parts:
-            old_sliced_file_len = len(self.sliced_file)
             target_slice_idx = self.find_slice_index(alt_id)
             if literal:
                 self.move_to_slice(target_slice_idx, content_info)
             else:
                 self.move_to_slice(target_slice_idx, len(str(content_info)))
-
-            # Sanity check that the template slices we're recording match up
-            # precisely with templated_str.
-            templated_slice_parts = [
-                self.templated_str[tfs.templated_slice]
-                for tfs in self.sliced_file[old_sliced_file_len:]
-            ]
-            templated_slice_str = "".join(templated_slice_parts)
-            if self.sliced_file:
-                sliced_file_str = output1[
-                    self.sliced_file[old_sliced_file_len]
-                    .templated_slice.start : self.sliced_file[-1]
-                    .templated_slice.stop
-                ]
-            else:
-                sliced_file_str = ""
-            if templated_slice_str != sliced_file_str:
-                raise ValueError(
-                    f"Internal error: Templated slice string mismatch: {templated_slice_str} != {sliced_file_str}"
-                )
 
     def find_slice_index(self, slice_identifier) -> int:
         """Given a slice identifier (UUID string), return its index."""
