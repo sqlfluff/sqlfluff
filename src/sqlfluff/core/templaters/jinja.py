@@ -355,18 +355,19 @@ class TemplateTracer:
         # print(trace_template_str)
         trace_template = self.make_template(trace_template_str)
         trace_template_output = trace_template.render()
-        # Split output into one string per section. Each section is one of:
-        # - UUID, underscore, length, |, e.g.: '7193287fc88c412c904a1279215fe73a_19'|
-        # - UUID followed by code in templated Jinja block in raw_str
+        # Split output by section. Each section has two possible formats.
         for p in trace_template_output.split("\0"):
             if not p:
                 continue
             m_id = re.match(r"^([0-9a-f]+)(_(\d+))?", p)
             if m_id.group(3):
-                # E.g. "2e8577c1d045439ba8d3b9bf47561de3_83"
+                # E.g. "2e8577c1d045439ba8d3b9bf47561de3_83". The number after
+                # "_" is the length (in characters) of a corresponding literal
+                # in raw_str.
                 value = [m_id.group(1), int(m_id.group(3)), True]
             else:
-                # E.g. "adc15d2a41d14ead97411bce3fb55e32 a < 10"
+                # E.g. "adc15d2a41d14ead97411bce3fb55e32 a < 10". The characters
+                # after the UUID are executable code from raw_str.
                 value = [m_id.group(0), p[len(m_id.group(0)) + 1 :], False]
             alt_id, content_info, literal = value
             target_slice_idx = self.find_slice_index(alt_id)
@@ -412,12 +413,9 @@ class TemplateTracer:
                         # Takes us past the target. No good.
                         continue
                     candidates.append(next_slice_idx)
+                # Choose the path that lands us closest to the target.
                 candidates.sort(key=lambda c: abs(target_slice_idx - c))
                 self.program_counter = candidates[0]
-        # if self.program_counter == len(self.raw_sliced) and self.program_counter == target_slice_idx:
-        #     # Reached the end of the template without finding target_slice_idx.
-        #     import pdb; pdb.set_trace()
-        #     pass
 
     def record_trace(self, target_slice_length):
         """Add the current location to the trace."""
@@ -431,12 +429,7 @@ class TemplateTracer:
                     if self.program_counter + 1 < len(self.raw_sliced)
                     else len(self.raw_str),
                 ),
-                slice(
-                    self.source_idx,
-                    self.source_idx + target_slice_length
-                    # if slice_type not in ("literal", "templated")
-                    # else self.source_idx + target_slice_length,
-                ),
+                slice(self.source_idx, self.source_idx + target_slice_length),
             )
         )
         if slice_type in ("literal", "templated"):
