@@ -465,6 +465,8 @@ class TemplateTracer:
         stack = []
         result = []
         set_idx = None
+        unique_alternate_id: Optional[str]
+        alternate_code: Optional[str]
         for _, elem_type, raw in env.lex(in_str):
             # Replace literal text with a unique ID, except for "set"
             # statements, which don't emit output and thus don't need this
@@ -562,6 +564,7 @@ class TemplateTracer:
                         # For "templated", evaluate the content in case of side
                         # effects, but return a UUID.
                         if trimmed_content:
+                            assert m_open and m_close
                             unique_id = uuid.uuid4().hex
                             unique_alternate_id = unique_id
                             alternate_code = f"{unique_alternate_id} {m_open.group(1)} {trimmed_content} {m_close.group(1)}\0"

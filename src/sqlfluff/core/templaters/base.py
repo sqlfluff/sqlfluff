@@ -34,7 +34,7 @@ class RawFileSlice:
     slice_subtype: Optional[str] = None
     unique_alternate_id: Optional[str] = None
     alternate_code: Optional[str] = None
-    next_slice_indices: Optional[List[int]] = field(default_factory=list)
+    next_slice_indices: List[int] = field(default_factory=list)
 
     def end_source_idx(self):
         """Return the closing index of this slice."""
