@@ -29,108 +29,13 @@ from sqlfluff.core.parser import (
 )
 from sqlfluff.core.parser.grammar.anyof import OptionallyBracketed
 
+from sqlfluff.dialects.dialect_snowflake_keywords import (
+    snowflake_reserved_keywords,
+    snowflake_unreserved_keywords,
+)
+
 ansi_dialect = load_raw_dialect("ansi")
 snowflake_dialect = ansi_dialect.copy_as("snowflake")
-
-# Add all Snowflake keywords
-
-
-# These are Reserved Keywords in Snowflake so move them
-snowflake_dialect.sets("unreserved_keywords").discard("ILIKE")
-snowflake_dialect.sets("unreserved_keywords").discard("INCREMENT")
-snowflake_dialect.sets("unreserved_keywords").discard("MINUS")
-snowflake_dialect.sets("unreserved_keywords").discard("QUALIFY")
-snowflake_dialect.sets("unreserved_keywords").discard("REGEXP")
-snowflake_dialect.sets("unreserved_keywords").discard("RLIKE")
-snowflake_dialect.sets("unreserved_keywords").discard("SOME")
-snowflake_dialect.sets("unreserved_keywords").discard("TABLESAMPLE")
-
-# Add above along with the
-snowflake_dialect.sets("reserved_keywords").update(
-    [
-        "ILIKE",
-        "INCREMENT",
-        "MINUS",
-        "PIVOT",
-        "QUALIFY",
-        "REGEXP",
-        "RLIKE",
-        "SAMPLE",
-        "SOME",
-        "TABLESAMPLE",
-        "UNPIVOT",
-    ]
-)
-
-snowflake_dialect.sets("unreserved_keywords").update(
-    [
-        "ALLOW_OVERLAPPING_EXECUTION",
-        "API",
-        "AUTHORIZATIONS",
-        "AUTOINCREMENT",
-        "AUTO_INGEST",
-        "AUTO_REFRESH",
-        "AUTO_RESUME",
-        "AUTO_SUSPEND",
-        "AVRO",
-        "AWS_SNS_TOPIC",
-        "BERNOULLI",
-        "BLOCK",
-        "CHANGE_TRACKING",
-        "CLONE",
-        "DATA_RETENTION_TIME_IN_DAYS",
-        "DEFAULT_DDL_COLLATION",
-        "DELEGATED",
-        "ECONOMY",
-        "FILES",
-        "FILE_FORMAT",
-        "FORMAT_NAME",
-        "HISTORY",
-        "INITIALLY_SUSPENDED",
-        "LATERAL",
-        "MASKING",
-        "MAX_CLUSTER_COUNT",
-        "MAX_DATA_EXTENSION_TIME_IN_DAYS",
-        "MIN_CLUSTER_COUNT",
-        "MAX_CONCURRENCY_LEVEL",
-        "NETWORK",
-        "NEXTVAL",
-        "NOTIFICATION",
-        "ORC",
-        "PARQUET",
-        "PATTERN",
-        "PIPE",
-        "PIPES",
-        "POLICY",
-        "QUERIES",
-        "REFRESH_ON_CREATE",
-        "REGIONS",
-        "REMOVE",
-        "RESOURCE_MONITOR",
-        "RESUME",
-        "SAMPLE",
-        "SCALING_POLICY",
-        "SCHEDULE",
-        "SECURE",
-        "SEED",
-        "SIZE_LIMIT",
-        "STAGE_COPY_OPTIONS",
-        "STAGE_FILE_FORMAT",
-        "STANDARD",
-        "STATEMENT_QUEUED_TIMEOUT_IN_SECONDS",
-        "STATEMENT_TIMEOUT_IN_SECONDS",
-        "SUSPEND",
-        "SUSPENDED",
-        "TAG",
-        "TERSE",
-        "TABULAR",
-        "UNSET",
-        "USER_TASK_TIMEOUT_MS",
-        "USER_TASK_MANAGED_INITIAL_WAREHOUSE_SIZE",
-        "WAIT_FOR_COMPLETION",
-        "WAREHOUSE_SIZE",
-    ]
-)
 
 snowflake_dialect.patch_lexer_matchers(
     [
@@ -151,6 +56,11 @@ snowflake_dialect.insert_lexer_matchers(
         # Column selector
         # https://docs.snowflake.com/en/sql-reference/sql/select.html#parameters
         RegexLexer("column_selector", r"\$[0-9]+", CodeSegment),
+        RegexLexer(
+            "dollar_quote",
+            r"\$\$.*\$\$",
+            CodeSegment,
+        ),
         RegexLexer(
             "dollar_literal",
             r"[$][a-zA-Z0-9_.]*",
@@ -239,6 +149,27 @@ snowflake_dialect.add(
         name="literal",
         type="literal",
     ),
+    DoubleQuotedUDFBody=NamedParser(
+        "double_quote",
+        CodeSegment,
+        name="udf_body",
+        type="udf_body",
+        trim_chars=('"',),
+    ),
+    SingleQuotedUDFBody=NamedParser(
+        "single_quote",
+        CodeSegment,
+        name="udf_body",
+        type="udf_body",
+        trim_chars=("'",),
+    ),
+    DollarQuotedUDFBody=NamedParser(
+        "dollar_quote",
+        CodeSegment,
+        name="udf_body",
+        type="udf_body",
+        trim_chars=("$",),
+    ),
 )
 
 snowflake_dialect.replace(
@@ -303,6 +234,17 @@ snowflake_dialect.replace(
         optional=True,
     ),
     TemporaryTransientGrammar=OneOf(Ref("TemporaryGrammar"), "TRANSIENT"),
+)
+
+# Add all Snowflake keywords
+snowflake_dialect.sets("unreserved_keywords").clear()
+snowflake_dialect.sets("unreserved_keywords").update(
+    [n.strip().upper() for n in snowflake_unreserved_keywords.split("\n")]
+)
+
+snowflake_dialect.sets("reserved_keywords").clear()
+snowflake_dialect.sets("reserved_keywords").update(
+    [n.strip().upper() for n in snowflake_reserved_keywords.split("\n")]
 )
 
 
@@ -453,6 +395,7 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref("CreateStatementSegment"),
             Ref("CreateTaskSegment"),
             Ref("CreateCloneStatementSegment"),
+            Ref("CreateProcedureStatementSegment"),
             Ref("ShowStatementSegment"),
             Ref("AlterUserSegment"),
             Ref("AlterSessionStatementSegment"),
@@ -890,7 +833,7 @@ class AlterWarehouseStatementSegment(BaseSegment):
                 "SET",
                 AnyNumberOf(
                     Ref("WarehouseObjectPropertiesSegment"),
-                    Ref("TableCommentClauseSegment"),
+                    Ref("CommentEqualsClauseSegment"),
                     Ref("WarehouseObjectParamsSegment"),
                 ),
             ),
@@ -917,13 +860,13 @@ class CommentClauseSegment(BaseSegment):
 
 
 @snowflake_dialect.segment()
-class TableCommentClauseSegment(BaseSegment):
+class CommentEqualsClauseSegment(BaseSegment):
     """A comment clause.
 
     e.g. COMMENT 'view/table description'
     """
 
-    type = "comment_clause"
+    type = "comment_equals_clause"
     match_grammar = Sequence(
         "COMMENT", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")
     )
@@ -984,6 +927,43 @@ class CreateCloneStatementSegment(BaseSegment):
             Ref("FromAtExpressionSegment"),
             Ref("FromBeforeExpressionSegment"),
             optional=True,
+        ),
+    )
+
+
+@snowflake_dialect.segment()
+class CreateProcedureStatementSegment(BaseSegment):
+    """A snowflake `CREATE ... PROCEDURE` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-procedure.html
+    """
+
+    type = "create_clone_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        Sequence("OR", "REPLACE", optional=True),
+        "PROCEDURE",
+        Ref("FunctionNameSegment"),
+        Ref("FunctionParameterListGrammar"),
+        "RETURNS",
+        Ref("DatatypeSegment"),
+        Sequence("NOT", "NULL", optional=True),
+        "LANGUAGE",
+        "JAVASCRIPT",
+        OneOf(
+            Sequence("CALLED", "ON", "NULL", "INPUT"),
+            Sequence("RETURNS", "NULL", "ON", "NULL", "INPUT"),
+            "STRICT",
+            optional=True,
+        ),
+        OneOf("VOLATILE", "IMMUTABLE", optional=True),
+        Ref("CommentEqualsClauseSegment", optional=True),
+        Sequence("EXECUTE", "AS", OneOf("CALLER", "OWNER"), optional=True),
+        "AS",
+        OneOf(
+            Ref("DoubleQuotedUDFBody"),
+            Ref("SingleQuotedUDFBody"),
+            Ref("DollarQuotedUDFBody"),
         ),
     )
 
@@ -1365,7 +1345,7 @@ class CreateTableStatementSegment(BaseSegment):
             ),
             optional=True,
         ),
-        Ref("TableCommentClauseSegment", optional=True),
+        Ref("CommentEqualsClauseSegment", optional=True),
         OneOf(
             # Create AS syntax:
             Sequence(
@@ -1498,7 +1478,6 @@ class CreateStatementSegment(BaseSegment):
             "PIPE",
             "FUNCTION",
             Sequence("EXTERNAL", "FUNCTION"),
-            "PROCEDURE",
             # Objects that also support clone
             "DATABASE",
             "SCHEMA",
@@ -1744,7 +1723,9 @@ class CopyIntoStatementSegment(BaseSegment):
             OneOf(
                 Ref("IntExtStageLocation"),
                 Ref("QuotedLiteralSegment"),
-                Ref("SelectStatementSegment"),
+                Bracketed(
+                    Ref("SelectStatementSegment"),
+                ),
             ),
             AnyNumberOf(
                 Sequence(

@@ -90,6 +90,14 @@ mysql_dialect.sets("reserved_keywords").update(
         "COLUMN_NAME",
         "CURSOR_NAME",
         "STACKED",
+        "ALGORITHM",
+        "LOCK",
+        "DEFAULT",
+        "INPLACE",
+        "COPY",
+        "NONE",
+        "SHARED",
+        "EXCLUSIVE",
     ]
 )
 
@@ -1236,5 +1244,37 @@ class CursorFetchSegment(BaseSegment):
         Delimited(
             Ref("SessionVariableNameSegment"),
             Ref("LocalVariableNameSegment"),
+        ),
+    )
+
+
+@mysql_dialect.segment(replace=True)
+class DropIndexStatementSegment(BaseSegment):
+    """A `DROP INDEX` statement.
+
+    https://dev.mysql.com/doc/refman/8.0/en/drop-index.html
+    """
+
+    type = "drop_statement"
+    # DROP INDEX <Index name> ON <table_name>
+    # [ALGORITHM [=] {DEFAULT | INPLACE | COPY} | LOCK [=] {DEFAULT | NONE | SHARED | EXCLUSIVE}]
+    match_grammar = Sequence(
+        "DROP",
+        "INDEX",
+        Ref("IndexReferenceSegment"),
+        "ON",
+        Ref("TableReferenceSegment"),
+        OneOf(
+            Sequence(
+                "ALGORITHM",
+                Ref("EqualsSegment", optional=True),
+                OneOf("DEFAULT", "INPLACE", "COPY"),
+            ),
+            Sequence(
+                "LOCK",
+                Ref("EqualsSegment", optional=True),
+                OneOf("DEFAULT", "NONE", "SHARED", "EXCLUSIVE"),
+            ),
+            optional=True,
         ),
     )
