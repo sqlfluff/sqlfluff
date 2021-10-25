@@ -53,17 +53,14 @@ class RawSegment(BaseSegment):
         self.trim_chars = trim_chars
         # A cache variable for expandable
         self._is_expandable = None
-        self.raw_segments = [self]
-        self.raw_upper = self._raw_upper
-        self.raw = self._raw
-        self.is_code = self._is_code
-        self.is_comment = self._is_comment
-        self.is_whitespace = self.is_whitespace
 
     def __repr__(self):
         return "<{}: ({}) {!r}>".format(
             self.__class__.__name__, self.pos_marker, self.raw
         )
+
+    def __setattr__(self, key, value):
+        super(BaseSegment, self).__setattr__(key, value)
 
     # ################ PUBLIC PROPERTIES
 
@@ -76,6 +73,33 @@ class RawSegment(BaseSegment):
     def is_expandable(self):
         """Return true if it is meaningful to call `expand` on this segment."""
         return False
+
+    @property
+    def is_code(self):
+        """Return True if this segment is code."""
+        return self._is_code
+
+    @property
+    def is_comment(self):
+        """Return True if this segment is a comment."""
+        return self._is_comment
+
+    @property
+    def is_whitespace(self):
+        """Return True if this segment is whitespace."""
+        return self._is_whitespace
+
+    @property
+    def raw(self):
+        return self._raw
+
+    @property
+    def raw_upper(self):
+        return self._raw_upper
+
+    @property
+    def raw_segments(self):
+        return [self]
 
     @property
     def segments(self):

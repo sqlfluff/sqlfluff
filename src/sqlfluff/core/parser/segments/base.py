@@ -124,7 +124,7 @@ class BaseSegment:
     def __setattr__(self, key, value):
 
         try:
-            if key == 'segments':
+            if key == "segments":
 
                 try:
                     self.__dict__.pop("raw_segments")
@@ -176,7 +176,6 @@ class BaseSegment:
         return [seg for seg in self.segments if not seg.is_type("comment")]
 
     # ################ PUBLIC PROPERTIES
-
 
     @property
     def name(self):
@@ -257,6 +256,7 @@ class BaseSegment:
                 return seg.raw_upper
         return None
         # return [seg.raw_upper for seg in self.raw_segments]
+
     # ################ STATIC METHODS
 
     @staticmethod
@@ -523,7 +523,16 @@ class BaseSegment:
 
     def _recalculate_caches(self):
 
-        for key in ["is_code", "is_comment", "raw", "raw_upper", "matched_length", "raw_segments", "raw_segments_upper"]:
+        for key in [
+            "is_code",
+            "is_comment",
+            "is_whitespace",
+            "raw",
+            "raw_upper",
+            "matched_length",
+            "raw_segments",
+            "raw_segments_upper",
+        ]:
             self.__dict__.pop(key, None)
 
     def _reconstruct(self):
