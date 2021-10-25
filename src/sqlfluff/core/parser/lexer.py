@@ -511,7 +511,7 @@ class Lexer:
                     lexer_logger.debug("      INDENT")
                     segment_buffer.append(
                         Indent(
-                            template=True,
+                            is_template=True,
                             pos_marker=PositionMarker.from_point(
                                 placeholder_slice.stop,
                                 element.template_slice.start,

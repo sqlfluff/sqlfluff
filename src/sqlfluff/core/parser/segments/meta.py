@@ -15,9 +15,9 @@ class MetaSegment(RawSegment):
     indent_val = 0
     is_meta = True
 
-    def __init__(self, template=False, *args, **kwargs):
+    def __init__(self, is_template=False, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.template = template
+        self.is_template = is_template
 
     @staticmethod
     def _suffix():
