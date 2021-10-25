@@ -48,11 +48,21 @@ class AnyNumberOf(BaseGrammar):
         """
         return self.optional or self.min_times == 0
 
+    @staticmethod
+    def _scan_string_buff(segments):
+        for segment in segments:
+            if segment.raw_segments_upper:
+                return segment.raw_segments_upper
+
     def _prune_options(
         self, segments: Tuple[BaseSegment, ...], parse_context: ParseContext
     ) -> Tuple[List[MatchableType], List[str]]:
         """Use the simple matchers to prune which options to match on."""
-        str_buff = [segment.raw_upper for segment in segments]
+        # str_buff = []
+        # for segment in segments:
+        #     str_buff.extend(segment.raw_segments_upper)
+        #
+        # str_buff_matrix = [segment.raw_segments_upper for segment in segments]
 
         available_options = []
         simple_opts = []
@@ -62,11 +72,7 @@ class AnyNumberOf(BaseGrammar):
         matched_simple = 0
 
         # Find the first code element to match against.
-        first_elem = None
-        for elem in str_buff:
-            if elem.strip():
-                first_elem = elem
-                break
+        first_elem = self._scan_string_buff(segments)
 
         for opt in self._elements:
             simple = opt.simple(parse_context=parse_context)
@@ -86,16 +92,16 @@ class AnyNumberOf(BaseGrammar):
                     )
                 # We want to know if the first meaningful element of the str_buff
                 # matches the option.
-                if simple_opt in str_buff:
-                    # match the FIRST non-whitespace element of the list.
-                    if first_elem != simple_opt:
-                        # No match, carry on.
-                        continue
-                    # If we get here, it's matched the FIRST element of the string buffer.
-                    available_options.append(opt)
-                    simple_opts.append(simple_opt)
-                    matched_simple += 1
-                    break
+
+                # match the FIRST non-whitespace element of the list.
+                if first_elem != simple_opt:
+                    # No match, carry on.
+                    continue
+                # If we get here, it's matched the FIRST element of the string buffer.
+                available_options.append(opt)
+                simple_opts.append(simple_opt)
+                matched_simple += 1
+                break
             else:
                 # Ditch this option, the simple match has failed
                 prune_buff.append(opt)

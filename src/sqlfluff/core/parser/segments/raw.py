@@ -5,7 +5,7 @@ any children, and the output of the lexer.
 """
 
 from typing import Optional, Tuple
-from cached_property import cached_property
+
 from sqlfluff.core.parser.segments.base import BaseSegment
 from sqlfluff.core.parser.markers import PositionMarker
 
@@ -41,8 +41,6 @@ class RawSegment(BaseSegment):
         else:
             self._raw = self._default_raw
         self._raw_upper = self._raw.upper()
-        self.raw = self._raw
-        self.raw_upper = self._raw_upper
         # pos marker is required here. We ignore the typing initially
         # because it might *initially* be unset, but it will be reset
         # later.
@@ -56,6 +54,11 @@ class RawSegment(BaseSegment):
         # A cache variable for expandable
         self._is_expandable = None
         self.raw_segments = [self]
+        self.raw_upper = self._raw_upper
+        self.raw = self._raw
+        self.is_code = self._is_code
+        self.is_comment = self._is_comment
+        self.is_whitespace = self.is_whitespace
 
     def __repr__(self):
         return "<{}: ({}) {!r}>".format(
@@ -75,21 +78,6 @@ class RawSegment(BaseSegment):
         return False
 
     @property
-    def is_code(self):
-        """Return True if this segment is code."""
-        return self._is_code
-
-    @property
-    def is_comment(self):
-        """Return True if this segment is a comment."""
-        return self._is_comment
-
-    @property
-    def is_whitespace(self):
-        """Return True if this segment is whitespace."""
-        return self._is_whitespace
-
-    @property
     def segments(self):
         """Return an empty list of child segments.
 
@@ -98,6 +86,9 @@ class RawSegment(BaseSegment):
         return []
 
     # ################ INSTANCE METHODS
+
+    def invalidate_caches(self):
+        pass
 
     def get_type(self):
         """Returns the type of this segment as a string."""
@@ -111,7 +102,7 @@ class RawSegment(BaseSegment):
 
     def iter_raw_seg(self):
         """Iterate raw segments, mostly for searching."""
-        yield self
+        return [self]
 
     def raw_trimmed(self):
         """Return a trimmed version of the raw content."""

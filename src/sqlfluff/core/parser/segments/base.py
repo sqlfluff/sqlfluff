@@ -107,8 +107,6 @@ class BaseSegment:
         else:  # pragma: no cover
             raise TypeError(f"Unexpected type passed to BaseSegment: {type(segments)}")
 
-        self.raw_segments = self.iter_raw_seg()
-
         if not pos_marker:
             # If no pos given, it's the pos of the first segment.
             if isinstance(segments, (tuple, list)):
@@ -122,6 +120,22 @@ class BaseSegment:
         self.pos_marker: PositionMarker = pos_marker
 
         self._recalculate_caches()
+
+    def __setattr__(self, key, value):
+
+        try:
+            if key == 'segments':
+
+                try:
+                    self.__dict__.pop("raw_segments")
+                    self._recalculate_caches()
+                except KeyError:
+                    pass
+
+        except AttributeError:
+            pass
+
+        super().__setattr__(key, value)
 
     def __eq__(self, other):
         # NB: this should also work for RawSegment
@@ -163,6 +177,7 @@ class BaseSegment:
 
     # ################ PUBLIC PROPERTIES
 
+
     @property
     def name(self):
         """The name of this segment.
@@ -201,10 +216,47 @@ class BaseSegment:
             return False
 
     @cached_property
+    def is_code(self):
+        """Return True if this segment contains any code."""
+        return any(seg.is_code for seg in self.segments)
+
+    @cached_property
+    def is_comment(self):  # pragma: no cover TODO?
+        """Return True if this is entirely made of comments."""
+        return all(seg.is_comment for seg in self.segments)
+
+    @cached_property
+    def is_whitespace(self):
+        """Return True if this segment is entirely whitespace."""
+        return all(seg.is_whitespace for seg in self.segments)
+
+    @cached_property
+    def raw(self):
+        """Make a string from the segments of this segment."""
+        return "".join(seg.raw for seg in self.segments)
+
+    @cached_property
+    def raw_upper(self):
+        """Make an uppercase string from the segments of this segment."""
+        return self.raw.upper()
+
+    @cached_property
     def matched_length(self):
         """Return the length of the segment in characters."""
         return sum(seg.matched_length for seg in self.segments)
 
+    @cached_property
+    def raw_segments(self):
+
+        return self.iter_raw_seg()
+
+    @cached_property
+    def raw_segments_upper(self):
+        for seg in self.raw_segments:
+            if seg.raw_upper.strip():
+                return seg.raw_upper
+        return None
+        # return [seg.raw_upper for seg in self.raw_segments]
     # ################ STATIC METHODS
 
     @staticmethod
@@ -258,6 +310,7 @@ class BaseSegment:
             else:
                 # We might get back an iterable of segments
                 segs += tuple(res)
+
         # Basic Validation
         check_still_complete(segments, segs, ())
         return segs
@@ -470,11 +523,8 @@ class BaseSegment:
 
     def _recalculate_caches(self):
 
-        self.is_code = any(seg.is_code for seg in self.segments)
-        self.is_comment = all(seg.is_comment for seg in self.segments)
-        self.is_whitespace = all(seg.is_whitespace for seg in self.segments)
-        self.raw = "".join(seg.raw for seg in self.segments)
-        self.raw_upper = self.raw.upper()
+        for key in ["is_code", "is_comment", "raw", "raw_upper", "matched_length", "raw_segments", "raw_segments_upper"]:
+            self.__dict__.pop(key, None)
 
     def _reconstruct(self):
         """Make a string from the segments of this segment."""
@@ -624,6 +674,7 @@ class BaseSegment:
 
     def iter_raw_seg(self):
         """Iterate raw segments, mostly for searching."""
+
         return [item for s in self.segments for item in s.raw_segments]
 
     def iter_segments(self, expanding=None, pass_through=False):
