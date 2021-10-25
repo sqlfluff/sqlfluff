@@ -19,7 +19,7 @@ from sqlfluff.core.templaters.base import (
     TemplatedFileSlice,
 )
 from sqlfluff.core.templaters.python import PythonTemplater
-from sqlfluff.core.templaters.slicers.tracer import JinjaTracer
+from sqlfluff.core.templaters.slicers.tracer import JinjaTracer  # type: ignore
 
 # Instantiate the templater logger
 templater_logger = logging.getLogger("sqlfluff.templater")
