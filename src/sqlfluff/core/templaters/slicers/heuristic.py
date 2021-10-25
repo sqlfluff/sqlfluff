@@ -1,4 +1,4 @@
-"""Heuristic-based template slicing algorithm
+"""Heuristic-based template slicing algorithm.
 
 This is the original slicing algorithm. It has limitations that may surface
 when templates include similar strings multiple places in the file.
@@ -6,7 +6,7 @@ when templates include similar strings multiple places in the file.
 
 import logging
 import re
-from typing import List
+from typing import Iterator, List
 
 from jinja2 import Environment
 
@@ -22,7 +22,12 @@ re_close_tag = re.compile(r"\s*[\+\-]?%}\s*$")
 
 
 def slice_template(in_str: str, env: Environment) -> List[RawFileSlice]:
+    return list(_slice_template(in_str, env))
+
+
+def _slice_template(in_str: str, env: Environment) -> Iterator[RawFileSlice]:
     """Slice template in jinja.
+
     NB: Starts and ends of blocks are not distinguished.
     """
     str_buff = ""
