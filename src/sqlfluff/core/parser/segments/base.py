@@ -13,6 +13,8 @@ from cached_property import cached_property
 from typing import Any, Callable, Optional, List, Tuple, NamedTuple, Iterator
 import logging
 
+from tqdm import tqdm
+
 from sqlfluff.core.string_helpers import (
     frame_msg,
     curtail_string,
@@ -268,10 +270,25 @@ class BaseSegment:
         """
         return ""
 
-    @staticmethod
-    def expand(segments, parse_context):
+    def expand(self, segments, parse_context, disable_progress_bar: bool = False):
         """Expand the list of child segments using their `parse` methods."""
         segs = ()
+
+        disable_progress_bar = disable_progress_bar or not isinstance(
+            self, BaseFileSegment
+        )
+        segments = (
+            segments
+            if disable_progress_bar
+            else tqdm(
+                segments,
+                desc="parsing",
+                miniters=30,
+                leave=False,
+                disable=disable_progress_bar,
+            )
+        )
+
         for stmt in segments:
             try:
                 if not stmt.is_expandable:
@@ -788,7 +805,12 @@ class BaseSegment:
                 return [self] + res
         return None  # pragma: no cover
 
-    def parse(self, parse_context=None, parse_grammar=None):
+    def parse(
+        self,
+        parse_context: ParseContext = None,
+        parse_grammar=None,
+        disable_progress_bar: bool = False,
+    ) -> "BaseSegment":
         """Use the parse grammar to find subsegments within this segment.
 
         A large chunk of the logic around this can be found in the `expand` method.
@@ -906,7 +928,11 @@ class BaseSegment:
         if parse_context.may_recurse():
             parse_context.logger.debug(parse_depth_msg)
             with parse_context.deeper_parse() as ctx:
-                self.segments = self.expand(self.segments, parse_context=ctx)
+                self.segments = self.expand(
+                    self.segments,
+                    parse_context=ctx,
+                    disable_progress_bar=disable_progress_bar,
+                )
 
         return self
 
