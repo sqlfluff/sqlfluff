@@ -1,4 +1,7 @@
-"""'Trace' Jinja template execution to map output back to the raw template."""
+"""'Trace' Jinja template execution to map output back to the raw template.
+
+This is a newer slicing algorithm that handles cases heuristic.py does not.
+"""
 
 import logging
 import re
