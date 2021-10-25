@@ -65,7 +65,7 @@ class RawSliceBlockInfo(NamedTuple):
 
     # Given a raw file slace, return its block ID. Useful for identifying
     # regions of a file with respect to template control structures (for, if).
-    block_ids: Dict[RawFileSlice, int]
+    block_ids: Dict[Tuple[str, str, int, Optional[str]], int]
 
     # List of block IDs that have the following characteristics:
     # - Loop body
@@ -195,7 +195,7 @@ class TemplatedFile:
     @cached_property
     def raw_slice_block_info(self) -> RawSliceBlockInfo:
         """Returns a dict with a unique ID for each template block."""
-        block_ids = {}
+        block_ids: Dict[Tuple[str, str, int, Optional[str]], int] = {}
         block_content_types = defaultdict(set)
         loops = set()
         blocks = []
