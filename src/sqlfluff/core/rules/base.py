@@ -19,7 +19,7 @@ import copy
 import logging
 import pathlib
 import re
-from typing import Optional, List, Tuple, Union, Any
+from typing import Optional, List, Set, Tuple, Union, Any
 from collections import namedtuple
 from dataclasses import dataclass
 
@@ -492,7 +492,7 @@ class BaseRule:
             return
 
         # Get the set of slices touched by any of the fixes.
-        fix_slices = set()
+        fix_slices: Set[Tuple[str, str, int, Optional[str]]] = set()
         for fix in lint_result.fixes:
             if fix.anchor:
                 fix_slices.update(

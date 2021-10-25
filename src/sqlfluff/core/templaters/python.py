@@ -953,7 +953,7 @@ class PythonTemplater(RawTemplater):
 
                         # We need to know how many block_ends are after this.
                         block_ends = sum(
-                            slc[1] == "block_end"
+                            slc.slice_type == "block_end"
                             for slc in int_file_slice.slice_buffer[cur_idx:]
                         )
                         # We can allow up to this number of preceding block starts
@@ -962,7 +962,7 @@ class PythonTemplater(RawTemplater):
                             for idx, slc in enumerate(
                                 int_file_slice.slice_buffer[:cur_idx]
                             )
-                            if slc[1] == "block_start"
+                            if slc.slice_type == "block_start"
                         ]
 
                         # Trim anything which we're not allowed to use.
@@ -976,7 +976,7 @@ class PythonTemplater(RawTemplater):
                         # We also need to know whether any of the *starting*
                         # segments are involved.
                         # Anything up to start_idx (exclusive) is included.
-                        include_start = raw_idx > elem_sub_buffer[0][2]
+                        include_start = raw_idx > elem_sub_buffer[0].source_idx
 
                         # The ending point of this slice, is already decided.
                         end_point = elem_sub_buffer[-1].end_source_idx()

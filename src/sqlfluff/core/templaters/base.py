@@ -44,7 +44,7 @@ class RawFileSlice:
         """Return the a slice object for this slice."""
         return slice(self.source_idx, self.end_source_idx())
 
-    def as_tuple(self):
+    def as_tuple(self) -> Tuple[str, str, int, Optional[str]]:
         """Return a tuple version of this object.
 
         This tuple contains a "public" subset of the fields.
