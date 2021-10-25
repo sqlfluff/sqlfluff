@@ -46,6 +46,7 @@ from sqlfluff.core import (
     dialect_readout,
     TimingSummary,
 )
+from sqlfluff.core.config import progress_bar_configuration
 
 from sqlfluff.core.enums import FormatType, Color
 from sqlfluff.core.linter import ParsedString
@@ -385,6 +386,7 @@ def lint(
         disable_progress_bar = True
     # From tqdm documentation: "If set to None, disable on non-TTY."
     disable_progress_bar = disable_progress_bar or None
+    progress_bar_configuration.disable_progress_bar = disable_progress_bar
 
     formatter.dispatch_config(lnt)
 
@@ -392,9 +394,7 @@ def lint(
     set_logging_level(verbosity=verbose, logger=logger, stderr_output=non_human_output)
     # add stdin if specified via lone '-'
     if ("-",) == paths:
-        result = lnt.lint_string_wrapped(
-            sys.stdin.read(), fname="stdin", disable_progress_bar=disable_progress_bar
-        )
+        result = lnt.lint_string_wrapped(sys.stdin.read(), fname="stdin")
     else:
         # Output the results as we go
         if verbose >= 1:
@@ -405,7 +405,6 @@ def lint(
                 ignore_non_existent_files=False,
                 ignore_files=not disregard_sqlfluffignores,
                 processes=processes,
-                disable_progress_bar=disable_progress_bar,
             )
         except OSError:
             click.echo(
@@ -534,7 +533,7 @@ def fix(
     if verbose:
         disable_progress_bar = True
     # From tqdm documentation: "If set to None, disable on non-TTY."
-    disable_progress_bar = disable_progress_bar or None
+    progress_bar_configuration.disable_progress_bar = disable_progress_bar or None
 
     exit_code = 0
 
@@ -547,9 +546,7 @@ def fix(
     if fixing_stdin:
         stdin = sys.stdin.read()
 
-        result = lnt.lint_string_wrapped(
-            stdin, fname="stdin", fix=True, disable_progress_bar=disable_progress_bar
-        )
+        result = lnt.lint_string_wrapped(stdin, fname="stdin", fix=True)
         templater_error = result.num_violations(types=SQLTemplaterError) > 0
         unfixable_error = result.num_violations(types=SQLLintError, fixable=False) > 0
 
@@ -587,7 +584,6 @@ def fix(
             fix=True,
             ignore_non_existent_files=False,
             processes=processes,
-            disable_progress_bar=disable_progress_bar,
         )
     except OSError:
         click.echo(
@@ -756,6 +752,8 @@ def parse(
     verbose = c.get("verbose")
     recurse = c.get("recurse")
 
+    progress_bar_configuration.disable_progress_bar = True
+
     formatter.dispatch_config(lnt)
 
     # Set up logging.
@@ -784,14 +782,11 @@ def parse(
                     "stdin",
                     recurse=recurse,
                     config=lnt.config,
-                    disable_progress_bar=True,
                 ),
             ]
         else:
             # A single path must be specified for this command
-            parsed_strings = list(
-                lnt.parse_path(path, recurse=recurse, disable_progress_bar=True)
-            )
+            parsed_strings = list(lnt.parse_path(path, recurse=recurse))
 
         total_time = time.monotonic() - t0
         violations_count = 0

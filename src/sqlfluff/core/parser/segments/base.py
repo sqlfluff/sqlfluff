@@ -15,6 +15,7 @@ import logging
 
 from tqdm import tqdm
 
+from sqlfluff.core.config import progress_bar_configuration
 from sqlfluff.core.string_helpers import (
     frame_msg,
     curtail_string,
@@ -270,12 +271,14 @@ class BaseSegment:
         """
         return ""
 
-    def expand(self, segments, parse_context, disable_progress_bar: bool = False):
+    @classmethod
+    def expand(cls, segments, parse_context):
         """Expand the list of child segments using their `parse` methods."""
         segs = ()
 
-        disable_progress_bar = disable_progress_bar or not isinstance(
-            self, BaseFileSegment
+        disable_progress_bar = (
+            progress_bar_configuration.disable_progress_bar
+            or not issubclass(cls, BaseFileSegment)
         )
         segments = (
             segments
@@ -807,9 +810,8 @@ class BaseSegment:
 
     def parse(
         self,
-        parse_context: ParseContext = None,
-        parse_grammar=None,
-        disable_progress_bar: bool = False,
+        parse_context: ParseContext,
+        parse_grammar: Optional[Matchable] = None,
     ) -> "BaseSegment":
         """Use the parse grammar to find subsegments within this segment.
 
@@ -931,7 +933,6 @@ class BaseSegment:
                 self.segments = self.expand(
                     self.segments,
                     parse_context=ctx,
-                    disable_progress_bar=disable_progress_bar,
                 )
 
         return self

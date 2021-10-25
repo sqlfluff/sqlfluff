@@ -4,7 +4,8 @@ from typing import Tuple, List
 
 from tqdm import tqdm
 
-from sqlfluff.core.parser import BaseFileSegment, NewlineSegment
+from sqlfluff.core.config import progress_bar_configuration
+from sqlfluff.core.parser import NewlineSegment
 from sqlfluff.core.parser.grammar import Ref
 from sqlfluff.core.parser.segments import BaseSegment, allow_ephemeral
 from sqlfluff.core.parser.helpers import trim_non_code_segments
@@ -64,8 +65,10 @@ class Delimited(OneOf):
         # delimiters is a list of tuples containing delimiter segments as we find them.
         delimiters: List[BaseSegment] = []
 
-        # disable_progress_bar = disable_progress_bar or not isinstance(self, BaseFileSegment)
-        disable_progress_bar = parse_context.parse_depth > 0
+        disable_progress_bar = (
+            progress_bar_configuration.disable_progress_bar
+            or parse_context.parse_depth > 0
+        )
 
         new_line_segments = [s for s in segments if isinstance(s, NewlineSegment)]
         matching_progressbar = tqdm(
@@ -89,7 +92,6 @@ class Delimited(OneOf):
             # or by consuming all the non-code segments already.
             # NB: If we're here then we've already tried matching the remaining segments against
             # the content, so we must be in a trailing case.
-            # print(len(seg_buff))
             if len(seg_buff) == 0:
                 # Append the remaining buffer in case we're in the not is_code case.
                 matched_segments += seg_buff
