@@ -22,11 +22,12 @@ re_close_tag = re.compile(r"\s*[\+\-]?%}\s*$")
 
 
 def slice_template(in_str: str, env: Environment) -> List[RawFileSlice]:
+    """Slice template in jinja."""
     return list(_slice_template(in_str, env))
 
 
 def _slice_template(in_str: str, env: Environment) -> Iterator[RawFileSlice]:
-    """Slice template in jinja.
+    """Helper function for slice template in jinja.
 
     NB: Starts and ends of blocks are not distinguished.
     """
