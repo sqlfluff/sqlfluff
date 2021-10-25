@@ -1,0 +1,69 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 00ac2b2b84ec5ad7b4403e585311d99ac16677e09ca4ece6ea9ebbc3f3e83177
+file:
+  batch:
+    statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - identifier: '[dbo]'
+        - dot: .
+        - identifier: '[example]'
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+            identifier: '[Column A]'
+            data_type:
+              identifier: '[int]'
+            column_constraint_segment:
+              identity_grammar:
+                keyword: IDENTITY
+        - comma: ','
+        - column_definition:
+          - identifier: '[Column B]'
+          - data_type:
+              identifier: '[int]'
+          - column_constraint_segment:
+              identity_grammar:
+                keyword: IDENTITY
+                bracketed:
+                - start_bracket: (
+                - literal: '1'
+                - comma: ','
+                - literal: '1'
+                - end_bracket: )
+          - column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+            identifier: '[ColumnC]'
+            data_type:
+              identifier: varchar
+              bracketed:
+                start_bracket: (
+                expression:
+                  literal: '100'
+                end_bracket: )
+            column_constraint_segment:
+              keyword: DEFAULT
+              literal: "'mydefault'"
+        - comma: ','
+        - column_definition:
+            identifier: '[ColumnDecimal]'
+            data_type:
+              identifier: DATE
+            column_constraint_segment:
+              keyword: DEFAULT
+              function:
+                function_name:
+                  function_name_identifier: GETDATE
+                bracketed:
+                  start_bracket: (
+                  end_bracket: )
+        - end_bracket: )
