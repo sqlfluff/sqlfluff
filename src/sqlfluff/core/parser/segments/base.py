@@ -125,7 +125,6 @@ class BaseSegment:
 
         try:
             if key == "segments":
-
                 try:
                     self.__dict__.pop("raw_segments")
                     self._recalculate_caches()
@@ -246,11 +245,12 @@ class BaseSegment:
 
     @cached_property
     def raw_segments(self):
-
+        """Returns a list of raw segments in this segment."""
         return self.iter_raw_seg()
 
     @cached_property
     def raw_segments_upper(self):
+        """Returns the first non-whitespace subsegment of this segment."""
         for seg in self.raw_segments:
             if seg.raw_upper.strip():
                 return seg.raw_upper
@@ -683,7 +683,6 @@ class BaseSegment:
 
     def iter_raw_seg(self):
         """Iterate raw segments, mostly for searching."""
-
         return [item for s in self.segments for item in s.raw_segments]
 
     def iter_segments(self, expanding=None, pass_through=False):

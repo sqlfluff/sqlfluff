@@ -91,14 +91,17 @@ class RawSegment(BaseSegment):
 
     @property
     def raw(self):
+        """Returns the raw segment."""
         return self._raw
 
     @property
     def raw_upper(self):
+        """Returns the raw segment in uppercase."""
         return self._raw_upper
 
     @property
     def raw_segments(self):
+        """Returns self to be compatible with calls to its superclass."""
         return [self]
 
     @property

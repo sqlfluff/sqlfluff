@@ -12,7 +12,7 @@ from sqlfluff.core.parser.segments import (
     BracketedSegment,
     MetaSegment,
 )
-from sqlfluff.core.parser.helpers import trim_non_code_segments, check_still_complete
+from sqlfluff.core.parser.helpers import trim_non_code_segments
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.match_wrapper import match_wrapper
 from sqlfluff.core.parser.context import ParseContext
