@@ -44,7 +44,9 @@ class Rule_L039(BaseRule):
                 # This is to avoid indents
                 if not prev_newline:
                     prev_whitespace = seg
-                prev_newline = False
+                # We won't set prev_newline to False, just for whitespace
+                # in case there's multiple indents, inserted by other rule
+                # fixes (see #1713)
             elif seg.is_type("comment"):
                 prev_newline = False
                 prev_whitespace = None
