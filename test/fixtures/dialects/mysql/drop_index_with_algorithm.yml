@@ -1,0 +1,94 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 07ea295cec15946a4cee7c6235e4bc18834da861690d5781b8a00e7bb5f9f4db
+file:
+- statement:
+    drop_statement:
+    - keyword: DROP
+    - keyword: INDEX
+    - index_reference:
+        identifier: '`test`'
+    - keyword: 'ON'
+    - table_reference:
+      - identifier: '`table`'
+      - dot: .
+      - identifier: '`foo`'
+    - keyword: ALGORITHM
+    - comparison_operator: '='
+    - keyword: DEFAULT
+- statement_terminator: ;
+- statement:
+    drop_statement:
+    - keyword: DROP
+    - keyword: INDEX
+    - index_reference:
+        identifier: '`test`'
+    - keyword: 'ON'
+    - table_reference:
+      - identifier: '`table`'
+      - dot: .
+      - identifier: '`foo`'
+    - keyword: ALGORITHM
+    - comparison_operator: '='
+    - keyword: INPLACE
+- statement_terminator: ;
+- statement:
+    drop_statement:
+    - keyword: DROP
+    - keyword: INDEX
+    - index_reference:
+        identifier: '`test`'
+    - keyword: 'ON'
+    - table_reference:
+      - identifier: '`table`'
+      - dot: .
+      - identifier: '`foo`'
+    - keyword: ALGORITHM
+    - comparison_operator: '='
+    - keyword: COPY
+- statement_terminator: ;
+- statement:
+    drop_statement:
+    - keyword: DROP
+    - keyword: INDEX
+    - index_reference:
+        identifier: '`test`'
+    - keyword: 'ON'
+    - table_reference:
+      - identifier: '`table`'
+      - dot: .
+      - identifier: '`foo`'
+    - keyword: ALGORITHM
+    - keyword: DEFAULT
+- statement_terminator: ;
+- statement:
+    drop_statement:
+    - keyword: DROP
+    - keyword: INDEX
+    - index_reference:
+        identifier: '`test`'
+    - keyword: 'ON'
+    - table_reference:
+      - identifier: '`table`'
+      - dot: .
+      - identifier: '`foo`'
+    - keyword: ALGORITHM
+    - keyword: INPLACE
+- statement_terminator: ;
+- statement:
+    drop_statement:
+    - keyword: DROP
+    - keyword: INDEX
+    - index_reference:
+        identifier: '`test`'
+    - keyword: 'ON'
+    - table_reference:
+      - identifier: '`table`'
+      - dot: .
+      - identifier: '`foo`'
+    - keyword: ALGORITHM
+    - keyword: COPY
+- statement_terminator: ;
