@@ -411,12 +411,12 @@ class Lexer:
                 #       ({{ states }})
                 #   {% endif %}
                 #
-                # , we might get {% else %} and {% endif %} slices, without the
+                # we might get {% else %} and {% endif %} slices, without the
                 # 4 lines between. This indicates those lines were not executed
                 # In this case, generate a placeholder where the skipped code is
                 # omitted but noted with a brief string, e.g.:
                 #
-                # "{% else %}... [103 omitted] ...{% endif %}".
+                # "{% else %}... [103 unused template characters] ...{% endif %}".
                 #
                 # This is more readable -- it would be REALLY confusing for a
                 # placeholder to include code that wasn't even executed!!
@@ -429,15 +429,15 @@ class Lexer:
                         # If it's not the first slice, was there a gap?
                         if last_slice:
                             end_last = last_slice.source_idx + len(last_slice.raw)
-                            num_omitted = so_slice.source_idx - end_last
-                            if num_omitted:
+                            chars_skipped = so_slice.source_idx - end_last
+                            if chars_skipped:
                                 # Yes, gap between last_slice and so_slice.
                                 has_gap = True
 
                                 # Generate a string documenting the gap.
-                                if num_omitted >= 10:
+                                if chars_skipped >= 10:
                                     gap_placeholder_parts.append(
-                                        f"... [{num_omitted} omitted] ..."
+                                        f"... [{chars_skipped} unused template characters] ..."
                                     )
                                 else:
                                     gap_placeholder_parts.append("...")

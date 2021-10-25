@@ -92,12 +92,12 @@ file:
         - newline: "\n"
         - whitespace: '        '
         - dedent: ''
-        - placeholder: '{% else %}... [103 omitted] ...{% endif %}'
+        - placeholder: '{% else %}... [103 unused template characters] ...{% endif %}'
         - newline: "\n"
         - whitespace: '    '
         - newline: "\n"
         - whitespace: '        '
-        - placeholder: '{% if loop.first %}... [49 omitted] ...{% else %}'
+        - placeholder: '{% if loop.first %}... [49 unused template characters] ...{% else %}'
         - indent: ''
         - newline: "\n"
         - whitespace: '        '
@@ -137,7 +137,7 @@ file:
         - whitespace: '    '
         - newline: "\n"
         - whitespace: '        '
-        - placeholder: '{% if loop.first %}... [49 omitted] ...{% else %}'
+        - placeholder: '{% if loop.first %}... [49 unused template characters] ...{% else %}'
         - indent: ''
         - newline: "\n"
         - whitespace: '        '

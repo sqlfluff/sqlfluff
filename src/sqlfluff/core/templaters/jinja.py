@@ -332,7 +332,11 @@ class JinjaTemplater(PythonTemplater):
 
 
 class TemplateTracer:
-    """Deduces and records execution path of a Jinja template."""
+    """Deduces and records execution path of a Jinja template.
+
+    This class should be compatible with other template languages but has only
+    been used with Jinja thus far.
+    """
 
     re_open_tag = re.compile(r"^\s*({[{%])[\+\-]?\s*")
     re_close_tag = re.compile(r"\s*[\+\-]?([}%]})\s*$")
