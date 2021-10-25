@@ -832,6 +832,7 @@ class ColumnConstraintSegment(BaseSegment):
                 Ref("BracketedColumnReferenceListGrammar", optional=True),
             ),
             Ref("CommentClauseSegment"),
+            Ref("IdentityGrammar"),
         ),
     )
 
@@ -1332,6 +1333,28 @@ class FilegroupClause(BaseSegment):
     match_grammar = Sequence(
         "ON",
         Ref("SingleIdentifierGrammar"),
+    )
+
+
+@tsql_dialect.segment()
+class IdentityGrammar(BaseSegment):
+    """`IDENTITY (1,1)` in table schemas.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-table-transact-sql-identity-property?view=sql-server-ver15
+    """
+
+    type = "identity_grammar"
+    match_grammar = Sequence(
+        "IDENTITY",
+        # optional (seed, increment) e.g. (1, 1)
+        Bracketed(
+            Sequence(
+                Ref("NumericLiteralSegment"),
+                Ref("CommaSegment"),
+                Ref("NumericLiteralSegment"),
+            ),
+            optional=True,
+        ),
     )
 
 
