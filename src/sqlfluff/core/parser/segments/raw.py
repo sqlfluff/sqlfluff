@@ -115,6 +115,7 @@ class RawSegment(BaseSegment):
     # ################ INSTANCE METHODS
 
     def invalidate_caches(self):
+        """Overwrite superclass functionality."""
         pass
 
     def get_type(self):
