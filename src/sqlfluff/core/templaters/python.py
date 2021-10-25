@@ -175,7 +175,7 @@ class PythonTemplater(RawTemplater):
         except (SyntaxError, ValueError):
             return s
 
-    def get_context(self, fname=None, config=None):
+    def get_context(self, fname=None, config=None) -> Dict:
         """Get the templating context from the config."""
         # TODO: The config loading should be done outside the templater code. Here
         # is a silly place.

@@ -6,7 +6,7 @@ from typing import List, NamedTuple
 import pytest
 
 from sqlfluff.core.templaters import JinjaTemplater
-from sqlfluff.core.templaters.jinja import TemplateTracer
+from sqlfluff.core.templaters.jinja import JinjaTracer
 from sqlfluff.core import Linter, FluffConfig
 
 
@@ -509,8 +509,11 @@ def test__templater_full(subpath, code_only, include_meta, yaml_loader, caplog):
 )
 def test__templater_jinja_slice_template(test, result):
     """Test _slice_template."""
-    resp = list(TemplateTracer._slice_template(test))
-    # check contigious (unless there's a comment in it)
+    templater = JinjaTemplater()
+    env, live_context, make_template = templater.template_builder()
+    tracer = JinjaTracer(test, env, make_template)
+    resp = list(tracer._slice_template())
+    # check contiguous (unless there's a comment in it)
     if "{#" not in test:
         assert "".join(elem.raw for elem in resp) == test
         # check indices
@@ -669,11 +672,7 @@ def test__templater_jinja_slice_file(
 ):
     """Test slice_file."""
     templater = JinjaTemplater(override_context=override_context)
-    env = templater.get_jinja_env()
-    live_context = templater.get_context()
-
-    def make_template(in_str):
-        return env.from_string(in_str, globals=live_context)
+    env, live_context, make_template = templater.template_builder()
 
     # TODO: Now that we're generating "templated_file", eliminate this field
     # from the parametrized test cases.
