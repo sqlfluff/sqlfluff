@@ -535,10 +535,6 @@ class BaseSegment:
         ]:
             self.__dict__.pop(key, None)
 
-    def _reconstruct(self):
-        """Make a string from the segments of this segment."""
-        return "".join(seg.raw for seg in self.segments)
-
     def _preface(self, ident, tabsize):
         """Returns the preamble to any logging."""
         padded_type = "{padding}{modifier}{type}".format(

@@ -50,6 +50,7 @@ class AnyNumberOf(BaseGrammar):
 
     @staticmethod
     def _scan_string_buff(segments):
+        """Return the raw upper representation of the first valid non-whitespace segment in the iterable."""
         for segment in segments:
             if segment.raw_segments_upper:
                 return segment.raw_segments_upper

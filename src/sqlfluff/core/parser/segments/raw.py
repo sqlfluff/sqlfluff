@@ -156,10 +156,6 @@ class RawSegment(BaseSegment):
         """Return a list of the raw content of this segment."""
         return [self.raw]
 
-    def _reconstruct(self):
-        """Return a string of the raw content of this segment."""
-        return self._raw
-
     def stringify(self, ident=0, tabsize=4, code_only=False):
         """Use indentation to render this segment and its children as a string."""
         preface = self._preface(ident=ident, tabsize=tabsize)
