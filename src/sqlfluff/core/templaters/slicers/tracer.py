@@ -7,7 +7,7 @@ import logging
 import re
 import uuid
 from itertools import chain
-from typing import Callable, Dict, List, NamedTuple, Optional
+from typing import Callable, cast, Dict, List, NamedTuple, Optional
 
 from jinja2 import Environment
 from jinja2.environment import Template
@@ -36,8 +36,8 @@ class JinjaTrace(NamedTuple):
 class RawSliceInfo(NamedTuple):
     """JinjaTracer-specific info about each RawFileSlice."""
 
-    unique_alternate_id: str
-    alternate_code: str
+    unique_alternate_id: Optional[str]
+    alternate_code: Optional[str]
     next_slice_indices: List[int]
 
 
@@ -62,7 +62,7 @@ class JinjaTracer:
     def trace(self) -> JinjaTrace:
         """Executes raw_str. Returns template output and trace."""
         trace_template_str = "".join(
-            self.raw_slice_info[rs].alternate_code
+            cast(str, self.raw_slice_info[rs].alternate_code)
             if self.raw_slice_info[rs].alternate_code is not None
             else rs.raw
             for rs in self.raw_sliced
