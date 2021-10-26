@@ -7,6 +7,7 @@ post linting.
 
 import os
 import logging
+import shutil
 import tempfile
 from typing import (
     Any,
@@ -508,5 +509,5 @@ class LintedFile(NamedTuple):
             ) as tmp:
                 tmp.file.write(write_buff)
             # Once the temp file is safely written, replace the existing file.
-            os.rename(tmp.name, fname)
+            shutil.move(tmp.name, fname)
         return success
