@@ -131,7 +131,7 @@ class BaseSegment:
                 except KeyError:
                     pass
 
-        except AttributeError:
+        except AttributeError: # pragma: no cover
             pass
 
         super().__setattr__(key, value)
@@ -246,7 +246,7 @@ class BaseSegment:
     @cached_property
     def raw_segments(self):
         """Returns a list of raw segments in this segment."""
-        return self.iter_raw_seg()
+        return self.get_raw_segments()
 
     @cached_property
     def raw_segments_upper(self):
@@ -677,7 +677,7 @@ class BaseSegment:
             buff += s.raw_list()
         return buff
 
-    def iter_raw_seg(self):
+    def get_raw_segments(self):
         """Iterate raw segments, mostly for searching."""
         return [item for s in self.segments for item in s.raw_segments]
 

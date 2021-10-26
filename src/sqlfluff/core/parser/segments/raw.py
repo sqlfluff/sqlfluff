@@ -60,6 +60,7 @@ class RawSegment(BaseSegment):
         )
 
     def __setattr__(self, key, value):
+        """Overwrite BaseSegment's __setattr__ with BaseSegment's superclass."""
         super(BaseSegment, self).__setattr__(key, value)
 
     # ################ PUBLIC PROPERTIES
@@ -128,7 +129,7 @@ class RawSegment(BaseSegment):
             return True
         return self.class_is_type(*seg_type)
 
-    def iter_raw_seg(self):
+    def get_raw_segments(self):
         """Iterate raw segments, mostly for searching."""
         return [self]
 

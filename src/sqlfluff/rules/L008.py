@@ -44,7 +44,7 @@ class Rule_L008(BaseRule):
             return None
 
         # Get the first element of this segment.
-        first_elem = next(iter(context.segment.iter_raw_seg()))
+        first_elem = context.segment.get_raw_segments()[0]
 
         cm1 = context.raw_stack[-1]
         if cm1.name == "comma":

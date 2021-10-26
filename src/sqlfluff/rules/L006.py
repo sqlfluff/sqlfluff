@@ -125,7 +125,7 @@ class Rule_L006(BaseRule):
             # Is it a compound segment ending or starting with the target?
             elif sub_seg.segments:
                 # Get first and last raw segments.
-                raw_list = list(sub_seg.iter_raw_seg())
+                raw_list = list(sub_seg.get_raw_segments())
                 if len(raw_list) > 1:
                     leading = raw_list[0]
                     trailing = raw_list[-1]

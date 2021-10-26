@@ -49,7 +49,7 @@ class AnyNumberOf(BaseGrammar):
         return self.optional or self.min_times == 0
 
     @staticmethod
-    def _scan_string_buff(segments):
+    def _first_non_whitespace(segments):
         """Return the raw upper representation of the first valid non-whitespace segment in the iterable."""
         for segment in segments:
             if segment.raw_segments_upper:
@@ -67,7 +67,7 @@ class AnyNumberOf(BaseGrammar):
         matched_simple = 0
 
         # Find the first code element to match against.
-        first_elem = self._scan_string_buff(segments)
+        first_elem = self._first_non_whitespace(segments)
 
         for opt in self._elements:
             simple = opt.simple(parse_context=parse_context)
