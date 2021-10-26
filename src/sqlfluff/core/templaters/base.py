@@ -3,7 +3,6 @@
 import logging
 from bisect import bisect_left
 from collections import defaultdict
-from dataclasses import dataclass, field
 from typing import Dict, Iterator, List, Tuple, Optional, NamedTuple, Iterable
 
 from cached_property import cached_property
@@ -24,17 +23,13 @@ def iter_indices_of_newlines(raw_str: str) -> Iterator[int]:
             break  # pragma: no cover TODO?
 
 
-@dataclass
-class RawFileSlice:
+class RawFileSlice(NamedTuple):
     """A slice referring to a raw file."""
 
     raw: str
     slice_type: str
     source_idx: int
     slice_subtype: Optional[str] = None
-    unique_alternate_id: Optional[str] = None
-    alternate_code: Optional[str] = None
-    next_slice_indices: List[int] = field(default_factory=list)
 
     def end_source_idx(self):
         """Return the closing index of this slice."""
@@ -43,13 +38,6 @@ class RawFileSlice:
     def source_slice(self):
         """Return the a slice object for this slice."""
         return slice(self.source_idx, self.end_source_idx())
-
-    def as_tuple(self) -> Tuple[str, str, int, Optional[str]]:
-        """Return a tuple version of this object.
-
-        This tuple contains a "public" subset of the fields.
-        """
-        return (self.raw, self.slice_type, self.source_idx, self.slice_subtype)
 
 
 class TemplatedFileSlice(NamedTuple):
@@ -195,7 +183,7 @@ class TemplatedFile:
     @cached_property
     def raw_slice_block_info(self) -> RawSliceBlockInfo:
         """Returns a dict with a unique ID for each template block."""
-        block_ids: Dict[Tuple[str, str, int, Optional[str]], int] = {}
+        block_ids: Dict[RawFileSlice, int] = {}
         block_content_types = defaultdict(set)
         loops = set()
         blocks = []
@@ -206,7 +194,7 @@ class TemplatedFile:
             if raw_slice.slice_type == "block_start":
                 blocks.append(raw_slice)
                 templater_logger.info("%d -> %r", block_id, raw_slice.raw)
-                block_ids[raw_slice.as_tuple()] = block_id
+                block_ids[raw_slice] = block_id
                 block_id += 1
                 if raw_slice.slice_subtype == "loop":
                     loops.add(block_id)
@@ -214,10 +202,10 @@ class TemplatedFile:
                 blocks.pop()
                 block_id += 1
                 templater_logger.info("%d -> %r", block_id, raw_slice.raw)
-                block_ids[raw_slice.as_tuple()] = block_id
+                block_ids[raw_slice] = block_id
             else:
                 templater_logger.info("%d -> %r", block_id, raw_slice.raw)
-                block_ids[raw_slice.as_tuple()] = block_id
+                block_ids[raw_slice] = block_id
         literal_only_loops = [
             block_id
             for block_id in set(block_ids.values())

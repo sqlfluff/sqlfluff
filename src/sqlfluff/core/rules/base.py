@@ -27,7 +27,7 @@ from sqlfluff.core.linter import LintedFile
 from sqlfluff.core.parser import BaseSegment, RawSegment
 from sqlfluff.core.dialects import Dialect
 from sqlfluff.core.errors import SQLLintError
-from sqlfluff.core.templaters.base import TemplatedFile
+from sqlfluff.core.templaters.base import RawFileSlice, TemplatedFile
 
 # The ghost of a rule (mostly used for testing)
 RuleGhost = namedtuple("RuleGhost", ["code", "description"])
@@ -492,11 +492,11 @@ class BaseRule:
             return
 
         # Get the set of slices touched by any of the fixes.
-        fix_slices: Set[Tuple[str, str, int, Optional[str]]] = set()
+        fix_slices: Set[RawFileSlice] = set()
         for fix in lint_result.fixes:
             if fix.anchor:
                 fix_slices.update(
-                    raw_slice.as_tuple()
+                    raw_slice
                     for raw_slice in templated_file.raw_slices_spanning_source_slice(
                         fix.anchor.pos_marker.source_slice
                     )

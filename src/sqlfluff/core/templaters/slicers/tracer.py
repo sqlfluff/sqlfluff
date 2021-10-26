@@ -7,7 +7,7 @@ import logging
 import re
 import uuid
 from itertools import chain
-from typing import Callable, List, NamedTuple, Optional
+from typing import Callable, Dict, List, NamedTuple, Optional
 
 from jinja2 import Environment
 from jinja2.environment import Template
@@ -33,6 +33,12 @@ class JinjaTrace(NamedTuple):
     sliced_file: List[TemplatedFileSlice]
 
 
+class RawSliceInfo(NamedTuple):
+    unique_alternate_id: str
+    alternate_code: str
+    next_slice_indices: List[int]
+
+
 class JinjaTracer:
     """Deduces and records execution path of a Jinja template."""
 
@@ -46,6 +52,7 @@ class JinjaTracer:
         self.env = env
         self.make_template: Callable[[str], Template] = make_template
         self.program_counter: int = 0
+        self.raw_slice_info: Dict[RawFileSlice, RawSliceInfo] = {}
         self.raw_sliced: List[RawFileSlice] = self._slice_template()
         self.sliced_file: List[TemplatedFileSlice] = []
         self.source_idx: int = 0
@@ -53,7 +60,9 @@ class JinjaTracer:
     def trace(self) -> JinjaTrace:
         """Executes raw_str. Returns template output and trace."""
         trace_template_str = "".join(
-            rs.alternate_code if rs.alternate_code is not None else rs.raw
+            self.raw_slice_info[rs].alternate_code
+            if self.raw_slice_info[rs].alternate_code is not None
+            else rs.raw
             for rs in self.raw_sliced
         )
         trace_template = self.make_template(trace_template_str)
@@ -91,7 +100,7 @@ class JinjaTracer:
         raw_slices_search_result = [
             idx
             for idx, rs in enumerate(self.raw_sliced)
-            if rs.unique_alternate_id == slice_identifier
+            if self.raw_slice_info[rs].unique_alternate_id == slice_identifier
         ]
         if len(raw_slices_search_result) != 1:
             raise ValueError(  # pragma: no cover
@@ -110,14 +119,15 @@ class JinjaTracer:
                 # Reached the target slice. Go to next location and stop.
                 self.program_counter += 1
                 break
-            elif not current_raw_slice.next_slice_indices:
+            elif not self.raw_slice_info[current_raw_slice].next_slice_indices:
                 # No choice available. Go to next location.
                 self.program_counter += 1
             else:
                 # We have choices. Which to choose?
                 candidates = []
                 for next_slice_idx in chain(
-                    current_raw_slice.next_slice_indices, [self.program_counter + 1]
+                    self.raw_slice_info[current_raw_slice].next_slice_indices,
+                    [self.program_counter + 1],
                 ):
                     if next_slice_idx > target_slice_idx:
                         # Takes us past the target. No good.
@@ -190,9 +200,10 @@ class JinjaTracer:
                         raw,
                         "literal",
                         idx,
-                        unique_alternate_id=unique_alternate_id,
-                        alternate_code=alternate_code,
                     )
+                )
+                self.raw_slice_info[result[-1]] = RawSliceInfo(
+                    unique_alternate_id, alternate_code, []
                 )
                 idx += len(raw)
                 continue
@@ -234,9 +245,8 @@ class JinjaTracer:
                             "Jinja lex() skipped non-whitespace: %s", skipped_str
                         )
                     # Treat the skipped whitespace as a literal.
-                    result.append(
-                        RawFileSlice(skipped_str, "literal", idx, alternate_code="")
-                    )
+                    result.append(RawFileSlice(skipped_str, "literal", idx))
+                    self.raw_slice_info[result[-1]] = RawSliceInfo("", "", [])
                     idx += num_chars_skipped
 
             # raw_end and raw_begin behave a little differently in
@@ -244,6 +254,7 @@ class JinjaTracer:
             # parts of the tag at a time.
             unique_alternate_id = None
             alternate_code = None
+            trimmed_content = ""
             if elem_type.endswith("_end") or elem_type == "raw_begin":
                 block_type = block_types[elem_type]
                 block_subtype = None
@@ -252,7 +263,6 @@ class JinjaTracer:
                     # Trim off the brackets and then the whitespace
                     m_open = self.re_open_tag.search(str_buff)
                     m_close = self.re_close_tag.search(str_buff)
-                    trimmed_content = ""
                     if m_open and m_close:
                         trimmed_content = str_buff[
                             len(m_open.group(0)) : -len(m_close.group(0))
@@ -307,9 +317,10 @@ class JinjaTracer:
                             block_type,
                             idx,
                             block_subtype,
-                            unique_alternate_id=unique_alternate_id,
-                            alternate_code=alternate_code,
                         )
+                    )
+                    self.raw_slice_info[result[-1]] = RawSliceInfo(
+                        unique_alternate_id, alternate_code, []
                     )
                     block_idx = len(result) - 1
                     idx += len(str_buff) - trailing_chars
@@ -318,9 +329,9 @@ class JinjaTracer:
                             str_buff[-trailing_chars:],
                             "literal",
                             idx,
-                            alternate_code="",
                         )
                     )
+                    self.raw_slice_info[result[-1]] = RawSliceInfo("", "", [])
                     idx += trailing_chars
                 else:
                     result.append(
@@ -329,9 +340,10 @@ class JinjaTracer:
                             block_type,
                             idx,
                             block_subtype,
-                            unique_alternate_id=unique_alternate_id,
-                            alternate_code=alternate_code,
                         )
+                    )
+                    self.raw_slice_info[result[-1]] = RawSliceInfo(
+                        unique_alternate_id, alternate_code, []
                     )
                     block_idx = len(result) - 1
                     idx += len(str_buff)
@@ -342,7 +354,9 @@ class JinjaTracer:
                     stack.append(block_idx)
                 elif block_type == "block_mid":
                     # Record potential forward jump over this block.
-                    result[stack[-1]].next_slice_indices.append(block_idx)
+                    self.raw_slice_info[result[stack[-1]]].next_slice_indices.append(
+                        block_idx
+                    )
                     stack.pop()
                     stack.append(block_idx)
                 elif block_type == "block_end" and trimmed_content.split()[0] in (
@@ -350,10 +364,14 @@ class JinjaTracer:
                     "endif",
                 ):
                     # Record potential forward jump over this block.
-                    result[stack[-1]].next_slice_indices.append(block_idx)
+                    self.raw_slice_info[result[stack[-1]]].next_slice_indices.append(
+                        block_idx
+                    )
                     if result[stack[-1]].slice_subtype == "loop":
                         # Record potential backward jump to the loop beginning.
-                        result[block_idx].next_slice_indices.append(stack[-1] + 1)
+                        self.raw_slice_info[
+                            result[block_idx]
+                        ].next_slice_indices.append(stack[-1] + 1)
                     stack.pop()
                 str_buff = ""
         return result
