@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 00ac2b2b84ec5ad7b4403e585311d99ac16677e09ca4ece6ea9ebbc3f3e83177
+_hash: f75c9bea3f7a30304fe44f01525d5a48cb04ddab2ada93b379cff5fa62d7ace8
 file:
   batch:
     statement:
@@ -66,4 +66,65 @@ file:
                 bracketed:
                   start_bracket: (
                   end_bracket: )
+        - comma: ','
+        - column_definition:
+          - identifier: '[col1]'
+          - data_type:
+              identifier: int
+          - column_constraint_segment:
+              keyword: default
+              bracketed:
+                start_bracket: (
+                bracketed:
+                  start_bracket: (
+                  numeric_literal:
+                    binary_operator: '-'
+                    literal: '1'
+                  end_bracket: )
+                end_bracket: )
+          - column_constraint_segment:
+            - keyword: not
+            - keyword: 'null'
+        - comma: ','
+        - column_definition:
+          - identifier: '[col1]'
+          - data_type:
+              identifier: INT
+          - column_constraint_segment:
+              keyword: DEFAULT
+              bracketed:
+                start_bracket: (
+                literal: 'NULL'
+                end_bracket: )
+          - column_constraint_segment:
+              keyword: 'NULL'
+        - comma: ','
+        - column_definition:
+          - identifier: '[col1]'
+          - data_type:
+              identifier: INT
+          - column_constraint_segment:
+              identity_grammar:
+                keyword: IDENTITY
+                bracketed:
+                - start_bracket: (
+                - literal: '1'
+                - comma: ','
+                - literal: '1'
+                - end_bracket: )
+          - column_constraint_segment:
+            - keyword: NOT
+            - keyword: 'NULL'
+        - comma: ','
+        - table_constraint_segment:
+          - keyword: PRIMARY
+          - keyword: KEY
+          - keyword: CLUSTERED
+          - bracketed:
+              start_bracket: (
+              column_reference:
+                identifier: '[col1]'
+              unparsable:
+                raw: ASC
+              end_bracket: )
         - end_bracket: )

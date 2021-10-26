@@ -814,11 +814,13 @@ class ColumnConstraintSegment(BaseSegment):
             Sequence(Ref.keyword("NOT", optional=True), "NULL"),  # NOT NULL or NULL
             Sequence(  # DEFAULT <value>
                 "DEFAULT",
-                OneOf(
-                    Ref("LiteralGrammar"),
-                    Ref("FunctionSegment"),
-                    # ?? Ref('IntervalExpressionSegment')
-                    OptionallyBracketed(Ref("NextValueSequenceSegment")),
+                OptionallyBracketed(
+                    OneOf(
+                        OptionallyBracketed(Ref("LiteralGrammar")),  # ((-1))
+                        Ref("FunctionSegment"),
+                        # ?? Ref('IntervalExpressionSegment')
+                        Ref("NextValueSequenceSegment"),
+                    ),
                 ),
             ),
             Ref("PrimaryKeyGrammar"),
