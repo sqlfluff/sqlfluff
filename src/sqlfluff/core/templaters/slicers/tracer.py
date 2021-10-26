@@ -34,6 +34,8 @@ class JinjaTrace(NamedTuple):
 
 
 class RawSliceInfo(NamedTuple):
+    """JinjaTracer-specific info about each RawFileSlice."""
+
     unique_alternate_id: str
     alternate_code: str
     next_slice_indices: List[int]

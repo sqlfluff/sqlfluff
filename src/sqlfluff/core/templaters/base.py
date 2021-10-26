@@ -53,7 +53,7 @@ class RawSliceBlockInfo(NamedTuple):
 
     # Given a raw file slace, return its block ID. Useful for identifying
     # regions of a file with respect to template control structures (for, if).
-    block_ids: Dict[Tuple[str, str, int, Optional[str]], int]
+    block_ids: Dict[RawFileSlice, int]
 
     # List of block IDs that have the following characteristics:
     # - Loop body

@@ -496,8 +496,7 @@ class BaseRule:
         for fix in lint_result.fixes:
             if fix.anchor:
                 fix_slices.update(
-                    raw_slice
-                    for raw_slice in templated_file.raw_slices_spanning_source_slice(
+                    templated_file.raw_slices_spanning_source_slice(
                         fix.anchor.pos_marker.source_slice
                     )
                 )
