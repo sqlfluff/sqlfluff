@@ -495,19 +495,22 @@ class LintedFile(NamedTuple):
             if suffix:
                 root, ext = os.path.splitext(fname)
                 fname = root + suffix + ext
-            # Write to a temporary file first, so in case of encoding or other
-            # issues, we don't delete or corrupt the user's existing file.
-            dirname, basename = os.path.split(fname)
-            base, suffix = os.path.splitext(fname)
-            with tempfile.NamedTemporaryFile(
-                mode="w",
-                encoding=self.encoding,
-                prefix=basename,
-                dir=dirname,
-                suffix=suffix,
-                delete=False,
-            ) as tmp:
-                tmp.file.write(write_buff)  # type: ignore
-            # Once the temp file is safely written, replace the existing file.
-            shutil.move(tmp.name, fname)
+            self._safe_create_replace_file(fname, write_buff, self.encoding)
         return success
+
+    @staticmethod
+    def _safe_create_replace_file(fname, write_buff, encoding):
+        # Write to a temporary file first, so in case of encoding or other
+        # issues, we don't delete or corrupt the user's existing file.
+        dirname, basename = os.path.split(fname)
+        with tempfile.NamedTemporaryFile(
+            mode="w",
+            encoding=encoding,
+            prefix=basename,
+            dir=dirname,
+            suffix=os.path.splitext(fname)[1],
+            delete=False,
+        ) as tmp:
+            tmp.file.write(write_buff)  # type: ignore
+        # Once the temp file is safely written, replace the existing file.
+        shutil.move(tmp.name, fname)
