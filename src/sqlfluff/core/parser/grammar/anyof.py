@@ -54,6 +54,7 @@ class AnyNumberOf(BaseGrammar):
         for segment in segments:
             if segment.raw_segments_upper:
                 return segment.raw_segments_upper
+        return None
 
     def _prune_options(
         self, segments: Tuple[BaseSegment, ...], parse_context: ParseContext
