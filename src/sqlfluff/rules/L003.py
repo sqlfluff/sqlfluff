@@ -75,70 +75,6 @@ class Rule_L003(BaseRule):
         return indent_size
 
     @classmethod
-    def _reorder_raw_stack(
-        cls,
-        raw_stack: Tuple[RawSegment, ...],
-        templated_file: Optional[TemplatedFile],
-    ) -> Tuple[RawSegment, ...]:
-        """Reorder raw_stack to simplify indentation logic.
-
-        Context: The indentation logic was mostly designed to work with normal
-        segment types. Templating introduces additional segments into the parse
-        tree, often in the "wrong" place with respect to the indentation logic,
-        for example, where do indent/dedent segments appear with respect to the
-        segments that trigger indent/dedent behavior? This function reorders
-        nodes locally (i.e. only within L003) to get the desired behavior.
-        """
-
-        def segment_info(idx: int) -> Tuple[str, Optional[str]]:
-            """Helper function for sort_current_line()."""
-            seg = current_line[idx]
-            return seg.type, cls._get_element_template_info(seg, templated_file)
-
-        def move_indent_before_templated() -> None:
-            """Swap position of template and indent segment if code follows.
-
-            This allows for correct indentation of templated table names in
-            "FROM", for example:
-
-            SELECT brand
-            FROM
-                {{ product }}
-
-            """
-            for idx in range(2, len(current_line)):
-                if (
-                    segment_info(idx - 2)
-                    == (
-                        "placeholder",
-                        "templated",
-                    )
-                    and segment_info(idx - 1) == ("indent", None)
-                    and segment_info(idx) == ("raw", None)
-                ):
-                    current_line[idx - 2], current_line[idx - 1] = (
-                        current_line[idx - 1],
-                        current_line[idx - 2],
-                    )
-
-        # Break raw_stack into lines.
-        lines = []
-        current_line = []
-        for elem in raw_stack:
-            if not elem.is_type("newline"):
-                current_line.append(elem)
-            else:
-                move_indent_before_templated()
-                current_line.append(elem)
-                lines.append(current_line)
-                current_line = []
-        if current_line:
-            move_indent_before_templated()
-            lines.append(current_line)
-        new_raw_stack = [s for line in lines for s in line]
-        return tuple(new_raw_stack)
-
-    @classmethod
     def _process_raw_stack(
         cls,
         raw_stack: Tuple[RawSegment, ...],
@@ -147,9 +83,6 @@ class Rule_L003(BaseRule):
         templated_file: Optional[TemplatedFile] = None,
     ) -> dict:
         """Take the raw stack, split into lines and evaluate some stats."""
-        # TODO: Is this needed anymore? Perhaps we can roll back most or all of
-        # the work from https://github.com/sqlfluff/sqlfluff/pull/1444.
-        # raw_stack = cls._reorder_raw_stack(raw_stack, templated_file)
         indent_balance = 0
         line_no = 1
         in_indent = True

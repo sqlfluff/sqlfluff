@@ -319,7 +319,7 @@ class TemplatedFile:
             if ts_start_sf_start > len(self.sliced_file):  # pragma: no cover
                 # We should never get here
                 raise ValueError("Starting position higher than sliced file position")
-            if ts_start_sf_start < len(self.sliced_file):
+            if ts_start_sf_start < len(self.sliced_file):  # pragma: no cover
                 return self.sliced_file[1].source_slice
             else:
                 return self.sliced_file[-1].source_slice  # pragma: no cover

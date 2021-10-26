@@ -469,7 +469,7 @@ class PythonTemplater(RawTemplater):
 
             # Is this one still relevant?
             if linv not in invariants:
-                continue
+                continue  # pragma: no cover
 
             source_pos, templ_pos = raw_occurrences[linv], templated_occurrences[linv]
             # Copy the list before iterating because we're going to edit it.
@@ -478,7 +478,7 @@ class PythonTemplater(RawTemplater):
                     src_dir = source_pos > raw_occurrences[tinv]
                     tmp_dir = templ_pos > templated_occurrences[tinv]
                     # If it's not in the same direction in the source and template remove it.
-                    if src_dir != tmp_dir:
+                    if src_dir != tmp_dir:  # pragma: no cover
                         templater_logger.debug(
                             "          Invariant found out of order: %r", tinv
                         )
@@ -602,7 +602,7 @@ class PythonTemplater(RawTemplater):
 
         for int_file_slice in split_file:
             # Yield anything from the tail buffer
-            if tail_buffer:
+            if tail_buffer:  # pragma: no cover
                 templater_logger.debug(
                     "        Yielding Tail Buffer [start]: %s", tail_buffer
                 )
@@ -863,7 +863,7 @@ class PythonTemplater(RawTemplater):
                         for idx, slc in enumerate(int_file_slice.slice_buffer)
                         if slc.raw == raw
                     )
-                except StopIteration:
+                except StopIteration:  # pragma: no cover
                     # This can happen if the unique was detected, but was introduced
                     # by a templater step. This is a false positive. Skip and move on.
                     templater_logger.info(
@@ -895,7 +895,9 @@ class PythonTemplater(RawTemplater):
                         sub_section = int_file_slice.slice_buffer[:this_owu_idx]
                     # If we are AFTER the previous in the template, then it's
                     # also easy. [assuming it's not the same owu]
-                    elif raw_idx > starts[0] and last_owu_idx != this_owu_idx:
+                    elif (
+                        raw_idx > starts[0] and last_owu_idx != this_owu_idx
+                    ):  # pragma: no cover
                         if last_owu_idx:
                             sub_section = int_file_slice.slice_buffer[
                                 last_owu_idx + 1 : this_owu_idx
@@ -905,7 +907,7 @@ class PythonTemplater(RawTemplater):
 
                     # If we succeeded in one of the above, we can also recurse
                     # and be more intelligent with the other sections.
-                    if sub_section:
+                    if sub_section:  # pragma: no cover
                         # This assertion makes MyPy happy. In this case, we
                         # never set source_slice without also setting
                         # subsection.
@@ -966,7 +968,7 @@ class PythonTemplater(RawTemplater):
                         ]
 
                         # Trim anything which we're not allowed to use.
-                        if len(block_start_indices) > block_ends:
+                        if len(block_start_indices) > block_ends:  # pragma: no cover
                             offset = block_start_indices[-1 - block_ends] + 1
                             elem_sub_buffer = int_file_slice.slice_buffer[offset:]
                             cur_idx -= offset
@@ -985,7 +987,7 @@ class PythonTemplater(RawTemplater):
                         if include_start:
                             start_point = elem_sub_buffer[0].source_idx
                         # Otherwise we know it's looped round, we need to include the whole slice.
-                        else:
+                        else:  # pragma: no cover
                             start_point = elem_sub_buffer[cur_idx].source_idx
 
                         tricky = TemplatedFileSlice(
@@ -1019,7 +1021,7 @@ class PythonTemplater(RawTemplater):
                     template_idx + raw_len,
                 )
 
-            if starts[1] < stops[1] and last_owu_idx is not None:
+            if starts[1] < stops[1] and last_owu_idx is not None:  # pragma: no cover
                 # Yield the end bit
                 templater_logger.debug("        Attempting Subsplit [post].")
                 yield from cls._split_uniques_coalesce_rest(
