@@ -131,7 +131,7 @@ class BaseSegment:
                 except KeyError:
                     pass
 
-        except AttributeError: # pragma: no cover
+        except AttributeError:  # pragma: no cover
             pass
 
         super().__setattr__(key, value)

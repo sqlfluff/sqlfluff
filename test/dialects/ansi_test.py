@@ -211,7 +211,9 @@ def test__dialect__ansi_parse_indented_joins(sql_string, indented_joins, meta_lo
     assert "unparsable" not in parsed.tree.type_set()
     # Check all the segments that *should* be whitespace, ARE
     res_meta_locs = tuple(
-        idx for idx, raw_seg in enumerate(parsed.tree.get_raw_segments()) if raw_seg.is_meta
+        idx
+        for idx, raw_seg in enumerate(parsed.tree.get_raw_segments())
+        if raw_seg.is_meta
     )
     assert res_meta_locs == meta_loc
 
