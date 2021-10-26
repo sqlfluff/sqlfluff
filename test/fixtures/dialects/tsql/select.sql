@@ -17,6 +17,8 @@ SELECT
 	[# POAs],
 	'TSQLs escaping quotes test',
 	'TSQL''s escaping quotes test',
+	'TSQL' 's escaping quotes test',
+	'TSQL' AS 's escaping quotes test',
 	'',
 	'''',
     ROW_NUMBER()OVER(PARTITION BY [EventNM] ORDER BY [DateofEvent] desc) AS [RN],
