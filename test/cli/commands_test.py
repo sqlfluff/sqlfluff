@@ -527,7 +527,6 @@ def test__cli__command_parse_serialize_from_stdin(serialize):
 
     Not going to test for the content of the output as that is subject to change.
     """
-
     result = invoke_assert_code(
         args=[parse, ("-", "--format", serialize)],
         cli_input="select * from tbl",
