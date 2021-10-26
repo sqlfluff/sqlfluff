@@ -276,10 +276,12 @@ class BaseSegment:
         """Expand the list of child segments using their `parse` methods."""
         segs = ()
 
+        # Renders progress bar only for `BaseFileSegments`.
         disable_progress_bar = (
             progress_bar_configuration.disable_progress_bar
             or not issubclass(cls, BaseFileSegment)
         )
+
         segments = (
             segments
             if disable_progress_bar

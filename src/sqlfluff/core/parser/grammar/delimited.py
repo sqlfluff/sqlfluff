@@ -65,11 +65,15 @@ class Delimited(OneOf):
         # delimiters is a list of tuples containing delimiter segments as we find them.
         delimiters: List[BaseSegment] = []
 
+        # We want to render progress bar only for the main matching loop,
+        # so disable it when in deeper parsing.
         disable_progress_bar = (
             progress_bar_configuration.disable_progress_bar
             or parse_context.parse_depth > 0
         )
 
+        # We use amount of `NewLineSegment` to estimate how many steps could be in
+        # a big file. It's not perfect, but should do a job in most cases.
         new_line_segments = [s for s in segments if isinstance(s, NewlineSegment)]
         matching_progressbar = tqdm(
             total=len(new_line_segments),

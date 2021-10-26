@@ -384,8 +384,6 @@ def lint(
     # suppress progressbar when in verbose mode
     if verbose:
         disable_progress_bar = True
-    # From tqdm documentation: "If set to None, disable on non-TTY."
-    disable_progress_bar = disable_progress_bar or None
     progress_bar_configuration.disable_progress_bar = disable_progress_bar
 
     formatter.dispatch_config(lnt)
@@ -532,8 +530,7 @@ def fix(
     # suppress progressbar when in verbose mode
     if verbose:
         disable_progress_bar = True
-    # From tqdm documentation: "If set to None, disable on non-TTY."
-    progress_bar_configuration.disable_progress_bar = disable_progress_bar or None
+    progress_bar_configuration.disable_progress_bar = disable_progress_bar
 
     exit_code = 0
 

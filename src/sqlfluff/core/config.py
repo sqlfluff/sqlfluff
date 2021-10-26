@@ -699,7 +699,13 @@ class ProgressBarConfiguration:
 
     @disable_progress_bar.setter
     def disable_progress_bar(self, value: Optional[bool]) -> None:
-        self._disable_progress_bar = value
+        """`disable_progress_bar` setter.
+
+        `True` means that progress bar should be always hidden, `False` fallbacks
+        into `None` which is an automatic mode.
+        From tqdm documentation: 'If set to None, disable on non-TTY.'
+        """
+        self._disable_progress_bar = value or None
 
 
 progress_bar_configuration = ProgressBarConfiguration()
