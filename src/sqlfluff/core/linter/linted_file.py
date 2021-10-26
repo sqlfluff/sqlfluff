@@ -7,6 +7,7 @@ post linting.
 
 import os
 import logging
+import tempfile
 from typing import (
     Any,
     Iterable,
@@ -493,7 +494,19 @@ class LintedFile(NamedTuple):
             if suffix:
                 root, ext = os.path.splitext(fname)
                 fname = root + suffix + ext
-            # Actually write the file.
-            with open(fname, "w", encoding=self.encoding) as f:
-                f.write(write_buff)
+            # Write to a temporary file first, so in case of encoding or other
+            # issues, we don't delete or corrupt the user's existing file.
+            dirname, basename = os.path.split(fname)
+            base, suffix = os.path.splitext(fname)
+            with tempfile.NamedTemporaryFile(
+                mode="w",
+                encoding=self.encoding,
+                prefix=basename,
+                dir=dirname,
+                suffix=suffix,
+                delete=False,
+            ) as tmp:
+                tmp.file.write(write_buff)
+            # Once the temp file is safely written, replace the existing file.
+            os.rename(tmp.name, fname)
         return success
