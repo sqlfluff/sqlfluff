@@ -64,7 +64,7 @@ class JinjaTracer:
                 continue
             m_id = re.match(r"^([0-9a-f]+)(_(\d+))?", p)
             if not m_id:
-                raise ValueError(
+                raise ValueError(  # pragma: no cover
                     "Internal error. Trace template output does not match expected format."
                 )
             if m_id.group(3):
@@ -94,7 +94,7 @@ class JinjaTracer:
             if rs.unique_alternate_id == slice_identifier
         ]
         if len(raw_slices_search_result) != 1:
-            raise ValueError(
+            raise ValueError(  # pragma: no cover
                 f"Internal error. Unable to locate slice for {slice_identifier}."
             )
         return raw_slices_search_result[0]

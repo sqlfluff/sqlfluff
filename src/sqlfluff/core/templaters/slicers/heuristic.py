@@ -116,11 +116,11 @@ def _slice_template(in_str: str, env: Environment) -> Iterator[RawFileSlice]:
                     block_type = "block_end"
                 elif trimmed_content.startswith("el"):
                     # else, elif
-                    block_type = "block_mid"
+                    block_type = "block_mid"  # pragma: no cover
                 else:
                     block_type = "block_start"
                     if trimmed_content.split()[0] == "for":
-                        block_subtype = "loop"
+                        block_subtype = "loop"  # pragma: no cover
             m = re.search(r"\s+$", raw, re.MULTILINE | re.DOTALL)
             if raw.startswith("-") and m:
                 # Right whitespace was stripped. Split off the trailing
