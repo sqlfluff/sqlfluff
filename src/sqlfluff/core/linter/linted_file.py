@@ -511,6 +511,6 @@ class LintedFile(NamedTuple):
             suffix=os.path.splitext(fname)[1],
             delete=False,
         ) as tmp:
-            tmp.file.write(write_buff)  # type: ignore
+            tmp.file.write(write_buff)
         # Once the temp file is safely written, replace the existing file.
         shutil.move(tmp.name, fname)
