@@ -682,6 +682,7 @@ def test__attempt_to_change_templater_warning(caplog):
     ids=lambda case: case["name"],
 )
 def test_safe_create_replace_file(case, tmp_path):
+    """Test creating or updating .sql files, various content and encoding."""
     p = tmp_path / case["fname"]
     if case["existing"]:
         p.write_text(case["existing"])
