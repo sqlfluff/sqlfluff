@@ -230,27 +230,6 @@ tsql_dialect.replace(
 
 
 @tsql_dialect.segment(replace=True)
-class AliasExpressionSegment(BaseSegment):
-    """A reference to an object with an `AS` clause.
-
-    The optional AS keyword allows both implicit and explicit aliasing.
-    Overriding ANSI to remove QuotedLiteralSegment
-    """
-
-    type = "alias_expression"
-    match_grammar = Sequence(
-        Ref.keyword("AS", optional=True),
-        OneOf(
-            Sequence(
-                Ref("SingleIdentifierGrammar"),
-                # Column alias in VALUES clause
-                Bracketed(Ref("SingleIdentifierListSegment"), optional=True),
-            ),
-        ),
-    )
-
-
-@tsql_dialect.segment(replace=True)
 class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: ignore
     """Overriding StatementSegment to allow for additional segment parsing."""
 
