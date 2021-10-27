@@ -402,15 +402,15 @@ class Linter:
         for loop in range(loop_limit):
             changed = False
 
-            progress_bar_crawler = (
-                rule_set
-                if progress_bar_configuration.disable_progress_bar
-                else tqdm(rule_set, desc="lint by rules", leave=False)
+            progress_bar_crawler = tqdm(
+                rule_set,
+                desc="lint by rules",
+                leave=False,
+                disable=progress_bar_configuration.disable_progress_bar,
             )
 
             for crawler in progress_bar_crawler:
-                if not progress_bar_configuration.disable_progress_bar:
-                    progress_bar_crawler.set_description(f"rule {crawler.code}")
+                progress_bar_crawler.set_description(f"rule {crawler.code}")
 
                 # fixes should be a dict {} with keys edit, delete, create
                 # delete is just a list of segments to delete
@@ -865,7 +865,7 @@ class Linter:
             total=files_count,
             desc=f"file {os.path.basename(fnames[0] if fnames else '')}",
             leave=False,
-            disable=progress_bar_configuration.disable_progress_bar or files_count <= 1,
+            disable=files_count <= 1 or progress_bar_configuration.disable_progress_bar,
         )
 
         for i, linted_file in enumerate(runner.run(fnames, fix), start=1):
@@ -904,14 +904,14 @@ class Linter:
         # Set up the result to hold what we get back
         result = LintingResult()
 
-        progress_bar = tqdm(
+        progress_bar_paths = tqdm(
             total=paths_count,
             desc="path",
             leave=False,
-            disable=progress_bar_configuration.disable_progress_bar or paths_count <= 1,
+            disable=paths_count <= 1 or progress_bar_configuration.disable_progress_bar,
         )
         for path in paths:
-            progress_bar.set_description(f"path {path}")
+            progress_bar_paths.set_description(f"path {path}")
 
             # Iterate through files recursively in the specified directory (if it's a directory)
             # or read the file directly if it's not
@@ -925,7 +925,7 @@ class Linter:
                 )
             )
 
-            progress_bar.update(1)
+            progress_bar_paths.update(1)
 
         result.stop_timer()
         return result

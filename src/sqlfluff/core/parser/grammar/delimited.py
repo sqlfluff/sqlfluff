@@ -68,8 +68,8 @@ class Delimited(OneOf):
         # We want to render progress bar only for the main matching loop,
         # so disable it when in deeper parsing.
         disable_progress_bar = (
-            progress_bar_configuration.disable_progress_bar
-            or parse_context.parse_depth > 0
+            parse_context.parse_depth > 0
+            or progress_bar_configuration.disable_progress_bar
         )
 
         # We use amount of `NewLineSegment` to estimate how many steps could be in

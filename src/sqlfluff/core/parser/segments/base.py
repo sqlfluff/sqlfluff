@@ -278,20 +278,16 @@ class BaseSegment:
 
         # Renders progress bar only for `BaseFileSegments`.
         disable_progress_bar = (
-            progress_bar_configuration.disable_progress_bar
-            or not issubclass(cls, BaseFileSegment)
+            not issubclass(cls, BaseFileSegment)
+            or progress_bar_configuration.disable_progress_bar
         )
 
-        segments = (
-            segments
-            if disable_progress_bar
-            else tqdm(
-                segments,
-                desc="parsing",
-                miniters=30,
-                leave=False,
-                disable=disable_progress_bar,
-            )
+        segments = tqdm(
+            segments,
+            desc="parsing",
+            miniters=30,
+            leave=False,
+            disable=disable_progress_bar,
         )
 
         for stmt in segments:
