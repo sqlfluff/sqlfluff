@@ -350,6 +350,7 @@ class DatatypeSegment(BaseSegment):
         ),
         Sequence(
             OneOf(
+                Sequence("DOUBLE", "PRECISION"),
                 Sequence(
                     OneOf("CHARACTER", "BINARY"),
                     OneOf("VARYING", Sequence("LARGE", "OBJECT")),

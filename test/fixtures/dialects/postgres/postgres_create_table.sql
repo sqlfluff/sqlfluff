@@ -210,7 +210,8 @@ operation_id int4 NOT NULL DEFAULT '-1'::integer
 );
 
 CREATE TABLE main.test_table (
-    "col1" character varying(40) NOT NULL
+    "col1" character varying(40) NOT NULL,
+    "col2" double precision
 );
 
 CREATE TABLE groups (
