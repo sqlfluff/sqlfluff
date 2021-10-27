@@ -125,13 +125,9 @@ class BaseSegment:
 
         try:
             if key == "segments":
-                try:
-                    self.__dict__.pop("raw_segments")
-                    self._recalculate_caches()
-                except KeyError:
-                    pass
+                self._recalculate_caches()
 
-        except AttributeError:  # pragma: no cover
+        except (AttributeError, KeyError):  # pragma: no cover
             pass
 
         super().__setattr__(key, value)
