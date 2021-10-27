@@ -151,7 +151,7 @@ postgres_dialect.replace(
     NakedIdentifierSegment=SegmentGenerator(
         # Generate the anti template from the set of reserved keywords
         lambda dialect: RegexParser(
-            r"([A-Z_]+|[0-9]*[A-Z_$])[A-Z0-9_$]*",
+            r"([A-Z_]+|[0-9]+[A-Z_$])[A-Z0-9_$]*",
             CodeSegment,
             name="naked_identifier",
             type="identifier",
