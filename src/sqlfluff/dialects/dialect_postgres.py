@@ -11,12 +11,14 @@ from sqlfluff.core.parser import (
     BaseSegment,
     Delimited,
     RegexLexer,
+    RegexParser,
     CodeSegment,
     NamedParser,
     SymbolSegment,
     StartsWith,
     CommentSegment,
     Dedent,
+    SegmentGenerator,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -114,6 +116,7 @@ postgres_dialect.patch_lexer_matchers(
         ),
         # In Postgres, there is no escape character for double quote strings
         RegexLexer("double_quote", r'(?s)".+?"', CodeSegment),
+        RegexLexer("code", r"[0-9a-zA-Z_]+[0-9a-zA-Z_$]*", CodeSegment),
     ]
 )
 
@@ -145,6 +148,20 @@ postgres_dialect.add(
 )
 
 postgres_dialect.replace(
+    NakedIdentifierSegment=SegmentGenerator(
+        # Generate the anti template from the set of reserved keywords
+        lambda dialect: RegexParser(
+            # Can’t begin with $, must only contain digits, letters, underscore it $ but can’t be all digits.
+            r"([A-Z_]+|[0-9]+[A-Z_$])[A-Z0-9_$]*",
+            CodeSegment,
+            name="naked_identifier",
+            type="identifier",
+            anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
+        )
+    ),
+    ParameterNameSegment=RegexParser(
+        r"[A-Z_][A-Z0-9_$]*", CodeSegment, name="parameter", type="parameter"
+    ),
     QuotedLiteralSegment=OneOf(
         NamedParser("single_quote", CodeSegment, name="quoted_literal", type="literal"),
         NamedParser(
