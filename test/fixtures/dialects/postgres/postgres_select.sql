@@ -39,3 +39,5 @@ SELECT time without time zone '00:00:00' AT TIME ZONE 'Africa/Cairo';
 SELECT c_timestamp AT TIME ZONE 'Africa/Cairo' FROM t_table;
 
 SELECT (c_timestamp AT TIME ZONE 'Africa/Cairo')::time FROM t_table;
+
+SELECT a::double precision FROM my_table;
