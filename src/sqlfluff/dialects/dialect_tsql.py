@@ -2137,3 +2137,27 @@ class ExecuteScriptSegment(BaseSegment):
         ),
         Ref("DelimiterSegment", optional=True),
     )
+
+
+@tsql_dialect.segment(replace=True)
+class CreateSchemaStatementSegment(BaseSegment):
+    """A `CREATE SCHEMA` statement.
+
+    Overriding ANSI to allow for AUTHORIZATION clause
+    """
+
+    type = "create_schema_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        "SCHEMA",
+        Ref("SchemaReferenceSegment"),
+        Sequence(
+            "AUTHORIZATION",
+            Ref("SingleIdentifierGrammar"),
+            optional=True,
+        ),
+        Ref(
+            "DelimiterSegment",
+            optional=True,
+        ),
+    )
