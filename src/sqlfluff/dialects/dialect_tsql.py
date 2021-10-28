@@ -2144,6 +2144,7 @@ class CreateSchemaStatementSegment(BaseSegment):
     """A `CREATE SCHEMA` statement.
 
     Overriding ANSI to allow for AUTHORIZATION clause
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-schema-transact-sql?view=sql-server-ver15
     """
 
     type = "create_schema_statement"
