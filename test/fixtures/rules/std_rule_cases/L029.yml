@@ -36,3 +36,10 @@ test_fail_keyword_as_identifier_5:
     rules:
       L029:
         unquoted_identifiers_policy: column_aliases
+
+test_fail_keyword_as_quoted_identifier:
+  fail_str: SELECT x AS 'date' FROM tbl AS parameter
+  configs:
+    rules:
+      L029:
+        unquoted_identifiers_policy: column_aliases
