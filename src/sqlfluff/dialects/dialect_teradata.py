@@ -825,7 +825,9 @@ class SelectClauseSegment(BaseSegment):
 
     type = "select_clause"
     match_grammar = StartsWith(
-        Sequence(OneOf("SELECT", "SEL"), Ref("WildcardExpressionSegment", optional=True)),
+        Sequence(
+            OneOf("SELECT", "SEL"), Ref("WildcardExpressionSegment", optional=True)
+        ),
         terminator=OneOf(
             "FROM",
             "WHERE",
@@ -835,6 +837,5 @@ class SelectClauseSegment(BaseSegment):
         ),
         enforce_whitespace_preceding_terminator=True,
     )
-    # raise Exception(ansi_dialect.get_segment("SelectClauseSegment").parse_grammar)
+
     parse_grammar = ansi_dialect.get_segment("SelectClauseSegment").parse_grammar.copy()
-    # Segments defined in Spark3 dialect)
