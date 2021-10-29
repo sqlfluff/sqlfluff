@@ -1001,8 +1001,7 @@ class CreateTableAsStatementSegment(BaseSegment):
             ),
         ),
         "AS",
-        Ref("SelectClauseSegment"),
-
+        OptionallyBracketed(Ref("SelectClauseSegment")),
         # [ WITH [ NO ] DATA ]
         Sequence(
             "WITH",
