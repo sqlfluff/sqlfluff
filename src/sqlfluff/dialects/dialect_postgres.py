@@ -997,8 +997,7 @@ class CreateTableAsStatementSegment(BaseSegment):
             # [ TABLESPACE tablespace_name ]
             Sequence(
                 "TABLESPACE",
-                Ref("ParameterNameSegment"),
-                optional=True
+                Ref("ParameterNameSegment")
             ),
         ),
         "AS",
