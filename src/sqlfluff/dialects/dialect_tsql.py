@@ -2137,3 +2137,31 @@ class ExecuteScriptSegment(BaseSegment):
         ),
         Ref("DelimiterSegment", optional=True),
     )
+
+
+@tsql_dialect.segment(replace=True)
+class CreateSchemaStatementSegment(BaseSegment):
+    """A `CREATE SCHEMA` statement.
+
+    Overriding ANSI to allow for AUTHORIZATION clause
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-schema-transact-sql?view=sql-server-ver15
+
+    Not yet implemented: proper schema_element parsing.
+    Once we have an AccessStatementSegment that works for TSQL, this definition should be tweaked to include schema elements.
+    """
+
+    type = "create_schema_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        "SCHEMA",
+        Ref("SchemaReferenceSegment"),
+        Sequence(
+            "AUTHORIZATION",
+            Ref("SingleIdentifierGrammar"),
+            optional=True,
+        ),
+        Ref(
+            "DelimiterSegment",
+            optional=True,
+        ),
+    )
