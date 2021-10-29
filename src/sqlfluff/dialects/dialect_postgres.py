@@ -961,19 +961,32 @@ class CreateTableAsStatementSegment(BaseSegment):
                     Delimited(
                         Sequence(
                             Ref("ColumnReferenceSegment"),
-                            AnyNumberOf(Ref("ColumnConstraintSegment")),
-                            optional=True
+                            AnyNumberOf(Ref("ColumnConstraintSegment"))
                         ),
                     ),
                 ),
             ),
+
             # [ USING method ]
             Sequence("USING", Ref("FunctionSegment")),
 
             # [ WITH ( storage_parameter [= value] [, ... ] ) | WITHOUT OIDS ]
-            Sequence(
-                OneOf("WITH",
-                      "WITHOUT OIDS")
+            OneOf(
+                Sequence(
+                    "WITH",
+                    Bracketed(
+                        AnyNumberOf(
+                            Sequence(
+                                Ref("ParameterNameSegment"),
+                                Sequence(
+                                    Ref("EqualsSegment"),
+                                    Ref("LiteralGrammar"),
+                                ),
+                            )
+                        )
+                    ),
+                ),
+                Sequence("WITHOUT", "OIDS"),
             ),
 
             # [ ON COMMIT { PRESERVE ROWS | DELETE ROWS | DROP } ]
