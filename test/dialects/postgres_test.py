@@ -147,20 +147,3 @@ def test_get_keywords() -> None:
     expected_result_2 = ["C", "E"]
 
     assert sorted(get_keywords(kw_list, "non-reserved")) == sorted(expected_result_2)
-
-
-@pytest.mark.parametrize(
-    "raw",
-    [
-        "CREATE TEMP TABLE t1 AS (SELECT something FROM t2);",
-        "CREATE TABLE t1 AS (SELECT something FROM t2);",
-    ],
-)
-def test_create_table_as(raw: str) -> None:
-    """Ensure that CREATE TABLE/TEMP TABLE AS do not throw parsing errors."""
-    cfg = FluffConfig(
-        configs={"core": {"exclude_rules": "L009,L016,L031", "dialect": "postgres"}}
-    )
-    lnt = Linter(config=cfg)
-    result = lnt.lint_string(raw)
-    assert result.num_violations() == 0
