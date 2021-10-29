@@ -52,6 +52,10 @@ STANDARD_CONFIG_INFO_DICT = {
         "validation": ["all", "aliases", "column_aliases"],
         "definition": "Types of unquoted identifiers to flag violations for",
     },
+    "quoted_identifiers_policy": {
+        "validation": ["all", "aliases", "column_aliases", "none"],
+        "definition": "Types of quoted identifiers to flag violations for",
+    },
     "capitalisation_policy": {
         "validation": ["consistent", "upper", "lower", "capitalise"],
         "definition": "The capitalisation policy to enforce",

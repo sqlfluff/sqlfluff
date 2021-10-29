@@ -3,7 +3,7 @@ from typing import Optional
 
 from sqlfluff.core.rules.base import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import document_configuration
-from sqlfluff.rules.L014 import unquoted_ids_policy_applicable
+from sqlfluff.rules.L014 import identifiers_policy_applicable
 
 
 @document_configuration
@@ -30,14 +30,14 @@ class Rule_L029(BaseRule):
 
     """
 
-    config_keywords = ["unquoted_identifiers_policy"]
+    config_keywords = ["unquoted_identifiers_policy", "quoted_identifiers_policy"]
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Keywords should not be used as identifiers."""
         if (
             (
                 context.segment.name == "naked_identifier"
-                and unquoted_ids_policy_applicable(
+                and identifiers_policy_applicable(
                     self.unquoted_identifiers_policy, context.parent_stack  # type: ignore
                 )
                 and (
@@ -48,8 +48,8 @@ class Rule_L029(BaseRule):
         ) or (
             (
                 context.segment.name == "quoted_identifier"
-                and unquoted_ids_policy_applicable(
-                    self.unquoted_identifiers_policy, context.parent_stack  # type: ignore
+                and identifiers_policy_applicable(
+                    self.quoted_identifiers_policy, context.parent_stack  # type: ignore
                 )
                 and (
                     context.segment.raw.upper()[1:-1]

@@ -11,10 +11,10 @@ from sqlfluff.core.rules.doc_decorators import (
 from sqlfluff.rules.L010 import Rule_L010
 
 
-def unquoted_ids_policy_applicable(
+def identifiers_policy_applicable(
     policy: str, parent_stack: Tuple[BaseSegment, ...]
 ) -> bool:
-    """Does `unquoted_identifiers_policy` apply to this segment?"""
+    """Does `(un)quoted_identifiers_policy` apply to this segment?"""
     if policy == "all":
         return True
     is_alias = parent_stack and parent_stack[-1].is_type(
@@ -70,7 +70,7 @@ class Rule_L014(Rule_L010):
     _description_elem = "Unquoted identifiers"
 
     def _eval(self, context: RuleContext) -> LintResult:
-        if unquoted_ids_policy_applicable(
+        if identifiers_policy_applicable(
             self.unquoted_identifiers_policy, context.parent_stack  # type: ignore
         ):
             return super()._eval(context=context)
