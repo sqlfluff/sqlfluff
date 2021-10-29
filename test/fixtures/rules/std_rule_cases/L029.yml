@@ -43,4 +43,5 @@ test_fail_keyword_as_quoted_identifier:
     rules:
       L029:
         unquoted_identifiers_policy: column_aliases
+    core:
       dialect: tsql
