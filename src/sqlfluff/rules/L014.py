@@ -17,6 +17,8 @@ def identifiers_policy_applicable(
     """Does `(un)quoted_identifiers_policy` apply to this segment?"""
     if policy == "all":
         return True
+    if policy == "none":
+        return False
     is_alias = parent_stack and parent_stack[-1].is_type(
         "alias_expression", "column_definition", "with_compound_statement"
     )

@@ -47,13 +47,18 @@ test_pass_valid_quoted_identifier:
       dialect: tsql
 
 test_fail_keyword_as_quoted_identifier_column:
-  fail_str: CREATE TABLE [artist]([create] TEXT)
+  fail_str: CREATE TABLE "artist"("create" TEXT)
   configs:
     rules:
       L029:
         quoted_identifiers_policy: aliases
-    core:
-      dialect: tsql
+
+test_pass_keyword_as_quoted_identifier_column_none_policy:
+  fail_str: CREATE TABLE "artist"("create" TEXT)
+  configs:
+    rules:
+      L029:
+        quoted_identifiers_policy: none
 
 test_fail_keyword_as_quoted_identifier_column_alias:
   fail_str: SELECT 1 as [parameter]
@@ -109,3 +114,4 @@ test_fail_keyword_as_quoted_identifier_column_alias_config:
         quoted_identifiers_policy: column_aliases
     core:
       dialect: tsql
+
