@@ -933,6 +933,67 @@ class CreateTableStatementSegment(BaseSegment):
 
 
 @postgres_dialect.segment(replace=True)
+class CreateTableAsStatementSegment(BaseSegment):
+    """A `CREATE TABLE AS` statement.
+
+    As specified in https://www.postgresql.org/docs/13/sql-createtableas.html
+    """
+
+    type = "create_table_as_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        OneOf(
+            Sequence(
+                OneOf("GLOBAL", "LOCAL", optional=True),
+                Ref("TemporaryGrammar", optional=True),
+            ),
+            "UNLOGGED",
+            optional=True,
+        ),
+        "TABLE",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        AnyNumberOf(
+            # [ (column_name [, ...] ) ]
+            Sequence(
+                Bracketed(
+                    Delimited(
+                        Sequence(
+                            Ref("ColumnReferenceSegment"),
+                            AnyNumberOf(Ref("ColumnConstraintSegment")),
+                            optional=True
+                        ),
+                    ),
+                ),
+            ),
+            # [ USING method ]
+            Sequence(
+                "USING",
+                # Method goes here
+            ),
+            # [ WITH ( storage_parameter [= value] [, ... ] ) | WITHOUT OIDS ]
+            Sequence(),
+            # [ ON COMMIT { PRESERVE ROWS | DELETE ROWS | DROP } ]
+            Sequence(
+                "ON COMMIT",
+                OneOf("PRESERVE ROWS", "DELETE ROWS", "DROP")
+            ),
+            # [ TABLESPACE tablespace_name ]
+            Sequence(),
+        ),
+        "AS",
+        Ref("SelectClauseSegment"),
+        # [ WITH [ NO ] DATA ]
+        Sequence(
+            "WITH",
+            Ref.keyword("NO", optional=True),
+            "DATA"
+        )
+    )
+
+
+@postgres_dialect.segment(replace=True)
 class AlterTableStatementSegment(BaseSegment):
     """An `ALTER TABLE` statement.
 
