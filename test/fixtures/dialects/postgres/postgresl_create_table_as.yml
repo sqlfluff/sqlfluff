@@ -1,0 +1,99 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: fc61d90075ecf86914278d0ef13792cb94448e3f0485741d5d781d20eadc8eb8
+file:
+- statement:
+    create_table_as_statement:
+    - keyword: CREATE
+    - keyword: TEMP
+    - keyword: TABLE
+    - table_reference:
+        identifier: t1
+    - keyword: AS
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              column_reference:
+                identifier: something
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    identifier: t2
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_as_statement:
+    - keyword: CREATE
+    - keyword: TEMP
+    - keyword: TABLE
+    - table_reference:
+        identifier: t1
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              identifier: something
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: t2
+- statement_terminator: ;
+- statement:
+    create_table_as_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        identifier: t1
+    - keyword: AS
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              column_reference:
+                identifier: something
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    identifier: t2
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_as_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        identifier: t1
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              identifier: something
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: t2
+- statement_terminator: ;
