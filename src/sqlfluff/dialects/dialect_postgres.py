@@ -965,10 +965,13 @@ class CreateTableAsStatementSegment(BaseSegment):
                         ),
                     ),
                 ),
+                optional=True
             ),
 
             # [ USING method ]
-            Sequence("USING", Ref("FunctionSegment")),
+            Sequence("USING",
+                     Ref("FunctionSegment"),
+                     optional=True),
 
             # [ WITH ( storage_parameter [= value] [, ... ] ) | WITHOUT OIDS ]
             OneOf(
@@ -982,26 +985,31 @@ class CreateTableAsStatementSegment(BaseSegment):
                                     Ref("EqualsSegment"),
                                     Ref("LiteralGrammar"),
                                 ),
+                                optional=True
                             )
                         )
                     ),
+                    optional=True
                 ),
-                Sequence("WITHOUT", "OIDS"),
+                Sequence("WITHOUT", "OIDS", optional=True),
             ),
 
             # [ ON COMMIT { PRESERVE ROWS | DELETE ROWS | DROP } ]
             Sequence(
-                "ON COMMIT",
-                OneOf("PRESERVE ROWS", "DELETE ROWS", "DROP")
+                "ON",
+                "COMMIT",
+                OneOf("PRESERVE ROWS", "DELETE ROWS", "DROP"),
+                optional=True
             ),
             # [ TABLESPACE tablespace_name ]
             Sequence(
                 "TABLESPACE",
-                Ref("ParameterNameSegment")
+                Ref("ParameterNameSegment"),
+                optional=True
             ),
         ),
         "AS",
-        OptionallyBracketed(Ref("SelectClauseSegment")),
+        OptionallyBracketed(Ref("SelectableGrammar")),
         # [ WITH [ NO ] DATA ]
         Sequence(
             "WITH",
@@ -2130,6 +2138,7 @@ class StatementSegment(BaseSegment):
             Ref("AlterDefaultPrivilegesStatementSegment"),
             Ref("CommentOnStatementSegment"),
             Ref("AnalyzeStatementSegment"),
+            Ref("CreateTableAsStatementSegment")
         ],
     )
 
