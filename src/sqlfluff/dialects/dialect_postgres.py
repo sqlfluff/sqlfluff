@@ -968,27 +968,35 @@ class CreateTableAsStatementSegment(BaseSegment):
                 ),
             ),
             # [ USING method ]
-            Sequence(
-                "USING",
-                # Method goes here
-            ),
+            Sequence("USING", Ref("FunctionSegment")),
+
             # [ WITH ( storage_parameter [= value] [, ... ] ) | WITHOUT OIDS ]
-            Sequence(),
+            Sequence(
+                OneOf("WITH",
+                      "WITHOUT OIDS")
+            ),
+
             # [ ON COMMIT { PRESERVE ROWS | DELETE ROWS | DROP } ]
             Sequence(
                 "ON COMMIT",
                 OneOf("PRESERVE ROWS", "DELETE ROWS", "DROP")
             ),
             # [ TABLESPACE tablespace_name ]
-            Sequence(),
+            Sequence(
+                "TABLESPACE",
+                Ref("ParameterNameSegment"),
+                optional=True
+            ),
         ),
         "AS",
         Ref("SelectClauseSegment"),
+
         # [ WITH [ NO ] DATA ]
         Sequence(
             "WITH",
             Ref.keyword("NO", optional=True),
-            "DATA"
+            "DATA",
+            optional=True
         )
     )
 
