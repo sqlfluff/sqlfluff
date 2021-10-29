@@ -54,7 +54,7 @@ test_fail_keyword_as_quoted_identifier_column:
         quoted_identifiers_policy: aliases
 
 test_pass_keyword_as_quoted_identifier_column_none_policy:
-  fail_str: CREATE TABLE "artist"("create" TEXT)
+  pass_str: CREATE TABLE "artist"("create" TEXT)
   configs:
     rules:
       L029:
