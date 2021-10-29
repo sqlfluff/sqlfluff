@@ -932,7 +932,7 @@ class CreateTableStatementSegment(BaseSegment):
     )
 
 
-@postgres_dialect.segment(replace=True)
+@postgres_dialect.segment()
 class CreateTableAsStatementSegment(BaseSegment):
     """A `CREATE TABLE AS` statement.
 
