@@ -26,7 +26,8 @@ from os import getenv
 
 class Sequence(BaseGrammar):
     """Match a specific sequence of elements."""
-    test_env = getenv('SQLFLUFF_TESTENV', '')
+
+    test_env = getenv("SQLFLUFF_TESTENV", "")
 
     @cached_method_for_parse_context
     def simple(self, parse_context: ParseContext) -> Optional[List[str]]:
@@ -146,7 +147,11 @@ class Sequence(BaseGrammar):
                         # Each time we do this, we do a sense check to make sure we haven't
                         # dropped anything. (Because it's happened before!).
                         if self.test_env:
-                            check_still_complete(segments, matched_segments.matched_segments, unmatched_segments)
+                            check_still_complete(
+                                segments,
+                                matched_segments.matched_segments,
+                                unmatched_segments,
+                            )
                         # Break out of the while loop and move to the next element.
                         break
                     else:
