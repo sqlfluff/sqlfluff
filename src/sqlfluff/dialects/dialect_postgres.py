@@ -958,10 +958,8 @@ class CreateTableAsStatementSegment(BaseSegment):
         AnyNumberOf(
             Sequence(
                 Bracketed(
-                    Delimited(
-                            Ref("ColumnReferenceSegment")
-                        ),
-                    ),
+                    Delimited(Ref("ColumnReferenceSegment")),
+                ),
                 optional=True,
             ),
             Sequence("USING", Ref("FunctionSegment"), optional=True),
@@ -975,14 +973,14 @@ class CreateTableAsStatementSegment(BaseSegment):
                                 Sequence(
                                     Ref("EqualsSegment"),
                                     Ref("LiteralGrammar"),
-                                    optional=True
+                                    optional=True,
                                 ),
                             )
                         )
                     ),
                 ),
                 Sequence("WITHOUT", "OIDS"),
-                optional=True
+                optional=True,
             ),
             Sequence(
                 "ON",
@@ -990,7 +988,7 @@ class CreateTableAsStatementSegment(BaseSegment):
                 OneOf(Sequence("PRESERVE", "ROWS"), Sequence("DELETE", "ROWS"), "DROP"),
                 optional=True,
             ),
-            Sequence("TABLESPACE", Ref("ParameterNameSegment"), optional=True)
+            Sequence("TABLESPACE", Ref("ParameterNameSegment"), optional=True),
         ),
         "AS",
         OptionallyBracketed(
@@ -998,10 +996,10 @@ class CreateTableAsStatementSegment(BaseSegment):
                 Ref("SelectableGrammar"),
                 Sequence("TABLE", Ref("TableReferenceSegment")),
                 Ref("ValuesClauseSegment"),
-                Sequence("EXECUTE", Ref("FunctionSegment"))
+                Sequence("EXECUTE", Ref("FunctionSegment")),
             )
         ),
-        Sequence("WITH", Ref.keyword("NO", optional=True), "DATA", optional=True)
+        Sequence("WITH", Ref.keyword("NO", optional=True), "DATA", optional=True),
     )
 
 
