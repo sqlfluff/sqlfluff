@@ -944,6 +944,7 @@ class CreateTableAsStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "CREATE",
         OneOf(
+            Ref("TemporaryGrammar"),
             Sequence(
                 OneOf("GLOBAL", "LOCAL"),
                 Ref("TemporaryGrammar"),
