@@ -962,7 +962,7 @@ class CreateTableAsStatementSegment(BaseSegment):
                 ),
                 optional=True,
             ),
-            Sequence("USING", Ref("FunctionSegment"), optional=True),
+            Sequence("USING", Ref("ParameterNameSegment"), optional=True),
             OneOf(
                 Sequence(
                     "WITH",
