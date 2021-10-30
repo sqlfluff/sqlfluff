@@ -960,15 +960,13 @@ class CreateTableAsStatementSegment(BaseSegment):
                     Delimited(
                         Sequence(
                             Ref("ColumnReferenceSegment"),
-                            AnyNumberOf(Ref("ColumnConstraintSegment"))
+                            AnyNumberOf(Ref("ColumnConstraintSegment")),
                         ),
                     ),
                 ),
-                optional=True
+                optional=True,
             ),
-            Sequence("USING",
-                     Ref("FunctionSegment"),
-                     optional=True),
+            Sequence("USING", Ref("FunctionSegment"), optional=True),
             OneOf(
                 Sequence(
                     "WITH",
@@ -980,11 +978,11 @@ class CreateTableAsStatementSegment(BaseSegment):
                                     Ref("EqualsSegment"),
                                     Ref("LiteralGrammar"),
                                 ),
-                                optional=True
+                                optional=True,
                             )
                         )
                     ),
-                    optional=True
+                    optional=True,
                 ),
                 Sequence("WITHOUT", "OIDS", optional=True),
             ),
@@ -992,25 +990,16 @@ class CreateTableAsStatementSegment(BaseSegment):
                 "ON",
                 "COMMIT",
                 OneOf("PRESERVE ROWS", "DELETE ROWS", "DROP"),
-                optional=True
+                optional=True,
             ),
-            Sequence(
-                "TABLESPACE",
-                Ref("ParameterNameSegment"),
-                optional=True
-            ),
+            Sequence("TABLESPACE", Ref("ParameterNameSegment"), optional=True),
         ),
         "AS",
         OneOf(
             OptionallyBracketed(Ref("SelectableGrammar"))
             # TODO Add TABLE, VALUES, AND EXECUTE commands
         ),
-        Sequence(
-            "WITH",
-            Ref.keyword("NO", optional=True),
-            "DATA",
-            optional=True
-        )
+        Sequence("WITH", Ref.keyword("NO", optional=True), "DATA", optional=True),
     )
 
 
@@ -2132,7 +2121,7 @@ class StatementSegment(BaseSegment):
             Ref("AlterDefaultPrivilegesStatementSegment"),
             Ref("CommentOnStatementSegment"),
             Ref("AnalyzeStatementSegment"),
-            Ref("CreateTableAsStatementSegment")
+            Ref("CreateTableAsStatementSegment"),
         ],
     )
 
