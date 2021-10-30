@@ -945,8 +945,8 @@ class CreateTableAsStatementSegment(BaseSegment):
         "CREATE",
         OneOf(
             Sequence(
-                OneOf("GLOBAL", "LOCAL", optional=True),
-                Ref("TemporaryGrammar", optional=True),
+                OneOf("GLOBAL", "LOCAL"),
+                Ref("TemporaryGrammar"),
             ),
             "UNLOGGED",
             optional=True,
@@ -995,11 +995,15 @@ class CreateTableAsStatementSegment(BaseSegment):
             Sequence("TABLESPACE", Ref("ParameterNameSegment"), optional=True),
         ),
         "AS",
-        OneOf(
-            OptionallyBracketed(Ref("SelectableGrammar"))
-            # TODO Add TABLE, VALUES, AND EXECUTE commands
+        OptionallyBracketed(
+            OneOf(
+                Ref("SelectableGrammar"),
+                Sequence("TABLE", Ref("TableReferenceSegment")),
+                Ref("ValuesClauseSegment"),
+                Sequence("EXECUTE", Ref("FunctionSegment"))
+            )
         ),
-        Sequence("WITH", Ref.keyword("NO", optional=True), "DATA", optional=True),
+        Sequence("WITH", Ref.keyword("NO", optional=True), "DATA", optional=True)
     )
 
 
