@@ -989,7 +989,7 @@ class CreateTableAsStatementSegment(BaseSegment):
             Sequence(
                 "ON",
                 "COMMIT",
-                OneOf("PRESERVE ROWS", "DELETE ROWS", "DROP"),
+                OneOf(Sequence("PRESERVE", "ROWS"), Sequence("DELETE", "ROWS"), "DROP"),
                 optional=True,
             ),
             Sequence("TABLESPACE", Ref("ParameterNameSegment"), optional=True),
