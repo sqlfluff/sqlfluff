@@ -991,13 +991,11 @@ class CreateTableAsStatementSegment(BaseSegment):
             Sequence("TABLESPACE", Ref("ParameterNameSegment"), optional=True),
         ),
         "AS",
-        OptionallyBracketed(
-            OneOf(
-                Ref("SelectableGrammar"),
-                Sequence("TABLE", Ref("TableReferenceSegment")),
-                Ref("ValuesClauseSegment"),
-                Sequence("EXECUTE", Ref("FunctionSegment")),
-            )
+        OneOf(
+            OptionallyBracketed(Ref("SelectableGrammar")),
+            OptionallyBracketed(Sequence("TABLE", Ref("TableReferenceSegment"))),
+            Ref("ValuesClauseSegment"),
+            OptionallyBracketed(Sequence("EXECUTE", Ref("FunctionSegment"))),
         ),
         Sequence("WITH", Ref.keyword("NO", optional=True), "DATA", optional=True),
     )
