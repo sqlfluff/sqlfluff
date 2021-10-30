@@ -958,12 +958,9 @@ class CreateTableAsStatementSegment(BaseSegment):
             Sequence(
                 Bracketed(
                     Delimited(
-                        Sequence(
-                            Ref("ColumnReferenceSegment"),
-                            AnyNumberOf(Ref("ColumnConstraintSegment")),
+                            Ref("ColumnReferenceSegment")
                         ),
                     ),
-                ),
                 optional=True,
             ),
             Sequence("USING", Ref("FunctionSegment"), optional=True),
@@ -977,14 +974,14 @@ class CreateTableAsStatementSegment(BaseSegment):
                                 Sequence(
                                     Ref("EqualsSegment"),
                                     Ref("LiteralGrammar"),
+                                    optional=True
                                 ),
-                                optional=True,
                             )
                         )
                     ),
-                    optional=True,
                 ),
-                Sequence("WITHOUT", "OIDS", optional=True),
+                Sequence("WITHOUT", "OIDS"),
+                optional=True
             ),
             Sequence(
                 "ON",
@@ -992,7 +989,7 @@ class CreateTableAsStatementSegment(BaseSegment):
                 OneOf(Sequence("PRESERVE", "ROWS"), Sequence("DELETE", "ROWS"), "DROP"),
                 optional=True,
             ),
-            Sequence("TABLESPACE", Ref("ParameterNameSegment"), optional=True),
+            Sequence("TABLESPACE", Ref("ParameterNameSegment"), optional=True)
         ),
         "AS",
         OptionallyBracketed(
