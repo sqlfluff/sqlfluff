@@ -955,7 +955,6 @@ class CreateTableAsStatementSegment(BaseSegment):
         Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
         AnyNumberOf(
-            # [ (column_name [, ...] ) ]
             Sequence(
                 Bracketed(
                     Delimited(
@@ -967,13 +966,9 @@ class CreateTableAsStatementSegment(BaseSegment):
                 ),
                 optional=True
             ),
-
-            # [ USING method ]
             Sequence("USING",
                      Ref("FunctionSegment"),
                      optional=True),
-
-            # [ WITH ( storage_parameter [= value] [, ... ] ) | WITHOUT OIDS ]
             OneOf(
                 Sequence(
                     "WITH",
@@ -993,15 +988,12 @@ class CreateTableAsStatementSegment(BaseSegment):
                 ),
                 Sequence("WITHOUT", "OIDS", optional=True),
             ),
-
-            # [ ON COMMIT { PRESERVE ROWS | DELETE ROWS | DROP } ]
             Sequence(
                 "ON",
                 "COMMIT",
                 OneOf("PRESERVE ROWS", "DELETE ROWS", "DROP"),
                 optional=True
             ),
-            # [ TABLESPACE tablespace_name ]
             Sequence(
                 "TABLESPACE",
                 Ref("ParameterNameSegment"),
@@ -1009,8 +1001,10 @@ class CreateTableAsStatementSegment(BaseSegment):
             ),
         ),
         "AS",
-        OptionallyBracketed(Ref("SelectableGrammar")),
-        # [ WITH [ NO ] DATA ]
+        OneOf(
+            OptionallyBracketed(Ref("SelectableGrammar"))
+            # TODO Add TABLE, VALUES, AND EXECUTE commands
+        ),
         Sequence(
             "WITH",
             Ref.keyword("NO", optional=True),
