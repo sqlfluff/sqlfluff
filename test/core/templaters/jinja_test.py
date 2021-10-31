@@ -6,6 +6,7 @@ from typing import List, NamedTuple
 import pytest
 
 from sqlfluff.core.templaters import JinjaTemplater
+from sqlfluff.core.templaters.jinja import JinjaTracer
 from sqlfluff.core import Linter, FluffConfig
 
 
@@ -86,10 +87,12 @@ class RawTemplatedTestCase(NamedTuple):
             instr="\n\n{%- set x = 42 %}\nSELECT 1, 2\n",
             templated_str="\nSELECT 1, 2\n",
             expected_templated_sliced__source_list=[
-                "\n\n{%- set x = 42 %}",
+                "\n\n",
+                "{%- set x = 42 %}",
                 "\nSELECT 1, 2\n",
             ],
             expected_templated_sliced__templated_list=[
+                "",
                 "",
                 "\nSELECT 1, 2\n",
             ],
@@ -104,10 +107,14 @@ class RawTemplatedTestCase(NamedTuple):
             instr="\n\n{%- set x = 42 -%}\nSELECT 1, 2\n",
             templated_str="SELECT 1, 2\n",
             expected_templated_sliced__source_list=[
-                "\n\n{%- set x = 42 -%}\n",
+                "\n\n",
+                "{%- set x = 42 -%}",
+                "\n",
                 "SELECT 1, 2\n",
             ],
             expected_templated_sliced__templated_list=[
+                "",
+                "",
                 "",
                 "SELECT 1, 2\n",
             ],
@@ -157,12 +164,14 @@ class RawTemplatedTestCase(NamedTuple):
 """,
             expected_templated_sliced__source_list=[
                 "SELECT\n  ",
-                "{{ 'col1,' -}}\n  ",
+                "{{ 'col1,' -}}",
+                "\n  ",
                 "col2\n",
             ],
             expected_templated_sliced__templated_list=[
                 "SELECT\n  ",
                 "col1,",
+                "",
                 "col2\n",
             ],
             expected_raw_sliced__source_list=[
@@ -184,12 +193,16 @@ class RawTemplatedTestCase(NamedTuple):
 """,
             expected_templated_sliced__source_list=[
                 "select\n    c1,",
-                "\n    {{- 'c' -}}\n",
+                "\n    ",
+                "{{- 'c' -}}",
+                "\n",
                 "2 as user_id\n",
             ],
             expected_templated_sliced__templated_list=[
                 "select\n    c1,",
+                "",
                 "c",
+                "",
                 "2 as user_id\n",
             ],
             expected_raw_sliced__source_list=[
@@ -211,11 +224,15 @@ class RawTemplatedTestCase(NamedTuple):
 """,
             expected_templated_sliced__source_list=[
                 "select\n    c1,",
-                "\n    {#- Column 2 -#} ",
+                "\n    ",
+                "{#- Column 2 -#}",
+                " ",
                 "c2 as user_id\n",
             ],
             expected_templated_sliced__templated_list=[
                 "select\n    c1,",
+                "",
+                "",
                 "",
                 "c2 as user_id\n",
             ],
@@ -225,6 +242,85 @@ class RawTemplatedTestCase(NamedTuple):
                 "{#- Column 2 -#}",
                 " ",
                 "c2 as user_id\n",
+            ],
+        ),
+        RawTemplatedTestCase(
+            name="union_all_loop1",
+            instr="""{% set products = [
+  'table1',
+  'table2',
+  ] %}
+
+{% for product in products %}
+SELECT
+  brand
+FROM
+  {{ product }}
+{% if not loop.last -%} UNION ALL {%- endif %}
+{% endfor %}
+""",
+            templated_str="\n\n\nSELECT\n  brand\nFROM\n  table1\nUNION ALL\n\nSELECT\n  brand\nFROM\n  table2\n\n\n",
+            expected_templated_sliced__source_list=[
+                "{% set products = [\n  'table1',\n  'table2',\n  ] %}",
+                "\n\n",
+                "{% for product in products %}",
+                "\nSELECT\n  brand\nFROM\n  ",
+                "{{ product }}",
+                "\n",
+                "{% if not loop.last -%}",
+                " ",
+                "UNION ALL",
+                " ",
+                "{%- endif %}",
+                "\n",
+                "{% endfor %}",
+                "\nSELECT\n  brand\nFROM\n  ",
+                "{{ product }}",
+                "\n",
+                "{% if not loop.last -%}",
+                "{%- endif %}",
+                "\n",
+                "{% endfor %}",
+                "\n",
+            ],
+            expected_templated_sliced__templated_list=[
+                "",
+                "\n\n",
+                "",
+                "\nSELECT\n  brand\nFROM\n  ",
+                "table1",
+                "\n",
+                "",
+                "",
+                "UNION ALL",
+                "",
+                "",
+                "\n",
+                "",
+                "\nSELECT\n  brand\nFROM\n  ",
+                "table2",
+                "\n",
+                "",
+                "",
+                "\n",
+                "",
+                "\n",
+            ],
+            expected_raw_sliced__source_list=[
+                "{% set products = [\n  'table1',\n  'table2',\n  ] %}",
+                "\n\n",
+                "{% for product in products %}",
+                "\nSELECT\n  brand\nFROM\n  ",
+                "{{ product }}",
+                "\n",
+                "{% if not loop.last -%}",
+                " ",
+                "UNION ALL",
+                " ",
+                "{%- endif %}",
+                "\n",
+                "{% endfor %}",
+                "\n",
             ],
         ),
     ],
@@ -413,28 +509,35 @@ def test__templater_full(subpath, code_only, include_meta, yaml_loader, caplog):
 )
 def test__templater_jinja_slice_template(test, result):
     """Test _slice_template."""
-    resp = list(JinjaTemplater._slice_template(test))
-    # check contigious (unless there's a comment in it)
+    templater = JinjaTemplater()
+    env, live_context, make_template = templater.template_builder()
+    tracer = JinjaTracer(test, env, make_template)
+    resp = list(tracer._slice_template())
+    # check contiguous (unless there's a comment in it)
     if "{#" not in test:
-        assert "".join(elem[0] for elem in resp) == test
+        assert "".join(elem.raw for elem in resp) == test
         # check indices
         idx = 0
-        for literal, _, pos, _ in resp:
-            assert pos == idx
-            idx += len(literal)
+        for raw_slice in resp:
+            assert raw_slice.source_idx == idx
+            idx += len(raw_slice.raw)
     # Check total result
-    assert [r[:3] for r in resp] == result
+    assert [
+        (raw_slice.raw, raw_slice.slice_type, raw_slice.source_idx)
+        for raw_slice in resp
+    ] == result
 
 
 @pytest.mark.parametrize(
-    "raw_file,templated_file,result",
+    "raw_file,templated_file,override_context,result",
     [
-        ("", "", []),
-        ("foo", "foo", [("literal", slice(0, 3, None), slice(0, 3, None))]),
+        ("", "", None, []),
+        ("foo", "foo", None, [("literal", slice(0, 3, None), slice(0, 3, None))]),
         # Example with no loops
         (
             "SELECT {{blah}}, boo {# comment #} from something",
             "SELECT foobar, boo  from something",
+            dict(blah="foobar"),
             [
                 ("literal", slice(0, 7, None), slice(0, 7, None)),
                 ("templated", slice(7, 15, None), slice(7, 13, None)),
@@ -447,6 +550,7 @@ def test__templater_jinja_slice_template(test, result):
         (
             "SELECT {# A comment #} {{field}} {% for i in [1, 3, 7]%}, fld_{{i}}_x{% endfor %} FROM my_schema.{{my_table}} ",
             "SELECT  foobar , fld_1_x, fld_3_x, fld_7_x FROM my_schema.barfoo ",
+            dict(field="foobar", my_table="barfoo"),
             [
                 ("literal", slice(0, 7, None), slice(0, 7, None)),
                 ("comment", slice(7, 22, None), slice(7, 7, None)),
@@ -457,9 +561,11 @@ def test__templater_jinja_slice_template(test, result):
                 ("literal", slice(56, 62, None), slice(15, 21, None)),
                 ("templated", slice(62, 67, None), slice(21, 22, None)),
                 ("literal", slice(67, 69, None), slice(22, 24, None)),
+                ("block_end", slice(69, 81, None), slice(24, 24, None)),
                 ("literal", slice(56, 62, None), slice(24, 30, None)),
                 ("templated", slice(62, 67, None), slice(30, 31, None)),
                 ("literal", slice(67, 69, None), slice(31, 33, None)),
+                ("block_end", slice(69, 81, None), slice(33, 33, None)),
                 ("literal", slice(56, 62, None), slice(33, 39, None)),
                 ("templated", slice(62, 67, None), slice(39, 40, None)),
                 ("literal", slice(67, 69, None), slice(40, 42, None)),
@@ -473,6 +579,7 @@ def test__templater_jinja_slice_template(test, result):
         (
             "SELECT {# A comment #} {{field}} {% for i in [1, 3, 7]%}, fld_{{i}}{% endfor %} FROM my_schema.{{my_table}} ",
             "SELECT  foobar , fld_1, fld_3, fld_7 FROM my_schema.barfoo ",
+            dict(field="foobar", my_table="barfoo"),
             [
                 ("literal", slice(0, 7, None), slice(0, 7, None)),
                 ("comment", slice(7, 22, None), slice(7, 7, None)),
@@ -482,8 +589,10 @@ def test__templater_jinja_slice_template(test, result):
                 ("block_start", slice(33, 56, None), slice(15, 15, None)),
                 ("literal", slice(56, 62, None), slice(15, 21, None)),
                 ("templated", slice(62, 67, None), slice(21, 22, None)),
+                ("block_end", slice(67, 79, None), slice(22, 22, None)),
                 ("literal", slice(56, 62, None), slice(22, 28, None)),
                 ("templated", slice(62, 67, None), slice(28, 29, None)),
+                ("block_end", slice(67, 79, None), slice(29, 29, None)),
                 ("literal", slice(56, 62, None), slice(29, 35, None)),
                 ("templated", slice(62, 67, None), slice(35, 36, None)),
                 ("block_end", slice(67, 79, None), slice(36, 36, None)),
@@ -496,6 +605,10 @@ def test__templater_jinja_slice_template(test, result):
         (
             "{{ config(materialized='view') }}\n\nSELECT 1 FROM {{ source('finance', 'reconciled_cash_facts') }}\n\n",
             "\n\nSELECT 1 FROM finance_reconciled_cash_facts\n\n",
+            dict(
+                config=lambda *args, **kwargs: "",
+                source=lambda *args, **kwargs: "finance_reconciled_cash_facts",
+            ),
             [
                 ("templated", slice(0, 33, None), slice(0, 0, None)),
                 ("literal", slice(33, 49, None), slice(0, 16, None)),
@@ -515,21 +628,22 @@ def test__templater_jinja_slice_template(test, result):
             "c_2+42 AS the_meaning_of_liff\n    \n        , "
             "c_3+42 AS the_meaning_of_lifff\n    \n"
             "FROM my_table",
+            None,
             [
                 ("literal", slice(0, 11, None), slice(0, 11, None)),
                 ("block_start", slice(11, 35, None), slice(11, 11, None)),
                 ("literal", slice(35, 48, None), slice(11, 24, None)),
                 ("templated", slice(48, 53, None), slice(24, 25, None)),
                 ("literal", slice(53, 77, None), slice(25, 49, None)),
-                # NB: A templated section which loops back, spans the whole section.
-                # We get to match it more accurately here because we're lucky.
-                ("templated", slice(77, 95, None), slice(49, 55, None)),
+                ("templated", slice(77, 90, None), slice(49, 50, None)),
+                ("literal", slice(90, 95, None), slice(50, 55, None)),
+                ("block_end", slice(95, 107, None), slice(55, 55, None)),
                 ("literal", slice(35, 48, None), slice(55, 68, None)),
                 ("templated", slice(48, 53, None), slice(68, 69, None)),
                 ("literal", slice(53, 77, None), slice(69, 93, None)),
-                # NB: A templated section which loops back, spans the whole section.
-                # We get to match it more accurately here because we're lucky.
-                ("templated", slice(77, 95, None), slice(93, 100, None)),
+                ("templated", slice(77, 90, None), slice(93, 95, None)),
+                ("literal", slice(90, 95, None), slice(95, 100, None)),
+                ("block_end", slice(95, 107, None), slice(100, 100, None)),
                 ("literal", slice(35, 48, None), slice(100, 113, None)),
                 ("templated", slice(48, 53, None), slice(113, 114, None)),
                 ("literal", slice(53, 77, None), slice(114, 138, None)),
@@ -539,38 +653,33 @@ def test__templater_jinja_slice_template(test, result):
                 ("literal", slice(107, 121, None), slice(146, 160, None)),
             ],
         ),
-        # Test a wrapped example. Given the default config is to unwrap any wrapped
-        # queries, it should ignore the ends in the sliced file.
-        (
-            "SELECT {{blah}} FROM something",
-            "WITH wrap AS (SELECT nothing FROM something) SELECT * FROM wrap",
-            # The sliced version should have trimmed the ends
-            [
-                ("literal", slice(0, 7, None), slice(0, 7, None)),
-                ("templated", slice(7, 15, None), slice(7, 14, None)),
-                ("literal", slice(15, 30, None), slice(14, 29, None)),
-            ],
-        ),
         # Test an example where a block is removed entirely.
         (
             "{% set thing %}FOO{% endset %} SELECT 1",
             " SELECT 1",
-            # There should be a zero length templated part at the start.
+            None,
             [
-                # The templated section at the start should be entirely
-                # templated and not include a distinct literal within it.
-                ("templated", slice(0, 30, None), slice(0, 0, None)),
+                ("block_start", slice(0, 15, None), slice(0, 0, None)),
+                ("literal", slice(15, 18, None), slice(0, 0, None)),
+                ("block_end", slice(18, 30, None), slice(0, 0, None)),
                 ("literal", slice(30, 39, None), slice(0, 9, None)),
             ],
         ),
     ],
 )
-def test__templater_jinja_slice_file(raw_file, templated_file, result, caplog):
+def test__templater_jinja_slice_file(
+    raw_file, templated_file, override_context, result, caplog
+):
     """Test slice_file."""
+    templater = JinjaTemplater(override_context=override_context)
+    env, live_context, make_template = templater.template_builder()
+
+    # TODO: Now that we're generating "templated_file", eliminate this field
+    # from the parametrized test cases.
+    templated_file = make_template(raw_file).render()
     with caplog.at_level(logging.DEBUG, logger="sqlfluff.templater"):
         _, resp, _ = JinjaTemplater.slice_file(
-            raw_file,
-            templated_file,
+            raw_file, templated_file, make_template=make_template
         )
     # Check contigious on the TEMPLATED VERSION
     print(resp)
@@ -585,4 +694,12 @@ def test__templater_jinja_slice_file(raw_file, templated_file, result, caplog):
         if elem[0] == "literal":
             assert elem[1] is not None
     # check result
-    assert resp == result
+    actual = [
+        (
+            templated_file_slice.slice_type,
+            templated_file_slice.source_slice,
+            templated_file_slice.templated_slice,
+        )
+        for templated_file_slice in resp
+    ]
+    assert actual == result

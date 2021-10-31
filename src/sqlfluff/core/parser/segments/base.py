@@ -119,6 +119,19 @@ class BaseSegment:
                 )
         self.pos_marker: PositionMarker = pos_marker
 
+        self._recalculate_caches()
+
+    def __setattr__(self, key, value):
+
+        try:
+            if key == "segments":
+                self._recalculate_caches()
+
+        except (AttributeError, KeyError):  # pragma: no cover
+            pass
+
+        super().__setattr__(key, value)
+
     def __eq__(self, other):
         # NB: this should also work for RawSegment
         return (
@@ -214,17 +227,31 @@ class BaseSegment:
     @cached_property
     def raw(self):
         """Make a string from the segments of this segment."""
-        return self._reconstruct()
+        return "".join(seg.raw for seg in self.segments)
 
     @cached_property
     def raw_upper(self):
         """Make an uppercase string from the segments of this segment."""
-        return self._reconstruct().upper()
+        return self.raw.upper()
 
     @cached_property
     def matched_length(self):
         """Return the length of the segment in characters."""
         return sum(seg.matched_length for seg in self.segments)
+
+    @cached_property
+    def raw_segments(self):
+        """Returns a list of raw segments in this segment."""
+        return self.get_raw_segments()
+
+    @cached_property
+    def raw_segments_upper(self):
+        """Returns the first non-whitespace subsegment of this segment."""
+        for seg in self.raw_segments:
+            if seg.raw_upper.strip():
+                return seg.raw_upper
+        return None
+        # return [seg.raw_upper for seg in self.raw_segments]
 
     # ################ STATIC METHODS
 
@@ -279,6 +306,7 @@ class BaseSegment:
             else:
                 # We might get back an iterable of segments
                 segs += tuple(res)
+
         # Basic Validation
         check_still_complete(segments, segs, ())
         return segs
@@ -489,9 +517,19 @@ class BaseSegment:
 
     # ################ PRIVATE INSTANCE METHODS
 
-    def _reconstruct(self):
-        """Make a string from the segments of this segment."""
-        return "".join(seg.raw for seg in self.segments)
+    def _recalculate_caches(self):
+
+        for key in [
+            "is_code",
+            "is_comment",
+            "is_whitespace",
+            "raw",
+            "raw_upper",
+            "matched_length",
+            "raw_segments",
+            "raw_segments_upper",
+        ]:
+            self.__dict__.pop(key, None)
 
     def _preface(self, ident, tabsize):
         """Returns the preamble to any logging."""
@@ -524,8 +562,10 @@ class BaseSegment:
         This should be called whenever the segments within this
         segment is mutated.
         """
-        for key in ["is_code", "is_comment", "raw", "raw_upper", "matched_length"]:
-            self.__dict__.pop(key, None)
+        for seg in self.segments:
+            seg.invalidate_caches()
+
+        self._recalculate_caches()
 
     def get_start_point_marker(self):
         """Get a point marker at the start of this segment."""
@@ -633,10 +673,9 @@ class BaseSegment:
             buff += s.raw_list()
         return buff
 
-    def iter_raw_seg(self):
+    def get_raw_segments(self):
         """Iterate raw segments, mostly for searching."""
-        for s in self.segments:
-            yield from s.iter_raw_seg()
+        return [item for s in self.segments for item in s.raw_segments]
 
     def iter_segments(self, expanding=None, pass_through=False):
         """Iterate raw segments, optionally expanding some chldren."""

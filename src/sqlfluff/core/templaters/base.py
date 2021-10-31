@@ -183,7 +183,7 @@ class TemplatedFile:
     @cached_property
     def raw_slice_block_info(self) -> RawSliceBlockInfo:
         """Returns a dict with a unique ID for each template block."""
-        block_ids = {}
+        block_ids: Dict[RawFileSlice, int] = {}
         block_content_types = defaultdict(set)
         loops = set()
         blocks = []
@@ -307,7 +307,7 @@ class TemplatedFile:
             if ts_start_sf_start > len(self.sliced_file):  # pragma: no cover
                 # We should never get here
                 raise ValueError("Starting position higher than sliced file position")
-            if ts_start_sf_start < len(self.sliced_file):
+            if ts_start_sf_start < len(self.sliced_file):  # pragma: no cover
                 return self.sliced_file[1].source_slice
             else:
                 return self.sliced_file[-1].source_slice  # pragma: no cover
@@ -359,17 +359,17 @@ class TemplatedFile:
         if source_slice.start == source_slice.stop:
             return True
         is_literal = True
-        for _, seg_type, seg_idx, _ in self.raw_sliced:
+        for raw_slice in self.raw_sliced:
             # Reset if we find a literal and we're up to the start
             # otherwise set false.
-            if seg_idx <= source_slice.start:
-                is_literal = seg_type == "literal"
-            elif seg_idx >= source_slice.stop:
+            if raw_slice.source_idx <= source_slice.start:
+                is_literal = raw_slice.slice_type == "literal"
+            elif raw_slice.source_idx >= source_slice.stop:
                 # We've gone past the end. Break and Return.
                 break
             else:
                 # We're in the middle. Check type
-                if seg_type != "literal":
+                if raw_slice.slice_type != "literal":
                     is_literal = False
         return is_literal
 
