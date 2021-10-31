@@ -911,9 +911,11 @@ class CreateTableStatementSegment(BaseSegment):
                         AnyNumberOf(
                             Sequence(
                                 Ref("ParameterNameSegment"),
-                                Ref("EqualsSegment"),
-                                Ref("LiteralGrammar"),
-                                optional=True,
+                                Sequence(
+                                    Ref("EqualsSegment"),
+                                    Ref("LiteralGrammar"),
+                                    optional=True,
+                                ),
                             )
                         )
                     ),
@@ -967,9 +969,11 @@ class CreateTableAsStatementSegment(BaseSegment):
                         AnyNumberOf(
                             Sequence(
                                 Ref("ParameterNameSegment"),
-                                Ref("EqualsSegment"),
-                                Ref("LiteralGrammar"),
-                                optional=True
+                                Sequence(
+                                    Ref("EqualsSegment"),
+                                    Ref("LiteralGrammar"),
+                                    optional=True,
+                                ),
                             )
                         )
                     ),
