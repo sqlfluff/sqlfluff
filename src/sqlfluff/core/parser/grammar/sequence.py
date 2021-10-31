@@ -21,10 +21,13 @@ from sqlfluff.core.parser.grammar.base import (
     cached_method_for_parse_context,
 )
 from sqlfluff.core.parser.grammar.conditional import Conditional
+from os import getenv
 
 
 class Sequence(BaseGrammar):
     """Match a specific sequence of elements."""
+
+    test_env = getenv("SQLFLUFF_TESTENV", "")
 
     @cached_method_for_parse_context
     def simple(self, parse_context: ParseContext) -> Optional[List[str]]:
@@ -143,12 +146,12 @@ class Sequence(BaseGrammar):
                         unmatched_segments = elem_match.unmatched_segments + post_nc
                         # Each time we do this, we do a sense check to make sure we haven't
                         # dropped anything. (Because it's happened before!).
-                        check_still_complete(
-                            segments,
-                            matched_segments.matched_segments,
-                            unmatched_segments,
-                        )
-
+                        if self.test_env:
+                            check_still_complete(
+                                segments,
+                                matched_segments.matched_segments,
+                                unmatched_segments,
+                            )
                         # Break out of the while loop and move to the next element.
                         break
                     else:
@@ -167,6 +170,7 @@ class Sequence(BaseGrammar):
         # In either case, we're golden. Return successfully, with any leftovers as
         # the unmatched elements. Meta all go at the end regardless of wny trailing
         # whitespace.
+
         return MatchResult(
             BaseSegment._position_segments(
                 matched_segments.matched_segments + meta_pre_nc + meta_post_nc,

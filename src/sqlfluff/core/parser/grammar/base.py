@@ -179,11 +179,6 @@ class BaseGrammar(Matchable):
         """Does this matcher support a lowercase hash matching route?"""
         return None
 
-    @staticmethod
-    def _iter_raw_segs(segments):
-        for segment in segments:
-            yield from segment.iter_raw_seg()
-
     @classmethod
     def _longest_trimmed_match(
         cls,
