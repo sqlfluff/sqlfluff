@@ -345,7 +345,7 @@ class JinjaTemplater(PythonTemplater):
         cls, raw_str: str, templated_str: str, config=None, **kwargs
     ) -> Tuple[List[RawFileSlice], List[TemplatedFileSlice], str]:
         """Slice the file to determine regions where we can fix."""
-        # The TemplateTracer slicing algorithm is more robust, but it requires
+        # The JinjaTracer slicing algorithm is more robust, but it requires
         # us to create and render a second template (not raw_str) and is only
         # enabled if the caller passes a make_template() function. (For now,
         # the dbt templater does not.)
