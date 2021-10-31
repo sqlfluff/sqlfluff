@@ -36,7 +36,7 @@ class Rule_L027(Rule_L025):
         references,
         col_aliases,
         using_cols,
-        parent_select,
+        parent_select
     ):
         # Do we have more than one? If so, all references should be qualified.
         if len(table_aliases) <= 1:
