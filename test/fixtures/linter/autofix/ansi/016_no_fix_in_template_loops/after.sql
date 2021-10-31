@@ -3,7 +3,7 @@
 -- "sqlfluff fix" does not make changes inside the loop body. (Issue 1425)
 SELECT
     {% for _ in [1, 2, 3] %} 2,
-    {% endfor %}
+ {% endfor %}
     10;
 
 SELECT
@@ -12,4 +12,4 @@ SELECT
 
 SELECT
     1,
-        {% for _ in [1, 2, 3] %}    2{%endfor %}
+    {% for _ in [1, 2, 3] %}    2{%endfor %}

@@ -341,7 +341,11 @@ class Bracketed(Sequence):
             # Have we already got indents?
             meta_idx = None
             for idx, seg in enumerate(bracket_segment.segments):
-                if seg.is_meta and cast(MetaSegment, seg).indent_val > 0:
+                if (
+                    seg.is_meta
+                    and cast(MetaSegment, seg).indent_val > 0
+                    and not cast(MetaSegment, seg).is_template
+                ):
                     meta_idx = idx
                     break
             # If we've already got indents, don't add more.
