@@ -63,6 +63,6 @@ setup(
         "Topic :: Utilities",
         "Topic :: Software Development :: Quality Assurance",
     ],
-    install_requires=["sqlfluff>=0.7.0", "dbt>=0.17"],
+    install_requires=["sqlfluff>=0.7.0", "dbt-core>=0.17"],
     entry_points={"sqlfluff": ["sqlfluff_templater_dbt = sqlfluff_templater_dbt"]},
 )
