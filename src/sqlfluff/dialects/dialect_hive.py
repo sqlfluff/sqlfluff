@@ -237,7 +237,7 @@ class CreateTableStatementSegment(BaseSegment):
                 Ref("CommentGrammar", optional=True),
                 Sequence(
                     "AS",
-                    OptionallyBracketed(Ref("SelectStatementSegment")),
+                    OptionallyBracketed(Ref("SelectableGrammar")),
                     optional=True,
                 ),
             ),
