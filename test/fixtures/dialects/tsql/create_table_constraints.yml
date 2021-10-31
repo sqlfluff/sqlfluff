@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 00ac2b2b84ec5ad7b4403e585311d99ac16677e09ca4ece6ea9ebbc3f3e83177
+_hash: ff2151dba34b7a3a60b5f56e362d230fe5ede51df541b9849fca5c98789c67a7
 file:
   batch:
     statement:
@@ -66,4 +66,65 @@ file:
                 bracketed:
                   start_bracket: (
                   end_bracket: )
+        - comma: ','
+        - column_definition:
+          - identifier: '[col1]'
+          - data_type:
+              identifier: int
+          - column_constraint_segment:
+              keyword: default
+              bracketed:
+                start_bracket: (
+                bracketed:
+                  start_bracket: (
+                  numeric_literal:
+                    binary_operator: '-'
+                    literal: '1'
+                  end_bracket: )
+                end_bracket: )
+          - column_constraint_segment:
+            - keyword: not
+            - keyword: 'null'
+        - comma: ','
+        - column_definition:
+          - identifier: '[col1]'
+          - data_type:
+              identifier: int
+          - column_constraint_segment:
+              keyword: default
+              bracketed:
+                start_bracket: (
+                numeric_literal:
+                  binary_operator: '-'
+                  literal: '1'
+                end_bracket: )
+          - column_constraint_segment:
+            - keyword: not
+            - keyword: 'null'
+        - comma: ','
+        - column_definition:
+          - identifier: '[col1]'
+          - data_type:
+              identifier: int
+          - column_constraint_segment:
+              keyword: default
+              numeric_literal:
+                binary_operator: '-'
+                literal: '1'
+          - column_constraint_segment:
+            - keyword: not
+            - keyword: 'null'
+        - comma: ','
+        - column_definition:
+          - identifier: '[col1]'
+          - data_type:
+              identifier: INT
+          - column_constraint_segment:
+              keyword: DEFAULT
+              bracketed:
+                start_bracket: (
+                literal: 'NULL'
+                end_bracket: )
+          - column_constraint_segment:
+              keyword: 'NULL'
         - end_bracket: )

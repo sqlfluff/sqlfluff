@@ -101,3 +101,9 @@ AS $function$
 select unnest(array['hi', 'test'])
 $function$
 ;
+
+CREATE OR REPLACE FUNCTION public.foo(_a TEXT, _$b INT)
+RETURNS FLOAT AS
+$$
+  RETURN 0.0
+$$ LANGUAGE plpgsql STABLE PARALLEL SAFE;

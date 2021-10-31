@@ -339,14 +339,14 @@ test_jinja_indent_templated_table_name_a:
   fix_str: |
     -- This file combines product data from individual brands into a staging table
     {% for product in ['table1', 'table2'] %}
-    SELECT
-        brand,
-        country_code,
-        category,
-        name,
-        id
-    FROM
-        {{ product }}
+        SELECT
+            brand,
+            country_code,
+            category,
+            name,
+            id
+        FROM
+            {{ product }}
     {% if not loop.last -%} UNION ALL {%- endif %}
     {% endfor %}
 
@@ -369,16 +369,41 @@ test_jinja_indent_templated_table_name_b:
   fix_str: |
     -- This file combines product data from individual brands into a staging table
     {% for product in ['table1', 'table2'] %}
-    SELECT
-        brand,
-        country_code,
-        category,
-        name,
-        id
-    FROM
-        {{ product }}
+        SELECT
+            brand,
+            country_code,
+            category,
+            name,
+            id
+        FROM
+            {{ product }}
     {% if not loop.last -%} UNION ALL {%- endif %}
     {% endfor %}
+
+test_jinja_nested_blocks:
+  fail_str: |
+    WITH
+    raw_effect_sizes AS (
+    SELECT
+    {% for action in ['a'] %}
+    {% if True %}
+    rate_su_{{action}},
+    {% endif %}
+    {% endfor %}
+    )
+    SELECT 1
+
+  fix_str: |
+    WITH
+    raw_effect_sizes AS (
+        SELECT
+            {% for action in ['a'] %}
+                {% if True %}
+                    rate_su_{{action}},
+                {% endif %}
+            {% endfor %}
+    )
+    SELECT 1
 
 # LIMIT and QUALIFY both indent
 test_limit_and_qualify_indent:

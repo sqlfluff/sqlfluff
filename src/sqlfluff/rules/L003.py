@@ -75,70 +75,6 @@ class Rule_L003(BaseRule):
         return indent_size
 
     @classmethod
-    def _reorder_raw_stack(
-        cls,
-        raw_stack: Tuple[RawSegment, ...],
-        templated_file: Optional[TemplatedFile],
-    ) -> Tuple[RawSegment, ...]:
-        """Reorder raw_stack to simplify indentation logic.
-
-        Context: The indentation logic was mostly designed to work with normal
-        segment types. Templating introduces additional segments into the parse
-        tree, often in the "wrong" place with respect to the indentation logic,
-        for example, where do indent/dedent segments appear with respect to the
-        segments that trigger indent/dedent behavior? This function reorders
-        nodes locally (i.e. only within L003) to get the desired behavior.
-        """
-
-        def segment_info(idx: int) -> Tuple[str, Optional[str]]:
-            """Helper function for sort_current_line()."""
-            seg = current_line[idx]
-            return seg.type, cls._get_element_template_info(seg, templated_file)
-
-        def move_indent_before_templated() -> None:
-            """Swap position of template and indent segment if code follows.
-
-            This allows for correct indentation of templated table names in
-            "FROM", for example:
-
-            SELECT brand
-            FROM
-                {{ product }}
-
-            """
-            for idx in range(2, len(current_line)):
-                if (
-                    segment_info(idx - 2)
-                    == (
-                        "placeholder",
-                        "templated",
-                    )
-                    and segment_info(idx - 1) == ("indent", None)
-                    and segment_info(idx) == ("raw", None)
-                ):
-                    current_line[idx - 2], current_line[idx - 1] = (
-                        current_line[idx - 1],
-                        current_line[idx - 2],
-                    )
-
-        # Break raw_stack into lines.
-        lines = []
-        current_line = []
-        for elem in raw_stack:
-            if not elem.is_type("newline"):
-                current_line.append(elem)
-            else:
-                move_indent_before_templated()
-                current_line.append(elem)
-                lines.append(current_line)
-                current_line = []
-        if current_line:
-            move_indent_before_templated()
-            lines.append(current_line)
-        new_raw_stack = [s for line in lines for s in line]
-        return tuple(new_raw_stack)
-
-    @classmethod
     def _process_raw_stack(
         cls,
         raw_stack: Tuple[RawSegment, ...],
@@ -147,7 +83,6 @@ class Rule_L003(BaseRule):
         templated_file: Optional[TemplatedFile] = None,
     ) -> dict:
         """Take the raw stack, split into lines and evaluate some stats."""
-        raw_stack = cls._reorder_raw_stack(raw_stack, templated_file)
         indent_balance = 0
         line_no = 1
         in_indent = True
@@ -274,7 +209,8 @@ class Rule_L003(BaseRule):
             ]
         # Otherwise edit the first element to be the right size
         else:
-            # Edit the first element of this line's indent.
+            # Edit the first element of this line's indent and remove any other
+            # indents.
             fixes = [
                 LintFix(
                     "edit",
@@ -283,7 +219,7 @@ class Rule_L003(BaseRule):
                         raw=desired_indent,
                     ),
                 )
-            ]
+            ] + [LintFix("delete", elem) for elem in current_indent_buffer[1:]]
         return fixes
 
     @staticmethod
@@ -421,13 +357,15 @@ class Rule_L003(BaseRule):
             trigger_segment = memory["trigger"]
             if trigger_segment:
                 # Not empty. Process it.
-                result = self._process_current_line(res, memory)
+                result = self._process_current_line(res, memory, context)
                 if context.segment.is_type("newline"):
                     memory["trigger"] = None
                 return result
         return LintResult(memory=memory)
 
-    def _process_current_line(self, res: dict, memory: dict) -> LintResult:
+    def _process_current_line(
+        self, res: dict, memory: dict, context: RuleContext
+    ) -> LintResult:
         """Checks indentation of one line of code, returning a LintResult.
 
         The _eval() function calls it for the current line of code:
@@ -507,6 +445,84 @@ class Rule_L003(BaseRule):
                     ],
                 )
 
+        # Special handling for template end blocks on a line by themselves.
+        if self._is_template_block_end_line(
+            this_line["line_buffer"], context.templated_file
+        ):
+            block_lines = {
+                k: (
+                    "end"
+                    if self._is_template_block_end_line(
+                        res[k]["line_buffer"], context.templated_file
+                    )
+                    else "start",
+                    res[k]["indent_balance"],
+                    "".join(
+                        seg.raw or getattr(seg, "source_str", "")
+                        for seg in res[k]["line_buffer"]
+                    ),
+                )
+                for k in res
+                if self._is_template_block_end_line(
+                    res[k]["line_buffer"], context.templated_file
+                )
+                or self._is_template_block_start_line(
+                    res[k]["line_buffer"], context.templated_file
+                )
+            }
+
+            # For a template block end on a line by itself, search for a
+            # matching block start on a line by itself. If there is one, match
+            # its indentation. Question: Could we avoid treating this as a
+            # special case? It has some similarities to the non-templated test
+            # case test/fixtures/linter/indentation_error_contained.sql, in tha
+            # both have lines where indent_balance drops 2 levels from one line
+            # to the next, making it a bit unclear how to indent that line.
+            template_block_level = -1
+            for k in sorted(block_lines.keys(), reverse=True):
+                if block_lines[k][0] == "end":
+                    template_block_level -= 1
+                else:
+                    template_block_level += 1
+
+                if template_block_level != 0:
+                    continue
+
+                # Found prior template block line with the same indent balance.
+
+                # Is this a problem line?
+                if k in memory["problem_lines"] + memory["hanging_lines"]:
+                    # Skip it if it is
+                    return LintResult(memory=memory)
+
+                self.logger.debug("    [template block end] Comparing to #%s", k)
+                if this_line["indent_size"] == res[k]["indent_size"]:
+                    # All good.
+                    return LintResult(memory=memory)
+
+                # Indents don't match even though balance is the same...
+                memory["problem_lines"].append(this_line_no)
+
+                # The previous indent.
+                desired_indent = "".join(elem.raw for elem in res[k]["indent_buffer"])
+
+                # Make fixes
+                fixes = self._coerce_indent_to(
+                    desired_indent=desired_indent,
+                    current_indent_buffer=this_line["indent_buffer"],
+                    current_anchor=this_line["line_buffer"][0],
+                )
+                self.logger.debug(
+                    "    !! Indentation does not match #%s. Fixes: %s", k, fixes
+                )
+                return LintResult(
+                    anchor=trigger_segment,
+                    memory=memory,
+                    description="Indentation not consistent with line #{}".format(k),
+                    # See above for logic
+                    fixes=fixes,
+                )
+
         # Assuming it's not a hanger, let's compare it to the other previous
         # lines. We do it in reverse so that closer lines are more relevant.
         for k in sorted(res.keys(), reverse=True):
@@ -517,7 +533,10 @@ class Rule_L003(BaseRule):
                 continue
 
             # Is this an empty line?
-            if not any(elem.is_code for elem in res[k]["line_buffer"]):
+            if not any(
+                elem.is_code or elem.is_type("placeholder")
+                for elem in res[k]["line_buffer"]
+            ):
                 # Skip if it is
                 continue
 
@@ -526,8 +545,9 @@ class Rule_L003(BaseRule):
             # If we're comparing to a previous, more deeply indented line, then skip and keep looking.
             if indent_diff < 0:
                 continue
+
             # Is the indent balance the same?
-            elif indent_diff == 0:
+            if indent_diff == 0:
                 self.logger.debug("    [same indent balance] Comparing to #%s", k)
                 if this_line["indent_size"] != res[k]["indent_size"]:
                     # Indents don't match even though balance is the same...
@@ -797,3 +817,53 @@ class Rule_L003(BaseRule):
             if slices:
                 return slices[0].slice_type
         return None
+
+    @classmethod
+    def _single_placeholder_line(cls, current_line):
+        count_placeholder = 0
+        for seg in current_line:
+            if seg.is_code:
+                return False
+            elif seg.is_type("placeholder"):
+                count_placeholder += 1
+        return count_placeholder == 1
+
+    @classmethod
+    def _is_template_block_start_line(cls, current_line, templated_file):
+        def segment_info(idx: int) -> Tuple[str, Optional[str]]:
+            """Helper function."""
+            seg = current_line[idx]
+            return seg.type, cls._get_element_template_info(seg, templated_file)
+
+        if not cls._single_placeholder_line(current_line):
+            return False
+        for idx in range(1, len(current_line)):
+            if (
+                segment_info(idx - 1)
+                in (
+                    ("placeholder", "block_start"),
+                    ("placeholder", "compound"),
+                    ("placeholder", "block_mid"),
+                )
+                and segment_info(idx) == ("indent", None)
+            ):
+                return True
+        return False
+
+    @classmethod
+    def _is_template_block_end_line(cls, current_line, templated_file):
+        def segment_info(idx: int) -> Tuple[str, Optional[str]]:
+            """Helper function."""
+            seg = current_line[idx]
+            return seg.type, cls._get_element_template_info(seg, templated_file)
+
+        if not cls._single_placeholder_line(current_line):
+            return False
+        for idx in range(1, len(current_line)):
+            if segment_info(idx - 1) == ("dedent", None) and segment_info(idx) in (
+                ("placeholder", "block_end"),
+                ("placeholder", "compound"),
+                ("placeholder", "block_mid"),
+            ):
+                return True
+        return False
