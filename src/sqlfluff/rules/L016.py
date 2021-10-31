@@ -83,7 +83,7 @@ class Rule_L016(Rule_L003):
                 for seg in segments:
                     if not seg.is_meta and seg.pos_marker.working_loc == loc:
                         return seg
-                raise ValueError("Segment not found")
+                raise ValueError("Segment not found")  # pragma: no cover
 
             def generate_fixes_to_coerce(
                 self,
