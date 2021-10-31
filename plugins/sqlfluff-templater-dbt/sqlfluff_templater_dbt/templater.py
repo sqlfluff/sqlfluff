@@ -380,17 +380,31 @@ class DbtTemplater(JinjaTemplater):
 
     def _unsafe_process(self, fname, in_str=None, config=None):
         original_file_path = os.path.relpath(fname, start=os.getcwd())
+
+        # Below, we monkeypatch Environment.from_string() to intercept when dbt
+        # compiles (i.e. runs Jinja) to expand the "node" corresponding to fname.
+        # We do this to capture the Jinja context at the time of compilation, i.e.:
+        # - Jinja Environment object
+        # - Jinja "globals" dictionary
+        #
+        # This info is captured by the "make_template()" function, which in
+        # turn is used by our parent class' (JinjaTemplater) slice_file()
+        # function.
         old_from_string = Environment.from_string
         try:
             make_template = None
 
             def from_string(*args, **kwargs):
+                """Replaces (via monkeypatch) jinja2.Environment.from_string()."""
                 nonlocal make_template
+                # Is it processing the node corresponding to fname?
                 globals = kwargs.get("globals")
                 if globals:
                     model = globals.get("model")
                     if model:
                         if model.get("original_file_path") == original_file_path:
+                            # Yes. Capture the important arguments and create
+                            # a make_template() function.
                             env = args[0]
                             globals = args[2] if len(args) >= 3 else kwargs["globals"]
 
@@ -400,6 +414,7 @@ class DbtTemplater(JinjaTemplater):
                 return old_from_string(*args, **kwargs)
 
         finally:
+            # Undo the monkeypatch.
             Environment.from_string = from_string
 
         node = self._find_node(fname, config)
@@ -461,6 +476,9 @@ class DbtTemplater(JinjaTemplater):
             make_template=make_template,
         )
         if make_template and n_trailing_newlines:
+            # Update templated_sql as we updated the other strings above. Update
+            # sliced_file to reflect the mapping of the added character(s) back
+            # to the raw SQL.
             templated_sql = templated_sql + "\n" * n_trailing_newlines
             sliced_file.append(
                 TemplatedFileSlice(
