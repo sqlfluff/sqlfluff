@@ -192,12 +192,12 @@ def test__templater_python_slice_template(test, result):
     """Test _slice_template."""
     resp = list(PythonTemplater._slice_template(test))
     # check contigious
-    assert "".join(elem[0] for elem in resp) == test
+    assert "".join(elem.raw for elem in resp) == test
     # check indices
     idx = 0
-    for literal, _, pos, _ in resp:
-        assert pos == idx
-        idx += len(literal)
+    for raw_file_slice in resp:
+        assert raw_file_slice.source_idx == idx
+        idx += len(raw_file_slice.raw)
     # Check total result
     assert resp == result
 

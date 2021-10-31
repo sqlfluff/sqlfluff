@@ -374,7 +374,7 @@ class LintedFile(NamedTuple):
                     "      - Skipping edit patch on templated content: %s",
                     enriched_patch,
                 )
-            else:
+            else:  # pragma: no cover
                 # Identify all the places the string appears in the source content.
                 positions = list(
                     findall(enriched_patch.templated_str, enriched_patch.source_str)
