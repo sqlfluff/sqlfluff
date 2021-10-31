@@ -395,7 +395,7 @@ class DbtTemplater(JinjaTemplater):
             make_template = None
 
             def from_string(*args, **kwargs):
-                """Replaces (via monkeypatch) jinja2.Environment.from_string()."""
+                """Replaces (via monkeypatch) the jinja2.Environment function."""
                 nonlocal make_template
                 # Is it processing the node corresponding to fname?
                 globals = kwargs.get("globals")
