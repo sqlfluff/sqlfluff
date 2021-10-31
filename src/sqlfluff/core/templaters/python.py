@@ -895,7 +895,9 @@ class PythonTemplater(RawTemplater):
                         sub_section = int_file_slice.slice_buffer[:this_owu_idx]
                     # If we are AFTER the previous in the template, then it's
                     # also easy. [assuming it's not the same owu]
-                    elif raw_idx > starts[0] and last_owu_idx != this_owu_idx:
+                    elif (
+                        raw_idx > starts[0] and last_owu_idx != this_owu_idx
+                    ):  # pragma: no cover
                         if last_owu_idx:
                             sub_section = int_file_slice.slice_buffer[
                                 last_owu_idx + 1 : this_owu_idx
@@ -963,7 +965,7 @@ class PythonTemplater(RawTemplater):
                         ]
 
                         # Trim anything which we're not allowed to use.
-                        if len(block_start_indices) > block_ends:
+                        if len(block_start_indices) > block_ends:  # pragma: no cover
                             offset = block_start_indices[-1 - block_ends] + 1
                             elem_sub_buffer = int_file_slice.slice_buffer[offset:]
                             cur_idx -= offset
