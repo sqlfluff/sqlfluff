@@ -61,3 +61,8 @@ test_complex_case_1:
     SELECT a
     FROM foo
     WHERE a = b or (c > d or e IS NULL)
+
+test_set_clause:
+  pass_str: |
+    UPDATE table1 SET col = NULL
+    WHERE col = ""
