@@ -1,9 +1,8 @@
 """Implementation of Rule L019."""
 
-from typing import Dict, Any, Optional
+from typing import Any, Dict, Optional, Tuple
 
-from sqlfluff.core.parser import WhitespaceSegment
-
+from sqlfluff.core.parser import RawSegment, WhitespaceSegment
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import (
     document_fix_compatible,
@@ -67,7 +66,7 @@ class Rule_L019(BaseRule):
         return None
 
     @staticmethod
-    def _last_code_seg(raw_stack):
+    def _last_code_seg(raw_stack: Tuple[RawSegment, ...]) -> Optional[RawSegment]:
         """Trace the raw stack back to the most recent code segment.
 
         A return value of `None` indicates no code segments preceding the current position.
@@ -76,6 +75,17 @@ class Rule_L019(BaseRule):
             if segment.is_code or segment.is_type("newline"):
                 return segment
         return None
+
+    @staticmethod
+    def _follows_seg(
+        raw_stack: Tuple[RawSegment, ...], segment: RawSegment
+    ) -> Optional[RawSegment]:
+        """Given a segment in raw_stack, return the segment following."""
+        idx = raw_stack.index(segment)
+        if idx < len(raw_stack):
+            return raw_stack[idx + 1]
+        else:
+            return None
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Enforce comma placement.
@@ -176,11 +186,11 @@ class Rule_L019(BaseRule):
                                 for d in memory["whitespace_deletions"]
                             ],
                             LintFix(
-                                "edit",
-                                last_code_seg,
-                                # Reuse the previous leading comma violation to
-                                # create a new trailing comma
-                                [last_code_seg, last_leading_comma_seg],
+                                "create",
+                                anchor=self._follows_seg(
+                                    context.raw_stack, last_code_seg
+                                ),
+                                edit=last_leading_comma_seg,
                             ),
                         ],
                     )
