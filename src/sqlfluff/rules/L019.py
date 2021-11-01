@@ -79,13 +79,12 @@ class Rule_L019(BaseRule):
     @staticmethod
     def _follows_seg(
         raw_stack: Tuple[RawSegment, ...], segment: RawSegment
-    ) -> Optional[RawSegment]:
+    ) -> RawSegment:
         """Given a segment in raw_stack, return the segment following."""
         idx = raw_stack.index(segment)
         if idx < len(raw_stack):
             return raw_stack[idx + 1]
-        else:
-            return None
+        raise ValueError("No following segment available")  # pragma: no cover
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Enforce comma placement.
