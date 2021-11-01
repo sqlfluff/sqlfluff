@@ -103,3 +103,39 @@ test_date_functions_are_excluded:
       dialect: tsql
 
 
+test_select_alias_in_where_clause_1:
+  # This should pass for certain dialects
+  pass_str: |
+    select
+        t.col0,
+        t.col1 + 1 as alias_col1
+    from table1 as t
+    where alias_col1 > 5
+  configs:
+    core:
+      dialect: redshift
+
+
+test_select_alias_in_where_clause_2:
+  # This should pass for certain dialects
+  pass_str: |
+    select
+        t.col0,
+        t.col1 + 1 as alias_col1
+    from table1 as t
+    where alias_col1 > 5
+  configs:
+    core:
+      dialect: snowflake
+
+
+test_select_alias_in_where_clause_3:
+  # This should fail for ansi
+  fail_str: |
+    select
+        t.col0,
+        t.col1 + 1 as alias_col1
+    from table1 as t
+    where alias_col1 > 5
+
+
