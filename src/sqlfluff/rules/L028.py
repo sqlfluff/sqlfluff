@@ -102,7 +102,7 @@ class Rule_L028(Rule_L025):
         return violation_buff or None
 
     def _eval(self, context: RuleContext) -> EvalResultType:
-        """Override Rule L025 for dialects that use structs."""
+        """Override Rule L025 for dialects that use structs, or SELECT aliases."""
         # Config type hints
         self.force_enable: bool
 
