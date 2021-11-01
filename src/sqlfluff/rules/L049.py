@@ -41,6 +41,10 @@ class Rule_L049(Rule_L006):
         if len(context.segment.segments) <= 2:
             return LintResult()
 
+        # Allow assignments in SET clauses
+        if context.parent_stack and context.parent_stack[-1].is_type("set_clause_list"):
+            return LintResult()
+
         # Iterate through children of this segment looking for equals or "not
         # equals". Once found, check if the next code segment is a NULL literal.
         idx_operator = None
