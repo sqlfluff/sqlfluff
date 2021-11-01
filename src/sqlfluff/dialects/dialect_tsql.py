@@ -662,7 +662,7 @@ class PivotUnpivotStatementSegment(BaseSegment):
                 ),
             ),
         ),
-        "AS",
+        Sequence("AS", optional=True),
         Ref("TableReferenceSegment"),
     )
 
