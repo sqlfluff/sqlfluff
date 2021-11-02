@@ -6,33 +6,15 @@ Based on https://docs.snowflake.com/en/sql-reference-commands.html
 """
 
 from sqlfluff.core.dialects import load_raw_dialect
-from sqlfluff.core.parser import (
-    BaseSegment,
-    OneOf,
-    Ref,
-    Sequence,
-    AnyNumberOf,
-    SymbolSegment,
-    Bracketed,
-    Anything,
-    Delimited,
-    StartsWith,
-    Indent,
-    Dedent,
-    RegexLexer,
-    StringLexer,
-    CodeSegment,
-    StringParser,
-    NamedParser,
-    RegexParser,
-    SegmentGenerator,
-)
+from sqlfluff.core.parser import (AnyNumberOf, Anything, BaseSegment,
+                                  Bracketed, CodeSegment, Dedent, Delimited,
+                                  Indent, NamedParser, OneOf, Ref, RegexLexer,
+                                  RegexParser, SegmentGenerator, Sequence,
+                                  StartsWith, StringLexer, StringParser,
+                                  SymbolSegment)
 from sqlfluff.core.parser.grammar.anyof import OptionallyBracketed
-
 from sqlfluff.dialects.dialect_snowflake_keywords import (
-    snowflake_reserved_keywords,
-    snowflake_unreserved_keywords,
-)
+    snowflake_reserved_keywords, snowflake_unreserved_keywords)
 
 ansi_dialect = load_raw_dialect("ansi")
 snowflake_dialect = ansi_dialect.copy_as("snowflake")
@@ -595,7 +577,7 @@ class FromUnpivotExpressionSegment(BaseSegment):
     )
 
 
-@snowflake_dialect.segment()
+@snowflake_dialect.segment(replace=True)
 class SamplingExpressionSegment(BaseSegment):
     """A sampling expression."""
 
