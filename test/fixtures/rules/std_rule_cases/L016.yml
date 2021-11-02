@@ -230,3 +230,11 @@ test_set_statement:
   configs:
     rules:
       max_line_length: 80
+
+
+test_issue_1666_line_too_long_unfixable_jinja:
+  # Note the trailing space at the end of line 1. This is a necessary part of
+  # the test, because the space (which is passed through to the output) was
+  # "tricking" L016 into trying to split the line, then encountering an internal
+  # error.
+  fail_str: "{{ config (schema='bronze', materialized='view', sort =['id','number'], dist = 'all', tags =['longlonglonglonglong']) }} \n\nselect 1\n"

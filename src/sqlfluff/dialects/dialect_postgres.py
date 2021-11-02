@@ -11,12 +11,14 @@ from sqlfluff.core.parser import (
     BaseSegment,
     Delimited,
     RegexLexer,
+    RegexParser,
     CodeSegment,
     NamedParser,
     SymbolSegment,
     StartsWith,
     CommentSegment,
     Dedent,
+    SegmentGenerator,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -114,6 +116,7 @@ postgres_dialect.patch_lexer_matchers(
         ),
         # In Postgres, there is no escape character for double quote strings
         RegexLexer("double_quote", r'(?s)".+?"', CodeSegment),
+        RegexLexer("code", r"[0-9a-zA-Z_]+[0-9a-zA-Z_$]*", CodeSegment),
     ]
 )
 
@@ -145,6 +148,20 @@ postgres_dialect.add(
 )
 
 postgres_dialect.replace(
+    NakedIdentifierSegment=SegmentGenerator(
+        # Generate the anti template from the set of reserved keywords
+        lambda dialect: RegexParser(
+            # Can’t begin with $, must only contain digits, letters, underscore it $ but can’t be all digits.
+            r"([A-Z_]+|[0-9]+[A-Z_$])[A-Z0-9_$]*",
+            CodeSegment,
+            name="naked_identifier",
+            type="identifier",
+            anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
+        )
+    ),
+    ParameterNameSegment=RegexParser(
+        r"[A-Z_][A-Z0-9_$]*", CodeSegment, name="parameter", type="parameter"
+    ),
     QuotedLiteralSegment=OneOf(
         NamedParser("single_quote", CodeSegment, name="quoted_literal", type="literal"),
         NamedParser(
@@ -350,6 +367,7 @@ class DatatypeSegment(BaseSegment):
         ),
         Sequence(
             OneOf(
+                Sequence("DOUBLE", "PRECISION"),
                 Sequence(
                     OneOf("CHARACTER", "BINARY"),
                     OneOf("VARYING", Sequence("LARGE", "OBJECT")),
@@ -911,6 +929,74 @@ class CreateTableStatementSegment(BaseSegment):
             ),
             Sequence("TABLESPACE", Ref("TableReferenceSegment")),
         ),
+    )
+
+
+@postgres_dialect.segment()
+class CreateTableAsStatementSegment(BaseSegment):
+    """A `CREATE TABLE AS` statement.
+
+    As specified in https://www.postgresql.org/docs/13/sql-createtableas.html
+    """
+
+    type = "create_table_as_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        OneOf(
+            Sequence(
+                OneOf("GLOBAL", "LOCAL", optional=True),
+                Ref("TemporaryGrammar"),
+            ),
+            "UNLOGGED",
+            optional=True,
+        ),
+        "TABLE",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        AnyNumberOf(
+            Sequence(
+                Bracketed(
+                    Delimited(Ref("ColumnReferenceSegment")),
+                ),
+                optional=True,
+            ),
+            Sequence("USING", Ref("ParameterNameSegment"), optional=True),
+            OneOf(
+                Sequence(
+                    "WITH",
+                    Bracketed(
+                        AnyNumberOf(
+                            Sequence(
+                                Ref("ParameterNameSegment"),
+                                Sequence(
+                                    Ref("EqualsSegment"),
+                                    Ref("LiteralGrammar"),
+                                    optional=True,
+                                ),
+                            )
+                        )
+                    ),
+                ),
+                Sequence("WITHOUT", "OIDS"),
+                optional=True,
+            ),
+            Sequence(
+                "ON",
+                "COMMIT",
+                OneOf(Sequence("PRESERVE", "ROWS"), Sequence("DELETE", "ROWS"), "DROP"),
+                optional=True,
+            ),
+            Sequence("TABLESPACE", Ref("ParameterNameSegment"), optional=True),
+        ),
+        "AS",
+        OneOf(
+            OptionallyBracketed(Ref("SelectableGrammar")),
+            OptionallyBracketed(Sequence("TABLE", Ref("TableReferenceSegment"))),
+            Ref("ValuesClauseSegment"),
+            OptionallyBracketed(Sequence("EXECUTE", Ref("FunctionSegment"))),
+        ),
+        Sequence("WITH", Ref.keyword("NO", optional=True), "DATA", optional=True),
     )
 
 
@@ -2032,6 +2118,7 @@ class StatementSegment(BaseSegment):
             Ref("AlterDefaultPrivilegesStatementSegment"),
             Ref("CommentOnStatementSegment"),
             Ref("AnalyzeStatementSegment"),
+            Ref("CreateTableAsStatementSegment"),
         ],
     )
 

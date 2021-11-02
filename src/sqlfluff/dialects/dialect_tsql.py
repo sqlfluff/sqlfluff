@@ -230,27 +230,6 @@ tsql_dialect.replace(
 
 
 @tsql_dialect.segment(replace=True)
-class AliasExpressionSegment(BaseSegment):
-    """A reference to an object with an `AS` clause.
-
-    The optional AS keyword allows both implicit and explicit aliasing.
-    Overriding ANSI to remove QuotedLiteralSegment
-    """
-
-    type = "alias_expression"
-    match_grammar = Sequence(
-        Ref.keyword("AS", optional=True),
-        OneOf(
-            Sequence(
-                Ref("SingleIdentifierGrammar"),
-                # Column alias in VALUES clause
-                Bracketed(Ref("SingleIdentifierListSegment"), optional=True),
-            ),
-        ),
-    )
-
-
-@tsql_dialect.segment(replace=True)
 class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: ignore
     """Overriding StatementSegment to allow for additional segment parsing."""
 
@@ -814,11 +793,13 @@ class ColumnConstraintSegment(BaseSegment):
             Sequence(Ref.keyword("NOT", optional=True), "NULL"),  # NOT NULL or NULL
             Sequence(  # DEFAULT <value>
                 "DEFAULT",
-                OneOf(
-                    Ref("LiteralGrammar"),
-                    Ref("FunctionSegment"),
-                    # ?? Ref('IntervalExpressionSegment')
-                    OptionallyBracketed(Ref("NextValueSequenceSegment")),
+                OptionallyBracketed(
+                    OneOf(
+                        OptionallyBracketed(Ref("LiteralGrammar")),  # ((-1))
+                        Ref("FunctionSegment"),
+                        # ?? Ref('IntervalExpressionSegment')
+                        Ref("NextValueSequenceSegment"),
+                    ),
                 ),
             ),
             Ref("PrimaryKeyGrammar"),
@@ -2155,4 +2136,32 @@ class ExecuteScriptSegment(BaseSegment):
             optional=True,
         ),
         Ref("DelimiterSegment", optional=True),
+    )
+
+
+@tsql_dialect.segment(replace=True)
+class CreateSchemaStatementSegment(BaseSegment):
+    """A `CREATE SCHEMA` statement.
+
+    Overriding ANSI to allow for AUTHORIZATION clause
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-schema-transact-sql?view=sql-server-ver15
+
+    Not yet implemented: proper schema_element parsing.
+    Once we have an AccessStatementSegment that works for TSQL, this definition should be tweaked to include schema elements.
+    """
+
+    type = "create_schema_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        "SCHEMA",
+        Ref("SchemaReferenceSegment"),
+        Sequence(
+            "AUTHORIZATION",
+            Ref("SingleIdentifierGrammar"),
+            optional=True,
+        ),
+        Ref(
+            "DelimiterSegment",
+            optional=True,
+        ),
     )

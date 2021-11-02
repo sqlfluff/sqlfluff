@@ -27,6 +27,7 @@ from sqlfluff.core.parser.grammar import (
     Conditional,
 )
 from sqlfluff.core.errors import SQLParseError
+from os import getenv
 
 # NB: All of these tests depend somewhat on the KeywordSegment working as planned
 
@@ -479,6 +480,9 @@ def test__parser__grammar_sequence(seg_list, caplog):
     bs = StringParser("bar", KeywordSegment)
     fs = StringParser("foo", KeywordSegment)
     g = Sequence(bs, fs)
+    # If running in the test environment, assert that Sequence recognises this
+    if getenv("SQLFLUFF_TESTENV", ""):
+        assert g.test_env
     gc = Sequence(bs, fs, allow_gaps=False)
     with RootParseContext(dialect=None) as ctx:
         with caplog.at_level(logging.DEBUG, logger="sqlfluff.parser"):

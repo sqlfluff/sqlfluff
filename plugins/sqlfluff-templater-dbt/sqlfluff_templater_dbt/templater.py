@@ -22,7 +22,9 @@ from dbt.exceptions import (
 
 from sqlfluff.core.errors import SQLTemplaterError, SQLTemplaterSkipFile
 
-from sqlfluff.core.templaters.base import TemplatedFile
+from sqlfluff.core.templaters.base import RawFileSlice, TemplatedFile
+
+from sqlfluff.core.templaters.slicers.heuristic import slice_template
 from sqlfluff.core.templaters.jinja import JinjaTemplater
 
 # Instantiate the templater logger
@@ -439,3 +441,9 @@ class DbtTemplater(JinjaTemplater):
             # No violations returned in this way.
             [],
         )
+
+    @classmethod
+    def _slice_template(cls, in_str: str) -> List[RawFileSlice]:
+        # DbtTemplater uses the original heuristic-based template slicer.
+        # TODO: Can it be updated to use TemplateTracer?
+        return slice_template(in_str, cls._get_jinja_env())

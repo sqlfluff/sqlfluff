@@ -18,7 +18,7 @@ class Rule_L012(Rule_L011):
     .. code-block:: sql
 
         SELECT
-            a
+            a alias_col
         FROM foo
 
     | **Best practice**
