@@ -637,7 +637,9 @@ def fix(
 
 
 def _completion_message(config: FluffConfig) -> None:
-    click.echo(f"All Finished{'' if config.get('nocolor') else ' 📜 🎉'}!")
+    click.echo(
+        f"All Finished{'' if (config.get('nocolor') or not sys.stdout.isatty()) else ' 📜 🎉'}!"
+    )
 
 
 def quoted_presenter(dumper, data):
