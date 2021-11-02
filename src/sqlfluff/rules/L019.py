@@ -77,7 +77,7 @@ class Rule_L019(BaseRule):
         return None
 
     @staticmethod
-    def _follows_seg(
+    def _get_following_seg(
         raw_stack: Tuple[RawSegment, ...], segment: RawSegment
     ) -> RawSegment:
         """Given a segment in raw_stack, return the segment following."""
@@ -186,7 +186,7 @@ class Rule_L019(BaseRule):
                             ],
                             LintFix(
                                 "create",
-                                anchor=self._follows_seg(
+                                anchor=self._get_following_seg(
                                     context.raw_stack, last_code_seg
                                 ),
                                 edit=last_leading_comma_seg,
