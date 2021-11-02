@@ -159,6 +159,14 @@ bigquery_dialect.replace(
         RegexParser(r"`[^`]*`", CodeSegment, name="parameter", type="parameter"),
     ),
     DateTimeLiteralGrammar=Nothing(),
+    JoinLikeClauseGrammar=Sequence(
+        AnyNumberOf(
+            Ref("FromPivotExpressionSegment"),
+            Ref("FromUnpivotExpressionSegment"),
+            min_times=1,
+        ),
+        Ref("TableAliasExpressionSegment", optional=True),
+    ),
 )
 
 
@@ -860,3 +868,105 @@ class ParameterizedSegment(BaseSegment):
 
     type = "parameterized_expression"
     match_grammar = OneOf(Ref("AtSignLiteralSegment"), Ref("QuestionMarkSegment"))
+
+
+@bigquery_dialect.segment()
+class FromPivotExpressionSegment(BaseSegment):
+    """A PIVOT expression.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax#pivot_operator
+    """
+
+    type = "from_pivot_expression"
+    match_grammar = Sequence("PIVOT", Bracketed(Anything()))
+
+    parse_grammar = Sequence(
+        "PIVOT",
+        Bracketed(
+            Ref("FunctionSegment"),
+            Ref("AliasExpressionSegment", optional=True),
+            "FOR",
+            Ref("SingleIdentifierGrammar"),
+            "IN",
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        Ref("LiteralGrammar"),
+                        Ref("AliasExpressionSegment", optional=True),
+                    ),
+                    delimiter=Ref("CommaSegment"),
+                )
+            ),
+        ),
+    )
+
+
+@bigquery_dialect.segment()
+class FromUnpivotExpressionSegment(BaseSegment):
+    """An UNPIVOT expression.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax#unpivot_operator
+    """
+
+    type = "from_unpivot_expression"
+    match_grammar = Sequence("UNPIVOT", Bracketed(Anything()))
+
+    parse_grammar = Sequence(
+        "UNPIVOT",
+        Sequence(
+            OneOf("INCLUDE", "EXCLUDE"),
+            "NULLS",
+            optional=True,
+        ),
+        OneOf(
+            Bracketed(
+                Ref("SingleIdentifierGrammar"),
+                "FOR",
+                Ref("SingleIdentifierGrammar"),
+                "IN",
+                Bracketed(
+                    Delimited(Ref("SingleIdentifierGrammar")),
+                    Ref("AliasExpressionSegment", optional=True),
+                ),
+            ),
+            Bracketed(
+                Bracketed(
+                    Delimited(
+                        Ref("SingleIdentifierGrammar"),
+                        min_delimiters=1,
+                    ),
+                ),
+                "FOR",
+                Ref("SingleIdentifierGrammar"),
+                "IN",
+                Bracketed(
+                    Delimited(
+                        Sequence(
+                            Bracketed(
+                                Delimited(
+                                    Ref("SingleIdentifierGrammar"),
+                                    min_delimiters=1,
+                                ),
+                            ),
+                            Ref("AliasExpressionSegment", optional=True),
+                        ),
+                    ),
+                ),
+            ),
+        ),
+    )
+
+
+@bigquery_dialect.segment()
+class TableAliasExpressionSegment(BaseSegment):
+    """A reference to an object with an `AS` clause, optionally with column aliasing."""
+
+    type = "table_alias_expression"
+    match_grammar = Sequence(
+        Ref("AliasExpressionSegment"),
+        # Optional column aliases too.
+        Bracketed(
+            Delimited(Ref("SingleIdentifierGrammar"), delimiter=Ref("CommaSegment")),
+            optional=True,
+        ),
+    )
