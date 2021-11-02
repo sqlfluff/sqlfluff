@@ -1,6 +1,8 @@
 """The Hive dialect."""
 
 from sqlfluff.core.parser import (
+    AnyNumberOf,
+    OneOf,
     BaseSegment,
     Sequence,
     Ref,
@@ -11,6 +13,8 @@ from sqlfluff.core.parser import (
     NamedParser,
     SymbolSegment,
     StringParser,
+    RegexParser,
+    RegexLexer,
     OptionallyBracketed,
 )
 
@@ -48,6 +52,9 @@ hive_dialect.add(
     ),
     SingleOrDoubleQuotedLiteralGrammar=OneOf(
         Ref("QuotedLiteralSegment"), Ref("DoubleQuotedLiteralSegment")
+    ),
+    DollarSignSegment=StringParser(
+        "$", SymbolSegment, name="dollar_sign", type="dollar_sign"
     ),
     StartAngleBracketSegment=StringParser(
         "<", SymbolSegment, name="start_angle_bracket", type="start_angle_bracket"
@@ -123,11 +130,65 @@ hive_dialect.add(
             )
         ),
     ),
+    HiveConfigVariableNameSegment=RegexParser(
+        r"(hiveconf:)?[a-zA-Z0-9_]+(.[a-zA-Z0-9_]+)*",
+        CodeSegment,
+        name="declared_variable",
+        type="variable",
+    ),
+    HiveCustomVariableNameSegment=RegexParser(
+        r"hivevar:[a-zA-Z0-9_]+(.[a-zA-Z0-9_]+)*",
+        CodeSegment,
+        name="declared_variable",
+        type="variable",
+    ),
+    SystemVariableNameSegment=RegexParser(
+        r"system:[a-zA-Z0-9_]+(.[a-zA-Z0-9_]+)*",
+        CodeSegment,
+        name="declared_variable",
+        type="variable",
+    ),
+    EnvironmentVariableNameSegment=RegexParser(
+        r"env:[a-zA-Z0-9_]+(.[a-zA-Z0-9_]+)*",
+        CodeSegment,
+        name="declared_variable",
+        type="variable",
+    ),
+    VariableFormatGrammar=Sequence(
+        Ref("DollarSignSegment"),
+        Bracketed(
+            OneOf(
+                Ref("HiveConfigVariableNameSegment"),
+                Ref("HiveCustomVariableNameSegment"),
+                Ref("SystemVariableNameSegment"),
+                Ref("EnvironmentVariableNameSegment"),
+            ),
+            bracket_type="curly",
+        ),
+    ),
 )
 
 # https://cwiki.apache.org/confluence/display/hive/languagemanual+joins
 hive_dialect.replace(
     JoinKeywords=Sequence(Sequence("SEMI", optional=True), "JOIN"),
+    BaseExpressionElementGrammar=ansi_dialect.get_grammar(
+        "BaseExpressionElementGrammar"
+    ).copy(
+        insert=[
+            Ref("VariableFormatGrammar"),
+        ]
+    ),
+)
+
+hive_dialect.insert_lexer_matchers(
+    [
+        RegexLexer(
+            "dollarsign",
+            r"[@][a-zA-Z0-9_]*",
+            CodeSegment,
+        ),
+    ],
+    before="code",
 )
 
 
@@ -486,13 +547,42 @@ class UseStatementSegment(BaseSegment):
         Ref("DatabaseReferenceSegment"),
     )
 
+@hive_dialect.segment()
+class SetAssignmentStatementSegment(BaseSegment):
+    """A `SET` statement.
+
+    https://cwiki.apache.org/confluence/display/Hive/LanguageManual+Commands
+    """
+
+    type = "set_statement"
+
+    match_grammar = Sequence(
+        "SET",
+        OneOf(
+            Ref("HiveConfigVariableNameSegment"),
+            Ref("HiveCustomVariableNameSegment"),
+            Ref("SystemVariableNameSegment"),
+            Ref("EnvironmentVariableNameSegment"),
+        ),
+        Ref("EqualsSegment"),
+        AnyNumberOf(
+            Ref("QuotedLiteralSegment"),
+            Ref("DoubleQuotedLiteralSegment"),
+            Ref("FunctionSegment"),
+            Ref("ArithmeticBinaryOperatorGrammar"),
+        ),
+    )
+
 
 @hive_dialect.segment(replace=True)
 class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: ignore
     """Overriding StatementSegment to allow for additional segment parsing."""
 
     parse_grammar = ansi_dialect.get_segment("StatementSegment").parse_grammar.copy(
-        insert=[Ref("AlterDatabaseStatementSegment")],
+        insert=[
+            Ref("AlterDatabaseStatementSegment"),
+            Ref("SetAssignmentStatementSegment"),
+        ],
         remove=[
             Ref("TransactionStatementSegment"),
             Ref("CreateSchemaStatementSegment"),
