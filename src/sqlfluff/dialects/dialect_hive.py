@@ -180,17 +180,6 @@ hive_dialect.replace(
     ),
 )
 
-hive_dialect.insert_lexer_matchers(
-    [
-        RegexLexer(
-            "dollarsign",
-            r"[@][a-zA-Z0-9_]*",
-            CodeSegment,
-        ),
-    ],
-    before="code",
-)
-
 
 @hive_dialect.segment(replace=True)
 class CreateDatabaseStatementSegment(BaseSegment):
