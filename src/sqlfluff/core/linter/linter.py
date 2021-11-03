@@ -861,7 +861,7 @@ class Linter:
 
         # Show files progress bar only when there is more than one.
         files_count = len(fnames)
-        progress_bar_linter = tqdm(
+        progress_bar_files = tqdm(
             total=files_count,
             desc=f"file {os.path.basename(fnames[0] if fnames else '')}",
             leave=False,
@@ -879,9 +879,9 @@ class Linter:
             # Additionally as it's updated after each loop, we need to get file name
             # from the next loop. This is why `enumerate` starts with `1` and there
             # is `i < len` to not exceed files list length.
-            progress_bar_linter.update(n=1)
+            progress_bar_files.update(n=1)
             if i < len(fnames):
-                progress_bar_linter.set_description(
+                progress_bar_files.set_description(
                     f"file {os.path.basename(fnames[i])}"
                 )
 

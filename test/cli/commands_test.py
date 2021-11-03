@@ -5,6 +5,8 @@ import tempfile
 import os
 import shutil
 import json
+from unittest.mock import MagicMock, patch
+
 import oyaml as yaml
 import subprocess
 import chardet
@@ -763,10 +765,23 @@ def test_encoding(encoding_in, encoding_out):
         )
 
 
+@patch(
+    "sqlfluff.core.linter.linter.progress_bar_configuration", disable_progress_bar=False
+)
 class TestProgressBars:
-    """Progress bars test cases."""
+    """Progress bars test cases.
 
-    def test_cli_lint_disabled_progress_bar(self) -> None:
+    The tqdm package, used for handling progress bars, is able to tell when it is used
+    in a not tty terminal (when `disable` is set to None). In such cases, it just does
+    not render anything. To suppress that for testing purposes, we need to set
+    implicitly that we don't want to disable it.
+    Probably it would be better - cleaner - just to patch `isatty` at some point,
+    but I didn't find a way how to do that properly.
+    """
+
+    def test_cli_lint_disabled_progress_bar(
+        self, mock_disable_progress_bar: MagicMock
+    ) -> None:
         """When progress bar is disabled, nothing should be printed into output."""
         result = invoke_assert_code(
             ret_code=65,
@@ -784,7 +799,9 @@ class TestProgressBars:
         assert "\rparsing: 0it" not in raw_output
         assert "\r\rlint by rules:" not in raw_output
 
-    def test_cli_lint_enabled_progress_bar(self) -> None:
+    def test_cli_lint_enabled_progress_bar(
+        self, mock_disable_progress_bar: MagicMock
+    ) -> None:
         """When progress bar is enabled, there should be some tracks in output."""
         result = invoke_assert_code(
             ret_code=65,
@@ -801,7 +818,9 @@ class TestProgressBars:
         assert r"\rrule L001:" in raw_output
         assert r"\rrule L049:" in raw_output
 
-    def test_cli_lint_enabled_progress_bar_multiple_paths(self) -> None:
+    def test_cli_lint_enabled_progress_bar_multiple_paths(
+        self, mock_disable_progress_bar: MagicMock
+    ) -> None:
         """When progress bar is enabled, there should be some tracks in output."""
         result = invoke_assert_code(
             ret_code=65,
@@ -821,7 +840,9 @@ class TestProgressBars:
         assert r"\rrule L001:" in raw_output
         assert r"\rrule L049:" in raw_output
 
-    def test_cli_lint_enabled_progress_bar_multiple_files(self) -> None:
+    def test_cli_lint_enabled_progress_bar_multiple_files(
+        self, mock_disable_progress_bar: MagicMock
+    ) -> None:
         """When progress bar is enabled, there should be some tracks in output."""
         result = invoke_assert_code(
             args=[
@@ -840,7 +861,9 @@ class TestProgressBars:
         assert r"\rrule L001:" in raw_output
         assert r"\rrule L049:" in raw_output
 
-    def test_cli_lint_disabled_progress_bar_when_verbose_mode(self) -> None:
+    def test_cli_lint_disabled_progress_bar_when_verbose_mode(
+        self, mock_disable_progress_bar: MagicMock
+    ) -> None:
         """Progressbar is disabled when verbose mode is set."""
         result = invoke_assert_code(
             ret_code=2,
