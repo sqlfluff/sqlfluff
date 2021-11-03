@@ -2119,6 +2119,7 @@ class StatementSegment(BaseSegment):
             Ref("CommentOnStatementSegment"),
             Ref("AnalyzeStatementSegment"),
             Ref("CreateTableAsStatementSegment"),
+            Ref("AlterTriggerStatementSegment"),
         ],
     )
 
@@ -2149,4 +2150,137 @@ class FunctionSegment(BaseSegment):
             ),
         ),
         Ref("PostFunctionGrammar", optional=True),
+    )
+
+
+@postgres_dialect.segment(replace=True)
+class CreateTriggerStatementSegment(BaseSegment):
+    """Create Trigger Statement.
+
+    As Specified in https://www.postgresql.org/docs/14/sql-createtrigger.html
+    """
+
+    type = "create_trigger"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Sequence("OR", "REPLACE", optional=True),
+        Ref.keyword("CONSTRAINT", optional=True),
+        "TRIGGER",
+        Anything(),
+    )
+
+    parse_grammar = Sequence(
+        "CREATE",
+        Sequence("OR", "REPLACE", optional=True),
+        Ref.keyword("CONSTRAINT", optional=True),
+        "TRIGGER",
+        Ref("TriggerReferenceSegment"),
+        OneOf("BEFORE", "AFTER", Sequence("INSTEAD", "OF")),
+        Delimited(
+            "INSERT",
+            "DELETE",
+            "TRUNCATE",
+            Sequence(
+                "UPDATE",
+                "OF",
+                Delimited(
+                    Ref("ColumnReferenceSegment"),
+                    terminator=OneOf("INSERT", "DELETE", "UPDATE", "TRUNCATE", "ON"),
+                ),
+            ),
+            delimiter="OR",
+            terminator="ON",
+        ),
+        "ON",
+        Ref("TableReferenceSegment"),
+        AnyNumberOf(
+            Sequence("FROM", Ref("TableReferenceSegment")),
+            OneOf(
+                Sequence("NOT", "DEFERRABLE"),
+                Sequence(
+                    Ref.keyword("DEFERRABLE", optional=True),
+                    OneOf(
+                        Sequence("INITIALLY", "IMMEDIATE"),
+                        Sequence("INITIALLY", "DEFERRED"),
+                    ),
+                ),
+            ),
+            Sequence(
+                "REFERENCING",
+                OneOf("OLD", "NEW"),
+                "TABLE",
+                "AS",
+                Ref("TableReferenceSegment"),
+                Sequence(
+                    OneOf("OLD", "NEW"),
+                    "TABLE",
+                    "AS",
+                    Ref("TableReferenceSegment"),
+                    optional=True,
+                ),
+            ),
+            Sequence(
+                "FOR", Ref.keyword("EACH", optional=True), OneOf("ROW", "STATEMENT")
+            ),
+            Sequence("WHEN", Bracketed(Ref("ExpressionSegment"))),
+        ),
+        Sequence(
+            "EXECUTE",
+            OneOf("FUNCTION", "PROCEDURE"),
+            Ref("FunctionNameIdentifierSegment"),
+            Bracketed(Ref("FunctionContentsGrammar")),
+        ),
+    )
+
+
+@postgres_dialect.segment()
+class AlterTriggerStatementSegment(BaseSegment):
+    """Alter Trigger Statement.
+
+    As Specified in https://www.postgresql.org/docs/14/sql-altertrigger.html
+    """
+
+    type = "alter_trigger"
+
+    match_grammar = Sequence("ALTER", "TRIGGER", Anything())
+
+    parse_grammar = Sequence(
+        "ALTER",
+        "TRIGGER",
+        Ref("TriggerReferenceSegment"),
+        "ON",
+        Ref("TableReferenceSegment"),
+        OneOf(
+            Sequence("RENAME", "TO", Ref("TriggerReferenceSegment")),
+            Sequence(
+                Ref.keyword("NO", optional=True),
+                "DEPENDS",
+                "ON",
+                "EXTENSION",
+                Ref("ParameterNameSegment"),
+            ),
+        ),
+    )
+
+
+@postgres_dialect.segment(replace=True)
+class DropTriggerStatementSegment(BaseSegment):
+    """Drop Trigger Statement.
+
+    As Specified in https://www.postgresql.org/docs/14/sql-droptrigger.html
+    """
+
+    type = "drop_trigger"
+
+    match_grammar = Sequence("DROP", "TRIGGER", Anything())
+
+    parse_grammar = Sequence(
+        "DROP",
+        "TRIGGER",
+        Sequence("IF", "EXISTS", optional=True),
+        Ref("TriggerReferenceSegment"),
+        "ON",
+        Ref("TableReferenceSegment"),
+        OneOf("CASCADE", "RESTRICT", optional=True),
     )

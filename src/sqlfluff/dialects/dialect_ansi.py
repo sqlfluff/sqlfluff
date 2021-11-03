@@ -743,6 +743,13 @@ class SequenceReferenceSegment(ObjectReferenceSegment):
 
 
 @ansi_dialect.segment()
+class TriggerReferenceSegment(ObjectReferenceSegment):
+    """A reference to a trigger."""
+
+    type = "trigger_reference"
+
+
+@ansi_dialect.segment()
 class SingleIdentifierListSegment(BaseSegment):
     """A comma delimited list of identifiers."""
 
@@ -2952,6 +2959,8 @@ class StatementSegment(BaseSegment):
         Ref("CreateSequenceStatementSegment"),
         Ref("AlterSequenceStatementSegment"),
         Ref("DropSequenceStatementSegment"),
+        Ref("CreateTriggerStatementSegment"),
+        Ref("DropTriggerStatementSegment"),
     )
 
     def get_table_references(self):
@@ -3157,3 +3166,86 @@ class DatePartFunctionNameSegment(BaseSegment):
 
     type = "function_name"
     match_grammar = Sequence("DATEADD")
+
+
+@ansi_dialect.segment()
+class CreateTriggerStatementSegment(BaseSegment):
+    """Create Trigger Statement.
+
+    Taken from specification in https://www.postgresql.org/docs/14/sql-createtrigger.html
+    Edited as per notes in above - what doesn't match ANSI
+    """
+
+    type = "create_trigger"
+
+    match_grammar = Sequence("CREATE", "TRIGGER", Anything())
+
+    parse_grammar = Sequence(
+        "CREATE",
+        "TRIGGER",
+        Ref("TriggerReferenceSegment"),
+        OneOf("BEFORE", "AFTER", Sequence("INSTEAD", "OF")),
+        Delimited(
+            "INSERT",
+            "DELETE",
+            Sequence(
+                "UPDATE",
+                "OF",
+                Delimited(
+                    Ref("ColumnReferenceSegment"),
+                    terminator=OneOf("INSERT", "DELETE", "UPDATE", "ON"),
+                ),
+            ),
+            delimiter="OR",
+            terminator="ON",
+        ),
+        "ON",
+        Ref("TableReferenceSegment"),
+        AnyNumberOf(
+            Sequence(
+                "REFERENCING",
+                "OLD",
+                "ROW",
+                "AS",
+                Ref("ParameterNameSegment"),
+                "NEW",
+                "ROW",
+                "AS",
+                Ref("ParameterNameSegment"),
+            ),
+            Sequence("FROM", Ref("TableReferenceSegment")),
+            OneOf(
+                Sequence("NOT", "DEFERRABLE"),
+                Sequence(
+                    Ref.keyword("DEFERRABLE", optional=True),
+                    OneOf(
+                        Sequence("INITIALLY", "IMMEDIATE"),
+                        Sequence("INITIALLY", "DEFERRED"),
+                    ),
+                ),
+            ),
+            Sequence(
+                "FOR", Ref.keyword("EACH", optional=True), OneOf("ROW", "STATEMENT")
+            ),
+            Sequence("WHEN", Bracketed(Ref("ExpressionSegment"))),
+        ),
+        Sequence(
+            "EXECUTE",
+            "PROCEDURE",
+            Ref("FunctionNameIdentifierSegment"),
+            Bracketed(Ref("FunctionContentsGrammar")),
+        ),
+    )
+
+
+@ansi_dialect.segment()
+class DropTriggerStatementSegment(BaseSegment):
+    """Drop Trigger Statement.
+
+    Taken from specification in https://www.postgresql.org/docs/14/sql-droptrigger.html
+    Edited as per notes in above - what doesn't match ANSI
+    """
+
+    type = "drop_trigger"
+
+    match_grammar = Sequence("DROP", "TRIGGER", Ref("TriggerReferenceSegment"))
