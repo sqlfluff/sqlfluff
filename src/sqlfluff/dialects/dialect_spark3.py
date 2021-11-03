@@ -113,8 +113,12 @@ spark3_dialect.replace(
         Ref("NotEqualToSegment_b"),
         Ref("LikeOperatorSegment"),
     ),
+    TemporaryGrammar=Sequence(
+        Sequence("GLOBAL", optional=True),
+        OneOf("TEMP", "TEMPORARY", optional=True),
+        optional=True,
+    ),
 )
-
 
 spark3_dialect.add(
     # Add Hive Segments TODO : Is there a way to retrieve this w/o redefining?
@@ -597,6 +601,42 @@ class CreateTableStatementSegment(BaseSegment):
             OptionallyBracketed(Ref("SelectableGrammar")),
             optional=True,
         ),
+    )
+
+
+@spark3_dialect.segment(replace=True)
+class CreateViewStatementSegment(BaseSegment):
+    """A `CREATE VIEW` statement.
+
+    https://spark.apache.org/docs/3.0.0/sql-ref-syntax-ddl-create-view.html#syntax
+    """
+
+    type = "create_view_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        Ref("TemporaryGrammar", optional=True),
+        "VIEW",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        # Columns and comment syntax:
+        Sequence(
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        Ref("ColumnReferenceSegment"),
+                        Ref("CommentGrammar", optional=True),
+                    ),
+                ),
+            ),
+            optional=True,
+        ),
+        Ref("CommentGrammar", optional=True),
+        Ref("TablePropertiesGrammar", optional=True),
+        "AS",
+        Ref("SelectableGrammar"),
+        Ref("WithNoSchemaBindingClauseSegment", optional=True),
     )
 
 
