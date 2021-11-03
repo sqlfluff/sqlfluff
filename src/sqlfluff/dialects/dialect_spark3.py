@@ -115,8 +115,7 @@ spark3_dialect.replace(
     ),
     TemporaryGrammar=Sequence(
         Sequence("GLOBAL", optional=True),
-        OneOf("TEMP", "TEMPORARY", optional=True),
-        optional=True,
+        OneOf("TEMP", "TEMPORARY"),
     ),
 )
 
