@@ -17,19 +17,42 @@ from typing import Generator, List, NamedTuple, Optional, Tuple, Union
 
 from sqlfluff.core.dialects.base import Dialect
 from sqlfluff.core.dialects.common import AliasInfo
-from sqlfluff.core.parser import (AnyNumberOf, Anything, BaseFileSegment,
-                                  BaseSegment, Bracketed, CodeSegment,
-                                  CommentSegment, Conditional, Dedent,
-                                  Delimited, GreedyUntil, Indent,
-                                  KeywordSegment, Matchable, NamedParser,
-                                  NewlineSegment, Nothing, OneOf,
-                                  OptionallyBracketed, Ref, RegexLexer,
-                                  RegexParser, SegmentGenerator, Sequence,
-                                  StartsWith, StringLexer, StringParser,
-                                  SymbolSegment, WhitespaceSegment)
+from sqlfluff.core.parser import (
+    AnyNumberOf,
+    Anything,
+    BaseFileSegment,
+    BaseSegment,
+    Bracketed,
+    CodeSegment,
+    CommentSegment,
+    Conditional,
+    Dedent,
+    Delimited,
+    GreedyUntil,
+    Indent,
+    KeywordSegment,
+    Matchable,
+    NamedParser,
+    NewlineSegment,
+    Nothing,
+    OneOf,
+    OptionallyBracketed,
+    Ref,
+    RegexLexer,
+    RegexParser,
+    SegmentGenerator,
+    Sequence,
+    StartsWith,
+    StringLexer,
+    StringParser,
+    SymbolSegment,
+    WhitespaceSegment,
+)
 from sqlfluff.core.parser.segments.base import BracketedSegment
-from sqlfluff.dialects.dialect_ansi_keywords import (ansi_reserved_keywords,
-                                                     ansi_unreserved_keywords)
+from sqlfluff.dialects.dialect_ansi_keywords import (
+    ansi_reserved_keywords,
+    ansi_unreserved_keywords,
+)
 
 ansi_dialect = Dialect("ansi", root_segment_name="FileSegment")
 
