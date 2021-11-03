@@ -43,6 +43,7 @@ class Rule_L028(Rule_L025):
     """
 
     config_keywords = ["single_table_references", "force_enable"]
+    _allow_select_alias = False
 
     def _lint_references_and_aliases(
         self,
@@ -72,6 +73,10 @@ class Rule_L028(Rule_L025):
             # entirely rather than trying to enforce anything.
             if ref.raw in standalone_aliases:
                 continue
+
+            # Certain dialects allow use of SELECT alias in WHERE clauses
+            if self._allow_select_alias and ref.raw in col_aliases:
+                continue
             this_ref_type = ref.qualification()
             if self.single_table_references == "consistent":
                 if seen_ref_types and this_ref_type not in seen_ref_types:
@@ -97,15 +102,17 @@ class Rule_L028(Rule_L025):
         return violation_buff or None
 
     def _eval(self, context: RuleContext) -> EvalResultType:
-        """Override Rule L025 for dialects that use structs.
-
-        Some dialects use structs (e.g. column.field) which look like
-        table references and so incorrectly trigger this rule.
-        """
+        """Override Rule L025 for dialects that use structs, or SELECT aliases."""
         # Config type hints
         self.force_enable: bool
 
+        # Some dialects use structs (e.g. column.field) which look like
+        # table references and so incorrectly trigger this rule.
         if context.dialect.name in ["bigquery"] and not self.force_enable:
             return LintResult()
+
+        # Certain dialects allow use of SELECT alias in WHERE clauses
+        if context.dialect.name in ["snowflake", "redshift"]:
+            self._allow_select_alias = True
 
         return super()._eval(context=context)
