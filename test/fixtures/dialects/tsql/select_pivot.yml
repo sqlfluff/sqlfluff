@@ -1,0 +1,123 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 8d3d73e16dbaad8f56f91700adb49ee982e3eba0db666149af8a2fa5d50afd2f
+file:
+  batch:
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: select
+        - select_clause_element:
+            column_reference:
+              identifier: '[1]'
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: '[2]'
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: '[3]'
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: table1
+              alias_expression:
+                keyword: as
+                identifier: t1
+        from_pivot_expression:
+        - keyword: pivot
+        - bracketed:
+          - start_bracket: (
+          - function:
+              function_name:
+                function_name_identifier: max
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    identifier: value
+                end_bracket: )
+          - keyword: for
+          - column_reference:
+              identifier: rn
+          - keyword: in
+          - bracketed:
+            - start_bracket: (
+            - pivot_column_reference:
+                identifier: '[1]'
+            - comma: ','
+            - pivot_column_reference:
+                identifier: '[2]'
+            - comma: ','
+            - pivot_column_reference:
+                identifier: '[3]'
+            - end_bracket: )
+          - end_bracket: )
+        - keyword: as
+        - table_reference:
+            identifier: pvt
+        statement_terminator: ;
+  - statement:
+      select_statement:
+        select_clause:
+        - keyword: select
+        - select_clause_element:
+            column_reference:
+              identifier: '[1]'
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: '[2]'
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: '[3]'
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: table1
+              alias_expression:
+                keyword: as
+                identifier: t1
+        from_pivot_expression:
+          keyword: pivot
+          bracketed:
+          - start_bracket: (
+          - function:
+              function_name:
+                function_name_identifier: max
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    identifier: value
+                end_bracket: )
+          - keyword: for
+          - column_reference:
+              identifier: rn
+          - keyword: in
+          - bracketed:
+            - start_bracket: (
+            - pivot_column_reference:
+                identifier: '[1]'
+            - comma: ','
+            - pivot_column_reference:
+                identifier: '[2]'
+            - comma: ','
+            - pivot_column_reference:
+                identifier: '[3]'
+            - end_bracket: )
+          - end_bracket: )
+          table_reference:
+            identifier: pvt
+        statement_terminator: ;
