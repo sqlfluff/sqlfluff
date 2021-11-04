@@ -641,7 +641,7 @@ class PivotUnpivotStatementSegment(BaseSegment):
                 ),
             ),
         ),
-        "AS",
+        Sequence("AS", optional=True),
         Ref("TableReferenceSegment"),
     )
 
@@ -1281,6 +1281,7 @@ class CreateTableStatementSegment(BaseSegment):
                             Ref("TableConstraintSegment"),
                             Ref("ColumnDefinitionSegment"),
                         ),
+                        allow_trailing=True,
                     )
                 ),
                 Ref("CommentClauseSegment", optional=True),
