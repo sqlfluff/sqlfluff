@@ -42,6 +42,14 @@ hive_dialect.sets("angle_bracket_pairs").update(
     ]
 )
 
+hive_dialect.insert_lexer_matchers(
+    [
+        RegexLexer("variable", r"[A-Za-z0-9:_.]+", CodeSegment),
+        RegexLexer("variable_reference", r"\${[A-Za-z0-9:_.]+}", CodeSegment),
+    ],
+    before="equals",
+)
+
 hive_dialect.add(
     DoubleQuotedLiteralSegment=NamedParser(
         "double_quote",
@@ -53,9 +61,9 @@ hive_dialect.add(
     SingleOrDoubleQuotedLiteralGrammar=OneOf(
         Ref("QuotedLiteralSegment"), Ref("DoubleQuotedLiteralSegment")
     ),
-    DollarSignSegment=StringParser(
-        "$", SymbolSegment, name="dollar_sign", type="dollar_sign"
-    ),
+    # DollarSignSegment=StringParser(
+    #     "$", SymbolSegment, name="dollar_sign", type="dollar_sign"
+    # ),
     StartAngleBracketSegment=StringParser(
         "<", SymbolSegment, name="start_angle_bracket", type="start_angle_bracket"
     ),
@@ -130,41 +138,18 @@ hive_dialect.add(
             )
         ),
     ),
-    HiveConfigVariableNameSegment=RegexParser(
-        r"(hiveconf:)?[a-zA-Z0-9_]+(.[a-zA-Z0-9_]+)*",
+    HiveVariableNameSegment=RegexParser(
+        # r"[hiveconf:|hivevar:|system:|env:]?[A-Za-z0-9_.]+",
+        r"[A-Za-z0-9_.:]+",
         CodeSegment,
-        name="declared_variable",
+        name="variable",
         type="variable",
     ),
-    HiveCustomVariableNameSegment=RegexParser(
-        r"hivevar:[a-zA-Z0-9_]+(.[a-zA-Z0-9_]+)*",
+    HiveVariableNameReferenceSegment=RegexParser(
+        r"\${[A-Za-z0-9_.:]+}",
         CodeSegment,
-        name="declared_variable",
+        name="variable_refernece",
         type="variable",
-    ),
-    SystemVariableNameSegment=RegexParser(
-        r"system:[a-zA-Z0-9_]+(.[a-zA-Z0-9_]+)*",
-        CodeSegment,
-        name="declared_variable",
-        type="variable",
-    ),
-    EnvironmentVariableNameSegment=RegexParser(
-        r"env:[a-zA-Z0-9_]+(.[a-zA-Z0-9_]+)*",
-        CodeSegment,
-        name="declared_variable",
-        type="variable",
-    ),
-    VariableFormatGrammar=Sequence(
-        Ref("DollarSignSegment"),
-        Bracketed(
-            OneOf(
-                Ref("HiveConfigVariableNameSegment"),
-                Ref("HiveCustomVariableNameSegment"),
-                Ref("SystemVariableNameSegment"),
-                Ref("EnvironmentVariableNameSegment"),
-            ),
-            bracket_type="curly",
-        ),
     ),
 )
 
@@ -175,7 +160,7 @@ hive_dialect.replace(
         "BaseExpressionElementGrammar"
     ).copy(
         insert=[
-            Ref("VariableFormatGrammar"),
+            Ref("HiveVariableNameReferenceSegment"),
         ]
     ),
 )
@@ -547,14 +532,10 @@ class SetAssignmentStatementSegment(BaseSegment):
 
     match_grammar = Sequence(
         "SET",
-        OneOf(
-            Ref("HiveConfigVariableNameSegment"),
-            Ref("HiveCustomVariableNameSegment"),
-            Ref("SystemVariableNameSegment"),
-            Ref("EnvironmentVariableNameSegment"),
-        ),
+        Ref('HiveVariableNameSegment'),
         Ref("EqualsSegment"),
         AnyNumberOf(
+            Ref("NakedIdentifierSegment"),
             Ref("QuotedLiteralSegment"),
             Ref("DoubleQuotedLiteralSegment"),
             Ref("FunctionSegment"),
