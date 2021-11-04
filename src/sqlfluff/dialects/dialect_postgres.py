@@ -158,7 +158,7 @@ postgres_dialect.replace(
         Ref("NotEqualToSegment_b"),
         Ref("LikeOperatorSegment"),
         Sequence("IS", "DISTINCT", "FROM"),
-        Sequence("IS", "NOT", "DISTINCT", "FROM")
+        Sequence("IS", "NOT", "DISTINCT", "FROM"),
     ),
     NakedIdentifierSegment=SegmentGenerator(
         # Generate the anti template from the set of reserved keywords
@@ -2201,10 +2201,10 @@ class CreateTriggerStatementSegment(BaseSegment):
                         Ref("ColumnReferenceSegment"),
                         terminator=OneOf("OR", "ON"),
                     ),
-                    optional=True
-                )
+                    optional=True,
+                ),
             ),
-            delimiter="OR"
+            delimiter="OR",
         ),
         "ON",
         Ref("TableReferenceSegment"),
