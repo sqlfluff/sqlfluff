@@ -160,16 +160,16 @@ class CreateTableStatementSegment(BaseSegment):
     match_grammar = StartsWith(
         Sequence(
             "CREATE",
-            Ref.keyword("EXTERNAL", optional=True),
             Ref.keyword("TEMPORARY", optional=True),
+            Ref.keyword("EXTERNAL", optional=True),
             "TABLE",
         )
     )
 
     parse_grammar = Sequence(
         "CREATE",
-        Ref.keyword("EXTERNAL", optional=True),
         Ref.keyword("TEMPORARY", optional=True),
+        Ref.keyword("EXTERNAL", optional=True),
         "TABLE",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
