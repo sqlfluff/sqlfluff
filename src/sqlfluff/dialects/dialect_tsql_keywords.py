@@ -232,6 +232,7 @@ RESERVED_KEYWORDS = [
 
 
 UNRESERVED_KEYWORDS = [
+    "BERNOULLI",
     "CAST",
     "COLUMNSTORE",
     "CONCAT",
@@ -293,6 +294,7 @@ UNRESERVED_KEYWORDS = [
     "READPAST",
     "READUNCOMMITTED",
     "RECOMPILE",
+    "REPEATABLE",
     "REPEATABLEREAD",
     "REPLICATE",  # Azure Synapse Analytics specific
     "ROBUST",
@@ -305,6 +307,7 @@ UNRESERVED_KEYWORDS = [
     "SS",
     "STRING_AGG",
     "SWITCH",
+    "SYSTEM",
     "TABLOCK",
     "TABLOCKX",
     "TRUNCATE_TARGET",  # Azure Synapse Analytics specific
