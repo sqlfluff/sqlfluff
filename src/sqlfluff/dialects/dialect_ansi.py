@@ -3253,8 +3253,8 @@ class DropTriggerStatementSegment(BaseSegment):
 
     match_grammar = Sequence("DROP", "TRIGGER", Ref("TriggerReferenceSegment"))
 
-    
-@ansi_dialect.segment()    
+
+@ansi_dialect.segment()
 class SamplingExpressionSegment(BaseSegment):
     """A sampling expression."""
 
@@ -3269,4 +3269,3 @@ class SamplingExpressionSegment(BaseSegment):
             optional=True,
         ),
     )
-
