@@ -530,7 +530,7 @@ class InsertStatementSegment(BaseSegment):
                         Ref("TableReferenceSegment"),
                         Ref("PartitionSpecGrammar", optional=True),
                         Ref("IfNotExistsGrammar", optional=True),
-                        Ref("SelectableGrammar")
+                        Ref("SelectableGrammar"),
                     ),
                     Sequence(
                         Sequence("LOCAL", optional=True),
@@ -538,9 +538,9 @@ class InsertStatementSegment(BaseSegment):
                         Ref("SingleOrDoubleQuotedLiteralGrammar"),
                         Ref("RowFormatClauseSegment", optional=True),
                         Ref("StoredAsGrammar", optional=True),
-                        Ref("SelectableGrammar")
-                    )
-                )
+                        Ref("SelectableGrammar"),
+                    ),
+                ),
             ),
             Sequence(
                 "INTO",
@@ -549,8 +549,8 @@ class InsertStatementSegment(BaseSegment):
                 Ref("PartitionSpecGrammar", optional=True),
                 OneOf(
                     Ref("SelectableGrammar"),
-                    Ref("ValuesClauseSegment")
-                )
-            )
-        )
+                    Ref("ValuesClauseSegment"),
+                ),
+            ),
+        ),
     )
