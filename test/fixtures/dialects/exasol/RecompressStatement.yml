@@ -3,13 +3,13 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 12717d423891499caf01b58d7ee219869c78cf89ef38ce5ca72305e1121c2a5f
+_hash: 53a6f747c711b3806acd9c82f64dfd18084a610b473ce52227459a2817d741ce
 file:
 - statement:
     recompress_reorganize_statement:
     - keyword: RECOMPRESS
     - keyword: TABLE
-    - object_reference:
+    - table_reference:
         identifier: t1
     - bracketed:
         start_bracket: (
@@ -21,10 +21,10 @@ file:
     recompress_reorganize_statement:
     - keyword: RECOMPRESS
     - keyword: TABLES
-    - object_reference:
+    - table_reference:
         identifier: t2
     - comma: ','
-    - object_reference:
+    - table_reference:
         identifier: t3
     - keyword: ENFORCE
 - statement_terminator: ;

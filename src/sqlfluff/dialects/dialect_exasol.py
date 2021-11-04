@@ -390,9 +390,9 @@ class WithInvalidForeignKeySegment(BaseSegment):
         Ref("BracketedColumnReferenceListGrammar"),
         Dedent,  # dedent for the indent in the select clause
         "FROM",
-        Ref("ObjectReferenceSegment"),
+        Ref("TableReferenceSegment"),
         "REFERENCING",
-        Ref("ObjectReferenceSegment"),
+        Ref("TableReferenceSegment"),
         Ref("BracketedColumnReferenceListGrammar", optional=True),
     )
 
@@ -403,7 +403,7 @@ class IntoTableSegment(BaseSegment):
 
     type = "into_table_clause"
     match_grammar = StartsWith(Sequence("INTO", "TABLE"), terminator="FROM")
-    parse_grammar = Sequence("INTO", "TABLE", Ref("ObjectReferenceSegment"))
+    parse_grammar = Sequence("INTO", "TABLE", Ref("TableReferenceSegment"))
 
 
 @exasol_dialect.segment(replace=True)
@@ -3078,7 +3078,7 @@ class OpenSchemaSegment(BaseSegment):
     """`OPEN SCHEMA` statement."""
 
     type = "open_schema_statement"
-    match_grammar = Sequence("OPEN", "SCHEMA", Ref("ObjectReferenceSegment"))
+    match_grammar = Sequence("OPEN", "SCHEMA", Ref("SchemaReferenceSegment"))
 
 
 @exasol_dialect.segment()
@@ -3107,12 +3107,12 @@ class RecompressReorganizeSegment(BaseSegment):
         OneOf(
             Sequence(
                 "TABLE",
-                Ref("ObjectReferenceSegment"),
+                Ref("TableReferenceSegment"),
                 Ref("BracketedColumnReferenceListGrammar"),
             ),
-            Sequence("TABLES", Delimited(Ref("ObjectReferenceSegment"))),
-            Sequence("SCHEMA", Ref("ObjectReferenceSegment")),
-            Sequence("SCHEMAS", Delimited(Ref("ObjectReferenceSegment"))),
+            Sequence("TABLES", Delimited(Ref("TableReferenceSegment"))),
+            Sequence("SCHEMA", Ref("SchemaReferenceSegment")),
+            Sequence("SCHEMAS", Delimited(Ref("SchemaReferenceSegment"))),
             "DATABASE",
         ),
         Ref.keyword("ENFORCE", optional=True),
@@ -3129,12 +3129,12 @@ class PreloadSegment(BaseSegment):
         OneOf(
             Sequence(
                 "TABLE",
-                Ref("ObjectReferenceSegment"),
+                Ref("TableReferenceSegment"),
                 Ref("BracketedColumnReferenceListGrammar"),
             ),
-            Sequence("TABLES", Delimited(Ref("ObjectReferenceSegment"))),
-            Sequence("SCHEMA", Ref("ObjectReferenceSegment")),
-            Sequence("SCHEMAS", Delimited(Ref("ObjectReferenceSegment"))),
+            Sequence("TABLES", Delimited(Ref("TableReferenceSegment"))),
+            Sequence("SCHEMA", Ref("SchemaReferenceSegment")),
+            Sequence("SCHEMAS", Delimited(Ref("SchemaReferenceSegment"))),
             "DATABASE",
         ),
     )
@@ -3214,7 +3214,7 @@ class ExecuteScriptSegment(BaseSegment):
     match_grammar = Sequence(
         "EXECUTE",
         "SCRIPT",
-        Ref("ObjectReferenceSegment"),
+        Ref("ScriptReferenceSegment"),
         Bracketed(
             Delimited(Ref.keyword("ARRAY", optional=True), Ref("ExpressionSegment")),
             optional=True,
