@@ -154,7 +154,10 @@ class CreateDatabaseStatementSegment(BaseSegment):
 
 @hive_dialect.segment(replace=True)
 class CreateTableStatementSegment(BaseSegment):
-    """A `CREATE TABLE` statement."""
+    """
+    A `CREATE TABLE` statement. Full Apache Hive `CREATE TABLE` reference here:
+    https://cwiki.apache.org/confluence/display/hive/languagemanual+ddl#LanguageManualDDL-CreateTable
+    """
 
     type = "create_table_statement"
     match_grammar = StartsWith(
