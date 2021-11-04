@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c18d191e0be145ed6b398d233eaca31d5890e8a3bce7a725c72cdca21126215b
+_hash: c779ff30a065b616a67966cb4168c174892973c083415a6b0168ace96a4dbdc0
 file:
 - statement:
     select_statement:
@@ -807,10 +807,10 @@ file:
             identifier: nr
           end_bracket: )
       - keyword: from
-      - object_reference:
+      - table_reference:
           identifier: T1
       - keyword: REFERENCING
-      - object_reference:
+      - table_reference:
           identifier: T2
       - bracketed:
           start_bracket: (
@@ -839,10 +839,10 @@ file:
             identifier: name
         - end_bracket: )
       - keyword: from
-      - object_reference:
+      - table_reference:
           identifier: T1
       - keyword: REFERENCING
-      - object_reference:
+      - table_reference:
           identifier: T2
 - statement_terminator: ;
 - statement:
@@ -864,10 +864,10 @@ file:
             identifier: name
         - end_bracket: )
       - keyword: from
-      - object_reference:
+      - table_reference:
           identifier: T1
       - keyword: REFERENCING
-      - object_reference:
+      - table_reference:
           identifier: T2
       - bracketed:
         - start_bracket: (
@@ -892,7 +892,7 @@ file:
         into_table_clause:
         - keyword: INTO
         - keyword: TABLE
-        - object_reference:
+        - table_reference:
             identifier: t2
       from_clause:
         keyword: FROM

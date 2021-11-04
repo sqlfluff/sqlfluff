@@ -7,28 +7,27 @@ Based on https://docs.snowflake.com/en/sql-reference-commands.html
 
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
+    AnyNumberOf,
+    Anything,
     BaseSegment,
+    Bracketed,
+    CodeSegment,
+    Dedent,
+    Delimited,
+    Indent,
+    NamedParser,
     OneOf,
     Ref,
-    Sequence,
-    AnyNumberOf,
-    SymbolSegment,
-    Bracketed,
-    Anything,
-    Delimited,
-    StartsWith,
-    Indent,
-    Dedent,
     RegexLexer,
-    StringLexer,
-    CodeSegment,
-    StringParser,
-    NamedParser,
     RegexParser,
     SegmentGenerator,
+    Sequence,
+    StartsWith,
+    StringLexer,
+    StringParser,
+    SymbolSegment,
 )
 from sqlfluff.core.parser.grammar.anyof import OptionallyBracketed
-
 from sqlfluff.dialects.dialect_snowflake_keywords import (
     snowflake_reserved_keywords,
     snowflake_unreserved_keywords,
@@ -595,11 +594,11 @@ class FromUnpivotExpressionSegment(BaseSegment):
     )
 
 
-@snowflake_dialect.segment()
+@snowflake_dialect.segment(replace=True)
 class SamplingExpressionSegment(BaseSegment):
     """A sampling expression."""
 
-    type = "snowflake_sample_expression"
+    type = "sample_expression"
     match_grammar = Sequence(
         OneOf("SAMPLE", "TABLESAMPLE"),
         OneOf("BERNOULLI", "ROW", "SYSTEM", "BLOCK", optional=True),

@@ -13,44 +13,42 @@ https://www.cockroachlabs.com/docs/stable/sql-grammar.html#select_stmt
 """
 
 from enum import Enum
-from typing import Generator, List, Tuple, NamedTuple, Optional, Union
-
-from sqlfluff.core.parser import (
-    Matchable,
-    BaseSegment,
-    BaseFileSegment,
-    KeywordSegment,
-    SymbolSegment,
-    Sequence,
-    GreedyUntil,
-    StartsWith,
-    OneOf,
-    Delimited,
-    Bracketed,
-    AnyNumberOf,
-    Ref,
-    SegmentGenerator,
-    Anything,
-    Indent,
-    Dedent,
-    Nothing,
-    OptionallyBracketed,
-    StringLexer,
-    RegexLexer,
-    CodeSegment,
-    CommentSegment,
-    WhitespaceSegment,
-    NewlineSegment,
-    StringParser,
-    NamedParser,
-    RegexParser,
-    Conditional,
-)
+from typing import Generator, List, NamedTuple, Optional, Tuple, Union
 
 from sqlfluff.core.dialects.base import Dialect
 from sqlfluff.core.dialects.common import AliasInfo
+from sqlfluff.core.parser import (
+    AnyNumberOf,
+    Anything,
+    BaseFileSegment,
+    BaseSegment,
+    Bracketed,
+    CodeSegment,
+    CommentSegment,
+    Conditional,
+    Dedent,
+    Delimited,
+    GreedyUntil,
+    Indent,
+    KeywordSegment,
+    Matchable,
+    NamedParser,
+    NewlineSegment,
+    Nothing,
+    OneOf,
+    OptionallyBracketed,
+    Ref,
+    RegexLexer,
+    RegexParser,
+    SegmentGenerator,
+    Sequence,
+    StartsWith,
+    StringLexer,
+    StringParser,
+    SymbolSegment,
+    WhitespaceSegment,
+)
 from sqlfluff.core.parser.segments.base import BracketedSegment
-
 from sqlfluff.dialects.dialect_ansi_keywords import (
     ansi_reserved_keywords,
     ansi_unreserved_keywords,
@@ -1069,7 +1067,12 @@ class FromExpressionElementSegment(BaseSegment):
         OptionallyBracketed(Ref("TableExpressionSegment")),
         # https://cloud.google.com/bigquery/docs/reference/standard-sql/arrays#flattening_arrays
         Sequence("WITH", "OFFSET", optional=True),
-        Ref("AliasExpressionSegment", optional=True),
+        OneOf(
+            Sequence(Ref("AliasExpressionSegment"), Ref("SamplingExpressionSegment")),
+            Ref("SamplingExpressionSegment"),
+            Ref("AliasExpressionSegment"),
+            optional=True,
+        ),
         Ref("PostTableExpressionGrammar", optional=True),
     )
 
@@ -3249,3 +3252,21 @@ class DropTriggerStatementSegment(BaseSegment):
     type = "drop_trigger"
 
     match_grammar = Sequence("DROP", "TRIGGER", Ref("TriggerReferenceSegment"))
+
+    
+@ansi_dialect.segment()    
+class SamplingExpressionSegment(BaseSegment):
+    """A sampling expression."""
+
+    type = "sample_expression"
+    match_grammar = Sequence(
+        "TABLESAMPLE",
+        OneOf("BERNOULLI", "SYSTEM"),
+        Bracketed(Ref("NumericLiteralSegment")),
+        Sequence(
+            OneOf("REPEATABLE"),
+            Bracketed(Ref("NumericLiteralSegment")),
+            optional=True,
+        ),
+    )
+
