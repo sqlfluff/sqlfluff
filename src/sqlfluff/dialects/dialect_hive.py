@@ -154,8 +154,9 @@ class CreateDatabaseStatementSegment(BaseSegment):
 
 @hive_dialect.segment(replace=True)
 class CreateTableStatementSegment(BaseSegment):
-    """
-    A `CREATE TABLE` statement. Full Apache Hive `CREATE TABLE` reference here:
+    """A `CREATE TABLE` statement.
+    
+    Full Apache Hive `CREATE TABLE` reference here:
     https://cwiki.apache.org/confluence/display/hive/languagemanual+ddl#LanguageManualDDL-CreateTable
     """
 
