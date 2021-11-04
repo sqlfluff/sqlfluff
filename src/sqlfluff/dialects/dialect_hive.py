@@ -507,3 +507,50 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref("DropModelStatementSegment"),
         ],
     )
+
+
+@hive_dialect.segment(replace=True)
+class InsertStatementSegment(BaseSegment):
+    """An `INSERT` statement.
+
+    Full Apache Hive `INSERT` reference here:
+    https://cwiki.apache.org/confluence/display/Hive/LanguageManual+DML
+    """
+
+    type = "insert_statement"
+    match_grammar = StartsWith("INSERT")
+    parse_grammar = Sequence(
+        "INSERT",
+        OneOf(
+            Sequence(
+                "OVERWRITE",
+                OneOf(
+                    Sequence(
+                        "TABLE",
+                        Ref("TableReferenceSegment"),
+                        Ref("PartitionSpecGrammar", optional=True),
+                        Ref("IfNotExistsGrammar", optional=True),
+                        Ref("SelectableGrammar")
+                    ),
+                    Sequence(
+                        Sequence("LOCAL", optional=True),
+                        "DIRECTORY",
+                        Ref("SingleOrDoubleQuotedLiteralGrammar"),
+                        Ref("RowFormatClauseSegment", optional=True),
+                        Ref("StoredAsGrammar", optional=True),
+                        Ref("SelectableGrammar")
+                    )
+                )
+            ),
+            Sequence(
+                "INTO",
+                "TABLE",
+                Ref("TableReferenceSegment"),
+                Ref("PartitionSpecGrammar", optional=True),
+                OneOf(
+                    Ref("SelectableGrammar"),
+                    Ref("ValuesClauseSegment")
+                )
+            )
+        )
+    )
