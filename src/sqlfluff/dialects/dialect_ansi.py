@@ -3166,7 +3166,7 @@ class DatePartFunctionNameSegment(BaseSegment):
 class SamplingExpressionSegment(BaseSegment):
     """A sampling expression."""
 
-    type = "ansi_sample_expression"
+    type = "sample_expression"
     match_grammar = Sequence(
         "TABLESAMPLE",
         OneOf("BERNOULLI", "SYSTEM"),

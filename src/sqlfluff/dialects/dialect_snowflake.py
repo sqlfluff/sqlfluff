@@ -598,7 +598,7 @@ class FromUnpivotExpressionSegment(BaseSegment):
 class SamplingExpressionSegment(BaseSegment):
     """A sampling expression."""
 
-    type = "snowflake_sample_expression"
+    type = "sample_expression"
     match_grammar = Sequence(
         OneOf("SAMPLE", "TABLESAMPLE"),
         OneOf("BERNOULLI", "ROW", "SYSTEM", "BLOCK", optional=True),

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0c205ea67995e31c393fcef49eceea904abca0f6cbc24ebe55c1af34aad36589
+_hash: 2e0d9b36cef75a1a286c8ce4ab0949b8ae6ebbe5139522186da147415255c097
 file:
   statement:
     select_statement:
@@ -24,7 +24,7 @@ file:
             alias_expression:
               keyword: AS
               identifier: f
-            ansi_sample_expression:
+            sample_expression:
             - keyword: TABLESAMPLE
             - keyword: BERNOULLI
             - bracketed:
