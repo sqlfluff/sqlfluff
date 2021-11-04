@@ -3193,7 +3193,7 @@ class CreateTriggerStatementSegment(BaseSegment):
                 "OF",
                 Delimited(
                     Ref("ColumnReferenceSegment"),
-                    terminator=OneOf("INSERT", "DELETE", "UPDATE", "ON"),
+                    terminator=OneOf("OR", "ON"),
                 ),
             ),
             delimiter="OR",
@@ -3233,7 +3233,7 @@ class CreateTriggerStatementSegment(BaseSegment):
             "EXECUTE",
             "PROCEDURE",
             Ref("FunctionNameIdentifierSegment"),
-            Bracketed(Ref("FunctionContentsGrammar")),
+            Bracketed(Ref("FunctionContentsGrammar", optional=True)),
         ),
     )
 

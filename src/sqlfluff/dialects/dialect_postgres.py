@@ -148,6 +148,18 @@ postgres_dialect.add(
 )
 
 postgres_dialect.replace(
+    ComparisonOperatorGrammar=OneOf(
+        Ref("EqualsSegment"),
+        Ref("GreaterThanSegment"),
+        Ref("LessThanSegment"),
+        Ref("GreaterThanOrEqualToSegment"),
+        Ref("LessThanOrEqualToSegment"),
+        Ref("NotEqualToSegment_a"),
+        Ref("NotEqualToSegment_b"),
+        Ref("LikeOperatorSegment"),
+        Sequence("IS", "DISTINCT", "FROM"),
+        Sequence("IS", "NOT", "DISTINCT", "FROM")
+    ),
     NakedIdentifierSegment=SegmentGenerator(
         # Generate the anti template from the set of reserved keywords
         lambda dialect: RegexParser(
@@ -2183,14 +2195,16 @@ class CreateTriggerStatementSegment(BaseSegment):
             "TRUNCATE",
             Sequence(
                 "UPDATE",
-                "OF",
-                Delimited(
-                    Ref("ColumnReferenceSegment"),
-                    terminator=OneOf("INSERT", "DELETE", "UPDATE", "TRUNCATE", "ON"),
-                ),
+                Sequence(
+                    "OF",
+                    Delimited(
+                        Ref("ColumnReferenceSegment"),
+                        terminator=OneOf("OR", "ON"),
+                    ),
+                    optional=True
+                )
             ),
-            delimiter="OR",
-            terminator="ON",
+            delimiter="OR"
         ),
         "ON",
         Ref("TableReferenceSegment"),
@@ -2229,7 +2243,7 @@ class CreateTriggerStatementSegment(BaseSegment):
             "EXECUTE",
             OneOf("FUNCTION", "PROCEDURE"),
             Ref("FunctionNameIdentifierSegment"),
-            Bracketed(Ref("FunctionContentsGrammar")),
+            Bracketed(Ref("FunctionContentsGrammar", optional=True)),
         ),
     )
 

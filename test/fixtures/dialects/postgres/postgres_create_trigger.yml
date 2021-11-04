@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9bf176d1c53eeebb7a130386fee636d424265f6ab888f97e8b3b1da86cde9a37
+_hash: 06ab0326affff1817e5e1896826356c9701f57abfe1baebb13efa829728e4142
 file:
 - statement:
     create_trigger:
@@ -190,5 +190,232 @@ file:
         expression:
           column_reference:
             identifier: args
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_trigger:
+    - keyword: CREATE
+    - keyword: TRIGGER
+    - trigger_reference:
+        identifier: check_update
+    - keyword: BEFORE
+    - keyword: INSERT
+    - binary_operator: OR
+    - keyword: UPDATE
+    - keyword: 'ON'
+    - table_reference:
+        identifier: accounts
+    - keyword: FOR
+    - keyword: EACH
+    - keyword: ROW
+    - keyword: EXECUTE
+    - keyword: FUNCTION
+    - function_name_identifier: check_account_update
+    - bracketed:
+        start_bracket: (
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_trigger:
+    - keyword: CREATE
+    - binary_operator: OR
+    - keyword: REPLACE
+    - keyword: TRIGGER
+    - trigger_reference:
+        identifier: check_update
+    - keyword: BEFORE
+    - keyword: UPDATE
+    - keyword: OF
+    - column_reference:
+        identifier: balance
+    - comma: ','
+    - column_reference:
+        identifier: transactions
+    - keyword: 'ON'
+    - table_reference:
+        identifier: accounts
+    - keyword: FOR
+    - keyword: EACH
+    - keyword: ROW
+    - keyword: EXECUTE
+    - keyword: FUNCTION
+    - function_name_identifier: check_account_update
+    - bracketed:
+        start_bracket: (
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_trigger:
+    - keyword: CREATE
+    - binary_operator: OR
+    - keyword: REPLACE
+    - keyword: TRIGGER
+    - trigger_reference:
+        identifier: check_update
+    - keyword: BEFORE
+    - keyword: UPDATE
+    - keyword: OF
+    - column_reference:
+        identifier: balance
+    - comma: ','
+    - column_reference:
+        identifier: transactions
+    - binary_operator: OR
+    - keyword: TRUNCATE
+    - keyword: 'ON'
+    - table_reference:
+        identifier: accounts
+    - keyword: FOR
+    - keyword: EACH
+    - keyword: ROW
+    - keyword: EXECUTE
+    - keyword: FUNCTION
+    - function_name_identifier: check_account_update
+    - bracketed:
+        start_bracket: (
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_trigger:
+    - keyword: CREATE
+    - binary_operator: OR
+    - keyword: REPLACE
+    - keyword: TRIGGER
+    - trigger_reference:
+        identifier: check_update
+    - keyword: BEFORE
+    - keyword: UPDATE
+    - keyword: OF
+    - column_reference:
+        identifier: balance
+    - keyword: 'ON'
+    - table_reference:
+        identifier: accounts
+    - keyword: FOR
+    - keyword: EACH
+    - keyword: ROW
+    - keyword: EXECUTE
+    - keyword: FUNCTION
+    - function_name_identifier: check_account_update
+    - bracketed:
+        start_bracket: (
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_trigger:
+    - keyword: CREATE
+    - keyword: TRIGGER
+    - trigger_reference:
+        identifier: check_update
+    - keyword: BEFORE
+    - keyword: UPDATE
+    - keyword: 'ON'
+    - table_reference:
+        identifier: accounts
+    - keyword: FOR
+    - keyword: EACH
+    - keyword: ROW
+    - keyword: WHEN
+    - bracketed:
+        start_bracket: (
+        expression:
+        - column_reference:
+          - identifier: OLD
+          - dot: .
+          - identifier: balance
+        - keyword: IS
+        - keyword: DISTINCT
+        - keyword: FROM
+        - column_reference:
+          - identifier: NEW
+          - dot: .
+          - identifier: balance
+        end_bracket: )
+    - keyword: EXECUTE
+    - keyword: FUNCTION
+    - function_name_identifier: check_account_update
+    - bracketed:
+        start_bracket: (
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_trigger:
+    - keyword: CREATE
+    - keyword: TRIGGER
+    - trigger_reference:
+        identifier: view_insert
+    - keyword: INSTEAD
+    - keyword: OF
+    - keyword: INSERT
+    - keyword: 'ON'
+    - table_reference:
+        identifier: my_view
+    - keyword: FOR
+    - keyword: EACH
+    - keyword: ROW
+    - keyword: EXECUTE
+    - keyword: FUNCTION
+    - function_name_identifier: view_insert_row
+    - bracketed:
+        start_bracket: (
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_trigger:
+    - keyword: CREATE
+    - keyword: TRIGGER
+    - trigger_reference:
+        identifier: transfer_insert
+    - keyword: AFTER
+    - keyword: INSERT
+    - keyword: 'ON'
+    - table_reference:
+        identifier: transfer
+    - keyword: REFERENCING
+    - keyword: NEW
+    - keyword: TABLE
+    - keyword: AS
+    - table_reference:
+        identifier: inserted
+    - keyword: FOR
+    - keyword: EACH
+    - keyword: STATEMENT
+    - keyword: EXECUTE
+    - keyword: FUNCTION
+    - function_name_identifier: check_transfer_balances_to_zero
+    - bracketed:
+        start_bracket: (
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_trigger:
+    - keyword: CREATE
+    - keyword: TRIGGER
+    - trigger_reference:
+        identifier: paired_items_update
+    - keyword: AFTER
+    - keyword: UPDATE
+    - keyword: 'ON'
+    - table_reference:
+        identifier: paired_items
+    - keyword: REFERENCING
+    - keyword: NEW
+    - keyword: TABLE
+    - keyword: AS
+    - table_reference:
+        identifier: newtab
+    - keyword: OLD
+    - keyword: TABLE
+    - keyword: AS
+    - table_reference:
+        identifier: oldtab
+    - keyword: FOR
+    - keyword: EACH
+    - keyword: ROW
+    - keyword: EXECUTE
+    - keyword: FUNCTION
+    - function_name_identifier: check_matching_pairs
+    - bracketed:
+        start_bracket: (
         end_bracket: )
 - statement_terminator: ;
