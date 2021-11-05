@@ -3,20 +3,20 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6681b20a2a0f43830205d4e154910b53cfb41982f4e1a437cdce9ef6ad8c9f09
+_hash: 996e085117024ed5ade66d3fb0c8e56e06a45e98e894f5bf8f38a64eeaa971bf
 file:
 - statement:
     execute_script_statement:
     - keyword: EXECUTE
     - keyword: SCRIPT
-    - object_reference:
+    - script_reference:
         identifier: script_1
 - statement_terminator: ;
 - statement:
     execute_script_statement:
     - keyword: EXECUTE
     - keyword: SCRIPT
-    - object_reference:
+    - script_reference:
         identifier: script_1
     - keyword: WITH
     - keyword: OUTPUT
@@ -25,7 +25,7 @@ file:
     execute_script_statement:
     - keyword: EXECUTE
     - keyword: SCRIPT
-    - object_reference:
+    - script_reference:
         identifier: script_2
     - bracketed:
       - start_bracket: (
@@ -45,7 +45,7 @@ file:
     execute_script_statement:
     - keyword: EXECUTE
     - keyword: SCRIPT
-    - object_reference:
+    - script_reference:
         identifier: script_3
     - bracketed:
         start_bracket: (
