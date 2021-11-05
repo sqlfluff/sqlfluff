@@ -54,6 +54,10 @@ def test__templater_dbt_profiles_dir_expanded(dbt_templater):  # noqa: F811
         "use_headers.sql",
         # var(...)
         "use_var.sql",
+        # {# {{ 1 + 2 }} #}
+        "templated_inside_comment.sql",
+        # {{ dbt_utils.date_spine(
+        "date_spine.sql",
     ],
 )
 def test__templater_dbt_templating_result(
