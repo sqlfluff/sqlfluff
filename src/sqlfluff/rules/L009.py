@@ -41,7 +41,7 @@ class Rule_L009(BaseRule):
         SELECT
             a
         FROM foo
-        $
+
         $
 
     | **Best practice**
