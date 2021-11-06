@@ -1,7 +1,8 @@
 """Implementation of Rule L009."""
-from typing import Optional
+from typing import List, Optional
 
 from sqlfluff.core.parser import NewlineSegment
+from sqlfluff.core.parser.segments.base import BaseSegment
 
 from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix, RuleContext
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
@@ -101,7 +102,7 @@ class Rule_L009(BaseRule):
                 return None
 
         # Include current segment for complete stack.
-        complete_stack = list(context.raw_stack)
+        complete_stack: List[BaseSegment] = list(context.raw_stack)
         complete_stack.append(context.segment)
 
         # Iterate backwards over complete stack to find
@@ -113,8 +114,8 @@ class Rule_L009(BaseRule):
             if segment.is_type("newline"):
                 eof_newline_segments.append(segment)
             elif segment.name not in ("whitespace", "Dedent"):
-                anchor_segment = segment
                 break
+            anchor_segment = segment
 
         if len(eof_newline_segments) == 1:
             # No need for fix if single new line exists.
