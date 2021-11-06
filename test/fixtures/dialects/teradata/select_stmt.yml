@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: cdcc18edd9b16e7f68ec8b226c88a4fe24425a5285b3dec06024364f9954c327
+_hash: 3f82c29898bfee1f67c347a1b44c01d7613e1ab5f8455aedb0bf5c43acd3e2f5
 file:
-  statement:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -54,4 +54,50 @@ file:
             table_expression:
               table_reference:
                 identifier: EXAMPLE_TABLE
-  statement_terminator: ;
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SEL
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: CUSTOMERS
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: CUSTOMERS
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SEL
+        select_clause_element:
+          literal: '1'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          literal: '1'
+- statement_terminator: ;
