@@ -8,7 +8,7 @@ your database.
 
 .. note::
 
-    **SQLFluff** is still in an open alpha phase - expect the tool to
+    **SQLFluff** is still in an open Beta phase - expect the tool to
     change significantly over the coming months, and expect potentially
     non-backward compatible api changes to happen at any point. In
     particular:
