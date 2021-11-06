@@ -45,9 +45,9 @@ This release brings an improvement to the performance of the parser, and a rebui
 ## 🐛 Bug Fixes
 
 * Fix: Add missing init file to sqlfluff.core.templaters.slicers [#1826](https://github.com/sqlfluff/sqlfluff/pull/1826) [@CrossNox](https://github.com/CrossNox)
-* Hive: fixed hive create temporary external table [#1825](https://github.com/sqlfluff/sqlfluff/pull/1825) [@mifercre](https://github.com/mifercre)
+* Hive: Fix order of CREATE TEMPORARY EXTERNAL TABLE [#1825](https://github.com/sqlfluff/sqlfluff/pull/1825) [@mifercre](https://github.com/mifercre)
 * TSQL: add AS keyword as optional in PIVOT-UNPIVOT [#1807](https://github.com/sqlfluff/sqlfluff/pull/1807) [@tkachenkomaria244](https://github.com/tkachenkomaria244)
-* L019 plus L034 corrupts SQL [#1803](https://github.com/sqlfluff/sqlfluff/pull/1803) [@barrywhart](https://github.com/barrywhart)
+* Prevent L019 plus L034 corrupting SQL [#1803](https://github.com/sqlfluff/sqlfluff/pull/1803) [@barrywhart](https://github.com/barrywhart)
 * L028 fix - Allow SELECT column alias in WHERE clauses for certain dialects [#1796](https://github.com/sqlfluff/sqlfluff/pull/1796) [@tunetheweb](https://github.com/tunetheweb)
 * Comment out instructions in GitHub templates [#1792](https://github.com/sqlfluff/sqlfluff/pull/1792) [@tunetheweb](https://github.com/tunetheweb)
 * Fix internal error in L016 when template/whitespace-only line too long [#1795](https://github.com/sqlfluff/sqlfluff/pull/1795) [@barrywhart](https://github.com/barrywhart)
