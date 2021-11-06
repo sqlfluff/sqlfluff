@@ -9,10 +9,10 @@ from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
 @document_fix_compatible
 class Rule_L009(BaseRule):
-    """Files must end with a trailing newline.
+    """Files must end with a single trailing newline.
 
     | **Anti-pattern**
-    | The content in file without ends without a trailing newline, the $ represents end of file.
+    | The content in file does not end with a single trailing newline, the $ represents end of file.
 
     .. code-block:: sql
        :force:
@@ -35,6 +35,14 @@ class Rule_L009(BaseRule):
             a
         FROM foo
         ;$
+
+        -- Ending on more than a single newline.
+
+        SELECT
+            a
+        FROM foo
+        $
+        $
 
     | **Best practice**
     | Add trailing newline to the end, the $ character represents end of file.
@@ -66,7 +74,7 @@ class Rule_L009(BaseRule):
     """
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
-        """Files must end with a trailing newline.
+        """Files must end with a single trailing newline.
 
         We only care about the segment and the siblings which come after it
         for this rule, we discard the others into the kwargs argument.
@@ -77,9 +85,6 @@ class Rule_L009(BaseRule):
             return None
         elif len(context.segment.segments) > 0:
             # This can only fail on the last base segment
-            return None
-        elif context.segment.name == "newline":
-            # If this is the last segment, and it's a newline then we're good
             return None
         elif context.segment.is_meta:
             # We can't fail on a meta segment
@@ -95,11 +100,39 @@ class Rule_L009(BaseRule):
             if file_len != pos:
                 return None
 
-        # We're going to make an edit because we're appending to the end and there's
-        # no segment after it to match on. Otherwise we would never get a match!
-        return LintResult(
-            anchor=context.segment,
-            fixes=[
-                LintFix("edit", context.segment, [context.segment, NewlineSegment()])
-            ],
-        )
+        # Include current segment for complete stack.
+        complete_stack = list(context.raw_stack)
+        complete_stack.append(context.segment)
+
+        # Iterate backwards over complete stack to find
+        # last non-newline/whitespace/Dedent segment
+        # and the newline segments following it.
+        anchor_segment = context.segment
+        eof_newline_segments = []
+        for segment in complete_stack[::-1]:
+            if segment.is_type("newline"):
+                eof_newline_segments.append(segment)
+            elif segment.name not in ("whitespace", "Dedent"):
+                anchor_segment = segment
+                break
+
+        if len(eof_newline_segments) == 1:
+            # No need for fix if single new line exists.
+            return None
+        elif len(eof_newline_segments) == 0:
+            # We're going to make an edit because we're appending to the end and there's
+            # no segment after it to match on. Otherwise we would never get a match!
+            return LintResult(
+                anchor=anchor_segment,
+                fixes=[
+                    LintFix(
+                        "edit", context.segment, [context.segment, NewlineSegment()]
+                    )
+                ],
+            )
+        else:
+            # There are excess newlines so delete all bar one.
+            return LintResult(
+                anchor=anchor_segment,
+                fixes=[LintFix("delete", d) for d in eof_newline_segments[1:]],
+            )
