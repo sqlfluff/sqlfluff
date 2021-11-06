@@ -37,7 +37,7 @@ class Rule_L009(BaseRule):
         FROM foo
         ;$
 
-        -- Ending on more than a single newline.
+        -- Ending with multiple newlines.
 
         SELECT
             a
