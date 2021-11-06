@@ -12,6 +12,8 @@ import logging
 import uuid
 
 # Get the parser logger
+from typing import Dict
+
 parser_logger = logging.getLogger("sqlfluff.parser")
 
 
@@ -42,7 +44,7 @@ class RootParseContext:
         self.uuid = uuid.uuid4()
 
     @classmethod
-    def from_config(cls, config, **overrides):
+    def from_config(cls, config, **overrides: Dict[str, bool]) -> "RootParseContext":
         """Construct a `RootParseContext` from a `FluffConfig`."""
         indentation_config = config.get_section("indentation") or {}
         try:
