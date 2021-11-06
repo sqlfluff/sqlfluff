@@ -3,9 +3,10 @@
 import os.path
 import logging
 import importlib.util
-import re
-from typing import Iterator, Tuple, Optional
+from typing import Callable, Dict, List, Tuple, Optional
 
+from jinja2 import Environment
+from jinja2.environment import Template
 from jinja2.sandbox import SandboxedEnvironment
 from jinja2 import meta, TemplateSyntaxError, TemplateError
 import jinja2.nodes
@@ -15,8 +16,10 @@ from sqlfluff.core.errors import SQLTemplaterError
 from sqlfluff.core.templaters.base import (
     TemplatedFile,
     RawFileSlice,
+    TemplatedFileSlice,
 )
 from sqlfluff.core.templaters.python import PythonTemplater
+from sqlfluff.core.templaters.slicers.tracer import JinjaTracer
 
 # Instantiate the templater logger
 templater_logger = logging.getLogger("sqlfluff.templater")
@@ -172,6 +175,70 @@ class JinjaTemplater(PythonTemplater):
             extensions=["jinja2.ext.do"],
         )
 
+    def get_context(self, fname=None, config=None) -> Dict:
+        """Get the templating context from the config."""
+        # Load the context
+        live_context = super().get_context(fname=fname, config=config)
+        # Apply dbt builtin functions if we're allowed.
+        if config:
+            apply_dbt_builtins = config.get_section(
+                (self.templater_selector, self.name, "apply_dbt_builtins")
+            )
+            if apply_dbt_builtins:
+                # This feels a bit wrong defining these here, they should probably
+                # be configurable somewhere sensible. But for now they're not.
+                # TODO: Come up with a better solution.
+                dbt_builtins = self._generate_dbt_builtins()
+                for name in dbt_builtins:
+                    # Only apply if it hasn't already been set at this stage.
+                    if name not in live_context:
+                        live_context[name] = dbt_builtins[name]
+
+        env = self._get_jinja_env()
+
+        # Load macros from path (if applicable)
+        if config:
+            macros_path = config.get_section(
+                (self.templater_selector, self.name, "load_macros_from_path")
+            )
+            if macros_path:
+                live_context.update(
+                    self._extract_macros_from_path(
+                        macros_path, env=env, ctx=live_context
+                    )
+                )
+
+            # Load config macros, these will take precedence over macros from the path
+            live_context.update(
+                self._extract_macros_from_config(
+                    config=config, env=env, ctx=live_context
+                )
+            )
+
+            live_context.update(self._extract_libraries_from_config(config=config))
+        return live_context
+
+    def template_builder(
+        self, fname=None, config=None
+    ) -> Tuple[Environment, dict, Callable[[str], Template]]:
+        """Builds and returns objects needed to create and run templates."""
+        # Load the context
+        live_context = self.get_context(fname=fname, config=config)
+        env = self._get_jinja_env()
+
+        def make_template(in_str):
+            """Used by JinjaTracer to instantiate templates.
+
+            This function is a closure capturing internal state from process().
+            Note that creating templates involves quite a bit of state known to
+            _this_ function but not to JinjaTracer.
+
+            https://www.programiz.com/python-programming/closure
+            """
+            return env.from_string(in_str, globals=live_context)
+
+        return env, live_context, make_template
+
     def process(
         self, *, in_str: str, fname: str, config=None, formatter=None
     ) -> Tuple[Optional[TemplatedFile], list]:
@@ -199,47 +266,16 @@ class JinjaTemplater(PythonTemplater):
                 "For the jinja templater, the `process()` method requires a config object."
             )
 
-        # Load the context
-        live_context = self.get_context(fname=fname, config=config)
-        # Apply dbt builtin functions if we're allowed.
-        apply_dbt_builtins = config.get_section(
-            (self.templater_selector, self.name, "apply_dbt_builtins")
+        env, live_context, make_template = self.template_builder(
+            fname=fname, config=config
         )
-        if apply_dbt_builtins:
-            # This feels a bit wrong defining these here, they should probably
-            # be configurable somewhere sensible. But for now they're not.
-            # TODO: Come up with a better solution.
-            dbt_builtins = self._generate_dbt_builtins()
-            for name in dbt_builtins:
-                # Only apply if it hasn't already been set at this stage.
-                if name not in live_context:
-                    live_context[name] = dbt_builtins[name]
-
-        env = self._get_jinja_env()
-
-        # Load macros from path (if applicable)
-        macros_path = config.get_section(
-            (self.templater_selector, self.name, "load_macros_from_path")
-        )
-        if macros_path:
-            live_context.update(
-                self._extract_macros_from_path(macros_path, env=env, ctx=live_context)
-            )
-
-        # Load config macros, these will take precedence over macros from the path
-        live_context.update(
-            self._extract_macros_from_config(config=config, env=env, ctx=live_context)
-        )
-
-        live_context.update(self._extract_libraries_from_config(config=config))
 
         # Load the template, passing the global context.
         try:
-            template = env.from_string(in_str, globals=live_context)
+            template = make_template(in_str)
         except TemplateSyntaxError as err:
             # Something in the template didn't parse, return the original
             # and a violation around what happened.
-            (len(line) for line in in_str.split("\n")[: err.lineno])
             return (
                 TemplatedFile(source_str=in_str, fname=fname),
                 [
@@ -277,7 +313,10 @@ class JinjaTemplater(PythonTemplater):
             out_str = template.render()
             # Slice the file once rendered.
             raw_sliced, sliced_file, out_str = self.slice_file(
-                in_str, out_str, config=config
+                in_str,
+                out_str,
+                config=config,
+                make_template=make_template,
             )
             return (
                 TemplatedFile(
@@ -301,123 +340,24 @@ class JinjaTemplater(PythonTemplater):
             )
             return None, violations
 
-    re_open_tag = re.compile(r"^\s*{%[\+\-]?\s*")
-    re_close_tag = re.compile(r"\s*[\+\-]?%}\s*$")
-
     @classmethod
-    def _slice_template(cls, in_str: str) -> Iterator[RawFileSlice]:
-        """Slice template in jinja.
+    def slice_file(
+        cls, raw_str: str, templated_str: str, config=None, **kwargs
+    ) -> Tuple[List[RawFileSlice], List[TemplatedFileSlice], str]:
+        """Slice the file to determine regions where we can fix."""
+        # The TemplateTracer slicing algorithm is more robust, but it requires
+        # us to create and render a second template (not raw_str) and is only
+        # enabled if the caller passes a make_template() function. (For now,
+        # the dbt templater does not.)
+        make_template = kwargs.pop("make_template", None)
+        if make_template is None:
+            # make_template() was not provided. Use the base class
+            # implementation instead.
+            return super().slice_file(raw_str, templated_str, config, **kwargs)
 
-        NB: Starts and ends of blocks are not distinguished.
-        """
-        env = cls._get_jinja_env()
-        str_buff = ""
-        idx = 0
-        # We decide the "kind" of element we're dealing with
-        # using it's _closing_ tag rather than it's opening
-        # tag. The types here map back to similar types of
-        # sections in the python slicer.
-        block_types = {
-            "variable_end": "templated",
-            "block_end": "block",
-            "comment_end": "comment",
-            # Raw tags should behave like blocks. Note that
-            # raw_end and raw_begin are whole tags rather
-            # than blocks and comments where we get partial
-            # tags.
-            "raw_end": "block",
-            "raw_begin": "block",
-        }
-
-        # https://jinja.palletsprojects.com/en/2.11.x/api/#jinja2.Environment.lex
-        for _, elem_type, raw in env.lex(in_str):
-            if elem_type == "data":
-                yield RawFileSlice(raw, "literal", idx)
-                idx += len(raw)
-                continue
-            str_buff += raw
-
-            if elem_type.endswith("_begin"):
-                # When a "begin" tag (whether block, comment, or data) uses
-                # whitespace stripping
-                # (https://jinja.palletsprojects.com/en/3.0.x/templates/#whitespace-control),
-                # the Jinja lex() function handles this by discarding adjacent
-                # whitespace from in_str. For more insight, see the tokeniter()
-                # function in this file:
-                # https://github.com/pallets/jinja/blob/main/src/jinja2/lexer.py
-                # We want to detect and correct for this in order to:
-                # - Correctly update "idx" (if this is wrong, that's a
-                #   potential DISASTER because lint fixes use this info to
-                #   update the source file, and incorrect values often result in
-                #   CORRUPTING the user's file so it's no longer valid SQL. :-O
-                # - Guarantee that the slices we return fully "cover" the
-                #   contents of in_str.
-                #
-                # We detect skipped characters by looking ahead in in_str for
-                # the token just returned from lex(). The token text will either
-                # be at the current 'idx' position (if whitespace stripping did
-                # not occur) OR it'll be farther along in in_str, but we're
-                # GUARANTEED that lex() only skips over WHITESPACE; nothing else.
-
-                # Find the token returned. Did lex() skip over any characters?
-                num_chars_skipped = in_str.index(raw, idx) - idx
-                if num_chars_skipped:
-                    # Yes. It skipped over some characters. Compute a string
-                    # containing the skipped characters.
-                    skipped_str = in_str[idx : idx + num_chars_skipped]
-
-                    # Sanity check: Verify that Jinja only skips over
-                    # WHITESPACE, never anything else.
-                    if not skipped_str.isspace():  # pragma: no cover
-                        templater_logger.warning(
-                            "Jinja lex() skipped non-whitespace: %s", skipped_str
-                        )
-                    # Treat the skipped whitespace as a literal.
-                    yield RawFileSlice(skipped_str, "literal", idx)
-                    idx += num_chars_skipped
-
-            # raw_end and raw_begin behave a little differently in
-            # that the whole tag shows up in one go rather than getting
-            # parts of the tag at a time.
-            if elem_type.endswith("_end") or elem_type == "raw_begin":
-                block_type = block_types[elem_type]
-                block_subtype = None
-                # Handle starts and ends of blocks
-                if block_type == "block":
-                    # Trim off the brackets and then the whitespace
-                    m_open = cls.re_open_tag.search(str_buff)
-                    m_close = cls.re_close_tag.search(str_buff)
-                    trimmed_content = ""
-                    if m_open and m_close:
-                        trimmed_content = str_buff[
-                            len(m_open.group(0)) : -len(m_close.group(0))
-                        ]
-                    if trimmed_content.startswith("end"):
-                        block_type = "block_end"
-                    elif trimmed_content.startswith("el"):
-                        # else, elif
-                        block_type = "block_mid"
-                    else:
-                        block_type = "block_start"
-                        if trimmed_content.split()[0] == "for":
-                            block_subtype = "loop"
-                m = re.search(r"\s+$", raw, re.MULTILINE | re.DOTALL)
-                if raw.startswith("-") and m:
-                    # Right whitespace was stripped. Split off the trailing
-                    # whitespace into a separate slice. The desired behavior is
-                    # to behave similarly as the left stripping case above.
-                    # Note that the stakes are a bit different, because lex()
-                    # hasn't *omitted* any characters from the strings it
-                    # returns, it has simply grouped them differently than we
-                    # want.
-                    trailing_chars = len(m.group(0))
-                    yield RawFileSlice(
-                        str_buff[:-trailing_chars], block_type, idx, block_subtype
-                    )
-                    idx += len(str_buff) - trailing_chars
-                    yield RawFileSlice(str_buff[-trailing_chars:], "literal", idx)
-                    idx += trailing_chars
-                else:
-                    yield RawFileSlice(str_buff, block_type, idx, block_subtype)
-                    idx += len(str_buff)
-                str_buff = ""
+        templater_logger.info("Slicing File Template")
+        templater_logger.debug("    Raw String: %r", raw_str)
+        templater_logger.debug("    Templated String: %r", templated_str)
+        tracer = JinjaTracer(raw_str, cls._get_jinja_env(), make_template)
+        trace = tracer.trace()
+        return trace.raw_sliced, trace.sliced_file, trace.templated_str

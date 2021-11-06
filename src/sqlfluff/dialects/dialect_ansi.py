@@ -13,44 +13,42 @@ https://www.cockroachlabs.com/docs/stable/sql-grammar.html#select_stmt
 """
 
 from enum import Enum
-from typing import Generator, List, Tuple, NamedTuple, Optional, Union
-
-from sqlfluff.core.parser import (
-    Matchable,
-    BaseSegment,
-    BaseFileSegment,
-    KeywordSegment,
-    SymbolSegment,
-    Sequence,
-    GreedyUntil,
-    StartsWith,
-    OneOf,
-    Delimited,
-    Bracketed,
-    AnyNumberOf,
-    Ref,
-    SegmentGenerator,
-    Anything,
-    Indent,
-    Dedent,
-    Nothing,
-    OptionallyBracketed,
-    StringLexer,
-    RegexLexer,
-    CodeSegment,
-    CommentSegment,
-    WhitespaceSegment,
-    NewlineSegment,
-    StringParser,
-    NamedParser,
-    RegexParser,
-    Conditional,
-)
+from typing import Generator, List, NamedTuple, Optional, Tuple, Union
 
 from sqlfluff.core.dialects.base import Dialect
 from sqlfluff.core.dialects.common import AliasInfo
+from sqlfluff.core.parser import (
+    AnyNumberOf,
+    Anything,
+    BaseFileSegment,
+    BaseSegment,
+    Bracketed,
+    CodeSegment,
+    CommentSegment,
+    Conditional,
+    Dedent,
+    Delimited,
+    GreedyUntil,
+    Indent,
+    KeywordSegment,
+    Matchable,
+    NamedParser,
+    NewlineSegment,
+    Nothing,
+    OneOf,
+    OptionallyBracketed,
+    Ref,
+    RegexLexer,
+    RegexParser,
+    SegmentGenerator,
+    Sequence,
+    StartsWith,
+    StringLexer,
+    StringParser,
+    SymbolSegment,
+    WhitespaceSegment,
+)
 from sqlfluff.core.parser.segments.base import BracketedSegment
-
 from sqlfluff.dialects.dialect_ansi_keywords import (
     ansi_reserved_keywords,
     ansi_unreserved_keywords,
@@ -743,6 +741,13 @@ class SequenceReferenceSegment(ObjectReferenceSegment):
 
 
 @ansi_dialect.segment()
+class TriggerReferenceSegment(ObjectReferenceSegment):
+    """A reference to a trigger."""
+
+    type = "trigger_reference"
+
+
+@ansi_dialect.segment()
 class SingleIdentifierListSegment(BaseSegment):
     """A comma delimited list of identifiers."""
 
@@ -1062,7 +1067,12 @@ class FromExpressionElementSegment(BaseSegment):
         OptionallyBracketed(Ref("TableExpressionSegment")),
         # https://cloud.google.com/bigquery/docs/reference/standard-sql/arrays#flattening_arrays
         Sequence("WITH", "OFFSET", optional=True),
-        Ref("AliasExpressionSegment", optional=True),
+        OneOf(
+            Sequence(Ref("AliasExpressionSegment"), Ref("SamplingExpressionSegment")),
+            Ref("SamplingExpressionSegment"),
+            Ref("AliasExpressionSegment"),
+            optional=True,
+        ),
         Ref("PostTableExpressionGrammar", optional=True),
     )
 
@@ -2952,6 +2962,8 @@ class StatementSegment(BaseSegment):
         Ref("CreateSequenceStatementSegment"),
         Ref("AlterSequenceStatementSegment"),
         Ref("DropSequenceStatementSegment"),
+        Ref("CreateTriggerStatementSegment"),
+        Ref("DropTriggerStatementSegment"),
     )
 
     def get_table_references(self):
@@ -3157,3 +3169,103 @@ class DatePartFunctionNameSegment(BaseSegment):
 
     type = "function_name"
     match_grammar = Sequence("DATEADD")
+
+
+@ansi_dialect.segment()
+class CreateTriggerStatementSegment(BaseSegment):
+    """Create Trigger Statement.
+
+    Taken from specification in https://www.postgresql.org/docs/14/sql-createtrigger.html
+    Edited as per notes in above - what doesn't match ANSI
+    """
+
+    type = "create_trigger"
+
+    match_grammar = Sequence("CREATE", "TRIGGER", Anything())
+
+    parse_grammar = Sequence(
+        "CREATE",
+        "TRIGGER",
+        Ref("TriggerReferenceSegment"),
+        OneOf("BEFORE", "AFTER", Sequence("INSTEAD", "OF")),
+        Delimited(
+            "INSERT",
+            "DELETE",
+            Sequence(
+                "UPDATE",
+                "OF",
+                Delimited(
+                    Ref("ColumnReferenceSegment"),
+                    terminator=OneOf("OR", "ON"),
+                ),
+            ),
+            delimiter="OR",
+            terminator="ON",
+        ),
+        "ON",
+        Ref("TableReferenceSegment"),
+        AnyNumberOf(
+            Sequence(
+                "REFERENCING",
+                "OLD",
+                "ROW",
+                "AS",
+                Ref("ParameterNameSegment"),
+                "NEW",
+                "ROW",
+                "AS",
+                Ref("ParameterNameSegment"),
+            ),
+            Sequence("FROM", Ref("TableReferenceSegment")),
+            OneOf(
+                Sequence("NOT", "DEFERRABLE"),
+                Sequence(
+                    Ref.keyword("DEFERRABLE", optional=True),
+                    OneOf(
+                        Sequence("INITIALLY", "IMMEDIATE"),
+                        Sequence("INITIALLY", "DEFERRED"),
+                    ),
+                ),
+            ),
+            Sequence(
+                "FOR", Ref.keyword("EACH", optional=True), OneOf("ROW", "STATEMENT")
+            ),
+            Sequence("WHEN", Bracketed(Ref("ExpressionSegment"))),
+        ),
+        Sequence(
+            "EXECUTE",
+            "PROCEDURE",
+            Ref("FunctionNameIdentifierSegment"),
+            Bracketed(Ref("FunctionContentsGrammar", optional=True)),
+        ),
+    )
+
+
+@ansi_dialect.segment()
+class DropTriggerStatementSegment(BaseSegment):
+    """Drop Trigger Statement.
+
+    Taken from specification in https://www.postgresql.org/docs/14/sql-droptrigger.html
+    Edited as per notes in above - what doesn't match ANSI
+    """
+
+    type = "drop_trigger"
+
+    match_grammar = Sequence("DROP", "TRIGGER", Ref("TriggerReferenceSegment"))
+
+
+@ansi_dialect.segment()
+class SamplingExpressionSegment(BaseSegment):
+    """A sampling expression."""
+
+    type = "sample_expression"
+    match_grammar = Sequence(
+        "TABLESAMPLE",
+        OneOf("BERNOULLI", "SYSTEM"),
+        Bracketed(Ref("NumericLiteralSegment")),
+        Sequence(
+            OneOf("REPEATABLE"),
+            Bracketed(Ref("NumericLiteralSegment")),
+            optional=True,
+        ),
+    )
