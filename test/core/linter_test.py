@@ -191,10 +191,10 @@ def test__linter__linting_result_get_violations(processes):
     """Test that we can get violations from a LintingResult."""
     lntr = Linter()
     result = lntr.lint_paths(
-        [
+        (
             "test/fixtures/linter/comma_errors.sql",
             "test/fixtures/linter/whitespace_errors.sql",
-        ],
+        ),
         processes=processes,
     )
 
@@ -248,7 +248,8 @@ def test_lint_path_parallel_wrapper_exception(patched_lint):
     """
     patched_lint.side_effect = ValueError("Something unexpected happened")
     for result in runner.MultiThreadRunner(Linter(), FluffConfig(), processes=1).run(
-        ["test/fixtures/linter/passing.sql"], fix=False
+        ["test/fixtures/linter/passing.sql"],
+        fix=False,
     ):
         assert isinstance(result, runner.DelayedException)
         with pytest.raises(ValueError):

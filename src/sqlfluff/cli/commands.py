@@ -46,6 +46,7 @@ from sqlfluff.core import (
     dialect_readout,
     TimingSummary,
 )
+from sqlfluff.core.config import progress_bar_configuration
 
 from sqlfluff.core.enums import FormatType, Color
 from sqlfluff.core.linter import ParsedString
@@ -339,6 +340,11 @@ def dialects(**kwargs) -> None:
     default=1,
     help="The number of parallel processes to run.",
 )
+@click.option(
+    "--disable_progress_bar",
+    is_flag=True,
+    help="Disables progress bars when set. It's set automatically when in verbose mode.",
+)
 @click.argument("paths", nargs=-1)
 def lint(
     paths: Tuple[str],
@@ -349,6 +355,7 @@ def lint(
     disregard_sqlfluffignores: bool,
     logger: Optional[logging.Logger] = None,
     bench: bool = False,
+    disable_progress_bar: Optional[bool] = False,
     **kwargs,
 ) -> NoReturn:
     """Lint SQL files via passing a list of files or using stdin.
@@ -372,7 +379,12 @@ def lint(
     config = get_config(**kwargs)
     non_human_output = format != FormatType.human.value
     lnt, formatter = get_linter_and_formatter(config, silent=non_human_output)
+
     verbose = config.get("verbose")
+    # suppress progressbar when in verbose mode
+    if verbose:
+        disable_progress_bar = True
+    progress_bar_configuration.disable_progress_bar = disable_progress_bar
 
     formatter.dispatch_config(lnt)
 
@@ -485,6 +497,11 @@ def do_fixes(lnt, result, formatter=None, **kwargs):
     default=1,
     help="The number of parallel processes to run.",
 )
+@click.option(
+    "--disable_progress_bar",
+    is_flag=True,
+    help="Disables progress bars when set. It's set automatically when in verbose mode.",
+)
 @click.argument("paths", nargs=-1)
 def fix(
     force: bool,
@@ -493,6 +510,7 @@ def fix(
     bench: bool = False,
     fixed_suffix: str = "",
     logger: Optional[logging.Logger] = None,
+    disable_progress_bar: Optional[bool] = False,
     **kwargs,
 ) -> NoReturn:
     """Fix SQL files.
@@ -507,7 +525,13 @@ def fix(
 
     config = get_config(**kwargs)
     lnt, formatter = get_linter_and_formatter(config, silent=fixing_stdin)
+
     verbose = config.get("verbose")
+    # suppress progressbar when in verbose mode
+    if verbose:
+        disable_progress_bar = True
+    progress_bar_configuration.disable_progress_bar = disable_progress_bar
+
     exit_code = 0
 
     formatter.dispatch_config(lnt)
@@ -553,7 +577,10 @@ def fix(
     click.echo("==== finding fixable violations ====")
     try:
         result = lnt.lint_paths(
-            paths, fix=True, ignore_non_existent_files=False, processes=processes
+            paths,
+            fix=True,
+            ignore_non_existent_files=False,
+            processes=processes,
         )
     except OSError:
         click.echo(
@@ -722,6 +749,8 @@ def parse(
     verbose = c.get("verbose")
     recurse = c.get("recurse")
 
+    progress_bar_configuration.disable_progress_bar = True
+
     formatter.dispatch_config(lnt)
 
     # Set up logging.
@@ -746,7 +775,10 @@ def parse(
         if "-" == path:
             parsed_strings = [
                 lnt.parse_string(
-                    sys.stdin.read(), "stdin", recurse=recurse, config=lnt.config
+                    sys.stdin.read(),
+                    "stdin",
+                    recurse=recurse,
+                    config=lnt.config,
                 ),
             ]
         else:

@@ -99,7 +99,7 @@ jobs:
     - name: Install dependencies
       run: |
         pip install -e .
-        pip install tox
+        pip install tqdm
     - name: Test the example files
       run: |
         for file in examples/*

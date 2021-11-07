@@ -203,7 +203,6 @@ def test__templater_dbt_skips_disabled_model(dbt_templater, project_dir):  # noq
         "use_var.sql",
         "incremental.sql",
         "single_trailing_newline.sql",
-        "multiple_trailing_newline.sql",
         "L034_test.sql",
     ],
 )

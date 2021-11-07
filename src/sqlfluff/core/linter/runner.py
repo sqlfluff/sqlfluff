@@ -14,8 +14,10 @@ import multiprocessing.dummy
 import signal
 import sys
 import traceback
-from typing import Callable, List
+from typing import Callable, List, Tuple, Iterator
 
+from sqlfluff.core import FluffConfig, Linter
+from sqlfluff.core.linter import LintedFile
 
 linter_logger: logging.Logger = logging.getLogger("sqlfluff.linter")
 
@@ -33,14 +35,18 @@ class BaseRunner(ABC):
 
     pass_formatter = True
 
-    def iter_rendered(self, fnames):
+    def iter_rendered(self, fnames: List[str]) -> Iterator[Tuple]:
         """Iterate through rendered files ready for linting."""
         for fname in self.linter.templater.sequence_files(
             fnames, config=self.config, formatter=self.linter.formatter
         ):
             yield fname, self.linter.render_file(fname, self.config)
 
-    def iter_partials(self, fnames, fix: bool = False):
+    def iter_partials(
+        self,
+        fnames: List[str],
+        fix: bool = False,
+    ) -> Iterator[Tuple[str, Callable]]:
         """Iterate through partials for linted files.
 
         Generates filenames and objects which return LintedFiles.
@@ -90,7 +96,7 @@ To hide this warning, add the failing file to .sqlfluffignore
 class SequentialRunner(BaseRunner):
     """Simple runner that does sequential processing."""
 
-    def run(self, fnames, fix):
+    def run(self, fnames: List[str], fix: bool) -> Iterator[LintedFile]:
         """Sequential implementation."""
         for fname, partial in self.iter_partials(fnames, fix=fix):
             try:
@@ -114,7 +120,7 @@ class ParallelRunner(BaseRunner):
         super().__init__(linter, config)
         self.processes = processes
 
-    def run(self, fnames, fix):
+    def run(self, fnames: List[str], fix: bool):
         """Parallel implementation.
 
         Note that the partials are generated one at a time then
@@ -129,7 +135,9 @@ class ParallelRunner(BaseRunner):
         ) as pool:
             try:
                 for lint_result in self._map(
-                    pool, self._apply, self.iter_partials(fnames, fix=fix)
+                    pool,
+                    self._apply,
+                    self.iter_partials(fnames, fix=fix),
                 ):
                     if isinstance(lint_result, DelayedException):
                         try:
@@ -215,12 +223,12 @@ class DelayedException(Exception):
 
 
 def get_runner(
-    linter,
-    config,
+    linter: Linter,
+    config: FluffConfig,
     processes: int,
     allow_process_parallelism: bool = True,
 ) -> BaseRunner:
-    """Generate a runner instance based on parallel and sytem configuration."""
+    """Generate a runner instance based on parallel and system configuration."""
     # Python multiprocessing isn't supported in 3.6 and before.
     # The library exists but we get pickling errors with LintedFile.
     if processes > 1 and sys.version_info >= (3, 7):
