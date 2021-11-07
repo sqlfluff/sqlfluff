@@ -156,8 +156,22 @@ hive_dialect.add(
 # https://cwiki.apache.org/confluence/display/hive/languagemanual+joins
 hive_dialect.replace(
     JoinKeywords=Sequence(Sequence("SEMI", optional=True), "JOIN"),
+    LiteralGrammar=ansi_dialect.get_grammar(
+        "LiteralGrammar"
+    ).copy(
+        insert=[
+            Ref("HiveVariableNameReferenceSegment"),
+        ]
+    ),
     BaseExpressionElementGrammar=ansi_dialect.get_grammar(
         "BaseExpressionElementGrammar"
+    ).copy(
+        insert=[
+            Ref("HiveVariableNameReferenceSegment"),
+        ]
+    ),
+    SingleIdentifierGrammar=ansi_dialect.get_grammar(
+        "SingleIdentifierGrammar"
     ).copy(
         insert=[
             Ref("HiveVariableNameReferenceSegment"),
