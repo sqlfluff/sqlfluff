@@ -5,6 +5,8 @@ import tempfile
 import os
 import shutil
 import json
+from unittest.mock import MagicMock, patch
+
 import oyaml as yaml
 import subprocess
 import chardet
@@ -57,7 +59,13 @@ def test__cli__command_directed():
     """Basic checking of lint functionality."""
     result = invoke_assert_code(
         ret_code=65,
-        args=[lint, ["test/fixtures/linter/indentation_error_simple.sql"]],
+        args=[
+            lint,
+            [
+                "--disable_progress_bar",
+                "test/fixtures/linter/indentation_error_simple.sql",
+            ],
+        ],
     )
     # We should get a readout of what the error was
     check_a = "L:   2 | P:   4 | L003"
@@ -421,7 +429,9 @@ def test__cli__command__fix(rule, fname):
 )
 def test__cli__command_fix_stdin(stdin, rules, stdout):
     """Check stdin input for fix works."""
-    result = invoke_assert_code(args=[fix, ("-", "--rules", rules)], cli_input=stdin)
+    result = invoke_assert_code(
+        args=[fix, ("-", "--rules", rules, "--disable_progress_bar")], cli_input=stdin
+    )
     assert result.output == stdout
 
 
@@ -449,7 +459,9 @@ def test__cli__command_fix_stdin_safety():
     perfect_sql = "select col from table"
 
     # just prints the very same thing
-    result = invoke_assert_code(args=[fix, ("-",)], cli_input=perfect_sql)
+    result = invoke_assert_code(
+        args=[fix, ("-", "--disable_progress_bar")], cli_input=perfect_sql
+    )
     assert result.output.strip() == perfect_sql
 
 
@@ -564,7 +576,10 @@ def test__cli__command_parse_serialize_from_stdin(serialize):
 def test__cli__command_lint_serialize_from_stdin(serialize, sql, expected, exit_code):
     """Check an explicit serialized return value for a single error."""
     result = invoke_assert_code(
-        args=[lint, ("-", "--rules", "L010", "--format", serialize)],
+        args=[
+            lint,
+            ("-", "--rules", "L010", "--format", serialize, "--disable_progress_bar"),
+        ],
         cli_input=sql,
         ret_code=exit_code,
     )
@@ -597,7 +612,7 @@ def test__cli__command_lint_serialize_multiple_files(serialize):
 
     # note the file is in here twice. two files = two payloads.
     result = invoke_assert_code(
-        args=[lint, (fpath, fpath, "--format", serialize)],
+        args=[lint, (fpath, fpath, "--format", serialize, "--disable_progress_bar")],
         ret_code=65,
     )
 
@@ -621,7 +636,14 @@ def test__cli__command_lint_serialize_github_annotation():
     result = invoke_assert_code(
         args=[
             lint,
-            (fpath, "--format", "github-annotation", "--annotation-level", "warning"),
+            (
+                fpath,
+                "--format",
+                "github-annotation",
+                "--annotation-level",
+                "warning",
+                "--disable_progress_bar",
+            ),
         ],
         ret_code=65,
     )
@@ -741,3 +763,119 @@ def test_encoding(encoding_in, encoding_out):
             input_file_encoding=encoding_in,
             output_file_encoding=encoding_out,
         )
+
+
+@patch(
+    "sqlfluff.core.linter.linter.progress_bar_configuration", disable_progress_bar=False
+)
+class TestProgressBars:
+    """Progress bars test cases.
+
+    The tqdm package, used for handling progress bars, is able to tell when it is used
+    in a not tty terminal (when `disable` is set to None). In such cases, it just does
+    not render anything. To suppress that for testing purposes, we need to set
+    implicitly that we don't want to disable it.
+    Probably it would be better - cleaner - just to patch `isatty` at some point,
+    but I didn't find a way how to do that properly.
+    """
+
+    def test_cli_lint_disabled_progress_bar(
+        self, mock_disable_progress_bar: MagicMock
+    ) -> None:
+        """When progress bar is disabled, nothing should be printed into output."""
+        result = invoke_assert_code(
+            ret_code=65,
+            args=[
+                lint,
+                [
+                    "--disable_progress_bar",
+                    "test/fixtures/linter/passing.sql",
+                ],
+            ],
+        )
+        raw_output = repr(result.output)
+
+        assert "\rpath test/fixtures/linter/passing.sql:" not in raw_output
+        assert "\rparsing: 0it" not in raw_output
+        assert "\r\rlint by rules:" not in raw_output
+
+    def test_cli_lint_enabled_progress_bar(
+        self, mock_disable_progress_bar: MagicMock
+    ) -> None:
+        """When progress bar is enabled, there should be some tracks in output."""
+        result = invoke_assert_code(
+            ret_code=65,
+            args=[
+                lint,
+                [
+                    "test/fixtures/linter/passing.sql",
+                ],
+            ],
+        )
+        raw_output = repr(result.output)
+
+        assert r"\rlint by rules:" in raw_output
+        assert r"\rrule L001:" in raw_output
+        assert r"\rrule L049:" in raw_output
+
+    def test_cli_lint_enabled_progress_bar_multiple_paths(
+        self, mock_disable_progress_bar: MagicMock
+    ) -> None:
+        """When progress bar is enabled, there should be some tracks in output."""
+        result = invoke_assert_code(
+            ret_code=65,
+            args=[
+                lint,
+                [
+                    "test/fixtures/linter/passing.sql",
+                    "test/fixtures/linter/indentation_errors.sql",
+                ],
+            ],
+        )
+        raw_output = repr(result.output)
+
+        assert r"\rpath test/fixtures/linter/passing.sql:" in raw_output
+        assert r"\rpath test/fixtures/linter/indentation_errors.sql:" in raw_output
+        assert r"\rlint by rules:" in raw_output
+        assert r"\rrule L001:" in raw_output
+        assert r"\rrule L049:" in raw_output
+
+    def test_cli_lint_enabled_progress_bar_multiple_files(
+        self, mock_disable_progress_bar: MagicMock
+    ) -> None:
+        """When progress bar is enabled, there should be some tracks in output."""
+        result = invoke_assert_code(
+            args=[
+                lint,
+                [
+                    "test/fixtures/linter/multiple_files",
+                ],
+            ],
+        )
+        raw_output = repr(result.output)
+
+        assert r"\rfile passing.1.sql:" in raw_output
+        assert r"\rfile passing.2.sql:" in raw_output
+        assert r"\rfile passing.3.sql:" in raw_output
+        assert r"\rlint by rules:" in raw_output
+        assert r"\rrule L001:" in raw_output
+        assert r"\rrule L049:" in raw_output
+
+    def test_cli_lint_disabled_progress_bar_when_verbose_mode(
+        self, mock_disable_progress_bar: MagicMock
+    ) -> None:
+        """Progressbar is disabled when verbose mode is set."""
+        result = invoke_assert_code(
+            ret_code=2,
+            args=[
+                lint,
+                [
+                    "-v" "test/fixtures/linter/passing.sql",
+                ],
+            ],
+        )
+        raw_output = repr(result.output)
+
+        assert r"\rparsing: 0it" not in raw_output
+        assert r"\rlint by rules:" not in raw_output
+        assert r"\rrule L001:" not in raw_output
