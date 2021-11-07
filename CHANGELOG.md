@@ -13,11 +13,13 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ## What’s Changed
 
-Fixes missing dependency issue with 0.8.0 for `tqdm`
+Fixes missing dependency issue with 0.8.0 for `tqdm`, plus add a test to ensure this does not happen again.
 
 ## 🐛 Bug Fixes
 
 * Fix: add tqdm to setup.py installation requirements [#1842](https://github.com/sqlfluff/sqlfluff/pull/1842) [@skykasko](https://github.com/skykasko)
+* Add test to ensure pip install works [#1843](https://github.com/sqlfluff/sqlfluff/pull/1843) [@tunetheweb](https://github.com/tunetheweb)
+
 
 ## [0.8.0] - 2021-11-07
 
