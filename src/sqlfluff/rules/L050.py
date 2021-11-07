@@ -78,7 +78,6 @@ class Rule_L050(BaseRule):
             )
             & (not context.segment.is_expandable)
         ):
-            context.memory = {"first": True}
             return LintResult(
                 anchor=context.parent_stack[0],
                 fixes=[LintFix("delete", d) for d in context.raw_stack],
