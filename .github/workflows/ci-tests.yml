@@ -189,7 +189,7 @@ jobs:
       uses: codecov/codecov-action@v1
       with:
         files: ./coverage.xml
-  pip-test-pull=request:
+  pip-test-pull-request:
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
     name: pip install tests for forks
