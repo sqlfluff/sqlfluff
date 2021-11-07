@@ -190,6 +190,8 @@ jobs:
       with:
         files: ./coverage.xml
   pip-test-pull-request:
+    # Test that using pip install works as we've missed
+    # some dependencies in the past - see #1842
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
     name: pip install tests
