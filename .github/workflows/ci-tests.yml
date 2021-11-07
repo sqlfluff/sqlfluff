@@ -192,7 +192,7 @@ jobs:
   pip-test-pull-request:
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
-    name: pip install tests for forks
+    name: pip install tests
     steps:
     - name: Set up Python
       uses: actions/setup-python@v2
