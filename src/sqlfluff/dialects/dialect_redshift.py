@@ -53,3 +53,65 @@ class FunctionSegment(BaseSegment):
 
     type = "function"
     match_grammar = ansi_dialect.get_segment("FunctionSegment").match_grammar.copy()
+
+
+@redshift_dialect.segment(replace=True)
+class CreateTableStatementSegment(BaseSegment):
+    """A `CREATE TABLE` statement.
+
+    As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_TABLE_NEW.html
+    """
+
+    type = "create_table_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Sequence(
+            Sequence("LOCAL", optional=True),
+            Ref("TemporaryGrammar", optional=True),
+            optional=True,
+        ),
+        "TABLE",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        OneOf(
+            # Columns and comment syntax:
+            Sequence(
+                Bracketed(
+                    Delimited(
+                        OneOf(
+                            Sequence(
+                                Ref("ColumnReferenceSegment"),
+                                Ref("DatatypeSegment"),
+                                AnyNumberOf(
+                                    Ref("ColumnAttributeSegment", optional=True)
+                                ),
+                                AnyNumberOf(
+                                    Ref("ColumnConstraintSegment", optional=True)
+                                ),
+                            ),
+                            Ref("TableConstraintSegment"),
+                            Sequence(
+                                "LIKE",
+                                Ref("TableReferenceSegment"),
+                                AnyNumberOf(Ref("LikeOptionSegment"), optional=True),
+                            ),
+                        ),
+                    )
+                ),
+
+            ),
+        ),
+        Sequence(
+            "BACKUP",
+            OneOf("YES", "NO", optional=True),
+            optional=True
+        ),
+        Delimited(
+            AnyNumberOf(
+                Ref("TableAttributeSegment", optional=True)
+            ),
+            optional=True
+        )
+    )
+
