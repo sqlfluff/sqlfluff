@@ -195,9 +195,9 @@ jobs:
       matrix:
         include:
           - name: 'main'
-            location: https://github.com/sqlfluf/sqlfluff@main
+            location: sqlfluff/sqlfluff.git@main
           - name: 'branch'
-            location: https://github.com/${GITHUB_REPOSITORY}@${GITHUB_REF##*/}
+            location: ${GITHUB_REPOSITORY}.git@${GITHUB_REF##*/}
     name: ${{ matrix.name }} pip tests
     steps:
     - name: Set up Python
@@ -206,7 +206,7 @@ jobs:
         python-version: '3.10'
     - name: Install dependencies
       run: |
-        pip install git+${{ matrix.location }}
+        pip install git+ssh://git@github.com/${{ matrix.location }}
     - name: Run the tests
       run: |
         sqlfluff --version
