@@ -49,7 +49,6 @@ class Rule_L050(BaseRule):
             a
         FROM
             foo
-
     """
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
