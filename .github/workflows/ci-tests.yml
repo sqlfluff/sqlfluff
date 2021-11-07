@@ -189,9 +189,10 @@ jobs:
       uses: codecov/codecov-action@v1
       with:
         files: ./coverage.xml
-  pip-test-main:
+  pip-test-pull=request:
     runs-on: ubuntu-latest
-    name: pip install tests
+    if: github.event_name == 'pull_request'
+    name: pip install tests for forks
     steps:
     - name: Set up Python
       uses: actions/setup-python@v2
@@ -199,8 +200,9 @@ jobs:
         python-version: '3.10'
     - name: Install dependencies
       run: |
-        pip install git+https://github.com/${{ github.repository }}@${{ github.head_ref }}
+        pip install git+https://github.com/${{ github.event.pull_request.head.repo.full_name }}@${{ github.head_ref }}
     - name: Run the tests
       run: |
         sqlfluff --version
+
 
