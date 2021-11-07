@@ -40,11 +40,19 @@ class Rule_L050(BaseRule):
             a
         FROM foo
 
-        -- Including an initial comment.
+        -- Including an initial block comment.
 
         ^/*
         This is a description of my SQL code.
         */
+        SELECT
+            a
+        FROM
+            foo
+
+        -- Including an initial inline comment.
+
+        ^--This is a description of my SQL code.
         SELECT
             a
         FROM
