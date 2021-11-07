@@ -189,4 +189,25 @@ jobs:
       uses: codecov/codecov-action@v1
       with:
         files: ./coverage.xml
+  pip-tests:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - name: 'main'
+            location: https://github.com/sqlfluf/sqlfluff@main
+          - name: 'branch'
+            location: https://github.com/${GITHUB_REPOSITORY}@${GITHUB_REF##*/}
+    name: ${{ matrix.name }} pip tests
+    steps:
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.10'
+    - name: Install dependencies
+      run: |
+        pip install git+${{ matrix.location }}
+    - name: Run the tests
+      run: |
+        sqlfluff --version
 
