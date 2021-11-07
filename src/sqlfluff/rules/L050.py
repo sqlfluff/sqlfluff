@@ -21,7 +21,8 @@ class Rule_L050(BaseRule):
             a
         FROM foo
 
-        -- Beginning on an indented line is also forbidden, the • represents space.
+        -- Beginning on an indented line is also forbidden,
+        -- (the • represents space).
 
         ••••SELECT
         ••••a
