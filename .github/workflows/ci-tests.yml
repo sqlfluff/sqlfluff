@@ -203,8 +203,12 @@ jobs:
     - name: Install dependencies
       run: |
         pip install git+https://github.com/${{ github.event.pull_request.head.repo.full_name }}@${{ github.head_ref }}
-    - name: Run the tests
+    - name: Run the version test
       run: |
         sqlfluff --version
-
-
+    - name: Run a simple select parse test
+      run: |
+        echo "select 1" | sqlfluff parse -
+    - name: Run a simple select lint test
+      run: |
+        echo "select 1" | sqlfluff lint -
