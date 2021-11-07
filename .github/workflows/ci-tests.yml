@@ -190,6 +190,7 @@ jobs:
       with:
         files: ./coverage.xml
   pip-test-main:
+    runs-on: ubuntu-latest
     name: pip install tests
     steps:
     - name: Set up Python
