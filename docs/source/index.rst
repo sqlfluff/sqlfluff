@@ -27,8 +27,9 @@ your database.
   of several innards
 * **0.7.x** extracted the dbt templater to a separate plugin and removed the
   `exasol_fs` dialect (now merged in with the main `exasol`)
-* **0.8.x** an improvement to the performance of the parser, and a rebuild of
-  the Jinja Templater
+* **0.8.x** an improvement to the performance of the parser, a rebuild of the
+  Jinja Templater, and a progress bar for the CLI
+
 
 Want to see where and how people are using SQLFluff in their projects?
 Head over to :ref:`inthewildref` for inspiration.

@@ -13,11 +13,13 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ## What’s Changed
 
-This release brings an improvement to the performance of the parser, and a rebuild of the Jinja Templater. Lots of dialect improvements have also been done. Full list of changes below:
+This release brings an improvement to the performance of the parser, a rebuild of the Jinja Templater, and a progress bar for the CLI. Lots of dialect improvements have also been done. Full list of changes below:
 
 ## 🚀 Enhancements
 
-Teradata dialect: Add support for SEL form of SELECT [#1776](https://github.com/sqlfluff/sqlfluff/pull/1776) [@samlader](https://github.com/samlader)
+* Updated L009 logic to only allow a single trailing newline. [#1838](https://github.com/sqlfluff/sqlfluff/pull/1838) [@jpy-git](https://github.com/jpy-git)
+* Progressbar utility [#1609](https://github.com/sqlfluff/sqlfluff/pull/1609) [@adam-tokarski](https://github.com/adam-tokarski)
+* Teradata dialect: Add support for SEL form of SELECT [#1776](https://github.com/sqlfluff/sqlfluff/pull/1776) [@samlader](https://github.com/samlader)
 * Added trigger support in ANSI - and extended it in Postgres [#1818](https://github.com/sqlfluff/sqlfluff/pull/1818) [@WittierDinosaur](https://github.com/WittierDinosaur)
 * Exasol: Make references more strict [#1829](https://github.com/sqlfluff/sqlfluff/pull/1829) [@sti0](https://github.com/sti0)
 * Hive: INSERT statement support [#1828](https://github.com/sqlfluff/sqlfluff/pull/1828) [@mifercre](https://github.com/mifercre)
