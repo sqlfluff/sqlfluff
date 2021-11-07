@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfluff/sqlfluff/releases) and will be copied in here on each release (please remember to update the issues and contributors to links!). There is no need to manually edit this file going forward.
 -->
 
+## [0.8.1] - 2021-11-07
+
+## What’s Changed
+
+Fixes missing dependency issue with 0.8.0 for `tqdm`
+
+## 🐛 Bug Fixes
+
+* Fix: add tqdm to setup.py installation requirements [#1842](https://github.com/sqlfluff/sqlfluff/pull/1842) [@skykasko](https://github.com/skykasko)
+
 ## [0.8.0] - 2021-11-07
 
 ## What’s Changed
