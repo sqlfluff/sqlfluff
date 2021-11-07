@@ -91,7 +91,7 @@ You can then run :code:`sqlfluff lint test.sql` to lint this file.
     L:   1 | P:  11 | L039 | Unnecessary whitespace found.
     L:   2 | P:   1 | L003 | Indent expected and not found compared to line #1
     L:   2 | P:  10 | L010 | Keywords must be consistently upper case.
-    L:   2 | P:  15 | L009 | Files must end with a trailing newline.
+    L:   2 | P:  15 | L009 | Files must end with a single trailing newline.
 
 You'll see that *SQLFluff* has failed the linting check for this file.
 On each of the following lines you can see each of the problems it has
@@ -123,7 +123,7 @@ error (violation of *L006*) no longer shows up.
     L:   1 | P:  13 | L039 | Unnecessary whitespace found.
     L:   2 | P:   1 | L003 | Indent expected and not found compared to line #1
     L:   2 | P:  10 | L010 | Keywords must be consistently upper case.
-    L:   2 | P:  15 | L009 | Files must end with a trailing newline.
+    L:   2 | P:  15 | L009 | Files must end with a single trailing newline.
 
 To fix the remaining issues, we're going to use one of the more
 advanced features of *SQLFluff*, which is the *fix* command. This
@@ -142,7 +142,7 @@ For now, we only want to fix the following rules: *L003*, *L009*, *L010*
     == [test.sql] FAIL
     L:   2 | P:   1 | L003 | Indent expected and not found compared to line #1
     L:   2 | P:  10 | L010 | Keywords must be consistently upper case.
-    L:   2 | P:  15 | L009 | Files must end with a trailing newline.
+    L:   2 | P:  15 | L009 | Files must end with a single trailing newline.
     ==== fixing violations ====
     3 fixable linting violations found
     Are you sure you wish to attempt to fix these? [Y/n]
