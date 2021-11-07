@@ -3,13 +3,13 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: fc832df27cdfa5ec9952229ae0d8730944f1a63d0b6f92f57cd1649af6cd98f3
+_hash: 8ccdfc4bd57a103aa969a16ee2fe5629a5aafc35c388b9dd597eb941e28a7066
 file:
 - statement:
     preload_statement:
     - keyword: PRELOAD
     - keyword: TABLE
-    - object_reference:
+    - table_reference:
         identifier: t
     - bracketed:
         start_bracket: (
@@ -26,27 +26,27 @@ file:
     preload_statement:
     - keyword: PRELOAD
     - keyword: TABLES
-    - object_reference:
+    - table_reference:
         identifier: t1
     - comma: ','
-    - object_reference:
+    - table_reference:
         identifier: t2
 - statement_terminator: ;
 - statement:
     preload_statement:
     - keyword: PRELOAD
     - keyword: SCHEMAS
-    - object_reference:
+    - schema_reference:
         identifier: s1
     - comma: ','
-    - object_reference:
+    - schema_reference:
         identifier: s2
 - statement_terminator: ;
 - statement:
     preload_statement:
     - keyword: PRELOAD
     - keyword: SCHEMA
-    - object_reference:
+    - schema_reference:
         identifier: s1
 - statement_terminator: ;
 - statement:
