@@ -84,7 +84,7 @@ class Rule_L050(BaseRule):
         # If parent_stack is empty we are currently at FileSegment.
         if len(context.parent_stack) == 0:
             return None
-        
+
         # If raw_stack is empty there can be nothing to remove.
         if len(context.raw_stack) == 0:
             return None
