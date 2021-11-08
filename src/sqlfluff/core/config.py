@@ -496,6 +496,7 @@ class FluffConfig:
         config: Optional["FluffConfig"] = None,
         dialect: Optional[str] = None,
         rules: Optional[Union[str, List[str]]] = None,
+        exclude_rules: Optional[Union[str, List[str]]] = None,
     ) -> "FluffConfig":
         """Instantiate a config from either an existing config or kwargs.
 
@@ -520,6 +521,12 @@ class FluffConfig:
                 rules = [rules]
             # Make a comma separated string to pass in as override
             overrides["rules"] = ",".join(rules)
+        if exclude_rules:
+            # If it's a string, make it a list
+            if isinstance(exclude_rules, str):
+                exclude_rules = [exclude_rules]
+            # Make a comma separated string to pass in as override
+            overrides["exclude_rules"] = ",".join(exclude_rules)
         return cls(overrides=overrides)
 
     def get_templater(self, templater_name="jinja", **kwargs):
