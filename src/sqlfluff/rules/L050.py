@@ -85,18 +85,26 @@ class Rule_L050(BaseRule):
         # If parent_stack is empty we are currently at FileSegment.
         if len(context.parent_stack) == 0:
             return None
+        
+        # If raw_stack is empty there can be nothing to remove.
+        if len(context.raw_stack) == 0:
+            return None
 
         # If the current segment is either comment or code and all
         # previous segments are forms of whitespace then we can
         # remove these earlier segments.
         # Given the tree stucture, we make sure we are at the
         # first leaf to avoid repeated detection.
+        whitespace_set = {"newline", "whitespace", "Indent", "Dedent"}
         if (
-            (context.segment.is_comment or context.segment.is_code)
-            & (len(context.raw_stack) > 0)
+            # Non-whitespace segment.
+            (context.segment.name not in whitespace_set)
+            # We want first Non-whitespace segment so
+            # all preceding segments must be whitespace.
             & set(segment.name for segment in context.raw_stack).issubset(
-                {"newline", "whitespace", "Dedent"}
+                whitespace_set
             )
+            # Found leaf of parse tree.
             & (not context.segment.is_expandable)
         ):
             # It is possible that a template segment (e.g. {{ config(materialized='view') }})
