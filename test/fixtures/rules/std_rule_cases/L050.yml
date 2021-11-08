@@ -16,7 +16,7 @@ test_pass_leading_whitespace_inline_comment_hash:
       dialect: bigquery
 
 test_pass_leading_whitespace_jinja_template:
-  fail_str: "{# I am a comment #}\nSELECT foo FROM bar\n"
+  pass_str: "{# I am a comment #}\nSELECT foo FROM bar\n"
 
 test_fail_leading_whitespace_statement:
   fail_str: "\n  SELECT foo FROM bar\n"
@@ -28,4 +28,4 @@ test_fail_leading_whitespace_comment:
 
 test_fail_leading_whitespace_inline_comment:
   fail_str: "\n  --I am a comment\nSELECT foo FROM bar\n"
-  fix_str: "/*I am a comment*/\nSELECT foo FROM bar\n"
+  fix_str: "--I am a comment\nSELECT foo FROM bar\n"
