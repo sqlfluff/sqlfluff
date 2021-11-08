@@ -100,11 +100,11 @@ class Rule_L050(BaseRule):
             (context.segment.name not in whitespace_set)
             # We want first Non-whitespace segment so
             # all preceding segments must be whitespace.
-            & set(segment.name for segment in context.raw_stack).issubset(
+            and set(segment.name for segment in context.raw_stack).issubset(
                 whitespace_set
             )
             # Found leaf of parse tree.
-            & (not context.segment.is_expandable)
+            and (not context.segment.is_expandable)
         ):
             # It is possible that a template segment (e.g. {{ config(materialized='view') }})
             # renders to an empty string and as such is omitted from the parsed tree.
