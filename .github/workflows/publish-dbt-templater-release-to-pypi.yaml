@@ -16,13 +16,12 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          pip install --upgrade pip
-          pip install twine wheel --upgrade
+          pip install --upgrade pip tox
       
       - name: Build Distribution (dbt plugin)
         # Run this in the right directory so that we get the right Manifest
         working-directory: plugins/sqlfluff-templater-dbt
-        run: python setup.py sdist bdist_wheel
+        run: tox -e build-dist
       
       - name: Copy builds to main dist folder
         # We move them here so that the github action can still access them
