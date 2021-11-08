@@ -65,7 +65,6 @@ class Rule_L050(BaseRule):
 
         Returns:
             :obj:`bool` indicating a preceding templated raw slice has been detected.
-
         """
         templated_file = context.segment.pos_marker.templated_file
         for segment in context.raw_stack:
