@@ -9,6 +9,71 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfluff/sqlfluff/releases) and will be copied in here on each release (please remember to update the issues and contributors to links!). There is no need to manually edit this file going forward.
 -->
 
+## [0.8.1] - 2021-11-07
+
+## What’s Changed
+
+Fixes missing dependency issue with 0.8.0 for `tqdm`, plus add a test to ensure this does not happen again.
+
+## 🐛 Bug Fixes
+
+* Fix: add tqdm to setup.py installation requirements [#1842](https://github.com/sqlfluff/sqlfluff/pull/1842) [@skykasko](https://github.com/skykasko)
+* Add test to ensure pip install works [#1843](https://github.com/sqlfluff/sqlfluff/pull/1843) [@tunetheweb](https://github.com/tunetheweb)
+
+
+## [0.8.0] - 2021-11-07
+
+## What’s Changed
+
+This release brings an improvement to the performance of the parser, a rebuild of the Jinja Templater, and a progress bar for the CLI. Lots of dialect improvements have also been done. Full list of changes below:
+
+## 🚀 Enhancements
+
+* Updated L009 logic to only allow a single trailing newline. [#1838](https://github.com/sqlfluff/sqlfluff/pull/1838) [@jpy-git](https://github.com/jpy-git)
+* Progressbar utility [#1609](https://github.com/sqlfluff/sqlfluff/pull/1609) [@adam-tokarski](https://github.com/adam-tokarski)
+* Teradata dialect: Add support for SEL form of SELECT [#1776](https://github.com/sqlfluff/sqlfluff/pull/1776) [@samlader](https://github.com/samlader)
+* Added trigger support in ANSI - and extended it in Postgres [#1818](https://github.com/sqlfluff/sqlfluff/pull/1818) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Exasol: Make references more strict [#1829](https://github.com/sqlfluff/sqlfluff/pull/1829) [@sti0](https://github.com/sti0)
+* Hive: INSERT statement support [#1828](https://github.com/sqlfluff/sqlfluff/pull/1828) [@mifercre](https://github.com/mifercre)
+* ANSI: Add TABLESAMPLE support [#1811](https://github.com/sqlfluff/sqlfluff/pull/1811) [@CrossNox](https://github.com/CrossNox)
+* TSQL: Support trailing commas in CREATE TABLE [#1817](https://github.com/sqlfluff/sqlfluff/pull/1817) [@tommydb](https://github.com/tommydb)
+* Spark3: Add CREATE VIEW support [#1813](https://github.com/sqlfluff/sqlfluff/pull/1813) [@DipeshCS](https://github.com/DipeshCS)
+* BigQuery: Support PIVOT and UNPIVOT [#1794](https://github.com/sqlfluff/sqlfluff/pull/1794) [@tunetheweb](https://github.com/tunetheweb)
+* L029: Optionally check quoted identifiers in addition to naked identifiers [#1775](https://github.com/sqlfluff/sqlfluff/pull/1775) [@jpers36](https://github.com/jpers36)
+* Add sysdate to Redshift as a bare function [#1789](https://github.com/sqlfluff/sqlfluff/pull/1789) [@tdstark](https://github.com/tdstark)
+* Robust Jinja raw/template mapping [#1678](https://github.com/sqlfluff/sqlfluff/pull/1678) [@barrywhart](https://github.com/barrywhart)
+* Add CREATE TABLE AS to Postgres and Redshift [#1785](https://github.com/sqlfluff/sqlfluff/pull/1785) [@tdstark](https://github.com/tdstark)
+* Improve Parser Performance By Caching Values [#1744](https://github.com/sqlfluff/sqlfluff/pull/1744) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* templater-dbt: Change dbt dependency to dbt-core [#1786](https://github.com/sqlfluff/sqlfluff/pull/1786) [@amardeep](https://github.com/amardeep)
+* TSQL: Create Schema definition [#1773](https://github.com/sqlfluff/sqlfluff/pull/1773) [@jpers36](https://github.com/jpers36)
+* TSQL: allow optional brackets for column default constraints [#1760](https://github.com/sqlfluff/sqlfluff/pull/1760) [@nevado](https://github.com/nevado)
+* Postgres: Support parameters and identifiers prepended with _ and containing $ [#1765](https://github.com/sqlfluff/sqlfluff/pull/1765) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Postgres: Added support for double precision [#1764](https://github.com/sqlfluff/sqlfluff/pull/1764) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* "sqlfluff fix": Write to a temporary .sql file first [#1763](https://github.com/sqlfluff/sqlfluff/pull/1763) [@barrywhart](https://github.com/barrywhart)
+* Update older dbt dependency [#1756](https://github.com/sqlfluff/sqlfluff/pull/1756) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* TSQL: add IDENTITY column constraint [#1757](https://github.com/sqlfluff/sqlfluff/pull/1757) [@nevado](https://github.com/nevado)
+* Update CI to run under Python 3.10 [#1739](https://github.com/sqlfluff/sqlfluff/pull/1739) [@rooterkyberian](https://github.com/rooterkyberian)
+* MySQL: Add drop index support [#1738](https://github.com/sqlfluff/sqlfluff/pull/1738) [@fatelei](https://github.com/fatelei)
+* Snowflake dialect improvements [#1737](https://github.com/sqlfluff/sqlfluff/pull/1737) [@tunetheweb](https://github.com/tunetheweb)
+* Add missing test case [#1735](https://github.com/sqlfluff/sqlfluff/pull/1735) [@tunetheweb](https://github.com/tunetheweb)
+
+## 🐛 Bug Fixes
+
+* Fix: Add missing init file to sqlfluff.core.templaters.slicers [#1826](https://github.com/sqlfluff/sqlfluff/pull/1826) [@CrossNox](https://github.com/CrossNox)
+* Hive: Fix order of CREATE TEMPORARY EXTERNAL TABLE [#1825](https://github.com/sqlfluff/sqlfluff/pull/1825) [@mifercre](https://github.com/mifercre)
+* TSQL: add AS keyword as optional in PIVOT-UNPIVOT [#1807](https://github.com/sqlfluff/sqlfluff/pull/1807) [@tkachenkomaria244](https://github.com/tkachenkomaria244)
+* Prevent L019 plus L034 corrupting SQL [#1803](https://github.com/sqlfluff/sqlfluff/pull/1803) [@barrywhart](https://github.com/barrywhart)
+* L028 fix - Allow SELECT column alias in WHERE clauses for certain dialects [#1796](https://github.com/sqlfluff/sqlfluff/pull/1796) [@tunetheweb](https://github.com/tunetheweb)
+* Comment out instructions in GitHub templates [#1792](https://github.com/sqlfluff/sqlfluff/pull/1792) [@tunetheweb](https://github.com/tunetheweb)
+* Fix internal error in L016 when template/whitespace-only line too long [#1795](https://github.com/sqlfluff/sqlfluff/pull/1795) [@barrywhart](https://github.com/barrywhart)
+* Fix L049 to allow = NULL in SET clauses [#1791](https://github.com/sqlfluff/sqlfluff/pull/1791) [@tunetheweb](https://github.com/tunetheweb)
+* Hive: Fix bug in CREATE TABLE WITH syntax [#1790](https://github.com/sqlfluff/sqlfluff/pull/1790) [@iajoiner](https://github.com/iajoiner)
+* Fixed encoding error when linting to file [#1787](https://github.com/sqlfluff/sqlfluff/pull/1787) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* Fix L012 documentation [#1782](https://github.com/sqlfluff/sqlfluff/pull/1782) [@jpers36](https://github.com/jpers36)
+* TSQL: fix quote alias [#1766](https://github.com/sqlfluff/sqlfluff/pull/1766) [@jpers36](https://github.com/jpers36)
+* Fix incorrect indentation issue [#1733](https://github.com/sqlfluff/sqlfluff/pull/1733) [@tunetheweb](https://github.com/tunetheweb)
+* TSQL: Fix OVER functionality for functions [#1731](https://github.com/sqlfluff/sqlfluff/pull/1731) [@jpers36](https://github.com/jpers36)
+
 ## [0.7.1] - 2021-10-22
 
 ## What’s Changed
