@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f1ee0fab94f2e2ade22759250f5e8ce286b26eab9f33624c98e1f781b606de25
+_hash: 138b1f1ddc5350867a626c79e71f1eaef8cd6d3c450705e8019039329ca8f399
 file:
 - statement:
     select_statement:
@@ -35,23 +35,25 @@ file:
           column_reference:
             identifier: col1
           comparison_operator: '='
-          bare_function: CURRENT_TIMESTAMP
-          cast_expression:
-            casting_operator: '::'
-            data_type:
-              data_type_identifier: TIMESTAMP_TZ
+          expression:
+            bare_function: CURRENT_TIMESTAMP
+            cast_expression:
+              casting_operator: '::'
+              data_type:
+                data_type_identifier: TIMESTAMP_TZ
       - comma: ','
       - set_clause:
-        - column_reference:
+          column_reference:
             identifier: col2
-        - comparison_operator: '='
-        - literal: "'1'"
-        - cast_expression:
-            casting_operator: '::'
-            data_type:
-              data_type_identifier: int
-        - cast_expression:
-            casting_operator: '::'
-            data_type:
-              data_type_identifier: boolean
+          comparison_operator: '='
+          expression:
+          - literal: "'1'"
+          - cast_expression:
+              casting_operator: '::'
+              data_type:
+                data_type_identifier: int
+          - cast_expression:
+              casting_operator: '::'
+              data_type:
+                data_type_identifier: boolean
 - statement_terminator: ;
