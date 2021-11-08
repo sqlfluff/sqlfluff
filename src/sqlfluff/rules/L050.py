@@ -61,18 +61,21 @@ class Rule_L050(BaseRule):
     """
 
     @staticmethod
-    def _potential_template_collision(segment: BaseSegment) -> bool:
-        """Check for any source only slices that occur at or before the supplied segment.
+    def _potential_template_collision(context: RuleContext) -> bool:
+        """Check for any templated raw slices that intersect with source slices in the raw_stack.
 
         Returns:
-            :obj:`bool` indicating a preceding source only slice detected.
+            :obj:`bool` indicating a preceding templated raw slice has been detected.
 
         """
-        source_only_slices = segment.pos_marker.templated_file.source_only_slices()
-        if source_only_slices:
-            if (
-                source_only_slices[0].source_idx
-                <= segment.pos_marker.source_slice.start
+        templated_file = context.segment.pos_marker.templated_file
+        for segment in context.raw_stack:
+            source_slice = segment.pos_marker.source_slice
+            raw_slices = templated_file.raw_slices_spanning_source_slice(source_slice)
+            if any(
+                raw_slice
+                for raw_slice in raw_slices
+                if raw_slice.slice_type == "templated"
             ):
                 return True
 
@@ -99,10 +102,10 @@ class Rule_L050(BaseRule):
         ):
             # It is possible that a template segment (e.g. {{ config(materialized='view') }})
             # renders to an empty string and as such is omitted from the parsed tree.
-            # We therefore should flag if a source only slice occurs at or before the
-            # the current segment and skip this rule to avoid risking collisions
-            # with template objects.
-            if self._potential_template_collision(context.segment):
+            # We therefore should flag if a templated raw slice intersects with the
+            # source slices in the raw stack and skip this rule to avoid risking
+            # collisions with template objects.
+            if self._potential_template_collision(context):
                 return None
 
             return LintResult(
