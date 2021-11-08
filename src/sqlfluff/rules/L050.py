@@ -1,7 +1,7 @@
 """Implementation of Rule L050."""
-from typing import Optional, Tuple
+from typing import Optional
 
-from sqlfluff.core.parser.segments.raw import RawSegment
+from sqlfluff.core.parser.segments.base import BaseSegment
 from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix, RuleContext
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
@@ -61,28 +61,22 @@ class Rule_L050(BaseRule):
     """
 
     @staticmethod
-    def _check_unaccounted_slice_gaps(raw_stack: Tuple[RawSegment, ...]) -> bool:
-        """Check for missing segments by comparing neighbouring templated slices in the raw stack.
+    def _potential_template_collision(segment: BaseSegment) -> bool:
+        """Check for any source only slices that occur at or before the supplied segment.
 
         Returns:
-            :obj:`bool` indicating a missing segment discovered.
+            :obj:`bool` indicating a preceding source only slice detected.
 
         """
-        missing_segment_flag = False
-        for i, segment in enumerate(raw_stack):
-            if (i == 0) and (segment.pos_marker.templated_slice.start != 0):
-                # First segment does not start at position 0.
-                missing_segment_flag = True
-            elif i > 0:
-                prior_segment = raw_stack[i - 1]
-                if (
-                    segment.pos_marker.templated_slice.start
-                    != prior_segment.pos_marker.templated_slice.stop
-                ):
-                    # There is an unaccounted for gap in templated slices.
-                    missing_segment_flag = True
+        source_only_slices = segment.pos_marker.templated_file.source_only_slices()
+        if source_only_slices:
+            if (
+                source_only_slices[0].source_idx
+                <= segment.pos_marker.source_slice.start
+            ):
+                return True
 
-        return missing_segment_flag
+        return False
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Files must not begin with newlines or whitespace."""
@@ -103,11 +97,12 @@ class Rule_L050(BaseRule):
             )
             & (not context.segment.is_expandable)
         ):
-            if self._check_unaccounted_slice_gaps(context.raw_stack):
-                # It is possible that a template segment (e.g. {{ config(materialized='view') }})
-                # renders to an empty string and as such is omitted from the parsed tree.
-                # We therefore should flag any unaccounted for gaps in the earlier templated slices
-                # and skip this rule to avoid risking collisions with template objects.
+            # It is possible that a template segment (e.g. {{ config(materialized='view') }})
+            # renders to an empty string and as such is omitted from the parsed tree.
+            # We therefore should flag if a source only slice occurs at or before the
+            # the current segment and skip this rule to avoid risking collisions
+            # with template objects.
+            if self._potential_template_collision(context.segment):
                 return None
 
             return LintResult(
