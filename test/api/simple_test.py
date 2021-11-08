@@ -157,7 +157,7 @@ def test__api__fix_string_specific():
 
 
 def test__api__fix_string_specific_exclude():
-    """Basic checking of lint functionality with a specific rule excludsion."""
+    """Basic checking of lint functionality with a specific rule exclusion."""
     result = sqlfluff.fix(my_bad_query, exclude_rules="L036")
     # Check actual result
     assert result == "SELECT *, 1, blah AS foo FROM mytable\n"
