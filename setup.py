@@ -119,6 +119,8 @@ setup(
         "toml",
         # For returning exceptions from multiprocessing.Pool.map()
         "tblib",
+        # For handling progress bars
+        "tqdm",
     ],
     entry_points={
         "console_scripts": [

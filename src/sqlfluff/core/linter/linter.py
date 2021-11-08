@@ -68,10 +68,14 @@ class Linter:
         dialect: Optional[str] = None,
         rules: Optional[Union[str, List[str]]] = None,
         user_rules: Optional[Union[str, List[str]]] = None,
+        exclude_rules: Optional[Union[str, List[str]]] = None,
     ) -> None:
         # Store the config object
         self.config = FluffConfig.from_kwargs(
-            config=config, dialect=dialect, rules=rules
+            config=config,
+            dialect=dialect,
+            rules=rules,
+            exclude_rules=exclude_rules,
         )
         # Get the dialect and templater
         self.dialect = self.config.get("dialect_obj")
