@@ -2041,6 +2041,7 @@ class AlterSequenceOptionsSegment(BaseSegment):
             Sequence("MAXVALUE", Ref("NumericLiteralSegment")),
             Sequence("NO", "MAXVALUE"),
         ),
+        Sequence("SEQUENCE", "NAME", Ref("SequenceReferenceSegment")),
         Sequence(
             "START", Ref.keyword("WITH", optional=True), Ref("NumericLiteralSegment")
         ),
