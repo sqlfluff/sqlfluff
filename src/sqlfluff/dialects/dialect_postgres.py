@@ -2303,3 +2303,19 @@ class DropTriggerStatementSegment(BaseSegment):
         Ref("TableReferenceSegment"),
         OneOf("CASCADE", "RESTRICT", optional=True),
     )
+
+
+@postgres_dialect.segment(replace=True)
+class InsertStatementSegment(BaseSegment):
+    """An `INSERT` statement."""
+
+    type = "insert_statement"
+    match_grammar = StartsWith("INSERT")
+    parse_grammar = Sequence(
+        "INSERT",
+        "INTO",
+        Ref("TableReferenceSegment"),
+        Ref("BracketedColumnReferenceListGrammar", optional=True),
+        Sequence("OVERRIDING", OneOf( "SYSTEM", "USER" ), "VALUE", optional=True),
+        Ref("SelectableGrammar"),
+    )
