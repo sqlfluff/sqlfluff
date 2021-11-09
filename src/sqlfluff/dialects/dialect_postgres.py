@@ -1269,7 +1269,12 @@ class AlterTableActionSegment(BaseSegment):
         Sequence(
             "OWNER",
             "TO",
-            OneOf(Ref("QuotedIdentifierSegment"), "CURRENT_ROLE", "CURRENT_USER", "SESSION_USER"),
+            OneOf(
+                OneOf(Ref("ParameterNameSegment"), Ref("QuotedIdentifierSegment")),
+                "CURRENT_ROLE",
+                "CURRENT_USER",
+                "SESSION_USER",
+            ),
         ),
         Sequence(
             "REPLICA",
