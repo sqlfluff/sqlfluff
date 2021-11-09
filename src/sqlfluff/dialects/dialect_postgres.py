@@ -2307,7 +2307,12 @@ class DropTriggerStatementSegment(BaseSegment):
 
 @postgres_dialect.segment(replace=True)
 class InsertStatementSegment(BaseSegment):
-    """An `INSERT` statement."""
+    """An `INSERT` statement.
+
+    As Specified in https://www.postgresql.org/docs/14/sql-insert.html
+    N.B. This is not a complete implementation of the documentation above.
+    TODO: Implement complete postgres insert statement structure.
+    """
 
     type = "insert_statement"
     match_grammar = StartsWith("INSERT")
