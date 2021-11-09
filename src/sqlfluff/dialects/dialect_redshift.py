@@ -23,6 +23,7 @@ from sqlfluff.core.parser import (
     CommentSegment,
     Dedent,
     SegmentGenerator,
+    Nothing
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
