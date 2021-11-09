@@ -54,6 +54,122 @@ class FunctionSegment(BaseSegment):
     type = "function"
     match_grammar = ansi_dialect.get_segment("FunctionSegment").match_grammar.copy()
 
+@redshift_dialect.segment()
+class ColumnEncodingSegment(BaseSegment):
+    """ColumnEncoding segment
+
+    As specified by: https://docs.aws.amazon.com/redshift/latest/dg/c_Compression_encodings.html
+     """
+
+    type = "column_encoding_segment"
+
+    match_grammar = OneOf(
+        "RAW",
+        "AZ64",
+        "BYTEDICT",
+        "DELTA",
+        "DELTA32K",
+        "LZO",
+        "MOSTLY8",
+        "MOSTLY16",
+        "MOSTLY32",
+        "RUNLENGTH",
+        "TEXT255",
+        "TEXT32K",
+        "ZSTD"
+    )
+
+@redshift_dialect.segment()
+class ColumnAttributeSegment(BaseSegment):
+    """Redshift specific column attributes.
+
+    As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_TABLE_NEW.html
+    """
+
+    type = "column_attribute_segment"
+
+    match_grammar = AnyNumberOf(
+        Sequence("DEFAULT", Ref("ExpressionSegment")),
+        Sequence("IDENTITY", Bracketed(
+                     Delimited(Ref("NumericLiteralSegment"),
+                               Ref("NumericLiteralSegment")
+                              )
+                          )),
+        Sequence("GENERATED", "BY", "DEFAULT", "AS", "IDENTITY", Bracketed(
+                     Delimited(Ref("NumericLiteralSegment"),
+                               Ref("NumericLiteralSegment")
+                              )
+                          )
+                 ),
+        Sequence("ENCODE", Ref("ColumnEncodingSegment")),
+        "DISTKEY",
+        "SORTKEY",
+        OneOf(Sequence("COLLATE", "CASE_SENSITIVE"), Sequence("COLLATE", "CASE_INSENSITIVE"))
+    )
+
+@redshift_dialect.segment()
+class ColumnConstraintSegment(BaseSegment):
+    """Redshift specific column constraints.
+
+    As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_TABLE_NEW.html
+    """
+
+    type = "column_constraint_segment"
+
+    match_grammar = AnyNumberOf(
+        OneOf(Sequence("NOT", "NULL"), "NULL"),
+        OneOf("UNIQUE", Sequence("PRIMARY", "KEY")),
+        Sequence("REFERENCES",
+                 Ref("TableReferenceSegment"),
+                 Sequence(Bracketed(Ref("ColumnReferenceSegment"))))
+    )
+
+@redshift_dialect.segment()
+class TableAttributeSegment(BaseSegment):
+    """Redshift specific table attributes.
+
+    As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_TABLE_NEW.html
+    """
+
+    type = "table_constraint_segment"
+
+    match_grammar = AnyNumberOf(
+        Sequence("DISTSTYLE", OneOf("AUTO", "EVEN", "KEY", "ALL")),
+        Sequence("DISTKEY", Bracketed(Ref("ColumnReferenceSegment"))),
+        OneOf(Sequence(OneOf("COMPOUND", "INTERLEAVED", optional=True), "SORTKEY", Sequence("SORTKEY", Bracketed(Ref("ColumnReferenceSegment")))),
+                                                                                   Sequence("SORTKEY", "AUTO")),
+        Sequence("ENCODE", "AUTO")
+    )
+
+@redshift_dialect.segment(replace=True)
+class TableConstraintSegment(BaseSegment):
+    """Redshift specific table constraints.
+
+    As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_TABLE_NEW.html
+    """
+
+    type = "table_constraint_segment"
+
+    match_grammar = AnyNumberOf(
+        Sequence("UNIQUE", Bracketed(AnyNumberOf(Delimited(Ref("ColumnReferenceSegment"))))),
+        Sequence("PRIMARY", "KEY", Bracketed(AnyNumberOf(Delimited(Ref("ColumnReferenceSegment"))))),
+        Sequence("FOREIGN", "KEY", Bracketed(AnyNumberOf(Delimited(Ref("ColumnReferenceSegment")))), "REFERENCES", Ref("TableReferenceSegment"), Sequence(Bracketed(Ref("ColumnReferenceSegment"))))
+    )
+
+
+@redshift_dialect.segment()
+class LikeOptionSegment(BaseSegment):
+    """Like Option Segment.
+
+    As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_TABLE_NEW.html
+    """
+
+    type = "like_option_segment"
+
+    match_grammar = Sequence(
+        OneOf("INCLUDING", "EXCLUDING"),
+        "DEFAULTS"
+    )
 
 @redshift_dialect.segment(replace=True)
 class CreateTableStatementSegment(BaseSegment):
@@ -74,33 +190,26 @@ class CreateTableStatementSegment(BaseSegment):
         "TABLE",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
-        OneOf(
+        Bracketed(
+            OneOf(
             # Columns and comment syntax:
-            Sequence(
-                Bracketed(
-                    Delimited(
-                        OneOf(
-                            Sequence(
-                                Ref("ColumnReferenceSegment"),
-                                Ref("DatatypeSegment"),
-                                AnyNumberOf(
-                                    Ref("ColumnAttributeSegment", optional=True)
-                                ),
-                                AnyNumberOf(
-                                    Ref("ColumnConstraintSegment", optional=True)
-                                ),
-                            ),
-                            Ref("TableConstraintSegment"),
-                            Sequence(
-                                "LIKE",
-                                Ref("TableReferenceSegment"),
-                                AnyNumberOf(Ref("LikeOptionSegment"), optional=True),
-                            ),
-                        ),
-                    )
+                Sequence(
+                    Ref("ColumnReferenceSegment"),
+                    Ref("DatatypeSegment"),
+                    AnyNumberOf(
+                        Ref("ColumnAttributeSegment", optional=True)
+                    ),
+                    AnyNumberOf(
+                        Ref("ColumnConstraintSegment", optional=True)
+                    ),
                 ),
-
-            ),
+                Ref("TableConstraintSegment"),
+                Sequence(
+                    "LIKE",
+                    Ref("TableReferenceSegment"),
+                    AnyNumberOf(Ref("LikeOptionSegment"), optional=True)
+                ),
+            )
         ),
         Sequence(
             "BACKUP",
