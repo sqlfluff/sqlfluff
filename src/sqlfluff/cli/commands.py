@@ -22,6 +22,7 @@ from io import StringIO
 
 # To enable colour cross platform
 import colorama
+from tqdm import tqdm
 
 from sqlfluff.cli.formatters import (
     format_rules,
@@ -239,6 +240,25 @@ def get_config(**kwargs) -> FluffConfig:
         sys.exit(66)
 
 
+def _callback_handler(cfg: FluffConfig) -> Callable:
+    """Returns function which will be bound as a callback for printing passed message.
+
+    Called in `get_linter_and_formatter`.
+    """
+
+    def _echo_with_tqdm_lock(message: str) -> None:
+        """Makes sure that message printing (echoing) will be not in conflict with tqdm.
+
+        It may happen that progressbar conflicts with extra printing. Nothing very
+        serious happens then, except that there is printed (not removed) progressbar
+        line. The `external_write_mode` allows to disable tqdm for writing time.
+        """
+        with tqdm.external_write_mode():
+            click.echo(message=message, color=cfg.get("color"))
+
+    return _echo_with_tqdm_lock
+
+
 def get_linter_and_formatter(
     cfg: FluffConfig, silent: bool = False
 ) -> Tuple[Linter, CallbackFormatter]:
@@ -251,9 +271,9 @@ def get_linter_and_formatter(
         sys.exit(66)
 
     if not silent:
-        # Instantiate the linter and return (with an output function)
+        # Instantiate the linter and return it (with an output function)
         formatter = CallbackFormatter(
-            callback=lambda m: click.echo(m, color=cfg.get("color")),
+            callback=_callback_handler(cfg=cfg),
             verbosity=cfg.get("verbose"),
             output_line_length=cfg.get("output_line_length"),
         )
