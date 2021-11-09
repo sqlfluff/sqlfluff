@@ -2041,6 +2041,8 @@ class AlterSequenceOptionsSegment(BaseSegment):
             Sequence("MAXVALUE", Ref("NumericLiteralSegment")),
             Sequence("NO", "MAXVALUE"),
         ),
+        # N.B. The SEQUENCE NAME keywords are undocumented but are produced
+        # by the pg_dump utility. See discussion in issue #1857.
         Sequence("SEQUENCE", "NAME", Ref("SequenceReferenceSegment")),
         Sequence(
             "START", Ref.keyword("WITH", optional=True), Ref("NumericLiteralSegment")
