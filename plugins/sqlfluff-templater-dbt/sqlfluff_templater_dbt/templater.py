@@ -19,10 +19,15 @@ from dbt.exceptions import (
     CompilationException as DbtCompilationException,
     FailedToConnectException as DbtFailedToConnectException,
 )
+from jinja2 import Environment
 
 from sqlfluff.core.errors import SQLTemplaterError, SQLTemplaterSkipFile
 
-from sqlfluff.core.templaters.base import RawFileSlice, TemplatedFile
+from sqlfluff.core.templaters.base import (
+    RawFileSlice,
+    TemplatedFile,
+    TemplatedFileSlice,
+)
 
 from sqlfluff.core.templaters.slicers.heuristic import slice_template
 from sqlfluff.core.templaters.jinja import JinjaTemplater
@@ -374,12 +379,52 @@ class DbtTemplater(JinjaTemplater):
         return results[0]
 
     def _unsafe_process(self, fname, in_str=None, config=None):
+        original_file_path = os.path.relpath(fname, start=os.getcwd())
+
+        # Below, we monkeypatch Environment.from_string() to intercept when dbt
+        # compiles (i.e. runs Jinja) to expand the "node" corresponding to fname.
+        # We do this to capture the Jinja context at the time of compilation, i.e.:
+        # - Jinja Environment object
+        # - Jinja "globals" dictionary
+        #
+        # This info is captured by the "make_template()" function, which in
+        # turn is used by our parent class' (JinjaTemplater) slice_file()
+        # function.
+        old_from_string = Environment.from_string
+        try:
+            make_template = None
+
+            def from_string(*args, **kwargs):
+                """Replaces (via monkeypatch) the jinja2.Environment function."""
+                nonlocal make_template
+                # Is it processing the node corresponding to fname?
+                globals = kwargs.get("globals")
+                if globals:
+                    model = globals.get("model")
+                    if model:
+                        if model.get("original_file_path") == original_file_path:
+                            # Yes. Capture the important arguments and create
+                            # a make_template() function.
+                            env = args[0]
+                            globals = args[2] if len(args) >= 3 else kwargs["globals"]
+
+                            def make_template(in_str):
+                                return env.from_string(in_str, globals=globals)
+
+                return old_from_string(*args, **kwargs)
+
+        finally:
+            # Undo the monkeypatch.
+            Environment.from_string = from_string
+
         node = self._find_node(fname, config)
 
         node = self.dbt_compiler.compile_node(
             node=node,
             manifest=self.dbt_manifest,
         )
+
+        Environment.from_string = old_from_string
 
         if hasattr(node, "injected_sql"):
             # If injected SQL is present, it contains a better picture
@@ -428,8 +473,24 @@ class DbtTemplater(JinjaTemplater):
             node.raw_sql,
             compiled_sql,
             config=config,
+            make_template=make_template,
         )
-
+        if make_template and n_trailing_newlines:
+            # Update templated_sql as we updated the other strings above. Update
+            # sliced_file to reflect the mapping of the added character(s) back
+            # to the raw SQL.
+            templated_sql = templated_sql + "\n" * n_trailing_newlines
+            sliced_file.append(
+                TemplatedFileSlice(
+                    slice_type="literal",
+                    source_slice=slice(
+                        len(node.raw_sql) - n_trailing_newlines, len(node.raw_sql)
+                    ),
+                    templated_slice=slice(
+                        len(templated_sql) - n_trailing_newlines, len(templated_sql)
+                    ),
+                )
+            )
         return (
             TemplatedFile(
                 source_str=node.raw_sql,
