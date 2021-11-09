@@ -2316,6 +2316,6 @@ class InsertStatementSegment(BaseSegment):
         "INTO",
         Ref("TableReferenceSegment"),
         Ref("BracketedColumnReferenceListGrammar", optional=True),
-        Sequence("OVERRIDING", OneOf( "SYSTEM", "USER" ), "VALUE", optional=True),
+        Sequence("OVERRIDING", OneOf("SYSTEM", "USER"), "VALUE", optional=True),
         Ref("SelectableGrammar"),
     )
