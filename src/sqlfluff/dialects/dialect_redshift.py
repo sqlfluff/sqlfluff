@@ -79,6 +79,8 @@ class FunctionSegment(BaseSegment):
 class ColumnEncodingSegment(BaseSegment):
     """ColumnEncoding segment
 
+    Indicates column compression encoding.
+
     As specified by: https://docs.aws.amazon.com/redshift/latest/dg/c_Compression_encodings.html
     """
 
@@ -131,10 +133,7 @@ class ColumnAttributeSegment(BaseSegment):
         Sequence("ENCODE", Ref("ColumnEncodingSegment")),
         "DISTKEY",
         "SORTKEY",
-        OneOf(
-            Sequence("COLLATE", "CASE_SENSITIVE"),
-            Sequence("COLLATE", "CASE_INSENSITIVE"),
-        ),
+        Sequence("COLLATE", OneOf("CASE_SENSITIVE", "CASE_INSENSITIVE")),
     )
 
 
