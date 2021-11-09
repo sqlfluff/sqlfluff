@@ -2250,8 +2250,9 @@ class DropSchemaStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "DROP",
         "SCHEMA",
-        Ref("IfNotExistsGrammar", optional=True),
+        Ref("IfExistsGrammar", optional=True),
         Ref("SchemaReferenceSegment"),
+        OneOf("RESTRICT", "CASCADE", optional=True),
     )
 
 
