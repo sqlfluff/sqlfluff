@@ -17,3 +17,5 @@ mypy
 typing_extensions
 types-toml
 types-pkg_resources
+# Requests is required for the util script
+requests
