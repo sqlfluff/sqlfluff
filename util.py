@@ -106,7 +106,7 @@ def benchmark(cmd, runs, from_file):
                     repo="alanmcruickshank/sqlfluff",
                     commit=commit_hash,
                 ),
-                params={"key": "mtqTC1fVVebVQ5BVREP7jYrKwgjaO0IfRILzyZt"},
+                params={"key": os.environ.get("SQLFLUFF_BENCHMARK_API_KEY")},
                 json=results,
             )
             click.echo(resp.text)
