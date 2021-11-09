@@ -107,7 +107,7 @@ class ColumnAttributeSegment(BaseSegment):
         OneOf(Sequence("COLLATE", "CASE_SENSITIVE"), Sequence("COLLATE", "CASE_INSENSITIVE"))
     )
 
-@redshift_dialect.segment()
+@redshift_dialect.segment(replace=True)
 class ColumnConstraintSegment(BaseSegment):
     """Redshift specific column constraints.
 
@@ -157,7 +157,7 @@ class TableConstraintSegment(BaseSegment):
     )
 
 
-@redshift_dialect.segment()
+@redshift_dialect.segment(replace=True)
 class LikeOptionSegment(BaseSegment):
     """Like Option Segment.
 
@@ -223,4 +223,21 @@ class CreateTableStatementSegment(BaseSegment):
             optional=True
         )
     )
+
+# Adding Redshift specific statements
+@redshift_dialect.segment(replace=True)
+class StatementSegment(BaseSegment):
+    """A generic segment, to any of its child subsegments."""
+
+    type = "statement"
+
+    parse_grammar = redshift_dialect.get_segment("StatementSegment").parse_grammar.copy(
+        insert=[
+            Ref("TableAttributeSegment"),
+            Ref("ColumnAttributeSegment"),
+            Ref("ColumnEncodingSegment")
+        ],
+    )
+
+    match_grammar = redshift_dialect.get_segment("StatementSegment").match_grammar.copy()
 
