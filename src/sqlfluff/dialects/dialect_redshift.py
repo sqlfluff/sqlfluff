@@ -168,17 +168,18 @@ class TableAttributeSegment(BaseSegment):
     type = "table_constraint_segment"
 
     match_grammar = AnyNumberOf(
-        Sequence("DISTSTYLE", OneOf("AUTO", "EVEN", "KEY", "ALL")),
-        Sequence("DISTKEY", Bracketed(Ref("ColumnReferenceSegment"))),
+        Sequence("DISTSTYLE", OneOf("AUTO", "EVEN", "KEY", "ALL"), optional=True),
+        Sequence("DISTKEY", Bracketed(Ref("ColumnReferenceSegment")), optional=True),
         OneOf(
             Sequence(
                 OneOf("COMPOUND", "INTERLEAVED", optional=True),
                 "SORTKEY",
-                Sequence("SORTKEY", Bracketed(Ref("ColumnReferenceSegment"))),
+                Bracketed(Ref("ColumnReferenceSegment")),
             ),
             Sequence("SORTKEY", "AUTO"),
+            optional=True
         ),
-        Sequence("ENCODE", "AUTO"),
+        Sequence("ENCODE", "AUTO", optional=True),
     )
 
 
@@ -262,9 +263,7 @@ class CreateTableStatementSegment(BaseSegment):
             )
         ),
         Sequence("BACKUP", OneOf("YES", "NO", optional=True), optional=True),
-        Delimited(
-            AnyNumberOf(Ref("TableAttributeSegment", optional=True)), optional=True
-        ),
+        AnyNumberOf(Ref("TableAttributeSegment", optional=True)),
     )
 
 

@@ -1,0 +1,7 @@
+CREATE TABLE t1 (
+    col1 INTEGER,
+    col2 VARCHAR(5)
+)
+DISTKEY(col1)
+SORTKEY(col1)
+;
