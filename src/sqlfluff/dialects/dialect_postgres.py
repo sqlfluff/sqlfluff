@@ -2310,7 +2310,7 @@ class DropTriggerStatementSegment(BaseSegment):
 class DropTypeStatementSegment(BaseSegment):
     """Drop Type Statement.
 
-    As specified in https://www.postgresql.org/docs/12/sql-droptype.html
+    As specified in https://www.postgresql.org/docs/14/sql-droptype.html
     """
 
     type = "drop_type_statement"
