@@ -23,7 +23,7 @@ from sqlfluff.core.parser import (
     CommentSegment,
     Dedent,
     SegmentGenerator,
-    Nothing
+    Nothing,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -74,12 +74,13 @@ class FunctionSegment(BaseSegment):
     type = "function"
     match_grammar = ansi_dialect.get_segment("FunctionSegment").match_grammar.copy()
 
+
 @redshift_dialect.segment()
 class ColumnEncodingSegment(BaseSegment):
     """ColumnEncoding segment
 
     As specified by: https://docs.aws.amazon.com/redshift/latest/dg/c_Compression_encodings.html
-     """
+    """
 
     type = "column_encoding_segment"
 
@@ -96,8 +97,9 @@ class ColumnEncodingSegment(BaseSegment):
         "RUNLENGTH",
         "TEXT255",
         "TEXT32K",
-        "ZSTD"
+        "ZSTD",
     )
+
 
 @redshift_dialect.segment()
 class ColumnAttributeSegment(BaseSegment):
@@ -110,22 +112,31 @@ class ColumnAttributeSegment(BaseSegment):
 
     match_grammar = AnyNumberOf(
         Sequence("DEFAULT", Ref("ExpressionSegment")),
-        Sequence("IDENTITY", Bracketed(
-                     Delimited(Ref("NumericLiteralSegment"),
-                               Ref("NumericLiteralSegment")
-                              )
-                          )),
-        Sequence("GENERATED", "BY", "DEFAULT", "AS", "IDENTITY", Bracketed(
-                     Delimited(Ref("NumericLiteralSegment"),
-                               Ref("NumericLiteralSegment")
-                              )
-                          )
-                 ),
+        Sequence(
+            "IDENTITY",
+            Bracketed(
+                Delimited(Ref("NumericLiteralSegment"), Ref("NumericLiteralSegment"))
+            ),
+        ),
+        Sequence(
+            "GENERATED",
+            "BY",
+            "DEFAULT",
+            "AS",
+            "IDENTITY",
+            Bracketed(
+                Delimited(Ref("NumericLiteralSegment"), Ref("NumericLiteralSegment"))
+            ),
+        ),
         Sequence("ENCODE", Ref("ColumnEncodingSegment")),
         "DISTKEY",
         "SORTKEY",
-        OneOf(Sequence("COLLATE", "CASE_SENSITIVE"), Sequence("COLLATE", "CASE_INSENSITIVE"))
+        OneOf(
+            Sequence("COLLATE", "CASE_SENSITIVE"),
+            Sequence("COLLATE", "CASE_INSENSITIVE"),
+        ),
     )
+
 
 @redshift_dialect.segment(replace=True)
 class ColumnConstraintSegment(BaseSegment):
@@ -139,10 +150,13 @@ class ColumnConstraintSegment(BaseSegment):
     match_grammar = AnyNumberOf(
         OneOf(Sequence("NOT", "NULL"), "NULL"),
         OneOf("UNIQUE", Sequence("PRIMARY", "KEY")),
-        Sequence("REFERENCES",
-                 Ref("TableReferenceSegment"),
-                 Sequence(Bracketed(Ref("ColumnReferenceSegment"))))
+        Sequence(
+            "REFERENCES",
+            Ref("TableReferenceSegment"),
+            Sequence(Bracketed(Ref("ColumnReferenceSegment"))),
+        ),
     )
+
 
 @redshift_dialect.segment()
 class TableAttributeSegment(BaseSegment):
@@ -156,10 +170,17 @@ class TableAttributeSegment(BaseSegment):
     match_grammar = AnyNumberOf(
         Sequence("DISTSTYLE", OneOf("AUTO", "EVEN", "KEY", "ALL")),
         Sequence("DISTKEY", Bracketed(Ref("ColumnReferenceSegment"))),
-        OneOf(Sequence(OneOf("COMPOUND", "INTERLEAVED", optional=True), "SORTKEY", Sequence("SORTKEY", Bracketed(Ref("ColumnReferenceSegment")))),
-                                                                                   Sequence("SORTKEY", "AUTO")),
-        Sequence("ENCODE", "AUTO")
+        OneOf(
+            Sequence(
+                OneOf("COMPOUND", "INTERLEAVED", optional=True),
+                "SORTKEY",
+                Sequence("SORTKEY", Bracketed(Ref("ColumnReferenceSegment"))),
+            ),
+            Sequence("SORTKEY", "AUTO"),
+        ),
+        Sequence("ENCODE", "AUTO"),
     )
+
 
 @redshift_dialect.segment(replace=True)
 class TableConstraintSegment(BaseSegment):
@@ -171,9 +192,22 @@ class TableConstraintSegment(BaseSegment):
     type = "table_constraint_segment"
 
     match_grammar = AnyNumberOf(
-        Sequence("UNIQUE", Bracketed(AnyNumberOf(Delimited(Ref("ColumnReferenceSegment"))))),
-        Sequence("PRIMARY", "KEY", Bracketed(AnyNumberOf(Delimited(Ref("ColumnReferenceSegment"))))),
-        Sequence("FOREIGN", "KEY", Bracketed(AnyNumberOf(Delimited(Ref("ColumnReferenceSegment")))), "REFERENCES", Ref("TableReferenceSegment"), Sequence(Bracketed(Ref("ColumnReferenceSegment"))))
+        Sequence(
+            "UNIQUE", Bracketed(AnyNumberOf(Delimited(Ref("ColumnReferenceSegment"))))
+        ),
+        Sequence(
+            "PRIMARY",
+            "KEY",
+            Bracketed(AnyNumberOf(Delimited(Ref("ColumnReferenceSegment")))),
+        ),
+        Sequence(
+            "FOREIGN",
+            "KEY",
+            Bracketed(AnyNumberOf(Delimited(Ref("ColumnReferenceSegment")))),
+            "REFERENCES",
+            Ref("TableReferenceSegment"),
+            Sequence(Bracketed(Ref("ColumnReferenceSegment"))),
+        ),
     )
 
 
@@ -186,10 +220,8 @@ class LikeOptionSegment(BaseSegment):
 
     type = "like_option_segment"
 
-    match_grammar = Sequence(
-        OneOf("INCLUDING", "EXCLUDING"),
-        "DEFAULTS"
-    )
+    match_grammar = Sequence(OneOf("INCLUDING", "EXCLUDING"), "DEFAULTS")
+
 
 @redshift_dialect.segment(replace=True)
 class CreateTableStatementSegment(BaseSegment):
@@ -212,37 +244,29 @@ class CreateTableStatementSegment(BaseSegment):
         Ref("TableReferenceSegment"),
         Bracketed(
             OneOf(
-            # Columns and comment syntax:
-                Sequence(
-                    Ref("ColumnReferenceSegment"),
-                    Ref("DatatypeSegment"),
-                    AnyNumberOf(
-                        Ref("ColumnAttributeSegment", optional=True)
-                    ),
-                    AnyNumberOf(
-                        Ref("ColumnConstraintSegment", optional=True)
+                # Columns and comment syntax:
+                Delimited(
+                    Sequence(
+                        Ref("ColumnReferenceSegment"),
+                        Ref("DatatypeSegment"),
+                        AnyNumberOf(Ref("ColumnAttributeSegment", optional=True)),
+                        AnyNumberOf(Ref("ColumnConstraintSegment", optional=True)),
                     ),
                 ),
                 Ref("TableConstraintSegment"),
                 Sequence(
                     "LIKE",
                     Ref("TableReferenceSegment"),
-                    AnyNumberOf(Ref("LikeOptionSegment"), optional=True)
+                    AnyNumberOf(Ref("LikeOptionSegment"), optional=True),
                 ),
             )
         ),
-        Sequence(
-            "BACKUP",
-            OneOf("YES", "NO", optional=True),
-            optional=True
-        ),
+        Sequence("BACKUP", OneOf("YES", "NO", optional=True), optional=True),
         Delimited(
-            AnyNumberOf(
-                Ref("TableAttributeSegment", optional=True)
-            ),
-            optional=True
-        )
+            AnyNumberOf(Ref("TableAttributeSegment", optional=True)), optional=True
+        ),
     )
+
 
 # Adding Redshift specific statements
 @redshift_dialect.segment(replace=True)
@@ -255,9 +279,10 @@ class StatementSegment(BaseSegment):
         insert=[
             Ref("TableAttributeSegment"),
             Ref("ColumnAttributeSegment"),
-            Ref("ColumnEncodingSegment")
+            Ref("ColumnEncodingSegment"),
         ],
     )
 
-    match_grammar = redshift_dialect.get_segment("StatementSegment").match_grammar.copy()
-
+    match_grammar = redshift_dialect.get_segment(
+        "StatementSegment"
+    ).match_grammar.copy()
