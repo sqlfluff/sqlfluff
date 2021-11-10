@@ -10,7 +10,6 @@ from sqlfluff.core.parser import (
     Ref,
     Sequence,
     Bracketed,
-    OptionallyBracketed,
     BaseSegment,
     Delimited,
     Nothing,
@@ -70,7 +69,7 @@ class FunctionSegment(BaseSegment):
 
 @redshift_dialect.segment()
 class ColumnEncodingSegment(BaseSegment):
-    """ColumnEncoding segment
+    """ColumnEncoding segment.
 
     Indicates column compression encoding.
 
