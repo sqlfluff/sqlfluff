@@ -1827,6 +1827,7 @@ class ValuesClauseSegment(BaseSegment):
                     Ref("LiteralGrammar"),
                     Ref("IntervalExpressionSegment"),
                     Ref("FunctionSegment"),
+                    Ref("BareFunctionSegment"),
                     "DEFAULT",  # not in `FROM` clause, rule?
                     ephemeral_name="ValuesClauseElements",
                 )
