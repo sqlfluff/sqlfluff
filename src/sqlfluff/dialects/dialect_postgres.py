@@ -2140,6 +2140,7 @@ class StatementSegment(BaseSegment):
             Ref("AnalyzeStatementSegment"),
             Ref("CreateTableAsStatementSegment"),
             Ref("AlterTriggerStatementSegment"),
+            Ref("DropTypeStatementSegment"),
         ],
     )
 
@@ -2326,4 +2327,22 @@ class InsertStatementSegment(BaseSegment):
         Ref("BracketedColumnReferenceListGrammar", optional=True),
         Sequence("OVERRIDING", OneOf("SYSTEM", "USER"), "VALUE", optional=True),
         Ref("SelectableGrammar"),
+    )
+
+      
+@postgres_dialect.segment()
+class DropTypeStatementSegment(BaseSegment):
+    """Drop Type Statement.
+
+    As specified in https://www.postgresql.org/docs/14/sql-droptype.html
+    """
+
+    type = "drop_type_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        "TYPE",
+        Ref("IfExistsGrammar", optional=True),
+        Delimited(Ref("DatatypeSegment")),
+        OneOf("CASCADE", "RESTRICT", optional=True),
     )
