@@ -252,8 +252,8 @@ class CreateTableStatementSegment(BaseSegment):
                         AnyNumberOf(Ref("ColumnAttributeSegment", optional=True)),
                         AnyNumberOf(Ref("ColumnConstraintSegment", optional=True)),
                     ),
+                    Ref("TableConstraintSegment", optional=True),
                 ),
-                Ref("TableConstraintSegment"),
                 Sequence(
                     "LIKE",
                     Ref("TableReferenceSegment"),
