@@ -78,7 +78,7 @@ class StreamHandlerTqdm(logging.StreamHandler):
             msg = self.format(record)
             tqdm.write(msg, file=self.stream)
             self.flush()
-        except Exception:
+        except Exception:  # pragma: no cover
             self.handleError(record)
 
 
