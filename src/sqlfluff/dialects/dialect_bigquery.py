@@ -970,3 +970,21 @@ class TableAliasExpressionSegment(BaseSegment):
             optional=True,
         ),
     )
+
+
+@bigquery_dialect.segment(replace=True)
+class InsertStatementSegment(BaseSegment):
+    """A `INSERT` statement.
+
+    N.B. not a complete implementation.
+    """
+
+    type = "insert_statement"
+    match_grammar = StartsWith("INSERT")
+    parse_grammar = Sequence(
+        "INSERT",
+        Ref.keyword("INTO", optional=True),
+        Ref("TableReferenceSegment"),
+        Ref("BracketedColumnReferenceListGrammar", optional=True),
+        Ref("SelectableGrammar"),
+    )

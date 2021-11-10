@@ -1,0 +1,59 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 8d8f7272ea3b8b46ef5f59a469f863849ad83436f60b9c33a97412eadc8ada47
+file:
+- statement:
+    drop_schema_statement:
+    - keyword: drop
+    - keyword: schema
+    - schema_reference:
+        identifier: my_schema
+- statement_terminator: ;
+- statement:
+    drop_schema_statement:
+    - keyword: drop
+    - keyword: schema
+    - schema_reference:
+        identifier: my_schema
+    - keyword: cascade
+- statement_terminator: ;
+- statement:
+    drop_schema_statement:
+    - keyword: drop
+    - keyword: schema
+    - schema_reference:
+        identifier: my_schema
+    - keyword: restrict
+- statement_terminator: ;
+- statement:
+    drop_schema_statement:
+    - keyword: drop
+    - keyword: schema
+    - keyword: if
+    - keyword: exists
+    - schema_reference:
+        identifier: my_schema
+- statement_terminator: ;
+- statement:
+    drop_schema_statement:
+    - keyword: drop
+    - keyword: schema
+    - keyword: if
+    - keyword: exists
+    - schema_reference:
+        identifier: my_schema
+    - keyword: cascade
+- statement_terminator: ;
+- statement:
+    drop_schema_statement:
+    - keyword: drop
+    - keyword: schema
+    - keyword: if
+    - keyword: exists
+    - schema_reference:
+        identifier: my_schema
+    - keyword: restrict
+- statement_terminator: ;
