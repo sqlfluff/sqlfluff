@@ -76,6 +76,7 @@ teradata_dialect.sets("unreserved_keywords").update(
         "QUIT",
         "RUN",
         "SAMPLE",
+        "SEL",
         "STAT",
         "SUMMARY",
         "THRESHOLD",
@@ -708,7 +709,16 @@ teradata_dialect.replace(
         Ref("NakedIdentifierSegment"),
         Ref("QuotedIdentifierSegment"),
         Ref("TdCastIdentifierSegment"),
-    )
+    ),
+    SelectClauseSegmentGrammar=Sequence(
+        OneOf("SELECT", "SEL"),
+        Ref("SelectClauseModifierSegment", optional=True),
+        Indent,
+        Delimited(
+            Ref("SelectClauseElementSegment"),
+            allow_trailing=True,
+        ),
+    ),
 )
 
 
@@ -815,7 +825,9 @@ class SelectClauseSegment(BaseSegment):
 
     type = "select_clause"
     match_grammar = StartsWith(
-        Sequence("SELECT", Ref("WildcardExpressionSegment", optional=True)),
+        Sequence(
+            OneOf("SELECT", "SEL"), Ref("WildcardExpressionSegment", optional=True)
+        ),
         terminator=OneOf(
             "FROM",
             "WHERE",

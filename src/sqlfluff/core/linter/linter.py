@@ -17,6 +17,8 @@ from typing import (
 
 import pathspec
 
+from tqdm import tqdm
+
 from sqlfluff.core.errors import (
     SQLBaseError,
     SQLLexError,
@@ -28,10 +30,9 @@ from sqlfluff.core.parser import Lexer, Parser
 from sqlfluff.core.file_helpers import get_encoding
 from sqlfluff.core.templaters import TemplatedFile
 from sqlfluff.core.rules import get_ruleset
-from sqlfluff.core.config import FluffConfig, ConfigLoader
+from sqlfluff.core.config import FluffConfig, ConfigLoader, progress_bar_configuration
 
 # Classes needed only for type checking
-from sqlfluff.core.linter.runner import get_runner
 from sqlfluff.core.parser.segments.base import BaseSegment
 from sqlfluff.core.parser.segments.meta import MetaSegment
 from sqlfluff.core.parser.segments.raw import RawSegment
@@ -67,10 +68,14 @@ class Linter:
         dialect: Optional[str] = None,
         rules: Optional[Union[str, List[str]]] = None,
         user_rules: Optional[Union[str, List[str]]] = None,
+        exclude_rules: Optional[Union[str, List[str]]] = None,
     ) -> None:
         # Store the config object
         self.config = FluffConfig.from_kwargs(
-            config=config, dialect=dialect, rules=rules
+            config=config,
+            dialect=dialect,
+            rules=rules,
+            exclude_rules=exclude_rules,
         )
         # Get the dialect and templater
         self.dialect = self.config.get("dialect_obj")
@@ -171,6 +176,7 @@ class Linter:
                     if not templating_blocks_indent:
                         continue
             new_tokens.append(token)
+
         # Return new buffer
         return new_tokens, violations, config
 
@@ -186,7 +192,9 @@ class Linter:
         # Parse the file and log any problems
         try:
             parsed: Optional[BaseSegment] = parser.parse(
-                tokens, recurse=recurse, fname=fname
+                tokens,
+                recurse=recurse,
+                fname=fname,
             )
         except SQLParseError as err:
             linter_logger.info("PARSING FAILED! : %s", err)
@@ -291,7 +299,11 @@ class Linter:
     # These compose the base static methods into useful recipes.
 
     @classmethod
-    def parse_rendered(cls, rendered: RenderedFile, recurse: bool = True):
+    def parse_rendered(
+        cls,
+        rendered: RenderedFile,
+        recurse: bool = True,
+    ):
         """Parse a rendered file."""
         t0 = time.monotonic()
         violations = cast(List[SQLBaseError], rendered.templater_violations)
@@ -309,7 +321,10 @@ class Linter:
 
         if tokens:
             parsed, pvs = cls._parse_tokens(
-                tokens, rendered.config, recurse=recurse, fname=rendered.fname
+                tokens,
+                rendered.config,
+                recurse=recurse,
+                fname=rendered.fname,
             )
             violations += pvs
         else:
@@ -390,7 +405,17 @@ class Linter:
 
         for loop in range(loop_limit):
             changed = False
-            for crawler in rule_set:
+
+            progress_bar_crawler = tqdm(
+                rule_set,
+                desc="lint by rules",
+                leave=False,
+                disable=progress_bar_configuration.disable_progress_bar,
+            )
+
+            for crawler in progress_bar_crawler:
+                progress_bar_crawler.set_description(f"rule {crawler.code}")
+
                 # fixes should be a dict {} with keys edit, delete, create
                 # delete is just a list of segments to delete
                 # edit and create are list of tuples. The first element is the
@@ -663,12 +688,20 @@ class Linter:
         # Sort out config, defaulting to the built in config if no override
         config = config or self.config
         # Parse the string.
-        parsed = self.parse_string(in_str=in_str, fname=fname, config=config)
+        parsed = self.parse_string(
+            in_str=in_str,
+            fname=fname,
+            config=config,
+        )
         # Get rules as appropriate
         rule_set = self.get_ruleset(config=config)
         # Lint the file and return the LintedFile
         return self.lint_parsed(
-            parsed, rule_set, fix=fix, formatter=self.formatter, encoding=encoding
+            parsed,
+            rule_set,
+            fix=fix,
+            formatter=self.formatter,
+            encoding=encoding,
         )
 
     def paths_from_path(
@@ -787,7 +820,10 @@ class Linter:
         return sorted(filtered_buffer)
 
     def lint_string_wrapped(
-        self, string: str, fname: str = "<string input>", fix: bool = False
+        self,
+        string: str,
+        fname: str = "<string input>",
+        fix: bool = False,
     ) -> LintingResult:
         """Lint strings directly."""
         result = LintingResult()
@@ -816,18 +852,43 @@ class Linter:
                 ignore_files=ignore_files,
             )
         )
+
+        # to avoid circular import
+        from sqlfluff.core.linter.runner import get_runner
+
         runner = get_runner(
             self,
             self.config,
             processes=processes,
             allow_process_parallelism=self.allow_process_parallelism,
         )
-        for linted_file in runner.run(fnames, fix):
+
+        # Show files progress bar only when there is more than one.
+        files_count = len(fnames)
+        progress_bar_files = tqdm(
+            total=files_count,
+            desc=f"file {os.path.basename(fnames[0] if fnames else '')}",
+            leave=False,
+            disable=files_count <= 1 or progress_bar_configuration.disable_progress_bar,
+        )
+
+        for i, linted_file in enumerate(runner.run(fnames, fix), start=1):
             linted_path.add(linted_file)
             # If any fatal errors, then stop iteration.
             if any(v.fatal for v in linted_file.violations):  # pragma: no cover
                 linter_logger.error("Fatal linting error. Halting further linting.")
                 break
+
+            # Progress bar for files is rendered only when there is more than one file.
+            # Additionally as it's updated after each loop, we need to get file name
+            # from the next loop. This is why `enumerate` starts with `1` and there
+            # is `i < len` to not exceed files list length.
+            progress_bar_files.update(n=1)
+            if i < len(fnames):
+                progress_bar_files.set_description(
+                    f"file {os.path.basename(fnames[i])}"
+                )
+
         return linted_path
 
     def lint_paths(
@@ -839,12 +900,23 @@ class Linter:
         processes: int = 1,
     ) -> LintingResult:
         """Lint an iterable of paths."""
+        paths_count = len(paths)
+
         # If no paths specified - assume local
-        if len(paths) == 0:  # pragma: no cover
+        if not paths_count:  # pragma: no cover
             paths = (os.getcwd(),)
         # Set up the result to hold what we get back
         result = LintingResult()
+
+        progress_bar_paths = tqdm(
+            total=paths_count,
+            desc="path",
+            leave=False,
+            disable=paths_count <= 1 or progress_bar_configuration.disable_progress_bar,
+        )
         for path in paths:
+            progress_bar_paths.set_description(f"path {path}")
+
             # Iterate through files recursively in the specified directory (if it's a directory)
             # or read the file directly if it's not
             result.add(
@@ -856,10 +928,17 @@ class Linter:
                     processes=processes,
                 )
             )
+
+            progress_bar_paths.update(1)
+
         result.stop_timer()
         return result
 
-    def parse_path(self, path: str, recurse: bool = True) -> Iterator[ParsedString]:
+    def parse_path(
+        self,
+        path: str,
+        recurse: bool = True,
+    ) -> Iterator[ParsedString]:
         """Parse a path of sql files.
 
         NB: This a generator which will yield the result of each file
@@ -873,5 +952,9 @@ class Linter:
                 fname, self.config
             )
             yield self.parse_string(
-                raw_file, fname=fname, recurse=recurse, config=config, encoding=encoding
+                raw_file,
+                fname=fname,
+                recurse=recurse,
+                config=config,
+                encoding=encoding,
             )

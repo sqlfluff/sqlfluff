@@ -59,6 +59,10 @@ class RawSegment(BaseSegment):
             self.__class__.__name__, self.pos_marker, self.raw
         )
 
+    def __setattr__(self, key, value):
+        """Overwrite BaseSegment's __setattr__ with BaseSegment's superclass."""
+        super(BaseSegment, self).__setattr__(key, value)
+
     # ################ PUBLIC PROPERTIES
 
     @property
@@ -87,9 +91,19 @@ class RawSegment(BaseSegment):
         return self._is_whitespace
 
     @property
+    def raw(self):
+        """Returns the raw segment."""
+        return self._raw
+
+    @property
     def raw_upper(self):
-        """Make an uppercase string from the segments of this segment."""
+        """Returns the raw segment in uppercase."""
         return self._raw_upper
+
+    @property
+    def raw_segments(self):
+        """Returns self to be compatible with calls to its superclass."""
+        return [self]
 
     @property
     def segments(self):
@@ -101,6 +115,10 @@ class RawSegment(BaseSegment):
 
     # ################ INSTANCE METHODS
 
+    def invalidate_caches(self):
+        """Overwrite superclass functionality."""
+        pass
+
     def get_type(self):
         """Returns the type of this segment as a string."""
         return self._surrogate_type or self.type
@@ -111,9 +129,9 @@ class RawSegment(BaseSegment):
             return True
         return self.class_is_type(*seg_type)
 
-    def iter_raw_seg(self):
+    def get_raw_segments(self):
         """Iterate raw segments, mostly for searching."""
-        yield self
+        return [self]
 
     def raw_trimmed(self):
         """Return a trimmed version of the raw content."""
@@ -138,10 +156,6 @@ class RawSegment(BaseSegment):
     def raw_list(self):  # pragma: no cover TODO?
         """Return a list of the raw content of this segment."""
         return [self.raw]
-
-    def _reconstruct(self):
-        """Return a string of the raw content of this segment."""
-        return self._raw
 
     def stringify(self, ident=0, tabsize=4, code_only=False):
         """Use indentation to render this segment and its children as a string."""

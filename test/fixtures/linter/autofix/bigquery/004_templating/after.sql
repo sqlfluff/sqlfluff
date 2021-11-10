@@ -11,7 +11,7 @@ raw_effect_sizes AS (
         COUNT(1) AS campaign_count,
         {{corr_states}}
         {% for action in considered_actions %}
-        , SAFE_DIVIDE(SAFE_MULTIPLY(CORR({{metric}}_rate_su, {{action}}), STDDEV_POP({{metric}}_rate_su)), STDDEV_POP({{action}})) AS {{metric}}_{{action}}
+            , SAFE_DIVIDE(SAFE_MULTIPLY(CORR({{metric}}_rate_su, {{action}}), STDDEV_POP({{metric}}_rate_su)), STDDEV_POP({{action}})) AS {{metric}}_{{action}}
         {% endfor %}
     FROM
         `{{gcp_project}}.{{dataset}}.global_actions_states`
@@ -20,41 +20,41 @@ raw_effect_sizes AS (
 ),
 
 {% for action in considered_actions %}
-{{action}}_raw_effect_sizes AS (
-    SELECT
-        COUNT(1) AS campaign_count_{{action}},
-        {{corr_states}}
-        -- NOTE: The L003 fix routine behaves a little strangely here around the templated
-        -- code, specifically the indentation of STDDEV_POP and preceding comments. This
-        -- is a bug currently with no obvious solution.
-        , SAFE_DIVIDE(SAFE_MULTIPLY(CORR({{metric}}_rate_su, {{action}}), STDDEV_POP({{metric}}_rate_su)),
-                        STDDEV_POP({{action}})) AS {{metric}}_{{action}}
-    FROM
-        `{{gcp_project}}.{{dataset}}.global_actions_states`
-    WHERE
-        {{action}} != -1
-    GROUP BY
-        {{corr_states}}
-  ),
-  {% endfor %}
-  
+    {{action}}_raw_effect_sizes AS (
+        SELECT
+            COUNT(1) AS campaign_count_{{action}},
+            {{corr_states}}
+            -- NOTE: The L003 fix routine behaves a little strangely here around the templated
+            -- code, specifically the indentation of STDDEV_POP and preceding comments. This
+            -- is a bug currently with no obvious solution.
+            , SAFE_DIVIDE(SAFE_MULTIPLY(CORR({{metric}}_rate_su, {{action}}), STDDEV_POP({{metric}}_rate_su)),
+                STDDEV_POP({{action}})) AS {{metric}}_{{action}}
+        FROM
+            `{{gcp_project}}.{{dataset}}.global_actions_states`
+        WHERE
+            {{action}} != -1
+        GROUP BY
+            {{corr_states}}
+    ),
+{% endfor %}
+
 new_raw_effect_sizes AS (
     SELECT
         {{corr_states}}
         {% for action in considered_actions %}
-        , {{metric}}_{{action}}
-        , campaign_count_{{action}}
+            , {{metric}}_{{action}}
+            , campaign_count_{{action}}
         {% endfor %}
     FROM
     {% for action in considered_actions %}
-    {% if loop.first %}
-    {{action}}_raw_effect_sizes
-    {% else %}
-    JOIN
-        {{action}}_raw_effect_sizes
-        USING
-            ({{corr_states}})
-    {% endif %}
+            {% if loop.first %}
+            {{action}}_raw_effect_sizes
+        {% else %}
+        JOIN
+                    {{action}}_raw_effect_sizes
+            USING
+                            ({{corr_states}})
+        {% endif %}
     {% endfor %}
 ),
 
@@ -63,9 +63,9 @@ imputed_effect_sizes AS (
         {{corr_states}}
         , o.campaign_count AS campaign_count
         {% for action in considered_actions %}
-        , COALESCE(IF(IS_NAN(o.{{metric}}_{{action}}), 0, o.{{metric}}_{{action}}), 0) AS {{metric}}_{{action}}
-        , COALESCE(IF(IS_NAN(n.{{metric}}_{{action}}), 0, n.{{metric}}_{{action}}), 0) AS new_{{metric}}_{{action}}
-        , n.campaign_count_{{action}}
+            , COALESCE(IF(IS_NAN(o.{{metric}}_{{action}}), 0, o.{{metric}}_{{action}}), 0) AS {{metric}}_{{action}}
+            , COALESCE(IF(IS_NAN(n.{{metric}}_{{action}}), 0, n.{{metric}}_{{action}}), 0) AS new_{{metric}}_{{action}}
+            , n.campaign_count_{{action}}
         {% endfor %}
     FROM
         raw_effect_sizes o

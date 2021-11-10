@@ -80,7 +80,6 @@ def _dialect_specific_segment_parses(dialect, segmentref, raw, caplog):
     # Check we get a good response
     print(parsed)
     print(type(parsed))
-    # print(type(parsed._reconstruct()))
     print(type(parsed.raw))
     # Check we're all there.
     assert parsed.raw == raw

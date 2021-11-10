@@ -12,4 +12,4 @@ where not products._fivetran_deleted
     {% if true -%}
     and products.valid_date_local >= (
         select max(valid_date_local) from {{ this }})
-    {% endif -%}
+    {% endif %}

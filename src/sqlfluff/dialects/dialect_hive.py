@@ -154,22 +154,26 @@ class CreateDatabaseStatementSegment(BaseSegment):
 
 @hive_dialect.segment(replace=True)
 class CreateTableStatementSegment(BaseSegment):
-    """A `CREATE TABLE` statement."""
+    """A `CREATE TABLE` statement.
+
+    Full Apache Hive `CREATE TABLE` reference here:
+    https://cwiki.apache.org/confluence/display/hive/languagemanual+ddl#LanguageManualDDL-CreateTable
+    """
 
     type = "create_table_statement"
     match_grammar = StartsWith(
         Sequence(
             "CREATE",
-            Ref.keyword("EXTERNAL", optional=True),
             Ref.keyword("TEMPORARY", optional=True),
+            Ref.keyword("EXTERNAL", optional=True),
             "TABLE",
         )
     )
 
     parse_grammar = Sequence(
         "CREATE",
-        Ref.keyword("EXTERNAL", optional=True),
         Ref.keyword("TEMPORARY", optional=True),
+        Ref.keyword("EXTERNAL", optional=True),
         "TABLE",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
@@ -237,7 +241,7 @@ class CreateTableStatementSegment(BaseSegment):
                 Ref("CommentGrammar", optional=True),
                 Sequence(
                     "AS",
-                    OptionallyBracketed(Ref("SelectStatementSegment")),
+                    OptionallyBracketed(Ref("SelectableGrammar")),
                     optional=True,
                 ),
             ),
@@ -502,4 +506,51 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref("CreateModelStatementSegment"),
             Ref("DropModelStatementSegment"),
         ],
+    )
+
+
+@hive_dialect.segment(replace=True)
+class InsertStatementSegment(BaseSegment):
+    """An `INSERT` statement.
+
+    Full Apache Hive `INSERT` reference here:
+    https://cwiki.apache.org/confluence/display/Hive/LanguageManual+DML
+    """
+
+    type = "insert_statement"
+    match_grammar = StartsWith("INSERT")
+    parse_grammar = Sequence(
+        "INSERT",
+        OneOf(
+            Sequence(
+                "OVERWRITE",
+                OneOf(
+                    Sequence(
+                        "TABLE",
+                        Ref("TableReferenceSegment"),
+                        Ref("PartitionSpecGrammar", optional=True),
+                        Ref("IfNotExistsGrammar", optional=True),
+                        Ref("SelectableGrammar"),
+                    ),
+                    Sequence(
+                        Sequence("LOCAL", optional=True),
+                        "DIRECTORY",
+                        Ref("SingleOrDoubleQuotedLiteralGrammar"),
+                        Ref("RowFormatClauseSegment", optional=True),
+                        Ref("StoredAsGrammar", optional=True),
+                        Ref("SelectableGrammar"),
+                    ),
+                ),
+            ),
+            Sequence(
+                "INTO",
+                "TABLE",
+                Ref("TableReferenceSegment"),
+                Ref("PartitionSpecGrammar", optional=True),
+                OneOf(
+                    Ref("SelectableGrammar"),
+                    Ref("ValuesClauseSegment"),
+                ),
+            ),
+        ),
     )

@@ -4,6 +4,7 @@ import logging
 import os
 import os.path
 import configparser
+
 import pluggy
 from itertools import chain
 from typing import Dict, List, Tuple, Any, Optional, Union, Iterable
@@ -387,7 +388,7 @@ class ConfigLoader:
 
 
 class FluffConfig:
-    """.The class that actually gets passed around as a config object."""
+    """The class that actually gets passed around as a config object."""
 
     private_vals = "rule_blacklist", "rule_whitelist", "dialect_obj", "templater_obj"
 
@@ -495,6 +496,7 @@ class FluffConfig:
         config: Optional["FluffConfig"] = None,
         dialect: Optional[str] = None,
         rules: Optional[Union[str, List[str]]] = None,
+        exclude_rules: Optional[Union[str, List[str]]] = None,
     ) -> "FluffConfig":
         """Instantiate a config from either an existing config or kwargs.
 
@@ -519,6 +521,12 @@ class FluffConfig:
                 rules = [rules]
             # Make a comma separated string to pass in as override
             overrides["rules"] = ",".join(rules)
+        if exclude_rules:
+            # If it's a string, make it a list
+            if isinstance(exclude_rules, str):
+                exclude_rules = [exclude_rules]
+            # Make a comma separated string to pass in as override
+            overrides["exclude_rules"] = ",".join(exclude_rules)
         return cls(overrides=overrides)
 
     def get_templater(self, templater_name="jinja", **kwargs):
@@ -564,7 +572,7 @@ class FluffConfig:
             or are different to the other.
 
         """
-        # We igonre some objects which are not meaningful in the comparison
+        # We ignore some objects which are not meaningful in the comparison
         # e.g. dialect_obj, which is generated on the fly.
         return dict_diff(self._configs, other._configs, ignore=["dialect_obj"])
 
@@ -677,3 +685,34 @@ class FluffConfig:
     @staticmethod
     def _split_comma_separated_string(raw_str: str) -> List[str]:
         return [s.strip() for s in raw_str.split(",") if s.strip()]
+
+
+class ProgressBarConfiguration:
+    """Singleton-esque progress bar configuration.
+
+    It's expected to be set during starting with parameters coming from commands
+    parameters, then to be just utilized as just
+    ```
+    from sqlfluff.core.config import progress_bar_configuration
+    is_progressbar_disabled = progress_bar_configuration.disable_progress_bar
+    ```
+    """
+
+    _disable_progress_bar: Optional[bool] = True
+
+    @property
+    def disable_progress_bar(self) -> Optional[bool]:  # noqa: D102
+        return self._disable_progress_bar
+
+    @disable_progress_bar.setter
+    def disable_progress_bar(self, value: Optional[bool]) -> None:
+        """`disable_progress_bar` setter.
+
+        `True` means that progress bar should be always hidden, `False` fallbacks
+        into `None` which is an automatic mode.
+        From tqdm documentation: 'If set to None, disable on non-TTY.'
+        """
+        self._disable_progress_bar = value or None
+
+
+progress_bar_configuration = ProgressBarConfiguration()

@@ -401,6 +401,51 @@ class Lexer:
                 # only one of them.
                 if not placeholder_str:
                     placeholder_str = "".join(s.raw for s in so_slices)
+                # The Jinja templater sometimes returns source-only slices with
+                # gaps between. For example, in this section:
+                #
+                #   {% else %}
+                #   JOIN
+                #       {{action}}_raw_effect_sizes
+                #   USING
+                #       ({{ states }})
+                #   {% endif %}
+                #
+                # we might get {% else %} and {% endif %} slices, without the
+                # 4 lines between. This indicates those lines were not executed
+                # In this case, generate a placeholder where the skipped code is
+                # omitted but noted with a brief string, e.g.:
+                #
+                # "{% else %}... [103 unused template characters] ...{% endif %}".
+                #
+                # This is more readable -- it would be REALLY confusing for a
+                # placeholder to include code that wasn't even executed!!
+                if len(so_slices) >= 2:
+                    has_gap = False
+                    gap_placeholder_parts = []
+                    last_slice = None
+                    # For each slice...
+                    for so_slice in so_slices:
+                        # If it's not the first slice, was there a gap?
+                        if last_slice:
+                            end_last = last_slice.source_idx + len(last_slice.raw)
+                            chars_skipped = so_slice.source_idx - end_last
+                            if chars_skipped:
+                                # Yes, gap between last_slice and so_slice.
+                                has_gap = True
+
+                                # Generate a string documenting the gap.
+                                if chars_skipped >= 10:
+                                    gap_placeholder_parts.append(
+                                        f"... [{chars_skipped} unused template characters] ..."
+                                    )
+                                else:
+                                    gap_placeholder_parts.append("...")
+                        # Now add the slice's source.
+                        gap_placeholder_parts.append(so_slice.raw)
+                        last_slice = so_slice
+                    if has_gap:
+                        placeholder_str = "".join(gap_placeholder_parts)
                 lexer_logger.debug(
                     "    Overlap Length: %s. PS: %s, LS: %s, p_str: %r, templ_str: %r",
                     existing_len,
@@ -410,7 +455,7 @@ class Lexer:
                     templ_str,
                 )
 
-                # Caluculate potential indent/dedent
+                # Calculate potential indent/dedent
                 block_slices = sum(s.slice_type.startswith("block_") for s in so_slices)
                 block_balance = sum(
                     s.slice_type == "block_start" for s in so_slices
@@ -458,19 +503,20 @@ class Lexer:
                     )
                 )
                 lexer_logger.debug(
-                    "      Placholder: %s, %r", segment_buffer[-1], placeholder_str
+                    "      Placeholder: %s, %r", segment_buffer[-1], placeholder_str
                 )
 
-                # Add a dedent if appropriate.
+                # Add an indent if appropriate.
                 if trail_indent and add_indents:
                     lexer_logger.debug("      INDENT")
                     segment_buffer.append(
                         Indent(
+                            is_template=True,
                             pos_marker=PositionMarker.from_point(
                                 placeholder_slice.stop,
                                 element.template_slice.start,
                                 templated_file,
-                            )
+                            ),
                         )
                     )
 

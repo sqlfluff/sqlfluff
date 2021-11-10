@@ -16,3 +16,4 @@ dataclasses; python_version < '3.7'
 chardet
 types-chardet
 toml
+tqdm

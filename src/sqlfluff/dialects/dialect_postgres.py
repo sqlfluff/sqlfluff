@@ -148,6 +148,18 @@ postgres_dialect.add(
 )
 
 postgres_dialect.replace(
+    ComparisonOperatorGrammar=OneOf(
+        Ref("EqualsSegment"),
+        Ref("GreaterThanSegment"),
+        Ref("LessThanSegment"),
+        Ref("GreaterThanOrEqualToSegment"),
+        Ref("LessThanOrEqualToSegment"),
+        Ref("NotEqualToSegment_a"),
+        Ref("NotEqualToSegment_b"),
+        Ref("LikeOperatorSegment"),
+        Sequence("IS", "DISTINCT", "FROM"),
+        Sequence("IS", "NOT", "DISTINCT", "FROM"),
+    ),
     NakedIdentifierSegment=SegmentGenerator(
         # Generate the anti template from the set of reserved keywords
         lambda dialect: RegexParser(
@@ -932,6 +944,74 @@ class CreateTableStatementSegment(BaseSegment):
     )
 
 
+@postgres_dialect.segment()
+class CreateTableAsStatementSegment(BaseSegment):
+    """A `CREATE TABLE AS` statement.
+
+    As specified in https://www.postgresql.org/docs/13/sql-createtableas.html
+    """
+
+    type = "create_table_as_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        OneOf(
+            Sequence(
+                OneOf("GLOBAL", "LOCAL", optional=True),
+                Ref("TemporaryGrammar"),
+            ),
+            "UNLOGGED",
+            optional=True,
+        ),
+        "TABLE",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        AnyNumberOf(
+            Sequence(
+                Bracketed(
+                    Delimited(Ref("ColumnReferenceSegment")),
+                ),
+                optional=True,
+            ),
+            Sequence("USING", Ref("ParameterNameSegment"), optional=True),
+            OneOf(
+                Sequence(
+                    "WITH",
+                    Bracketed(
+                        AnyNumberOf(
+                            Sequence(
+                                Ref("ParameterNameSegment"),
+                                Sequence(
+                                    Ref("EqualsSegment"),
+                                    Ref("LiteralGrammar"),
+                                    optional=True,
+                                ),
+                            )
+                        )
+                    ),
+                ),
+                Sequence("WITHOUT", "OIDS"),
+                optional=True,
+            ),
+            Sequence(
+                "ON",
+                "COMMIT",
+                OneOf(Sequence("PRESERVE", "ROWS"), Sequence("DELETE", "ROWS"), "DROP"),
+                optional=True,
+            ),
+            Sequence("TABLESPACE", Ref("ParameterNameSegment"), optional=True),
+        ),
+        "AS",
+        OneOf(
+            OptionallyBracketed(Ref("SelectableGrammar")),
+            OptionallyBracketed(Sequence("TABLE", Ref("TableReferenceSegment"))),
+            Ref("ValuesClauseSegment"),
+            OptionallyBracketed(Sequence("EXECUTE", Ref("FunctionSegment"))),
+        ),
+        Sequence("WITH", Ref.keyword("NO", optional=True), "DATA", optional=True),
+    )
+
+
 @postgres_dialect.segment(replace=True)
 class AlterTableStatementSegment(BaseSegment):
     """An `ALTER TABLE` statement.
@@ -1189,7 +1269,12 @@ class AlterTableActionSegment(BaseSegment):
         Sequence(
             "OWNER",
             "TO",
-            OneOf(Ref("ParameterNameSegment"), "CURRENT_USER", "SESSION_USER"),
+            OneOf(
+                OneOf(Ref("ParameterNameSegment"), Ref("QuotedIdentifierSegment")),
+                "CURRENT_ROLE",
+                "CURRENT_USER",
+                "SESSION_USER",
+            ),
         ),
         Sequence(
             "REPLICA",
@@ -1956,6 +2041,9 @@ class AlterSequenceOptionsSegment(BaseSegment):
             Sequence("MAXVALUE", Ref("NumericLiteralSegment")),
             Sequence("NO", "MAXVALUE"),
         ),
+        # N.B. The SEQUENCE NAME keywords are undocumented but are produced
+        # by the pg_dump utility. See discussion in issue #1857.
+        Sequence("SEQUENCE", "NAME", Ref("SequenceReferenceSegment")),
         Sequence(
             "START", Ref.keyword("WITH", optional=True), Ref("NumericLiteralSegment")
         ),
@@ -2050,6 +2138,8 @@ class StatementSegment(BaseSegment):
             Ref("AlterDefaultPrivilegesStatementSegment"),
             Ref("CommentOnStatementSegment"),
             Ref("AnalyzeStatementSegment"),
+            Ref("CreateTableAsStatementSegment"),
+            Ref("AlterTriggerStatementSegment"),
         ],
     )
 
@@ -2080,4 +2170,139 @@ class FunctionSegment(BaseSegment):
             ),
         ),
         Ref("PostFunctionGrammar", optional=True),
+    )
+
+
+@postgres_dialect.segment(replace=True)
+class CreateTriggerStatementSegment(BaseSegment):
+    """Create Trigger Statement.
+
+    As Specified in https://www.postgresql.org/docs/14/sql-createtrigger.html
+    """
+
+    type = "create_trigger"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Sequence("OR", "REPLACE", optional=True),
+        Ref.keyword("CONSTRAINT", optional=True),
+        "TRIGGER",
+        Anything(),
+    )
+
+    parse_grammar = Sequence(
+        "CREATE",
+        Sequence("OR", "REPLACE", optional=True),
+        Ref.keyword("CONSTRAINT", optional=True),
+        "TRIGGER",
+        Ref("TriggerReferenceSegment"),
+        OneOf("BEFORE", "AFTER", Sequence("INSTEAD", "OF")),
+        Delimited(
+            "INSERT",
+            "DELETE",
+            "TRUNCATE",
+            Sequence(
+                "UPDATE",
+                Sequence(
+                    "OF",
+                    Delimited(
+                        Ref("ColumnReferenceSegment"),
+                        terminator=OneOf("OR", "ON"),
+                    ),
+                    optional=True,
+                ),
+            ),
+            delimiter="OR",
+        ),
+        "ON",
+        Ref("TableReferenceSegment"),
+        AnyNumberOf(
+            Sequence("FROM", Ref("TableReferenceSegment")),
+            OneOf(
+                Sequence("NOT", "DEFERRABLE"),
+                Sequence(
+                    Ref.keyword("DEFERRABLE", optional=True),
+                    OneOf(
+                        Sequence("INITIALLY", "IMMEDIATE"),
+                        Sequence("INITIALLY", "DEFERRED"),
+                    ),
+                ),
+            ),
+            Sequence(
+                "REFERENCING",
+                OneOf("OLD", "NEW"),
+                "TABLE",
+                "AS",
+                Ref("TableReferenceSegment"),
+                Sequence(
+                    OneOf("OLD", "NEW"),
+                    "TABLE",
+                    "AS",
+                    Ref("TableReferenceSegment"),
+                    optional=True,
+                ),
+            ),
+            Sequence(
+                "FOR", Ref.keyword("EACH", optional=True), OneOf("ROW", "STATEMENT")
+            ),
+            Sequence("WHEN", Bracketed(Ref("ExpressionSegment"))),
+        ),
+        Sequence(
+            "EXECUTE",
+            OneOf("FUNCTION", "PROCEDURE"),
+            Ref("FunctionNameIdentifierSegment"),
+            Bracketed(Ref("FunctionContentsGrammar", optional=True)),
+        ),
+    )
+
+
+@postgres_dialect.segment()
+class AlterTriggerStatementSegment(BaseSegment):
+    """Alter Trigger Statement.
+
+    As Specified in https://www.postgresql.org/docs/14/sql-altertrigger.html
+    """
+
+    type = "alter_trigger"
+
+    match_grammar = Sequence("ALTER", "TRIGGER", Anything())
+
+    parse_grammar = Sequence(
+        "ALTER",
+        "TRIGGER",
+        Ref("TriggerReferenceSegment"),
+        "ON",
+        Ref("TableReferenceSegment"),
+        OneOf(
+            Sequence("RENAME", "TO", Ref("TriggerReferenceSegment")),
+            Sequence(
+                Ref.keyword("NO", optional=True),
+                "DEPENDS",
+                "ON",
+                "EXTENSION",
+                Ref("ParameterNameSegment"),
+            ),
+        ),
+    )
+
+
+@postgres_dialect.segment(replace=True)
+class DropTriggerStatementSegment(BaseSegment):
+    """Drop Trigger Statement.
+
+    As Specified in https://www.postgresql.org/docs/14/sql-droptrigger.html
+    """
+
+    type = "drop_trigger"
+
+    match_grammar = Sequence("DROP", "TRIGGER", Anything())
+
+    parse_grammar = Sequence(
+        "DROP",
+        "TRIGGER",
+        Sequence("IF", "EXISTS", optional=True),
+        Ref("TriggerReferenceSegment"),
+        "ON",
+        Ref("TableReferenceSegment"),
+        OneOf("CASCADE", "RESTRICT", optional=True),
     )

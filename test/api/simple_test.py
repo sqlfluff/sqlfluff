@@ -73,7 +73,7 @@ lint_result = [
         "code": "L009",
         "line_no": 1,
         "line_pos": 34,
-        "description": "Files must end with a trailing newline.",
+        "description": "Files must end with a single trailing newline.",
     },
     {
         "code": "L014",
@@ -116,6 +116,23 @@ def test__api__lint_string_specific():
     assert all(elem["code"] in rules for elem in result)
 
 
+def test__api__lint_string_specific_exclude():
+    """Basic checking of lint functionality."""
+    exclude_rules = ["L009", "L010", "L013", "L014", "L036", "L039"]
+    result = sqlfluff.lint(my_bad_query, exclude_rules=exclude_rules)
+    # Check only L044 is found
+    assert len(result) == 1
+    assert "L044" in result[0]["code"]
+
+
+def test__api__lint_string_specific_exclude_all_failed_rules():
+    """Basic checking of lint functionality."""
+    exclude_rules = ["L009", "L010", "L013", "L014", "L036", "L039", "L044"]
+    result = sqlfluff.lint(my_bad_query, exclude_rules=exclude_rules)
+    # Check it passes
+    assert result == []
+
+
 def test__api__fix_string():
     """Basic checking of lint functionality."""
     result = sqlfluff.fix(my_bad_query)
@@ -137,6 +154,13 @@ def test__api__fix_string_specific():
     result = sqlfluff.fix(my_bad_query, rules="L010")
     # Check actual result
     assert result == "SELECT  *, 1, blah AS  fOO  FROM myTable"
+
+
+def test__api__fix_string_specific_exclude():
+    """Basic checking of lint functionality with a specific rule exclusion."""
+    result = sqlfluff.fix(my_bad_query, exclude_rules="L036")
+    # Check actual result
+    assert result == "SELECT *, 1, blah AS foo FROM mytable\n"
 
 
 def test__api__parse_string():
