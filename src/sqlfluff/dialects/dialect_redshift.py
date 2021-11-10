@@ -11,18 +11,8 @@ from sqlfluff.core.parser import (
     Sequence,
     Bracketed,
     OptionallyBracketed,
-    Anything,
     BaseSegment,
     Delimited,
-    RegexLexer,
-    RegexParser,
-    CodeSegment,
-    NamedParser,
-    SymbolSegment,
-    StartsWith,
-    CommentSegment,
-    Dedent,
-    SegmentGenerator,
     Nothing,
 )
 
