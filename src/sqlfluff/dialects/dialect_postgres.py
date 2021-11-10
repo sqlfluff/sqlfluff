@@ -2141,7 +2141,7 @@ class StatementSegment(BaseSegment):
             Ref("CreateTableAsStatementSegment"),
             Ref("AlterTriggerStatementSegment"),
             Ref("DropTypeStatementSegment"),
-            Ref("SetStatementSegment")
+            Ref("SetStatementSegment"),
         ],
     )
 
@@ -2369,17 +2369,11 @@ class SetStatementSegment(BaseSegment):
                 OneOf("TO", Ref("EqualsSegment")),
                 OneOf(
                     Delimited(Ref("LiteralGrammar"), Ref("NakedIdentifierSegment")),
-                    "DEFAULT"
-                )
+                    "DEFAULT",
+                ),
             ),
             Sequence(
-                "TIME",
-                "ZONE",
-                OneOf(
-                    Ref("QuotedLiteralSegment"),
-                    "LOCAL",
-                    "DEFAULT"
-                )
-            )
-        )
+                "TIME", "ZONE", OneOf(Ref("QuotedLiteralSegment"), "LOCAL", "DEFAULT")
+            ),
+        ),
     )
