@@ -173,7 +173,7 @@ class TableAttributeSegment(BaseSegment):
             Sequence(
                 OneOf("COMPOUND", "INTERLEAVED", optional=True),
                 "SORTKEY",
-                Bracketed(Ref("ColumnReferenceSegment")),
+                Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
             ),
             Sequence("SORTKEY", "AUTO"),
             optional=True
