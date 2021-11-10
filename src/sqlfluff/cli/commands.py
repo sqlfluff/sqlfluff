@@ -4,6 +4,7 @@ import sys
 import json
 import logging
 import time
+from logging import LogRecord
 from typing import (
     Callable,
     Tuple,
@@ -63,6 +64,24 @@ class RedWarningsFilter(logging.Filter):
         return True
 
 
+class StreamHandlerTqdm(logging.StreamHandler):
+    """Modified StreamHandler which takes care of writing within `tqdm` context.
+
+    It uses `tqdm` write which takes care of conflicting prints with progressbar.
+    Without it, there were left artifacts in DEBUG mode (not sure about another ones,
+    but probably would happen somewhere).
+    """
+
+    def emit(self, record: LogRecord) -> None:
+        """Behaves like original one except uses `tqdm` to write."""
+        try:
+            msg = self.format(record)
+            tqdm.write(msg, file=self.stream)
+            self.flush()
+        except Exception:
+            self.handleError(record)
+
+
 def set_logging_level(
     verbosity: int, logger: Optional[logging.Logger] = None, stderr_output: bool = False
 ) -> None:
@@ -85,8 +104,9 @@ def set_logging_level(
     # Enable colorama
     colorama.init()
 
-    # Set up the log handler to log to stdout
-    handler = logging.StreamHandler(stream=sys.stderr if stderr_output else sys.stdout)
+    # Set up the log handler which is able to print messages without overlapping
+    # with progressbars.
+    handler = StreamHandlerTqdm(stream=sys.stderr if stderr_output else sys.stdout)
     # NB: the unicode character at the beginning is to squash any badly
     # tamed ANSI colour statements, and return us to normality.
     handler.setFormatter(logging.Formatter("\u001b[0m%(levelname)-10s %(message)s"))
