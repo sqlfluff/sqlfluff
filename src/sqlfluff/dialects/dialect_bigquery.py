@@ -7,7 +7,6 @@ https://cloud.google.com/bigquery/docs/reference/standard-sql/lexical#string_and
 """
 
 import itertools
-from os import replace
 
 from sqlfluff.core.parser import (
     Anything,
