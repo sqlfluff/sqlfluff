@@ -2041,6 +2041,9 @@ class AlterSequenceOptionsSegment(BaseSegment):
             Sequence("MAXVALUE", Ref("NumericLiteralSegment")),
             Sequence("NO", "MAXVALUE"),
         ),
+        # N.B. The SEQUENCE NAME keywords are undocumented but are produced
+        # by the pg_dump utility. See discussion in issue #1857.
+        Sequence("SEQUENCE", "NAME", Ref("SequenceReferenceSegment")),
         Sequence(
             "START", Ref.keyword("WITH", optional=True), Ref("NumericLiteralSegment")
         ),
@@ -2137,6 +2140,7 @@ class StatementSegment(BaseSegment):
             Ref("AnalyzeStatementSegment"),
             Ref("CreateTableAsStatementSegment"),
             Ref("AlterTriggerStatementSegment"),
+            Ref("DropTypeStatementSegment"),
         ],
     )
 
@@ -2301,5 +2305,44 @@ class DropTriggerStatementSegment(BaseSegment):
         Ref("TriggerReferenceSegment"),
         "ON",
         Ref("TableReferenceSegment"),
+        OneOf("CASCADE", "RESTRICT", optional=True),
+    )
+
+
+@postgres_dialect.segment(replace=True)
+class InsertStatementSegment(BaseSegment):
+    """An `INSERT` statement.
+
+    As Specified in https://www.postgresql.org/docs/14/sql-insert.html
+    N.B. This is not a complete implementation of the documentation above.
+    TODO: Implement complete postgres insert statement structure.
+    """
+
+    type = "insert_statement"
+    match_grammar = StartsWith("INSERT")
+    parse_grammar = Sequence(
+        "INSERT",
+        "INTO",
+        Ref("TableReferenceSegment"),
+        Ref("BracketedColumnReferenceListGrammar", optional=True),
+        Sequence("OVERRIDING", OneOf("SYSTEM", "USER"), "VALUE", optional=True),
+        Ref("SelectableGrammar"),
+    )
+
+
+@postgres_dialect.segment()
+class DropTypeStatementSegment(BaseSegment):
+    """Drop Type Statement.
+
+    As specified in https://www.postgresql.org/docs/14/sql-droptype.html
+    """
+
+    type = "drop_type_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        "TYPE",
+        Ref("IfExistsGrammar", optional=True),
+        Delimited(Ref("DatatypeSegment")),
         OneOf("CASCADE", "RESTRICT", optional=True),
     )

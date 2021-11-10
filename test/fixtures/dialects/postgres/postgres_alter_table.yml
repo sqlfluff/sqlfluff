@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 12d249090b77cfdf9b99daeddd63ed7b336cf12b646e411dfbc0693ac0b75977
+_hash: ed976440366f5578a98d5dc724e36e296b8ad6bef2ecb22f6868afdf6c1fd875
 file:
 - statement:
     alter_table_statement:
@@ -808,4 +808,33 @@ file:
       - keyword: OWNER
       - keyword: TO
       - parameter: CURRENT_ROLE
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - identifier: public
+      - dot: .
+      - identifier: history
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - keyword: COLUMN
+      - column_reference:
+          identifier: id
+      - keyword: ADD
+      - keyword: GENERATED
+      - keyword: ALWAYS
+      - keyword: AS
+      - keyword: IDENTITY
+      - bracketed:
+          start_bracket: (
+          alter_sequence_options_segment:
+          - keyword: SEQUENCE
+          - keyword: NAME
+          - sequence_reference:
+            - identifier: public
+            - dot: .
+            - identifier: history_id_seq
+          end_bracket: )
 - statement_terminator: ;
