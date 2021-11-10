@@ -246,12 +246,28 @@ def version(**kwargs):
 
 
 @cli.command()
+@click.argument("codes", nargs=-1)
 @common_options
 def rules(**kwargs):
-    """Show the current rules in use."""
+    """Show the current rules in use.
+
+    Use CODES to limit the rules to only those that match the code.
+    """
     c = get_config(**kwargs)
     lnt, _ = get_linter_and_formatter(c)
-    click.echo(format_rules(lnt), color=c.get("color"))
+
+    codes = c.get("codes")
+    if codes:
+        click.echo(
+                format_rules(
+                    lnt,
+                    c.get("verbose"),
+                    lambda r: r.code in codes
+                ),
+                color=c.get("color")
+        )
+    else:
+        click.echo(format_rules(lnt, c.get("verbose")), color=c.get("color"))
 
 
 @cli.command()
