@@ -2329,7 +2329,7 @@ class InsertStatementSegment(BaseSegment):
         Ref("SelectableGrammar"),
     )
 
-      
+
 @postgres_dialect.segment()
 class DropTypeStatementSegment(BaseSegment):
     """Drop Type Statement.
