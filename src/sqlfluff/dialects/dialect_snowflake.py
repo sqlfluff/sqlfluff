@@ -116,8 +116,8 @@ snowflake_dialect.add(
     ),
     # We use a RegexParser instead of keywords as some (those with dashes) require quotes:
     WarehouseSize=RegexParser(
-        r"(XSMALL|SMALL|MEDIUM|LARGE|XLARGE|XXLARGE|XXXLARGE|X4LARGE|X5LARGE|X6LARGE|"
-        r"'X-SMALL'|'X-LARGE'|'XX-LARGE'|'XXX-LARGE'|'X4-LARGE'|'X5-LARGE'|'X6-LARGE')",
+        r"(XSMALL|SMALL|MEDIUM|LARGE|XLARGE|XXLARGE|X2LARGE|XXXLARGE|X3LARGE|X4LARGE|X5LARGE|X6LARGE|"
+        r"'X-SMALL'|'X-LARGE'|'2X-LARGE'|'3X-LARGE'|'4X-LARGE'|'5X-LARGE'|'6X-LARGE')",
         CodeSegment,
         name="warehouse_size",
         type="identifier",
