@@ -176,7 +176,7 @@ class TableAttributeSegment(BaseSegment):
                 Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
             ),
             Sequence("SORTKEY", "AUTO"),
-            optional=True
+            optional=True,
         ),
         Sequence("ENCODE", "AUTO", optional=True),
     )
