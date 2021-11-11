@@ -1844,6 +1844,7 @@ class CopyIntoStatementSegment(BaseSegment):
 
 @snowflake_dialect.segment()
 class PathSegment(BaseSegment):
+    """Path Segment."""
 
     type = "path"
 
