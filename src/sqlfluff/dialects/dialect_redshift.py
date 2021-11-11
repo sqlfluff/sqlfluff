@@ -185,12 +185,12 @@ class TableConstraintSegment(BaseSegment):
 
     match_grammar = AnyNumberOf(
         Sequence(
-            "UNIQUE", Bracketed(AnyNumberOf(Delimited(Ref("ColumnReferenceSegment"))))
+            "UNIQUE", Bracketed(Delimited(Ref("ColumnReferenceSegment")))
         ),
         Sequence(
             "PRIMARY",
             "KEY",
-            Bracketed(AnyNumberOf(Delimited(Ref("ColumnReferenceSegment")))),
+            Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
         ),
         Sequence(
             "FOREIGN",
