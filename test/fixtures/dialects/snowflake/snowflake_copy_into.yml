@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: eb6ffd58d1f00a73fcefeec7146d438e81c819b326f7f1714f396ea3b048fc17
+_hash: b5c3fc19989e1d017b4758514f4bdc849138cf6d1717f9c7cb6af3de90138d1c
 file:
 - statement:
     copy_into_statement:
@@ -11,10 +11,10 @@ file:
     - keyword: into
     - table_reference:
         identifier: mytable
-    unparsable:
-    - raw: from
-    - raw: '@'
-    - raw: my_int_stage
+    - keyword: from
+    - internal_external_stage:
+        literal: '@'
+        identifier: my_int_stage
 - statement_terminator: ;
 - statement:
     copy_into_statement:
@@ -22,17 +22,17 @@ file:
     - keyword: into
     - table_reference:
         identifier: mytable
-    unparsable:
-    - raw: from
-    - raw: '@'
-    - raw: my_int_stage
-    - raw: file_format
-    - raw: '='
+    - keyword: from
+    - internal_external_stage:
+        literal: '@'
+        identifier: my_int_stage
+    - keyword: file_format
+    - comparison_operator: '='
     - bracketed:
       - start_bracket: (
-      - raw: type
-      - raw: '='
-      - raw: csv
+      - keyword: type
+      - comparison_operator: '='
+      - keyword: csv
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -41,18 +41,18 @@ file:
     - keyword: into
     - table_reference:
         identifier: mytable
-    unparsable:
-    - raw: from
-    - raw: '@'
-    - raw: my_int_stage
-    - raw: file_format
-    - raw: '='
+    - keyword: from
+    - internal_external_stage:
+        literal: '@'
+        identifier: my_int_stage
+    - keyword: file_format
+    - comparison_operator: '='
     - bracketed:
-      - start_bracket: (
-      - raw: format_name
-      - raw: '='
-      - raw: "'mycsv'"
-      - end_bracket: )
+        start_bracket: (
+        keyword: format_name
+        comparison_operator: '='
+        literal: "'mycsv'"
+        end_bracket: )
 - statement_terminator: ;
 - statement:
     copy_into_statement:
@@ -60,21 +60,21 @@ file:
     - keyword: into
     - table_reference:
         identifier: mytable
-    unparsable:
-    - raw: from
-    - raw: '@'
-    - raw: my_int_stage
-    - raw: file_format
-    - raw: '='
+    - keyword: from
+    - internal_external_stage:
+        literal: '@'
+        identifier: my_int_stage
+    - keyword: file_format
+    - comparison_operator: '='
     - bracketed:
-      - start_bracket: (
-      - raw: type
-      - raw: '='
-      - raw: "'CSV'"
-      - end_bracket: )
-    - raw: pattern
-    - raw: '='
-    - raw: "'.*/.*/.*[.]csv[.]gz'"
+        start_bracket: (
+        keyword: type
+        comparison_operator: '='
+        literal: "'CSV'"
+        end_bracket: )
+    - keyword: pattern
+    - comparison_operator: '='
+    - literal: "'.*/.*/.*[.]csv[.]gz'"
 - statement_terminator: ;
 - statement:
     copy_into_statement:
@@ -82,21 +82,21 @@ file:
     - keyword: into
     - table_reference:
         identifier: mytable
-    unparsable:
-    - raw: from
-    - raw: '@'
-    - raw: my_int_stage
-    - raw: file_format
-    - raw: '='
+    - keyword: from
+    - internal_external_stage:
+        literal: '@'
+        identifier: my_int_stage
+    - keyword: file_format
+    - comparison_operator: '='
     - bracketed:
-      - start_bracket: (
-      - raw: format_name
-      - raw: '='
-      - raw: myformat
-      - end_bracket: )
-    - raw: pattern
-    - raw: '='
-    - raw: "'.*sales.*[.]csv'"
+        start_bracket: (
+        keyword: format_name
+        comparison_operator: '='
+        identifier: myformat
+        end_bracket: )
+    - keyword: pattern
+    - comparison_operator: '='
+    - literal: "'.*sales.*[.]csv'"
 - statement_terminator: ;
 - statement:
     copy_into_statement:
@@ -165,10 +165,9 @@ file:
             from_expression:
               from_expression_element:
                 table_expression:
-                  table_reference:
+                  internal_external_stage:
                     literal: '@'
-                alias_expression:
-                  identifier: source_stage
+                    identifier: source_stage
         end_bracket: )
 - statement_terminator: ;
 - statement:

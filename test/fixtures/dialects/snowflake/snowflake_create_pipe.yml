@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 13d9ef8cf948b464e385b7d7a064eb1bf9b65a84c08fbdbfcde5063ad9fde8c9
+_hash: c3e353fcbaaf29157891c369196d40989dcd05ae21945a270872bb72556a597e
 file:
   statement:
     create_statement:
@@ -29,20 +29,20 @@ file:
         - identifier: public
         - dot: .
         - identifier: mytable
-    unparsable:
-    - raw: from
-    - raw: '@'
-    - raw: snowpipe_db
-    - raw: .
-    - raw: public
-    - raw: .
-    - raw: mystage
-    - raw: file_format
-    - raw: '='
-    - bracketed:
-      - start_bracket: (
-      - raw: type
-      - raw: '='
-      - raw: "'JSON'"
-      - end_bracket: )
+      - keyword: from
+      - internal_external_stage:
+        - literal: '@'
+        - identifier: snowpipe_db
+        - dot: .
+        - identifier: public
+        - dot: .
+        - identifier: mystage
+      - keyword: file_format
+      - comparison_operator: '='
+      - bracketed:
+          start_bracket: (
+          keyword: type
+          comparison_operator: '='
+          literal: "'JSON'"
+          end_bracket: )
   statement_terminator: ;
