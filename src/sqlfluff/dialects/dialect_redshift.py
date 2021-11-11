@@ -195,7 +195,7 @@ class TableConstraintSegment(BaseSegment):
         Sequence(
             "FOREIGN",
             "KEY",
-            Bracketed(AnyNumberOf(Delimited(Ref("ColumnReferenceSegment")))),
+            Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
             "REFERENCES",
             Ref("TableReferenceSegment"),
             Sequence(Bracketed(Ref("ColumnReferenceSegment"))),
