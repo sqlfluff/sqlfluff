@@ -254,7 +254,7 @@ class CreateTableStatementSegment(BaseSegment):
             )
         ),
         Sequence("BACKUP", OneOf("YES", "NO", optional=True), optional=True),
-        AnyNumberOf(Ref("TableAttributeSegment", optional=True)),
+        AnyNumberOf(Ref("TableAttributeSegment"), optional=True),
     )
 
 
