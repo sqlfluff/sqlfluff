@@ -1,0 +1,40 @@
+rule: L052
+
+test_pass_semi_colon:
+  pass_str: |
+    SELECT a FROM foo;
+
+test_pass_multi_statement_semi_colon:
+  pass_str: |
+    SELECT a FROM foo;
+    SELECT b FROM bar;
+  
+test_fail_no_semi_colon:
+  fail_str: | 
+    SELECT a
+    FROM foo
+  fix_str: |
+    SELECT a
+    FROM foo;
+
+test_fail_space_semi_colon:
+  fail_str: |
+    SELECT a FROM foo  ;
+  fix_str: | 
+    SELECT a FROM foo;
+    
+test_fail_newline_semi_colon:
+  fail_str: |
+    SELECT a FROM foo
+    ;
+  fix_str: |
+    SELECT a FROM foo;
+
+test_fail_multi_statement_semi_colon:
+  fail_str: |
+    SELECT a FROM foo
+    ;
+    SELECT b FROM bar    ;
+  fix_str: |
+    SELECT a FROM foo;
+    SELECT b FROM bar;
