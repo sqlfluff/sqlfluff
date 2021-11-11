@@ -144,7 +144,7 @@ class ColumnConstraintSegment(BaseSegment):
         Sequence(
             "REFERENCES",
             Ref("TableReferenceSegment"),
-            Sequence(Bracketed(Ref("ColumnReferenceSegment"))),
+            Bracketed(Ref("ColumnReferenceSegment"), optional=True)
         ),
     )
 
