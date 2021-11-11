@@ -115,13 +115,13 @@ class SqlalchemyTemplater(RawTemplater):
             )
             out_str += in_str[last_pos_raw : span[0]]
             # add the current replaced element
-            start_teplate_pos = last_pos_templated + last_literal_length
+            start_template_pos = last_pos_templated + last_literal_length
             template_slices.append(
                 TemplatedFileSlice(
                     slice_type="block_start",
                     source_slice=slice(span[0], span[1], None),
                     templated_slice=slice(
-                        start_teplate_pos, start_teplate_pos + len(replacement), None
+                        start_template_pos, start_template_pos + len(replacement), None
                     ),
                 )
             )
@@ -135,7 +135,7 @@ class SqlalchemyTemplater(RawTemplater):
             out_str += replacement
             # update the indexes
             last_pos_raw = span[1]
-            last_pos_templated = start_teplate_pos + len(replacement)
+            last_pos_templated = start_template_pos + len(replacement)
         # add the last literal, if any
         if len(in_str) > last_pos_raw:
             template_slices.append(
