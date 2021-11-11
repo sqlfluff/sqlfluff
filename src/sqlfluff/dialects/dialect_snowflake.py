@@ -1144,6 +1144,7 @@ class ColumnConstraintSegment(BaseSegment):
                     "INCREMENT",
                     Ref("NumericLiteralSegment"),
                 ),
+                optional=True,
             ),
         ),
         Sequence(Ref.keyword("NOT", optional=True), "NULL"),  # NOT NULL or NULL
