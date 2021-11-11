@@ -1827,6 +1827,7 @@ class ValuesClauseSegment(BaseSegment):
                     Ref("LiteralGrammar"),
                     Ref("IntervalExpressionSegment"),
                     Ref("FunctionSegment"),
+                    Ref("BareFunctionSegment"),
                     "DEFAULT",  # not in `FROM` clause, rule?
                     ephemeral_name="ValuesClauseElements",
                 )
@@ -2024,8 +2025,10 @@ class InsertStatementSegment(BaseSegment):
     match_grammar = StartsWith("INSERT")
     parse_grammar = Sequence(
         "INSERT",
-        Ref.keyword("OVERWRITE", optional=True),  # Maybe this is just snowflake?
-        Ref.keyword("INTO", optional=True),
+        # Maybe OVERWRITE is just snowflake?
+        # (It's also Hive but that has full insert grammar implementation)
+        Ref.keyword("OVERWRITE", optional=True),
+        "INTO",
         Ref("TableReferenceSegment"),
         Ref("BracketedColumnReferenceListGrammar", optional=True),
         Ref("SelectableGrammar"),
@@ -2250,8 +2253,9 @@ class DropSchemaStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "DROP",
         "SCHEMA",
-        Ref("IfNotExistsGrammar", optional=True),
+        Ref("IfExistsGrammar", optional=True),
         Ref("SchemaReferenceSegment"),
+        OneOf("RESTRICT", "CASCADE", optional=True),
     )
 
 

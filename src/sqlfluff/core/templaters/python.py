@@ -563,7 +563,7 @@ class PythonTemplater(RawTemplater):
         types = {elem.slice_type for elem in elems}
         # Replace block types with templated
         for typ in list(types):
-            if typ.startswith("block_"):
+            if typ.startswith("block_"):  # pragma: no cover
                 types.remove(typ)
                 types.add("templated")
         # Take the easy route if they're all the same type
@@ -614,7 +614,7 @@ class PythonTemplater(RawTemplater):
                 int_file_slice.templated_slice.stop
                 - int_file_slice.templated_slice.start
                 == 0
-            ):
+            ):  # pragma: no cover
                 point_combo = int_file_slice.coalesce()
                 templater_logger.debug(
                     "        Yielding Point Combination: %s", point_combo
@@ -636,13 +636,13 @@ class PythonTemplater(RawTemplater):
                 templated_str=templated_str
             )
             if head_buffer:
-                yield from head_buffer
+                yield from head_buffer  # pragma: no cover
             # Have we consumed the whole thing?
             if not int_file_slice.slice_buffer:
-                continue
+                continue  # pragma: no cover
 
             # Try to yield simply again (post trim)
-            try:
+            try:  # pragma: no cover
                 simple_elem = int_file_slice.try_simple()
                 templater_logger.debug("        Yielding Simple: %s", simple_elem)
                 yield simple_elem
@@ -833,25 +833,25 @@ class PythonTemplater(RawTemplater):
             # formatting, but this class is also the base for the jinja templater
             # (and others?) so it may be used there.
             # One way uniques give us landmarks to try and estimate what to do with them.
-            owu_templ_tuples = cls._sorted_occurrence_tuples(
+            owu_templ_tuples = cls._sorted_occurrence_tuples(  # pragma: no cover
                 {key: templ_occs[key] for key in one_way_uniques}
             )
 
-            templater_logger.debug(
+            templater_logger.debug(  # pragma: no cover
                 "        Handling One Way Uniques: %s", owu_templ_tuples
             )
 
             # Hang onto out *ending* position too from here.
-            stops = (
+            stops = (  # pragma: no cover
                 int_file_slice.source_slice.stop,
                 int_file_slice.templated_slice.stop,
             )
 
             # OWU in this context refers to "One Way Unique"
-            this_owu_idx: Optional[int] = None
-            last_owu_idx: Optional[int] = None
+            this_owu_idx: Optional[int] = None  # pragma: no cover
+            last_owu_idx: Optional[int] = None  # pragma: no cover
             # Iterate through occurrence tuples of the one-way uniques.
-            for raw, template_idx in owu_templ_tuples:
+            for raw, template_idx in owu_templ_tuples:  # pragma: no cover
                 raw_idx = raw_occs[raw][0]
                 raw_len = len(raw)
 
@@ -907,10 +907,7 @@ class PythonTemplater(RawTemplater):
 
                     # If we succeeded in one of the above, we can also recurse
                     # and be more intelligent with the other sections.
-                    if sub_section:  # pragma: no cover
-                        # This assertion makes MyPy happy. In this case, we
-                        # never set source_slice without also setting
-                        # subsection.
+                    if sub_section:
                         templater_logger.debug(
                             "        Attempting Subsplit [pre]: %s, %r",
                             sub_section,
@@ -949,7 +946,7 @@ class PythonTemplater(RawTemplater):
                         if last_owu_idx is None or last_owu_idx + 1 >= len(
                             int_file_slice.slice_buffer
                         ):
-                            cur_idx = 0  # pragma: no cover
+                            cur_idx = 0
                         else:
                             cur_idx = last_owu_idx + 1
 
@@ -1040,7 +1037,7 @@ class PythonTemplater(RawTemplater):
                 )
 
         # Yield anything from the tail buffer
-        if tail_buffer:
+        if tail_buffer:  # pragma: no cover
             templater_logger.debug(
                 "        Yielding Tail Buffer [end]: %s", tail_buffer
             )

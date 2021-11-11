@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 264cddb2818c93bf82d95c4cd2a9ad35998aea040cba3ce7ec840dd50c3ad71b
+_hash: ed976440366f5578a98d5dc724e36e296b8ad6bef2ecb22f6868afdf6c1fd875
 file:
 - statement:
     alter_table_statement:
@@ -766,4 +766,75 @@ file:
             - keyword: BY
             - keyword: NONE
           - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - identifier: public
+      - dot: .
+      - identifier: test
+    - alter_table_action_segment:
+      - keyword: OWNER
+      - keyword: TO
+      - identifier: '"ID"'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - identifier: public
+      - dot: .
+      - identifier: test
+    - alter_table_action_segment:
+      - keyword: OWNER
+      - keyword: TO
+      - parameter: ID
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: EXISTS
+    - keyword: ONLY
+    - table_reference:
+      - identifier: public
+      - dot: .
+      - identifier: test
+    - alter_table_action_segment:
+      - keyword: OWNER
+      - keyword: TO
+      - parameter: CURRENT_ROLE
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - identifier: public
+      - dot: .
+      - identifier: history
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - keyword: COLUMN
+      - column_reference:
+          identifier: id
+      - keyword: ADD
+      - keyword: GENERATED
+      - keyword: ALWAYS
+      - keyword: AS
+      - keyword: IDENTITY
+      - bracketed:
+          start_bracket: (
+          alter_sequence_options_segment:
+          - keyword: SEQUENCE
+          - keyword: NAME
+          - sequence_reference:
+            - identifier: public
+            - dot: .
+            - identifier: history_id_seq
+          end_bracket: )
 - statement_terminator: ;
