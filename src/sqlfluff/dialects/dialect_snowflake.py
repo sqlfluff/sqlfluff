@@ -1870,7 +1870,7 @@ class IntExtStageLocation(BaseSegment):
             ),
             Ref("ModuloSegment", optional=True),
             Ref("NakedIdentifierSegment"),
-            Sequence(Ref("SlashSegment"), Ref("PathSegment")),
+            Sequence(Ref("SlashSegment"), Ref("PathSegment"), optional=True),
         ),
     )
 
