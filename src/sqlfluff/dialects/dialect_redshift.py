@@ -109,7 +109,7 @@ class ColumnAttributeSegment(BaseSegment):
         Sequence(
             "IDENTITY",
             Bracketed(
-                Delimited(Ref("NumericLiteralSegment"), Ref("NumericLiteralSegment"))
+                Delimited(Ref("NumericLiteralSegment"))
             ),
         ),
         Sequence(
@@ -119,7 +119,7 @@ class ColumnAttributeSegment(BaseSegment):
             "AS",
             "IDENTITY",
             Bracketed(
-                Delimited(Ref("NumericLiteralSegment"), Ref("NumericLiteralSegment"))
+                Delimited(Ref("NumericLiteralSegment"))
             ),
         ),
         Sequence("ENCODE", Ref("ColumnEncodingSegment")),
