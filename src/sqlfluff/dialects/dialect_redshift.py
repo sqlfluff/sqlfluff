@@ -108,9 +108,7 @@ class ColumnAttributeSegment(BaseSegment):
         Sequence("DEFAULT", Ref("ExpressionSegment")),
         Sequence(
             "IDENTITY",
-            Bracketed(
-                Delimited(Ref("NumericLiteralSegment"))
-            ),
+            Bracketed(Delimited(Ref("NumericLiteralSegment"))),
         ),
         Sequence(
             "GENERATED",
@@ -118,9 +116,7 @@ class ColumnAttributeSegment(BaseSegment):
             "DEFAULT",
             "AS",
             "IDENTITY",
-            Bracketed(
-                Delimited(Ref("NumericLiteralSegment"))
-            ),
+            Bracketed(Delimited(Ref("NumericLiteralSegment"))),
         ),
         Sequence("ENCODE", Ref("ColumnEncodingSegment")),
         "DISTKEY",
@@ -144,7 +140,7 @@ class ColumnConstraintSegment(BaseSegment):
         Sequence(
             "REFERENCES",
             Ref("TableReferenceSegment"),
-            Bracketed(Ref("ColumnReferenceSegment"), optional=True)
+            Bracketed(Ref("ColumnReferenceSegment"), optional=True),
         ),
     )
 
@@ -184,9 +180,7 @@ class TableConstraintSegment(BaseSegment):
     type = "table_constraint_segment"
 
     match_grammar = AnyNumberOf(
-        Sequence(
-            "UNIQUE", Bracketed(Delimited(Ref("ColumnReferenceSegment")))
-        ),
+        Sequence("UNIQUE", Bracketed(Delimited(Ref("ColumnReferenceSegment")))),
         Sequence(
             "PRIMARY",
             "KEY",
