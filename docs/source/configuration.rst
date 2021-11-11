@@ -99,13 +99,14 @@ of the templaters.
 Variable Templating
 ^^^^^^^^^^^^^^^^^^^
 
-Variables are available in the *jinja* and *python* templaters. By default
-the templating engine will expect variables for templating to be available
-in the config, and the templater will be look in the section corresponding
-to the context for that templater. By convention, the config for the *jinja*
-templater is found in the *sqlfluff:templater:jinja:context* section and the
-config for the *python* templater is found in the
-*sqlfluff:templater:python:context* section.
+Variables are available in the *jinja*, *python* and *sqlalchemy* templaters.
+By default the templating engine will expect variables for templating to be
+available in the config, and the templater will be look in the section
+corresponding to the context for that templater. By convention, the config for
+the *jinja* templater is found in the *sqlfluff:templater:jinja:context
+section, the config for the *python* templater is found in the
+*sqlfluff:templater:python:context* section, the one for the *sqlalchemy*
+templater is found in the *sqlfluff:templater:sqlalchemy:context* section
 
 For example, if passed the following *.sql* file:
 
