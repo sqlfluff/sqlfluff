@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4f139270581447fef6fbe67b7a9a52c1d3fe726cfed8296232ab5ff68295a389
+_hash: 65fdfe6e2531089ddce839774f9bd4a4b24477f471c7a5c5e385e006dd7d8f90
 file:
 - statement:
     create_table_statement:
@@ -695,5 +695,23 @@ file:
             - comma: ','
             - literal: '1'
             - end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+      - identifier: test_schema
+      - dot: .
+      - identifier: test_table
+    - bracketed:
+        start_bracket: (
+        column_definition:
+          identifier: test_column
+          data_type:
+            data_type_identifier: INTEGER
+          column_constraint_segment:
+            keyword: AUTOINCREMENT
         end_bracket: )
 - statement_terminator: ;
