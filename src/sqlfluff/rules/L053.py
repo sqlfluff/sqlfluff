@@ -57,8 +57,62 @@ class Rule_L053(BaseRule):
             return None
 
         # We have located a numeric literal column reference in the GROUP BY clause.
-        # N.B. We can't fix this as we don't know underlying structure of the table
-        # being referenced in the clause.
+        # TODO: Move the discussion below into a Github issue, and update this comment to reference the issue.
+        # N.B. Although we could provide a fix by backchecking the preceding SELECT statement in the simple case e.g.
+        # SELECT
+        #     fake_column_1,
+        #     fake_column_2,
+        #     sum(fake_value) AS sum_value
+        # FROM fake_table
+        # GROUP BY
+        #     1, 2;
+        #
+        # This becomes incredibly complicated when you consider that the parser will not
+        # raise a parse error for invalid SELECT/GROUP BY interactions:
+        # 1. Differing number of SELECT columns and GROUP BY columns e.g.
+        # SELECT
+        #     fake_column_1,
+        #     fake_column_2,
+        #     fake_column_3,
+        #     sum(fake_value) AS sum_value
+        # FROM fake_table
+        # GROUP BY
+        #     1, 2;
+        #
+        # 2. Wildcards in select clause
+        # SELECT
+        #     *,
+        #     fake_column_1,
+        #     fake_column_2,
+        #     fake_column_3,
+        #     sum(fake_value) AS sum_value
+        # FROM fake_table
+        # GROUP BY
+        #     1, 2;
+        #
+        # 3. Aggregate function out of order
+        # SELECT
+        #     fake_column_1,
+        #     sum(fake_value) AS sum_value
+        #     fake_column_2,
+        # FROM fake_table
+        # GROUP BY
+        #     1, 2;
+        #
+        # 4. Mix of numeric literal and column reference in GROUP BY
+        # SELECT
+        #     fake_column_1,
+        #     fake_column_2,
+        #     fake_column_3,
+        #     sum(fake_value) AS sum_value
+        # FROM fake_table
+        # GROUP BY
+        #     1, fake_column_2, 3;
+        #
+        # To save implementing all this logic,
+        # which belongs more in the parser rather than the rule,
+        # The sensible approach is to flag the lint violation
+        # to the user and let them fix it.
         return LintResult(
             anchor=numeric_literal_segment,
         )
