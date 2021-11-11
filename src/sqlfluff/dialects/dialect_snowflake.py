@@ -1717,7 +1717,7 @@ class TableExpressionSegment(BaseSegment):
         Bracketed(Ref("SelectableGrammar")),
         # Values clause?
         Ref("IntExtStageLocation"),
-        Ref("PathSegment")
+        Ref("PathSegment"),
     )
 
 
@@ -1734,12 +1734,7 @@ class CopyIntoStatementSegment(BaseSegment):
         "COPY",
         "INTO",
         Ref("TableReferenceSegment"),
-        Bracketed(
-            Delimited(
-                Ref("ColumnReferenceSegment")
-            ),
-            optional=True
-        ),
+        Bracketed(Delimited(Ref("ColumnReferenceSegment")), optional=True),
         Sequence(
             "FROM",
             OneOf(
@@ -1849,9 +1844,9 @@ class PathSegment(BaseSegment):
     type = "path"
 
     match_grammar = Delimited(
-        Ref("NakedIdentifierSegment"),
-        delimiter=Ref("SlashSegment")
+        Ref("NakedIdentifierSegment"), delimiter=Ref("SlashSegment")
     )
+
 
 @snowflake_dialect.segment()
 class IntExtStageLocation(BaseSegment):
@@ -1875,10 +1870,7 @@ class IntExtStageLocation(BaseSegment):
             ),
             Ref("ModuloSegment", optional=True),
             Ref("NakedIdentifierSegment"),
-            Sequence(
-                Ref("SlashSegment"),
-                Ref("PathSegment")
-            )
+            Sequence(Ref("SlashSegment"), Ref("PathSegment")),
         ),
     )
 
