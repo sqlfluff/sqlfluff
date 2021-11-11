@@ -226,11 +226,8 @@ class CreateTableStatementSegment(BaseSegment):
 
     match_grammar = Sequence(
         "CREATE",
-        Sequence(
-            Sequence("LOCAL", optional=True),
-            Ref("TemporaryGrammar", optional=True),
-            optional=True,
-        ),
+        Sequence("LOCAL", optional=True),
+        Ref("TemporaryGrammar", optional=True),
         "TABLE",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
