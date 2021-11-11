@@ -15,8 +15,14 @@ test_pass_leading_whitespace_inline_comment_hash:
     core:
       dialect: bigquery
 
-test_pass_leading_whitespace_jinja_template:
+test_pass_leading_whitespace_jinja_comment:
   pass_str: "{# I am a comment #}\nSELECT foo FROM bar\n"
+
+test_pass_leading_whitespace_jinja_if:
+  pass_str: "{% if True %}\nSELECT foo\nFROM bar;\n{% endif %}\n"
+
+test_pass_leading_whitespace_jinja_for:
+  pass_str: "{% for item in range(10) %}\nSELECT foo_{{ item }}\nFROM bar;\n{% endfor %}\n"
 
 test_fail_leading_whitespace_statement:
   fail_str: "\n  SELECT foo FROM bar\n"
@@ -29,3 +35,15 @@ test_fail_leading_whitespace_comment:
 test_fail_leading_whitespace_inline_comment:
   fail_str: "\n  --I am a comment\nSELECT foo FROM bar\n"
   fix_str: "--I am a comment\nSELECT foo FROM bar\n"
+
+test_fail_leading_whitespace_jinja_comment:
+  fail_str: "\n  {# I am a comment #}\nSELECT foo FROM bar\n"
+  fix_str: "{# I am a comment #}\nSELECT foo FROM bar\n"
+
+test_fail_leading_whitespace_jinja_if:
+  fail_str: "\n  {% if True %}\nSELECT foo\nFROM bar;\n{% endif %}\n"
+  fix_str: "{% if True %}\nSELECT foo\nFROM bar;\n{% endif %}\n"
+
+test_fail_leading_whitespace_jinja_for:
+  fail_str: "\n  {% for item in range(10) %}\nSELECT foo_{{ item }}\nFROM bar;\n{% endfor %}\n"
+  fix_str: "{% for item in range(10) %}\nSELECT foo_{{ item }}\nFROM bar;\n{% endfor %}\n"

@@ -59,6 +59,8 @@ class Rule_L050(BaseRule):
             foo
     """
 
+    targets_templated = True
+
     @staticmethod
     def _potential_template_collision(context: RuleContext) -> bool:
         """Check for any templated raw slices that intersect with source slices in the raw_stack.
