@@ -85,6 +85,8 @@ jobs:
       run: |
         echo "TOXENV=${{ matrix.jobs }}" >> $GITHUB_ENV
     - name: Run the tests
+      env:
+        SQLFLUFF_BENCHMARK_API_KEY: ${{ secrets.SQLFLUFF_BENCHMARK_API_KEY }}
       run: |
         tox -e ${{ env.TOXENV }}
   examples:
