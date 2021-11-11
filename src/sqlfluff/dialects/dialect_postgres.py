@@ -2358,9 +2358,7 @@ class SetStatementSegment(BaseSegment):
 
     type = "set_statement"
 
-    match_grammar = StartsWith("SET")
-
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "SET",
         OneOf("SESSION", "LOCAL", optional=True),
         OneOf(
