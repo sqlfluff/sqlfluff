@@ -48,13 +48,9 @@ class Rule_L051(BaseRule):
             context.segment.segments[0],
             fixes=[
                 LintFix(
-                    "edit",
+                    "create",
                     context.segment.segments[0],
-                    [
-                        KeywordSegment("INNER"),
-                        WhitespaceSegment(),
-                        context.segment.segments[0],
-                    ],
+                    [KeywordSegment("INNER"), WhitespaceSegment()],
                 )
             ],
         )
