@@ -17,6 +17,8 @@ class SelectTargetsInfo(NamedTuple):
     first_select_target_idx: int
     first_whitespace_idx: int
     select_targets: List[BaseSegment]
+    from_segment: BaseSegment
+    pre_from_whitespace: List[BaseSegment]
 
 
 @document_fix_compatible
@@ -46,7 +48,7 @@ class Rule_L036(BaseRule):
 
     def _eval(self, context: RuleContext):
         if context.segment.is_type("select_clause"):
-            select_targets_info = self._get_indexes(context.segment)
+            select_targets_info = self._get_indexes(context)
             if len(select_targets_info.select_targets) == 1:
                 return self._eval_single_select_target_element(
                     select_targets_info, context.segment, context.parent_stack
@@ -57,13 +59,18 @@ class Rule_L036(BaseRule):
                 )
 
     @staticmethod
-    def _get_indexes(segment):
+    def _get_indexes(context: RuleContext):
         select_idx = -1
         first_new_line_idx = -1
         first_select_target_idx = -1
         first_whitespace_idx = -1
         select_targets = []
-        for fname_idx, seg in enumerate(segment.segments):
+        from_segment = next(
+            seg for seg in context.siblings_post if seg.is_type("from_clause")
+        )
+        pre_from_whitespace = []
+
+        for fname_idx, seg in enumerate(context.segment.segments):
             if seg.is_type("select_clause_element"):
                 select_targets.append(seg)
                 if first_select_target_idx == -1:
@@ -82,12 +89,21 @@ class Rule_L036(BaseRule):
             ):
                 first_whitespace_idx = fname_idx
 
+        for seg in context.siblings_post:
+            if seg.is_type("from_clause"):
+                break
+
+            if seg.is_type("whitespace"):
+                pre_from_whitespace.append(seg)
+
         return SelectTargetsInfo(
             select_idx,
             first_new_line_idx,
             first_select_target_idx,
             first_whitespace_idx,
             select_targets,
+            from_segment,
+            pre_from_whitespace,
         )
 
     def _eval_multiple_select_target_elements(self, select_targets_info, segment):
@@ -119,6 +135,25 @@ class Rule_L036(BaseRule):
                 )
                 fixes += [LintFix("delete", ws) for ws in ws_to_delete]
                 fixes.append(LintFix("create", select_target, NewlineSegment()))
+
+            # If we are at the last select target check if the FROM clause
+            # is on the same line, and if so move it to its own line.
+            if (i + 1 == len(select_targets_info.select_targets)) and (
+                select_target.pos_marker.working_line_no
+                == select_targets_info.from_segment.pos_marker.working_line_no
+            ):
+                fixes.extend(
+                    [
+                        LintFix("delete", ws)
+                        for ws in select_targets_info.pre_from_whitespace
+                    ]
+                )
+                fixes.append(
+                    LintFix(
+                        "create", select_targets_info.from_segment, NewlineSegment()
+                    )
+                )
+
         if fixes:
             return LintResult(anchor=segment, fixes=fixes)
 
@@ -131,14 +166,13 @@ class Rule_L036(BaseRule):
                 for sub_segment in segment.segments:
                     if sub_segment.is_type("wildcard_expression"):
                         is_wildcard = True
+                        wildcard_select_clause_element = segment
 
-        if is_wildcard:
-            return None
-        elif (
+        if (
             select_targets_info.select_idx
             < select_targets_info.first_new_line_idx
             < select_targets_info.first_select_target_idx
-        ):
+        ) and (not is_wildcard):
             # Do we have a modifier?
             modifier = select_clause.get_child("select_clause_modifier")
 
@@ -333,5 +367,29 @@ class Rule_L036(BaseRule):
                 anchor=select_clause,
                 fixes=fixes,
             )
-        else:
-            return None
+
+        # If we have a wildcard on the same line as the FROM keyword, but not the same line
+        # as the SELECT keyword, we need to move the FROM keyword to its own line.
+        # i.e.
+        # SELECT
+        #   * FROM foo
+        if (
+            is_wildcard
+            and (
+                select_clause.pos_marker.working_line_no
+                != select_targets_info.from_segment.pos_marker.working_line_no
+            )
+            and (
+                wildcard_select_clause_element.pos_marker.working_line_no
+                == select_targets_info.from_segment.pos_marker.working_line_no
+            )
+        ):
+            fixes = [
+                LintFix("delete", ws) for ws in select_targets_info.pre_from_whitespace
+            ]
+            fixes.append(
+                LintFix("create", select_targets_info.from_segment, NewlineSegment())
+            )
+            return LintResult(anchor=select_clause, fixes=fixes)
+
+        return
