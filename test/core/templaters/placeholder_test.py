@@ -235,3 +235,29 @@ def test__templater_exception():
         SQLTemplaterError, match=r"Failure in placeholder templating: 'user_id'"
     ):
         t.process(in_str=instr, fname="test")
+
+
+def test__templater_setup():
+    """Test the exception raised when config is incomplete or ambiguous."""
+    t = PlaceholderTemplater(override_context=dict(name="'john'"))
+    with pytest.raises(
+        ValueError,
+        match=r"No param_regex nor param_style was provided to the placeholder templater",
+    ):
+        t.process(in_str="SELECT 2+2", fname="test")
+
+    t = PlaceholderTemplater(
+        override_context=dict(param_style="bla", param_regex="bli")
+    )
+    with pytest.raises(
+        ValueError,
+        match=r"Either param_style or param_regex must be provided, not both",
+    ):
+        t.process(in_str="SELECT 2+2", fname="test")
+
+
+def test__templater_styles():
+    """Test the exception raised when parameter style is unknown."""
+    t = PlaceholderTemplater(override_context=dict(param_style="pperccent"))
+    with pytest.raises(ValueError, match=r"Unknown param_style"):
+        t.process(in_str="SELECT 2+2", fname="test")

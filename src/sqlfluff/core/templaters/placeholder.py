@@ -74,7 +74,10 @@ class PlaceholderTemplater(RawTemplater):
         live_context.update(self.default_context)
         live_context.update(loaded_context)
         live_context.update(self.override_context)
-
+        if "param_regex" in live_context and "param_style" in live_context:
+            raise ValueError(
+                "Either param_style or param_regex must be provided, not both"
+            )
         if "param_regex" in live_context:
             live_context["__bind_param_regex"] = re.compile(live_context["param_regex"])
         elif "param_style" in live_context:
