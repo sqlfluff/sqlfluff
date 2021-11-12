@@ -31,6 +31,8 @@ KNOWN_STYLES = {
     "question_mark": re.compile(r"(?<![:\w\x5c])\?", re.UNICODE),
     # e.g. WHERE bla = $3
     "numeric_dollar": re.compile(r"(?<![:\w\x5c])\$(?P<param_name>[\d]+)", re.UNICODE),
+    # e.g. WHERE bla = %s
+    "percent": re.compile(r"(?<![:\w\x5c])%s", re.UNICODE),
 }
 
 

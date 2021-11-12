@@ -173,6 +173,9 @@ question_mark
 numeric_dollar
  WHERE bla = $3
 
+percent
+ WHERE bla = %s
+
 these can be configured by setting param_style
 
 .. code-block:: cfg

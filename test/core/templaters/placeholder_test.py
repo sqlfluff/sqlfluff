@@ -174,6 +174,25 @@ def test__templater_raw():
                 "90": "'2020-10-01'",
             },
         ),
+        (
+            """
+            SELECT user_mail, city_id
+            FROM users_data
+            WHERE (city_id) IN %s
+            AND date > %s
+            """,
+            "percent",
+            """
+            SELECT user_mail, city_id
+            FROM users_data
+            WHERE (city_id) IN (1, 2, 3, 45)
+            AND date > '2020-10-01'
+            """,
+            {
+                "1": "(1, 2, 3, 45)",
+                "2": "'2020-10-01'",
+            },
+        ),
     ],
     ids=[
         "no_changes",
@@ -185,6 +204,7 @@ def test__templater_raw():
         "pyformat",
         "dollar",
         "numeric_dollar",
+        "percent",
     ],
 )
 def test__templater_param_style(instr, expected_outstr, param_style, values):
