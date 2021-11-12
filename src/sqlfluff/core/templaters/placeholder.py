@@ -1,4 +1,4 @@
-"""Defines the templaters."""
+"""Defines the placeholder template."""
 
 import logging
 import re
@@ -18,14 +18,38 @@ from sqlfluff.core.templaters.base import RawTemplater
 # Instantiate the templater logger
 templater_logger = logging.getLogger("sqlfluff.templater")
 
-# from https://github.com/sqlalchemy/sqlalchemy/blob/cf404d840c15fe167518dd884b295dc99ee26178/lib/sqlalchemy/sql/elements.py#L1756 # noqa
-BIND_PARAM_REGEX = re.compile(r"(?<![:\w\x5c]):(?P<bind_param>\w+)(?!:)", re.UNICODE)
+KNOWN_STYLES = {
+    # e.g. WHERE bla = :name
+    "colon": re.compile(r"(?<![:\w\x5c]):(?P<param_name>\w+)(?!:)", re.UNICODE),
+    # e.g. WHERE bla = :2
+    "numeric_colon": re.compile(r"(?<![:\w\x5c]):(?P<param_name>\d+)", re.UNICODE),
+    # e.g. WHERE bla = %(name)s
+    "pyformat": re.compile(r"(?<![:\w\x5c])%\((?P<param_name>[\w_]+)\)s", re.UNICODE),
+    # e.g. WHERE bla = $name
+    "dollar": re.compile(r"(?<![:\w\x5c])\$(?P<param_name>[\w_]+)", re.UNICODE),
+    # e.g. WHERE bla = ?
+    "question_mark": re.compile(r"(?<![:\w\x5c])\?", re.UNICODE),
+    # e.g. WHERE bla = $3
+    "numeric_dollar": re.compile(r"(?<![:\w\x5c])\$(?P<param_name>[\d]+)", re.UNICODE),
+}
 
 
-class SqlalchemyTemplater(RawTemplater):
-    """A templater for sqlalchemy."""
+class PlaceholderTemplater(RawTemplater):
+    """A templater for generic placeholders.
 
-    name = "sqlalchemy"
+    Different libraries and tools use different styles of placeholders in
+    order to escape them when running queries.
+
+    In order to perform parsing of those templated queries, it's necessary to
+    replace these placeholders with user-provided values, which is the job
+    of this templater.
+
+    See https://www.python.org/dev/peps/pep-0249/#paramstyle for the
+    specifications for Python, they cover most cases.
+
+    """
+
+    name = "placeholder"
 
     def __init__(self, override_context=None, **kwargs):
         self.default_context = dict(test_value="__test__")
@@ -48,8 +72,22 @@ class SqlalchemyTemplater(RawTemplater):
         live_context.update(self.default_context)
         live_context.update(loaded_context)
         live_context.update(self.override_context)
-        # TODO here everything is a string, it's not possible to guess the
-        # type and if it needs quoting, only assume the original string has proper escape
+
+        if "param_regex" in live_context:
+            live_context["__bind_param_regex"] = re.compile(live_context["param_regex"])
+        elif "param_style" in live_context:
+            param_style = live_context["param_style"]
+            if param_style not in KNOWN_STYLES:
+                raise ValueError(
+                    'Unknown param_style "{}", available are: {}'.format(
+                        param_style, list(KNOWN_STYLES.keys())
+                    )
+                )
+            live_context["__bind_param_regex"] = KNOWN_STYLES[param_style]
+        else:
+            raise ValueError(
+                "No param_regex nor param_style was provided to the placeholder templater!"
+            )
 
         return live_context
 
@@ -81,16 +119,23 @@ class SqlalchemyTemplater(RawTemplater):
         last_pos_raw, last_pos_templated = 0, 0
         out_str = ""
 
-        for found_param in BIND_PARAM_REGEX.finditer(in_str):
+        regex = context["__bind_param_regex"]
+        # when the param has no name, use a 1-based index
+        param_counter = 1
+        for found_param in regex.finditer(in_str):
             span = found_param.span()
-            param_name = found_param["bind_param"]
+            if "param_name" not in found_param.groupdict():
+                param_name = str(param_counter)
+                param_counter += 1
+            else:
+                param_name = found_param["param_name"]
             last_literal_length = span[0] - last_pos_raw
             try:
                 replacement = context[param_name]
             except KeyError as err:
                 # TODO: Add a url here so people can get more help.
                 raise SQLTemplaterError(
-                    "Failure in SQLAlchemy templating: {}. Have you configured your variables?".format(
+                    "Failure in placeholder templating: {}. Have you configured your variables?".format(
                         err
                     )
                 )
