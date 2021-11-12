@@ -1620,7 +1620,7 @@ class CreateExternalTableSegment(BaseSegment):
                 ),
                 AnyNumberOf(
                     Ref("NakedIdentifierSegment"),
-                    Ref("DivideSegment"),
+                    Ref("SlashSegment"),
                     allow_gaps=False,
                 ),
                 optional=True,
@@ -1705,6 +1705,23 @@ class CreateExternalTableSegment(BaseSegment):
     )
 
 
+@snowflake_dialect.segment(replace=True)
+class TableExpressionSegment(BaseSegment):
+    """The main table expression e.g. within a FROM clause."""
+
+    type = "table_expression"
+    match_grammar = OneOf(
+        Ref("BareFunctionSegment"),
+        Ref("FunctionSegment"),
+        Ref("TableReferenceSegment"),
+        # Nested Selects
+        Bracketed(Ref("SelectableGrammar")),
+        # Values clause?
+        Ref("IntExtStageLocation"),
+        Ref("PathSegment"),
+    )
+
+
 @snowflake_dialect.segment()
 class CopyIntoStatementSegment(BaseSegment):
     """A snowflake `COPY INTO` statement.
@@ -1717,7 +1734,8 @@ class CopyIntoStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "COPY",
         "INTO",
-        Ref("ObjectReferenceSegment"),
+        Ref("TableReferenceSegment"),
+        Bracketed(Delimited(Ref("ColumnReferenceSegment")), optional=True),
         Sequence(
             "FROM",
             OneOf(
@@ -1775,6 +1793,7 @@ class CopyIntoStatementSegment(BaseSegment):
                                     Ref("EqualsSegment"),
                                     OneOf(
                                         Ref("NakedIdentifierSegment"),
+                                        Ref("NumericLiteralSegment"),
                                         Ref("QuotedLiteralSegment"),
                                         Bracketed(
                                             Delimited(
@@ -1820,6 +1839,17 @@ class CopyIntoStatementSegment(BaseSegment):
 
 
 @snowflake_dialect.segment()
+class PathSegment(BaseSegment):
+    """Path Segment."""
+
+    type = "path"
+
+    match_grammar = Delimited(
+        Ref("NakedIdentifierSegment"), delimiter=Ref("SlashSegment")
+    )
+
+
+@snowflake_dialect.segment()
 class IntExtStageLocation(BaseSegment):
     """A snowflake internalStage / externalStage segment used by copy into tables.
 
@@ -1828,7 +1858,7 @@ class IntExtStageLocation(BaseSegment):
 
     type = "internal_external_stage"
 
-    # TODO - currently Paths are not supported nor External Locations
+    # TODO - currently External Locations are not supported
     match_grammar = Sequence(
         Ref("AtSignLiteralSegment"),
         Sequence(
@@ -1841,6 +1871,7 @@ class IntExtStageLocation(BaseSegment):
             ),
             Ref("ModuloSegment", optional=True),
             Ref("NakedIdentifierSegment"),
+            Sequence(Ref("SlashSegment"), Ref("PathSegment"), optional=True),
         ),
     )
 

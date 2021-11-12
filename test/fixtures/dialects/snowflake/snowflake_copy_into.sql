@@ -34,4 +34,14 @@ FROM (
   FROM @source_stage
 );
 
+copy into mytable1 (column1)
+    from 's3://bucket/source'
+    file_format = (TYPE = JSON);
 
+copy into mytable1
+    from (select column1 from @ext.stage/path1)
+    file_format = (TYPE = JSON);
+
+copy into mytable1
+    from 's3://bucket/source'
+    file_format = (type=csv SKIP_HEADER=1);

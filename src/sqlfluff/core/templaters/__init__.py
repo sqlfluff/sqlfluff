@@ -11,6 +11,7 @@ from sqlfluff.core.templaters.jinja import JinjaTemplater
 from sqlfluff.core.templaters.python import PythonTemplater
 from sqlfluff.core.templaters.sqlalchemy import SqlalchemyTemplater
 
+
 def core_templaters():
     """Returns the templater tuples for the core templaters."""
     yield from [RawTemplater, JinjaTemplater, PythonTemplater, SqlalchemyTemplater]

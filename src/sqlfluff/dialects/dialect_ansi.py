@@ -225,6 +225,7 @@ ansi_dialect.add(
     ModuloSegment=StringParser(
         "%", SymbolSegment, name="modulo", type="binary_operator"
     ),
+    SlashSegment=StringParser("/", SymbolSegment, name="slash", type="slash"),
     ConcatSegment=StringParser(
         "||", SymbolSegment, name="concatenate", type="binary_operator"
     ),
