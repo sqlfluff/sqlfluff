@@ -14,7 +14,7 @@ from sqlfluff.core.parser import (
     Delimited,
     Nothing,
     OptionallyBracketed,
-    StartsWith
+    StartsWith,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -135,6 +135,7 @@ class ColumnConstraintSegment(BaseSegment):
         ),
     )
 
+
 @redshift_dialect.segment(replace=True)
 class FunctionSegment(BaseSegment):
     """A scalar or aggregate function.
@@ -144,6 +145,7 @@ class FunctionSegment(BaseSegment):
 
     type = "function"
     match_grammar = ansi_dialect.get_segment("FunctionSegment").match_grammar.copy()
+
 
 @redshift_dialect.segment()
 class TableAttributeSegment(BaseSegment):
@@ -268,10 +270,12 @@ class InsertStatementSegment(BaseSegment):
             Sequence("DEFAULT", "VALUES"),
             Sequence(
                 Ref("BracketedColumnReferenceListGrammar", optional=True),
-                OneOf(Ref("ValuesClauseSegment"),
-                      OptionallyBracketed(Ref("SelectableGrammar")))
-            )
-        )
+                OneOf(
+                    Ref("ValuesClauseSegment"),
+                    OptionallyBracketed(Ref("SelectableGrammar")),
+                ),
+            ),
+        ),
     )
 
 
