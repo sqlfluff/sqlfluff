@@ -13,6 +13,8 @@ from sqlfluff.core.parser import (
     BaseSegment,
     Delimited,
     Nothing,
+    OptionallyBracketed,
+    StartsWith
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -54,17 +56,6 @@ class DatePartFunctionNameSegment(BaseSegment):
 
     type = "function_name"
     match_grammar = OneOf("DATEADD", "DATEDIFF")
-
-
-@redshift_dialect.segment(replace=True)
-class FunctionSegment(BaseSegment):
-    """A scalar or aggregate function.
-
-    Revert back to the ANSI definition to support ignore nulls
-    """
-
-    type = "function"
-    match_grammar = ansi_dialect.get_segment("FunctionSegment").match_grammar.copy()
 
 
 @redshift_dialect.segment()
@@ -144,6 +135,15 @@ class ColumnConstraintSegment(BaseSegment):
         ),
     )
 
+@redshift_dialect.segment(replace=True)
+class FunctionSegment(BaseSegment):
+    """A scalar or aggregate function.
+
+    Revert back to the ANSI definition to support ignore nulls
+    """
+
+    type = "function"
+    match_grammar = ansi_dialect.get_segment("FunctionSegment").match_grammar.copy()
 
 @redshift_dialect.segment()
 class TableAttributeSegment(BaseSegment):
@@ -249,6 +249,32 @@ class CreateTableStatementSegment(BaseSegment):
     )
 
 
+@redshift_dialect.segment(replace=True)
+class InsertStatementSegment(BaseSegment):
+    """A `INSERT` statement.
+
+    Redshift has two versions of insert statements:
+        - https://docs.aws.amazon.com/redshift/latest/dg/r_INSERT_30.html
+        - https://docs.aws.amazon.com/redshift/latest/dg/r_INSERT_external_table.html
+    """
+
+    type = "insert_statement"
+    match_grammar = Sequence(
+        "INSERT",
+        "INTO",
+        Ref("TableReferenceSegment"),
+        OneOf(
+            OptionallyBracketed(Ref("SelectableGrammar")),
+            Sequence("DEFAULT", "VALUES"),
+            Sequence(
+                Ref("BracketedColumnReferenceListGrammar", optional=True),
+                OneOf(Ref("ValuesClauseSegment"),
+                      OptionallyBracketed(Ref("SelectableGrammar")))
+            )
+        )
+    )
+
+
 # Adding Redshift specific statements
 @redshift_dialect.segment(replace=True)
 class StatementSegment(BaseSegment):
@@ -258,6 +284,7 @@ class StatementSegment(BaseSegment):
 
     parse_grammar = redshift_dialect.get_segment("StatementSegment").parse_grammar.copy(
         insert=[
+            Ref("InsertStatementSegment"),
             Ref("TableAttributeSegment"),
             Ref("ColumnAttributeSegment"),
             Ref("ColumnEncodingSegment"),
