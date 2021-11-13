@@ -3,13 +3,13 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f6ae1d53ab2ee7a93a331f55c82b67d02c7a6773f51fe0a6f8616e63174800fb
+_hash: b5c3fc19989e1d017b4758514f4bdc849138cf6d1717f9c7cb6af3de90138d1c
 file:
 - statement:
     copy_into_statement:
     - keyword: copy
     - keyword: into
-    - object_reference:
+    - table_reference:
         identifier: mytable
     - keyword: from
     - internal_external_stage:
@@ -20,7 +20,7 @@ file:
     copy_into_statement:
     - keyword: copy
     - keyword: into
-    - object_reference:
+    - table_reference:
         identifier: mytable
     - keyword: from
     - internal_external_stage:
@@ -39,7 +39,7 @@ file:
     copy_into_statement:
     - keyword: copy
     - keyword: into
-    - object_reference:
+    - table_reference:
         identifier: mytable
     - keyword: from
     - internal_external_stage:
@@ -58,7 +58,7 @@ file:
     copy_into_statement:
     - keyword: copy
     - keyword: into
-    - object_reference:
+    - table_reference:
         identifier: mytable
     - keyword: from
     - internal_external_stage:
@@ -80,7 +80,7 @@ file:
     copy_into_statement:
     - keyword: copy
     - keyword: into
-    - object_reference:
+    - table_reference:
         identifier: mytable
     - keyword: from
     - internal_external_stage:
@@ -102,14 +102,14 @@ file:
     copy_into_statement:
     - keyword: copy
     - keyword: into
-    - object_reference:
+    - table_reference:
         identifier: mytable
 - statement_terminator: ;
 - statement:
     copy_into_statement:
     - keyword: copy
     - keyword: into
-    - object_reference:
+    - table_reference:
         identifier: mytable
     - identifier: purge
     - comparison_operator: '='
@@ -119,7 +119,7 @@ file:
     copy_into_statement:
     - keyword: copy
     - keyword: into
-    - object_reference:
+    - table_reference:
         identifier: mytable
     - identifier: validation_mode
     - comparison_operator: '='
@@ -129,7 +129,7 @@ file:
     copy_into_statement:
     - keyword: copy
     - keyword: into
-    - object_reference:
+    - table_reference:
         identifier: mytable
     - identifier: validation_mode
     - comparison_operator: '='
@@ -139,7 +139,7 @@ file:
     copy_into_statement:
     - keyword: copy
     - keyword: into
-    - object_reference:
+    - table_reference:
         identifier: mytable
     - identifier: validation_mode
     - comparison_operator: '='
@@ -149,7 +149,7 @@ file:
     copy_into_statement:
     - keyword: COPY
     - keyword: INTO
-    - object_reference:
+    - table_reference:
         identifier: target_table
     - keyword: FROM
     - bracketed:
@@ -165,9 +165,88 @@ file:
             from_expression:
               from_expression_element:
                 table_expression:
-                  table_reference:
+                  internal_external_stage:
                     literal: '@'
-                alias_expression:
-                  identifier: source_stage
+                    identifier: source_stage
         end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_into_statement:
+    - keyword: copy
+    - keyword: into
+    - table_reference:
+        identifier: mytable1
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          identifier: column1
+        end_bracket: )
+    - keyword: from
+    - literal: "'s3://bucket/source'"
+    - keyword: file_format
+    - comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - keyword: TYPE
+      - comparison_operator: '='
+      - keyword: JSON
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_into_statement:
+    - keyword: copy
+    - keyword: into
+    - table_reference:
+        identifier: mytable1
+    - keyword: from
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: select
+            select_clause_element:
+              column_reference:
+                identifier: column1
+          from_clause:
+            keyword: from
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  internal_external_stage:
+                  - literal: '@'
+                  - identifier: ext
+                  - dot: .
+                  - identifier: stage
+                  - slash: /
+                  - path:
+                      identifier: path1
+        end_bracket: )
+    - keyword: file_format
+    - comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - keyword: TYPE
+      - comparison_operator: '='
+      - keyword: JSON
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    copy_into_statement:
+    - keyword: copy
+    - keyword: into
+    - table_reference:
+        identifier: mytable1
+    - keyword: from
+    - literal: "'s3://bucket/source'"
+    - keyword: file_format
+    - comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - keyword: type
+      - comparison_operator: '='
+      - keyword: csv
+      - identifier: SKIP_HEADER
+      - comparison_operator: '='
+      - literal: '1'
+      - end_bracket: )
 - statement_terminator: ;
