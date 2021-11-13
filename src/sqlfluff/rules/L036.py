@@ -1,6 +1,6 @@
 """Implementation of Rule L036."""
 
-from typing import List, NamedTuple
+from typing import List, NamedTuple, Optional
 
 from sqlfluff.core.parser import WhitespaceSegment
 
@@ -17,7 +17,7 @@ class SelectTargetsInfo(NamedTuple):
     first_select_target_idx: int
     first_whitespace_idx: int
     select_targets: List[BaseSegment]
-    from_segment: BaseSegment
+    from_segment: Optional[BaseSegment]
     pre_from_whitespace: List[BaseSegment]
 
 
@@ -66,7 +66,8 @@ class Rule_L036(BaseRule):
         first_whitespace_idx = -1
         select_targets = []
         from_segment = next(
-            seg for seg in context.siblings_post if seg.is_type("from_clause")
+            (seg for seg in context.siblings_post if seg.is_type("from_clause")),
+            None,
         )
         pre_from_whitespace = []
 
@@ -138,21 +139,22 @@ class Rule_L036(BaseRule):
 
             # If we are at the last select target check if the FROM clause
             # is on the same line, and if so move it to its own line.
-            if (i + 1 == len(select_targets_info.select_targets)) and (
-                select_target.pos_marker.working_line_no
-                == select_targets_info.from_segment.pos_marker.working_line_no
-            ):
-                fixes.extend(
-                    [
-                        LintFix("delete", ws)
-                        for ws in select_targets_info.pre_from_whitespace
-                    ]
-                )
-                fixes.append(
-                    LintFix(
-                        "create", select_targets_info.from_segment, NewlineSegment()
+            if select_targets_info.from_segment:
+                if (i + 1 == len(select_targets_info.select_targets)) and (
+                    select_target.pos_marker.working_line_no
+                    == select_targets_info.from_segment.pos_marker.working_line_no
+                ):
+                    fixes.extend(
+                        [
+                            LintFix("delete", ws)
+                            for ws in select_targets_info.pre_from_whitespace
+                        ]
                     )
-                )
+                    fixes.append(
+                        LintFix(
+                            "create", select_targets_info.from_segment, NewlineSegment()
+                        )
+                    )
 
         if fixes:
             return LintResult(anchor=segment, fixes=fixes)
@@ -373,23 +375,27 @@ class Rule_L036(BaseRule):
         # i.e.
         # SELECT
         #   * FROM foo
-        if (
-            is_wildcard
-            and (
-                select_clause.pos_marker.working_line_no
-                != select_targets_info.from_segment.pos_marker.working_line_no
-            )
-            and (
-                wildcard_select_clause_element.pos_marker.working_line_no
-                == select_targets_info.from_segment.pos_marker.working_line_no
-            )
-        ):
-            fixes = [
-                LintFix("delete", ws) for ws in select_targets_info.pre_from_whitespace
-            ]
-            fixes.append(
-                LintFix("create", select_targets_info.from_segment, NewlineSegment())
-            )
-            return LintResult(anchor=select_clause, fixes=fixes)
+        if select_targets_info.from_segment:
+            if (
+                is_wildcard
+                and (
+                    select_clause.pos_marker.working_line_no
+                    != select_targets_info.from_segment.pos_marker.working_line_no
+                )
+                and (
+                    wildcard_select_clause_element.pos_marker.working_line_no
+                    == select_targets_info.from_segment.pos_marker.working_line_no
+                )
+            ):
+                fixes = [
+                    LintFix("delete", ws)
+                    for ws in select_targets_info.pre_from_whitespace
+                ]
+                fixes.append(
+                    LintFix(
+                        "create", select_targets_info.from_segment, NewlineSegment()
+                    )
+                )
+                return LintResult(anchor=select_clause, fixes=fixes)
 
-        return
+        return None
