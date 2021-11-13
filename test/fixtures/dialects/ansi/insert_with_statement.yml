@@ -1,0 +1,71 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 99c45c475a1848dd2bacc4d30513c0aeece9add81e8e8945a5e1cb8a5dfe508d
+file:
+  statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        identifier: table2
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          identifier: column1
+      - comma: ','
+      - column_reference:
+          identifier: column2
+      - comma: ','
+      - column_reference:
+          identifier: column3
+      - end_bracket: )
+    - with_compound_statement:
+        keyword: WITH
+        common_table_expression:
+          identifier: mycte
+          keyword: AS
+          bracketed:
+            start_bracket: (
+            select_statement:
+              select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                  column_reference:
+                    identifier: foo
+              - comma: ','
+              - select_clause_element:
+                  column_reference:
+                    identifier: bar
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        identifier: mytable1
+            end_bracket: )
+        select_statement:
+          select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+              column_reference:
+                identifier: foo
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                identifier: bar
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                identifier: baz
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    identifier: mycte
+  statement_terminator: ;
