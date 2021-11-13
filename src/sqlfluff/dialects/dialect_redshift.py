@@ -13,7 +13,7 @@ from sqlfluff.core.parser import (
     BaseSegment,
     Delimited,
     Nothing,
-    OptionallyBracketed
+    OptionallyBracketed,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
