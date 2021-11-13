@@ -138,16 +138,17 @@ For example, if passed the following *.sql* file:
 Placeholder templating
 ^^^^^^^^^^^^^^^^^^^^^^
 
-Libraries such as SQLAlchemy or Psycopg use different parameter styles.
+Libraries such as SQLAlchemy or Psycopg use different parameter placeholder
+styles to mark where a parameter has to be inserted in the query.
 
-For example a query in SQLAlchemy can be:
+For example a query in SQLAlchemy can look like this:
 
 .. code-block:: sql
 
     SELECT * FROM table WHERE id = :myid
 
-At runtime `:myid` will be replace by a value and escaped, but this is not
-standard SQL and cannot be parsed as is.
+At runtime `:myid` will be replace by a value provided by the application and
+escaped as needed, but this is not standard SQL and cannot be parsed as is.
 
 In order to parse these queries is then necessary to replace these
 placeholders with sample values, and this is done with the placeholder
@@ -176,7 +177,7 @@ numeric_dollar
 percent
  WHERE bla = %s
 
-these can be configured by setting param_style
+these can be configured by setting param_style to the names above
 
 .. code-block:: cfg
 
@@ -184,9 +185,9 @@ these can be configured by setting param_style
     param_style=colon
     my_name='john'
 
-then it is necessary to set sampel values for each parameter, like `my_name`
-above. Notice that it needs to be escaped as it will be replaced verbatim
-during parsing.
+then it is necessary to set sample values for each parameter, like `my_name`
+above. Notice that the value needs to be escaped as it will be replaced as a
+string during parsing.
 
 When parameters are positional, like `question_mark`, then their name is
 simply the order in which they appear, starting by `1`.
@@ -201,9 +202,10 @@ a custom regex.
     my_name='john'
 
 the named parameter `param_name` will be used as the key to replace, if
-missing the parameter is assumed to be positional.
+missing, the parameter is assumed to be positional and numbers are used insead.
 
-Also consider making a pull request to the project to have your style added.
+Also consider making a pull request to the project to have your style added,
+it may be useful to other people and simplify your configuration.
 
 Complex Variable Templating
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
