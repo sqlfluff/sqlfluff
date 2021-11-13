@@ -287,7 +287,6 @@ class StatementSegment(BaseSegment):
 
     parse_grammar = redshift_dialect.get_segment("StatementSegment").parse_grammar.copy(
         insert=[
-            Ref("InsertStatementSegment"),
             Ref("TableAttributeSegment"),
             Ref("ColumnAttributeSegment"),
             Ref("ColumnEncodingSegment"),
