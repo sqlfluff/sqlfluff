@@ -75,7 +75,7 @@ class Delimited(OneOf):
         # We use amount of `NewLineSegment` to estimate how many steps could be in
         # a big file. It's not perfect, but should do a job in most cases.
         new_line_segments = [s for s in segments if isinstance(s, NewlineSegment)]
-        matching_progressbar = tqdm(
+        progressbar_matching = tqdm(
             total=len(new_line_segments),
             desc="matching",
             miniters=30,
@@ -90,7 +90,7 @@ class Delimited(OneOf):
         # In more detail, match against delimiter, if we match, put a slice
         # up to that point onto a list of slices. Carry on.
         while True:
-            matching_progressbar.update(n=1)
+            progressbar_matching.update(n=1)
 
             # Check to see whether we've exhausted the buffer, either by iterating through it,
             # or by consuming all the non-code segments already.

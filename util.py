@@ -100,13 +100,14 @@ def benchmark(cmd, runs, from_file):
 
         if post_results:
             click.echo(f"Posting results: {results}")
+            api_key = os.environ["SQLFLUFF_BENCHMARK_API_KEY"]
             resp = requests.post(
                 "https://f32cvv8yh3.execute-api.eu-west-1.amazonaws.com/result/gh/{repo}/{commit}".format(
                     # TODO: update the stats collector eventually to allow the new repo path
                     repo="alanmcruickshank/sqlfluff",
                     commit=commit_hash,
                 ),
-                params={"key": "mtqTC1fVVebVQ5BVREP7jYrKwgjaO0IfRILzyZt"},
+                params={"key": api_key},
                 json=results,
             )
             click.echo(resp.text)

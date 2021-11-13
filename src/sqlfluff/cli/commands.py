@@ -4,6 +4,7 @@ import sys
 import json
 import logging
 import time
+from logging import LogRecord
 from typing import (
     Callable,
     Tuple,
@@ -22,6 +23,7 @@ from io import StringIO
 
 # To enable colour cross platform
 import colorama
+from tqdm import tqdm
 
 from sqlfluff.cli.formatters import (
     format_rules,
@@ -62,6 +64,24 @@ class RedWarningsFilter(logging.Filter):
         return True
 
 
+class StreamHandlerTqdm(logging.StreamHandler):
+    """Modified StreamHandler which takes care of writing within `tqdm` context.
+
+    It uses `tqdm` write which takes care of conflicting prints with progressbar.
+    Without it, there were left artifacts in DEBUG mode (not sure about another ones,
+    but probably would happen somewhere).
+    """
+
+    def emit(self, record: LogRecord) -> None:
+        """Behaves like original one except uses `tqdm` to write."""
+        try:
+            msg = self.format(record)
+            tqdm.write(msg, file=self.stream)
+            self.flush()
+        except Exception:  # pragma: no cover
+            self.handleError(record)
+
+
 def set_logging_level(
     verbosity: int, logger: Optional[logging.Logger] = None, stderr_output: bool = False
 ) -> None:
@@ -84,8 +104,9 @@ def set_logging_level(
     # Enable colorama
     colorama.init()
 
-    # Set up the log handler to log to stdout
-    handler = logging.StreamHandler(stream=sys.stderr if stderr_output else sys.stdout)
+    # Set up the log handler which is able to print messages without overlapping
+    # with progressbars.
+    handler = StreamHandlerTqdm(stream=sys.stderr if stderr_output else sys.stdout)
     # NB: the unicode character at the beginning is to squash any badly
     # tamed ANSI colour statements, and return us to normality.
     handler.setFormatter(logging.Formatter("\u001b[0m%(levelname)-10s %(message)s"))
@@ -239,6 +260,25 @@ def get_config(**kwargs) -> FluffConfig:
         sys.exit(66)
 
 
+def _callback_handler(cfg: FluffConfig) -> Callable:
+    """Returns function which will be bound as a callback for printing passed message.
+
+    Called in `get_linter_and_formatter`.
+    """
+
+    def _echo_with_tqdm_lock(message: str) -> None:
+        """Makes sure that message printing (echoing) will be not in conflict with tqdm.
+
+        It may happen that progressbar conflicts with extra printing. Nothing very
+        serious happens then, except that there is printed (not removed) progressbar
+        line. The `external_write_mode` allows to disable tqdm for writing time.
+        """
+        with tqdm.external_write_mode():
+            click.echo(message=message, color=cfg.get("color"))
+
+    return _echo_with_tqdm_lock
+
+
 def get_linter_and_formatter(
     cfg: FluffConfig, silent: bool = False
 ) -> Tuple[Linter, CallbackFormatter]:
@@ -251,9 +291,9 @@ def get_linter_and_formatter(
         sys.exit(66)
 
     if not silent:
-        # Instantiate the linter and return (with an output function)
+        # Instantiate the linter and return it (with an output function)
         formatter = CallbackFormatter(
-            callback=lambda m: click.echo(m, color=cfg.get("color")),
+            callback=_callback_handler(cfg=cfg),
             verbosity=cfg.get("verbose"),
             output_line_length=cfg.get("output_line_length"),
         )
@@ -343,7 +383,7 @@ def dialects(**kwargs) -> None:
 @click.option(
     "--disable_progress_bar",
     is_flag=True,
-    help="Disables progress bars when set. It's set automatically when in verbose mode.",
+    help="Disables progress bars.",
 )
 @click.argument("paths", nargs=-1)
 def lint(
@@ -381,9 +421,6 @@ def lint(
     lnt, formatter = get_linter_and_formatter(config, silent=non_human_output)
 
     verbose = config.get("verbose")
-    # suppress progressbar when in verbose mode
-    if verbose:
-        disable_progress_bar = True
     progress_bar_configuration.disable_progress_bar = disable_progress_bar
 
     formatter.dispatch_config(lnt)
@@ -500,7 +537,7 @@ def do_fixes(lnt, result, formatter=None, **kwargs):
 @click.option(
     "--disable_progress_bar",
     is_flag=True,
-    help="Disables progress bars when set. It's set automatically when in verbose mode.",
+    help="Disables progress bars.",
 )
 @click.argument("paths", nargs=-1)
 def fix(
@@ -527,9 +564,6 @@ def fix(
     lnt, formatter = get_linter_and_formatter(config, silent=fixing_stdin)
 
     verbose = config.get("verbose")
-    # suppress progressbar when in verbose mode
-    if verbose:
-        disable_progress_bar = True
     progress_bar_configuration.disable_progress_bar = disable_progress_bar
 
     exit_code = 0

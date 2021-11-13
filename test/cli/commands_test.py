@@ -149,20 +149,49 @@ def test__cli__command_lint_stdin(command):
     "command",
     [
         # Test basic linting
-        (lint, ["-n", "test/fixtures/cli/passing_b.sql"]),
+        (lint, ["-n", "test/fixtures/cli/passing_b.sql", "--exclude-rules", "L051"]),
         # Original tests from test__cli__command_lint
         (lint, ["-n", "test/fixtures/cli/passing_a.sql"]),
         (lint, ["-n", "-v", "test/fixtures/cli/passing_a.sql"]),
         (lint, ["-n", "-vvvv", "test/fixtures/cli/passing_a.sql"]),
         (lint, ["-vvvv", "test/fixtures/cli/passing_a.sql"]),
         # Test basic linting with very high verbosity
-        (lint, ["-n", "test/fixtures/cli/passing_b.sql", "-vvvvvvvvvvv"]),
+        (
+            lint,
+            [
+                "-n",
+                "test/fixtures/cli/passing_b.sql",
+                "-vvvvvvvvvvv",
+                "--exclude-rules",
+                "L051",
+            ],
+        ),
         # Test basic linting with specific logger
-        (lint, ["-n", "test/fixtures/cli/passing_b.sql", "-vvv", "--logger", "parser"]),
+        (
+            lint,
+            [
+                "-n",
+                "test/fixtures/cli/passing_b.sql",
+                "-vvv",
+                "--logger",
+                "parser",
+                "--exclude-rules",
+                "L051",
+            ],
+        ),
         # Check basic parsing
-        (parse, ["-n", "test/fixtures/cli/passing_b.sql"]),
+        (parse, ["-n", "test/fixtures/cli/passing_b.sql", "--exclude-rules", "L051"]),
         # Test basic parsing with very high verbosity
-        (parse, ["-n", "test/fixtures/cli/passing_b.sql", "-vvvvvvvvvvv"]),
+        (
+            parse,
+            [
+                "-n",
+                "test/fixtures/cli/passing_b.sql",
+                "-vvvvvvvvvvv",
+                "--exclude-rules",
+                "L051",
+            ],
+        ),
         # Check basic parsing, with the code only option
         (parse, ["-n", "test/fixtures/cli/passing_b.sql", "-c"]),
         # Check basic parsing, with the yaml output
@@ -171,8 +200,26 @@ def test__cli__command_lint_stdin(command):
         # Check the profiler and benching commands
         (parse, ["-n", "test/fixtures/cli/passing_b.sql", "--profiler"]),
         (parse, ["-n", "test/fixtures/cli/passing_b.sql", "--bench"]),
-        (lint, ["-n", "test/fixtures/cli/passing_b.sql", "--bench"]),
-        (fix, ["-n", "test/fixtures/cli/passing_b.sql", "--bench"]),
+        (
+            lint,
+            [
+                "-n",
+                "test/fixtures/cli/passing_b.sql",
+                "--bench",
+                "--exclude-rules",
+                "L051",
+            ],
+        ),
+        (
+            fix,
+            [
+                "-n",
+                "test/fixtures/cli/passing_b.sql",
+                "--bench",
+                "--exclude-rules",
+                "L051",
+            ],
+        ),
         # Check linting works in specifying rules
         (lint, ["-n", "--rules", "L001", "test/fixtures/linter/operator_errors.sql"]),
         # Check linting works in specifying multiple rules
