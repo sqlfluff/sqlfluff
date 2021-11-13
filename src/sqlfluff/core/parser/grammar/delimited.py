@@ -165,9 +165,22 @@ class Delimited(OneOf):
                             # We've already trimmed
                             trim_noncode=False,
                         )
-                    # No match, or an incomplete match: Not allowed
-                    if not match or not match.is_complete():
+                    # No match - Not allowed
+                    if not match:
                         return MatchResult.from_unmatched(mutated_segments)
+
+                    if not match.is_complete():
+                        # If we reach this point, the lookahead match has hit a delimiter
+                        # beyond the scope of this Delimited section. We should return a
+                        # partial match, and the delimiter as unmatched.
+                        return MatchResult(
+                            matched_segments.matched_segments
+                            + pre_non_code
+                            + match.matched_segments,
+                            match.unmatched_segments
+                            + post_non_code
+                            + delimiter_match.all_segments(),
+                        )
 
                     # We have a complete match!
 
