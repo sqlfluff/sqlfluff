@@ -91,7 +91,7 @@ class Rule_L036(BaseRule):
                 first_whitespace_idx = fname_idx
 
         for seg in context.siblings_post:
-            if seg.is_type("from_clause"):
+            if seg is from_segment:
                 break
 
             if seg.is_type("whitespace"):
