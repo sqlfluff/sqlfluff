@@ -988,3 +988,16 @@ class InsertStatementSegment(BaseSegment):
         Ref("BracketedColumnReferenceListGrammar", optional=True),
         Ref("SelectableGrammar"),
     )
+
+
+@bigquery_dialect.segment(replace=True)
+class SamplingExpressionSegment(BaseSegment):
+    """A sampling expression.
+
+    As per https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax#tablesample_operator
+    """
+
+    type = "sample_expression"
+    match_grammar = Sequence(
+        "TABLESAMPLE", "SYSTEM", Bracketed(Ref("NumericLiteralSegment"), "PERCENT")
+    )
