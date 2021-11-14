@@ -26,23 +26,36 @@ class Rule_L036(BaseRule):
     """Select targets should be on a new line unless there is only one select target.
 
     | **Anti-pattern**
+    | Multiple select targets on the same line.
 
     .. code-block:: sql
+        :force:
 
-        select
-            *
-        from x
+        select a, b
+        from foo
+
+        -- Single select target on its own line.
+
+        SELECT
+            a
+        FROM foo
 
 
     | **Best practice**
+    | Multiple select targets each on their own line.
 
     .. code-block:: sql
+        :force:
 
         select
             a,
-            b,
-            c
-        from x
+            b
+        from foo
+
+        -- Single select target on the same line as the SELECT keyword.
+
+        SELECT a
+        FROM foo
 
     """
 
