@@ -105,7 +105,11 @@ STANDARD_CONFIG_INFO_DICT = {
     },
     "allow_final_semi_colon": {
         "validation": [True, False],
-        "definition": ("Should missing final semi-colons be allowed?"),
+        "definition": (
+            "Should missing final semi-colons be allowed? "
+            "(N.B. forcing trailing semi-colons is not recommended for dbt users "
+            "as it can cause issues when wrapping the query within other SQL queries)"
+        ),
     },
 }
 

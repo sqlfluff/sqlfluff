@@ -17,7 +17,7 @@ class Rule_L052(BaseRule):
     """Statements must end with a semi-colon.
 
     | **Anti-pattern**
-    | A statement is not terminated with a semi-colon (default), the $ represents end of file.
+    | A statement is not immediately terminated with a semi-colon, the • represents space.
 
     .. code-block:: sql
        :force:
@@ -25,35 +25,12 @@ class Rule_L052(BaseRule):
         SELECT
             a
         FROM foo
-        $
 
-        -- Additionally space between the end of the statement
-        -- and the semi-colon is forbidden, (the • represents space).
-
-        SELECT
-            a
-        FROM foo••••;
-        $
-
-        -- Newlines between the end of the statement
-        -- and the semi-colon are forbidden.
-
-        SELECT
-            a
-        FROM foo
-        ;
-
-        -- These rules apply to all statements within multi-statement files.
-
-        SELECT
-            a
-        FROM foo
         ;
 
         SELECT
             b
         FROM bar••;
-        $
 
     | **Best practice**
     | Immediately terminate the statement with a semi-colon.
@@ -64,17 +41,6 @@ class Rule_L052(BaseRule):
         SELECT
             a
         FROM foo;
-        $
-
-        -- For multi-statement files.
-
-        SELECT
-            a
-        FROM foo;
-
-        SELECT
-            b
-        FROM bar;
     """
 
     config_keywords = ["allow_final_semi_colon"]

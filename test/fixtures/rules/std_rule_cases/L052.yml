@@ -4,18 +4,39 @@ test_pass_semi_colon:
   pass_str: |
     SELECT a FROM foo;
 
+test_pass_no_semi_colon_default:
+  pass_str: |
+    SELECT a FROM foo
+
+test_fail_no_semi_colon_custom:
+  fail_str: |
+    SELECT a FROM foo
+  fix_str: |
+    SELECT a FROM foo;
+  configs:
+    rules:
+      allow_final_semi_colon: False
+
 test_pass_multi_statement_semi_colon:
   pass_str: |
     SELECT a FROM foo;
     SELECT b FROM bar;
-  
-test_fail_no_semi_colon:
-  fail_str: | 
-    SELECT a
-    FROM foo
+
+test_pass_multi_statement_no_trailing_semi_colon_default:
+  pass_str: |
+    SELECT a FROM foo;
+    SELECT b FROM bar
+
+test_pass_multi_statement_no_trailing_semi_colon_custom:
+  fail_str: |
+    SELECT a FROM foo;
+    SELECT b FROM bar
   fix_str: |
-    SELECT a
-    FROM foo;
+    SELECT a FROM foo;
+    SELECT b FROM bar;
+  configs:
+    rules:
+      allow_final_semi_colon: False
 
 test_fail_space_semi_colon:
   fail_str: |
@@ -23,7 +44,7 @@ test_fail_space_semi_colon:
   fix_str: | 
     SELECT a FROM foo;
     
-test_fail_newline_semi_colon:
+test_fail_newline_semi_colon_default:
   fail_str: |
     SELECT a FROM foo
     ;
@@ -33,6 +54,7 @@ test_fail_newline_semi_colon:
 test_fail_multi_statement_semi_colon:
   fail_str: |
     SELECT a FROM foo
+    
     ;
     SELECT b FROM bar    ;
   fix_str: |
