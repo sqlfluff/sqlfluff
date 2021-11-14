@@ -76,7 +76,7 @@ changes.
 ### Developing and Running SQLFluff Locally
 
 The simplest way to set up a development environment is to use `tox`.
-First ensure that you have tox installed:
+First ensure that you have tox installed (windows users may have to replace `python3` with `py`):
 ```shell
 python3 -m pip install -U tox
 ```
