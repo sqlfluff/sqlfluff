@@ -144,7 +144,8 @@ def test__api__fix_string():
         == """SELECT
     *,
     1,
-    blah AS foo FROM mytable
+    blah AS foo
+FROM mytable
 """
     )
 
