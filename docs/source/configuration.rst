@@ -99,14 +99,14 @@ of the templaters.
 Variable Templating
 ^^^^^^^^^^^^^^^^^^^
 
-Variables are available in the *jinja*, *python* and *sqlalchemy* templaters.
+Variables are available in the *jinja*, *python* and *placeholder* templaters.
 By default the templating engine will expect variables for templating to be
 available in the config, and the templater will be look in the section
 corresponding to the context for that templater. By convention, the config for
 the *jinja* templater is found in the *sqlfluff:templater:jinja:context
 section, the config for the *python* templater is found in the
-*sqlfluff:templater:python:context* section, the one for the *sqlalchemy*
-templater is found in the *sqlfluff:templater:sqlalchemy:context* section
+*sqlfluff:templater:python:context* section, the one for the *placeholder*
+templater is found in the *sqlfluff:templater:placeholder:context* section
 
 For example, if passed the following *.sql* file:
 
@@ -134,6 +134,78 @@ For example, if passed the following *.sql* file:
     the current configuration context, then this will raise a `SQLTemplatingError`
     and this will appear as a violation without a line number, quoting
     the name of the variable that couldn't be found.
+
+Placeholder templating
+^^^^^^^^^^^^^^^^^^^^^^
+
+Libraries such as SQLAlchemy or Psycopg use different parameter placeholder
+styles to mark where a parameter has to be inserted in the query.
+
+For example a query in SQLAlchemy can look like this:
+
+.. code-block:: sql
+
+    SELECT * FROM table WHERE id = :myid
+
+At runtime `:myid` will be replace by a value provided by the application and
+escaped as needed, but this is not standard SQL and cannot be parsed as is.
+
+In order to parse these queries is then necessary to replace these
+placeholders with sample values, and this is done with the placeholder
+templater.
+
+A few common styles are supported:
+
+colon
+ WHERE bla = :my_name
+
+numeric_colon
+ WHERE bla = :2
+
+pyformat
+ WHERE bla = %(my_name)s
+
+dollar
+ WHERE bla = $my_name
+
+question_mark
+ WHERE bla = ?
+
+numeric_dollar
+ WHERE bla = $3
+
+percent
+ WHERE bla = %s
+
+these can be configured by setting param_style to the names above
+
+.. code-block:: cfg
+
+    [sqlfluff:templater:placeholder:context]
+    param_style=colon
+    my_name='john'
+
+then it is necessary to set sample values for each parameter, like `my_name`
+above. Notice that the value needs to be escaped as it will be replaced as a
+string during parsing.
+
+When parameters are positional, like `question_mark`, then their name is
+simply the order in which they appear, starting by `1`.
+
+In case you need a parameter style different from the ones above, you can pass
+a custom regex.
+
+.. code-block:: cfg
+
+    [sqlfluff:templater:placeholder:context]
+    param_regex='__(?P<param_name>[\w_]+)__'
+    my_name='john'
+
+the named parameter `param_name` will be used as the key to replace, if
+missing, the parameter is assumed to be positional and numbers are used insead.
+
+Also consider making a pull request to the project to have your style added,
+it may be useful to other people and simplify your configuration.
 
 Complex Variable Templating
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^

@@ -191,8 +191,7 @@ You will need to be an admin to submit this to PyPI, and you will need a properl
 formatted `.pypirc` file. If you have managed all that then you can run:
 
 ```shell
-python setup.py sdist
-twine upload dist/*
+tox -e publish-dist
 ```
 
 ... and the most recent version will be uploaded to PyPI.

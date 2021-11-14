@@ -247,6 +247,7 @@ UNRESERVED_KEYWORDS = [
     "DISTRIBUTION",  # Azure Synapse Analytics specific
     "DW",
     "DY",
+    "ENCRYPTION",
     "EXPAND",
     "FAST",
     "FORCESCAN",
@@ -301,6 +302,7 @@ UNRESERVED_KEYWORDS = [
     "ROUND_ROBIN",  # Azure Synapse Analytics specific
     "ROWLOCK",
     "S",
+    "SCHEMABINDING",
     "SECOND",
     "SNAPSHOT",
     "SPATIAL_WINDOW_MAX_CELLS",
@@ -313,6 +315,7 @@ UNRESERVED_KEYWORDS = [
     "TRUNCATE_TARGET",  # Azure Synapse Analytics specific
     "UPDLOCK",
     "USER_DB",  # Azure Synapse Analytics specific, deprecated
+    "VIEW_METADATA",
     "W",
     "WEEK",
     "WEEKDAY",
