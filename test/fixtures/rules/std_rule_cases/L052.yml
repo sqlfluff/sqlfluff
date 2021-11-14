@@ -114,3 +114,18 @@ test_fail_multi_statement_semi_colon_default:
   fix_str: |
     SELECT a FROM foo;
     SELECT b FROM bar;
+
+test_fail_multiple_newlines_semi_colon_custom_require_newline:
+  fail_str: |
+    SELECT a
+    FROM foo
+
+    ;
+  fix_str: |
+    SELECT a
+    FROM foo
+    ;
+  configs:
+    rules:
+      require_final_semi_colon: True
+      semi_colon_new_line: True
