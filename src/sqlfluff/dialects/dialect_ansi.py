@@ -225,6 +225,7 @@ ansi_dialect.add(
     ModuloSegment=StringParser(
         "%", SymbolSegment, name="modulo", type="binary_operator"
     ),
+    SlashSegment=StringParser("/", SymbolSegment, name="slash", type="slash"),
     ConcatSegment=StringParser(
         "||", SymbolSegment, name="concatenate", type="binary_operator"
     ),
@@ -1827,6 +1828,7 @@ class ValuesClauseSegment(BaseSegment):
                     Ref("LiteralGrammar"),
                     Ref("IntervalExpressionSegment"),
                     Ref("FunctionSegment"),
+                    Ref("BareFunctionSegment"),
                     "DEFAULT",  # not in `FROM` clause, rule?
                     ephemeral_name="ValuesClauseElements",
                 )
@@ -1917,6 +1919,11 @@ ansi_dialect.add(
         OptionallyBracketed(Ref("SelectStatementSegment")),
         Ref("NonSetSelectableGrammar"),
     ),
+    # Things that do not behave like select statements, which can form part of with expressions.
+    NonWithNonSelectableGrammar=OneOf(
+        Ref("UpdateStatementSegment"),
+        Ref("InsertStatementSegment"),
+    ),
     # Things that behave like select statements, which can form part of set expressions.
     NonSetSelectableGrammar=OneOf(
         Ref("ValuesClauseSegment"),
@@ -1977,7 +1984,10 @@ class WithCompoundStatementSegment(BaseSegment):
             Ref("CTEDefinitionSegment"),
             terminator=Ref.keyword("SELECT"),
         ),
-        Ref("NonWithSelectableGrammar"),
+        OneOf(
+            Ref("NonWithSelectableGrammar"),
+            Ref("NonWithNonSelectableGrammar"),
+        ),
     )
 
 
@@ -2736,6 +2746,7 @@ class SetClauseSegment(BaseSegment):
             Ref("BareFunctionSegment"),
             Ref("FunctionSegment"),
             Ref("ColumnReferenceSegment"),
+            Ref("ExpressionSegment"),
             "DEFAULT",
         ),
         AnyNumberOf(Ref("ShorthandCastSegment")),

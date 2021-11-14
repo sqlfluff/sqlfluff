@@ -282,7 +282,7 @@ class BaseSegment:
             or progress_bar_configuration.disable_progress_bar
         )
 
-        segments = tqdm(
+        progressbar_segments = tqdm(
             segments,
             desc="parsing",
             miniters=30,
@@ -290,7 +290,7 @@ class BaseSegment:
             disable=disable_progress_bar,
         )
 
-        for stmt in segments:
+        for stmt in progressbar_segments:
             try:
                 if not stmt.is_expandable:
                     parse_context.logger.info(

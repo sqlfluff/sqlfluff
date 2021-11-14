@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3e2966a5f7a0a4bc4d409403766b4fa67853f1cf4c14da1176e220621a216f2d
+_hash: c3e353fcbaaf29157891c369196d40989dcd05ae21945a270872bb72556a597e
 file:
   statement:
     create_statement:
@@ -23,7 +23,7 @@ file:
     - copy_into_statement:
       - keyword: copy
       - keyword: into
-      - object_reference:
+      - table_reference:
         - identifier: snowpipe_db
         - dot: .
         - identifier: public

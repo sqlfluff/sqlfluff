@@ -9,6 +9,7 @@ from sqlfluff.core.templaters import (
     RawTemplater,
     PythonTemplater,
     JinjaTemplater,
+    SqlalchemyTemplater,
 )
 
 from pathlib import Path
@@ -209,5 +210,7 @@ def test__config__templater_selection():
     assert cfg.get_templater("raw").__class__ is RawTemplater
     assert cfg.get_templater("python").__class__ is PythonTemplater
     assert cfg.get_templater("jinja").__class__ is JinjaTemplater
+    assert cfg.get_templater("sqlalchemy").__class__ is SqlalchemyTemplater
+
     with pytest.raises(ValueError):
         cfg.get_templater("afefhlsakufe")
