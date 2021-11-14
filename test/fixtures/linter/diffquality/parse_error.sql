@@ -1,1 +1,1 @@
-SELECT;
+SELECT

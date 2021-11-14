@@ -11,4 +11,4 @@ FROM tbl
 INNER JOIN b ON (tbl.common_id = b.common_id)
 JOIN c ON (tbl.id = c.id)
 LEFT JOIN d ON (tbl.id = d.other_id)
-ORDER BY tbl.name ASC;
+ORDER BY tbl.name ASC

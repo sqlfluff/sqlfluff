@@ -19,7 +19,7 @@ def test__rules__std_L003_L036_L039():
     )
 
     SELECT *
-    FROM example;\n"""
+    FROM example\n"""
     fixed_sql = """
     WITH example AS (
         SELECT
@@ -31,6 +31,6 @@ def test__rules__std_L003_L036_L039():
     )
 
     SELECT *
-    FROM example;\n"""
+    FROM example\n"""
     result = sqlfluff.fix(sql, exclude_rules=["L050"])
     assert result == fixed_sql

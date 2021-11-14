@@ -81,18 +81,12 @@ lint_result = [
         "line_pos": 34,
         "description": "Unquoted identifiers must be consistently lower case.",
     },
-    {
-        "code": "L052",
-        "description": "Statements must end with a semi-colon.",
-        "line_no": 1,
-        "line_pos": 34,
-    },
 ]
 
 
 def test__api__lint_string_without_violations():
     """Check lint functionality when there is no violation."""
-    result = sqlfluff.lint("select column from table;\n")
+    result = sqlfluff.lint("select column from table\n")
     assert result == []
 
 
@@ -124,7 +118,7 @@ def test__api__lint_string_specific():
 
 def test__api__lint_string_specific_exclude():
     """Basic checking of lint functionality."""
-    exclude_rules = ["L009", "L010", "L013", "L014", "L036", "L039", "L052"]
+    exclude_rules = ["L009", "L010", "L013", "L014", "L036", "L039"]
     result = sqlfluff.lint(my_bad_query, exclude_rules=exclude_rules)
     # Check only L044 is found
     assert len(result) == 1
@@ -133,7 +127,7 @@ def test__api__lint_string_specific_exclude():
 
 def test__api__lint_string_specific_exclude_all_failed_rules():
     """Basic checking of lint functionality."""
-    exclude_rules = ["L009", "L010", "L013", "L014", "L036", "L039", "L044", "L052"]
+    exclude_rules = ["L009", "L010", "L013", "L014", "L036", "L039", "L044"]
     result = sqlfluff.lint(my_bad_query, exclude_rules=exclude_rules)
     # Check it passes
     assert result == []

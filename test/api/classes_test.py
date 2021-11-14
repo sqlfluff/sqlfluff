@@ -25,7 +25,7 @@ def test__api__linter_lint():
     tokens, _ = Lexer().lex(test_query)
     parsed = Parser().parse(tokens)
     violations = Linter().lint(parsed)
-    assert [v.rule.code for v in violations] == ["L009", "L010", "L052"]
+    assert [v.rule.code for v in violations] == ["L009", "L010"]
 
 
 def test__api__linter_fix():
