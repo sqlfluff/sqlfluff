@@ -103,6 +103,10 @@ STANDARD_CONFIG_INFO_DICT = {
             "Should alias have an explict AS or is implicit aliasing required?"
         ),
     },
+    "allow_final_semi_colon": {
+        "validation": [True, False],
+        "definition": ("Should missing final semi-colons be allowed?"),
+    },
 }
 
 

@@ -59,7 +59,9 @@ def test_epoch_datetime_unit(raw: str) -> None:
     """Test the EPOCH keyword for postgres dialect."""
     # Don't test for new lines or capitalisation
     cfg = FluffConfig(
-        configs={"core": {"exclude_rules": "L009,L016,L036", "dialect": "postgres"}}
+        configs={
+            "core": {"exclude_rules": "L009,L016,L036,L052", "dialect": "postgres"}
+        }
     )
     lnt = Linter(config=cfg)
     result = lnt.lint_string(raw)
@@ -69,8 +71,8 @@ def test_epoch_datetime_unit(raw: str) -> None:
 @pytest.mark.parametrize(
     "raw",
     [
-        "SELECT foo AS space FROM t1",
-        "SELECT space.something FROM t1 AS space",
+        "SELECT foo AS space FROM t1;",
+        "SELECT space.something FROM t1 AS space;",
     ],
 )
 def test_space_is_not_reserved(raw: str) -> None:

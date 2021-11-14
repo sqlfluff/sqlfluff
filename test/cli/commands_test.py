@@ -245,7 +245,7 @@ def test__cli__command_lint_stdin(command):
             [
                 "-n",
                 "--exclude-rules",
-                "L006,L007,L031,L039",
+                "L006,L007,L031,L039,L052",
                 "test/fixtures/linter/operator_errors.sql",
             ],
         ),
@@ -780,6 +780,18 @@ def test__cli__command_lint_serialize_github_annotation():
             "message": "L014: Unquoted identifiers must be consistently lower case.",
             "start_column": 18,
             "end_column": 18,
+            "title": "SQLFluff",
+        },
+        {
+            "annotation_level": "warning",
+            # Normalise paths to control for OS variance
+            "file": os.path.normpath(
+                "test/fixtures/linter/identifier_capitalisation.sql"
+            ),
+            "line": 4,
+            "message": "L052: Statements must end with a semi-colon.",
+            "start_column": 22,
+            "end_column": 22,
             "title": "SQLFluff",
         },
     ]
