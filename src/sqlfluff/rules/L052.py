@@ -3,6 +3,7 @@ from typing import List, Optional
 
 from sqlfluff.core.parser import SymbolSegment
 from sqlfluff.core.parser.segments.base import BaseSegment
+from sqlfluff.core.parser.segments.raw import NewlineSegment
 
 from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix, RuleContext
 from sqlfluff.core.rules.doc_decorators import (
@@ -43,12 +44,13 @@ class Rule_L052(BaseRule):
         FROM foo;
     """
 
-    config_keywords = ["allow_final_semi_colon"]
+    config_keywords = ["semi_colon_new_line", "require_final_semi_colon"]
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Statements must end with a semi-colon."""
         # Config type hints
-        self.allow_final_semi_colon: bool
+        self.semi_colon_new_line: bool
+        self.require_final_semi_colon: bool
 
         # First we can simply handle the case of existing semi-colon alignment.
         whitespace_set = {"newline", "whitespace"}
@@ -64,17 +66,44 @@ class Rule_L052(BaseRule):
                 whitespace_deletions.append(segment)
                 anchor_segment = segment
 
-            # If whitespace is found then delete.
-            if whitespace_deletions:
+            fixes: List[LintFix] = []
+            # Semi-colon on same line.
+            if not self.semi_colon_new_line:
+                # If whitespace is found then delete.
+                if whitespace_deletions:
+                    fixes.extend(LintFix("delete", d) for d in whitespace_deletions)
+            # Semi-colon on new line.
+            else:
+                newline_deletions = [
+                    segment
+                    for segment in whitespace_deletions
+                    if segment.is_type("newline")
+                ]
+                non_newline_deletions = [
+                    segment
+                    for segment in whitespace_deletions
+                    if not segment.is_type("newline")
+                ]
+                # Remove pre-semi-colon whitespace.
+                fixes.extend(LintFix("delete", d) for d in non_newline_deletions)
+
+                if len(newline_deletions) == 0:
+                    # Create missing newline.
+                    fixes.append(LintFix("create", context.segment, NewlineSegment()))
+                if len(newline_deletions) > 1:
+                    # Remove excess newlines.
+                    fixes.extend(LintFix("delete", d) for d in newline_deletions[1:])
+
+            if fixes:
                 return LintResult(
                     anchor=anchor_segment,
-                    fixes=[LintFix("delete", d) for d in whitespace_deletions],
+                    fixes=fixes,
                 )
 
         # SQL does not require a final trailing semi-colon, however
         # this rule looks to enforce that it is there.
         # Therefore we first locate the end of the file.
-        if not self.allow_final_semi_colon:
+        if self.require_final_semi_colon:
             if len(self.filter_meta(context.siblings_post)) > 0:
                 # This can only fail on the last segment
                 return None
@@ -112,9 +141,8 @@ class Rule_L052(BaseRule):
 
             if not semi_colon_exist_flag:
                 # Create the final semi-colon if it does not yet exist.
-                return LintResult(
-                    anchor=anchor_segment,
-                    fixes=[
+                if not self.semi_colon_new_line:
+                    fixes = [
                         LintFix(
                             "edit",
                             anchor_segment,
@@ -123,7 +151,23 @@ class Rule_L052(BaseRule):
                                 SymbolSegment(raw=";", type="symbol", name="semicolon"),
                             ],
                         )
-                    ],
+                    ]
+                else:
+                    fixes = [
+                        LintFix(
+                            "edit",
+                            anchor_segment,
+                            [
+                                anchor_segment,
+                                NewlineSegment(),
+                                SymbolSegment(raw=";", type="symbol", name="semicolon"),
+                            ],
+                        )
+                    ]
+
+                return LintResult(
+                    anchor=anchor_segment,
+                    fixes=fixes,
                 )
 
         return None

@@ -1,33 +1,67 @@
 rule: L052
 
-test_pass_semi_colon:
+test_pass_semi_colon_same_line_default:
   pass_str: |
     SELECT a FROM foo;
+
+test_fail_semi_colon_same_line_custom_newline:
+  fail_str: |
+    SELECT a FROM foo;
+  fix_str: |
+    SELECT a FROM foo
+    ;
+  configs:
+    rules:
+      semi_colon_new_line: True
 
 test_pass_no_semi_colon_default:
   pass_str: |
     SELECT a FROM foo
 
-test_fail_no_semi_colon_custom:
+test_fail_no_semi_colon_custom_require:
   fail_str: |
     SELECT a FROM foo
   fix_str: |
     SELECT a FROM foo;
   configs:
     rules:
-      allow_final_semi_colon: False
+      require_final_semi_colon: True
 
-test_pass_multi_statement_semi_colon:
+test_fail_no_semi_colon_custom_require_newline:
+  fail_str: |
+    SELECT a FROM foo
+  fix_str: |
+    SELECT a FROM foo
+    ;
+  configs:
+    rules:
+      require_final_semi_colon: True
+      semi_colon_new_line: True
+
+test_pass_multi_statement_semi_colon_default:
   pass_str: |
     SELECT a FROM foo;
     SELECT b FROM bar;
+
+test_fail_multi_statement_semi_colon_custom_newline:
+  fail_str: |
+    SELECT a FROM foo;
+    SELECT b FROM bar;
+  fix_str: |
+    SELECT a FROM foo
+    ;
+    SELECT b FROM bar
+    ;
+  configs:
+    rules:
+      semi_colon_new_line: True
 
 test_pass_multi_statement_no_trailing_semi_colon_default:
   pass_str: |
     SELECT a FROM foo;
     SELECT b FROM bar
 
-test_pass_multi_statement_no_trailing_semi_colon_custom:
+test_pass_multi_statement_no_trailing_semi_colon_custom_require:
   fail_str: |
     SELECT a FROM foo;
     SELECT b FROM bar
@@ -36,14 +70,26 @@ test_pass_multi_statement_no_trailing_semi_colon_custom:
     SELECT b FROM bar;
   configs:
     rules:
-      allow_final_semi_colon: False
+      require_final_semi_colon: True
 
-test_fail_space_semi_colon:
+test_fail_multi_statement_no_trailing_semi_colon_custom_require_newline:
+  fail_str: |
+    SELECT a FROM foo;
+    SELECT b FROM bar
+  fix_str: |
+    SELECT a FROM foo
+    ;
+    SELECT b FROM bar
+  configs:
+    rules:
+      semi_colon_new_line: True
+
+test_fail_space_semi_colon_default:
   fail_str: |
     SELECT a FROM foo  ;
   fix_str: | 
     SELECT a FROM foo;
-    
+  
 test_fail_newline_semi_colon_default:
   fail_str: |
     SELECT a FROM foo
@@ -51,7 +97,15 @@ test_fail_newline_semi_colon_default:
   fix_str: |
     SELECT a FROM foo;
 
-test_fail_multi_statement_semi_colon:
+test_pass_newline_semi_colon_custom_newline:
+  pass_str: |
+    SELECT a FROM foo
+    ;
+  configs:
+    rules:
+      semi_colon_new_line: True
+
+test_fail_multi_statement_semi_colon_default:
   fail_str: |
     SELECT a FROM foo
     
