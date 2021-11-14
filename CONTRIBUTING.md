@@ -88,7 +88,11 @@ source .venv/bin/activate
 ```
 (The `py` environment defaults to the python version used
 to install tox, however any version you want can be installed
-by replacing `py` with `py37`, `py39`, `dbt020-py38`, etc.)
+by replacing `py` with `py37`, `py39`, `dbt020-py38`, etc. If
+you are planning development on or using the dbt templater
+you may wish to chose one of the dbt environments.)
+
+Windows users should call `.venv\Scripts\activate` rather than `source .venv/bin/activate`.
 
 This virtual environment will already have the package installed in editable mode for you, as well as
 `requirements_dev.txt` and `plugins/sqlfluff-plugin-example`. Additionally if a dbt virtual environment
