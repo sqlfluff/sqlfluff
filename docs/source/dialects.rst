@@ -18,11 +18,11 @@ current dialects available on your installation of SQLFluff.
     to existing ones, the dependent nature of how dialects have been
     implemented is to try and reduce the amount of repetition in how
     different elements are defined. As an example, when we say that
-    the :ref:`snowflake_dialect_ref` dialect *inherits* from the
+    the :ref:`redshift_dialect_ref` dialect *inherits* from the
     :ref:`postgres_dialect_ref` dialect this is not because there
     is an agreement between those projects which means that features
     in one must end up in the other, but that the design of the
-    :ref:`snowflake_dialect_ref` dialect was heavily *inspired* by the
+    :ref:`redshift_dialect_ref` dialect was heavily *inspired* by the
     postgres dialect and therefore when defining the dialect within
     sqlfuff it makes sense to use :ref:`postgres_dialect_ref` as a
     starting point rather than starting from scratch.

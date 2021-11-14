@@ -1919,6 +1919,11 @@ ansi_dialect.add(
         OptionallyBracketed(Ref("SelectStatementSegment")),
         Ref("NonSetSelectableGrammar"),
     ),
+    # Things that do not behave like select statements, which can form part of with expressions.
+    NonWithNonSelectableGrammar=OneOf(
+        Ref("UpdateStatementSegment"),
+        Ref("InsertStatementSegment"),
+    ),
     # Things that behave like select statements, which can form part of set expressions.
     NonSetSelectableGrammar=OneOf(
         Ref("ValuesClauseSegment"),
@@ -1979,7 +1984,10 @@ class WithCompoundStatementSegment(BaseSegment):
             Ref("CTEDefinitionSegment"),
             terminator=Ref.keyword("SELECT"),
         ),
-        Ref("NonWithSelectableGrammar"),
+        OneOf(
+            Ref("NonWithSelectableGrammar"),
+            Ref("NonWithNonSelectableGrammar"),
+        ),
     )
 
 
