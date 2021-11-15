@@ -230,12 +230,16 @@ def test__dbt_templated_models_fix_does_not_corrupt_file(
         os.remove(fsp)
     lntr = Linter(config=FluffConfig(configs=DBT_FLUFF_CONFIG))
     lnt = lntr.lint_path(os.path.join(project_dir, path), fix=True)
-    lnt.persist_changes(fixed_file_suffix="FIXED")
-    with open(os.path.join(project_dir, path + ".after")) as f:
-        comp_buff = f.read()
-    with open(os.path.join(project_dir, path.replace(".sql", "FIXED.sql"))) as f:
-        fixed_buff = f.read()
-    assert fixed_buff == comp_buff
+    try:
+        lnt.persist_changes(fixed_file_suffix="FIXED")
+        with open(os.path.join(project_dir, path + ".after")) as f:
+            comp_buff = f.read()
+        with open(os.path.join(project_dir, path.replace(".sql", "FIXED.sql"))) as f:
+            fixed_buff = f.read()
+        assert fixed_buff == comp_buff
+    finally:
+        for fsp in glob.glob(os.path.join(project_dir, "snapshots", "*FIXED.sql")):
+            os.remove(fsp)
 
 
 def test__templater_dbt_templating_absolute_path(
