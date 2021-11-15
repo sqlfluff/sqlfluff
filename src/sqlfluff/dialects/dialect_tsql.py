@@ -1165,7 +1165,7 @@ class PartitionByClause(BaseSegment):
     match_grammar = Sequence(
         "PARTITION",
         "BY",
-        Ref("ColumnReferenceSegment"),
+        Delimited(Ref("ColumnReferenceSegment"),),
     )
 
 
