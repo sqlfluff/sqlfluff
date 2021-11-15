@@ -258,6 +258,7 @@ class InsertStatementSegment(BaseSegment):
         - https://docs.aws.amazon.com/redshift/latest/dg/r_INSERT_30.html
         - https://docs.aws.amazon.com/redshift/latest/dg/r_INSERT_external_table.html
     """
+
     # TODO: This logic can be streamlined. However, there are some odd parsing issues.
     # See https://github.com/sqlfluff/sqlfluff/pull/1896
 
