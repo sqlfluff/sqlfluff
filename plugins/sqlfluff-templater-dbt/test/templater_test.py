@@ -1,5 +1,6 @@
 """Tests for the dbt templater."""
 
+import glob
 import os
 import pytest
 import logging
@@ -218,20 +219,21 @@ def test__dbt_templated_models_do_not_raise_lint_error(
     assert len(violations) == 0
 
 
-def test__dbt_templated_models_fix_does_not_corrupt_file(project_dir):  # noqa: F811
+@pytest.mark.parametrize(
+    "path", ["models/my_new_project/issue_1608.sql", "snapshots/issue_1771.sql"]
+)
+def test__dbt_templated_models_fix_does_not_corrupt_file(
+    project_dir, path  # noqa: F811
+):
     """Test fix for issue 1608. Previously "sqlfluff fix" corrupted the file."""
+    for fsp in glob.glob(os.path.join(project_dir, "snapshots", "*FIXED.sql")):
+        os.remove(fsp)
     lntr = Linter(config=FluffConfig(configs=DBT_FLUFF_CONFIG))
-    lnt = lntr.lint_path(
-        os.path.join(project_dir, "models/my_new_project/issue_1608.sql"), fix=True
-    )
+    lnt = lntr.lint_path(os.path.join(project_dir, path), fix=True)
     lnt.persist_changes(fixed_file_suffix="FIXED")
-    with open(
-        os.path.join(project_dir, "models/my_new_project/issue_1608.sql.after")
-    ) as f:
+    with open(os.path.join(project_dir, path + ".after")) as f:
         comp_buff = f.read()
-    with open(
-        os.path.join(project_dir, "models/my_new_project/issue_1608FIXED.sql")
-    ) as f:
+    with open(os.path.join(project_dir, path.replace(".sql", "FIXED.sql"))) as f:
         fixed_buff = f.read()
     assert fixed_buff == comp_buff
 
