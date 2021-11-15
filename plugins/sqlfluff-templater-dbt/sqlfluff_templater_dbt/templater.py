@@ -513,7 +513,15 @@ class DbtTemplater(JinjaTemplater):
 
 
 class SnapshotExtension(StandaloneTag):
-    """Dummy "snapshot" tags so raw dbt templates will parse."""
+    """Dummy "snapshot" tags so raw dbt templates will parse.
+
+    Context: dbt snapshots (https://docs.getdbt.com/docs/building-a-dbt-project/snapshots/#example)
+    use custom Jinja "snapshot" and "endsnapshot" tags. However, dbt does not
+    actually register those tags with Jinja. Instead, it finds and removes these
+    tags during a preprocessing step. However, DbtTemplater needs those tags to
+    actually parse, because JinjaTracer creates and uses Jinja to process
+    another template similar to the original one.
+    """
 
     tags = {"snapshot", "endsnapshot"}
 
