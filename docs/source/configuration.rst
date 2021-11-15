@@ -181,7 +181,7 @@ these can be configured by setting param_style to the names above
 
 .. code-block:: cfg
 
-    [sqlfluff:templater:placeholder:context]
+    [sqlfluff:templater:placeholder]
     param_style=colon
     my_name='john'
 
