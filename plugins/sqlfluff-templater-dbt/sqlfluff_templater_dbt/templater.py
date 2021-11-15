@@ -411,7 +411,6 @@ class DbtTemplater(JinjaTemplater):
 
                             def make_template(in_str):
                                 env.add_extension(SnapshotExtension)
-                                env.add_extension(EndSnapshotExtension)
                                 return env.from_string(in_str, globals=globals)
 
                 return old_from_string(*args, **kwargs)
@@ -514,18 +513,10 @@ class DbtTemplater(JinjaTemplater):
 
 
 class SnapshotExtension(StandaloneTag):
-    """Dummy "snapshot" tag so raw dbt templates will parse."""
+    """Dummy "snapshot" tags so raw dbt templates will parse."""
 
-    tags = {"snapshot"}
-
-    def render(self, format_string=None):
-        return ""
-
-
-class EndSnapshotExtension(StandaloneTag):
-    """Dummy "endsnapshot" tag so raw dbt templates will parse."""
-
-    tags = {"endsnapshot"}
+    tags = {"snapshot", "endsnapshot"}
 
     def render(self, format_string=None):
+        """Dummy method that renders the tag."""
         return ""
