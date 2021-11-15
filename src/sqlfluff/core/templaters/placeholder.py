@@ -65,8 +65,7 @@ class PlaceholderTemplater(RawTemplater):
         if config:
             # This is now a nested section
             loaded_context = (
-                config.get_section((self.templater_selector, self.name, "context"))
-                or {}
+                config.get_section((self.templater_selector, self.name)) or {}
             )
         else:
             loaded_context = {}
