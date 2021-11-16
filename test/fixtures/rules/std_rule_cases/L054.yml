@@ -1,4 +1,4 @@
-rule: L053
+rule: L054
 
 test_pass_explicit_group_by:
   pass_str: |
@@ -8,7 +8,7 @@ test_pass_explicit_group_by:
         sum(fake_value) AS sum_value
     FROM fake_table
     GROUP BY
-        fake_column_1, fake_column_1;
+        fake_column_1, fake_column_2;
 
 test_fail_implicit_group_by:
   fail_str: |
@@ -19,3 +19,11 @@ test_fail_implicit_group_by:
     FROM fake_table
     GROUP BY
         1, 2;
+  fix_str: |
+    SELECT
+        fake_column_1,
+        fake_column_2,
+        sum(fake_value) AS sum_value
+    FROM fake_table
+    GROUP BY
+        fake_column_1, fake_column_2;
