@@ -1,4 +1,4 @@
-"""Implementation of Rule L050."""
+"""Implementation of Rule L053."""
 from typing import Optional
 
 from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix, RuleContext
@@ -6,8 +6,8 @@ from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
 
 @document_fix_compatible
-class Rule_L050(BaseRule):
-    """Files must not begin with newlines or whitespace.
+class Rule_L053(BaseRule):
+    """Lone statements should not be wrapped in brackets.
 
     | **Anti-pattern**
     | The content in file begins with newlines or whitespace, the ^ represents the beginning of file.
@@ -84,41 +84,25 @@ class Rule_L050(BaseRule):
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Files must not begin with newlines or whitespace."""
         # If parent_stack is empty we are currently at FileSegment.
-        if len(context.parent_stack) == 0:
-            return None
-
-        # If raw_stack is empty there can be nothing to remove.
-        if len(context.raw_stack) == 0:
-            return None
-
-        # If the current segment is either comment or code and all
-        # previous segments are forms of whitespace then we can
-        # remove these earlier segments.
-        # Given the tree stucture, we make sure we are at the
-        # first leaf to avoid repeated detection.
-        whitespace_set = {"newline", "whitespace", "Indent", "Dedent"}
-        if (
-            # Non-whitespace segment.
-            (context.segment.name not in whitespace_set)
-            # We want first Non-whitespace segment so
-            # all preceding segments must be whitespace
-            # and at least one is not meta.
-            and all(segment.name in whitespace_set for segment in context.raw_stack)
-            and not all(segment.is_meta for segment in context.raw_stack)
-            # Found leaf of parse tree.
-            and (not context.segment.is_expandable)
+        [segment.type for segment in context.parent_stack] == ["file", "statement"]
+        if not (
+            context.segment.is_type("bracketed")
+            and [segment.type for segment in context.parent_stack]
+            == ["file", "statement"]
         ):
-            # It is possible that a template segment (e.g. {{ config(materialized='view') }})
-            # renders to an empty string and as such is omitted from the parsed tree.
-            # We therefore should flag if a templated raw slice intersects with the
-            # source slices in the raw stack and skip this rule to avoid risking
-            # collisions with template objects.
-            if self._potential_template_collision(context):
-                return None
+            return None
 
-            return LintResult(
-                anchor=context.parent_stack[0],
-                fixes=[LintFix("delete", d) for d in context.raw_stack],
+        bracket_set = {"start_bracket", "end_bracket"}
+        fixes = [
+            LintFix(
+                "edit",
+                context.segment,
+                [
+                    segment
+                    for segment in context.segment.segments
+                    if segment.name not in bracket_set
+                ],
             )
-
-        return None
+        ]
+        # return None
+        return LintResult(anchor=context.segment, fixes=fixes)
