@@ -49,7 +49,7 @@ So, without further ado, here are the principles we think apply to indentation:
 
 2. **Line Length**. Long lines are hard to read and many SQL guidelines
    include a line length restriction. This is (of course) configurable, but
-   the default is 80 characters (in line with the `Fishtown SQL style guide`_.)
+   the default is 80 characters (in line with the `dbt Labs SQL style guide`_.)
 
 3. **Bracket behaviour**. For brackets there are three accepted ways:
 
@@ -158,7 +158,7 @@ of the :code:`JOIN` expression.
 
 Semantically, a :code:`JOIN` expression is part of the :code:`FROM` expression
 and therefore would be expected to be indented. However according to many
-of the most common SQL style guides (including the `Fishtown SQL style guide`_
+of the most common SQL style guides (including the `dbt Labs SQL style guide`_
 and the `Mozilla SQL style guide`_) the :code:`JOIN` keyword is expected to at
 the same indent as the :code:`FROM` keyword. By default, *SQLFluff* sides with
 the current consensus, which is to *not* indent the :code:`JOIN` keyword,
@@ -213,6 +213,6 @@ to indentation. However, if you have other versions of indentation which are
 supported by published style guides, then please submit an issue on GitHub
 to have that variation supported by *SQLFluff*.
 
-.. _`Fishtown SQL style guide`: https://github.com/fishtown-analytics/corp/blob/master/dbt_coding_conventions.md#sql-style-guide
+.. _`dbt Labs SQL style guide`: https://github.com/dbt-labs/corp/blob/master/dbt_style_guide.md
 .. _`Mozilla SQL style guide`: https://docs.telemetry.mozilla.org/concepts/sql_style.html#joins
 .. _`Baron Schwartz`: https://www.xaprb.com/blog/2006/04/26/sql-coding-standards/
