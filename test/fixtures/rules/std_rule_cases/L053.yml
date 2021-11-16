@@ -1,0 +1,22 @@
+rule: L053
+
+test_pass_no_outer_brackets:
+  pass_str: |
+    SELECT foo
+    FROM bar
+
+test_fail_outer_brackets:
+  fail_str: |
+    (SELECT foo
+    FROM bar)
+  fix_str: |
+    SELECT foo
+    FROM bar
+
+test_fail_outer_brackets_inner_subquery:
+  fail_str: |
+    (SELECT foo
+    FROM (select * from bar))
+  fix_str: |
+    SELECT foo
+    FROM (select * from bar)
