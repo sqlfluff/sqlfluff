@@ -46,10 +46,14 @@ class Rule_L053(BaseRule):
         """Top-level statements should not be wrapped in brackets."""
         # We only care about bracketed segements that are direct
         # descendants of a top-level statement segment.
+        if context.dialect.name == "tsql":
+            top_level_parent_stack_types = ["file", "batch", "statement"]
+        else:
+            top_level_parent_stack_types = ["file", "statement"]
         if not (
             context.segment.is_type("bracketed")
             and [segment.type for segment in context.parent_stack]
-            == ["file", "statement"]
+            == top_level_parent_stack_types
         ):
             return None
 

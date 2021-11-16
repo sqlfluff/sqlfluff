@@ -20,3 +20,33 @@ test_fail_outer_brackets_inner_subquery:
   fix_str: |
     SELECT foo
     FROM (select * from bar)
+
+test_pass_no_outer_brackets_tsql:
+  pass_str: |
+    SELECT foo
+    FROM bar
+  configs:
+    core:
+      dialect: tsql
+
+test_fail_outer_brackets_tsql:
+  fail_str: |
+    (SELECT foo
+    FROM bar)
+  fix_str: |
+    SELECT foo
+    FROM bar
+  configs:
+    core:
+      dialect: tsql
+
+test_fail_outer_brackets_inner_subquery_tsql:
+  fail_str: |
+    (SELECT foo
+    FROM (select * from bar))
+  fix_str: |
+    SELECT foo
+    FROM (select * from bar)
+  configs:
+    core:
+      dialect: tsql
