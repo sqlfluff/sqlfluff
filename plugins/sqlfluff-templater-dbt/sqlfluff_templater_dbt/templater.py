@@ -20,6 +20,7 @@ from dbt.exceptions import (
     FailedToConnectException as DbtFailedToConnectException,
 )
 from jinja2 import Environment
+from jinja2_simple_tags import StandaloneTag
 
 from sqlfluff.core.errors import SQLTemplaterError, SQLTemplaterSkipFile
 
@@ -409,6 +410,7 @@ class DbtTemplater(JinjaTemplater):
                             globals = args[2] if len(args) >= 3 else kwargs["globals"]
 
                             def make_template(in_str):
+                                env.add_extension(SnapshotExtension)
                                 return env.from_string(in_str, globals=globals)
 
                 return old_from_string(*args, **kwargs)
@@ -470,7 +472,7 @@ class DbtTemplater(JinjaTemplater):
         compiled_sql = compiled_sql + "\n" * n_trailing_newlines
 
         raw_sliced, sliced_file, templated_sql = self.slice_file(
-            node.raw_sql,
+            source_dbt_sql,
             compiled_sql,
             config=config,
             make_template=make_template,
@@ -484,7 +486,7 @@ class DbtTemplater(JinjaTemplater):
                 TemplatedFileSlice(
                     slice_type="literal",
                     source_slice=slice(
-                        len(node.raw_sql) - n_trailing_newlines, len(node.raw_sql)
+                        len(source_dbt_sql) - n_trailing_newlines, len(source_dbt_sql)
                     ),
                     templated_slice=slice(
                         len(templated_sql) - n_trailing_newlines, len(templated_sql)
@@ -493,7 +495,7 @@ class DbtTemplater(JinjaTemplater):
             )
         return (
             TemplatedFile(
-                source_str=node.raw_sql,
+                source_str=source_dbt_sql,
                 templated_str=templated_sql,
                 fname=fname,
                 sliced_file=sliced_file,
@@ -508,3 +510,21 @@ class DbtTemplater(JinjaTemplater):
         # DbtTemplater uses the original heuristic-based template slicer.
         # TODO: Can it be updated to use TemplateTracer?
         return slice_template(in_str, cls._get_jinja_env())
+
+
+class SnapshotExtension(StandaloneTag):
+    """Dummy "snapshot" tags so raw dbt templates will parse.
+
+    Context: dbt snapshots (https://docs.getdbt.com/docs/building-a-dbt-project/snapshots/#example)
+    use custom Jinja "snapshot" and "endsnapshot" tags. However, dbt does not
+    actually register those tags with Jinja. Instead, it finds and removes these
+    tags during a preprocessing step. However, DbtTemplater needs those tags to
+    actually parse, because JinjaTracer creates and uses Jinja to process
+    another template similar to the original one.
+    """
+
+    tags = {"snapshot", "endsnapshot"}
+
+    def render(self, format_string=None):
+        """Dummy method that renders the tag."""
+        return ""
