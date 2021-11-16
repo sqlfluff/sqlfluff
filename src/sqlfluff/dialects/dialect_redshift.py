@@ -252,7 +252,7 @@ class CreateTableStatementSegment(BaseSegment):
 
 @redshift_dialect.segment(replace=True)
 class InsertStatementSegment(BaseSegment):
-    """A `INSERT` statement.
+    """An`INSERT` statement.
 
     Redshift has two versions of insert statements:
         - https://docs.aws.amazon.com/redshift/latest/dg/r_INSERT_30.html
