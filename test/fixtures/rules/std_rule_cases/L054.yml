@@ -1,6 +1,6 @@
 rule: L054
 
-test_pass_explicit_group_by:
+test_pass_explicit_group_by_default:
   pass_str: |
     SELECT
         foo,
@@ -8,9 +8,9 @@ test_pass_explicit_group_by:
         sum(baz) AS sum_value
     FROM fake_table
     GROUP BY
-        fake_column_1, fake_column_2;
+        foo, bar;
 
-test_fail_implicit_group_by_1:
+test_fail_implicit_group_by_default:
   fail_str: |
     SELECT
         foo,
@@ -20,32 +20,174 @@ test_fail_implicit_group_by_1:
     GROUP BY
         1, 2;
 
-test_fail_implicit_group_by_2:
+test_fail_mix_group_by_default:
   fail_str: |
     SELECT
         foo,
-        sum(baz) AS sum_value,
+        bar,
+        sum(baz) AS sum_value
+    FROM fake_table
+    GROUP BY
+        1, bar;
+
+test_pass_explicit_order_by_default:
+  pass_str: |
+    SELECT
+        foo,
         bar
     FROM fake_table
-    GROUP BY
-        1, 2;
+    ORDER BY
+        foo, bar;
 
-test_fail_implicit_group_by_3:
+test_fail_implicit_order_by_default:
   fail_str: |
     SELECT
-        *,
+        foo,
+        bar
+    FROM fake_table
+    ORDER BY
+        1, 2;
+
+test_pass_explicit_group_by_custom_implicit:
+  pass_str: |
+    SELECT
+        foo,
         bar,
         sum(baz) AS sum_value
     FROM fake_table
     GROUP BY
         1, 2;
+  configs:
+    rules:
+      group_by_and_order_by_style: implicit
 
-test_fail_implicit_group_by_4:
+test_fail_implicit_group_by_custom_implicit:
   fail_str: |
     SELECT
-        cast(foo AS varchar(255)) AS cast_foo,
+        foo,
         bar,
         sum(baz) AS sum_value
     FROM fake_table
     GROUP BY
+        foo, bar;
+  configs:
+    rules:
+      group_by_and_order_by_style: implicit
+
+test_pass_explicit_order_by_custom_implicit:
+  pass_str: |
+    SELECT
+        foo,
+        bar
+    FROM fake_table
+    ORDER BY
         1, 2;
+  configs:
+    rules:
+      group_by_and_order_by_style: implicit
+
+test_fail_implicit_order_by_custom_implicit:
+  fail_str: |
+    SELECT
+        foo,
+        bar
+    FROM fake_table
+    ORDER BY
+        foo, bar;
+  configs:
+    rules:
+      group_by_and_order_by_style: implicit
+
+test_fail_mix_group_by_custom_implicit:
+  fail_str: |
+    SELECT
+        foo,
+        bar,
+        sum(baz) AS sum_value
+    FROM fake_table
+    GROUP BY
+        1, bar;
+  configs:
+    rules:
+      group_by_and_order_by_style: implicit
+
+test_pass_explicit_group_by_and_order_by_default:
+  pass_str: |
+    SELECT
+        foo,
+        bar,
+        sum(baz) AS sum_value
+    FROM fake_table
+    GROUP BY
+        foo, bar
+    ORDER BY
+        foo, bar;
+
+test_fail_implicit_group_by_and_order_by_default:
+  fail_str: |
+    SELECT
+        foo,
+        bar,
+        sum(baz) AS sum_value
+    FROM fake_table
+    GROUP BY
+        1, 2
+    ORDER BY
+        1, 2;
+
+test_pass_implicit_group_by_and_order_by_custom_implicit:
+  pass_str: |
+    SELECT
+        foo,
+        bar,
+        sum(baz) AS sum_value
+    FROM fake_table
+    GROUP BY
+        1, 2
+    ORDER BY
+        1, 2;
+  configs:
+    rules:
+      group_by_and_order_by_style: implicit
+
+test_fail_explicit_group_by_and_order_by_custom_implicit:
+  fail_str: |
+    SELECT
+        foo,
+        bar,
+        sum(baz) AS sum_value
+    FROM fake_table
+    GROUP BY
+        foo, bar
+    ORDER BY
+        foo, bar;
+  configs:
+    rules:
+      group_by_and_order_by_style: implicit
+
+test_fail_mix_group_by_and_order_by_default:
+  fail_str: |
+    SELECT
+        foo,
+        bar,
+        sum(baz) AS sum_value
+    FROM fake_table
+    GROUP BY
+        1, bar
+    ORDER BY
+        foo, 2;
+
+test_fail_mix_group_by_and_order_by_custom_implicit:
+  fail_str: |
+    SELECT
+        foo,
+        bar,
+        sum(baz) AS sum_value
+    FROM fake_table
+    GROUP BY
+        1, bar
+    ORDER BY
+        foo, 2;
+  configs:
+    rules:
+      group_by_and_order_by_style: implicit
