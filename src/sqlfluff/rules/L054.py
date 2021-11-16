@@ -1,7 +1,7 @@
 """Implementation of Rule L054."""
 from typing import Optional
 
-from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
+from sqlfluff.core.rules.base import BaseRule, LintResult, RuleContext
 
 
 class Rule_L054(BaseRule):
@@ -54,40 +54,5 @@ class Rule_L054(BaseRule):
         if not numeric_literal_segments:
             return None
 
-        # Locate preceding SELECT clause and its elements.
-        prior_select_clause_segment = next(
-            segment
-            for segment in context.siblings_pre[::-1]
-            if segment.name == "SelectClauseSegment"
-        )
-        select_clause_element_segments = [
-            segment
-            for segment in prior_select_clause_segment.segments
-            if segment.name == "SelectClauseElementSegment"
-        ]
-
-        fixes = []
-        for segment in numeric_literal_segments:
-            try:
-                # Iterate over numeric literal segments to try and locate
-                # the corresponding column in the SELECT clause elements.
-                select_clause_element_segment = select_clause_element_segments[
-                    int(segment.raw) - 1
-                ]
-            except IndexError:
-                # Index is not in the SELECT clause elements.
-                continue
-
-            if select_clause_element_segment.segments[0].name == "FunctionSegment":
-                # Functions (SUM, MIN, MAX, etc.) can't be used as GROUP BY columns.
-                continue
-            
-            # Replace the numeric literal with the corresponding column reference segment.
-            column_reference_segment = next(
-                segment
-                for segment in select_clause_element_segment.segments
-                if segment.name == "ColumnReferenceSegment"
-            )
-            fixes.append(LintFix("edit", segment, [column_reference_segment]))
-
-        return LintResult(anchor=context.segment, fixes=fixes)
+        # If a numeric literal is detected raise a linting error.
+        return LintResult(anchor=context.segment)

@@ -3,27 +3,49 @@ rule: L054
 test_pass_explicit_group_by:
   pass_str: |
     SELECT
-        fake_column_1,
-        fake_column_2,
-        sum(fake_value) AS sum_value
+        foo,
+        bar,
+        sum(baz) AS sum_value
     FROM fake_table
     GROUP BY
         fake_column_1, fake_column_2;
 
-test_fail_implicit_group_by:
+test_fail_implicit_group_by_1:
   fail_str: |
     SELECT
-        fake_column_1,
-        fake_column_2,
-        sum(fake_value) AS sum_value
+        foo,
+        bar,
+        sum(baz) AS sum_value
     FROM fake_table
     GROUP BY
         1, 2;
-  fix_str: |
+
+test_fail_implicit_group_by_2:
+  fail_str: |
     SELECT
-        fake_column_1,
-        fake_column_2,
-        sum(fake_value) AS sum_value
+        foo,
+        sum(baz) AS sum_value,
+        bar
     FROM fake_table
     GROUP BY
-        fake_column_1, fake_column_2;
+        1, 2;
+
+test_fail_implicit_group_by_3:
+  fail_str: |
+    SELECT
+        *,
+        bar,
+        sum(baz) AS sum_value
+    FROM fake_table
+    GROUP BY
+        1, 2;
+
+test_fail_implicit_group_by_4:
+  fail_str: |
+    SELECT
+        cast(foo AS varchar(255)) AS cast_foo,
+        bar,
+        sum(baz) AS sum_value
+    FROM fake_table
+    GROUP BY
+        1, 2;
