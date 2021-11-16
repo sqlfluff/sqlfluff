@@ -146,8 +146,6 @@ class ColumnConstraintSegment(BaseSegment):
     )
 
 
-
-
 @redshift_dialect.segment()
 class TableAttributeSegment(BaseSegment):
     """Redshift specific table attributes.
