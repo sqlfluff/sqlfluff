@@ -35,21 +35,36 @@ class Rule_L041(BaseRule):
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Select clause modifiers must appear on same line as SELECT."""
         if context.segment.is_type("select_clause"):
+            # Scan the select clause's children. Look for three things in sequence:
+            # 1. SELECT keyword (required)
+            # 2. Newline (optional)
+            # 3. Select modifier, e.g. "DISTINCT" (optional)
+            select_keyword = None
+            newline_between = None
+            select_modifier = None
+            for idx, child in enumerate(context.segment.segments):
+                if select_keyword is None:
+                    if child.is_type("keyword") and child.raw.lower() == "select":
+                        select_keyword = child
+                if (
+                    select_keyword
+                    and newline_between is None
+                    and select_modifier is None
+                    and child.is_type("newline")
+                ):
+                    newline_between = child
+                    newline_idx = idx
+                if select_modifier is None and child.is_type("select_clause_modifier"):
+                    select_modifier = child
+                    break
+
             # Does the select clause have modifiers?
-            select_modifier = context.segment.get_child("select_clause_modifier")
             if not select_modifier:
                 return None  # No. We're done.
-            select_modifier_idx = context.segment.segments.index(select_modifier)
 
-            # Does the select clause contain a newline?
-            newline = context.segment.get_child("newline")
-            if not newline:
+            # Does select clause contain a newline between SELECT and the modifiers?
+            if not newline_between:
                 return None  # No. We're done.
-            newline_idx = context.segment.segments.index(newline)
-
-            # Is there a newline before the select modifier?
-            if newline_idx > select_modifier_idx:
-                return None  # No, we're done.
 
             # Yes to all the above. We found an issue.
 
@@ -61,7 +76,12 @@ class Rule_L041(BaseRule):
             ]
             fixes = [
                 # E.g. "\n" -> " DISTINCT\n.
-                LintFix("edit", newline, replace_newline_with),
+                LintFix("delete", newline_between),
+                LintFix(
+                    "create",
+                    context.segment.segments[newline_idx + 1],
+                    replace_newline_with,
+                ),
                 # E.g. "DISTINCT" -> X
                 LintFix("delete", select_modifier),
             ]

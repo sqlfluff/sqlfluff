@@ -1006,8 +1006,14 @@ class CreateViewStatementSegment(BaseSegment):
         Sequence("OR", "ALTER", optional=True),
         "VIEW",
         Ref("ObjectReferenceSegment"),
+        Sequence(
+            "WITH",
+            Delimited("ENCRYPTION", "SCHEMABINDING", "VIEW_METADATA"),
+            optional=True,
+        ),
         "AS",
         Ref("SelectableGrammar"),
+        Sequence("WITH", "CHECK", "OPTION", optional=True),
         Ref("DelimiterSegment", optional=True),
     )
 
@@ -1159,7 +1165,9 @@ class PartitionByClause(BaseSegment):
     match_grammar = Sequence(
         "PARTITION",
         "BY",
-        Ref("ColumnReferenceSegment"),
+        Delimited(
+            Ref("ColumnReferenceSegment"),
+        ),
     )
 
 

@@ -75,7 +75,7 @@ class Delimited(OneOf):
         # We use amount of `NewLineSegment` to estimate how many steps could be in
         # a big file. It's not perfect, but should do a job in most cases.
         new_line_segments = [s for s in segments if isinstance(s, NewlineSegment)]
-        matching_progressbar = tqdm(
+        progressbar_matching = tqdm(
             total=len(new_line_segments),
             desc="matching",
             miniters=30,
@@ -90,7 +90,7 @@ class Delimited(OneOf):
         # In more detail, match against delimiter, if we match, put a slice
         # up to that point onto a list of slices. Carry on.
         while True:
-            matching_progressbar.update(n=1)
+            progressbar_matching.update(n=1)
 
             # Check to see whether we've exhausted the buffer, either by iterating through it,
             # or by consuming all the non-code segments already.
@@ -165,9 +165,34 @@ class Delimited(OneOf):
                             # We've already trimmed
                             trim_noncode=False,
                         )
-                    # No match, or an incomplete match: Not allowed
-                    if not match or not match.is_complete():
-                        return MatchResult.from_unmatched(mutated_segments)
+                    # No match - Not allowed
+                    if not match:
+                        if self.allow_trailing:
+                            # If we reach this point, the lookahead match has hit a delimiter
+                            # beyond the scope of this Delimited section. Trailing delimiters are allowed,
+                            # so return matched up to this section.
+                            return MatchResult(
+                                matched_segments.matched_segments,
+                                pre_non_code
+                                + match.unmatched_segments
+                                + post_non_code
+                                + delimiter_match.all_segments(),
+                            )
+                        else:
+                            return MatchResult.from_unmatched(mutated_segments)
+
+                    if not match.is_complete():
+                        # If we reach this point, the lookahead match has hit a delimiter
+                        # beyond the scope of this Delimited section. We should return a
+                        # partial match, and the delimiter as unmatched.
+                        return MatchResult(
+                            matched_segments.matched_segments
+                            + pre_non_code
+                            + match.matched_segments,
+                            match.unmatched_segments
+                            + post_non_code
+                            + delimiter_match.all_segments(),
+                        )
 
                     # We have a complete match!
 

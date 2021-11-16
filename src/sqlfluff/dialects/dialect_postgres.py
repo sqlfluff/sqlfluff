@@ -2141,6 +2141,7 @@ class StatementSegment(BaseSegment):
             Ref("CreateTableAsStatementSegment"),
             Ref("AlterTriggerStatementSegment"),
             Ref("DropTypeStatementSegment"),
+            Ref("SetStatementSegment"),
         ],
     )
 
@@ -2345,4 +2346,32 @@ class DropTypeStatementSegment(BaseSegment):
         Ref("IfExistsGrammar", optional=True),
         Delimited(Ref("DatatypeSegment")),
         OneOf("CASCADE", "RESTRICT", optional=True),
+    )
+
+
+@postgres_dialect.segment()
+class SetStatementSegment(BaseSegment):
+    """Set Statement.
+
+    As specified in https://www.postgresql.org/docs/14/sql-set.html
+    """
+
+    type = "set_statement"
+
+    match_grammar = Sequence(
+        "SET",
+        OneOf("SESSION", "LOCAL", optional=True),
+        OneOf(
+            Sequence(
+                Ref("ParameterNameSegment"),
+                OneOf("TO", Ref("EqualsSegment")),
+                OneOf(
+                    Delimited(Ref("LiteralGrammar"), Ref("NakedIdentifierSegment")),
+                    "DEFAULT",
+                ),
+            ),
+            Sequence(
+                "TIME", "ZONE", OneOf(Ref("QuotedLiteralSegment"), "LOCAL", "DEFAULT")
+            ),
+        ),
     )
