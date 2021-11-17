@@ -93,14 +93,16 @@ class Rule_L054(BaseRule):
         if self.group_by_and_order_by_style == "consistent":
             # If consistent naming then raise lint error if both
             # numeric literal and column reference segments are present.
-            if all(name in child_segment_names for name in disallowed_segment_names.values()):
+            if all(
+                name in child_segment_names
+                for name in disallowed_segment_names.values()
+            ):
                 return LintResult(anchor=context.segment)
         else:
             # If explicit or implicit naming then raise lint error
             # if the opposite reference type is detected.
             if any(
-                name
-                == disallowed_segment_names[self.group_by_and_order_by_style]
+                name == disallowed_segment_names[self.group_by_and_order_by_style]
                 for name in child_segment_names
             ):
                 # If a disallowed segment is detected raise a linting error.
