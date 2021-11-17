@@ -2269,6 +2269,20 @@ class DropSchemaStatementSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
+class DropTypeStatementSegment(BaseSegment):
+    """A `DROP TYPE` statement."""
+
+    type = "drop_type_statement"
+    match_grammar = Sequence(
+        "DROP",
+        "TYPE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf("RESTRICT", "CASCADE", optional=True),
+    )
+
+
+@ansi_dialect.segment()
 class CreateDatabaseStatementSegment(BaseSegment):
     """A `CREATE DATABASE` statement."""
 
@@ -2960,6 +2974,7 @@ class StatementSegment(BaseSegment):
         Ref("CreateSchemaStatementSegment"),
         Ref("SetSchemaStatementSegment"),
         Ref("DropSchemaStatementSegment"),
+        Ref("DropTypeStatementSegment"),
         Ref("CreateDatabaseStatementSegment"),
         Ref("CreateExtensionStatementSegment"),
         Ref("CreateIndexStatementSegment"),
