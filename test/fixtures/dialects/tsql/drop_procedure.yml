@@ -1,0 +1,41 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 31779e89b3dd34f88a659ea1163a064835ae37472db7d9da6d7601c6c1154be7
+file:
+  batch:
+  - statement:
+      drop_procedure_statement:
+      - keyword: DROP
+      - keyword: PROCEDURE
+      - object_reference:
+          identifier: procedure_name
+      - statement_terminator: ;
+  - statement:
+      drop_procedure_statement:
+      - keyword: DROP
+      - keyword: PROC
+      - object_reference:
+          identifier: procedure_name
+      - statement_terminator: ;
+  - statement:
+      drop_procedure_statement:
+      - keyword: DROP
+      - keyword: PROCEDURE
+      - keyword: IF
+      - keyword: EXISTS
+      - object_reference:
+          identifier: procedure_name
+      - statement_terminator: ;
+  - statement:
+      drop_procedure_statement:
+      - keyword: DROP
+      - keyword: PROCEDURE
+      - object_reference:
+          identifier: procedure_name1
+      - comma: ','
+      - object_reference:
+          identifier: procedure_name2
+      - statement_terminator: ;
