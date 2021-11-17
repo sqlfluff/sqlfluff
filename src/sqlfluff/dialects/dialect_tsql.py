@@ -247,6 +247,7 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref("ExecuteScriptSegment"),
             Ref("DropStatisticsStatementSegment"),
             Ref("UpdateStatisticsStatementSegment"),
+            Ref("DropFunctionStatementSegment"),
         ],
     )
 
@@ -871,6 +872,24 @@ class CreateFunctionStatementSegment(BaseSegment):
             optional=True,
         ),
         Ref("FunctionDefinitionGrammar"),
+    )
+
+
+@tsql_dialect.segment()
+class DropFunctionStatementSegment(BaseSegment):
+    """A `DROP FUNCTION` statement.
+
+    As per specification https://docs.microsoft.com/en-us/sql/t-sql/statements/drop-function-transact-sql?view=sql-server-ver15
+    """
+
+    type = "drop_function_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        "FUNCTION",
+        Ref("IfExistsGrammar", optional=True),
+        Delimited(Ref("FunctionNameSegment")),
+        Ref("DelimiterSegment", optional=True),
     )
 
 
