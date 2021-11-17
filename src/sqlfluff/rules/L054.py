@@ -80,32 +80,55 @@ class Rule_L054(BaseRule):
         self.group_by_and_order_by_style: str
 
         # We only care about GROUP BY/ORDER BY clauses.
-        if context.segment.name not in {"GroupByClauseSegment", "OrderByClauseSegment"}:
+        if not context.segment.is_type("groupby_clause", "orderby_clause"):
             return None
 
-        # Look at child segments to detect the presence of disallowed segments.
-        child_segment_names = [segment.name for segment in context.segment.segments]
-        disallowed_segment_names = {
-            "explicit": "numeric_literal",
-            "implicit": "ColumnReferenceSegment",
+        # Look at child segments and map column references to either the implict or explicit category.
+        # N.B. segment names are used as the numeric literal type is 'raw', so best to be specific with the name.
+        column_reference_category_map = {
+            "ColumnReferenceSegment": "explicit",
+            "ExpressionSegment": "explicit",
+            "numeric_literal": "implicit",
+        }
+        column_reference_category_set = {
+            column_reference_category_map[segment.name]
+            for segment in context.segment.segments
+            if segment.name in column_reference_category_map
         }
 
         if self.group_by_and_order_by_style == "consistent":
-            # If consistent naming then raise lint error if both
-            # numeric literal and column reference segments are present.
-            if all(
-                name in child_segment_names
-                for name in disallowed_segment_names.values()
-            ):
+            # If consistent naming then raise lint error if either:
+
+            if len(column_reference_category_set) > 1:
+                # 1. Both implicit and explicit column references are found in the same clause.
                 return LintResult(anchor=context.segment)
+            else:
+                # 2. A clause is found to contain column name references that
+                #    contradict the precedent set in earlier clauses.
+                current_group_by_order_by_convention = (
+                    column_reference_category_set.pop()
+                )
+                prior_group_by_order_by_convention = context.memory.get(
+                    "prior_group_by_order_by_convention"
+                )
+
+                if prior_group_by_order_by_convention and (
+                    prior_group_by_order_by_convention
+                    != current_group_by_order_by_convention
+                ):
+                    return LintResult(anchor=context.segment)
+
+                context.memory[
+                    "prior_group_by_order_by_convention"
+                ] = current_group_by_order_by_convention
         else:
             # If explicit or implicit naming then raise lint error
             # if the opposite reference type is detected.
             if any(
-                name == disallowed_segment_names[self.group_by_and_order_by_style]
-                for name in child_segment_names
+                category != self.group_by_and_order_by_style
+                for category in column_reference_category_set
             ):
-                # If a disallowed segment is detected raise a linting error.
                 return LintResult(anchor=context.segment)
 
-        return None
+        # Return memory for later clauses.
+        return LintResult(memory=context.memory)
