@@ -1,11 +1,12 @@
 """Implementation of Rule L043."""
-from typing import Optional
+from typing import List, Optional
 
 from sqlfluff.core.parser import (
     WhitespaceSegment,
     SymbolSegment,
     KeywordSegment,
 )
+from sqlfluff.core.parser.segments.base import BaseSegment
 
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
@@ -54,6 +55,74 @@ class Rule_L043(BaseRule):
         from fancy_table
 
     """
+
+    @staticmethod
+    def _coalesce_fix_list(
+        context: RuleContext,
+        coalesce_arg_1: BaseSegment,
+        coalesce_arg_2: BaseSegment,
+        coalesce_arg_1_idx: int,
+        preceding_not: bool = False,
+    ) -> List[LintFix]:
+        """Generate list of fixes to convert CASE statement to COALESCE function.
+
+        Returns:
+            :obj:`List[LintFix]`.
+        """
+        # Generate list of segments to delete.
+        # Everything but the column reference segment.
+        delete_segments = []
+        for s in context.segment.segments:
+            if s != coalesce_arg_1:
+                delete_segments.append(s)
+        # Add coalesce and opening parenthesis.
+        edits = []
+        if preceding_not:
+            edits.extend(
+                [
+                    KeywordSegment("not"),
+                    WhitespaceSegment(),
+                ]
+            )
+        edits.extend(
+            [
+                KeywordSegment("coalesce"),
+                SymbolSegment("(", name="start_bracket", type="start_bracket"),
+            ]
+        )
+        edit_coalesce_target = context.segment.segments[0]
+        fixes = []
+        fixes.append(
+            LintFix(
+                "edit",
+                edit_coalesce_target,
+                edits,
+            )
+        )
+        # Add comma, bool, closing parenthesis.
+        closing_parenthesis = [
+            SymbolSegment(",", name="comma", type="comma"),
+            WhitespaceSegment(),
+            coalesce_arg_2,
+            SymbolSegment(")", name="end_bracket", type="end_bracket"),
+        ]
+        fixes.append(
+            LintFix(
+                "edit",
+                context.segment.segments[coalesce_arg_1_idx + 1],
+                closing_parenthesis,
+            )
+        )
+        # Generate a "delete" action for each segment in
+        # delete_segments EXCEPT the one being edited to become a call
+        # to "coalesce(". Deleting and editing the same segment has
+        # unpredictable behavior.
+        fixes += [
+            LintFix("delete", s)
+            for s in delete_segments
+            if s is not edit_coalesce_target
+        ]
+        return fixes
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Unnecessary CASE statement. Use COALESCE function instead."""
@@ -112,60 +181,19 @@ class Rule_L043(BaseRule):
                 and (else_expression.raw_upper in upper_bools)
                 and (then_expression.raw_upper != else_expression.raw_upper)
             ):
-                # Generate list of segments to delete.
-                # Everything but the condition expression.
-                delete_segments = []
-                for s in context.segment.segments:
-                    if s != condition_expression:
-                        delete_segments.append(s)
-                # If the THEN expression is False, add Not and a space.
-                edits = []
-                if then_expression.raw_upper == "FALSE":
-                    edits.extend(
-                        [
-                            KeywordSegment("not"),
-                            WhitespaceSegment(),
-                        ]
-                    )
-                # Add coalesce and opening parenthesis.
-                edits.extend(
-                    [
-                        KeywordSegment("coalesce"),
-                        SymbolSegment("(", name="start_bracket", type="start_bracket"),
-                    ]
+                coalesce_arg_1 = condition_expression
+                coalesce_arg_2 = KeywordSegment("false")
+                coalesce_arg_1_idx = condition_expression_idx
+                preceding_not = True if then_expression.raw_upper == "FALSE" else False
+
+                fixes = self._coalesce_fix_list(
+                    context,
+                    coalesce_arg_1,
+                    coalesce_arg_2,
+                    coalesce_arg_1_idx,
+                    preceding_not,
                 )
-                edit_coalesce_target = context.segment.segments[0]
-                fixes = []
-                fixes.append(
-                    LintFix(
-                        "edit",
-                        edit_coalesce_target,
-                        edits,
-                    )
-                )
-                # Add comma, bool, closing parenthesis.
-                closing_parenthesis = [
-                    SymbolSegment(",", name="comma", type="comma"),
-                    WhitespaceSegment(),
-                    KeywordSegment("false"),
-                    SymbolSegment(")", name="end_bracket", type="end_bracket"),
-                ]
-                fixes.append(
-                    LintFix(
-                        "edit",
-                        context.segment.segments[condition_expression_idx + 1],
-                        closing_parenthesis,
-                    )
-                )
-                # Generate a "delete" action for each segment in
-                # delete_segments EXCEPT the one being edited to become a call
-                # to "coalesce(". Deleting and editing the same segment has
-                # unpredictable behavior.
-                fixes += [
-                    LintFix("delete", s)
-                    for s in delete_segments
-                    if s is not edit_coalesce_target
-                ]
+
                 return LintResult(
                     anchor=context.segment.segments[condition_expression_idx],
                     fixes=fixes,
@@ -206,64 +234,25 @@ class Rule_L043(BaseRule):
                     and column_reference_segment.raw_upper == else_expression.raw_upper
                 ):
                     coalesce_arg_1 = else_expression
-                    coalesce_arg_1_idx = else_expression_idx
                     coalesce_arg_2 = then_expression
+                    coalesce_arg_1_idx = else_expression_idx
                 elif (
                     is_not_prefix
                     and column_reference_segment.raw_upper == then_expression.raw_upper
                 ):
                     coalesce_arg_1 = then_expression
-                    coalesce_arg_1_idx = then_expression_idx
                     coalesce_arg_2 = else_expression
+                    coalesce_arg_1_idx = then_expression_idx
                 else:
                     return None
 
-                # Generate list of segments to delete.
-                # Everything but the column reference segment.
-                delete_segments = []
-                for s in context.segment.segments:
-                    if s != coalesce_arg_1:
-                        delete_segments.append(s)
-                # Add coalesce and opening parenthesis.
-                edits = []
-                edits.extend(
-                    [
-                        KeywordSegment("coalesce"),
-                        SymbolSegment("(", name="start_bracket", type="start_bracket"),
-                    ]
-                )
-                edit_coalesce_target = context.segment.segments[0]
-                fixes = []
-                fixes.append(
-                    LintFix(
-                        "edit",
-                        edit_coalesce_target,
-                        edits,
-                    )
-                )
-                # Add comma, bool, closing parenthesis.
-                closing_parenthesis = [
-                    SymbolSegment(",", name="comma", type="comma"),
-                    WhitespaceSegment(),
+                fixes = self._coalesce_fix_list(
+                    context,
+                    coalesce_arg_1,
                     coalesce_arg_2,
-                    SymbolSegment(")", name="end_bracket", type="end_bracket"),
-                ]
-                fixes.append(
-                    LintFix(
-                        "edit",
-                        context.segment.segments[coalesce_arg_1_idx + 1],
-                        closing_parenthesis,
-                    )
+                    coalesce_arg_1_idx,
                 )
-                # Generate a "delete" action for each segment in
-                # delete_segments EXCEPT the one being edited to become a call
-                # to "coalesce(". Deleting and editing the same segment has
-                # unpredictable behavior.
-                fixes += [
-                    LintFix("delete", s)
-                    for s in delete_segments
-                    if s is not edit_coalesce_target
-                ]
+
                 return LintResult(
                     anchor=context.segment.segments[condition_expression_idx],
                     fixes=fixes,
