@@ -2331,7 +2331,7 @@ class InsertStatementSegment(BaseSegment):
     )
 
 
-@postgres_dialect.segment()
+@postgres_dialect.segment(replace=True)
 class DropTypeStatementSegment(BaseSegment):
     """Drop Type Statement.
 
