@@ -25,8 +25,17 @@ test_multiple_select_targets_on_new_lines_and_new_line_after_select:
         c
     from x
 
-test_single_select_target_and_new_line_between_select_and_select_target:
+test_single_wildcard_select_target_and_new_line_before_select_target:
   pass_str: |
+    select
+        *
+    from x
+
+test_single_wildcard_select_target_and_new_line_before_select_target_plus_from_on_same_line:
+  fail_str: |
+    select
+        * from x
+  fix_str: |
     select
         *
     from x
@@ -36,6 +45,29 @@ test_multiple_select_targets_all_on_the_same_line:
     select a, b, c
     from x
   fix_str: "select\na,\nb,\nc\nfrom x\n"
+
+test_multiple_select_targets_all_on_the_same_line_plus_from_clause:
+  fail_str: |
+    select a, b, c from x
+  fix_str: "select\na,\nb,\nc\nfrom x\n"
+
+test_multiple_select_targets_including_wildcard_all_on_the_same_line_plus_from_clause:
+  fail_str: |
+    select *, b, c from x
+  fix_str: "select\n*,\nb,\nc\nfrom x\n"
+  
+test_multiple_select_target_plus_from_clause_on_the_same_line:
+  fail_str: |
+    select
+      a,
+      b,
+      c from x
+  fix_str: |
+    select
+      a,
+      b,
+      c
+    from x
 
 test_multiple_select_targets_trailing_whitespace_after_select:
   # TRICKY: Use explicit newlines to preserve the trailing space after "SELECT".

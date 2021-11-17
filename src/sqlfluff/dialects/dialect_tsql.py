@@ -246,6 +246,7 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref("RenameStatementSegment"),  # Azure Synapse Analytics specific
             Ref("ExecuteScriptSegment"),
             Ref("DropStatisticsStatementSegment"),
+            Ref("DropProcedureStatementSegment"),
             Ref("UpdateStatisticsStatementSegment"),
             Ref("DropFunctionStatementSegment"),
         ],
@@ -996,6 +997,24 @@ class CreateProcedureStatementSegment(BaseSegment):
 
 
 @tsql_dialect.segment()
+class DropProcedureStatementSegment(BaseSegment):
+    """A `DROP PROCEDURE` statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/drop-procedure-transact-sql?view=sql-server-ver15
+    """
+
+    type = "drop_procedure_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        OneOf("PROCEDURE", "PROC"),
+        Ref("IfExistsGrammar", optional=True),
+        Delimited(Ref("ObjectReferenceSegment")),
+        Ref("DelimiterSegment", optional=True),
+    )
+
+
+@tsql_dialect.segment()
 class ProcedureDefinitionGrammar(BaseSegment):
     """This is the body of a `CREATE OR ALTER PROCEDURE AS` statement."""
 
@@ -1184,7 +1203,9 @@ class PartitionByClause(BaseSegment):
     match_grammar = Sequence(
         "PARTITION",
         "BY",
-        Ref("ColumnReferenceSegment"),
+        Delimited(
+            Ref("ColumnReferenceSegment"),
+        ),
     )
 
 

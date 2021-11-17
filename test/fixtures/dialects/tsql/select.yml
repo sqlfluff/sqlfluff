@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8a044d4b6fa44d1be2ffa498135e8405fa5742a7c4745b8fc57dba6bc1d03ce2
+_hash: 8e3c1290dece31e9c4c8eef3aac5358d3d24375f98e14fb431cb8656b9f76044
 file:
   batch:
     statement:
@@ -151,6 +151,9 @@ file:
                 - keyword: BY
                 - column_reference:
                     identifier: '[EventNM]'
+                - comma: ','
+                - column_reference:
+                    identifier: '[PersonID]'
                 orderby_clause:
                 - keyword: ORDER
                 - keyword: BY
