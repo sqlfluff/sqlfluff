@@ -32,7 +32,7 @@ class Rule_L054(BaseRule):
             1, bar;
 
     | **Best practice**
-    | Reference all GROUP BY/ORDER BY columns either by name (default) or by position.
+    | Reference all GROUP BY/ORDER BY columns either by name or by position.
 
     .. code-block:: sql
        :force:
@@ -84,16 +84,26 @@ class Rule_L054(BaseRule):
             return None
 
         # Look at child segments to detect the presence of disallowed segments.
+        child_segment_names = [segment.name for segment in context.segment.segments]
         disallowed_segment_names = {
             "explicit": "numeric_literal",
             "implicit": "ColumnReferenceSegment",
         }
 
-        if any(
-            segment.name == disallowed_segment_names[self.group_by_and_order_by_style]
-            for segment in context.segment.segments
-        ):
-            # If a disallowed segment is detected raise a linting error.
-            return LintResult(anchor=context.segment)
+        if self.group_by_and_order_by_style == "consistent":
+            # If consistent naming then raise lint error if both
+            # numeric literal and column reference segments are present.
+            if all(name in child_segment_names for name in disallowed_segment_names.values()):
+                return LintResult(anchor=context.segment)
+        else:
+            # If explicit or implicit naming then raise lint error
+            # if the opposite reference type is detected.
+            if any(
+                name
+                == disallowed_segment_names[self.group_by_and_order_by_style]
+                for name in child_segment_names
+            ):
+                # If a disallowed segment is detected raise a linting error.
+                return LintResult(anchor=context.segment)
 
         return None

@@ -104,7 +104,7 @@ STANDARD_CONFIG_INFO_DICT = {
         ),
     },
     "group_by_and_order_by_style": {
-        "validation": ["implicit", "explicit"],
+        "validation": ["consistent", "implicit", "explicit"],
         "definition": (
             "Should GROUP BY/ORDER BY require explict column references "
             "or are implicit positional column references required?"
