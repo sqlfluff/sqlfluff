@@ -248,6 +248,34 @@ test_fail_across_line_mix_group_by_and_order_by_custom_explicit:
       L054:
         group_by_and_order_by_style: explicit
 
+test_pass_explicit_expression_order_by_custom_explicit:
+  pass_str: |
+    SELECT
+        foo,
+        bar,
+        sum(baz) AS sum_value
+    FROM fake_table
+    ORDER BY
+        foo, power(bar, 2) 
+  configs:
+    rules:
+      L054:
+        group_by_and_order_by_style: explicit
+
+test_fail_implicit_expression_order_by_custom_explicit:
+  fail_str: |
+    SELECT
+        foo,
+        bar,
+        sum(baz) AS sum_value
+    FROM fake_table
+    ORDER BY
+        1, power(bar, 2)
+  configs:
+    rules:
+      L054:
+        group_by_and_order_by_style: explicit
+
 test_pass_explicit_group_by_custom_implicit:
   pass_str: |
     SELECT
@@ -375,6 +403,34 @@ test_fail_across_line_mix_group_by_and_order_by_custom_implicit:
         1, 2
     ORDER BY
         foo, bar;
+  configs:
+    rules:
+      L054:
+        group_by_and_order_by_style: implicit
+
+test_fail_explicit_expression_order_by_custom_implicit:
+  fail_str: |
+    SELECT
+        foo,
+        bar,
+        sum(baz) AS sum_value
+    FROM fake_table
+    ORDER BY
+        foo, power(bar, 2) 
+  configs:
+    rules:
+      L054:
+        group_by_and_order_by_style: implicit
+
+test_fail_implicit_expression_order_by_custom_implicit:
+  fail_str: |
+    SELECT
+        foo,
+        bar,
+        sum(baz) AS sum_value
+    FROM fake_table
+    ORDER BY
+        1, power(bar, 2)
   configs:
     rules:
       L054:
