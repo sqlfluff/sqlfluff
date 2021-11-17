@@ -181,12 +181,22 @@ New versions of SQLFluff will be published to PyPI automatically via
 [GitHub Actions](.github/workflows/publish-release-to-pypi.yaml)
 whenever a new release is published to GitHub.
 
-A new release can be published with a tag in GitHub by navigating to the
-[releases page](https://github.com/sqlfluff/sqlfluff/releases) and a Draft release should
-already exist with merged Pull Requests automatically added since the last release.
-Copy the text from the draft release into a new, version-numbered section of the [CHANGELOG.md](CHANGELOG.md) file and update the
-[src/sqlfluff/config.ini](src/sqlfluff/config.ini) file to the new version.
-Once both changes are done, open a new Pull Request for these changes.
+#### Release checklist:
+
+- [ ] Change the version in `src/sqlfluff/config.ini` and `plugins/sqlfluff-templator-dbt/setup.py`
+- [ ] Copy the draft releases from https://github.com/sqlfluff/sqlfluff/releases to [CHANGELOG.md](CHANGELOG.md)
+- [ ] Add markdown links to PRs and contributors
+- [ ] Check each issue title is clear, and if not edit issue title (which will automatically update Release notes on next PR merged, as the Draft one is recreated in full each time). Also edit locally in [CHANGELOG.md](CHANGELOG.md)
+- [ ] Categorise them into "Enhancements" and "Bug Fixes"
+- [ ] Add a comment at the top to highlight the main things in this release
+- [ ] Open draft PR with those change a few days in advance to give contributors notice. Tag those with open PRs in the PR to give them time to merge their work before the new release
+- [ ] Comment in #contributing slack channel about release candidate
+- [ ] Update the draft PR as more changes get merged
+- [ ] Get another contributor to approve the PR
+- [ ] Merge the PR when looks like we've got all we’re gonna get for this release
+- [ ] Go to the [releases page](https://github.com/sqlfluff/sqlfluff/releases), edit the release to be same as [CHANGELOG.md](CHANGELOG.md) (remember to remove your release PR which doesn’t need to go in this). Add version tag and a title and click “Publish release”
+- [ ] Announce the release in the #general channel, with shout outs to those who contributed many, or big items
+- [ ] Announce the release on Twitter (@tunetheweb can do this or let him know your Twitter handle if you want access to Tweet on SQLFluff’s behalf).
 
 :warning: **Before creating a new release, ensure that
 [src/sqlfluff/config.ini](src/sqlfluff/config.ini) is up-to-date with a new version** :warning:.
