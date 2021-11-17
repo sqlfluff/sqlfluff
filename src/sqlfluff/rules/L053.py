@@ -58,7 +58,7 @@ class Rule_L053(BaseRule):
             return None
 
         # Replace the bracketed segment with it's
-        # children, exluding the bracket symbols.
+        # children, excluding the bracket symbols.
         bracket_set = {"start_bracket", "end_bracket"}
         fixes = [
             LintFix(
