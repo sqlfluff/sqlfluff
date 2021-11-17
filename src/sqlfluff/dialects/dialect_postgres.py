@@ -2140,7 +2140,6 @@ class StatementSegment(BaseSegment):
             Ref("AnalyzeStatementSegment"),
             Ref("CreateTableAsStatementSegment"),
             Ref("AlterTriggerStatementSegment"),
-            Ref("DropTypeStatementSegment"),
             Ref("SetStatementSegment"),
         ],
     )
