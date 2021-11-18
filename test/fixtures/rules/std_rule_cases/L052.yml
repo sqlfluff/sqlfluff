@@ -12,7 +12,8 @@ test_fail_semi_colon_same_line_custom_newline:
     ;
   configs:
     rules:
-      semi_colon_new_line: True
+      L052:
+        semicolon_newline: True
 
 test_pass_no_semi_colon_default:
   pass_str: |
@@ -25,7 +26,8 @@ test_fail_no_semi_colon_custom_require:
     SELECT a FROM foo;
   configs:
     rules:
-      require_final_semi_colon: True
+      L052:
+        require_final_semicolon: True
 
 test_fail_no_semi_colon_custom_require_newline:
   fail_str: |
@@ -35,8 +37,9 @@ test_fail_no_semi_colon_custom_require_newline:
     ;
   configs:
     rules:
-      require_final_semi_colon: True
-      semi_colon_new_line: True
+      L052:
+        require_final_semicolon: True
+        semicolon_newline: True
 
 test_pass_multi_statement_semi_colon_default:
   pass_str: |
@@ -54,7 +57,8 @@ test_fail_multi_statement_semi_colon_custom_newline:
     ;
   configs:
     rules:
-      semi_colon_new_line: True
+      L052:
+        semicolon_newline: True
 
 test_pass_multi_statement_no_trailing_semi_colon_default:
   pass_str: |
@@ -70,7 +74,8 @@ test_pass_multi_statement_no_trailing_semi_colon_custom_require:
     SELECT b FROM bar;
   configs:
     rules:
-      require_final_semi_colon: True
+      L052:
+        require_final_semicolon: True
 
 test_fail_multi_statement_no_trailing_semi_colon_custom_require_newline:
   fail_str: |
@@ -82,7 +87,8 @@ test_fail_multi_statement_no_trailing_semi_colon_custom_require_newline:
     SELECT b FROM bar
   configs:
     rules:
-      semi_colon_new_line: True
+      L052:
+        semicolon_newline: True
 
 test_fail_space_semi_colon_default:
   fail_str: |
@@ -103,7 +109,8 @@ test_pass_newline_semi_colon_custom_newline:
     ;
   configs:
     rules:
-      semi_colon_new_line: True
+      L052:
+        semicolon_newline: True
 
 test_fail_multi_statement_semi_colon_default:
   fail_str: |
@@ -127,5 +134,6 @@ test_fail_multiple_newlines_semi_colon_custom_require_newline:
     ;
   configs:
     rules:
-      require_final_semi_colon: True
-      semi_colon_new_line: True
+      L052:
+        require_final_semicolon: True
+        semicolon_newline: True

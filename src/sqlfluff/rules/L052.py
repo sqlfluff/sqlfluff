@@ -44,13 +44,13 @@ class Rule_L052(BaseRule):
         FROM foo;
     """
 
-    config_keywords = ["semi_colon_new_line", "require_final_semi_colon"]
+    config_keywords = ["semicolon_newline", "require_final_semicolon"]
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Statements must end with a semi-colon."""
         # Config type hints
-        self.semi_colon_new_line: bool
-        self.require_final_semi_colon: bool
+        self.semicolon_newline: bool
+        self.require_final_semicolon: bool
 
         # First we can simply handle the case of existing semi-colon alignment.
         whitespace_set = {"newline", "whitespace"}
@@ -68,7 +68,7 @@ class Rule_L052(BaseRule):
 
             fixes: List[LintFix] = []
             # Semi-colon on same line.
-            if not self.semi_colon_new_line:
+            if not self.semicolon_newline:
                 # If whitespace is found then delete.
                 if whitespace_deletions:
                     fixes.extend(LintFix("delete", d) for d in whitespace_deletions)
@@ -103,7 +103,7 @@ class Rule_L052(BaseRule):
         # SQL does not require a final trailing semi-colon, however
         # this rule looks to enforce that it is there.
         # Therefore we first locate the end of the file.
-        if self.require_final_semi_colon:
+        if self.require_final_semicolon:
             if len(self.filter_meta(context.siblings_post)) > 0:
                 # This can only fail on the last segment
                 return None
@@ -141,7 +141,7 @@ class Rule_L052(BaseRule):
 
             if not semi_colon_exist_flag:
                 # Create the final semi-colon if it does not yet exist.
-                if not self.semi_colon_new_line:
+                if not self.semicolon_newline:
                     fixes = [
                         LintFix(
                             "edit",

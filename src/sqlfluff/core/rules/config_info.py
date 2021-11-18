@@ -103,13 +103,13 @@ STANDARD_CONFIG_INFO_DICT = {
             "Should alias have an explict AS or is implicit aliasing required?"
         ),
     },
-    "semi_colon_new_line": {
+    "semicolon_newline": {
         "validation": [True, False],
         "definition": (
             "Should semi-colons be placed on a new line after the statement end?"
         ),
     },
-    "require_final_semi_colon": {
+    "require_final_semicolon": {
         "validation": [True, False],
         "definition": (
             "Should final semi-colons be required? "
