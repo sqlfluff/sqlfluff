@@ -10,6 +10,7 @@ class Rule_L056(BaseRule):
     | **Anti-pattern**
     | The 'SP_' prefix is used to identify system procedures and
     | can adversely affect performance of the user-defined stored procedure.
+    | It can also break system procedures if there is a naming conflict.
 
     .. code-block:: sql
        :force:
@@ -17,9 +18,9 @@ class Rule_L056(BaseRule):
         CREATE PROCEDURE dbo.sp_pull_data
         AS
         SELECT
-            [ID],
-            [DataDate],
-            [CaseOutput]
+            ID,
+            DataDate,
+            CaseOutput
         FROM table1
 
     | **Best practice**
@@ -31,24 +32,24 @@ class Rule_L056(BaseRule):
         CREATE PROCEDURE dbo.pull_data
         AS
         SELECT
-            [ID],
-            [DataDate],
-            [CaseOutput]
+            ID,
+            DataDate,
+            CaseOutput
         FROM table1
 
-        -- Alternatively prefix with 'USP_' to indicate a user-defined procedure.
+        -- Alternatively prefix with 'USP_' to indicate a user-defined stored procedure.
 
         CREATE PROCEDURE dbo.usp_pull_data
         AS
         SELECT
-            [ID],
-            [DataDate],
-            [CaseOutput]
+            ID,
+            DataDate,
+            CaseOutput
         FROM table1
     """
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
-        """'SP_' prefix should not be used for user defined stored procedures."""
+        """'SP_' prefix should not be used for user-defined stored procedures."""
         # Rule only applies to T-SQL syntax.
         if context.dialect.name not in ["tsql"]:
             return None
@@ -65,8 +66,9 @@ class Rule_L056(BaseRule):
         # We only want to check the stored procedure name.
         procedure_segment = [s for s in object_reference_segment.segments][-1]
 
-        # If stored procedure starts with 'SP_' then raise lint error.
-        if procedure_segment.raw_upper.startswith("SP_"):
+        # If stored procedure name starts with 'SP_' then raise lint error.
+        if procedure_segment.raw_upper.lstrip('["').startswith("SP_"):
+            "s".lstrip
             return LintResult(procedure_segment)
 
         return None
