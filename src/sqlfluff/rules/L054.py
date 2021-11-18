@@ -101,7 +101,10 @@ class Rule_L054(BaseRule):
 
             if len(column_reference_category_set) > 1:
                 # 1. Both implicit and explicit column references are found in the same clause.
-                return LintResult(anchor=context.segment)
+                return LintResult(
+                    anchor=context.segment,
+                    memory=context.memory,
+                )
             else:
                 # 2. A clause is found to contain column name references that
                 #    contradict the precedent set in earlier clauses.
@@ -116,7 +119,10 @@ class Rule_L054(BaseRule):
                     prior_group_by_order_by_convention
                     != current_group_by_order_by_convention
                 ):
-                    return LintResult(anchor=context.segment)
+                    return LintResult(
+                        anchor=context.segment,
+                        memory=context.memory,
+                    )
 
                 context.memory[
                     "prior_group_by_order_by_convention"
@@ -128,7 +134,10 @@ class Rule_L054(BaseRule):
                 category != self.group_by_and_order_by_style
                 for category in column_reference_category_set
             ):
-                return LintResult(anchor=context.segment)
+                return LintResult(
+                    anchor=context.segment,
+                    memory=context.memory,
+                )
 
         # Return memory for later clauses.
         return LintResult(memory=context.memory)
