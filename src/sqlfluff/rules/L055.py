@@ -2,10 +2,8 @@
 from typing import Optional
 
 from sqlfluff.core.rules.base import BaseRule, LintResult, RuleContext
-from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
 
-@document_fix_compatible
 class Rule_L055(BaseRule):
     """Use LEFT JOIN instead of RIGHT JOIN.
 
