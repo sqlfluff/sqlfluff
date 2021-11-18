@@ -184,7 +184,7 @@ class Rule_L043(BaseRule):
                 coalesce_arg_1 = condition_expression
                 coalesce_arg_2 = KeywordSegment("false")
                 coalesce_arg_1_idx = condition_expression_idx
-                preceding_not = (then_expression.raw_upper == "FALSE")
+                preceding_not = then_expression.raw_upper == "FALSE"
 
                 fixes = self._coalesce_fix_list(
                     context,
@@ -206,14 +206,7 @@ class Rule_L043(BaseRule):
                 segment.raw_upper for segment in condition_expression.segments
             }
             if {"IS", "NULL"}.issubset(condition_expression_segments_raw) and (
-                len(
-                    [
-                        segment
-                        for segment in condition_expression.segments
-                        if segment.type == "column_reference"
-                    ]
-                )
-                == 1
+                not condition_expression_segments_raw.intersection({"AND", "OR"})
             ):
                 # Check if the comparison is to NULL or NOT NULL.
                 if "NOT" in condition_expression_segments_raw:
