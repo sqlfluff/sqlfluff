@@ -121,6 +121,8 @@ setup(
         "tblib",
         # For handling progress bars
         "tqdm",
+        # To get the encoding of files.
+        "chardet",
     ],
     entry_points={
         "console_scripts": [
