@@ -208,9 +208,15 @@ jobs:
     - name: Run the version test
       run: |
         sqlfluff --version
-    - name: Run a simple select parse test
+    - name: Run a simple select parse test via stdin
       run: |
         echo "select 1" | sqlfluff parse -
-    - name: Run a simple select lint test
+    - name: Run a simple select lint test via stdin
       run: |
         echo "select 1" | sqlfluff lint -
+    - name: Run a simple select parse test via file
+      run: |
+        sqlfluff parse <(echo "select 1")
+    - name: Run a simple select lint test via file
+      run: |
+        sqlfluff lint <(echo "select 1")
