@@ -1,0 +1,151 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 083b7cabc2d0da7873019cf780c8a8e0046fd187223d5da951159dbaf4d03ca4
+file:
+- base:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: employee
+            alias_expression:
+              identifier: SEMI
+          join_clause:
+            keyword: JOIN
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: department
+            join_on_condition:
+              keyword: 'ON'
+              expression:
+              - column_reference:
+                - identifier: employee
+                - dot: .
+                - identifier: deptno
+              - comparison_operator: '='
+              - column_reference:
+                - identifier: department
+                - dot: .
+                - identifier: deptno
+- statement_terminator: ;
+- base:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: employee
+            alias_expression:
+              identifier: ANTI
+          join_clause:
+            keyword: JOIN
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: department
+            join_on_condition:
+              keyword: 'ON'
+              expression:
+              - column_reference:
+                - identifier: employee
+                - dot: .
+                - identifier: deptno
+              - comparison_operator: '='
+              - column_reference:
+                - identifier: department
+                - dot: .
+                - identifier: deptno
+- statement_terminator: ;
+- base:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: employee
+          join_clause:
+          - keyword: LEFT
+          - keyword: SEMI
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: department
+          - join_on_condition:
+              keyword: 'ON'
+              expression:
+              - column_reference:
+                - identifier: employee
+                - dot: .
+                - identifier: deptno
+              - comparison_operator: '='
+              - column_reference:
+                - identifier: department
+                - dot: .
+                - identifier: deptno
+- statement_terminator: ;
+- base:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: employee
+          join_clause:
+          - keyword: LEFT
+          - keyword: ANTI
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: department
+          - join_on_condition:
+              keyword: 'ON'
+              expression:
+              - column_reference:
+                - identifier: employee
+                - dot: .
+                - identifier: deptno
+              - comparison_operator: '='
+              - column_reference:
+                - identifier: department
+                - dot: .
+                - identifier: deptno
+- statement_terminator: ;
