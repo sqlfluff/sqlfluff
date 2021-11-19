@@ -70,6 +70,9 @@ class Rule_L056(BaseRule):
         # If stored procedure name starts with 'SP\_' then raise lint error.
         if procedure_segment.raw_upper.lstrip('["').startswith("SP_"):
             "s".lstrip
-            return LintResult(procedure_segment)
+            return LintResult(
+                procedure_segment,
+                description="'SP_' prefix should not be used for user-defined stored procedures."
+            )
 
         return None
