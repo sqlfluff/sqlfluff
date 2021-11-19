@@ -101,8 +101,10 @@ class Rule_L050(BaseRule):
             # Non-whitespace segment.
             (context.segment.name not in whitespace_set)
             # We want first Non-whitespace segment so
-            # all preceding segments must be whitespace.
+            # all preceding segments must be whitespace
+            # and at least one is not meta.
             and all(segment.name in whitespace_set for segment in context.raw_stack)
+            and not all(segment.is_meta for segment in context.raw_stack)
             # Found leaf of parse tree.
             and (not context.segment.is_expandable)
         ):
