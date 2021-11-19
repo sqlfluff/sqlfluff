@@ -698,10 +698,11 @@ class StatementSegment(BaseSegment):
         ],
     )
 
+
 @spark3_dialect.segment(replace=True)
 class JoinClauseSegment(BaseSegment):
     """Any number of join clauses, including the `JOIN` keyword.
-    
+
     https://spark.apache.org/docs/3.0.0/sql-ref-syntax-qry-select-join.html
     TODO: Add NATURAL JOIN syntax.
     """
