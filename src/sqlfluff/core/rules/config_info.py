@@ -117,6 +117,13 @@ STANDARD_CONFIG_INFO_DICT = {
             "as it can cause issues when wrapping the query within other SQL queries)"
         ),
     },
+    "group_by_and_order_by_style": {
+        "validation": ["consistent", "implicit", "explicit"],
+        "definition": (
+            "The expectation for using explicit column name references "
+            "or implicit positional references"
+        ),
+    },
 }
 
 
