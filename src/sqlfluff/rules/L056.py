@@ -52,7 +52,7 @@ class Rule_L056(BaseRule):
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         r"""'SP\_' prefix should not be used for user-defined stored procedures."""
         # Rule only applies to T-SQL syntax.
-        if context.dialect.name not in ["tsql"]:
+        if context.dialect.name != "tsql":
             return None
 
         # We are only interested in CREATE PROCEDURE statements.
@@ -65,7 +65,7 @@ class Rule_L056(BaseRule):
         )
 
         # We only want to check the stored procedure name.
-        procedure_segment = [s for s in object_reference_segment.segments][-1]
+        procedure_segment = object_reference_segment.segments[-1]
 
         # If stored procedure name starts with 'SP\_' then raise lint error.
         if procedure_segment.raw_upper.lstrip('["').startswith("SP_"):
