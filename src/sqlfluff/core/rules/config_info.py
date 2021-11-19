@@ -103,6 +103,20 @@ STANDARD_CONFIG_INFO_DICT = {
             "Should alias have an explict AS or is implicit aliasing required?"
         ),
     },
+    "semicolon_newline": {
+        "validation": [True, False],
+        "definition": (
+            "Should semi-colons be placed on a new line after the statement end?"
+        ),
+    },
+    "require_final_semicolon": {
+        "validation": [True, False],
+        "definition": (
+            "Should final semi-colons be required? "
+            "(N.B. forcing trailing semi-colons is not recommended for dbt users "
+            "as it can cause issues when wrapping the query within other SQL queries)"
+        ),
+    },
 }
 
 
