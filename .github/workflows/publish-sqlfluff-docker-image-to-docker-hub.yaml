@@ -1,9 +1,12 @@
 name: Publish SQLFluff Docker Hub Version
 
 on:
-  release:
-    types:
-      - published
+  # release:
+  #   types:
+  #     - published
+  pull_request:
+    branches:
+      - main
 
 jobs:
   docker:
