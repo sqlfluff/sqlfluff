@@ -11,7 +11,6 @@ Based on:
 - https://github.com/apache/spark/blob/master/sql/catalyst/src/main/antlr4/org/apache/spark/sql/catalyst/parser/SqlBase.g4
 """
 
-from sqlfluff.core.dialects.common import AliasInfo
 from sqlfluff.core.parser import (
     AnyNumberOf,
     BaseSegment,
@@ -769,7 +768,6 @@ class JoinClauseSegment(BaseSegment):
         Dedent,
     )
 
-    def get_eventual_alias(self) -> AliasInfo:
-        """Return the eventual table name referred to by this join clause."""
-        from_expression_element = self.get_child("from_expression_element")
-        return from_expression_element.get_eventual_alias()
+    get_eventual_alias = ansi_dialect.get_segment(
+        "JoinClauseSegment"
+    ).get_eventual_alias
