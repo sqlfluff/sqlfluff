@@ -1,9 +1,12 @@
 name: Publish SQFluff PyPI Version
 
 on:
-  release:
-    types:
-      - published
+  # release:
+  #   types:
+  #     - published
+  pull_request:
+    branches:
+      - main
 
 jobs:
   run:
