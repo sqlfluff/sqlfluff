@@ -72,7 +72,7 @@ class Rule_L056(BaseRule):
             "s".lstrip
             return LintResult(
                 procedure_segment,
-                description="'SP_' prefix should not be used for user-defined stored procedures."
+                description="'SP_' prefix should not be used for user-defined stored procedures.",
             )
 
         return None
