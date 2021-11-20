@@ -418,9 +418,128 @@ class CreateIndexStatementSegment(BaseSegment):
             ),
             optional=True,
         ),
+        Ref("WhereClauseSegment", optional=True),
+        Ref("RelationalIndexOptionsSegment", optional=True),
+        OneOf(
+            Ref("PartitionSchemeClause"),
+            Ref("FilegroupClause"),
+            optional=True,
+        ),
+        Sequence(
+             "FILESTREAM_ON",
+             OneOf(
+                 Ref("FilegroupNameSegment"),
+                 Ref("PartitionSchemeNameSegment"),
+                 "NULL"
+             ),
+             optional=True,
+        ),
         Ref("DelimiterSegment", optional=True),
     )
 
+
+@tsql_dialect.segment()
+class RelationalIndexOptionsSegment(BaseSegment):
+    """A relational index options in `CREATE INDEX` statement.
+
+        https://docs.microsoft.com/en-us/sql/t-sql/statements/create-index-transact-sql?view=sql-server-ver15
+    """
+
+    type = "relational_index_options"
+    match_grammar = Sequence(
+        "WITH",
+        OptionallyBracketed(
+            Delimited(
+                AnyNumberOf(
+                    Sequence(
+                        OneOf(
+                            "PAD_INDEX",
+                            "FILLFACTOR",
+                            "SORT_IN_TEMPDB",
+                            "IGNORE_DUP_KEY",
+                            "STATISTICS_NORECOMPUTE",
+                            "STATISTICS_INCREMENTAL",
+                            "DROP_EXISTING",
+                            "RESUMABLE",
+                            "ALLOW_ROW_LOCKS",
+                            "ALLOW_PAGE_LOCKS",
+                            "OPTIMIZE_FOR_SEQUENTIAL_KEY",
+                            "MAXDOP"
+                        ),
+                        Ref("EqualsSegment"),
+                        OneOf(
+                            "ON",
+                            "OFF",
+                            Ref("LiteralGrammar")
+                        )
+                    ),
+                    Ref("MaxDurationSegment"),
+                    Sequence(
+                        "ONLINE",
+                        Ref("EqualsSegment"),
+                        OneOf(
+                            "OFF",
+                            Sequence(
+                                "ON",
+                                Bracketed(
+                                    Sequence(
+                                        "WAIT_AT_LOW_PRIORITY",
+                                        Bracketed(
+                                            Delimited(
+                                                Ref("MaxDurationSegment"),
+                                                Sequence(
+                                                    "ABORT_AFTER_WAIT",
+                                                    Ref("EqualsSegment"),
+                                                    OneOf(
+                                                        "NONE",
+                                                        "SELF",
+                                                        "BLOCKERS"
+                                                    )
+                                                ),
+                                                delimiter=Ref("CommaSegment"),
+                                            )
+
+                                        )
+                                    ),
+                                    optional=True,
+                                )
+                            )
+                        )
+                    ),
+                    Sequence(
+                        "DATA_COMPRESSION",
+                        Ref("EqualsSegment"),
+                        OneOf(
+                            "NONE",
+                            "ROW",
+                            "PAGE"
+                        ),
+                        Ref("OnPartitionsSegment", optional=True)
+                    ),
+                    min_times=1
+                ),
+                delimiter=Ref("CommaSegment"),
+            )
+        )
+    )
+
+@tsql_dialect.segment()
+class MaxDurationSegment(BaseSegment):
+    """A `MAX DURATION` clause.
+
+        https://docs.microsoft.com/en-us/sql/t-sql/statements/create-index-transact-sql?view=sql-server-ver15
+    """
+
+    type = "max_duration"
+    match_grammar = Sequence(
+        "MAX_DURATION",
+        Ref("EqualsSegment"),
+        Ref("NumericLiteralSegment"),
+        Sequence(
+            "MINUTES",
+            optional=True,
+        )
+    )
 
 @tsql_dialect.segment(replace=True)
 class DropIndexStatementSegment(BaseSegment):
@@ -1208,6 +1327,55 @@ class PartitionByClause(BaseSegment):
         ),
     )
 
+@tsql_dialect.segment()
+class OnPartitionsSegment(BaseSegment):
+    """ON PARTITIONS clause.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-index-transact-sql?view=sql-server-ver15
+    """
+
+    type = "on_partitions_clause"
+    match_grammar = Sequence(
+        "ON",
+        "PARTITIONS",
+        Bracketed(
+            Delimited(
+                OneOf(
+                    Ref("NumericLiteralSegment"),
+                    Sequence(
+                        Ref("NumericLiteralSegment"),
+                        "TO",
+                        Ref("NumericLiteralSegment")
+                    )
+                )
+            )
+        )
+    )
+
+
+@tsql_dialect.segment()
+class PartitionSchemeNameSegment(BaseSegment):
+    """Partition Scheme Name"""
+
+    type = "partition_scheme_name"
+    match_grammar = Ref("SingleIdentifierGrammar")
+
+
+@tsql_dialect.segment()
+class PartitionSchemeClause(BaseSegment):
+    """Partition Scheme Clause segment.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-index-transact-sql?view=sql-server-ver15"""
+
+    type = "partition_scheme_clause"
+    match_grammar = Sequence(
+        "ON",
+        Ref("PartitionSchemeNameSegment"),
+        Bracketed(
+            Ref("IndexColumnDefinitionSegment")
+        )
+    )
+
 
 @tsql_dialect.segment(replace=True)
 class FunctionSegment(BaseSegment):
@@ -1351,6 +1519,13 @@ class CreateTableStatementSegment(BaseSegment):
 
 
 @tsql_dialect.segment()
+class FilegroupNameSegment(BaseSegment):
+    """Filegroup Name"""
+
+    type = "filegroup_name"
+    match_grammar = Ref("SingleIdentifierGrammar")
+
+@tsql_dialect.segment()
 class FilegroupClause(BaseSegment):
     """Filegroup Clause segment.
 
@@ -1360,7 +1535,7 @@ class FilegroupClause(BaseSegment):
     type = "filegroup_clause"
     match_grammar = Sequence(
         "ON",
-        Ref("SingleIdentifierGrammar"),
+        Ref("FilegroupNameSegment"),
     )
 
 
