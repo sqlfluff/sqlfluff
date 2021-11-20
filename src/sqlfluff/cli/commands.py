@@ -305,7 +305,7 @@ def get_linter_and_formatter(
         return Linter(config=cfg), formatter
 
 
-@click.group()
+@click.group(context_settings={"help_option_names": ["-h", "--help"]})
 @click.version_option()
 def cli():
     """Sqlfluff is a modular sql linter for humans."""
