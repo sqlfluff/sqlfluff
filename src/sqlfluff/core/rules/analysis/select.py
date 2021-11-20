@@ -77,7 +77,7 @@ def get_select_statement_info(
                         if subseg.is_type("identifier"):
                             using_cols.append(subseg.raw)
                     seen_using = False
-    
+
     # PURGE any references which are in nested select statements
     for ref in reference_buffer.copy():
         ref_path = segment.path_to(ref)
