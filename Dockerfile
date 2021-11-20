@@ -15,7 +15,7 @@ RUN python -m venv .venv \
     && pip install --upgrade pip setuptools wheel \
     && pip install .
 
-# Create unpriveleged user.
+# Create unprivileged user.
 USER 5000
 
 # Set SQLFluff command as the the entry point for image.
