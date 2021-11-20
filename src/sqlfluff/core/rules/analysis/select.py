@@ -42,14 +42,6 @@ def get_select_statement_info(
         clause = segment.get_child(potential_clause)
         if clause:
             reference_buffer += list(clause.recursive_crawl("object_reference"))
-    # PURGE any references which are in nested select statements
-    for ref in reference_buffer.copy():
-        ref_path = segment.path_to(ref)
-        # is it in a subselect? i.e. a select which isn't this one.
-        if any(
-            seg.is_type("select_statement") and seg is not segment for seg in ref_path
-        ):
-            reference_buffer.remove(ref)
 
     # Get all select targets.
     select_targets = segment.get_child("select_clause").get_children(
@@ -85,6 +77,15 @@ def get_select_statement_info(
                         if subseg.is_type("identifier"):
                             using_cols.append(subseg.raw)
                     seen_using = False
+    
+    # PURGE any references which are in nested select statements
+    for ref in reference_buffer.copy():
+        ref_path = segment.path_to(ref)
+        # is it in a subselect? i.e. a select which isn't this one.
+        if any(
+            seg.is_type("select_statement") and seg is not segment for seg in ref_path
+        ):
+            reference_buffer.remove(ref)
 
     return SelectStatementColumnsAndTables(
         select_statement=segment,

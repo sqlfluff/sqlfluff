@@ -5,6 +5,15 @@ test_fail_table_alias_not_referenced_1:
   fail_str: SELECT * FROM my_tbl AS foo
   fix_str: SELECT * FROM my_tbl
 
+test_fail_table_alias_not_referenced_1_subquery:
+  # Aliases not referenced.
+  fail_str: SELECT * FROM (SELECT * FROM my_tbl AS foo)
+  fix_str: SELECT * FROM (SELECT * FROM my_tbl)
+
+test_pass_table_alias_referenced_subquery:
+  # Aliases not referenced.
+  pass_str: SELECT * FROM (SELECT foo.bar FROM my_tbl AS foo)
+
 test_pass_table_alias_referenced:
   pass_str: SELECT * FROM my_tbl AS foo JOIN other_tbl on other_tbl.x = foo.x
 
@@ -26,6 +35,11 @@ test_fail_table_alias_not_referenced_2:
   # Similar to test_1, but with implicit alias.
   fail_str: SELECT * FROM my_tbl foo
   fix_str: SELECT * FROM my_tbl
+
+test_fail_table_alias_not_referenced_2_subquery:
+  # Aliases not referenced.
+  fail_str: SELECT * FROM (SELECT * FROM my_tbl foo)
+  fix_str: SELECT * FROM (SELECT * FROM my_tbl)
 
 test_fail_subquery_alias_not_referenced:
   fail_str: select * from (select 1 as a) subquery
