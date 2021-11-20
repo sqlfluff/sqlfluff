@@ -18,6 +18,6 @@ RUN python -m venv .venv \
 # Switch to non-root user.
 USER 5000
 
-# Set SQLFluff command as the the entry point for image.
+# Set SQLFluff command as entry point for image.
 ENTRYPOINT ["/app/.venv/bin/sqlfluff"]
 CMD ["--help"]
