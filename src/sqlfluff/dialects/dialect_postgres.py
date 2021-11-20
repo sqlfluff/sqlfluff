@@ -475,6 +475,29 @@ class CreateFunctionStatementSegment(BaseSegment):
 
 
 @postgres_dialect.segment()
+class DropFunctionStatementSegment(BaseSegment):
+    """A `DROP FUNCTION` statement.
+
+    As per the specification: https://www.postgresql.org/docs/14/sql-dropfunction.html
+    """
+
+    type = "drop_function_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        "FUNCTION",
+        Ref("IfExistsGrammar", optional=True),
+        Delimited(
+            Sequence(
+                Ref("FunctionNameSegment"),
+                Ref("FunctionParameterListGrammar", optional=True),
+            )
+        ),
+        OneOf("CASCADE", "RESTRICT", optional=True),
+    )
+
+
+@postgres_dialect.segment()
 class WellKnownTextGeometrySegment(BaseSegment):
     """A Data Type Segment to identify Well Known Text Geometric Data Types.
 
@@ -2140,8 +2163,8 @@ class StatementSegment(BaseSegment):
             Ref("AnalyzeStatementSegment"),
             Ref("CreateTableAsStatementSegment"),
             Ref("AlterTriggerStatementSegment"),
-            Ref("DropTypeStatementSegment"),
             Ref("SetStatementSegment"),
+            Ref("DropFunctionStatementSegment"),
         ],
     )
 
@@ -2331,7 +2354,7 @@ class InsertStatementSegment(BaseSegment):
     )
 
 
-@postgres_dialect.segment()
+@postgres_dialect.segment(replace=True)
 class DropTypeStatementSegment(BaseSegment):
     """Drop Type Statement.
 

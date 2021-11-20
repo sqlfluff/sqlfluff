@@ -246,7 +246,9 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref("RenameStatementSegment"),  # Azure Synapse Analytics specific
             Ref("ExecuteScriptSegment"),
             Ref("DropStatisticsStatementSegment"),
+            Ref("DropProcedureStatementSegment"),
             Ref("UpdateStatisticsStatementSegment"),
+            Ref("DropFunctionStatementSegment"),
         ],
     )
 
@@ -875,6 +877,24 @@ class CreateFunctionStatementSegment(BaseSegment):
 
 
 @tsql_dialect.segment()
+class DropFunctionStatementSegment(BaseSegment):
+    """A `DROP FUNCTION` statement.
+
+    As per specification https://docs.microsoft.com/en-us/sql/t-sql/statements/drop-function-transact-sql?view=sql-server-ver15
+    """
+
+    type = "drop_function_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        "FUNCTION",
+        Ref("IfExistsGrammar", optional=True),
+        Delimited(Ref("FunctionNameSegment")),
+        Ref("DelimiterSegment", optional=True),
+    )
+
+
+@tsql_dialect.segment()
 class SetStatementSegment(BaseSegment):
     """A Set statement.
 
@@ -973,6 +993,24 @@ class CreateProcedureStatementSegment(BaseSegment):
         Ref("FunctionParameterListGrammar", optional=True),
         "AS",
         Ref("ProcedureDefinitionGrammar"),
+    )
+
+
+@tsql_dialect.segment()
+class DropProcedureStatementSegment(BaseSegment):
+    """A `DROP PROCEDURE` statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/drop-procedure-transact-sql?view=sql-server-ver15
+    """
+
+    type = "drop_procedure_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        OneOf("PROCEDURE", "PROC"),
+        Ref("IfExistsGrammar", optional=True),
+        Delimited(Ref("ObjectReferenceSegment")),
+        Ref("DelimiterSegment", optional=True),
     )
 
 
@@ -1165,7 +1203,9 @@ class PartitionByClause(BaseSegment):
     match_grammar = Sequence(
         "PARTITION",
         "BY",
-        Ref("ColumnReferenceSegment"),
+        Delimited(
+            Ref("ColumnReferenceSegment"),
+        ),
     )
 
 

@@ -75,36 +75,28 @@ changes.
 
 ### Developing and Running SQLFluff Locally
 
-To use your local development branch of SQLFluff, I recommend you use a virtual
-environment. e.g:
-
+The simplest way to set up a development environment is to use `tox`.
+First ensure that you have tox installed (windows users may have to replace `python3` with `py`):
 ```shell
-python3 -m venv .venv
+python3 -m pip install -U tox
+```
+
+A virtual environment can then be created and activated by running:
+```shell
+tox -e py --devenv .venv
 source .venv/bin/activate
 ```
+(The `py` environment defaults to the python version used
+to install tox, however any version you want can be installed
+by replacing `py` with `py37`, `py39`, `dbt020-py38`, etc. If
+you are planning development on or using the dbt templater
+you may wish to chose one of the dbt environments.)
 
-> `python3 -m venv .venv` creates a new virtual environment (in current working
-> directory) called `.venv`.
-> `source .venv/bin/activate` activates the virtual environment so that packages
-> can be installed/uninstalled into it. [More info on venv](https://docs.python.org/3/library/venv.html).
+Windows users should call `.venv\Scripts\activate` rather than `source .venv/bin/activate`.
 
-Once you are in a virtual environment, run:
-
-```shell
-pip install -U tox
-pip install -Ur requirements.txt -Ur requirements_dev.txt
-pip install -e .
-```
-
-> `pip install tox` installs the `tox` testing package. It is not part of the project
-> dependencies as the test suite runs through `tox`.
-
-> `pip install -Ur requirements.txt -Ur requirements_dev.txt` installs the project dependencies
-> as well as the dependencies needed to run linting, formatting, and testing commands. This will
-> install the most up-to-date package versions for all dependencies (-U).
-
-> `pip install -e .` installs the package using a link to the source code so that any changes
-> which you make will immediately be available for use.
+This virtual environment will already have the package installed in editable mode for you, as well as
+`requirements_dev.txt` and `plugins/sqlfluff-plugin-example`. Additionally if a dbt virtual environment
+was specified, you will also have `dbt-core`, `dbt-postgres`, and `plugins/sqlfluff-templater-dbt` available.
 
 ### Developing plugins
 
@@ -122,10 +114,9 @@ pip install -e plugins/sqlfluff-templater-dbt/.
 
 ### Testing
 
-To test locally, SQLFluff uses `tox`, which means you can build locally using...
+To test locally, SQLFluff uses `tox`. The test suite can be run via:
 
 ```shell
-pip install tox
 tox
 ```
 
@@ -135,31 +126,31 @@ Python version, so you can always specify a particular environment. For example,
 if you are developing in Python 3.8 you might call...
 
 ```shell
-tox -e generate-fixture-yml,py38,linting
+tox -e generate-fixture-yml,py38,linting,mypy
 ```
 
 ...or if you also want to see the coverage reporting...
 
 ```shell
-tox -e generate-fixture-yml,cov-init,py38,cov-report,linting
+tox -e generate-fixture-yml,cov-init,py38,cov-report,linting,mypy
 ```
 
-> NB: The `cov-init` task clears the previous test results, the `py36` environment
-> generates the results for tests in that Python version and the `cov-report-nobt`
+> NB: The `cov-init` task clears the previous test results, the `py38` environment
+> generates the results for tests in that Python version and the `cov-report`
 > environment reports those results out to you (excluding dbt).
 
-You can also run specific tests only by making use of `pytest -k` to match test.
-For example below will only run the tests for rule L012 which is much faster while
-working on an issue, before running full tests at the end:
+`tox` accepts `posargs` to allow you to refine your test run, which is much
+faster while working on an issue, before running full tests at the end.
+For example, you can run specific tests by making use of the `-k` option in `pytest`:
 
 ```
-pytest -k L012 -v test
+tox -e py38 -- -k L012 test
 ```
 
-Alternatively, you can also run tests from specific directory or file only:
+Alternatively, you can also run tests from a specific directory or file only:
 ```
-pytest test/cli
-pytest test/cli/commands_test.py
+tox -e py38 -- test/cli
+tox -e py38 -- test/cli/commands_test.py
 ```
 
 To run the dbt-related tests you will have to explicitly include these tests:
@@ -200,8 +191,7 @@ You will need to be an admin to submit this to PyPI, and you will need a properl
 formatted `.pypirc` file. If you have managed all that then you can run:
 
 ```shell
-python setup.py sdist
-twine upload dist/*
+tox -e publish-dist
 ```
 
 ... and the most recent version will be uploaded to PyPI.

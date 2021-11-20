@@ -13,6 +13,7 @@ from sqlfluff.core.parser import (
     BaseSegment,
     Delimited,
     Nothing,
+    OptionallyBracketed,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -246,6 +247,37 @@ class CreateTableStatementSegment(BaseSegment):
         ),
         Sequence("BACKUP", OneOf("YES", "NO", optional=True), optional=True),
         AnyNumberOf(Ref("TableAttributeSegment"), optional=True),
+    )
+
+
+@redshift_dialect.segment(replace=True)
+class InsertStatementSegment(BaseSegment):
+    """An`INSERT` statement.
+
+    Redshift has two versions of insert statements:
+        - https://docs.aws.amazon.com/redshift/latest/dg/r_INSERT_30.html
+        - https://docs.aws.amazon.com/redshift/latest/dg/r_INSERT_external_table.html
+    """
+
+    # TODO: This logic can be streamlined. However, there are some odd parsing issues.
+    # See https://github.com/sqlfluff/sqlfluff/pull/1896
+
+    type = "insert_statement"
+    match_grammar = Sequence(
+        "INSERT",
+        "INTO",
+        Ref("TableReferenceSegment"),
+        OneOf(
+            OptionallyBracketed(Ref("SelectableGrammar")),
+            Sequence("DEFAULT", "VALUES"),
+            Sequence(
+                Ref("BracketedColumnReferenceListGrammar", optional=True),
+                OneOf(
+                    Ref("ValuesClauseSegment"),
+                    OptionallyBracketed(Ref("SelectableGrammar")),
+                ),
+            ),
+        ),
     )
 
 
