@@ -177,6 +177,9 @@ numeric_dollar
 percent
  WHERE bla = %s
 
+ampersand
+ WHERE bla = &s or WHERE bla = &{s} or USE DATABASE MARKETING_{ENV}
+
 these can be configured by setting param_style to the names above
 
 .. code-block:: cfg

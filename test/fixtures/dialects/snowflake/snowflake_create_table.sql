@@ -76,5 +76,3 @@ create table test_table (test_column NUMBER autoincrement (0, 1));
 create table test_schema.test_table (test_column NUMBER autoincrement (0, 1));
 create or replace table test_schema.test_table (test_column NUMBER autoincrement (0, 1));
 create table test_schema.test_table (test_column INTEGER AUTOINCREMENT);
-
-create table my_database_&{env}.my_schema.my_table (id INT);

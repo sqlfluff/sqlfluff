@@ -33,6 +33,10 @@ KNOWN_STYLES = {
     "numeric_dollar": re.compile(r"(?<![:\w\x5c])\$(?P<param_name>[\d]+)", re.UNICODE),
     # e.g. WHERE bla = %s
     "percent": re.compile(r"(?<![:\w\x5c])%s", re.UNICODE),
+    # e.g. WHERE bla = &s
+    # or WHERE bla = &{s}
+    # or USE DATABASE {ENV}_MARKETING
+    "ampersand": re.compile(r"(?<!&)&{?(?P<param_name>[\w]+)}?", re.UNICODE),
 }
 
 

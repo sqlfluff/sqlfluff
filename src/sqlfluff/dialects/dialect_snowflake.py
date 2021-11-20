@@ -51,9 +51,6 @@ snowflake_dialect.insert_lexer_matchers(
         StringLexer("function_assigner", "->", CodeSegment),
         StringLexer("atsign", "@", CodeSegment),
         RegexLexer("atsign_literal", r"@[a-zA-Z_][\w]*", CodeSegment),
-        RegexLexer(
-            "and_literal", r'(?:[\w\."]*&{[\w]+}[\w\."]*)|(?:&{?[\w]+}?)', CodeSegment
-        ),
         # Column selector
         # https://docs.snowflake.com/en/sql-reference/sql/select.html#parameters
         RegexLexer("column_selector", r"\$[0-9]+", CodeSegment),
@@ -107,14 +104,11 @@ snowflake_dialect.add(
         type="variable",
     ),
     ReferencedVariableNameSegment=RegexParser(
-        r'(?:\$[A-Z][A-Z0-9_]*)|(?:[A-Z0-9_\."]*&{[A-Z0-9_]*}[A-Z0-9_]*)|(?:&[A-Z0-9_\."]*)',
+        r"\$[A-Z][A-Z0-9_]*",
         CodeSegment,
         name="referenced_variable",
         type="variable",
-        trim_chars=(
-            "$",
-            "&",
-        ),
+        trim_chars=("$"),
     ),
     # We use a RegexParser instead of keywords as some (those with dashes) require quotes:
     WarehouseSize=RegexParser(
