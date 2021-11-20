@@ -21,7 +21,7 @@ jobs:
         with:
           repository: ${{ github.repository }}
 
-      # Setup.
+      # Setup QEMU and Buildx to allow for multi-platform builds.
       - name: Set up QEMU
         id: docker_qemu
         uses: docker/setup-qemu-action@v1
