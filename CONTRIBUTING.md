@@ -178,8 +178,9 @@ whenever a new release is published to GitHub.
 - [ ] Copy the draft releases from https://github.com/sqlfluff/sqlfluff/releases to [CHANGELOG.md](CHANGELOG.md)
 - [ ] Add markdown links to PRs and contributors
 - [ ] Check each issue title is clear, and if not edit issue title (which will automatically update Release notes on next PR merged, as the Draft one is recreated in full each time). Also edit locally in [CHANGELOG.md](CHANGELOG.md)
-- [ ] Categorise them into "Enhancements" and "Bug Fixes"
+- [ ] Categorise them into "Enhancements" and "Bug Fixes". Enhancements should go above Bug Fixes (lead with the positive!)
 - [ ] Add a comment at the top to highlight the main things in this release
+- [ ] View the CHANGELOG in this branch on GitHub to ensure you didn't miss any link conversions or other markup errors.
 - [ ] Open draft PR with those change a few days in advance to give contributors notice. Tag those with open PRs in the PR to give them time to merge their work before the new release
 - [ ] Comment in #contributing slack channel about release candidate
 - [ ] Update the draft PR as more changes get merged

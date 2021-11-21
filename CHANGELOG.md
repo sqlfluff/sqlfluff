@@ -13,7 +13,11 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ## What’s Changed
 
-One of the biggest new features in this release is the support for SQLAlchemy and other "placeholder" templating within SQL queries. Check out how to set it up here: https://docs.sqlfluff.com/en/latest/configuration.html#placeholder-templating. This also has loads of grammar improvements across many dialects, improvements to the dbt templater, more fix routines, and **seven** new rules. Get some help with your leading whitespace, semi-colon placement, inconsistent column references in `GROUP BY/ORDER BY`, and getting rid of `RIGHT JOIN`'s among other useful lints with our new rules!
+One of the biggest new features in this release is the support for SQLAlchemy and other "placeholder" templating within SQL queries. Check out [the documentation on how to set it up](https://docs.sqlfluff.com/en/latest/configuration.html#placeholder-templating).
+
+This release also adds **seven** new rules. Get some help with your leading whitespace, semi-colon placement, inconsistent column references in `GROUP BY/ORDER BY`, and getting rid of `RIGHT JOIN`'s among other useful lints with our new rules! See our [rules documentation](https://docs.sqlfluff.com/en/stable/rules.html) for more details.
+
+On top of those, we have made loads of grammar improvements across many dialects, improvements to the dbt templater, more fix routines and lots more improvements.
 
 ## 🐛 Bug Fixes
 
