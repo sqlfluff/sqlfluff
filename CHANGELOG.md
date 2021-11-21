@@ -19,18 +19,6 @@ This release also adds **seven** new rules. Get some help with your leading whit
 
 On top of those, we have made loads of grammar improvements across many dialects, improvements to the dbt templater, more fix routines and lots more improvements.
 
-## 🐛 Bug Fixes
-
-* Fix bug where "sqlfluff fix" deletes dbt "{% snapshot %}" line [#1907](https://github.com/sqlfluff/sqlfluff/pull/1907) [@barrywhart](https://github.com/barrywhart)
-* Fix bug where L041 was confused by L016's placement of newlines in the parse tree [#1904](https://github.com/sqlfluff/sqlfluff/pull/1904) [@barrywhart](https://github.com/barrywhart)
-* Fix progressbar artifacts within linter errors [#1873](https://github.com/sqlfluff/sqlfluff/pull/1873) [@adam-tokarski](https://github.com/adam-tokarski)
-* Correct Snowflake warehouse sizes [#1872](https://github.com/sqlfluff/sqlfluff/pull/1872) [@jpy-git](https://github.com/jpy-git)
-* Fixed Delimited() logic, added TSQL grammar [#1894](https://github.com/sqlfluff/sqlfluff/pull/1894) [@WittierDinosaur](https://github.com/WittierDinosaur)
-* L036 refinement - FROM clause interaction [#1893](https://github.com/sqlfluff/sqlfluff/pull/1893) [@jpy-git](https://github.com/jpy-git)
-* Add missing chardet install in setup.py (#1928) @jpy-git
-* Fix misplaced TableAliasInfo in L031 documentation (#1946) @jpy-git
-* Fix broken link to external SQL style guide (#1918) @kevinmarsh
-
 ## 🚀 Enhancements
 
 * [many dialects] Implement generic placeholder templating [#1887](https://github.com/sqlfluff/sqlfluff/pull/1887) [@jacopofar](https://github.com/jacopofar)
@@ -75,6 +63,20 @@ On top of those, we have made loads of grammar improvements across many dialects
 * Add short form help option (-h) (#1947) @jpy-git
 * Remove plaintext API key from benchmark utility [#1863](https://github.com/sqlfluff/sqlfluff/pull/1863) [@jpy-git](https://github.com/jpy-git)
 * Add `skip_install` to static analysis sections of tox.ini [#1851](https://github.com/sqlfluff/sqlfluff/pull/1851) [@jpy-git](https://github.com/jpy-git)
+
+## 🐛 Bug Fixes
+
+* Fix bug where "sqlfluff fix" deletes dbt "{% snapshot %}" line [#1907](https://github.com/sqlfluff/sqlfluff/pull/1907) [@barrywhart](https://github.com/barrywhart)
+* Fix bug where L041 was confused by L016's placement of newlines in the parse tree [#1904](https://github.com/sqlfluff/sqlfluff/pull/1904) [@barrywhart](https://github.com/barrywhart)
+* Fix progressbar artifacts within linter errors [#1873](https://github.com/sqlfluff/sqlfluff/pull/1873) [@adam-tokarski](https://github.com/adam-tokarski)
+* Correct Snowflake warehouse sizes [#1872](https://github.com/sqlfluff/sqlfluff/pull/1872) [@jpy-git](https://github.com/jpy-git)
+* Fixed Delimited() logic, added TSQL grammar [#1894](https://github.com/sqlfluff/sqlfluff/pull/1894) [@WittierDinosaur](https://github.com/WittierDinosaur)
+* L036 refinement - FROM clause interaction [#1893](https://github.com/sqlfluff/sqlfluff/pull/1893) [@jpy-git](https://github.com/jpy-git)
+* Add missing chardet install in setup.py (#1928) @jpy-git
+* Fix misplaced TableAliasInfo in L031 documentation (#1946) @jpy-git
+* Fix broken link to external SQL style guide (#1918) @kevinmarsh
+
+
 
 ## [0.8.1] - 2021-11-07
 
