@@ -17,7 +17,7 @@ One of the biggest new features in this release is the support for SQLAlchemy an
 
 This release also adds **seven** new rules. Get some help with your leading whitespace, semi-colon placement, inconsistent column references in `GROUP BY/ORDER BY`, and getting rid of `RIGHT JOIN`'s among other useful lints with our new rules! See our [rules documentation](https://docs.sqlfluff.com/en/stable/rules.html) for more details.
 
-On top of those, we have made loads of grammar improvements across many dialects, improvements to the dbt templater, more fix routines and lots more improvements.
+On top of those, we have made loads of grammar improvements across many dialects, improvements to the dbt templater (including issues where `sqlfluff fix` would corrupt the code :scream:), more fix routines, and lots more improvements.
 
 ## 🚀 Enhancements
 
