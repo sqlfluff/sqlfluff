@@ -402,6 +402,8 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref("CopyIntoStatementSegment"),
             Ref("AlterWarehouseStatementSegment"),
             Ref("CreateExternalTableSegment"),
+            Ref("CreateSchemaStatementSegment"),
+            Ref("AlterSchemaStatementSegment"),
         ],
         remove=[
             Ref("CreateTypeStatementSegment"),
@@ -1217,6 +1219,120 @@ class CopyOptionsSegment(BaseSegment):
 
 
 @snowflake_dialect.segment(replace=True)
+class CreateSchemaStatementSegment(BaseSegment):
+    """A `CREATE SCHEMA` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-schema.html
+    """
+
+    type = "create_schema_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        Ref("TemporaryTransientGrammar", optional=True),
+        "SCHEMA",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("SchemaReferenceSegment"),
+        Sequence("WITH", "MANAGED", "ACCESS", optional=True),
+        AnyNumberOf(Ref("SchemaObjectParamsSegment")),
+        Sequence(
+            Sequence("WITH", optional=True),
+            "TAG",
+            Bracketed(
+                Delimited(
+                    Ref("NakedIdentifierSegment"),
+                    Ref("EqualsSegment"),
+                    Ref("QuotedIdentifierSegment"),
+                )
+            ),
+            optional=True,
+        ),
+    )
+
+
+@snowflake_dialect.segment()
+class AlterSchemaStatementSegment(BaseSegment):
+    """An `ALTER SCHEMA` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-schema.html
+
+    """
+
+    type = "alter_schema_statement"
+    match_grammar = Sequence(
+        "ALTER",
+        "SCHEMA",
+        Sequence("IF", "EXISTS", optional=True),
+        Ref("SchemaReferenceSegment"),
+        OneOf(
+            Sequence(
+                "RENAME",
+                "TO",
+                Ref("SchemaReferenceSegment"),
+            ),
+            Sequence(
+                "SWAP",
+                "WITH",
+                Ref("SchemaReferenceSegment"),
+            ),
+            Sequence(
+                "SET",
+                AnyNumberOf(
+                    Ref("SchemaObjectParamsSegment"),
+                ),
+            ),
+            Sequence(
+                "UNSET",
+                Delimited(
+                    Ref("NakedIdentifierSegment"),
+                ),
+            ),
+            Sequence(OneOf("ENABLE", "DISABLE"), Sequence("MANAGED", "ACCESS")),
+        ),
+    )
+
+
+@snowflake_dialect.segment()
+class SchemaObjectParamsSegment(BaseSegment):
+    """A Snowflake Schema Object Param segment.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-schema.html
+    https://docs.snowflake.com/en/sql-reference/sql/alter-schema.html
+    """
+
+    type = "schema_object_properties"
+
+    match_grammar = AnyNumberOf(
+        Sequence(
+            "DATA_RETENTION_TIME_IN_DAYS",
+            Ref("EqualsSegment"),
+            Ref("NumericLiteralSegment"),
+        ),
+        Sequence(
+            "MAX_DATA_EXTENSION_TIME_IN_DAYS",
+            Ref("EqualsSegment"),
+            Ref("NumericLiteralSegment"),
+        ),
+        Sequence(
+            "DEFAULT_DDL_COLLATION",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+        ),
+        Ref("CommentEqualsClauseSegment"),
+        Sequence(
+            "TAG",
+            Delimited(
+                Sequence(
+                    Ref("NakedIdentifierSegment"),
+                    Ref("EqualsSegment"),
+                    Ref("QuotedLiteralSegment"),
+                )
+            ),
+        ),
+    )
+
+
+@snowflake_dialect.segment(replace=True)
 class CreateTableStatementSegment(BaseSegment):
     """A `CREATE TABLE` statement.
 
@@ -1476,7 +1592,6 @@ class CreateStatementSegment(BaseSegment):
             Sequence("EXTERNAL", "FUNCTION"),
             # Objects that also support clone
             "DATABASE",
-            "SCHEMA",
             "SEQUENCE",
             Sequence("FILE", "FORMAT"),
             "STAGE",
