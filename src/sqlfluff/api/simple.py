@@ -1,20 +1,23 @@
 """The simple public API methods."""
 
+from typing import Any, Dict, List, Optional, TextIO, Union
 from sqlfluff.core import Linter
+from sqlfluff.core import SQLBaseError
+from sqlfluff.core.linter import ParsedString
 
 
 class APIParsingError(ValueError):
     """An exception which holds a set of violations."""
 
-    def __init__(self, violations, **kwargs):
+    def __init__(self, violations: List[SQLBaseError], *args: Any):
         self.violations = violations
         self.msg = f"Found {len(violations)} issues while parsing string."
         for viol in violations:
             self.msg += f"\n{viol!s}"
-        super().__init__(self.msg, **kwargs)
+        super().__init__(self.msg, *args)
 
 
-def _unify_str_or_file(sql):
+def _unify_str_or_file(sql: Union[str, TextIO]) -> str:
     """Unify string and files in the same format."""
     if not isinstance(sql, str):
         try:
@@ -24,7 +27,12 @@ def _unify_str_or_file(sql):
     return sql
 
 
-def lint(sql, dialect="ansi", rules=None, exclude_rules=None):
+def lint(
+    sql: Union[str, TextIO],
+    dialect: str = "ansi",
+    rules: Optional[Union[str, List[str]]] = None,
+    exclude_rules: Optional[Union[str, List[str]]] = None,
+) -> List[Dict[str, Any]]:
     """Lint a sql string or file.
 
     Args:
@@ -32,9 +40,9 @@ def lint(sql, dialect="ansi", rules=None, exclude_rules=None):
             either as a string or a subclass of :obj:`TextIOBase`.
         dialect (:obj:`str`, optional): A reference to the dialect of the sql
             to be linted. Defaults to `ansi`.
-        rules (:obj:`str` or iterable of :obj:`str`, optional): A subset of rule
+        rules (:obj:`str` or list of :obj:`str`, optional): A subset of rule
             references to lint for.
-        exclude_rules (:obj:`str` or iterable of :obj:`str`, optional): A subset of rule
+        exclude_rules (:obj:`str` or list of :obj:`str`, optional): A subset of rule
             references to avoid linting for.
 
     Returns:
@@ -49,7 +57,12 @@ def lint(sql, dialect="ansi", rules=None, exclude_rules=None):
     return [] if not result_records else result_records[0]["violations"]
 
 
-def fix(sql, dialect="ansi", rules=None, exclude_rules=None):
+def fix(
+    sql: Union[str, TextIO],
+    dialect: str = "ansi",
+    rules: Optional[Union[str, List[str]]] = None,
+    exclude_rules: Optional[Union[str, List[str]]] = None,
+) -> str:
     """Fix a sql string or file.
 
     Args:
@@ -73,7 +86,7 @@ def fix(sql, dialect="ansi", rules=None, exclude_rules=None):
     return fixed_string
 
 
-def parse(sql, dialect="ansi"):
+def parse(sql: Union[str, TextIO], dialect: str = "ansi") -> ParsedString:
     """Parse a sql string or file.
 
     Args:
