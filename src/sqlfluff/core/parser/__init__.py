@@ -1,6 +1,4 @@
-""" init file for the parser """
-
-# flake8: noqa: F401
+"""init file for the parser."""
 
 from sqlfluff.core.parser.segments import (
     BaseSegment,
@@ -36,3 +34,40 @@ from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.parser.lexer import Lexer, StringLexer, RegexLexer
 from sqlfluff.core.parser.parser import Parser
 from sqlfluff.core.parser.matchable import Matchable
+
+__all__ = (
+    "BaseSegment",
+    "BaseFileSegment",
+    "RawSegment",
+    "CodeSegment",
+    "UnlexableSegment",
+    "CommentSegment",
+    "WhitespaceSegment",
+    "NewlineSegment",
+    "KeywordSegment",
+    "SymbolSegment",
+    "Indent",
+    "Dedent",
+    "SegmentGenerator",
+    "Sequence",
+    "GreedyUntil",
+    "StartsWith",
+    "OneOf",
+    "Delimited",
+    "Bracketed",
+    "AnyNumberOf",
+    "Ref",
+    "Anything",
+    "Nothing",
+    "OptionallyBracketed",
+    "Conditional",
+    "StringParser",
+    "NamedParser",
+    "RegexParser",
+    "PositionMarker",
+    "Lexer",
+    "StringLexer",
+    "RegexLexer",
+    "Parser",
+    "Matchable",
+)
