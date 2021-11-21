@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6a5466882f1e7f393f438ac173939d68c75ebb24bcb35b603fc1e2586bc09c83
+_hash: 2f509b3ffe1777e61f26cf971ecfd2368a6a6a99034a0a790b75279352bceb87
 file:
 - batch:
     statement:
@@ -439,11 +439,12 @@ file:
         - identifier: STAGE
         - dot: .
         - identifier: CBS_POPULATION_BASE
-      - bracketed:
-          start_bracket: (
-          index_column_definition:
-            identifier: DATE_LAST_INSERTED
-          end_bracket: )
+      - bracketed_index_column_list_grammar:
+          bracketed:
+            start_bracket: (
+            index_column_definition:
+              identifier: DATE_LAST_INSERTED
+            end_bracket: )
 - go_statement:
     keyword: GO
 - batch:
@@ -459,47 +460,48 @@ file:
         - identifier: STAGE
         - dot: .
         - identifier: CBS_POPULATION_BASE
-      - bracketed:
-        - start_bracket: (
-        - index_column_definition:
-            identifier: DATE_LAST_INSERTED
-        - comma: ','
-        - index_column_definition:
-            identifier: GEMEENTE_CODE
-        - comma: ','
-        - index_column_definition:
-            identifier: GEMEENTE
-        - comma: ','
-        - index_column_definition:
-            identifier: LEEFTIJD
-        - comma: ','
-        - index_column_definition:
-            identifier: GESLACHT
-        - comma: ','
-        - index_column_definition:
-            identifier: DATUM_PEILING
-        - comma: ','
-        - index_column_definition:
-            identifier: POPULATIE
-        - comma: ','
-        - index_column_definition:
-            identifier: VEILIGHEIDSREGIO_CODE
-        - comma: ','
-        - index_column_definition:
-            identifier: VEILIGHEIDSREGIO_NAAM
-        - comma: ','
-        - index_column_definition:
-            identifier: PROVINCIE_CODE
-        - comma: ','
-        - index_column_definition:
-            identifier: PROVINCIE_NAAM
-        - comma: ','
-        - index_column_definition:
-            identifier: GGD_CODE
-        - comma: ','
-        - index_column_definition:
-            identifier: GGD_NAAM
-        - end_bracket: )
+      - bracketed_index_column_list_grammar:
+          bracketed:
+          - start_bracket: (
+          - index_column_definition:
+              identifier: DATE_LAST_INSERTED
+          - comma: ','
+          - index_column_definition:
+              identifier: GEMEENTE_CODE
+          - comma: ','
+          - index_column_definition:
+              identifier: GEMEENTE
+          - comma: ','
+          - index_column_definition:
+              identifier: LEEFTIJD
+          - comma: ','
+          - index_column_definition:
+              identifier: GESLACHT
+          - comma: ','
+          - index_column_definition:
+              identifier: DATUM_PEILING
+          - comma: ','
+          - index_column_definition:
+              identifier: POPULATIE
+          - comma: ','
+          - index_column_definition:
+              identifier: VEILIGHEIDSREGIO_CODE
+          - comma: ','
+          - index_column_definition:
+              identifier: VEILIGHEIDSREGIO_NAAM
+          - comma: ','
+          - index_column_definition:
+              identifier: PROVINCIE_CODE
+          - comma: ','
+          - index_column_definition:
+              identifier: PROVINCIE_NAAM
+          - comma: ','
+          - index_column_definition:
+              identifier: GGD_CODE
+          - comma: ','
+          - index_column_definition:
+              identifier: GGD_NAAM
+          - end_bracket: )
       - statement_terminator: ;
   - statement:
       create_table_statement:

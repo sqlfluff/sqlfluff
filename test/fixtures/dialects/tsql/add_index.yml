@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 74a6e989ddd14a7302d5444cfa03a7ec8883f43b3bc8b90277fd0c9c9c443d55
+_hash: 6b6820d821497e48e4649c0c14f2f42c8882ccb1c79cf03de2d435c1079a84a8
 file:
 - batch:
     statement:
@@ -51,11 +51,12 @@ file:
             - identifier: dbo
             - dot: .
             - identifier: VIMR_INFECTIOUS_PEOPLE
-          - bracketed:
-              start_bracket: (
-              index_column_definition:
-                identifier: DATE_LAST_INSERTED
-              end_bracket: )
+          - bracketed_index_column_list_grammar:
+              bracketed:
+                start_bracket: (
+                index_column_definition:
+                  identifier: DATE_LAST_INSERTED
+                end_bracket: )
           - statement_terminator: ;
 - go_statement:
     keyword: GO
@@ -105,11 +106,12 @@ file:
             - identifier: dbo
             - dot: .
             - identifier: FOUNDATION_NICE_IC_INTAKE_COUNT
-          - bracketed:
-              start_bracket: (
-              index_column_definition:
-                identifier: DATE_LAST_INSERTED
-              end_bracket: )
+          - bracketed_index_column_list_grammar:
+              bracketed:
+                start_bracket: (
+                index_column_definition:
+                  identifier: DATE_LAST_INSERTED
+                end_bracket: )
           - statement_terminator: ;
 - go_statement:
     keyword: GO
@@ -158,11 +160,12 @@ file:
             - identifier: dbo
             - dot: .
             - identifier: VIMR_INFECTIOUS_PEOPLE
-          - bracketed:
-              start_bracket: (
-              index_column_definition:
-                identifier: DATE_LAST_INSERTED
-              end_bracket: )
+          - bracketed_index_column_list_grammar:
+              bracketed:
+                start_bracket: (
+                index_column_definition:
+                  identifier: DATE_LAST_INSERTED
+                end_bracket: )
           - statement_terminator: ;
 - go_statement:
     keyword: GO
@@ -179,16 +182,17 @@ file:
         - identifier: '[schema1]'
         - dot: .
         - identifier: '[table1]'
-      - bracketed:
-          start_bracket: (
-          index_column_definition:
-            identifier: '[column1]'
-            keyword: ASC
-          end_bracket: )
+      - bracketed_index_column_list_grammar:
+          bracketed:
+            start_bracket: (
+            index_column_definition:
+              identifier: '[column1]'
+              keyword: ASC
+            end_bracket: )
       - keyword: INCLUDE
       - bracketed:
           start_bracket: (
-          index_column_definition:
+          column_reference:
             identifier: '[column2]'
           end_bracket: )
       - where_clause:
@@ -217,16 +221,18 @@ file:
         - identifier: '[schema1]'
         - dot: .
         - identifier: '[table1]'
-      - bracketed:
-          start_bracket: (
-          index_column_definition:
-            identifier: '[column1]'
-            keyword: DESC
-          end_bracket: )
-      - filegroup_clause:
-          keyword: 'ON'
-          filegroup_name:
-            identifier: '[PRIMARY]'
+      - bracketed_index_column_list_grammar:
+          bracketed:
+            start_bracket: (
+            index_column_definition:
+              identifier: '[column1]'
+              keyword: DESC
+            end_bracket: )
+      - on_partition_or_filegroup_statement:
+          filegroup_clause:
+            keyword: 'ON'
+            filegroup_name:
+              identifier: '[PRIMARY]'
       - statement_terminator: ;
 - go_statement:
     keyword: GO
@@ -243,14 +249,15 @@ file:
         - identifier: '[schema1]'
         - dot: .
         - identifier: '[table1]'
-      - bracketed:
-        - start_bracket: (
-        - index_column_definition:
-            identifier: '[column1]'
-        - comma: ','
-        - index_column_definition:
-            identifier: '[column2]'
-        - end_bracket: )
+      - bracketed_index_column_list_grammar:
+          bracketed:
+          - start_bracket: (
+          - index_column_definition:
+              identifier: '[column1]'
+          - comma: ','
+          - index_column_definition:
+              identifier: '[column2]'
+          - end_bracket: )
       - relational_index_options:
         - keyword: WITH
         - keyword: FILLFACTOR
@@ -272,11 +279,12 @@ file:
         - identifier: '[schema1]'
         - dot: .
         - identifier: '[table1]'
-      - bracketed:
-          start_bracket: (
-          index_column_definition:
-            identifier: '[column1]'
-          end_bracket: )
+      - bracketed_index_column_list_grammar:
+          bracketed:
+            start_bracket: (
+            index_column_definition:
+              identifier: '[column1]'
+            end_bracket: )
       - relational_index_options:
           keyword: WITH
           bracketed:
@@ -302,11 +310,12 @@ file:
         - identifier: '[schema1]'
         - dot: .
         - identifier: '[table1]'
-      - bracketed:
-          start_bracket: (
-          index_column_definition:
-            identifier: '[column1]'
-          end_bracket: )
+      - bracketed_index_column_list_grammar:
+          bracketed:
+            start_bracket: (
+            index_column_definition:
+              identifier: '[column1]'
+            end_bracket: )
       - relational_index_options:
           keyword: WITH
           bracketed:
@@ -331,11 +340,12 @@ file:
         - identifier: '[schema1]'
         - dot: .
         - identifier: '[table1]'
-      - bracketed:
-          start_bracket: (
-          index_column_definition:
-            identifier: '[column1]'
-          end_bracket: )
+      - bracketed_index_column_list_grammar:
+          bracketed:
+            start_bracket: (
+            index_column_definition:
+              identifier: '[column1]'
+            end_bracket: )
       - relational_index_options:
           keyword: WITH
           bracketed:
@@ -376,11 +386,12 @@ file:
         - identifier: '[schema1]'
         - dot: .
         - identifier: '[table1]'
-      - bracketed:
-          start_bracket: (
-          index_column_definition:
-            identifier: '[column1]'
-          end_bracket: )
+      - bracketed_index_column_list_grammar:
+          bracketed:
+            start_bracket: (
+            index_column_definition:
+              identifier: '[column1]'
+            end_bracket: )
       - relational_index_options:
         - keyword: WITH
         - keyword: DATA_COMPRESSION
@@ -413,17 +424,18 @@ file:
         - identifier: '[Reporting]'
         - dot: .
         - identifier: '[Population]'
-      - bracketed:
-        - start_bracket: (
-        - index_column_definition:
-            identifier: '[ID]'
-        - comma: ','
-        - index_column_definition:
-            identifier: '[Facility]'
-        - comma: ','
-        - index_column_definition:
-            identifier: '[Population]'
-        - end_bracket: )
+      - bracketed_index_column_list_grammar:
+          bracketed:
+          - start_bracket: (
+          - index_column_definition:
+              identifier: '[ID]'
+          - comma: ','
+          - index_column_definition:
+              identifier: '[Facility]'
+          - comma: ','
+          - index_column_definition:
+              identifier: '[Population]'
+          - end_bracket: )
 - go_statement:
     keyword: GO
 - batch:
