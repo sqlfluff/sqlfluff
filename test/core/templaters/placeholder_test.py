@@ -193,6 +193,28 @@ def test__templater_raw():
                 "2": "'2020-10-01'",
             },
         ),
+        (
+            """
+            USE DATABASE &{env}_MARKETING;
+            USE SCHEMA &&EMEA;
+            SELECT user_mail, city_id
+            FROM users_data
+            WHERE userid = &user_id AND date > &{start_date}
+            """,
+            "ampersand",
+            """
+            USE DATABASE PRD_MARKETING;
+            USE SCHEMA &&EMEA;
+            SELECT user_mail, city_id
+            FROM users_data
+            WHERE userid = 42 AND date > '2021-10-01'
+            """,
+            dict(
+                env="PRD",
+                user_id="42",
+                start_date="'2021-10-01'",
+            ),
+        ),
     ],
     ids=[
         "no_changes",
@@ -205,6 +227,7 @@ def test__templater_raw():
         "dollar",
         "numeric_dollar",
         "percent",
+        "ampersand",
     ],
 )
 def test__templater_param_style(instr, expected_outstr, param_style, values):
