@@ -50,7 +50,7 @@ test_pass_special_chars_create_table_space:
   configs:
     rules:
       L057:
-        allow_space_in_identifier = true
+        allow_space_in_identifier = True
     core:
       dialect: tsql
 
