@@ -95,34 +95,34 @@ setup(
         "Topic :: Software Development :: Quality Assurance",
     ],
     install_requires=[
-        # Core
-        "click>=7.1",
-        "colorama>=0.3",
-        "configparser",
-        "oyaml",
-        "Jinja2",
-        # Used for diffcover plugin
-        "diff-cover>=2.5.0",
-        # Used for .sqlfluffignore
-        "pathspec",
         # Used for finding os-specific application config dirs
         "appdirs",
         # Cached property for performance gains
         "cached-property",
-        # dataclasses backport for python 3.6
-        "dataclasses; python_version < '3.7'",
-        # better type hints for older python versions
-        "typing_extensions",
-        # We provide a testing library for plugins in sqlfluff.testing
-        "pytest",
-        # For parsing pyproject.toml
-        "toml",
-        # For returning exceptions from multiprocessing.Pool.map()
-        "tblib",
-        # For handling progress bars
-        "tqdm",
         # To get the encoding of files.
         "chardet",
+        "click>=7.1",
+        "colorama>=0.3",
+        "configparser",
+        # dataclasses backport for python 3.6
+        "dataclasses; python_version < '3.7'",
+        # Used for diffcover plugin
+        "diff-cover>=2.5.0",
+        "Jinja2",
+        # oyaml is like pyyaml but preserves orderings
+        "oyaml",
+        # Used for .sqlfluffignore
+        "pathspec",
+        # We provide a testing library for plugins in sqlfluff.testing
+        "pytest",
+        # For returning exceptions from multiprocessing.Pool.map()
+        "tblib",
+        # For parsing pyproject.toml
+        "toml",
+        # For handling progress bars
+        "tqdm",
+        # better type hints for older python versions
+        "typing_extensions",
     ],
     entry_points={
         "console_scripts": [
