@@ -1,23 +1,31 @@
 FROM python:3.9-slim-bullseye
 
-# Copy minimal set of SQLFluff install files
-# into their own folder for easier debugging.
+# Set separate working directory for easier debugging.
 WORKDIR /app
-COPY src ./src
-COPY setup.py .
+
+# Create virtual environment.
+ENV VIRTUAL_ENV .venv
+RUN python -m venv $VIRTUAL_ENV
+ENV PATH $VIRTUAL_ENV/bin:$PATH
+RUN pip install --upgrade pip setuptools wheel
+
+# Install requirements seperately
+# to take advantage of layer caching.
+COPY requirements.txt .
+RUN pip install --upgrade -r requirements.txt
+
+# Copy minimal set of SQLFluff package files.
 COPY MANIFEST.in .
 COPY README.md .
+COPY setup.py .
+COPY src ./src
 
-# Install SQLFluff in virtual environment to
-# avoid potential clashes with system dependencies.
-RUN python -m venv .venv \
-    && . .venv/bin/activate \
-    && pip install --upgrade pip setuptools wheel \
-    && pip install .
+# Install sqlfluff package.
+RUN pip install --no-dependencies .
 
 # Switch to non-root user.
 USER 5000
 
 # Set SQLFluff command as entry point for image.
-ENTRYPOINT ["/app/.venv/bin/sqlfluff"]
+ENTRYPOINT ["sqlfluff"]
 CMD ["--help"]

@@ -44,6 +44,8 @@ jobs:
         with:
           load: true
           tags: ${{ env.TEST_TAG }}
+          cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/sqlfluff:latest
+          cache-to: type=inline
 
       # Integration test to validate newly created image is working.
       - name: Test Docker image
@@ -63,3 +65,5 @@ jobs:
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/sqlfluff:latest
             ${{ secrets.DOCKERHUB_USERNAME }}/sqlfluff:${{ steps.latest_release.outputs.release }}
+          cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/sqlfluff:latest
+          cache-to: type=inline
