@@ -8,6 +8,15 @@ from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
 
+class TableAliasInfo(NamedTuple):
+    """Structure yielded by_filter_table_expressions()."""
+
+    table_ref: BaseSegment
+    whitespace_ref: BaseSegment
+    alias_exp_ref: BaseSegment
+    alias_identifier_ref: BaseSegment
+
+
 @document_fix_compatible
 class Rule_L031(BaseRule):
     """Avoid table aliases in from clauses and join conditions.
@@ -102,14 +111,6 @@ class Rule_L031(BaseRule):
             )
         return None
 
-    class TableAliasInfo(NamedTuple):
-        """Structure yielded by_filter_table_expressions()."""
-
-        table_ref: BaseSegment
-        whitespace_ref: BaseSegment
-        alias_exp_ref: BaseSegment
-        alias_identifier_ref: BaseSegment
-
     @classmethod
     def _filter_table_expressions(
         cls, base_table, from_expression_elements
@@ -142,7 +143,7 @@ class Rule_L031(BaseRule):
                 continue
 
             alias_identifier_ref = alias_exp_ref.get_child("identifier")
-            yield cls.TableAliasInfo(
+            yield TableAliasInfo(
                 table_ref, whitespace_ref, alias_exp_ref, alias_identifier_ref
             )
 
