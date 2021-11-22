@@ -39,7 +39,7 @@ jobs:
       uses: actions/cache@v2
       with:
         path: ${{ env.pythonLocation }}
-        key: ${{ env.PYTHON_VERSION }}-${{ runner.os }}-build-${{ hashFiles('tox.ini') }}
+        key: ${{ env.PYTHON_VERSION }}-${{ runner.os }}-build-${{ hashFiles('setup.py') }}-${{ hashFiles('requirements_dev.txt') }}
     - name: Install dependencies
       run: |
         pip install tox
@@ -62,7 +62,7 @@ jobs:
       uses: actions/cache@v2
       with:
         path: ${{ env.pythonLocation }}
-        key: ${{ matrix.python-version }}-${{ runner.os }}-build-${{ hashFiles('tox.ini') }}
+        key: ${{ matrix.python-version }}-${{ runner.os }}-build-${{ hashFiles('setup.py') }}-${{ hashFiles('requirements_dev.txt') }}
     - name: Install dependencies
       run: |
         pip install tox
@@ -96,7 +96,7 @@ jobs:
       uses: actions/cache@v2
       with:
         path: ${{ env.pythonLocation }}
-        key: ${{ env.PYTHON_VERSION }}-${{ runner.os }}-build-${{ hashFiles('tox.ini') }}
+        key: ${{ env.PYTHON_VERSION }}-${{ runner.os }}-build-${{ hashFiles('setup.py') }}-${{ hashFiles('requirements_dev.txt') }}
     - name: Install dependencies
       run: |
         pip install tox
@@ -153,7 +153,7 @@ jobs:
       uses: actions/cache@v2
       with:
         path: ${{ env.pythonLocation }}
-        key: ${{ env.PYTHON_VERSION }}-${{ runner.os }}-build-${{ matrix.dbt-version }}-${{ hashFiles('tox.ini') }}
+        key: ${{ env.PYTHON_VERSION }}-${{ runner.os }}-build-${{ matrix.dbt-version }}-${{ hashFiles('setup.py') }}-${{ hashFiles('requirements_dev.txt') }}
     - name: Install dependencies
       run: |
         pip install tox
@@ -183,7 +183,7 @@ jobs:
       uses: actions/cache@v2
       with:
         path: ${{ env.pythonLocation }}
-        key: ${{ env.PYTHON_VERSION }}-${{ runner.os }}-build-${{ hashFiles('tox.ini') }}
+        key: ${{ env.PYTHON_VERSION }}-${{ runner.os }}-build-${{ hashFiles('setup.py') }}-${{ hashFiles('requirements_dev.txt') }}
     - name: List Env
       shell: bash
       run: |
@@ -223,7 +223,7 @@ jobs:
       uses: actions/cache@v2
       with:
         path: ${{ env.pythonLocation }}
-        key: ${{ env.PYTHON_VERSION }}-${{ runner.os }}-build-${{ matrix.dbt-version }}-${{ hashFiles('tox.ini') }}
+        key: ${{ env.PYTHON_VERSION }}-${{ runner.os }}-build-${{ matrix.dbt-version }}-${{ hashFiles('setup.py') }}-${{ hashFiles('requirements_dev.txt') }}
     - name: Install dependencies
       shell: bash
       run: |
