@@ -46,14 +46,13 @@ class Rule_L057(BaseRule):
 
     """
 
-    _target_elems: List[Tuple[str, str]] = [("name", "naked_identifier")]
     config_keywords = [
         "quoted_identifiers_policy",
         "unquoted_identifiers_policy",
         "allow_space_in_identifier",
     ]
 
-    def _eval(self, context: RuleContext) -> LintResult:
+    def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Do not use special characters in object names."""
         if (
             (
