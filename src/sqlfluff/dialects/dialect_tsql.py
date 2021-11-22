@@ -626,7 +626,7 @@ class RelationalIndexOptionsSegment(BaseSegment):
                         ),
                         Ref("OnPartitionsSegment", optional=True),
                     ),
-                    min_times=1
+                    min_times=1,
                 ),
                 delimiter=Ref("CommaSegment"),
             ),
@@ -1024,9 +1024,15 @@ class ColumnConstraintSegment(BaseSegment):
         ),
         OneOf(
             "FILESTREAM",
-            Sequence("COLLATE", Ref("ObjectReferenceSegment")),  # [COLLATE collation_name]
+            Sequence(
+                "COLLATE", Ref("ObjectReferenceSegment")
+            ),  # [COLLATE collation_name]
             "SPARSE",
-            Sequence("MASKED", "WITH", Bracketed("FUNCTION", Ref("EqualsSegment"), Ref("LiteralGrammar"))),
+            Sequence(
+                "MASKED",
+                "WITH",
+                Bracketed("FUNCTION", Ref("EqualsSegment"), Ref("LiteralGrammar")),
+            ),
             Sequence(
                 Sequence(
                     "CONSTRAINT",
@@ -1050,7 +1056,7 @@ class ColumnConstraintSegment(BaseSegment):
                 Sequence("GENERATED", "ALWAYS", "AS"),
                 OneOf("ROW", "TRANSACTION_ID", "SEQUENCE_NUMBER"),
                 OneOf("START", "END"),
-                Ref.keyword("HIDDEN", optional=True)
+                Ref.keyword("HIDDEN", optional=True),
             ),
             Sequence(Ref.keyword("NOT", optional=True), "NULL"),  # NOT NULL or NULL
             "ROWGUIDCOL",
@@ -1488,13 +1494,11 @@ class OnPartitionsSegment(BaseSegment):
                 OneOf(
                     Ref("NumericLiteralSegment"),
                     Sequence(
-                        Ref("NumericLiteralSegment"),
-                        "TO",
-                        Ref("NumericLiteralSegment")
-                    )
+                        Ref("NumericLiteralSegment"), "TO", Ref("NumericLiteralSegment")
+                    ),
                 )
             )
-        )
+        ),
     )
 
 
@@ -1517,9 +1521,7 @@ class PartitionSchemeClause(BaseSegment):
     match_grammar = Sequence(
         "ON",
         Ref("PartitionSchemeNameSegment"),
-        Bracketed(
-            Ref("ColumnReferenceSegment")
-        )
+        Bracketed(Ref("ColumnReferenceSegment")),
     )
 
 
@@ -1671,6 +1673,7 @@ class CreateTableStatementSegment(BaseSegment):
 @tsql_dialect.segment(replace=True)
 class TableConstraintSegment(BaseSegment):
     """A table constraint, e.g. for CREATE TABLE."""
+
     # https://docs.microsoft.com/en-us/sql/t-sql/statements/create-table-transact-sql?view=sql-server-ver15
 
     type = "table_constraint_segment"
@@ -1701,13 +1704,12 @@ class TableConstraintSegment(BaseSegment):
 @tsql_dialect.segment()
 class TableIndexSegment(BaseSegment):
     """A table index, e.g. for CREATE TABLE."""
+
     # https://docs.microsoft.com/en-us/sql/t-sql/statements/create-table-transact-sql?view=sql-server-ver15
 
     type = "table_index_segment"
     match_grammar = Sequence(
-        Sequence(
-            "INDEX", Ref("ObjectReferenceSegment"), optional=True
-        ),
+        Sequence("INDEX", Ref("ObjectReferenceSegment"), optional=True),
         OneOf(
             Sequence(
                 Sequence("UNIQUE", optional=True),
@@ -1723,13 +1725,14 @@ class TableIndexSegment(BaseSegment):
         ),
         Ref("RelationalIndexOptionsSegment", optional=True),
         Ref("OnPartitionOrFilegroupOptionSegment", optional=True),
-        Ref("FilestreamOnOptionSegment", optional=True)
+        Ref("FilestreamOnOptionSegment", optional=True),
     )
 
 
 @tsql_dialect.segment()
 class BracketedIndexColumnListGrammar(BaseSegment):
     """list of columns used for CREATE INDEX, constraints."""
+
     type = "bracketed_index_column_list_grammar"
     match_grammar = Sequence(
         Bracketed(
@@ -1811,9 +1814,9 @@ class EncryptedWithGrammar(BaseSegment):
                     "ALGORITHM",
                     Ref("EqualsSegment"),
                     Ref("QuotedLiteralSegment"),
-                )
+                ),
             )
-        )
+        ),
     )
 
 
