@@ -9,9 +9,11 @@ Pygments
 # testing
 coverage
 hypothesis
+psutil
 pytest
 pytest-cov
 pytest-sugar
+pytest-xdist
 # MyPy
 mypy
 types-toml
