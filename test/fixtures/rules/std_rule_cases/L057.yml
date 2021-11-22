@@ -6,6 +6,9 @@ test_fail_special_chars_create_table_space:
     (
         [Internal Space] INT
     )
+  configs:
+    core:
+      dialect: tsql
 
 test_fail_special_chars_create_table_gt:
   fail_str:
@@ -48,8 +51,13 @@ test_pass_special_chars_create_table_space:
     rules:
       L057:
         allow_space_in_identifier = true
+    core:
+      dialect: tsql
 
 test_fail_special_chars_alias:
   fail_str:
     SELECT a as [a with space]
     FROM DBO.ColumnNames
+  configs:
+    core:
+      dialect: tsql
