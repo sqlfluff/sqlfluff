@@ -16,6 +16,9 @@ test_fail_special_chars_create_table_gt:
     (
         [Greater>Than] INT
     )
+  configs:
+    core:
+      dialect: tsql
 
 test_fail_special_chars_create_table_lt:
   fail_str:
@@ -23,6 +26,9 @@ test_fail_special_chars_create_table_lt:
     (
         [Less<Than] INT
     )
+  configs:
+    core:
+      dialect: tsql
 
 test_fail_special_chars_create_table_hash:
   fail_str:
