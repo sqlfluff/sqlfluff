@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ff2151dba34b7a3a60b5f56e362d230fe5ede51df541b9849fca5c98789c67a7
+_hash: b57c637e8032b8365e16b49692abd0751c7fcae30c365c34aa67576673dd2e46
 file:
-  batch:
+- batch:
     statement:
       create_table_statement:
       - keyword: CREATE
@@ -128,3 +128,180 @@ file:
           - column_constraint_segment:
               keyword: 'NULL'
         - end_bracket: )
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
+      create_table_statement:
+      - keyword: create
+      - keyword: table
+      - table_reference:
+        - identifier: '[schema1]'
+        - dot: .
+        - identifier: '[table1]'
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            identifier: '[col1]'
+            data_type:
+              identifier: INT
+          comma: ','
+          table_constraint_segment:
+          - keyword: PRIMARY
+          - keyword: KEY
+          - keyword: CLUSTERED
+          - bracketed_index_column_list_grammar:
+              bracketed:
+                start_bracket: (
+                index_column_definition:
+                  identifier: '[col1]'
+                  keyword: ASC
+                end_bracket: )
+          end_bracket: )
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
+      create_table_statement:
+      - keyword: create
+      - keyword: table
+      - table_reference:
+        - identifier: '[schema1]'
+        - dot: .
+        - identifier: '[table1]'
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            identifier: '[col1]'
+            data_type:
+              identifier: INT
+          comma: ','
+          table_constraint_segment:
+          - keyword: CONSTRAINT
+          - object_reference:
+              identifier: '[Pk_Id]'
+          - keyword: PRIMARY
+          - keyword: KEY
+          - keyword: NONCLUSTERED
+          - bracketed_index_column_list_grammar:
+              bracketed:
+                start_bracket: (
+                index_column_definition:
+                  identifier: '[col1]'
+                  keyword: DESC
+                end_bracket: )
+          end_bracket: )
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - identifier: '[dbo]'
+        - dot: .
+        - identifier: '[table1]'
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+          - identifier: '[ColumnB]'
+          - data_type:
+              identifier: '[varchar]'
+              bracketed:
+                start_bracket: (
+                expression:
+                  literal: '100'
+                end_bracket: )
+          - column_constraint_segment:
+              keyword: FILESTREAM
+          - column_constraint_segment:
+            - keyword: MASKED
+            - keyword: WITH
+            - bracketed:
+                start_bracket: (
+                keyword: FUNCTION
+                comparison_operator: '='
+                literal: "'my_func'"
+                end_bracket: )
+        - comma: ','
+        - column_definition:
+          - identifier: '[ColumnC]'
+          - data_type:
+              identifier: varchar
+              bracketed:
+                start_bracket: (
+                expression:
+                  literal: '100'
+                end_bracket: )
+          - column_constraint_segment:
+              keyword: 'NULL'
+          - column_constraint_segment:
+            - keyword: NOT
+            - keyword: FOR
+            - keyword: REPLICATION
+        - comma: ','
+        - column_definition:
+            identifier: '[ColumnDecimal]'
+            data_type:
+              identifier: decimal
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  literal: '10'
+              - comma: ','
+              - expression:
+                  literal: '3'
+              - end_bracket: )
+            column_constraint_segment:
+            - keyword: GENERATED
+            - keyword: ALWAYS
+            - keyword: AS
+            - keyword: ROW
+            - keyword: START
+            - keyword: HIDDEN
+        - comma: ','
+        - column_definition:
+            identifier: '[columnE]'
+            data_type:
+              identifier: varchar
+              bracketed:
+                start_bracket: (
+                expression:
+                  literal: '100'
+                end_bracket: )
+            column_constraint_segment:
+              encrypted_with_grammar:
+              - keyword: ENCRYPTED
+              - keyword: WITH
+              - bracketed:
+                - start_bracket: (
+                - keyword: COLUMN_ENCRYPTION_KEY
+                - comparison_operator: '='
+                - identifier: key_name
+                - comma: ','
+                - keyword: ENCRYPTION_TYPE
+                - comparison_operator: '='
+                - keyword: RANDOMIZED
+                - comma: ','
+                - keyword: ALGORITHM
+                - comparison_operator: '='
+                - literal: "'AEAD_AES_256_CBC_HMAC_SHA_256'"
+                - end_bracket: )
+        - comma: ','
+        - column_definition:
+            identifier: '[column1]'
+            data_type:
+              identifier: varchar
+              bracketed:
+                start_bracket: (
+                expression:
+                  literal: '100'
+                end_bracket: )
+            column_constraint_segment:
+              keyword: collate
+              object_reference:
+                identifier: Latin1_General_BIN
+        - end_bracket: )
+- go_statement:
+    keyword: GO
