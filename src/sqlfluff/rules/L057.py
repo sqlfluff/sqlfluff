@@ -63,7 +63,9 @@ class Rule_L057(BaseRule):
                     context.segment.raw.replace("_", "").isalnum()
                     or (
                         self.allow_space_in_identifier  # type: ignore
-                        and context.segment.raw.replace("_", "").replace(" ", "").isalnum()
+                        and context.segment.raw.replace("_", "")
+                        .replace(" ", "")
+                        .isalnum()
                     )
                 )
             )
@@ -77,7 +79,10 @@ class Rule_L057(BaseRule):
                     context.segment.raw[1:-1].replace("_", "").isalnum()
                     or (
                         self.allow_space_in_identifier  # type: ignore
-                        and context.segment.raw[1:-1].replace("_", "").replace(" ", "").isalnum()
+                        and context.segment.raw[1:-1]
+                        .replace("_", "")
+                        .replace(" ", "")
+                        .isalnum()
                     )
                 )
             )
