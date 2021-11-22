@@ -8,12 +8,12 @@ from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
 )
-from sqlfluff.rules.L014 import Rule_L014
+from sqlfluff.rules.L014 import identifiers_policy_applicable
 
 
 @document_configuration
 @document_fix_compatible
-class Rule_L057(Rule_L014):
+class Rule_L057(BaseRule):
     """Do not use special characters in object names.
 
     The functionality for this rule is inherited from :obj:`Rule_L010`.
