@@ -30,6 +30,9 @@ test_fail_special_chars_create_table_hash:
     (
         Number# INT
     )
+  configs:
+    core:
+      dialect: tsql
 
 test_pass_special_chars_create_table_none:
   pass_str:
