@@ -9,6 +9,4 @@ config = configparser.ConfigParser()
 config.read(["src/sqlfluff/config.ini"])
 version = config.get("sqlfluff", "version")
 
-setup(
-    version=version
-)
+setup(version=version)
