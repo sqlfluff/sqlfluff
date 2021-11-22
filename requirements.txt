@@ -2,6 +2,7 @@
 click>=7.1
 colorama>=0.3
 configparser
+# oyaml is like pyyaml but preserves orderings
 oyaml
 Jinja2
 # Used for diffcover plugin
