@@ -160,7 +160,18 @@ tsql_dialect.replace(
     ),
     DatatypeIdentifierSegment=Ref("SingleIdentifierGrammar"),
     PrimaryKeyGrammar=Sequence(
-        "PRIMARY", "KEY", OneOf("CLUSTERED", "NONCLUSTERED", optional=True)
+        OneOf(
+            Sequence(
+                "PRIMARY",
+                "KEY",
+            ),
+            "UNIQUE",
+        ),
+        OneOf(
+            "CLUSTERED",
+            "NONCLUSTERED",
+            optional=True,
+        ),
     ),
     # Overriding SelectClauseSegmentGrammar to remove Delimited logic which assumes statements have been delimited
     SelectClauseSegmentGrammar=Sequence(
@@ -400,25 +411,245 @@ class CreateIndexStatementSegment(BaseSegment):
         Ref("IndexReferenceSegment"),
         "ON",
         Ref("TableReferenceSegment"),
-        Sequence(
-            Bracketed(
-                Delimited(
-                    Ref("IndexColumnDefinitionSegment"),
-                ),
-            )
-        ),
+        Ref("BracketedIndexColumnListGrammar"),
         Sequence(
             "INCLUDE",
-            Sequence(
-                Bracketed(
-                    Delimited(
-                        Ref("IndexColumnDefinitionSegment"),
-                    ),
-                )
+            Ref("BracketedColumnReferenceListGrammar"),
+            optional=True,
+        ),
+        Ref("WhereClauseSegment", optional=True),
+        Ref("RelationalIndexOptionsSegment", optional=True),
+        Ref("OnPartitionOrFilegroupOptionSegment", optional=True),
+        Ref("FilestreamOnOptionSegment", optional=True),
+        Ref("DelimiterSegment", optional=True),
+    )
+
+
+@tsql_dialect.segment()
+class OnPartitionOrFilegroupOptionSegment(BaseSegment):
+    """ON partition scheme or filegroup option in `CREATE INDEX` and 'CREATE TABLE' statements.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-index-transact-sql?view=sql-server-ver15
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-table-transact-sql?view=sql-server-ver15
+    """
+
+    type = "on_partition_or_filegroup_statement"
+    match_grammar = OneOf(
+        Ref("PartitionSchemeClause"),
+        Ref("FilegroupClause"),
+        Ref("LiteralGrammar"),  # for "default" value
+    )
+
+
+@tsql_dialect.segment()
+class FilestreamOnOptionSegment(BaseSegment):
+    """FILESTREAM_ON index option in `CREATE INDEX` and 'CREATE TABLE' statements.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-index-transact-sql?view=sql-server-ver15
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-table-transact-sql?view=sql-server-ver15
+    """
+
+    type = "filestream_on_option_statement"
+    match_grammar = Sequence(
+        "FILESTREAM_ON",
+        OneOf(
+            Ref("FilegroupNameSegment"),
+            Ref("PartitionSchemeNameSegment"),
+            OneOf(
+                "NULL",
+                Ref("LiteralGrammar"),  # for "default" value
+            ),
+        ),
+    )
+
+
+@tsql_dialect.segment()
+class TextimageOnOptionSegment(BaseSegment):
+    """TEXTIMAGE ON option in `CREATE TABLE` statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-table-transact-sql?view=sql-server-ver15
+    """
+
+    type = "textimage_on_option_statement"
+    match_grammar = Sequence(
+        "TEXTIMAGE_ON",
+        OneOf(
+            Ref("FilegroupNameSegment"),
+            Ref("LiteralGrammar"),  # for "default" value
+        ),
+    )
+
+
+@tsql_dialect.segment()
+class ReferencesConstraintGrammar(BaseSegment):
+    """REFERENCES constraint option in `CREATE TABLE` statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-table-transact-sql?view=sql-server-ver15
+    """
+
+    type = "references_constraint_grammar"
+    match_grammar = Sequence(
+        # REFERENCES reftable [ ( refcolumn) ]
+        "REFERENCES",
+        Ref("TableReferenceSegment"),
+        # Foreign columns making up FOREIGN KEY constraint
+        Ref("BracketedColumnReferenceListGrammar", optional=True),
+        Sequence(
+            "ON",
+            "DELETE",
+            OneOf(
+                Sequence("NO", "ACTION"),
+                "CASCADE",
+                Sequence("SET", "NULL"),
+                Sequence("SET", "DEFAULT"),
             ),
             optional=True,
         ),
-        Ref("DelimiterSegment", optional=True),
+        Sequence(
+            "ON",
+            "UPDATE",
+            OneOf(
+                Sequence("NO", "ACTION"),
+                "CASCADE",
+                Sequence("SET", "NULL"),
+                Sequence("SET", "DEFAULT"),
+            ),
+            optional=True,
+        ),
+        Sequence("NOT", "FOR", "REPLICATION", optional=True),
+    )
+
+
+@tsql_dialect.segment()
+class CheckConstraintGrammar(BaseSegment):
+    """CHECK constraint option in `CREATE TABLE` statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-table-transact-sql?view=sql-server-ver15
+    """
+
+    type = "check_constraint_grammar"
+    match_grammar = Sequence(
+        "CHECK",
+        Sequence("NOT", "FOR", "REPLICATION", optional=True),
+        Bracketed(
+            Ref("ExpressionSegment"),
+        ),
+    )
+
+
+@tsql_dialect.segment()
+class RelationalIndexOptionsSegment(BaseSegment):
+    """A relational index options in `CREATE INDEX` statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-index-transact-sql?view=sql-server-ver15
+    """
+
+    type = "relational_index_options"
+    match_grammar = Sequence(
+        "WITH",
+        OptionallyBracketed(
+            Delimited(
+                AnyNumberOf(
+                    Sequence(
+                        OneOf(
+                            "PAD_INDEX",
+                            "FILLFACTOR",
+                            "SORT_IN_TEMPDB",
+                            "IGNORE_DUP_KEY",
+                            "STATISTICS_NORECOMPUTE",
+                            "STATISTICS_INCREMENTAL",
+                            "DROP_EXISTING",
+                            "RESUMABLE",
+                            "ALLOW_ROW_LOCKS",
+                            "ALLOW_PAGE_LOCKS",
+                            "OPTIMIZE_FOR_SEQUENTIAL_KEY",
+                            "MAXDOP",
+                        ),
+                        Ref("EqualsSegment"),
+                        OneOf(
+                            "ON",
+                            "OFF",
+                            Ref("LiteralGrammar"),
+                        ),
+                    ),
+                    Ref("MaxDurationSegment"),
+                    Sequence(
+                        "ONLINE",
+                        Ref("EqualsSegment"),
+                        OneOf(
+                            "OFF",
+                            Sequence(
+                                "ON",
+                                Bracketed(
+                                    Sequence(
+                                        "WAIT_AT_LOW_PRIORITY",
+                                        Bracketed(
+                                            Delimited(
+                                                Ref("MaxDurationSegment"),
+                                                Sequence(
+                                                    "ABORT_AFTER_WAIT",
+                                                    Ref("EqualsSegment"),
+                                                    OneOf(
+                                                        "NONE",
+                                                        "SELF",
+                                                        "BLOCKERS",
+                                                    ),
+                                                ),
+                                                delimiter=Ref("CommaSegment"),
+                                            ),
+                                        ),
+                                    ),
+                                    optional=True,
+                                ),
+                            ),
+                        ),
+                    ),
+                    # for table constrains
+                    Sequence(
+                        "COMPRESSION_DELAY",
+                        Ref("EqualsSegment"),
+                        Ref("NumericLiteralSegment"),
+                        Sequence(
+                            "MINUTES",
+                            optional=True,
+                        ),
+                    ),
+                    Sequence(
+                        "DATA_COMPRESSION",
+                        Ref("EqualsSegment"),
+                        OneOf(
+                            "NONE",
+                            "ROW",
+                            "PAGE",
+                            "COLUMNSTORE",  # for table constrains
+                            "COLUMNSTORE_ARCHIVE",  # for table constrains
+                        ),
+                        Ref("OnPartitionsSegment", optional=True),
+                    ),
+                    min_times=1,
+                ),
+                delimiter=Ref("CommaSegment"),
+            ),
+        ),
+    )
+
+
+@tsql_dialect.segment()
+class MaxDurationSegment(BaseSegment):
+    """A `MAX DURATION` clause.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-index-transact-sql?view=sql-server-ver15
+    """
+
+    type = "max_duration"
+    match_grammar = Sequence(
+        "MAX_DURATION",
+        Ref("EqualsSegment"),
+        Ref("NumericLiteralSegment"),
+        Sequence(
+            "MINUTES",
+            optional=True,
+        ),
     )
 
 
@@ -784,7 +1015,7 @@ class ColumnConstraintSegment(BaseSegment):
 
     type = "column_constraint_segment"
     # Column constraint from
-    # https://www.postgresql.org/docs/12/sql-createtable.html
+    # https://docs.microsoft.com/en-us/sql/t-sql/statements/create-table-transact-sql?view=sql-server-ver15
     match_grammar = Sequence(
         Sequence(
             "CONSTRAINT",
@@ -792,8 +1023,23 @@ class ColumnConstraintSegment(BaseSegment):
             optional=True,
         ),
         OneOf(
-            Sequence(Ref.keyword("NOT", optional=True), "NULL"),  # NOT NULL or NULL
-            Sequence(  # DEFAULT <value>
+            "FILESTREAM",
+            Sequence(
+                "COLLATE", Ref("ObjectReferenceSegment")
+            ),  # [COLLATE collation_name]
+            "SPARSE",
+            Sequence(
+                "MASKED",
+                "WITH",
+                Bracketed("FUNCTION", Ref("EqualsSegment"), Ref("LiteralGrammar")),
+            ),
+            Sequence(
+                Sequence(
+                    "CONSTRAINT",
+                    Ref("ObjectReferenceSegment"),  # Constraint name
+                    optional=True,
+                ),
+                # DEFAULT <value>
                 "DEFAULT",
                 OptionallyBracketed(
                     OneOf(
@@ -804,18 +1050,41 @@ class ColumnConstraintSegment(BaseSegment):
                     ),
                 ),
             ),
-            Ref("PrimaryKeyGrammar"),
-            "UNIQUE",  # UNIQUE
-            "AUTO_INCREMENT",  # AUTO_INCREMENT (MySQL)
-            "UNSIGNED",  # UNSIGNED (MySQL)
-            Sequence(  # REFERENCES reftable [ ( refcolumn) ]
-                "REFERENCES",
-                Ref("ColumnReferenceSegment"),
-                # Foreign columns making up FOREIGN KEY constraint
-                Ref("BracketedColumnReferenceListGrammar", optional=True),
-            ),
-            Ref("CommentClauseSegment"),
             Ref("IdentityGrammar"),
+            Sequence("NOT", "FOR", "REPLICATION"),
+            Sequence(
+                Sequence("GENERATED", "ALWAYS", "AS"),
+                OneOf("ROW", "TRANSACTION_ID", "SEQUENCE_NUMBER"),
+                OneOf("START", "END"),
+                Ref.keyword("HIDDEN", optional=True),
+            ),
+            Sequence(Ref.keyword("NOT", optional=True), "NULL"),  # NOT NULL or NULL
+            "ROWGUIDCOL",
+            Ref("EncryptedWithGrammar"),
+            Ref("PrimaryKeyGrammar"),
+            Ref("RelationalIndexOptionsSegment"),
+            Ref("OnPartitionOrFilegroupOptionSegment"),
+            "UNIQUE",  # UNIQUE #can be removed as included in PrimaryKeyGrammar?
+            "AUTO_INCREMENT",  # AUTO_INCREMENT (MySQL) #can be removed as related to mysql and included in ANSI?
+            "UNSIGNED",  # UNSIGNED
+            Ref("ForeignKeyGrammar"),
+            Ref("ReferencesConstraintGrammar"),
+            Ref("CheckConstraintGrammar"),
+            Ref("CommentClauseSegment"),
+            Ref("FilestreamOnOptionSegment", optional=True),
+            # column_index
+            Sequence(
+                "INDEX",
+                Ref("ObjectReferenceSegment"),  # index name
+                OneOf("CLUSTERED", "NONCLUSTERED", optional=True),
+                # other optional blocks (RelationalIndexOptionsSegment, OnIndexOptionSegment,
+                # FilestreamOnOptionSegment) are mentioned above
+            ),
+            # computed_column_definition
+            Sequence("AS", Ref("ExpressionSegment")),
+            Sequence("PERSISTED", Sequence("NOT", "NULL", optional=True))
+            # other optional blocks (RelationalIndexOptionsSegment, OnIndexOptionSegment,
+            # ReferencesConstraintGrammar, CheckConstraintGrammar) are mentioned above
         ),
     )
 
@@ -1209,6 +1478,53 @@ class PartitionByClause(BaseSegment):
     )
 
 
+@tsql_dialect.segment()
+class OnPartitionsSegment(BaseSegment):
+    """ON PARTITIONS clause.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-index-transact-sql?view=sql-server-ver15
+    """
+
+    type = "on_partitions_clause"
+    match_grammar = Sequence(
+        "ON",
+        "PARTITIONS",
+        Bracketed(
+            Delimited(
+                OneOf(
+                    Ref("NumericLiteralSegment"),
+                    Sequence(
+                        Ref("NumericLiteralSegment"), "TO", Ref("NumericLiteralSegment")
+                    ),
+                )
+            )
+        ),
+    )
+
+
+@tsql_dialect.segment()
+class PartitionSchemeNameSegment(BaseSegment):
+    """Partition Scheme Name."""
+
+    type = "partition_scheme_name"
+    match_grammar = Ref("SingleIdentifierGrammar")
+
+
+@tsql_dialect.segment()
+class PartitionSchemeClause(BaseSegment):
+    """Partition Scheme Clause segment.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-index-transact-sql?view=sql-server-ver15
+    """
+
+    type = "partition_scheme_clause"
+    match_grammar = Sequence(
+        "ON",
+        Ref("PartitionSchemeNameSegment"),
+        Bracketed(Ref("ColumnReferenceSegment")),
+    )
+
+
 @tsql_dialect.segment(replace=True)
 class FunctionSegment(BaseSegment):
     """A scalar or aggregate function.
@@ -1326,6 +1642,7 @@ class CreateTableStatementSegment(BaseSegment):
                         OneOf(
                             Ref("TableConstraintSegment"),
                             Ref("ColumnDefinitionSegment"),
+                            Ref("TableIndexSegment"),
                         ),
                         allow_trailing=True,
                     )
@@ -1343,11 +1660,95 @@ class CreateTableStatementSegment(BaseSegment):
         Ref(
             "TableDistributionIndexClause", optional=True
         ),  # Azure Synapse Analytics specific
-        Ref("FilegroupClause", optional=True),
+        Ref("OnPartitionOrFilegroupOptionSegment", optional=True),
+        Ref("FilestreamOnOptionSegment", optional=True),
+        Ref("TextimageOnOptionSegment", optional=True),
+        # need to add table options here
         Ref("DelimiterSegment", optional=True),
     )
 
     parse_grammar = match_grammar
+
+
+@tsql_dialect.segment(replace=True)
+class TableConstraintSegment(BaseSegment):
+    """A table constraint, e.g. for CREATE TABLE."""
+
+    # https://docs.microsoft.com/en-us/sql/t-sql/statements/create-table-transact-sql?view=sql-server-ver15
+
+    type = "table_constraint_segment"
+    match_grammar = Sequence(
+        Sequence(  # [ CONSTRAINT <Constraint name> ]
+            "CONSTRAINT", Ref("ObjectReferenceSegment"), optional=True
+        ),
+        OneOf(
+            Sequence(
+                Ref("PrimaryKeyGrammar"),
+                Ref("BracketedIndexColumnListGrammar"),
+                Ref("RelationalIndexOptionsSegment", optional=True),
+                Ref("OnPartitionOrFilegroupOptionSegment", optional=True),
+            ),
+            Sequence(  # FOREIGN KEY ( column_name [, ... ] )
+                # REFERENCES reftable [ ( refcolumn [, ... ] ) ]
+                Ref("ForeignKeyGrammar"),
+                # Local columns making up FOREIGN KEY constraint
+                Ref("BracketedColumnReferenceListGrammar"),
+                # REFERENCES reftable [ ( refcolumn) ] + ON DELETE/ON UPDATE
+                Ref("ReferencesConstraintGrammar"),
+            ),
+            Ref("CheckConstraintGrammar", optional=True),
+        ),
+    )
+
+
+@tsql_dialect.segment()
+class TableIndexSegment(BaseSegment):
+    """A table index, e.g. for CREATE TABLE."""
+
+    # https://docs.microsoft.com/en-us/sql/t-sql/statements/create-table-transact-sql?view=sql-server-ver15
+
+    type = "table_index_segment"
+    match_grammar = Sequence(
+        Sequence("INDEX", Ref("ObjectReferenceSegment"), optional=True),
+        OneOf(
+            Sequence(
+                Sequence("UNIQUE", optional=True),
+                OneOf("CLUSTERED", "NONCLUSTERED", optional=True),
+                Ref("BracketedIndexColumnListGrammar"),
+            ),
+            Sequence("CLUSTERED", "COLUMNSTORE"),
+            Sequence(
+                Sequence("NONCLUSTERED", optional=True),
+                "COLUMNSTORE",
+                Ref("BracketedColumnReferenceListGrammar"),
+            ),
+        ),
+        Ref("RelationalIndexOptionsSegment", optional=True),
+        Ref("OnPartitionOrFilegroupOptionSegment", optional=True),
+        Ref("FilestreamOnOptionSegment", optional=True),
+    )
+
+
+@tsql_dialect.segment()
+class BracketedIndexColumnListGrammar(BaseSegment):
+    """list of columns used for CREATE INDEX, constraints."""
+
+    type = "bracketed_index_column_list_grammar"
+    match_grammar = Sequence(
+        Bracketed(
+            Delimited(
+                Ref("IndexColumnDefinitionSegment"),
+            )
+        )
+    )
+
+
+@tsql_dialect.segment()
+class FilegroupNameSegment(BaseSegment):
+    """Filegroup Name Segment."""
+
+    type = "filegroup_name"
+    match_grammar = Ref("SingleIdentifierGrammar")
 
 
 @tsql_dialect.segment()
@@ -1360,7 +1761,7 @@ class FilegroupClause(BaseSegment):
     type = "filegroup_clause"
     match_grammar = Sequence(
         "ON",
-        Ref("SingleIdentifierGrammar"),
+        Ref("FilegroupNameSegment"),
     )
 
 
@@ -1382,6 +1783,39 @@ class IdentityGrammar(BaseSegment):
                 Ref("NumericLiteralSegment"),
             ),
             optional=True,
+        ),
+    )
+
+
+@tsql_dialect.segment()
+class EncryptedWithGrammar(BaseSegment):
+    """ENCRYPTED WITH in table schemas.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-table-transact-sql-identity-property?view=sql-server-ver15
+    """
+
+    type = "encrypted_with_grammar"
+    match_grammar = Sequence(
+        "ENCRYPTED",
+        "WITH",
+        Bracketed(
+            Delimited(
+                Sequence(
+                    "COLUMN_ENCRYPTION_KEY",
+                    Ref("EqualsSegment"),
+                    Ref("SingleIdentifierGrammar"),
+                ),
+                Sequence(
+                    "ENCRYPTION_TYPE",
+                    Ref("EqualsSegment"),
+                    OneOf("DETERMINISTIC", "RANDOMIZED"),
+                ),
+                Sequence(
+                    "ALGORITHM",
+                    Ref("EqualsSegment"),
+                    Ref("QuotedLiteralSegment"),
+                ),
+            )
         ),
     )
 
