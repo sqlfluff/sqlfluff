@@ -124,6 +124,12 @@ STANDARD_CONFIG_INFO_DICT = {
             "or implicit positional references"
         ),
     },
+    "allow_space_in_identifier": {
+        "validation": [True, False],
+        "definition": (
+            "Should spaces in identifiers be allowed?"
+        ),
+    },
 }
 
 

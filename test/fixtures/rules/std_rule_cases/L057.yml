@@ -1,0 +1,55 @@
+rule: L057
+
+test_fail_special_chars_create_table_space:
+  fail_str:
+    CREATE TABLE DBO.ColumnNames
+    (
+        [Internal Space] INT
+    )
+
+test_fail_special_chars_create_table_gt:
+  fail_str:
+    CREATE TABLE DBO.ColumnNames
+    (
+        [Greater>Than] INT
+    )
+
+test_fail_special_chars_create_table_lt:
+  fail_str:
+    CREATE TABLE DBO.ColumnNames
+    (
+        [Less<Than] INT
+    )
+
+test_fail_special_chars_create_table_hash:
+  fail_str:
+    CREATE TABLE DBO.ColumnNames
+    (
+        Number# INT
+    )
+
+test_pass_special_chars_create_table_none:
+  pass_str:
+    CREATE TABLE DBO.ColumnNames
+    (
+        [NoInternalSpace] INT,
+        [GreaterThan] INT,
+        [LessThan] INT,
+        NumberVal INT
+    )
+
+test_pass_special_chars_create_table_space:
+  pass_str:
+    CREATE TABLE DBO.ColumnNames
+    (
+        [Internal Space] INT
+    )
+  configs:
+    rules:
+      L057:
+        allow_space_in_identifier = true
+
+test_fail_special_chars_alias:
+  fail_str:
+    SELECT a as [a with space]
+    FROM DBO.ColumnNames
