@@ -1,6 +1,6 @@
 """Implementation of Rule L057."""
 
-from typing import Tuple, List, Optional
+from typing import Optional
 
 from sqlfluff.core.rules.base import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import (
@@ -62,7 +62,7 @@ class Rule_L057(BaseRule):
                 and not (
                     context.segment.raw.isalnum()
                     or (
-                        self.allow_space_in_identifier
+                        self.allow_space_in_identifier  # type: ignore
                         and context.segment.raw.replace(" ", "").isalnum()
                     )
                 )
@@ -76,7 +76,7 @@ class Rule_L057(BaseRule):
                 and not (
                     context.segment.raw[1:-1].isalnum()
                     or (
-                        self.allow_space_in_identifier
+                        self.allow_space_in_identifier  # type: ignore
                         and context.segment.raw[1:-1].replace(" ", "").isalnum()
                     )
                 )
