@@ -35,11 +35,25 @@ test_pass_special_chars_create_table_none:
   pass_str:
     CREATE TABLE DBO.ColumnNames
     (
+        No_Internal_Space INT,
+        GreaterThan INT,
+        LessThan INT,
+        NumberVal INT
+    )
+
+test_pass_special_chars_create_table_none_quoted:
+  pass_str:
+    CREATE TABLE DBO.ColumnNames
+    (
         [No_Internal_Space] INT,
         [GreaterThan] INT,
         [LessThan] INT,
         NumberVal INT
     )
+  configs:
+    core:
+      dialect: tsql
+
 
 test_pass_special_chars_create_table_space:
   pass_str:
