@@ -168,7 +168,7 @@ jobs:
     runs-on: windows-latest
     env:
       PYTHON_VERSION: '3.8'
-    name: Python ${{ env.PYTHON_VERSION }} Windows tests
+    name: Python 3.8 Windows tests
     steps:
     - name: Set git to use LF
       run: |
@@ -208,7 +208,7 @@ jobs:
     runs-on: windows-latest
     env:
       PYTHON_VERSION: '3.8'
-    name: DBT Plugin Python {{ env.PYTHON_VERSION }} Windows tests
+    name: DBT Plugin Python 3.8 Windows tests
     steps:
     - name: Set git to use LF
       run: |
