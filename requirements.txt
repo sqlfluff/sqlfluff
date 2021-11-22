@@ -1,28 +1,18 @@
-# Core
 click>=7.1
 colorama>=0.3
 configparser
+cached-property
+# oyaml is like pyyaml but preserves orderings
 oyaml
 Jinja2
-# Used for diffcover plugin
 diff-cover>=2.5.0
-# Used for .sqlfluffignore
+# pathspec handles the .sqlfluffignore file
 pathspec
-# Used for finding os-specific application config dirs
+pytest
+tblib
 appdirs
-# Cached property for performance gains
-cached-property
 # dataclasses backport for python 3.6
 dataclasses; python_version < '3.7'
-# better type hints for older python versions
-typing_extensions
-# We provide a testing library for plugins in sqlfluff.testing
-pytest
-# For parsing pyproject.toml
-toml
-# For returning exceptions from multiprocessing.Pool.map()
-tblib
-# For handling progress bars
-tqdm
-# To get the encoding of files.
 chardet
+toml
+tqdm
