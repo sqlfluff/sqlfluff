@@ -24,20 +24,20 @@ class Rule_L057(BaseRule):
 
         CREATE TABLE DBO.ColumnNames
         (
-            [TrailingSpace ] INT,
+            [Internal Space] INT,
             [Greater>Than] INT,
             [Less<Than] INT,
             Number# INT
         )
 
     | **Best practice**
-    | Remove special characters from object and alias names.
+    | Object names should include only alphanumerics and underscores.
 
     .. code-block:: sql
 
         CREATE TABLE DBO.ColumnNames
         (
-            [TrailingSpace] INT,
+            [Internal_Space] INT,
             [GreaterThan] INT,
             [LessThan] INT,
             NumberVal INT
@@ -60,10 +60,10 @@ class Rule_L057(BaseRule):
                     self.unquoted_identifiers_policy, context.parent_stack  # type: ignore
                 )
                 and not (
-                    context.segment.raw.isalnum()
+                    context.segment.raw.replace("_", "").isalnum()
                     or (
                         self.allow_space_in_identifier  # type: ignore
-                        and context.segment.raw.replace(" ", "").isalnum()
+                        and context.segment.raw.replace("_", "").replace(" ", "").isalnum()
                     )
                 )
             )
@@ -74,10 +74,10 @@ class Rule_L057(BaseRule):
                     self.quoted_identifiers_policy, context.parent_stack  # type: ignore
                 )
                 and not (
-                    context.segment.raw[1:-1].isalnum()
+                    context.segment.raw[1:-1].replace("_", "").isalnum()
                     or (
                         self.allow_space_in_identifier  # type: ignore
-                        and context.segment.raw[1:-1].replace(" ", "").isalnum()
+                        and context.segment.raw[1:-1].replace("_", "").replace(" ", "").isalnum()
                     )
                 )
             )
