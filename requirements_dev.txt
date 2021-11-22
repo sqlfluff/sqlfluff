@@ -9,7 +9,6 @@ Pygments
 # testing
 coverage
 hypothesis
-psutil
 pytest
 pytest-cov
 pytest-sugar
