@@ -20,8 +20,8 @@ import configparser
 # Get the global config info as currently stated
 # (we use the config file to avoid actually loading any python here)
 config = configparser.ConfigParser()
-config.read(["../../src/sqlfluff/config.ini"])
-stable_version = config.get("sqlfluff", "stable_version")
+config.read(["../../setup.cfg"])
+stable_version = config.get("sqlfluff_docs", "stable_version")
 
 # -- Project information -----------------------------------------------------
 
