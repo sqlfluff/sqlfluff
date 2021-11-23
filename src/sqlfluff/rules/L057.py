@@ -5,20 +5,16 @@ from typing import Optional
 from sqlfluff.core.rules.base import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
-    document_fix_compatible,
 )
 from sqlfluff.rules.L014 import identifiers_policy_applicable
 
 
 @document_configuration
-@document_fix_compatible
 class Rule_L057(BaseRule):
-    """Do not use special characters in object names.
-
-    The functionality for this rule is inherited from :obj:`Rule_L010`.
+    """Do not use special characters in identifiers.
 
     | **Anti-pattern**
-    | Using special characters within names when creating or aliasing objects.
+    | Using special characters within identifiers when creating or aliasing objects.
 
     .. code-block:: sql
 
@@ -31,7 +27,7 @@ class Rule_L057(BaseRule):
         )
 
     | **Best practice**
-    | Object names should include only alphanumerics and underscores.
+    | Identifiers should include only alphanumerics and underscores.
 
     .. code-block:: sql
 
