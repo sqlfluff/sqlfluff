@@ -6,7 +6,6 @@ cached-property
 chardet
 click>=7.1
 colorama>=0.3
-configparser
 # dataclasses backport for python 3.6
 dataclasses; python_version < '3.7'
 # Used for diffcover plugin
