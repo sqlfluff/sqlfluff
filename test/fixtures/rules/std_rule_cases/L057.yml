@@ -75,3 +75,7 @@ test_pass_special_chars_reference:
   pass_str:
     SELECT "column with space" as a
     FROM DBO.ColumnNames
+  configs:
+    rules:
+      L057:
+        allow_space_in_identifier: aliases
