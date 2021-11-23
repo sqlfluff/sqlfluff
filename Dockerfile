@@ -11,7 +11,9 @@ RUN pip install --upgrade pip setuptools wheel
 
 # Install requirements seperately
 # to take advantage of layer caching.
-COPY requirements.txt .
+# N.B. we extract the requirements from setup.cfg
+COPY setup.cfg .
+RUN python -c "import configparser; c = configparser.ConfigParser(); c.read('setup.cfg'); print(c['options']['install_requires'])" > requirements.txt
 RUN pip install --upgrade -r requirements.txt
 
 # Copy minimal set of SQLFluff package files.
