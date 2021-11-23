@@ -26,6 +26,7 @@ from sqlfluff.core.parser import (
     StringParser,
     SymbolSegment,
     SegmentGenerator,
+    StringLexer,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -63,6 +64,7 @@ tsql_dialect.insert_lexer_matchers(
             r"[#][#]?[a-zA-Z0-9_]+",
             CodeSegment,
         ),
+        StringLexer("not", "!", CodeSegment),
     ],
     before="back_quote",
 )
