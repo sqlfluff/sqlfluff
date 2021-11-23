@@ -1,19 +1,14 @@
 """Sqlfluff is a SQL linter for humans."""
+import importlib.metadata
 import sys
 import pytest
 
 # Expose the public API.
 from sqlfluff.api import lint, fix, parse, list_rules, list_dialects  # noqa: F401
 
-# Set the version attribute of the library
-import pkg_resources
-import configparser
 
 # Get the current version
-config = configparser.ConfigParser()
-config.read([pkg_resources.resource_filename("sqlfluff", "config.ini")])
-
-__version__ = config.get("sqlfluff", "version")
+__version__ = importlib.metadata.version("sqlfluff")
 
 # Check major python version
 if sys.version_info[0] < 3:
