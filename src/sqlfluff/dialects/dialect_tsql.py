@@ -98,6 +98,7 @@ tsql_dialect.add(
     QuotedLiteralSegmentWithN=NamedParser(
         "single_quote_with_n", CodeSegment, name="quoted_literal", type="literal"
     ),
+    NotSegment=StringParser("!", SymbolSegment, name="not", type="comparison_operator"),
     NotGreaterThanSegment=StringParser(
         "!>", SymbolSegment, name="less_than_equal_to", type="comparison_operator"
     ),
@@ -130,6 +131,26 @@ tsql_dialect.replace(
         Ref("LikeOperatorSegment"),
         Ref("NotGreaterThanSegment"),
         Ref("NotLessThanSegment"),
+        # TSQL allows for whitespace between the parts of a comparison operator
+        Sequence(
+            Ref("GreaterThanSegment"),
+            Ref("EqualsSegment"),
+        ),
+        Sequence(
+            Ref("LessThanSegment"),
+            OneOf(
+                Ref("EqualsSegment"),
+                Ref("GreaterThanSegment"),
+            ),
+        ),
+        Sequence(
+            Ref("NotSegment"),
+            OneOf(
+                Ref("EqualsSegment"),
+                Ref("LessThanSegment"),
+                Ref("GreaterThanSegment"),
+            ),
+        ),
     ),
     SingleIdentifierGrammar=OneOf(
         Ref("NakedIdentifierSegment"),

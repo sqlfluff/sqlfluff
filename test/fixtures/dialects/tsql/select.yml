@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8e3c1290dece31e9c4c8eef3aac5358d3d24375f98e14fb431cb8656b9f76044
+_hash: 10d904cabcdf0fad9b56efca62a2ae1e0f1001656798008b82bbe8b7551d9320
 file:
   batch:
     statement:
@@ -49,7 +49,25 @@ file:
               - keyword: WHEN
               - expression:
                 - literal: '1'
+                - comparison_operator: '>'
+                - comparison_operator: '='
+                - literal: '1'
+              - keyword: THEN
+              - expression:
+                  literal: "'True'"
+              - keyword: WHEN
+              - expression:
+                - literal: '1'
                 - comparison_operator: <=
+                - literal: '1'
+              - keyword: THEN
+              - expression:
+                  literal: "'True'"
+              - keyword: WHEN
+              - expression:
+                - literal: '1'
+                - comparison_operator: <
+                - comparison_operator: '='
                 - literal: '1'
               - keyword: THEN
               - expression:
@@ -70,6 +88,15 @@ file:
               - keyword: THEN
               - expression:
                   literal: "'Why is this a thing?'"
+              - keyword: WHEN
+              - expression:
+                - literal: '1'
+                - comparison_operator: '!'
+                - comparison_operator: <
+                - literal: '1'
+              - keyword: THEN
+              - expression:
+                  literal: "'Or this sort of thing?'"
               - keyword: WHEN
               - expression:
                 - literal: '1'
