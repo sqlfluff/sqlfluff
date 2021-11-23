@@ -78,4 +78,4 @@ test_pass_special_chars_reference:
   configs:
     rules:
       L057:
-        allow_space_in_identifier: aliases
+        quoted_identifiers_policy: aliases
