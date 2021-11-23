@@ -1,4 +1,1 @@
 include README.md LICENSE.md CHANGELOG.md
-include src/sqlfluff/config.ini
-include src/sqlfluff/py.typed
-include src/sqlfluff/core/default_config.cfg

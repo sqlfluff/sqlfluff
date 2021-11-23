@@ -14,7 +14,6 @@ pytest-cov
 pytest-sugar
 # MyPy
 mypy
-typing_extensions
 types-toml
 types-pkg_resources
 types-chardet

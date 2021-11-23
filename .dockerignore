@@ -1,0 +1,54 @@
+# Ignore IDE files
+.vscode
+.idea
+/.sqlfluff
+**/.DS_Store
+
+# Ignore Python cache and prebuilt things
+.cache
+__pycache__
+*.egg-info
+*.pyc
+build
+_build
+dist
+.pytest_cache
+
+# Ignore the Environment
+env
+.tox
+venv
+.venv
+.python-version
+
+# Ignore coverage reports
+.coverage
+.coverage.*
+coverage.xml
+htmlcov
+*.cover
+
+# Ignore test reports
+.test-reports
+test-reports
+
+# Ignore root testing sql & python files
+/test*.sql
+/test*.py
+/.hypothesis/
+
+# Ignore dbt outputs from testing
+/target
+
+# Ignore conda environment.yml contributors might be using and direnv config
+environment.yml
+.envrc
+**/*FIXED.sql
+
+# Others
+pip-log.txt
+pip-delete-this-directory.txt
+*.log
+.git
+.mypy_cache
+.pytest_cache
