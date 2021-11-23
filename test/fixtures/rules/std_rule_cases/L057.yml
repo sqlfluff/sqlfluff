@@ -68,5 +68,10 @@ test_pass_special_chars_create_table_space_allowed:
 
 test_fail_special_chars_alias:
   fail_str:
-    SELECT a as "a with space"
+    SELECT a as "alias with space"
+    FROM DBO.ColumnNames
+
+test_pass_special_chars_reference:
+  pass_str:
+    SELECT "column with space" as a
     FROM DBO.ColumnNames
