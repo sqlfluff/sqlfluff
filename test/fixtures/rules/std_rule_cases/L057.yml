@@ -4,33 +4,24 @@ test_fail_special_chars_create_table_space:
   fail_str:
     CREATE TABLE DBO.ColumnNames
     (
-        [Internal Space] INT
+        "Internal Space" INT
     )
-  configs:
-    core:
-      dialect: tsql
 
 test_fail_special_chars_create_table_gt:
   fail_str:
     CREATE TABLE DBO.ColumnNames
     (
-        [Greater>Than] INT
+        "Greater>Than" INT
     )
-  configs:
-    core:
-      dialect: tsql
 
 test_fail_special_chars_create_table_lt:
   fail_str:
     CREATE TABLE DBO.ColumnNames
     (
-        [Less<Than] INT
+        "Less<Than" INT
     )
-  configs:
-    core:
-      dialect: tsql
 
-test_fail_special_chars_create_table_hash:
+test_fail_special_chars_create_table_hash_unquoted:
   fail_str:
     CREATE TABLE DBO.ColumnNames
     (
@@ -44,13 +35,13 @@ test_pass_special_chars_create_table_none:
   pass_str:
     CREATE TABLE DBO.ColumnNames
     (
-        No_Internal_Space INT,
+        "No_Internal_Space" INT,
         GreaterThan INT,
         LessThan INT,
         NumberVal INT
     )
 
-test_pass_special_chars_create_table_none_quoted:
+test_pass_special_chars_create_table_none_quoted_tsql:
   pass_str:
     CREATE TABLE DBO.ColumnNames
     (
@@ -64,23 +55,18 @@ test_pass_special_chars_create_table_none_quoted:
       dialect: tsql
 
 
-test_pass_special_chars_create_table_space:
+test_pass_special_chars_create_table_space_allowed:
   pass_str:
     CREATE TABLE DBO.ColumnNames
     (
-        [Internal Space] INT
+        "Internal Space" INT
     )
   configs:
     rules:
       L057:
         allow_space_in_identifier: True
-    core:
-      dialect: tsql
 
 test_fail_special_chars_alias:
   fail_str:
-    SELECT a as [a with space]
+    SELECT a as "a with space"
     FROM DBO.ColumnNames
-  configs:
-    core:
-      dialect: tsql
