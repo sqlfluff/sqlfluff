@@ -174,7 +174,8 @@ whenever a new release is published to GitHub.
 
 #### Release checklist:
 
-- [ ] Change the version in `src/sqlfluff/config.ini` and `plugins/sqlfluff-templator-dbt/setup.py`
+- [ ] Change the version in `setup.cfg` and `plugins/sqlfluff-templator-dbt/setup.cfg`
+- [ ] Update the stable_version in the `[sqlfluff_docs]` section of `setup.cfg`
 - [ ] Copy the draft releases from https://github.com/sqlfluff/sqlfluff/releases to [CHANGELOG.md](CHANGELOG.md)
 - [ ] Add markdown links to PRs and contributors
 - [ ] Check each issue title is clear, and if not edit issue title (which will automatically update Release notes on next PR merged, as the Draft one is recreated in full each time). Also edit locally in [CHANGELOG.md](CHANGELOG.md)
@@ -191,7 +192,7 @@ whenever a new release is published to GitHub.
 - [ ] Announce the release on Twitter (@tunetheweb can do this or let him know your Twitter handle if you want access to Tweet on SQLFluff’s behalf).
 
 :warning: **Before creating a new release, ensure that
-[src/sqlfluff/config.ini](src/sqlfluff/config.ini) is up-to-date with a new version** :warning:.
+[setup.cfg](setup.cfg) is up-to-date with a new version** :warning:.
 If this is not done, PyPI will reject the package. Also, ensure you have used that
 version as a part of the tag and have described the changes accordingly.
 
