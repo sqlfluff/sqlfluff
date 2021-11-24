@@ -40,7 +40,7 @@ class Rule_L055(BaseRule):
         if context.segment.type != "join_clause":
             return None
 
-        # We identify non-lone JOIN by looking at first child segment.
+        # Identify if RIGHT JOIN is present.
         if {"right", "join"}.issubset(
             {segment.name for segment in context.segment.segments}
         ):
