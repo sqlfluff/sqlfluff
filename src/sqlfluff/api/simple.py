@@ -1,6 +1,6 @@
 """The simple public API methods."""
 
-from typing import Any, Dict, List, Optional, TextIO, Union
+from typing import Any, Dict, List, Optional
 from sqlfluff.core import Linter
 from sqlfluff.core import SQLBaseError
 from sqlfluff.core.linter import ParsedString
@@ -17,38 +17,27 @@ class APIParsingError(ValueError):
         super().__init__(self.msg, *args)
 
 
-def _unify_str_or_file(sql: Union[str, TextIO]) -> str:
-    """Unify string and files in the same format."""
-    if not isinstance(sql, str):
-        try:
-            sql = sql.read()
-        except AttributeError:  # pragma: no cover
-            raise TypeError("Value passed as sql is not a string or a readable object.")
-    return sql
-
-
 def lint(
-    sql: Union[str, TextIO],
+    sql: str,
     dialect: str = "ansi",
-    rules: Optional[Union[str, List[str]]] = None,
-    exclude_rules: Optional[Union[str, List[str]]] = None,
+    rules: Optional[List[str]] = None,
+    exclude_rules: Optional[List[str]] = None,
 ) -> List[Dict[str, Any]]:
     """Lint a sql string or file.
 
     Args:
-        sql (:obj:`str` or file-like object): The sql to be linted
+        sql (:obj:`str`): The sql to be linted
             either as a string or a subclass of :obj:`TextIOBase`.
         dialect (:obj:`str`, optional): A reference to the dialect of the sql
             to be linted. Defaults to `ansi`.
-        rules (:obj:`str` or list of :obj:`str`, optional): A subset of rule
+        rules (:obj:list of :obj:`str`, optional): A subset of rule
             references to lint for.
-        exclude_rules (:obj:`str` or list of :obj:`str`, optional): A subset of rule
+        exclude_rules (:obj:list of :obj:`str`, optional): A subset of rule
             references to avoid linting for.
 
     Returns:
         :obj:`list` of :obj:`dict` for each violation found.
     """
-    sql = _unify_str_or_file(sql)
     linter = Linter(dialect=dialect, rules=rules, exclude_rules=exclude_rules)
 
     result = linter.lint_string_wrapped(sql)
@@ -58,27 +47,26 @@ def lint(
 
 
 def fix(
-    sql: Union[str, TextIO],
+    sql: str,
     dialect: str = "ansi",
-    rules: Optional[Union[str, List[str]]] = None,
-    exclude_rules: Optional[Union[str, List[str]]] = None,
+    rules: Optional[List[str]] = None,
+    exclude_rules: Optional[List[str]] = None,
 ) -> str:
     """Fix a sql string or file.
 
     Args:
-        sql (:obj:`str` or file-like object): The sql to be linted
+        sql (:obj:`str`): The sql to be linted
             either as a string or a subclass of :obj:`TextIOBase`.
         dialect (:obj:`str`, optional): A reference to the dialect of the sql
             to be linted. Defaults to `ansi`.
-        rules (:obj:`str` or iterable of :obj:`str`, optional): A subset of rule
+        rules (:obj:list of :obj:`str`, optional): A subset of rule
             references to lint for.
-        exclude_rules (:obj:`str` or iterable of :obj:`str`, optional): A subset of rule
+        exclude_rules (:obj:list of :obj:`str`, optional): A subset of rule
             references to avoid linting for.
 
     Returns:
         :obj:`str` for the fixed sql if possible.
     """
-    sql = _unify_str_or_file(sql)
     linter = Linter(dialect=dialect, rules=rules, exclude_rules=exclude_rules)
 
     result = linter.lint_string_wrapped(sql, fix=True)
@@ -86,11 +74,11 @@ def fix(
     return fixed_string
 
 
-def parse(sql: Union[str, TextIO], dialect: str = "ansi") -> ParsedString:
+def parse(sql: str, dialect: str = "ansi") -> ParsedString:
     """Parse a sql string or file.
 
     Args:
-        sql (:obj:`str` or file-like object): The sql to be linted
+        sql (:obj:`str`): The sql to be linted
             either as a string or a subclass of :obj:`TextIOBase`.
         dialect (:obj:`str`, optional): A reference to the dialect of the sql
             to be linted. Defaults to `ansi`.
@@ -98,7 +86,6 @@ def parse(sql: Union[str, TextIO], dialect: str = "ansi") -> ParsedString:
     Returns:
         :obj:`ParsedString` containing the parsed structure.
     """
-    sql = _unify_str_or_file(sql)
     linter = Linter(dialect=dialect)
     parsed = linter.parse_string(sql)
     # If we encounter any parsing errors, raise them in a combined issue.

@@ -100,17 +100,17 @@ def test__api__lint_string():
     assert result == lint_result
 
 
-def test__api__lint_file():
-    """Basic checking of lint functionality from a file object."""
-    string_buffer = io.StringIO(my_bad_query)
-    result = sqlfluff.lint(string_buffer)
-    # Check actual result
-    assert result == lint_result
-
-
 def test__api__lint_string_specific():
     """Basic checking of lint functionality."""
     rules = ["L014", "L009"]
+    result = sqlfluff.lint(my_bad_query, rules=rules)
+    # Check which rules are found
+    assert all(elem["code"] in rules for elem in result)
+
+
+def test__api__lint_string_specific_single():
+    """Basic checking of lint functionality."""
+    rules = ["L014"]
     result = sqlfluff.lint(my_bad_query, rules=rules)
     # Check which rules are found
     assert all(elem["code"] in rules for elem in result)
@@ -122,7 +122,16 @@ def test__api__lint_string_specific_exclude():
     result = sqlfluff.lint(my_bad_query, exclude_rules=exclude_rules)
     # Check only L044 is found
     assert len(result) == 1
-    assert "L044" in result[0]["code"]
+    assert "L044" == result[0]["code"]
+
+
+def test__api__lint_string_specific_exclude_single():
+    """Basic checking of lint functionality."""
+    exclude_rules = ["L039"]
+    result = sqlfluff.lint(my_bad_query, exclude_rules=exclude_rules)
+    # Check only L044 is found
+    assert len(result) == 9
+    set(["L009", "L010", "L013", "L014", "L036", "L044"]) == set([r["code"] for r in result])
 
 
 def test__api__lint_string_specific_exclude_all_failed_rules():
@@ -152,14 +161,14 @@ FROM mytable
 
 def test__api__fix_string_specific():
     """Basic checking of lint functionality with a specific rule."""
-    result = sqlfluff.fix(my_bad_query, rules="L010")
+    result = sqlfluff.fix(my_bad_query, rules=["L010"])
     # Check actual result
     assert result == "SELECT  *, 1, blah AS  fOO  FROM myTable"
 
 
 def test__api__fix_string_specific_exclude():
     """Basic checking of lint functionality with a specific rule exclusion."""
-    result = sqlfluff.fix(my_bad_query, exclude_rules="L036")
+    result = sqlfluff.fix(my_bad_query, exclude_rules=["L036"])
     # Check actual result
     assert result == "SELECT *, 1, blah AS foo FROM mytable\n"
 
