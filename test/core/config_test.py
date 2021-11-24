@@ -214,3 +214,35 @@ def test__config__templater_selection():
 
     with pytest.raises(ValueError):
         cfg.get_templater("afefhlsakufe")
+
+def test__config__glob_exclude_config_tests():
+    """Test linting with a glob pattern in exclude_rules.
+
+    This looks like a linter test but it's actually a config
+    test.
+    """
+    lntr = Linter(config=FluffConfig.from_path("test/fixtures/config/glob_exclude"))
+    lnt = lntr.lint_path("test/fixtures/config/glob_exclude/test.sql")
+    violations = lnt.check_tuples(by_path=True)
+    for k in violations:
+            assert ("L044", 10, 1) in violations[k]
+            assert ("L027", 10, 8) in violations[k]
+            assert "L050" not in [c[0] for c in violations[k]]
+            assert "L051" not in [c[0] for c in violations[k]]
+            assert "L052" not in [c[0] for c in violations[k]]
+
+def test__config__glob_include_config_tests():
+    """Test linting with a glob pattern in rules.
+
+    This looks like a linter test but it's actually a config
+    test.
+    """
+    lntr = Linter(config=FluffConfig.from_path("test/fixtures/config/glob_include"))
+    lnt = lntr.lint_path("test/fixtures/config/glob_include/test.sql")
+    violations = lnt.check_tuples(by_path=True)
+    for k in violations:
+            assert ("L050", 1, 1) in violations[k]
+            assert ("L051", 12, 1) in violations[k]
+            assert ("L052", 12, 9) in violations[k]
+            assert "L044" not in [c[0] for c in violations[k]]
+            assert "L027" not in [c[0] for c in violations[k]]

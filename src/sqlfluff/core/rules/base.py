@@ -703,11 +703,12 @@ class RuleSet:
             )
 
         keylist = sorted(self._register.keys())
-        # First we expand the whitelist and blacklist
+
+        # First we expand the whitelist and blacklist globs
         expanded_whitelist = self._expand_config_rule_glob_list(whitelist)
         expanded_blacklist = self._expand_config_rule_glob_list(blacklist)
-        
-        # First we filter the rules
+
+        # Then we filter the rules
         keylist = [r for r in keylist if r in expanded_whitelist and r not in expanded_blacklist]
 
         # Construct the kwargs for instantiation before we actually do it.
