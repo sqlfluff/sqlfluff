@@ -1,0 +1,198 @@
+rule: L057
+
+# Configuration test matrix
+# Pass/Fail	Policy	    Setting	        Test
+# Pass	    Quoted	    All	            test_pass_special_chars_create_table_none
+# Pass	    Quoted	    Aliases	        test_pass_special_chars_quoted_policy_aliases
+# Pass	    Quoted	    Column Aliases	test_pass_special_chars_quoted_policy_column_aliases
+# Pass	    Quoted	    None	        test_pass_special_chars_quoted_policy_none
+# Pass	    Unquoted	All	            test_pass_special_chars_create_table_none
+# Pass	    Unquoted	Aliases	        test_pass_special_chars_unquoted_policy_aliases
+# Pass	    Unquoted	Column Aliases	test_pass_special_chars_unquoted_policy_column_aliases
+# Fail	    Quoted	    All	            test_fail_special_chars_create_table_space
+# Fail	    Quoted	    Aliases	        test_fail_special_chars_alias
+# Fail	    Quoted	    Column Aliases	test_fail_special_chars_quoted_policy_column_alias
+# Fail	    Unquoted	All	            test_fail_special_chars_create_table_hash_unquoted
+# Fail	    Unquoted	Aliases	        test_fail_special_chars_unquoted_policy_alias
+# Fail	    Unquoted	Column Aliases	test_fail_special_chars_unquoted_policy_column_alias
+# Pass	    Space	    TRUE	        test_pass_special_chars_create_table_space_allowed
+# Pass	    Space	    FALSE	        test_pass_special_chars_create_table_none
+# Fail	    Space	    FALSE	        test_fail_special_chars_create_table_space
+
+
+test_fail_special_chars_create_table_space:
+  fail_str:
+    CREATE TABLE DBO.ColumnNames
+    (
+        "Internal Space" INT
+    )
+
+test_fail_special_chars_create_table_gt:
+  fail_str:
+    CREATE TABLE DBO.ColumnNames
+    (
+        "Greater>Than" INT
+    )
+
+test_fail_special_chars_create_table_lt:
+  fail_str:
+    CREATE TABLE DBO.ColumnNames
+    (
+        "Less<Than" INT
+    )
+
+test_fail_special_chars_create_table_lt_bigquery:
+  fail_str:
+    CREATE TABLE DBO.ColumnNames
+    (
+        `Less<Than` INT
+    )
+  configs:
+    core:
+      dialect: bigquery
+
+test_fail_special_chars_create_table_hash_unquoted:
+  fail_str:
+    CREATE TABLE DBO.ColumnNames
+    (
+        Number# INT
+    )
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_special_chars_create_table_none:
+  pass_str:
+    CREATE TABLE DBO.ColumnNames
+    (
+        "No_Internal_Space" INT,
+        GreaterThan INT,
+        LessThan INT,
+        NumberVal INT
+    )
+
+test_pass_special_chars_create_table_none_quoted_tsql:
+  pass_str:
+    CREATE TABLE DBO.ColumnNames
+    (
+        [No_Internal_Space] INT,
+        [GreaterThan] INT,
+        [LessThan] INT,
+        NumberVal INT
+    )
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_special_chars_create_table_none_quoted_biquery:
+  pass_str:
+    CREATE TABLE DBO.ColumnNames
+    (
+        `No_Internal_Space` INT,
+        `GreaterThan` INT,
+        `LessThan` INT,
+        NumberVal INT
+    )
+  configs:
+    core:
+      dialect: bigquery
+
+test_pass_special_chars_create_table_space_allowed:
+  pass_str:
+    CREATE TABLE DBO.ColumnNames
+    (
+        "Internal Space" INT
+    )
+  configs:
+    rules:
+      L057:
+        allow_space_in_identifier: True
+
+test_fail_special_chars_quoted_policy_alias:
+  fail_str:
+    SELECT a
+    FROM DBO.ColumnNames as "alias with space"
+  configs:
+    rules:
+      L057:
+        quoted_identifiers_policy: aliases
+
+test_fail_special_chars_quoted_policy_column_alias:
+  fail_str:
+    SELECT a as "alias with space"
+    FROM DBO.ColumnNames
+  configs:
+    rules:
+      L057:
+        quoted_identifiers_policy: column_aliases
+
+test_fail_special_chars_unquoted_policy_aliases:
+  fail_str:
+    SELECT a
+    FROM DBO.ColumnNames as aliashash#
+  configs:
+    rules:
+      L057:
+        unquoted_identifiers_policy: aliases
+    core:
+      dialect: tsql
+
+test_fail_special_chars_unquoted_policy_column_aliases:
+  fail_str:
+    SELECT a as aliashash#
+    FROM DBO.ColumnNames
+  configs:
+    rules:
+      L057:
+        unquoted_identifiers_policy: column_aliases
+    core:
+      dialect: tsql
+
+test_pass_special_chars_quoted_policy_aliases:
+  pass_str:
+    SELECT "column with space" as a
+    FROM DBO.ColumnNames
+  configs:
+    rules:
+      L057:
+        quoted_identifiers_policy: aliases
+
+test_pass_special_chars_quoted_policy_none:
+  pass_str:
+    SELECT "column with space" as "alias with space"
+    FROM DBO.ColumnNames
+  configs:
+    rules:
+      L057:
+        quoted_identifiers_policy: none
+
+test_pass_special_chars_unquoted_policy_aliases:
+  pass_str:
+    SELECT Number# as a
+    FROM DBO.ColumnNames
+  configs:
+    rules:
+      L057:
+        unquoted_identifiers_policy: aliases
+    core:
+      dialect: tsql
+
+test_pass_special_chars_unquoted_policy_column_aliases:
+  pass_str:
+    SELECT Number# as a
+    FROM DBO.ColumnNames as AliasHash#
+  configs:
+    rules:
+      L057:
+        unquoted_identifiers_policy: column_aliases
+    core:
+      dialect: tsql
+
+test_pass_special_chars_quoted_policy_column_aliases:
+  pass_str:
+    SELECT "column with space" as a
+    FROM DBO.ColumnNames as "alias with space"
+  configs:
+    rules:
+      L057:
+        quoted_identifiers_policy: column_aliases
