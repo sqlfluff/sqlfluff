@@ -9,7 +9,6 @@ from typing import (
     Sequence,
     Optional,
     Tuple,
-    Union,
     cast,
     Iterable,
     Iterator,
@@ -66,9 +65,9 @@ class Linter:
         config: Optional[FluffConfig] = None,
         formatter: Any = None,
         dialect: Optional[str] = None,
-        rules: Optional[Union[str, List[str]]] = None,
-        user_rules: Optional[Union[str, List[str]]] = None,
-        exclude_rules: Optional[Union[str, List[str]]] = None,
+        rules: Optional[List[str]] = None,
+        user_rules: Optional[List[BaseRule]] = None,
+        exclude_rules: Optional[List[str]] = None,
     ) -> None:
         # Store the config object
         self.config = FluffConfig.from_kwargs(
