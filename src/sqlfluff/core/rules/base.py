@@ -655,10 +655,10 @@ class RuleSet:
 
     def _expand_config_rule_glob_list(self, glob_list: List[str]) -> List[str]:
         """Expand a list of rule globs into a list of rule codes.
-        
+
         Returns:
             :obj:`list` of :obj:`str` rule codes.
-        
+
         """
         expanded_glob_list = []
         for r in glob_list:
@@ -709,7 +709,11 @@ class RuleSet:
         expanded_blacklist = self._expand_config_rule_glob_list(blacklist)
 
         # Then we filter the rules
-        keylist = [r for r in keylist if r in expanded_whitelist and r not in expanded_blacklist]
+        keylist = [
+            r
+            for r in keylist
+            if r in expanded_whitelist and r not in expanded_blacklist
+        ]
 
         # Construct the kwargs for instantiation before we actually do it.
         rule_kwargs = {}
