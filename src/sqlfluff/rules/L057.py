@@ -49,7 +49,6 @@ class Rule_L057(BaseRule):
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Do not use special characters in object names."""
-
         # Config type hints
         self.quoted_identifiers_policy: str
         self.unquoted_identifiers_policy: str
