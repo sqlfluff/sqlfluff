@@ -3,13 +3,21 @@ import sys
 import pytest
 
 # Expose the public API.
-from sqlfluff.api import lint, fix, parse, list_rules, list_dialects  # noqa: F401
+from sqlfluff.api import lint, fix, parse, list_rules, list_dialects
 
 # Import metadata (using importlib_metadata backport for python versions <3.8)
 if sys.version_info < (3, 8, 0):
     import importlib_metadata as metadata
 else:
     from importlib import metadata
+
+__all__ = (
+    "lint",
+    "fix",
+    "parse",
+    "list_rules",
+    "list_dialects",
+)
 
 # Get the current version
 __version__ = metadata.version("sqlfluff")
