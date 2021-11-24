@@ -126,7 +126,7 @@ test_fail_special_chars_quoted_policy_column_alias:
       L057:
         quoted_identifiers_policy: column_aliases
 
-test_fail_special_chars_unquoted_policy_alias:
+test_fail_special_chars_unquoted_policy_aliases:
   fail_str:
     SELECT a
     FROM DBO.ColumnNames as aliashash#
@@ -134,8 +134,10 @@ test_fail_special_chars_unquoted_policy_alias:
     rules:
       L057:
         unquoted_identifiers_policy: aliases
+    core:
+      dialect: tsql
 
-test_fail_special_chars_unquoted_policy_column_alias:
+test_fail_special_chars_unquoted_policy_column_aliases:
   fail_str:
     SELECT a as aliashash#
     FROM DBO.ColumnNames
@@ -143,6 +145,8 @@ test_fail_special_chars_unquoted_policy_column_alias:
     rules:
       L057:
         unquoted_identifiers_policy: column_aliases
+    core:
+      dialect: tsql
 
 test_pass_special_chars_quoted_policy_aliases:
   pass_str:
