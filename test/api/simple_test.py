@@ -131,7 +131,9 @@ def test__api__lint_string_specific_exclude_single():
     result = sqlfluff.lint(my_bad_query, exclude_rules=exclude_rules)
     # Check only L044 is found
     assert len(result) == 9
-    set(["L009", "L010", "L013", "L014", "L036", "L044"]) == set([r["code"] for r in result])
+    set(["L009", "L010", "L013", "L014", "L036", "L044"]) == set(
+        [r["code"] for r in result]
+    )
 
 
 def test__api__lint_string_specific_exclude_all_failed_rules():
