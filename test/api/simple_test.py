@@ -1,6 +1,5 @@
 """Tests for simple use cases of the public api."""
 
-import io
 import pytest
 
 import sqlfluff
