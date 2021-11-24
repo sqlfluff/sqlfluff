@@ -192,14 +192,3 @@ test_pass_special_chars_quoted_policy_column_aliases:
     rules:
       L057:
         quoted_identifiers_policy: column_aliases
-
-test_pass_special_chars_unquoted_policy_none:
-  pass_str:
-    SELECT Number# as NumberAlias#
-    FROM DBO.ColumnNames
-  configs:
-    rules:
-      L057:
-        unquoted_identifiers_policy: none
-    core:
-      dialect: tsql
