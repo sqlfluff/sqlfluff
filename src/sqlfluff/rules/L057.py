@@ -49,40 +49,43 @@ class Rule_L057(BaseRule):
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Do not use special characters in object names."""
+
+        # Config type hints
+        self.quoted_identifiers_policy: str
+        self.unquoted_identifiers_policy: str
+        self.allow_space_in_identifier: bool
+
         if (
-            (
-                context.segment.name == "naked_identifier"
-                and identifiers_policy_applicable(
-                    self.unquoted_identifiers_policy, context.parent_stack  # type: ignore
-                )
-                and not (
-                    context.segment.raw.replace("_", "").isalnum()
-                    or (
-                        self.allow_space_in_identifier  # type: ignore
-                        and context.segment.raw.replace("_", "")
-                        .replace(" ", "")
-                        .isalnum()
-                    )
-                )
+            context.segment.name == "naked_identifier"
+            and identifiers_policy_applicable(
+                self.unquoted_identifiers_policy, context.parent_stack
             )
-        ) or (
-            (
-                context.segment.name == "quoted_identifier"
-                and identifiers_policy_applicable(
-                    self.quoted_identifiers_policy, context.parent_stack  # type: ignore
-                )
-                and not (
-                    context.segment.raw[1:-1].replace("_", "").isalnum()
-                    or (
-                        self.allow_space_in_identifier  # type: ignore
-                        and context.segment.raw[1:-1]
-                        .replace("_", "")
-                        .replace(" ", "")
-                        .isalnum()
-                    )
+            and not (
+                context.segment.raw.replace("_", "").isalnum()
+                or (
+                    self.allow_space_in_identifier
+                    and context.segment.raw.replace("_", "").replace(" ", "").isalnum()
                 )
             )
         ):
             return LintResult(anchor=context.segment)
-        else:
-            return None
+
+        if (
+            context.segment.name == "quoted_identifier"
+            and identifiers_policy_applicable(
+                self.quoted_identifiers_policy, context.parent_stack
+            )
+            and not (
+                context.segment.raw[1:-1].replace("_", "").isalnum()
+                or (
+                    self.allow_space_in_identifier
+                    and context.segment.raw[1:-1]
+                    .replace("_", "")
+                    .replace(" ", "")
+                    .isalnum()
+                )
+            )
+        ):
+            return LintResult(anchor=context.segment)
+
+        return None
