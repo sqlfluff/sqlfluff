@@ -200,6 +200,6 @@ test_pass_special_chars_unquoted_policy_none:
   configs:
     rules:
       L057:
-        quoted_identifiers_policy: none
+        unquoted_identifiers_policy: none
     core:
       dialect: tsql
