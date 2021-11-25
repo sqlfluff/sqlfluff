@@ -116,7 +116,10 @@ class JinjaTemplater(PythonTemplater):
             spec = importlib.util.spec_from_file_location(module_name, file_path)
             lib = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(lib)
-            libraries[module_name] = lib
+            if module_name == '__init__':
+                libraries.update({e: getattr(lib, e) for e in dir(lib) if not e.startswith('_')})
+            else:
+                libraries[module_name] = lib
 
         return libraries
 
