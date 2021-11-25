@@ -1,10 +1,10 @@
 """Implementation of Rule L027."""
 
 from sqlfluff.core.rules.base import LintResult
-from sqlfluff.rules.L025 import Rule_L025
+from sqlfluff.rules.L020 import Rule_L020
 
 
-class Rule_L027(Rule_L025):
+class Rule_L027(Rule_L020):
     """References should be qualified if select has more than one referenced table/view.
 
     NB: Except if they're present in a USING clause.
