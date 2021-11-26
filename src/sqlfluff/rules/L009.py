@@ -121,13 +121,12 @@ class Rule_L009(BaseRule):
             # No need for fix if single new line exists.
             return None
         elif len(eof_newline_segments) == 0:
-            # We're going to make an edit because we're appending to the end and there's
-            # no segment after it to match on. Otherwise we would never get a match!
+            # We make an edit to create this segment after the child of the FileSegment.
             return LintResult(
                 anchor=anchor_segment,
                 fixes=[
                     LintFix(
-                        "edit", context.segment, [context.segment, NewlineSegment()]
+                        "edit", context.parent_stack[1], [context.parent_stack[1], NewlineSegment()]
                     )
                 ],
             )
