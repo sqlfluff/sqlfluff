@@ -383,6 +383,7 @@ def test__linter__encoding(fname, config_encoding, lexerror):
         ("noqa: disable=L010", NoQaDirective(0, ("L010",), "disable")),
         ("noqa: disable=all", NoQaDirective(0, None, "disable")),
         ("noqa: disable", SQLParseError),
+        ("Inline comment before inline ignore -- noqa:L001,L002", NoQaDirective(0, ("L001", "L002"), None)),
     ],
 )
 def test_parse_noqa(input, expected):
@@ -520,6 +521,22 @@ def test_parse_noqa(input, expected):
             ],
             [2],
         ],
+        [
+            [dict(comment="Inline comment before inline ignore -- noqa: L002", line_no=1)],
+            [DummyLintError(1)],
+            [0],
+        ],
+        [
+            [
+                dict(comment="Inline comment before inline ignore -- noqa: L002", line_no=1),
+                dict(comment="Inline comment before inline ignore -- noqa: L002", line_no=2),
+            ],
+            [
+                DummyLintError(1),
+                DummyLintError(2),
+            ],
+            [0, 1],
+        ],
     ],
     ids=[
         "1_violation_no_ignore",
@@ -538,6 +555,8 @@ def test_parse_noqa(input, expected):
         "1_violation_line_4_ignore_disable_all_2_3",
         "4_violations_two_types_disable_specific_enable_all",
         "4_violations_two_types_disable_all_enable_specific",
+        "1_violations_comment_inline_ignore",
+        "2_violations_comment_inline_ignore",
     ],
 )
 def test_linted_file_ignore_masked_violations(
@@ -586,6 +605,7 @@ def test_linter_noqa():
         col_n n, --noqa: disable=all
         col_o o,
         col_p p --noqa: enable=all
+        col_q a --Inline comment --noqa: L012
     FROM foo
         """
     result = lntr.lint_string(sql)
@@ -607,7 +627,7 @@ def test_linter_noqa_with_templating():
     {%- set a_var = ["1", "2"] -%}
     SELECT
       this_is_just_a_very_long_line_for_demonstration_purposes_of_a_bug_involving_templated_sql_files, --noqa: L016
-      this_is_not_so_big
+      this_is_not_so_big a --Inline comment --noqa: L012
     FROM
       a_table
         """
