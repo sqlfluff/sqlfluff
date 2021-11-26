@@ -91,15 +91,15 @@ class Rule_L009(BaseRule):
             # We can't fail on a meta segment
             return None
         else:
-            # So this looks like the end of the file, but we
-            # need to check that each parent segment is also the last.
-            # We do this with reference to the templated file, because it's
-            # the best we can do given the information available.
-            file_len = len(context.segment.pos_marker.templated_file.templated_str)
-            pos = context.segment.pos_marker.templated_slice.stop
-            # Does the length of the file equal the end of the templated position?
-            if file_len != pos:
-                return None
+            # We know we are at a leaf of the tree but not necessarily at the end of the tree.
+            # Therefore we look backwards up the parent stack and ask if any of the parent segments
+            # have another non-meta child segment after the current one.
+            child_segment = context.segment
+            for parent_segment in context.parent_stack[::-1]:
+                possible_children = [s for s in parent_segment.segments if not s.is_meta]
+                if len(possible_children) > possible_children.index(child_segment) + 1:
+                    return None
+                child_segment = parent_segment
 
         # Include current segment for complete stack.
         complete_stack: List[BaseSegment] = list(context.raw_stack)
