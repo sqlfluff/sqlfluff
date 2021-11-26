@@ -20,4 +20,4 @@ def test__rules__std_L009_and_L052_interaction() -> None:
     assert set([v.rule.code for v in linted_file.violations]) == {"L009", "L052"}
 
     # Check file is fixed.
-    assert linted_file.fix_string()[0] == 'SELECT foo FROM bar;\n'
+    assert linted_file.fix_string()[0] == "SELECT foo FROM bar;\n"

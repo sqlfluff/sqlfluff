@@ -126,7 +126,9 @@ class Rule_L009(BaseRule):
                 anchor=anchor_segment,
                 fixes=[
                     LintFix(
-                        "edit", context.parent_stack[1], [context.parent_stack[1], NewlineSegment()]
+                        "edit",
+                        context.parent_stack[1],
+                        [context.parent_stack[1], NewlineSegment()],
                     )
                 ],
             )
