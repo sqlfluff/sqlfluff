@@ -1,5 +1,0 @@
-select *
-from  `project.database.user_labels_with_probs`
-where prob_max >= 0.8
-    --- only focus on 3 segments
-    and label_str not in ('marketing_maven', 'growth_services')

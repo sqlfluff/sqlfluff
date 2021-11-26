@@ -354,11 +354,11 @@ class LintedFile(NamedTuple):
                     "      - Skipping patch over templated section: %s", enriched_patch
                 )
             # If we span more than two slices then we should just skip it. Too Hard.
-            # elif len(local_raw_slices) > 2:
-            #     linter_logger.info(
-            #         "      - Skipping patch over more than two raw slices: %s",
-            #         enriched_patch,
-            #     )
+            elif len(local_raw_slices) > 2:
+                linter_logger.info(
+                    "      - Skipping patch over more than two raw slices: %s",
+                    enriched_patch,
+                )
             # If it's an insertion (i.e. the string in the pre-fix template is '') then we
             # won't be able to place it, so skip.
             elif not enriched_patch.templated_str:  # pragma: no cover TODO?
