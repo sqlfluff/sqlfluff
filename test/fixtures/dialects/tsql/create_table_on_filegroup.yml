@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ec91dc8eefe81b8955bcfaa8de056b5c3c6713eeaf9f665115e8c9a679e9be76
+_hash: f81ae6211fdbf8e7592c3fc03b9bd029db9dc4c953a80fe1227d5d66b48f244f
 file:
   batch:
     statement:
@@ -49,6 +49,8 @@ file:
                   literal: '3'
               - end_bracket: )
         - end_bracket: )
-      - filegroup_clause:
-          keyword: 'ON'
-          identifier: MyFileGroup
+      - on_partition_or_filegroup_statement:
+          filegroup_clause:
+            keyword: 'ON'
+            filegroup_name:
+              identifier: MyFileGroup

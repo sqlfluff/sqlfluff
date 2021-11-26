@@ -350,8 +350,8 @@ def test__cli__command_versioning():
     pkg_version = sqlfluff.__version__
     # Get the version info from the config file
     config = configparser.ConfigParser()
-    config.read_file(open("src/sqlfluff/config.ini"))
-    config_version = config["sqlfluff"]["version"]
+    config.read_file(open("setup.cfg"))
+    config_version = config["metadata"]["version"]
     assert pkg_version == config_version
     # Get the version from the cli
     runner = CliRunner()

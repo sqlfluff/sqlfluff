@@ -11,3 +11,25 @@ test_fail_two_duplicated_aliases:
     join table_2 as a on a.pk = b.pk
     join table_3 as b on a.pk = b.pk
     join table_4 as b on b.pk = b.pk
+
+test_fail_subquery:
+  fail_str: |
+    SELECT 1
+    FROM (
+        select 1
+        from table_1 as a
+        join table_2 as a on a.pk = b.pk
+        join table_3 as b on a.pk = b.pk
+        join table_4 as b on b.pk = b.pk
+    )
+
+test_pass_subquery:
+  # This query should pass as the different 'a'
+  # aliases are in different subquery levels.
+  pass_str: |
+    SELECT 1
+    FROM (
+        select 1
+        from table_1 as a
+        join table_2 as b on a.pk = b.pk
+    ) AS a

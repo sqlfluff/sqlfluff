@@ -1,5 +1,44 @@
 rule: L027
 
+test_pass_qualified_references_multi_table_statements:
+  pass_str: |
+    SELECT foo.a, vee.b
+    FROM foo
+    LEFT JOIN vee ON vee.a = foo.a
+
+test_fail_unqualified_references_multi_table_statements:
+  fail_str: |
+    SELECT a, b
+    FROM foo
+    LEFT JOIN vee ON vee.a = foo.a
+
+test_pass_qualified_references_multi_table_statements_subquery:
+  pass_str: |
+    SELECT a
+    FROM (
+        SELECT foo.a, vee.b
+        FROM foo
+        LEFT JOIN vee ON vee.a = foo.a
+    )
+
+test_fail_unqualified_references_multi_table_statements_subquery:
+  fail_str: |
+    SELECT a
+    FROM (
+        SELECT a, b
+        FROM foo
+        LEFT JOIN vee ON vee.a = foo.a
+    )
+
+test_pass_qualified_references_multi_table_statements_subquery_mix:
+  pass_str: |
+    SELECT foo.a, vee.b
+    FROM (
+        SELECT c
+        FROM bar
+    ) AS foo
+    LEFT JOIN vee ON vee.a = foo.a
+
 test_allow_date_parts_as_function_parameter_bigquery:
   # Allow use of BigQuery date parts (which are not quoted and were previously
   # mistaken for column references and flagged by this rule).
