@@ -1283,8 +1283,15 @@ class AlterSchemaStatementSegment(BaseSegment):
             ),
             Sequence(
                 "UNSET",
-                Delimited(
-                    Ref("NakedIdentifierSegment"),
+                AnyNumberOf(
+                    Delimited(
+                        "DATA_RETENTION_TIME_IN_DAYS",
+                        "MAX_DATA_EXTENSION_TIME_IN_DAYS",
+                        "DEFAULT_DDL_COLLATION",
+                        "COMMENT",
+                    ),
+                    Sequence("TAG", Delimited(Ref("NakedIdentifierSegment"))),
+                    min_times=1,
                 ),
             ),
             Sequence(OneOf("ENABLE", "DISABLE"), Sequence("MANAGED", "ACCESS")),
