@@ -1,0 +1,15 @@
+rule: L058
+
+test_passes_calling_function:
+  pass_str: "CREATE TRIGGER my_trigger AFTER INSERT ON my_table FOR EACH ROW EXECUTE FUNCTION my_function();"
+  pass_str: "CREATE TRIGGER my_PROCEDURE AFTER INSERT ON my_table_PROCEDURE FOR EACH ROW EXECUTE FUNCTION my_function_PROCEDURE();"
+  configs:
+    core:
+      dialect: postgres
+
+test_fail_calling_procedure:
+  fail_str: "CREATE TRIGGER my_trigger AFTER INSERT ON my_table FOR EACH ROW EXECUTE PROCEDURE my_function();"
+  fix_str: "CREATE TRIGGER my_trigger AFTER INSERT ON my_table FOR EACH ROW EXECUTE FUNCTION my_function();"
+  configs:
+    core:
+      dialect: postgres
