@@ -383,7 +383,10 @@ def test__linter__encoding(fname, config_encoding, lexerror):
         ("noqa: disable=L010", NoQaDirective(0, ("L010",), "disable")),
         ("noqa: disable=all", NoQaDirective(0, None, "disable")),
         ("noqa: disable", SQLParseError),
-        ("Inline comment before inline ignore -- noqa:L001,L002", NoQaDirective(0, ("L001", "L002"), None)),
+        (
+            "Inline comment before inline ignore -- noqa:L001,L002",
+            NoQaDirective(0, ("L001", "L002"), None),
+        ),
     ],
 )
 def test_parse_noqa(input, expected):
@@ -522,14 +525,25 @@ def test_parse_noqa(input, expected):
             [2],
         ],
         [
-            [dict(comment="Inline comment before inline ignore -- noqa: L002", line_no=1)],
+            [
+                dict(
+                    comment="Inline comment before inline ignore -- noqa: L002",
+                    line_no=1,
+                )
+            ],
             [DummyLintError(1)],
             [0],
         ],
         [
             [
-                dict(comment="Inline comment before inline ignore -- noqa: L002", line_no=1),
-                dict(comment="Inline comment before inline ignore -- noqa: L002", line_no=2),
+                dict(
+                    comment="Inline comment before inline ignore -- noqa: L002",
+                    line_no=1,
+                ),
+                dict(
+                    comment="Inline comment before inline ignore -- noqa: L002",
+                    line_no=2,
+                ),
             ],
             [
                 DummyLintError(1),

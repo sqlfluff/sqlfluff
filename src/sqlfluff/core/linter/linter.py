@@ -231,7 +231,7 @@ class Linter:
         # --dafhsdkfwdiruweksdkjdaffldfsdlfjksd -- noqa: L016
         # Therefore extract last possible inline ignore.
         comment = [c.strip() for c in comment.split("--")][-1]
-        
+
         if comment.startswith("noqa"):
             # This is an ignore identifier
             comment_remainder = comment[4:]
