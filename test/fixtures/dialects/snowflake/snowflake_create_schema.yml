@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c59c3f73976b304be1e42447ff7a27a3ff49259fa0c91ad96e50b4faa0269c1f
+_hash: 337a118a990d12bb81df133ec507bd5698c12178f63ab846cf61e6a5c62edbd0
 file:
 - statement:
     create_clone_statement:
@@ -52,6 +52,22 @@ file:
           keyword: comment
           comparison_operator: '='
           literal: "'My test schema.'"
+- statement_terminator: ;
+- statement:
+    create_schema_statement:
+    - keyword: create
+    - keyword: schema
+    - schema_reference:
+        identifier: mytestschema
+    - schema_object_properties:
+      - keyword: tag
+      - identifier: tag1
+      - comparison_operator: '='
+      - literal: "'foo'"
+      - comma: ','
+      - identifier: tag2
+      - comparison_operator: '='
+      - literal: "'bar'"
 - statement_terminator: ;
 - statement:
     create_schema_statement:
