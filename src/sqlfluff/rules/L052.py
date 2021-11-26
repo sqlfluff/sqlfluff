@@ -89,7 +89,9 @@ class Rule_L052(BaseRule):
 
                 if len(newline_deletions) == 0:
                     # Create missing newline.
-                    fixes.append(LintFix("create", context.segment, NewlineSegment()))
+                    fixes.append(
+                        LintFix("create_before", context.segment, NewlineSegment())
+                    )
                 if len(newline_deletions) > 1:
                     # Remove excess newlines.
                     fixes.extend(LintFix("delete", d) for d in newline_deletions[1:])

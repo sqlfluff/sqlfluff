@@ -113,7 +113,12 @@ class LintFix:
     """
 
     def __init__(self, edit_type, anchor: BaseSegment, edit=None):
-        if edit_type not in ["create", "edit", "delete"]:  # pragma: no cover
+        if edit_type not in (
+            "create_before",
+            "create_after",
+            "edit",
+            "delete",
+        ):  # pragma: no cover
             raise ValueError(f"Unexpected edit_type: {edit_type}")
         self.edit_type = edit_type
         if not anchor:  # pragma: no cover
@@ -153,7 +158,7 @@ class LintFix:
 
         Removing these makes the routines which process fixes much faster.
         """
-        if self.edit_type == "create":
+        if self.edit_type in ("create_before", "create_after"):
             if isinstance(self.edit, BaseSegment):
                 if len(self.edit.raw) == 0:  # pragma: no cover TODO?
                     return True
@@ -166,7 +171,7 @@ class LintFix:
     def __repr__(self):
         if self.edit_type == "delete":
             detail = f"delete:{self.anchor.raw!r}"
-        elif self.edit_type in ("edit", "create"):
+        elif self.edit_type in ("edit", "create_before", "create_after"):
             if hasattr(self.edit, "raw"):
                 new_detail = self.edit.raw  # pragma: no cover TODO?
             else:

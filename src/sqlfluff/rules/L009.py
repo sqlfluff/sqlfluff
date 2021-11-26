@@ -133,9 +133,9 @@ class Rule_L009(BaseRule):
                 anchor=anchor_segment,
                 fixes=[
                     LintFix(
-                        "edit",
+                        "create_after",
                         edit_segment,
-                        [edit_segment, NewlineSegment()],
+                        [NewlineSegment()],
                     )
                 ],
             )

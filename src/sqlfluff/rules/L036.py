@@ -148,7 +148,7 @@ class Rule_L036(BaseRule):
                     loop_while=lambda s: s.is_type("whitespace", "comma") or s.is_meta,
                 )
                 fixes += [LintFix("delete", ws) for ws in ws_to_delete]
-                fixes.append(LintFix("create", select_target, NewlineSegment()))
+                fixes.append(LintFix("create_before", select_target, NewlineSegment()))
 
             # If we are at the last select target check if the FROM clause
             # is on the same line, and if so move it to its own line.
@@ -165,7 +165,9 @@ class Rule_L036(BaseRule):
                     )
                     fixes.append(
                         LintFix(
-                            "create", select_targets_info.from_segment, NewlineSegment()
+                            "create_before",
+                            select_targets_info.from_segment,
+                            NewlineSegment(),
                         )
                     )
 
@@ -406,7 +408,9 @@ class Rule_L036(BaseRule):
                 ]
                 fixes.append(
                     LintFix(
-                        "create", select_targets_info.from_segment, NewlineSegment()
+                        "create_before",
+                        select_targets_info.from_segment,
+                        NewlineSegment(),
                     )
                 )
                 return LintResult(anchor=select_clause, fixes=fixes)
