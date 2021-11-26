@@ -96,7 +96,9 @@ class Rule_L009(BaseRule):
             # have another non-meta child segment after the current one.
             child_segment = context.segment
             for parent_segment in context.parent_stack[::-1]:
-                possible_children = [s for s in parent_segment.segments if not s.is_meta]
+                possible_children = [
+                    s for s in parent_segment.segments if not s.is_meta
+                ]
                 if len(possible_children) > possible_children.index(child_segment) + 1:
                     return None
                 child_segment = parent_segment
@@ -122,13 +124,18 @@ class Rule_L009(BaseRule):
             return None
         elif len(eof_newline_segments) == 0:
             # We make an edit to create this segment after the child of the FileSegment.
+            if len(context.parent_stack) == 1:
+                edit_segment = context.segment
+            else:
+                edit_segment = context.parent_stack[1]
+
             return LintResult(
                 anchor=anchor_segment,
                 fixes=[
                     LintFix(
                         "edit",
-                        context.parent_stack[1],
-                        [context.parent_stack[1], NewlineSegment()],
+                        edit_segment,
+                        [edit_segment, NewlineSegment()],
                     )
                 ],
             )
