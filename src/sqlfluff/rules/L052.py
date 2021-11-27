@@ -106,30 +106,9 @@ class Rule_L052(BaseRule):
         # this rule looks to enforce that it is there.
         # Therefore we first locate the end of the file.
         if self.require_final_semicolon:
-            if len(self.filter_meta(context.siblings_post)) > 0:
-                # This can only fail on the last segment
+            # We only care about the final segment of the parse tree.
+            if not self.is_final_segment(context):
                 return None
-            elif len(context.segment.segments) > 0:
-                # This can only fail on the last base segment
-                return None
-            elif context.segment.is_meta:
-                # We can't fail on a meta segment
-                return None
-            else:
-                # We know we are at a leaf of the tree but not necessarily at the end of the tree.
-                # Therefore we look backwards up the parent stack and ask if any of the parent segments
-                # have another non-meta child segment after the current one.
-                child_segment = context.segment
-                for parent_segment in context.parent_stack[::-1]:
-                    possible_children = [
-                        s for s in parent_segment.segments if not s.is_meta
-                    ]
-                    if (
-                        len(possible_children)
-                        > possible_children.index(child_segment) + 1
-                    ):
-                        return None
-                    child_segment = parent_segment
 
             # Include current segment for complete stack.
             complete_stack: List[BaseSegment] = list(context.raw_stack)
