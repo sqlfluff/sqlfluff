@@ -112,6 +112,25 @@ def test__cli__command_dialect_legacy():
     assert "Please use the 'exasol' dialect instead." in result.stdout
 
 
+def test__cli__command_extra_config_fail():
+    """Check the script raises the right exception on a non-existant extra config path."""
+    result = invoke_assert_code(
+        ret_code=66,
+        args=[
+            lint,
+            [
+                "--extra-config",
+                "test/fixtures/cli/extra_configs/.sqlfluffsdfdfdfsfd",
+                "test/fixtures/cli/extra_config_tsql.sql",
+            ],
+        ],
+    )
+    assert (
+        "Extra config 'test/fixtures/cli/extra_configs/.sqlfluffsdfdfdfsfd' does not exist."
+        in result.stdout
+    )
+
+
 @pytest.mark.parametrize(
     "command",
     [
@@ -263,6 +282,15 @@ def test__cli__command_lint_stdin(command):
         ),
         # Check nofail works
         (lint, ["--nofail", "test/fixtures/linter/parse_lex_error.sql"]),
+        # Check extra-config works (sets dialect to tsql)
+        (
+            lint,
+            [
+                "--extra-config",
+                "test/fixtures/cli/extra_configs/.sqlfluff",
+                "test/fixtures/cli/extra_config_tsql.sql",
+            ],
+        ),
     ],
 )
 def test__cli__command_lint_parse(command):
