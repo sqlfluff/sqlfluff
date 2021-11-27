@@ -71,7 +71,7 @@ class Rule_L023(BaseRule):
                                 # There's nothing between. Just add a whitespace
                                 fixes = [
                                     LintFix(
-                                        "create",
+                                        "create_before",
                                         seg,
                                         [WhitespaceSegment()],
                                     )

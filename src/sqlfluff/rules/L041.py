@@ -78,7 +78,7 @@ class Rule_L041(BaseRule):
                 # E.g. "\n" -> " DISTINCT\n.
                 LintFix("delete", newline_between),
                 LintFix(
-                    "create",
+                    "create_before",
                     context.segment.segments[newline_idx + 1],
                     replace_newline_with,
                 ),

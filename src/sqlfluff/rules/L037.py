@@ -102,7 +102,7 @@ class Rule_L037(BaseRule):
                     # Since ASC is default in SQL, add in ASC for fix
                     lint_fixes.append(
                         LintFix(
-                            "create",
+                            "create_before",
                             col_info.separator,
                             [WhitespaceSegment(), KeywordSegment("ASC")],
                         )
