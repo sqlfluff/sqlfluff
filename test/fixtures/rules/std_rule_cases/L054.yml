@@ -104,7 +104,7 @@ test_pass_explicit_expression_order_by_default:
         sum(baz) AS sum_value
     FROM fake_table
     ORDER BY
-        foo, power(bar, 2) 
+        foo, power(bar, 2)
 
 test_fail_implicit_expression_order_by_default:
   fail_str: |
@@ -114,7 +114,7 @@ test_fail_implicit_expression_order_by_default:
         sum(baz) AS sum_value
     FROM fake_table
     ORDER BY
-        1, power(bar, 2) 
+        1, power(bar, 2)
 
 test_pass_explicit_group_by_custom_explicit:
   pass_str: |
@@ -256,7 +256,7 @@ test_pass_explicit_expression_order_by_custom_explicit:
         sum(baz) AS sum_value
     FROM fake_table
     ORDER BY
-        foo, power(bar, 2) 
+        foo, power(bar, 2)
   configs:
     rules:
       L054:
@@ -416,7 +416,7 @@ test_fail_explicit_expression_order_by_custom_implicit:
         sum(baz) AS sum_value
     FROM fake_table
     ORDER BY
-        foo, power(bar, 2) 
+        foo, power(bar, 2)
   configs:
     rules:
       L054:
@@ -435,3 +435,10 @@ test_fail_implicit_expression_order_by_custom_implicit:
     rules:
       L054:
         group_by_and_order_by_style: implicit
+
+test_fail_implicit_expression_order_by_custom_implicit:
+  pass_str: |
+    SELECT foo.set.barr
+    FROM foo
+    GROUP BY  --noqa: PRS
+      foo.set.barr
