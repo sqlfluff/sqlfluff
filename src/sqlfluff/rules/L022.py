@@ -132,7 +132,7 @@ class Rule_L022(BaseRule):
 
                     # Based on the current location of the comma we insert newlines
                     # to correct the issue.
-                    fix_type = "create"  # In most cases we just insert newlines.
+                    fix_type = "create_before"  # In most cases we just insert newlines.
                     if comma_style == "oneline":
                         # Here we respect the target comma style to insert at the relevant point.
                         if self.comma_style == "trailing":

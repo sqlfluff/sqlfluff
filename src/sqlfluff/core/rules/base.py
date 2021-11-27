@@ -114,7 +114,12 @@ class LintFix:
     """
 
     def __init__(self, edit_type, anchor: BaseSegment, edit=None):
-        if edit_type not in ["create", "edit", "delete"]:  # pragma: no cover
+        if edit_type not in (
+            "create_before",
+            "create_after",
+            "edit",
+            "delete",
+        ):  # pragma: no cover
             raise ValueError(f"Unexpected edit_type: {edit_type}")
         self.edit_type = edit_type
         if not anchor:  # pragma: no cover
@@ -154,7 +159,7 @@ class LintFix:
 
         Removing these makes the routines which process fixes much faster.
         """
-        if self.edit_type == "create":
+        if self.edit_type in ("create_before", "create_after"):
             if isinstance(self.edit, BaseSegment):
                 if len(self.edit.raw) == 0:  # pragma: no cover TODO?
                     return True
@@ -167,7 +172,7 @@ class LintFix:
     def __repr__(self):
         if self.edit_type == "delete":
             detail = f"delete:{self.anchor.raw!r}"
-        elif self.edit_type in ("edit", "create"):
+        elif self.edit_type in ("edit", "create_before", "create_after"):
             if hasattr(self.edit, "raw"):
                 new_detail = self.edit.raw  # pragma: no cover TODO?
             else:
@@ -433,6 +438,32 @@ class BaseRule:
         return vs, raw_stack, fixes, memory
 
     # HELPER METHODS --------
+
+    def is_final_segment(self, context: RuleContext) -> bool:
+        """Is the current segment the final segment in the parse tree."""
+        if len(self.filter_meta(context.siblings_post)) > 0:
+            # This can only fail on the last segment
+            return False
+        elif len(context.segment.segments) > 0:
+            # This can only fail on the last base segment
+            return False
+        elif context.segment.is_meta:
+            # We can't fail on a meta segment
+            return False
+        else:
+            # We know we are at a leaf of the tree but not necessarily at the end of the tree.
+            # Therefore we look backwards up the parent stack and ask if any of the parent segments
+            # have another non-meta child segment after the current one.
+            child_segment = context.segment
+            for parent_segment in context.parent_stack[::-1]:
+                possible_children = [
+                    s for s in parent_segment.segments if not s.is_meta
+                ]
+                if len(possible_children) > possible_children.index(child_segment) + 1:
+                    return False
+                child_segment = parent_segment
+
+        return True
 
     @staticmethod
     def filter_meta(segments, keep_meta=False):
