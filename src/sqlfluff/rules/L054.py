@@ -96,6 +96,10 @@ class Rule_L054(BaseRule):
             if segment.name in column_reference_category_map
         }
 
+        # If there are no column references then just return
+        if not column_reference_category_set:
+            return LintResult(memory=context.memory)
+
         if self.group_by_and_order_by_style == "consistent":
             # If consistent naming then raise lint error if either:
 
