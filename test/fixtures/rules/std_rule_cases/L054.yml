@@ -436,9 +436,9 @@ test_fail_implicit_expression_order_by_custom_implicit:
       L054:
         group_by_and_order_by_style: implicit
 
-test_fail_implicit_expression_order_by_custom_implicit:
+test_pass_no_qa:
   pass_str: |
-    SELECT foo.set.barr
+    SELECT foo.set.barr  --noqa: PRS
     FROM foo
     GROUP BY  --noqa: PRS
       foo.set.barr
