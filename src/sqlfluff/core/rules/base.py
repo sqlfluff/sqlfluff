@@ -16,6 +16,7 @@ missing.
 
 import bdb
 import copy
+import fnmatch
 import logging
 import pathlib
 import re
@@ -683,6 +684,19 @@ class RuleSet:
         # Make sure we actually return the original class
         return cls
 
+    def _expand_config_rule_glob_list(self, glob_list: List[str]) -> List[str]:
+        """Expand a list of rule globs into a list of rule codes.
+
+        Returns:
+            :obj:`list` of :obj:`str` rule codes.
+
+        """
+        expanded_glob_list = []
+        for r in glob_list:
+            expanded_glob_list.extend(fnmatch.filter(self._register, r))
+
+        return expanded_glob_list
+
     def get_rulelist(self, config) -> List[BaseRule]:
         """Use the config to return the appropriate rules.
 
@@ -700,7 +714,7 @@ class RuleSet:
         blacklist = config.get("rule_blacklist") or []
 
         whitelisted_unknown_rule_codes = [
-            r for r in whitelist if r not in self._register
+            r for r in whitelist if not fnmatch.filter(self._register, r)
         ]
         if any(whitelisted_unknown_rule_codes):
             rules_logger.warning(
@@ -710,7 +724,7 @@ class RuleSet:
             )
 
         blacklisted_unknown_rule_codes = [
-            r for r in blacklist if r not in self._register
+            r for r in blacklist if not fnmatch.filter(self._register, r)
         ]
         if any(blacklisted_unknown_rule_codes):  # pragma: no cover
             rules_logger.warning(
@@ -720,8 +734,17 @@ class RuleSet:
             )
 
         keylist = sorted(self._register.keys())
-        # First we filter the rules
-        keylist = [r for r in keylist if r in whitelist and r not in blacklist]
+
+        # First we expand the whitelist and blacklist globs
+        expanded_whitelist = self._expand_config_rule_glob_list(whitelist)
+        expanded_blacklist = self._expand_config_rule_glob_list(blacklist)
+
+        # Then we filter the rules
+        keylist = [
+            r
+            for r in keylist
+            if r in expanded_whitelist and r not in expanded_blacklist
+        ]
 
         # Construct the kwargs for instantiation before we actually do it.
         rule_kwargs = {}
