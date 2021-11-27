@@ -200,7 +200,7 @@ class Rule_L003(BaseRule):
         elif len("".join(elem.raw for elem in current_indent_buffer)) == 0:
             fixes = [
                 LintFix(
-                    "create",
+                    "create_before",
                     current_anchor,
                     WhitespaceSegment(
                         raw=desired_indent,
@@ -697,7 +697,7 @@ class Rule_L003(BaseRule):
                             # Add in an extra bit of whitespace for the indent
                             fixes=[
                                 LintFix(
-                                    "create",
+                                    "create_before",
                                     trigger_segment,
                                     WhitespaceSegment(
                                         raw=self._make_indent(
@@ -718,7 +718,7 @@ class Rule_L003(BaseRule):
                         ),
                         fixes=[
                             LintFix(
-                                "create",
+                                "create_before",
                                 trigger_segment,
                                 WhitespaceSegment(
                                     # Make the minimum indent for it to be ok.

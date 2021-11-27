@@ -29,7 +29,7 @@ class Rule_T001(BaseRule):
         if context.segment.is_type("star"):
             return LintResult(
                 anchor=context.segment,
-                fixes=[LintFix("create", context.segment, NewlineSegment())],
+                fixes=[LintFix("create_before", context.segment, NewlineSegment())],
             )
 
 
