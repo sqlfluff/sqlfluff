@@ -299,7 +299,7 @@ class ConfigLoader:
         return configs
 
     def load_extra_config(self, extra_config_path: str) -> dict:
-        "Load specified extra config."
+        """Load specified extra config."""
         if not os.path.exists(extra_config_path):
             raise SQLFluffUserError(
                 f"Extra config '{extra_config_path}' does not exist."
@@ -588,7 +588,7 @@ class FluffConfig:
             )
 
     def make_child_from_path(self, path: str) -> "FluffConfig":
-        """Make a new child config at a path but pass on overrides."""
+        """Make a new child config at a path but pass on overrides and extra_config_path."""
         return self.from_path(
             path,
             extra_config_path=self._extra_config_path,

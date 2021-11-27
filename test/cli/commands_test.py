@@ -119,7 +119,7 @@ def test__cli__command_extra_config_fail():
         args=[
             lint,
             [
-                "--extra-config",
+                "--config",
                 "test/fixtures/cli/extra_configs/.sqlfluffsdfdfdfsfd",
                 "test/fixtures/cli/extra_config_tsql.sql",
             ],
@@ -282,11 +282,11 @@ def test__cli__command_lint_stdin(command):
         ),
         # Check nofail works
         (lint, ["--nofail", "test/fixtures/linter/parse_lex_error.sql"]),
-        # Check extra-config works (sets dialect to tsql)
+        # Check config works (sets dialect to tsql)
         (
             lint,
             [
-                "--extra-config",
+                "--config",
                 "test/fixtures/cli/extra_configs/.sqlfluff",
                 "test/fixtures/cli/extra_config_tsql.sql",
             ],

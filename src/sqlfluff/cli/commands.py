@@ -199,7 +199,7 @@ def core_options(f: Callable) -> Callable:
         ),
     )(f)
     f = click.option(
-        "--extra-config",
+        "--config",
         "extra_config_path",
         default=None,
         help=(
