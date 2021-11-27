@@ -597,6 +597,7 @@ def test_linter_noqa():
     lntr = Linter(
         config=FluffConfig(
             overrides={
+                "dialect": "bigquery",  # Use bigquery to allow hash comments.
                 "rules": "L012",
             }
         )
@@ -618,8 +619,10 @@ def test_linter_noqa():
         col_m m,
         col_n n, --noqa: disable=all
         col_o o,
-        col_p p --noqa: enable=all
-        col_q a --Inline comment --noqa: L012
+        col_p p, --noqa: enable=all
+        col_q q, --Inline comment --noqa: L012
+        col_r r, /* Block comment */ --noqa: L012
+        col_s s # hash comment --noqa: L012
     FROM foo
         """
     result = lntr.lint_string(sql)
@@ -632,6 +635,7 @@ def test_linter_noqa_with_templating():
     lntr = Linter(
         config=FluffConfig(
             overrides={
+                "dialect": "bigquery",  # Use bigquery to allow hash comments.
                 "templater": "jinja",
                 "rules": "L016",
             }
@@ -641,7 +645,9 @@ def test_linter_noqa_with_templating():
     {%- set a_var = ["1", "2"] -%}
     SELECT
       this_is_just_a_very_long_line_for_demonstration_purposes_of_a_bug_involving_templated_sql_files, --noqa: L016
-      this_is_not_so_big a --Inline comment --noqa: L012
+      this_is_not_so_big a, --Inline comment --noqa: L012
+      this_is_not_so_big b, /* Block comment */ --noqa: L012
+      this_is_not_so_big c # hash comment --noqa: L012
     FROM
       a_table
         """
