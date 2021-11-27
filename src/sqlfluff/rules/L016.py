@@ -143,7 +143,7 @@ class Rule_L016(Rule_L003):
                     # Create a newline and a similar indent
                     fixes.append(
                         LintFix(
-                            "create",
+                            "create_before",
                             create_anchor,
                             [
                                 NewlineSegment(),
@@ -164,7 +164,7 @@ class Rule_L016(Rule_L003):
                     # Create a newline, create an indent of the relevant size
                     fixes.append(
                         LintFix(
-                            "create",
+                            "create_before",
                             create_anchor,
                             [
                                 NewlineSegment(),
@@ -539,7 +539,9 @@ class Rule_L016(Rule_L003):
                 # Create a newline before this one with the existing comment, an
                 # identical indent AND a terminating newline, copied from the current
                 # target segment.
-                create_buffer = [LintFix("create", this_line[0], create_elements)]
+                create_buffer = [
+                    LintFix("create_before", this_line[0], create_elements)
+                ]
                 return LintResult(
                     anchor=context.segment, fixes=delete_buffer + create_buffer
                 )

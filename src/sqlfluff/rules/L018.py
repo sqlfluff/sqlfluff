@@ -102,7 +102,7 @@ class Rule_L018(BaseRule):
                                 anchor=seg,
                                 fixes=[
                                     LintFix(
-                                        "create",
+                                        "create_before",
                                         seg,
                                         WhitespaceSegment(" " * (-indent_diff)),
                                     )
@@ -125,7 +125,7 @@ class Rule_L018(BaseRule):
                                 # We can move it back, it's all whitespace
                                 fixes = [
                                     LintFix(
-                                        "create",
+                                        "create_before",
                                         seg,
                                         [WhitespaceSegment(with_indent_str)],
                                     )
@@ -137,7 +137,7 @@ class Rule_L018(BaseRule):
                                 # We have to move it to a newline
                                 fixes = [
                                     LintFix(
-                                        "create",
+                                        "create_before",
                                         seg,
                                         [
                                             NewlineSegment(),
