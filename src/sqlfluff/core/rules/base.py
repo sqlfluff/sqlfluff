@@ -574,7 +574,7 @@ class RuleSet:
     path that the file is in.
 
     Rules should be fetched using the :meth:`get_rulelist` command which
-    also handles any filtering (i.e. whitelisting and blacklisting).
+    also handles any filtering (i.e. allowlisting and denylisting).
 
     New rules should be added to the instance of this class using the
     :meth:`register` decorator. That decorator registers the class, but also
@@ -700,7 +700,7 @@ class RuleSet:
     def get_rulelist(self, config) -> List[BaseRule]:
         """Use the config to return the appropriate rules.
 
-        We use the config both for whitelisting and blacklisting, but also
+        We use the config both for allowlisting and denylisting, but also
         for configuring the rules given the given config.
 
         Returns:
@@ -709,41 +709,39 @@ class RuleSet:
         """
         # Validate all generic rule configs
         self._validate_config_options(config)
-        # default the whitelist to all the rules if not set
-        whitelist = config.get("rule_whitelist") or list(self._register.keys())
-        blacklist = config.get("rule_blacklist") or []
+        # default the allowlist to all the rules if not set
+        allowlist = config.get("rule_allowlist") or list(self._register.keys())
+        denylist = config.get("rule_denylist") or []
 
-        whitelisted_unknown_rule_codes = [
-            r for r in whitelist if not fnmatch.filter(self._register, r)
+        allowlisted_unknown_rule_codes = [
+            r for r in allowlist if not fnmatch.filter(self._register, r)
         ]
-        if any(whitelisted_unknown_rule_codes):
+        if any(allowlisted_unknown_rule_codes):
             rules_logger.warning(
-                "Tried to whitelist unknown rules: {!r}".format(
-                    whitelisted_unknown_rule_codes
+                "Tried to allowlist unknown rules: {!r}".format(
+                    allowlisted_unknown_rule_codes
                 )
             )
 
-        blacklisted_unknown_rule_codes = [
-            r for r in blacklist if not fnmatch.filter(self._register, r)
+        denylisted_unknown_rule_codes = [
+            r for r in denylist if not fnmatch.filter(self._register, r)
         ]
-        if any(blacklisted_unknown_rule_codes):  # pragma: no cover
+        if any(denylisted_unknown_rule_codes):  # pragma: no cover
             rules_logger.warning(
-                "Tried to blacklist unknown rules: {!r}".format(
-                    blacklisted_unknown_rule_codes
+                "Tried to denylist unknown rules: {!r}".format(
+                    denylisted_unknown_rule_codes
                 )
             )
 
         keylist = sorted(self._register.keys())
 
-        # First we expand the whitelist and blacklist globs
-        expanded_whitelist = self._expand_config_rule_glob_list(whitelist)
-        expanded_blacklist = self._expand_config_rule_glob_list(blacklist)
+        # First we expand the allowlist and denylist globs
+        expanded_allowlist = self._expand_config_rule_glob_list(allowlist)
+        expanded_denylist = self._expand_config_rule_glob_list(denylist)
 
         # Then we filter the rules
         keylist = [
-            r
-            for r in keylist
-            if r in expanded_whitelist and r not in expanded_blacklist
+            r for r in keylist if r in expanded_allowlist and r not in expanded_denylist
         ]
 
         # Construct the kwargs for instantiation before we actually do it.

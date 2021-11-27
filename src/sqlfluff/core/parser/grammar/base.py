@@ -816,7 +816,7 @@ class Ref(BaseGrammar):
         on the underlying class.
 
         The match element of Ref, also implements the caching
-        using the parse_context `blacklist` methods.
+        using the parse_context `denylist` methods.
         """
         elem = self._get_elem(dialect=parse_context.dialect)
 
@@ -829,9 +829,7 @@ class Ref(BaseGrammar):
         # objects.
         seg_tuple = (id(seg) for seg in segments)
         self_name = self._get_ref()
-        if parse_context.blacklist.check(
-            self_name, seg_tuple
-        ):  # pragma: no cover TODO?
+        if parse_context.denylist.check(self_name, seg_tuple):  # pragma: no cover TODO?
             # This has been tried before.
             parse_match_logging(
                 self.__class__.__name__,
@@ -848,7 +846,7 @@ class Ref(BaseGrammar):
         with parse_context.matching_segment(self._get_ref()) as ctx:
             resp = elem.match(segments=segments, parse_context=ctx)
         if not resp:
-            parse_context.blacklist.mark(self_name, seg_tuple)
+            parse_context.denylist.mark(self_name, seg_tuple)
         return resp
 
     @classmethod

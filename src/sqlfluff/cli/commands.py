@@ -192,7 +192,7 @@ def core_options(f: Callable) -> Callable:
             "Exclude specific rules. For example "
             "specifying `--exclude-rules L001` will remove rule `L001` (Unnecessary "
             "trailing whitespace) from the set of considered rules. This could either "
-            "be the whitelist, or the general set if there is no specific whitelist. "
+            "be the allowlist, or the general set if there is no specific allowlist. "
             "Multiple rules can be specified with commas e.g. "
             "`--exclude-rules L001,L002` will exclude violations of rule "
             "`L001` and rule `L002`."

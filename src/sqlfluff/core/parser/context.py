@@ -36,8 +36,8 @@ class RootParseContext:
         # the intended indentation of certain features. Specifically it is
         # used in the Conditional grammar.
         self.indentation_config = indentation_config or {}
-        # Initialise the blacklist
-        self.blacklist = ParseBlacklist()
+        # Initialise the denylist
+        self.denylist = ParseDenylist()
         # This is the logger that child objects will latch onto.
         self.logger = parser_logger
         # A uuid for this parse context to enable cache invalidation
@@ -174,16 +174,16 @@ class ParseContext:
         return ctx
 
 
-class ParseBlacklist:
+class ParseDenylist:
     """Acts as a cache to stop unnecessary matching."""
 
     def __init__(self):
-        self._blacklist_struct = {}
+        self._denylist_struct = {}
 
     def _hashed_version(self):  # pragma: no cover TODO?
         return {
-            k: {hash(e) for e in self._blacklist_struct[k]}
-            for k in self._blacklist_struct
+            k: {hash(e) for e in self._denylist_struct[k]}
+            for k in self._denylist_struct
         }
 
     def check(self, seg_name, seg_tuple):
@@ -192,18 +192,18 @@ class ParseBlacklist:
         Has this seg_tuple already been matched
         unsuccessfully against this segment name.
         """
-        if seg_name in self._blacklist_struct:  # pragma: no cover TODO?
-            if seg_tuple in self._blacklist_struct[seg_name]:
+        if seg_name in self._denylist_struct:  # pragma: no cover TODO?
+            if seg_tuple in self._denylist_struct[seg_name]:
                 return True
         return False
 
     def mark(self, seg_name, seg_tuple):
         """Mark this seg_tuple as not a match with this seg_name."""
-        if seg_name in self._blacklist_struct:
-            self._blacklist_struct[seg_name].add(seg_tuple)
+        if seg_name in self._denylist_struct:
+            self._denylist_struct[seg_name].add(seg_tuple)
         else:
-            self._blacklist_struct[seg_name] = {seg_tuple}
+            self._denylist_struct[seg_name] = {seg_tuple}
 
     def clear(self):
-        """Clear the blacklist struct."""
-        self._blacklist_struct = {}
+        """Clear the denylist struct."""
+        self._denylist_struct = {}

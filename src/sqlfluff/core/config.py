@@ -416,7 +416,7 @@ class ConfigLoader:
 class FluffConfig:
     """The class that actually gets passed around as a config object."""
 
-    private_vals = "rule_blacklist", "rule_whitelist", "dialect_obj", "templater_obj"
+    private_vals = "rule_denylist", "rule_allowlist", "dialect_obj", "templater_obj"
 
     def __init__(
         self,
@@ -448,21 +448,19 @@ class FluffConfig:
             )
         else:
             self._configs["core"]["ignore"] = []
-        # Whitelists and blacklists
+        # Allowlists and denylists
         if self._configs["core"].get("rules", None):
             self._configs["core"][
-                "rule_whitelist"
+                "rule_allowlist"
             ] = self._split_comma_separated_string(self._configs["core"]["rules"])
         else:
-            self._configs["core"]["rule_whitelist"] = None
+            self._configs["core"]["rule_allowlist"] = None
         if self._configs["core"].get("exclude_rules", None):
-            self._configs["core"][
-                "rule_blacklist"
-            ] = self._split_comma_separated_string(
+            self._configs["core"]["rule_denylist"] = self._split_comma_separated_string(
                 self._configs["core"]["exclude_rules"]
             )
         else:
-            self._configs["core"]["rule_blacklist"] = None
+            self._configs["core"]["rule_denylist"] = None
         # Configure Recursion
         if self._configs["core"].get("recurse", 0) == 0:
             self._configs["core"]["recurse"] = True
