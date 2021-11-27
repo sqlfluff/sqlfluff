@@ -63,4 +63,3 @@ def test__rules__std_L054_noqa() -> None:
     results_prs = [r for r in result if r["code"] == "PRS"]
     assert len(results_l054) == 0
     assert len(results_prs) == 0
-
