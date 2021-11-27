@@ -102,7 +102,9 @@ class Linter:
     # These are the building blocks of the linting process.
 
     @staticmethod
-    def _load_raw_file_and_config(fname, root_config):
+    def _load_raw_file_and_config(
+        fname: str, root_config: FluffConfig
+    ) -> Tuple[str, FluffConfig, str]:
         """Load a raw file and the associated config."""
         file_config = root_config.make_child_from_path(fname)
         encoding = get_encoding(fname=fname, config=file_config)
