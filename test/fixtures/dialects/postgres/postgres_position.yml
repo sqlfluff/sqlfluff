@@ -1,0 +1,75 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 105579163a4b5e539b3bd94986415ea32621933eeef0bee988d9a4583c666900
+file:
+  statement:
+    select_statement:
+      select_clause:
+      - keyword: select
+      - select_clause_element:
+          column_reference:
+          - identifier: u
+          - dot: .
+          - identifier: user_id
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - identifier: u
+          - dot: .
+          - identifier: user_email
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - identifier: p
+          - dot: .
+          - identifier: product_id
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: user_tb
+            alias_expression:
+              keyword: as
+              identifier: u
+          join_clause:
+          - keyword: inner
+          - keyword: join
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: product_tb
+              alias_expression:
+                keyword: as
+                identifier: p
+          - join_on_condition:
+              keyword: 'on'
+              expression:
+              - column_reference:
+                - identifier: u
+                - dot: .
+                - identifier: user_id
+              - comparison_operator: '='
+              - column_reference:
+                - identifier: p
+                - dot: .
+                - identifier: user_id
+              - binary_operator: and
+              - function:
+                  function_name:
+                    function_name_identifier: position
+                  bracketed:
+                    start_bracket: (
+                    literal: "'@domain'"
+                    keyword: in
+                    column_reference:
+                    - identifier: u
+                    - dot: .
+                    - identifier: user_email
+                    end_bracket: )
+              - comparison_operator: '='
+              - literal: '0'
