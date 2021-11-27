@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4043103dff8f299a98c38ca5a9a6c8447c3fad771957b92b08e7a89ad410f21e
+_hash: 168708a563a468a91e58026ba759ea4e3873b8946a7cb8481f1beadbf4ce2d4e
 file:
 - statement:
     alter_schema_statement:
@@ -50,6 +50,23 @@ file:
         keyword: data_retention_time_in_days
         comparison_operator: '='
         literal: '3'
+- statement_terminator: ;
+- statement:
+    alter_schema_statement:
+    - keyword: alter
+    - keyword: schema
+    - schema_reference:
+        identifier: schema1
+    - keyword: set
+    - tag_equals:
+      - keyword: tag
+      - identifier: tag1
+      - comparison_operator: '='
+      - literal: "'value1'"
+      - comma: ','
+      - identifier: tag2
+      - comparison_operator: '='
+      - literal: "'value2'"
 - statement_terminator: ;
 - statement:
     alter_schema_statement:

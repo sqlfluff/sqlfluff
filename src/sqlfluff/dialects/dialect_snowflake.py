@@ -860,12 +860,55 @@ class CommentClauseSegment(BaseSegment):
 class CommentEqualsClauseSegment(BaseSegment):
     """A comment clause.
 
-    e.g. COMMENT 'view/table description'
+    e.g. COMMENT = 'view/table description'
     """
 
     type = "comment_equals_clause"
     match_grammar = Sequence(
         "COMMENT", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")
+    )
+
+
+@snowflake_dialect.segment()
+class TagBracketedEqualsSegment(BaseSegment):
+    """A tag clause.
+
+    e.g. TAG (tag1= 'value1', tag2 = 'value2')
+    """
+
+    type = "tag_bracketed_equals"
+    match_grammar = Sequence(
+        Sequence("WITH", optional=True),
+        "TAG",
+        Bracketed(
+            Delimited(
+                Sequence(
+                    Ref("NakedIdentifierSegment"),
+                    Ref("EqualsSegment"),
+                    Ref("QuotedLiteralSegment"),
+                )
+            ),
+        ),
+    )
+
+
+@snowflake_dialect.segment()
+class TagEqualsSegment(BaseSegment):
+    """A tag clause.
+
+    e.g. TAG tag1= 'value1', tag2 = 'value2'
+    """
+
+    type = "tag_equals"
+    match_grammar = Sequence(
+        "TAG",
+        Delimited(
+            Sequence(
+                Ref("NakedIdentifierSegment"),
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+            )
+        ),
     )
 
 
@@ -1234,19 +1277,8 @@ class CreateSchemaStatementSegment(BaseSegment):
         Ref("IfNotExistsGrammar", optional=True),
         Ref("SchemaReferenceSegment"),
         Sequence("WITH", "MANAGED", "ACCESS", optional=True),
-        AnyNumberOf(Ref("SchemaObjectParamsSegment")),
-        Sequence(
-            Sequence("WITH", optional=True),
-            "TAG",
-            Bracketed(
-                Delimited(
-                    Ref("NakedIdentifierSegment"),
-                    Ref("EqualsSegment"),
-                    Ref("QuotedIdentifierSegment"),
-                )
-            ),
-            optional=True,
-        ),
+        Ref("SchemaObjectParamsSegment", optional=True),
+        Ref("TagBracketedEqualsSegment", optional=True),
     )
 
 
@@ -1277,13 +1309,11 @@ class AlterSchemaStatementSegment(BaseSegment):
             ),
             Sequence(
                 "SET",
-                AnyNumberOf(
-                    Ref("SchemaObjectParamsSegment"),
-                ),
+                OneOf(Ref("SchemaObjectParamsSegment"), Ref("TagEqualsSegment")),
             ),
             Sequence(
                 "UNSET",
-                AnyNumberOf(
+                OneOf(
                     Delimited(
                         "DATA_RETENTION_TIME_IN_DAYS",
                         "MAX_DATA_EXTENSION_TIME_IN_DAYS",
@@ -1291,7 +1321,6 @@ class AlterSchemaStatementSegment(BaseSegment):
                         "COMMENT",
                     ),
                     Sequence("TAG", Delimited(Ref("NakedIdentifierSegment"))),
-                    min_times=1,
                 ),
             ),
             Sequence(OneOf("ENABLE", "DISABLE"), Sequence("MANAGED", "ACCESS")),
@@ -1326,16 +1355,6 @@ class SchemaObjectParamsSegment(BaseSegment):
             Ref("QuotedLiteralSegment"),
         ),
         Ref("CommentEqualsClauseSegment"),
-        Sequence(
-            "TAG",
-            Delimited(
-                Sequence(
-                    Ref("NakedIdentifierSegment"),
-                    Ref("EqualsSegment"),
-                    Ref("QuotedLiteralSegment"),
-                )
-            ),
-        ),
     )
 
 
