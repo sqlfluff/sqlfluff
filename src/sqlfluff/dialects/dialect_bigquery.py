@@ -649,8 +649,13 @@ ObjectReferenceSegment = ansi_dialect.get_segment("ObjectReferenceSegment")
 class ColumnReferenceSegment(ObjectReferenceSegment):  # type: ignore
     """A reference to column, field or alias.
 
-    We override this for BigQuery to allow keyword structures (using Full)
-    and to properly return references for objects
+    We override this for BigQuery to allow keywords in structures
+    (using Full segments) and to properly return references for objects.
+
+    Ref: https://cloud.google.com/bigquery/docs/reference/standard-sql/lexical
+    "A reserved keyword must be a quoted identifier if it is a standalone
+    keyword or the first component of a path expression. It may be unquoted
+    as the second or later component of a path expression."
     """
 
     type = "column_reference"
