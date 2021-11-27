@@ -48,6 +48,7 @@ class LintedFile(NamedTuple):
     ignore_mask: List[NoQaDirective]
     templated_file: TemplatedFile
     encoding: str
+    newline: Optional[str]
 
     def check_tuples(self, raise_on_non_linting_violations=True) -> List[CheckTuple]:
         """Make a list of check_tuples.
@@ -495,11 +496,13 @@ class LintedFile(NamedTuple):
             if suffix:
                 root, ext = os.path.splitext(fname)
                 fname = root + suffix + ext
-            self._safe_create_replace_file(fname, write_buff, self.encoding)
+            self._safe_create_replace_file(
+                fname, write_buff, self.encoding, self.newline
+            )
         return success
 
     @staticmethod
-    def _safe_create_replace_file(fname, write_buff, encoding):
+    def _safe_create_replace_file(fname, write_buff, encoding, newline):
         # Write to a temporary file first, so in case of encoding or other
         # issues, we don't delete or corrupt the user's existing file.
         dirname, basename = os.path.split(fname)
@@ -510,6 +513,7 @@ class LintedFile(NamedTuple):
             dir=dirname,
             suffix=os.path.splitext(fname)[1],
             delete=False,
+            newline=newline,
         ) as tmp:
             tmp.file.write(write_buff)
             tmp.flush()

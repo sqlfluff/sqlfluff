@@ -7,7 +7,13 @@ from unittest.mock import patch
 
 from sqlfluff.core import Linter, FluffConfig
 from sqlfluff.core.linter import runner
-from sqlfluff.core.errors import SQLLexError, SQLBaseError, SQLLintError, SQLParseError
+from sqlfluff.core.errors import (
+    SQLFluffUserError,
+    SQLLexError,
+    SQLBaseError,
+    SQLLintError,
+    SQLParseError,
+)
 from sqlfluff.cli.formatters import CallbackFormatter
 from sqlfluff.core.linter import LintingResult, NoQaDirective
 import sqlfluff.core.linter as linter
@@ -586,6 +592,7 @@ def test_linted_file_ignore_masked_violations(
         ignore_mask=ignore_mask,
         templated_file=TemplatedFile.from_string(""),
         encoding="utf8",
+        newline=None,
     )
     result = lf.ignore_masked_violations(violations, ignore_mask)
     expected_violations = [v for i, v in enumerate(violations) if i in expected]
@@ -691,6 +698,7 @@ def test__attempt_to_change_templater_warning(caplog):
             name="utf8_create",
             fname="test.sql",
             encoding="utf-8",
+            newline=None,
             existing=None,
             update="def",
             expected="def",
@@ -699,6 +707,7 @@ def test__attempt_to_change_templater_warning(caplog):
             name="utf8_update",
             fname="test.sql",
             encoding="utf-8",
+            newline=None,
             existing="abc",
             update="def",
             expected="def",
@@ -707,6 +716,7 @@ def test__attempt_to_change_templater_warning(caplog):
             name="utf8_special_char",
             fname="test.sql",
             encoding="utf-8",
+            newline=None,
             existing="abc",
             update="→",  # Special utf-8 character
             expected="→",
@@ -715,9 +725,28 @@ def test__attempt_to_change_templater_warning(caplog):
             name="incorrect_encoding",
             fname="test.sql",
             encoding="Windows-1252",
+            newline=None,
             existing="abc",
             update="→",  # Not valid in Windows-1252
             expected="abc",  # File should be unchanged
+        ),
+        dict(
+            name="lf_newline",
+            fname="test.sql",
+            encoding="utf-8",
+            newline="\n",  # UNIX-style newlines
+            existing="abc\n",
+            update="def\n",  # Python uses universal newlines so always \n before writing.
+            expected="def\n",  # UNIX-style newline written to file
+        ),
+        dict(
+            name="crlf_newline",
+            fname="test.sql",
+            encoding="utf-8",
+            newline="\r\n",  # Dos-style newlines
+            existing="abc\n",
+            update="def\n",  # Python uses universal newlines so always \n before writing.
+            expected="def\r\n",  # Dos-style newline written to file
         ),
     ],
     ids=lambda case: case["name"],
@@ -729,9 +758,56 @@ def test_safe_create_replace_file(case, tmp_path):
         p.write_text(case["existing"])
     try:
         linter.LintedFile._safe_create_replace_file(
-            str(p), case["update"], case["encoding"]
+            str(p), case["update"], case["encoding"], case["newline"]
         )
     except:  # noqa: E722
         pass
-    actual = p.read_text(encoding=case["encoding"])
-    assert case["expected"] == actual
+
+    # Python reads in universal newlines, so we need to
+    # extract the actual newline and re-sub for comparison.
+    with open(p, "r") as f:
+        actual = f.read()
+        newline = f.newlines or "\n"
+
+    assert case["expected"] == actual.replace("\n", newline)
+
+
+@pytest.mark.parametrize(
+    "config_line_ending_export_style,result",
+    [
+        (
+            "autodetect",
+            None,
+        ),
+        (
+            "lf",
+            "\n",
+        ),
+        (
+            "crlf",
+            "\r\n",
+        ),
+    ],
+)
+def test__linter_get_line_ending_export_style(config_line_ending_export_style, result):
+    """Test get_line_ending_export_style."""
+    assert (
+        Linter.get_line_ending_export_style(
+            config=FluffConfig(
+                overrides={"line_ending_export_style": config_line_ending_export_style}
+            )
+        )
+        == result
+    )
+
+
+def test__linter_get_line_ending_export_style_exception():
+    """Test get_line_ending_export_style."""
+    with pytest.raises(SQLFluffUserError) as exc:
+        Linter.get_line_ending_export_style(
+            config=FluffConfig(overrides={"line_ending_export_style": "abc"})
+        )
+    assert (
+        f"Non-existent line ending export style 'abc' specified. "
+        "Must be one of autodetect, lf, or crlf."
+    ) in str(exc)

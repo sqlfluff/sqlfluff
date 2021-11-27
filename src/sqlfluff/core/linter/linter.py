@@ -20,6 +20,7 @@ from tqdm import tqdm
 
 from sqlfluff.core.errors import (
     SQLBaseError,
+    SQLFluffUserError,
     SQLLexError,
     SQLLintError,
     SQLParseError,
@@ -302,6 +303,35 @@ class Linter:
             f"One fix for {code} not applied, it would re-cause the same error."
         )
 
+    @staticmethod
+    def get_line_ending_export_style(config: FluffConfig) -> Optional[str]:
+        """Get the line_ending_export_style to be used to export the fixed file.
+
+        Options are:
+        - autodetect: Use system default line ending.
+        - lf: Unix-style line ending.
+        - crlf: Windows-style line ending.
+        """
+        line_ending_dict = {
+            "autodetect": None,  # This allows python to use the system default.
+            "lf": "\n",
+            "crlf": "\r\n",
+        }
+        line_ending_export_style_config = str(
+            config.get(
+                "line_ending_export_style",
+                default="autodetect",
+            )
+        ).lower()
+
+        if line_ending_export_style_config not in line_ending_dict:
+            raise SQLFluffUserError(
+                f"Non-existent line ending export style '{line_ending_export_style_config}' specified. "
+                "Must be one of autodetect, lf, or crlf."
+            )
+
+        return line_ending_dict[line_ending_export_style_config]
+
     # ### Class Methods
     # These compose the base static methods into useful recipes.
 
@@ -516,6 +546,9 @@ class Linter:
         for violation in violations:
             violation.ignore_if_in(parsed.config.get("ignore"))
 
+        # Get the line ending export style for the linted file.
+        newline = cls.get_line_ending_export_style(parsed.config)
+
         linted_file = LintedFile(
             parsed.fname,
             violations,
@@ -524,6 +557,7 @@ class Linter:
             ignore_mask=ignore_buff,
             templated_file=parsed.templated_file,
             encoding=encoding,
+            newline=newline,
         )
 
         # This is the main command line output from linting.
