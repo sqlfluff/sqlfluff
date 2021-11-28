@@ -119,7 +119,7 @@ class Rule_L044(BaseRule):
                                             dialect,
                                             nested_queries,
                                         )
-                                        return
+                                        continue
                                 # Not CTE, not table alias. Presumably an
                                 # external table. Warn.
                                 self.logger.debug(
