@@ -1,6 +1,6 @@
 """Tools for more complex analysis of SELECT statements."""
 from collections import defaultdict
-from typing import Dict, Generator, List, NamedTuple, Optional, Union
+from typing import DefaultDict, Dict, Generator, List, NamedTuple, Optional, Union
 
 from cached_property import cached_property
 
@@ -40,12 +40,17 @@ class SelectCrawler:
         cls, segment: BaseSegment, dialect: Dialect
     ) -> Dict[Optional[str], List["SelectCrawler"]]:
         """Find top-level SELECTs and CTEs, return info."""
-        queries = defaultdict(list)
-        cls._process_select_statements(dialect, queries, segment)
+        queries: DefaultDict[Optional[str], List[SelectCrawler]] = defaultdict(list)
+        cls._process_select_statements(segment, dialect, queries)
         return dict(queries)
 
     @classmethod
-    def _process_select_statements(cls, dialect, queries, segment):
+    def _process_select_statements(
+        cls,
+        segment: BaseSegment,
+        dialect: Dialect,
+        queries: DefaultDict[Optional[str], List["SelectCrawler"]],
+    ):
         # We specify recurse_into=False because we only want top-level select
         # statements and CTEs. We'll deal with nested selects later as needed,
         # when processing their top-level parent.
@@ -57,19 +62,18 @@ class SelectCrawler:
                 queries[select_statement_info.select_name].append(
                     SelectCrawler(select_statement, dialect, select_statement_info.cte)
                 )
-        return dict(queries)
 
     @classmethod
     def gather_nested_ctes(
         cls, segment: BaseSegment, dialect: Dialect
     ) -> Dict[Optional[str], List["SelectCrawler"]]:
         """Find nested CTEs."""
-        queries = defaultdict(list)
-        cls._process_select_statements(dialect, queries, segment)
+        queries: DefaultDict[Optional[str], List[SelectCrawler]] = defaultdict(list)
+        cls._process_select_statements(segment, dialect, queries)
         for cte in segment.recursive_crawl(
             "common_table_expression", recurse_into=False
         ):
-            cls._process_select_statements(dialect, queries, cte)
+            cls._process_select_statements(cte, dialect, queries)
         return dict(queries)
 
     @classmethod
