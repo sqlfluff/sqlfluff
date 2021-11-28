@@ -144,7 +144,7 @@ class SelectCrawler:
         self.cte = cte
 
     def __repr__(self):
-        return f"<<SelectCrawler({self.select_statement.raw})>>"
+        return f"<<SelectCrawler({self.select_statement.raw})>>"  # pragma: no cover
 
     @cached_property
     def select_info(self):
