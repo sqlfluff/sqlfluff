@@ -41,6 +41,11 @@ class SelectCrawler:
     ) -> Dict[Optional[str], List["SelectCrawler"]]:
         """Find top-level SELECTs and CTEs, return info."""
         queries = defaultdict(list)
+        cls._process_select_statements(dialect, queries, segment)
+        return dict(queries)
+
+    @classmethod
+    def _process_select_statements(cls, dialect, queries, segment):
         # We specify recurse_into=False because we only want top-level select
         # statements and CTEs. We'll deal with nested selects later as needed,
         # when processing their top-level parent.
@@ -60,22 +65,11 @@ class SelectCrawler:
     ) -> Dict[Optional[str], List["SelectCrawler"]]:
         """Find nested CTEs."""
         queries = defaultdict(list)
-        # We specify recurse_into=False because we only want top-level select
-        # statements and CTEs. We'll deal with nested selects later as needed,
-        # when processing their top-level parent.
-        for select_statement in segment.recursive_crawl(
+        cls._process_select_statements(dialect, queries, segment)
+        for cte in segment.recursive_crawl(
             "common_table_expression", recurse_into=False
         ):
-            for select_statement in segment.recursive_crawl(
-                "select_statement", recurse_into=False
-            ):
-                select_statement_info = cls._get_cte_info(select_statement, segment)
-                if select_statement_info:
-                    queries[select_statement_info.select_name].append(
-                        SelectCrawler(
-                            select_statement, dialect, select_statement_info.cte
-                        )
-                    )
+            cls._process_select_statements(dialect, queries, cte)
         return dict(queries)
 
     @classmethod
