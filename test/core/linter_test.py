@@ -765,7 +765,7 @@ def test_safe_create_replace_file(case, tmp_path):
 
     # Python reads in universal newlines, so we need to
     # extract the actual newline and re-sub for comparison.
-    with open(p, "r") as f:
+    with open(p, "r", encoding=case["encoding"]) as f:
         actual = f.read()
         newline = f.newlines or "\n"
 
@@ -808,6 +808,6 @@ def test__linter_get_line_ending_export_style_exception():
             config=FluffConfig(overrides={"line_ending_export_style": "abc"})
         )
     assert (
-        f"Non-existent line ending export style 'abc' specified. "
+        "Non-existent line ending export style 'abc' specified. "
         "Must be one of autodetect, lf, or crlf."
     ) in str(exc)
