@@ -210,6 +210,13 @@ def core_options(f: Callable) -> Callable:
         ),
     )(f)
     f = click.option(
+        "--encoding",
+        default="autodetect",
+        help=(
+            "Specifiy encoding to use when reading and writing files. Defaults to autodetect."
+        ),
+    )(f)
+    f = click.option(
         "--ignore",
         default=None,
         help=(
