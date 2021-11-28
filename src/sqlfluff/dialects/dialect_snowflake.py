@@ -828,17 +828,21 @@ class AlterWarehouseStatementSegment(BaseSegment):
             Sequence(
                 Ref("NakedIdentifierSegment"),
                 "SET",
-                AnyNumberOf(
-                    Ref("WarehouseObjectPropertiesSegment"),
-                    Ref("CommentEqualsClauseSegment"),
-                    Ref("WarehouseObjectParamsSegment"),
+                OneOf(
+                    AnyNumberOf(
+                        Ref("WarehouseObjectPropertiesSegment"),
+                        Ref("CommentEqualsClauseSegment"),
+                        Ref("WarehouseObjectParamsSegment"),
+                    ),
+                    Ref("TagEqualsSegment"),
                 ),
             ),
             Sequence(
                 Ref("NakedIdentifierSegment"),
                 "UNSET",
-                Delimited(
-                    Ref("NakedIdentifierSegment"),
+                OneOf(
+                    Delimited(Ref("NakedIdentifierSegment")),
+                    Sequence("TAG", Delimited(Ref("NakedIdentifierSegment"))),
                 ),
             ),
         ),
@@ -873,7 +877,7 @@ class CommentEqualsClauseSegment(BaseSegment):
 class TagBracketedEqualsSegment(BaseSegment):
     """A tag clause.
 
-    e.g. TAG (tag1= 'value1', tag2 = 'value2')
+    e.g. TAG (tag1 = 'value1', tag2 = 'value2')
     """
 
     type = "tag_bracketed_equals"
@@ -896,7 +900,7 @@ class TagBracketedEqualsSegment(BaseSegment):
 class TagEqualsSegment(BaseSegment):
     """A tag clause.
 
-    e.g. TAG tag1= 'value1', tag2 = 'value2'
+    e.g. TAG tag1 = 'value1', tag2 = 'value2'
     """
 
     type = "tag_equals"
@@ -1102,16 +1106,6 @@ class WarehouseObjectParamsSegment(BaseSegment):
             Ref("EqualsSegment"),
             Ref("NumericLiteralSegment"),
         ),
-        Sequence(
-            "TAG",
-            Delimited(
-                Sequence(
-                    Ref("NakedIdentifierSegment"),
-                    Ref("EqualsSegment"),
-                    Ref("QuotedLiteralSegment"),
-                )
-            ),
-        ),
     )
 
 
@@ -1195,17 +1189,7 @@ class ColumnConstraintSegment(BaseSegment):
             "POLICY",
             Ref("QuotedLiteralSegment"),
         ),
-        Sequence(
-            Sequence("WITH", optional=True),
-            "TAG",
-            Bracketed(
-                Delimited(
-                    Ref("NakedIdentifierSegment"),
-                    Ref("EqualsSegment"),
-                    Ref("QuotedIdentifierSegment"),
-                )
-            ),
-        ),
+        Ref("TagBracketedEqualsSegment", optional=True),
         Ref("ConstraintPropertiesSegment"),
         Sequence("DEFAULT", Ref("QuotedLiteralSegment")),
         Sequence("CHECK", Bracketed(Ref("ExpressionSegment"))),
@@ -1471,18 +1455,7 @@ class CreateTableStatementSegment(BaseSegment):
             Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
             optional=True,
         ),
-        Sequence(
-            Sequence("WITH", optional=True),
-            "TAG",
-            Bracketed(
-                Delimited(
-                    Ref("NakedIdentifierSegment"),
-                    Ref("EqualsSegment"),
-                    Ref("QuotedIdentifierSegment"),
-                )
-            ),
-            optional=True,
-        ),
+        Ref("TagBracketedEqualsSegment", optional=True),
         Ref("CommentEqualsClauseSegment", optional=True),
         OneOf(
             # Create AS syntax:
@@ -1654,6 +1627,7 @@ class CreateStatementSegment(BaseSegment):
                 Ref("WarehouseObjectPropertiesSegment"),
                 Ref("WarehouseObjectParamsSegment"),
             ),
+            Ref("TagBracketedEqualsSegment", optional=True),
             optional=True,
         ),
         Ref("CreateStatementCommentSegment", optional=True),
@@ -1829,14 +1803,7 @@ class CreateExternalTableSegment(BaseSegment):
                 Ref("NakedIdentifierSegment"),
                 optional=True,
             ),
-            Sequence(
-                Sequence("WITH", optional=True),
-                "TAG",
-                Ref("NakedIdentifierSegment"),
-                Ref("EqualsSegment"),
-                Ref("QuotedLiteralSegment"),
-                optional=True,
-            ),
+            Ref("TagBracketedEqualsSegment", optional=True),
             Ref("CreateStatementCommentSegment", optional=True),
         ),
     )
