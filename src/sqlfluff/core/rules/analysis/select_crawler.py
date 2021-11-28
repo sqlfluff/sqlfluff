@@ -198,7 +198,9 @@ class SelectCrawler:
         for seg in path_to:
             if seg.is_type("common_table_expression"):
                 ctes.append(seg)
-        if len(ctes) <= 1:
-            return SelectStatementInfo(ctes[0] if ctes else None)
+        if not ctes:
+            return SelectStatementInfo(None)
+        elif len(ctes) <= 1:
+            return SelectStatementInfo(ctes[0])
         else:
             return None
