@@ -840,8 +840,9 @@ class AlterWarehouseStatementSegment(BaseSegment):
             Sequence(
                 Ref("NakedIdentifierSegment"),
                 "UNSET",
-                Delimited(
-                    Ref("NakedIdentifierSegment"),
+                OneOf(
+                    Delimited(Ref("NakedIdentifierSegment")),
+                    Sequence("TAG", Delimited(Ref("NakedIdentifierSegment"))),
                 ),
             ),
         ),
