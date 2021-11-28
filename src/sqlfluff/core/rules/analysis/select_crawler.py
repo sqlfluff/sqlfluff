@@ -18,10 +18,13 @@ class WildcardInfo(NamedTuple):
 
 
 class SelectStatementInfo(NamedTuple):
+    """Info about a select_statement."""
+
     cte: Optional[BaseSegment]
 
     @property
     def select_name(self):
+        """If the select_statement is a CTE, what's its name?"""
         return self.cte.segments[0].raw if self.cte else None
 
 
@@ -46,7 +49,9 @@ class SelectCrawler:
         ):
             select_statement_info = cls._get_cte_info(select_statement, segment)
             if select_statement_info:
-                queries[select_statement_info.select_name].append(SelectCrawler(select_statement, dialect, select_statement_info.cte))
+                queries[select_statement_info.select_name].append(
+                    SelectCrawler(select_statement, dialect, select_statement_info.cte)
+                )
         return dict(queries)
 
     @classmethod
@@ -67,7 +72,10 @@ class SelectCrawler:
                 select_statement_info = cls._get_cte_info(select_statement, segment)
                 if select_statement_info:
                     queries[select_statement_info.select_name].append(
-                        SelectCrawler(select_statement, dialect, select_statement_info.cte))
+                        SelectCrawler(
+                            select_statement, dialect, select_statement_info.cte
+                        )
+                    )
         return dict(queries)
 
     @classmethod

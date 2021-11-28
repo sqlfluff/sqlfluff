@@ -109,11 +109,15 @@ class Rule_L044(BaseRule):
                             else:
                                 # Is it a nested CTE?
                                 if select_info.cte:
-                                    nested_queries = SelectCrawler.gather_nested_ctes(select_info.cte.segments[-1], dialect)
+                                    nested_queries = SelectCrawler.gather_nested_ctes(
+                                        select_info.cte.segments[-1], dialect
+                                    )
                                     if wildcard_table in nested_queries:
                                         # Wildcard refers to a nested CTE. Analyze it.
                                         self._analyze_result_columns(
-                                            nested_queries.pop(wildcard_table), dialect, nested_queries
+                                            nested_queries.pop(wildcard_table),
+                                            dialect,
+                                            nested_queries,
                                         )
                                         return
                                 # Not CTE, not table alias. Presumably an
