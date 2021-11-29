@@ -402,6 +402,8 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref("CopyIntoStatementSegment"),
             Ref("AlterWarehouseStatementSegment"),
             Ref("CreateExternalTableSegment"),
+            Ref("CreateSchemaStatementSegment"),
+            Ref("AlterSchemaStatementSegment"),
         ],
         remove=[
             Ref("CreateTypeStatementSegment"),
@@ -826,17 +828,21 @@ class AlterWarehouseStatementSegment(BaseSegment):
             Sequence(
                 Ref("NakedIdentifierSegment"),
                 "SET",
-                AnyNumberOf(
-                    Ref("WarehouseObjectPropertiesSegment"),
-                    Ref("CommentEqualsClauseSegment"),
-                    Ref("WarehouseObjectParamsSegment"),
+                OneOf(
+                    AnyNumberOf(
+                        Ref("WarehouseObjectPropertiesSegment"),
+                        Ref("CommentEqualsClauseSegment"),
+                        Ref("WarehouseObjectParamsSegment"),
+                    ),
+                    Ref("TagEqualsSegment"),
                 ),
             ),
             Sequence(
                 Ref("NakedIdentifierSegment"),
                 "UNSET",
-                Delimited(
-                    Ref("NakedIdentifierSegment"),
+                OneOf(
+                    Delimited(Ref("NakedIdentifierSegment")),
+                    Sequence("TAG", Delimited(Ref("NakedIdentifierSegment"))),
                 ),
             ),
         ),
@@ -858,12 +864,55 @@ class CommentClauseSegment(BaseSegment):
 class CommentEqualsClauseSegment(BaseSegment):
     """A comment clause.
 
-    e.g. COMMENT 'view/table description'
+    e.g. COMMENT = 'view/table description'
     """
 
     type = "comment_equals_clause"
     match_grammar = Sequence(
         "COMMENT", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")
+    )
+
+
+@snowflake_dialect.segment()
+class TagBracketedEqualsSegment(BaseSegment):
+    """A tag clause.
+
+    e.g. TAG (tag1 = 'value1', tag2 = 'value2')
+    """
+
+    type = "tag_bracketed_equals"
+    match_grammar = Sequence(
+        Sequence("WITH", optional=True),
+        "TAG",
+        Bracketed(
+            Delimited(
+                Sequence(
+                    Ref("NakedIdentifierSegment"),
+                    Ref("EqualsSegment"),
+                    Ref("QuotedLiteralSegment"),
+                )
+            ),
+        ),
+    )
+
+
+@snowflake_dialect.segment()
+class TagEqualsSegment(BaseSegment):
+    """A tag clause.
+
+    e.g. TAG tag1 = 'value1', tag2 = 'value2'
+    """
+
+    type = "tag_equals"
+    match_grammar = Sequence(
+        "TAG",
+        Delimited(
+            Sequence(
+                Ref("NakedIdentifierSegment"),
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+            )
+        ),
     )
 
 
@@ -1057,16 +1106,6 @@ class WarehouseObjectParamsSegment(BaseSegment):
             Ref("EqualsSegment"),
             Ref("NumericLiteralSegment"),
         ),
-        Sequence(
-            "TAG",
-            Delimited(
-                Sequence(
-                    Ref("NakedIdentifierSegment"),
-                    Ref("EqualsSegment"),
-                    Ref("QuotedLiteralSegment"),
-                )
-            ),
-        ),
     )
 
 
@@ -1150,17 +1189,7 @@ class ColumnConstraintSegment(BaseSegment):
             "POLICY",
             Ref("QuotedLiteralSegment"),
         ),
-        Sequence(
-            Sequence("WITH", optional=True),
-            "TAG",
-            Bracketed(
-                Delimited(
-                    Ref("NakedIdentifierSegment"),
-                    Ref("EqualsSegment"),
-                    Ref("QuotedIdentifierSegment"),
-                )
-            ),
-        ),
+        Ref("TagBracketedEqualsSegment", optional=True),
         Ref("ConstraintPropertiesSegment"),
         Sequence("DEFAULT", Ref("QuotedLiteralSegment")),
         Sequence("CHECK", Bracketed(Ref("ExpressionSegment"))),
@@ -1213,6 +1242,103 @@ class CopyOptionsSegment(BaseSegment):
         Sequence("ENFORCE_LENGTH", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
         Sequence("TRUNCATECOLUMNS", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
         Sequence("FORCE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+    )
+
+
+@snowflake_dialect.segment(replace=True)
+class CreateSchemaStatementSegment(BaseSegment):
+    """A `CREATE SCHEMA` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-schema.html
+    """
+
+    type = "create_schema_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        Ref("TemporaryTransientGrammar", optional=True),
+        "SCHEMA",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("SchemaReferenceSegment"),
+        Sequence("WITH", "MANAGED", "ACCESS", optional=True),
+        Ref("SchemaObjectParamsSegment", optional=True),
+        Ref("TagBracketedEqualsSegment", optional=True),
+    )
+
+
+@snowflake_dialect.segment()
+class AlterSchemaStatementSegment(BaseSegment):
+    """An `ALTER SCHEMA` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-schema.html
+
+    """
+
+    type = "alter_schema_statement"
+    match_grammar = Sequence(
+        "ALTER",
+        "SCHEMA",
+        Sequence("IF", "EXISTS", optional=True),
+        Ref("SchemaReferenceSegment"),
+        OneOf(
+            Sequence(
+                "RENAME",
+                "TO",
+                Ref("SchemaReferenceSegment"),
+            ),
+            Sequence(
+                "SWAP",
+                "WITH",
+                Ref("SchemaReferenceSegment"),
+            ),
+            Sequence(
+                "SET",
+                OneOf(Ref("SchemaObjectParamsSegment"), Ref("TagEqualsSegment")),
+            ),
+            Sequence(
+                "UNSET",
+                OneOf(
+                    Delimited(
+                        "DATA_RETENTION_TIME_IN_DAYS",
+                        "MAX_DATA_EXTENSION_TIME_IN_DAYS",
+                        "DEFAULT_DDL_COLLATION",
+                        "COMMENT",
+                    ),
+                    Sequence("TAG", Delimited(Ref("NakedIdentifierSegment"))),
+                ),
+            ),
+            Sequence(OneOf("ENABLE", "DISABLE"), Sequence("MANAGED", "ACCESS")),
+        ),
+    )
+
+
+@snowflake_dialect.segment()
+class SchemaObjectParamsSegment(BaseSegment):
+    """A Snowflake Schema Object Param segment.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-schema.html
+    https://docs.snowflake.com/en/sql-reference/sql/alter-schema.html
+    """
+
+    type = "schema_object_properties"
+
+    match_grammar = AnyNumberOf(
+        Sequence(
+            "DATA_RETENTION_TIME_IN_DAYS",
+            Ref("EqualsSegment"),
+            Ref("NumericLiteralSegment"),
+        ),
+        Sequence(
+            "MAX_DATA_EXTENSION_TIME_IN_DAYS",
+            Ref("EqualsSegment"),
+            Ref("NumericLiteralSegment"),
+        ),
+        Sequence(
+            "DEFAULT_DDL_COLLATION",
+            Ref("EqualsSegment"),
+            Ref("QuotedLiteralSegment"),
+        ),
+        Ref("CommentEqualsClauseSegment"),
     )
 
 
@@ -1329,18 +1455,7 @@ class CreateTableStatementSegment(BaseSegment):
             Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
             optional=True,
         ),
-        Sequence(
-            Sequence("WITH", optional=True),
-            "TAG",
-            Bracketed(
-                Delimited(
-                    Ref("NakedIdentifierSegment"),
-                    Ref("EqualsSegment"),
-                    Ref("QuotedIdentifierSegment"),
-                )
-            ),
-            optional=True,
-        ),
+        Ref("TagBracketedEqualsSegment", optional=True),
         Ref("CommentEqualsClauseSegment", optional=True),
         OneOf(
             # Create AS syntax:
@@ -1476,7 +1591,6 @@ class CreateStatementSegment(BaseSegment):
             Sequence("EXTERNAL", "FUNCTION"),
             # Objects that also support clone
             "DATABASE",
-            "SCHEMA",
             "SEQUENCE",
             Sequence("FILE", "FORMAT"),
             "STAGE",
@@ -1513,6 +1627,7 @@ class CreateStatementSegment(BaseSegment):
                 Ref("WarehouseObjectPropertiesSegment"),
                 Ref("WarehouseObjectParamsSegment"),
             ),
+            Ref("TagBracketedEqualsSegment", optional=True),
             optional=True,
         ),
         Ref("CreateStatementCommentSegment", optional=True),
@@ -1688,14 +1803,7 @@ class CreateExternalTableSegment(BaseSegment):
                 Ref("NakedIdentifierSegment"),
                 optional=True,
             ),
-            Sequence(
-                Sequence("WITH", optional=True),
-                "TAG",
-                Ref("NakedIdentifierSegment"),
-                Ref("EqualsSegment"),
-                Ref("QuotedLiteralSegment"),
-                optional=True,
-            ),
+            Ref("TagBracketedEqualsSegment", optional=True),
             Ref("CreateStatementCommentSegment", optional=True),
         ),
     )

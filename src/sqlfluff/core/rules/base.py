@@ -16,6 +16,7 @@ missing.
 
 import bdb
 import copy
+import fnmatch
 import logging
 import pathlib
 import re
@@ -573,7 +574,7 @@ class RuleSet:
     path that the file is in.
 
     Rules should be fetched using the :meth:`get_rulelist` command which
-    also handles any filtering (i.e. whitelisting and blacklisting).
+    also handles any filtering (i.e. allowlisting and denylisting).
 
     New rules should be added to the instance of this class using the
     :meth:`register` decorator. That decorator registers the class, but also
@@ -683,10 +684,23 @@ class RuleSet:
         # Make sure we actually return the original class
         return cls
 
+    def _expand_config_rule_glob_list(self, glob_list: List[str]) -> List[str]:
+        """Expand a list of rule globs into a list of rule codes.
+
+        Returns:
+            :obj:`list` of :obj:`str` rule codes.
+
+        """
+        expanded_glob_list = []
+        for r in glob_list:
+            expanded_glob_list.extend(fnmatch.filter(self._register, r))
+
+        return expanded_glob_list
+
     def get_rulelist(self, config) -> List[BaseRule]:
         """Use the config to return the appropriate rules.
 
-        We use the config both for whitelisting and blacklisting, but also
+        We use the config both for allowlisting and denylisting, but also
         for configuring the rules given the given config.
 
         Returns:
@@ -695,33 +709,40 @@ class RuleSet:
         """
         # Validate all generic rule configs
         self._validate_config_options(config)
-        # default the whitelist to all the rules if not set
-        whitelist = config.get("rule_whitelist") or list(self._register.keys())
-        blacklist = config.get("rule_blacklist") or []
+        # default the allowlist to all the rules if not set
+        allowlist = config.get("rule_allowlist") or list(self._register.keys())
+        denylist = config.get("rule_denylist") or []
 
-        whitelisted_unknown_rule_codes = [
-            r for r in whitelist if r not in self._register
+        allowlisted_unknown_rule_codes = [
+            r for r in allowlist if not fnmatch.filter(self._register, r)
         ]
-        if any(whitelisted_unknown_rule_codes):
+        if any(allowlisted_unknown_rule_codes):
             rules_logger.warning(
-                "Tried to whitelist unknown rules: {!r}".format(
-                    whitelisted_unknown_rule_codes
+                "Tried to allowlist unknown rules: {!r}".format(
+                    allowlisted_unknown_rule_codes
                 )
             )
 
-        blacklisted_unknown_rule_codes = [
-            r for r in blacklist if r not in self._register
+        denylisted_unknown_rule_codes = [
+            r for r in denylist if not fnmatch.filter(self._register, r)
         ]
-        if any(blacklisted_unknown_rule_codes):  # pragma: no cover
+        if any(denylisted_unknown_rule_codes):  # pragma: no cover
             rules_logger.warning(
-                "Tried to blacklist unknown rules: {!r}".format(
-                    blacklisted_unknown_rule_codes
+                "Tried to denylist unknown rules: {!r}".format(
+                    denylisted_unknown_rule_codes
                 )
             )
 
         keylist = sorted(self._register.keys())
-        # First we filter the rules
-        keylist = [r for r in keylist if r in whitelist and r not in blacklist]
+
+        # First we expand the allowlist and denylist globs
+        expanded_allowlist = self._expand_config_rule_glob_list(allowlist)
+        expanded_denylist = self._expand_config_rule_glob_list(denylist)
+
+        # Then we filter the rules
+        keylist = [
+            r for r in keylist if r in expanded_allowlist and r not in expanded_denylist
+        ]
 
         # Construct the kwargs for instantiation before we actually do it.
         rule_kwargs = {}
