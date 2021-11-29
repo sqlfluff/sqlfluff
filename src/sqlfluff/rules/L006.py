@@ -164,7 +164,7 @@ class Rule_L006(BaseRule):
                             ),
                             fixes=[
                                 LintFix(
-                                    "create",
+                                    "create_before",
                                     # NB the anchor here is always in the parent and not anchor
                                     anchor=sub_seg,
                                     edit=WhitespaceSegment(raw=" "),
@@ -191,7 +191,7 @@ class Rule_L006(BaseRule):
                             ),
                             fixes=[
                                 LintFix(
-                                    "create",
+                                    "create_before",
                                     # NB the anchor here is always in the parent and not anchor
                                     anchor=next_seg,
                                     edit=WhitespaceSegment(raw=" "),

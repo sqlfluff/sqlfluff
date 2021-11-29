@@ -81,25 +81,9 @@ class Rule_L009(BaseRule):
         for this rule, we discard the others into the kwargs argument.
 
         """
-        if len(self.filter_meta(context.siblings_post)) > 0:
-            # This can only fail on the last segment
+        # We only care about the final segment of the parse tree.
+        if not self.is_final_segment(context):
             return None
-        elif len(context.segment.segments) > 0:
-            # This can only fail on the last base segment
-            return None
-        elif context.segment.is_meta:
-            # We can't fail on a meta segment
-            return None
-        else:
-            # So this looks like the end of the file, but we
-            # need to check that each parent segment is also the last.
-            # We do this with reference to the templated file, because it's
-            # the best we can do given the information available.
-            file_len = len(context.segment.pos_marker.templated_file.templated_str)
-            pos = context.segment.pos_marker.templated_slice.stop
-            # Does the length of the file equal the end of the templated position?
-            if file_len != pos:
-                return None
 
         # Include current segment for complete stack.
         complete_stack: List[BaseSegment] = list(context.raw_stack)
@@ -121,13 +105,19 @@ class Rule_L009(BaseRule):
             # No need for fix if single new line exists.
             return None
         elif len(eof_newline_segments) == 0:
-            # We're going to make an edit because we're appending to the end and there's
-            # no segment after it to match on. Otherwise we would never get a match!
+            # We make an edit to create this segment after the child of the FileSegment.
+            if len(context.parent_stack) == 1:
+                edit_segment = context.segment
+            else:
+                edit_segment = context.parent_stack[1]
+
             return LintResult(
                 anchor=anchor_segment,
                 fixes=[
                     LintFix(
-                        "edit", context.segment, [context.segment, NewlineSegment()]
+                        "create_after",
+                        edit_segment,
+                        [NewlineSegment()],
                     )
                 ],
             )

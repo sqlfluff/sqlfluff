@@ -98,7 +98,11 @@ class Rule_L011(BaseRule):
                     return LintResult(
                         anchor=context.segment,
                         fixes=[
-                            LintFix("create", context.segment.segments[0], insert_buff)
+                            LintFix(
+                                "create_before",
+                                context.segment.segments[0],
+                                insert_buff,
+                            )
                         ],
                     )
         return None
