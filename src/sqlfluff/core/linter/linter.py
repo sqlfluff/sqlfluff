@@ -1,5 +1,6 @@
 """Defines the linter class."""
 
+import fnmatch
 import os
 import time
 import logging
@@ -225,7 +226,11 @@ class Linter:
         return parsed, violations
 
     @staticmethod
-    def parse_noqa(comment: str, line_no: int):
+    def parse_noqa(
+        comment: str,
+        line_no: int,
+        rule_set: List[BaseRule],
+    ):
         """Extract ignore mask entries from a comment string."""
         # Also trim any whitespace afterward
 
@@ -267,7 +272,21 @@ class Linter:
                             )
                     rules: Optional[Tuple[str, ...]]
                     if rule_part != "all":
-                        rules = tuple(r.strip() for r in rule_part.split(","))
+                        # Rules can be globs therefore we compare to the rule_set to expand the globs.
+                        unexpanded_rules = tuple(
+                            r.strip() for r in rule_part.split(",")
+                        )
+                        possible_rule_codes = [r.code for r in rule_set]
+                        expanded_rules = []
+                        for r in unexpanded_rules:
+                            if r in {"PRS", "LXR", "TMP"}:
+                                # Don't expand special error types.
+                                expanded_rules.append(r)
+                            else:
+                                expanded_rules.extend(
+                                    fnmatch.filter(possible_rule_codes, r)
+                                )
+                        rules = tuple(expanded_rules)
                     else:
                         rules = None
                     return NoQaDirective(line_no, rules, action)
@@ -352,26 +371,32 @@ class Linter:
         )
 
     @classmethod
-    def extract_ignore_from_comment(cls, comment: RawSegment):
+    def extract_ignore_from_comment(
+        cls,
+        comment: RawSegment,
+        rule_set: List[BaseRule],
+    ):
         """Extract ignore mask entries from a comment segment."""
         # Also trim any whitespace afterward
         comment_content = comment.raw_trimmed().strip()
         comment_line, _ = comment.pos_marker.source_position()
-        result = cls.parse_noqa(comment_content, comment_line)
+        result = cls.parse_noqa(comment_content, comment_line, rule_set)
         if isinstance(result, SQLParseError):
             result.segment = comment
         return result
 
     @classmethod
     def extract_ignore_mask(
-        cls, tree: BaseSegment
+        cls,
+        tree: BaseSegment,
+        rule_set: List[BaseRule],
     ) -> Tuple[List[NoQaDirective], List[SQLBaseError]]:
         """Look for inline ignore comments and return NoQaDirectives."""
         ignore_buff: List[NoQaDirective] = []
         violations: List[SQLBaseError] = []
         for comment in tree.recursive_crawl("comment"):
             if comment.name == "inline_comment":
-                ignore_entry = cls.extract_ignore_from_comment(comment)
+                ignore_entry = cls.extract_ignore_from_comment(comment, rule_set)
                 if isinstance(ignore_entry, SQLParseError):
                     violations.append(ignore_entry)
                 elif ignore_entry:
@@ -407,7 +432,7 @@ class Linter:
             formatter.dispatch_lint_header(fname)
 
         # Look for comment segments which might indicate lines to ignore.
-        ignore_buff, ivs = cls.extract_ignore_mask(tree)
+        ignore_buff, ivs = cls.extract_ignore_mask(tree, rule_set)
         all_linting_errors += ivs
 
         for loop in range(loop_limit):
