@@ -840,6 +840,38 @@ def test_encoding(encoding_in, encoding_out):
         )
 
 
+def test_cli_pass_on_correct_encoding_argument():
+    """Try loading a utf-8-SIG encoded file using the correct encoding via the cli."""
+    result = invoke_assert_code(
+        ret_code=65,
+        args=[
+            lint,
+            ["test/fixtures/cli/encoding_test.sql", "--encoding", "utf-8-SIG"],
+        ],
+    )
+    raw_output = repr(result.output)
+
+    # Incorrect encoding raises paring and lexer errors.
+    assert r"L:   1 | P:   1 |  LXR |" not in raw_output
+    assert r"L:   1 | P:   1 |  PRS |" not in raw_output
+
+
+def test_cli_fail_on_wrong_encoding_argument():
+    """Try loading a utf-8-SIG encoded file using the wrong encoding via the cli."""
+    result = invoke_assert_code(
+        ret_code=65,
+        args=[
+            lint,
+            ["test/fixtures/cli/encoding_test.sql", "--encoding", "utf-8"],
+        ],
+    )
+    raw_output = repr(result.output)
+
+    # Incorrect encoding raises paring and lexer errors.
+    assert r"L:   1 | P:   1 |  LXR |" in raw_output
+    assert r"L:   1 | P:   1 |  PRS |" in raw_output
+
+
 @patch(
     "sqlfluff.core.linter.linter.progress_bar_configuration", disable_progress_bar=False
 )
