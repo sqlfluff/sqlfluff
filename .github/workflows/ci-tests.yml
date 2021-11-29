@@ -26,20 +26,13 @@ jobs:
     strategy:
       matrix:
         jobs: [ 'linting', 'doclinting', 'docbuild' ]
-    env:
-      PYTHON_VERSION: '3.10'
     name: ${{ matrix.jobs }} tests
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: ${{ env.PYTHON_VERSION }}
-    - name: Cache dependencies
-      uses: actions/cache@v2
-      with:
-        path: ${{ env.pythonLocation }}
-        key: ${{ env.PYTHON_VERSION }}-${{ runner.os }}-build-${{ hashFiles('setup.py') }}-${{ hashFiles('requirements_dev.txt') }}
+        python-version: '3.10'
     - name: Install dependencies
       run: |
         pip install tox
@@ -58,11 +51,6 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Cache dependencies
-      uses: actions/cache@v2
-      with:
-        path: ${{ env.pythonLocation }}
-        key: ${{ matrix.python-version }}-${{ runner.os }}-build-${{ hashFiles('setup.py') }}-${{ hashFiles('requirements_dev.txt') }}
     - name: Install dependencies
       run: |
         pip install tox
@@ -83,20 +71,13 @@ jobs:
     strategy:
       matrix:
         jobs: [ 'bench', 'mypy' ]
-    env:
-      PYTHON_VERSION: '3.10'
     name: ${{ matrix.jobs }} tests
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: ${{ env.PYTHON_VERSION }}
-    - name: Cache dependencies
-      uses: actions/cache@v2
-      with:
-        path: ${{ env.pythonLocation }}
-        key: ${{ env.PYTHON_VERSION }}-${{ runner.os }}-build-${{ hashFiles('setup.py') }}-${{ hashFiles('requirements_dev.txt') }}
+        python-version: '3.10'
     - name: Install dependencies
       run: |
         pip install tox
@@ -110,20 +91,13 @@ jobs:
         tox -e ${{ env.TOXENV }}
   examples:
     runs-on: ubuntu-latest
-    env:
-      PYTHON_VERSION: '3.10'
     name: example tests
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: ${{ env.PYTHON_VERSION }}
-    - name: Cache dependencies
-      uses: actions/cache@v2
-      with:
-        path: ${{ env.pythonLocation }}
-        key: ${{ env.PYTHON_VERSION }}-${{ runner.os }}-build-${{ hashFiles('setup.py') }}
+        python-version: '3.10'
     - name: Install dependencies
       run: |
         pip install -e .
@@ -140,20 +114,13 @@ jobs:
     strategy:
       matrix:
         dbt-version: [ 'dbt018', 'dbt019', 'dbt020', 'dbt021' ]
-    env:
-      PYTHON_VERSION: '3.8'
     name: DBT Plugin ${{ matrix.dbt-version }} tests
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: ${{ env.PYTHON_VERSION }}
-    - name: Cache dependencies
-      uses: actions/cache@v2
-      with:
-        path: ${{ env.pythonLocation }}
-        key: ${{ env.PYTHON_VERSION }}-${{ runner.os }}-build-${{ matrix.dbt-version }}-${{ hashFiles('setup.py') }}-${{ hashFiles('requirements_dev.txt') }}
+        python-version: '3.8'
     - name: Install dependencies
       run: |
         pip install tox
@@ -166,8 +133,6 @@ jobs:
         files: ./coverage.xml
   python-windows-tests:
     runs-on: windows-latest
-    env:
-      PYTHON_VERSION: '3.8'
     name: Python 3.8 Windows tests
     steps:
     - name: Set git to use LF
@@ -178,12 +143,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: ${{ env.PYTHON_VERSION }}
-    - name: Cache dependencies
-      uses: actions/cache@v2
-      with:
-        path: ${{ env.pythonLocation }}
-        key: ${{ env.PYTHON_VERSION }}-${{ runner.os }}-build-${{ hashFiles('setup.py') }}-${{ hashFiles('requirements_dev.txt') }}
+        python-version: '3.8'
     - name: List Env
       shell: bash
       run: |
@@ -206,8 +166,6 @@ jobs:
         files: ./coverage.xml
   python-windows-dbt-tests:
     runs-on: windows-latest
-    env:
-      PYTHON_VERSION: '3.8'
     name: DBT Plugin Python 3.8 Windows tests
     steps:
     - name: Set git to use LF
@@ -218,12 +176,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: ${{ env.PYTHON_VERSION }}
-    - name: Cache dependencies
-      uses: actions/cache@v2
-      with:
-        path: ${{ env.pythonLocation }}
-        key: ${{ env.PYTHON_VERSION }}-${{ runner.os }}-build-${{ matrix.dbt-version }}-${{ hashFiles('setup.py') }}-${{ hashFiles('requirements_dev.txt') }}
+        python-version: '3.8'
     - name: Install dependencies
       shell: bash
       run: |
