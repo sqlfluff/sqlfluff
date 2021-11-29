@@ -3,10 +3,10 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f5f0e4137332758580abc8c5ac6b405364dafe6ea7ece8f1bf208659093ef36e
+_hash: 3fc8a1fce48f8dcb0488576455226061e2443b6500694349f576808625bf8fa7
 file:
 - statement:
-    create_clone_statement:
+    create_procedure_statement:
     - keyword: create
     - binary_operator: or
     - keyword: replace
@@ -28,7 +28,7 @@ file:
     - udf_body: "$$\n    return 3.1415926;\n    $$"
 - statement_terminator: ;
 - statement:
-    create_clone_statement:
+    create_procedure_statement:
     - keyword: create
     - binary_operator: or
     - keyword: replace
@@ -60,7 +60,7 @@ file:
         \ indicator.\n        }\n    $$"
 - statement_terminator: ;
 - statement:
-    create_clone_statement:
+    create_procedure_statement:
     - keyword: CREATE
     - binary_operator: OR
     - keyword: REPLACE

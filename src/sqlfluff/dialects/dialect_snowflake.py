@@ -404,13 +404,14 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref("CreateExternalTableSegment"),
             Ref("CreateSchemaStatementSegment"),
             Ref("AlterSchemaStatementSegment"),
+            Ref("CreateFunctionStatementSegment"),
+            Ref("AlterFunctionStatementSegment"),
         ],
         remove=[
             Ref("CreateTypeStatementSegment"),
             Ref("CreateExtensionStatementSegment"),
             Ref("CreateIndexStatementSegment"),
             Ref("DropIndexStatementSegment"),
-            Ref("CreateFunctionStatementSegment"),
         ],
     )
 
@@ -982,7 +983,7 @@ class CreateProcedureStatementSegment(BaseSegment):
     https://docs.snowflake.com/en/sql-reference/sql/create-procedure.html
     """
 
-    type = "create_clone_statement"
+    type = "create_procedure_statement"
     match_grammar = Sequence(
         "CREATE",
         Sequence("OR", "REPLACE", optional=True),
@@ -1008,6 +1009,68 @@ class CreateProcedureStatementSegment(BaseSegment):
             Ref("DoubleQuotedUDFBody"),
             Ref("SingleQuotedUDFBody"),
             Ref("DollarQuotedUDFBody"),
+        ),
+    )
+
+
+@snowflake_dialect.segment(replace=True)
+class CreateFunctionStatementSegment(BaseSegment):
+    """A snowflake `CREATE ... FUNCTION` statement for SQL and JavaScript functions.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-function.html
+    """
+
+    type = "create_function_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        Sequence("OR", "REPLACE", optional=True),
+        Sequence("SECURE", optional=True),
+        "FUNCTION",
+        Ref("FunctionNameSegment"),
+        Ref("FunctionParameterListGrammar"),
+        "RETURNS",
+        OneOf(
+            Ref("DatatypeSegment"),
+            Sequence("TABLE", Bracketed(Delimited(Ref("ColumnDefinitionSegment")))),
+        ),
+        Sequence("NOT", "NULL", optional=True),
+        OneOf("VOLATILE", "IMMUTABLE", optional=True),
+        Sequence("LANGUAGE", "JAVASCRIPT", optional=True),
+        OneOf(
+            Sequence("CALLED", "ON", "NULL", "INPUT"),
+            Sequence("RETURNS", "NULL", "ON", "NULL", "INPUT"),
+            "STRICT",
+            optional=True,
+        ),
+        OneOf("VOLATILE", "IMMUTABLE", optional=True),
+        Ref("CommentEqualsClauseSegment", optional=True),
+        "AS",
+        OneOf(
+            Ref("DoubleQuotedUDFBody"),
+            Ref("SingleQuotedUDFBody"),
+            Ref("DollarQuotedUDFBody"),
+        ),
+    )
+
+
+@snowflake_dialect.segment()
+class AlterFunctionStatementSegment(BaseSegment):
+    """A snowflake `ALTER ... FUNCTION` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-function.html
+    """
+
+    type = "alter_function_statement"
+    match_grammar = Sequence(
+        "ALTER",
+        "FUNCTION",
+        Sequence("IF", "EXISTS", optional=True),
+        Ref("FunctionNameSegment"),
+        Ref("FunctionParameterListGrammar"),
+        OneOf(
+            Sequence("RENAME", "TO", Ref("FunctionNameSegment")),
+            Sequence("SET", OneOf("SECURE", Ref("CommentEqualsClauseSegment"))),
+            Sequence("UNSET", OneOf("SECURE", "COMMENT")),
         ),
     )
 
@@ -1587,7 +1650,6 @@ class CreateStatementSegment(BaseSegment):
             Sequence("SECURE", "VIEW"),
             Sequence("MASKING", "POLICY"),
             "PIPE",
-            "FUNCTION",
             Sequence("EXTERNAL", "FUNCTION"),
             # Objects that also support clone
             "DATABASE",
@@ -1633,7 +1695,7 @@ class CreateStatementSegment(BaseSegment):
         Ref("CreateStatementCommentSegment", optional=True),
         Ref.keyword("AS", optional=True),
         OneOf(
-            Ref("SelectStatementSegment", optional=True),
+            Ref("SelectStatementSegment"),
             Sequence(
                 Bracketed(Ref("FunctionContentsGrammar"), optional=True),
                 "RETURNS",
