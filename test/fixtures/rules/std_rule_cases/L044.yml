@@ -370,3 +370,29 @@ test_fail_nested_ctes_2:
     )
 
     select * from a
+
+test_pass_nested_ctes_3:
+  # Test for issue 1984
+  pass_str:
+    with a as (
+        with b as (
+            select * from c
+        )
+
+        select 1 from b
+    )
+
+    select * from a
+
+test_pass_nested_ctes_4:
+  # Test for issue 1984
+  pass_str:
+    with a as (
+        with b as (
+            select * from c
+        )
+
+        select * from b
+    )
+
+    select 1 from a
