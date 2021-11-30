@@ -25,19 +25,60 @@ class WildcardInfo(NamedTuple):
 
 
 @dataclass
-class Query:
-    query_type: QueryType
+class Selectable:
+    selectable: BaseSegment
     dialect: Dialect
-    selectable: Optional[BaseSegment] = field(default=None)
-    ctes: Dict[str, "Query"] = field(default_factory=dict)
 
     @cached_property
     def select_info(self):
         """Returns SelectStatementColumnsAndTables on the SELECT."""
-        result = get_select_statement_info(
+        return get_select_statement_info(
             self.selectable, self.dialect, early_exit=False
         )
-        return result
+
+    def get_wildcard_info(self) -> List[WildcardInfo]:
+        """Find wildcard (*) targets in the SELECT."""
+        buff = []
+        for seg in self.select_info.select_targets:
+            if seg.get_child("wildcard_expression"):
+                if "." in seg.raw:
+                    # The wildcard specifies a target table.
+                    table = seg.raw.rsplit(".", 1)[0]
+                    buff.append(WildcardInfo(seg, [table]))
+                else:
+                    # The wildcard is unqualified (i.e. does not specify a
+                    # table). This means to include all columns from all the
+                    # tables in the query.
+                    buff.append(
+                        WildcardInfo(
+                            seg,
+                            [
+                                alias_info.ref_str
+                                if alias_info.aliased
+                                else alias_info.from_expression_element.raw
+                                for alias_info in self.select_info.table_aliases
+                            ],
+                        )
+                    )
+        return buff
+
+    def find_alias(self, table: str) -> Optional[AliasInfo]:
+        """Find corresponding table_aliases entry (if any) matching "table"."""
+        alias_info = [
+            t
+            for t in self.select_info.table_aliases
+            if t.aliased and t.ref_str == table
+        ]
+        assert len(alias_info) <= 1
+        return alias_info[0] if alias_info else None
+
+
+@dataclass
+class Query:
+    query_type: QueryType
+    dialect: Dialect
+    selectables: List[Selectable] = field(default_factory=list)
+    ctes: Dict[str, "Query"] = field(default_factory=dict)
 
     def crawl(
         self,
@@ -82,42 +123,6 @@ class Query:
                 yield table_expr.raw
         yield buff
 
-    def get_wildcard_info(self) -> List[WildcardInfo]:
-        """Find wildcard (*) targets in the SELECT."""
-        buff = []
-        for seg in self.select_info.select_targets:
-            if seg.get_child("wildcard_expression"):
-                if "." in seg.raw:
-                    # The wildcard specifies a target table.
-                    table = seg.raw.rsplit(".", 1)[0]
-                    buff.append(WildcardInfo(seg, [table]))
-                else:
-                    # The wildcard is unqualified (i.e. does not specify a
-                    # table). This means to include all columns from all the
-                    # tables in the query.
-                    buff.append(
-                        WildcardInfo(
-                            seg,
-                            [
-                                alias_info.ref_str
-                                if alias_info.aliased
-                                else alias_info.from_expression_element.raw
-                                for alias_info in self.select_info.table_aliases
-                            ],
-                        )
-                    )
-        return buff
-
-    def find_alias(self, table: str) -> Optional[AliasInfo]:
-        """Find corresponding table_aliases entry (if any) matching "table"."""
-        alias_info = [
-            t
-            for t in self.select_info.table_aliases
-            if t.aliased and t.ref_str == table
-        ]
-        assert len(alias_info) <= 1
-        return alias_info[0] if alias_info else None
-
 
 class SelectCrawler:
     """Class for recursive dependency analysis related to SELECT statements.
@@ -137,22 +142,34 @@ class SelectCrawler:
         for event, path in SelectCrawler.visit_segments(segment):
             in_with = queries and queries[-1].query_type == QueryType.WithCompound
             if event == "start":
-                if path[-1].is_type("select_statement"):
+                if path[-1].is_type("set_expression", "select_statement"):
                     if not in_with:
                         print(f"{len(queries)}: Query(Simple, {path[-1].raw!r})")
-                        query = Query(QueryType.Simple, dialect, path[-1])
+                        if path[-1].is_type("select_statement"):
+                            selectable = Selectable(path[-1], dialect)
+                            if len(path) >= 2 and path[-2].is_type("set_expression"):
+                                queries[-1].selectables.append(selectable)
+                            else:
+                                query = Query(QueryType.Simple, dialect, [selectable])
+                                queries.append(query)
+                        else:
+                            query = Query(QueryType.Simple, dialect)
+                            queries.append(query)
                         if cte_name:
                             print(f"add CTE {cte_name} to parent")
                             queries[-1].ctes[cte_name] = query
                             cte_name = None
-                        queries.append(query)
                     else:
                         if not cte_name:
-                            if not queries[-1].selectable:
-                                print(f"set Query selectable: {path[-1].raw!r}")
-                                queries[-1].selectable = path[-1]
+                            #import pdb; pdb.set_trace()  # TODO: Something like lines 151-160 above?
+                            if not any(seg.is_type("from_expression_element") for seg in path):
+                                if path[-1].is_type("select_statement"):
+                                    print(f"append Query selectable: {path[-1].raw!r}")
+                                    queries[-1].selectables.append(Selectable(path[-1], dialect))
                         else:
-                            query = Query(QueryType.Simple, dialect, path[-1])
+                            query = Query(QueryType.Simple, dialect)
+                            if path[-1].is_type("select_statement"):
+                                query.selectables.append(Selectable(path[-1], dialect))
                             print(f"add CTE {cte_name} to parent")
                             queries[-1].ctes[cte_name] = query
                             cte_name = None
@@ -172,7 +189,10 @@ class SelectCrawler:
             elif event == "end":
                 if path[-1].is_type("select_statement"):
                     if not in_with:
-                        queries.pop()
+                        if not (len(path) >= 2 and path[-2].is_type("set_expression")):
+                            queries.pop()
+                elif path[-1].is_type("set_statement"):
+                    queries.pop()
                 elif path[-1].is_type("with_compound_statement"):
                     queries.pop()
         return SelectCrawler(root_query, dialect)
