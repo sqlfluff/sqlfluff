@@ -118,15 +118,18 @@ like this:
     hooks:
       - id: sqlfluff-lint
         # For dbt projects, this installs the dbt "extras":
-        # additional_dependencies: ['.[dbt]']
+        # additional_dependencies: ['sqlfluff-templater-dbt']
       - id: sqlfluff-fix
         # Arbitrary arguments to show an example
         # args: [--rules, "L003,L014"]
-        # additional_dependencies: ['.[dbt]']
+        # additional_dependencies: ['sqlfluff-templater-dbt']
 
 When trying to use the `dbt templater`_, uncomment the
 ``additional_dependencies`` to install the extras.
-This is equivalent to running ``pip install sqlfluff[dbt]``.
+This is equivalent to running ``pip install sqlfluff-templater-dbt``.
+
+Some dialects may require further ``additional_dependencies``.
+For example, ``dbt-redshift`` is required to compile code using the Redshift adapter.
 
 Note that you can pass the same arguments available
 through the CLI using ``args:``.
