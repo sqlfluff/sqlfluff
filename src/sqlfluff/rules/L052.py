@@ -89,7 +89,9 @@ class Rule_L052(BaseRule):
 
                 if len(newline_deletions) == 0:
                     # Create missing newline.
-                    fixes.append(LintFix("create", context.segment, NewlineSegment()))
+                    fixes.append(
+                        LintFix("create_before", context.segment, NewlineSegment())
+                    )
                 if len(newline_deletions) > 1:
                     # Remove excess newlines.
                     fixes.extend(LintFix("delete", d) for d in newline_deletions[1:])
@@ -104,25 +106,9 @@ class Rule_L052(BaseRule):
         # this rule looks to enforce that it is there.
         # Therefore we first locate the end of the file.
         if self.require_final_semicolon:
-            if len(self.filter_meta(context.siblings_post)) > 0:
-                # This can only fail on the last segment
+            # We only care about the final segment of the parse tree.
+            if not self.is_final_segment(context):
                 return None
-            elif len(context.segment.segments) > 0:
-                # This can only fail on the last base segment
-                return None
-            elif context.segment.is_meta:
-                # We can't fail on a meta segment
-                return None
-            else:
-                # So this looks like the end of the file, but we
-                # need to check that each parent segment is also the last.
-                # We do this with reference to the templated file, because it's
-                # the best we can do given the information available.
-                file_len = len(context.segment.pos_marker.templated_file.templated_str)
-                pos = context.segment.pos_marker.templated_slice.stop
-                # Does the length of the file equal the end of the templated position?
-                if file_len != pos:
-                    return None
 
             # Include current segment for complete stack.
             complete_stack: List[BaseSegment] = list(context.raw_stack)

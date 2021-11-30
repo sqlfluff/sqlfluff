@@ -3,17 +3,24 @@ import sys
 import pytest
 
 # Expose the public API.
-from sqlfluff.api import lint, fix, parse, list_rules, list_dialects  # noqa: F401
+from sqlfluff.api import lint, fix, parse, list_rules, list_dialects
 
-# Set the version attribute of the library
-import pkg_resources
-import configparser
+# Import metadata (using importlib_metadata backport for python versions <3.8)
+if sys.version_info < (3, 8, 0):
+    import importlib_metadata as metadata
+else:
+    from importlib import metadata
+
+__all__ = (
+    "lint",
+    "fix",
+    "parse",
+    "list_rules",
+    "list_dialects",
+)
 
 # Get the current version
-config = configparser.ConfigParser()
-config.read([pkg_resources.resource_filename("sqlfluff", "config.ini")])
-
-__version__ = config.get("sqlfluff", "version")
+__version__ = metadata.version("sqlfluff")
 
 # Check major python version
 if sys.version_info[0] < 3:

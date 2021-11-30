@@ -298,6 +298,25 @@ class ConfigLoader:
         self._config_cache[str(path)] = configs
         return configs
 
+    def load_extra_config(self, extra_config_path: str) -> dict:
+        """Load specified extra config."""
+        if not os.path.exists(extra_config_path):
+            raise SQLFluffUserError(
+                f"Extra config '{extra_config_path}' does not exist."
+            )
+
+        # First check the cache
+        if str(extra_config_path) in self._config_cache:
+            return self._config_cache[str(extra_config_path)]
+
+        configs: dict = {}
+        elems = self._get_config_elems_from_file(extra_config_path)
+        configs = self._incorporate_vals(configs, elems)
+
+        # Store in the cache
+        self._config_cache[str(extra_config_path)] = configs
+        return configs
+
     @staticmethod
     def _get_user_config_dir_path() -> str:
         appname = "sqlfluff"
@@ -329,13 +348,20 @@ class ConfigLoader:
         user_home_path = os.path.expanduser("~")
         return self.load_config_at_path(user_home_path)
 
-    def load_config_up_to_path(self, path: str) -> dict:
+    def load_config_up_to_path(
+        self, path: str, extra_config_path: Optional[str] = None
+    ) -> dict:
         """Loads a selection of config files from both the path and its parent paths."""
         user_appdir_config = self.load_user_appdir_config()
         user_config = self.load_user_config()
         config_paths = self.iter_config_locations_up_to_path(path)
         config_stack = [self.load_config_at_path(p) for p in config_paths]
-        return nested_combine(user_appdir_config, user_config, *config_stack)
+        extra_config = (
+            self.load_extra_config(extra_config_path) if extra_config_path else {}
+        )
+        return nested_combine(
+            user_appdir_config, user_config, *config_stack, extra_config
+        )
 
     @classmethod
     def find_ignore_config_files(
@@ -390,14 +416,18 @@ class ConfigLoader:
 class FluffConfig:
     """The class that actually gets passed around as a config object."""
 
-    private_vals = "rule_blacklist", "rule_whitelist", "dialect_obj", "templater_obj"
+    private_vals = "rule_denylist", "rule_allowlist", "dialect_obj", "templater_obj"
 
     def __init__(
         self,
         configs: Optional[dict] = None,
+        extra_config_path: Optional[str] = None,
         overrides: Optional[dict] = None,
         plugin_manager: Optional[pluggy.PluginManager] = None,
     ):
+        self._extra_config_path = (
+            extra_config_path  # We only store this for child configs
+        )
         self._overrides = overrides  # We only store this for child configs
 
         # Fetch a fresh plugin manager if we weren't provided with one
@@ -418,21 +448,19 @@ class FluffConfig:
             )
         else:
             self._configs["core"]["ignore"] = []
-        # Whitelists and blacklists
+        # Allowlists and denylists
         if self._configs["core"].get("rules", None):
             self._configs["core"][
-                "rule_whitelist"
+                "rule_allowlist"
             ] = self._split_comma_separated_string(self._configs["core"]["rules"])
         else:
-            self._configs["core"]["rule_whitelist"] = None
+            self._configs["core"]["rule_allowlist"] = None
         if self._configs["core"].get("exclude_rules", None):
-            self._configs["core"][
-                "rule_blacklist"
-            ] = self._split_comma_separated_string(
+            self._configs["core"]["rule_denylist"] = self._split_comma_separated_string(
                 self._configs["core"]["exclude_rules"]
             )
         else:
-            self._configs["core"]["rule_blacklist"] = None
+            self._configs["core"]["rule_denylist"] = None
         # Configure Recursion
         if self._configs["core"].get("recurse", 0) == 0:
             self._configs["core"]["recurse"] = True
@@ -472,31 +500,41 @@ class FluffConfig:
         # in the child processes.
 
     @classmethod
-    def from_root(cls, overrides: Optional[dict] = None) -> "FluffConfig":
+    def from_root(
+        cls, extra_config_path: Optional[str] = None, overrides: Optional[dict] = None
+    ) -> "FluffConfig":
         """Loads a config object just based on the root directory."""
         loader = ConfigLoader.get_global()
-        c = loader.load_config_up_to_path(path=".")
-        return cls(configs=c, overrides=overrides)
+        c = loader.load_config_up_to_path(path=".", extra_config_path=extra_config_path)
+        return cls(configs=c, extra_config_path=extra_config_path, overrides=overrides)
 
     @classmethod
     def from_path(
         cls,
         path: str,
+        extra_config_path: Optional[str] = None,
         overrides: Optional[dict] = None,
         plugin_manager: Optional[pluggy.PluginManager] = None,
     ) -> "FluffConfig":
         """Loads a config object given a particular path."""
         loader = ConfigLoader.get_global()
-        c = loader.load_config_up_to_path(path=path)
-        return cls(configs=c, overrides=overrides, plugin_manager=plugin_manager)
+        c = loader.load_config_up_to_path(
+            path=path, extra_config_path=extra_config_path
+        )
+        return cls(
+            configs=c,
+            extra_config_path=extra_config_path,
+            overrides=overrides,
+            plugin_manager=plugin_manager,
+        )
 
     @classmethod
     def from_kwargs(
         cls,
         config: Optional["FluffConfig"] = None,
         dialect: Optional[str] = None,
-        rules: Optional[Union[str, List[str]]] = None,
-        exclude_rules: Optional[Union[str, List[str]]] = None,
+        rules: Optional[List[str]] = None,
+        exclude_rules: Optional[List[str]] = None,
     ) -> "FluffConfig":
         """Instantiate a config from either an existing config or kwargs.
 
@@ -516,15 +554,9 @@ class FluffConfig:
         if dialect:
             overrides["dialect"] = dialect
         if rules:
-            # If it's a string, make it a list
-            if isinstance(rules, str):
-                rules = [rules]
             # Make a comma separated string to pass in as override
             overrides["rules"] = ",".join(rules)
         if exclude_rules:
-            # If it's a string, make it a list
-            if isinstance(exclude_rules, str):
-                exclude_rules = [exclude_rules]
             # Make a comma separated string to pass in as override
             overrides["exclude_rules"] = ",".join(exclude_rules)
         return cls(overrides=overrides)
@@ -554,9 +586,12 @@ class FluffConfig:
             )
 
     def make_child_from_path(self, path: str) -> "FluffConfig":
-        """Make a new child config at a path but pass on overrides."""
+        """Make a new child config at a path but pass on overrides and extra_config_path."""
         return self.from_path(
-            path, overrides=self._overrides, plugin_manager=self._plugin_manager
+            path,
+            extra_config_path=self._extra_config_path,
+            overrides=self._overrides,
+            plugin_manager=self._plugin_manager,
         )
 
     def diff_to(self, other: "FluffConfig") -> dict:

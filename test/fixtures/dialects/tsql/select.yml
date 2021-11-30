@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8e3c1290dece31e9c4c8eef3aac5358d3d24375f98e14fb431cb8656b9f76044
+_hash: bb5c55dcb8d413ed253075f0acf9a544c5eae896d6a6eac2ed0fcf3c9feacf40
 file:
   batch:
     statement:
@@ -49,7 +49,25 @@ file:
               - keyword: WHEN
               - expression:
                 - literal: '1'
+                - comparison_operator: '>'
+                - comparison_operator: '='
+                - literal: '1'
+              - keyword: THEN
+              - expression:
+                  literal: "'True'"
+              - keyword: WHEN
+              - expression:
+                - literal: '1'
                 - comparison_operator: <=
+                - literal: '1'
+              - keyword: THEN
+              - expression:
+                  literal: "'True'"
+              - keyword: WHEN
+              - expression:
+                - literal: '1'
+                - comparison_operator: <
+                - comparison_operator: '='
                 - literal: '1'
               - keyword: THEN
               - expression:
@@ -65,7 +83,8 @@ file:
               - keyword: WHEN
               - expression:
                 - literal: '1'
-                - comparison_operator: '!<'
+                - comparison_operator: '!'
+                - comparison_operator: <
                 - literal: '1'
               - keyword: THEN
               - expression:
@@ -73,7 +92,17 @@ file:
               - keyword: WHEN
               - expression:
                 - literal: '1'
-                - comparison_operator: '!='
+                - comparison_operator: '!'
+                - comparison_operator: <
+                - literal: '1'
+              - keyword: THEN
+              - expression:
+                  literal: "'Or this sort of thing?'"
+              - keyword: WHEN
+              - expression:
+                - literal: '1'
+                - comparison_operator: '!'
+                - comparison_operator: '='
                 - literal: '1'
               - keyword: THEN
               - expression:
@@ -81,7 +110,8 @@ file:
               - keyword: WHEN
               - expression:
                 - literal: '1'
-                - comparison_operator: '!>'
+                - comparison_operator: '!'
+                - comparison_operator: '>'
                 - literal: '1'
               - keyword: THEN
               - expression:

@@ -259,10 +259,10 @@ class CallbackFormatter:
                 cli_table(config_content, col_width=30, max_label_width=15)
             )
             text_buffer.write("\n")
-            if linter.config.get("rule_whitelist"):
+            if linter.config.get("rule_allowlist"):
                 text_buffer.write(
                     cli_table(
-                        [("rules", ", ".join(linter.config.get("rule_whitelist")))],
+                        [("rules", ", ".join(linter.config.get("rule_allowlist")))],
                         col_width=41,
                     )
                 )

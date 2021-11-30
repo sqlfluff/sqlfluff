@@ -4,6 +4,7 @@ on:
   release:
     types:
       - published
+  workflow_dispatch:
 
 jobs:
   run:
@@ -19,9 +20,8 @@ jobs:
           pip install --upgrade pip tox
       
       - name: Build Distribution (dbt plugin)
-        # Run this in the right directory so that we get the right Manifest
-        working-directory: plugins/sqlfluff-templater-dbt
-        run: tox -e build-dist
+        # tox commands run relative to the repo root.
+        run: tox -e build-dist -- plugins/sqlfluff-templater-dbt
       
       - name: Copy builds to main dist folder
         # We move them here so that the github action can still access them

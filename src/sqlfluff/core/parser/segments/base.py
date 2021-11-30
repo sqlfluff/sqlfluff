@@ -822,9 +822,9 @@ class BaseSegment:
         provided which will override any existing parse grammar
         on the segment.
         """
-        # Clear the blacklist cache so avoid missteps
+        # Clear the denylist cache so avoid missteps
         if parse_context:
-            parse_context.blacklist.clear()
+            parse_context.denylist.clear()
 
         # the parse_depth and recurse kwargs control how deep we will recurse for testing.
         if not self.segments:  # pragma: no cover TODO?
@@ -973,7 +973,11 @@ class BaseSegment:
                             if f.edit_type == "delete":
                                 # We're just getting rid of this segment.
                                 seg = None
-                            elif f.edit_type in ("edit", "create"):
+                            elif f.edit_type in (
+                                "edit",
+                                "create_before",
+                                "create_after",
+                            ):
                                 # We're doing a replacement (it could be a single segment or an iterable)
                                 if isinstance(f.edit, BaseSegment):
                                     seg_buffer.append(f.edit)  # pragma: no cover TODO?
@@ -981,9 +985,12 @@ class BaseSegment:
                                     for s in f.edit:
                                         seg_buffer.append(s)
 
-                                if f.edit_type == "create":
-                                    # in the case of a creation, also add this segment on the end
+                                if f.edit_type == "create_before":
+                                    # in the case of a creation before, also add this segment on the end
                                     seg_buffer.append(seg)
+                                elif f.edit_type == "create_after":
+                                    # in the case of a creation after, also add this segment to the start
+                                    seg_buffer.insert(0, seg)
                             else:  # pragma: no cover
                                 raise ValueError(
                                     "Unexpected edit_type: {!r} in {!r}".format(

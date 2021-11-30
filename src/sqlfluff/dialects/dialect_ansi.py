@@ -869,9 +869,17 @@ ansi_dialect.add(
         Sequence(Ref.keyword("SEPARATOR"), Ref("LiteralGrammar")),
         # like a function call: POSITION ( 'QL' IN 'SQL')
         Sequence(
-            OneOf(Ref("QuotedLiteralSegment"), Ref("SingleIdentifierGrammar")),
+            OneOf(
+                Ref("QuotedLiteralSegment"),
+                Ref("SingleIdentifierGrammar"),
+                Ref("ColumnReferenceSegment"),
+            ),
             "IN",
-            OneOf(Ref("QuotedLiteralSegment"), Ref("SingleIdentifierGrammar")),
+            OneOf(
+                Ref("QuotedLiteralSegment"),
+                Ref("SingleIdentifierGrammar"),
+                Ref("ColumnReferenceSegment"),
+            ),
         ),
         Sequence(OneOf("IGNORE", "RESPECT"), "NULLS"),
     ),

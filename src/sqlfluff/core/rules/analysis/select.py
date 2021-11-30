@@ -31,8 +31,6 @@ def get_select_statement_info(
     # potential others.
     sc = segment.get_child("select_clause")
     reference_buffer = list(sc.recursive_crawl("object_reference"))
-    # Add any wildcard references
-    reference_buffer += list(sc.recursive_crawl("wildcard_identifier"))
     for potential_clause in (
         "where_clause",
         "groupby_clause",

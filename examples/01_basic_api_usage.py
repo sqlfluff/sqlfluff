@@ -22,7 +22,7 @@ result = sqlfluff.fix(my_bad_query, dialect="bigquery")
 # result = 'SELECT  *, 1, blah AS  foo  FROM mytable\n'
 
 # We can also fix just specific rules.
-result = sqlfluff.fix(my_bad_query, rules="L010")
+result = sqlfluff.fix(my_bad_query, rules=["L010"])
 # result = 'SELECT  *, 1, blah AS  fOO  FROM myTable'
 
 # Or a subset of rules...

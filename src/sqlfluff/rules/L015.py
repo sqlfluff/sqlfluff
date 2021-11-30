@@ -68,7 +68,7 @@ class Rule_L015(BaseRule):
             ):
                 fixes.append(
                     LintFix(
-                        "create",
+                        "create_before",
                         first_element,
                         WhitespaceSegment(),
                     )

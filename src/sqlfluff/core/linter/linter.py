@@ -9,7 +9,6 @@ from typing import (
     Sequence,
     Optional,
     Tuple,
-    Union,
     cast,
     Iterable,
     Iterator,
@@ -66,9 +65,9 @@ class Linter:
         config: Optional[FluffConfig] = None,
         formatter: Any = None,
         dialect: Optional[str] = None,
-        rules: Optional[Union[str, List[str]]] = None,
-        user_rules: Optional[Union[str, List[str]]] = None,
-        exclude_rules: Optional[Union[str, List[str]]] = None,
+        rules: Optional[List[str]] = None,
+        user_rules: Optional[List[BaseRule]] = None,
+        exclude_rules: Optional[List[str]] = None,
     ) -> None:
         # Store the config object
         self.config = FluffConfig.from_kwargs(
@@ -103,7 +102,9 @@ class Linter:
     # These are the building blocks of the linting process.
 
     @staticmethod
-    def _load_raw_file_and_config(fname, root_config):
+    def _load_raw_file_and_config(
+        fname: str, root_config: FluffConfig
+    ) -> Tuple[str, FluffConfig, str]:
         """Load a raw file and the associated config."""
         file_config = root_config.make_child_from_path(fname)
         encoding = get_encoding(fname=fname, config=file_config)
@@ -227,6 +228,12 @@ class Linter:
     def parse_noqa(comment: str, line_no: int):
         """Extract ignore mask entries from a comment string."""
         # Also trim any whitespace afterward
+
+        # Comment lines can also have noqa e.g.
+        # --dafhsdkfwdiruweksdkjdaffldfsdlfjksd -- noqa: L016
+        # Therefore extract last possible inline ignore.
+        comment = [c.strip() for c in comment.split("--")][-1]
+
         if comment.startswith("noqa"):
             # This is an ignore identifier
             comment_remainder = comment[4:]

@@ -1,0 +1,114 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: d79411fee00fc0f4056bc7405ba142c2908339829994f03430793ad5f18663b5
+file:
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: pi_udf
+    - base:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: FLOAT
+    - keyword: AS
+    - udf_body: "'3.141592654::FLOAT'"
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: simple_table_function
+    - base:
+        bracketed:
+          start_bracket: (
+          end_bracket: )
+    - keyword: RETURNS
+    - keyword: TABLE
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          identifier: x
+          data_type:
+            data_type_identifier: INTEGER
+      - comma: ','
+      - column_definition:
+          identifier: y
+          data_type:
+            data_type_identifier: INTEGER
+      - end_bracket: )
+    - keyword: AS
+    - udf_body: "$$\n    SELECT 1, 2\n    UNION ALL\n    SELECT 3, 4\n  $$"
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - binary_operator: OR
+    - keyword: REPLACE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: get_countries_for_user
+    - base:
+        bracketed:
+          start_bracket: (
+          parameter: id
+          data_type:
+            data_type_identifier: number
+          end_bracket: )
+    - keyword: RETURNS
+    - keyword: TABLE
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          identifier: country_code
+          data_type:
+            data_type_identifier: char
+      - comma: ','
+      - column_definition:
+          identifier: country_name
+          data_type:
+            data_type_identifier: varchar
+      - end_bracket: )
+    - keyword: RETURNS
+    - keyword: 'NULL'
+    - keyword: 'ON'
+    - keyword: 'NULL'
+    - keyword: INPUT
+    - keyword: AS
+    - udf_body: "'select distinct c.country_code, c.country_name\n      from user_addresses\
+        \ a, countries c\n      where a.user_id = id\n      and c.country_code = a.country_code'"
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: SECURE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: js_factorial
+    - base:
+        bracketed:
+          start_bracket: (
+          parameter: d
+          data_type:
+            data_type_identifier: double
+          end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: double
+    - keyword: IMMUTABLE
+    - keyword: LANGUAGE
+    - keyword: JAVASCRIPT
+    - keyword: STRICT
+    - keyword: AS
+    - udf_body: "'\n  if (D <= 0) {\n    return 1;\n  } else {\n    var result = 1;\n\
+        \    for (var i = 2; i <= D; i++) {\n      result = result * i;\n    }\n \
+        \   return result;\n  }\n  '"
+- statement_terminator: ;

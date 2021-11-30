@@ -1,0 +1,102 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 168708a563a468a91e58026ba759ea4e3873b8946a7cb8481f1beadbf4ce2d4e
+file:
+- statement:
+    alter_schema_statement:
+    - keyword: alter
+    - keyword: schema
+    - keyword: if
+    - keyword: exists
+    - schema_reference:
+        identifier: schema1
+    - keyword: rename
+    - keyword: to
+    - schema_reference:
+        identifier: schema2
+- statement_terminator: ;
+- statement:
+    alter_schema_statement:
+    - keyword: alter
+    - keyword: schema
+    - schema_reference:
+        identifier: schema1
+    - keyword: swap
+    - keyword: with
+    - schema_reference:
+        identifier: schema2
+- statement_terminator: ;
+- statement:
+    alter_schema_statement:
+    - keyword: alter
+    - keyword: schema
+    - schema_reference:
+        identifier: schema2
+    - keyword: enable
+    - keyword: managed
+    - keyword: access
+- statement_terminator: ;
+- statement:
+    alter_schema_statement:
+    - keyword: alter
+    - keyword: schema
+    - schema_reference:
+        identifier: schema1
+    - keyword: set
+    - schema_object_properties:
+        keyword: data_retention_time_in_days
+        comparison_operator: '='
+        literal: '3'
+- statement_terminator: ;
+- statement:
+    alter_schema_statement:
+    - keyword: alter
+    - keyword: schema
+    - schema_reference:
+        identifier: schema1
+    - keyword: set
+    - tag_equals:
+      - keyword: tag
+      - identifier: tag1
+      - comparison_operator: '='
+      - literal: "'value1'"
+      - comma: ','
+      - identifier: tag2
+      - comparison_operator: '='
+      - literal: "'value2'"
+- statement_terminator: ;
+- statement:
+    alter_schema_statement:
+    - keyword: alter
+    - keyword: schema
+    - schema_reference:
+        identifier: schema1
+    - keyword: unset
+    - keyword: data_retention_time_in_days
+- statement_terminator: ;
+- statement:
+    alter_schema_statement:
+    - keyword: alter
+    - keyword: schema
+    - schema_reference:
+        identifier: schema1
+    - keyword: unset
+    - keyword: data_retention_time_in_days
+    - comma: ','
+    - keyword: max_data_extension_time_in_days
+- statement_terminator: ;
+- statement:
+    alter_schema_statement:
+    - keyword: alter
+    - keyword: schema
+    - schema_reference:
+        identifier: schema1
+    - keyword: unset
+    - keyword: tag
+    - identifier: foo
+    - comma: ','
+    - identifier: bar
+- statement_terminator: ;

@@ -112,6 +112,25 @@ def test__cli__command_dialect_legacy():
     assert "Please use the 'exasol' dialect instead." in result.stdout
 
 
+def test__cli__command_extra_config_fail():
+    """Check the script raises the right exception on a non-existant extra config path."""
+    result = invoke_assert_code(
+        ret_code=66,
+        args=[
+            lint,
+            [
+                "--config",
+                "test/fixtures/cli/extra_configs/.sqlfluffsdfdfdfsfd",
+                "test/fixtures/cli/extra_config_tsql.sql",
+            ],
+        ],
+    )
+    assert (
+        "Extra config 'test/fixtures/cli/extra_configs/.sqlfluffsdfdfdfsfd' does not exist."
+        in result.stdout
+    )
+
+
 @pytest.mark.parametrize(
     "command",
     [
@@ -263,6 +282,15 @@ def test__cli__command_lint_stdin(command):
         ),
         # Check nofail works
         (lint, ["--nofail", "test/fixtures/linter/parse_lex_error.sql"]),
+        # Check config works (sets dialect to tsql)
+        (
+            lint,
+            [
+                "--config",
+                "test/fixtures/cli/extra_configs/.sqlfluff",
+                "test/fixtures/cli/extra_config_tsql.sql",
+            ],
+        ),
     ],
 )
 def test__cli__command_lint_parse(command):
@@ -350,8 +378,8 @@ def test__cli__command_versioning():
     pkg_version = sqlfluff.__version__
     # Get the version info from the config file
     config = configparser.ConfigParser()
-    config.read_file(open("src/sqlfluff/config.ini"))
-    config_version = config["sqlfluff"]["version"]
+    config.read_file(open("setup.cfg"))
+    config_version = config["metadata"]["version"]
     assert pkg_version == config_version
     # Get the version from the cli
     runner = CliRunner()
@@ -810,6 +838,38 @@ def test_encoding(encoding_in, encoding_out):
             input_file_encoding=encoding_in,
             output_file_encoding=encoding_out,
         )
+
+
+def test_cli_pass_on_correct_encoding_argument():
+    """Try loading a utf-8-SIG encoded file using the correct encoding via the cli."""
+    result = invoke_assert_code(
+        ret_code=65,
+        args=[
+            lint,
+            ["test/fixtures/cli/encoding_test.sql", "--encoding", "utf-8-SIG"],
+        ],
+    )
+    raw_output = repr(result.output)
+
+    # Incorrect encoding raises paring and lexer errors.
+    assert r"L:   1 | P:   1 |  LXR |" not in raw_output
+    assert r"L:   1 | P:   1 |  PRS |" not in raw_output
+
+
+def test_cli_fail_on_wrong_encoding_argument():
+    """Try loading a utf-8-SIG encoded file using the wrong encoding via the cli."""
+    result = invoke_assert_code(
+        ret_code=65,
+        args=[
+            lint,
+            ["test/fixtures/cli/encoding_test.sql", "--encoding", "utf-8"],
+        ],
+    )
+    raw_output = repr(result.output)
+
+    # Incorrect encoding raises paring and lexer errors.
+    assert r"L:   1 | P:   1 |  LXR |" in raw_output
+    assert r"L:   1 | P:   1 |  PRS |" in raw_output
 
 
 @patch(

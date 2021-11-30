@@ -1,6 +1,5 @@
 """The core elements of sqlfluff."""
 
-# flake8: noqa: F401
 import tblib.pickling_support  # type: ignore
 
 # Config objects
@@ -26,6 +25,21 @@ from sqlfluff.core.errors import (
 # Timing objects
 from sqlfluff.core.timing import TimingSummary
 
+__all__ = (
+    "FluffConfig",
+    "Linter",
+    "Lexer",
+    "Parser",
+    "dialect_selector",
+    "dialect_readout",
+    "SQLBaseError",
+    "SQLTemplaterError",
+    "SQLLexError",
+    "SQLParseError",
+    "SQLLintError",
+    "SQLFluffUserError",
+    "TimingSummary",
+)
 
 # This is for "sqlfluff lint" and "sqlfluff fix" multiprocessing (--processes)
 # support. If an exception (i.e. runtime error) occurs in a worker process, we
