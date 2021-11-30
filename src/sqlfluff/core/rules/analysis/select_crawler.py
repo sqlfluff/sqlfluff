@@ -148,8 +148,9 @@ class SelectCrawler:
                         queries.append(query)
                     else:
                         if not cte_name:
-                            print(f"set Query selectable: {path[-1].raw!r}")
-                            queries[-1].selectable = path[-1]
+                            if not queries[-1].selectable:
+                                print(f"set Query selectable: {path[-1].raw!r}")
+                                queries[-1].selectable = path[-1]
                         else:
                             query = Query(QueryType.Simple, dialect, path[-1])
                             print(f"add CTE {cte_name} to parent")

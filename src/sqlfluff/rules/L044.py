@@ -73,7 +73,10 @@ class Rule_L044(BaseRule):
             raise RuleFailure()
         else:
             # Handle nested SELECT.
-            self._analyze_result_columns(select_info_target, dialect, query)
+            for o in select_info_target:
+                if isinstance(o, list):
+                    self._analyze_result_columns(o[0], dialect)
+                    return
 
     def _analyze_result_columns(
         self,
