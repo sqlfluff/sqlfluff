@@ -138,6 +138,7 @@ class SelectCrawler:
     def build(cls, segment, dialect):
         queries = []
         root_query = None
+        pop_queries_for = []
         cte_name = None
         for event, path in SelectCrawler.visit_segments(segment):
             in_with = queries and queries[-1].query_type == QueryType.WithCompound
@@ -152,9 +153,11 @@ class SelectCrawler:
                             else:
                                 query = Query(QueryType.Simple, dialect, [selectable])
                                 queries.append(query)
+                                pop_queries_for.append(path[-1])
                         else:
                             query = Query(QueryType.Simple, dialect)
                             queries.append(query)
+                            pop_queries_for.append(path[-1])
                         if cte_name:
                             print(f"add CTE {cte_name} to parent")
                             queries[-1].ctes[cte_name] = query
@@ -173,6 +176,8 @@ class SelectCrawler:
                             print(f"add CTE {cte_name} to parent")
                             queries[-1].ctes[cte_name] = query
                             cte_name = None
+                            queries.append(query)
+                            pop_queries_for.append(path[-1])
                 elif path[-1].is_type("with_compound_statement"):
                     print(f"{len(queries)}: Query(WithCompound, {path[-1].raw!r})")
                     query = Query(QueryType.WithCompound, dialect)
@@ -181,20 +186,19 @@ class SelectCrawler:
                         queries[-1].ctes[cte_name] = query
                         cte_name = None
                     queries.append(query)
+                    pop_queries_for.append(path[-1])
                 elif path[-1].is_type("common_table_expression"):
                     cte_name = path[-1].segments[0].raw
                     print(f"Capture CTE name {cte_name}")
                 if len(queries) == 1 and root_query is None:
                     root_query = queries[0]
             elif event == "end":
-                if path[-1].is_type("select_statement"):
-                    if not in_with:
-                        if not (len(path) >= 2 and path[-2].is_type("set_expression")):
-                            queries.pop()
-                elif path[-1].is_type("set_statement"):
+                try:
+                    idx = pop_queries_for.index(path[-1])
                     queries.pop()
-                elif path[-1].is_type("with_compound_statement"):
-                    queries.pop()
+                    del pop_queries_for[idx]
+                except ValueError:
+                    pass
         return SelectCrawler(root_query, dialect)
 
     @classmethod
