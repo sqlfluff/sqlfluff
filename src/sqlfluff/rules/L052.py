@@ -44,7 +44,7 @@ class Rule_L052(BaseRule):
         FROM foo;
     """
 
-    config_keywords = ["semicolon_newline", "require_final_semicolon"]
+    config_keywords = ["multiline_newline", "require_final_semicolon"]
 
     @staticmethod
     def _handle_preceding_inline_comments(pre_semicolon_segments, anchor_segment):
@@ -93,10 +93,32 @@ class Rule_L052(BaseRule):
 
         return anchor_segment
 
+    @staticmethod
+    def _is_one_line_statement(context, segment):
+        """Check if the statement containing the provided segment is one line."""
+        # Find statement segment containing the current segment.
+        statement_segment = next(
+            (
+                s
+                for s in context.parent_stack[0].path_to(segment)
+                if s.is_type("statement")
+            ),
+            None,
+        )
+        if statement_segment is None:
+            # If we can't find a parent statement segment then don't try anything special.
+            return False
+
+        if not list(statement_segment.recursive_crawl("newline")):
+            # Statement segment has no newlines therefore starts and ends on the same line.
+            return True
+
+        return False
+
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Statements must end with a semi-colon."""
         # Config type hints
-        self.semicolon_newline: bool
+        self.multiline_newline: bool
         self.require_final_semicolon: bool
 
         # First we can simply handle the case of existing semi-colon alignment.
@@ -105,9 +127,11 @@ class Rule_L052(BaseRule):
             # Locate semicolon and iterate back over the raw stack
             # to find the end of the preceding statement.
             anchor_segment = context.segment
+            is_one_line = False
             pre_semicolon_segments = []
             for segment in context.raw_stack[::-1]:
                 if segment.is_code:
+                    is_one_line = self._is_one_line_statement(context, segment)
                     break
                 elif not segment.is_meta:
                     pre_semicolon_segments.append(segment)
@@ -122,9 +146,10 @@ class Rule_L052(BaseRule):
                     break
                 whitespace_deletions.append(segment)
 
-            # Semi-colon on same line.
-            if not self.semicolon_newline:
+            semicolon_newline = self.multiline_newline if not is_one_line else False
 
+            # Semi-colon on same line.
+            if not semicolon_newline:
                 if len(pre_semicolon_segments) >= 1:
                     # If preceding segments are found then delete the old
                     # semi-colon and its preceding whitespace and then insert
@@ -208,21 +233,25 @@ class Rule_L052(BaseRule):
             # if the final semi-colon is already present.
             anchor_segment = context.segment
             semi_colon_exist_flag = False
+            is_one_line = False
             pre_semicolon_segments = []
             for segment in complete_stack[::-1]:  # type: ignore
                 if segment.name == "semicolon":
                     semi_colon_exist_flag = True
                 elif segment.is_code:
+                    is_one_line = self._is_one_line_statement(context, segment)
                     break
                 elif not segment.is_meta:
                     pre_semicolon_segments.append(segment)
                 anchor_segment = segment
 
+            semicolon_newline = self.multiline_newline if not is_one_line else False
+
             if not semi_colon_exist_flag:
                 # Create the final semi-colon if it does not yet exist.
 
                 # Semi-colon on same line.
-                if not self.semicolon_newline:
+                if not semicolon_newline:
                     fixes = [
                         LintFix(
                             "edit",
