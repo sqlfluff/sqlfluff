@@ -53,54 +53,82 @@ class Rule_L052(BaseRule):
         self.require_final_semicolon: bool
 
         # First we can simply handle the case of existing semi-colon alignment.
-        whitespace_set = {"newline", "whitespace"}
         if context.segment.name == "semicolon":
 
-            # Locate semicolon and iterate back over the raw stack to find
-            # whitespace between the semi-colon and the end of the preceding statement.
+            # Locate semicolon and iterate back over the raw stack
+            # to find the end of the preceding statement.
             anchor_segment = context.segment
-            whitespace_deletions = []
+            pre_semicolon_segments = []
             for segment in context.raw_stack[::-1]:
-                if segment.name not in whitespace_set:
+                if segment.is_code:
                     break
-                whitespace_deletions.append(segment)
+                elif not segment.is_meta:
+                    pre_semicolon_segments.append(segment)
                 anchor_segment = segment
 
-            fixes: List[LintFix] = []
+            # We can tidy up any whitespace between the semi-colon
+            # and the preceding code/comment segment.
+            whitespace_deletions = []
+            for segment in pre_semicolon_segments:
+                if not segment.is_whitespace:
+                    break
+                whitespace_deletions.append(segment)
+
             # Semi-colon on same line.
             if not self.semicolon_newline:
-                # If whitespace is found then delete.
-                if whitespace_deletions:
+
+                if len(pre_semicolon_segments) >= 1:
+                    # If preceding segments are found then delete the old
+                    # semi-colon/preceding whitespace and then insert
+                    # the semi-colon in the correct location.
+                    fixes = [
+                        LintFix(
+                            "edit",
+                            anchor_segment,
+                            [
+                                anchor_segment,
+                                SymbolSegment(raw=";", type="symbol", name="semicolon"),
+                            ],
+                        ),
+                        LintFix(
+                            "delete",
+                            context.segment,
+                        ),
+                    ]
                     fixes.extend(LintFix("delete", d) for d in whitespace_deletions)
+                    return LintResult(
+                        anchor=anchor_segment,
+                        fixes=fixes,
+                    )
             # Semi-colon on new line.
             else:
-                newline_deletions = [
-                    segment
-                    for segment in whitespace_deletions
-                    if segment.is_type("newline")
-                ]
-                non_newline_deletions = [
-                    segment
-                    for segment in whitespace_deletions
-                    if not segment.is_type("newline")
-                ]
-                # Remove pre-semi-colon whitespace.
-                fixes.extend(LintFix("delete", d) for d in non_newline_deletions)
-
-                if len(newline_deletions) == 0:
-                    # Create missing newline.
-                    fixes.append(
-                        LintFix("create_before", context.segment, NewlineSegment())
+                if not (
+                    (len(pre_semicolon_segments) == 1)
+                    and all(s.is_type("newline") for s in pre_semicolon_segments)
+                ):
+                    # If preceding segment is not a single newline then delete the old
+                    # semi-colon/preceding whitespace and then insert the
+                    # semi-colon in the correct location.
+                    fixes = [
+                        LintFix(
+                            "edit",
+                            anchor_segment,
+                            [
+                                anchor_segment,
+                                NewlineSegment(),
+                                SymbolSegment(raw=";", type="symbol", name="semicolon"),
+                            ],
+                        ),
+                        LintFix(
+                            "delete",
+                            context.segment,
+                        ),
+                    ]
+                    fixes.extend(LintFix("delete", d) for d in whitespace_deletions)
+                    return LintResult(
+                        anchor=anchor_segment,
+                        fixes=fixes,
                     )
-                if len(newline_deletions) > 1:
-                    # Remove excess newlines.
-                    fixes.extend(LintFix("delete", d) for d in newline_deletions[1:])
-
-            if fixes:
-                return LintResult(
-                    anchor=anchor_segment,
-                    fixes=fixes,
-                )
 
         # SQL does not require a final trailing semi-colon, however
         # this rule looks to enforce that it is there.
