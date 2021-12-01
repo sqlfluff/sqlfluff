@@ -152,8 +152,8 @@ test_fail_final_semi_colon_newline_inline_comment:
   fail_str: |
     SELECT a FROM foo -- inline comment
   fix_str: |
-    SELECT a FROM foo
-    ; -- inline comment
+    SELECT a FROM foo -- inline comment
+    ;
   configs:
     rules:
       L052:
@@ -178,13 +178,10 @@ test_fail_same_line_multiple_inline_comment:
 
     -- inline comment
 
-test_fail_newline_move_inline_comment:
-  fail_str: |
+test_pass_newline_inline_comment:
+  pass_str: |
     SELECT a FROM foo -- inline comment
     ;
-  fix_str: |
-    SELECT a FROM foo
-    ; -- inline comment
   configs:
     rules:
       L052:
@@ -196,8 +193,8 @@ test_fail_newline_inline_comment:
     
     ;
   fix_str: |
-    SELECT a FROM foo
-    ; -- inline comment
+    SELECT a FROM foo -- inline comment
+    ;
   configs:
     rules:
       L052:
@@ -211,10 +208,21 @@ test_fail_newline_multiple_inline_comments:
 
     ;
   fix_str: |
-    SELECT a FROM foo
-    ; -- inline comment
+    SELECT a FROM foo -- inline comment
+    ;
 
     -- inline comment
+  configs:
+    rules:
+      L052:
+        semicolon_newline: True
+
+test_fail_newline_trailing_inline_comment:
+  fail_str: |
+    SELECT a FROM foo ; -- inline comment
+  fix_str: |
+    SELECT a FROM foo -- inline comment
+    ;
   configs:
     rules:
       L052:

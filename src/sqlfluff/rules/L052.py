@@ -46,6 +46,44 @@ class Rule_L052(BaseRule):
 
     config_keywords = ["semicolon_newline", "require_final_semicolon"]
 
+    @staticmethod
+    def _handle_preceding_inline_comments(pre_semicolon_segments, anchor_segment):
+        """Adjust pre_semicolon_segments and anchor_segment to not move preceding inline comments."""
+        # See if we have a preceding inline comment on the same line as the preceding segment.
+        same_line_comment = next(
+            (
+                s
+                for s in pre_semicolon_segments
+                if s.is_comment
+                and s.pos_marker.working_line_no
+                == anchor_segment.pos_marker.working_line_no
+            ),
+            None,
+        )
+        # If so then make that our new anchor segment and adjust
+        # pre_semicolon_segments accordingly.
+        if same_line_comment:
+            anchor_segment = same_line_comment
+            pre_semicolon_segments = pre_semicolon_segments[
+                : pre_semicolon_segments.index(same_line_comment)
+            ]
+
+        return pre_semicolon_segments, anchor_segment
+
+    @staticmethod
+    def _handle_trailing_inline_comments(context, anchor_segment):
+        """Adjust anchor_segment to not move trailing inline comment."""
+        # See if we have a trailing inline comment on the same line as the preceding segment.
+        for parent_segment in context.parent_stack[::-1]:
+            for comment_segment in parent_segment.recursive_crawl("comment"):
+                if (
+                    comment_segment.pos_marker.working_line_no
+                    == anchor_segment.pos_marker.working_line_no
+                ):
+                    anchor_segment = comment_segment
+
+        return anchor_segment
+
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Statements must end with a semi-colon."""
         # Config type hints
@@ -102,10 +140,23 @@ class Rule_L052(BaseRule):
                     )
             # Semi-colon on new line.
             else:
+                # Adjust pre_semicolon_segments and anchor_segment for preceding inline comments.
+                (
+                    pre_semicolon_segments,
+                    anchor_segment,
+                ) = self._handle_preceding_inline_comments(
+                    pre_semicolon_segments, anchor_segment
+                )
+
                 if not (
                     (len(pre_semicolon_segments) == 1)
                     and all(s.is_type("newline") for s in pre_semicolon_segments)
                 ):
+                    # This handles an edge case in which an inline comment comes after the semi-colon.
+                    anchor_segment = self._handle_trailing_inline_comments(
+                        context, anchor_segment
+                    )
+
                     # If preceding segment is not a single newline then delete the old
                     # semi-colon/preceding whitespace and then insert the
                     # semi-colon in the correct location.
@@ -146,11 +197,14 @@ class Rule_L052(BaseRule):
             # if the final semi-colon is already present.
             anchor_segment = context.segment
             semi_colon_exist_flag = False
+            pre_semicolon_segments = []
             for segment in complete_stack[::-1]:  # type: ignore
                 if segment.name == "semicolon":
                     semi_colon_exist_flag = True
                 elif segment.is_code:
                     break
+                elif not segment.is_meta:
+                    pre_semicolon_segments.append(segment)
                 anchor_segment = segment
 
             if not semi_colon_exist_flag:
@@ -167,6 +221,13 @@ class Rule_L052(BaseRule):
                         )
                     ]
                 else:
+                    # Adjust pre_semicolon_segments and anchor_segment for inline comments.
+                    (
+                        pre_semicolon_segments,
+                        anchor_segment,
+                    ) = self._handle_preceding_inline_comments(
+                        pre_semicolon_segments, anchor_segment
+                    )
                     fixes = [
                         LintFix(
                             "edit",
