@@ -12,6 +12,8 @@ from sqlfluff.core.rules.analysis.select import get_select_statement_info
 
 
 class QueryType(Enum):
+    """Query type: Simple is just a query; WithCompound has CTE(s)."""
+
     Simple = 1
     WithCompound = 2
 
@@ -25,6 +27,8 @@ class WildcardInfo(NamedTuple):
 
 @dataclass
 class Selectable:
+    """A "SELECT" query segment."""
+
     selectable: BaseSegment
     dialect: Dialect
 
@@ -74,13 +78,17 @@ class Selectable:
 
 @dataclass
 class Query:
+    """A main SELECT query plus possible CTEs."""
+
     query_type: QueryType
     dialect: Dialect
     selectables: List[Selectable] = field(default_factory=list)
     ctes: Dict[str, "Query"] = field(default_factory=dict)
+    # Parent scope. This query can "see" CTEs defined by parents.
     parent: Optional["Query"] = field(default=None)
 
     def lookup_cte(self, name: str, pop: bool = True) -> Optional["Query"]:
+        """Look up a CTE by name, in the current or any parent scope."""
         cte = self.ctes.get(name)
         if cte:
             if pop:
@@ -140,7 +148,9 @@ class SelectCrawler:
     recursive dependency walking.
     """
 
-    def __init__(self, segment: BaseSegment, dialect: Dialect, parent: Optional[Query] = None):
+    def __init__(
+        self, segment: BaseSegment, dialect: Dialect, parent: Optional[Query] = None
+    ):
         self.dialect: Dialect = dialect
         self.query_tree: Query = None
 
@@ -210,6 +220,7 @@ class SelectCrawler:
     @classmethod
     def get(cls, query: Query, segment: BaseSegment) -> List[Union[str, "Query"]]:
         """Find SELECTs, table refs, or value table function calls in segment.
+
         If we find a SELECT, return info list. Otherwise, return table name
         or function call string.
         """
