@@ -256,6 +256,7 @@ def test__config__glob_include_config_tests():
 
 
 def test__config__get_section():
+    """Test FluffConfig.get_section method."""
     cfg = FluffConfig(config_b)
 
     assert cfg.get_section("core").get("rules", None) == "L007"
@@ -264,6 +265,7 @@ def test__config__get_section():
 
 
 def test__config__get():
+    """Test FluffConfig.get method."""
     cfg = FluffConfig(config_b)
 
     assert cfg.get("rules") == "L007"
