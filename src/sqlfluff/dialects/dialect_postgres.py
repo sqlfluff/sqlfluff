@@ -2434,6 +2434,5 @@ class CreatePolicyStatementSegment(BaseSegment):
             optional=True,
         ),
         Sequence("USING", Bracketed(Ref("ExpressionSegment")), optional=True),
-        # Sequence("USING", Bracketed(Ref("ExpressionSegment")), optional=True),
         Sequence("WITH", "CHECK", Bracketed(Ref("ExpressionSegment")), optional=True),
     )
