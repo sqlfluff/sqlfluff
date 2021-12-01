@@ -2400,6 +2400,7 @@ class SetStatementSegment(BaseSegment):
         ),
     )
 
+
 @postgres_dialect.segment()
 class CreatePolicyStatementSegment(BaseSegment):
     """A `CREATE POLICY` statement.
@@ -2416,8 +2417,22 @@ class CreatePolicyStatementSegment(BaseSegment):
         "ON",
         Ref("TableReferenceSegment"),
         Sequence("AS", OneOf("PERMISSIVE", "RESTRICTIVE"), optional=True),
-        Sequence("FOR", OneOf("ALL", "SELECT", "INSERT", "UPDATE", "DELETE"), optional=True),
-        Sequence("TO", Delimited(OneOf(Ref("ObjectReferenceSegment"), "PUBLIC", "CURRENT_ROLE", "CURRENT_USER", "SESSION_USER")), optional=True),
+        Sequence(
+            "FOR", OneOf("ALL", "SELECT", "INSERT", "UPDATE", "DELETE"), optional=True
+        ),
+        Sequence(
+            "TO",
+            Delimited(
+                OneOf(
+                    Ref("ObjectReferenceSegment"),
+                    "PUBLIC",
+                    "CURRENT_ROLE",
+                    "CURRENT_USER",
+                    "SESSION_USER",
+                )
+            ),
+            optional=True,
+        ),
         Sequence("USING", Bracketed(Ref("ExpressionSegment")), optional=True),
         # Sequence("USING", Bracketed(Ref("ExpressionSegment")), optional=True),
         Sequence("WITH", "CHECK", Bracketed(Ref("ExpressionSegment")), optional=True),
