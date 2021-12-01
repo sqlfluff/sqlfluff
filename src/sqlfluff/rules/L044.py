@@ -99,7 +99,7 @@ class Rule_L044(BaseRule):
                             self._handle_alias(selectable, alias_info, query)
                         else:
                             # Not an alias. Is it a CTE?
-                            cte = query.get_cte(wildcard_table)
+                            cte = query.lookup_cte(wildcard_table)
                             if cte:
                                 # Wildcard refers to a CTE. Analyze it.
                                 self._analyze_result_columns(cte)
@@ -125,7 +125,7 @@ class Rule_L044(BaseRule):
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Outermost query should produce known number of columns."""
         if context.segment.is_type("statement"):
-            crawler = SelectCrawler.build(context.segment, context.dialect)
+            crawler = SelectCrawler(context.segment, context.dialect)
 
             # Begin analysis at the outer query.
             if crawler.query_tree:

@@ -81,18 +81,18 @@ class Query:
     ctes: Dict[str, "Query"] = field(default_factory=dict)
     parent: Optional["Query"] = field(default=None)
 
-    def get_cte(self, name: str, pop: bool = True) -> Optional["Query"]:
+    def lookup_cte(self, name: str, pop: bool = True) -> Optional["Query"]:
         cte = self.ctes.get(name)
         if cte:
             if pop:
                 del self.ctes[name]
             return cte
         if self.parent:
-            return self.parent.get_cte(name, pop)
+            return self.parent.lookup_cte(name, pop)
         else:
             return None
 
-    def crawl(
+    def crawl_sources(
         self, segment: BaseSegment, recurse_into=True
     ) -> Generator[Union[str, "Query"], None, None]:
         """Find SELECTs, table refs, or value table function calls in segment.
@@ -114,7 +114,7 @@ class Query:
 
             if seg.is_type("table_reference"):
                 if not seg.is_qualified():
-                    cte = self.get_cte(seg.raw, pop=False)
+                    cte = self.lookup_cte(seg.raw, pop=False)
                     if cte:
                         # It's a CTE.
                         yield cte
@@ -123,7 +123,7 @@ class Query:
             else:
                 assert seg.is_type("set_expression", "select_statement")
                 found_nested_select = True
-                crawler = SelectCrawler.build(seg, self.dialect, self)
+                crawler = SelectCrawler(seg, self.dialect, self)
                 yield crawler.query_tree
         if not found_nested_select:
             # If we reach here, the SELECT may be querying from a value table
@@ -141,14 +141,10 @@ class SelectCrawler:
     recursive dependency walking.
     """
 
-    def __init__(self, queries, dialect):
-        self.query_tree: Query = queries
+    def __init__(self, segment: BaseSegment, dialect: Dialect, parent: Optional[Query] = None):
         self.dialect: Dialect = dialect
+        self.query_tree: Query = None
 
-    @classmethod
-    def build(
-        cls, segment: BaseSegment, dialect: Dialect, parent: Optional[Query] = None
-    ) -> "SelectCrawler":
         queries: List[Query] = []
         pop_queries_for = []
 
@@ -158,7 +154,6 @@ class SelectCrawler:
             queries.append(query)
             pop_queries_for.append(path[-1])
 
-        root_query = None
         cte_name = None
         for event, path in SelectCrawler.visit_segments(segment):
             in_with = queries and queries[-1].query_type == QueryType.WithCompound
@@ -210,9 +205,9 @@ class SelectCrawler:
                 elif path[-1].is_type("common_table_expression"):
                     cte_name = path[-1].segments[0].raw
                     print(f"Capture CTE name {cte_name}")
-                if len(queries) == 1 and root_query is None:
-                    root_query = queries[0]
-                    root_query.parent = parent
+                if len(queries) == 1 and self.query_tree is None:
+                    self.query_tree = queries[0]
+                    self.query_tree.parent = parent
             elif event == "end":
                 try:
                     idx = pop_queries_for.index(path[-1])
@@ -220,7 +215,6 @@ class SelectCrawler:
                     del pop_queries_for[idx]
                 except ValueError:
                     pass
-        return SelectCrawler(root_query, dialect)
 
     @classmethod
     def get(cls, query: Query, segment: BaseSegment) -> List[Union[str, "Query"]]:
@@ -228,7 +222,7 @@ class SelectCrawler:
         If we find a SELECT, return info list. Otherwise, return table name
         or function call string.
         """
-        return list(query.crawl(segment, True))
+        return list(query.crawl_sources(segment, True))
 
     @staticmethod
     def _get_name_if_cte(
