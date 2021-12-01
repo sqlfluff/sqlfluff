@@ -105,7 +105,7 @@ class Rule_L052(BaseRule):
             ),
             None,
         )
-        if statement_segment is None:
+        if statement_segment is None: # pragma: no cover
             # If we can't find a parent statement segment then don't try anything special.
             return False
 
