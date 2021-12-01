@@ -48,7 +48,11 @@ class Rule_L052(BaseRule):
 
     @staticmethod
     def _handle_preceding_inline_comments(pre_semicolon_segments, anchor_segment):
-        """Adjust pre_semicolon_segments and anchor_segment to not move preceding inline comments."""
+        """Adjust pre_semicolon_segments and anchor_segment to not move preceding inline comments.
+
+        We don't want to move inline comments that are on the same line
+        as the preceding code segment as they could contain noqa instructions.
+        """
         # See if we have a preceding inline comment on the same line as the preceding segment.
         same_line_comment = next(
             (
@@ -72,7 +76,11 @@ class Rule_L052(BaseRule):
 
     @staticmethod
     def _handle_trailing_inline_comments(context, anchor_segment):
-        """Adjust anchor_segment to not move trailing inline comment."""
+        """Adjust anchor_segment to not move trailing inline comment.
+
+        We don't want to move inline comments that are on the same line
+        as the preceding code segment as they could contain noqa instructions.
+        """
         # See if we have a trailing inline comment on the same line as the preceding segment.
         for parent_segment in context.parent_stack[::-1]:
             for comment_segment in parent_segment.recursive_crawl("comment"):
@@ -106,6 +114,7 @@ class Rule_L052(BaseRule):
 
             # We can tidy up any whitespace between the semi-colon
             # and the preceding code/comment segment.
+            # Don't mess with comment spacing/placement.
             whitespace_deletions = []
             for segment in pre_semicolon_segments:
                 if not segment.is_whitespace:
@@ -117,7 +126,7 @@ class Rule_L052(BaseRule):
 
                 if len(pre_semicolon_segments) >= 1:
                     # If preceding segments are found then delete the old
-                    # semi-colon/preceding whitespace and then insert
+                    # semi-colon and its preceding whitespace and then insert
                     # the semi-colon in the correct location.
                     fixes = [
                         LintFix(
@@ -141,6 +150,7 @@ class Rule_L052(BaseRule):
             # Semi-colon on new line.
             else:
                 # Adjust pre_semicolon_segments and anchor_segment for preceding inline comments.
+                # Inline comments can contain noqa logic so we need to add the newline after the inline comment.
                 (
                     pre_semicolon_segments,
                     anchor_segment,
@@ -152,14 +162,15 @@ class Rule_L052(BaseRule):
                     (len(pre_semicolon_segments) == 1)
                     and all(s.is_type("newline") for s in pre_semicolon_segments)
                 ):
+                    # If preceding segment is not a single newline then delete the old
+                    # semi-colon/preceding whitespace and then insert the
+                    # semi-colon in the correct location.
+
                     # This handles an edge case in which an inline comment comes after the semi-colon.
                     anchor_segment = self._handle_trailing_inline_comments(
                         context, anchor_segment
                     )
 
-                    # If preceding segment is not a single newline then delete the old
-                    # semi-colon/preceding whitespace and then insert the
-                    # semi-colon in the correct location.
                     fixes = [
                         LintFix(
                             "edit",
@@ -183,9 +194,8 @@ class Rule_L052(BaseRule):
 
         # SQL does not require a final trailing semi-colon, however
         # this rule looks to enforce that it is there.
-        # Therefore we first locate the end of the file.
         if self.require_final_semicolon:
-            # We only care about the final segment of the parse tree.
+            # Locate the end of the file.
             if not self.is_final_segment(context):
                 return None
 
@@ -209,6 +219,8 @@ class Rule_L052(BaseRule):
 
             if not semi_colon_exist_flag:
                 # Create the final semi-colon if it does not yet exist.
+
+                # Semi-colon on same line.
                 if not self.semicolon_newline:
                     fixes = [
                         LintFix(
@@ -220,6 +232,7 @@ class Rule_L052(BaseRule):
                             ],
                         )
                     ]
+                # Semi-colon on new line.
                 else:
                     # Adjust pre_semicolon_segments and anchor_segment for inline comments.
                     (
