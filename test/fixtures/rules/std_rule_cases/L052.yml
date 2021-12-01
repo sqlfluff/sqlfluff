@@ -137,3 +137,25 @@ test_fail_multiple_newlines_semi_colon_custom_require_newline:
       L052:
         require_final_semicolon: True
         semicolon_newline: True
+
+test_fail_final_semi_colon_same_line_inline_comment:
+  fail_str: |
+    SELECT a FROM foo -- inline comment
+  fix_str: |
+    SELECT a FROM foo; -- inline comment
+  configs:
+    rules:
+      L052:
+        require_final_semicolon: True
+
+test_fail_final_semi_colon_newline_inline_comment:
+  fail_str: |
+    SELECT a FROM foo -- inline comment
+  fix_str: |
+    SELECT a FROM foo
+    ; -- inline comment
+  configs:
+    rules:
+      L052:
+        require_final_semicolon: True
+        semicolon_newline: True

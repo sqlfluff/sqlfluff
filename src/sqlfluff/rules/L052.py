@@ -121,7 +121,7 @@ class Rule_L052(BaseRule):
             for segment in complete_stack[::-1]:  # type: ignore
                 if segment.name == "semicolon":
                     semi_colon_exist_flag = True
-                elif (segment.name not in whitespace_set) and (not segment.is_meta):
+                elif segment.is_code:
                     break
                 anchor_segment = segment
 
