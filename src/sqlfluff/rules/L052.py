@@ -59,6 +59,7 @@ class Rule_L052(BaseRule):
                 s
                 for s in pre_semicolon_segments
                 if s.is_comment
+                and s.name != "block_comment"
                 and s.pos_marker.working_line_no
                 == anchor_segment.pos_marker.working_line_no
             ),
@@ -87,7 +88,7 @@ class Rule_L052(BaseRule):
                 if (
                     comment_segment.pos_marker.working_line_no
                     == anchor_segment.pos_marker.working_line_no
-                ):
+                ) and (comment_segment.name != "block_comment"):
                     anchor_segment = comment_segment
 
         return anchor_segment

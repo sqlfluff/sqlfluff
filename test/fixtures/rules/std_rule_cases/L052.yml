@@ -227,3 +227,38 @@ test_fail_newline_trailing_inline_comment:
     rules:
       L052:
         semicolon_newline: True
+
+test_fail_newline_preceding_block_comment:
+  fail_str: |
+    SELECT foo
+    FROM bar /* multiline
+    comment
+    */
+    ;
+  fix_str: |
+    SELECT foo
+    FROM bar
+    ; /* multiline
+    comment
+    */
+  configs:
+    rules:
+      L052:
+        semicolon_newline: True
+
+test_fail_newline_trailing_block_comment:
+  fail_str: |
+    SELECT foo
+    FROM bar; /* multiline
+    comment
+    */
+  fix_str: |
+    SELECT foo
+    FROM bar
+    ; /* multiline
+    comment
+    */
+  configs:
+    rules:
+      L052:
+        semicolon_newline: True
