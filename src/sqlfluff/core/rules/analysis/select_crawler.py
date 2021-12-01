@@ -81,7 +81,7 @@ class Query:
     ctes: Dict[str, "Query"] = field(default_factory=dict)
     parent: Optional["Query"] = field(default=None)
 
-    def get_cte(self, name: str, pop: bool=True) -> Optional["Query"]:
+    def get_cte(self, name: str, pop: bool = True) -> Optional["Query"]:
         cte = self.ctes.get(name)
         if cte:
             if pop:
@@ -93,10 +93,7 @@ class Query:
             return None
 
     def crawl(
-        self,
-        segment: BaseSegment,
-        dialect: Dialect,
-        recurse_into=True,
+        self, segment: BaseSegment, recurse_into=True
     ) -> Generator[Union[str, "Query"], None, None]:
         """Find SELECTs, table refs, or value table function calls in segment.
 
@@ -126,7 +123,7 @@ class Query:
             else:
                 assert seg.is_type("set_expression", "select_statement")
                 found_nested_select = True
-                crawler = SelectCrawler.build(seg, dialect, self)
+                crawler = SelectCrawler.build(seg, self.dialect, self)
                 yield crawler.query_tree
         if not found_nested_select:
             # If we reach here, the SELECT may be querying from a value table
@@ -149,7 +146,9 @@ class SelectCrawler:
         self.dialect: Dialect = dialect
 
     @classmethod
-    def build(cls, segment: BaseSegment, dialect: Dialect, parent: Optional[Query]=None) -> "SelectCrawler":
+    def build(
+        cls, segment: BaseSegment, dialect: Dialect, parent: Optional[Query] = None
+    ) -> "SelectCrawler":
         queries: List[Query] = []
         pop_queries_for = []
 
@@ -224,17 +223,12 @@ class SelectCrawler:
         return SelectCrawler(root_query, dialect)
 
     @classmethod
-    def get(
-        cls,
-        query: Query,
-        segment: BaseSegment,
-        dialect: Dialect,
-    ) -> List[Union[str, "Query"]]:
+    def get(cls, query: Query, segment: BaseSegment) -> List[Union[str, "Query"]]:
         """Find SELECTs, table refs, or value table function calls in segment.
         If we find a SELECT, return info list. Otherwise, return table name
         or function call string.
         """
-        return list(query.crawl(segment, dialect, True))
+        return list(query.crawl(segment, True))
 
     @staticmethod
     def _get_name_if_cte(

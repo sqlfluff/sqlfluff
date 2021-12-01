@@ -61,9 +61,9 @@ class Rule_L044(BaseRule):
 
     _works_on_unparsable = False
 
-    def _handle_alias(self, selectable, alias_info, dialect, query):
+    def _handle_alias(self, selectable, alias_info, query):
         select_info_target = SelectCrawler.get(
-            query, alias_info.from_expression_element, dialect
+            query, alias_info.from_expression_element
         )[0]
         if isinstance(select_info_target, str):
             # It's an alias to an external table whose
@@ -75,13 +75,9 @@ class Rule_L044(BaseRule):
             raise RuleFailure(selectable.selectable)
         else:
             # Handle nested SELECT.
-            self._analyze_result_columns(select_info_target, dialect)
+            self._analyze_result_columns(select_info_target)
 
-    def _analyze_result_columns(
-        self,
-        query: Query,
-        dialect: Dialect,
-    ):
+    def _analyze_result_columns(self, query: Query):
         """Given info on a list of SELECTs, determine whether to warn."""
         # Recursively walk from the given query (select_info_list) to any
         # wildcard columns in the select targets. If every wildcard evdentually
@@ -100,15 +96,13 @@ class Rule_L044(BaseRule):
                         if alias_info:
                             # Found the alias matching the wildcard. Recurse,
                             # analyzing the query associated with that alias.
-                            self._handle_alias(selectable, alias_info, dialect, query)
+                            self._handle_alias(selectable, alias_info, query)
                         else:
                             # Not an alias. Is it a CTE?
                             cte = query.get_cte(wildcard_table)
                             if cte:
                                 # Wildcard refers to a CTE. Analyze it.
-                                self._analyze_result_columns(
-                                    cte, dialect
-                                )
+                                self._analyze_result_columns(cte)
                             else:
                                 # Not CTE, not table alias. Presumably an
                                 # external table. Warn.
@@ -120,14 +114,11 @@ class Rule_L044(BaseRule):
                     # No table was specified with the wildcard. Assume we're
                     # querying from a nested select in FROM.
                     query_list = SelectCrawler.get(
-                        # TODO: query.selectables[0] is wrong, probably needs to be a loop
-                        query,
-                        query.selectables[0].selectable,
-                        dialect,
+                        query, query.selectables[0].selectable
                     )
                     for o in query_list:
                         if isinstance(o, Query):
-                            self._analyze_result_columns(o, dialect)
+                            self._analyze_result_columns(o)
                             return
                     assert False, "Should be unreachable"  # pragma: no cover
 
@@ -139,9 +130,7 @@ class Rule_L044(BaseRule):
             # Begin analysis at the outer query.
             if crawler.query_tree:
                 try:
-                    return self._analyze_result_columns(
-                        crawler.query_tree, crawler.dialect
-                    )
+                    return self._analyze_result_columns(crawler.query_tree)
                 except RuleFailure as e:
                     return LintResult(anchor=e.anchor)
         return None
