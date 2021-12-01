@@ -61,7 +61,7 @@ jobs:
         echo 'EOF' >> $GITHUB_ENV
     - name: Run the tests
       run: |
-        tox -e ${{ env.TOXENV }}
+        tox -e ${{ env.TOXENV }} -- -n 2 test
     - name: Upload Coverage Report
       uses: codecov/codecov-action@v1
       with:
@@ -159,7 +159,7 @@ jobs:
       # working dir on D drive which causes problems.
       run: |
         mkdir temp_pytest
-        python -m tox -e winpy
+        python -m tox -e winpy -- -n 2 test
     - name: Upload Coverage Report
       uses: codecov/codecov-action@v1
       with:
