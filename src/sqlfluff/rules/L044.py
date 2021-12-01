@@ -3,14 +3,15 @@ from typing import Dict, List, Optional
 
 from sqlfluff.core.rules.analysis.select_crawler import Query, SelectCrawler
 from sqlfluff.core.dialects.base import Dialect
+from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules.base import BaseRule, LintResult, RuleContext
 
 
 class RuleFailure(Exception):
     """Exception class for reporting lint failure inside deeply nested code."""
 
-    def __init__(self, anchor):
-        self.anchor = anchor
+    def __init__(self, anchor: BaseSegment):
+        self.anchor: BaseSegment = anchor
 
 
 class Rule_L044(BaseRule):
@@ -102,10 +103,11 @@ class Rule_L044(BaseRule):
                             self._handle_alias(selectable, alias_info, dialect, query)
                         else:
                             # Not an alias. Is it a CTE?
-                            if wildcard_table in query.ctes:
+                            cte = query.get_cte(wildcard_table)
+                            if cte:
                                 # Wildcard refers to a CTE. Analyze it.
                                 self._analyze_result_columns(
-                                    query.ctes.pop(wildcard_table), dialect
+                                    cte, dialect
                                 )
                             else:
                                 # Not CTE, not table alias. Presumably an

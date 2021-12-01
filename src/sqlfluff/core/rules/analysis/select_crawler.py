@@ -8,7 +8,7 @@ from cached_property import cached_property
 
 from sqlfluff.core.dialects.common import AliasInfo
 from sqlfluff.core.dialects.base import Dialect
-from sqlfluff.core.parser.segments.base import BaseSegment
+from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules.analysis.select import get_select_statement_info
 
 
@@ -79,6 +79,18 @@ class Query:
     dialect: Dialect
     selectables: List[Selectable] = field(default_factory=list)
     ctes: Dict[str, "Query"] = field(default_factory=dict)
+    parent: Optional["Query"] = field(default=None)
+
+    def get_cte(self, name: str, pop: bool=True) -> Optional["Query"]:
+        cte = self.ctes.get(name)
+        if cte:
+            if pop:
+                del self.ctes[name]
+            return cte
+        if self.parent:
+            return self.parent.get_cte(name, pop)
+        else:
+            return None
 
     def crawl(
         self,
@@ -104,19 +116,17 @@ class Query:
                 continue
 
             if seg.is_type("table_reference"):
-                if not seg.is_qualified() and seg.raw in self.ctes:
-                    # It's a CTE.
-                    # :TRICKY: Pop the CTE from "queries" to help callers avoid
-                    # infinite recursion. We could make this behavior optional
-                    # someday, if necessary.
-                    yield self.ctes.pop(seg.raw)
-                else:
-                    # It's an external table.
-                    yield seg.raw
+                if not seg.is_qualified():
+                    cte = self.get_cte(seg.raw, pop=False)
+                    if cte:
+                        # It's a CTE.
+                        yield cte
+                # It's an external table.
+                yield seg.raw
             else:
                 assert seg.is_type("set_expression", "select_statement")
                 found_nested_select = True
-                crawler = SelectCrawler.build(seg, dialect)
+                crawler = SelectCrawler.build(seg, dialect, self)
                 yield crawler.query_tree
         if not found_nested_select:
             # If we reach here, the SELECT may be querying from a value table
@@ -139,10 +149,17 @@ class SelectCrawler:
         self.dialect: Dialect = dialect
 
     @classmethod
-    def build(cls, segment: BaseSegment, dialect: Dialect) -> "SelectCrawler":
+    def build(cls, segment: BaseSegment, dialect: Dialect, parent: Optional[Query]=None) -> "SelectCrawler":
         queries: List[Query] = []
-        root_query = None
         pop_queries_for = []
+
+        def append_query(query):
+            if queries:
+                query.parent = queries[-1]
+            queries.append(query)
+            pop_queries_for.append(path[-1])
+
+        root_query = None
         cte_name = None
         for event, path in SelectCrawler.visit_segments(segment):
             in_with = queries and queries[-1].query_type == QueryType.WithCompound
@@ -156,12 +173,10 @@ class SelectCrawler:
                                 queries[-1].selectables.append(selectable)
                             else:
                                 query = Query(QueryType.Simple, dialect, [selectable])
-                                queries.append(query)
-                                pop_queries_for.append(path[-1])
+                                append_query(query)
                         else:
                             query = Query(QueryType.Simple, dialect)
-                            queries.append(query)
-                            pop_queries_for.append(path[-1])
+                            append_query(query)
                         if cte_name:
                             print(f"add CTE {cte_name} to parent")
                             queries[-1].ctes[cte_name] = query
@@ -184,8 +199,7 @@ class SelectCrawler:
                             print(f"add CTE {cte_name} to parent")
                             queries[-1].ctes[cte_name] = query
                             cte_name = None
-                            queries.append(query)
-                            pop_queries_for.append(path[-1])
+                            append_query(query)
                 elif path[-1].is_type("with_compound_statement"):
                     print(f"{len(queries)}: Query(WithCompound, {path[-1].raw!r})")
                     query = Query(QueryType.WithCompound, dialect)
@@ -193,13 +207,13 @@ class SelectCrawler:
                         print(f"add CTE {cte_name} to parent")
                         queries[-1].ctes[cte_name] = query
                         cte_name = None
-                    queries.append(query)
-                    pop_queries_for.append(path[-1])
+                    append_query(query)
                 elif path[-1].is_type("common_table_expression"):
                     cte_name = path[-1].segments[0].raw
                     print(f"Capture CTE name {cte_name}")
                 if len(queries) == 1 and root_query is None:
                     root_query = queries[0]
+                    root_query.parent = parent
             elif event == "end":
                 try:
                     idx = pop_queries_for.index(path[-1])
