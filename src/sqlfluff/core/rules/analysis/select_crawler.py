@@ -1,5 +1,4 @@
 """Tools for more complex analysis of SELECT statements."""
-from collections import defaultdict
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Dict, Generator, List, NamedTuple, Optional, Union
@@ -160,7 +159,6 @@ class SelectCrawler:
             if event == "start":
                 if path[-1].is_type("set_expression", "select_statement"):
                     if not in_with:
-                        print(f"{len(queries)}: Query(Simple, {path[-1].raw!r})")
                         if path[-1].is_type("select_statement"):
                             selectable = Selectable(path[-1], dialect)
                             if len(path) >= 2 and path[-2].is_type("set_expression"):
@@ -172,17 +170,14 @@ class SelectCrawler:
                             query = Query(QueryType.Simple, dialect)
                             append_query(query)
                         if cte_name:
-                            print(f"add CTE {cte_name} to parent")
                             queries[-1].ctes[cte_name] = query
                             cte_name = None
                     else:
                         if not cte_name:
-                            # import pdb; pdb.set_trace()  # TODO: Something like lines 151-160 above?
                             if not any(
                                 seg.is_type("from_expression_element") for seg in path
                             ):
                                 if path[-1].is_type("select_statement"):
-                                    print(f"append Query selectable: {path[-1].raw!r}")
                                     queries[-1].selectables.append(
                                         Selectable(path[-1], dialect)
                                     )
@@ -190,21 +185,17 @@ class SelectCrawler:
                             query = Query(QueryType.Simple, dialect)
                             if path[-1].is_type("select_statement"):
                                 query.selectables.append(Selectable(path[-1], dialect))
-                            print(f"add CTE {cte_name} to parent")
                             queries[-1].ctes[cte_name] = query
                             cte_name = None
                             append_query(query)
                 elif path[-1].is_type("with_compound_statement"):
-                    print(f"{len(queries)}: Query(WithCompound, {path[-1].raw!r})")
                     query = Query(QueryType.WithCompound, dialect)
                     if cte_name:
-                        print(f"add CTE {cte_name} to parent")
                         queries[-1].ctes[cte_name] = query
                         cte_name = None
                     append_query(query)
                 elif path[-1].is_type("common_table_expression"):
                     cte_name = path[-1].segments[0].raw
-                    print(f"Capture CTE name {cte_name}")
                 if len(queries) == 1 and self.query_tree is None:
                     self.query_tree = queries[0]
                     self.query_tree.parent = parent
