@@ -85,15 +85,18 @@ class Query:
         segment: BaseSegment,
         dialect: Dialect,
         recurse_into=True,
-    ) -> Generator[Union[str, List["Query"]], None, None]:
+    ) -> Generator[Union[str, "Query"], None, None]:
         """Find SELECTs, table refs, or value table function calls in segment.
 
-        For each SELECT, yield a list of SelectCrawlers. As we find table
+        For each SELECT, yield a list of Query objects. As we find table
         references or function call strings, yield those.
         """
-        buff = []
+        found_nested_select = False
         for seg in segment.recursive_crawl(
-            "table_reference", "select_statement", recurse_into=recurse_into
+            "table_reference",
+            "set_expression",
+            "select_statement",
+            recurse_into=recurse_into,
         ):
             if seg is segment:
                 # If we are starting with a select_statement, recursive_crawl()
@@ -106,22 +109,22 @@ class Query:
                     # :TRICKY: Pop the CTE from "queries" to help callers avoid
                     # infinite recursion. We could make this behavior optional
                     # someday, if necessary.
-                    yield [self.ctes.pop(seg.raw)]
+                    yield self.ctes.pop(seg.raw)
                 else:
                     # It's an external table.
                     yield seg.raw
             else:
-                assert seg.is_type("select_statement")
+                assert seg.is_type("set_expression", "select_statement")
+                found_nested_select = True
                 crawler = SelectCrawler.build(seg, dialect)
-                buff.append(crawler.query_tree)
-        if not buff:
+                yield crawler.query_tree
+        if not found_nested_select:
             # If we reach here, the SELECT may be querying from a value table
             # function, e.g. UNNEST(). For our purposes, this is basically the
             # same as an external table. Return the "table" part as a string.
             table_expr = segment.get_child("table_expression")
             if table_expr:
                 yield table_expr.raw
-        yield buff
 
 
 class SelectCrawler:
@@ -130,13 +133,14 @@ class SelectCrawler:
     This class is a wrapper for select.get_select_statement_info(), but it adds
     recursive dependency walking.
     """
+
     def __init__(self, queries, dialect):
         self.query_tree: Query = queries
         self.dialect: Dialect = dialect
 
     @classmethod
-    def build(cls, segment, dialect):
-        queries = []
+    def build(cls, segment: BaseSegment, dialect: Dialect) -> "SelectCrawler":
+        queries: List[Query] = []
         root_query = None
         pop_queries_for = []
         cte_name = None
@@ -164,11 +168,15 @@ class SelectCrawler:
                             cte_name = None
                     else:
                         if not cte_name:
-                            #import pdb; pdb.set_trace()  # TODO: Something like lines 151-160 above?
-                            if not any(seg.is_type("from_expression_element") for seg in path):
+                            # import pdb; pdb.set_trace()  # TODO: Something like lines 151-160 above?
+                            if not any(
+                                seg.is_type("from_expression_element") for seg in path
+                            ):
                                 if path[-1].is_type("select_statement"):
                                     print(f"append Query selectable: {path[-1].raw!r}")
-                                    queries[-1].selectables.append(Selectable(path[-1], dialect))
+                                    queries[-1].selectables.append(
+                                        Selectable(path[-1], dialect)
+                                    )
                         else:
                             query = Query(QueryType.Simple, dialect)
                             if path[-1].is_type("select_statement"):
@@ -207,7 +215,7 @@ class SelectCrawler:
         query: Query,
         segment: BaseSegment,
         dialect: Dialect,
-    ) -> List[Union[str, List["Query"]]]:
+    ) -> List[Union[str, "Query"]]:
         """Find SELECTs, table refs, or value table function calls in segment.
         If we find a SELECT, return info list. Otherwise, return table name
         or function call string.

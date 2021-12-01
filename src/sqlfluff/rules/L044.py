@@ -60,10 +60,10 @@ class Rule_L044(BaseRule):
 
     _works_on_unparsable = False
 
-    def _handle_alias(self, alias_info, dialect, query):
+    def _handle_alias(self, selectable, alias_info, dialect, query):
         select_info_target = SelectCrawler.get(
             query, alias_info.from_expression_element, dialect
-        )
+        )[0]
         if isinstance(select_info_target, str):
             # It's an alias to an external table whose
             # number of columns could vary without our
@@ -71,13 +71,10 @@ class Rule_L044(BaseRule):
             self.logger.debug(
                 f"Query target {select_info_target} is external. Generating warning."
             )
-            raise RuleFailure()
+            raise RuleFailure(selectable.selectable)
         else:
             # Handle nested SELECT.
-            for o in select_info_target:
-                if isinstance(o, list):
-                    self._analyze_result_columns(o[0], dialect)
-                    return
+            self._analyze_result_columns(select_info_target, dialect)
 
     def _analyze_result_columns(
         self,
@@ -102,7 +99,7 @@ class Rule_L044(BaseRule):
                         if alias_info:
                             # Found the alias matching the wildcard. Recurse,
                             # analyzing the query associated with that alias.
-                            self._handle_alias(alias_info, dialect, query)
+                            self._handle_alias(selectable, alias_info, dialect, query)
                         else:
                             # Not an alias. Is it a CTE?
                             if wildcard_table in query.ctes:
@@ -122,14 +119,13 @@ class Rule_L044(BaseRule):
                     # querying from a nested select in FROM.
                     query_list = SelectCrawler.get(
                         # TODO: query.selectables[0] is wrong, probably needs to be a loop
-                        query, query.selectables[0].selectable, dialect
+                        query,
+                        query.selectables[0].selectable,
+                        dialect,
                     )
                     for o in query_list:
-                        if isinstance(o, list):
-                            self._analyze_result_columns(
-                                o[0],
-                                dialect
-                            )
+                        if isinstance(o, Query):
+                            self._analyze_result_columns(o, dialect)
                             return
                     assert False, "Should be unreachable"  # pragma: no cover
 
@@ -139,13 +135,11 @@ class Rule_L044(BaseRule):
             crawler = SelectCrawler.build(context.segment, context.dialect)
 
             # Begin analysis at the outer query.
-            if crawler.query_tree.selectables:
+            if crawler.query_tree:
                 try:
                     return self._analyze_result_columns(
                         crawler.query_tree, crawler.dialect
                     )
                 except RuleFailure as e:
-                    return LintResult(
-                        anchor=e.anchor
-                    )
+                    return LintResult(anchor=e.anchor)
         return None
