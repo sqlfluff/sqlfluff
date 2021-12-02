@@ -1,15 +1,16 @@
 """Implementation of Rule L044."""
-from typing import Dict, List, Optional
+from typing import Optional
 
-from sqlfluff.core.rules.analysis.select_crawler import SelectCrawler
-from sqlfluff.core.dialects.base import Dialect
+from sqlfluff.core.rules.analysis.select_crawler import Query, SelectCrawler
+from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules.base import BaseRule, LintResult, RuleContext
 
 
 class RuleFailure(Exception):
     """Exception class for reporting lint failure inside deeply nested code."""
 
-    pass
+    def __init__(self, anchor: BaseSegment):
+        self.anchor: BaseSegment = anchor
 
 
 class Rule_L044(BaseRule):
@@ -59,10 +60,10 @@ class Rule_L044(BaseRule):
 
     _works_on_unparsable = False
 
-    def _handle_alias(self, alias_info, dialect, queries):
+    def _handle_alias(self, selectable, alias_info, query):
         select_info_target = SelectCrawler.get(
-            alias_info.from_expression_element, queries, dialect
-        )
+            query, alias_info.from_expression_element
+        )[0]
         if isinstance(select_info_target, str):
             # It's an alias to an external table whose
             # number of columns could vary without our
@@ -70,76 +71,65 @@ class Rule_L044(BaseRule):
             self.logger.debug(
                 f"Query target {select_info_target} is external. Generating warning."
             )
-            raise RuleFailure()
+            raise RuleFailure(selectable.selectable)
         else:
             # Handle nested SELECT.
-            self._analyze_result_columns(select_info_target, dialect, queries)
+            self._analyze_result_columns(select_info_target)
 
-    def _analyze_result_columns(
-        self,
-        select_info_list: List[SelectCrawler],
-        dialect: Dialect,
-        queries: Dict[Optional[str], List[SelectCrawler]],
-    ):
+    def _analyze_result_columns(self, query: Query):
         """Given info on a list of SELECTs, determine whether to warn."""
         # Recursively walk from the given query (select_info_list) to any
         # wildcard columns in the select targets. If every wildcard evdentually
         # resolves to a query without wildcards, all is well. Otherwise, warn.
-        for select_info in select_info_list:
-            self.logger.debug(f"Analyzing query: {select_info.select_statement.raw}")
-            for wildcard in select_info.get_wildcard_info():
+        assert query.selectables
+        for selectable in query.selectables:
+            self.logger.debug(f"Analyzing query: {selectable.selectable.raw}")
+            for wildcard in selectable.get_wildcard_info():
                 if wildcard.tables:
                     for wildcard_table in wildcard.tables:
                         self.logger.debug(
                             f"Wildcard: {wildcard.segment.raw} has target {wildcard_table}"
                         )
                         # Is it an alias?
-                        alias_info = select_info.find_alias(wildcard_table)
+                        alias_info = selectable.find_alias(wildcard_table)
                         if alias_info:
                             # Found the alias matching the wildcard. Recurse,
                             # analyzing the query associated with that alias.
-                            self._handle_alias(alias_info, dialect, queries)
+                            self._handle_alias(selectable, alias_info, query)
                         else:
                             # Not an alias. Is it a CTE?
-                            if wildcard_table in queries:
+                            cte = query.lookup_cte(wildcard_table)
+                            if cte:
                                 # Wildcard refers to a CTE. Analyze it.
-                                self._analyze_result_columns(
-                                    queries.pop(wildcard_table), dialect, queries
-                                )
+                                self._analyze_result_columns(cte)
                             else:
                                 # Not CTE, not table alias. Presumably an
                                 # external table. Warn.
                                 self.logger.debug(
                                     f"Query target {wildcard_table} is external. Generating warning."
                                 )
-                                raise RuleFailure()
+                                raise RuleFailure(selectable.selectable)
                 else:
                     # No table was specified with the wildcard. Assume we're
                     # querying from a nested select in FROM.
-                    select_info_target = SelectCrawler.get(
-                        select_info.select_statement, queries, dialect
+                    query_list = SelectCrawler.get(
+                        query, query.selectables[0].selectable
                     )
-                    assert isinstance(select_info_target, list)
-                    self._analyze_result_columns(
-                        select_info_target,
-                        dialect,
-                        queries,
-                    )
+                    for o in query_list:
+                        if isinstance(o, Query):
+                            self._analyze_result_columns(o)
+                            return
+                    assert False, "Should be unreachable"  # pragma: no cover
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Outermost query should produce known number of columns."""
         if context.segment.is_type("statement"):
-            queries = SelectCrawler.gather(context.segment, context.dialect)
+            crawler = SelectCrawler(context.segment, context.dialect)
 
-            # Begin analysis at the final, outer query (key=None).
-            if None in queries:
-                select_info = queries[None]
+            # Begin analysis at the outer query.
+            if crawler.query_tree:
                 try:
-                    return self._analyze_result_columns(
-                        select_info, context.dialect, queries
-                    )
-                except RuleFailure:
-                    return LintResult(
-                        anchor=queries[None][0].select_info.select_statement
-                    )
+                    return self._analyze_result_columns(crawler.query_tree)
+                except RuleFailure as e:
+                    return LintResult(anchor=e.anchor)
         return None
