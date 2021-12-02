@@ -19,6 +19,10 @@ oyaml
 pathspec
 # We provide a testing library for plugins in sqlfluff.testing
 pytest
+# The new regex module to allow for more complex pattern matching.
+# e.g. capturing repeated groups in nested tsql block comments.
+# N.B. it is fully backwards compatible with standard re use cases.
+regex
 # For returning exceptions from multiprocessing.Pool.map()
 tblib
 # For parsing pyproject.toml

@@ -5,7 +5,7 @@ when templates include similar strings multiple places in the file.
 """
 
 import logging
-import re
+import regex
 from typing import Iterator, List
 
 from jinja2 import Environment
@@ -17,8 +17,8 @@ from sqlfluff.core.templaters.base import RawFileSlice
 templater_logger = logging.getLogger("sqlfluff.templater")
 
 
-re_open_tag = re.compile(r"^\s*{%[\+\-]?\s*")
-re_close_tag = re.compile(r"\s*[\+\-]?%}\s*$")
+re_open_tag = regex.compile(r"^\s*{%[\+\-]?\s*")
+re_close_tag = regex.compile(r"\s*[\+\-]?%}\s*$")
 
 
 def slice_template(in_str: str, env: Environment) -> List[RawFileSlice]:
@@ -121,7 +121,7 @@ def _slice_template(in_str: str, env: Environment) -> Iterator[RawFileSlice]:
                         block_type = "block_start"
                         if trimmed_content.split()[0] == "for":
                             block_subtype = "loop"  # pragma: no cover
-                m = re.search(r"\s+$", raw, re.MULTILINE | re.DOTALL)
+                m = regex.search(r"\s+$", raw, regex.MULTILINE | regex.DOTALL)
                 if raw.startswith("-") and m:
                     # Right whitespace was stripped. Split off the trailing
                     # whitespace into a separate slice. The desired behavior is
