@@ -452,3 +452,41 @@ test_nested_cte_references_outer_8:
     )
 
     select * from a
+
+test_pass_join_inside_cte_with_unqualified:
+  pass_str:
+    with cte as (
+        select
+            *
+        from
+            t1
+        inner join t2
+    )
+
+    select a, b from cte;
+
+test_pass_known_number_of_columns_in_two_join_subqueries:
+  pass_str:
+    select
+        *
+    from (
+        select a
+        from foo
+    ) t1
+    inner join (
+        select b
+        from bar
+    ) t2;
+
+test_fail_two_join_subqueries_one_with_unknown_number_of_columns:
+  fail_str:
+    select
+        *
+    from (
+        select *
+        from foo
+    ) t1
+    inner join (
+        select b
+        from bar
+    ) t2;
