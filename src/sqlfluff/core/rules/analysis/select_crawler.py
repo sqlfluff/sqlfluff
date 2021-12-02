@@ -233,6 +233,9 @@ class SelectCrawler:
                             cte_name = None
                             append_query(query)
                         else:
+                            # There's no CTE name, so we're probably processing
+                            # the main query following a block of CTEs.
+
                             # Ignore segments under a from_expression_element.
                             # Those will be nested queries, and we're only
                             # interested in CTEs and "main" queries, i.e.
@@ -240,10 +243,16 @@ class SelectCrawler:
                             if not any(
                                 seg.is_type("from_expression_element") for seg in path
                             ):
-                                if path[-1].is_type("select_statement"):  # TODO: Comment this?
+                                if path[-1].is_type("select_statement"):
+                                    # Processing a select_statement. Add it to the
+                                    # Query object on top of the stack.
                                     query_stack[-1].selectables.append(
                                         Selectable(path[-1], dialect)
                                     )
+                                else:
+                                    # Processing a set_expression. Nothing
+                                    # additional to do here.
+                                    pass
                 elif path[-1].is_type("with_compound_statement"):
                     # Beginning a "with" statement, i.e. a block of CTEs.
                     query = Query(QueryType.WithCompound, dialect)
