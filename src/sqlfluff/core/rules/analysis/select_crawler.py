@@ -144,11 +144,7 @@ class Query:
 
 
 class SelectCrawler:
-    """Class for recursive dependency analysis related to SELECT statements.
-
-    This class is a wrapper for select.get_select_statement_info(), but it adds
-    recursive dependency walking.
-    """
+    """Class for dependency analysis among parts of a query."""
 
     def __init__(
         self, segment: BaseSegment, dialect: Dialect, parent: Optional[Query] = None
