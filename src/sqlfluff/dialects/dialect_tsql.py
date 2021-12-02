@@ -368,6 +368,8 @@ class WithCompoundStatementSegment(BaseSegment):
     """A `SELECT` statement preceded by a selection of `WITH` clauses.
 
     `WITH tab (col1,col2) AS (SELECT a,b FROM x)`
+
+    Overriding ANSI to remove the greedy matching of StartsWith().
     """
 
     type = "with_compound_statement"
