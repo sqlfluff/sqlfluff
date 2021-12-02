@@ -130,7 +130,9 @@ class Query:
             else:
                 assert seg.is_type("set_expression", "select_statement")
                 found_nested_select = True
-                crawler = SelectCrawler(seg, self.dialect, self)
+                crawler = SelectCrawler(seg, self.dialect, parent=self)
+                # We know this will pass because we specified parent=self above.
+                assert crawler.query_tree
                 yield crawler.query_tree
         if not found_nested_select:
             # If we reach here, the SELECT may be querying from a value table
@@ -152,7 +154,7 @@ class SelectCrawler:
         self, segment: BaseSegment, dialect: Dialect, parent: Optional[Query] = None
     ):
         self.dialect: Dialect = dialect
-        self.query_tree: Query = None
+        self.query_tree: Optional[Query] = None
 
         queries: List[Query] = []
         pop_queries_for = []
