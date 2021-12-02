@@ -152,65 +152,102 @@ class SelectCrawler:
         self.dialect: Dialect = dialect
         self.query_tree: Optional[Query] = None
 
-        queries: List[Query] = []
+        # Stack of segments currently being processed
+        query_stack: List[Query] = []
+        # Tracks which segments caused a Query to be added to query_stack,
+        # so we can pop "query_stack" when those segments complete processing.
         pop_queries_for = []
 
         def append_query(query):
-            if queries:
-                query.parent = queries[-1]
-            queries.append(query)
+            """Bookkeeping when a new Query is created."""
+            if query_stack:
+                query.parent = query_stack[-1]
+            query_stack.append(query)
+            if len(query_stack) == 1 and self.query_tree is None:
+                self.query_tree = query_stack[0]
+                self.query_tree.parent = parent
             pop_queries_for.append(path[-1])
 
+        def finish_segment():
+            """Bookkeeping when a segment finishes processing."""
+            try:
+                idx = pop_queries_for.index(path[-1])
+                query_stack.pop()
+                del pop_queries_for[idx]
+            except ValueError:
+                pass
+
+        # Stores the last CTE name we saw, so we can associate it with the
+        # corresponding Query.
         cte_name = None
+
+        # Visit segment and all its children
         for event, path in SelectCrawler.visit_segments(segment):
-            in_with = queries and queries[-1].query_type == QueryType.WithCompound
+            # Check the top of the stack to determine if we're in a "with".
+            in_with = query_stack and query_stack[-1].query_type == QueryType.WithCompound
             if event == "start":
+                # "start" means we're starting to process a new segment.
                 if path[-1].is_type("set_expression", "select_statement"):
+                    # Beginning a single "SELECT" or a set, e.g.
+                    # SELECT ... UNION ... SELECT.
                     if not in_with:
-                        if path[-1].is_type("select_statement"):
-                            selectable = Selectable(path[-1], dialect)
-                            if len(path) >= 2 and path[-2].is_type("set_expression"):
-                                queries[-1].selectables.append(selectable)
-                            else:
-                                query = Query(QueryType.Simple, dialect, [selectable])
-                                append_query(query)
-                        else:
+                        if path[-1].is_type("set_expression"):
+                            # For a set_expression, create a query with no
+                            # selectables. A set_expression always has child
+                            # select_statement segments, and those will be
+                            # added to this Query later.
                             query = Query(QueryType.Simple, dialect)
                             append_query(query)
+                        else:
+                            # It's a select_statement.
+                            selectable = Selectable(path[-1], dialect)
+                            # Determine if this is a standalone select_statement or
+                            # part of a set_expression.
+                            if len(path) >= 2 and path[-2].is_type("set_expression"):
+                                # It's part of a set_expression. Append this
+                                # select_statement to the set_expression.
+                                query_stack[-1].selectables.append(selectable)
+                            else:
+                                # It's a standalone select_statement, not part
+                                # of a set_expression. Create a Query containing
+                                # this select_statement.
+                                query = Query(QueryType.Simple, dialect, [selectable])
+                                append_query(query)
                     else:
-                        if not cte_name:
+                        # We're processing a "with" statement.
+                        if cte_name:
+                            # If we have a CTE name, this is the Query for that
+                            # name.
+                            query = Query(QueryType.Simple, dialect)
+                            if path[-1].is_type("select_statement"):  # TODO: Comment this?
+                                query.selectables.append(Selectable(path[-1], dialect))
+                            query_stack[-1].ctes[cte_name] = query
+                            cte_name = None
+                            append_query(query)
+                        else:
+                            # Ignore segments under a from_expression_element.
+                            # Those will be nested queries, and we're only
+                            # interested in CTEs and "main" queries, i.e.
+                            # standalones or those following a block of CTEs.
                             if not any(
                                 seg.is_type("from_expression_element") for seg in path
                             ):
-                                if path[-1].is_type("select_statement"):
-                                    queries[-1].selectables.append(
+                                if path[-1].is_type("select_statement"):  # TODO: Comment this?
+                                    query_stack[-1].selectables.append(
                                         Selectable(path[-1], dialect)
                                     )
-                        else:
-                            query = Query(QueryType.Simple, dialect)
-                            if path[-1].is_type("select_statement"):
-                                query.selectables.append(Selectable(path[-1], dialect))
-                            queries[-1].ctes[cte_name] = query
-                            cte_name = None
-                            append_query(query)
                 elif path[-1].is_type("with_compound_statement"):
+                    # Beginning a "with" statement, i.e. a block of CTEs.
                     query = Query(QueryType.WithCompound, dialect)
                     if cte_name:
-                        queries[-1].ctes[cte_name] = query
+                        query_stack[-1].ctes[cte_name] = query
                         cte_name = None
                     append_query(query)
                 elif path[-1].is_type("common_table_expression"):
+                    # This is a "<<cte name>> AS". Grab the name for later.
                     cte_name = path[-1].segments[0].raw
-                if len(queries) == 1 and self.query_tree is None:
-                    self.query_tree = queries[0]
-                    self.query_tree.parent = parent
             elif event == "end":
-                try:
-                    idx = pop_queries_for.index(path[-1])
-                    queries.pop()
-                    del pop_queries_for[idx]
-                except ValueError:
-                    pass
+                finish_segment()
 
     @classmethod
     def get(cls, query: Query, segment: BaseSegment) -> List[Union[str, "Query"]]:
@@ -223,7 +260,7 @@ class SelectCrawler:
 
     @classmethod
     def visit_segments(cls, seg, path=None):
-        """Recursive crawl all segments."""
+        """Recursively visit all segments."""
         if path is None:
             path = []
         path.append(seg)
