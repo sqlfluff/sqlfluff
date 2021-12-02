@@ -1,7 +1,6 @@
 """Implementation of Rule L045."""
-from typing import Dict, List, Optional
+from typing import Optional
 
-from sqlfluff.core.dialects.base import Dialect
 from sqlfluff.core.rules.base import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.analysis.select_crawler import Query, SelectCrawler
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
@@ -44,10 +43,7 @@ class Rule_L045(BaseRule):
     """
 
     @classmethod
-    def _visit_sources(
-        cls,
-        query: Query
-    ):
+    def _visit_sources(cls, query: Query):
         for selectable in query.selectables:
             for source in query.crawl_sources(
                 selectable.selectable, remove_sources=True
