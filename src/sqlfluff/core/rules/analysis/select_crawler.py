@@ -177,9 +177,6 @@ class SelectCrawler:
                         else:
                             query = Query(QueryType.Simple, dialect)
                             append_query(query)
-                        if cte_name:
-                            queries[-1].ctes[cte_name] = query
-                            cte_name = None
                     else:
                         if not cte_name:
                             if not any(
