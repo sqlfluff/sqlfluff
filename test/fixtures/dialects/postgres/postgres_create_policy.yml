@@ -1,0 +1,151 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 0124bcecabe963511c902e6a2fe2684fd97228d0be642a21ceb59be8b0576709
+file:
+- statement:
+    create_policy_statement:
+    - keyword: CREATE
+    - keyword: POLICY
+    - object_reference:
+        identifier: account_managers
+    - keyword: 'ON'
+    - table_reference:
+        identifier: accounts
+    - keyword: TO
+    - object_reference:
+        identifier: current_user
+- statement_terminator: ;
+- statement:
+    create_policy_statement:
+    - keyword: CREATE
+    - keyword: POLICY
+    - object_reference:
+        identifier: account_managers
+    - keyword: 'ON'
+    - table_reference:
+      - identifier: sch
+      - dot: .
+      - identifier: accounts
+    - keyword: AS
+    - keyword: permissive
+    - keyword: FOR
+    - keyword: ALL
+    - keyword: TO
+    - object_reference:
+        identifier: managers
+- statement_terminator: ;
+- statement:
+    create_policy_statement:
+    - keyword: CREATE
+    - keyword: POLICY
+    - object_reference:
+        identifier: account_managers
+    - keyword: 'ON'
+    - table_reference:
+        identifier: accounts
+    - keyword: TO
+    - object_reference:
+        identifier: public
+    - comma: ','
+    - keyword: session_user
+- statement_terminator: ;
+- statement:
+    create_policy_statement:
+    - keyword: CREATE
+    - keyword: POLICY
+    - object_reference:
+        identifier: account_managers
+    - keyword: 'ON'
+    - table_reference:
+        identifier: accounts
+    - keyword: WITH
+    - keyword: CHECK
+    - bracketed:
+        start_bracket: (
+        expression:
+          keyword: NOT
+          function:
+            function_name:
+              function_name_identifier: accounts_is_excluded_full_name
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  identifier: full_name
+              end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_policy_statement:
+    - keyword: CREATE
+    - keyword: POLICY
+    - object_reference:
+        identifier: emp_rls_policy
+    - keyword: 'ON'
+    - table_reference:
+        identifier: employee
+    - keyword: FOR
+    - keyword: all
+    - keyword: TO
+    - object_reference:
+        identifier: public
+    - keyword: USING
+    - bracketed:
+        start_bracket: (
+        expression:
+          column_reference:
+            identifier: ename
+          comparison_operator: '='
+          function:
+            function_name:
+              function_name_identifier: current_setting
+            bracketed:
+              start_bracket: (
+              expression:
+                literal: "'rls.ename'"
+              end_bracket: )
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_policy_statement:
+    - keyword: CREATE
+    - keyword: POLICY
+    - object_reference:
+        identifier: account_managers
+    - keyword: 'ON'
+    - table_reference:
+        identifier: accounts
+    - keyword: WITH
+    - keyword: CHECK
+    - bracketed:
+        start_bracket: (
+        expression:
+          column_reference:
+            identifier: col
+          comparison_operator: '>'
+          literal: '10'
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_policy_statement:
+    - keyword: CREATE
+    - keyword: POLICY
+    - object_reference:
+        identifier: account_managers
+    - keyword: 'ON'
+    - table_reference:
+        identifier: accounts
+    - keyword: USING
+    - bracketed:
+        start_bracket: (
+        expression:
+        - column_reference:
+            identifier: username
+        - comparison_operator: '='
+        - column_reference:
+            identifier: current_user
+        end_bracket: )
+- statement_terminator: ;
