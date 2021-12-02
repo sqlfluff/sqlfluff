@@ -100,7 +100,7 @@ class Query:
             return None
 
     def crawl_sources(
-        self, segment: BaseSegment, recurse_into=True, remove_sources=False
+        self, segment: BaseSegment, recurse_into=True, pop=False
     ) -> Generator[Union[str, "Query"], None, None]:
         """Find SELECTs, table refs, or value table function calls in segment.
 
@@ -121,7 +121,7 @@ class Query:
 
             if seg.is_type("table_reference"):
                 if not seg.is_qualified():
-                    cte = self.lookup_cte(seg.raw, pop=remove_sources)
+                    cte = self.lookup_cte(seg.raw, pop=pop)
                     if cte:
                         # It's a CTE.
                         yield cte
