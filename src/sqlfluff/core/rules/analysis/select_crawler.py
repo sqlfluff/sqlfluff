@@ -221,20 +221,6 @@ class SelectCrawler:
         """
         return list(query.crawl_sources(segment, True))
 
-    @staticmethod
-    def _get_name_if_cte(
-        select_statement: BaseSegment, ancestor_segment: BaseSegment
-    ) -> Optional[str]:
-        """Return name if CTE. If top-level, return None."""
-        cte = None
-        path_to = ancestor_segment.path_to(select_statement)
-        for seg in path_to:
-            if seg.is_type("common_table_expression"):
-                cte = seg
-                break
-        select_name = cte.segments[0].raw if cte else None
-        return select_name
-
     @classmethod
     def visit_segments(cls, seg, path=None):
         """Recursive crawl all segments."""
