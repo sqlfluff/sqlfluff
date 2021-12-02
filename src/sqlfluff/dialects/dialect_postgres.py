@@ -2182,6 +2182,7 @@ class StatementSegment(BaseSegment):
             Ref("SetStatementSegment"),
             Ref("DropFunctionStatementSegment"),
             Ref("CreatePolicyStatementSegment"),
+            Ref("DropPolicyStatementSegment"),
         ],
     )
 
@@ -2451,4 +2452,24 @@ class CreatePolicyStatementSegment(BaseSegment):
         ),
         Sequence("USING", Bracketed(Ref("ExpressionSegment")), optional=True),
         Sequence("WITH", "CHECK", Bracketed(Ref("ExpressionSegment")), optional=True),
+    )
+
+
+@postgres_dialect.segment()
+class DropPolicyStatementSegment(BaseSegment):
+    """A `DROP POLICY` statement.
+
+    As Specified in https://www.postgresql.org/docs/14/sql-droppolicy.html
+    """
+
+    type = "drop_policy_statement"
+    match_grammar = StartsWith(Sequence("DROP", "POLICY"))
+    parse_grammar = Sequence(
+        "DROP",
+        "POLICY",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        "ON",
+        Ref("TableReferenceSegment"),
+        OneOf("CASCADE", "RESTRICT", optional=True),
     )
