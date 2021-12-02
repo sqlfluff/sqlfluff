@@ -219,8 +219,16 @@ class SelectCrawler:
                             # If we have a CTE name, this is the Query for that
                             # name.
                             query = Query(QueryType.Simple, dialect)
-                            if path[-1].is_type("select_statement"):  # TODO: Comment this?
+                            if path[-1].is_type("select_statement"):
+                                # Processing a select_statement. Add it to the
+                                # Query object we just created.
                                 query.selectables.append(Selectable(path[-1], dialect))
+                            else:
+                                # Processing a set_expression. Nothing
+                                # additional to do here; we'll add selectables
+                                # to the Query later when we encounter the child
+                                # select_statements.
+                                pass
                             query_stack[-1].ctes[cte_name] = query
                             cte_name = None
                             append_query(query)
