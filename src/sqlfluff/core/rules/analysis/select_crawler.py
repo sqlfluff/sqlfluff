@@ -184,7 +184,9 @@ class SelectCrawler:
         # Visit segment and all its children
         for event, path in SelectCrawler.visit_segments(segment):
             # Check the top of the stack to determine if we're in a "with".
-            in_with = query_stack and query_stack[-1].query_type == QueryType.WithCompound
+            in_with = (
+                query_stack and query_stack[-1].query_type == QueryType.WithCompound
+            )
             if event == "start":
                 # "start" means we're starting to process a new segment.
                 if path[-1].is_type("set_expression", "select_statement"):
