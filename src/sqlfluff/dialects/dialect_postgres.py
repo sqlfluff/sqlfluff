@@ -134,8 +134,24 @@ postgres_dialect.sets("unreserved_keywords").difference_update(
     get_keywords(postgres_keywords, "not-keyword")
 )
 
-# Add the EPOCH datetime unit
-postgres_dialect.sets("datetime_units").update(["EPOCH"])
+# Add datetime units
+postgres_dialect.sets("datetime_units").update(
+    [
+        "CENTURY",
+        "DECADE",
+        "DOW",
+        "DOY",
+        "EPOCH",
+        "ISODOW",
+        "ISOYEAR",
+        "MICROSECONDS",
+        "MILLENNIUM",
+        "MILLISECONDS",
+        "TIMEZONE",
+        "TIMEZONE_HOUR",
+        "TIMEZONE_MINUTE",
+    ]
+)
 
 postgres_dialect.add(
     JsonOperatorSegment=NamedParser(
