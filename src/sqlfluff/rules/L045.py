@@ -46,7 +46,7 @@ class Rule_L045(BaseRule):
     def _visit_sources(cls, query: Query):
         for selectable in query.selectables:
             for source in query.crawl_sources(
-                selectable.selectable, remove_sources=True
+                selectable.selectable, pop=True
             ):
                 if isinstance(source, Query):
                     cls._visit_sources(source)
