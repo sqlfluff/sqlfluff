@@ -1,0 +1,3262 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 1302ba02e74cb3b34a5bbadad03d4e7b1663b2867a650c4422b2c01809af58c0
+file:
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: year
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: y
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: yy
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: yyy
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: yyyy
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: yr
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: years
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: yrs
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: month
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: mm
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: mon
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: mons
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: months
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: day
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: d
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: dd
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: days
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: dayofmonth
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: dayofweek
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: weekday
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: dow
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: dw
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: dayofweekiso
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: weekday_iso
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: dow_iso
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: dw_iso
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: dayofyear
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: yearday
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: doy
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: dy
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: week
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: w
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: wk
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: weekofyear
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: woy
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: wy
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: weekiso
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: week_iso
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: weekofyeariso
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: weekofyear_iso
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: quarter
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: q
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: qtr
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: qtrs
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: quarters
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: yearofweek
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: yearofweekiso
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: hour
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: h
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: hh
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: hr
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: hours
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: hrs
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: minute
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: m
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: mi
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: min
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: minutes
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: mins
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: second
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: s
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: sec
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: seconds
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: secs
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: millisecond
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: ms
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: msec
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: milliseconds
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: microsecond
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: us
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: usec
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: microseconds
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: nanosecond
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: ns
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: nsec
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: nanosec
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: nsecond
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: nanoseconds
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: nanosecs
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: nseconds
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: epoch_second
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: epoch
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: epoch_seconds
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: epoch_millisecond
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: epoch_milliseconds
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: epoch_microsecond
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: epoch_microseconds
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: epoch_nanosecond
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: epoch_nanoseconds
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: timezone_hour
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: tzh
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: timezone_minute
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: field
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: EXTRACT
+            bracketed:
+              start_bracket: (
+              date_part: tzm
+              keyword: FROM
+              expression:
+                column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: sometime
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: a
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+- statement_terminator: ;
