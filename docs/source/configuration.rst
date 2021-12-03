@@ -374,6 +374,19 @@ to use them for templated. In the above example, you might define a file at
         return "GROUP BY 1,2"
 
 
+If you need root-level functions, you can defined them in __init__.py.
+
+.. code-block:: jinja
+
+    SELECT {{ custom_sum('foo', 'bar') }} FROM baz
+
+`sqlfluff_libs/__init__.py`:
+
+.. code-block:: python
+
+    def custom_sum(a: str, b: str) -> str:
+        return a + b
+
 dbt Project Configuration
 -------------------------
 
