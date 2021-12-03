@@ -228,6 +228,12 @@ class Linter:
     def parse_noqa(comment: str, line_no: int):
         """Extract ignore mask entries from a comment string."""
         # Also trim any whitespace afterward
+
+        # Comment lines can also have noqa e.g.
+        # --dafhsdkfwdiruweksdkjdaffldfsdlfjksd -- noqa: L016
+        # Therefore extract last possible inline ignore.
+        comment = [c.strip() for c in comment.split("--")][-1]
+
         if comment.startswith("noqa"):
             # This is an ignore identifier
             comment_remainder = comment[4:]

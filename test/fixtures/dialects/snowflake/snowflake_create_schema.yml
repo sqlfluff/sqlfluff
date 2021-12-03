@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8fc249f495a50bbcef86d1ec639688b5323646e0b4873d2ee8f31b28c68c7e4a
+_hash: 805e0f25e42c937d18e5120a800ddda01f4ee51e5d97087978cc47ee31e1cb62
 file:
 - statement:
     create_clone_statement:
@@ -40,4 +40,60 @@ file:
                 - literal: '86400'
                 end_bracket: )
           end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_schema_statement:
+    - keyword: create
+    - keyword: schema
+    - schema_reference:
+        identifier: mytestschema
+    - schema_object_properties:
+        comment_equals_clause:
+          keyword: comment
+          comparison_operator: '='
+          literal: "'My test schema.'"
+- statement_terminator: ;
+- statement:
+    create_schema_statement:
+    - keyword: create
+    - keyword: schema
+    - schema_reference:
+        identifier: mytestschema
+    - tag_bracketed_equals:
+        keyword: tag
+        bracketed:
+        - start_bracket: (
+        - identifier: tag1
+        - comparison_operator: '='
+        - literal: "'foo'"
+        - comma: ','
+        - identifier: tag2
+        - comparison_operator: '='
+        - literal: "'bar'"
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_schema_statement:
+    - keyword: create
+    - keyword: schema
+    - schema_reference:
+        identifier: mytestschema
+    - keyword: with
+    - keyword: managed
+    - keyword: access
+- statement_terminator: ;
+- statement:
+    create_schema_statement:
+    - keyword: create
+    - keyword: transient
+    - keyword: schema
+    - keyword: if
+    - keyword: not
+    - keyword: exists
+    - schema_reference:
+        identifier: mytestschema
+    - schema_object_properties:
+        keyword: default_ddl_collation
+        comparison_operator: '='
+        literal: "'de_DE'"
 - statement_terminator: ;

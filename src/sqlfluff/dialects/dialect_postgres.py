@@ -134,8 +134,24 @@ postgres_dialect.sets("unreserved_keywords").difference_update(
     get_keywords(postgres_keywords, "not-keyword")
 )
 
-# Add the EPOCH datetime unit
-postgres_dialect.sets("datetime_units").update(["EPOCH"])
+# Add datetime units
+postgres_dialect.sets("datetime_units").update(
+    [
+        "CENTURY",
+        "DECADE",
+        "DOW",
+        "DOY",
+        "EPOCH",
+        "ISODOW",
+        "ISOYEAR",
+        "MICROSECONDS",
+        "MILLENNIUM",
+        "MILLISECONDS",
+        "TIMEZONE",
+        "TIMEZONE_HOUR",
+        "TIMEZONE_MINUTE",
+    ]
+)
 
 postgres_dialect.add(
     JsonOperatorSegment=NamedParser(
@@ -2165,6 +2181,8 @@ class StatementSegment(BaseSegment):
             Ref("AlterTriggerStatementSegment"),
             Ref("SetStatementSegment"),
             Ref("DropFunctionStatementSegment"),
+            Ref("CreatePolicyStatementSegment"),
+            Ref("DropPolicyStatementSegment"),
         ],
     )
 
@@ -2397,4 +2415,61 @@ class SetStatementSegment(BaseSegment):
                 "TIME", "ZONE", OneOf(Ref("QuotedLiteralSegment"), "LOCAL", "DEFAULT")
             ),
         ),
+    )
+
+
+@postgres_dialect.segment()
+class CreatePolicyStatementSegment(BaseSegment):
+    """A `CREATE POLICY` statement.
+
+    As Specified in https://www.postgresql.org/docs/14/sql-createpolicy.html
+    """
+
+    type = "create_policy_statement"
+    match_grammar = StartsWith(Sequence("CREATE", "POLICY"))
+    parse_grammar = Sequence(
+        "CREATE",
+        "POLICY",
+        Ref("ObjectReferenceSegment"),
+        "ON",
+        Ref("TableReferenceSegment"),
+        Sequence("AS", OneOf("PERMISSIVE", "RESTRICTIVE"), optional=True),
+        Sequence(
+            "FOR", OneOf("ALL", "SELECT", "INSERT", "UPDATE", "DELETE"), optional=True
+        ),
+        Sequence(
+            "TO",
+            Delimited(
+                OneOf(
+                    Ref("ObjectReferenceSegment"),
+                    "PUBLIC",
+                    "CURRENT_ROLE",
+                    "CURRENT_USER",
+                    "SESSION_USER",
+                )
+            ),
+            optional=True,
+        ),
+        Sequence("USING", Bracketed(Ref("ExpressionSegment")), optional=True),
+        Sequence("WITH", "CHECK", Bracketed(Ref("ExpressionSegment")), optional=True),
+    )
+
+
+@postgres_dialect.segment()
+class DropPolicyStatementSegment(BaseSegment):
+    """A `DROP POLICY` statement.
+
+    As Specified in https://www.postgresql.org/docs/14/sql-droppolicy.html
+    """
+
+    type = "drop_policy_statement"
+    match_grammar = StartsWith(Sequence("DROP", "POLICY"))
+    parse_grammar = Sequence(
+        "DROP",
+        "POLICY",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        "ON",
+        Ref("TableReferenceSegment"),
+        OneOf("CASCADE", "RESTRICT", optional=True),
     )
