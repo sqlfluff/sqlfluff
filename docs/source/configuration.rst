@@ -409,10 +409,13 @@ Installation & Configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 In order to get started using *SQLFluff* with a dbt project you will
-first need to install the :code:`sqlfluff-templater-dbt` package using
+first need to install the relevant `dbt adapter`_ for your dialect
+and the :code:`sqlfluff-templater-dbt` package using
 your package manager of choice (e.g.
-:code:`pip install sqlfluff-templater-dbt`) and then will need the
+:code:`pip install dbt-postgres sqlfluff-templater-dbt`) and then will need the
 following configuration:
+
+.. _`dbt adapter`: https://docs.getdbt.com/docs/available-adapters
 
 In *.sqlfluff*:
 

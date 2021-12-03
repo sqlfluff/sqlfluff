@@ -1,0 +1,64 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 5e9709e8abf96cd4c55171f63ddb5b2dbc1c2b9298c8d6ff94ac36e11a7675ef
+file:
+- statement:
+    drop_policy_statement:
+    - keyword: DROP
+    - keyword: POLICY
+    - object_reference:
+        identifier: account_managers
+    - keyword: 'ON'
+    - table_reference:
+        identifier: accounts
+- statement_terminator: ;
+- statement:
+    drop_policy_statement:
+    - keyword: DROP
+    - keyword: POLICY
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        identifier: account_managers
+    - keyword: 'ON'
+    - table_reference:
+        identifier: accounts
+- statement_terminator: ;
+- statement:
+    drop_policy_statement:
+    - keyword: DROP
+    - keyword: POLICY
+    - object_reference:
+        identifier: account_managers
+    - keyword: 'ON'
+    - table_reference:
+        identifier: accounts
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+    drop_policy_statement:
+    - keyword: DROP
+    - keyword: POLICY
+    - object_reference:
+        identifier: account_managers
+    - keyword: 'ON'
+    - table_reference:
+        identifier: accounts
+    - keyword: RESTRICT
+- statement_terminator: ;
+- statement:
+    drop_policy_statement:
+    - keyword: DROP
+    - keyword: POLICY
+    - keyword: IF
+    - keyword: EXISTS
+    - object_reference:
+        identifier: account_managers
+    - keyword: 'ON'
+    - table_reference:
+        identifier: accounts
+    - keyword: RESTRICT
+- statement_terminator: ;
