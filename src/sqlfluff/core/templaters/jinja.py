@@ -117,7 +117,7 @@ class JinjaTemplater(PythonTemplater):
             lib = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(lib)
             if module_name == "__init__":
-                # Allows settings root-level functions via __init__.py
+                # Allows setting root-level functions via __init__.py
                 libraries.update(
                     {e: getattr(lib, e) for e in dir(lib) if not e.startswith("_")}
                 )

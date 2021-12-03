@@ -374,7 +374,7 @@ to use them for templated. In the above example, you might define a file at
         return "GROUP BY 1,2"
 
 
-If you need root-level functions, you can defined them in __init__.py.
+If you need root-level functions, you can define them in __init__.py.
 
 .. code-block:: jinja
 
