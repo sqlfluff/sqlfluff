@@ -1,9 +1,8 @@
 """Implementation of Rule L045."""
-from typing import Dict, List, Optional
+from typing import Optional
 
-from sqlfluff.core.dialects.base import Dialect
 from sqlfluff.core.rules.base import BaseRule, LintResult, RuleContext
-from sqlfluff.core.rules.analysis.select_crawler import SelectCrawler
+from sqlfluff.core.rules.analysis.select_crawler import Query, SelectCrawler
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
 
@@ -13,7 +12,7 @@ class Rule_L045(BaseRule):
 
     | **Anti-pattern**
     | Defining a CTE that is not used by the query is harmless, but it means
-    | the code is unnecesary and could be removed.
+    | the code is unnecessary and could be removed.
 
     .. code-block:: sql
 
@@ -44,25 +43,18 @@ class Rule_L045(BaseRule):
     """
 
     @classmethod
-    def _visit_sources(
-        cls,
-        select_info_list: List[SelectCrawler],
-        dialect: Dialect,
-        queries: Dict[Optional[str], List[SelectCrawler]],
-    ):
-        for select_info in select_info_list:
-            for source in SelectCrawler.crawl(
-                select_info.select_statement, queries, dialect
-            ):
-                if isinstance(source, list):
-                    cls._visit_sources(source, dialect, queries)
+    def _visit_sources(cls, query: Query):
+        for selectable in query.selectables:
+            for source in query.crawl_sources(selectable.selectable, pop=True):
+                if isinstance(source, Query):
+                    cls._visit_sources(source)
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         if context.segment.is_type("statement"):
-            queries = SelectCrawler.gather(context.segment, context.dialect)
-            if None in queries:
+            crawler = SelectCrawler(context.segment, context.dialect)
+            if crawler.query_tree:
                 # Begin analysis at the final, outer query (key=None).
-                self._visit_sources(queries.pop(None), context.dialect, queries)
-                if queries:
+                self._visit_sources(crawler.query_tree)
+                if crawler.query_tree.ctes:
                     return LintResult(anchor=context.segment)
         return None

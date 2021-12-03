@@ -327,3 +327,166 @@ test_fail_unknown_number_of_result_columns_18:
         where not coalesce(_fivetran_deleted, false)
     )
     select * from final
+
+test_pass_nested_ctes_1:
+  # Test for issue 1984
+  pass_str: |
+    with a as (
+        with b as (
+            select 1 from c
+        )
+
+        select * from b
+    )
+
+    select * from a
+
+test_fail_nested_ctes_1:
+  # Test for issue 1984
+  fail_str: |
+    with a as (
+        with b as (
+            select * from c
+        )
+
+        select * from b
+    )
+
+    select * from a
+
+test_fail_nested_ctes_2:
+  # Test for issue 1984
+  fail_str: |
+    with a as (
+        with b as (
+            select 1 from t1
+        ),
+        c AS (
+          SELECT *
+          FROM u
+        )
+
+        select b.*, c.* from b join c
+    )
+
+    select * from a
+
+test_pass_nested_ctes_3:
+  # Test for issue 1984
+  pass_str:
+    with a as (
+        with b as (
+            select * from c
+        )
+
+        select 1 from b
+    )
+
+    select * from a
+
+test_pass_nested_ctes_4:
+  # Test for issue 1984
+  pass_str:
+    with a as (
+        with b as (
+            select * from c
+        )
+
+        select * from b
+    )
+
+    select 1 from a
+
+test_cte_reference_outer_5:
+  pass_str:
+    with a as (
+        select 1 from b
+    )
+
+    select * from (
+        select * from a
+    )
+
+test_cte_tricky_nesting_6:
+  pass_str:
+    with b as (
+        select 1 from c
+    )
+
+    select * from (
+        with a as (
+            select * from b
+        )
+
+        select * from a
+    )
+
+test_nested_and_same_level_ctes_7:
+  pass_str:
+    with a as (
+      with c as (
+        select 1 from d
+      ),
+
+      b as (
+        select * from c
+      )
+
+      select * from b
+    )
+
+    select * from a
+
+test_nested_cte_references_outer_8:
+  pass_str:
+    with c as (
+      select 1 from d
+    ),
+
+    a as (
+      with b as (
+        select * from c
+      )
+
+      select * from b
+    )
+
+    select * from a
+
+test_pass_join_inside_cte_with_unqualified:
+  pass_str:
+    with cte as (
+        select
+            *
+        from
+            t1
+        inner join t2
+    )
+
+    select a, b from cte;
+
+test_pass_known_number_of_columns_in_two_join_subqueries:
+  pass_str:
+    select
+        *
+    from (
+        select a
+        from foo
+    ) t1
+    inner join (
+        select b
+        from bar
+    ) t2;
+
+test_fail_two_join_subqueries_one_with_unknown_number_of_columns:
+  fail_str:
+    select
+        *
+    from (
+        select *
+        from foo
+    ) t1
+    inner join (
+        select b
+        from bar
+    ) t2;
