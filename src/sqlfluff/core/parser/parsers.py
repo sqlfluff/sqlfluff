@@ -3,7 +3,7 @@
 Matchable objects which return individual segments.
 """
 
-import re
+import regex
 from typing import Type, Optional, List, Tuple, Union
 
 from sqlfluff.core.parser.context import ParseContext
@@ -174,13 +174,13 @@ class RegexParser(StringParser):
             # In any case, it won't match here.
             return False
         # Try the regex. Case sensitivity is not supported.
-        result = re.match(self.template, segment.raw_upper)
+        result = regex.match(self.template, segment.raw_upper)
         if result:
             result_string = result.group(0)
             # Check that we've fully matched
             if result_string == segment.raw_upper:
                 # Check that the anti_template (if set) hasn't also matched
-                if self.anti_template and re.match(
+                if self.anti_template and regex.match(
                     self.anti_template, segment.raw_upper
                 ):
                     return False

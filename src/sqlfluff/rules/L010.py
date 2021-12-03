@@ -1,6 +1,6 @@
 """Implementation of Rule L010."""
 
-import re
+import regex
 from typing import Tuple, List
 from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix, RuleContext
 from sqlfluff.core.rules.config_info import get_config_info
@@ -143,7 +143,7 @@ class Rule_L010(BaseRule):
             # words. This does mean we allow all UPPERCASE and also don't
             # correct Pascalcase to PascalCase, but there's only so much we can
             # do. We do correct underscore_words to Underscore_Words.
-            fixed_raw = re.sub(
+            fixed_raw = regex.sub(
                 "([^a-zA-Z0-9]+|^)([a-zA-Z0-9])([a-zA-Z0-9]*)",
                 lambda match: match.group(1) + match.group(2).upper() + match.group(3),
                 context.segment.raw,
