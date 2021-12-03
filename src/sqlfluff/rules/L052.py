@@ -109,7 +109,7 @@ class Rule_L052(BaseRule):
             # If we can't find a parent statement segment then don't try anything special.
             return False
 
-        if not list(statement_segment.recursive_crawl("newline")):
+        if not any(statement_segment.recursive_crawl("newline")):
             # Statement segment has no newlines therefore starts and ends on the same line.
             return True
 
