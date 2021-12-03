@@ -36,6 +36,8 @@ from sqlfluff.dialects.dialect_tsql_keywords import (
     UNRESERVED_KEYWORDS,
 )
 
+from sqlfluff.core.parser.segments.raw import NewlineSegment, WhitespaceSegment
+
 ansi_dialect = load_raw_dialect("ansi")
 tsql_dialect = ansi_dialect.copy_as("tsql")
 
@@ -79,6 +81,25 @@ tsql_dialect.patch_lexer_matchers(
             r"(--)[^\n]*",
             CommentSegment,
             segment_kwargs={"trim_start": ("--")},
+        ),
+        # Patching block comments to account for nested blocks.
+        # N.B. this syntax is only possible via the non-standard-library
+        # (but still backwards compatible) `regex` package.
+        # https://pypi.org/project/regex/
+        RegexLexer(
+            "block_comment",
+            r"/\*(?>[^*/]+|\*[^/]|/[^*])*(?>(?R)(?>[^*/]+|\*[^/]|/[^*])*)*\*/",
+            CommentSegment,
+            subdivider=RegexLexer(
+                "newline",
+                r"\r\n|\n",
+                NewlineSegment,
+            ),
+            trim_post_subdivide=RegexLexer(
+                "whitespace",
+                r"[\t ]+",
+                WhitespaceSegment,
+            ),
         ),
         # Patching to add !<, !>
         RegexLexer("greater_than_or_equal", ">=|!<", CodeSegment),
