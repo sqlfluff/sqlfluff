@@ -693,7 +693,13 @@ class RuleSet:
         """
         expanded_glob_list = []
         for r in glob_list:
-            expanded_glob_list.extend(fnmatch.filter(self._register, r))
+            expanded_glob_list.extend(
+                [
+                    x
+                    for x in fnmatch.filter(self._register, r)
+                    if x not in expanded_glob_list
+                ]
+            )
 
         return expanded_glob_list
 

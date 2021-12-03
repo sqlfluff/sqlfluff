@@ -11,7 +11,6 @@ from sqlfluff.core.errors import SQLLexError, SQLBaseError, SQLLintError, SQLPar
 from sqlfluff.cli.formatters import CallbackFormatter
 from sqlfluff.core.linter import LintingResult, NoQaDirective
 import sqlfluff.core.linter as linter
-from sqlfluff.core.rules.base import BaseRule
 from sqlfluff.core.templaters import TemplatedFile
 
 
@@ -373,25 +372,24 @@ def test__linter__encoding(fname, config_encoding, lexerror):
 
 
 # noqa tests require a rule_set, therefore we construct dummy rule set for glob matching.
-dummy_rule_set = [BaseRule(f"L{i:03d}", "dummy_rule") for i in range(1, 100)]
+dummy_rule_codes = [r.code for r in Linter().get_ruleset()]
 
 
 @pytest.mark.parametrize(
-    "input,expected,rule_set",
+    "input,expected",
     [
-        ("", None, dummy_rule_set),
-        ("noqa", NoQaDirective(0, None, None), dummy_rule_set),
-        ("noqa?", SQLParseError, dummy_rule_set),
-        ("noqa:", NoQaDirective(0, None, None), dummy_rule_set),
-        ("noqa:L001,L002", NoQaDirective(0, ("L001", "L002"), None), dummy_rule_set),
-        ("noqa: enable=L005", NoQaDirective(0, ("L005",), "enable"), dummy_rule_set),
-        ("noqa: disable=L010", NoQaDirective(0, ("L010",), "disable"), dummy_rule_set),
-        ("noqa: disable=all", NoQaDirective(0, None, "disable"), dummy_rule_set),
-        ("noqa: disable", SQLParseError, dummy_rule_set),
+        ("", None),
+        ("noqa", NoQaDirective(0, None, None)),
+        ("noqa?", SQLParseError),
+        ("noqa:", NoQaDirective(0, None, None)),
+        ("noqa:L001,L002", NoQaDirective(0, ("L001", "L002"), None)),
+        ("noqa: enable=L005", NoQaDirective(0, ("L005",), "enable")),
+        ("noqa: disable=L010", NoQaDirective(0, ("L010",), "disable")),
+        ("noqa: disable=all", NoQaDirective(0, None, "disable")),
+        ("noqa: disable", SQLParseError),
         (
             "Inline comment before inline ignore -- noqa:L001,L002",
             NoQaDirective(0, ("L001", "L002"), None),
-            dummy_rule_set,
         ),
         (
             "Inline comment before inline ignore -- noqa:L04*",
@@ -411,18 +409,25 @@ dummy_rule_set = [BaseRule(f"L{i:03d}", "dummy_rule") for i in range(1, 100)]
                 ),
                 None,
             ),
-            dummy_rule_set,
         ),
     ],
 )
-def test_parse_noqa(input, expected, rule_set):
+def test_parse_noqa(input, expected):
     """Test correct of "noqa" comments."""
-    result = Linter.parse_noqa(input, 0, rule_set)
+    result = Linter.parse_noqa(input, 0, rule_codes=dummy_rule_codes)
     if not isinstance(expected, type):
         assert result == expected
     else:
         # With exceptions, just check the type, not the contents.
         assert isinstance(result, expected)
+
+
+def test_parse_noqa_no_dups():
+    """Test overlapping glob expansions don't return duplicate rules in NoQaDirective."""
+    result = Linter.parse_noqa(
+        comment="noqa:L0*5,L01*", line_no=0, rule_codes=dummy_rule_codes
+    )
+    assert len(result.rules) == len(set(result.rules))
 
 
 @pytest.mark.parametrize(
@@ -436,98 +441,98 @@ def test_parse_noqa(input, expected, rule_set):
             ],
         ],
         [
-            [dict(comment="noqa: L001", line_no=1, rule_set=dummy_rule_set)],
+            [dict(comment="noqa: L001", line_no=1)],
             [DummyLintError(1)],
             [],
         ],
         [
-            [dict(comment="noqa: L001", line_no=2, rule_set=dummy_rule_set)],
+            [dict(comment="noqa: L001", line_no=2)],
             [DummyLintError(1)],
             [0],
         ],
         [
-            [dict(comment="noqa: L002", line_no=1, rule_set=dummy_rule_set)],
+            [dict(comment="noqa: L002", line_no=1)],
             [DummyLintError(1)],
             [0],
         ],
         [
-            [dict(comment="noqa: enable=L001", line_no=1, rule_set=dummy_rule_set)],
+            [dict(comment="noqa: enable=L001", line_no=1)],
             [DummyLintError(1)],
             [0],
         ],
         [
-            [dict(comment="noqa: disable=L001", line_no=1, rule_set=dummy_rule_set)],
+            [dict(comment="noqa: disable=L001", line_no=1)],
             [DummyLintError(1)],
             [],
         ],
         [
             [
-                dict(comment="noqa: disable=L001", line_no=2, rule_set=dummy_rule_set),
-                dict(comment="noqa: enable=L001", line_no=4, rule_set=dummy_rule_set),
+                dict(comment="noqa: disable=L001", line_no=2),
+                dict(comment="noqa: enable=L001", line_no=4),
             ],
             [DummyLintError(1)],
             [0],
         ],
         [
             [
-                dict(comment="noqa: disable=L001", line_no=2, rule_set=dummy_rule_set),
-                dict(comment="noqa: enable=L001", line_no=4, rule_set=dummy_rule_set),
+                dict(comment="noqa: disable=L001", line_no=2),
+                dict(comment="noqa: enable=L001", line_no=4),
             ],
             [DummyLintError(2)],
             [],
         ],
         [
             [
-                dict(comment="noqa: disable=L001", line_no=2, rule_set=dummy_rule_set),
-                dict(comment="noqa: enable=L001", line_no=4, rule_set=dummy_rule_set),
+                dict(comment="noqa: disable=L001", line_no=2),
+                dict(comment="noqa: enable=L001", line_no=4),
             ],
             [DummyLintError(3)],
             [],
         ],
         [
             [
-                dict(comment="noqa: disable=L001", line_no=2, rule_set=dummy_rule_set),
-                dict(comment="noqa: enable=L001", line_no=4, rule_set=dummy_rule_set),
+                dict(comment="noqa: disable=L001", line_no=2),
+                dict(comment="noqa: enable=L001", line_no=4),
             ],
             [DummyLintError(4)],
             [0],
         ],
         [
             [
-                dict(comment="noqa: disable=all", line_no=2, rule_set=dummy_rule_set),
-                dict(comment="noqa: enable=all", line_no=4, rule_set=dummy_rule_set),
+                dict(comment="noqa: disable=all", line_no=2),
+                dict(comment="noqa: enable=all", line_no=4),
             ],
             [DummyLintError(1)],
             [0],
         ],
         [
             [
-                dict(comment="noqa: disable=all", line_no=2, rule_set=dummy_rule_set),
-                dict(comment="noqa: enable=all", line_no=4, rule_set=dummy_rule_set),
+                dict(comment="noqa: disable=all", line_no=2),
+                dict(comment="noqa: enable=all", line_no=4),
             ],
             [DummyLintError(2)],
             [],
         ],
         [
             [
-                dict(comment="noqa: disable=all", line_no=2, rule_set=dummy_rule_set),
-                dict(comment="noqa: enable=all", line_no=4, rule_set=dummy_rule_set),
+                dict(comment="noqa: disable=all", line_no=2),
+                dict(comment="noqa: enable=all", line_no=4),
             ],
             [DummyLintError(3)],
             [],
         ],
         [
             [
-                dict(comment="noqa: disable=all", line_no=2, rule_set=dummy_rule_set),
-                dict(comment="noqa: enable=all", line_no=4, rule_set=dummy_rule_set),
+                dict(comment="noqa: disable=all", line_no=2),
+                dict(comment="noqa: enable=all", line_no=4),
             ],
             [DummyLintError(4)],
             [0],
         ],
         [
             [
-                dict(comment="noqa: disable=L001", line_no=2, rule_set=dummy_rule_set),
-                dict(comment="noqa: enable=all", line_no=4, rule_set=dummy_rule_set),
+                dict(comment="noqa: disable=L001", line_no=2),
+                dict(comment="noqa: enable=all", line_no=4),
             ],
             [
                 DummyLintError(2, code="L001"),
@@ -539,8 +544,8 @@ def test_parse_noqa(input, expected, rule_set):
         ],
         [
             [
-                dict(comment="noqa: disable=all", line_no=2, rule_set=dummy_rule_set),
-                dict(comment="noqa: enable=L001", line_no=4, rule_set=dummy_rule_set),
+                dict(comment="noqa: disable=all", line_no=2),
+                dict(comment="noqa: enable=L001", line_no=4),
             ],
             [
                 DummyLintError(2, code="L001"),
@@ -555,7 +560,6 @@ def test_parse_noqa(input, expected, rule_set):
                 dict(
                     comment="Inline comment before inline ignore -- noqa: L002",
                     line_no=1,
-                    rule_set=dummy_rule_set,
                 )
             ],
             [DummyLintError(1)],
@@ -566,12 +570,10 @@ def test_parse_noqa(input, expected, rule_set):
                 dict(
                     comment="Inline comment before inline ignore -- noqa: L002",
                     line_no=1,
-                    rule_set=dummy_rule_set,
                 ),
                 dict(
                     comment="Inline comment before inline ignore -- noqa: L002",
                     line_no=2,
-                    rule_set=dummy_rule_set,
                 ),
             ],
             [
@@ -585,7 +587,6 @@ def test_parse_noqa(input, expected, rule_set):
                 dict(
                     comment="Inline comment before inline ignore -- noqa: L01*",
                     line_no=1,
-                    rule_set=dummy_rule_set,
                 ),
             ],
             [
@@ -620,7 +621,7 @@ def test_linted_file_ignore_masked_violations(
     noqa: dict, violations: List[SQLBaseError], expected
 ):
     """Test that _ignore_masked_violations() correctly filters violations."""
-    ignore_mask = [Linter.parse_noqa(**c) for c in noqa]
+    ignore_mask = [Linter.parse_noqa(rule_codes=dummy_rule_codes, **c) for c in noqa]
     lf = linter.LintedFile(
         path="",
         violations=violations,
