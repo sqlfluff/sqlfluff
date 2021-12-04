@@ -371,6 +371,10 @@ def test__linter__encoding(fname, config_encoding, lexerror):
     assert lexerror == (SQLLexError in [type(v) for v in result.get_violations()])
 
 
+# noqa tests require a rule_set, therefore we construct dummy rule set for glob matching.
+dummy_rule_codes = [r.code for r in Linter().get_ruleset()]
+
+
 @pytest.mark.parametrize(
     "input,expected",
     [
@@ -387,16 +391,43 @@ def test__linter__encoding(fname, config_encoding, lexerror):
             "Inline comment before inline ignore -- noqa:L001,L002",
             NoQaDirective(0, ("L001", "L002"), None),
         ),
+        (
+            "Inline comment before inline ignore -- noqa:L04*",
+            NoQaDirective(
+                0,
+                (
+                    "L040",
+                    "L041",
+                    "L042",
+                    "L043",
+                    "L044",
+                    "L045",
+                    "L046",
+                    "L047",
+                    "L048",
+                    "L049",
+                ),
+                None,
+            ),
+        ),
     ],
 )
 def test_parse_noqa(input, expected):
     """Test correct of "noqa" comments."""
-    result = Linter.parse_noqa(input, 0)
+    result = Linter.parse_noqa(input, 0, rule_codes=dummy_rule_codes)
     if not isinstance(expected, type):
         assert result == expected
     else:
         # With exceptions, just check the type, not the contents.
         assert isinstance(result, expected)
+
+
+def test_parse_noqa_no_dups():
+    """Test overlapping glob expansions don't return duplicate rules in NoQaDirective."""
+    result = Linter.parse_noqa(
+        comment="noqa:L0*5,L01*", line_no=0, rule_codes=dummy_rule_codes
+    )
+    assert len(result.rules) == len(set(result.rules))
 
 
 @pytest.mark.parametrize(
@@ -551,6 +582,18 @@ def test_parse_noqa(input, expected):
             ],
             [0, 1],
         ],
+        [
+            [
+                dict(
+                    comment="Inline comment before inline ignore -- noqa: L01*",
+                    line_no=1,
+                ),
+            ],
+            [
+                DummyLintError(1),
+            ],
+            [0],
+        ],
     ],
     ids=[
         "1_violation_no_ignore",
@@ -571,13 +614,14 @@ def test_parse_noqa(input, expected):
         "4_violations_two_types_disable_all_enable_specific",
         "1_violations_comment_inline_ignore",
         "2_violations_comment_inline_ignore",
+        "1_violations_comment_inline_glob_ignore",
     ],
 )
 def test_linted_file_ignore_masked_violations(
     noqa: dict, violations: List[SQLBaseError], expected
 ):
     """Test that _ignore_masked_violations() correctly filters violations."""
-    ignore_mask = [Linter.parse_noqa(**c) for c in noqa]
+    ignore_mask = [Linter.parse_noqa(rule_codes=dummy_rule_codes, **c) for c in noqa]
     lf = linter.LintedFile(
         path="",
         violations=violations,
@@ -598,7 +642,7 @@ def test_linter_noqa():
         config=FluffConfig(
             overrides={
                 "dialect": "bigquery",  # Use bigquery to allow hash comments.
-                "rules": "L012",
+                "rules": "L012, L019",
             }
         )
     )
@@ -623,6 +667,12 @@ def test_linter_noqa():
         col_q q, --Inline comment --noqa: L012
         col_r r, /* Block comment */ --noqa: L012
         col_s s # hash comment --noqa: L012
+        -- We trigger both L012 (implicit aliasing)
+        -- and L019 (leading commas) here to
+        -- test glob ignoring of multiple rules.
+        , col_t t --noqa: L01*
+        , col_u u -- Some comment --noqa: L01*
+        , col_v v -- We can ignore both L012 and L019 -- noqa: L01[29]
     FROM foo
         """
     result = lntr.lint_string(sql)
@@ -647,12 +697,49 @@ def test_linter_noqa_with_templating():
       this_is_just_a_very_long_line_for_demonstration_purposes_of_a_bug_involving_templated_sql_files, --noqa: L016
       this_is_not_so_big a, --Inline comment --noqa: L012
       this_is_not_so_big b, /* Block comment */ --noqa: L012
-      this_is_not_so_big c # hash comment --noqa: L012
+      this_is_not_so_big c, # hash comment --noqa: L012
+      this_is_just_a_very_long_line_for_demonstration_purposes_of_a_bug_involving_templated_sql_files, --noqa: L01*
     FROM
       a_table
         """
     result = lntr.lint_string(sql)
     assert not result.get_violations()
+
+
+def test_linter_noqa_prs():
+    """Test "noqa" feature to ignore PRS at the higher "Linter" level."""
+    lntr = Linter(
+        config=FluffConfig(
+            overrides={
+                "exclude_rules": "L050",
+            }
+        )
+    )
+    sql = """
+    SELECT col_a AS a
+    FROM foo;, -- noqa: PRS
+        """
+    result = lntr.lint_string(sql)
+    violations = result.get_violations()
+    assert not violations
+
+
+def test_linter_noqa_tmp():
+    """Test "noqa" feature to ignore TMP at the higher "Linter" level."""
+    lntr = Linter(
+        config=FluffConfig(
+            overrides={
+                "exclude_rules": "L050",
+            }
+        )
+    )
+    sql = """
+    SELECT {{ col_a }} AS a -- noqa: TMP,PRS
+    FROM foo;
+        """
+    result = lntr.lint_string(sql)
+    violations = result.get_violations()
+    assert not violations
 
 
 def test_delayed_exception():
