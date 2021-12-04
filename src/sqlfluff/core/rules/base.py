@@ -19,7 +19,7 @@ import copy
 import fnmatch
 import logging
 import pathlib
-import re
+import regex
 from typing import Optional, List, Set, Tuple, Union, Any
 from collections import namedtuple
 from dataclasses import dataclass
@@ -632,7 +632,7 @@ class RuleSet:
         * Rule_PluginName_L001
         * Rule_L001
         """
-        return re.compile(r"Rule_?([A-Z]{1}[a-zA-Z]+)?_([A-Z][0-9]{3})")
+        return regex.compile(r"Rule_?([A-Z]{1}[a-zA-Z]+)?_([A-Z][0-9]{3})")
 
     def register(self, cls, plugin=None):
         """Decorate a class with this to add it to the ruleset.
@@ -693,7 +693,13 @@ class RuleSet:
         """
         expanded_glob_list = []
         for r in glob_list:
-            expanded_glob_list.extend(fnmatch.filter(self._register, r))
+            expanded_glob_list.extend(
+                [
+                    x
+                    for x in fnmatch.filter(self._register, r)
+                    if x not in expanded_glob_list
+                ]
+            )
 
         return expanded_glob_list
 

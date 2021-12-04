@@ -4,7 +4,7 @@ This is a newer slicing algorithm that handles cases heuristic.py does not.
 """
 
 import logging
-import re
+import regex
 import uuid
 from itertools import chain
 from typing import Callable, cast, Dict, List, NamedTuple, Optional
@@ -44,8 +44,8 @@ class RawSliceInfo(NamedTuple):
 class JinjaTracer:
     """Deduces and records execution path of a Jinja template."""
 
-    re_open_tag = re.compile(r"^\s*({[{%])[\+\-]?\s*")
-    re_close_tag = re.compile(r"\s*[\+\-]?([}%]})\s*$")
+    re_open_tag = regex.compile(r"^\s*({[{%])[\+\-]?\s*")
+    re_close_tag = regex.compile(r"\s*[\+\-]?([}%]})\s*$")
 
     def __init__(
         self, raw_str: str, env: Environment, make_template: Callable[[str], Template]
@@ -73,7 +73,7 @@ class JinjaTracer:
         for p in trace_template_output.split("\0"):
             if not p:
                 continue
-            m_id = re.match(r"^([0-9a-f]+)(_(\d+))?", p)
+            m_id = regex.match(r"^([0-9a-f]+)(_(\d+))?", p)
             if not m_id:
                 raise ValueError(  # pragma: no cover
                     "Internal error. Trace template output does not match expected format."
@@ -303,7 +303,7 @@ class JinjaTracer:
                         set_idx = len(result)
                 elif block_type == "block_end" and set_idx is not None:
                     set_idx = None
-                m = re.search(r"\s+$", raw, re.MULTILINE | re.DOTALL)
+                m = regex.search(r"\s+$", raw, regex.MULTILINE | regex.DOTALL)
                 if raw.startswith("-") and m:
                     # Right whitespace was stripped. Split off the trailing
                     # whitespace into a separate slice. The desired behavior is

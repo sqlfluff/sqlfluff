@@ -3,9 +3,142 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 28a2902164525309f4299b0677bd61178348407fcf9655622cba8d0bd420680e
+_hash: 556f1efa028708f87fae0e0e65fda6e3c882bdb5b03a4bbdf26d52bc407fc9d7
 file:
   batch:
+  - statement:
+      create_table_as_select_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - identifier: '[dbo]'
+        - dot: .
+        - identifier: '[PL_stage]'
+      - table_distribution_index_clause:
+          keyword: WITH
+          bracketed:
+            start_bracket: (
+            table_distribution_clause:
+            - keyword: DISTRIBUTION
+            - comparison_operator: '='
+            - keyword: HASH
+            - bracketed:
+                start_bracket: (
+                column_reference:
+                  identifier: '[ID]'
+                end_bracket: )
+            comma: ','
+            table_index_clause:
+              keyword: HEAP
+            end_bracket: )
+      - keyword: AS
+      - with_compound_statement:
+          keyword: WITH
+          common_table_expression:
+            identifier: CommentsTracking
+            keyword: AS
+            bracketed:
+              start_bracket: (
+              select_statement:
+                select_clause:
+                  keyword: SELECT
+                  select_clause_element:
+                    literal: "'Program'"
+                    alias_expression:
+                      keyword: AS
+                      identifier: Program
+              end_bracket: )
+          select_statement:
+            select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+                column_reference:
+                - identifier: e
+                - dot: .
+                - identifier: '[ID]'
+            - comma: ','
+            - select_clause_element:
+                column_reference:
+                - identifier: e
+                - dot: .
+                - identifier: '[ArriveDate]'
+            - comma: ','
+            - select_clause_element:
+                column_reference:
+                - identifier: e
+                - dot: .
+                - identifier: '[Contribution]'
+            - comma: ','
+            - select_clause_element:
+                column_reference:
+                - identifier: e
+                - dot: .
+                - identifier: '[DischargeDate]'
+            - comma: ','
+            - select_clause_element:
+                column_reference:
+                - identifier: e
+                - dot: .
+                - identifier: '[Encounter]'
+            - comma: ','
+            - select_clause_element:
+                column_reference:
+                - identifier: e
+                - dot: .
+                - identifier: '[Facility]'
+            - comma: ','
+            - select_clause_element:
+                column_reference:
+                - identifier: e
+                - dot: .
+                - identifier: '[Region]'
+            - comma: ','
+            - select_clause_element:
+                column_reference:
+                - identifier: e
+                - dot: .
+                - identifier: '[LOS]'
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                    - identifier: dbo
+                    - dot: .
+                    - identifier: Encounter
+                  alias_expression:
+                    identifier: e
+                join_clause:
+                  keyword: JOIN
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                      - identifier: dbo
+                      - dot: .
+                      - identifier: Finance
+                    alias_expression:
+                      identifier: f
+                  join_on_condition:
+                    keyword: 'ON'
+                    expression:
+                    - column_reference:
+                      - identifier: e
+                      - dot: .
+                      - identifier: '[ID]'
+                    - comparison_operator: '='
+                    - column_reference:
+                      - identifier: f
+                      - dot: .
+                      - identifier: '[ID]'
+  - statement:
+      drop_statement:
+      - keyword: DROP
+      - keyword: TABLE
+      - table_reference:
+        - identifier: '[dbo]'
+        - dot: .
+        - identifier: '[PL_stage]'
   - statement:
       create_table_as_select_statement:
       - keyword: CREATE
