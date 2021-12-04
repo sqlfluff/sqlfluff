@@ -1,0 +1,63 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: d2c61d379d8c39938482d02df983b8690fa6689e21120deb05d50cc4d810664a
+file:
+  batch:
+    statement:
+      delete_statement:
+        keyword: DELETE
+        table_reference:
+        - identifier: dbo
+        - dot: .
+        - identifier: Table2
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - identifier: dbo
+                - dot: .
+                - identifier: Table2
+            join_clause:
+            - keyword: INNER
+            - keyword: JOIN
+            - from_expression_element:
+                table_expression:
+                  table_reference:
+                  - identifier: dbo
+                  - dot: .
+                  - identifier: Table1
+            - join_on_condition:
+                keyword: 'ON'
+                expression:
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                    - column_reference:
+                      - identifier: dbo
+                      - dot: .
+                      - identifier: Table2
+                      - dot: .
+                      - identifier: ColA
+                    - comparison_operator: '='
+                    - column_reference:
+                      - identifier: dbo
+                      - dot: .
+                      - identifier: Table1
+                      - dot: .
+                      - identifier: ColA
+                    end_bracket: )
+        where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+            - identifier: dboTable2
+            - dot: .
+            - identifier: ColA
+            comparison_operator: '='
+            literal: '1'
+        statement_terminator: ;

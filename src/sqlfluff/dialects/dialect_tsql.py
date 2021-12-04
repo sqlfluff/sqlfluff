@@ -385,6 +385,31 @@ class UnorderedSelectStatementSegment(BaseSegment):
 
 
 @tsql_dialect.segment(replace=True)
+class WithCompoundStatementSegment(BaseSegment):
+    """A `SELECT` statement preceded by a selection of `WITH` clauses.
+
+    `WITH tab (col1,col2) AS (SELECT a,b FROM x)`
+
+    Overriding ANSI to remove the greedy matching of StartsWith().
+    """
+
+    type = "with_compound_statement"
+    # match grammar
+    match_grammar = Sequence(
+        "WITH",
+        Ref.keyword("RECURSIVE", optional=True),
+        Delimited(
+            Ref("CTEDefinitionSegment"),
+            terminator=Ref.keyword("SELECT"),
+        ),
+        OneOf(
+            Ref("NonWithSelectableGrammar"),
+            Ref("NonWithNonSelectableGrammar"),
+        ),
+    )
+
+
+@tsql_dialect.segment(replace=True)
 class SelectStatementSegment(BaseSegment):
     """A `SELECT` statement.
 
@@ -2137,8 +2162,9 @@ class FileSegment(BaseFileSegment):
 class DeleteStatementSegment(BaseSegment):
     """A `DELETE` statement.
 
-    DELETE FROM <table name> [ WHERE <search condition> ]
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/delete-transact-sql?view=sql-server-ver15
     Overriding ANSI to remove StartsWith logic which assumes statements have been delimited
+    and to allow for Azure Synapse Analytics-specific DELETE statements
     """
 
     type = "delete_statement"
@@ -2146,6 +2172,7 @@ class DeleteStatementSegment(BaseSegment):
     # definitely a statement, we just don't know what type yet.
     match_grammar = Sequence(
         "DELETE",
+        Ref("TableReferenceSegment", optional=True),  # Azure Synapse Analytics-specific
         Ref("FromClauseSegment"),
         Ref("WhereClauseSegment", optional=True),
         Ref("DelimiterSegment", optional=True),
