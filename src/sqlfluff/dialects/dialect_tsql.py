@@ -2162,8 +2162,9 @@ class FileSegment(BaseFileSegment):
 class DeleteStatementSegment(BaseSegment):
     """A `DELETE` statement.
 
-    DELETE FROM <table name> [ WHERE <search condition> ]
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/delete-transact-sql?view=sql-server-ver15
     Overriding ANSI to remove StartsWith logic which assumes statements have been delimited
+    and to allow for Azure Synapse Analytics-specific DELETE statements
     """
 
     type = "delete_statement"
@@ -2171,6 +2172,7 @@ class DeleteStatementSegment(BaseSegment):
     # definitely a statement, we just don't know what type yet.
     match_grammar = Sequence(
         "DELETE",
+        Ref("TableReferenceSegment", optional=True),  # Azure Synapse Analytics-specific
         Ref("FromClauseSegment"),
         Ref("WhereClauseSegment", optional=True),
         Ref("DelimiterSegment", optional=True),
