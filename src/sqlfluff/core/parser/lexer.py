@@ -2,7 +2,7 @@
 
 import logging
 from typing import Optional, List, Tuple, Union, NamedTuple
-import re
+import regex
 
 from sqlfluff.core.parser.segments import (
     BaseSegment,
@@ -221,8 +221,8 @@ class RegexLexer(StringLexer):
         super().__init__(*args, **kwargs)
         # We might want to configure this at some point, but for now, newlines
         # do get matched by .
-        flags = re.DOTALL
-        self._compiled_regex = re.compile(self.template, flags)
+        flags = regex.DOTALL
+        self._compiled_regex = regex.compile(self.template, flags)
 
     def _match(self, forward_string: str) -> Optional[LexedElement]:
         """Use regexes to match chunks."""

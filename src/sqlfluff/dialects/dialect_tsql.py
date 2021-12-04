@@ -36,6 +36,8 @@ from sqlfluff.dialects.dialect_tsql_keywords import (
     UNRESERVED_KEYWORDS,
 )
 
+from sqlfluff.core.parser.segments.raw import NewlineSegment, WhitespaceSegment
+
 ansi_dialect = load_raw_dialect("ansi")
 tsql_dialect = ansi_dialect.copy_as("tsql")
 
@@ -79,6 +81,25 @@ tsql_dialect.patch_lexer_matchers(
             r"(--)[^\n]*",
             CommentSegment,
             segment_kwargs={"trim_start": ("--")},
+        ),
+        # Patching block comments to account for nested blocks.
+        # N.B. this syntax is only possible via the non-standard-library
+        # (but still backwards compatible) `regex` package.
+        # https://pypi.org/project/regex/
+        RegexLexer(
+            "block_comment",
+            r"/\*(?>[^*/]+|\*[^/]|/[^*])*(?>(?R)(?>[^*/]+|\*[^/]|/[^*])*)*\*/",
+            CommentSegment,
+            subdivider=RegexLexer(
+                "newline",
+                r"\r\n|\n",
+                NewlineSegment,
+            ),
+            trim_post_subdivide=RegexLexer(
+                "whitespace",
+                r"[\t ]+",
+                WhitespaceSegment,
+            ),
         ),
         # Patching to add !<, !>
         RegexLexer("greater_than_or_equal", ">=|!<", CodeSegment),
@@ -360,6 +381,31 @@ class UnorderedSelectStatementSegment(BaseSegment):
         Ref("WhereClauseSegment", optional=True),
         Ref("GroupByClauseSegment", optional=True),
         Ref("HavingClauseSegment", optional=True),
+    )
+
+
+@tsql_dialect.segment(replace=True)
+class WithCompoundStatementSegment(BaseSegment):
+    """A `SELECT` statement preceded by a selection of `WITH` clauses.
+
+    `WITH tab (col1,col2) AS (SELECT a,b FROM x)`
+
+    Overriding ANSI to remove the greedy matching of StartsWith().
+    """
+
+    type = "with_compound_statement"
+    # match grammar
+    match_grammar = Sequence(
+        "WITH",
+        Ref.keyword("RECURSIVE", optional=True),
+        Delimited(
+            Ref("CTEDefinitionSegment"),
+            terminator=Ref.keyword("SELECT"),
+        ),
+        OneOf(
+            Ref("NonWithSelectableGrammar"),
+            Ref("NonWithNonSelectableGrammar"),
+        ),
     )
 
 
@@ -2116,8 +2162,9 @@ class FileSegment(BaseFileSegment):
 class DeleteStatementSegment(BaseSegment):
     """A `DELETE` statement.
 
-    DELETE FROM <table name> [ WHERE <search condition> ]
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/delete-transact-sql?view=sql-server-ver15
     Overriding ANSI to remove StartsWith logic which assumes statements have been delimited
+    and to allow for Azure Synapse Analytics-specific DELETE statements
     """
 
     type = "delete_statement"
@@ -2125,6 +2172,7 @@ class DeleteStatementSegment(BaseSegment):
     # definitely a statement, we just don't know what type yet.
     match_grammar = Sequence(
         "DELETE",
+        Ref("TableReferenceSegment", optional=True),  # Azure Synapse Analytics-specific
         Ref("FromClauseSegment"),
         Ref("WhereClauseSegment", optional=True),
         Ref("DelimiterSegment", optional=True),

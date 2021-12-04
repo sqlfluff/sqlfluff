@@ -1,0 +1,143 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 83109c48c23d6565c4a497d5e965b7b11d58babfdaa8438304d7c696e9b9637f
+file:
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: INSERT
+    - keyword: 'ON'
+    - object_reference:
+        identifier: my_table
+    - comma: ','
+    - object_reference:
+        identifier: my_table2
+    - keyword: TO
+    - object_reference:
+        identifier: public
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: INSERT
+    - keyword: 'ON'
+    - object_reference:
+        identifier: my_table
+    - comma: ','
+    - object_reference:
+        identifier: my_table2
+    - keyword: TO
+    - object_reference:
+        identifier: '"public"'
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: INSERT
+    - comma: ','
+    - keyword: UPDATE
+    - keyword: 'ON'
+    - object_reference:
+        identifier: my_table
+    - comma: ','
+    - object_reference:
+        identifier: my_table2
+    - keyword: TO
+    - object_reference:
+        identifier: public
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: INSERT
+    - comma: ','
+    - keyword: UPDATE
+    - keyword: 'ON'
+    - object_reference:
+        identifier: my_table
+    - comma: ','
+    - object_reference:
+        identifier: my_table2
+    - keyword: TO
+    - object_reference:
+        identifier: '"public"'
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: INSERT
+    - comma: ','
+    - keyword: UPDATE
+    - comma: ','
+    - keyword: DELETE
+    - keyword: 'ON'
+    - object_reference:
+        identifier: my_table
+    - comma: ','
+    - object_reference:
+        identifier: my_table2
+    - keyword: TO
+    - object_reference:
+        identifier: public
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: INSERT
+    - comma: ','
+    - keyword: UPDATE
+    - comma: ','
+    - keyword: DELETE
+    - keyword: 'ON'
+    - object_reference:
+        identifier: my_table
+    - comma: ','
+    - object_reference:
+        identifier: my_table2
+    - keyword: TO
+    - object_reference:
+        identifier: '"public"'
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: INSERT
+    - comma: ','
+    - keyword: UPDATE
+    - comma: ','
+    - keyword: DELETE
+    - comma: ','
+    - keyword: SELECT
+    - keyword: 'ON'
+    - object_reference:
+        identifier: my_table
+    - comma: ','
+    - object_reference:
+        identifier: my_table2
+    - keyword: TO
+    - object_reference:
+        identifier: public
+- statement_terminator: ;
+- statement:
+    access_statement:
+    - keyword: GRANT
+    - keyword: INSERT
+    - comma: ','
+    - keyword: UPDATE
+    - comma: ','
+    - keyword: DELETE
+    - comma: ','
+    - keyword: SELECT
+    - keyword: 'ON'
+    - object_reference:
+        identifier: my_table
+    - comma: ','
+    - object_reference:
+        identifier: my_table2
+    - keyword: TO
+    - object_reference:
+        identifier: '"public"'
+- statement_terminator: ;
