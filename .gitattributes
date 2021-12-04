@@ -8,3 +8,9 @@
 # Isolate binary files in case the auto-detection algorithm fails and
 # marks them as text files (which could brick them).
 *.{png,jpg,jpeg,gif,webp,woff,woff2} binary
+
+# Linguist was excluding our test suite from the repo language statistics
+# and as a result the repo indicated that no SQL is present in the repo.
+# Information on overrides can be found here:
+# https://github.com/github/linguist/blob/master/docs/overrides.md
+test/** linguist-vendored=false

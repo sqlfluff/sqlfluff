@@ -2595,7 +2595,7 @@ class AccessStatementSegment(BaseSegment):
                 ),
                 optional=True,
             ),
-            Ref("ObjectReferenceSegment"),
+            Delimited(Ref("ObjectReferenceSegment"), terminator=OneOf("TO", "FROM")),
             Ref("FunctionParameterListGrammar", optional=True),
         ),
         Sequence("LARGE", "OBJECT", Ref("NumericLiteralSegment")),

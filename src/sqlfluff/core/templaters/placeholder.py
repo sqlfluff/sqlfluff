@@ -1,7 +1,7 @@
 """Defines the placeholder template."""
 
 import logging
-import re
+import regex
 from typing import Dict, Optional, Tuple
 
 
@@ -20,21 +20,27 @@ templater_logger = logging.getLogger("sqlfluff.templater")
 
 KNOWN_STYLES = {
     # e.g. WHERE bla = :name
-    "colon": re.compile(r"(?<![:\w\x5c]):(?P<param_name>\w+)(?!:)", re.UNICODE),
+    "colon": regex.compile(r"(?<![:\w\x5c]):(?P<param_name>\w+)(?!:)", regex.UNICODE),
     # e.g. WHERE bla = :2
-    "numeric_colon": re.compile(r"(?<![:\w\x5c]):(?P<param_name>\d+)", re.UNICODE),
+    "numeric_colon": regex.compile(
+        r"(?<![:\w\x5c]):(?P<param_name>\d+)", regex.UNICODE
+    ),
     # e.g. WHERE bla = %(name)s
-    "pyformat": re.compile(r"(?<![:\w\x5c])%\((?P<param_name>[\w_]+)\)s", re.UNICODE),
+    "pyformat": regex.compile(
+        r"(?<![:\w\x5c])%\((?P<param_name>[\w_]+)\)s", regex.UNICODE
+    ),
     # e.g. WHERE bla = $name
-    "dollar": re.compile(r"(?<![:\w\x5c])\$(?P<param_name>[\w_]+)", re.UNICODE),
+    "dollar": regex.compile(r"(?<![:\w\x5c])\$(?P<param_name>[\w_]+)", regex.UNICODE),
     # e.g. WHERE bla = ?
-    "question_mark": re.compile(r"(?<![:\w\x5c])\?", re.UNICODE),
+    "question_mark": regex.compile(r"(?<![:\w\x5c])\?", regex.UNICODE),
     # e.g. WHERE bla = $3
-    "numeric_dollar": re.compile(r"(?<![:\w\x5c])\$(?P<param_name>[\d]+)", re.UNICODE),
+    "numeric_dollar": regex.compile(
+        r"(?<![:\w\x5c])\$(?P<param_name>[\d]+)", regex.UNICODE
+    ),
     # e.g. WHERE bla = %s
-    "percent": re.compile(r"(?<![:\w\x5c])%s", re.UNICODE),
+    "percent": regex.compile(r"(?<![:\w\x5c])%s", regex.UNICODE),
     # e.g. WHERE bla = &s or WHERE bla = &{s} or USE DATABASE {ENV}_MARKETING
-    "ampersand": re.compile(r"(?<!&)&{?(?P<param_name>[\w]+)}?", re.UNICODE),
+    "ampersand": regex.compile(r"(?<!&)&{?(?P<param_name>[\w]+)}?", regex.UNICODE),
 }
 
 
@@ -80,7 +86,9 @@ class PlaceholderTemplater(RawTemplater):
                 "Either param_style or param_regex must be provided, not both"
             )
         if "param_regex" in live_context:
-            live_context["__bind_param_regex"] = re.compile(live_context["param_regex"])
+            live_context["__bind_param_regex"] = regex.compile(
+                live_context["param_regex"]
+            )
         elif "param_style" in live_context:
             param_style = live_context["param_style"]
             if param_style not in KNOWN_STYLES:
