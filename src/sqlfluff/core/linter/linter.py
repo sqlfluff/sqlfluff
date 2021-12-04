@@ -278,18 +278,19 @@ class Linter:
                         )
                         expanded_rules = []
                         for r in unexpanded_rules:
-                            if r in {"PRS", "LXR", "TMP"}:
-                                # Don't expand special error types.
-                                if r not in expanded_rules:
-                                    expanded_rules.append(r)
-                            else:
-                                expanded_rules.extend(
-                                    [
-                                        x
-                                        for x in fnmatch.filter(rule_codes, r)
-                                        if x not in expanded_rules
-                                    ]
-                                )
+                            expanded_rule = [
+                                x
+                                for x in fnmatch.filter(rule_codes, r)
+                                if x not in expanded_rules
+                            ]
+                            if expanded_rule:
+                                expanded_rules.extend(expanded_rule)
+                            elif r not in expanded_rules:
+                                # We were unable to expand the glob.
+                                # Therefore assume the user is referencing
+                                # a special error type (e.g. PRS, LXR, or TMP)
+                                # and add this to the list of rules to ignore.
+                                expanded_rules.append(r)
                         rules = tuple(expanded_rules)
                     else:
                         rules = None
