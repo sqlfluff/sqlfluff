@@ -4,20 +4,38 @@ test_pass_semi_colon_same_line_default:
   pass_str: |
     SELECT a FROM foo;
 
+test_pass_semi_colon_custom_newline:
+  pass_str: |
+    SELECT a FROM foo;
+  configs:
+    rules:
+      L052:
+        multiline_newline: True
+
 test_fail_semi_colon_same_line_custom_newline:
   fail_str: |
-    SELECT a FROM foo;
+    SELECT a
+    FROM foo;
   fix_str: |
-    SELECT a FROM foo
+    SELECT a
+    FROM foo
     ;
   configs:
     rules:
       L052:
-        semicolon_newline: True
+        multiline_newline: True
 
 test_pass_no_semi_colon_default:
   pass_str: |
     SELECT a FROM foo
+
+test_pass_no_semi_colon_custom_newline:
+  pass_str: |
+    SELECT a FROM foo
+  configs:
+    rules:
+      L052:
+        multiline_newline: True
 
 test_fail_no_semi_colon_custom_require:
   fail_str: |
@@ -29,36 +47,58 @@ test_fail_no_semi_colon_custom_require:
       L052:
         require_final_semicolon: True
 
-test_fail_no_semi_colon_custom_require_newline:
+test_fail_no_semi_colon_custom_require_oneline:
   fail_str: |
     SELECT a FROM foo
   fix_str: |
-    SELECT a FROM foo
+    SELECT a FROM foo;
+  configs:
+    rules:
+      L052:
+        require_final_semicolon: True
+        multiline_newline: True
+
+test_fail_no_semi_colon_custom_require_multiline:
+  fail_str: |
+    SELECT a
+    FROM foo
+  fix_str: |
+    SELECT a
+    FROM foo
     ;
   configs:
     rules:
       L052:
         require_final_semicolon: True
-        semicolon_newline: True
+        multiline_newline: True
 
 test_pass_multi_statement_semi_colon_default:
   pass_str: |
     SELECT a FROM foo;
     SELECT b FROM bar;
 
-test_fail_multi_statement_semi_colon_custom_newline:
-  fail_str: |
+test_pass_multi_statement_semi_colon_custom_oneline:
+  pass_str: |
     SELECT a FROM foo;
     SELECT b FROM bar;
+
+test_fail_multi_statement_semi_colon_custom_multiline:
+  fail_str: |
+    SELECT a
+    FROM foo;
+    SELECT b
+    FROM bar;
   fix_str: |
-    SELECT a FROM foo
+    SELECT a
+    FROM foo
     ;
-    SELECT b FROM bar
+    SELECT b
+    FROM bar
     ;
   configs:
     rules:
       L052:
-        semicolon_newline: True
+        multiline_newline: True
 
 test_pass_multi_statement_no_trailing_semi_colon_default:
   pass_str: |
@@ -77,18 +117,37 @@ test_pass_multi_statement_no_trailing_semi_colon_custom_require:
       L052:
         require_final_semicolon: True
 
-test_fail_multi_statement_no_trailing_semi_colon_custom_require_newline:
+test_fail_multi_statement_no_trailing_semi_colon_custom_require_oneline:
   fail_str: |
     SELECT a FROM foo;
     SELECT b FROM bar
   fix_str: |
-    SELECT a FROM foo
-    ;
-    SELECT b FROM bar
+    SELECT a FROM foo;
+    SELECT b FROM bar;
   configs:
     rules:
       L052:
-        semicolon_newline: True
+        require_final_semicolon: True
+        multiline_newline: True
+
+test_fail_multi_statement_no_trailing_semi_colon_custom_require_multiline:
+  fail_str: |
+    SELECT a
+    FROM foo;
+    SELECT b
+    FROM bar
+  fix_str: |
+    SELECT a
+    FROM foo
+    ;
+    SELECT b
+    FROM bar
+    ;
+  configs:
+    rules:
+      L052:
+        require_final_semicolon: True
+        multiline_newline: True
 
 test_fail_space_semi_colon_default:
   fail_str: |
@@ -105,12 +164,13 @@ test_fail_newline_semi_colon_default:
 
 test_pass_newline_semi_colon_custom_newline:
   pass_str: |
-    SELECT a FROM foo
+    SELECT a
+    FROM foo
     ;
   configs:
     rules:
       L052:
-        semicolon_newline: True
+        multiline_newline: True
 
 test_fail_multi_statement_semi_colon_default:
   fail_str: |
@@ -121,6 +181,27 @@ test_fail_multi_statement_semi_colon_default:
   fix_str: |
     SELECT a FROM foo;
     SELECT b FROM bar;
+
+test_fail_multi_statement_semi_colon_custom_require_multiline:
+  fail_str: |
+    SELECT a
+    FROM foo
+    
+    ;
+    SELECT b
+    FROM bar    ;
+  fix_str: |
+    SELECT a
+    FROM foo
+    ;
+    SELECT b
+    FROM bar
+    ;
+  configs:
+    rules:
+      L052:
+        require_final_semicolon: True
+        multiline_newline: True
 
 test_fail_multiple_newlines_semi_colon_custom_require_newline:
   fail_str: |
@@ -136,7 +217,7 @@ test_fail_multiple_newlines_semi_colon_custom_require_newline:
     rules:
       L052:
         require_final_semicolon: True
-        semicolon_newline: True
+        multiline_newline: True
 
 test_fail_final_semi_colon_same_line_inline_comment:
   fail_str: |
@@ -148,17 +229,30 @@ test_fail_final_semi_colon_same_line_inline_comment:
       L052:
         require_final_semicolon: True
 
-test_fail_final_semi_colon_newline_inline_comment:
+test_fail_final_semi_colon_same_line_inline_comment_custom_oneline:
   fail_str: |
     SELECT a FROM foo -- inline comment
   fix_str: |
-    SELECT a FROM foo -- inline comment
+    SELECT a FROM foo; -- inline comment
+  configs:
+    rules:
+      L052:
+        require_final_semicolon: True
+        multiline_newline: True
+
+test_fail_final_semi_colon_newline_inline_comment_custom_multiline:
+  fail_str: |
+    SELECT a
+    FROM foo -- inline comment
+  fix_str: |
+    SELECT a
+    FROM foo -- inline comment
     ;
   configs:
     rules:
       L052:
         require_final_semicolon: True
-        semicolon_newline: True
+        multiline_newline: True
 
 test_fail_same_line_inline_comment:
   fail_str: |
@@ -169,66 +263,104 @@ test_fail_same_line_inline_comment:
 
 test_fail_same_line_multiple_inline_comment:
   fail_str: |
-    SELECT a FROM foo -- inline comment
+    SELECT a FROM foo -- inline comment #1
 
-    -- inline comment
+    -- inline comment #2
     ;
   fix_str: |
-    SELECT a FROM foo; -- inline comment
+    SELECT a FROM foo; -- inline comment #1
 
-    -- inline comment
+    -- inline comment #2
 
 test_pass_newline_inline_comment:
   pass_str: |
-    SELECT a FROM foo -- inline comment
+    SELECT a
+    FROM foo -- inline comment
     ;
   configs:
     rules:
       L052:
-        semicolon_newline: True
+        multiline_newline: True
 
 test_fail_newline_inline_comment:
   fail_str: |
-    SELECT a FROM foo -- inline comment
+    SELECT a
+    FROM foo -- inline comment
     
     ;
   fix_str: |
-    SELECT a FROM foo -- inline comment
+    SELECT a
+    FROM foo -- inline comment
     ;
   configs:
     rules:
       L052:
-        semicolon_newline: True
+        multiline_newline: True
 
-test_fail_newline_multiple_inline_comments:
+test_fail_newline_multiple_inline_comments_custom_oneline:
   fail_str: |
-    SELECT a FROM foo -- inline comment
+    SELECT a FROM foo -- inline comment #1
     
-    -- inline comment
+    -- inline comment #2
 
     ;
   fix_str: |
-    SELECT a FROM foo -- inline comment
-    ;
+    SELECT a FROM foo; -- inline comment #1
 
-    -- inline comment
+    -- inline comment #2
   configs:
     rules:
       L052:
-        semicolon_newline: True
+        multiline_newline: True
+
+test_fail_newline_multiple_inline_comments_custom_multiline:
+  fail_str: |
+    SELECT a
+    FROM foo -- inline comment #1
+    
+    -- inline comment #2
+
+    ;
+  fix_str: |
+    SELECT a
+    FROM foo -- inline comment #1
+    ;
+
+    -- inline comment #2
+  configs:
+    rules:
+      L052:
+        multiline_newline: True
 
 test_fail_newline_trailing_inline_comment:
   fail_str: |
-    SELECT a FROM foo ; -- inline comment
+    SELECT a
+    FROM foo ; -- inline comment
   fix_str: |
-    SELECT a FROM foo -- inline comment
+    SELECT a
+    FROM foo -- inline comment
     ;
   configs:
     rules:
       L052:
-        semicolon_newline: True
+        multiline_newline: True
 
-test_fail_newline_preceding_block_comment:
+test_fail_newline_preceding_block_comment_custom_oneline:
+  fail_str: |
+    SELECT foo FROM bar /* multiline
+    comment
+    */
+    ;
+  fix_str: |
+    SELECT foo FROM bar; /* multiline
+    comment
+    */
+  configs:
+    rules:
+      L052:
+        multiline_newline: True
+
+test_fail_newline_preceding_block_comment_custom_multiline:
   fail_str: |
     SELECT foo
     FROM bar /* multiline
@@ -244,7 +376,7 @@ test_fail_newline_preceding_block_comment:
   configs:
     rules:
       L052:
-        semicolon_newline: True
+        multiline_newline: True
 
 test_fail_newline_trailing_block_comment:
   fail_str: |
@@ -261,7 +393,7 @@ test_fail_newline_trailing_block_comment:
   configs:
     rules:
       L052:
-        semicolon_newline: True
+        multiline_newline: True
 
 test_fail_newline_block_comment_semi_colon_before:
   fail_str: |
@@ -280,7 +412,7 @@ test_fail_newline_block_comment_semi_colon_before:
   configs:
     rules:
       L052:
-        semicolon_newline: True
+        multiline_newline: True
 
 test_fail_newline_block_comment_semi_colon_after:
   fail_str: |
@@ -300,4 +432,4 @@ test_fail_newline_block_comment_semi_colon_after:
   configs:
     rules:
       L052:
-        semicolon_newline: True
+        multiline_newline: True
