@@ -110,6 +110,13 @@ postgres_dialect.insert_lexer_matchers(
 
 postgres_dialect.patch_lexer_matchers(
     [
+        # Patching comments to remove hash comments
+        RegexLexer(
+            "inline_comment",
+            r"(--)[^\n]*",
+            CommentSegment,
+            segment_kwargs={"trim_start": ("--")},
+        ),
         # In Postgres, the only escape character is ' for single quote strings
         RegexLexer(
             "single_quote", r"(?s)('')+?(?!')|('.*?(?<!')(?:'')*'(?!'))", CodeSegment

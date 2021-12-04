@@ -1,0 +1,130 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: d232c01fa9b2c94cdffc024b479f2bdee2b5e0f3ef027aae1438d53b8f0264b7
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: COALESCE
+            bracketed:
+            - start_bracket: (
+            - expression:
+                column_reference:
+                  identifier: doc
+                binary_operator: '#>>'
+                literal: "'{fields}'"
+            - comma: ','
+            - expression:
+                literal: "''"
+            - end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: field
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: mytable
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+            identifier: doc
+        - binary_operator: ->>
+        - literal: "'some_field'"
+        - comparison_operator: '='
+        - literal: "'some_value'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - literal: "'[{\"a\":\"foo\"},{\"b\":\"bar\"},{\"c\":\"baz\"}]'"
+          - cast_expression:
+              casting_operator: '::'
+              data_type:
+                data_type_identifier: json
+          - binary_operator: ->
+          - literal: '2'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - literal: "'{\"a\": {\"b\":\"foo\"}}'"
+          - cast_expression:
+              casting_operator: '::'
+              data_type:
+                data_type_identifier: json
+          - binary_operator: ->
+          - literal: "'a'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - literal: "'[1,2,3]'"
+          - cast_expression:
+              casting_operator: '::'
+              data_type:
+                data_type_identifier: json
+          - binary_operator: ->>
+          - literal: '2'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - literal: "'{\"a\":1,\"b\":2}'"
+          - cast_expression:
+              casting_operator: '::'
+              data_type:
+                data_type_identifier: json
+          - binary_operator: ->>
+          - literal: "'b'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - literal: "'{\"a\": {\"b\":{\"c\": \"foo\"}}}'"
+          - cast_expression:
+              casting_operator: '::'
+              data_type:
+                data_type_identifier: json
+          - binary_operator: '#>'
+          - literal: "'{a,b}'"
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+          - literal: "'{\"a\":[1,2,3],\"b\":[4,5,6]}'"
+          - cast_expression:
+              casting_operator: '::'
+              data_type:
+                data_type_identifier: json
+          - binary_operator: '#>>'
+          - literal: "'{a,2}'"
+- statement_terminator: ;
