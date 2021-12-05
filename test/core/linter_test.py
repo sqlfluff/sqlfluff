@@ -742,6 +742,43 @@ def test_linter_noqa_tmp():
     assert not violations
 
 
+def test_linter_noqa_disable():
+    """Test "noqa" comments can be disabled via the config."""
+    lntr_noqa_enabled = Linter(
+        config=FluffConfig(
+            overrides={
+                "rules": "L012",
+            }
+        )
+    )
+    lntr_noqa_disabled = Linter(
+        config=FluffConfig(
+            overrides={
+                "disable_noqa": True,
+                "rules": "L012",
+            }
+        )
+    )
+    # This query raises L012, but it is being suppressed by the inline noqa comment.
+    # We can ignore this comment by setting disable_noqa = True in the config
+    # or by using the --disable-noqa flag in the CLI.
+    sql = """
+    SELECT col_a a --noqa: L012
+    FROM foo
+    """
+
+    # Verify that noqa works as expected with disable_noqa = False (default).
+    result_noqa_enabled = lntr_noqa_enabled.lint_string(sql)
+    violations_noqa_enabled = result_noqa_enabled.get_violations()
+    assert len(violations_noqa_enabled) == 0
+
+    # Verify that noqa comment is ignored with disable_noqa = True.
+    result_noqa_disabled = lntr_noqa_disabled.lint_string(sql)
+    violations_noqa_disabled = result_noqa_disabled.get_violations()
+    assert len(violations_noqa_disabled) == 1
+    assert violations_noqa_disabled[0].rule.code == "L012"
+
+
 def test_delayed_exception():
     """Test that DelayedException stores and reraises a stored exception."""
     ve = ValueError()
