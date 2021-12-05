@@ -1,25 +1,24 @@
 """Defines the templaters."""
-
-import os.path
 import logging
-import importlib.util
-from typing import Callable, Dict, List, Tuple, Optional
+import os.path
+import pkgutil
+from functools import reduce
+from typing import Callable, Dict, List, Optional, Tuple
 
-from jinja2 import Environment
+import jinja2.nodes
+from jinja2 import Environment, TemplateError, TemplateSyntaxError, meta
 from jinja2.environment import Template
 from jinja2.sandbox import SandboxedEnvironment
-from jinja2 import meta, TemplateSyntaxError, TemplateError
-import jinja2.nodes
 
 from sqlfluff.core.errors import SQLTemplaterError
-
 from sqlfluff.core.templaters.base import (
-    TemplatedFile,
     RawFileSlice,
+    TemplatedFile,
     TemplatedFileSlice,
 )
 from sqlfluff.core.templaters.python import PythonTemplater
 from sqlfluff.core.templaters.slicers.tracer import JinjaTracer
+
 
 # Instantiate the templater logger
 templater_logger = logging.getLogger("sqlfluff.templater")
@@ -32,6 +31,11 @@ class JinjaTemplater(PythonTemplater):
     """
 
     name = "jinja"
+
+    class Libraries:
+        """Mock namespace for user-defined Jinja library."""
+
+        pass
 
     @staticmethod
     def _extract_macros_from_template(template, env, ctx):
@@ -106,19 +110,45 @@ class JinjaTemplater(PythonTemplater):
         if not library_path:
             return {}
 
-        libraries = {}
-        for file_name in os.listdir(library_path):
-            file_path = os.path.join(library_path, file_name)
-            if not os.path.isfile(file_path) or not file_name.endswith(".py"):
+        libraries = JinjaTemplater.Libraries()
+
+        # If library_path hash __init__.py we parse it as a one module, else we parse it a set of modules
+        is_library_module = os.path.exists(os.path.join(library_path, "__init__.py"))
+        library_module_name = os.path.basename(library_path)
+
+        # Need to go one level up to parse as a module correctly
+        walk_path = (
+            os.path.join(library_path, "..") if is_library_module else library_path
+        )
+
+        for loader, module_name, is_pkg in pkgutil.walk_packages([walk_path]):
+            # skip other modules that can be near module_dir
+            if is_library_module and not module_name.startswith(library_module_name):
                 continue
 
-            module_name = os.path.splitext(file_name)[0]
-            spec = importlib.util.spec_from_file_location(module_name, file_path)
-            lib = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(lib)
-            libraries[module_name] = lib
+            module = loader.find_module(module_name).load_module(module_name)
 
-        return libraries
+            if "." in module_name:  # nested modules have `.` in module_name
+                *module_path, last_module_name = module_name.split(".")
+                # find parent module recursively
+                parent_module = reduce(
+                    lambda res, path_part: getattr(res, path_part),
+                    module_path,
+                    libraries,
+                )
+
+                # set attribute on module object to make jinja working correctly
+                setattr(parent_module, last_module_name, module)
+            else:
+                # set attr on `libraries` obj to make it work in jinja nicely
+                setattr(libraries, module_name, module)
+
+        if is_library_module:
+            # when library is module we have one more root module in hierarchy and we remove it
+            libraries = getattr(libraries, library_module_name)
+
+        # remove magic methods from result
+        return {k: v for k, v in libraries.__dict__.items() if not k.startswith("__")}
 
     @staticmethod
     def _generate_dbt_builtins():
