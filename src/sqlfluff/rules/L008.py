@@ -48,14 +48,15 @@ class Rule_L008(BaseRule):
         subsequent_whitespace = None
         # Get all raw segments and find position of the current comma within the list.
         file_segment = context.parent_stack[0]
+        raw_segments = file_segment.get_raw_segments()
         # Raw stack is appropriate as the only segments we can care about are
         # comma, whitespace, newline, and comment, which are all raw.
         # Using the raw_segments allows us to account for possible unexpected
         # parse tree structures resulting from other rule fixes.
-        next_raw_index = file_segment.raw_segments.index(context.segment) + 1
+        next_raw_index = raw_segments.index(context.segment) + 1
         # Iterate forwards over raw segments to find both the whitespace segment and
         # the first non-whitespace segment.
-        for s in file_segment.raw_segments[next_raw_index:]:
+        for s in raw_segments[next_raw_index:]:
             if s.is_meta:
                 continue
             elif s.is_type("whitespace"):
