@@ -374,8 +374,8 @@ to use them for templated. In the above example, you might define a file at
         return "GROUP BY 1,2"
 
 
-If __init__.py is detected in the library path, modules are loaded including any
-submodules, else individual .py modules are loaded.
+If __init__.py is detected in the library path, modules are loaded including
+any submodules, else individual .py modules are loaded.
 
 .. code-block:: jinja
 
