@@ -14,7 +14,7 @@ from sqlfluff.core.errors import SQLTemplaterError
 from sqlfluff.core.templaters.base import (
     RawFileSlice,
     TemplatedFile,
-    TemplatedFileSlice
+    TemplatedFileSlice,
 )
 from sqlfluff.core.templaters.python import PythonTemplater
 from sqlfluff.core.templaters.slicers.tracer import JinjaTracer
@@ -153,7 +153,6 @@ class JinjaTemplater(PythonTemplater):
     @staticmethod
     def _generate_dbt_builtins():
         """Generate the dbt builtins which are injected in the context."""
-
         # This feels a bit wrong defining these here, they should probably
         # be configurable somewhere sensible. But for now they're not.
         # TODO: Come up with a better solution.

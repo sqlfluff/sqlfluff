@@ -374,12 +374,16 @@ to use them for templated. In the above example, you might define a file at
         return "GROUP BY 1,2"
 
 
-If __init__.py is detected in the library path, modules are loaded including
-any submodules, else individual .py modules are loaded.
+If an `__init__.py` is detected, it will be loaded alongside any modules and
+submodules found within the library path.
 
 .. code-block:: jinja
 
-    SELECT {{ custom_sum('foo', 'bar') }}, {{ foo.bar.another_sum('foo', 'bar') }} FROM baz
+   SELECT
+      {{ custom_sum('foo', 'bar') }},
+      {{ foo.bar.another_sum('foo', 'bar') }}
+   FROM
+      baz
 
 `sqlfluff_libs/__init__.py`:
 
