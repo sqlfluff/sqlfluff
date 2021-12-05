@@ -135,3 +135,9 @@ def test__parser__base_segments_file(raw_seg_list):
     assert base_seg.file_path == "/some/dir/file.sql"
     assert base_seg.can_start_end_non_code
     assert base_seg.allow_empty
+
+
+def test__parser__raw_get_raw_segments(raw_seg_list):
+    """Test niche case of calling get_raw_segments on a raw segment."""
+    for s in raw_seg_list:
+        assert s.get_raw_segments() == [s]
