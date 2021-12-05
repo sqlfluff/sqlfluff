@@ -69,9 +69,9 @@ class Rule_L008(BaseRule):
 
         # If we find ourselves here it's all
         # whitespace (or nothing) to the end of the file.
-        # Only really occurs in weird parsing situations
-        # e.g. test_linter_noqa_prs
-        return subsequent_whitespace, None
+        # Shouldn't be possible to have a comma at the end of a file
+        # but we handle for completeness.
+        return subsequent_whitespace, None  # pragma: no cover
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Commas should be followed by a single whitespace unless followed by a comment."""
