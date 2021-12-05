@@ -374,6 +374,37 @@ to use them for templated. In the above example, you might define a file at
         return "GROUP BY 1,2"
 
 
+If an `__init__.py` is detected, it will be loaded alongside any modules and
+submodules found within the library path.
+
+.. code-block:: jinja
+
+   SELECT
+      {{ custom_sum('foo', 'bar') }},
+      {{ foo.bar.another_sum('foo', 'bar') }}
+   FROM
+      baz
+
+`sqlfluff_libs/__init__.py`:
+
+.. code-block:: python
+
+    def custom_sum(a: str, b: str) -> str:
+        return a + b
+
+`sqlfluff_libs/foo/__init__.py`:
+
+.. code-block:: python
+
+    # empty file
+
+`sqlfluff_libs/foo/bar.py`:
+
+.. code-block:: python
+
+     def another_sum(a: str, b: str) -> str:
+        return a + b
+
 dbt Project Configuration
 -------------------------
 
