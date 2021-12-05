@@ -55,6 +55,11 @@ tsql_dialect.insert_lexer_matchers(
             CodeSegment,
         ),
         RegexLexer(
+            "var_prefix",
+            r"[$][a-zA-Z0-9_]+",
+            CodeSegment,
+        ),
+        RegexLexer(
             "square_quote",
             r"\[([^\[\]]*)*\]",
             CodeSegment,
@@ -116,6 +121,9 @@ tsql_dialect.add(
     ),
     HashIdentifierSegment=NamedParser(
         "hash_prefix", CodeSegment, name="hash_identifier", type="identifier"
+    ),
+    VariableIdentifierSegment=NamedParser(
+        "var_prefix", CodeSegment, name="variable_identifier", type="identifier"
     ),
     BatchDelimiterSegment=Ref("GoStatementSegment"),
     QuotedLiteralSegmentWithN=NamedParser(
@@ -181,6 +189,7 @@ tsql_dialect.replace(
         Ref("BracketedIdentifierSegment"),
         Ref("HashIdentifierSegment"),
         Ref("ParameterNameSegment"),
+        Ref("VariableIdentifierSegment"),
     ),
     LiteralGrammar=OneOf(
         Ref("QuotedLiteralSegment"),
@@ -406,6 +415,7 @@ class WithCompoundStatementSegment(BaseSegment):
         OneOf(
             Ref("NonWithSelectableGrammar"),
             Ref("NonWithNonSelectableGrammar"),
+            Ref("MergeStatementSegment"),
         ),
     )
 
@@ -2749,13 +2759,24 @@ class MergeStatementSegment(BaseSegment):
                 Ref("TableReferenceSegment"),
                 Ref("PostTableExpressionGrammar", optional=True),
                 Ref("AliasExpressionSegment", optional=True),
-            )
+            ),
         ),
         Dedent,
         "USING",
         Indent,
-        Ref("TableReferenceSegment"),  # tables/views
-        Ref("AliasExpressionSegment", optional=True),
+        OneOf(
+            Sequence(
+                Ref("TableReferenceSegment"),
+                Ref("AliasExpressionSegment", optional=True),
+            ),
+            Sequence(
+                OptionallyBracketed(
+                    Ref("UnorderedSelectStatementSegment"),
+                ),
+                Ref("AliasExpressionSegment", optional=True),
+                Ref("BracketedColumnReferenceListGrammar", optional=True),
+            ),
+        ),
         Dedent,
         Ref("JoinOnConditionSegment"),
         AnyNumberOf(
@@ -2764,6 +2785,7 @@ class MergeStatementSegment(BaseSegment):
         ),
         Ref("OutputClauseSegment", optional=True),
         Ref("OptionClauseSegment", optional=True),
+        AnyNumberOf(Ref("DelimiterSegment"), optional=True),
     )
 
 
@@ -2776,7 +2798,11 @@ class MergeMatchedClauseSegment(BaseSegment):
     match_grammar = Sequence(
         "WHEN",
         "MATCHED",
-        Ref("ExpressionSegment", optional=True),
+        Sequence(
+            "AND",
+            Ref("ExpressionSegment"),
+            optional=True,
+        ),
         Indent,
         "THEN",
         OneOf(
@@ -2799,7 +2825,7 @@ class MergeNotMatchedClauseSegment(BaseSegment):
             "NOT",
             "MATCHED",
             Sequence("BY", "TARGET", optional=True),
-            Ref("ExpressionSegment", optional=True),
+            Sequence("AND", Ref("ExpressionSegment"), optional=True),
             Indent,
             "THEN",
             Ref("MergeInsertClauseSegment"),
@@ -2811,7 +2837,7 @@ class MergeNotMatchedClauseSegment(BaseSegment):
             "MATCHED",
             "BY",
             "SOURCE",
-            Ref("ExpressionSegment", optional=True),
+            Sequence("AND", Ref("ExpressionSegment"), optional=True),
             Indent,
             "THEN",
             OneOf(
@@ -2892,6 +2918,7 @@ class OutputClauseSegment(BaseSegment):
                         Ref("BaseExpressionElementGrammar"),
                         Ref("AliasExpressionSegment", optional=True),
                     ),
+                    Ref("SingleIdentifierGrammar"),  # need to add parsing for $action here
                 ),
             ),
             Dedent,
