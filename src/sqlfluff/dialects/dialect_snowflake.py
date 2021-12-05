@@ -112,11 +112,12 @@ snowflake_dialect.add(
     ),
     # We use a RegexParser instead of keywords as some (those with dashes) require quotes:
     WarehouseSize=RegexParser(
-        r"(XSMALL|SMALL|MEDIUM|LARGE|XLARGE|XXLARGE|X2LARGE|XXXLARGE|X3LARGE|X4LARGE|X5LARGE|X6LARGE|"
+        r"('?XSMALL'?|'?SMALL'?|'?MEDIUM'?|'?LARGE'?|'?XLARGE'?|'?XXLARGE'?|'?X2LARGE'?|"
+        r"'?XXXLARGE'?|'?X3LARGE'?|'?X4LARGE'?|'?X5LARGE|'?X6LARGE'?|"
         r"'X-SMALL'|'X-LARGE'|'2X-LARGE'|'3X-LARGE'|'4X-LARGE'|'5X-LARGE'|'6X-LARGE')",
         CodeSegment,
         name="warehouse_size",
-        type="identifier",
+        type="warehouse_size",
     ),
     DoubleQuotedLiteralSegment=NamedParser(
         "double_quote",
@@ -1653,55 +1654,52 @@ class CreateTaskSegment(BaseSegment):
         Sequence("IF", "NOT", "EXISTS", optional=True),
         Ref("ObjectReferenceSegment"),
         Indent,
-        Sequence(
-            "WAREHOUSE",
-            Ref("EqualsSegment"),
-            Ref("ObjectReferenceSegment"),
-            optional=True,
-        ),
-        Sequence(
-            "SCHEDULE",
-            Ref("EqualsSegment"),
-            Ref("QuotedLiteralSegment"),
-            optional=True,
-        ),
-        Sequence(
-            "ALLOW_OVERLAPPING_EXECUTION",
-            Ref("EqualsSegment"),
-            Ref("BooleanLiteralGrammar"),
-            optional=True,
-        ),
-        Delimited(
-            Sequence(
-                Ref("ParameterNameSegment"),
-                Ref("EqualsSegment"),
-                OneOf(
-                    Ref("BooleanLiteralGrammar"),
-                    Ref("QuotedLiteralSegment"),
-                    Ref("NumericLiteralSegment"),
+        AnyNumberOf(
+            OneOf(
+                Sequence(
+                    "WAREHOUSE",
+                    Ref("EqualsSegment"),
+                    Ref("ObjectReferenceSegment"),
+                ),
+                Sequence(
+                    "USER_TASK_MANAGED_INITIAL_WAREHOUSE_SIZE",
+                    Ref("EqualsSegment"),
+                    Ref("WarehouseSize"),
                 ),
             ),
-            delimiter=Ref("CommaSegment"),
-            optional=True,
+            Sequence(
+                "SCHEDULE",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
+            Sequence(
+                "ALLOW_OVERLAPPING_EXECUTION",
+                Ref("EqualsSegment"),
+                Ref("BooleanLiteralGrammar"),
+            ),
+            Delimited(
+                Sequence(
+                    Ref("ParameterNameSegment"),
+                    Ref("EqualsSegment"),
+                    OneOf(
+                        Ref("BooleanLiteralGrammar"),
+                        Ref("QuotedLiteralSegment"),
+                        Ref("NumericLiteralSegment"),
+                    ),
+                ),
+                delimiter=Ref("CommaSegment"),
+            ),
+            Sequence(
+                "USER_TASK_TIMEOUT_MS",
+                Ref("EqualsSegment"),
+                Ref("NumericLiteralSegment"),
+            ),
+            Sequence(
+                "COPY",
+                "GRANTS",
+            ),
+            Ref("CreateStatementCommentSegment"),
         ),
-        Sequence(
-            "USER_TASK_TIMEOUT_MS",
-            Ref("EqualsSegment"),
-            Ref("NumericLiteralSegment"),
-            optional=True,
-        ),
-        Sequence(
-            "USER_TASK_MANAGED_INITIAL_WAREHOUSE_SIZE",
-            Ref("EqualsSegment"),
-            Ref("QuotedLiteralSegment"),
-            optional=True,
-        ),
-        Sequence(
-            "COPY",
-            "GRANTS",
-            optional=True,
-        ),
-        Ref("CreateStatementCommentSegment", optional=True),
         Sequence(
             "AFTER",
             Ref("ObjectReferenceSegment"),
