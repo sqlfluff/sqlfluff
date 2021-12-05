@@ -3,13 +3,14 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ecfb4efbfe87fb634c571f328fa2324ab7de5c78f81c0cf38a353de93b7f1ec5
+_hash: b89a787f3df1badc8f46432acc28fbe4e1550a3e1a28a8be058344ffd9f33878
 file:
 - statement:
     declare_segment:
     - keyword: declare
     - identifier: var5
-    - data_type_identifier: date
+    - data_type:
+        data_type_identifier: date
     - keyword: default
     - function:
         function_name:
@@ -22,7 +23,8 @@ file:
     declare_segment:
     - keyword: declare
     - identifier: var4
-    - data_type_identifier: int64
+    - data_type:
+        data_type_identifier: int64
     - keyword: default
     - literal: '1'
 - statement_terminator: ;
@@ -30,7 +32,8 @@ file:
     declare_segment:
     - keyword: declare
     - identifier: var3
-    - data_type_identifier: string
+    - data_type:
+        data_type_identifier: string
     - keyword: default
     - bracketed:
         start_bracket: (
