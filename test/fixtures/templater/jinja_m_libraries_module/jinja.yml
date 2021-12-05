@@ -17,7 +17,12 @@ file:
       where_clause:
         keyword: WHERE
         expression:
-          column_reference:
-            identifier: x
-          comparison_operator: '='
-          literal: '23'
+          - column_reference:
+              identifier: x
+          - comparison_operator: '='
+          - literal: '23'
+          - binary_operator: and
+          - column_reference:
+              identifier: y
+          - comparison_operator: '='
+          - literal: '42'
