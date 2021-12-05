@@ -8,6 +8,7 @@ https://cloud.google.com/bigquery/docs/reference/standard-sql/lexical#string_and
 
 import itertools
 
+from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     Anything,
     BaseSegment,
@@ -33,13 +34,7 @@ from sqlfluff.core.parser import (
     Matchable,
 )
 from sqlfluff.core.parser.segments.base import BracketedSegment
-
-from sqlfluff.core.dialects import load_raw_dialect
-
-from sqlfluff.dialects.dialect_bigquery_keywords import (
-    bigquery_reserved_keywords,
-    bigquery_unreserved_keywords,
-)
+from sqlfluff.dialects.dialect_bigquery_keywords import bigquery_reserved_keywords, bigquery_unreserved_keywords
 
 ansi_dialect = load_raw_dialect("ansi")
 bigquery_dialect = ansi_dialect.copy_as("bigquery")
