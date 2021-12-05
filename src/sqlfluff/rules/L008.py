@@ -40,47 +40,37 @@ class Rule_L008(BaseRule):
         self,
         context,
     ) -> Tuple[Optional[BaseSegment], Optional[BaseSegment]]:
-        """Search forwards through the tree for subsequent whitespace.
+        """Search forwards through the raw segments for subsequent whitespace.
 
-        We navigate the parse tree to discover any trailing whitespace and
-        return a tuple of both the trailing whitespace segment and the
+        Return a tuple of both the trailing whitespace segment and the
         first non-whitespace segment discovered.
         """
-        # In this algorithm we traverse backwards up the parent stack looking
-        # at the siblings_post at each level to determine if the next segment
-        # is a whitespace and what the first non-whitespace segment is.
         subsequent_whitespace = None
-        child = context.segment
-        for parent in context.parent_stack[::-1]:
-            next_child_index = parent.segments.index(child) + 1
-            if next_child_index == len(parent.segments):
-                # We are at the end of the current parents children.
-                # Continue up the parent stack.
-                child = parent
+        # Get all raw segments and find position of the current comma within the list.
+        file_segment = context.parent_stack[0]
+        # Raw stack is appropriate as the only segments we can care about are
+        # comma, whitespace, newline, and comment, which are all raw.
+        # Using the raw_segments allows us to account for possible unexpected
+        # parse tree structures resulting from other rule fixes.
+        next_raw_index = file_segment.raw_segments.index(context.segment) + 1
+        # Iterate forwards over raw segments to find both the whitespace segment and
+        # the first non-whitespace segment.
+        for s in file_segment.raw_segments[next_raw_index:]:
+            if s.is_meta:
                 continue
-            # Similar to iterating over context.siblings_post
-            # but applied at each level up the parent stack.
-            for s in parent.segments[next_child_index:]:
-                if s.is_meta:
-                    continue
-                elif s.is_type("whitespace"):
-                    # Capture the whitespace segment.
-                    subsequent_whitespace = s
-                else:
-                    # We've found a non-whitespace (and non-meta) segment.
-                    # Therefore return the stored whitespace segment
-                    # and this segment for analysis.
-                    return subsequent_whitespace, s
-            # Current parent becomes the current child
-            # of the next parent stack level.
-            child = parent
+            elif s.is_type("whitespace"):
+                # Capture the whitespace segment.
+                subsequent_whitespace = s
+            else:
+                # We've found a non-whitespace (and non-meta) segment.
+                # Therefore return the stored whitespace segment
+                # and this segment for analysis.
+                return subsequent_whitespace, s
 
         # If we find ourselves here it's all
         # whitespace (or nothing) to the end of the file.
-        # Don't think there's any grammar that allows
-        # a comma as the last character in a file so
-        # this should never get triggered,
-        # but we handle just in case.
+        # Only really occurs in weird parsing situations
+        # e.g. test_linter_noqa_prs
         return subsequent_whitespace, None
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
