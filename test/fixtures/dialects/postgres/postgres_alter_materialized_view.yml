@@ -1,0 +1,55 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 381496e1a8a5f61b529f299a7051f97cb591d64ddfedda7168cb892690e99d98
+file:
+- statement:
+    alter_materialized_view_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        identifier: bar
+    - keyword: RENAME
+    - keyword: TO
+    - table_reference:
+        identifier: baz
+- statement_terminator: ;
+- statement:
+    alter_materialized_view_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        identifier: bar
+    - keyword: RENAME
+    - keyword: TO
+    - table_reference:
+        identifier: baz
+- statement_terminator: ;
+- statement:
+    alter_materialized_view_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        identifier: bar
+    - keyword: OWNER
+    - keyword: TO
+    - parameter: baz_role
+- statement_terminator: ;
+- statement:
+    alter_materialized_view_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        identifier: bar
+    - keyword: OWNER
+    - keyword: TO
+    - identifier: '"baz-role"'
+- statement_terminator: ;

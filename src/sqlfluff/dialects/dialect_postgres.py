@@ -1336,6 +1336,106 @@ class AlterTableActionSegment(BaseSegment):
 
 
 @postgres_dialect.segment()
+class CreateMaterializedViewStatementSegment(BaseSegment):
+    """A `CREATE MATERIALIZED VIEW` statement.
+
+    As specified in https://www.postgresql.org/docs/13/sql-creatematerializedview.html
+    """
+
+    type = "create_materialized_view_statement"
+
+    match_grammar = StartsWith(Sequence("CREATE", "MATERIALIZED", "VIEW"))
+
+    parse_grammar = Sequence(
+        "CREATE",
+        "MATERIALIZED",
+        "VIEW",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        Ref("BracketedColumnReferenceListGrammar", optional=True),
+        AnyNumberOf(
+            Sequence("USING", Ref("ParameterNameSegment"), optional=True),
+            Sequence("TABLESPACE", Ref("ParameterNameSegment"), optional=True),
+            Sequence(
+                "WITH",
+                Bracketed(
+                    Delimited(
+                        Sequence(
+                            Ref("ParameterNameSegment"),
+                            Ref("EqualsSegment"),
+                            Ref("LiteralGrammar"),
+                            optional=True,
+                        ),
+                        delimiter=Ref("CommaSegment"),
+                    )
+                ),
+            ),
+        ),
+        "AS",
+        OneOf(
+            OptionallyBracketed(Ref("SelectableGrammar")),
+            OptionallyBracketed(Sequence("TABLE", Ref("TableReferenceSegment"))),
+            Ref("ValuesClauseSegment"),
+            OptionallyBracketed(Sequence("EXECUTE", Ref("FunctionSegment"))),
+        ),
+        Sequence("WITH", Ref.keyword("NO", optional=True), "DATA", optional=True),
+    )
+
+
+@postgres_dialect.segment()
+class AlterMaterializedViewStatementSegment(BaseSegment):
+    """A `ALTER MATERIALIZED VIEW` statement.
+
+    As specified in https://www.postgresql.org/docs/13/sql-altermaterializedview.html
+    """
+
+    type = "alter_materialized_view_statement"
+
+    match_grammar = StartsWith(Sequence("ALTER", "MATERIALIZED", "VIEW"))
+
+    parse_grammar = Sequence(
+        "ALTER",
+        "MATERIALIZED",
+        "VIEW",
+        Sequence("IF", "EXISTS", optional=True),
+        Ref("TableReferenceSegment"),
+        OneOf(
+            Sequence("RENAME", "TO", Ref("TableReferenceSegment")),
+            Sequence(
+                "OWNER",
+                "TO",
+                OneOf(
+                    OneOf(Ref("ParameterNameSegment"), Ref("QuotedIdentifierSegment")),
+                    "CURRENT_USER",
+                    "SESSION_USER",
+                ),
+            ),
+        ),
+    )
+
+
+@postgres_dialect.segment()
+class DropMaterializedViewStatementSegment(BaseSegment):
+    """A `DROP MATERIALIZED VIEW` statement.
+
+    As specified in https://www.postgresql.org/docs/13/sql-dropmaterializedview.html
+    """
+
+    type = "drop_materialized_view_statement"
+
+    match_grammar = StartsWith(Sequence("DROP", "MATERIALIZED", "VIEW"))
+
+    parse_grammar = Sequence(
+        "DROP",
+        "MATERIALIZED",
+        "VIEW",
+        Sequence("IF", "EXISTS", optional=True),
+        Ref("TableReferenceSegment"),
+        OneOf("CASCADE", "RESTRICT", optional=True),
+    )
+
+
+@postgres_dialect.segment()
 class LikeOptionSegment(BaseSegment):
     """Like Option Segment.
 
@@ -2190,6 +2290,9 @@ class StatementSegment(BaseSegment):
             Ref("DropFunctionStatementSegment"),
             Ref("CreatePolicyStatementSegment"),
             Ref("DropPolicyStatementSegment"),
+            Ref("CreateMaterializedViewStatementSegment"),
+            Ref("AlterMaterializedViewStatementSegment"),
+            Ref("DropMaterializedViewStatementSegment"),
         ],
     )
 
