@@ -766,7 +766,7 @@ class DeclareStatementSegment(BaseSegment):
     parse_grammar = Sequence(
         "DECLARE",
         Delimited(Ref("NakedIdentifierSegment")),
-        Ref("DatatypeIdentifierSegment"),
+        Ref("DatatypeSegment"),
         Sequence(
             "DEFAULT",
             OneOf(
@@ -813,6 +813,7 @@ class SetStatementSegment(BaseSegment):
                             )
                         )
                     ),
+                    Ref("ArrayLiteralSegment"),
                 )
             )
         ),
