@@ -450,6 +450,8 @@ def assert_structure(yaml_loader, path, code_only=True, include_meta=False):
         # Placeholders and metas
         ("jinja_l_metas/001", False, True),
         ("jinja_l_metas/002", False, True),
+        # Library Loading from a folder when library is module
+        ("jinja_m_libraries_module/jinja", True, False),
     ],
 )
 def test__templater_full(subpath, code_only, include_meta, yaml_loader, caplog):
