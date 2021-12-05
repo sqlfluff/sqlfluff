@@ -70,14 +70,13 @@ class Rule_L008(BaseRule):
 
         # If we find ourselves here it's all
         # whitespace (or nothing) to the end of the file.
-        # Shouldn't be possible to have a comma at the end of a file
-        # but we handle for completeness.
-        return subsequent_whitespace, None  # pragma: no cover
+        # This can only happen in bigquery (see test_pass_bigquery_trailing_comma).
+        return subsequent_whitespace, None
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Commas should be followed by a single whitespace unless followed by a comment."""
         # We only care about commas.
-        if not context.segment.name == "comma":
+        if context.segment.name != "comma":
             return None
 
         # Get subsequent whitespace segment and the first non-whitespace segment.
