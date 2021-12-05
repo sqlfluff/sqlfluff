@@ -2773,7 +2773,7 @@ class MergeMatchedClauseSegment(BaseSegment):
 
     type = "merge_when_matched_clause"
 
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "WHEN",
         "MATCHED",
         Ref("ExpressionSegment", optional=True),
@@ -2793,7 +2793,7 @@ class MergeNotMatchedClauseSegment(BaseSegment):
 
     type = "merge_when_not_matched_clause"
 
-    parse_grammar = OneOf(
+    match_grammar = OneOf(
         Sequence(
             "WHEN",
             "NOT",
