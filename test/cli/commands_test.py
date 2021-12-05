@@ -874,7 +874,7 @@ def test_cli_fail_on_wrong_encoding_argument():
 
 def test_cli_no_disable_noqa_flag():
     """Test that unset --disable_noqa flag respects inline noqa comments."""
-    result = invoke_assert_code(
+    invoke_assert_code(
         ret_code=0,
         args=[
             lint,
