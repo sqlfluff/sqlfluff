@@ -28,3 +28,19 @@ SELECT
 	[SOURCE]
 FROM 
    STAGE.ECDC_CASES
+GO
+
+BEGIN
+  INSERT INTO HumanResources.NewEmployee   
+      SELECT EmpID, LastName, FirstName, Phone,   
+             Address, City, StateProvince, PostalCode, CurrentFlag  
+      FROM EmployeeTemp;  
+END
+
+GO
+
+INSERT INTO HumanResources.NewEmployee   
+    SELECT EmpID, LastName, FirstName, Phone,   
+            Address, City, StateProvince, PostalCode, CurrentFlag  
+    FROM EmployeeTemp;  
+GO
