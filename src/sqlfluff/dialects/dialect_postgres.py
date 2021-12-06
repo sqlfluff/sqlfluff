@@ -1433,7 +1433,7 @@ class DropMaterializedViewStatementSegment(BaseSegment):
         "MATERIALIZED",
         "VIEW",
         Sequence("IF", "EXISTS", optional=True),
-        Ref("TableReferenceSegment"),
+        Delimited(Ref("TableReferenceSegment")),
         OneOf("CASCADE", "RESTRICT", optional=True),
     )
 
