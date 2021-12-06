@@ -240,6 +240,7 @@ UNRESERVED_KEYWORDS = [
     "BERNOULLI",
     "BLOCKERS",
     "CAST",
+    "CATCH",
     "COLUMN_ENCRYPTION_KEY",
     "COLUMNSTORE",
     "COLUMNSTORE_ARCHIVE",
@@ -354,6 +355,7 @@ UNRESERVED_KEYWORDS = [
     "TEXTIMAGE_ON",
     "TRANSACTION_ID",
     "TRUNCATE_TARGET",  # Azure Synapse Analytics specific
+    "TRY",
     "UPDLOCK",
     "USER_DB",  # Azure Synapse Analytics specific, deprecated
     "VIEW_METADATA",
