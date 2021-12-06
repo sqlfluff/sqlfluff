@@ -238,6 +238,12 @@ def core_options(f: Callable) -> Callable:
         ),
         help="Choose to limit the logging to one of the loggers.",
     )(f)
+    f = click.option(
+        "--disable-noqa",
+        is_flag=True,
+        default=None,
+        help="Set this flag to ignore inline noqa comments.",
+    )(f)
     return f
 
 

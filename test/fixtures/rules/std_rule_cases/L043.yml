@@ -85,6 +85,28 @@ test_pass_case_cannot_be_reduced_10:
             else bar
         end as test
     from baz;
+test_pass_case_cannot_be_reduced_11:
+  pass_str: |
+    SELECT
+        dv_runid,
+        CASE
+            WHEN LEAD(dv_startdateutc) OVER (
+                PARTITION BY rowid ORDER BY dv_startdateutc
+            ) IS NULL
+            THEN 1
+            ELSE 0
+        END AS loadstate
+    FROM d;
+test_pass_case_cannot_be_reduced_12:
+  pass_str: |
+    select
+        field_1,
+        field_2,
+        field_3,
+        case
+            when coalesce(field_2, field_3) is null then 1 else 0
+        end as field_4
+    from my_table;
 test_fail_unnecessary_case_1:
   fail_str: |
     select
