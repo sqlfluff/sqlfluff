@@ -437,9 +437,12 @@ class Linter:
             formatter.dispatch_lint_header(fname)
 
         # Look for comment segments which might indicate lines to ignore.
-        rule_codes = [r.code for r in rule_set]
-        ignore_buff, ivs = cls.extract_ignore_mask(tree, rule_codes)
-        all_linting_errors += ivs
+        if not config.get("disable_noqa"):
+            rule_codes = [r.code for r in rule_set]
+            ignore_buff, ivs = cls.extract_ignore_mask(tree, rule_codes)
+            all_linting_errors += ivs
+        else:
+            ignore_buff = []
 
         for loop in range(loop_limit):
             changed = False
