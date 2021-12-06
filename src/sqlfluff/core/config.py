@@ -352,21 +352,21 @@ class ConfigLoader:
         self,
         path: str,
         extra_config_path: Optional[str] = None,
-        ignore_default_config: bool = False,
+        ignore_local_config: bool = False,
     ) -> dict:
         """Loads a selection of config files from both the path and its parent paths."""
         user_appdir_config = (
-            self.load_user_appdir_config() if not ignore_default_config else {}
+            self.load_user_appdir_config() if not ignore_local_config else {}
         )
-        user_config = self.load_user_config() if not ignore_default_config else {}
+        user_config = self.load_user_config() if not ignore_local_config else {}
         config_paths = (
             self.iter_config_locations_up_to_path(path)
-            if not ignore_default_config
+            if not ignore_local_config
             else {}
         )
         config_stack = (
             [self.load_config_at_path(p) for p in config_paths]
-            if not ignore_default_config
+            if not ignore_local_config
             else []
         )
         extra_config = (
@@ -435,15 +435,15 @@ class FluffConfig:
         self,
         configs: Optional[dict] = None,
         extra_config_path: Optional[str] = None,
-        ignore_default_config: bool = False,
+        ignore_local_config: bool = False,
         overrides: Optional[dict] = None,
         plugin_manager: Optional[pluggy.PluginManager] = None,
     ):
         self._extra_config_path = (
             extra_config_path  # We only store this for child configs
         )
-        self._ignore_default_config = (
-            ignore_default_config  # We only store this for child configs
+        self._ignore_local_config = (
+            ignore_local_config  # We only store this for child configs
         )
         self._overrides = overrides  # We only store this for child configs
 
@@ -520,7 +520,7 @@ class FluffConfig:
     def from_root(
         cls,
         extra_config_path: Optional[str] = None,
-        ignore_default_config: bool = False,
+        ignore_local_config: bool = False,
         overrides: Optional[dict] = None,
     ) -> "FluffConfig":
         """Loads a config object just based on the root directory."""
@@ -528,12 +528,12 @@ class FluffConfig:
         c = loader.load_config_up_to_path(
             path=".",
             extra_config_path=extra_config_path,
-            ignore_default_config=ignore_default_config,
+            ignore_local_config=ignore_local_config,
         )
         return cls(
             configs=c,
             extra_config_path=extra_config_path,
-            ignore_default_config=ignore_default_config,
+            ignore_local_config=ignore_local_config,
             overrides=overrides,
         )
 
@@ -542,7 +542,7 @@ class FluffConfig:
         cls,
         path: str,
         extra_config_path: Optional[str] = None,
-        ignore_default_config: bool = False,
+        ignore_local_config: bool = False,
         overrides: Optional[dict] = None,
         plugin_manager: Optional[pluggy.PluginManager] = None,
     ) -> "FluffConfig":
@@ -551,12 +551,12 @@ class FluffConfig:
         c = loader.load_config_up_to_path(
             path=path,
             extra_config_path=extra_config_path,
-            ignore_default_config=ignore_default_config,
+            ignore_local_config=ignore_local_config,
         )
         return cls(
             configs=c,
             extra_config_path=extra_config_path,
-            ignore_default_config=ignore_default_config,
+            ignore_local_config=ignore_local_config,
             overrides=overrides,
             plugin_manager=plugin_manager,
         )
@@ -623,7 +623,7 @@ class FluffConfig:
         return self.from_path(
             path,
             extra_config_path=self._extra_config_path,
-            ignore_default_config=self._ignore_default_config,
+            ignore_local_config=self._ignore_local_config,
             overrides=self._overrides,
             plugin_manager=self._plugin_manager,
         )
