@@ -2101,6 +2101,7 @@ class BeginEndSegment(BaseSegment):
         Indent,
         AnyNumberOf(
             Ref("StatementSegment"),
+            Ref("DelimiterSegment", optional=True),
             min_times=1,
         ),
         Dedent,
@@ -2119,6 +2120,7 @@ class TryCatchSegment(BaseSegment):
     match_grammar = Sequence(
         "BEGIN",
         "TRY",
+        Ref("DelimiterSegment", optional=True),
         Indent,
         AnyNumberOf(
             Sequence(
@@ -2132,6 +2134,7 @@ class TryCatchSegment(BaseSegment):
         "TRY",
         "BEGIN",
         "CATCH",
+        Ref("DelimiterSegment", optional=True),
         Indent,
         AnyNumberOf(
             Sequence(
