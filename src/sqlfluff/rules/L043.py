@@ -216,10 +216,17 @@ class Rule_L043(BaseRule):
 
                 # Locate column reference in condition expression.
                 column_reference_segment = next(
-                    segment
-                    for segment in condition_expression.segments
-                    if segment.type == "column_reference"
+                    (
+                        segment
+                        for segment in condition_expression.segments
+                        if segment.type == "column_reference"
+                    ),
+                    None,
                 )
+
+                # Return None if no column reference is detected (this condition does not apply to functions).
+                if not column_reference_segment:
+                    return None
 
                 # Check if we can reduce the CASE expression to a single coalesce function.
                 if (
