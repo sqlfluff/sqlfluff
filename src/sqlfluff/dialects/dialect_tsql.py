@@ -396,9 +396,6 @@ class InsertStatementSegment(BaseSegment):
     type = "insert_statement"
     match_grammar = Sequence(
         "INSERT",
-        # Maybe OVERWRITE is just snowflake?
-        # (It's also Hive but that has full insert grammar implementation)
-        Ref.keyword("OVERWRITE", optional=True),
         "INTO",
         Ref("TableReferenceSegment"),
         Ref("BracketedColumnReferenceListGrammar", optional=True),
