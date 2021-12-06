@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5981c6fef1dcb2c1ddc5e40118b9aa4eca3d6ff82888dd3e3f67a14be844ac99
+_hash: f51e9cb200d28ed6366cea66893600cc6d53313964df3d771e9bb9cfb6193e88
 file:
 - statement:
     create_statement:
@@ -17,7 +17,7 @@ file:
     - warehouse_object_properties:
         keyword: warehouse_size
         comparison_operator: '='
-        identifier: "'X-LARGE'"
+        warehouse_size: "'X-LARGE'"
 - statement_terminator: ;
 - statement:
     create_statement:
@@ -30,7 +30,7 @@ file:
     - warehouse_object_properties:
       - keyword: warehouse_size
       - comparison_operator: '='
-      - identifier: large
+      - warehouse_size: large
       - keyword: initially_suspended
       - comparison_operator: '='
       - literal: 'true'
@@ -47,5 +47,5 @@ file:
     - warehouse_object_properties:
         keyword: warehouse_size
         comparison_operator: '='
-        identifier: medium
+        warehouse_size: "'medium'"
 - statement_terminator: ;
