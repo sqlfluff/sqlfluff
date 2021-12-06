@@ -1362,9 +1362,11 @@ class CreateMaterializedViewStatementSegment(BaseSegment):
                     Delimited(
                         Sequence(
                             Ref("ParameterNameSegment"),
-                            Ref("EqualsSegment"),
-                            Ref("LiteralGrammar"),
-                            optional=True,
+                            Sequence(
+                                Ref("EqualsSegment"),
+                                Ref("LiteralGrammar"),
+                                optional=True,
+                            ),
                         ),
                         delimiter=Ref("CommaSegment"),
                     )
