@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1d71a43a3c51b8860b18d9da2256b0c0d635a475a00841b5b9fc8db8ba541e38
+_hash: 54de3bef56c357636d4ffd2632e9be0109451606081e3ab2ba5f7ae8feb5a85d
 file:
   batch:
     create_procedure_statement:
@@ -38,54 +38,55 @@ file:
             - dot: .
             - identifier: '[PowerPlan_BASE]'
           - statement_terminator: ;
-      - begin_end_block:
-        - keyword: BEGIN
-        - statement:
-            select_statement:
-              select_clause:
-                keyword: SELECT
-                select_clause_element:
-                  literal: '1'
-        - statement:
-            create_table_as_select_statement:
-            - keyword: CREATE
-            - keyword: TABLE
-            - table_reference:
-                identifier: '#TempTest'
-            - table_distribution_index_clause:
-                keyword: WITH
-                bracketed:
+      - statement:
+          begin_end_block:
+          - keyword: BEGIN
+          - statement:
+              select_statement:
+                select_clause:
+                  keyword: SELECT
+                  select_clause_element:
+                    literal: '1'
+          - statement:
+              create_table_as_select_statement:
+              - keyword: CREATE
+              - keyword: TABLE
+              - table_reference:
+                  identifier: '#TempTest'
+              - table_distribution_index_clause:
+                  keyword: WITH
+                  bracketed:
+                    start_bracket: (
+                    table_distribution_clause:
+                    - keyword: DISTRIBUTION
+                    - comparison_operator: '='
+                    - keyword: ROUND_ROBIN
+                    comma: ','
+                    table_index_clause:
+                      keyword: HEAP
+                    end_bracket: )
+              - keyword: AS
+              - bracketed:
                   start_bracket: (
-                  table_distribution_clause:
-                  - keyword: DISTRIBUTION
-                  - comparison_operator: '='
-                  - keyword: ROUND_ROBIN
-                  comma: ','
-                  table_index_clause:
-                    keyword: HEAP
+                  select_statement:
+                    select_clause:
+                    - keyword: SELECT
+                    - select_clause_element:
+                        literal: '2'
+                        alias_expression:
+                          keyword: AS
+                          identifier: Two
+                    - comma: ','
+                    - select_clause_element:
+                        literal: '3'
+                        alias_expression:
+                          keyword: AS
+                          identifier: Three
+                    - comma: ','
+                    - select_clause_element:
+                        literal: '4'
+                        alias_expression:
+                          keyword: AS
+                          identifier: Four
                   end_bracket: )
-            - keyword: AS
-            - bracketed:
-                start_bracket: (
-                select_statement:
-                  select_clause:
-                  - keyword: SELECT
-                  - select_clause_element:
-                      literal: '2'
-                      alias_expression:
-                        keyword: AS
-                        identifier: Two
-                  - comma: ','
-                  - select_clause_element:
-                      literal: '3'
-                      alias_expression:
-                        keyword: AS
-                        identifier: Three
-                  - comma: ','
-                  - select_clause_element:
-                      literal: '4'
-                      alias_expression:
-                        keyword: AS
-                        identifier: Four
-                end_bracket: )
-        - keyword: END
+          - keyword: END
