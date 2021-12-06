@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 30f5f73cf11d4e4c4483381ee36a2c8dd448e80932b59d6d468e9286882f755f
+_hash: 3268f1a30f1f80b907141692283aa593ed92af99a112c8de24b4d3c27ff09c09
 file:
 - statement:
     create_task_statement:
@@ -19,7 +19,7 @@ file:
     - literal: "'YYYY-MM-DD HH24'"
     - keyword: USER_TASK_MANAGED_INITIAL_WAREHOUSE_SIZE
     - comparison_operator: '='
-    - literal: "'XSMALL'"
+    - warehouse_size: "'XSMALL'"
     - keyword: AS
     - statement:
         insert_statement:
@@ -89,10 +89,6 @@ file:
     - keyword: EXISTS
     - object_reference:
         identifier: t1
-    - keyword: WAREHOUSE
-    - comparison_operator: '='
-    - object_reference:
-        identifier: mywh
     - keyword: SCHEDULE
     - comparison_operator: '='
     - literal: "'USING CRON 0 9-17 * * SUN America/Los_Angeles'"
@@ -102,18 +98,17 @@ file:
     - parameter: TIMESTAMP_INPUT_FORMAT
     - comparison_operator: '='
     - literal: "'YYYY-MM-DD HH24'"
-    - keyword: USER_TASK_TIMEOUT_MS
+    - parameter: USER_TASK_TIMEOUT_MS
     - comparison_operator: '='
     - literal: '25'
     - keyword: USER_TASK_MANAGED_INITIAL_WAREHOUSE_SIZE
     - comparison_operator: '='
-    - literal: "'XSMALL'"
+    - warehouse_size: "'XSMALL'"
     - keyword: COPY
     - keyword: GRANTS
-    - snowflake_comment:
-        keyword: COMMENT
-        comparison_operator: '='
-        literal: "'Hello world'"
+    - parameter: COMMENT
+    - comparison_operator: '='
+    - literal: "'Hello world'"
     - keyword: AFTER
     - object_reference:
         identifier: dependency_task

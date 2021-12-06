@@ -8,6 +8,7 @@ https://cloud.google.com/bigquery/docs/reference/standard-sql/lexical#string_and
 
 import itertools
 
+from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     Anything,
     BaseSegment,
@@ -33,9 +34,6 @@ from sqlfluff.core.parser import (
     Matchable,
 )
 from sqlfluff.core.parser.segments.base import BracketedSegment
-
-from sqlfluff.core.dialects import load_raw_dialect
-
 from sqlfluff.dialects.dialect_bigquery_keywords import (
     bigquery_reserved_keywords,
     bigquery_unreserved_keywords,
@@ -766,7 +764,7 @@ class DeclareStatementSegment(BaseSegment):
     parse_grammar = Sequence(
         "DECLARE",
         Delimited(Ref("NakedIdentifierSegment")),
-        Ref("DatatypeIdentifierSegment"),
+        Ref("DatatypeSegment"),
         Sequence(
             "DEFAULT",
             OneOf(
@@ -813,6 +811,7 @@ class SetStatementSegment(BaseSegment):
                             )
                         )
                     ),
+                    Ref("ArrayLiteralSegment"),
                 )
             )
         ),
