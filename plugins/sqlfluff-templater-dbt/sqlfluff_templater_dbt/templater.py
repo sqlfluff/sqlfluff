@@ -11,7 +11,7 @@ from cached_property import cached_property
 from functools import partial
 
 from dbt.version import get_installed_version
-from dbt.config.profile import PROFILES_DIR
+from dbt.flags import PROFILES_DIR
 from dbt.config.runtime import RuntimeConfig as DbtRuntimeConfig
 from dbt.adapters.factory import register_adapter
 from dbt.compilation import Compiler as DbtCompiler
