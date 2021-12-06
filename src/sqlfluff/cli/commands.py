@@ -210,6 +210,16 @@ def core_options(f: Callable) -> Callable:
         ),
     )(f)
     f = click.option(
+        "--ignore-default-config",
+        is_flag=True,
+        help=(
+            "Ignore config files in default search path locations. "
+            "This option allows the user to lint with the default config "
+            "or can be used in conjunction with --config to only "
+            "reference the custom config file."
+        ),
+    )(f)
+    f = click.option(
         "--encoding",
         default="autodetect",
         help=(
@@ -247,7 +257,11 @@ def core_options(f: Callable) -> Callable:
     return f
 
 
-def get_config(extra_config_path: Optional[str] = None, **kwargs) -> FluffConfig:
+def get_config(
+    extra_config_path: Optional[str] = None,
+    ignore_default_config: bool = False,
+    **kwargs,
+) -> FluffConfig:
     """Get a config object from kwargs."""
     if "dialect" in kwargs:
         try:
@@ -273,6 +287,7 @@ def get_config(extra_config_path: Optional[str] = None, **kwargs) -> FluffConfig
     try:
         return FluffConfig.from_root(
             extra_config_path=extra_config_path,
+            ignore_default_config=ignore_default_config,
             overrides=overrides,
         )
     except SQLFluffUserError as err:  # pragma: no cover
@@ -422,6 +437,7 @@ def lint(
     bench: bool = False,
     disable_progress_bar: Optional[bool] = False,
     extra_config_path: Optional[str] = None,
+    ignore_default_config: bool = False,
     **kwargs,
 ) -> NoReturn:
     """Lint SQL files via passing a list of files or using stdin.
@@ -442,7 +458,7 @@ def lint(
         echo 'select col from tbl' | sqlfluff lint -
 
     """
-    config = get_config(extra_config_path, **kwargs)
+    config = get_config(extra_config_path, ignore_default_config, **kwargs)
     non_human_output = format != FormatType.human.value
     lnt, formatter = get_linter_and_formatter(config, silent=non_human_output)
 
@@ -575,6 +591,7 @@ def fix(
     logger: Optional[logging.Logger] = None,
     disable_progress_bar: Optional[bool] = False,
     extra_config_path: Optional[str] = None,
+    ignore_default_config: bool = False,
     **kwargs,
 ) -> NoReturn:
     """Fix SQL files.
@@ -587,7 +604,7 @@ def fix(
     # some quick checks
     fixing_stdin = ("-",) == paths
 
-    config = get_config(extra_config_path, **kwargs)
+    config = get_config(extra_config_path, ignore_default_config, **kwargs)
     lnt, formatter = get_linter_and_formatter(config, silent=fixing_stdin)
 
     verbose = config.get("verbose")
@@ -795,6 +812,7 @@ def parse(
     nofail: bool,
     logger: Optional[logging.Logger] = None,
     extra_config_path: Optional[str] = None,
+    ignore_default_config: bool = False,
     **kwargs,
 ) -> NoReturn:
     """Parse SQL files and just spit out the result.
@@ -804,7 +822,7 @@ def parse(
     character to indicate reading from *stdin* or a dot/blank ('.'/' ') which will
     be interpreted like passing the current working directory as a path argument.
     """
-    c = get_config(extra_config_path, **kwargs)
+    c = get_config(extra_config_path, ignore_default_config, **kwargs)
     # We don't want anything else to be logged if we want json or yaml output
     non_human_output = format in (FormatType.json.value, FormatType.yaml.value)
     lnt, formatter = get_linter_and_formatter(c, silent=non_human_output)
