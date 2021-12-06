@@ -224,7 +224,7 @@ class Rule_L043(BaseRule):
                     None,
                 )
 
-                # Return None if no column reference is detected (this condition does not apply to funcitons).
+                # Return None if no column reference is detected (this condition does not apply to functions).
                 if not column_reference_segment:
                     return None
 
