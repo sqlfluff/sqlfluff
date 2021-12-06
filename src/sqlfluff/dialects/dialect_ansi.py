@@ -2036,7 +2036,7 @@ class SetExpressionSegment(BaseSegment):
 
 @ansi_dialect.segment()
 class InsertStatementSegment(BaseSegment):
-    """A `INSERT` statement."""
+    """An `INSERT` statement."""
 
     type = "insert_statement"
     match_grammar = StartsWith("INSERT")
