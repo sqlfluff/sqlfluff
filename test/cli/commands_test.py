@@ -872,6 +872,32 @@ def test_cli_fail_on_wrong_encoding_argument():
     assert r"L:   1 | P:   1 |  PRS |" in raw_output
 
 
+def test_cli_no_disable_noqa_flag():
+    """Test that unset --disable_noqa flag respects inline noqa comments."""
+    invoke_assert_code(
+        ret_code=0,
+        args=[
+            lint,
+            ["test/fixtures/cli/disable_noqa_test.sql"],
+        ],
+    )
+
+
+def test_cli_disable_noqa_flag():
+    """Test that --disable_noqa flag ignores inline noqa comments."""
+    result = invoke_assert_code(
+        ret_code=65,
+        args=[
+            lint,
+            ["test/fixtures/cli/disable_noqa_test.sql", "--disable-noqa"],
+        ],
+    )
+    raw_output = repr(result.output)
+
+    # Linting error is raised even though it is inline ignored.
+    assert r"L:   5 | P:  11 | L010 |" in raw_output
+
+
 @patch(
     "sqlfluff.core.linter.linter.progress_bar_configuration", disable_progress_bar=False
 )
