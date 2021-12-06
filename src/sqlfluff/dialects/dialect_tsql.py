@@ -2750,7 +2750,7 @@ class MergeStatementSegment(BaseSegment):
             Sequence("PERCENT", optional=True),
             optional=True,
         ),
-        Sequence("INTO",  optional=True),
+        Sequence("INTO", optional=True),
         Indent,
         OneOf(
             Ref("TableReferenceSegment"),
@@ -2918,7 +2918,7 @@ class OutputClauseSegment(BaseSegment):
                         Ref("BaseExpressionElementGrammar"),
                         Ref("AliasExpressionSegment", optional=True),
                     ),
-                    Ref("SingleIdentifierGrammar"),  # need to add parsing for $action here
+                    Ref("SingleIdentifierGrammar"),
                 ),
             ),
             Dedent,
@@ -2937,6 +2937,3 @@ class OutputClauseSegment(BaseSegment):
             ),
         ),
     )
-
-
-
