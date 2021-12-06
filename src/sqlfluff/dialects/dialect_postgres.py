@@ -1410,6 +1410,7 @@ class AlterMaterializedViewStatementSegment(BaseSegment):
                     OneOf(Ref("ParameterNameSegment"), Ref("QuotedIdentifierSegment")),
                     "CURRENT_USER",
                     "SESSION_USER",
+                    "CURRENT_ROLE",
                 ),
             ),
         ),
