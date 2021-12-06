@@ -15,7 +15,8 @@ labels: bug
 ## Dialect
 
 ## Version
-Include the output of `sqlfluff --version` along with your Python version
+Include the output of `sqlfluff --version` along with your Python version.
+If you are using dbt then please additionally include the dbt version.
 
 ## Configuration
 ```
