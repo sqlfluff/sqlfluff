@@ -1687,7 +1687,6 @@ class CreateTaskSegment(BaseSegment):
                         Ref("NumericLiteralSegment"),
                     ),
                 ),
-                delimiter=Ref("CommaSegment"),
             ),
             Sequence(
                 "USER_TASK_TIMEOUT_MS",
