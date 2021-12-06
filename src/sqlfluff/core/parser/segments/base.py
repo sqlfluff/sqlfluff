@@ -978,6 +978,10 @@ class BaseSegment:
                                 "create_before",
                                 "create_after",
                             ):
+                                if f.edit_type == "create_after":
+                                    # in the case of a creation after, also add this segment before the edit.
+                                    seg_buffer.append(seg)
+
                                 # We're doing a replacement (it could be a single segment or an iterable)
                                 if isinstance(f.edit, BaseSegment):
                                     seg_buffer.append(f.edit)  # pragma: no cover TODO?
@@ -988,9 +992,7 @@ class BaseSegment:
                                 if f.edit_type == "create_before":
                                     # in the case of a creation before, also add this segment on the end
                                     seg_buffer.append(seg)
-                                elif f.edit_type == "create_after":
-                                    # in the case of a creation after, also add this segment to the start
-                                    seg_buffer.insert(0, seg)
+
                             else:  # pragma: no cover
                                 raise ValueError(
                                     "Unexpected edit_type: {!r} in {!r}".format(

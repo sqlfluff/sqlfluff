@@ -7,7 +7,7 @@ SELECT
     10;
 
 SELECT
-    1, 
+    1,
     {%- for _ in [1, 2, 3] %}    2{%endfor %};
 
 SELECT
