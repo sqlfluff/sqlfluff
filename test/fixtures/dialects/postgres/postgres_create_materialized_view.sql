@@ -30,12 +30,12 @@ AS
     SELECT col
     FROM my_table
 )
-WITH DATA;
+WITH NO DATA;
 
 CREATE MATERIALIZED VIEW my_mat_view
 USING heap
 TABLESPACE pg_default
-WITH (prop_a = 1, prob_b = 'some_value', prop_c = FALSE)
+WITH (prop_a = 1, prob_b = 'some_value', prop_c = FALSE, prop_d)
 AS
 (
     SELECT

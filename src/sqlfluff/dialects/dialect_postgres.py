@@ -1339,7 +1339,7 @@ class AlterTableActionSegment(BaseSegment):
 class CreateMaterializedViewStatementSegment(BaseSegment):
     """A `CREATE MATERIALIZED VIEW` statement.
 
-    As specified in https://www.postgresql.org/docs/13/sql-creatematerializedview.html
+    As specified in https://www.postgresql.org/docs/14/sql-creatematerializedview.html
     """
 
     type = "create_materialized_view_statement"
@@ -1380,7 +1380,7 @@ class CreateMaterializedViewStatementSegment(BaseSegment):
             Ref("ValuesClauseSegment"),
             OptionallyBracketed(Sequence("EXECUTE", Ref("FunctionSegment"))),
         ),
-        Sequence("WITH", Ref.keyword("NO", optional=True), "DATA", optional=True),
+        Sequence("WITH", Sequence("NO", optional=True), "DATA", optional=True),
     )
 
 
@@ -1388,7 +1388,7 @@ class CreateMaterializedViewStatementSegment(BaseSegment):
 class AlterMaterializedViewStatementSegment(BaseSegment):
     """A `ALTER MATERIALIZED VIEW` statement.
 
-    As specified in https://www.postgresql.org/docs/13/sql-altermaterializedview.html
+    As specified in https://www.postgresql.org/docs/14/sql-altermaterializedview.html
     """
 
     type = "alter_materialized_view_statement"
@@ -1399,21 +1399,143 @@ class AlterMaterializedViewStatementSegment(BaseSegment):
         "ALTER",
         "MATERIALIZED",
         "VIEW",
-        Sequence("IF", "EXISTS", optional=True),
-        Ref("TableReferenceSegment"),
         OneOf(
-            Sequence("RENAME", "TO", Ref("TableReferenceSegment")),
             Sequence(
-                "OWNER",
-                "TO",
+                Sequence("IF", "EXISTS", optional=True),
+                Ref("TableReferenceSegment"),
                 OneOf(
-                    OneOf(Ref("ParameterNameSegment"), Ref("QuotedIdentifierSegment")),
-                    "CURRENT_USER",
-                    "SESSION_USER",
-                    "CURRENT_ROLE",
+                    Delimited(Ref("AlterMaterializedViewActionSegment")),
+                    Sequence(
+                        "RENAME",
+                        Sequence("COLUMN", optional=True),
+                        Ref("ColumnReferenceSegment"),
+                        "TO",
+                        Ref("ColumnReferenceSegment"),
+                    ),
+                    Sequence("RENAME", "TO", Ref("TableReferenceSegment")),
+                    Sequence("SET", "SCHEMA", Ref("ParameterNameSegment")),
                 ),
             ),
+            Sequence(
+                Ref("TableReferenceSegment"),
+                Ref.keyword("NO", optional=True),
+                "DEPENDS",
+                "ON",
+                "EXTENSION",
+                Ref("ParameterNameSegment"),
+            ),
+            Sequence(
+                "ALL",
+                "IN",
+                "TABLESPACE",
+                Ref("TableReferenceSegment"),
+                Sequence(
+                    "OWNED",
+                    "BY",
+                    Delimited(Ref("ObjectReferenceSegment")),
+                    optional=True,
+                ),
+                "SET",
+                "TABLESPACE",
+                Ref("ParameterNameSegment"),
+                Sequence("NOWAIT", optional=True),
+            ),
         ),
+    )
+
+
+@postgres_dialect.segment()
+class AlterMaterializedViewActionSegment(BaseSegment):
+    """Alter Materialized View Action Segment.
+
+    Matches the definition of action in https://www.postgresql.org/docs/14/sql-altermaterializedview.html
+    """
+
+    type = "alter_materialized_view_action_segment"
+
+    match_grammar = OneOf(
+        Sequence(
+            "ALTER",
+            Ref.keyword("COLUMN", optional=True),
+            Ref("ColumnReferenceSegment"),
+            OneOf(
+                Sequence("SET", "STATISTICS", Ref("NumericLiteralSegment")),
+                Sequence(
+                    "SET",
+                    Bracketed(
+                        Delimited(
+                            Sequence(
+                                Ref("ParameterNameSegment"),
+                                Ref("EqualsSegment"),
+                                Ref("LiteralGrammar"),
+                            ),
+                            delimiter=Ref("CommaSegment"),
+                        )
+                    ),
+                ),
+                Sequence(
+                    "RESET",
+                    Bracketed(Delimited(Ref("ParameterNameSegment"))),
+                ),
+                Sequence(
+                    "SET", "STORAGE", OneOf("PLAIN", "EXTERNAL", "EXTENDED", "MAIN")
+                ),
+                Sequence("SET", "COMPRESSION", Ref("ParameterNameSegment")),
+            ),
+        ),
+        Sequence("CLUSTER", "ON", Ref("ParameterNameSegment")),
+        Sequence("SET", "WITHOUT", "CLUSTER"),
+        Sequence(
+            "SET",
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        Ref("ParameterNameSegment"),
+                        Sequence(
+                            Ref("EqualsSegment"), Ref("LiteralGrammer"), optional=True
+                        ),
+                    )
+                )
+            ),
+        ),
+        Sequence(
+            "RESET",
+            Bracketed(Delimited(Ref("ParameterNameSegment"))),
+        ),
+        Sequence(
+            Sequence("NO", optional=True), "INHERIT", Ref("TableReferenceSegment")
+        ),
+        Sequence(
+            "OWNER",
+            "TO",
+            OneOf(
+                Ref("ObjectReferenceSegment"),
+                "CURRENT_ROLE",
+                "CURRENT_USER",
+                "SESSION_USER",
+            ),
+        ),
+    )
+
+
+@postgres_dialect.segment()
+class RefreshMaterializedViewStatementSegment(BaseSegment):
+    """A `REFRESH MATERIALIZED VIEW` statement.
+
+    As specified in https://www.postgresql.org/docs/14/sql-refreshmaterializedview.html
+    """
+
+    type = "refresh_materialized_view_statement"
+
+    match_grammar = StartsWith(Sequence("REFRESH", "MATERIALIZED", "VIEW"))
+
+    parse_grammar = Sequence(
+        "REFRESH",
+        "MATERIALIZED",
+        "VIEW",
+        Ref.keyword("CONCURRENTLY", optional=True),
+        Ref("TableReferenceSegment"),
+        Sequence("WITH", Ref.keyword("NO", optional=True), "DATA", optional=True),
     )
 
 
@@ -1421,7 +1543,7 @@ class AlterMaterializedViewStatementSegment(BaseSegment):
 class DropMaterializedViewStatementSegment(BaseSegment):
     """A `DROP MATERIALIZED VIEW` statement.
 
-    As specified in https://www.postgresql.org/docs/13/sql-dropmaterializedview.html
+    As specified in https://www.postgresql.org/docs/14/sql-dropmaterializedview.html
     """
 
     type = "drop_materialized_view_statement"
@@ -2296,6 +2418,7 @@ class StatementSegment(BaseSegment):
             Ref("CreateMaterializedViewStatementSegment"),
             Ref("AlterMaterializedViewStatementSegment"),
             Ref("DropMaterializedViewStatementSegment"),
+            Ref("RefreshMaterializedViewStatementSegment"),
         ],
     )
 

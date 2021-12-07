@@ -3,57 +3,43 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ef5f5d19380c61221dbb88a62488c9c390f2965c2298c40547287a26827c45a9
+_hash: a64de09ad22578598b3ef5a71c974e88e336504d96bfe13b7c24527a510566e8
 file:
 - statement:
-    alter_materialized_view_statement:
-    - keyword: ALTER
+    refresh_materialized_view_statement:
+    - keyword: REFRESH
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
         identifier: bar
-    - keyword: RENAME
-    - keyword: TO
-    - table_reference:
-        identifier: baz
 - statement_terminator: ;
 - statement:
-    alter_materialized_view_statement:
-    - keyword: ALTER
+    refresh_materialized_view_statement:
+    - keyword: REFRESH
     - keyword: MATERIALIZED
     - keyword: VIEW
-    - keyword: IF
-    - keyword: EXISTS
+    - keyword: CONCURRENTLY
     - table_reference:
         identifier: bar
-    - keyword: RENAME
-    - keyword: TO
-    - table_reference:
-        identifier: baz
 - statement_terminator: ;
 - statement:
-    alter_materialized_view_statement:
-    - keyword: ALTER
+    refresh_materialized_view_statement:
+    - keyword: REFRESH
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
         identifier: bar
-    - alter_materialized_view_action_segment:
-      - keyword: OWNER
-      - keyword: TO
-      - object_reference:
-          identifier: baz_role
+    - keyword: WITH
+    - keyword: DATA
 - statement_terminator: ;
 - statement:
-    alter_materialized_view_statement:
-    - keyword: ALTER
+    refresh_materialized_view_statement:
+    - keyword: REFRESH
     - keyword: MATERIALIZED
     - keyword: VIEW
     - table_reference:
         identifier: bar
-    - alter_materialized_view_action_segment:
-      - keyword: OWNER
-      - keyword: TO
-      - object_reference:
-          identifier: '"baz-role"'
+    - keyword: WITH
+    - keyword: 'NO'
+    - keyword: DATA
 - statement_terminator: ;

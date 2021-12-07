@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 86ca76995807e9b074c5092d675c28d20e1723f6fcb1cca4b70eee1e32e73013
+_hash: e09efe1d99364c0855df90fa9021da00c64d2c18a4c499711771b92a0b5cb933
 file:
 - statement:
     create_materialized_view_statement:
@@ -125,6 +125,7 @@ file:
                     identifier: my_table
         end_bracket: )
     - keyword: WITH
+    - keyword: 'NO'
     - keyword: DATA
 - statement_terminator: ;
 - statement:
@@ -152,6 +153,8 @@ file:
       - parameter: prop_c
       - comparison_operator: '='
       - literal: 'FALSE'
+      - comma: ','
+      - parameter: prop_d
       - end_bracket: )
     - keyword: AS
     - bracketed:
