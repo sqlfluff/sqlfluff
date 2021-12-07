@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 405b98120e8ce8df29753e2170ddc3189676769967dd927f0557f2df93e22b50
+_hash: b1676b2fbc1684245ae447dd4223838da2381d786f16c50081b746b735eb17b5
 file:
 - statement:
     alter_materialized_view_statement:
@@ -403,7 +403,8 @@ file:
         identifier: bar
     - keyword: SET
     - keyword: SCHEMA
-    - parameter: new_schema
+    - schema_reference:
+        identifier: new_schema
 - statement_terminator: ;
 - statement:
     alter_materialized_view_statement:
@@ -416,7 +417,8 @@ file:
         identifier: bar
     - keyword: SET
     - keyword: SCHEMA
-    - parameter: new_schema
+    - schema_reference:
+        identifier: new_schema
 - statement_terminator: ;
 - statement:
     alter_materialized_view_statement:

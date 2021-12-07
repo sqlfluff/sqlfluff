@@ -3,13 +3,52 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e09efe1d99364c0855df90fa9021da00c64d2c18a4c499711771b92a0b5cb933
+_hash: 81fb97378cd1ac00be95dff2301fb803299a3c75371d263b1e153c4eb36e856d
 file:
 - statement:
     create_materialized_view_statement:
     - keyword: CREATE
     - keyword: MATERIALIZED
     - keyword: VIEW
+    - table_reference:
+        identifier: my_mat_view
+    - keyword: AS
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+              column_reference:
+                identifier: a
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                identifier: b
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    identifier: my_table
+          where_clause:
+            keyword: WHERE
+            expression:
+              column_reference:
+                identifier: y
+              comparison_operator: '='
+              literal: "'value'"
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_materialized_view_statement:
+    - keyword: CREATE
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
     - table_reference:
         identifier: my_mat_view
     - keyword: AS
@@ -79,6 +118,71 @@ file:
     - keyword: CREATE
     - keyword: MATERIALIZED
     - keyword: VIEW
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+        identifier: my_mat_view
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              identifier: a
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: b
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: my_table
+        where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+              identifier: y
+            comparison_operator: '='
+            literal: "'value'"
+- statement_terminator: ;
+- statement:
+    create_materialized_view_statement:
+    - keyword: CREATE
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        identifier: my_mat_view
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              identifier: a
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: b
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: my_table
+- statement_terminator: ;
+- statement:
+    create_materialized_view_statement:
+    - keyword: CREATE
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
     - table_reference:
         identifier: my_mat_view
     - keyword: AS
@@ -133,6 +237,126 @@ file:
     - keyword: CREATE
     - keyword: MATERIALIZED
     - keyword: VIEW
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+        identifier: bar
+    - keyword: AS
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              column_reference:
+                identifier: col
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    identifier: my_table
+        end_bracket: )
+    - keyword: WITH
+    - keyword: 'NO'
+    - keyword: DATA
+- statement_terminator: ;
+- statement:
+    create_materialized_view_statement:
+    - keyword: CREATE
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        identifier: my_mat_view
+    - keyword: USING
+    - parameter: heap
+    - keyword: TABLESPACE
+    - parameter: pg_default
+    - keyword: WITH
+    - bracketed:
+      - start_bracket: (
+      - parameter: prop_a
+      - comparison_operator: '='
+      - literal: '1'
+      - comma: ','
+      - parameter: prob_b
+      - comparison_operator: '='
+      - literal: "'some_value'"
+      - comma: ','
+      - parameter: prop_c
+      - comparison_operator: '='
+      - literal: 'FALSE'
+      - comma: ','
+      - parameter: prop_d
+      - end_bracket: )
+    - keyword: AS
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+              column_reference:
+                identifier: a
+          - comma: ','
+          - select_clause_element:
+              function:
+                function_name:
+                  function_name_identifier: avg
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      identifier: b
+                  end_bracket: )
+              alias_expression:
+                keyword: AS
+                identifier: my_avg
+          - comma: ','
+          - select_clause_element:
+              function:
+                function_name:
+                  function_name_identifier: count
+                bracketed:
+                  start_bracket: (
+                  star: '*'
+                  end_bracket: )
+              alias_expression:
+                keyword: AS
+                identifier: my_count
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    identifier: my_table
+          groupby_clause:
+          - keyword: GROUP
+          - keyword: BY
+          - column_reference:
+              identifier: grp
+          having_clause:
+            keyword: HAVING
+            expression:
+              column_reference:
+                identifier: col
+              comparison_operator: '>'
+              literal: '2'
+        end_bracket: )
+    - keyword: WITH
+    - keyword: DATA
+- statement_terminator: ;
+- statement:
+    create_materialized_view_statement:
+    - keyword: CREATE
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
     - table_reference:
         identifier: my_mat_view
     - keyword: USING
