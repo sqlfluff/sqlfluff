@@ -373,6 +373,7 @@ def test__cli__command_lint_skip_ignore_files():
 
 
 def test__cli__command_lint_ignore_local_config():
+    """Test that --ignore-local_config ignores .sqlfluff file as expected."""
     runner = CliRunner()
     # First we test that not including the --ignore-local-config includes
     # .sqlfluff file, and therefore the lint doesn't raise L012
