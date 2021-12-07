@@ -1501,9 +1501,6 @@ class AlterMaterializedViewActionSegment(BaseSegment):
             Bracketed(Delimited(Ref("ParameterNameSegment"))),
         ),
         Sequence(
-            Sequence("NO", optional=True), "INHERIT", Ref("TableReferenceSegment")
-        ),
-        Sequence(
             "OWNER",
             "TO",
             OneOf(
