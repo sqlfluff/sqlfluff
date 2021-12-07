@@ -304,6 +304,8 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref("DropProcedureStatementSegment"),
             Ref("UpdateStatisticsStatementSegment"),
             Ref("DropFunctionStatementSegment"),
+            Ref("BeginEndSegment"),
+            Ref("TryCatchSegment"),
         ],
     )
 
@@ -381,6 +383,23 @@ class UnorderedSelectStatementSegment(BaseSegment):
         Ref("WhereClauseSegment", optional=True),
         Ref("GroupByClauseSegment", optional=True),
         Ref("HavingClauseSegment", optional=True),
+    )
+
+
+@tsql_dialect.segment(replace=True)
+class InsertStatementSegment(BaseSegment):
+    """An `INSERT` statement.
+
+    Overriding ANSI definition to remove StartsWith logic that doesn't handle optional delimitation well.
+    """
+
+    type = "insert_statement"
+    match_grammar = Sequence(
+        "INSERT",
+        "INTO",
+        Ref("TableReferenceSegment"),
+        Ref("BracketedColumnReferenceListGrammar", optional=True),
+        Ref("SelectableGrammar"),
     )
 
 
@@ -1054,23 +1073,17 @@ class IfExpressionStatement(BaseSegment):
             Sequence("IF", Ref("ExpressionSegment")),
         ),
         Indent,
-        OneOf(
-            Ref("BeginEndSegment"),
-            Sequence(
-                Ref("StatementSegment"),
-                Ref("DelimiterSegment", optional=True),
-            ),
+        Sequence(
+            Ref("StatementSegment"),
+            Ref("DelimiterSegment", optional=True),
         ),
         Dedent,
         Sequence(
             "ELSE",
             Indent,
-            OneOf(
-                Ref("BeginEndSegment"),
-                Sequence(
-                    Ref("StatementSegment"),
-                    Ref("DelimiterSegment", optional=True),
-                ),
+            Sequence(
+                Ref("StatementSegment"),
+                Ref("DelimiterSegment", optional=True),
             ),
             Dedent,
             optional=True,
@@ -1360,9 +1373,9 @@ class ProcedureDefinitionGrammar(BaseSegment):
     name = "procedure_statement"
 
     match_grammar = AnyNumberOf(
-        OneOf(
-            Ref("BeginEndSegment"),
+        Sequence(
             Ref("StatementSegment"),
+            Ref("DelimiterSegment", optional=True),
         ),
         min_times=1,
     )
@@ -2104,15 +2117,52 @@ class BeginEndSegment(BaseSegment):
         Ref("DelimiterSegment", optional=True),
         Indent,
         AnyNumberOf(
-            OneOf(
-                Ref("BeginEndSegment"),
+            Ref("StatementSegment"),
+            Ref("DelimiterSegment", optional=True),
+            min_times=1,
+        ),
+        Dedent,
+        "END",
+    )
+
+
+@tsql_dialect.segment()
+class TryCatchSegment(BaseSegment):
+    """A `TRY/CATCH` block pair.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/try-catch-transact-sql?view=sql-server-ver15
+    """
+
+    type = "try_catch"
+    match_grammar = Sequence(
+        "BEGIN",
+        "TRY",
+        Ref("DelimiterSegment", optional=True),
+        Indent,
+        AnyNumberOf(
+            Sequence(
                 Ref("StatementSegment"),
+                Ref("DelimiterSegment", optional=True),
             ),
             min_times=1,
         ),
         Dedent,
         "END",
+        "TRY",
+        "BEGIN",
+        "CATCH",
         Ref("DelimiterSegment", optional=True),
+        Indent,
+        AnyNumberOf(
+            Sequence(
+                Ref("StatementSegment"),
+                Ref("DelimiterSegment", optional=True),
+            ),
+            min_times=1,
+        ),
+        Dedent,
+        "END",
+        "CATCH",
     )
 
 
@@ -2124,9 +2174,9 @@ class BatchSegment(BaseSegment):
     match_grammar = OneOf(
         # Things that can be bundled
         AnyNumberOf(
-            OneOf(
-                Ref("BeginEndSegment"),
+            Sequence(
                 Ref("StatementSegment"),
+                Ref("DelimiterSegment", optional=True),
             ),
             min_times=1,
         ),

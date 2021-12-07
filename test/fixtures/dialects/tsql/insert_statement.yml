@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 29d352ee96d634cd54d1cd65cf5b64eb1d733096f8625acb03b246022db3279f
+_hash: fcc2c419a37911d07ab039b188f6e412314e583c409af33781667403759fc7c4
 file:
-  batch:
+- batch:
     statement:
       insert_statement:
       - keyword: INSERT
@@ -264,3 +264,123 @@ file:
                   - identifier: STAGE
                   - dot: .
                   - identifier: ECDC_CASES
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
+      begin_end_block:
+      - keyword: BEGIN
+      - statement:
+          insert_statement:
+          - keyword: INSERT
+          - keyword: INTO
+          - table_reference:
+            - identifier: HumanResources
+            - dot: .
+            - identifier: NewEmployee
+          - select_statement:
+              select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                  column_reference:
+                    identifier: EmpID
+              - comma: ','
+              - select_clause_element:
+                  column_reference:
+                    identifier: LastName
+              - comma: ','
+              - select_clause_element:
+                  column_reference:
+                    identifier: FirstName
+              - comma: ','
+              - select_clause_element:
+                  column_reference:
+                    identifier: Phone
+              - comma: ','
+              - select_clause_element:
+                  column_reference:
+                    identifier: Address
+              - comma: ','
+              - select_clause_element:
+                  column_reference:
+                    identifier: City
+              - comma: ','
+              - select_clause_element:
+                  column_reference:
+                    identifier: StateProvince
+              - comma: ','
+              - select_clause_element:
+                  column_reference:
+                    identifier: PostalCode
+              - comma: ','
+              - select_clause_element:
+                  column_reference:
+                    identifier: CurrentFlag
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        identifier: EmployeeTemp
+                statement_terminator: ;
+      - keyword: END
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
+      insert_statement:
+      - keyword: INSERT
+      - keyword: INTO
+      - table_reference:
+        - identifier: HumanResources
+        - dot: .
+        - identifier: NewEmployee
+      - select_statement:
+          select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+              column_reference:
+                identifier: EmpID
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                identifier: LastName
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                identifier: FirstName
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                identifier: Phone
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                identifier: Address
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                identifier: City
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                identifier: StateProvince
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                identifier: PostalCode
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                identifier: CurrentFlag
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    identifier: EmployeeTemp
+            statement_terminator: ;
+- go_statement:
+    keyword: GO
