@@ -32,6 +32,7 @@ AS
 )
 WITH NO DATA;
 
+
 CREATE MATERIALIZED VIEW my_mat_view
 USING heap
 TABLESPACE pg_default

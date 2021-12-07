@@ -3,8 +3,371 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ef5f5d19380c61221dbb88a62488c9c390f2965c2298c40547287a26827c45a9
+_hash: 405b98120e8ce8df29753e2170ddc3189676769967dd927f0557f2df93e22b50
 file:
+- statement:
+    alter_materialized_view_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        identifier: bar
+    - alter_materialized_view_action_segment:
+      - keyword: ALTER
+      - column_reference:
+          identifier: column_name
+      - keyword: SET
+      - keyword: STATISTICS
+      - literal: '1'
+- statement_terminator: ;
+- statement:
+    alter_materialized_view_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        identifier: bar
+    - alter_materialized_view_action_segment:
+      - keyword: ALTER
+      - keyword: COLUMN
+      - column_reference:
+          identifier: column_name
+      - keyword: SET
+      - keyword: STATISTICS
+      - literal: '1'
+- statement_terminator: ;
+- statement:
+    alter_materialized_view_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        identifier: bar
+    - alter_materialized_view_action_segment:
+      - keyword: ALTER
+      - column_reference:
+          identifier: column_name
+      - keyword: SET
+      - bracketed:
+          start_bracket: (
+          parameter: attribute_option
+          comparison_operator: '='
+          literal: '1'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_materialized_view_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        identifier: bar
+    - alter_materialized_view_action_segment:
+      - keyword: ALTER
+      - keyword: COLUMN
+      - column_reference:
+          identifier: column_name
+      - keyword: SET
+      - bracketed:
+        - start_bracket: (
+        - parameter: attribute_option1
+        - comparison_operator: '='
+        - literal: "'avalue'"
+        - comma: ','
+        - parameter: attribute_option2
+        - comparison_operator: '='
+        - literal: "'avalue'"
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_materialized_view_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        identifier: bar
+    - alter_materialized_view_action_segment:
+      - keyword: ALTER
+      - column_reference:
+          identifier: column_name
+      - keyword: RESET
+      - bracketed:
+          start_bracket: (
+          parameter: attribute_option
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_materialized_view_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        identifier: bar
+    - alter_materialized_view_action_segment:
+      - keyword: ALTER
+      - column_reference:
+          identifier: column_name
+      - keyword: RESET
+      - bracketed:
+        - start_bracket: (
+        - parameter: attribute_option
+        - comma: ','
+        - parameter: attribute_option2
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_materialized_view_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        identifier: bar
+    - alter_materialized_view_action_segment:
+      - keyword: ALTER
+      - keyword: COLUMN
+      - column_reference:
+          identifier: column_name
+      - keyword: RESET
+      - bracketed:
+          start_bracket: (
+          parameter: attribute_option
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_materialized_view_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        identifier: bar
+    - alter_materialized_view_action_segment:
+      - keyword: ALTER
+      - keyword: COLUMN
+      - column_reference:
+          identifier: column_name
+      - keyword: RESET
+      - bracketed:
+        - start_bracket: (
+        - parameter: attribute_option
+        - comma: ','
+        - parameter: attribute_option2
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_materialized_view_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        identifier: bar
+    - alter_materialized_view_action_segment:
+      - keyword: ALTER
+      - column_reference:
+          identifier: column_name
+      - keyword: SET
+      - keyword: STORAGE
+      - keyword: PLAIN
+- statement_terminator: ;
+- statement:
+    alter_materialized_view_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        identifier: bar
+    - alter_materialized_view_action_segment:
+      - keyword: ALTER
+      - keyword: COLUMN
+      - column_reference:
+          identifier: column_name
+      - keyword: SET
+      - keyword: STORAGE
+      - keyword: EXTENDED
+- statement_terminator: ;
+- statement:
+    alter_materialized_view_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        identifier: bar
+    - alter_materialized_view_action_segment:
+      - keyword: CLUSTER
+      - keyword: 'ON'
+      - parameter: index_name
+- statement_terminator: ;
+- statement:
+    alter_materialized_view_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        identifier: bar
+    - alter_materialized_view_action_segment:
+      - keyword: SET
+      - keyword: WITHOUT
+      - keyword: CLUSTER
+- statement_terminator: ;
+- statement:
+    alter_materialized_view_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        identifier: bar
+    - alter_materialized_view_action_segment:
+        keyword: SET
+        bracketed:
+          start_bracket: (
+          parameter: storage_parameter
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_materialized_view_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        identifier: bar
+    - alter_materialized_view_action_segment:
+        keyword: SET
+        bracketed:
+        - start_bracket: (
+        - parameter: storage_parameter
+        - comma: ','
+        - parameter: storage_parameter
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_materialized_view_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        identifier: bar
+    - alter_materialized_view_action_segment:
+        keyword: SET
+        bracketed:
+        - start_bracket: (
+        - parameter: storage_parameter
+        - comparison_operator: '='
+        - literal: "'some_value'"
+        - comma: ','
+        - parameter: storage_parameter
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_materialized_view_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        identifier: bar
+    - alter_materialized_view_action_segment:
+        keyword: RESET
+        bracketed:
+          start_bracket: (
+          parameter: storage_parameter
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_materialized_view_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        identifier: bar
+    - alter_materialized_view_action_segment:
+        keyword: RESET
+        bracketed:
+        - start_bracket: (
+        - parameter: storage_parameter
+        - comma: ','
+        - parameter: storage_parameter
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_materialized_view_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        identifier: bar
+    - alter_materialized_view_action_segment:
+      - keyword: OWNER
+      - keyword: TO
+      - object_reference:
+          identifier: baz_role
+- statement_terminator: ;
+- statement:
+    alter_materialized_view_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        identifier: bar
+    - alter_materialized_view_action_segment:
+      - keyword: OWNER
+      - keyword: TO
+      - object_reference:
+          identifier: '"baz-role"'
+- statement_terminator: ;
+- statement:
+    alter_materialized_view_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        identifier: bar
+    - keyword: DEPENDS
+    - keyword: 'ON'
+    - keyword: EXTENSION
+    - parameter: baz
+- statement_terminator: ;
+- statement:
+    alter_materialized_view_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        identifier: bar
+    - keyword: 'NO'
+    - keyword: DEPENDS
+    - keyword: 'ON'
+    - keyword: EXTENSION
+    - parameter: baz
+- statement_terminator: ;
+- statement:
+    alter_materialized_view_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        identifier: bar
+    - keyword: RENAME
+    - column_reference:
+        identifier: column_name
+    - keyword: TO
+    - column_reference:
+        identifier: new_column_name
+- statement_terminator: ;
+- statement:
+    alter_materialized_view_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        identifier: bar
+    - keyword: RENAME
+    - keyword: COLUMN
+    - column_reference:
+        identifier: column_name
+    - keyword: TO
+    - column_reference:
+        identifier: new_column_name
+- statement_terminator: ;
 - statement:
     alter_materialized_view_statement:
     - keyword: ALTER
@@ -38,22 +401,129 @@ file:
     - keyword: VIEW
     - table_reference:
         identifier: bar
-    - alter_materialized_view_action_segment:
-      - keyword: OWNER
-      - keyword: TO
-      - object_reference:
-          identifier: baz_role
+    - keyword: SET
+    - keyword: SCHEMA
+    - parameter: new_schema
 - statement_terminator: ;
 - statement:
     alter_materialized_view_statement:
     - keyword: ALTER
     - keyword: MATERIALIZED
     - keyword: VIEW
+    - keyword: IF
+    - keyword: EXISTS
     - table_reference:
         identifier: bar
-    - alter_materialized_view_action_segment:
-      - keyword: OWNER
-      - keyword: TO
-      - object_reference:
-          identifier: '"baz-role"'
+    - keyword: SET
+    - keyword: SCHEMA
+    - parameter: new_schema
+- statement_terminator: ;
+- statement:
+    alter_materialized_view_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - keyword: ALL
+    - keyword: IN
+    - keyword: TABLESPACE
+    - table_reference:
+        identifier: old_tablespace
+    - keyword: SET
+    - keyword: TABLESPACE
+    - parameter: new_tablespace
+- statement_terminator: ;
+- statement:
+    alter_materialized_view_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - keyword: ALL
+    - keyword: IN
+    - keyword: TABLESPACE
+    - table_reference:
+        identifier: old_tablespace
+    - keyword: SET
+    - keyword: TABLESPACE
+    - parameter: new_tablespace
+    - keyword: NOWAIT
+- statement_terminator: ;
+- statement:
+    alter_materialized_view_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - keyword: ALL
+    - keyword: IN
+    - keyword: TABLESPACE
+    - table_reference:
+        identifier: old_tablespace
+    - keyword: OWNED
+    - keyword: BY
+    - object_reference:
+        identifier: role_name
+    - keyword: SET
+    - keyword: TABLESPACE
+    - parameter: new_tablespace
+- statement_terminator: ;
+- statement:
+    alter_materialized_view_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - keyword: ALL
+    - keyword: IN
+    - keyword: TABLESPACE
+    - table_reference:
+        identifier: old_tablespace
+    - keyword: OWNED
+    - keyword: BY
+    - object_reference:
+        identifier: role_name
+    - keyword: SET
+    - keyword: TABLESPACE
+    - parameter: new_tablespace
+    - keyword: NOWAIT
+- statement_terminator: ;
+- statement:
+    alter_materialized_view_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - keyword: ALL
+    - keyword: IN
+    - keyword: TABLESPACE
+    - table_reference:
+        identifier: old_tablespace
+    - keyword: OWNED
+    - keyword: BY
+    - object_reference:
+        identifier: role_name
+    - comma: ','
+    - object_reference:
+        identifier: role_name_2
+    - keyword: SET
+    - keyword: TABLESPACE
+    - parameter: new_tablespace
+- statement_terminator: ;
+- statement:
+    alter_materialized_view_statement:
+    - keyword: ALTER
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - keyword: ALL
+    - keyword: IN
+    - keyword: TABLESPACE
+    - table_reference:
+        identifier: old_tablespace
+    - keyword: OWNED
+    - keyword: BY
+    - object_reference:
+        identifier: role_name
+    - comma: ','
+    - object_reference:
+        identifier: role_name_2
+    - keyword: SET
+    - keyword: TABLESPACE
+    - parameter: new_tablespace
+    - keyword: NOWAIT
 - statement_terminator: ;

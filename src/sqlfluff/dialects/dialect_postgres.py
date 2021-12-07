@@ -1465,8 +1465,11 @@ class AlterMaterializedViewActionSegment(BaseSegment):
                         Delimited(
                             Sequence(
                                 Ref("ParameterNameSegment"),
-                                Ref("EqualsSegment"),
-                                Ref("LiteralGrammar"),
+                                Sequence(
+                                    Ref("EqualsSegment"),
+                                    Ref("LiteralGrammar"),
+                                    optional=True,
+                                ),
                             ),
                         )
                     ),
@@ -1490,7 +1493,7 @@ class AlterMaterializedViewActionSegment(BaseSegment):
                     Sequence(
                         Ref("ParameterNameSegment"),
                         Sequence(
-                            Ref("EqualsSegment"), Ref("LiteralGrammer"), optional=True
+                            Ref("EqualsSegment"), Ref("LiteralGrammar"), optional=True
                         ),
                     )
                 )
