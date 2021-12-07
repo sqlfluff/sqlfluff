@@ -1412,7 +1412,7 @@ class AlterMaterializedViewStatementSegment(BaseSegment):
                         Ref("ColumnReferenceSegment"),
                     ),
                     Sequence("RENAME", "TO", Ref("TableReferenceSegment")),
-                    Sequence("SET", "SCHEMA", Ref("ParameterNameSegment")),
+                    Sequence("SET", "SCHEMA", Ref("SchemaReferenceSegment")),
                 ),
             ),
             Sequence(
