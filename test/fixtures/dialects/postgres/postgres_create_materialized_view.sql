@@ -1,4 +1,35 @@
 CREATE MATERIALIZED VIEW my_mat_view AS
+    SELECT
+        a
+    FROM
+        my_table
+;
+
+CREATE MATERIALIZED VIEW IF NOT EXISTS my_mat_view AS
+    SELECT
+        a
+    FROM
+        my_table
+;
+
+CREATE MATERIALIZED VIEW my_mat_view AS
+(
+    SELECT
+        a
+    FROM
+        my_table
+);
+
+CREATE MATERIALIZED VIEW IF NOT EXISTS my_mat_view AS
+(
+    SELECT
+        a
+    FROM
+        my_table
+);
+
+
+CREATE MATERIALIZED VIEW my_mat_view AS
 (
     SELECT
         a,
