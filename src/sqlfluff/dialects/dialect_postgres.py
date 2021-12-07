@@ -1368,7 +1368,6 @@ class CreateMaterializedViewStatementSegment(BaseSegment):
                                 optional=True,
                             ),
                         ),
-                        delimiter=Ref("CommaSegment"),
                     )
                 ),
             ),
@@ -1469,7 +1468,6 @@ class AlterMaterializedViewActionSegment(BaseSegment):
                                 Ref("EqualsSegment"),
                                 Ref("LiteralGrammar"),
                             ),
-                            delimiter=Ref("CommaSegment"),
                         )
                     ),
                 ),
