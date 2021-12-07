@@ -3,13 +3,24 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1b6f09a3b9d8e9bdeaae098da32defd5d1868902c24af062dd889f2528f68815
+_hash: d96855e1734d31e7ba49357d7f6a6a5adebc15be562e88876cb0354a87726bfc
 file:
 - statement:
     drop_materialized_view_statement:
     - keyword: DROP
     - keyword: MATERIALIZED
     - keyword: VIEW
+    - table_reference:
+        identifier: bar
+- statement_terminator: ;
+- statement:
+    drop_materialized_view_statement:
+    - keyword: DROP
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        identifier: foo
+    - comma: ','
     - table_reference:
         identifier: bar
 - statement_terminator: ;
@@ -27,6 +38,30 @@ file:
     - keyword: DROP
     - keyword: MATERIALIZED
     - keyword: VIEW
+    - table_reference:
+        identifier: foo
+    - comma: ','
+    - table_reference:
+        identifier: bar
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+    drop_materialized_view_statement:
+    - keyword: DROP
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        identifier: bar
+    - keyword: RESTRICT
+- statement_terminator: ;
+- statement:
+    drop_materialized_view_statement:
+    - keyword: DROP
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        identifier: foo
+    - comma: ','
     - table_reference:
         identifier: bar
     - keyword: RESTRICT
@@ -49,6 +84,19 @@ file:
     - keyword: IF
     - keyword: EXISTS
     - table_reference:
+        identifier: foo
+    - comma: ','
+    - table_reference:
+        identifier: bar
+- statement_terminator: ;
+- statement:
+    drop_materialized_view_statement:
+    - keyword: DROP
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
         identifier: bar
     - keyword: CASCADE
 - statement_terminator: ;
@@ -59,6 +107,34 @@ file:
     - keyword: VIEW
     - keyword: IF
     - keyword: EXISTS
+    - table_reference:
+        identifier: foo
+    - comma: ','
+    - table_reference:
+        identifier: bar
+    - keyword: CASCADE
+- statement_terminator: ;
+- statement:
+    drop_materialized_view_statement:
+    - keyword: DROP
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        identifier: bar
+    - keyword: RESTRICT
+- statement_terminator: ;
+- statement:
+    drop_materialized_view_statement:
+    - keyword: DROP
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        identifier: foo
+    - comma: ','
     - table_reference:
         identifier: bar
     - keyword: RESTRICT
