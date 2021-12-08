@@ -1,6 +1,6 @@
 """The core elements of sqlfluff."""
 
-import tblib.pickling_support  # type: ignore
+import tblib.pickling_support
 
 # Config objects
 from sqlfluff.core.config import FluffConfig

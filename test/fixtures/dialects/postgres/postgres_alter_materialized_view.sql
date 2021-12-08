@@ -1,0 +1,54 @@
+ALTER MATERIALIZED VIEW bar ALTER column_name SET STATISTICS 1;
+ALTER MATERIALIZED VIEW bar ALTER COLUMN column_name SET STATISTICS 1;
+ALTER MATERIALIZED VIEW bar ALTER column_name SET ( attribute_option = 1);
+ALTER MATERIALIZED VIEW bar ALTER COLUMN column_name SET (
+    attribute_option1 = 'avalue', attribute_option2 = 'avalue'
+);
+ALTER MATERIALIZED VIEW bar ALTER column_name RESET ( attribute_option );
+ALTER MATERIALIZED VIEW bar ALTER column_name RESET (
+    attribute_option, attribute_option2
+);
+ALTER MATERIALIZED VIEW bar ALTER COLUMN column_name RESET ( attribute_option );
+ALTER MATERIALIZED VIEW bar ALTER COLUMN column_name RESET (
+    attribute_option, attribute_option2
+);
+ALTER MATERIALIZED VIEW bar ALTER column_name SET STORAGE PLAIN;
+ALTER MATERIALIZED VIEW bar ALTER COLUMN column_name SET STORAGE EXTENDED;
+
+ALTER MATERIALIZED VIEW bar CLUSTER ON index_name;
+ALTER MATERIALIZED VIEW bar SET WITHOUT CLUSTER;
+
+ALTER MATERIALIZED VIEW bar SET ( storage_parameter);
+ALTER MATERIALIZED VIEW bar SET ( storage_parameter, storage_parameter);
+ALTER MATERIALIZED VIEW bar SET (
+    storage_parameter = 'some_value', storage_parameter
+);
+
+ALTER MATERIALIZED VIEW bar RESET ( storage_parameter);
+ALTER MATERIALIZED VIEW bar RESET ( storage_parameter, storage_parameter);
+
+ALTER MATERIALIZED VIEW bar OWNER TO baz_role;
+ALTER MATERIALIZED VIEW bar OWNER TO "baz-role";
+
+ALTER MATERIALIZED VIEW bar DEPENDS ON EXTENSION baz;
+ALTER MATERIALIZED VIEW bar NO DEPENDS ON EXTENSION baz;
+
+ALTER MATERIALIZED VIEW bar RENAME column_name TO new_column_name;
+ALTER MATERIALIZED VIEW IF EXISTS bar RENAME COLUMN column_name TO new_column_name;
+
+ALTER MATERIALIZED VIEW bar RENAME TO baz;
+ALTER MATERIALIZED VIEW IF EXISTS bar RENAME TO baz;
+
+ALTER MATERIALIZED VIEW bar SET SCHEMA new_schema;
+ALTER MATERIALIZED VIEW IF EXISTS bar SET SCHEMA new_schema;
+
+ALTER MATERIALIZED VIEW ALL IN TABLESPACE old_tablespace SET TABLESPACE new_tablespace;
+ALTER MATERIALIZED VIEW ALL IN TABLESPACE old_tablespace SET TABLESPACE new_tablespace NOWAIT;
+
+ALTER MATERIALIZED VIEW ALL IN TABLESPACE old_tablespace OWNED BY role_name SET TABLESPACE new_tablespace;
+ALTER MATERIALIZED VIEW ALL IN TABLESPACE old_tablespace OWNED BY role_name SET TABLESPACE new_tablespace NOWAIT;
+
+ALTER MATERIALIZED VIEW ALL IN TABLESPACE old_tablespace OWNED BY role_name,
+role_name_2 SET TABLESPACE new_tablespace;
+ALTER MATERIALIZED VIEW ALL IN TABLESPACE old_tablespace OWNED BY role_name,
+role_name_2 SET TABLESPACE new_tablespace NOWAIT;
