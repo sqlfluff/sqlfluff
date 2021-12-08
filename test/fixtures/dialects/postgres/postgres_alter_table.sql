@@ -55,6 +55,13 @@ ALTER TABLE distributors ADD PRIMARY KEY (dist_id);
 
 ALTER TABLE distributors SET TABLESPACE fasttablespace;
 
+-- Issue:2071
+ALTER TABLE distributors SET (parameter_1 = 'value');
+
+ALTER TABLE distributors SET (parameter_1 = 1);
+
+ALTER TABLE distributors SET (parameter_1 = 1, parameter_2 = 'value');
+
 ALTER TABLE myschema.distributors SET SCHEMA yourschema;
 
 ALTER TABLE distributors DROP CONSTRAINT distributors_pkey,
