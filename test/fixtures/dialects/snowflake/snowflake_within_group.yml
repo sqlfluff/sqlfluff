@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 48d1d4a41ba2ccbfcaf09a19a7b4de7347309f744d4e537496390b9a43297237
+_hash: e30ac870b37caef9be67bf46f101a591c2c3bef1c0d6ed6822107fc4121c9a96
 file:
 - statement:
     with_compound_statement:
@@ -124,7 +124,7 @@ file:
               table_expression:
                 table_reference:
                   identifier: favourite_fruits
-        group_by_clause:
+        groupby_clause:
         - keyword: group
         - keyword: by
         - column_reference:
@@ -297,7 +297,7 @@ file:
             identifier: o_totalprice
           comparison_operator: '>'
           literal: '450000'
-      group_by_clause:
+      groupby_clause:
       - keyword: group
       - keyword: by
       - column_reference:
@@ -421,7 +421,7 @@ file:
             identifier: o_totalprice
           comparison_operator: '>'
           literal: '450000'
-      group_by_clause:
+      groupby_clause:
       - keyword: group
       - keyword: by
       - column_reference:
@@ -473,7 +473,7 @@ file:
             table_expression:
               table_reference:
                 identifier: collation_demo
-      group_by_clause:
+      groupby_clause:
       - keyword: group
       - keyword: by
       - column_reference:
@@ -525,7 +525,7 @@ file:
             table_expression:
               table_reference:
                 identifier: collation_demo
-      group_by_clause:
+      groupby_clause:
       - keyword: group
       - keyword: by
       - column_reference:
