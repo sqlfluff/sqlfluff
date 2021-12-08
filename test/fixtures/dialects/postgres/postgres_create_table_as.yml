@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bf505eaff66681af4921367975e1fb26ae8b5fb17740f77659311e5d82f9323d
+_hash: e3a9838ddec31ee223fcbef6ba0045a515337cd49df6013969423fbd2f83e2d9
 file:
 - statement:
     create_table_as_statement:
@@ -240,7 +240,7 @@ file:
                   table_reference:
                     identifier: t2
         end_bracket: )
-    - with_no_schema_binding_clause:
+    - with_data_clause:
       - keyword: WITH
       - keyword: 'NO'
       - keyword: DATA
@@ -265,7 +265,7 @@ file:
               table_expression:
                 table_reference:
                   identifier: t2
-    - with_no_schema_binding_clause:
+    - with_data_clause:
       - keyword: WITH
       - keyword: 'NO'
       - keyword: DATA
@@ -293,7 +293,7 @@ file:
                   table_reference:
                     identifier: t2
         end_bracket: )
-    - with_no_schema_binding_clause:
+    - with_data_clause:
       - keyword: WITH
       - keyword: DATA
 - statement_terminator: ;
@@ -317,7 +317,7 @@ file:
               table_expression:
                 table_reference:
                   identifier: t2
-    - with_no_schema_binding_clause:
+    - with_data_clause:
       - keyword: WITH
       - keyword: DATA
 - statement_terminator: ;
