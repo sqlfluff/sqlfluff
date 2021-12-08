@@ -435,3 +435,19 @@ test_fail_implicit_expression_order_by_custom_implicit:
     rules:
       L054:
         group_by_and_order_by_style: implicit
+
+test_fail_consistent_snowflake:
+  fail_str: |
+    select
+      a,
+      b,
+      c
+    from test_table
+    group by 1, b
+    order by 1, 2
+  configs:
+    core:
+      dialect: snowflake
+    rules:
+      L054:
+        group_by_and_order_by_style: consistent
