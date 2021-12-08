@@ -451,3 +451,19 @@ test_fail_consistent_snowflake:
     rules:
       L054:
         group_by_and_order_by_style: consistent
+
+test_fail_consistent_exasol:
+  fail_str: |
+    select
+      a,
+      b,
+      c
+    from test_table
+    group by 1, b
+    order by 1, 2
+  configs:
+    core:
+      dialect: exasol
+    rules:
+      L054:
+        group_by_and_order_by_style: consistent
