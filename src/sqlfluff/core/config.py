@@ -349,13 +349,26 @@ class ConfigLoader:
         return self.load_config_at_path(user_home_path)
 
     def load_config_up_to_path(
-        self, path: str, extra_config_path: Optional[str] = None
+        self,
+        path: str,
+        extra_config_path: Optional[str] = None,
+        ignore_local_config: bool = False,
     ) -> dict:
         """Loads a selection of config files from both the path and its parent paths."""
-        user_appdir_config = self.load_user_appdir_config()
-        user_config = self.load_user_config()
-        config_paths = self.iter_config_locations_up_to_path(path)
-        config_stack = [self.load_config_at_path(p) for p in config_paths]
+        user_appdir_config = (
+            self.load_user_appdir_config() if not ignore_local_config else {}
+        )
+        user_config = self.load_user_config() if not ignore_local_config else {}
+        config_paths = (
+            self.iter_config_locations_up_to_path(path)
+            if not ignore_local_config
+            else {}
+        )
+        config_stack = (
+            [self.load_config_at_path(p) for p in config_paths]
+            if not ignore_local_config
+            else []
+        )
         extra_config = (
             self.load_extra_config(extra_config_path) if extra_config_path else {}
         )
@@ -422,11 +435,15 @@ class FluffConfig:
         self,
         configs: Optional[dict] = None,
         extra_config_path: Optional[str] = None,
+        ignore_local_config: bool = False,
         overrides: Optional[dict] = None,
         plugin_manager: Optional[pluggy.PluginManager] = None,
     ):
         self._extra_config_path = (
             extra_config_path  # We only store this for child configs
+        )
+        self._ignore_local_config = (
+            ignore_local_config  # We only store this for child configs
         )
         self._overrides = overrides  # We only store this for child configs
 
@@ -501,29 +518,45 @@ class FluffConfig:
 
     @classmethod
     def from_root(
-        cls, extra_config_path: Optional[str] = None, overrides: Optional[dict] = None
+        cls,
+        extra_config_path: Optional[str] = None,
+        ignore_local_config: bool = False,
+        overrides: Optional[dict] = None,
     ) -> "FluffConfig":
         """Loads a config object just based on the root directory."""
         loader = ConfigLoader.get_global()
-        c = loader.load_config_up_to_path(path=".", extra_config_path=extra_config_path)
-        return cls(configs=c, extra_config_path=extra_config_path, overrides=overrides)
+        c = loader.load_config_up_to_path(
+            path=".",
+            extra_config_path=extra_config_path,
+            ignore_local_config=ignore_local_config,
+        )
+        return cls(
+            configs=c,
+            extra_config_path=extra_config_path,
+            ignore_local_config=ignore_local_config,
+            overrides=overrides,
+        )
 
     @classmethod
     def from_path(
         cls,
         path: str,
         extra_config_path: Optional[str] = None,
+        ignore_local_config: bool = False,
         overrides: Optional[dict] = None,
         plugin_manager: Optional[pluggy.PluginManager] = None,
     ) -> "FluffConfig":
         """Loads a config object given a particular path."""
         loader = ConfigLoader.get_global()
         c = loader.load_config_up_to_path(
-            path=path, extra_config_path=extra_config_path
+            path=path,
+            extra_config_path=extra_config_path,
+            ignore_local_config=ignore_local_config,
         )
         return cls(
             configs=c,
             extra_config_path=extra_config_path,
+            ignore_local_config=ignore_local_config,
             overrides=overrides,
             plugin_manager=plugin_manager,
         )
@@ -590,6 +623,7 @@ class FluffConfig:
         return self.from_path(
             path,
             extra_config_path=self._extra_config_path,
+            ignore_local_config=self._ignore_local_config,
             overrides=self._overrides,
             plugin_manager=self._plugin_manager,
         )
