@@ -1295,7 +1295,7 @@ class AlterTableActionSegment(BaseSegment):
                     Sequence(
                         Ref("ParameterNameSegment"),
                         Ref("EqualsSegment"),
-                        Ref("LiteralGrammer"),
+                        Ref("LiteralGrammar"),
                     ),
                     delimiter=Ref("CommaSegment"),
                 )
