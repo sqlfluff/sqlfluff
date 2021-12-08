@@ -445,6 +445,7 @@ ansi_dialect.add(
         "WINDOW",
         Ref("SetOperatorSegment"),
         Ref("WithNoSchemaBindingClauseSegment"),
+        Ref("WithDataClauseSegment"),
     ),
     WhereClauseTerminatorGrammar=OneOf(
         "LIMIT",
@@ -1867,6 +1868,7 @@ class UnorderedSelectStatementSegment(BaseSegment):
         terminator=OneOf(
             Ref("SetOperatorSegment"),
             Ref("WithNoSchemaBindingClauseSegment"),
+            Ref("WithDataClauseSegment"),
             Ref("OrderByClauseSegment"),
             Ref("LimitClauseSegment"),
             Ref("NamedWindowSegment"),
@@ -1901,7 +1903,9 @@ class SelectStatementSegment(BaseSegment):
         # here.
         Ref("SelectClauseSegment"),
         terminator=OneOf(
-            Ref("SetOperatorSegment"), Ref("WithNoSchemaBindingClauseSegment")
+            Ref("SetOperatorSegment"),
+            Ref("WithNoSchemaBindingClauseSegment"),
+            Ref("WithDataClauseSegment"),
         ),
         enforce_whitespace_preceding_terminator=True,
     )
@@ -3031,6 +3035,17 @@ class WithNoSchemaBindingClauseSegment(BaseSegment):
         "SCHEMA",
         "BINDING",
     )
+
+
+@ansi_dialect.segment()
+class WithDataClauseSegment(BaseSegment):
+    """WITH [NO] DATA clause for Postgres' MATERIALIZED VIEWS.
+
+    https://www.postgresql.org/docs/9.3/sql-creatematerializedview.html
+    """
+
+    type = "with_no_schema_binding_clause"
+    match_grammar = Sequence("WITH", Sequence("NO", optional=True), "DATA")
 
 
 @ansi_dialect.segment()

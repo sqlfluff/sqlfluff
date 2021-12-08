@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a64de09ad22578598b3ef5a71c974e88e336504d96bfe13b7c24527a510566e8
+_hash: da42b4fd704962875ac347e30e1912448cf800d921462baccb1558aa74f21cb8
 file:
 - statement:
     refresh_materialized_view_statement:
@@ -29,8 +29,9 @@ file:
     - keyword: VIEW
     - table_reference:
         identifier: bar
-    - keyword: WITH
-    - keyword: DATA
+    - with_no_schema_binding_clause:
+      - keyword: WITH
+      - keyword: DATA
 - statement_terminator: ;
 - statement:
     refresh_materialized_view_statement:
@@ -39,7 +40,8 @@ file:
     - keyword: VIEW
     - table_reference:
         identifier: bar
-    - keyword: WITH
-    - keyword: 'NO'
-    - keyword: DATA
+    - with_no_schema_binding_clause:
+      - keyword: WITH
+      - keyword: 'NO'
+      - keyword: DATA
 - statement_terminator: ;

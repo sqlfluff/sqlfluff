@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0b1f955ea00e6957f53eb8eea2544bf27d59b575679d5fc24f6aecf25821a44d
+_hash: bf505eaff66681af4921367975e1fb26ae8b5fb17740f77659311e5d82f9323d
 file:
 - statement:
     create_table_as_statement:
@@ -240,9 +240,35 @@ file:
                   table_reference:
                     identifier: t2
         end_bracket: )
-    - keyword: WITH
-    - keyword: 'NO'
-    - keyword: DATA
+    - with_no_schema_binding_clause:
+      - keyword: WITH
+      - keyword: 'NO'
+      - keyword: DATA
+- statement_terminator: ;
+- statement:
+    create_table_as_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        identifier: t1
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              identifier: something
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: t2
+    - with_no_schema_binding_clause:
+      - keyword: WITH
+      - keyword: 'NO'
+      - keyword: DATA
 - statement_terminator: ;
 - statement:
     create_table_as_statement:
@@ -267,8 +293,33 @@ file:
                   table_reference:
                     identifier: t2
         end_bracket: )
-    - keyword: WITH
-    - keyword: DATA
+    - with_no_schema_binding_clause:
+      - keyword: WITH
+      - keyword: DATA
+- statement_terminator: ;
+- statement:
+    create_table_as_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        identifier: t1
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              identifier: something
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: t2
+    - with_no_schema_binding_clause:
+      - keyword: WITH
+      - keyword: DATA
 - statement_terminator: ;
 - statement:
     create_table_as_statement:

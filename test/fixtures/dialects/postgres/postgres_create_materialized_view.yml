@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1186242e7c23ff39852f9b9ab7d68c9abaa38ab47db990fde27e3df6a5f032d8
+_hash: 81e7f637b02aa5a01f8d9468297b2639a0295b4f5062b40c7ac664e7bd13b0df
 file:
 - statement:
     create_materialized_view_statement:
@@ -82,6 +82,57 @@ file:
     - keyword: CREATE
     - keyword: MATERIALIZED
     - keyword: VIEW
+    - table_reference:
+        identifier: my_mat_view
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              identifier: a
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: my_table
+    - with_no_schema_binding_clause:
+      - keyword: WITH
+      - keyword: 'NO'
+      - keyword: DATA
+- statement_terminator: ;
+- statement:
+    create_materialized_view_statement:
+    - keyword: CREATE
+    - keyword: MATERIALIZED
+    - keyword: VIEW
+    - table_reference:
+        identifier: my_mat_view
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              identifier: a
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: my_table
+    - with_no_schema_binding_clause:
+      - keyword: WITH
+      - keyword: DATA
+- statement_terminator: ;
+- statement:
+    create_materialized_view_statement:
+    - keyword: CREATE
+    - keyword: MATERIALIZED
+    - keyword: VIEW
     - keyword: IF
     - keyword: NOT
     - keyword: EXISTS
@@ -328,9 +379,10 @@ file:
                   table_reference:
                     identifier: my_table
         end_bracket: )
-    - keyword: WITH
-    - keyword: 'NO'
-    - keyword: DATA
+    - with_no_schema_binding_clause:
+      - keyword: WITH
+      - keyword: 'NO'
+      - keyword: DATA
 - statement_terminator: ;
 - statement:
     create_materialized_view_statement:
@@ -359,9 +411,10 @@ file:
                   table_reference:
                     identifier: my_table
         end_bracket: )
-    - keyword: WITH
-    - keyword: 'NO'
-    - keyword: DATA
+    - with_no_schema_binding_clause:
+      - keyword: WITH
+      - keyword: 'NO'
+      - keyword: DATA
 - statement_terminator: ;
 - statement:
     create_materialized_view_statement:
@@ -446,8 +499,9 @@ file:
               comparison_operator: '>'
               literal: '2'
         end_bracket: )
-    - keyword: WITH
-    - keyword: DATA
+    - with_no_schema_binding_clause:
+      - keyword: WITH
+      - keyword: DATA
 - statement_terminator: ;
 - statement:
     create_materialized_view_statement:
@@ -535,6 +589,7 @@ file:
               comparison_operator: '>'
               literal: '2'
         end_bracket: )
-    - keyword: WITH
-    - keyword: DATA
+    - with_no_schema_binding_clause:
+      - keyword: WITH
+      - keyword: DATA
 - statement_terminator: ;

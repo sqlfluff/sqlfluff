@@ -12,12 +12,21 @@ CREATE MATERIALIZED VIEW my_mat_view AS
     FROM my_table
 );
 
+CREATE MATERIALIZED VIEW my_mat_view AS
+SELECT a
+FROM my_table
+WITH NO DATA;
+
+CREATE MATERIALIZED VIEW my_mat_view AS
+SELECT a
+FROM my_table
+WITH DATA;
+
 CREATE MATERIALIZED VIEW IF NOT EXISTS my_mat_view AS
 (
     SELECT a
     FROM my_table
 );
-
 
 CREATE MATERIALIZED VIEW my_mat_view AS
 (

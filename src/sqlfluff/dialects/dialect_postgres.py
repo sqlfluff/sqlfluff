@@ -1054,7 +1054,7 @@ class CreateTableAsStatementSegment(BaseSegment):
             Ref("ValuesClauseSegment"),
             OptionallyBracketed(Sequence("EXECUTE", Ref("FunctionSegment"))),
         ),
-        Sequence("WITH", Ref.keyword("NO", optional=True), "DATA", optional=True),
+        Ref("WithDataClauseSegment", optional=True),
     )
 
 
@@ -1379,7 +1379,7 @@ class CreateMaterializedViewStatementSegment(BaseSegment):
             Ref("ValuesClauseSegment"),
             OptionallyBracketed(Sequence("EXECUTE", Ref("FunctionSegment"))),
         ),
-        Sequence("WITH", Sequence("NO", optional=True), "DATA", optional=True),
+        Ref("WithDataClauseSegment", optional=True),
     )
 
 
@@ -1530,7 +1530,7 @@ class RefreshMaterializedViewStatementSegment(BaseSegment):
         "VIEW",
         Ref.keyword("CONCURRENTLY", optional=True),
         Ref("TableReferenceSegment"),
-        Sequence("WITH", Ref.keyword("NO", optional=True), "DATA", optional=True),
+        Ref("WithDataClauseSegment", optional=True),
     )
 
 
