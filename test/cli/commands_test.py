@@ -372,6 +372,32 @@ def test__cli__command_lint_skip_ignore_files():
     assert "L009" in result.output.strip()
 
 
+def test__cli__command_lint_ignore_local_config():
+    """Test that --ignore-local_config ignores .sqlfluff file as expected."""
+    runner = CliRunner()
+    # First we test that not including the --ignore-local-config includes
+    # .sqlfluff file, and therefore the lint doesn't raise L012
+    result = runner.invoke(
+        lint,
+        [
+            "test/fixtures/cli/ignore_local_config/ignore_local_config_test.sql",
+        ],
+    )
+    assert result.exit_code == 0
+    assert "L012" not in result.output.strip()
+    # Then repeat the same lint but this time ignoring the .sqlfluff file.
+    # We should see L012 raised.
+    result = runner.invoke(
+        lint,
+        [
+            "--ignore-local-config",
+            "test/fixtures/cli/ignore_local_config/ignore_local_config_test.sql",
+        ],
+    )
+    assert result.exit_code == 65
+    assert "L012" in result.output.strip()
+
+
 def test__cli__command_versioning():
     """Check version command."""
     # Get the package version info

@@ -161,6 +161,10 @@ tox -e cov-init,dbt018-py38,cov-report-dbt -- plugins/sqlfluff-templater-dbt
 
 For more information on adding and running test cases see the [Parser Test README](test/fixtures/dialects/README.md) and the [Rules Test README](test/fixtures/rules/std_rule_cases/README.md).
 
+### Pre-Commit Config
+
+For development convenience we also provide a `.pre-commit-config.yaml` file to allow the user to install a selection of pre-commit hooks via `tox -e pre-commit -- install`. These hooks can help the user identify and fix potential linting/typing violations prior to committing their code and therefore reduce having to deal with these sort of issues during code review.
+
 ### Documentation Website
 
 Documentation is built using Sphinx with some pages being built based on the source code.

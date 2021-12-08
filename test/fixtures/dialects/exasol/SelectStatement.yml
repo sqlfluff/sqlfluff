@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c779ff30a065b616a67966cb4168c174892973c083415a6b0168ace96a4dbdc0
+_hash: f1da09d766adcb8b0440010fe51cd8ec89da33e7abba1cef0f78d7d93775309a
 file:
 - statement:
     select_statement:
@@ -130,7 +130,7 @@ file:
             table_expression:
               table_reference:
                 identifier: sales
-      group_by_clause:
+      groupby_clause:
       - keyword: GROUP
       - keyword: BY
       - column_reference:
@@ -181,7 +181,7 @@ file:
               start_bracket: (
               identifier: c_id
               end_bracket: )
-      group_by_clause:
+      groupby_clause:
       - keyword: GROUP
       - keyword: BY
       - column_reference:
@@ -271,7 +271,7 @@ file:
               table_expression:
                 table_reference:
                   identifier: tmp_view
-        group_by_clause:
+        groupby_clause:
         - keyword: GROUP
         - keyword: BY
         - grouping_sets_clause:
