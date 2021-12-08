@@ -1,7 +1,7 @@
 """The code for the Lexer."""
 
 import logging
-from typing import Optional, List, Tuple, Union, NamedTuple
+from typing import Dict, Optional, List, Tuple, Union, NamedTuple
 import regex
 
 from sqlfluff.core.parser.segments import (
@@ -335,8 +335,31 @@ class Lexer:
         lexer_logger.info("Elements to Segments.")
         # Get the templated slices to re-insert tokens for them
         source_only_slices = templated_file.source_only_slices()
+        substitution_raw_source: Dict[int, str] = {
+            elem.source_idx: elem.raw
+            for elem in templated_file.raw_sliced
+            if elem.slice_type == "templated"
+        }
         lexer_logger.info("Source-only slices: %s", source_only_slices)
         stash_source_slice, last_source_slice = None, None
+        last_substitution_slice = None
+
+        def end_substitution_slice():
+            nonlocal last_substitution_slice
+            if last_substitution_slice is not None:
+                # Ending an old slice.
+                segment_buffer.append(
+                    TemplateSegment(
+                        pos_marker=PositionMarker.from_point(
+                            source_slice.start,
+                            element.template_slice.start,
+                            templated_file,
+                        ),
+                        source_str=" ",  # Dummy value
+                        block_type="substitution_end",
+                    )
+                )
+                last_substitution_slice = None
 
         # Now work out source slices, and add in template placeholders.
         for idx, element in enumerate(elements):
@@ -370,6 +393,27 @@ class Lexer:
                         break
                     elif source_only_slice.source_idx >= source_slice.start:
                         so_slices.append(source_only_slice)
+
+                # TODO: I don't think this code will generate substitution_start
+                # and substitution_end if a templated block evaluates to the empty
+                # string. Is this actually possible, and if so, is it an issue?
+                end_substitution_slice()
+                if source_slice.start in substitution_raw_source:
+                    # Yes, it's a templated slice (i.e. substitution).
+                    # if source_slice != last_substitution_slice:
+                    # Starting a new slice.
+                    segment_buffer.append(
+                        TemplateSegment(
+                            pos_marker=PositionMarker.from_point(
+                                source_slice.start,
+                                element.template_slice.start,
+                                templated_file,
+                            ),
+                            source_str=substitution_raw_source[source_slice.start],
+                            block_type="substitution_start",
+                        )
+                    )
+                    last_substitution_slice = source_slice
 
             if so_slices:
                 lexer_logger.debug("    Collected Source Only Slices")
@@ -519,7 +563,6 @@ class Lexer:
                             ),
                         )
                     )
-
             # Add the actual segment
             segment_buffer.append(
                 element.to_segment(
@@ -530,6 +573,8 @@ class Lexer:
                     ),
                 )
             )
+
+        end_substitution_slice()
 
         # Convert to tuple before return
         return tuple(segment_buffer)
