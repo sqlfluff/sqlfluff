@@ -26,3 +26,12 @@ repos:
             flake8-black,
             flake8-docstrings,
         ]
+-   repo: https://github.com/pycqa/doc8
+    rev: 0.10.1
+    hooks:
+    -   id: doc8
+        args: [
+            --file-encoding,
+            utf8,
+        ]
+        files: docs/source/.*\.rst$
