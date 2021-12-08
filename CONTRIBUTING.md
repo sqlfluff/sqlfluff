@@ -163,7 +163,7 @@ For more information on adding and running test cases see the [Parser Test READM
 
 ### Pre-Commit Config
 
-For development convenience we also provide a `.pre-commit-config.yaml` file to allow the user to install a selection of pre-commit hooks via `pre-commit install`. These hooks can help the user identify and fix potential linting/typing violations prior to committing their code and therefore reduce having to deal with these sort of issues during code review.
+For development convenience we also provide a `.pre-commit-config.yaml` file to allow the user to install a selection of pre-commit hooks via `tox -e pre-commit -- install`. These hooks can help the user identify and fix potential linting/typing violations prior to committing their code and therefore reduce having to deal with these sort of issues during code review.
 
 ### Documentation Website
 
