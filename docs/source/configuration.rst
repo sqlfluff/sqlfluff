@@ -476,7 +476,9 @@ You can set the dbt project directory, profiles directory and profile with:
 
     If the `profiles_dir` setting is omitted, SQLFluff will look for the profile
     in the default location, which varies by operating system, e.g. Windows, Mac,
-    Linux.
+    Linux. On Unix, the default profile directory is `~/.dbt/`. On Windows, you
+    can determine your default profile directory by running
+    `dbt debug --config-dir`.
 
 Known Caveats
 ^^^^^^^^^^^^^
