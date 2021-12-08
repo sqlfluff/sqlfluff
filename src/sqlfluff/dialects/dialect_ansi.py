@@ -3044,7 +3044,7 @@ class WithDataClauseSegment(BaseSegment):
     https://www.postgresql.org/docs/9.3/sql-creatematerializedview.html
     """
 
-    type = "with_no_schema_binding_clause"
+    type = "with_data_clause"
     match_grammar = Sequence("WITH", Sequence("NO", optional=True), "DATA")
 
 
