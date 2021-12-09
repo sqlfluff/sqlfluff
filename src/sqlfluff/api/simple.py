@@ -21,7 +21,7 @@ def get_simple_config(
     # Check the requested dialect exists and is valid.
     try:
         dialect_selector(dialect)
-    except SQLFluffUserError as err:
+    except SQLFluffUserError as err:  # pragma: no cover
         raise SQLFluffUserError(f"Error loading dialect '{dialect}': {str(err)}")
     except KeyError:
         raise SQLFluffUserError(f"Error: Unknown dialect '{dialect}'")
