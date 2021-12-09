@@ -1,0 +1,117 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 1bf48057dff457e5d761518d603ab144b8a4286aa6eb6463877cf84a29159a09
+file:
+  statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        identifier: b
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          identifier: b
+          data_type:
+            data_type_identifier: INT
+          column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+      - comma: ','
+      - column_definition:
+          identifier: c
+          data_type:
+            data_type_identifier: INT
+          column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+      - comma: ','
+      - column_definition:
+          identifier: d
+          data_type:
+            data_type_identifier: INT
+          column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+      - comma: ','
+      - table_constraint_segment:
+        - keyword: CONSTRAINT
+        - object_reference:
+            identifier: c_b
+        - keyword: FOREIGN
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              identifier: b
+            end_bracket: )
+        - keyword: REFERENCES
+        - column_reference:
+            identifier: a
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              identifier: b
+            end_bracket: )
+        - keyword: 'ON'
+        - keyword: DELETE
+        - keyword: RESTRICT
+        - keyword: 'ON'
+        - keyword: UPDATE
+        - keyword: 'NO'
+        - keyword: ACTION
+      - comma: ','
+      - table_constraint_segment:
+        - keyword: CONSTRAINT
+        - object_reference:
+            identifier: c_d
+        - keyword: FOREIGN
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              identifier: d
+            end_bracket: )
+        - keyword: REFERENCES
+        - column_reference:
+            identifier: a
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              identifier: d
+            end_bracket: )
+        - keyword: 'ON'
+        - keyword: UPDATE
+        - keyword: CASCADE
+        - keyword: 'ON'
+        - keyword: DELETE
+        - keyword: SET
+        - keyword: 'NULL'
+      - comma: ','
+      - table_constraint_segment:
+        - keyword: CONSTRAINT
+        - object_reference:
+            identifier: c_c
+        - keyword: FOREIGN
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              identifier: c
+            end_bracket: )
+        - keyword: REFERENCES
+        - column_reference:
+            identifier: a
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              identifier: c
+            end_bracket: )
+        - keyword: 'ON'
+        - keyword: DELETE
+        - keyword: SET
+        - keyword: DEFAULT
+      - end_bracket: )
