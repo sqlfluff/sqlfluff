@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1b58af1b9ec665e495748f09a8c16b331e7d6572b749910bce4fbc6442c4147a
+_hash: 70e95061a6732fdc5d61840f32ff4f24d6a2d2ddf6d444cbd7e483d1c36d5265
 file:
 - statement:
     select_statement:
@@ -23,7 +23,7 @@ file:
             table_expression:
               table_reference:
                 identifier: baz
-      group_by_clause:
+      groupby_clause:
       - keyword: GROUP
       - keyword: BY
       - grouping_sets_clause:
@@ -69,7 +69,7 @@ file:
             table_expression:
               table_reference:
                 identifier: nurses
-      group_by_clause:
+      groupby_clause:
       - keyword: group
       - keyword: by
       - grouping_sets_clause:
@@ -115,7 +115,7 @@ file:
             table_expression:
               table_reference:
                 identifier: nurses
-      group_by_clause:
+      groupby_clause:
       - keyword: group
       - keyword: by
       - grouping_sets_clause:

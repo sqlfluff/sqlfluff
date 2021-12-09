@@ -397,6 +397,23 @@ class UnorderedSelectStatementSegment(BaseSegment):
 
 
 @tsql_dialect.segment(replace=True)
+class InsertStatementSegment(BaseSegment):
+    """An `INSERT` statement.
+
+    Overriding ANSI definition to remove StartsWith logic that doesn't handle optional delimitation well.
+    """
+
+    type = "insert_statement"
+    match_grammar = Sequence(
+        "INSERT",
+        "INTO",
+        Ref("TableReferenceSegment"),
+        Ref("BracketedColumnReferenceListGrammar", optional=True),
+        Ref("SelectableGrammar"),
+    )
+
+
+@tsql_dialect.segment(replace=True)
 class WithCompoundStatementSegment(BaseSegment):
     """A `SELECT` statement preceded by a selection of `WITH` clauses.
 

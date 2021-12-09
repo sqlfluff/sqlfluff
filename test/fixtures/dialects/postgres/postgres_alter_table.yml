@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ed976440366f5578a98d5dc724e36e296b8ad6bef2ecb22f6868afdf6c1fd875
+_hash: 93dec596055d5d295adb944c2c4cf29a0e1e219d3e18bc7d62381bc724e2c1c9
 file:
 - statement:
     alter_table_statement:
@@ -491,6 +491,55 @@ file:
       - keyword: SET
       - keyword: TABLESPACE
       - parameter: fasttablespace
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        identifier: distributors
+    - alter_table_action_segment:
+        keyword: SET
+        bracketed:
+          start_bracket: (
+          parameter: parameter_1
+          comparison_operator: '='
+          literal: "'value'"
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        identifier: distributors
+    - alter_table_action_segment:
+        keyword: SET
+        bracketed:
+          start_bracket: (
+          parameter: parameter_1
+          comparison_operator: '='
+          literal: '1'
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        identifier: distributors
+    - alter_table_action_segment:
+        keyword: SET
+        bracketed:
+        - start_bracket: (
+        - parameter: parameter_1
+        - comparison_operator: '='
+        - literal: '1'
+        - comma: ','
+        - parameter: parameter_2
+        - comparison_operator: '='
+        - literal: "'value'"
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     alter_table_statement:
