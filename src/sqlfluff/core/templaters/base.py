@@ -384,7 +384,25 @@ class TemplatedFile:
         ret_buff = []
         for elem in self.raw_sliced:
             if elem.slice_type in ("comment", "block_end", "block_start", "block_mid"):
+                # These slice types are *always* "source only".
                 ret_buff.append(elem)
+            elif elem.slice_type == "templated":
+                # "templated" slices can be "source only" *IF* they evaluate to
+                # an empty string.
+                # TODO: This line works but is inefficient -- it scans
+                #  "sliced_file" to find the corresponding TemplatedFileSlice
+                # for "elem". (We require this info in order to determine if the
+                # templated slice is empty.)
+                tfs = next(
+                    (
+                        ts
+                        for ts in self.sliced_file
+                        if ts.source_slice.start == elem.source_idx
+                    ),
+                    None,
+                )
+                if tfs and tfs.templated_slice.start == tfs.templated_slice.stop:
+                    ret_buff.append(elem)
         return ret_buff
 
 

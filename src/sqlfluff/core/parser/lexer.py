@@ -1,5 +1,5 @@
 """The code for the Lexer."""
-
+import itertools
 import logging
 from typing import Dict, Optional, List, Tuple, Union, NamedTuple
 import regex
@@ -342,11 +342,11 @@ class Lexer:
         }
         lexer_logger.info("Source-only slices: %s", source_only_slices)
         stash_source_slice, last_source_slice = None, None
-        last_substitution_slice = None
+        in_substitution = False
 
         def end_substitution_slice():
-            nonlocal last_substitution_slice
-            if last_substitution_slice is not None:
+            nonlocal in_substitution
+            if in_substitution:
                 # Ending an old slice.
                 segment_buffer.append(
                     TemplateSegment(
@@ -359,7 +359,7 @@ class Lexer:
                         block_type="substitution_end",
                     )
                 )
-                last_substitution_slice = None
+                in_substitution = False
 
         # Now work out source slices, and add in template placeholders.
         for idx, element in enumerate(elements):
@@ -394,13 +394,9 @@ class Lexer:
                     elif source_only_slice.source_idx >= source_slice.start:
                         so_slices.append(source_only_slice)
 
-                # TODO: I don't think this code will generate substitution_start
-                # and substitution_end if a templated block evaluates to the empty
-                # string. Is this actually possible, and if so, is it an issue?
                 end_substitution_slice()
                 if source_slice.start in substitution_raw_source:
-                    # Yes, it's a templated slice (i.e. substitution).
-                    # if source_slice != last_substitution_slice:
+                    # It's a templated slice (i.e. substitution).
                     # Starting a new slice.
                     segment_buffer.append(
                         TemplateSegment(
@@ -413,8 +409,7 @@ class Lexer:
                             block_type="substitution_start",
                         )
                     )
-                    last_substitution_slice = source_slice
-
+                    in_substitution = True
             if so_slices:
                 lexer_logger.debug("    Collected Source Only Slices")
                 for so_slice in so_slices:
@@ -530,25 +525,62 @@ class Lexer:
                     )
 
                 # Always add a placeholder
-                segment_buffer.append(
-                    TemplateSegment(
-                        pos_marker=PositionMarker(
-                            placeholder_slice,
-                            slice(
-                                element.template_slice.start,
-                                element.template_slice.start,
-                            ),
-                            templated_file,
-                        ),
-                        source_str=placeholder_str,
-                        block_type=so_slices[0].slice_type
-                        if len(so_slices) == 1
-                        else "compound",
-                    )
-                )
-                lexer_logger.debug(
-                    "      Placeholder: %s, %r", segment_buffer[-1], placeholder_str
-                )
+                for is_templated, so_slice_group_iter in itertools.groupby(
+                    so_slices, key=lambda s: s.slice_type == "templated"
+                ):
+                    so_slice_group = list(so_slice_group_iter)
+                    if not is_templated:
+                        for so_slice in so_slice_group:
+                            # Template control structure(s) such as conditional or loop.
+                            segment_buffer.append(
+                                TemplateSegment(
+                                    pos_marker=PositionMarker(
+                                        placeholder_slice,
+                                        slice(
+                                            element.template_slice.start,
+                                            element.template_slice.start,
+                                        ),
+                                        templated_file,
+                                    ),
+                                    source_str=placeholder_str,
+                                    block_type=so_slice.slice_type
+                                    if len(so_slice_group) == 1
+                                    else "compound",
+                                )
+                            )
+                            lexer_logger.debug(
+                                "      Placeholder: %s, %r",
+                                segment_buffer[-1],
+                                placeholder_str,
+                            )
+                    else:
+                        # Empty template substitutions.
+                        for so_slice in so_slice_group:
+                            for block_type in [
+                                "substitution_start",
+                                "substitution_end",
+                            ]:
+                                source_str = (
+                                    substitution_raw_source[so_slice.source_idx]
+                                    if block_type == "substitution_start"
+                                    else " "
+                                )
+                                segment_buffer.append(
+                                    TemplateSegment(
+                                        pos_marker=PositionMarker.from_point(
+                                            so_slice.source_idx,
+                                            element.template_slice.start,
+                                            templated_file,
+                                        ),
+                                        source_str=source_str,
+                                        block_type=block_type,
+                                    )
+                                )
+                                lexer_logger.debug(
+                                    "      Placeholder: %s, %r",
+                                    segment_buffer[-1],
+                                    source_str,
+                                )
 
                 # Add an indent if appropriate.
                 if trail_indent and add_indents:
@@ -574,6 +606,7 @@ class Lexer:
                 )
             )
 
+        # Handle any leftovers.
         end_substitution_slice()
 
         # Convert to tuple before return
