@@ -15,8 +15,7 @@ def get_simple_config(
     dialect: str = "ansi",
     rules: Optional[List[str]] = None,
     exclude_rules: Optional[List[str]] = None,
-    extra_config_path: Optional[str] = None,
-    ignore_local_config: bool = False,
+    config_path: Optional[str] = None,
 ) -> FluffConfig:
     """Get a config object from simple API arguments."""
     # Check the requested dialect exists and is valid.
@@ -37,8 +36,8 @@ def get_simple_config(
     # Instantiate a config object.
     try:
         return FluffConfig.from_root(
-            extra_config_path=extra_config_path,
-            ignore_local_config=ignore_local_config,
+            extra_config_path=config_path,
+            ignore_local_config=True,
             overrides=overrides,
         )
     except SQLFluffUserError as err:  # pragma: no cover
@@ -61,8 +60,7 @@ def lint(
     dialect: str = "ansi",
     rules: Optional[List[str]] = None,
     exclude_rules: Optional[List[str]] = None,
-    extra_config_path: Optional[str] = None,
-    ignore_local_config: bool = False,
+    config_path: Optional[str] = None,
 ) -> List[Dict[str, Any]]:
     """Lint a sql string or file.
 
@@ -83,8 +81,7 @@ def lint(
         dialect=dialect,
         rules=rules,
         exclude_rules=exclude_rules,
-        extra_config_path=extra_config_path,
-        ignore_local_config=ignore_local_config,
+        config_path=config_path,
     )
     linter = Linter(config=cfg)
 
@@ -99,8 +96,7 @@ def fix(
     dialect: str = "ansi",
     rules: Optional[List[str]] = None,
     exclude_rules: Optional[List[str]] = None,
-    extra_config_path: Optional[str] = None,
-    ignore_local_config: bool = False,
+    config_path: Optional[str] = None,
 ) -> str:
     """Fix a sql string or file.
 
@@ -121,8 +117,7 @@ def fix(
         dialect=dialect,
         rules=rules,
         exclude_rules=exclude_rules,
-        extra_config_path=extra_config_path,
-        ignore_local_config=ignore_local_config,
+        config_path=config_path,
     )
     linter = Linter(config=cfg)
 
@@ -134,8 +129,7 @@ def fix(
 def parse(
     sql: str,
     dialect: str = "ansi",
-    extra_config_path: Optional[str] = None,
-    ignore_local_config: bool = False,
+    config_path: Optional[str] = None,
 ) -> ParsedString:
     """Parse a sql string or file.
 
@@ -150,8 +144,7 @@ def parse(
     """
     cfg = get_simple_config(
         dialect=dialect,
-        extra_config_path=extra_config_path,
-        ignore_local_config=ignore_local_config,
+        config_path=config_path,
     )
     linter = Linter(config=cfg)
 

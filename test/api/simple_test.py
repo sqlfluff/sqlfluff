@@ -211,3 +211,20 @@ def test__api__parse_fail():
 Line 1, Position 14: Found unparsable section: ' +++'
 Line 1, Position 41: Found unparsable section: 'blah'"""
         )
+
+
+def test__api__config_path():
+    """Test that we can load a specified config file in the Simple API."""
+    # Load test SQL file.
+    with open("test/fixtures/api/api_config_test.sql", "r") as f:
+        sql = f.read()
+
+    # Pass a config path to the Simple API.
+    res = sqlfluff.parse(
+        sql,
+        config_path="test/fixtures/api/extra_configs/.sqlfluff",
+    )
+
+    # Check there are no errors and the template is rendered correctly.
+    assert len(res.violations) == 0
+    assert res.tree.raw == "SELECT foo FROM bar;\n"
