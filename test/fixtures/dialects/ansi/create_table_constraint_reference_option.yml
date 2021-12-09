@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f5b2f390b79162c48b2d341ab22eeb2f70dc8505507fad40599b880b5d5d369e
+_hash: 0f3d5319a3e2f64f859f99e141183787844a2d37bb687f64aaa95c57323836b1
 file:
   statement:
     create_table_statement:
@@ -44,6 +44,7 @@ file:
         - keyword: DELETE
         - keyword: RESTRICT
         - keyword: 'ON'
-        - keyword: UPDATE
-        - keyword: RESTRICT
+        - keyword: DELETE
+        - keyword: 'NO'
+        - keyword: ACTION
         end_bracket: )
