@@ -2152,8 +2152,10 @@ class TableConstraintSegment(BaseSegment):
             "CONSTRAINT", Ref("ObjectReferenceSegment"), optional=True
         ),
         OneOf(
-            Sequence(  # UNIQUE ( column_name [, ... ] )
+            Sequence(  # UNIQUE [INDEX | KEY] [index_name] ( column_name [, ... ] )
                 "UNIQUE",
+                OneOf("INDEX", "KEY", optional=True),
+                Ref("ObjectReferenceSegment", optional=True),
                 Ref("BracketedColumnReferenceListGrammar"),
                 # Later add support for index_parameters?
             ),
