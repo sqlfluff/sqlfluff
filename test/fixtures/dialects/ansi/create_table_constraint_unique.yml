@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6890011469b758ba1c1d112a5c2d449b92d7a4719ad514da743e7eb2b2bfc966
+_hash: 88a8b75394c3dc9b47f13c86dc86a847069615848d0d7be18c8243f5f42ebb57
 file:
   statement:
     create_table_statement:
@@ -42,8 +42,26 @@ file:
       - table_constraint_segment:
         - keyword: UNIQUE
         - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              identifier: a
+            end_bracket: )
+      - comma: ','
+      - table_constraint_segment:
+        - keyword: UNIQUE
+        - keyword: KEY
         - object_reference:
             identifier: idx_a
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              identifier: a
+            end_bracket: )
+      - comma: ','
+      - table_constraint_segment:
+        - keyword: UNIQUE
+        - keyword: INDEX
         - bracketed:
             start_bracket: (
             column_reference:
