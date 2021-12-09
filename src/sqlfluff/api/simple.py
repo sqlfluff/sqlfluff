@@ -62,20 +62,21 @@ def lint(
     exclude_rules: Optional[List[str]] = None,
     config_path: Optional[str] = None,
 ) -> List[Dict[str, Any]]:
-    """Lint a sql string or file.
+    """Lint a SQL string.
 
     Args:
-        sql (:obj:`str`): The sql to be linted
-            either as a string or a subclass of :obj:`TextIOBase`.
-        dialect (:obj:`str`, optional): A reference to the dialect of the sql
+        sql (:obj:`str`): The SQL to be linted.
+        dialect (:obj:`str`, optional): A reference to the dialect of the SQL
             to be linted. Defaults to `ansi`.
-        rules (:obj:list of :obj:`str`, optional): A subset of rule
-            references to lint for.
-        exclude_rules (:obj:list of :obj:`str`, optional): A subset of rule
-            references to avoid linting for.
+        rules (:obj:`Optional[List[str]`, optional): A list of rule
+            references to lint for. Defaults to None.
+        exclude_rules (:obj:`Optional[List[str]`, optional): A list of rule
+            references to avoid linting for. Defaults to None.
+        config_path (:obj:`Optional[str]`, optional): A path to a .sqlfluff config.
+            Defaults to None.
 
     Returns:
-        :obj:`list` of :obj:`dict` for each violation found.
+        :obj:`List[Dict[str, Any]]` for each violation found.
     """
     cfg = get_simple_config(
         dialect=dialect,
@@ -98,20 +99,21 @@ def fix(
     exclude_rules: Optional[List[str]] = None,
     config_path: Optional[str] = None,
 ) -> str:
-    """Fix a sql string or file.
+    """Fix a SQL string.
 
     Args:
-        sql (:obj:`str`): The sql to be linted
-            either as a string or a subclass of :obj:`TextIOBase`.
-        dialect (:obj:`str`, optional): A reference to the dialect of the sql
-            to be linted. Defaults to `ansi`.
-        rules (:obj:list of :obj:`str`, optional): A subset of rule
-            references to lint for.
-        exclude_rules (:obj:list of :obj:`str`, optional): A subset of rule
-            references to avoid linting for.
+        sql (:obj:`str`): The SQL to be fixed.
+        dialect (:obj:`str`, optional): A reference to the dialect of the SQL
+            to be fixed. Defaults to `ansi`.
+        rules (:obj:`Optional[List[str]`, optional): A subset of rule
+            references to fix for. Defaults to None.
+        exclude_rules (:obj:`Optional[List[str]`, optional): A subset of rule
+            references to avoid fixing for. Defaults to None.
+        config_path (:obj:`Optional[str]`, optional): A path to a .sqlfluff config.
+            Defaults to None.
 
     Returns:
-        :obj:`str` for the fixed sql if possible.
+        :obj:`str` for the fixed SQL if possible.
     """
     cfg = get_simple_config(
         dialect=dialect,
@@ -131,13 +133,14 @@ def parse(
     dialect: str = "ansi",
     config_path: Optional[str] = None,
 ) -> ParsedString:
-    """Parse a sql string or file.
+    """Parse a SQL string.
 
     Args:
-        sql (:obj:`str`): The sql to be linted
-            either as a string or a subclass of :obj:`TextIOBase`.
-        dialect (:obj:`str`, optional): A reference to the dialect of the sql
-            to be linted. Defaults to `ansi`.
+        sql (:obj:`str`): The SQL to be parsed.
+        dialect (:obj:`str`, optional): A reference to the dialect of the SQL
+            to be parsed. Defaults to `ansi`.
+        config_path (:obj:`Optional[str]`, optional): A path to a .sqlfluff config.
+            Defaults to None.
 
     Returns:
         :obj:`ParsedString` containing the parsed structure.
