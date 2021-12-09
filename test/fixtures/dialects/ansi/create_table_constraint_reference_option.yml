@@ -3,41 +3,47 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: dad9db75a9e3d1f464f205ebf357b6dc437a1c085d032a8e75b9f2253a739be3
+_hash: f5b2f390b79162c48b2d341ab22eeb2f70dc8505507fad40599b880b5d5d369e
 file:
   statement:
-    unparsable:
-    - raw: CREATE
-    - raw: TABLE
-    - raw: b
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        identifier: b
     - bracketed:
-      - start_bracket: (
-      - raw: b
-      - raw: INT
-      - raw: NOT
-      - raw: 'NULL'
-      - comma: ','
-      - raw: CONSTRAINT
-      - raw: c_a
-      - raw: FOREIGN
-      - raw: KEY
-      - bracketed:
-          start_bracket: (
-          column_reference:
-            identifier: b
-          end_bracket: )
-      - raw: REFERENCES
-      - raw: a
-      - bracketed:
-          start_bracket: (
-          column_reference:
-            identifier: b
-          end_bracket: )
-      - raw: 'ON'
-      - raw: DELETE
-      - raw: RESTRICT
-      - raw: 'ON'
-      - raw: UPDATE
-      - raw: SET
-      - raw: DEFAULT
-      - end_bracket: )
+        start_bracket: (
+        column_definition:
+          identifier: b
+          data_type:
+            data_type_identifier: INT
+          column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+        comma: ','
+        table_constraint_segment:
+        - keyword: CONSTRAINT
+        - object_reference:
+            identifier: c_a
+        - keyword: FOREIGN
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              identifier: b
+            end_bracket: )
+        - keyword: REFERENCES
+        - column_reference:
+            identifier: a
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              identifier: b
+            end_bracket: )
+        - keyword: 'ON'
+        - keyword: DELETE
+        - keyword: RESTRICT
+        - keyword: 'ON'
+        - keyword: UPDATE
+        - keyword: RESTRICT
+        end_bracket: )

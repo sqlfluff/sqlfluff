@@ -2141,16 +2141,6 @@ class IndexColumnDefinitionSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
-class TableConstraintReferenceOptionSegment(BaseSegment):
-    """A table constraint reference option, e.g. RESTRICT, SET NULL, ..."""
-    type = "table_constraint_reference_option"
-
-    match_grammar = OneOf(
-        "RESTRICT", "CASCADE", "SET NULL", "NO ACTION", "SET DEFAULT"
-    )
-
-
-@ansi_dialect.segment()
 class TableConstraintSegment(BaseSegment):
     """A table constraint, e.g. for CREATE TABLE."""
 
@@ -2184,13 +2174,23 @@ class TableConstraintSegment(BaseSegment):
                 Ref("BracketedColumnReferenceListGrammar"),
                 # Later add support for [MATCH FULL/PARTIAL/SIMPLE] ?
                 # ON DELETE clause
-                Sequence("ON", "DELETE", OneOf(
-                    "RESTRICT", "CASCADE", "SET_NULL", "NO_ACTION", "SET_DEFAULT"
-                ), optional=True),
+                Sequence(
+                    "ON",
+                    "DELETE",
+                    OneOf(
+                        "RESTRICT", "CASCADE", "SET_NULL", "NO_ACTION", "SET_DEFAULT"
+                    ),
+                    optional=True,
+                ),
                 # ON UPDATE clause
-                Sequence("ON", "UPDATE", OneOf(
-                    "RESTRICT", "CASCADE", "SET_NULL", "NO_ACTION", "SET_DEFAULT"
-                ), optional=True),
+                Sequence(
+                    "ON",
+                    "UPDATE",
+                    OneOf(
+                        "RESTRICT", "CASCADE", "SET_NULL", "NO_ACTION", "SET_DEFAULT"
+                    ),
+                    optional=True,
+                ),
             ),
         ),
     )
