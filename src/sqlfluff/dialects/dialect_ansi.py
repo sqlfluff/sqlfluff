@@ -2141,6 +2141,16 @@ class IndexColumnDefinitionSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
+class TableConstraintReferenceOptionSegment(BaseSegment):
+    """A table constraint reference option, e.g. RESTRICT, SET NULL, ..."""
+    type = "table_constraint_reference_option"
+
+    match_grammar = OneOf(
+        "RESTRICT", "CASCADE", "SET NULL", "NO ACTION", "SET DEFAULT"
+    )
+
+
+@ansi_dialect.segment()
 class TableConstraintSegment(BaseSegment):
     """A table constraint, e.g. for CREATE TABLE."""
 
@@ -2173,7 +2183,11 @@ class TableConstraintSegment(BaseSegment):
                 # Foreign columns making up FOREIGN KEY constraint
                 Ref("BracketedColumnReferenceListGrammar"),
                 # Later add support for [MATCH FULL/PARTIAL/SIMPLE] ?
-                # Later add support for [ ON DELETE/UPDATE action ] ?
+                # ON DELETE and ON UPDATE clause
+                Sequence(
+                    Sequence("ON", "DELETE", Ref("TableConstraintReferenceOptionSegment"), optional=True),
+                    Sequence("ON", "UPDATE", Ref("TableConstraintReferenceOptionSegment"), optional=True)
+                )
             ),
         ),
     )
