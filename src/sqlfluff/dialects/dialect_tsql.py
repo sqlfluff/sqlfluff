@@ -2829,6 +2829,7 @@ class MergeStatementSegment(BaseSegment):
         AnyNumberOf(
             Ref("MergeMatchedClauseSegment"),
             Ref("MergeNotMatchedClauseSegment"),
+            min_times=1,
         ),
         Ref("OutputClauseSegment", optional=True),
         Ref("OptionClauseSegment", optional=True),
