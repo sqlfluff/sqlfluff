@@ -3,41 +3,41 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 89a71e4f99db580ddbf5196682778c055b8db814822dd7cf9b74e86e5654aca4
+_hash: e9b7b38575826b8cc463734bcc7647038a51e5b8342f3c2dd6624b233bae30d8
 file:
   statement:
     select_statement:
       select_clause:
       - keyword: SELECT
       - select_clause_element:
-          unparsable:
-          - raw: table1
-          - raw: .
-          - raw: current
-          - raw: .
-          - raw: column
+          column_reference:
+          - identifier: table1
+          - dot: .
+          - identifier: current
+          - dot: .
+          - identifier: column
       - comma: ','
       - select_clause_element:
-          unparsable:
-          - raw: table1
-          - raw: .
-          - raw: object
-          - raw: .
-          - raw: current
-          - raw: .
-          - raw: column
+          column_reference:
+          - identifier: table1
+          - dot: .
+          - identifier: object
+          - dot: .
+          - identifier: current
+          - dot: .
+          - identifier: column
       - comma: ','
       - select_clause_element:
-          unparsable:
-          - raw: table1
-          - raw: .
-          - raw: object
-          - raw: .
-          - raw: nested
-          - raw: .
-          - raw: current
-          - raw: .
-          - raw: column
+          column_reference:
+          - identifier: table1
+          - dot: .
+          - identifier: object
+          - dot: .
+          - identifier: nested
+          - dot: .
+          - identifier: current
+          - dot: .
+          - identifier: column
       - comma: ','
       from_clause:
         keyword: FROM

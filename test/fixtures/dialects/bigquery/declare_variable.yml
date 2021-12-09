@@ -3,13 +3,14 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 49bad043d139000db9a470e2064d7e53c40e688879c7449bd21170bc2c44c673
+_hash: ffccb95575561408b5510a30ff40b55e12c56a173fa3fc57ef3f5e05e5ee2488
 file:
 - statement:
     declare_segment:
       keyword: declare
       identifier: var1
-      data_type_identifier: int64
+      data_type:
+        data_type_identifier: int64
 - statement_terminator: ;
 - statement:
     declare_segment:
@@ -17,15 +18,17 @@ file:
     - identifier: var2
     - comma: ','
     - identifier: var3
-    - data_type_identifier: string
+    - data_type:
+        data_type_identifier: string
 - statement_terminator: ;
 - statement:
     declare_segment:
       keyword: declare
       identifier: var1
-      data_type_identifier: array
-      unparsable:
-      - raw: <
-      - raw: string
-      - raw: '>'
+      data_type:
+        keyword: array
+        start_angle_bracket: <
+        data_type:
+          data_type_identifier: string
+        end_angle_bracket: '>'
 - statement_terminator: ;

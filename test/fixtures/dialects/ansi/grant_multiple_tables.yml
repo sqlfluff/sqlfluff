@@ -3,117 +3,141 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2224069c7035c813cdb4709a83442d3915858ff97c619d022286fd2e1f2e289e
+_hash: 83109c48c23d6565c4a497d5e965b7b11d58babfdaa8438304d7c696e9b9637f
 file:
 - statement:
-    unparsable:
-    - raw: GRANT
-    - raw: INSERT
-    - raw: 'ON'
-    - raw: my_table
+    access_statement:
+    - keyword: GRANT
+    - keyword: INSERT
+    - keyword: 'ON'
+    - object_reference:
+        identifier: my_table
     - comma: ','
-    - raw: my_table2
-    - raw: TO
-    - raw: public
+    - object_reference:
+        identifier: my_table2
+    - keyword: TO
+    - object_reference:
+        identifier: public
 - statement_terminator: ;
 - statement:
-    unparsable:
-    - raw: GRANT
-    - raw: INSERT
-    - raw: 'ON'
-    - raw: my_table
+    access_statement:
+    - keyword: GRANT
+    - keyword: INSERT
+    - keyword: 'ON'
+    - object_reference:
+        identifier: my_table
     - comma: ','
-    - raw: my_table2
-    - raw: TO
-    - raw: '"public"'
+    - object_reference:
+        identifier: my_table2
+    - keyword: TO
+    - object_reference:
+        identifier: '"public"'
 - statement_terminator: ;
 - statement:
-    unparsable:
-    - raw: GRANT
-    - raw: INSERT
+    access_statement:
+    - keyword: GRANT
+    - keyword: INSERT
     - comma: ','
-    - raw: UPDATE
-    - raw: 'ON'
-    - raw: my_table
+    - keyword: UPDATE
+    - keyword: 'ON'
+    - object_reference:
+        identifier: my_table
     - comma: ','
-    - raw: my_table2
-    - raw: TO
-    - raw: public
+    - object_reference:
+        identifier: my_table2
+    - keyword: TO
+    - object_reference:
+        identifier: public
 - statement_terminator: ;
 - statement:
-    unparsable:
-    - raw: GRANT
-    - raw: INSERT
+    access_statement:
+    - keyword: GRANT
+    - keyword: INSERT
     - comma: ','
-    - raw: UPDATE
-    - raw: 'ON'
-    - raw: my_table
+    - keyword: UPDATE
+    - keyword: 'ON'
+    - object_reference:
+        identifier: my_table
     - comma: ','
-    - raw: my_table2
-    - raw: TO
-    - raw: '"public"'
+    - object_reference:
+        identifier: my_table2
+    - keyword: TO
+    - object_reference:
+        identifier: '"public"'
 - statement_terminator: ;
 - statement:
-    unparsable:
-    - raw: GRANT
-    - raw: INSERT
+    access_statement:
+    - keyword: GRANT
+    - keyword: INSERT
     - comma: ','
-    - raw: UPDATE
+    - keyword: UPDATE
     - comma: ','
-    - raw: DELETE
-    - raw: 'ON'
-    - raw: my_table
+    - keyword: DELETE
+    - keyword: 'ON'
+    - object_reference:
+        identifier: my_table
     - comma: ','
-    - raw: my_table2
-    - raw: TO
-    - raw: public
+    - object_reference:
+        identifier: my_table2
+    - keyword: TO
+    - object_reference:
+        identifier: public
 - statement_terminator: ;
 - statement:
-    unparsable:
-    - raw: GRANT
-    - raw: INSERT
+    access_statement:
+    - keyword: GRANT
+    - keyword: INSERT
     - comma: ','
-    - raw: UPDATE
+    - keyword: UPDATE
     - comma: ','
-    - raw: DELETE
-    - raw: 'ON'
-    - raw: my_table
+    - keyword: DELETE
+    - keyword: 'ON'
+    - object_reference:
+        identifier: my_table
     - comma: ','
-    - raw: my_table2
-    - raw: TO
-    - raw: '"public"'
+    - object_reference:
+        identifier: my_table2
+    - keyword: TO
+    - object_reference:
+        identifier: '"public"'
 - statement_terminator: ;
 - statement:
-    unparsable:
-    - raw: GRANT
-    - raw: INSERT
+    access_statement:
+    - keyword: GRANT
+    - keyword: INSERT
     - comma: ','
-    - raw: UPDATE
+    - keyword: UPDATE
     - comma: ','
-    - raw: DELETE
+    - keyword: DELETE
     - comma: ','
-    - raw: SELECT
-    - raw: 'ON'
-    - raw: my_table
+    - keyword: SELECT
+    - keyword: 'ON'
+    - object_reference:
+        identifier: my_table
     - comma: ','
-    - raw: my_table2
-    - raw: TO
-    - raw: public
+    - object_reference:
+        identifier: my_table2
+    - keyword: TO
+    - object_reference:
+        identifier: public
 - statement_terminator: ;
 - statement:
-    unparsable:
-    - raw: GRANT
-    - raw: INSERT
+    access_statement:
+    - keyword: GRANT
+    - keyword: INSERT
     - comma: ','
-    - raw: UPDATE
+    - keyword: UPDATE
     - comma: ','
-    - raw: DELETE
+    - keyword: DELETE
     - comma: ','
-    - raw: SELECT
-    - raw: 'ON'
-    - raw: my_table
+    - keyword: SELECT
+    - keyword: 'ON'
+    - object_reference:
+        identifier: my_table
     - comma: ','
-    - raw: my_table2
-    - raw: TO
-    - raw: '"public"'
+    - object_reference:
+        identifier: my_table2
+    - keyword: TO
+    - object_reference:
+        identifier: '"public"'
 - statement_terminator: ;
