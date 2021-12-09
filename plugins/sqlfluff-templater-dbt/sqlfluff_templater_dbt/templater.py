@@ -11,7 +11,6 @@ from cached_property import cached_property
 from functools import partial
 
 from dbt.version import get_installed_version
-from dbt.config.profile import PROFILES_DIR
 from dbt.config.runtime import RuntimeConfig as DbtRuntimeConfig
 from dbt.adapters.factory import register_adapter
 from dbt.compilation import Compiler as DbtCompiler
@@ -40,6 +39,11 @@ templater_logger = logging.getLogger("sqlfluff.templater")
 DBT_VERSION = get_installed_version()
 DBT_VERSION_STRING = DBT_VERSION.to_version_string()
 DBT_VERSION_TUPLE = (int(DBT_VERSION.major), int(DBT_VERSION.minor))
+
+if DBT_VERSION_TUPLE >= (1, 0):
+    from dbt.flags import PROFILES_DIR
+else:
+    from dbt.config.profile import PROFILES_DIR
 
 
 @dataclass
