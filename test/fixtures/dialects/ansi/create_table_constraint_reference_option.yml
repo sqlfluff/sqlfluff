@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0f3d5319a3e2f64f859f99e141183787844a2d37bb687f64aaa95c57323836b1
+_hash: c6c3e92affbbbb91e9611a134f9d7e7899e2de0f2fc6258b993bec70332f5b7a
 file:
   statement:
     create_table_statement:
@@ -12,19 +12,35 @@ file:
     - table_reference:
         identifier: b
     - bracketed:
-        start_bracket: (
-        column_definition:
+      - start_bracket: (
+      - column_definition:
           identifier: b
           data_type:
             data_type_identifier: INT
           column_constraint_segment:
           - keyword: NOT
           - keyword: 'NULL'
-        comma: ','
-        table_constraint_segment:
+      - comma: ','
+      - column_definition:
+          identifier: c
+          data_type:
+            data_type_identifier: INT
+          column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+      - comma: ','
+      - column_definition:
+          identifier: d
+          data_type:
+            data_type_identifier: INT
+          column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+      - comma: ','
+      - table_constraint_segment:
         - keyword: CONSTRAINT
         - object_reference:
-            identifier: c_a
+            identifier: c_b
         - keyword: FOREIGN
         - keyword: KEY
         - bracketed:
@@ -44,7 +60,57 @@ file:
         - keyword: DELETE
         - keyword: RESTRICT
         - keyword: 'ON'
+        - keyword: UPDATE
+        - keyword: 'NO'
+        - keyword: ACTION
+      - comma: ','
+      - table_constraint_segment:
+        - keyword: CONSTRAINT
+        - object_reference:
+            identifier: c_d
+        - keyword: FOREIGN
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              identifier: d
+            end_bracket: )
+        - keyword: REFERENCES
+        - column_reference:
+            identifier: a
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              identifier: d
+            end_bracket: )
+        - keyword: 'ON'
+        - keyword: UPDATE
+        - keyword: RESTRICT
+        - keyword: 'ON'
         - keyword: DELETE
         - keyword: 'NO'
         - keyword: ACTION
-        end_bracket: )
+      - comma: ','
+      - table_constraint_segment:
+        - keyword: CONSTRAINT
+        - object_reference:
+            identifier: c_c
+        - keyword: FOREIGN
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              identifier: c
+            end_bracket: )
+        - keyword: REFERENCES
+        - column_reference:
+            identifier: a
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              identifier: c
+            end_bracket: )
+        - keyword: 'ON'
+        - keyword: DELETE
+        - keyword: RESTRICT
+      - end_bracket: )
