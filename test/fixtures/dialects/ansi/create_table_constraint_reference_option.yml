@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c6c3e92affbbbb91e9611a134f9d7e7899e2de0f2fc6258b993bec70332f5b7a
+_hash: 1bf48057dff457e5d761518d603ab144b8a4286aa6eb6463877cf84a29159a09
 file:
   statement:
     create_table_statement:
@@ -85,11 +85,11 @@ file:
             end_bracket: )
         - keyword: 'ON'
         - keyword: UPDATE
-        - keyword: RESTRICT
+        - keyword: CASCADE
         - keyword: 'ON'
         - keyword: DELETE
-        - keyword: 'NO'
-        - keyword: ACTION
+        - keyword: SET
+        - keyword: 'NULL'
       - comma: ','
       - table_constraint_segment:
         - keyword: CONSTRAINT
@@ -112,5 +112,6 @@ file:
             end_bracket: )
         - keyword: 'ON'
         - keyword: DELETE
-        - keyword: RESTRICT
+        - keyword: SET
+        - keyword: DEFAULT
       - end_bracket: )
