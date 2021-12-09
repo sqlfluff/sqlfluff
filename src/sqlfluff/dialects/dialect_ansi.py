@@ -2183,11 +2183,14 @@ class TableConstraintSegment(BaseSegment):
                 # Foreign columns making up FOREIGN KEY constraint
                 Ref("BracketedColumnReferenceListGrammar"),
                 # Later add support for [MATCH FULL/PARTIAL/SIMPLE] ?
-                # ON DELETE and ON UPDATE clause
-                Sequence(
-                    Sequence("ON", "DELETE", Ref("TableConstraintReferenceOptionSegment"), optional=True),
-                    Sequence("ON", "UPDATE", Ref("TableConstraintReferenceOptionSegment"), optional=True)
-                )
+                # ON DELETE clause
+                Sequence("ON", "DELETE", OneOf(
+                    "RESTRICT", "CASCADE", "SET_NULL", "NO_ACTION", "SET_DEFAULT"
+                ), optional=True),
+                # ON UPDATE clause
+                Sequence("ON", "UPDATE", OneOf(
+                    "RESTRICT", "CASCADE", "SET_NULL", "NO_ACTION", "SET_DEFAULT"
+                ), optional=True),
             ),
         ),
     )
