@@ -482,7 +482,13 @@ ansi_dialect.add(
     FrameClauseUnitGrammar=OneOf("ROWS", "RANGE"),
     # It's as a sequence to allow to parametrize that in Postgres dialect with LATERAL
     JoinKeywords=Sequence("JOIN"),
-    TableConstraintReferenceOptionGrammar = OneOf("RESTRICT", "CASCADE", Sequence("SET", "NULL"), Sequence("NO", "ACTION"), Sequence("SET", "DEFAULT")),
+    TableConstraintReferenceOptionGrammar=OneOf(
+        "RESTRICT",
+        "CASCADE",
+        Sequence("SET", "NULL"),
+        Sequence("NO", "ACTION"),
+        Sequence("SET", "DEFAULT"),
+    ),
 )
 
 
@@ -2147,8 +2153,6 @@ class TableConstraintSegment(BaseSegment):
 
     type = "table_constraint_segment"
 
-
-
     # Later add support for CHECK constraint, others?
     # e.g. CONSTRAINT constraint_1 PRIMARY KEY(column_1)
     match_grammar = Sequence(
@@ -2190,7 +2194,7 @@ class TableConstraintSegment(BaseSegment):
                         "UPDATE",
                         Ref("TableConstraintReferenceOptionGrammar"),
                     ),
-                )
+                ),
             ),
         ),
     )
