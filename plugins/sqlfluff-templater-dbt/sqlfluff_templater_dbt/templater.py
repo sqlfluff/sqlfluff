@@ -18,6 +18,7 @@ from dbt.exceptions import (
     CompilationException as DbtCompilationException,
     FailedToConnectException as DbtFailedToConnectException,
 )
+from dbt import flags
 from jinja2 import Environment
 from jinja2_simple_tags import StandaloneTag
 
@@ -87,6 +88,15 @@ class DbtTemplater(JinjaTemplater):
     @cached_property
     def dbt_config(self):
         """Loads the dbt config."""
+        if self.dbt_version_tuple >= (1, 0):
+            flags.set_from_args(
+                "",
+                DbtConfigArgs(
+                    project_dir=self.project_dir,
+                    profiles_dir=self.profiles_dir,
+                    profile=self._get_profile(),
+                ),
+            )
         self.dbt_config = DbtRuntimeConfig.from_args(
             DbtConfigArgs(
                 project_dir=self.project_dir,
