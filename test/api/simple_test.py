@@ -3,6 +3,7 @@
 import pytest
 
 import sqlfluff
+from sqlfluff.core.errors import SQLFluffUserError
 from sqlfluff.core.linter import ParsedString
 
 my_bad_query = "SeLEct  *, 1, blah as  fOO  from myTable"
@@ -211,3 +212,37 @@ def test__api__parse_fail():
 Line 1, Position 14: Found unparsable section: ' +++'
 Line 1, Position 41: Found unparsable section: 'blah'"""
         )
+
+
+def test__api__config_path():
+    """Test that we can load a specified config file in the Simple API."""
+    # Load test SQL file.
+    with open("test/fixtures/api/api_config_test.sql", "r") as f:
+        sql = f.read()
+
+    # Pass a config path to the Simple API.
+    res = sqlfluff.parse(
+        sql,
+        config_path="test/fixtures/api/extra_configs/.sqlfluff",
+    )
+
+    # Check there are no errors and the template is rendered correctly.
+    assert len(res.violations) == 0
+    assert res.tree.raw == "SELECT foo FROM bar;\n"
+
+
+def test__api__invalid_dialect():
+    """Test that SQLFluffUserError is raised for a bad dialect."""
+    # Load test SQL file.
+    with open("test/fixtures/api/api_config_test.sql", "r") as f:
+        sql = f.read()
+
+    # Pass a fake dialect to the API and test the correct error is raised.
+    with pytest.raises(SQLFluffUserError) as err:
+        sqlfluff.parse(
+            sql,
+            dialect="not_a_real_dialect",
+            config_path="test/fixtures/api/extra_configs/.sqlfluff",
+        )
+
+    assert str(err.value) == "Error: Unknown dialect 'not_a_real_dialect'"
