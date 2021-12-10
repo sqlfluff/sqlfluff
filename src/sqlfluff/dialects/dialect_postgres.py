@@ -1704,8 +1704,11 @@ class DropDatabaseStatementSegment(BaseSegment):
         "DATABASE",
         Sequence("IF", "EXISTS", optional=True),
         Ref("DatabaseReferenceSegment"),
-        Sequence("WITH", optional=True),
-        Bracketed(Sequence("FORCE"), optional=True),
+        Sequence(
+            Ref("WITH", optional=True),
+            Bracketed("FORCE"),
+            optional=True,
+        )
     )
 
 
