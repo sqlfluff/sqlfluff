@@ -177,7 +177,7 @@ class PlaceholderTemplater(RawTemplater):
             start_template_pos = last_pos_templated + last_literal_length
             template_slices.append(
                 TemplatedFileSlice(
-                    slice_type="block_start",
+                    slice_type="templated",
                     source_slice=slice(span[0], span[1], None),
                     templated_slice=slice(
                         start_template_pos, start_template_pos + len(replacement), None
@@ -187,7 +187,7 @@ class PlaceholderTemplater(RawTemplater):
             raw_slices.append(
                 RawFileSlice(
                     raw=in_str[span[0] : span[1]],
-                    slice_type="block_start",
+                    slice_type="templated",
                     source_idx=span[0],
                 )
             )
