@@ -1657,6 +1657,7 @@ class AlterDatabaseStatementSegment(BaseSegment):
                         Ref("NumericLiteralSegment"),
                     ),
                     Sequence("IS_TEMPLATE", Ref("BooleanLiteralGrammar")),
+                    min_times=1,
                 ),
             ),
             Sequence("RENAME", "TO", Ref("DatabaseReferenceSegment")),
