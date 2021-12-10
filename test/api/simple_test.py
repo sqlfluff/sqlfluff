@@ -1,9 +1,11 @@
 """Tests for simple use cases of the public api."""
 
+import json
+
 import pytest
 
 import sqlfluff
-from sqlfluff.core.linter import ParsedString
+from sqlfluff.core.errors import SQLFluffUserError
 
 my_bad_query = "SeLEct  *, 1, blah as  fOO  from myTable"
 
@@ -177,21 +179,16 @@ def test__api__fix_string_specific_exclude():
 def test__api__parse_string():
     """Basic checking of parse functionality."""
     parsed = sqlfluff.parse(my_bad_query)
-    # Check we can call `to_tuple` on the result
-    assert isinstance(parsed, ParsedString)
-    # Check we can iterate objects within it
-    keywords = [keyword.raw for keyword in parsed.tree.recursive_crawl("keyword")]
-    assert keywords == ["SeLEct", "as", "from"]
-    # Check we can get columns from it
-    col_refs = [
-        col_ref.raw for col_ref in parsed.tree.recursive_crawl("column_reference")
-    ]
-    assert col_refs == ["blah"]
-    # Check we can get table from it
-    tbl_refs = [
-        tbl_ref.raw for tbl_ref in parsed.tree.recursive_crawl("table_reference")
-    ]
-    assert tbl_refs == ["myTable"]
+
+    # Check a JSON object is returned.
+    assert isinstance(parsed, dict)
+
+    # Load in expected result.
+    with open("test/fixtures/api/parse_test/parse_test.json", "r") as f:
+        expected_parsed = json.load(f)
+
+    # Compare JSON from parse to expected result.
+    assert parsed == expected_parsed
 
 
 def test__api__parse_fail():
@@ -211,3 +208,40 @@ def test__api__parse_fail():
 Line 1, Position 14: Found unparsable section: ' +++'
 Line 1, Position 41: Found unparsable section: 'blah'"""
         )
+
+
+def test__api__config_path():
+    """Test that we can load a specified config file in the Simple API."""
+    # Load test SQL file.
+    with open("test/fixtures/api/config_path_test/config_path_test.sql", "r") as f:
+        sql = f.read()
+
+    # Pass a config path to the Simple API.
+    parsed = sqlfluff.parse(
+        sql,
+        config_path="test/fixtures/api/config_path_test/extra_configs/.sqlfluff",
+    )
+
+    # Load in expected result.
+    with open("test/fixtures/api/config_path_test/config_path_test.json", "r") as f:
+        expected_parsed = json.load(f)
+
+    # Compare JSON from parse to expected result.
+    assert parsed == expected_parsed
+
+
+def test__api__invalid_dialect():
+    """Test that SQLFluffUserError is raised for a bad dialect."""
+    # Load test SQL file.
+    with open("test/fixtures/api/config_path_test/config_path_test.sql", "r") as f:
+        sql = f.read()
+
+    # Pass a fake dialect to the API and test the correct error is raised.
+    with pytest.raises(SQLFluffUserError) as err:
+        sqlfluff.parse(
+            sql,
+            dialect="not_a_real_dialect",
+            config_path="test/fixtures/api/config_path_test/extra_configs/.sqlfluff",
+        )
+
+    assert str(err.value) == "Error: Unknown dialect 'not_a_real_dialect'"
