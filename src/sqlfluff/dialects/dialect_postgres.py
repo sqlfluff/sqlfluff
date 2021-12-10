@@ -1570,7 +1570,7 @@ class CreateDatabaseStatementSegment(BaseSegment):
         "CREATE",
         "DATABASE",
         Ref("DatabaseReferenceSegment"),
-        Ref("WITH", optional=True),
+        Ref.keyword("WITH", optional=True),
         AnyNumberOf(
             Sequence(
                 "OWNER",
@@ -1706,10 +1706,10 @@ class DropDatabaseStatementSegment(BaseSegment):
         Sequence("IF", "EXISTS", optional=True),
         Ref("DatabaseReferenceSegment"),
         Sequence(
-            Ref("WITH", optional=True),
+            Ref.keyword("WITH", optional=True),
             Bracketed("FORCE"),
             optional=True,
-        )
+        ),
     )
 
 
