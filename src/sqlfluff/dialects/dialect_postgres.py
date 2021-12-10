@@ -1570,7 +1570,7 @@ class CreateDatabaseStatementSegment(BaseSegment):
         "CREATE",
         "DATABASE",
         Ref("DatabaseReferenceSegment"),
-        Sequence("WITH", optional=True),
+        Ref("WITH", optional=True),
         AnyNumberOf(
             Sequence(
                 "OWNER",
