@@ -310,6 +310,7 @@ UNRESERVED_KEYWORDS = [
     "NTILE",
     "ONLINE",
     "OPTIMIZE_FOR_SEQUENTIAL_KEY",
+    "OUTPUT",
     "PAD_INDEX",
     "PAGE",
     "PAGLOCK",
@@ -342,6 +343,7 @@ UNRESERVED_KEYWORDS = [
     "SEQUENCE_NUMBER",
     "SNAPSHOT",
     "SORT_IN_TEMPDB",
+    "SOURCE",
     "SPARSE",
     "SPATIAL_WINDOW_MAX_CELLS",
     "SS",
@@ -352,6 +354,7 @@ UNRESERVED_KEYWORDS = [
     "SYSTEM",
     "TABLOCK",
     "TABLOCKX",
+    "TARGET",
     "TEXTIMAGE_ON",
     "TRANSACTION_ID",
     "TRUNCATE_TARGET",  # Azure Synapse Analytics specific
