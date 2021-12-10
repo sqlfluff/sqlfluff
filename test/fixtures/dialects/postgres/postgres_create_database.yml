@@ -1,0 +1,453 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 397401844a70ccc64a9b83949b9356baf34462c8ea4dccb41e1172e783bd699c
+file:
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        identifier: db
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        identifier: db
+    - keyword: OWNER
+    - object_reference:
+        identifier: user_name
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        identifier: db
+    - keyword: OWNER
+    - comparison_operator: '='
+    - object_reference:
+        identifier: user_name
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        identifier: db
+    - keyword: WITH
+    - keyword: OWNER
+    - comparison_operator: '='
+    - object_reference:
+        identifier: user_name
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        identifier: db
+    - keyword: ENCODING
+    - comparison_operator: '='
+    - literal: "'UTF8'"
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        identifier: db
+    - keyword: TEMPLATE
+    - comparison_operator: '='
+    - object_reference:
+        identifier: template_name
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        identifier: db
+    - keyword: WITH
+    - keyword: TEMPLATE
+    - comparison_operator: '='
+    - object_reference:
+        identifier: template_name
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        identifier: db
+    - keyword: ENCODING
+    - literal: "'UTF8'"
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        identifier: db
+    - keyword: WITH
+    - keyword: ENCODING
+    - comparison_operator: '='
+    - literal: "'UTF8'"
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        identifier: db
+    - keyword: LOCALE
+    - literal: "'en_US.UTF-8'"
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        identifier: db
+    - keyword: LOCALE
+    - comparison_operator: '='
+    - literal: "'en_US.UTF-8'"
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        identifier: db
+    - keyword: WITH
+    - keyword: LOCALE
+    - comparison_operator: '='
+    - literal: "'en_US.UTF-8'"
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        identifier: db
+    - keyword: LC_COLLATE
+    - literal: "'en_US.UTF-8'"
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        identifier: db
+    - keyword: LC_CTYPE
+    - literal: "'en_US.UTF-8'"
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        identifier: db
+    - keyword: LC_COLLATE
+    - literal: "'en_US.UTF-8'"
+    - keyword: LC_CTYPE
+    - literal: "'en_US.UTF-8'"
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        identifier: db
+    - keyword: WITH
+    - keyword: LC_COLLATE
+    - literal: "'en_US.UTF-8'"
+    - keyword: LC_CTYPE
+    - literal: "'en_US.UTF-8'"
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        identifier: db
+    - keyword: WITH
+    - keyword: LC_CTYPE
+    - literal: "'en_US.UTF-8'"
+    - keyword: LC_COLLATE
+    - literal: "'en_US.UTF-8'"
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        identifier: db
+    - keyword: LC_COLLATE
+    - comparison_operator: '='
+    - literal: "'en_US.UTF-8'"
+    - keyword: LC_CTYPE
+    - comparison_operator: '='
+    - literal: "'en_US.UTF-8'"
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        identifier: db
+    - keyword: WITH
+    - keyword: LC_COLLATE
+    - comparison_operator: '='
+    - literal: "'en_US.UTF-8'"
+    - keyword: LC_CTYPE
+    - comparison_operator: '='
+    - literal: "'en_US.UTF-8'"
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        identifier: db
+    - keyword: WITH
+    - keyword: LC_CTYPE
+    - comparison_operator: '='
+    - literal: "'en_US.UTF-8'"
+    - keyword: LC_COLLATE
+    - comparison_operator: '='
+    - literal: "'en_US.UTF-8'"
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        identifier: db
+    - keyword: TABLESPACE
+    - parameter: DEFAULT
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        identifier: db
+    - keyword: TABLESPACE
+    - comparison_operator: '='
+    - parameter: DEFAULT
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        identifier: db
+    - keyword: TABLESPACE
+    - parameter: new_tablespace
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        identifier: db
+    - keyword: TABLESPACE
+    - comparison_operator: '='
+    - parameter: new_tablespace
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        identifier: db
+    - keyword: WITH
+    - keyword: TABLESPACE
+    - comparison_operator: '='
+    - parameter: new_tablespace
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        identifier: db
+    - keyword: ALLOW_CONNECTIONS
+    - literal: 'true'
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        identifier: db
+    - keyword: ALLOW_CONNECTIONS
+    - comparison_operator: '='
+    - literal: 'true'
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        identifier: db
+    - keyword: CONNECTION
+    - keyword: LIMIT
+    - literal: '10'
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        identifier: db
+    - keyword: CONNECTION
+    - keyword: LIMIT
+    - comparison_operator: '='
+    - literal: '10'
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        identifier: db
+    - keyword: IS_TEMPLATE
+    - literal: 'true'
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        identifier: db
+    - keyword: IS_TEMPLATE
+    - comparison_operator: '='
+    - literal: 'true'
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        identifier: db
+    - keyword: IS_TEMPLATE
+    - comparison_operator: '='
+    - literal: 'true'
+    - keyword: CONNECTION
+    - keyword: LIMIT
+    - literal: '10'
+    - keyword: ALLOW_CONNECTIONS
+    - comparison_operator: '='
+    - literal: 'true'
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        identifier: db
+    - keyword: WITH
+    - keyword: IS_TEMPLATE
+    - comparison_operator: '='
+    - literal: 'true'
+    - keyword: CONNECTION
+    - keyword: LIMIT
+    - literal: '10'
+    - keyword: ALLOW_CONNECTIONS
+    - comparison_operator: '='
+    - literal: 'true'
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        identifier: db
+    - keyword: WITH
+    - keyword: IS_TEMPLATE
+    - comparison_operator: '='
+    - literal: 'true'
+    - keyword: CONNECTION
+    - keyword: LIMIT
+    - literal: '10'
+    - keyword: ALLOW_CONNECTIONS
+    - comparison_operator: '='
+    - literal: 'true'
+    - keyword: TEMPLATE
+    - comparison_operator: '='
+    - object_reference:
+        identifier: template_name
+    - keyword: ENCODING
+    - comparison_operator: '='
+    - literal: "'UTF8'"
+    - keyword: LOCALE
+    - literal: "'en_US.UTF-8'"
+    - keyword: OWNER
+    - object_reference:
+        identifier: user_name
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        identifier: db
+    - keyword: IS_TEMPLATE
+    - comparison_operator: '='
+    - literal: 'true'
+    - keyword: CONNECTION
+    - keyword: LIMIT
+    - literal: '10'
+    - keyword: ALLOW_CONNECTIONS
+    - comparison_operator: '='
+    - literal: 'true'
+    - keyword: TEMPLATE
+    - comparison_operator: '='
+    - object_reference:
+        identifier: template_name
+    - keyword: ENCODING
+    - comparison_operator: '='
+    - literal: "'UTF8'"
+    - keyword: LOCALE
+    - comparison_operator: '='
+    - literal: "'en_US.UTF-8'"
+    - keyword: OWNER
+    - object_reference:
+        identifier: user_name
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        identifier: db
+    - keyword: IS_TEMPLATE
+    - comparison_operator: '='
+    - literal: 'true'
+    - keyword: CONNECTION
+    - keyword: LIMIT
+    - literal: '10'
+    - keyword: ALLOW_CONNECTIONS
+    - comparison_operator: '='
+    - literal: 'true'
+    - keyword: TEMPLATE
+    - comparison_operator: '='
+    - object_reference:
+        identifier: template_name
+    - keyword: ENCODING
+    - comparison_operator: '='
+    - literal: "'UTF8'"
+    - keyword: LC_COLLATE
+    - literal: "'en_US.UTF-8'"
+    - keyword: LC_CTYPE
+    - literal: "'en_US.UTF-8'"
+    - keyword: OWNER
+    - object_reference:
+        identifier: user_name
+- statement_terminator: ;
