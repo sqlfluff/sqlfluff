@@ -1,9 +1,15 @@
 """Script used for dbt templater tests."""
 import os
 import sys
+from typing import Optional, Tuple
 
 from jinja2.sandbox import SandboxedEnvironment
-from sqlfluff_templater_dbt.templater import DBT_VERSION_TUPLE
+
+DBT_VERSION_TUPLE: Optional[Tuple[int, int]] = None
+try:
+    from sqlfluff_templater_dbt.templater import DBT_VERSION_TUPLE
+except ImportError:
+    pass
 
 
 def main(project_dir):
@@ -20,4 +26,5 @@ def main(project_dir):
 
 
 if __name__ == "__main__":
-    main(sys.argv[1])
+    if DBT_VERSION_TUPLE is not None:
+        main(sys.argv[1])
