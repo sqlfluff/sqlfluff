@@ -6,8 +6,10 @@ import pytest
 import logging
 from pathlib import Path
 
+
 from sqlfluff.core import FluffConfig, Lexer, Linter
 from sqlfluff.core.errors import SQLTemplaterSkipFile
+from sqlfluff_templater_dbt.templater import DBT_VERSION_TUPLE
 from test.fixtures.dbt.templater import (  # noqa: F401
     DBT_FLUFF_CONFIG,
     dbt_templater,
@@ -70,9 +72,20 @@ def test__templater_dbt_templating_result(
         fname=os.path.join(project_dir, "models/my_new_project/", fname),
         config=FluffConfig(configs=DBT_FLUFF_CONFIG),
     )
+    template_output_folder_path = "plugins/sqlfluff-templater-dbt/test/fixtures/dbt/templated_output/"
+    dbt_version_specific_fixture_folder = {
+        (1, 0): "dbt_utils_0.8.0"
+    }.get(DBT_VERSION_TUPLE)
+    fixture_path = None
+    if dbt_version_specific_fixture_folder:
+        version_specific_path = Path(template_output_folder_path) / dbt_version_specific_fixture_folder / fname
+        if os.path.exists(version_specific_path):
+            fixture_path = version_specific_path
+    if not fixture_path:
+        fixture_path = template_output_folder_path + fname
     assert (
         str(templated_file)
-        == open("plugins/sqlfluff-templater-dbt/test/fixtures/dbt/" + fname).read()
+        == open(fixture_path).read()
     )
 
 
