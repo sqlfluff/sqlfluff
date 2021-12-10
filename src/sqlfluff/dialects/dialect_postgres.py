@@ -1684,6 +1684,7 @@ class AlterDatabaseStatementSegment(BaseSegment):
                 ),
             ),
             Sequence("RESET", OneOf("ALL", Ref("ParameterNameSegment"))),
+            optional=True,
         ),
     )
 
