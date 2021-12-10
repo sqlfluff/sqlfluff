@@ -1593,7 +1593,7 @@ class CreateDatabaseStatementSegment(BaseSegment):
                     Ref("EqualsSegment", optional=True),
                     Ref("QuotedLiteralSegment"),
                 ),
-                Sequence(
+                AnyNumberOf(
                     Sequence(
                         "LC_COLLATE",
                         Ref("EqualsSegment", optional=True),
