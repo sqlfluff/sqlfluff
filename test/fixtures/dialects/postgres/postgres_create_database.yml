@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0c935f7ad3331ceeb5b3190c0c23b1dbbe031fcd2247f4226b0359cd84787023
+_hash: cee33113a9318a950765a825469af592819b5db32373765e59447bc7bba157e8
 file:
 - statement:
     create_database_statement:
@@ -51,9 +51,9 @@ file:
     - keyword: DATABASE
     - database_reference:
         identifier: db
-    - keyword: TEMPLATE
-    - object_reference:
-        identifier: template_name
+    - keyword: ENCODING
+    - comparison_operator: '='
+    - literal: "'UTF8'"
 - statement_terminator: ;
 - statement:
     create_database_statement:
@@ -93,6 +93,7 @@ file:
     - keyword: DATABASE
     - database_reference:
         identifier: db
+    - keyword: WITH
     - keyword: ENCODING
     - comparison_operator: '='
     - literal: "'UTF8'"
@@ -114,7 +115,36 @@ file:
         identifier: db
     - keyword: LOCALE
     - comparison_operator: '='
-    - literal: "'en_US.utf8'"
+    - literal: "'en_US.UTF-8'"
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        identifier: db
+    - keyword: WITH
+    - keyword: LOCALE
+    - comparison_operator: '='
+    - literal: "'en_US.UTF-8'"
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        identifier: db
+    - keyword: LC_COLLATE
+    - literal: "'en_US.UTF-8'"
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        identifier: db
+    - keyword: LC_CTYPE
+    - literal: "'en_US.UTF-8'"
 - statement_terminator: ;
 - statement:
     create_database_statement:
@@ -145,6 +175,18 @@ file:
     - keyword: DATABASE
     - database_reference:
         identifier: db
+    - keyword: WITH
+    - keyword: LC_CTYPE
+    - literal: "'en_US.UTF-8'"
+    - keyword: LC_COLLATE
+    - literal: "'en_US.UTF-8'"
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        identifier: db
     - keyword: LC_COLLATE
     - comparison_operator: '='
     - literal: "'en_US.UTF-8'"
@@ -163,6 +205,20 @@ file:
     - comparison_operator: '='
     - literal: "'en_US.UTF-8'"
     - keyword: LC_CTYPE
+    - comparison_operator: '='
+    - literal: "'en_US.UTF-8'"
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        identifier: db
+    - keyword: WITH
+    - keyword: LC_CTYPE
+    - comparison_operator: '='
+    - literal: "'en_US.UTF-8'"
+    - keyword: LC_COLLATE
     - comparison_operator: '='
     - literal: "'en_US.UTF-8'"
 - statement_terminator: ;
@@ -306,4 +362,57 @@ file:
     - keyword: ALLOW_CONNECTIONS
     - comparison_operator: '='
     - literal: 'true'
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        identifier: db
+    - keyword: WITH
+    - keyword: IS_TEMPLATE
+    - comparison_operator: '='
+    - literal: 'true'
+    - keyword: CONNECTION
+    - keyword: LIMIT
+    - literal: '10'
+    - keyword: ALLOW_CONNECTIONS
+    - comparison_operator: '='
+    - literal: 'true'
+    - keyword: TEMPLATE
+    - comparison_operator: '='
+    - object_reference:
+        identifier: template_name
+    - keyword: ENCODING
+    - comparison_operator: '='
+    - literal: "'UTF8'"
+    - keyword: OWNER
+    - object_reference:
+        identifier: user_name
+- statement_terminator: ;
+- statement:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        identifier: db
+    - keyword: IS_TEMPLATE
+    - comparison_operator: '='
+    - literal: 'true'
+    - keyword: CONNECTION
+    - keyword: LIMIT
+    - literal: '10'
+    - keyword: ALLOW_CONNECTIONS
+    - comparison_operator: '='
+    - literal: 'true'
+    - keyword: TEMPLATE
+    - comparison_operator: '='
+    - object_reference:
+        identifier: template_name
+    - keyword: ENCODING
+    - comparison_operator: '='
+    - literal: "'UTF8'"
+    - keyword: OWNER
+    - object_reference:
+        identifier: user_name
 - statement_terminator: ;

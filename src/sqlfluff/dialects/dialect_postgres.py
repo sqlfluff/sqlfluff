@@ -1650,7 +1650,7 @@ class AlterDatabaseStatementSegment(BaseSegment):
         Ref("DatabaseReferenceSegment"),
         OneOf(
             Sequence(
-                Sequence("WITH", optional=True),
+                Ref.keyword("WITH", optional=True),
                 AnyNumberOf(
                     Sequence("ALLOW_CONNECTIONS", Ref("BooleanLiteralGrammar")),
                     Sequence(
