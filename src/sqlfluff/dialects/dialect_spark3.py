@@ -120,6 +120,13 @@ spark3_dialect.replace(
         Sequence("GLOBAL", optional=True),
         OneOf("TEMP", "TEMPORARY"),
     ),
+    QuotedIdentifierSegment=NamedParser(
+        "back_quote",
+        CodeSegment,
+        name="quoted_identifier",
+        type="identifier",
+        trim_chars=("`",),
+    ),
 )
 
 spark3_dialect.add(
@@ -254,6 +261,7 @@ spark3_dialect.add(
     TablePropertiesGrammar=Sequence(
         "TBLPROPERTIES", Ref("BracketedPropertyListGrammar")
     ),
+
 )
 
 
