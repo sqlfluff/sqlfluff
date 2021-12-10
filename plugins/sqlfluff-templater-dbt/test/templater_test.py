@@ -72,21 +72,24 @@ def test__templater_dbt_templating_result(
         fname=os.path.join(project_dir, "models/my_new_project/", fname),
         config=FluffConfig(configs=DBT_FLUFF_CONFIG),
     )
-    template_output_folder_path = "plugins/sqlfluff-templater-dbt/test/fixtures/dbt/templated_output/"
-    dbt_version_specific_fixture_folder = {
-        (1, 0): "dbt_utils_0.8.0"
-    }.get(DBT_VERSION_TUPLE)
+    template_output_folder_path = (
+        "plugins/sqlfluff-templater-dbt/test/fixtures/dbt/templated_output/"
+    )
+    dbt_version_specific_fixture_folder = {(1, 0): "dbt_utils_0.8.0"}.get(
+        DBT_VERSION_TUPLE
+    )
     fixture_path = None
     if dbt_version_specific_fixture_folder:
-        version_specific_path = Path(template_output_folder_path) / dbt_version_specific_fixture_folder / fname
+        version_specific_path = (
+            Path(template_output_folder_path)
+            / dbt_version_specific_fixture_folder
+            / fname
+        )
         if os.path.exists(version_specific_path):
             fixture_path = version_specific_path
     if not fixture_path:
         fixture_path = template_output_folder_path + fname
-    assert (
-        str(templated_file)
-        == open(fixture_path).read()
-    )
+    assert str(templated_file) == open(fixture_path).read()
 
 
 @pytest.mark.parametrize(
@@ -308,13 +311,17 @@ def test__templater_dbt_handle_exceptions(
     assert violations[0].desc().replace("\\", "/").startswith(exception_msg)
 
 
-def test__templater_dbt_handle_database_connection_failure(project_dir, dbt_templater):  # noqa: F811
+def test__templater_dbt_handle_database_connection_failure(
+    project_dir, dbt_templater  # noqa: F811
+):
     """Test the result of a failed database connection."""
     from dbt.adapters.factory import get_adapter
 
     src_fpath = "plugins/sqlfluff-templater-dbt/test/fixtures/dbt/error_models/exception_connect_database.sql"
     target_fpath = os.path.abspath(
-        os.path.join(project_dir, "models/my_new_project/exception_connect_database.sql")
+        os.path.join(
+            project_dir, "models/my_new_project/exception_connect_database.sql"
+        )
     )
     # We move the file that throws an error in and out of the project directory
     # as dbt throws an error if a node fails to parse while computing the DAG
@@ -328,16 +335,23 @@ def test__templater_dbt_handle_database_connection_failure(project_dir, dbt_temp
     except Exception as e:
         if DBT_VERSION_TUPLE == (1, 0):
             # In dbt 1.0.0, connection failures raise an exception
-            assert(str(e).startswith("Runtime Error\n  connection never acquired for thread"))
+            assert str(e).startswith(
+                "Runtime Error\n  connection never acquired for thread"
+            )
         else:
-            raise(e)
+            raise (e)
     finally:
         get_adapter(dbt_templater.dbt_config).connections.release()
         os.rename(target_fpath, src_fpath)
     if DBT_VERSION_TUPLE != (1, 0):
         assert violations
         # NB: Replace slashes to deal with different plaform paths being returned.
-        assert violations[0].desc().replace("\\", "/").startswith("dbt tried to connect to the database")
+        assert (
+            violations[0]
+            .desc()
+            .replace("\\", "/")
+            .startswith("dbt tried to connect to the database")
+        )
 
 
 def test__project_dir_does_not_exist_error(dbt_templater, caplog):  # noqa: F811
