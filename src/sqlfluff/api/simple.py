@@ -155,6 +155,6 @@ def parse(
     if parsed.violations:
         raise APIParsingError(parsed.violations)
     # Return a JSON representation of the parse tree.
-    if parsed.tree is None:
+    if parsed.tree is None:  # pragma: no cover
         return {}
     return parsed.tree.as_record(show_raw=True)
