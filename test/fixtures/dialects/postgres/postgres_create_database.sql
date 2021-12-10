@@ -37,6 +37,7 @@ CREATE DATABASE db
   ALLOW_CONNECTIONS = true
   TEMPLATE = template_name
   ENCODING = 'UTF8'
+  LOCALE 'en_US.UTF-8'
   OWNER user_name;
 CREATE DATABASE db
   IS_TEMPLATE = true
@@ -44,4 +45,14 @@ CREATE DATABASE db
   ALLOW_CONNECTIONS = true
   TEMPLATE = template_name
   ENCODING = 'UTF8'
+  LOCALE = 'en_US.UTF-8'
+  OWNER user_name;
+CREATE DATABASE db
+  IS_TEMPLATE = true
+  CONNECTION LIMIT 10
+  ALLOW_CONNECTIONS = true
+  TEMPLATE = template_name
+  ENCODING = 'UTF8'
+  LC_COLLATE 'en_US.UTF-8'
+  LC_CTYPE 'en_US.UTF-8'
   OWNER user_name;
