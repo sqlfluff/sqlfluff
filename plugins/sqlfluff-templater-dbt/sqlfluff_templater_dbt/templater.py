@@ -381,7 +381,18 @@ class DbtTemplater(JinjaTemplater):
 
         if not results:
             model_name = os.path.splitext(os.path.basename(fname))[0]
-            disabled_model = self.dbt_manifest.find_disabled_by_name(name=model_name)
+            if DBT_VERSION_TUPLE >= (1, 0):
+                disabled_model = None
+                for key, disabled_model_nodes in self.dbt_manifest.disabled.items():
+                    for disabled_model_node in disabled_model_nodes:
+                        if os.path.abspath(
+                            disabled_model_node.original_file_path
+                        ) == os.path.abspath(fname):
+                            disabled_model = disabled_model_node
+            else:
+                disabled_model = self.dbt_manifest.find_disabled_by_name(
+                    name=model_name
+                )
             if disabled_model and os.path.abspath(
                 disabled_model.original_file_path
             ) == os.path.abspath(fname):
