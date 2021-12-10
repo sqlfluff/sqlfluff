@@ -180,7 +180,7 @@ def test__api__parse_string():
     """Basic checking of parse functionality."""
     parsed = sqlfluff.parse(my_bad_query)
 
-    # Check we a JSON object is returned.
+    # Check a JSON object is returned.
     assert isinstance(parsed, dict)
 
     # Load in expected result.
