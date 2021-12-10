@@ -1588,6 +1588,8 @@ class CreateDatabaseStatementSegment(BaseSegment):
                 OneOf(Ref("QuotedLiteralSegment"), "DEFAULT"),
             ),
             OneOf(
+                # LOCALE This is a shortcut for setting LC_COLLATE and LC_CTYPE at once.
+                # If you specify this, you cannot specify either of those parameters.
                 Sequence(
                     "LOCALE",
                     Ref("EqualsSegment", optional=True),
