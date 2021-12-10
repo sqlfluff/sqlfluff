@@ -8,7 +8,6 @@ from sqlfluff.core import (
     SQLBaseError,
     SQLFluffUserError,
 )
-from sqlfluff.core.linter import ParsedString
 
 
 def get_simple_config(
@@ -132,7 +131,7 @@ def parse(
     sql: str,
     dialect: str = "ansi",
     config_path: Optional[str] = None,
-) -> ParsedString:
+) -> Dict[str, Any]:
     """Parse a SQL string.
 
     Args:
@@ -143,7 +142,7 @@ def parse(
             Defaults to None.
 
     Returns:
-        :obj:`ParsedString` containing the parsed structure.
+        :obj:`Dict[str, Any]` JSON containing the parsed structure.
     """
     cfg = get_simple_config(
         dialect=dialect,
@@ -155,4 +154,7 @@ def parse(
     # If we encounter any parsing errors, raise them in a combined issue.
     if parsed.violations:
         raise APIParsingError(parsed.violations)
-    return parsed
+    # Return a JSON representation of the parse tree.
+    if parsed.tree is None:  # pragma: no cover
+        return {}
+    return parsed.tree.as_record(show_raw=True)
