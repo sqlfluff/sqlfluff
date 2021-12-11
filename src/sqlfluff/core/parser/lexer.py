@@ -533,29 +533,28 @@ class Lexer:
                 ):
                     so_slice_group = list(so_slice_group_iter)
                     if not is_templated:
-                        for so_slice in so_slice_group:
-                            # Template control structure(s) such as conditional or loop.
-                            segment_buffer.append(
-                                TemplateSegment(
-                                    pos_marker=PositionMarker(
-                                        placeholder_slice,
-                                        slice(
-                                            element.template_slice.start,
-                                            element.template_slice.start,
-                                        ),
-                                        templated_file,
+                        # Template control structure(s) such as conditional or loop.
+                        segment_buffer.append(
+                            TemplateSegment(
+                                pos_marker=PositionMarker(
+                                    placeholder_slice,
+                                    slice(
+                                        element.template_slice.start,
+                                        element.template_slice.start,
                                     ),
-                                    source_str=placeholder_str,
-                                    block_type=so_slice.slice_type
-                                    if len(so_slice_group) == 1
-                                    else "compound",
-                                )
+                                    templated_file,
+                                ),
+                                source_str=placeholder_str,
+                                block_type=so_slice_group[0].slice_type
+                                if len(so_slice_group) == 1
+                                else "compound",
                             )
-                            lexer_logger.debug(
-                                "      Placeholder: %s, %r",
-                                segment_buffer[-1],
-                                placeholder_str,
-                            )
+                        )
+                        lexer_logger.debug(
+                            "      Placeholder: %s, %r",
+                            segment_buffer[-1],
+                            placeholder_str,
+                        )
                     else:
                         # Empty template substitutions.
                         for so_slice in so_slice_group:
@@ -598,6 +597,7 @@ class Lexer:
                             ),
                         )
                     )
+
             # Add the actual segment
             segment_buffer.append(
                 element.to_segment(

@@ -1,7 +1,8 @@
 """Implementation of Rule L039."""
-from typing import List, Optional
+from typing import cast, List, Optional
 
 from sqlfluff.core.parser import WhitespaceSegment
+from sqlfluff.core.parser.segments import TemplateSegment
 
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
@@ -37,6 +38,11 @@ class Rule_L039(BaseRule):
         prev_whitespace = None
         violations = []
         for seg in context.segment.segments:
+            if seg.is_type("placeholder") and cast(
+                TemplateSegment, seg
+            ).block_type.startswith("templated"):
+                continue
+
             if seg.is_type("newline"):
                 prev_newline = True
                 prev_whitespace = None

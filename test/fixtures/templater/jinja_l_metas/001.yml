@@ -44,9 +44,11 @@ file:
                 keyword: WHERE
                 indent: ''
                 whitespace: ' '
+                placeholder: '{{some_condition}}'
                 expression:
                   literal: 'TRUE'
                 dedent: ''
+          - placeholder: ''
           - newline: "\n"
           - whitespace: '    '
           - dedent: ''
