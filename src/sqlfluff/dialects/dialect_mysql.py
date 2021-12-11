@@ -231,6 +231,47 @@ class CreateTableStatementSegment(
     )
 
 
+@mysql_dialect.segment(replace=True)
+class TableConstraintSegment(BaseSegment):
+    """A table constraint, e.g. for CREATE TABLE."""
+
+    type = "table_constraint_segment"
+    # Later add support for CHECK constraint, others?
+    # e.g. CONSTRAINT constraint_1 PRIMARY KEY(column_1)
+    match_grammar = Sequence(
+        Sequence(  # [ CONSTRAINT <Constraint name> ]
+            "CONSTRAINT", Ref("ObjectReferenceSegment"), optional=True
+        ),
+        OneOf(
+            Sequence(  # UNIQUE [INDEX | KEY] [index_name] ( column_name [, ... ] )
+                "UNIQUE",
+                OneOf("INDEX", "KEY", optional=True),
+                Ref("ObjectReferenceSegment", optional=True),
+                Ref("BracketedColumnReferenceListGrammar"),
+                # Later add support for index_parameters?
+            ),
+            Sequence(  # PRIMARY KEY ( column_name [, ... ] ) index_parameters
+                Ref("PrimaryKeyGrammar"),
+                # Columns making up PRIMARY KEY constraint
+                Ref("BracketedColumnReferenceListGrammar"),
+                # Later add support for index_parameters?
+            ),
+            Sequence(  # FOREIGN KEY ( column_name [, ... ] )
+                # REFERENCES reftable [ ( refcolumn [, ... ] ) ]
+                Ref("ForeignKeyGrammar"),
+                # Local columns making up FOREIGN KEY constraint
+                Ref("BracketedColumnReferenceListGrammar"),
+                "REFERENCES",
+                Ref("ColumnReferenceSegment"),
+                # Foreign columns making up FOREIGN KEY constraint
+                Ref("BracketedColumnReferenceListGrammar"),
+                # Later add support for [MATCH FULL/PARTIAL/SIMPLE] ?
+                # Later add support for [ ON DELETE/UPDATE action ] ?
+            ),
+        ),
+    )
+
+
 mysql_dialect.add(
     DoubleForwardSlashSegment=StringParser(
         "//", SymbolSegment, name="doubleforwardslash", type="statement_terminator"
