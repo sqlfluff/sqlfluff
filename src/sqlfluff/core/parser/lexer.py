@@ -395,8 +395,13 @@ class Lexer:
                         so_slices.append(source_only_slice)
 
                 end_substitution_slice()
-                if source_slice.start in substitution_raw_source:
-                    # It's a templated slice (i.e. substitution).
+                substitution_source = substitution_raw_source.get(source_slice.start)
+                if (
+                    substitution_source is not None
+                    and source_slice.stop
+                    == source_slice.start + len(substitution_source)
+                ):
+                    # It's a non-empty templated slice (i.e. substitution).
                     # Starting a new slice.
                     segment_buffer.append(
                         TemplateSegment(
