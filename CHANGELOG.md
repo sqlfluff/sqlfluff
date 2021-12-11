@@ -60,7 +60,7 @@ There have also been many bug fixes and improvements to the CI and development p
 * Add encoding CLI argument [#1994](https://github.com/sqlfluff/sqlfluff/pull/1994) [@jpy-git](https://github.com/jpy-git)
 * TSQL: Spaces allowed in comparison operators [#1965](https://github.com/sqlfluff/sqlfluff/pull/1965) [@jpers36](https://github.com/jpers36)
 * Add Snowflake schema options [#1950](https://github.com/sqlfluff/sqlfluff/pull/1950) [@chwiese](https://github.com/chwiese)
-* Rule globs [#1972](https://github.com/sqlfluff/sqlfluff/pull/1972) [@jpy-git](https://github.com/jpy-git)
+* CLI/`.sqlfluff` enhancement: Rule globs [#1972](https://github.com/sqlfluff/sqlfluff/pull/1972) [@jpy-git](https://github.com/jpy-git)
 * Add config CLI argument to lint, fix, and parse [#1986](https://github.com/sqlfluff/sqlfluff/pull/1986) [@jpy-git](https://github.com/jpy-git)
 * Add type hints to simple API [#1951](https://github.com/sqlfluff/sqlfluff/pull/1951) [@jpy-git](https://github.com/jpy-git)
 * New rule to flag special characters in identifiers [#1958](https://github.com/sqlfluff/sqlfluff/pull/1958) [@jpers36](https://github.com/jpers36)
