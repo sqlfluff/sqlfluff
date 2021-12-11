@@ -1647,6 +1647,83 @@ class DropMaterializedViewStatementSegment(BaseSegment):
     )
 
 
+@postgres_dialect.segment()
+class AlterViewStatementSegment(BaseSegment):
+    """A `ALTER VIEW` statement.
+
+    As specified in https://www.postgresql.org/docs/14/sql-alterview.html
+    """
+
+    type = "alter_view_statement"
+
+    match_grammar = StartsWith(Sequence("ALTER", "VIEW"))
+
+    parse_grammar = Sequence(
+        "ALTER",
+        "VIEW",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        OneOf(
+            Sequence(
+                "ALTER",
+                Ref.keyword("COLUMN", optional=True),
+                Ref("ColumnReferenceSegment"),
+                OneOf(
+                    Sequence(
+                        "SET",
+                        "DEFAULT",
+                        OneOf(
+                            Ref("LiteralGrammar"),
+                            Ref("FunctionSegment"),
+                            Ref("BareFunctionSegment"),
+                            Ref("ExpressionSegment"),
+                        ),
+                    ),
+                    Sequence("DROP", "DEFAULT"),
+                ),
+            ),
+            Sequence(
+                "OWNER",
+                "TO",
+                OneOf(
+                    Ref("ObjectReferenceSegment"),
+                    "CURRENT_ROLE",
+                    "CURRENT_USER",
+                    "SESSION_USER",
+                ),
+            ),
+            Sequence(
+                "RENAME",
+                Ref.keyword("COLUMN", optional=True),
+                Ref("ColumnReferenceSegment"),
+                "TO",
+                Ref("ColumnReferenceSegment"),
+            ),
+            Sequence("RENAME", "TO", Ref("TableReferenceSegment")),
+            Sequence("SET", "SCHEMA", Ref("SchemaReferenceSegment")),
+            Sequence(
+                "SET",
+                Bracketed(
+                    Delimited(
+                        Sequence(
+                            Ref("ParameterNameSegment"),
+                            Sequence(
+                                Ref("EqualsSegment"),
+                                Ref("LiteralGrammar"),
+                                optional=True,
+                            ),
+                        )
+                    )
+                ),
+            ),
+            Sequence(
+                "RESET",
+                Bracketed(Delimited(Ref("ParameterNameSegment"))),
+            ),
+        ),
+    )
+
+
 @postgres_dialect.segment(replace=True)
 class CreateDatabaseStatementSegment(BaseSegment):
     """A `CREATE DATABASE` statement.
@@ -2669,6 +2746,7 @@ class StatementSegment(BaseSegment):
             Ref("AlterDatabaseStatementSegment"),
             Ref("DropDatabaseStatementSegment"),
             Ref("AlterFunctionStatementSegment"),
+            Ref("AlterViewStatementSegment"),
         ],
     )
 
