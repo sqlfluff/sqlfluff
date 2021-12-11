@@ -73,7 +73,7 @@ There have also been many bug fixes and improvements to the CI and development p
 ## 🐛 Bug Fixes
 
 * Fix tsql block comment close [#2095](https://github.com/sqlfluff/sqlfluff/pull/2095) [@jpy-git](https://github.com/jpy-git)
-* Fix PlaceHolderTemplater slice_type for substitutions [#2085](https://github.com/sqlfluff/sqlfluff/pull/2085) [@barrywhart](https://github.com/barrywhart)
+* Fix PlaceholderTemplater slice_type for templated code (substitutions) [#2085](https://github.com/sqlfluff/sqlfluff/pull/2085) [@barrywhart](https://github.com/barrywhart)
 * Exasol: Fix UDF script syntax [#2083](https://github.com/sqlfluff/sqlfluff/pull/2083) [@sti0](https://github.com/sti0)
 * Fix issues with placeholder templating docs [#2078](https://github.com/sqlfluff/sqlfluff/pull/2078) [@jpy-git](https://github.com/jpy-git)
 * Update dbt templater docs to clarify that the profiles_dir setting is optional [#2070](https://github.com/sqlfluff/sqlfluff/pull/2070) [@barrywhart](https://github.com/barrywhart)
