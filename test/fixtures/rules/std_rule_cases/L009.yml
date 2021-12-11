@@ -10,3 +10,21 @@ test_fail_no_final_newline:
 test_fail_multiple_final_newlines:
   fail_str: "SELECT foo FROM bar\n\n"
   fix_str: "SELECT foo FROM bar\n"
+
+test_fail_trailing_newline_after_templated:
+  fail_str: "SELECT foo FROM {{table}}\n\n"
+  fix_str: "SELECT foo FROM {{table}}\n"
+  configs:
+    templater:
+      jinja:
+        context:
+          table: bar
+
+test_pass_trailing_newlines_before_empty_templated:
+  # L009 allows this currently, but someday it may not.
+  pass_str: "SELECT foo FROM t\n\n\n\n{{empty}}\n"
+  configs:
+    templater:
+      jinja:
+        context:
+          empty: ""

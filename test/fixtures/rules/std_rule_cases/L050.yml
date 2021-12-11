@@ -47,3 +47,21 @@ test_fail_leading_whitespace_jinja_if:
 test_fail_leading_whitespace_jinja_for:
   fail_str: "\n  {% for item in range(10) %}\nSELECT foo_{{ item }}\nFROM bar;\n{% endfor %}\n"
   fix_str: "{% for item in range(10) %}\nSELECT foo_{{ item }}\nFROM bar;\n{% endfor %}\n"
+
+test_fail_leading_newline_before_templated:
+  fail_str: "\n{{keyword}} foo FROM bar"
+  fix_str: "{{keyword}} foo FROM bar"
+  configs:
+    templater:
+      jinja:
+        context:
+          keyword: SELECT
+
+test_pass_trailing_newlines_after_empty_templated:
+  # L050 allows this currently, but someday it may not.
+  pass_str: "{{empty}}\n\nSELECT foo FROM bar"
+  configs:
+    templater:
+      jinja:
+        context:
+          empty: ""
