@@ -16,7 +16,7 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 This release brings about several great new additions including:
 - dbt 1.0.0 compatibility.
 - CLI and Simple API paramaters to provide custom paths to config files.
-- Refinement to Simple API (**BREAKING CHANGE**).
+- Refinement to Simple API to return parse output in JSON format rather than as an internal SQLFluff object (**BREAKING CHANGE**).
 - An [Official SQLFluff Docker Image](https://hub.docker.com/r/sqlfluff/sqlfluff).
 - Grammar improvements across various dialects.
 - A new rule to check for non-alphanumeric values in identifiers.
