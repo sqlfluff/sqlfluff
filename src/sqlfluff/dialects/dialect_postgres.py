@@ -521,6 +521,98 @@ class DropFunctionStatementSegment(BaseSegment):
 
 
 @postgres_dialect.segment()
+class AlterFunctionStatementSegment(BaseSegment):
+    """A `ALTER FUNCTION` statement.
+
+    As per the specification: https://www.postgresql.org/docs/14/sql-alterfunction.html
+    """
+
+    type = "alter_function_statement"
+
+    match_grammar = StartsWith(Sequence("ALTER", "FUNCTION"))
+
+    parse_grammar = Sequence(
+        "ALTER",
+        "FUNCTION",
+        Delimited(
+            Sequence(
+                Ref("FunctionNameSegment"),
+                Ref("FunctionParameterListGrammar", optional=True),
+            )
+        ),
+        OneOf(
+            Ref("AlterFunctionActionSegment", optional=True),
+            Sequence("RENAME", "TO", Ref("FunctionNameSegment")),
+            Sequence("SET", "SCHEMA", Ref("SchemaReferenceSegment")),
+            Sequence(
+                "OWNER",
+                "TO",
+                OneOf(
+                    OneOf(Ref("ParameterNameSegment"), Ref("QuotedIdentifierSegment")),
+                    "CURRENT_ROLE",
+                    "CURRENT_USER",
+                    "SESSION_USER",
+                ),
+            ),
+            Sequence(
+                Ref.keyword("NO", optional=True),
+                "DEPENDS",
+                "ON",
+                "EXTENSION",
+            ),
+        ),
+    )
+
+
+@postgres_dialect.segment()
+class AlterFunctionActionSegment(BaseSegment):
+    """Alter Function Action Segment.
+
+    Matches the definition of action in https://www.postgresql.org/docs/14/sql-alterfunction.html
+    """
+
+    type = "alter_function_action_segment"
+
+    match_grammar = Sequence(
+        OneOf(
+            OneOf(
+                Sequence("CALLED", "ON", "NULL", "INPUT"),
+                Sequence("RETURNS", "NULL", "ON", "NULL", "INPUT"),
+                "STRICT",
+            ),
+            OneOf("IMMUTABLE", "STABLE", "VOLATILE"),
+            Sequence(Ref.keyword("NOT", optional=True), "LEAKPROOF"),
+            Sequence(
+                Ref.keyword("EXTERNAL", optional=True),
+                "SECURITY",
+                OneOf("DEFINER", "INVOKER"),
+            ),
+            Sequence("PARALLEL", OneOf("UNSAFE", "RESTRICTED", "SAFE")),
+            Sequence("COST", Ref("NumericLiteralSegment")),
+            Sequence("ROWS", Ref("NumericLiteralSegment")),
+            Sequence("SUPPORT", Ref("ParameterNameSegment")),
+            Sequence(
+                "SET",
+                Ref("ParameterNameSegment"),
+                OneOf(
+                    Sequence(
+                        OneOf("TO", Ref("EqualsSegment")),
+                        OneOf(
+                            Ref("LiteralGrammar"),
+                            Ref("NakedIdentifierSegment"),
+                            "DEFAULT",
+                        ),
+                    ),
+                    Sequence("FROM", "CURRENT"),
+                ),
+            ),
+            Sequence("RESET", OneOf("ALL", Ref("ParameterNameSegment"))),
+        ),
+        Ref.keyword("RESTRICT", optional=True),
+    )
+
+
+@postgres_dialect.segment()
 class WellKnownTextGeometrySegment(BaseSegment):
     """A Data Type Segment to identify Well Known Text Geometric Data Types.
 
@@ -1555,6 +1647,166 @@ class DropMaterializedViewStatementSegment(BaseSegment):
     )
 
 
+@postgres_dialect.segment(replace=True)
+class CreateDatabaseStatementSegment(BaseSegment):
+    """A `CREATE DATABASE` statement.
+
+    As specified in https://www.postgresql.org/docs/14/sql-createdatabase.html
+    """
+
+    type = "create_database_statement"
+
+    match_grammar = StartsWith(Sequence("CREATE", "DATABASE"))
+
+    parse_grammar = Sequence(
+        "CREATE",
+        "DATABASE",
+        Ref("DatabaseReferenceSegment"),
+        Ref.keyword("WITH", optional=True),
+        AnyNumberOf(
+            Sequence(
+                "OWNER",
+                Ref("EqualsSegment", optional=True),
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "TEMPLATE",
+                Ref("EqualsSegment", optional=True),
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "ENCODING",
+                Ref("EqualsSegment", optional=True),
+                OneOf(Ref("QuotedLiteralSegment"), "DEFAULT"),
+            ),
+            OneOf(
+                # LOCALE This is a shortcut for setting LC_COLLATE and LC_CTYPE at once.
+                # If you specify this, you cannot specify either of those parameters.
+                Sequence(
+                    "LOCALE",
+                    Ref("EqualsSegment", optional=True),
+                    Ref("QuotedLiteralSegment"),
+                ),
+                AnyNumberOf(
+                    Sequence(
+                        "LC_COLLATE",
+                        Ref("EqualsSegment", optional=True),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Sequence(
+                        "LC_CTYPE",
+                        Ref("EqualsSegment", optional=True),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                ),
+            ),
+            Sequence(
+                "TABLESPACE",
+                Ref("EqualsSegment", optional=True),
+                Ref("ParameterNameSegment"),
+            ),
+            Sequence(
+                "ALLOW_CONNECTIONS",
+                Ref("EqualsSegment", optional=True),
+                Ref("BooleanLiteralGrammar"),
+            ),
+            Sequence(
+                "CONNECTION",
+                "LIMIT",
+                Ref("EqualsSegment", optional=True),
+                Ref("NumericLiteralSegment"),
+            ),
+            Sequence(
+                "IS_TEMPLATE",
+                Ref("EqualsSegment", optional=True),
+                Ref("BooleanLiteralGrammar"),
+            ),
+        ),
+    )
+
+
+@postgres_dialect.segment()
+class AlterDatabaseStatementSegment(BaseSegment):
+    """A `ALTER DATABASE` statement.
+
+    As specified in https://www.postgresql.org/docs/14/sql-alterdatabase.html
+    """
+
+    type = "alter_database_statement"
+
+    match_grammar = StartsWith(Sequence("ALTER", "DATABASE"))
+
+    parse_grammar = Sequence(
+        "ALTER",
+        "DATABASE",
+        Ref("DatabaseReferenceSegment"),
+        OneOf(
+            Sequence(
+                Ref.keyword("WITH", optional=True),
+                AnyNumberOf(
+                    Sequence("ALLOW_CONNECTIONS", Ref("BooleanLiteralGrammar")),
+                    Sequence(
+                        "CONNECTION",
+                        "LIMIT",
+                        Ref("NumericLiteralSegment"),
+                    ),
+                    Sequence("IS_TEMPLATE", Ref("BooleanLiteralGrammar")),
+                    min_times=1,
+                ),
+            ),
+            Sequence("RENAME", "TO", Ref("DatabaseReferenceSegment")),
+            Sequence(
+                "OWNER",
+                "TO",
+                OneOf(
+                    Ref("ObjectReferenceSegment"),
+                    "CURRENT_ROLE",
+                    "CURRENT_USER",
+                    "SESSION_USER",
+                ),
+            ),
+            Sequence("SET", "TABLESPACE", Ref("ParameterNameSegment")),
+            Sequence(
+                "SET",
+                Ref("ParameterNameSegment"),
+                OneOf(
+                    Sequence(
+                        OneOf("TO", Ref("EqualsSegment")),
+                        OneOf("DEFAULT", Ref("LiteralGrammar")),
+                    ),
+                    Sequence("FROM", "CURRENT"),
+                ),
+            ),
+            Sequence("RESET", OneOf("ALL", Ref("ParameterNameSegment"))),
+            optional=True,
+        ),
+    )
+
+
+@postgres_dialect.segment()
+class DropDatabaseStatementSegment(BaseSegment):
+    """A `DROP DATABASE` statement.
+
+    As specified in https://www.postgresql.org/docs/14/sql-dropdatabase.html
+    """
+
+    type = "drop_database_statement"
+
+    match_grammar = StartsWith(Sequence("DROP", "DATABASE"))
+
+    parse_grammar = Sequence(
+        "DROP",
+        "DATABASE",
+        Sequence("IF", "EXISTS", optional=True),
+        Ref("DatabaseReferenceSegment"),
+        Sequence(
+            Ref.keyword("WITH", optional=True),
+            Bracketed("FORCE"),
+            optional=True,
+        ),
+    )
+
+
 @postgres_dialect.segment()
 class LikeOptionSegment(BaseSegment):
     """Like Option Segment.
@@ -2414,6 +2666,9 @@ class StatementSegment(BaseSegment):
             Ref("AlterMaterializedViewStatementSegment"),
             Ref("DropMaterializedViewStatementSegment"),
             Ref("RefreshMaterializedViewStatementSegment"),
+            Ref("AlterDatabaseStatementSegment"),
+            Ref("DropDatabaseStatementSegment"),
+            Ref("AlterFunctionStatementSegment"),
         ],
     )
 
