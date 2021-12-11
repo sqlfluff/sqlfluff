@@ -72,24 +72,30 @@ def test__templater_dbt_templating_result(
         fname=os.path.join(project_dir, "models/my_new_project/", fname),
         config=FluffConfig(configs=DBT_FLUFF_CONFIG),
     )
-    template_output_folder_path = (
+    template_output_folder_path = Path(
         "plugins/sqlfluff-templater-dbt/test/fixtures/dbt/templated_output/"
     )
+    fixture_path = _get_fixture_path(template_output_folder_path, fname)
+    assert str(templated_file) == fixture_path.read_text()
+
+
+def _get_fixture_path(template_output_folder_path, fname):
+    fixture_path: Path = template_output_folder_path / fname  # Default fixture location
+    # Is there a version-specific version of the fixture file?
     dbt_version_specific_fixture_folder = {(1, 0): "dbt_utils_0.8.0"}.get(
         DBT_VERSION_TUPLE
     )
-    fixture_path = None
     if dbt_version_specific_fixture_folder:
+        # Maybe. Determine where it would exist.
         version_specific_path = (
             Path(template_output_folder_path)
             / dbt_version_specific_fixture_folder
             / fname
         )
-        if os.path.exists(version_specific_path):
+        if version_specific_path.is_file():
+            # Ok, it exists. Use this path instead.
             fixture_path = version_specific_path
-    if not fixture_path:
-        fixture_path = template_output_folder_path + fname
-    assert str(templated_file) == open(fixture_path).read()
+    return fixture_path
 
 
 @pytest.mark.parametrize(
@@ -333,7 +339,7 @@ def test__templater_dbt_handle_database_connection_failure(
             config=FluffConfig(configs=DBT_FLUFF_CONFIG),
         )
     except Exception as e:
-        if DBT_VERSION_TUPLE == (1, 0):
+        if DBT_VERSION_TUPLE >= (1, 0):
             # In dbt 1.0.0, connection failures raise an exception
             assert str(e).startswith(
                 "Runtime Error\n  connection never acquired for thread"
@@ -343,7 +349,7 @@ def test__templater_dbt_handle_database_connection_failure(
     finally:
         get_adapter(dbt_templater.dbt_config).connections.release()
         os.rename(target_fpath, src_fpath)
-    if DBT_VERSION_TUPLE != (1, 0):
+    if DBT_VERSION_TUPLE < (1, 0):
         assert violations
         # NB: Replace slashes to deal with different plaform paths being returned.
         assert (
