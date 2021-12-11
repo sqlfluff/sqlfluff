@@ -50,7 +50,7 @@ There have also been many bug fixes and improvements to the CI and development p
 * TSQL (ASA): Allow for table identifier in DELETE clause [#2031](https://github.com/sqlfluff/sqlfluff/pull/2031) [@jpers36](https://github.com/jpers36)
 * TSQL (ASA): Fix CTAS with WITH statement [#2028](https://github.com/sqlfluff/sqlfluff/pull/2028) [@jpers36](https://github.com/jpers36)
 * Grammar: Parse multiple grants [#2023](https://github.com/sqlfluff/sqlfluff/pull/2023) [@jpy-git](https://github.com/jpy-git)
-* Add tsql nested block comment support and add regex package [#2027](https://github.com/sqlfluff/sqlfluff/pull/2027) [@jpy-git](https://github.com/jpy-git)
+* Add tsql nested block comment support and add regex package dependency [#2027](https://github.com/sqlfluff/sqlfluff/pull/2027) [@jpy-git](https://github.com/jpy-git)
 * Grammar: Add complete Snowflake datetime units [#2026](https://github.com/sqlfluff/sqlfluff/pull/2026) [@jpy-git](https://github.com/jpy-git)
 * Grammar: Add DROP POLICY statement to postgres dialect [#2024](https://github.com/sqlfluff/sqlfluff/pull/2024) [@jpy-git](https://github.com/jpy-git)
 * Grammar: Add complete datetime units to postgres dialect [#2025](https://github.com/sqlfluff/sqlfluff/pull/2025) [@jpy-git](https://github.com/jpy-git)
