@@ -1,0 +1,81 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 89f5acbd9b7f7b2a7f14cc5faa9666129d97246fbc7eb70c4d34e8c193eec5ab
+file:
+  statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        identifier: a
+    - bracketed:
+      - start_bracket: (
+      - column_definition:
+          identifier: a
+          data_type:
+            data_type_identifier: INT
+          column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+      - comma: ','
+      - table_constraint_segment:
+          keyword: UNIQUE
+          bracketed:
+            start_bracket: (
+            column_reference:
+              identifier: a
+            end_bracket: )
+      - comma: ','
+      - table_constraint_segment:
+          keyword: UNIQUE
+          object_reference:
+            identifier: idx_c
+          bracketed:
+            start_bracket: (
+            column_reference:
+              identifier: a
+            end_bracket: )
+      - comma: ','
+      - table_constraint_segment:
+        - keyword: UNIQUE
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              identifier: a
+            end_bracket: )
+      - comma: ','
+      - table_constraint_segment:
+        - keyword: UNIQUE
+        - keyword: KEY
+        - object_reference:
+            identifier: idx_a
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              identifier: a
+            end_bracket: )
+      - comma: ','
+      - table_constraint_segment:
+        - keyword: UNIQUE
+        - keyword: INDEX
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              identifier: a
+            end_bracket: )
+      - comma: ','
+      - table_constraint_segment:
+        - keyword: UNIQUE
+        - keyword: INDEX
+        - object_reference:
+            identifier: idx_b
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              identifier: a
+            end_bracket: )
+      - end_bracket: )
