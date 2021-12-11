@@ -91,9 +91,28 @@ tsql_dialect.patch_lexer_matchers(
         # N.B. this syntax is only possible via the non-standard-library
         # (but still backwards compatible) `regex` package.
         # https://pypi.org/project/regex/
+        # Pattern breakdown:
+        # /\*                    Match opening slash.
+        #   (?>                  Atomic grouping
+        #                        (https://www.regular-expressions.info/atomic.html).
+        #       [^*/]+           Non forward-slash or asterisk characters.
+        #       |\*(?!\/)        Negative lookahead assertion to match
+        #                        asterisks not followed by a forward-slash.
+        #       |/[^*]           Match lone forward-slashes not followed by an asterisk.
+        #   )*                   Match any number of the atomic group contents.
+        #   (?>
+        #       (?R)             Recusively match the block comment pattern
+        #                        to match nested block comments.
+        #       (?>
+        #           [^*/]+
+        #           |\*(?!\/)
+        #           |/[^*]
+        #       )*
+        #   )*
+        # \*/                    Match closing slash.
         RegexLexer(
             "block_comment",
-            r"/\*(?>[^*/]+|\*[^/]|/[^*])*(?>(?R)(?>[^*/]+|\*[^/]|/[^*])*)*\*/",
+            r"/\*(?>[^*/]+|\*(?!\/)|/[^*])*(?>(?R)(?>[^*/]+|\*(?!\/)|/[^*])*)*\*/",
             CommentSegment,
             subdivider=RegexLexer(
                 "newline",
