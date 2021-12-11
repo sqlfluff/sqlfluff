@@ -19,15 +19,15 @@ lint_result = sqlfluff.lint(my_bad_query, dialect="bigquery")
 
 # Fix the given string and get a string back which has been fixed.
 fix_result_1 = sqlfluff.fix(my_bad_query, dialect="bigquery")
-# fix_result_1 = 'SELECT  *, 1, blah AS  foo  FROM mytable\n'
+# fix_result_1 = 'SELECT  *, 1, blah AS  foo  FROM myschema.mytable\n'
 
 # We can also fix just specific rules.
 fix_result_2 = sqlfluff.fix(my_bad_query, rules=["L010"])
-# fix_result_2 = 'SELECT  *, 1, blah AS  fOO  FROM myTable'
+# fix_result_2 = 'SELECT  *, 1, blah AS  fOO  FROM mySchema.myTable'
 
 # Or a subset of rules...
 fix_result_3 = sqlfluff.fix(my_bad_query, rules=["L010", "L014"])
-# fix_result_3 = 'SELECT  *, 1, blah AS  fOO  FROM mytable'
+# fix_result_3 = 'SELECT  *, 1, blah AS  fOO  FROM myschema.mytable'
 
 #  -------- PARSING ----------
 
@@ -66,7 +66,7 @@ def get_json_segment(
 # e.g. Retrieve array of JSON for table references.
 table_references = list(get_json_segment(parse_result, "table_reference"))
 print(table_references)
-# [{'identifier': 'myTable'}]
+# [[{'identifier': 'mySchema'}, {'dot': '.'}, {'identifier': 'myTable'}]]
 
 # Retrieve raw table name from last identifier in the table reference.
 for table_reference in table_references:
