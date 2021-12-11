@@ -25,6 +25,7 @@ There have also been many bug fixes and improvements to the CI and development p
 
 ## 🚀 Enhancements
 
+* Add example for using JSON output of Simple API parse function [#2099](https://github.com/sqlfluff/sqlfluff/pull/2099) [@jpy-git](https://github.com/jpy-git)
 * Allow optional keywords in create table unique constraints [#2077](https://github.com/sqlfluff/sqlfluff/pull/2077) [@kayman-mk](https://github.com/kayman-mk)
 * Grammar: Adds support for ALTER FUNCTION statement for Postgres dialect [#2090](https://github.com/sqlfluff/sqlfluff/pull/2090) [@derickl](https://github.com/derickl)
 * Grammar: adds support for CREATE/ALTER/DROP DATABASE for Postgres dialect [#2081](https://github.com/sqlfluff/sqlfluff/pull/2081) [@derickl](https://github.com/derickl)
