@@ -19,7 +19,7 @@ This release brings about several great new additions including:
 - Refinement to Simple API to return parse output in JSON format rather than as an internal SQLFluff object (**BREAKING CHANGE**).
 - An [Official SQLFluff Docker Image](https://hub.docker.com/r/sqlfluff/sqlfluff).
 - Grammar improvements across various dialects.
-- A new rule to check for non-alphanumeric values in identifiers.
+- A new rule (L057) to check for non-alphanumeric values in identifiers.
 
 There have also been many bug fixes and improvements to the CI and development processes.
 
