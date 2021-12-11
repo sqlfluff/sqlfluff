@@ -1,8 +1,8 @@
 """Implementation of Rule L003."""
-from typing import List, Optional, Sequence, Tuple
+from typing import cast, List, Optional, Sequence, Tuple
 
 from sqlfluff.core.parser import WhitespaceSegment
-from sqlfluff.core.parser.segments import BaseSegment, RawSegment
+from sqlfluff.core.parser.segments import BaseSegment, RawSegment, TemplateSegment
 from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix, RuleContext
 from sqlfluff.core.rules.doc_decorators import (
     document_fix_compatible,
@@ -96,6 +96,11 @@ class Rule_L003(BaseRule):
         hanger_pos = None
 
         for elem in raw_stack:
+            if elem.is_type("placeholder") and cast(
+                TemplateSegment, elem
+            ).block_type.startswith("templated"):
+                continue
+
             line_buffer.append(elem)
             # Pin indent_balance to above zero
             if indent_balance < 0:

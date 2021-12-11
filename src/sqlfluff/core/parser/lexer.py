@@ -335,18 +335,18 @@ class Lexer:
         lexer_logger.info("Elements to Segments.")
         # Get the templated slices to re-insert tokens for them
         source_only_slices = templated_file.source_only_slices()
-        substitution_raw_source: Dict[int, str] = {
+        templated_raw_source: Dict[int, str] = {
             elem.source_idx: elem.raw
             for elem in templated_file.raw_sliced
             if elem.slice_type == "templated"
         }
         lexer_logger.info("Source-only slices: %s", source_only_slices)
         stash_source_slice, last_source_slice = None, None
-        in_substitution = False
+        in_templated = False
 
-        def end_substitution_slice():
-            nonlocal in_substitution
-            if in_substitution:
+        def end_templated_slice():
+            nonlocal in_templated
+            if in_templated:
                 # Ending an old slice.
                 segment_buffer.append(
                     TemplateSegment(
@@ -355,10 +355,10 @@ class Lexer:
                             element.template_slice.start,
                             templated_file,
                         ),
-                        block_type="substitution_end",
+                        block_type="templated_end",
                     )
                 )
-                in_substitution = False
+                in_templated = False
 
         # Now work out source slices, and add in template placeholders.
         for idx, element in enumerate(elements):
@@ -393,12 +393,11 @@ class Lexer:
                     elif source_only_slice.source_idx >= source_slice.start:
                         so_slices.append(source_only_slice)
 
-                end_substitution_slice()
-                substitution_source = substitution_raw_source.get(source_slice.start)
+                end_templated_slice()
+                templated_source = templated_raw_source.get(source_slice.start)
                 if (
-                    substitution_source is not None
-                    and source_slice.stop
-                    == source_slice.start + len(substitution_source)
+                    templated_source is not None
+                    and source_slice.stop == source_slice.start + len(templated_source)
                 ):
                     # It's a non-empty templated slice (i.e. substitution).
                     # Starting a new slice.
@@ -409,11 +408,11 @@ class Lexer:
                                 element.template_slice.start,
                                 templated_file,
                             ),
-                            source_str=substitution_raw_source[source_slice.start],
-                            block_type="substitution_start",
+                            source_str=templated_raw_source[source_slice.start],
+                            block_type="templated_start",
                         )
                     )
-                    in_substitution = True
+                    in_templated = True
             if so_slices:
                 lexer_logger.debug("    Collected Source Only Slices")
                 for so_slice in so_slices:
@@ -561,12 +560,12 @@ class Lexer:
                         # Empty template substitutions.
                         for so_slice in so_slice_group:
                             for block_type in [
-                                "substitution_start",
-                                "substitution_end",
+                                "templated_start",
+                                "templated_end",
                             ]:
                                 source_str = (
-                                    substitution_raw_source[so_slice.source_idx]
-                                    if block_type == "substitution_start"
+                                    templated_raw_source[so_slice.source_idx]
+                                    if block_type == "templated_start"
                                     else ""
                                 )
                                 segment_buffer.append(
@@ -611,7 +610,7 @@ class Lexer:
             )
 
         # Handle any leftovers.
-        end_substitution_slice()
+        end_templated_slice()
 
         # Convert to tuple before return
         return tuple(segment_buffer)
