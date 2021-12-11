@@ -51,7 +51,7 @@ def get_json_segment(
     Yields:
         Iterator[Union[str, Dict[str, Any], List[Dict[str, Any]]]]: Retrieve children of specified segment type
                                                                     as either a string for a raw segment or as
-                                                                    JSON for non-raw segments.
+                                                                    JSON or an array of JSON for non-raw segments.
     """
     for k, v in parse_result.items():
         if k == segment_type:
