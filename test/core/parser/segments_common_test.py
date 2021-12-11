@@ -18,7 +18,7 @@ def test__parser__core_keyword(raw_seg_list):
     # First make a keyword
     FooKeyword = StringParser("foo", KeywordSegment)
     # Check it looks as expected
-    assert FooKeyword.template == "FOO"
+    assert FooKeyword.template.upper() == "FOO"
     with RootParseContext(dialect=None) as ctx:
         # Match it against a list and check it doesn't match
         assert not FooKeyword.match(raw_seg_list, parse_context=ctx)
