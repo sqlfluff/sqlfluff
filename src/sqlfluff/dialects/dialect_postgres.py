@@ -521,6 +521,98 @@ class DropFunctionStatementSegment(BaseSegment):
 
 
 @postgres_dialect.segment()
+class AlterFunctionStatementSegment(BaseSegment):
+    """A `ALTER FUNCTION` statement.
+
+    As per the specification: https://www.postgresql.org/docs/14/sql-alterfunction.html
+    """
+
+    type = "alter_function_statement"
+
+    match_grammar = StartsWith(Sequence("ALTER", "FUNCTION"))
+
+    parse_grammar = Sequence(
+        "ALTER",
+        "FUNCTION",
+        Delimited(
+            Sequence(
+                Ref("FunctionNameSegment"),
+                Ref("FunctionParameterListGrammar", optional=True),
+            )
+        ),
+        OneOf(
+            Ref("AlterFunctionActionSegment", optional=True),
+            Sequence("RENAME", "TO", Ref("FunctionNameSegment")),
+            Sequence("SET", "SCHEMA", Ref("SchemaReferenceSegment")),
+            Sequence(
+                "OWNER",
+                "TO",
+                OneOf(
+                    OneOf(Ref("ParameterNameSegment"), Ref("QuotedIdentifierSegment")),
+                    "CURRENT_ROLE",
+                    "CURRENT_USER",
+                    "SESSION_USER",
+                ),
+            ),
+            Sequence(
+                Ref.keyword("NO", optional=True),
+                "DEPENDS",
+                "ON",
+                "EXTENSION",
+            ),
+        ),
+    )
+
+
+@postgres_dialect.segment()
+class AlterFunctionActionSegment(BaseSegment):
+    """Alter Function Action Segment.
+
+    Matches the definition of action in https://www.postgresql.org/docs/14/sql-alterfunction.html
+    """
+
+    type = "alter_function_action_segment"
+
+    match_grammar = Sequence(
+        OneOf(
+            OneOf(
+                Sequence("CALLED", "ON", "NULL", "INPUT"),
+                Sequence("RETURNS", "NULL", "ON", "NULL", "INPUT"),
+                "STRICT",
+            ),
+            OneOf("IMMUTABLE", "STABLE", "VOLATILE"),
+            Sequence(Ref.keyword("NOT", optional=True), "LEAKPROOF"),
+            Sequence(
+                Ref.keyword("EXTERNAL", optional=True),
+                "SECURITY",
+                OneOf("DEFINER", "INVOKER"),
+            ),
+            Sequence("PARALLEL", OneOf("UNSAFE", "RESTRICTED", "SAFE")),
+            Sequence("COST", Ref("NumericLiteralSegment")),
+            Sequence("ROWS", Ref("NumericLiteralSegment")),
+            Sequence("SUPPORT", Ref("ParameterNameSegment")),
+            Sequence(
+                "SET",
+                Ref("ParameterNameSegment"),
+                OneOf(
+                    Sequence(
+                        OneOf("TO", Ref("EqualsSegment")),
+                        OneOf(
+                            Ref("LiteralGrammar"),
+                            Ref("NakedIdentifierSegment"),
+                            "DEFAULT",
+                        ),
+                    ),
+                    Sequence("FROM", "CURRENT"),
+                ),
+            ),
+            Sequence("RESET", OneOf("ALL", Ref("ParameterNameSegment"))),
+        ),
+        Ref.keyword("RESTRICT", optional=True),
+    )
+
+
+@postgres_dialect.segment()
 class WellKnownTextGeometrySegment(BaseSegment):
     """A Data Type Segment to identify Well Known Text Geometric Data Types.
 
@@ -2576,6 +2668,7 @@ class StatementSegment(BaseSegment):
             Ref("RefreshMaterializedViewStatementSegment"),
             Ref("AlterDatabaseStatementSegment"),
             Ref("DropDatabaseStatementSegment"),
+            Ref("AlterFunctionStatementSegment"),
         ],
     )
 
