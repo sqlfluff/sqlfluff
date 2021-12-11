@@ -355,7 +355,6 @@ class Lexer:
                             element.template_slice.start,
                             templated_file,
                         ),
-                        source_str=" ",  # Dummy value
                         block_type="substitution_end",
                     )
                 )
@@ -568,7 +567,7 @@ class Lexer:
                                 source_str = (
                                     substitution_raw_source[so_slice.source_idx]
                                     if block_type == "substitution_start"
-                                    else " "
+                                    else ""
                                 )
                                 segment_buffer.append(
                                     TemplateSegment(

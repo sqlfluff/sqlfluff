@@ -95,8 +95,6 @@ class TemplateSegment(MetaSegment):
 
     def __init__(self, pos_marker=None, source_str="", block_type=""):
         """Initialise a placeholder with the source code embedded."""
-        if not source_str:  # pragma: no cover
-            raise ValueError("Cannot instantiate TemplateSegment without a source_str.")
         self.source_str = source_str
         self.block_type = block_type
         # Call the super of the pos_marker.
