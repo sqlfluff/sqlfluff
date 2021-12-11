@@ -2378,7 +2378,7 @@ class CreateStageSegment(BaseSegment):
                 "URL",
                 Ref("EqualsSegment"),
                 Ref("S3Path"),
-                Ref("S3ExternalStageParameters"),
+                Ref("S3ExternalStageParameters", optional=True),
                 Sequence(
                     "DIRECTORY",
                     Ref("EqualsSegment"),
@@ -2403,7 +2403,7 @@ class CreateStageSegment(BaseSegment):
                 "URL",
                 Ref("EqualsSegment"),
                 Ref("GCSPath"),
-                Ref("GCSExternalStageParameters"),
+                Ref("GCSExternalStageParameters", optional=True),
                 Sequence(
                     "DIRECTORY",
                     Ref("EqualsSegment"),
@@ -2437,7 +2437,7 @@ class CreateStageSegment(BaseSegment):
                 "URL",
                 Ref("EqualsSegment"),
                 Ref("AzureBlobStoragePath"),
-                Ref("AzureBlobStorageExternalStageParameters"),
+                Ref("AzureBlobStorageExternalStageParameters", optional=True),
                 Sequence(
                     "DIRECTORY",
                     Ref("EqualsSegment"),
