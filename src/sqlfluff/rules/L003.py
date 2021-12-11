@@ -1,8 +1,13 @@
 """Implementation of Rule L003."""
-from typing import cast, List, Optional, Sequence, Tuple
+from typing import cast, Dict, List, Optional, Sequence, Tuple
 
 from sqlfluff.core.parser import WhitespaceSegment
-from sqlfluff.core.parser.segments import BaseSegment, RawSegment, TemplateSegment
+from sqlfluff.core.parser.segments import (
+    BaseSegment,
+    MetaSegment,
+    RawSegment,
+    TemplateSegment,
+)
 from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix, RuleContext
 from sqlfluff.core.rules.doc_decorators import (
     document_fix_compatible,
@@ -88,7 +93,7 @@ class Rule_L003(BaseRule):
         in_indent = True
         indent_buffer: List[RawSegment] = []
         line_buffer: List[RawSegment] = []
-        result_buffer = {}
+        result_buffer: Dict[int, Dict] = {}
         indent_size = 0
         line_indent_stack: List[int] = []
         this_indent_balance = 0
@@ -131,7 +136,7 @@ class Rule_L003(BaseRule):
                 # ended with an indent then we might be ok.
                 clean_indent = False
                 # Was there an indent after the last code element of the previous line?
-                for search_elem in reversed(result_buffer[line_no - 1]["line_buffer"]):  # type: ignore
+                for search_elem in reversed(result_buffer[line_no - 1]["line_buffer"]):
                     if not search_elem.is_code and not search_elem.is_meta:
                         continue
                     elif search_elem.is_meta and search_elem.indent_val > 0:
@@ -140,9 +145,10 @@ class Rule_L003(BaseRule):
             elif in_indent:
                 if elem.is_type("whitespace"):
                     indent_buffer.append(elem)
-                elif elem.is_meta and elem.indent_val != 0:  # type: ignore
-                    indent_balance += elem.indent_val  # type: ignore
-                    if elem.indent_val > 0:  # type: ignore
+                elif elem.is_meta and cast(MetaSegment, elem).indent_val != 0:
+                    indent_val = cast(MetaSegment, elem).indent_val
+                    indent_balance += indent_val
+                    if indent_val > 0:
                         # a "clean" indent is one where it contains
                         # an increase in indentation? Can't quite
                         # remember the logic here. Let's go with that.
@@ -153,9 +159,10 @@ class Rule_L003(BaseRule):
                     indent_size = cls._indent_size(
                         indent_buffer, tab_space_size=tab_space_size
                     )
-            elif elem.is_meta and elem.indent_val != 0:  # type: ignore
-                indent_balance += elem.indent_val  # type: ignore
-                if elem.indent_val > 0:  # type: ignore
+            elif elem.is_meta and cast(MetaSegment, elem).indent_val != 0:
+                indent_val = cast(MetaSegment, elem).indent_val
+                indent_balance += indent_val
+                if indent_val > 0:
                     # Keep track of the indent at the last ... indent
                     line_indent_stack.append(
                         cls._indent_size(line_buffer, tab_space_size=tab_space_size)
@@ -326,7 +333,10 @@ class Rule_L003(BaseRule):
             if context.segment.is_type("whitespace"):
                 # it's whitespace, carry on
                 pass
-            elif context.segment.segments or (context.segment.is_meta and context.segment.indent_val != 0):  # type: ignore
+            elif context.segment.segments or (
+                context.segment.is_meta
+                and cast(MetaSegment, context.segment).indent_val != 0
+            ):
                 # it's not a raw segment or placeholder. Carry on.
                 pass
             else:
