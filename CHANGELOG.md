@@ -46,7 +46,7 @@ There have also been many bug fixes and improvements to the CI and development p
 * Support __init__.py for library_path [#1976](https://github.com/sqlfluff/sqlfluff/pull/1976) [@Tonkonozhenko](https://github.com/Tonkonozhenko)
 * L052: Redefine semi-colon newline to multiline newline [#2022](https://github.com/sqlfluff/sqlfluff/pull/2022) [@jpy-git](https://github.com/jpy-git)
 * Grammar: Remove hash inline comment from Postgres [#2035](https://github.com/sqlfluff/sqlfluff/pull/2035) [@jpy-git](https://github.com/jpy-git)
-* Enable glob rule matching for inline comments [#2002](https://github.com/sqlfluff/sqlfluff/pull/2002) [@jpy-git](https://github.com/jpy-git)
+* `noqa` enhancement: Enable glob rule matching for inline comments [#2002](https://github.com/sqlfluff/sqlfluff/pull/2002) [@jpy-git](https://github.com/jpy-git)
 * TSQL (ASA): Allow for table identifier in DELETE clause [#2031](https://github.com/sqlfluff/sqlfluff/pull/2031) [@jpers36](https://github.com/jpers36)
 * TSQL (ASA): Fix CTAS with WITH statement [#2028](https://github.com/sqlfluff/sqlfluff/pull/2028) [@jpers36](https://github.com/jpers36)
 * Grammar: Parse multiple grants [#2023](https://github.com/sqlfluff/sqlfluff/pull/2023) [@jpy-git](https://github.com/jpy-git)
