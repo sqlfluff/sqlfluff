@@ -879,6 +879,7 @@ postgres_docs_keywords = [
 ]
 
 postgres_nondocs_keywords = [
+    ("ALLOW_CONNECTIONS", "non-reserved"),
     ("BUFFERS", "non-reserved"),
     ("CONNECT", "reserved"),
     ("COSTS", "non-reserved"),
@@ -890,8 +891,12 @@ postgres_nondocs_keywords = [
     ("FORMAT", "non-reserved"),
     ("HASH", "non-reserved"),
     ("IGNORE", "non-reserved"),
+    ("IS_TEMPLATE", "non-reserved"),
     ("JSON", "non-reserved"),
+    ("LC_COLLATE", "non-reserved"),
+    ("LC_CTYPE", "non-reserved"),
     ("LIST", "non-reserved"),
+    ("LOCALE", "non-reserved"),
     ("MAIN", "non-reserved"),
     ("MODULUS", "non-reserved"),
     ("PLAIN", "non-reserved"),
