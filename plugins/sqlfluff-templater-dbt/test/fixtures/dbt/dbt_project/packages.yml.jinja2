@@ -1,0 +1,9 @@
+packages:
+    # Reference: dbt_utils compatibility matrix:
+    # https://docs.google.com/spreadsheets/d/1RoDdC69auAtrwiqmkRsgcFdZ3MdNpeKcJrWkmEpXVIs/edit#gid=0
+    - package: dbt-labs/dbt_utils
+{% if DBT_VERSION_TUPLE < (1,0) %}
+      version: ["0.6.3"]
+{% else %}
+      version: ["0.8.0"]
+{% endif %}
