@@ -1272,7 +1272,18 @@ class AlterTableActionSegment(BaseSegment):
                     Sequence("COLLATE", Ref("QuotedLiteralSegment"), optional=True),
                     Sequence("USING", OneOf(Ref("ExpressionSegment")), optional=True),
                 ),
-                Sequence("SET", "DEFAULT", Ref("ExpressionSegment")),
+                Sequence(
+                    "SET",
+                    "DEFAULT",
+                    OneOf(
+                        OneOf(
+                            Ref("LiteralGrammar"),
+                            Ref("FunctionSegment"),
+                            Ref("BareFunctionSegment"),
+                            Ref("ExpressionSegment"),
+                        )
+                    ),
+                ),
                 Sequence("DROP", "DEFAULT"),
                 Sequence(OneOf("SET", "DROP", optional=True), "NOT", "NULL"),
                 Sequence("DROP", "EXPRESSION", Sequence("IF", "EXISTS", optional=True)),
