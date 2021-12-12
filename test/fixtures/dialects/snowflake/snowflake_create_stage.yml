@@ -1,0 +1,365 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 3c925562c1097774926bc301421353362e67243ae2f1c8625a35e077896491e4
+file:
+- statement:
+    create_stage_statement:
+    - keyword: CREATE
+    - keyword: STAGE
+    - object_reference:
+        identifier: my_int_stage
+    - keyword: COPY_OPTIONS
+    - comparison_operator: '='
+    - copy_options:
+        bracketed:
+          start_bracket: (
+          keyword: ON_ERROR
+          comparison_operator: '='
+          literal: "'skip_file'"
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_stage_statement:
+    - keyword: CREATE
+    - keyword: STAGE
+    - object_reference:
+        identifier: my_int_stage
+    - stage_parameters:
+        keyword: ENCRYPTION
+        comparison_operator: '='
+        bracketed:
+          start_bracket: (
+          keyword: TYPE
+          comparison_operator: '='
+          stage_encryption_option: "'SNOWFLAKE_SSE'"
+          end_bracket: )
+    - keyword: COPY_OPTIONS
+    - comparison_operator: '='
+    - copy_options:
+        bracketed:
+          start_bracket: (
+          keyword: ON_ERROR
+          comparison_operator: '='
+          literal: "'skip_file'"
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_stage_statement:
+    - keyword: CREATE
+    - keyword: TEMPORARY
+    - keyword: STAGE
+    - object_reference:
+        identifier: my_temp_int_stage
+- statement_terminator: ;
+- statement:
+    create_stage_statement:
+    - keyword: CREATE
+    - keyword: TEMPORARY
+    - keyword: STAGE
+    - object_reference:
+        identifier: my_int_stage
+    - keyword: FILE_FORMAT
+    - comparison_operator: '='
+    - file_format_segment:
+        identifier: my_csv_format
+- statement_terminator: ;
+- statement:
+    create_stage_statement:
+    - keyword: CREATE
+    - keyword: STAGE
+    - object_reference:
+        identifier: mystage
+    - keyword: DIRECTORY
+    - comparison_operator: '='
+    - bracketed:
+        start_bracket: (
+        keyword: ENABLE
+        comparison_operator: '='
+        literal: 'TRUE'
+        end_bracket: )
+    - keyword: FILE_FORMAT
+    - comparison_operator: '='
+    - file_format_segment:
+        identifier: myformat
+- statement_terminator: ;
+- statement:
+    create_stage_statement:
+    - keyword: CREATE
+    - keyword: STAGE
+    - object_reference:
+        identifier: my_ext_stage
+    - keyword: URL
+    - comparison_operator: '='
+    - bucket_path: "'s3://load/files/'"
+    - stage_parameters:
+        keyword: STORAGE_INTEGRATION
+        comparison_operator: '='
+        object_reference:
+          identifier: myint
+- statement_terminator: ;
+- statement:
+    create_stage_statement:
+    - keyword: CREATE
+    - keyword: STAGE
+    - object_reference:
+        identifier: my_ext_stage1
+    - keyword: URL
+    - comparison_operator: '='
+    - bucket_path: "'s3://load/files/'"
+    - stage_parameters:
+        keyword: CREDENTIALS
+        comparison_operator: '='
+        bracketed:
+        - start_bracket: (
+        - keyword: AWS_KEY_ID
+        - comparison_operator: '='
+        - literal: "'1a2b3c'"
+        - keyword: AWS_SECRET_KEY
+        - comparison_operator: '='
+        - literal: "'4x5y6z'"
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_stage_statement:
+    - keyword: CREATE
+    - keyword: STAGE
+    - object_reference:
+        identifier: my_ext_stage2
+    - keyword: URL
+    - comparison_operator: '='
+    - bucket_path: "'s3://load/encrypted_files/'"
+    - stage_parameters:
+      - keyword: CREDENTIALS
+      - comparison_operator: '='
+      - bracketed:
+        - start_bracket: (
+        - keyword: AWS_KEY_ID
+        - comparison_operator: '='
+        - literal: "'1a2b3c'"
+        - keyword: AWS_SECRET_KEY
+        - comparison_operator: '='
+        - literal: "'4x5y6z'"
+        - end_bracket: )
+      - keyword: ENCRYPTION
+      - comparison_operator: '='
+      - bracketed:
+          start_bracket: (
+          keyword: MASTER_KEY
+          comparison_operator: '='
+          literal: "'eSxX0jzYfIamtnBKOEOwq80Au6NbSgPH5r4BDDwOaO8='"
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_stage_statement:
+    - keyword: CREATE
+    - keyword: STAGE
+    - object_reference:
+        identifier: my_ext_stage3
+    - keyword: URL
+    - comparison_operator: '='
+    - bucket_path: "'s3://load/encrypted_files/'"
+    - stage_parameters:
+      - keyword: CREDENTIALS
+      - comparison_operator: '='
+      - bracketed:
+        - start_bracket: (
+        - keyword: AWS_KEY_ID
+        - comparison_operator: '='
+        - literal: "'1a2b3c'"
+        - keyword: AWS_SECRET_KEY
+        - comparison_operator: '='
+        - literal: "'4x5y6z'"
+        - end_bracket: )
+      - keyword: ENCRYPTION
+      - comparison_operator: '='
+      - bracketed:
+        - start_bracket: (
+        - keyword: TYPE
+        - comparison_operator: '='
+        - stage_encryption_option: "'AWS_SSE_KMS'"
+        - keyword: KMS_KEY_ID
+        - comparison_operator: '='
+        - literal: "'aws/key'"
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_stage_statement:
+    - keyword: CREATE
+    - keyword: STAGE
+    - object_reference:
+        identifier: my_ext_stage3
+    - keyword: URL
+    - comparison_operator: '='
+    - bucket_path: "'s3://load/encrypted_files/'"
+    - stage_parameters:
+      - keyword: CREDENTIALS
+      - comparison_operator: '='
+      - bracketed:
+          start_bracket: (
+          keyword: AWS_ROLE
+          comparison_operator: '='
+          literal: "'arn:aws:iam::001234567890:role/mysnowflakerole'"
+          end_bracket: )
+      - keyword: ENCRYPTION
+      - comparison_operator: '='
+      - bracketed:
+        - start_bracket: (
+        - keyword: TYPE
+        - comparison_operator: '='
+        - stage_encryption_option: "'AWS_SSE_KMS'"
+        - keyword: KMS_KEY_ID
+        - comparison_operator: '='
+        - literal: "'aws/key'"
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_stage_statement:
+    - keyword: CREATE
+    - keyword: STAGE
+    - object_reference:
+        identifier: mystage
+    - keyword: URL
+    - comparison_operator: '='
+    - bucket_path: "'s3://load/files/'"
+    - stage_parameters:
+        keyword: STORAGE_INTEGRATION
+        comparison_operator: '='
+        object_reference:
+          identifier: my_storage_int
+    - keyword: DIRECTORY
+    - comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - keyword: ENABLE
+      - comparison_operator: '='
+      - literal: 'true'
+      - keyword: AUTO_REFRESH
+      - comparison_operator: '='
+      - literal: 'true'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_stage_statement:
+    - keyword: CREATE
+    - keyword: STAGE
+    - object_reference:
+        identifier: my_ext_stage
+    - keyword: URL
+    - comparison_operator: '='
+    - bucket_path: "'gcs://load/files/'"
+    - stage_parameters:
+        keyword: STORAGE_INTEGRATION
+        comparison_operator: '='
+        object_reference:
+          identifier: myint
+- statement_terminator: ;
+- statement:
+    create_stage_statement:
+    - keyword: CREATE
+    - keyword: STAGE
+    - object_reference:
+        identifier: mystage
+    - keyword: URL
+    - comparison_operator: '='
+    - bucket_path: "'gcs://load/files/'"
+    - stage_parameters:
+        keyword: STORAGE_INTEGRATION
+        comparison_operator: '='
+        object_reference:
+          identifier: my_storage_int
+    - keyword: DIRECTORY
+    - comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - keyword: ENABLE
+      - comparison_operator: '='
+      - literal: 'true'
+      - keyword: AUTO_REFRESH
+      - comparison_operator: '='
+      - literal: 'true'
+      - keyword: NOTIFICATION_INTEGRATION
+      - comparison_operator: '='
+      - literal: "'MY_NOTIFICATION_INT'"
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_stage_statement:
+    - keyword: CREATE
+    - keyword: STAGE
+    - object_reference:
+        identifier: my_ext_stage
+    - keyword: URL
+    - comparison_operator: '='
+    - bucket_path: "'azure://myaccount.blob.core.windows.net/load/files/'"
+    - stage_parameters:
+        keyword: STORAGE_INTEGRATION
+        comparison_operator: '='
+        object_reference:
+          identifier: myint
+- statement_terminator: ;
+- statement:
+    create_stage_statement:
+    - keyword: CREATE
+    - keyword: STAGE
+    - object_reference:
+        identifier: mystage
+    - keyword: URL
+    - comparison_operator: '='
+    - bucket_path: "'azure://myaccount.blob.core.windows.net/mycontainer/files/'"
+    - stage_parameters:
+      - keyword: CREDENTIALS
+      - comparison_operator: '='
+      - bracketed:
+          start_bracket: (
+          keyword: AZURE_SAS_TOKEN
+          comparison_operator: '='
+          literal: "'?sv=2016-05-31&ss=b&srt=sco&sp=rwdl&se=2018-06-27T10:05:50Z&st=2017-06-27T02:05:50Z&spr=https,http&sig=bgqQwoXwxzuD2GJfagRg7VOS8hzNr3QLT7rhS8OFRLQ%3D'"
+          end_bracket: )
+      - keyword: ENCRYPTION
+      - comparison_operator: '='
+      - bracketed:
+        - start_bracket: (
+        - keyword: TYPE
+        - comparison_operator: '='
+        - stage_encryption_option: "'AZURE_CSE'"
+        - keyword: MASTER_KEY
+        - comparison_operator: '='
+        - literal: "'kPxX0jzYfIamtnJEUTHwq80Au6NbSgPH5r4BDDwOaO8='"
+        - end_bracket: )
+    - keyword: FILE_FORMAT
+    - comparison_operator: '='
+    - file_format_segment:
+        identifier: my_csv_format
+- statement_terminator: ;
+- statement:
+    create_stage_statement:
+    - keyword: CREATE
+    - keyword: STAGE
+    - object_reference:
+        identifier: mystage
+    - keyword: URL
+    - comparison_operator: '='
+    - bucket_path: "'azure://myaccount.blob.core.windows.net/load/files/'"
+    - stage_parameters:
+        keyword: STORAGE_INTEGRATION
+        comparison_operator: '='
+        object_reference:
+          identifier: my_storage_int
+    - keyword: DIRECTORY
+    - comparison_operator: '='
+    - bracketed:
+      - start_bracket: (
+      - keyword: ENABLE
+      - comparison_operator: '='
+      - literal: 'true'
+      - keyword: AUTO_REFRESH
+      - comparison_operator: '='
+      - literal: 'true'
+      - keyword: NOTIFICATION_INTEGRATION
+      - comparison_operator: '='
+      - literal: "'MY_NOTIFICATION_INT'"
+      - end_bracket: )
+- statement_terminator: ;

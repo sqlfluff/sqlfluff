@@ -28,11 +28,7 @@ class StringParser(Matchable):
         optional: bool = False,
         **segment_kwargs,
     ):
-        # String matchers are not case sensitive, so we make the template
-        # uppercase on creation. If any SQL dialect is found to be case
-        # sensitive for keywords, this could be extended to allow
-        # case sensitivity.
-        self.template = template.upper()
+        self.template = template
         self.raw_class = raw_class
         self.name = name
         self.type = type
@@ -49,13 +45,13 @@ class StringParser(Matchable):
         Because string matchers are not case sensitive we can
         just return the template here.
         """
-        return [self.template]
+        return [self.template.upper()]
 
     def _is_first_match(self, segment: BaseSegment):
         """Does the segment provided match according to the current rules."""
         # Is the target a match and IS IT CODE.
         # The latter stops us accidentally matching comments.
-        if self.template == segment.raw.upper() and segment.is_code:
+        if self.template.upper() == segment.raw.upper() and segment.is_code:
             return True
         return False
 
@@ -174,14 +170,14 @@ class RegexParser(StringParser):
             # In any case, it won't match here.
             return False
         # Try the regex. Case sensitivity is not supported.
-        result = regex.match(self.template, segment.raw_upper)
+        result = regex.match(self.template, segment.raw_upper, regex.IGNORECASE)
         if result:
             result_string = result.group(0)
             # Check that we've fully matched
             if result_string == segment.raw_upper:
                 # Check that the anti_template (if set) hasn't also matched
                 if self.anti_template and regex.match(
-                    self.anti_template, segment.raw_upper
+                    self.anti_template, segment.raw_upper, regex.IGNORECASE
                 ):
                     return False
                 else:
