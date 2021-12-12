@@ -1309,7 +1309,7 @@ class SetStatementSegment(BaseSegment):
             "NUMERIC_ROUNDABORT",
             "PARSEONLY",
             "QUERY_GOVERNOR_COST_LIMIT",
-            "RESULT_SET_CACHING", # Azure Synapse Analytics specific
+            "RESULT_SET_CACHING",  # Azure Synapse Analytics specific
             "ROWCOUNT",
             "TEXTSIZE",
             "ANSI_DEFAULTS",
