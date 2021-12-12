@@ -4,6 +4,7 @@ import pytest
 from sqlfluff.core import FluffConfig
 from sqlfluff.core.templaters import PlaceholderTemplater
 from sqlfluff.core.errors import SQLTemplaterError
+from sqlfluff.core.templaters.placeholder import AUTOFILL_PARAMS
 
 
 def test__templater_raw():
@@ -248,6 +249,26 @@ def test__templater_custom_regex():
         config=FluffConfig(),
     )
     assert str(outstr) == "SELECT bla FROM blob WHERE id = john"
+
+
+def test__templater_custom_regex_autofill_params():
+    """Test custom regex param autofill."""
+    t = PlaceholderTemplater(
+        override_context=dict(
+            param_regex="@(?P<param_name>[\\w_]+)",
+            autofill_missing_params=True,
+            explicit_param="explicit_param",
+        )
+    )
+    outstr, _ = t.process(
+        in_str="SELECT bla FROM blob WHERE missing_param = @missing_param AND explicit_param = @explicit_param",
+        fname="test",
+        config=FluffConfig(),
+    )
+    assert (
+        str(outstr)
+        == f"SELECT bla FROM blob WHERE missing_param = {AUTOFILL_PARAMS['string']} AND explicit_param = explicit_param"
+    )
 
 
 def test__templater_exception():

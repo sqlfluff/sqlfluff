@@ -43,6 +43,10 @@ KNOWN_STYLES = {
     "ampersand": regex.compile(r"(?<!&)&{?(?P<param_name>[\w]+)}?", regex.UNICODE),
 }
 
+AUTOFILL_PARAMS = {
+    "string": "__string__",
+}
+
 
 class PlaceholderTemplater(RawTemplater):
     """A templater for generic placeholders.
@@ -102,7 +106,6 @@ class PlaceholderTemplater(RawTemplater):
             raise ValueError(
                 "No param_regex nor param_style was provided to the placeholder templater!"
             )
-
         return live_context
 
     def process(
@@ -144,6 +147,17 @@ class PlaceholderTemplater(RawTemplater):
             else:
                 param_name = found_param["param_name"]
             last_literal_length = span[0] - last_pos_raw
+
+            if (
+                context.get("autofill_missing_params")
+                and param_name not in context.keys()
+            ):
+                templater_logger.info(
+                    f"Autofilling missing parameter {param_name} with {AUTOFILL_PARAMS['string']}"
+                )
+                # TODO generate from types if exist
+                context[param_name] = AUTOFILL_PARAMS["string"]
+
             try:
                 replacement = context[param_name]
             except KeyError as err:

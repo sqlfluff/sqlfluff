@@ -223,10 +223,20 @@ e.g. `param_regex='__(?P<param_name>[\w_]+)__'` matches
 `'__some_param__'` not `__some_param__`
 
 the named parameter `param_name` will be used as the key to replace, if
-missing, the parameter is assumed to be positional and numbers are used insead.
+missing, the parameter is assumed to be positional and numbers are used instead.
+
+To automatically replace parameters in a query without explicit declaration in the config file,
+set `autofill_missing_params`. Currently, a short string is used inplace, ignoring SQL data types.
+
+.. code-block:: cfg
+
+    [sqlfluff:templater:placeholder]
+    autofill_missing_params=True
+
 
 Also consider making a pull request to the project to have your style added,
 it may be useful to other people and simplify your configuration.
+
 
 Complex Variable Templating
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
