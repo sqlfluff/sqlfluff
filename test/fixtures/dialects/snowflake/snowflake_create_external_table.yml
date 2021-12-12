@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 10218af5fec93093200f4f21afdf2b5b9133a1058a0c10f7888b8ba949c395b6
+_hash: 3bb4c6725e63b08c2385336fec3f68dd1563e94a9cf1ac0a2dc0a2193f9b0403
 file:
 - statement:
     create_external_table_statement:
@@ -24,12 +24,13 @@ file:
     - slash: /
     - keyword: file_format
     - comparison_operator: '='
-    - bracketed:
-      - start_bracket: (
-      - keyword: type
-      - comparison_operator: '='
-      - keyword: json
-      - end_bracket: )
+    - file_format_segment:
+        bracketed:
+          start_bracket: (
+          keyword: type
+          comparison_operator: '='
+          file_type: json
+          end_bracket: )
     - keyword: aws_sns_topic
     - comparison_operator: '='
     - literal: "'arn:aws:sns:us-west-2:001234567890:s3_mybucket'"
@@ -55,12 +56,13 @@ file:
     - literal: 'true'
     - keyword: file_format
     - comparison_operator: '='
-    - bracketed:
-      - start_bracket: (
-      - keyword: type
-      - comparison_operator: '='
-      - keyword: parquet
-      - end_bracket: )
+    - file_format_segment:
+        bracketed:
+          start_bracket: (
+          keyword: type
+          comparison_operator: '='
+          file_type: parquet
+          end_bracket: )
     - keyword: pattern
     - comparison_operator: '='
     - literal: "'.*[.]parquet.*'"
