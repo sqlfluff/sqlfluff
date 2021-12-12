@@ -105,6 +105,14 @@ This virtual environment will already have the package installed in editable mod
 `requirements_dev.txt` and `plugins/sqlfluff-plugin-example`. Additionally if a dbt virtual environment
 was specified, you will also have `dbt-core`, `dbt-postgres`, and `plugins/sqlfluff-templater-dbt` available.
 
+### Wiki
+
+We have a [GitHub wiki](https://github.com/sqlfluff/sqlfluff/wiki) with some
+more long form tutorials for contributors, particualrly those new to SQLFluff
+or contributing to open source. We welcome
+[contributions, suggestions or requests](https://github.com/sqlfluff/sqlfluff/issues/2104)
+for the wiki.
+
 ### Developing plugins
 
 If you're working on plugins (like the dbt templater), you'll also need to install
