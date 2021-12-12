@@ -2134,7 +2134,7 @@ class IntExtStageLocation(BaseSegment):
 
 @snowflake_dialect.segment()
 class InternalStageParameters(BaseSegment):
-    """Parameters for an S3 external stage in Snowflake.
+    """Parameters for an internal stage in Snowflake.
 
     https://docs.snowflake.com/en/sql-reference/sql/create-stage.html
     https://docs.snowflake.com/en/sql-reference/sql/alter-stage.html
