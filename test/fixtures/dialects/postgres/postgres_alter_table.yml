@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 93dec596055d5d295adb944c2c4cf29a0e1e219d3e18bc7d62381bc724e2c1c9
+_hash: 4b4d674351c381ca18130cf851463e859022bf7d854f8fe92c1a343857014cd1
 file:
 - statement:
     alter_table_statement:
@@ -79,8 +79,7 @@ file:
           identifier: status
       - keyword: SET
       - keyword: default
-      - expression:
-          literal: "'current'"
+      - literal: "'current'"
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -215,13 +214,324 @@ file:
           identifier: foo_timestamp
       - keyword: SET
       - keyword: DEFAULT
+      - function:
+          function_name:
+            function_name_identifier: now
+          bracketed:
+            start_bracket: (
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        identifier: mytable
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - column_reference:
+          identifier: date_column
+      - keyword: SET
+      - keyword: DEFAULT
+      - function:
+          function_name:
+            function_name_identifier: NOW
+          bracketed:
+            start_bracket: (
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        identifier: mytable
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - column_reference:
+          identifier: int_column
+      - keyword: SET
+      - keyword: DEFAULT
+      - literal: '1'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        identifier: mytable
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - column_reference:
+          identifier: text_column
+      - keyword: SET
+      - keyword: DEFAULT
+      - literal: "'value'"
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        identifier: mytable
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - column_reference:
+          identifier: bool_column
+      - keyword: SET
+      - keyword: DEFAULT
+      - literal: 'false'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        identifier: mytable
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - column_reference:
+          identifier: other_column
+      - keyword: SET
+      - keyword: DEFAULT
       - expression:
-          function:
-            function_name:
-              function_name_identifier: now
-            bracketed:
-              start_bracket: (
-              end_bracket: )
+          column_reference:
+            identifier: other_value
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        identifier: mytable
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - column_reference:
+          identifier: other_column
+      - keyword: SET
+      - keyword: DEFAULT
+      - bare_function: CURRENT_TIMESTAMP
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        identifier: mytable
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - column_reference:
+          identifier: other_column
+      - keyword: SET
+      - keyword: DEFAULT
+      - function:
+          function_name:
+            function_name_identifier: a_function
+          bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                identifier: a_parameter
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        identifier: mytable
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - column_reference:
+          identifier: other_column
+      - keyword: SET
+      - keyword: DEFAULT
+      - function:
+          function_name:
+            function_name_identifier: a_function
+          bracketed:
+            start_bracket: (
+            expression:
+              literal: "'a_parameter'"
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        identifier: mytable
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - column_reference:
+          identifier: other_column
+      - keyword: DROP
+      - keyword: DEFAULT
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        identifier: mytable
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - column_reference:
+          identifier: date_column
+      - keyword: SET
+      - keyword: DEFAULT
+      - function:
+          function_name:
+            function_name_identifier: NOW
+          bracketed:
+            start_bracket: (
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        identifier: mytable
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - column_reference:
+          identifier: int_column
+      - keyword: SET
+      - keyword: DEFAULT
+      - literal: '1'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        identifier: mytable
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - column_reference:
+          identifier: text_column
+      - keyword: SET
+      - keyword: DEFAULT
+      - literal: "'value'"
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        identifier: mytable
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - column_reference:
+          identifier: bool_column
+      - keyword: SET
+      - keyword: DEFAULT
+      - literal: 'false'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        identifier: mytable
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - column_reference:
+          identifier: other_column
+      - keyword: SET
+      - keyword: DEFAULT
+      - expression:
+          column_reference:
+            identifier: other_value
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        identifier: mytable
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - column_reference:
+          identifier: other_column
+      - keyword: SET
+      - keyword: DEFAULT
+      - bare_function: CURRENT_TIMESTAMP
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        identifier: mytable
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - column_reference:
+          identifier: other_column
+      - keyword: SET
+      - keyword: DEFAULT
+      - function:
+          function_name:
+            function_name_identifier: a_function
+          bracketed:
+            start_bracket: (
+            expression:
+              column_reference:
+                identifier: a_parameter
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        identifier: mytable
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - column_reference:
+          identifier: other_column
+      - keyword: SET
+      - keyword: DEFAULT
+      - function:
+          function_name:
+            function_name_identifier: a_function
+          bracketed:
+            start_bracket: (
+            expression:
+              literal: "'a_parameter'"
+            end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: EXISTS
+    - table_reference:
+        identifier: mytable
+    - alter_table_action_segment:
+      - keyword: ALTER
+      - column_reference:
+          identifier: other_column
+      - keyword: DROP
+      - keyword: DEFAULT
 - statement_terminator: ;
 - statement:
     alter_table_statement:
