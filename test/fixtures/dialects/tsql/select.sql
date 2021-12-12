@@ -25,6 +25,7 @@ SELECT
 	'TSQL' AS 's escaping quotes test',
 	'',
 	'''',
+	all_pop.Language,
     ROW_NUMBER()OVER(PARTITION BY [EventNM], [PersonID] ORDER BY [DateofEvent] desc) AS [RN],
     RANK()OVER(PARTITION BY [EventNM] ORDER BY [DateofEvent] desc) AS [R],
     DENSE_RANK()OVER(PARTITION BY [EventNM] ORDER BY [DateofEvent] desc) AS [DR],

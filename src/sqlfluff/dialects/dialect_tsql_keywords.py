@@ -114,7 +114,6 @@ RESERVED_KEYWORDS = [
     "JOIN",
     "KEY",
     "KILL",
-    "LANGUAGE",
     "LEFT",
     "LIKE",
     "LINENO",
@@ -284,6 +283,7 @@ UNRESERVED_KEYWORDS = [
     "KEEPFIXED",
     "KEEPIDENTITY",
     "LABEL",  # Azure Synapse Analytics specific, reserved keyword but could break TSQL parsing to add there
+    "LANGUAGE",
     "M",
     "MAX_DURATION",
     "MAX_GRANT_PERCENT",
