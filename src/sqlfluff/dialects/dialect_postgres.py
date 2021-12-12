@@ -1649,7 +1649,7 @@ class DropMaterializedViewStatementSegment(BaseSegment):
 
 @postgres_dialect.segment()
 class AlterViewStatementSegment(BaseSegment):
-    """A `ALTER VIEW` statement.
+    """An `ALTER VIEW` statement.
 
     As specified in https://www.postgresql.org/docs/14/sql-alterview.html
     """
