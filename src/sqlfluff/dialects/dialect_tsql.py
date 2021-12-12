@@ -1324,19 +1324,12 @@ class SetStatementSegment(BaseSegment):
             "SHOWPLAN_XML",
             Sequence(
                 "STATISTICS",
-                "IO",
-            ),
-            Sequence(
-                "STATISTICS",
-                "XML",
-            ),
-            Sequence(
-                "STATISTICS",
-                "PROFILE",
-            ),
-            Sequence(
-                "STATISTICS",
-                "TIME",
+                OneOf(
+                    "IO",
+                    "PROFILE",
+                    "TIME",
+                    "XML",
+                ),
             ),
             "IMPLICIT_TRANSACTIONS",
             "REMOTE_PROC_TRANSACTIONS",
