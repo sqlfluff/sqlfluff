@@ -18,11 +18,18 @@ at [docs.sqlfluff.com](https://docs.sqlfluff.com) and the source can be found
 in the [docs](./docs/) folder of the repo). Pull requests are always welcome
 with documentation improvements. Keep in mind that there are linting checks in
 place for good formatting so keep an eye on the tests whenever submitting a PR.
+We also have a [GitHub wiki](https://github.com/sqlfluff/sqlfluff/wiki) for
+longer tutorials. We welcome
+[contributions, suggestions or requests](https://github.com/sqlfluff/sqlfluff/issues/2104)
+for the wiki.
 
 :star2: **Fifth** - if you are so inclined - pull requests on the core codebase
-are always welcome. Bear in mind that all the tests should pass, and test
-coverage should not decrease unduly as part of the changes which you make.
-You may find it useful to familiarise yourself with the
+are always welcome. Dialect additions are often a good entry point for new
+contributors, and we have
+[a wiki page](https://github.com/sqlfluff/sqlfluff/wiki/Contributing-Dialect-Changes)
+to help you through your first contribution. Bear in mind that all the tests
+should pass, and test coverage should not decrease unduly as part of the
+changes which you make. You may find it useful to familiarise yourself with the
 [architectural principles here](https://docs.sqlfluff.com/en/latest/architecture.html)
 and with the [current documentation here](https://docs.sqlfluff.com).
 
@@ -200,7 +207,7 @@ whenever a new release is published to GitHub.
 If this is not done, PyPI will reject the package. Also, ensure you have used that
 version as a part of the tag and have described the changes accordingly.
 
-#### Manually
+#### Releasing Manually
 
 If for some reason the package needs to be submitted to PyPI manually, we use `twine`.
 You will need to be an admin to submit this to PyPI, and you will need a properly
