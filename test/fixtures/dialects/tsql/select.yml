@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a32062c726bb7835174f0a69607504cf36df31d9350ef8d6c547f61b8d438fdd
+_hash: 1173336585abb253db3451c169c9dc7df0dcb7d246ff12397181e4d458c5a511
 file:
   batch:
     statement:
@@ -171,6 +171,142 @@ file:
             - identifier: all_pop
             - dot: .
             - identifier: Language
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: ANSI_DEFAULTS
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: ANSI_NULL_DFLT_OFF
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: ANSI_NULL_DFLT_ON
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: ANSI_NULLS
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: ANSI_PADDING
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: ANSI_WARNINGS
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: ARITHABORT
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: ARITHIGNORE
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: CONCAT_NULL_YIELDS_NULL
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: CURSOR_CLOSE_ON_COMMIT
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: DATEFIRST
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: DATEFORMAT
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: DEADLOCK_PRIORITY
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: DISK
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: DUMP
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: FIPS_FLAGGER
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: FMTONLY
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: FORCEPLAN
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: IMPLICIT_TRANSACTIONS
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: LOAD
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: LOCK_TIMEOUT
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: NOCOUNT
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: NOEXEC
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: NUMERIC_ROUNDABORT
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: PARSEONLY
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: PRECISION
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: QUERY_GOVERNOR_COST_LIMIT
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: QUOTED_IDENTIFIER
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: REMOTE_PROC_TRANSACTIONS
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: SECURITYAUDIT
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: SHOWPLAN_ALL
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: SHOWPLAN_TEXT
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: SHOWPLAN_XML
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: XACT_ABORT
         - comma: ','
         - select_clause_element:
             function:

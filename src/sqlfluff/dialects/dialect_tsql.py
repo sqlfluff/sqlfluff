@@ -1309,7 +1309,7 @@ class SetStatementSegment(BaseSegment):
             "NUMERIC_ROUNDABORT",
             "PARSEONLY",
             "QUERY_GOVERNOR_COST_LIMIT",
-            "RESULT CACHING (Preview)",
+            "RESULT_SET_CACHING", # Azure Synapse Analytics specific
             "ROWCOUNT",
             "TEXTSIZE",
             "ANSI_DEFAULTS",
@@ -1322,13 +1322,29 @@ class SetStatementSegment(BaseSegment):
             "SHOWPLAN_ALL",
             "SHOWPLAN_TEXT",
             "SHOWPLAN_XML",
-            "STATISTICS IO",
-            "STATISTICS XML",
-            "STATISTICS PROFILE",
-            "STATISTICS TIME",
+            Sequence(
+                "STATISTICS",
+                "IO",
+            ),
+            Sequence(
+                "STATISTICS",
+                "XML",
+            ),
+            Sequence(
+                "STATISTICS",
+                "PROFILE",
+            ),
+            Sequence(
+                "STATISTICS",
+                "TIME",
+            ),
             "IMPLICIT_TRANSACTIONS",
             "REMOTE_PROC_TRANSACTIONS",
-            "TRANSACTION ISOLATION LEVEL",
+            Sequence(
+                "TRANSACTION",
+                "ISOLATION",
+                "LEVEL",
+            ),
             "XACT_ABORT",
         ),
         OneOf(
