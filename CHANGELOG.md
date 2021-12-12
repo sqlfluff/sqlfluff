@@ -25,6 +25,8 @@ There have also been many bug fixes and improvements to the CI and development p
 
 ## 🚀 Enhancements
 
+* Add wiki links to CONTRIBUTING.md [#2106](https://github.com/sqlfluff/sqlfluff/pull/2106) [@tunetheweb](https://github.com/tunetheweb)
+* Add snowflake create stage and alter stage statements + RegexParser case fix [#2098](https://github.com/sqlfluff/sqlfluff/pull/2098) [@chwiese](https://github.com/chwiese)
 * Allow for more value types in ALTER TABLE ALTER COLUMN SET DEFAULT statement [#2101](https://github.com/sqlfluff/sqlfluff/pull/2101) [@derickl](https://github.com/derickl)
 * Grammar: Adds support for ALTER VIEW statement for Postgres dialect [#2096](https://github.com/sqlfluff/sqlfluff/pull/2096) [@derickl](https://github.com/derickl)
 * Add example for using JSON output of Simple API parse function [#2099](https://github.com/sqlfluff/sqlfluff/pull/2099) [@jpy-git](https://github.com/jpy-git)
