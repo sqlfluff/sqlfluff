@@ -167,19 +167,22 @@ snowflake_dialect.add(
         trim_chars=("$",),
     ),
     S3Path=RegexParser(
+        # See https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucketnamingrules.html
         r"'s3://[a-z0-9][a-z0-9\.-]{1,61}[a-z0-9](?:/.+)?'",
         CodeSegment,
         name="s3_path",
         type="bucket_path",
     ),
     GCSPath=RegexParser(
+        # See https://cloud.google.com/storage/docs/naming-buckets
         r"'gcs://[a-z0-9][\w\.-]{1,61}[a-z0-9](?:/.+)?'",
         CodeSegment,
         name="gcs_path",
         type="bucket_path",
     ),
     AzureBlobStoragePath=RegexParser(
-        r"'azure://[a-z0-9]{3,24}\.blob\.core\.windows\.net/[a-z0-9][a-z0-9\.-]{1,61}[a-z0-9](?:/.+)?'",
+        # See https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/resource-name-rules#microsoftstorage
+        r"'azure://[a-z0-9][a-z0-9-]{1,61}[a-z0-9]\.blob\.core\.windows\.net/[a-z0-9][a-z0-9\.-]{1,61}[a-z0-9](?:/.+)?'",
         CodeSegment,
         name="azure_blob_storage_path",
         type="bucket_path",
@@ -2330,7 +2333,7 @@ class AzureBlobStorageExternalStageParameters(BaseSegment):
                                 optional=True,
                             ),
                         ),
-                        Sequence("NONE"),
+                        "NONE",
                     ),
                 )
             ),
@@ -2351,7 +2354,7 @@ class CreateStageSegment(BaseSegment):
     match_grammar = Sequence(
         "CREATE",
         Sequence("OR", "REPLACE", optional=True),
-        Sequence("TEMPORARY", optional=True),
+        Ref.keyword("TEMPORARY", optional=True),
         "STAGE",
         Sequence("IF", "NOT", "EXISTS", optional=True),
         Ref("ObjectReferenceSegment"),
