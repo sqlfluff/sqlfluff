@@ -129,7 +129,7 @@ class PlaceholderTemplater(RawTemplater):
         """
         # SQL not typed
         if not found_param.groupdict().get("param_type"):
-            templater_logger.warning(
+            templater_logger.info(
                 f"No type was specified for parameter {param_name}. Assuming text."
             )
             return AUTOFILL_PARAMS["string"]
@@ -152,7 +152,7 @@ class PlaceholderTemplater(RawTemplater):
         elif "date" in param_type:
             return AUTOFILL_PARAMS["date"]
 
-        templater_logger.warning(
+        templater_logger.info(
             f"""Parsed type of parameter {param_name} was not recognized. Assuming text.
             You can manually specify the parameter value in your config file instead.
             """
