@@ -1,2 +1,0 @@
-select 1 as 0_regular_identifier_starting_with_a_digit;
-select 2_regular_3_identifier_with_digits_throughout_4 from 4_regular_table_starting_with_a_digit_5;

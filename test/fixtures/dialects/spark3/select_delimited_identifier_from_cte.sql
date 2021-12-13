@@ -1,8 +1,8 @@
 with `a``b!` as (
-    select 1 as 0_identifier_1,
+    select 1 as _identifier_1,
     random() as `100% questionable ``identifier`
 ),
-0a as (
+a0b as (
     select * from `a``b!`
 )
-select 0_identifier_1, `100% questionable ``identifier` from 0a;
+select _identifier_1, `100% questionable ``identifier` from a0b;
