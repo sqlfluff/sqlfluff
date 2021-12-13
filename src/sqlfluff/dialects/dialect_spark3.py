@@ -261,7 +261,6 @@ spark3_dialect.add(
     TablePropertiesGrammar=Sequence(
         "TBLPROPERTIES", Ref("BracketedPropertyListGrammar")
     ),
-
 )
 
 
