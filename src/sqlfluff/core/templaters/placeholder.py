@@ -44,7 +44,15 @@ KNOWN_STYLES = {
 }
 
 AUTOFILL_PARAMS = {
-    "string": "__string__",
+    "integer_array": "ARRAY[1,2,3]",
+    "text_array": "ARRAY['abc','def','ghi']",
+    "boolean_array": "ARRAY[true,false,true]",
+    "float_array": "ARRAY[1.1,2.2,3.3]",
+    "string": "'string'",
+    "integer": "1000",
+    "float": "1.2345",
+    "boolean": "true",
+    "date": "CURRENT_DATE",
 }
 
 
@@ -108,6 +116,49 @@ class PlaceholderTemplater(RawTemplater):
             )
         return live_context
 
+    def _get_autofill_value(self, param_name: str, found_param) -> Optional[str]:
+        """Get the autofill value for a parameter.
+
+        Args:
+            param_name: The name of the parameter.
+            found_param: The found parameter.
+
+        Returns:
+            The autofill value for the parameter.
+
+        """
+        # SQL not typed
+        if not found_param.groupdict().get("param_type"):
+            templater_logger.warning(
+                f"No type was specified for parameter {param_name}. Assuming text."
+            )
+            return AUTOFILL_PARAMS["string"]
+
+        param_type = found_param.groupdict()["param_type"].lower()
+        if any(x in param_type for x in ["integer[]", "int[]"]):
+            return AUTOFILL_PARAMS["integer_array"]
+        elif "float[]" in param_type:
+            return AUTOFILL_PARAMS["float_array"]
+        elif "boolean[]" in param_type:
+            return AUTOFILL_PARAMS["boolean_array"]
+        elif "text[]" in param_type:
+            return AUTOFILL_PARAMS["text_array"]
+        elif any(x in param_type for x in ["integer", "int"]):
+            return AUTOFILL_PARAMS["integer"]
+        elif "float" in param_type:
+            return AUTOFILL_PARAMS["float"]
+        elif "boolean" in param_type:
+            return AUTOFILL_PARAMS["boolean"]
+        elif "date" in param_type:
+            return AUTOFILL_PARAMS["date"]
+
+        templater_logger.warning(
+            f"""Parsed type of parameter {param_name} was not recognized. Assuming text.
+            You can manually specify the parameter value in your config file instead.
+            """
+        )
+        return AUTOFILL_PARAMS["string"]
+
     def process(
         self, *, in_str: str, fname: str, config=None, formatter=None
     ) -> Tuple[Optional[TemplatedFile], list]:
@@ -152,11 +203,7 @@ class PlaceholderTemplater(RawTemplater):
                 context.get("autofill_missing_params")
                 and param_name not in context.keys()
             ):
-                templater_logger.info(
-                    f"Autofilling missing parameter {param_name} with {AUTOFILL_PARAMS['string']}"
-                )
-                # TODO generate from types if exist
-                context[param_name] = AUTOFILL_PARAMS["string"]
+                context[param_name] = self._get_autofill_value(param_name, found_param)
 
             try:
                 replacement = context[param_name]

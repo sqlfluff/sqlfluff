@@ -251,24 +251,73 @@ def test__templater_custom_regex():
     assert str(outstr) == "SELECT bla FROM blob WHERE id = john"
 
 
-def test__templater_custom_regex_autofill_params():
+@pytest.mark.parametrize(
+    "instr, expected_outstr",
+    [
+        (
+            "SELECT bla FROM blob WHERE missing_param = @missing_param AND explicit_param = @explicit_param",
+            f"SELECT bla FROM blob WHERE missing_param = {AUTOFILL_PARAMS['string']} AND explicit_param = explicit_param",
+        ),
+        (
+            "SELECT bla FROM blob WHERE missing_param IS @missing_param::boolean",
+            f"SELECT bla FROM blob WHERE missing_param IS {AUTOFILL_PARAMS['boolean']}",
+        ),
+        (
+            "SELECT bla FROM blob WHERE missing_param = @missing_param::integer",
+            f"SELECT bla FROM blob WHERE missing_param = {AUTOFILL_PARAMS['integer']}",
+        ),
+        (
+            "SELECT bla FROM blob WHERE missing_param = @missing_param::float",
+            f"SELECT bla FROM blob WHERE missing_param = {AUTOFILL_PARAMS['float']}",
+        ),
+        (
+            "SELECT bla FROM blob WHERE missing_param = @missing_param::date",
+            f"SELECT bla FROM blob WHERE missing_param = {AUTOFILL_PARAMS['date']}",
+        ),
+        (
+            "SELECT bla FROM blob WHERE missing_param = @missing_param::integer[]",
+            f"SELECT bla FROM blob WHERE missing_param = {AUTOFILL_PARAMS['integer_array']}",
+        ),
+        (
+            "SELECT bla FROM blob WHERE missing_param = @missing_param::text[]",
+            f"SELECT bla FROM blob WHERE missing_param = {AUTOFILL_PARAMS['text_array']}",
+        ),
+        (
+            "SELECT bla FROM blob WHERE missing_param = @missing_param::boolean[]",
+            f"SELECT bla FROM blob WHERE missing_param = {AUTOFILL_PARAMS['boolean_array']}",
+        ),
+        (
+            "SELECT bla FROM blob WHERE missing_param = @missing_param::float[]",
+            f"SELECT bla FROM blob WHERE missing_param = {AUTOFILL_PARAMS['float_array']}",
+        ),
+    ],
+    ids=[
+        "ignore_explicit_param_and_autofill_missing_untyped_param",
+        "autofill_missing_params_boolean",
+        "autofill_missing_params_integer",
+        "autofill_missing_params_float",
+        "autofill_missing_params_date",
+        "autofill_missing_params_integer_array",
+        "autofill_missing_params_string_array",
+        "autofill_missing_params_boolean_array",
+        "autofill_missing_params_float_array",
+    ],
+)
+def test__templater_custom_regex_autofill_params_parametrized(instr, expected_outstr):
     """Test custom regex param autofill."""
     t = PlaceholderTemplater(
         override_context=dict(
-            param_regex="@(?P<param_name>[\\w_]+)",
+            param_regex=r"@(?P<param_name>[\w_]+)(::(?P<param_type>[\w_\[\]]+))?",
             autofill_missing_params=True,
             explicit_param="explicit_param",
         )
     )
     outstr, _ = t.process(
-        in_str="SELECT bla FROM blob WHERE missing_param = @missing_param AND explicit_param = @explicit_param",
+        in_str=instr,
         fname="test",
         config=FluffConfig(),
     )
-    assert (
-        str(outstr)
-        == f"SELECT bla FROM blob WHERE missing_param = {AUTOFILL_PARAMS['string']} AND explicit_param = explicit_param"
-    )
+    assert str(outstr) == expected_outstr
 
 
 def test__templater_exception():
