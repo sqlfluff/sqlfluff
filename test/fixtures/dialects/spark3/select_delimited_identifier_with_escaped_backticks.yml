@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a6869ab13c10ba6f14c92f13c81006a30ade4ef401b0a6e9799e0ef0530243af
+_hash: 6f46bbc2df7ec225fbf0b94be3b401f555663eefabfb1f6789b73c3eff906771
 file:
-  base:
+- base:
     select_statement:
       select_clause:
         keyword: select
@@ -19,4 +19,24 @@ file:
             table_expression:
               table_reference:
                 identifier: '`some``table`'
-  statement_terminator: ;
+            alias_expression:
+              identifier: '`some``alias`'
+- statement_terminator: ;
+- base:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          column_reference:
+            identifier: '`delimited``with escaped`'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: '`some``table`'
+            alias_expression:
+              keyword: as
+              identifier: '`some``alias`'
+- statement_terminator: ;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7d7ce6af750eee1053ec86b4e2eb3c211c9ae332fc9ac1ee2ff051c9331c3b74
+_hash: ae30696314bed6c27c801c2b9ac3016b10eb239ad156bdbb2e50d8e8d277b9cd
 file:
 - base:
     select_statement:
@@ -32,6 +32,8 @@ file:
         select_clause_element:
           column_reference:
             identifier: '`questionable identifier?`'
+          alias_expression:
+            identifier: '`still-questionable`'
       from_clause:
         keyword: from
         from_expression:
