@@ -17,6 +17,7 @@ from sqlfluff.core.parser import (
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
+from sqlfluff.core.parser.grammar.greedy import StartsWith
 
 from sqlfluff.dialects.dialect_redshift_keywords import (
     redshift_reserved_keywords,
@@ -293,9 +294,65 @@ class StatementSegment(BaseSegment):
             Ref("TableAttributeSegment"),
             Ref("ColumnAttributeSegment"),
             Ref("ColumnEncodingSegment"),
+            Ref("CreateUserSegment"),
         ],
     )
 
     match_grammar = redshift_dialect.get_segment(
         "StatementSegment"
     ).match_grammar.copy()
+
+
+@redshift_dialect.segment()
+class CreateUserSegment(BaseSegment):
+    """`CREATE USER` statement.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_USER.html
+    """
+
+    type = "create_user"
+
+    match_grammar = StartsWith(
+        Sequence("CREATE", "USER"),
+    )
+    parse_grammar = Sequence(
+        "CREATE",
+        "USER",
+        Ref("NakedIdentifierSegment"),
+        Ref.keyword("WITH", optional=True),
+        "PASSWORD",
+        OneOf(Ref("QuotedLiteralSegment"), "DISABLE"),
+        AnyNumberOf(
+            OneOf(
+                "CREATEDB",
+                "NOCREATEDB",
+            ),
+            OneOf(
+                "CREATEUSER",
+                "NOCREATEUSER",
+            ),
+            Sequence(
+                "SYSLOG",
+                "ACCESS",
+                OneOf(
+                    "RESTRICTED",
+                    "UNRESTRICTED",
+                ),
+            ),
+            Sequence("IN", "GROUP", Delimited(Ref("NakedIdentifierSegment"))),
+            Sequence("VALID", "UNTIL", Ref("QuotedLiteralSegment")),
+            Sequence(
+                "CONNECTION",
+                "LIMIT",
+                OneOf(
+                    Ref("NumericLiteralSegment"),
+                    "UNLIMITED",
+                ),
+            ),
+            Sequence(
+                "SESSION",
+                "TIMEOUT",
+                Ref("NumericLiteralSegment"),
+            ),
+        ),
+    )
