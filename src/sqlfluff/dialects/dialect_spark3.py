@@ -55,6 +55,12 @@ spark3_dialect.patch_lexer_matchers(
         # <=> is a non-null equals in Spark SQL
         # https://spark.apache.org/docs/latest/api/sql/index.html#_10
         RegexLexer("equals", r"=|==|<=>", CodeSegment),
+        # identifiers are delimited with `
+        # within a delimited identifier, ` is used to escape special characters, including `
+        # Ex: select `delimited `` with escaped` from `just delimited`
+        # https://spark.apache.org/docs/latest/sql-ref-identifier.html#delimited-identifier
+        RegexLexer("back_quote", r"`.*?(?<!`)`(?!`)", CodeSegment),
+
     ]
 )
 
