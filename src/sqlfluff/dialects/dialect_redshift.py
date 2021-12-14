@@ -295,6 +295,7 @@ class StatementSegment(BaseSegment):
             Ref("ColumnAttributeSegment"),
             Ref("ColumnEncodingSegment"),
             Ref("CreateUserSegment"),
+            Ref("CreateGroupSegment"),
         ],
     )
 
@@ -354,5 +355,32 @@ class CreateUserSegment(BaseSegment):
                 "TIMEOUT",
                 Ref("NumericLiteralSegment"),
             ),
+        ),
+    )
+
+
+@redshift_dialect.segment()
+class CreateGroupSegment(BaseSegment):
+    """`CREATE GROUP` statement.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_GROUP.html
+    """
+
+    type = "create_group"
+
+    match_grammar = StartsWith(
+        Sequence("CREATE", "GROUP"),
+    )
+    parse_grammar = Sequence(
+        "CREATE",
+        "GROUP",
+        Ref("NakedIdentifierSegment"),
+        Sequence(
+            Ref.keyword("WITH", optional=True),
+            "USER",
+            Delimited(
+                Ref("NakedIdentifierSegment"),
+            ),
+            optional=True,
         ),
     )
