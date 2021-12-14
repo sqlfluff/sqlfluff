@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6f46bbc2df7ec225fbf0b94be3b401f555663eefabfb1f6789b73c3eff906771
+_hash: 7b90d238526403f42140cb780aaa6395c7f66032859e8b7795f224c4cf520756
 file:
 - base:
     select_statement:
@@ -38,5 +38,86 @@ file:
                 identifier: '`some``table`'
             alias_expression:
               keyword: as
+              identifier: '`some``alias`'
+- statement_terminator: ;
+- base:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          column_reference:
+            identifier: '```'
+          alias_expression:
+            identifier: delimited
+          unparsable:
+          - raw: '` `'
+          - raw: alias
+          - raw: '` FROM `'
+          - raw: some
+          - raw: '``'
+          - raw: table
+          - raw: '` `'
+          - raw: some
+          - raw: '``'
+          - raw: '``'
+          - raw: alias
+          - raw: "`;\nselect `"
+          - raw: delimited
+          - raw: '```'
+          - raw: '`alias`'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: '`some``table`'
+            alias_expression:
+              identifier: '```'
+        unparsable:
+        - raw: some
+        - raw: '``'
+        - raw: '``'
+        - raw: alias
+        - raw: '```'
+- statement_terminator: ;
+- base:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+            identifier: '`delimited ``identifier`'
+          alias_expression:
+            identifier: '`alias`'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: '`some``table`'
+            alias_expression:
+              identifier: '`some``alias`'
+- statement_terminator: ;
+- base:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+            identifier: '`delimited ``identifier`'
+          alias_expression:
+            keyword: AS
+            identifier: '`alias`'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: '`some``table`'
+            alias_expression:
+              keyword: AS
               identifier: '`some``alias`'
 - statement_terminator: ;
