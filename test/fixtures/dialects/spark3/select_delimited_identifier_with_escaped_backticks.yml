@@ -1,0 +1,120 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: ac41862a8168d7b798fa081ccae6c0bfaab4d6204dbbc7ebec7e9affa1335ec1
+file:
+- base:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          column_reference:
+            identifier: '`delimited``with escaped`'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: '`some``table`'
+            alias_expression:
+              identifier: '`some``alias`'
+- statement_terminator: ;
+- base:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          column_reference:
+            identifier: '`delimited``with escaped`'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: '`some``table`'
+            alias_expression:
+              keyword: as
+              identifier: '`some``alias`'
+- statement_terminator: ;
+- base:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          column_reference:
+            identifier: '```delimited`'
+          alias_expression:
+            identifier: '`alias`'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: '`some``table`'
+            alias_expression:
+              identifier: '`some````alias`'
+- statement_terminator: ;
+- base:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          column_reference:
+            identifier: '`delimited```'
+          alias_expression:
+            identifier: '`alias`'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: '`some``table`'
+            alias_expression:
+              identifier: '```some````alias```'
+- statement_terminator: ;
+- base:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+            identifier: '`delimited ``identifier`'
+          alias_expression:
+            identifier: '`alias`'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: '`some``table`'
+            alias_expression:
+              identifier: '`some``alias`'
+- statement_terminator: ;
+- base:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+            identifier: '`delimited ``identifier`'
+          alias_expression:
+            keyword: AS
+            identifier: '`alias`'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: '`some``table`'
+            alias_expression:
+              keyword: AS
+              identifier: '`some``alias`'
+- statement_terminator: ;
