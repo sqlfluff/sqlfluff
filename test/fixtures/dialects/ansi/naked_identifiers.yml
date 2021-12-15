@@ -1,0 +1,80 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 7c48a811d6b52d8defed7df8b167b1ea1693d8e4765ba6509ae21cdff0a2901a
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          column_reference:
+            identifier: '"a"'
+          alias_expression:
+            keyword: as
+            identifier: 0_is_a_legal_identifier
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          column_reference:
+            identifier: '"a"'
+          alias_expression:
+            keyword: as
+            identifier: 00_is_a_legal_identifier
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          column_reference:
+          - identifier: 123_is_a_legal_identifier
+          - dot: .
+          - identifier: 456_is_a_legal_identifier
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          column_reference:
+            identifier: '"a"'
+          alias_expression:
+            keyword: as
+            identifier: 0is_a_legal_identifier
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          column_reference:
+          - identifier: _s00
+          - dot: .
+          - identifier: 45_is_a_legal_identifier
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+              - identifier: sdf9_
+              - dot: .
+              - identifier: _234awdf
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          column_reference:
+            identifier: '"a"'
+          alias_expression:
+            keyword: as
+            identifier: is_a_legal_identifier0
+- statement_terminator: ;
