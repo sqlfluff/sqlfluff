@@ -585,18 +585,29 @@ class TypelessStructSegment(BaseSegment):
     type = "typeless_struct"
     match_grammar = Sequence(
         "STRUCT",
-        Bracketed(
-            Delimited(
-                AnyNumberOf(
-                    Sequence(
-                        Ref("BaseExpressionElementGrammar"),
-                        Ref("AliasExpressionSegment", optional=True),
-                    ),
+        Ref("TupleSegment"),
+    )
+
+
+@bigquery_dialect.segment()
+class TupleSegment(BaseSegment):
+    """Expression to construct a TUPLE.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-types#tuple_syntax
+    """
+
+    type = "tuple"
+    match_grammar = Bracketed(
+        Delimited(
+            AnyNumberOf(
+                Sequence(
+                    Ref("BaseExpressionElementGrammar"),
+                    Ref("AliasExpressionSegment", optional=True),
                 ),
-                delimiter=Ref("CommaSegment"),
             ),
-            optional=True,
+            delimiter=Ref("CommaSegment"),
         ),
+        optional=True,
     )
 
 
@@ -773,7 +784,8 @@ class DeclareStatementSegment(BaseSegment):
                 Ref("BareFunctionSegment"),
                 Ref("FunctionSegment"),
                 Ref("ArrayLiteralSegment"),
-                Ref("TypelessStructSegment")
+                Ref("TypelessStructSegment"),
+                Ref("TupleSegment"),
             ),
             optional=True,
         ),

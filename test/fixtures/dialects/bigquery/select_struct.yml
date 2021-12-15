@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e1eabbbf7187911728236ad955aac6db71d59b9eb3b9cb2616151546fa45813a
+_hash: fcac8016b28111aa94274e0292e7f47611dbf6f7e30f1dc8b71557664feac67d
 file:
 - statement:
     select_statement:
@@ -86,24 +86,25 @@ file:
         select_clause_element:
           typeless_struct:
             keyword: struct
-            bracketed:
-            - start_bracket: (
-            - column_reference:
-              - identifier: bar
-              - dot: .
-              - identifier: bar_id
-            - alias_expression:
-                keyword: as
-                identifier: id
-            - comma: ','
-            - column_reference:
-              - identifier: bar
-              - dot: .
-              - identifier: bar_name
-            - alias_expression:
-                keyword: as
-                identifier: bar
-            - end_bracket: )
+            tuple:
+              bracketed:
+              - start_bracket: (
+              - column_reference:
+                - identifier: bar
+                - dot: .
+                - identifier: bar_id
+              - alias_expression:
+                  keyword: as
+                  identifier: id
+              - comma: ','
+              - column_reference:
+                - identifier: bar
+                - dot: .
+                - identifier: bar_name
+              - alias_expression:
+                  keyword: as
+                  identifier: bar
+              - end_bracket: )
           alias_expression:
             keyword: as
             identifier: bar
