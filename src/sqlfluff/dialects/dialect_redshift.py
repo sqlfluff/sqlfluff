@@ -17,7 +17,6 @@ from sqlfluff.core.parser import (
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
-from sqlfluff.core.parser.grammar.greedy import StartsWith
 
 from sqlfluff.dialects.dialect_redshift_keywords import (
     redshift_reserved_keywords,
@@ -313,10 +312,7 @@ class CreateUserSegment(BaseSegment):
 
     type = "create_user"
 
-    match_grammar = StartsWith(
-        Sequence("CREATE", "USER"),
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "CREATE",
         "USER",
         Ref("NakedIdentifierSegment"),
@@ -368,10 +364,7 @@ class CreateGroupSegment(BaseSegment):
 
     type = "create_group"
 
-    match_grammar = StartsWith(
-        Sequence("CREATE", "GROUP"),
-    )
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "CREATE",
         "GROUP",
         Ref("NakedIdentifierSegment"),
