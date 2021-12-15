@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7b90d238526403f42140cb780aaa6395c7f66032859e8b7795f224c4cf520756
+_hash: ac41862a8168d7b798fa081ccae6c0bfaab4d6204dbbc7ebec7e9affa1335ec1
 file:
 - base:
     select_statement:
@@ -46,25 +46,9 @@ file:
         keyword: select
         select_clause_element:
           column_reference:
-            identifier: '```'
+            identifier: '```delimited`'
           alias_expression:
-            identifier: delimited
-          unparsable:
-          - raw: '` `'
-          - raw: alias
-          - raw: '` FROM `'
-          - raw: some
-          - raw: '``'
-          - raw: table
-          - raw: '` `'
-          - raw: some
-          - raw: '``'
-          - raw: '``'
-          - raw: alias
-          - raw: "`;\nselect `"
-          - raw: delimited
-          - raw: '```'
-          - raw: '`alias`'
+            identifier: '`alias`'
       from_clause:
         keyword: FROM
         from_expression:
@@ -73,13 +57,26 @@ file:
               table_reference:
                 identifier: '`some``table`'
             alias_expression:
-              identifier: '```'
-        unparsable:
-        - raw: some
-        - raw: '``'
-        - raw: '``'
-        - raw: alias
-        - raw: '```'
+              identifier: '`some````alias`'
+- statement_terminator: ;
+- base:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          column_reference:
+            identifier: '`delimited```'
+          alias_expression:
+            identifier: '`alias`'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: '`some``table`'
+            alias_expression:
+              identifier: '```some````alias```'
 - statement_terminator: ;
 - base:
     select_statement:
