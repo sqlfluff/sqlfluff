@@ -86,10 +86,10 @@ ansi_dialect.set_lexer_matchers(
         # See https://www.geeksforgeeks.org/postgresql-dollar-quoted-string-constants/
         RegexLexer("dollar_quote", r"\$(\w*)\$[^\1]*?\$\1\$", CodeSegment),
         # Numeric literal matches integers, decimals, and exponential formats,
-        # with a negative lookahead assertion to check it is not part of a naked identifier.
+        # with a positve lookahead assertion to check it is not part of a naked identifier.
         RegexLexer(
             "numeric_literal",
-            r"(?>\d+(\.\d+)?|\.\d+)([eE][+-]?\d+)?(?![a-zA-Z_])",
+            r"(?>\d+(\.\d+)?|\.\d+)([eE][+-]?\d+)?(?=\b)",
             CodeSegment,
         ),
         RegexLexer("not_equal", r"!=|<>", CodeSegment),
