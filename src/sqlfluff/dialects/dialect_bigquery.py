@@ -772,6 +772,8 @@ class DeclareStatementSegment(BaseSegment):
                 Bracketed(Ref("SelectStatementSegment")),
                 Ref("BareFunctionSegment"),
                 Ref("FunctionSegment"),
+                Ref("ArrayLiteralSegment"),
+                Ref("TypelessStructSegment")
             ),
             optional=True,
         ),
