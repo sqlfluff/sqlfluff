@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 45fa376fe577130740ad9c1f9d38e6afa9b41cb1864a7c346987df522f4031f7
+_hash: 82420c47eff71f49fb5afae6c9ada93501734121720bfe272ea542a07bc1c12b
 file:
 - statement:
     create_table_statement:
@@ -16,73 +16,87 @@ file:
       - column_reference:
           identifier: a
       - data_type:
-          keyword: smallint
+          data_type_identifier:
+            keyword: smallint
       - comma: ','
       - column_reference:
           identifier: b
       - data_type:
-          keyword: integer
+          data_type_identifier:
+            keyword: integer
       - comma: ','
       - column_reference:
           identifier: ba
       - data_type:
-          keyword: int2
+          data_type_identifier:
+            keyword: int2
       - comma: ','
       - column_reference:
           identifier: bb
       - data_type:
-          keyword: int4
+          data_type_identifier:
+            keyword: int4
       - comma: ','
       - column_reference:
           identifier: bc
       - data_type:
-          keyword: int8
+          data_type_identifier:
+            keyword: int8
       - comma: ','
       - column_reference:
           identifier: c
       - data_type:
-          keyword: bigint
+          data_type_identifier:
+            keyword: bigint
       - comma: ','
       - column_reference:
           identifier: d
       - data_type:
-          keyword: real
+          data_type_identifier:
+            keyword: real
       - comma: ','
       - column_reference:
           identifier: e
       - data_type:
-        - keyword: double
-        - keyword: precision
+          data_type_identifier:
+          - keyword: double
+          - keyword: precision
       - comma: ','
       - column_reference:
           identifier: f
       - data_type:
-          keyword: smallserial
+          data_type_identifier:
+            keyword: smallserial
       - comma: ','
       - column_reference:
           identifier: g
       - data_type:
-          keyword: serial
+          data_type_identifier:
+            keyword: serial
       - comma: ','
       - column_reference:
           identifier: ga
       - data_type:
-          keyword: serial2
+          data_type_identifier:
+            keyword: serial2
       - comma: ','
       - column_reference:
           identifier: gb
       - data_type:
-          keyword: serial4
+          data_type_identifier:
+            keyword: serial4
       - comma: ','
       - column_reference:
           identifier: gc
       - data_type:
-          keyword: serial8
+          data_type_identifier:
+            keyword: serial8
       - comma: ','
       - column_reference:
           identifier: h
       - data_type:
-          keyword: bigserial
+          data_type_identifier:
+            keyword: bigserial
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -96,102 +110,95 @@ file:
       - column_reference:
           identifier: a
       - data_type:
-          keyword: float
+          data_type_identifier:
+            keyword: float
       - comma: ','
       - column_reference:
           identifier: b
       - data_type:
-          keyword: float
-          bracketed:
-            start_bracket: (
-            literal: '24'
-            end_bracket: )
+          data_type_identifier:
+            keyword: float
+            bracketed:
+              start_bracket: (
+              literal: '24'
+              end_bracket: )
       - comma: ','
       - column_reference:
           identifier: c
       - data_type:
-          keyword: float4
+          data_type_identifier:
+            keyword: float4
       - comma: ','
       - column_reference:
           identifier: d
       - data_type:
-          keyword: float4
-          bracketed:
-            start_bracket: (
-            literal: '12'
-            end_bracket: )
+          data_type_identifier:
+            keyword: float4
+            bracketed:
+              start_bracket: (
+              literal: '12'
+              end_bracket: )
       - comma: ','
       - column_reference:
           identifier: e
       - data_type:
-          keyword: float8
+          data_type_identifier:
+            keyword: float8
       - comma: ','
       - column_reference:
           identifier: f
       - data_type:
-          keyword: float8
-          bracketed:
-            start_bracket: (
-            literal: '12'
-            end_bracket: )
+          data_type_identifier:
+            keyword: float8
+            bracketed:
+              start_bracket: (
+              literal: '12'
+              end_bracket: )
       - end_bracket: )
 - statement_terminator: ;
 - statement:
-    create_table_statement:
-    - keyword: create
-    - keyword: table
-    - table_reference:
-        identifier: c
+    unparsable:
+    - raw: create
+    - raw: table
+    - raw: c
     - bracketed:
       - start_bracket: (
-      - column_reference:
-          identifier: a
-      - data_type:
-          data_type_identifier: numeric
+      - raw: a
+      - raw: numeric
       - comma: ','
-      - column_reference:
-          identifier: aa
-      - data_type:
-          data_type_identifier: decimal
+      - raw: aa
+      - raw: decimal
       - comma: ','
-      - column_reference:
-          identifier: b
-      - data_type:
-          keyword: numeric
-          bracketed:
-            start_bracket: (
-            literal: '7'
-            end_bracket: )
+      - raw: b
+      - raw: numeric
+      - bracketed:
+          start_bracket: (
+          raw: '7'
+          end_bracket: )
       - comma: ','
-      - column_reference:
-          identifier: ba
-      - data_type:
-          keyword: decimal
-          bracketed:
-            start_bracket: (
-            literal: '7'
-            end_bracket: )
+      - raw: ba
+      - raw: decimal
+      - bracketed:
+          start_bracket: (
+          raw: '7'
+          end_bracket: )
       - comma: ','
-      - column_reference:
-          identifier: c
-      - data_type:
-          keyword: numeric
-          bracketed:
-          - start_bracket: (
-          - literal: '7'
-          - comma: ','
-          - literal: '2'
-          - end_bracket: )
+      - raw: c
+      - raw: numeric
+      - bracketed:
+        - start_bracket: (
+        - raw: '7'
+        - comma: ','
+        - raw: '2'
+        - end_bracket: )
       - comma: ','
-      - column_reference:
-          identifier: ca
-      - data_type:
-          keyword: decimal
-          bracketed:
-          - start_bracket: (
-          - literal: '7'
-          - comma: ','
-          - literal: '2'
-          - end_bracket: )
+      - raw: ca
+      - raw: decimal
+      - bracketed:
+        - start_bracket: (
+        - raw: '7'
+        - comma: ','
+        - raw: '2'
+        - end_bracket: )
       - end_bracket: )
 - statement_terminator: ;

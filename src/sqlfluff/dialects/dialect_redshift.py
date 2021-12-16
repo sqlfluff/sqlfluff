@@ -45,8 +45,8 @@ redshift_dialect.sets("bare_functions").update(["current_date", "sysdate"])
 
 redshift_dialect.replace(WellKnownTextGeometrySegment=Nothing())
 # TODO: for the time use the ANSI definition and not the updated one from Postgres as not all
-#       datatypes are supported by Redshift
-redshift_dialect.replace(DatatypeSegment=ansi_dialect.get_segment("DatatypeSegment"))
+#       data types are supported by Redshift
+redshift_dialect.replace(DatatypeIdentifierSegment=ansi_dialect.get_segment("DatatypeIdentifierSegment"))
 
 
 @redshift_dialect.segment(replace=True)

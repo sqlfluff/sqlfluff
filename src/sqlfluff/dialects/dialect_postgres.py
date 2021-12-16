@@ -387,6 +387,43 @@ class DateTimeLiteralGrammar(BaseSegment):
 
 
 @postgres_dialect.segment(replace=True)
+class DatatypeIdentifierSegment(BaseSegment):
+    """Defines the data types"""
+
+    type = "data_type_identifier"
+    match_grammar = OneOf(
+        # numeric types
+            "SMALLINT",
+            "INTEGER",
+            "INT2",
+            "INT4",
+            "INT8",
+            "BIGINT",
+            "REAL",
+            Sequence("DOUBLE", "PRECISION"),
+            "SMALLSERIAL",
+            "SERIAL",
+            "SERIAL2",
+            "SERIAL4",
+            "SERIAL8",
+            "BIGSERIAL",
+        # numeric types [(precision)]
+        Sequence(
+            OneOf("FLOAT", "FLOAT4", "FLOAT8"),
+            Bracketed(Ref("NumericLiteralSegment"), optional=True),
+        ),
+        # numeric types [precision ["," scale])]
+        Sequence(
+            OneOf("DECIMAL", "NUMERIC"),
+            Bracketed(
+                Delimited(Ref("NumericLiteralSegment")),
+            ),
+            optional=True,
+        ),
+    )
+
+
+@postgres_dialect.segment(replace=True)
 class DatatypeSegment(BaseSegment):
     """A data type segment.
 
@@ -402,36 +439,6 @@ class DatatypeSegment(BaseSegment):
         ),
         Sequence(
             OneOf(
-                # numeric types
-                OneOf(
-                    "SMALLINT",
-                    "INTEGER",
-                    "INT2",
-                    "INT4",
-                    "INT8",
-                    "BIGINT",
-                    "REAL",
-                    Sequence("DOUBLE", "PRECISION"),
-                    "SMALLSERIAL",
-                    "SERIAL",
-                    "SERIAL2",
-                    "SERIAL4",
-                    "SERIAL8",
-                    "BIGSERIAL",
-                ),
-                # numeric types [(precision)]
-                Sequence(
-                    OneOf("FLOAT", "FLOAT4", "FLOAT8"),
-                    Bracketed(Ref("NumericLiteralSegment"), optional=True),
-                ),
-                # numeric types [precision ["," scale])]
-                Sequence(
-                    OneOf("DECIMAL", "NUMERIC"),
-                    Bracketed(
-                        Delimited(Ref("NumericLiteralSegment")),
-                    ),
-                    optional=True,
-                ),
                 Sequence(
                     OneOf("CHARACTER", "BINARY"),
                     OneOf("VARYING", Sequence("LARGE", "OBJECT")),
