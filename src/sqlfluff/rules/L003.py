@@ -344,7 +344,7 @@ class Rule_L003(BaseRule):
             return LintResult(memory=memory)
 
         if raw_stack and raw_stack[-1] is not context.segment:
-            raw_stack = raw_stack + (context.segment,)
+            raw_stack = raw_stack + (context.segment,)  # type: ignore
         res = self._process_raw_stack(
             raw_stack,
             memory,
