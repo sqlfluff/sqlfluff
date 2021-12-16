@@ -836,6 +836,77 @@ class ExplainOptionSegment(BaseSegment):
 
 
 @postgres_dialect.segment(replace=True)
+class DatatypeSegment(BaseSegment):
+    """A data type segment.
+
+    Supports timestamp with(out) time zone. Doesn't currently support intervals.
+    """
+
+    type = "data_type"
+    match_grammar = OneOf(
+        # numeric types
+        OneOf("smallint", "integer", "int2", "int4", "int8", "bigint", "real", "double precision", "smallserial", "serial", "serial2", "serial4", "serial8", "bigserial"),
+        # numeric types [(precision)]
+        Sequence(
+          OneOf("float", "float4", "float8"),
+          Bracketed(Ref("NumericLiteralSegment"), optional=True)
+        ),
+        # numeric types [precision ["," scale])]
+        Sequence(
+            OneOf("decimal", "numeric"),
+            Bracketed(
+                OneOf(
+                    Ref("NumericLiteralSegment"),
+                    Sequence(
+                        Ref("NumericLiteralSegment"),
+                        ",",
+                        Ref("NumericLiteralSegment")
+                    )
+                )
+            , optional=True)
+        ),
+        Sequence(
+            OneOf("time", "timestamp"),
+            Bracketed(Ref("NumericLiteralSegment"), optional=True),
+            Sequence(OneOf("WITH", "WITHOUT"), "TIME", "ZONE", optional=True),
+        ),
+        Sequence(
+            "DOUBLE",
+            "PRECISION",
+        ),
+        Sequence(
+            OneOf(
+                Sequence(
+                    OneOf("CHARACTER", "BINARY"),
+                    OneOf("VARYING", Sequence("LARGE", "OBJECT")),
+                ),
+                Sequence(
+                    # Some dialects allow optional qualification of data types with schemas
+                    Sequence(
+                        Ref("SingleIdentifierGrammar"),
+                        Ref("DotSegment"),
+                        allow_gaps=False,
+                        optional=True,
+                    ),
+                    Ref("DatatypeIdentifierSegment"),
+                    allow_gaps=False,
+                ),
+            ),
+            Bracketed(
+                OneOf(
+                    Delimited(Ref("ExpressionSegment")),
+                    # The brackets might be empty for some cases...
+                    optional=True,
+                ),
+                # There may be no brackets for some data types
+                optional=True,
+            ),
+            Ref("CharCharacterSetSegment", optional=True),
+        ),
+    )
+
+
+@postgres_dialect.segment(replace=True)
 class CreateTableStatementSegment(BaseSegment):
     """A `CREATE TABLE` statement.
 

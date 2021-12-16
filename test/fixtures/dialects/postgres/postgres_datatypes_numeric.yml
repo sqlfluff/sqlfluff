@@ -1,0 +1,166 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 7b53d7f917d6f294586f6c3761e7b21903f722f665197cb823fdd5618e5925d
+file:
+- statement:
+    unparsable:
+    - raw: create
+    - raw: table
+    - raw: a
+    - bracketed:
+      - start_bracket: (
+      - raw: a
+      - raw: smallint
+      - comma: ','
+      - raw: b
+      - raw: integer
+      - comma: ','
+      - raw: ba
+      - raw: int2
+      - comma: ','
+      - raw: bb
+      - raw: int4
+      - comma: ','
+      - raw: bc
+      - raw: int8
+      - comma: ','
+      - raw: c
+      - raw: bigint
+      - comma: ','
+      - raw: d
+      - raw: real
+      - comma: ','
+      - raw: e
+      - raw: double
+      - raw: precision
+      - comma: ','
+      - raw: f
+      - raw: smallserial
+      - comma: ','
+      - raw: g
+      - raw: serial
+      - comma: ','
+      - raw: ga
+      - raw: serial2
+      - comma: ','
+      - raw: gb
+      - raw: serial4
+      - comma: ','
+      - raw: gc
+      - raw: serial8
+      - comma: ','
+      - raw: h
+      - raw: bigserial
+      - comma: ','
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        identifier: b
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          identifier: a
+      - data_type:
+          data_type_identifier: float
+      - comma: ','
+      - column_reference:
+          identifier: b
+      - data_type:
+          data_type_identifier: float
+          bracketed:
+            start_bracket: (
+            expression:
+              literal: '24'
+            end_bracket: )
+      - comma: ','
+      - column_reference:
+          identifier: c
+      - data_type:
+          data_type_identifier: float4
+      - comma: ','
+      - column_reference:
+          identifier: d
+      - data_type:
+          data_type_identifier: float4
+          bracketed:
+            start_bracket: (
+            expression:
+              literal: '12'
+            end_bracket: )
+      - comma: ','
+      - column_reference:
+          identifier: e
+      - data_type:
+          data_type_identifier: float8
+      - comma: ','
+      - column_reference:
+          identifier: f
+      - data_type:
+          data_type_identifier: float8
+          bracketed:
+            start_bracket: (
+            expression:
+              literal: '12'
+            end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - raw: create
+    - raw: table
+    - raw: c
+    - bracketed:
+      - start_bracket: (
+      - raw: a
+      - raw: numeric
+      - comma: ','
+      - raw: aa
+      - raw: decimal
+      - comma: ','
+      - raw: b
+      - raw: numeric
+      - bracketed:
+          start_bracket: (
+          expression:
+            literal: '7'
+          end_bracket: )
+      - comma: ','
+      - raw: ba
+      - raw: decimal
+      - bracketed:
+          start_bracket: (
+          expression:
+            literal: '7'
+          end_bracket: )
+      - comma: ','
+      - raw: c
+      - raw: numeric
+      - bracketed:
+        - start_bracket: (
+        - expression:
+            literal: '7'
+        - comma: ','
+        - expression:
+            literal: '2'
+        - end_bracket: )
+      - comma: ','
+      - raw: ca
+      - raw: decimal
+      - bracketed:
+        - start_bracket: (
+        - expression:
+            literal: '7'
+        - comma: ','
+        - expression:
+            literal: '2'
+        - end_bracket: )
+      - comma: ','
+      - end_bracket: )
+- statement_terminator: ;
