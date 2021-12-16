@@ -18,7 +18,7 @@ WITH
   GROUP BY
     {{corr_states}}
   ),
-  
+
   {% for action in considered_actions %}
   {{action}}_raw_effect_sizes AS (
   SELECT
@@ -37,7 +37,7 @@ WITH
     {{corr_states}}
   ),
   {% endfor %}
-  
+
   new_raw_effect_sizes AS (
   SELECT
     {{corr_states}}
@@ -76,7 +76,7 @@ WITH
   ),
 
   action_states AS (
-  SELECT 
+  SELECT
     {{action_states}}
   FROM `{{gcp_project}}.{{dataset}}.global_state_space`
   GROUP BY {{action_states}})
