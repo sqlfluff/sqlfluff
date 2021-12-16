@@ -787,6 +787,7 @@ class DeclareStatementSegment(BaseSegment):
             Ref("ArrayLiteralSegment"),
             Ref("TypelessStructSegment"),
             Ref("TupleSegment"),
+            Ref("ExpressionSegment"),
         ),
         optional=True,
     )
@@ -799,8 +800,7 @@ class DeclareStatementSegment(BaseSegment):
                 _default_section,
             ),
             _default_section,
-            optional=True,
-        )
+        ),
     )
 
 

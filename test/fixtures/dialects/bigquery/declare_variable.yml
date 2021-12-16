@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 065ccf97d12e59848b486c4b314c2ed9fdb5864513f00ca3c4b16b25bbaf89e2
+_hash: ca614f24e260f342ea76ea774ff666daa37951a9f6054d1bd3b6a5b15832d952
 file:
 - statement:
     declare_segment:
@@ -15,11 +15,44 @@ file:
 - statement:
     declare_segment:
     - keyword: declare
-    - identifier: var1
-    - comma: ','
     - identifier: var2
+    - comma: ','
+    - identifier: var3
     - data_type:
         data_type_identifier: string
+- statement_terminator: ;
+- statement:
+    declare_segment:
+    - keyword: declare
+    - identifier: var4
+    - keyword: default
+    - literal: "'value'"
+- statement_terminator: ;
+- statement:
+    declare_segment:
+    - keyword: declare
+    - identifier: var5
+    - keyword: default
+    - array_literal:
+      - start_square_bracket: '['
+      - expression:
+          literal: "'one'"
+      - comma: ','
+      - expression:
+          literal: "'two'"
+      - end_square_bracket: ']'
+- statement_terminator: ;
+- statement:
+    declare_segment:
+    - keyword: declare
+    - identifier: var6
+    - data_type:
+        data_type_identifier: int64
+    - keyword: default
+    - expression:
+      - literal: '1'
+      - binary_operator: +
+      - literal: '2'
 - statement_terminator: ;
 - statement:
     declare_segment:
@@ -31,6 +64,26 @@ file:
         data_type:
           data_type_identifier: string
         end_angle_bracket: '>'
+- statement_terminator: ;
+- statement:
+    declare_segment:
+    - keyword: declare
+    - identifier: arr2
+    - data_type:
+        keyword: array
+        start_angle_bracket: <
+        data_type:
+          data_type_identifier: string
+        end_angle_bracket: '>'
+    - keyword: default
+    - array_literal:
+      - start_square_bracket: '['
+      - expression:
+          literal: "'one'"
+      - comma: ','
+      - expression:
+          literal: "'two'"
+      - end_square_bracket: ']'
 - statement_terminator: ;
 - statement:
     declare_segment:
@@ -50,54 +103,8 @@ file:
 - statement_terminator: ;
 - statement:
     declare_segment:
-      keyword: declare
-      identifier: var1
-- statement_terminator: ;
-- statement:
-    declare_segment:
     - keyword: declare
-    - identifier: var1
-    - keyword: default
-    - literal: "'value'"
-- statement_terminator: ;
-- statement:
-    declare_segment:
-    - keyword: declare
-    - identifier: var1
-    - keyword: default
-    - array_literal:
-      - start_square_bracket: '['
-      - expression:
-          literal: "'one'"
-      - comma: ','
-      - expression:
-          literal: "'two'"
-      - end_square_bracket: ']'
-- statement_terminator: ;
-- statement:
-    declare_segment:
-    - keyword: declare
-    - identifier: arr1
-    - data_type:
-        keyword: array
-        start_angle_bracket: <
-        data_type:
-          data_type_identifier: string
-        end_angle_bracket: '>'
-    - keyword: default
-    - array_literal:
-      - start_square_bracket: '['
-      - expression:
-          literal: "'one'"
-      - comma: ','
-      - expression:
-          literal: "'two'"
-      - end_square_bracket: ']'
-- statement_terminator: ;
-- statement:
-    declare_segment:
-    - keyword: declare
-    - identifier: str1
+    - identifier: str2
     - data_type:
       - keyword: struct
       - start_angle_bracket: <
@@ -121,7 +128,7 @@ file:
 - statement:
     declare_segment:
     - keyword: declare
-    - identifier: str1
+    - identifier: str3
     - data_type:
       - keyword: struct
       - start_angle_bracket: <

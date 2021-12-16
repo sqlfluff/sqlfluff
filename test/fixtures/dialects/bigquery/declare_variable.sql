@@ -1,10 +1,10 @@
 declare var1 int64;
-declare var1, var2 string;
+declare var2, var3 string;
+declare var4 default 'value';
+declare var5 default ['one', 'two'];
+declare var6 int64 default 1 + 2;
 declare arr1 array<string>;
+declare arr2 array<string> default ['one', 'two'];
 declare str1 struct<f1 string, f2 string>;
-declare var1;
-declare var1 default 'value';
-declare var1 default ['one', 'two'];
-declare arr1 array<string> default ['one', 'two'];
-declare str1 struct<f1 string, f2 string> default ('one', 'two');
-declare str1 struct<f1 string, f2 string> default struct('one', 'two');
+declare str2 struct<f1 string, f2 string> default ('one', 'two');
+declare str3 struct<f1 string, f2 string> default struct('one', 'two');
