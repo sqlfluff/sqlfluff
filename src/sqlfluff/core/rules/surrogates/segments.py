@@ -1,12 +1,12 @@
 """Surrogate class for working with Segment collections."""
-from typing import Callable, List, Optional, Sequence, TypeVar
+from typing import Callable, List, Optional, Sequence, Type, TypeVar
 
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules.base import LintFix
 from sqlfluff.core.templaters.base import TemplatedFile
 from sqlfluff.core.rules.surrogates.raw_file_slice import RawFileSlices
 
-Predicate = TypeVar("Predicate", str, TypeVar, Callable[[BaseSegment], bool])
+Predicate = TypeVar("Predicate", str, Type, Callable[[BaseSegment], bool])
 
 
 class Segments:
