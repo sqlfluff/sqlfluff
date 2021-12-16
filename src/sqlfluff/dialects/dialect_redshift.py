@@ -46,7 +46,7 @@ redshift_dialect.sets("bare_functions").update(["current_date", "sysdate"])
 redshift_dialect.replace(WellKnownTextGeometrySegment=Nothing())
 # TODO: for the time use the ANSI definition and not the updated one from Postgres as not all
 #       data types are supported by Redshift
-redshift_dialect.replace(DatatypeIdentifierSegment=ansi_dialect.get_segment("DatatypeIdentifierSegment"))
+redshift_dialect.replace(DatatypeSegment=ansi_dialect.get_segment("DatatypeSegment"))
 
 
 @redshift_dialect.segment(replace=True)
@@ -58,6 +58,17 @@ class DatePartFunctionNameSegment(BaseSegment):
 
     type = "function_name"
     match_grammar = OneOf("DATEADD", "DATEDIFF")
+
+
+@redshift_dialect.segment(replace=True)
+class DatatypeIdentifierSegment(BaseSegment):
+    """A scalar or aggregate function.
+
+    Revert back to the ANSI definition to support ignore nulls
+    """
+
+    type = "function"
+    match_grammar = ansi_dialect.get_segment("FunctionSegment").match_grammar.copy()
 
 
 @redshift_dialect.segment(replace=True)
