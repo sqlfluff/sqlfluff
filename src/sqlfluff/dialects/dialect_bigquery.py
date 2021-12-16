@@ -799,6 +799,7 @@ class DeclareStatementSegment(BaseSegment):
                 _default_section,
             ),
             _default_section,
+            optional=True,
         )
     )
 

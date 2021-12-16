@@ -1,6 +1,8 @@
 declare var1 int64;
 declare var1, var2 string;
 declare arr1 array<string>;
+declare str1 struct<f1 string, f2 string>;
+declare var1;
 declare var1 default 'value';
 declare var1 default ['one', 'two'];
 declare arr1 array<string> default ['one', 'two'];
