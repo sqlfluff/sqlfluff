@@ -17,7 +17,7 @@ class RawFileSlices:
         self.templated_file = templated_file
         self.raw_slices = raw_slices
 
-    def all(self, *predicates: Predicate) -> bool:
+    def all(self, *predicates: Predicate) -> bool:  # pragma: no cover
         """Do all the raw slices match?"""
         cp = _CompositePredicate(*predicates)
         return all(cp(rs) for rs in self.raw_slices)
@@ -35,14 +35,14 @@ class _CompositePredicate:
         for p in predicates:
             if isinstance(p, str):
                 self.slice_types.add(p)
-            else:
+            else:  # pragma: no cover
                 self.other.append(p)
 
     def __call__(self, raw_slice: RawFileSlice) -> bool:
         if self.slice_types and raw_slice.slice_type not in self.slice_types:
             return False
 
-        for p in self.other:
+        for p in self.other:  # pragma: no cover
             if not p(raw_slice):  # Arbitrary function
                 return False
         return True

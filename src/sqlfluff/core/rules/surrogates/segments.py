@@ -25,10 +25,10 @@ class Segments:
         cp = _CompositePredicate(*predicates)
         return all(cp(s) for s in self.segments)
 
-    # def any(self, *predicates: Predicate) -> bool:
-    #     """Do any of the segments match?"""
-    #     cp = _CompositePredicate(*predicates)
-    #     return any(cp(s) for s in self.segments)
+    def any(self, *predicates: Predicate) -> bool:  # pragma: no cover
+        """Do any of the segments match?"""
+        cp = _CompositePredicate(*predicates)
+        return any(cp(s) for s in self.segments)
 
     @property
     def raw_slices(self) -> RawFileSlices:
@@ -86,7 +86,7 @@ class _CompositePredicate:
         for p in self.other:
             if isinstance(p, type):
                 # Check segment class
-                if not isinstance(segment, p):
+                if not isinstance(segment, p):  # pragma: no cover
                     return False
             elif not p(segment):  # Arbitrary function
                 return False
