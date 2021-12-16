@@ -787,19 +787,19 @@ class DeclareStatementSegment(BaseSegment):
             Ref("ArrayLiteralSegment"),
             Ref("TypelessStructSegment"),
             Ref("TupleSegment"),
-            Ref("ExpressionSegment"),
+            Ref("BaseExpressionElementGrammar"),
         ),
-        optional=True,
     )
     parse_grammar = Sequence(
         "DECLARE",
         Delimited(Ref("NakedIdentifierSegment")),
         OneOf(
+            Ref("DatatypeSegment"),
+            _default_section,
             Sequence(
-                Ref("DatatypeSegment", optional=True),
+                Ref("DatatypeSegment"),
                 _default_section,
             ),
-            _default_section,
         ),
     )
 
