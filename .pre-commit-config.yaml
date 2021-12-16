@@ -3,9 +3,9 @@ repos:
     rev: v4.0.1
     hooks:
     -   id: end-of-file-fixer
-        exclude: "test/fixtures/linter/.*.sql"
+        exclude: "test/fixtures/linter/.*.sql|plugins/sqlfluff-templater-dbt/test/fixtures/dbt/dbt_project/models/.*.sql|plugins/sqlfluff-templater-dbt/test/fixtures/dbt/templated_output/.*.sql"
     -   id: trailing-whitespace
-        exclude: "test/fixtures/linter/.*.sql"
+        exclude: "test/fixtures/linter/.*.sql|plugins/sqlfluff-templater-dbt/test/fixtures/dbt/dbt_project/models/.*.sql|plugins/sqlfluff-templater-dbt/test/fixtures/dbt/templated_output/.*.sql"
 -   repo: https://github.com/psf/black
     rev: 21.12b0
     hooks:
