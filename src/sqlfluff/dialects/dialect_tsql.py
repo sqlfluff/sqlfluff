@@ -2240,8 +2240,8 @@ class FileSegment(BaseFileSegment):
     # NB: We don't need a match_grammar here because we're
     # going straight into instantiating it directly usually.
     parse_grammar = Delimited(
-        Ref("BatchSegment"),
-        delimiter=Ref("BatchDelimiterSegment"),
+        Ref("BatchSegment", optional=True),
+        delimiter=AnyNumberOf(Ref("BatchDelimiterSegment"), min_times=1),
         allow_gaps=True,
         allow_trailing=True,
     )
