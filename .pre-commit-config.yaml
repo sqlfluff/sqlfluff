@@ -3,7 +3,9 @@ repos:
     rev: v4.0.1
     hooks:
     -   id: end-of-file-fixer
+        exclude: "test/fixtures/linter/.*.sql"
     -   id: trailing-whitespace
+        exclude: "test/fixtures/linter/.*.sql"
 -   repo: https://github.com/psf/black
     rev: 21.12b0
     hooks:
@@ -18,6 +20,7 @@ repos:
             types-pkg_resources,
             types-chardet,
         ]
+        files: ^src/sqlfluff/.*
 -   repo: https://github.com/pycqa/flake8
     rev: 4.0.1
     hooks:
