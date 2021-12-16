@@ -35,7 +35,7 @@ from sqlfluff.core.templaters.base import RawFileSlice, TemplatedFile
 # TRICKY: At runtime, we do this import inside a function to avoid circular
 # dependencies. But mypy needs it at module scope, hence the "if" check.
 if TYPE_CHECKING:
-    from sqlfluff.core.rules.surrogates import Segments
+    from sqlfluff.core.rules.surrogates import Segments  # pragma: no cover
 
 # The ghost of a rule (mostly used for testing)
 RuleGhost = namedtuple("RuleGhost", ["code", "description"])

@@ -25,15 +25,15 @@ class Segments:
         cp = _CompositePredicate(*predicates)
         return all(cp(s) for s in self.segments)
 
-    def any(self, *predicates: Predicate) -> bool:
-        """Do any of the segments match?"""
-        cp = _CompositePredicate(*predicates)
-        return any(cp(s) for s in self.segments)
+    # def any(self, *predicates: Predicate) -> bool:
+    #     """Do any of the segments match?"""
+    #     cp = _CompositePredicate(*predicates)
+    #     return any(cp(s) for s in self.segments)
 
     @property
     def raw_slices(self) -> RawFileSlices:
         """Raw slices of the segments."""
-        if not self.templated_file:
+        if not self.templated_file:  # pragma: no cover
             raise ValueError(
                 'Segments.raw_slices: "templated_file" property is required.'
             )
@@ -45,23 +45,23 @@ class Segments:
             )
         return RawFileSlices(self.templated_file, *raw_slices)
 
-    def with_children(self) -> "Segments":
-        """Returns an object that includes first-level children."""
-        raise NotImplementedError
+    # def with_children(self) -> "Segments":
+    #     """Returns an object that includes first-level children."""
+    #     raise NotImplementedError
 
-    def with_descendants(self) -> "Segments":
-        """Returns an object that includes all descendants."""
-        raise NotImplementedError
+    # def with_descendants(self) -> "Segments":
+    #     """Returns an object that includes all descendants."""
+    #     raise NotImplementedError
 
-    def select(
-        self,
-        start_seg: Optional[BaseSegment] = None,
-        stop_seg: Optional[BaseSegment] = None,
-        select_if=Optional[Sequence[Predicate]],
-        loop_while=Optional[Sequence[Predicate]],
-    ) -> "Segments":
-        """Retrieve range/subset."""
-        raise NotImplementedError
+    # def select(
+    #     self,
+    #     start_seg: Optional[BaseSegment] = None,
+    #     stop_seg: Optional[BaseSegment] = None,
+    #     select_if=Optional[Sequence[Predicate]],
+    #     loop_while=Optional[Sequence[Predicate]],
+    # ) -> "Segments":
+    #     """Retrieve range/subset."""
+    #     raise NotImplementedError
 
     def delete(self, *predicates: Predicate) -> Sequence["LintFix"]:
         """Return LintFix objects to delete segments that satisfy predicates."""
