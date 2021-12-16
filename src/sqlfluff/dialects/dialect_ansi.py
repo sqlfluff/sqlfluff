@@ -509,7 +509,7 @@ class FileSegment(BaseFileSegment):
     # going straight into instantiating it directly usually.
     parse_grammar = Delimited(
         Ref("StatementSegment"),
-        delimiter=Ref("DelimiterSegment"),
+        delimiter=AnyNumberOf(Ref("DelimiterSegment"), min_times=1),
         allow_gaps=True,
         allow_trailing=True,
     )
