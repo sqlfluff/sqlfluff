@@ -293,9 +293,87 @@ class StatementSegment(BaseSegment):
             Ref("TableAttributeSegment"),
             Ref("ColumnAttributeSegment"),
             Ref("ColumnEncodingSegment"),
+            Ref("CreateUserSegment"),
+            Ref("CreateGroupSegment"),
         ],
     )
 
     match_grammar = redshift_dialect.get_segment(
         "StatementSegment"
     ).match_grammar.copy()
+
+
+@redshift_dialect.segment()
+class CreateUserSegment(BaseSegment):
+    """`CREATE USER` statement.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_USER.html
+    """
+
+    type = "create_user"
+
+    match_grammar = Sequence(
+        "CREATE",
+        "USER",
+        Ref("NakedIdentifierSegment"),
+        Ref.keyword("WITH", optional=True),
+        "PASSWORD",
+        OneOf(Ref("QuotedLiteralSegment"), "DISABLE"),
+        AnyNumberOf(
+            OneOf(
+                "CREATEDB",
+                "NOCREATEDB",
+            ),
+            OneOf(
+                "CREATEUSER",
+                "NOCREATEUSER",
+            ),
+            Sequence(
+                "SYSLOG",
+                "ACCESS",
+                OneOf(
+                    "RESTRICTED",
+                    "UNRESTRICTED",
+                ),
+            ),
+            Sequence("IN", "GROUP", Delimited(Ref("NakedIdentifierSegment"))),
+            Sequence("VALID", "UNTIL", Ref("QuotedLiteralSegment")),
+            Sequence(
+                "CONNECTION",
+                "LIMIT",
+                OneOf(
+                    Ref("NumericLiteralSegment"),
+                    "UNLIMITED",
+                ),
+            ),
+            Sequence(
+                "SESSION",
+                "TIMEOUT",
+                Ref("NumericLiteralSegment"),
+            ),
+        ),
+    )
+
+
+@redshift_dialect.segment()
+class CreateGroupSegment(BaseSegment):
+    """`CREATE GROUP` statement.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_GROUP.html
+    """
+
+    type = "create_group"
+
+    match_grammar = Sequence(
+        "CREATE",
+        "GROUP",
+        Ref("NakedIdentifierSegment"),
+        Sequence(
+            Ref.keyword("WITH", optional=True),
+            "USER",
+            Delimited(
+                Ref("NakedIdentifierSegment"),
+            ),
+            optional=True,
+        ),
+    )
