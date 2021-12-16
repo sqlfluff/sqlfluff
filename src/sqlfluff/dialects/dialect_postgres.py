@@ -937,7 +937,7 @@ class DatatypeSegment(BaseSegment):
     type = "data_type"
     match_grammar = OneOf(
         # numeric types
-        OneOf("smallint", "integer", "int2", "int4", "int8", "bigint", "real", "double precision", "smallserial", "serial", "serial2", "serial4", "serial8", "bigserial"),
+        OneOf("smallint", "integer", "int2", "int4", "int8", "bigint", "real", Sequence("double", "precision"), "smallserial", "serial", "serial2", "serial4", "serial8", "bigserial"),
         # numeric types [(precision)]
         Sequence(
           OneOf("float", "float4", "float8"),
@@ -962,10 +962,6 @@ class DatatypeSegment(BaseSegment):
             Bracketed(Ref("NumericLiteralSegment"), optional=True),
             Sequence(OneOf("WITH", "WITHOUT"), "TIME", "ZONE", optional=True),
         ),
-#        Sequence(
-#            "DOUBLE",
-#            "PRECISION",
-#        ),
         Sequence(
             OneOf(
                 Sequence(
