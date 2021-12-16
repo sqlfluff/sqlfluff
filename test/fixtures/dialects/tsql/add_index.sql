@@ -49,7 +49,7 @@ CREATE UNIQUE INDEX [ix_name]
 GO
 
 
-CREATE STATISTICS Stats_Population ON [Reporting].[Population] 
+CREATE STATISTICS Stats_Population ON [Reporting].[Population]
 ([ID],[Facility],[Population])
 
 GO
@@ -70,5 +70,3 @@ DROP INDEX IX_INTER_VIMR_REPRODUCTION_NUMBER
     ON dbo.VIMR_INFECTIOUS_PEOPLE;
 
 GO
-
-

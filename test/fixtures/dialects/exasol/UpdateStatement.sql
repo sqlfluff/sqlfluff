@@ -12,11 +12,11 @@ UPDATE order_pos
 SET stocks=stocks*10
 PREFERRING HIGH (order_date) PARTITION BY (shop_id, order_id);
 ----
-UPDATE 
+UPDATE
 	t1
 SET
 	x=t2.c1,
-	w=t4.c2 
+	w=t4.c2
 FROM
 	t2
 	JOIN t3 g ON t2.c1=t3.c2

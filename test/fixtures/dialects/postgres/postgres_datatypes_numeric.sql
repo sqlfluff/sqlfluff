@@ -6,7 +6,7 @@ create table a(
   bc int8,
   c bigint,
   d real,
-  e double precision,
+
   f smallserial,
   g serial,
   ga serial2,

@@ -168,7 +168,33 @@ postgres_dialect.add(
         "dollar_quote", CodeSegment, name="dollar_quoted_literal", type="literal"
     ),
     SimpleGeometryGrammar=AnyNumberOf(Ref("NumericLiteralSegment")),
+    DatatypeIdentifierWithoutOptionsSegment=SegmentGenerator(
+        # Generate the anti template from the set of reserved keywords
+        lambda dialect: RegexParser(
+            r'smallint|integer|int2|int4|int8|bigint|real|double\s+precision|smallserial|serial|serial2|serial4|serial8|bigserial',
+            CodeSegment,
+            name="data_type_identifier_standard",
+            type="data_type_identifier")
+
+    ),
+    DatatypeIdentifierWithPrecisionSegment=SegmentGenerator(
+        # Generate the anti template from the set of reserved keywords
+        lambda dialect: RegexParser(
+            r"float|float4|float8",
+            CodeSegment,
+            name="data_type_identifier_with_precision",
+            type="data_type_identifier")
+    ),
+    DatatypeIdentifierWithPrecisionAndScaleSegment=SegmentGenerator(
+        # Generate the anti template from the set of reserved keywords
+        lambda dialect: RegexParser(
+            r"decimal|numeric",
+            CodeSegment,
+            name="data_type_identifier_with_precision_and_scale",
+            type="data_type_identifier")
+    ),
 )
+
 
 postgres_dialect.replace(
     ComparisonOperatorGrammar=OneOf(
@@ -402,29 +428,15 @@ class DatatypeSegment(BaseSegment):
         ),
         Sequence(
             OneOf(
-                # numeric types
-                "SMALLINT",
-                "INTEGER",
-                "INT2",
-                "INT4",
-                "INT8",
-                "BIGINT",
-                "REAL",
-                Sequence("DOUBLE", "PRECISION"),
-                "SMALLSERIAL",
-                "SERIAL",
-                "SERIAL2",
-                "SERIAL4",
-                "SERIAL8",
-                "BIGSERIAL",
+                Ref("DatatypeIdentifierWithoutOptionsSegment"),
                 # numeric types [(precision)]
                 Sequence(
-                    OneOf("FLOAT", "FLOAT4", "FLOAT8"),
+                    Ref("DatatypeIdentifierWithPrecisionSegment"),
                     Bracketed(Ref("NumericLiteralSegment"), optional=True),
                 ),
                 # numeric types [precision ["," scale])]
                 Sequence(
-                    OneOf("DECIMAL", "NUMERIC"),
+                    Ref("DatatypeIdentifierWithPrecisionAndScaleSegment"),
                     Bracketed(
                         Delimited(Ref("NumericLiteralSegment")),
                     ),

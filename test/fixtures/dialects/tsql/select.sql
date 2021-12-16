@@ -69,5 +69,4 @@ SELECT
     NTILE(5)OVER(PARTITION BY [EventNM] ORDER BY [DateofEvent] desc) AS [NT],
 	sum(t.col1) over (partition by t.col2, t.col3)
 
-FROM dbo . all_pop	
-
+FROM dbo . all_pop

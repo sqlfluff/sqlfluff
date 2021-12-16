@@ -116,7 +116,7 @@ test_pass_subquery_inner_join:
         INNER JOIN foo
             ON foo.bar_id = bar.id
     );
-    
+
 test_fail_with_right_join:
   fail_str: |
     WITH cte AS (
@@ -164,4 +164,3 @@ test_pass_with_inner_join:
         col1,
         col2
     FROM cte;
-    

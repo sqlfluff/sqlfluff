@@ -81,7 +81,7 @@ SELECT date'2021-09-21' FROM dual;
 ----
 SELECT INVALID PRIMARY KEY (first_name) from T1;
 ----
-SELECT  JSON_EXTRACT(json_str, '$."@id"', '$.error()') 
+SELECT  JSON_EXTRACT(json_str, '$."@id"', '$.error()')
         EMITS
         (
             id VARCHAR(2000),
