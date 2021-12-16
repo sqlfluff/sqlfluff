@@ -1,4 +1,4 @@
-create table aa(
+create table a(
   a smallint,
   b integer,
   ba int2,
@@ -12,7 +12,7 @@ create table aa(
   ga serial2,
   gb serial4,
   gc serial8,
-  h bigserial,
+  h bigserial
 );
 
 create table b(
@@ -30,5 +30,5 @@ create table c(
     b numeric(7),
     ba decimal(7),
     c numeric(7,2),
-    ca decimal(7,2),
+    ca decimal(7,2)
 );

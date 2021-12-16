@@ -402,7 +402,36 @@ class DatatypeSegment(BaseSegment):
         ),
         Sequence(
             OneOf(
-                Sequence("DOUBLE", "PRECISION"),
+                # numeric types
+                OneOf(
+                    "SMALLINT",
+                    "INTEGER",
+                    "INT2",
+                    "INT4",
+                    "INT8",
+                    "BIGINT",
+                    "REAL",
+                    Sequence("DOUBLE", "PRECISION"),
+                    "SMALLSERIAL",
+                    "SERIAL",
+                    "SERIAL2",
+                    "SERIAL4",
+                    "SERIAL8",
+                    "BIGSERIAL",
+                ),
+                # numeric types [(precision)]
+                Sequence(
+                    OneOf("FLOAT", "FLOAT4", "FLOAT8"),
+                    Bracketed(Ref("NumericLiteralSegment"), optional=True),
+                ),
+                # numeric types [precision ["," scale])]
+                Sequence(
+                    OneOf("DECIMAL", "NUMERIC"),
+                    Bracketed(
+                        Delimited(Ref("NumericLiteralSegment")),
+                    ),
+                    optional=True,
+                ),
                 Sequence(
                     OneOf("CHARACTER", "BINARY"),
                     OneOf("VARYING", Sequence("LARGE", "OBJECT")),
@@ -923,73 +952,6 @@ class ExplainOptionSegment(BaseSegment):
         Sequence(
             "FORMAT",
             OneOf("TEXT", "XML", "JSON", "YAML"),
-        ),
-    )
-
-
-@postgres_dialect.segment(replace=True)
-class DatatypeSegment(BaseSegment):
-    """A data type segment.
-
-    Supports timestamp with(out) time zone. Doesn't currently support intervals.
-    """
-
-    type = "data_type"
-    match_grammar = OneOf(
-        # numeric types
-        OneOf("SMALLINT", "INTEGER", "INT2", "INT4", "INT8", "BIGINT", "REAL", Sequence("DOUBLE", "PRECISION"), "SMALLSERIAL", "SERIAL", "SERIAL2", "SERIAL4", "SERIAL8", "BIGSERIAL"),
-        # numeric types [(precision)]
-        Sequence(
-          OneOf("FLOAT", "FLOAT4", "FLOAT8"),
-          Bracketed(Ref("NumericLiteralSegment"), optional=True)
-        ),
-        # numeric types [precision ["," scale])]
-        Sequence(
-            OneOf("DECIMAL", "NUMERIC"),
-            Bracketed(
-                OneOf(
-                    Ref("NumericLiteralSegment"),
-                    Sequence(
-                        Ref("NumericLiteralSegment"),
-                        ",",
-                        Ref("NumericLiteralSegment")
-                    )
-                )
-            , optional=True)
-        ),
-        Sequence(
-            OneOf("time", "timestamp"),
-            Bracketed(Ref("NumericLiteralSegment"), optional=True),
-            Sequence(OneOf("WITH", "WITHOUT"), "TIME", "ZONE", optional=True),
-        ),
-        Sequence(
-            OneOf(
-                Sequence(
-                    OneOf("CHARACTER", "BINARY"),
-                    OneOf("VARYING", Sequence("LARGE", "OBJECT")),
-                ),
-                Sequence(
-                    # Some dialects allow optional qualification of data types with schemas
-                    Sequence(
-                        Ref("SingleIdentifierGrammar"),
-                        Ref("DotSegment"),
-                        allow_gaps=False,
-                        optional=True,
-                    ),
-                    Ref("DatatypeIdentifierSegment"),
-                    allow_gaps=False,
-                ),
-            ),
-            Bracketed(
-                OneOf(
-                    Delimited(Ref("ExpressionSegment")),
-                    # The brackets might be empty for some cases...
-                    optional=True,
-                ),
-                # There may be no brackets for some data types
-                optional=True,
-            ),
-            Ref("CharCharacterSetSegment", optional=True),
         ),
     )
 
