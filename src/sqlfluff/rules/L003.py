@@ -65,7 +65,7 @@ class Rule_L003(BaseRule):
         return base_unit * num
 
     @staticmethod
-    def _indent_size(segments: Sequence[RawSegment], tab_space_size: int = 4) -> int:
+    def _indent_size(segments: Sequence[BaseSegment], tab_space_size: int = 4) -> int:
         indent_size = 0
         for elem in segments:
             raw = elem.raw
@@ -77,7 +77,7 @@ class Rule_L003(BaseRule):
     @classmethod
     def _process_raw_stack(
         cls,
-        raw_stack: Tuple[RawSegment, ...],
+        raw_stack: Tuple[BaseSegment, ...],
         memory: dict = None,
         tab_space_size: int = 4,
         templated_file: Optional[TemplatedFile] = None,
@@ -86,8 +86,8 @@ class Rule_L003(BaseRule):
         indent_balance = 0
         line_no = 1
         in_indent = True
-        indent_buffer: List[RawSegment] = []
-        line_buffer: List[RawSegment] = []
+        indent_buffer: List[BaseSegment] = []
+        line_buffer: List[BaseSegment] = []
         result_buffer = {}
         indent_size = 0
         line_indent_stack: List[int] = []
@@ -284,7 +284,7 @@ class Rule_L003(BaseRule):
         self.tab_space_size: int
         self.indent_unit: str
 
-        raw_stack = context.raw_stack
+        raw_stack: Tuple[BaseSegment, ...] = context.raw_stack
 
         # We ignore certain types (e.g. non-SQL scripts in functions)
         # so check if on ignore list
