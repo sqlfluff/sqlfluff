@@ -154,6 +154,13 @@ In order to parse these queries is then necessary to replace these
 placeholders with sample values, and this is done with the placeholder
 templater.
 
+Placeholder templating can be enabled in the config using:
+
+.. code-block:: cfg
+
+    [sqlfluff]
+    templater = placeholder
+
 A few common styles are supported:
 
 colon
@@ -180,7 +187,7 @@ percent
 ampersand
  WHERE bla = &s or WHERE bla = &{s} or USE DATABASE MARKETING_{ENV}
 
-these can be configured by setting param_style to the names above
+These can be configured by setting `param_style` to the names above:
 
 .. code-block:: cfg
 
@@ -193,16 +200,27 @@ above. Notice that the value needs to be escaped as it will be replaced as a
 string during parsing.
 
 When parameters are positional, like `question_mark`, then their name is
-simply the order in which they appear, starting by `1`.
+simply the order in which they appear, starting with `1`.
+
+.. code-block:: cfg
+
+    [sqlfluff:templater:placeholder]
+    param_style=question_mark
+    1='john'
 
 In case you need a parameter style different from the ones above, you can pass
 a custom regex.
 
 .. code-block:: cfg
 
-    [sqlfluff:templater:placeholder:context]
-    param_regex='__(?P<param_name>[\w_]+)__'
+    [sqlfluff:templater:placeholder]
+    param_regex=__(?P<param_name>[\w_]+)__
     my_name='john'
+
+N.B. quotes around `param_regex` in the config are
+interpreted literally by the templater.
+e.g. `param_regex='__(?P<param_name>[\w_]+)__'` matches
+`'__some_param__'` not `__some_param__`
 
 the named parameter `param_name` will be used as the key to replace, if
 missing, the parameter is assumed to be positional and numbers are used insead.

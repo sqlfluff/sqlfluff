@@ -43,3 +43,6 @@ test-reports
 environment.yml
 .envrc
 **/*FIXED.sql
+
+# Ignore temp packages.yml generated during testing.
+plugins/sqlfluff-templater-dbt/test/fixtures/dbt/dbt_project/packages.yml
