@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b5c3fc19989e1d017b4758514f4bdc849138cf6d1717f9c7cb6af3de90138d1c
+_hash: bc9590377cbae078da69ec5d7deaeb31cb8a916583eca1fa83daf6964f890e5f
 file:
 - statement:
     copy_into_statement:
@@ -28,12 +28,13 @@ file:
         identifier: my_int_stage
     - keyword: file_format
     - comparison_operator: '='
-    - bracketed:
-      - start_bracket: (
-      - keyword: type
-      - comparison_operator: '='
-      - keyword: csv
-      - end_bracket: )
+    - file_format_segment:
+        bracketed:
+          start_bracket: (
+          keyword: type
+          comparison_operator: '='
+          file_type: csv
+          end_bracket: )
 - statement_terminator: ;
 - statement:
     copy_into_statement:
@@ -47,12 +48,13 @@ file:
         identifier: my_int_stage
     - keyword: file_format
     - comparison_operator: '='
-    - bracketed:
-        start_bracket: (
-        keyword: format_name
-        comparison_operator: '='
-        literal: "'mycsv'"
-        end_bracket: )
+    - file_format_segment:
+        bracketed:
+          start_bracket: (
+          keyword: format_name
+          comparison_operator: '='
+          literal: "'mycsv'"
+          end_bracket: )
 - statement_terminator: ;
 - statement:
     copy_into_statement:
@@ -66,12 +68,13 @@ file:
         identifier: my_int_stage
     - keyword: file_format
     - comparison_operator: '='
-    - bracketed:
-        start_bracket: (
-        keyword: type
-        comparison_operator: '='
-        literal: "'CSV'"
-        end_bracket: )
+    - file_format_segment:
+        bracketed:
+          start_bracket: (
+          keyword: type
+          comparison_operator: '='
+          file_type: "'CSV'"
+          end_bracket: )
     - keyword: pattern
     - comparison_operator: '='
     - literal: "'.*/.*/.*[.]csv[.]gz'"
@@ -88,12 +91,13 @@ file:
         identifier: my_int_stage
     - keyword: file_format
     - comparison_operator: '='
-    - bracketed:
-        start_bracket: (
-        keyword: format_name
-        comparison_operator: '='
-        identifier: myformat
-        end_bracket: )
+    - file_format_segment:
+        bracketed:
+          start_bracket: (
+          keyword: format_name
+          comparison_operator: '='
+          identifier: myformat
+          end_bracket: )
     - keyword: pattern
     - comparison_operator: '='
     - literal: "'.*sales.*[.]csv'"
@@ -185,12 +189,13 @@ file:
     - literal: "'s3://bucket/source'"
     - keyword: file_format
     - comparison_operator: '='
-    - bracketed:
-      - start_bracket: (
-      - keyword: TYPE
-      - comparison_operator: '='
-      - keyword: JSON
-      - end_bracket: )
+    - file_format_segment:
+        bracketed:
+          start_bracket: (
+          keyword: TYPE
+          comparison_operator: '='
+          file_type: JSON
+          end_bracket: )
 - statement_terminator: ;
 - statement:
     copy_into_statement:
@@ -223,12 +228,13 @@ file:
         end_bracket: )
     - keyword: file_format
     - comparison_operator: '='
-    - bracketed:
-      - start_bracket: (
-      - keyword: TYPE
-      - comparison_operator: '='
-      - keyword: JSON
-      - end_bracket: )
+    - file_format_segment:
+        bracketed:
+          start_bracket: (
+          keyword: TYPE
+          comparison_operator: '='
+          file_type: JSON
+          end_bracket: )
 - statement_terminator: ;
 - statement:
     copy_into_statement:
@@ -240,13 +246,15 @@ file:
     - literal: "'s3://bucket/source'"
     - keyword: file_format
     - comparison_operator: '='
-    - bracketed:
-      - start_bracket: (
-      - keyword: type
-      - comparison_operator: '='
-      - keyword: csv
-      - identifier: SKIP_HEADER
-      - comparison_operator: '='
-      - literal: '1'
-      - end_bracket: )
+    - file_format_segment:
+        bracketed:
+          start_bracket: (
+          keyword: type
+          comparison_operator: '='
+          file_type: csv
+          format_type_options_segment:
+            identifier: SKIP_HEADER
+            comparison_operator: '='
+            literal: '1'
+          end_bracket: )
 - statement_terminator: ;

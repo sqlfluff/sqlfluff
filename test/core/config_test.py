@@ -279,3 +279,18 @@ def test__config__get():
         cfg.get("operator_new_lines", section=["rules", "ASDFSDG007"], default=None)
         is None
     )
+
+
+def test__config__from_kwargs():
+    """Test from_kwargs method of FluffConfig."""
+    # Instantiate config object.
+    cfg = FluffConfig.from_kwargs(
+        dialect="snowflake",
+        rules=["L001", "L002"],
+        exclude_rules=["L010", "L011"],
+    )
+
+    # Verify we can later retrieve the config values.
+    assert cfg.get("dialect") == "snowflake"
+    assert cfg.get("rules") == "L001,L002"
+    assert cfg.get("exclude_rules") == "L010,L011"

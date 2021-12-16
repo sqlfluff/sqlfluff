@@ -55,6 +55,11 @@ tsql_dialect.insert_lexer_matchers(
             CodeSegment,
         ),
         RegexLexer(
+            "var_prefix",
+            r"[$][a-zA-Z0-9_]+",
+            CodeSegment,
+        ),
+        RegexLexer(
             "square_quote",
             r"\[([^\[\]]*)*\]",
             CodeSegment,
@@ -86,9 +91,28 @@ tsql_dialect.patch_lexer_matchers(
         # N.B. this syntax is only possible via the non-standard-library
         # (but still backwards compatible) `regex` package.
         # https://pypi.org/project/regex/
+        # Pattern breakdown:
+        # /\*                    Match opening slash.
+        #   (?>                  Atomic grouping
+        #                        (https://www.regular-expressions.info/atomic.html).
+        #       [^*/]+           Non forward-slash or asterisk characters.
+        #       |\*(?!\/)        Negative lookahead assertion to match
+        #                        asterisks not followed by a forward-slash.
+        #       |/[^*]           Match lone forward-slashes not followed by an asterisk.
+        #   )*                   Match any number of the atomic group contents.
+        #   (?>
+        #       (?R)             Recusively match the block comment pattern
+        #                        to match nested block comments.
+        #       (?>
+        #           [^*/]+
+        #           |\*(?!\/)
+        #           |/[^*]
+        #       )*
+        #   )*
+        # \*/                    Match closing slash.
         RegexLexer(
             "block_comment",
-            r"/\*(?>[^*/]+|\*[^/]|/[^*])*(?>(?R)(?>[^*/]+|\*[^/]|/[^*])*)*\*/",
+            r"/\*(?>[^*/]+|\*(?!\/)|/[^*])*(?>(?R)(?>[^*/]+|\*(?!\/)|/[^*])*)*\*/",
             CommentSegment,
             subdivider=RegexLexer(
                 "newline",
@@ -116,6 +140,9 @@ tsql_dialect.add(
     ),
     HashIdentifierSegment=NamedParser(
         "hash_prefix", CodeSegment, name="hash_identifier", type="identifier"
+    ),
+    VariableIdentifierSegment=NamedParser(
+        "var_prefix", CodeSegment, name="variable_identifier", type="identifier"
     ),
     BatchDelimiterSegment=Ref("GoStatementSegment"),
     QuotedLiteralSegmentWithN=NamedParser(
@@ -181,6 +208,7 @@ tsql_dialect.replace(
         Ref("BracketedIdentifierSegment"),
         Ref("HashIdentifierSegment"),
         Ref("ParameterNameSegment"),
+        Ref("VariableIdentifierSegment"),
     ),
     LiteralGrammar=OneOf(
         Ref("QuotedLiteralSegment"),
@@ -306,6 +334,7 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref("DropFunctionStatementSegment"),
             Ref("BeginEndSegment"),
             Ref("TryCatchSegment"),
+            Ref("MergeStatementSegment"),
         ],
     )
 
@@ -424,6 +453,7 @@ class WithCompoundStatementSegment(BaseSegment):
         OneOf(
             Ref("NonWithSelectableGrammar"),
             Ref("NonWithNonSelectableGrammar"),
+            Ref("MergeStatementSegment"),
         ),
     )
 
@@ -1279,7 +1309,7 @@ class SetStatementSegment(BaseSegment):
             "NUMERIC_ROUNDABORT",
             "PARSEONLY",
             "QUERY_GOVERNOR_COST_LIMIT",
-            "RESULT CACHING (Preview)",
+            "RESULT_SET_CACHING",  # Azure Synapse Analytics specific
             "ROWCOUNT",
             "TEXTSIZE",
             "ANSI_DEFAULTS",
@@ -1292,13 +1322,22 @@ class SetStatementSegment(BaseSegment):
             "SHOWPLAN_ALL",
             "SHOWPLAN_TEXT",
             "SHOWPLAN_XML",
-            "STATISTICS IO",
-            "STATISTICS XML",
-            "STATISTICS PROFILE",
-            "STATISTICS TIME",
+            Sequence(
+                "STATISTICS",
+                OneOf(
+                    "IO",
+                    "PROFILE",
+                    "TIME",
+                    "XML",
+                ),
+            ),
             "IMPLICIT_TRANSACTIONS",
             "REMOTE_PROC_TRANSACTIONS",
-            "TRANSACTION ISOLATION LEVEL",
+            Sequence(
+                "TRANSACTION",
+                "ISOLATION",
+                "LEVEL",
+            ),
             "XACT_ABORT",
         ),
         OneOf(
@@ -2765,5 +2804,212 @@ class CreateSchemaStatementSegment(BaseSegment):
         Ref(
             "DelimiterSegment",
             optional=True,
+        ),
+    )
+
+
+@tsql_dialect.segment()
+class MergeStatementSegment(BaseSegment):
+    """`MERGE` statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/merge-transact-sql?view=sql-server-ver15
+    """
+
+    type = "merge_statement"
+
+    match_grammar = Sequence(
+        "MERGE",
+        Sequence(
+            "TOP",
+            OptionallyBracketed(Ref("ExpressionSegment")),
+            Sequence("PERCENT", optional=True),
+            optional=True,
+        ),
+        Sequence("INTO", optional=True),
+        Indent,
+        OneOf(
+            Ref("TableReferenceSegment"),
+            Ref("AliasedTableReferenceGrammar"),
+            Sequence(
+                Ref("TableReferenceSegment"),
+                Ref("PostTableExpressionGrammar", optional=True),
+                Ref("AliasExpressionSegment", optional=True),
+            ),
+        ),
+        Dedent,
+        "USING",
+        Indent,
+        OneOf(
+            Sequence(
+                Ref("TableReferenceSegment"),
+                Ref("AliasExpressionSegment", optional=True),
+            ),
+            Sequence(
+                OptionallyBracketed(
+                    Ref("UnorderedSelectStatementSegment"),
+                ),
+                Ref("AliasExpressionSegment", optional=True),
+                Ref("BracketedColumnReferenceListGrammar", optional=True),
+            ),
+        ),
+        Dedent,
+        Ref("JoinOnConditionSegment"),
+        AnyNumberOf(
+            Ref("MergeMatchedClauseSegment"),
+            Ref("MergeNotMatchedClauseSegment"),
+            min_times=1,
+        ),
+        Ref("OutputClauseSegment", optional=True),
+        Ref("OptionClauseSegment", optional=True),
+        AnyNumberOf(Ref("DelimiterSegment"), optional=True),
+    )
+
+
+@tsql_dialect.segment()
+class MergeMatchedClauseSegment(BaseSegment):
+    """The `WHEN MATCHED` clause within a `MERGE` statement."""
+
+    type = "merge_when_matched_clause"
+
+    match_grammar = Sequence(
+        "WHEN",
+        "MATCHED",
+        Sequence(
+            "AND",
+            Ref("ExpressionSegment"),
+            optional=True,
+        ),
+        Indent,
+        "THEN",
+        OneOf(
+            Ref("MergeUpdateClauseSegment"),
+            Ref("MergeDeleteClauseSegment"),
+        ),
+        Dedent,
+    )
+
+
+@tsql_dialect.segment()
+class MergeNotMatchedClauseSegment(BaseSegment):
+    """The `WHEN NOT MATCHED` clause within a `MERGE` statement."""
+
+    type = "merge_when_not_matched_clause"
+
+    match_grammar = OneOf(
+        Sequence(
+            "WHEN",
+            "NOT",
+            "MATCHED",
+            Sequence("BY", "TARGET", optional=True),
+            Sequence("AND", Ref("ExpressionSegment"), optional=True),
+            Indent,
+            "THEN",
+            Ref("MergeInsertClauseSegment"),
+            Dedent,
+        ),
+        Sequence(
+            "WHEN",
+            "NOT",
+            "MATCHED",
+            "BY",
+            "SOURCE",
+            Sequence("AND", Ref("ExpressionSegment"), optional=True),
+            Indent,
+            "THEN",
+            OneOf(
+                Ref("MergeUpdateClauseSegment"),
+                Ref("MergeDeleteClauseSegment"),
+            ),
+            Dedent,
+        ),
+    )
+
+
+@tsql_dialect.segment()
+class MergeUpdateClauseSegment(BaseSegment):
+    """`UPDATE` clause within the `MERGE` statement."""
+
+    type = "merge_update_clause"
+    match_grammar = Sequence(
+        "UPDATE",
+        Ref("SetClauseListSegment"),
+    )
+
+
+@tsql_dialect.segment()
+class MergeDeleteClauseSegment(BaseSegment):
+    """`DELETE` clause within the `MERGE` statement."""
+
+    type = "merge_delete_clause"
+    match_grammar = Sequence(
+        "DELETE",
+    )
+
+
+@tsql_dialect.segment()
+class MergeInsertClauseSegment(BaseSegment):
+    """`INSERT` clause within the `MERGE` statement."""
+
+    type = "merge_insert_clause"
+    match_grammar = Sequence(
+        "INSERT",
+        Indent,
+        Ref("BracketedColumnReferenceListGrammar", optional=True),
+        Dedent,
+        "VALUES",
+        Indent,
+        OneOf(
+            Bracketed(
+                Delimited(
+                    AnyNumberOf(
+                        Ref("ExpressionSegment"),
+                    ),
+                ),
+            ),
+            Sequence(
+                "DEFAULT",
+                "VALUES",
+            ),
+        ),
+        Dedent,
+    )
+
+
+@tsql_dialect.segment()
+class OutputClauseSegment(BaseSegment):
+    """OUTPUT Clause used within DELETE, INSERT, UPDATE, MERGE.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/queries/output-clause-transact-sql?view=sql-server-ver15
+    """
+
+    type = "output_clause"
+    match_grammar = AnyNumberOf(
+        Sequence(
+            "OUTPUT",
+            Indent,
+            Delimited(
+                AnyNumberOf(
+                    Ref("WildcardExpressionSegment"),
+                    Sequence(
+                        Ref("BaseExpressionElementGrammar"),
+                        Ref("AliasExpressionSegment", optional=True),
+                    ),
+                    Ref("SingleIdentifierGrammar"),
+                ),
+            ),
+            Dedent,
+            Sequence(
+                "INTO",
+                Indent,
+                Ref("TableReferenceSegment"),
+                Bracketed(
+                    Delimited(
+                        Ref("ColumnReferenceSegment"),
+                    ),
+                    optional=True,
+                ),
+                Dedent,
+                optional=True,
+            ),
         ),
     )

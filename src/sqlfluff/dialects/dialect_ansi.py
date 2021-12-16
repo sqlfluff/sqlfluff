@@ -85,8 +85,12 @@ ansi_dialect.set_lexer_matchers(
         RegexLexer("back_quote", r"`[^`]*`", CodeSegment),
         # See https://www.geeksforgeeks.org/postgresql-dollar-quoted-string-constants/
         RegexLexer("dollar_quote", r"\$(\w*)\$[^\1]*?\$\1\$", CodeSegment),
+        # Numeric literal matches integers, decimals, and exponential formats,
+        # with a positve lookahead assertion to check it is not part of a naked identifier.
         RegexLexer(
-            "numeric_literal", r"(\d+(\.\d+)?|\.\d+)([eE][+-]?\d+)?", CodeSegment
+            "numeric_literal",
+            r"(?>\d+(\.\d+)?|\.\d+)([eE][+-]?\d+)?(?=\b)",
+            CodeSegment,
         ),
         RegexLexer("not_equal", r"!=|<>", CodeSegment),
         RegexLexer("like_operator", r"!?~~?\*?", CodeSegment),
@@ -482,6 +486,13 @@ ansi_dialect.add(
     FrameClauseUnitGrammar=OneOf("ROWS", "RANGE"),
     # It's as a sequence to allow to parametrize that in Postgres dialect with LATERAL
     JoinKeywords=Sequence("JOIN"),
+    TableConstraintReferenceOptionGrammar=OneOf(
+        "RESTRICT",
+        "CASCADE",
+        Sequence("SET", "NULL"),
+        Sequence("NO", "ACTION"),
+        Sequence("SET", "DEFAULT"),
+    ),
 )
 
 
@@ -2145,6 +2156,7 @@ class TableConstraintSegment(BaseSegment):
     """A table constraint, e.g. for CREATE TABLE."""
 
     type = "table_constraint_segment"
+
     # Later add support for CHECK constraint, others?
     # e.g. CONSTRAINT constraint_1 PRIMARY KEY(column_1)
     match_grammar = Sequence(
@@ -2173,7 +2185,20 @@ class TableConstraintSegment(BaseSegment):
                 # Foreign columns making up FOREIGN KEY constraint
                 Ref("BracketedColumnReferenceListGrammar"),
                 # Later add support for [MATCH FULL/PARTIAL/SIMPLE] ?
-                # Later add support for [ ON DELETE/UPDATE action ] ?
+                AnyNumberOf(
+                    # ON DELETE clause, e.g. ON DELETE NO ACTION
+                    Sequence(
+                        "ON",
+                        "DELETE",
+                        Ref("TableConstraintReferenceOptionGrammar"),
+                    ),
+                    # ON UPDATE clause, e.g. ON UPDATE SET NULL
+                    Sequence(
+                        "ON",
+                        "UPDATE",
+                        Ref("TableConstraintReferenceOptionGrammar"),
+                    ),
+                ),
             ),
         ),
     )

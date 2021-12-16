@@ -60,6 +60,7 @@ exasol_dialect.insert_lexer_matchers(
     [
         RegexLexer("lua_nested_quotes", r"\[={1,3}\[.*\]={1,3}\]", CodeSegment),
         RegexLexer("lua_multiline_quotes", r"\[{2}([^[\\]|\\.)*\]{2}", CodeSegment),
+        RegexLexer("udf_param_dot_syntax", r"\.{3}", CodeSegment),
         RegexLexer("range_operator", r"\.{2}", CodeSegment),
         StringLexer("hash", "#", CodeSegment),
         StringLexer(
@@ -106,6 +107,9 @@ exasol_dialect.patch_lexer_matchers(
 exasol_dialect.add(
     LocalIdentifierSegment=StringParser(
         "LOCAL", KeywordSegment, name="local_identifier", type="identifier"
+    ),
+    UDFParameterDotSyntaxSegment=NamedParser(
+        "udf_param_dot_syntax", SymbolSegment, type="identifier"
     ),
     RangeOperator=NamedParser("range_operator", SymbolSegment, type="range_operator"),
     UnknownSegment=StringParser(
@@ -185,15 +189,14 @@ exasol_dialect.add(
             type="system_parameter",
         )
     ),
+    UDFParameterGrammar=OneOf(
+        # (A NUMBER, B VARCHAR) or (...)
+        Delimited(Ref("ColumnDatatypeSegment")),
+        Ref("UDFParameterDotSyntaxSegment"),
+    ),
     EmitsGrammar=Sequence(
         "EMITS",
-        Bracketed(
-            OneOf(
-                # EMITS (A NUMBER, B VARCHAR) or EMITS(...)
-                Delimited(Ref("ColumnDatatypeSegment")),
-                Sequence(Ref("RangeOperator"), Ref("DotSegment")),
-            )
-        ),
+        Bracketed(Ref("UDFParameterGrammar")),
     ),
     FunctionScriptTerminatorSegment=NamedParser(
         "function_script_terminator", CodeSegment, type="function_script_terminator"
@@ -3588,11 +3591,10 @@ class CreateUDFScriptStatementSegment(BaseSegment):
         Ref("ScriptReferenceSegment"),
         Bracketed(
             Sequence(
-                Delimited(Ref("ColumnDatatypeSegment")),
+                Ref("UDFParameterGrammar"),
                 Ref("OrderByClauseSegment", optional=True),
                 optional=True,
             ),
-            optional=True,
         ),
         OneOf(Sequence("RETURNS", Ref("DatatypeSegment")), Ref("EmitsGrammar")),
         "AS",
