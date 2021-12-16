@@ -137,6 +137,3 @@ MERGE Production.ProductInventory AS pi
         THEN DELETE
     OUTPUT $action, Inserted.ProductID, Inserted.LocationID,
         Inserted.Quantity AS NewQty, Deleted.Quantity AS PreviousQty;
-
-
-
