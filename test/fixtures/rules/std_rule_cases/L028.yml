@@ -146,3 +146,5 @@ test_select_alias_in_where_clause_3:
         t.col1 + 1 as alias_col1
     from table1 as t
     where alias_col1 > 5
+
+

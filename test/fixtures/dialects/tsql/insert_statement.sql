@@ -26,21 +26,21 @@ SELECT
 	CAST([RATE_14_DAY] AS FLOAT) AS [RATE_14_DAY],
 	CAST([CUMULATIVE_COUNT] AS BIGINT) AS [CUMULATIVE_COUNT],
 	[SOURCE]
-FROM
+FROM 
    STAGE.ECDC_CASES
 GO
 
 BEGIN
-  INSERT INTO HumanResources.NewEmployee
-      SELECT EmpID, LastName, FirstName, Phone,
-             Address, City, StateProvince, PostalCode, CurrentFlag
-      FROM EmployeeTemp;
+  INSERT INTO HumanResources.NewEmployee   
+      SELECT EmpID, LastName, FirstName, Phone,   
+             Address, City, StateProvince, PostalCode, CurrentFlag  
+      FROM EmployeeTemp;  
 END
 
 GO
 
-INSERT INTO HumanResources.NewEmployee
-    SELECT EmpID, LastName, FirstName, Phone,
-            Address, City, StateProvince, PostalCode, CurrentFlag
-    FROM EmployeeTemp;
+INSERT INTO HumanResources.NewEmployee   
+    SELECT EmpID, LastName, FirstName, Phone,   
+            Address, City, StateProvince, PostalCode, CurrentFlag  
+    FROM EmployeeTemp;  
 GO

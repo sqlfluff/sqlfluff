@@ -5,189 +5,189 @@
 # altering SQL files.
 _hash: 771ac5153c084dd4f023e5bc1432e906579a14b26cba38231938ac61cfd0dc8c
 file:
-- statement:
-    create_table_statement:
-    - keyword: create
-    - keyword: table
-    - table_reference:
-        identifier: a
-    - bracketed:
-      - start_bracket: (
-      - column_reference:
-          identifier: a
-      - data_type:
-          data_type_identifier: smallint
-      - comma: ','
-      - column_reference:
-          identifier: b
-      - data_type:
-          data_type_identifier: integer
-      - comma: ','
-      - column_reference:
-          identifier: ba
-      - data_type:
-          data_type_identifier: int2
-      - comma: ','
-      - column_reference:
-          identifier: bb
-      - data_type:
-          data_type_identifier: int4
-      - comma: ','
-      - column_reference:
-          identifier: bc
-      - data_type:
-          data_type_identifier: int8
-      - comma: ','
-      - column_reference:
-          identifier: c
-      - data_type:
-          data_type_identifier: bigint
-      - comma: ','
-      - column_reference:
-          identifier: d
-      - data_type:
-          data_type_identifier: real
-      - comma: ','
-      - column_reference:
-          identifier: f
-      - data_type:
-          data_type_identifier: smallserial
-      - comma: ','
-      - column_reference:
-          identifier: g
-      - data_type:
-          data_type_identifier: serial
-      - comma: ','
-      - column_reference:
-          identifier: ga
-      - data_type:
-          data_type_identifier: serial2
-      - comma: ','
-      - column_reference:
-          identifier: gb
-      - data_type:
-          data_type_identifier: serial4
-      - comma: ','
-      - column_reference:
-          identifier: gc
-      - data_type:
-          data_type_identifier: serial8
-      - comma: ','
-      - column_reference:
-          identifier: h
-      - data_type:
-          data_type_identifier: bigserial
-      - end_bracket: )
-- statement_terminator: ;
-- statement:
-    create_table_statement:
-    - keyword: create
-    - keyword: table
-    - table_reference:
-        identifier: b
-    - bracketed:
-      - start_bracket: (
-      - column_reference:
-          identifier: a
-      - data_type:
-          data_type_identifier: float
-      - comma: ','
-      - column_reference:
-          identifier: b
-      - data_type:
-          data_type_identifier: float
-          bracketed:
-            start_bracket: (
-            literal: '24'
-            end_bracket: )
-      - comma: ','
-      - column_reference:
-          identifier: c
-      - data_type:
-          data_type_identifier: float4
-      - comma: ','
-      - column_reference:
-          identifier: d
-      - data_type:
-          data_type_identifier: float4
-          bracketed:
-            start_bracket: (
-            expression:
-              literal: '12'
-            end_bracket: )
-      - comma: ','
-      - column_reference:
-          identifier: e
-      - data_type:
-          data_type_identifier: float8
-      - comma: ','
-      - column_reference:
-          identifier: f
-      - data_type:
-          data_type_identifier: float8
-          bracketed:
-            start_bracket: (
-            expression:
-              literal: '12'
-            end_bracket: )
-      - end_bracket: )
-- statement_terminator: ;
-- statement:
-    create_table_statement:
-    - keyword: create
-    - keyword: table
-    - table_reference:
-        identifier: c
-    - bracketed:
-      - start_bracket: (
-      - column_reference:
-          identifier: a
-      - data_type:
-          data_type_identifier: numeric
-      - comma: ','
-      - column_reference:
-          identifier: aa
-      - data_type:
-          data_type_identifier: decimal
-      - comma: ','
-      - column_reference:
-          identifier: b
-      - data_type:
-          data_type_identifier: numeric
-          bracketed:
-            start_bracket: (
-            literal: '7'
-            end_bracket: )
-      - comma: ','
-      - column_reference:
-          identifier: ba
-      - data_type:
-          data_type_identifier: decimal
-          bracketed:
-            start_bracket: (
-            literal: '7'
-            end_bracket: )
-      - comma: ','
-      - column_reference:
-          identifier: c
-      - data_type:
-          data_type_identifier: numeric
-          bracketed:
-          - start_bracket: (
-          - literal: '7'
-          - comma: ','
-          - literal: '2'
-          - end_bracket: )
-      - comma: ','
-      - column_reference:
-          identifier: ca
-      - data_type:
-          data_type_identifier: decimal
-          bracketed:
-          - start_bracket: (
-          - literal: '7'
-          - comma: ','
-          - literal: '2'
-          - end_bracket: )
-      - end_bracket: )
-- statement_terminator: ;
+  - statement:
+      create_table_statement:
+        - keyword: create
+        - keyword: table
+        - table_reference:
+            identifier: a
+        - bracketed:
+            - start_bracket: (
+            - column_reference:
+                identifier: a
+            - data_type:
+                data_type_identifier: smallint
+            - comma: ','
+            - column_reference:
+                identifier: b
+            - data_type:
+                data_type_identifier: integer
+            - comma: ','
+            - column_reference:
+                identifier: ba
+            - data_type:
+                data_type_identifier: int2
+            - comma: ','
+            - column_reference:
+                identifier: bb
+            - data_type:
+                data_type_identifier: int4
+            - comma: ','
+            - column_reference:
+                identifier: bc
+            - data_type:
+                data_type_identifier: int8
+            - comma: ','
+            - column_reference:
+                identifier: c
+            - data_type:
+                data_type_identifier: bigint
+            - comma: ','
+            - column_reference:
+                identifier: d
+            - data_type:
+                data_type_identifier: real
+            - comma: ','
+            - column_reference:
+                identifier: f
+            - data_type:
+                data_type_identifier: smallserial
+            - comma: ','
+            - column_reference:
+                identifier: g
+            - data_type:
+                data_type_identifier: serial
+            - comma: ','
+            - column_reference:
+                identifier: ga
+            - data_type:
+                data_type_identifier: serial2
+            - comma: ','
+            - column_reference:
+                identifier: gb
+            - data_type:
+                data_type_identifier: serial4
+            - comma: ','
+            - column_reference:
+                identifier: gc
+            - data_type:
+                data_type_identifier: serial8
+            - comma: ','
+            - column_reference:
+                identifier: h
+            - data_type:
+                data_type_identifier: bigserial
+            - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+        - keyword: create
+        - keyword: table
+        - table_reference:
+            identifier: b
+        - bracketed:
+            - start_bracket: (
+            - column_reference:
+                identifier: a
+            - data_type:
+                data_type_identifier: float
+            - comma: ','
+            - column_reference:
+                identifier: b
+            - data_type:
+                data_type_identifier: float
+                bracketed:
+                  start_bracket: (
+                  literal: '24'
+                  end_bracket: )
+            - comma: ','
+            - column_reference:
+                identifier: c
+            - data_type:
+                data_type_identifier: float4
+            - comma: ','
+            - column_reference:
+                identifier: d
+            - data_type:
+                data_type_identifier: float4
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    literal: '12'
+                  end_bracket: )
+            - comma: ','
+            - column_reference:
+                identifier: e
+            - data_type:
+                data_type_identifier: float8
+            - comma: ','
+            - column_reference:
+                identifier: f
+            - data_type:
+                data_type_identifier: float8
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    literal: '12'
+                  end_bracket: )
+            - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      create_table_statement:
+        - keyword: create
+        - keyword: table
+        - table_reference:
+            identifier: c
+        - bracketed:
+            - start_bracket: (
+            - column_reference:
+                identifier: a
+            - data_type:
+                data_type_identifier: numeric
+            - comma: ','
+            - column_reference:
+                identifier: aa
+            - data_type:
+                data_type_identifier: decimal
+            - comma: ','
+            - column_reference:
+                identifier: b
+            - data_type:
+                data_type_identifier: numeric
+                bracketed:
+                  start_bracket: (
+                  literal: '7'
+                  end_bracket: )
+            - comma: ','
+            - column_reference:
+                identifier: ba
+            - data_type:
+                data_type_identifier: decimal
+                bracketed:
+                  start_bracket: (
+                  literal: '7'
+                  end_bracket: )
+            - comma: ','
+            - column_reference:
+                identifier: c
+            - data_type:
+                data_type_identifier: numeric
+                bracketed:
+                  - start_bracket: (
+                  - literal: '7'
+                  - comma: ','
+                  - literal: '2'
+                  - end_bracket: )
+            - comma: ','
+            - column_reference:
+                identifier: ca
+            - data_type:
+                data_type_identifier: decimal
+                bracketed:
+                  - start_bracket: (
+                  - literal: '7'
+                  - comma: ','
+                  - literal: '2'
+                  - end_bracket: )
+            - end_bracket: )
+  - statement_terminator: ;

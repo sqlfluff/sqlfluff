@@ -195,7 +195,6 @@ postgres_dialect.add(
     ),
 )
 
-
 postgres_dialect.replace(
     ComparisonOperatorGrammar=OneOf(
         Ref("EqualsSegment"),

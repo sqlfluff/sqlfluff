@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 633c5aef6d23b934eb64e9c1e71c42ae1f727ff6af5d521dedda3160ef2ec2e7
+_hash: a18c86f29aa197a2f2f6820db8864e1383579ed116cd5f823438bc564273deff
 file:
 - statement:
     create_table_statement:
@@ -1209,28 +1209,34 @@ file:
       - end_bracket: )
 - statement_terminator: ;
 - statement:
-    unparsable:
-    - raw: CREATE
-    - raw: TABLE
-    - raw: main
-    - raw: .
-    - raw: test_table
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - identifier: main
+      - dot: .
+      - identifier: test_table
     - bracketed:
       - start_bracket: (
-      - raw: '"col1"'
-      - raw: character
-      - raw: varying
-      - bracketed:
-          start_bracket: (
-          expression:
-            literal: '40'
-          end_bracket: )
-      - raw: NOT
-      - raw: 'NULL'
+      - column_reference:
+          identifier: '"col1"'
+      - data_type:
+        - keyword: character
+        - keyword: varying
+        - bracketed:
+            start_bracket: (
+            expression:
+              literal: '40'
+            end_bracket: )
+      - column_constraint_segment:
+        - keyword: NOT
+        - keyword: 'NULL'
       - comma: ','
-      - raw: '"col2"'
-      - raw: double
-      - raw: precision
+      - column_reference:
+          identifier: '"col2"'
+      - data_type:
+        - keyword: double
+        - keyword: precision
       - end_bracket: )
 - statement_terminator: ;
 - statement:

@@ -18,11 +18,11 @@ jobs:
       - name: Install Dependencies
         run: |
           pip install --upgrade pip tox
-
+      
       - name: Build Distribution (dbt plugin)
         # tox commands run relative to the repo root.
         run: tox -e build-dist -- plugins/sqlfluff-templater-dbt
-
+      
       - name: Copy builds to main dist folder
         # We move them here so that the github action can still access them
         run: cp -r plugins/sqlfluff-templater-dbt/dist/. dist/

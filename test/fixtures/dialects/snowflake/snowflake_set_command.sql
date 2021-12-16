@@ -11,3 +11,4 @@ set (min, max) = (40, 70);
 set (min, max) = (50, 2 * $min);
 
 SET THIS_ROLE=CURRENT_ROLE();
+

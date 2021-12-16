@@ -114,3 +114,4 @@ test_fail_keyword_as_quoted_identifier_column_alias_config:
         quoted_identifiers_policy: column_aliases
     core:
       dialect: tsql
+
