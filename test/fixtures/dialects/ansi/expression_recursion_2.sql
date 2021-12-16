@@ -5,4 +5,3 @@
  -- parsing.
 
  SELECT * FROM t WHERE a < b AND a < b AND a < b AND a < b AND a < b AND a < b AND a < b AND a < b AND a < b AND a < b AND a < b AND a < b AND a < b AND a < b AND a < b AND a < b AND a < b AND a < b AND a < b AND a < b AND a < b AND a < b AND a < b AND a < b AND a < b AND a < b AND a < b AND a < b AND a < b AND a < b AND a < b AND a < b AND a < b AND a < b
-

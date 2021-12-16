@@ -7,4 +7,3 @@ select
   from {{my_table}}
  where indentation  = "wrong" AND    NotSpacedProperly
  AND 4+6 > 9
-
