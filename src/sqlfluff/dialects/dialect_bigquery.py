@@ -585,7 +585,18 @@ class TypelessStructSegment(BaseSegment):
     type = "typeless_struct"
     match_grammar = Sequence(
         "STRUCT",
-        Ref("TupleSegment"),
+        Bracketed(
+            Delimited(
+                AnyNumberOf(
+                    Sequence(
+                        Ref("BaseExpressionElementGrammar"),
+                        Ref("AliasExpressionSegment", optional=True),
+                    ),
+                ),
+                delimiter=Ref("CommaSegment"),
+            ),
+            optional=True,
+        ),
     )
 
 
@@ -599,12 +610,7 @@ class TupleSegment(BaseSegment):
     type = "tuple"
     match_grammar = Bracketed(
         Delimited(
-            AnyNumberOf(
-                Sequence(
-                    Ref("BaseExpressionElementGrammar"),
-                    Ref("AliasExpressionSegment", optional=True),
-                ),
-            ),
+            AnyNumberOf(Ref("BaseExpressionElementGrammar")),
             delimiter=Ref("CommaSegment"),
         ),
         optional=True,

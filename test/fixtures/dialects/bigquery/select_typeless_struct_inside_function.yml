@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7d82bb1f46d6d3a34bf5cf7146bb87fb095df26c730b6e1375685cac73ae4c29
+_hash: b0a15006dcb0e8923a1437a02e82b14d9eb3753c6c9be8d835a2c00652a14e22
 file:
 - statement:
     select_statement:
@@ -12,23 +12,21 @@ file:
         select_clause_element:
           typeless_struct:
             keyword: STRUCT
-            tuple:
-              bracketed:
-                start_bracket: (
-                typeless_struct:
-                  keyword: STRUCT
-                  tuple:
-                    bracketed:
-                      start_bracket: (
-                      literal: '1'
-                      alias_expression:
-                        keyword: AS
-                        identifier: b
-                      end_bracket: )
-                alias_expression:
-                  keyword: AS
-                  identifier: a
-                end_bracket: )
+            bracketed:
+              start_bracket: (
+              typeless_struct:
+                keyword: STRUCT
+                bracketed:
+                  start_bracket: (
+                  literal: '1'
+                  alias_expression:
+                    keyword: AS
+                    identifier: b
+                  end_bracket: )
+              alias_expression:
+                keyword: AS
+                identifier: a
+              end_bracket: )
           alias_expression:
             keyword: AS
             identifier: foo
@@ -45,21 +43,20 @@ file:
               start_bracket: (
               typeless_struct:
                 keyword: STRUCT
-                tuple:
-                  bracketed:
-                  - start_bracket: (
-                  - column_reference:
-                      identifier: a
-                  - alias_expression:
-                      keyword: AS
-                      identifier: a
-                  - comma: ','
-                  - column_reference:
-                      identifier: b
-                  - alias_expression:
-                      keyword: AS
-                      identifier: b
-                  - end_bracket: )
+                bracketed:
+                - start_bracket: (
+                - column_reference:
+                    identifier: a
+                - alias_expression:
+                    keyword: AS
+                    identifier: a
+                - comma: ','
+                - column_reference:
+                    identifier: b
+                - alias_expression:
+                    keyword: AS
+                    identifier: b
+                - end_bracket: )
               end_bracket: )
       from_clause:
         keyword: FROM
