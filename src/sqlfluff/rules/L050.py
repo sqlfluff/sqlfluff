@@ -2,7 +2,6 @@
 from typing import Optional
 
 from sqlfluff.core.rules.base import BaseRule, LintResult, RuleContext
-from sqlfluff.core.rules.surrogates import Segments
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
 
@@ -72,9 +71,8 @@ class Rule_L050(BaseRule):
         if len(context.raw_stack) == 0:
             return None
 
-        assert context.templated_file
-        segment = Segments(context.templated_file, context.segment)
-        raw_stack = Segments(context.templated_file, *context.raw_stack)
+        segment = context.surrogates.segment
+        raw_stack = context.surrogates.raw_stack
         whitespace_types = {"newline", "whitespace", "indent", "dedent"}
         # Non-whitespace segment.
         if (

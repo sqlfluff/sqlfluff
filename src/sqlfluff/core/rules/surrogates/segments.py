@@ -16,7 +16,7 @@ class Segments:
     Provides useful operations on a sequence of segments to simplify rule creation.
     """
 
-    def __init__(self, templated_file: TemplatedFile, *segments: BaseSegment):
+    def __init__(self, templated_file: Optional[TemplatedFile], *segments: BaseSegment):
         self.templated_file = templated_file
         self.segments = segments
 
@@ -33,6 +33,10 @@ class Segments:
     @property
     def raw_slices(self) -> RawFileSlices:
         """Raw slices of the segments."""
+        if not self.templated_file:
+            raise ValueError(
+                'Segments.raw_slices: "templated_file" property is required.'
+            )
         raw_slices = set()
         for s in self.segments:
             source_slice = s.pos_marker.source_slice
@@ -59,7 +63,7 @@ class Segments:
         """Retrieve range/subset."""
         raise NotImplementedError
 
-    def delete(self, *predicates: Predicate) -> Sequence[LintFix]:
+    def delete(self, *predicates: Predicate) -> Sequence["LintFix"]:
         """Return LintFix objects to delete segments that satisfy predicates."""
         cp = _CompositePredicate(*predicates)
         return [LintFix("delete", s) for s in self.segments if cp(s)]

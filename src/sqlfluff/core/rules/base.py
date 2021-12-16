@@ -20,15 +20,22 @@ import fnmatch
 import logging
 import pathlib
 import regex
-from typing import Optional, List, Set, Tuple, Union, Any
+from typing import Optional, List, Set, Tuple, TYPE_CHECKING, Union, Any
 from collections import namedtuple
 from dataclasses import dataclass
+
+from cached_property import cached_property
 
 from sqlfluff.core.linter import LintedFile
 from sqlfluff.core.parser import BaseSegment, RawSegment
 from sqlfluff.core.dialects import Dialect
 from sqlfluff.core.errors import SQLLintError
 from sqlfluff.core.templaters.base import RawFileSlice, TemplatedFile
+
+# TRICKY: At runtime, we do this import inside a function to avoid circular
+# dependencies. But mypy needs it at module scope, hence the "if" check.
+if TYPE_CHECKING:
+    from sqlfluff.core.rules.surrogates import Segments
 
 # The ghost of a rule (mostly used for testing)
 RuleGhost = namedtuple("RuleGhost", ["code", "description"])
@@ -220,6 +227,34 @@ class RuleContext:
     dialect: Dialect
     path: Optional[pathlib.Path]
     templated_file: Optional[TemplatedFile]
+
+    @cached_property
+    def surrogates(self):
+        """Returns a Surrogates object that simplifies writing rules."""
+        return Surrogates(self)
+
+
+class Surrogates:
+    """Provides access to surrogate objects that simplify writing rules."""
+
+    def __init__(self, context: RuleContext):
+        self.context = context
+
+    @cached_property
+    def segment(self) -> "Segments":
+        """Returns a Segments object for context.segment."""
+        # Import here to avoid circular dependency.
+        from sqlfluff.core.rules.surrogates import Segments
+
+        return Segments(self.context.templated_file, self.context.segment)
+
+    @cached_property
+    def raw_stack(self) -> "Segments":
+        """Returns a Segments object for context.raw_stack."""
+        # Import here to avoid circular dependency.
+        from sqlfluff.core.rules.surrogates import Segments
+
+        return Segments(self.context.templated_file, *self.context.raw_stack)
 
 
 class BaseRule:
