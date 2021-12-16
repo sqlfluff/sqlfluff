@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e1fbdc3a4de8733a8a2c7fdb1d06dbc7b089a70b9ee84d0c6916237191004a31
+_hash: 5ae2fb6a2f36564e047503b99940dfec48aad60e62b71f6db4385e7a43259319
 file:
 - statement:
     declare_segment:
@@ -15,16 +15,16 @@ file:
 - statement:
     declare_segment:
     - keyword: declare
-    - identifier: var2
+    - identifier: var1
     - comma: ','
-    - identifier: var3
+    - identifier: var2
     - data_type:
         data_type_identifier: string
 - statement_terminator: ;
 - statement:
     declare_segment:
       keyword: declare
-      identifier: var1
+      identifier: arr1
       data_type:
         keyword: array
         start_angle_bracket: <
@@ -36,6 +36,27 @@ file:
     declare_segment:
     - keyword: declare
     - identifier: var1
+    - keyword: default
+    - literal: "'value'"
+- statement_terminator: ;
+- statement:
+    declare_segment:
+    - keyword: declare
+    - identifier: var1
+    - keyword: default
+    - array_literal:
+      - start_square_bracket: '['
+      - expression:
+          literal: "'one'"
+      - comma: ','
+      - expression:
+          literal: "'two'"
+      - end_square_bracket: ']'
+- statement_terminator: ;
+- statement:
+    declare_segment:
+    - keyword: declare
+    - identifier: arr1
     - data_type:
         keyword: array
         start_angle_bracket: <
@@ -55,7 +76,7 @@ file:
 - statement:
     declare_segment:
     - keyword: declare
-    - identifier: var1
+    - identifier: str1
     - data_type:
       - keyword: struct
       - start_angle_bracket: <
@@ -79,7 +100,7 @@ file:
 - statement:
     declare_segment:
     - keyword: declare
-    - identifier: var1
+    - identifier: str1
     - data_type:
       - keyword: struct
       - start_angle_bracket: <
