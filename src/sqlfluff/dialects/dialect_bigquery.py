@@ -608,12 +608,7 @@ class TupleSegment(BaseSegment):
     """
 
     type = "tuple"
-    match_grammar = Bracketed(
-        Delimited(
-            Ref("BaseExpressionElementGrammar"),
-            delimiter=Ref("CommaSegment"),
-        ),
-    )
+    match_grammar = Bracketed(Delimited(Ref("BaseExpressionElementGrammar")))
 
 
 @bigquery_dialect.segment()
