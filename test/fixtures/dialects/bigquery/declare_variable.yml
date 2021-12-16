@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ca614f24e260f342ea76ea774ff666daa37951a9f6054d1bd3b6a5b15832d952
+_hash: 20ea3ed015513907c7b58b9f037cae3464decb55739f78fe5570bf4f4cbff70d
 file:
 - statement:
     declare_segment:
@@ -32,20 +32,6 @@ file:
     declare_segment:
     - keyword: declare
     - identifier: var5
-    - keyword: default
-    - array_literal:
-      - start_square_bracket: '['
-      - expression:
-          literal: "'one'"
-      - comma: ','
-      - expression:
-          literal: "'two'"
-      - end_square_bracket: ']'
-- statement_terminator: ;
-- statement:
-    declare_segment:
-    - keyword: declare
-    - identifier: var6
     - data_type:
         data_type_identifier: int64
     - keyword: default
@@ -69,6 +55,29 @@ file:
     declare_segment:
     - keyword: declare
     - identifier: arr2
+    - keyword: default
+    - array_literal:
+      - start_square_bracket: '['
+      - expression:
+          literal: "'one'"
+      - comma: ','
+      - expression:
+          literal: "'two'"
+      - end_square_bracket: ']'
+- statement_terminator: ;
+- statement:
+    declare_segment:
+    - keyword: declare
+    - identifier: arr3
+    - keyword: default
+    - array_literal:
+        start_square_bracket: '['
+        end_square_bracket: ']'
+- statement_terminator: ;
+- statement:
+    declare_segment:
+    - keyword: declare
+    - identifier: arr4
     - data_type:
         keyword: array
         start_angle_bracket: <
@@ -117,7 +126,8 @@ file:
           data_type_identifier: string
       - end_angle_bracket: '>'
     - keyword: default
-    - tuple:
+    - typeless_struct:
+        keyword: struct
         bracketed:
         - start_bracket: (
         - literal: "'one'"
@@ -129,6 +139,20 @@ file:
     declare_segment:
     - keyword: declare
     - identifier: str3
+    - keyword: default
+    - typeless_struct:
+        keyword: struct
+        bracketed:
+        - start_bracket: (
+        - literal: "'one'"
+        - comma: ','
+        - literal: "'two'"
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    declare_segment:
+    - keyword: declare
+    - identifier: str4
     - data_type:
       - keyword: struct
       - start_angle_bracket: <
@@ -141,8 +165,7 @@ file:
           data_type_identifier: string
       - end_angle_bracket: '>'
     - keyword: default
-    - typeless_struct:
-        keyword: struct
+    - tuple:
         bracketed:
         - start_bracket: (
         - literal: "'one'"

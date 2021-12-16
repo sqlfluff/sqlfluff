@@ -587,15 +587,11 @@ class TypelessStructSegment(BaseSegment):
         "STRUCT",
         Bracketed(
             Delimited(
-                AnyNumberOf(
-                    Sequence(
-                        Ref("BaseExpressionElementGrammar"),
-                        Ref("AliasExpressionSegment", optional=True),
-                    ),
+                Sequence(
+                    Ref("BaseExpressionElementGrammar"),
+                    Ref("AliasExpressionSegment", optional=True),
                 ),
-                delimiter=Ref("CommaSegment"),
             ),
-            optional=True,
         ),
     )
 
