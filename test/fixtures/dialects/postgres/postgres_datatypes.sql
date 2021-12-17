@@ -45,4 +45,8 @@ create table e(
     f varchar(9),
     g varchar,
     h text
-)
+);
+
+create table f(
+    a bytea
+);
