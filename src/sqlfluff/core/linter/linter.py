@@ -119,7 +119,7 @@ class Linter:
     @staticmethod
     def _normalise_newlines(string: str) -> str:
         """Normalise newlines to unix-style line endings."""
-        return regex.sub(r"\n|\r\n|\r", "\n", string)
+        return regex.sub(r"\r\n|\r", "\n", string)
 
     @staticmethod
     def _lex_templated_file(
