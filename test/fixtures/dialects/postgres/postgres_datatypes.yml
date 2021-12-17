@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9e00599597c9a19229ad9267519d0834818f08e973f3db4be82d03930df676ac
+_hash: bf914425d3dbe80897d383594c928228d2117e0ed3e9d8389bbe6f110cff11c4
 file:
 - statement:
     create_table_statement:
@@ -276,4 +276,133 @@ file:
         data_type:
           keyword: bytea
         end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        identifier: g
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          identifier: a
+      - data_type:
+          datetime_type_identifier:
+            keyword: date
+      - comma: ','
+      - column_reference:
+          identifier: b
+      - data_type:
+          datetime_type_identifier:
+            keyword: interval
+            bracketed:
+              start_bracket: (
+              literal: '4'
+              end_bracket: )
+      - comma: ','
+      - column_reference:
+          identifier: c
+      - data_type:
+          datetime_type_identifier:
+            keyword: time
+            bracketed:
+              start_bracket: (
+              literal: '4'
+              end_bracket: )
+      - comma: ','
+      - column_reference:
+          identifier: d
+      - data_type:
+          datetime_type_identifier:
+          - keyword: time
+          - bracketed:
+              start_bracket: (
+              literal: '4'
+              end_bracket: )
+          - keyword: with
+          - keyword: time
+          - keyword: zone
+      - comma: ','
+      - column_reference:
+          identifier: e
+      - data_type:
+          datetime_type_identifier:
+          - keyword: time
+          - bracketed:
+              start_bracket: (
+              literal: '4'
+              end_bracket: )
+          - keyword: without
+          - keyword: time
+          - keyword: zone
+      - comma: ','
+      - column_reference:
+          identifier: f
+      - data_type:
+          datetime_type_identifier:
+            keyword: timestamp
+            bracketed:
+              start_bracket: (
+              literal: '4'
+              end_bracket: )
+      - comma: ','
+      - column_reference:
+          identifier: g
+      - data_type:
+          datetime_type_identifier:
+          - keyword: timestamp
+          - bracketed:
+              start_bracket: (
+              literal: '4'
+              end_bracket: )
+          - keyword: with
+          - keyword: time
+          - keyword: zone
+      - comma: ','
+      - column_reference:
+          identifier: h
+      - data_type:
+          datetime_type_identifier:
+          - keyword: timestamp
+          - bracketed:
+              start_bracket: (
+              literal: '4'
+              end_bracket: )
+          - keyword: without
+          - keyword: time
+          - keyword: zone
+      - comma: ','
+      - column_reference:
+          identifier: i
+      - data_type:
+          datetime_type_identifier:
+            keyword: timetz
+      - comma: ','
+      - column_reference:
+          identifier: j
+      - data_type:
+          datetime_type_identifier:
+            keyword: timetz
+            bracketed:
+              start_bracket: (
+              literal: '4'
+              end_bracket: )
+      - comma: ','
+      - column_reference:
+          identifier: k
+      - data_type:
+          datetime_type_identifier:
+            keyword: timestamptz
+      - comma: ','
+      - column_reference:
+          identifier: l
+      - data_type:
+          datetime_type_identifier:
+            keyword: timestamptz
+            bracketed:
+              start_bracket: (
+              literal: '4'
+              end_bracket: )
+      - end_bracket: )
 - statement_terminator: ;
