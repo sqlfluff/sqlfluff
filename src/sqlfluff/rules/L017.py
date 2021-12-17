@@ -39,18 +39,17 @@ class Rule_L017(BaseRule):
         if segment.all("function"):
             children = segment.children()
 
-            function_name = children.select(["function_name"])
-            start_bracket = children.select(["bracketed"])
+            function_name = children.first("function_name")
+            start_bracket = children.first("bracketed")
             if (
                 function_name
                 and start_bracket
-                and children.index(start_bracket[0])
-                != children.index(function_name[0]) + 1
+                and children.index(start_bracket) != children.index(function_name) + 1
             ):
                 # It's only safe to fix if there is only whitespace
                 # or newlines in the intervening section.
                 intermediate_segments = children.select(
-                    start_seg=function_name[0], stop_seg=start_bracket[0]
+                    start_seg=function_name, stop_seg=start_bracket
                 )
                 if intermediate_segments.all("whitespace", "newline"):
                     return LintResult(
