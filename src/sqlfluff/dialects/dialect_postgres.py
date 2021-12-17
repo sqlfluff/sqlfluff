@@ -369,8 +369,10 @@ class DateTimeTypeIdentifier(BaseSegment):
             Bracketed(Ref("NumericLiteralSegment"), optional=True),
             Sequence(OneOf("WITH", "WITHOUT"), "TIME", "ZONE", optional=True),
         ),
-        Sequence("TIMESTAMPTZ", Bracketed(Ref("NumericLiteralSegment"), optional=True)),
-        "INTERVAL",
+        Sequence(
+            OneOf("INTERVAL", "TIMETZ", "TIMESTAMPTZ"),
+            Bracketed(Ref("NumericLiteralSegment"), optional=True),
+        ),
     )
 
 

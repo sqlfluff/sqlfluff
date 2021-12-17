@@ -50,3 +50,18 @@ create table e(
 create table f(
     a bytea
 );
+
+create table g(
+    a date,
+    b interval(4),
+    c time(4),
+    d time(4) with time zone,
+    e time(4) without time zone,
+    f timestamp(4),
+    g timestamp(4) with time zone,
+    h timestamp(4) without time zone,
+    i timetz,
+    j timetz(4),
+    k timestamptz,
+    l timestamptz(4)
+);
