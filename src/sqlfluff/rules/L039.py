@@ -79,19 +79,21 @@ class Rule_L039(BaseRule):
                 or seg.is_type("sequence_reference")
                 or seg.is_type("trigger_reference")
             ):
-                for reference_space in seg.get_children(
-                    "whitespace"
-                ) + seg.get_children("newline"):
-                    violations.append(
-                        LintResult(
-                            anchor=reference_space,
-                            fixes=[
-                                LintFix(
-                                    "delete",
-                                    reference_space,
-                                )
-                            ],
+                # This FOR is a workaround to avoid removing new indents added at the beginning of a segment by L003.
+                # See Github issue #1304: https://github.com/sqlfluff/sqlfluff/issues/1304
+                for child_seg in seg.get_raw_segments()[1:]:
+                    if child_seg.is_type("whitespace") or child_seg.is_type("newline"):
+                        self.logger.debug(f"Type B Violation within {seg.raw}")
+                        violations.append(
+                            LintResult(
+                                anchor=child_seg,
+                                fixes=[
+                                    LintFix(
+                                        "delete",
+                                        child_seg,
+                                    )
+                                ],
+                            )
                         )
-                    )
 
         return violations or None
