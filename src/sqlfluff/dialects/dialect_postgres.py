@@ -430,6 +430,8 @@ class DatatypeSegment(BaseSegment):
                         optional=True,
                     ),
                 ),
+                # monetary type
+                "MONEY",
                 Sequence(
                     OneOf("CHARACTER", "BINARY"),
                     OneOf("VARYING", Sequence("LARGE", "OBJECT")),

@@ -32,3 +32,7 @@ create table c(
     c numeric(7,2),
     ca decimal(7,2)
 );
+
+create table d(
+    a money
+)

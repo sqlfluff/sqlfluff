@@ -475,6 +475,7 @@ postgres_docs_keywords = [
     ("MODE", "non-reserved"),
     ("MODIFIES", "not-keyword"),
     ("MODULE", "not-keyword"),
+    ("MONEY", "non-reserved-(cannot-be-function-or-type)"),
     ("MONTH", "non-reserved"),
     ("MORE", "not-keyword"),
     ("MOVE", "non-reserved"),
