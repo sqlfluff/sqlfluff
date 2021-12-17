@@ -164,3 +164,4 @@ test_pass_with_inner_join:
         col1,
         col2
     FROM cte;
+
