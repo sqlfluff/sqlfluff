@@ -30,7 +30,7 @@ class Rule_L039(BaseRule):
         FROM foo
     """
 
-    def _eval(self, context: RuleContext):  # -> Optional[List[LintResult]]:
+    def _eval(self, context: RuleContext) -> Optional[List[LintResult]]:
         """Unnecessary whitespace."""
         # For the given segment, lint whitespace directly within it.
         prev_newline = True
