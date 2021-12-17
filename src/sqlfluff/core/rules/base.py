@@ -68,6 +68,7 @@ class LintResult:
             identified as part of this result. This will override the
             description of the rule as what gets reported to the user
             with the problem if provided.
+
     """
 
     def __init__(self, anchor=None, fixes=None, memory=None, description=None):
@@ -112,6 +113,7 @@ class LintFix:
         edit (:obj:`BaseSegment`, optional): For `edit` and `create` fixes, this
             hold the segment, or iterable of segments to create or replace at the
             given `anchor` point.
+
     """
 
     def __init__(self, edit_type, anchor: BaseSegment, edit=None):
@@ -157,6 +159,7 @@ class LintFix:
         Trivial edits are:
         - Anything of zero length.
         - Any edits which result in themselves.
+
         Removing these makes the routines which process fixes much faster.
         """
         if self.edit_type in ("create_before", "create_after"):
@@ -193,6 +196,7 @@ class LintFix:
 
         A fix is equal to another if is in the same place (position), with the
         same type and (if appropriate) the same edit values.
+
         """
         if not self.edit_type == other.edit_type:
             return False
