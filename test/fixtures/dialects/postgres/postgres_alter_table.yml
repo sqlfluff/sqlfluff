@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4b4d674351c381ca18130cf851463e859022bf7d854f8fe92c1a343857014cd1
+_hash: ed061b6024c0c96485ae4de357a8fe6e843d1ae298a897f390c4afeb0c6f9972
 file:
 - statement:
     alter_table_statement:
@@ -17,11 +17,10 @@ file:
       - column_reference:
           identifier: address
       - data_type:
-          data_type_identifier: varchar
+          keyword: varchar
           bracketed:
             start_bracket: (
-            expression:
-              literal: '30'
+            literal: '30'
             end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -62,11 +61,10 @@ file:
       - column_reference:
           identifier: status
       - data_type:
-          data_type_identifier: varchar
+          keyword: varchar
           bracketed:
             start_bracket: (
-            expression:
-              literal: '30'
+            literal: '30'
             end_bracket: )
       - column_constraint_segment:
           keyword: DEFAULT
@@ -107,11 +105,10 @@ file:
           identifier: address
       - keyword: TYPE
       - data_type:
-          data_type_identifier: varchar
+          keyword: varchar
           bracketed:
             start_bracket: (
-            expression:
-              literal: '80'
+            literal: '80'
             end_bracket: )
     - comma: ','
     - alter_table_action_segment:
@@ -121,11 +118,10 @@ file:
           identifier: name
       - keyword: TYPE
       - data_type:
-          data_type_identifier: varchar
+          keyword: varchar
           bracketed:
             start_bracket: (
-            expression:
-              literal: '100'
+            literal: '100'
             end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -1036,7 +1032,7 @@ file:
       - column_reference:
           identifier: foo
       - data_type:
-          data_type_identifier: TEXT
+          keyword: TEXT
 - statement_terminator: ;
 - statement:
     alter_table_statement:

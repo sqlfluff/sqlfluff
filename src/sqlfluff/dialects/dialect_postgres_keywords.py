@@ -109,6 +109,7 @@ postgres_docs_keywords = [
     ("BOTH", "reserved"),
     ("BREADTH", "not-keyword"),
     ("BY", "non-reserved"),
+    ("BYTEA", "non-reserved-(cannot-be-function-or-type)"),
     ("C", "not-keyword"),
     ("CACHE", "non-reserved"),
     ("CALL", "non-reserved"),

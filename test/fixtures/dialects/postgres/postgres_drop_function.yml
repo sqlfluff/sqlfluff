@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: abe8a0132db4afffb8fcec8cd293daca6bef9d0195e98ee50afcea483611033f
+_hash: b43b58e3cc8010a31884e461bc505592c46994abf42a3d3057833a6c802a2fd8
 file:
 - statement:
     drop_function_statement:
@@ -77,6 +77,6 @@ file:
         - keyword: VARIADIC
         - parameter: my_var_2
         - data_type:
-            data_type_identifier: text
+            keyword: text
         - end_bracket: )
 - statement_terminator: ;

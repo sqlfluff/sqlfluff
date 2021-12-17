@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c444b64cf25735bfb6d3782185001cfc74794b174088f34547a01dd09275e089
+_hash: 7e60f2aa16238fdbe5769ca0743d1152e2b28fa25d12d62217f234f3c73b005c
 file:
 - statement:
     create_function_statement:
@@ -251,7 +251,7 @@ file:
         - keyword: out
         - parameter: f2
         - data_type:
-            data_type_identifier: text
+            keyword: text
         - end_bracket: )
     - base:
       - keyword: AS
@@ -362,7 +362,7 @@ file:
       - comma: ','
       - parameter: f2
       - data_type:
-          data_type_identifier: text
+          keyword: text
       - end_bracket: )
     - base:
       - keyword: AS
@@ -403,11 +403,11 @@ file:
         - start_bracket: (
         - parameter: uname
         - data_type:
-            data_type_identifier: TEXT
+            keyword: TEXT
         - comma: ','
         - parameter: pass
         - data_type:
-            data_type_identifier: TEXT
+            keyword: TEXT
         - end_bracket: )
     - keyword: RETURNS
     - data_type:
@@ -443,11 +443,11 @@ file:
         - start_bracket: (
         - parameter: uname
         - data_type:
-            data_type_identifier: TEXT
+            keyword: TEXT
         - comma: ','
         - parameter: pass
         - data_type:
-            data_type_identifier: TEXT
+            keyword: TEXT
         - end_bracket: )
     - keyword: RETURNS
     - data_type:
@@ -475,11 +475,11 @@ file:
         - start_bracket: (
         - parameter: uname
         - data_type:
-            data_type_identifier: TEXT
+            keyword: TEXT
         - comma: ','
         - parameter: pass
         - data_type:
-            data_type_identifier: TEXT
+            keyword: TEXT
         - end_bracket: )
     - keyword: FROM
     - object_reference:
@@ -498,11 +498,11 @@ file:
         - start_bracket: (
         - parameter: uname
         - data_type:
-            data_type_identifier: TEXT
+            keyword: TEXT
         - comma: ','
         - parameter: pass
         - data_type:
-            data_type_identifier: TEXT
+            keyword: TEXT
         - end_bracket: )
     - keyword: TO
     - object_reference:
@@ -529,7 +529,7 @@ file:
     - keyword: RETURNS
     - keyword: SETOF
     - data_type:
-        data_type_identifier: text
+        keyword: text
     - base:
       - keyword: LANGUAGE
       - parameter: sql
@@ -553,7 +553,7 @@ file:
         - start_bracket: (
         - parameter: _a
         - data_type:
-            data_type_identifier: TEXT
+            keyword: TEXT
         - comma: ','
         - parameter: _$b
         - data_type:

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ab39c56816404dbc33c847781f0b9ea2027af5893a002fc8f51f9b77baf57fe9
+_hash: 7a89af6313c337647bd7ee463b6596ea3bbd84bf8496134dab5c68b235682252
 file:
 - statement:
     create_table_statement:
@@ -46,11 +46,10 @@ file:
       - column_reference:
           identifier: name
       - data_type:
-          data_type_identifier: varchar
+          keyword: varchar
           bracketed:
             start_bracket: (
-            expression:
-              literal: '40'
+            literal: '40'
             end_bracket: )
       - column_constraint_segment:
         - keyword: NOT
@@ -93,11 +92,10 @@ file:
       - column_reference:
           identifier: name
       - data_type:
-          data_type_identifier: varchar
+          keyword: varchar
           bracketed:
             start_bracket: (
-            expression:
-              literal: '40'
+            literal: '40'
             end_bracket: )
       - end_bracket: )
 - statement_terminator: ;
@@ -117,11 +115,10 @@ file:
       - column_reference:
           identifier: name
       - data_type:
-          data_type_identifier: varchar
+          keyword: varchar
           bracketed:
             start_bracket: (
-            expression:
-              literal: '40'
+            literal: '40'
             end_bracket: )
       - comma: ','
       - table_constraint_segment:
@@ -160,11 +157,10 @@ file:
       - column_reference:
           identifier: name
       - data_type:
-          data_type_identifier: varchar
+          keyword: varchar
           bracketed:
             start_bracket: (
-            expression:
-              literal: '40'
+            literal: '40'
             end_bracket: )
       - comma: ','
       - table_constraint_segment:
@@ -196,11 +192,10 @@ file:
       - column_reference:
           identifier: name
       - data_type:
-          data_type_identifier: varchar
+          keyword: varchar
           bracketed:
             start_bracket: (
-            expression:
-              literal: '40'
+            literal: '40'
             end_bracket: )
       - end_bracket: )
 - statement_terminator: ;
@@ -215,11 +210,10 @@ file:
       - column_reference:
           identifier: name
       - data_type:
-          data_type_identifier: varchar
+          keyword: varchar
           bracketed:
             start_bracket: (
-            expression:
-              literal: '40'
+            literal: '40'
             end_bracket: )
       - column_constraint_segment:
           keyword: DEFAULT
@@ -272,11 +266,10 @@ file:
       - column_reference:
           identifier: name
       - data_type:
-          data_type_identifier: varchar
+          keyword: varchar
           bracketed:
             start_bracket: (
-            expression:
-              literal: '40'
+            literal: '40'
             end_bracket: )
       - column_constraint_segment:
         - keyword: NOT
@@ -299,11 +292,10 @@ file:
       - column_reference:
           identifier: name
       - data_type:
-          data_type_identifier: varchar
+          keyword: varchar
           bracketed:
             start_bracket: (
-            expression:
-              literal: '40'
+            literal: '40'
             end_bracket: )
       - column_constraint_segment:
           keyword: UNIQUE
@@ -325,11 +317,10 @@ file:
       - column_reference:
           identifier: name
       - data_type:
-          data_type_identifier: varchar
+          keyword: varchar
           bracketed:
             start_bracket: (
-            expression:
-              literal: '40'
+            literal: '40'
             end_bracket: )
       - comma: ','
       - table_constraint_segment:
@@ -357,11 +348,10 @@ file:
       - column_reference:
           identifier: name
       - data_type:
-          data_type_identifier: varchar
+          keyword: varchar
           bracketed:
             start_bracket: (
-            expression:
-              literal: '40'
+            literal: '40'
             end_bracket: )
       - comma: ','
       - table_constraint_segment:
@@ -404,12 +394,12 @@ file:
       - column_reference:
           identifier: name
       - data_type:
-          data_type_identifier: text
+          keyword: text
       - comma: ','
       - column_reference:
           identifier: location
       - data_type:
-          data_type_identifier: text
+          keyword: text
       - end_bracket: )
     - keyword: TABLESPACE
     - table_reference:
@@ -571,7 +561,7 @@ file:
       - column_reference:
           identifier: name
       - data_type:
-          data_type_identifier: text
+          keyword: text
       - column_constraint_segment:
         - keyword: not
         - keyword: 'null'
@@ -634,7 +624,7 @@ file:
       - column_reference:
           identifier: status
       - data_type:
-          data_type_identifier: text
+          keyword: text
       - end_bracket: )
     - keyword: PARTITION
     - keyword: BY
@@ -1048,12 +1038,12 @@ file:
       - column_reference:
           identifier: user_email
       - data_type:
-          data_type_identifier: VARCHAR
+          keyword: VARCHAR
       - comma: ','
       - column_reference:
           identifier: phone_number
       - data_type:
-          data_type_identifier: VARCHAR
+          keyword: VARCHAR
       - comma: ','
       - column_reference:
           identifier: processing_date
@@ -1148,7 +1138,7 @@ file:
       - column_reference:
           identifier: name
       - data_type:
-          data_type_identifier: text
+          keyword: text
       - column_constraint_segment:
         - keyword: NOT
         - keyword: 'NULL'
@@ -1156,7 +1146,7 @@ file:
       - column_reference:
           identifier: group_name
       - data_type:
-          data_type_identifier: text
+          keyword: text
       - column_constraint_segment:
           keyword: 'NULL'
       - comma: ','
@@ -1225,8 +1215,7 @@ file:
         - keyword: varying
         - bracketed:
             start_bracket: (
-            expression:
-              literal: '40'
+            literal: '40'
             end_bracket: )
       - column_constraint_segment:
         - keyword: NOT

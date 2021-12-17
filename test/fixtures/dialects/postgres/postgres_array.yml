@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8bfe4defa7aa9296d2a56563c94a1e75c4024f2e4155fd5689dc6261c28ef0d4
+_hash: ec5570420ed294eb3bd86db8efdaf55eaada43056f5ce00f5883cf02e16ed64a
 file:
 - statement:
     select_statement:
@@ -65,7 +65,7 @@ file:
       - column_reference:
           identifier: name
       - data_type:
-          data_type_identifier: text
+          keyword: text
       - comma: ','
       - column_reference:
           identifier: pay_by_quarter

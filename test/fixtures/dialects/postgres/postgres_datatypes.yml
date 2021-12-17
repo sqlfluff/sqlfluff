@@ -1,0 +1,264 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 31df6a7cfaec155c81d8c9e16e9d2ffa9c24b6d5023b0256ae6d108642d8da14
+file:
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        identifier: a
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          identifier: a
+      - data_type:
+          keyword: smallint
+      - comma: ','
+      - column_reference:
+          identifier: b
+      - data_type:
+          keyword: integer
+      - comma: ','
+      - column_reference:
+          identifier: ba
+      - data_type:
+          keyword: int2
+      - comma: ','
+      - column_reference:
+          identifier: bb
+      - data_type:
+          keyword: int4
+      - comma: ','
+      - column_reference:
+          identifier: bc
+      - data_type:
+          keyword: int8
+      - comma: ','
+      - column_reference:
+          identifier: c
+      - data_type:
+          keyword: bigint
+      - comma: ','
+      - column_reference:
+          identifier: d
+      - data_type:
+          keyword: real
+      - comma: ','
+      - column_reference:
+          identifier: e
+      - data_type:
+        - keyword: double
+        - keyword: precision
+      - comma: ','
+      - column_reference:
+          identifier: f
+      - data_type:
+          keyword: smallserial
+      - comma: ','
+      - column_reference:
+          identifier: g
+      - data_type:
+          keyword: serial
+      - comma: ','
+      - column_reference:
+          identifier: ga
+      - data_type:
+          keyword: serial2
+      - comma: ','
+      - column_reference:
+          identifier: gb
+      - data_type:
+          keyword: serial4
+      - comma: ','
+      - column_reference:
+          identifier: gc
+      - data_type:
+          keyword: serial8
+      - comma: ','
+      - column_reference:
+          identifier: h
+      - data_type:
+          keyword: bigserial
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        identifier: b
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          identifier: a
+      - data_type:
+          keyword: float
+      - comma: ','
+      - column_reference:
+          identifier: b
+      - data_type:
+          keyword: float
+          bracketed:
+            start_bracket: (
+            literal: '24'
+            end_bracket: )
+      - comma: ','
+      - column_reference:
+          identifier: c
+      - data_type:
+          keyword: float4
+      - comma: ','
+      - column_reference:
+          identifier: e
+      - data_type:
+          keyword: float8
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        identifier: c
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          identifier: a
+      - data_type:
+          keyword: numeric
+      - comma: ','
+      - column_reference:
+          identifier: aa
+      - data_type:
+          keyword: decimal
+      - comma: ','
+      - column_reference:
+          identifier: b
+      - data_type:
+          keyword: numeric
+          bracketed:
+            start_bracket: (
+            literal: '7'
+            end_bracket: )
+      - comma: ','
+      - column_reference:
+          identifier: ba
+      - data_type:
+          keyword: decimal
+          bracketed:
+            start_bracket: (
+            literal: '7'
+            end_bracket: )
+      - comma: ','
+      - column_reference:
+          identifier: c
+      - data_type:
+          keyword: numeric
+          bracketed:
+          - start_bracket: (
+          - literal: '7'
+          - comma: ','
+          - literal: '2'
+          - end_bracket: )
+      - comma: ','
+      - column_reference:
+          identifier: ca
+      - data_type:
+          keyword: decimal
+          bracketed:
+          - start_bracket: (
+          - literal: '7'
+          - comma: ','
+          - literal: '2'
+          - end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        identifier: d
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          identifier: a
+        data_type:
+          keyword: money
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        identifier: e
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          identifier: a
+      - data_type:
+          keyword: char
+      - comma: ','
+      - column_reference:
+          identifier: b
+      - data_type:
+          keyword: char
+          bracketed:
+            start_bracket: (
+            literal: '7'
+            end_bracket: )
+      - comma: ','
+      - column_reference:
+          identifier: c
+      - data_type:
+          keyword: character
+      - comma: ','
+      - column_reference:
+          identifier: d
+      - data_type:
+          keyword: character
+          bracketed:
+            start_bracket: (
+            literal: '5'
+            end_bracket: )
+      - comma: ','
+      - column_reference:
+          identifier: e
+      - data_type:
+        - keyword: character
+        - keyword: varying
+      - comma: ','
+      - column_reference:
+          identifier: e
+      - data_type:
+        - keyword: character
+        - keyword: varying
+        - bracketed:
+            start_bracket: (
+            literal: '8'
+            end_bracket: )
+      - comma: ','
+      - column_reference:
+          identifier: f
+      - data_type:
+          keyword: varchar
+          bracketed:
+            start_bracket: (
+            literal: '9'
+            end_bracket: )
+      - comma: ','
+      - column_reference:
+          identifier: g
+      - data_type:
+          keyword: varchar
+      - comma: ','
+      - column_reference:
+          identifier: h
+      - data_type:
+          keyword: text
+      - end_bracket: )
