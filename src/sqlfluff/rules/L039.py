@@ -83,7 +83,6 @@ class Rule_L039(BaseRule):
                 # See Github issue #1304: https://github.com/sqlfluff/sqlfluff/issues/1304
                 for child_seg in seg.get_raw_segments()[1:]:
                     if child_seg.is_type("whitespace") or child_seg.is_type("newline"):
-                        self.logger.debug(f"Type B Violation within {seg.raw}")
                         violations.append(
                             LintResult(
                                 anchor=child_seg,
