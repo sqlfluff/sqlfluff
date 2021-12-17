@@ -427,7 +427,7 @@ class DatatypeSegment(BaseSegment):
                     OneOf("DECIMAL", "NUMERIC"),
                     Bracketed(
                         Delimited(Ref("NumericLiteralSegment")),
-                    optional=True,
+                        optional=True,
                     ),
                 ),
                 Sequence(
