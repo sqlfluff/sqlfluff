@@ -2,33 +2,36 @@
 from typing import Callable, List, Optional, Sequence, Type, TypeVar
 
 from sqlfluff.core.parser import BaseSegment
-from sqlfluff.core.rules.base import LintFix
+from sqlfluff.core.rules.base import LintFix, LintResult
 from sqlfluff.core.templaters.base import TemplatedFile
 from sqlfluff.core.rules.surrogates.raw_file_slice import RawFileSlices
 
 Predicate = TypeVar("Predicate", str, Type, Callable[[BaseSegment], bool])
 
 
-class Segments:
+class Segments(tuple):
     """Encapsulates a sequence of one or more BaseSegments.
 
     The segments may or may not be contiguous in a parse tree.
     Provides useful operations on a sequence of segments to simplify rule creation.
     """
 
-    def __init__(self, templated_file: Optional[TemplatedFile], *segments: BaseSegment):
+    def __new__(cls, templated_file, *segments):
+        """Override new operator."""
+        return super(Segments, cls).__new__(cls, segments)
+
+    def __init__(self, templated_file: Optional[TemplatedFile], *_: BaseSegment):
         self.templated_file = templated_file
-        self.segments = segments
 
     def all(self, *predicates: Predicate) -> bool:
         """Do all the segments match?"""
         cp = _CompositePredicate(*predicates)
-        return all(cp(s) for s in self.segments)
+        return all(cp(s) for s in self)
 
     def any(self, *predicates: Predicate) -> bool:  # pragma: no cover
         """Do any of the segments match?"""
         cp = _CompositePredicate(*predicates)
-        return any(cp(s) for s in self.segments)
+        return any(cp(s) for s in self)
 
     @property
     def raw_slices(self) -> RawFileSlices:
@@ -38,35 +41,58 @@ class Segments:
                 'Segments.raw_slices: "templated_file" property is required.'
             )
         raw_slices = set()
-        for s in self.segments:
+        for s in self:
             source_slice = s.pos_marker.source_slice
             raw_slices.update(
                 self.templated_file.raw_slices_spanning_source_slice(source_slice)
             )
         return RawFileSlices(self.templated_file, *raw_slices)
 
-    # def with_children(self) -> "Segments":
-    #     """Returns an object that includes first-level children."""
-    #     raise NotImplementedError
+    def children(self, *predicates: Predicate) -> "Segments":
+        """Returns an object with children of the segments in this object."""
+        child_segments: List[BaseSegment] = []
+        cp = _CompositePredicate(*predicates)
+        for s in self:
+            for child in s.segments:
+                if cp(child):
+                    child_segments.append(child)
+        return Segments(self.templated_file, *child_segments)
 
-    # def with_descendants(self) -> "Segments":
-    #     """Returns an object that includes all descendants."""
-    #     raise NotImplementedError
+    def select(
+        self,
+        select_if: Optional[Sequence[Predicate]] = None,
+        loop_while: Optional[Sequence[Predicate]] = None,
+        start_seg: Optional[BaseSegment] = None,
+        stop_seg: Optional[BaseSegment] = None,
+    ) -> "Segments":
+        """Retrieve range/subset."""
+        start_index = self.index(start_seg) if start_seg else -1
+        stop_index = self.index(stop_seg) if stop_seg else len(self)
+        buff = []
+        cp_select_if = None
+        if select_if:
+            cp_select_if = _CompositePredicate(*select_if)
+        cp_loop_while = None
+        if loop_while:
+            cp_loop_while = _CompositePredicate(*loop_while)
+        for seg in self[start_index + 1 : stop_index]:
+            if cp_loop_while and not cp_loop_while(seg):
+                break
+            if not cp_select_if or cp_select_if(seg):
+                buff.append(seg)
+        return Segments(self.templated_file, *buff)
 
-    # def select(
-    #     self,
-    #     start_seg: Optional[BaseSegment] = None,
-    #     stop_seg: Optional[BaseSegment] = None,
-    #     select_if=Optional[Sequence[Predicate]],
-    #     loop_while=Optional[Sequence[Predicate]],
-    # ) -> "Segments":
-    #     """Retrieve range/subset."""
-    #     raise NotImplementedError
+    def lint_result(self) -> LintResult:
+        """Return LintResult with anchor. Requires length equals 1.."""
+        if len(self) == 1:
+            return LintResult(anchor=self[0])
+        else:
+            raise ValueError("Segments.lint_result requires that length == 1.")
 
     def delete(self, *predicates: Predicate) -> Sequence["LintFix"]:
         """Return LintFix objects to delete segments that satisfy predicates."""
         cp = _CompositePredicate(*predicates)
-        return [LintFix("delete", s) for s in self.segments if cp(s)]
+        return [LintFix("delete", s) for s in self if cp(s)]
 
 
 class _CompositePredicate:
