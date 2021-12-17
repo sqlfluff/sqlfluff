@@ -19,9 +19,7 @@ create table b(
     a float,
     b float(24),
     c float4,
-    d float4(12),
-    e float8,
-    f float8(12)
+    e float8
 );
 
 create table c(

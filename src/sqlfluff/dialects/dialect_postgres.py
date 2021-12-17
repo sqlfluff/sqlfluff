@@ -409,6 +409,8 @@ class DatatypeSegment(BaseSegment):
                 "INT4",
                 "INT8",
                 "BIGINT",
+                "FLOAT4",
+                "FLOAT8",
                 "REAL",
                 Sequence("DOUBLE", "PRECISION"),
                 "SMALLSERIAL",
@@ -419,7 +421,7 @@ class DatatypeSegment(BaseSegment):
                 "BIGSERIAL",
                 # numeric types [(precision)]
                 Sequence(
-                    OneOf("FLOAT", "FLOAT4", "FLOAT8"),
+                    OneOf("FLOAT"),
                     Bracketed(Ref("NumericLiteralSegment"), optional=True),
                 ),
                 # numeric types [precision ["," scale])]
