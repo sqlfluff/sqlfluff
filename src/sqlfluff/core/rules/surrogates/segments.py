@@ -2,7 +2,6 @@
 from typing import Callable, List, Optional, Sequence, Type, TypeVar
 
 from sqlfluff.core.parser import BaseSegment
-from sqlfluff.core.rules.base import LintFix, LintResult
 from sqlfluff.core.templaters.base import TemplatedFile
 from sqlfluff.core.rules.surrogates.raw_file_slice import RawFileSlices
 
@@ -81,18 +80,6 @@ class Segments(tuple):
             if not cp_select_if or cp_select_if(seg):
                 buff.append(seg)
         return Segments(self.templated_file, *buff)
-
-    def lint_result(self) -> LintResult:
-        """Return LintResult with anchor. Requires length equals 1.."""
-        if len(self) == 1:
-            return LintResult(anchor=self[0])
-        else:
-            raise ValueError("Segments.lint_result requires that length == 1.")
-
-    def delete(self, *predicates: Predicate) -> Sequence["LintFix"]:
-        """Return LintFix objects to delete segments that satisfy predicates."""
-        cp = _CompositePredicate(*predicates)
-        return [LintFix("delete", s) for s in self if cp(s)]
 
 
 class _CompositePredicate:

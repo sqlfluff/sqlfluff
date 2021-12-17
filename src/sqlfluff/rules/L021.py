@@ -43,5 +43,5 @@ class Rule_L021(BaseRule):
                 .select([lambda s: s.name == "distinct"])
             )
             if distinct:
-                return distinct.lint_result()
+                return LintResult(anchor=distinct[0])
         return None

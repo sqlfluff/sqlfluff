@@ -1,7 +1,7 @@
 """Implementation of Rule L050."""
 from typing import Optional
 
-from sqlfluff.core.rules.base import BaseRule, LintResult, RuleContext
+from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
 import sqlfluff.core.rules.surrogates.segment_predicates as segpred
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
@@ -95,6 +95,6 @@ class Rule_L050(BaseRule):
         ):
             return LintResult(
                 anchor=context.parent_stack[0],
-                fixes=raw_stack.delete(),
+                fixes=[LintFix("delete", d) for d in raw_stack],
             )
         return None
