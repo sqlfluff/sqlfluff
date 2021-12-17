@@ -39,6 +39,11 @@ def is_whitespace(segment: BaseSegment) -> bool:
     return segment.is_whitespace
 
 
+def get_type(segment: BaseSegment) -> str:
+    """Returns segment type."""
+    return segment.get_type()
+
+
 def attr(*attrs: str) -> Callable[[Any], bool]:
     """Returns a function that gets an attribute of an object.
 

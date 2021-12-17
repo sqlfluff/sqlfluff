@@ -1,5 +1,5 @@
 """Surrogate class for working with Segment collections."""
-from typing import Callable, List, Optional, Sequence, Type, TypeVar
+from typing import Any, Callable, List, Optional, Sequence, Type, TypeVar
 
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.templaters.base import TemplatedFile
@@ -72,6 +72,10 @@ class Segments(tuple):
             if cp(s):
                 return s
         return None
+
+    def apply(self, fn: Callable[[BaseSegment], Any]) -> List[Any]:
+        """Apply function to every item."""
+        return [fn(s) for s in self]
 
     def select(
         self,
