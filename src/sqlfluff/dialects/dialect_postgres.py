@@ -432,8 +432,15 @@ class DatatypeSegment(BaseSegment):
                 ),
                 # monetary type
                 "MONEY",
+                # character types
+                OneOf(
                 Sequence(
-                    OneOf("CHARACTER", "BINARY"),
+                  OneOf("CHAR", "CHARACTER", Sequence("CHARACTER", "VARYING"), "VARCHAR"),
+                    Bracketed(Ref("NumericLiteralSegment"), optional=True)
+                ), "TEXT"
+                ),
+                Sequence(
+                    "BINARY",
                     OneOf("VARYING", Sequence("LARGE", "OBJECT")),
                 ),
                 Sequence(

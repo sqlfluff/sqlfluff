@@ -35,4 +35,16 @@ create table c(
 
 create table d(
     a money
+);
+
+create table e(
+    a char,
+    b char(7),
+    c character,
+    d character(5),
+    e character varying,
+    e character varying(8),
+    f varchar(9),
+    g varchar,
+    h text
 )
