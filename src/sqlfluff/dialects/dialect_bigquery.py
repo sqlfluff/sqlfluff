@@ -135,6 +135,19 @@ bigquery_dialect.add(
         Ref("QuotedIdentifierSegment"),
         Ref("NakedIdentifierSegmentFull"),
     ),
+    DefaultDeclareOptionsGrammar=Sequence(
+        "DEFAULT",
+        OneOf(
+            Ref("LiteralGrammar"),
+            Bracketed(Ref("SelectStatementSegment")),
+            Ref("BareFunctionSegment"),
+            Ref("FunctionSegment"),
+            Ref("ArrayLiteralSegment"),
+            Ref("TypelessStructSegment"),
+            Ref("TupleSegment"),
+            Ref("BaseExpressionElementGrammar"),
+        ),
+    ),
 )
 
 
@@ -768,28 +781,15 @@ class DeclareStatementSegment(BaseSegment):
 
     type = "declare_segment"
     match_grammar = StartsWith("DECLARE")
-    _default_section = Sequence(
-        "DEFAULT",
-        OneOf(
-            Ref("LiteralGrammar"),
-            Bracketed(Ref("SelectStatementSegment")),
-            Ref("BareFunctionSegment"),
-            Ref("FunctionSegment"),
-            Ref("ArrayLiteralSegment"),
-            Ref("TypelessStructSegment"),
-            Ref("TupleSegment"),
-            Ref("BaseExpressionElementGrammar"),
-        ),
-    )
     parse_grammar = Sequence(
         "DECLARE",
         Delimited(Ref("NakedIdentifierSegment")),
         OneOf(
             Ref("DatatypeSegment"),
-            _default_section,
+            Ref("DefaultDeclareOptionsGrammar"),
             Sequence(
                 Ref("DatatypeSegment"),
-                _default_section,
+                Ref("DefaultDeclareOptionsGrammar"),
             ),
         ),
     )
