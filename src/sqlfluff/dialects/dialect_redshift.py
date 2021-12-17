@@ -295,6 +295,8 @@ class StatementSegment(BaseSegment):
             Ref("ColumnEncodingSegment"),
             Ref("CreateUserSegment"),
             Ref("CreateGroupSegment"),
+            Ref("AlterUserSegment"),
+            Ref("AlterGroupSegment"),
         ],
     )
 
@@ -375,5 +377,129 @@ class CreateGroupSegment(BaseSegment):
                 Ref("NakedIdentifierSegment"),
             ),
             optional=True,
+        ),
+    )
+
+
+@redshift_dialect.segment()
+class AlterUserSegment(BaseSegment):
+    """`ALTER USER` statement.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_ALTER_USER.html
+    """
+
+    type = "alter_user"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "USER",
+        Ref("NakedIdentifierSegment"),
+        Ref.keyword("WITH", optional=True),
+        AnyNumberOf(
+            OneOf(
+                "CREATEDB",
+                "NOCREATEDB",
+            ),
+            OneOf(
+                "CREATEUSER",
+                "NOCREATEUSER",
+            ),
+            Sequence(
+                "SYSLOG",
+                "ACCESS",
+                OneOf(
+                    "RESTRICTED",
+                    "UNRESTRICTED",
+                ),
+            ),
+            Sequence(
+                "PASSWORD",
+                OneOf(
+                    Ref("QuotedLiteralSegment"),
+                    "DISABLE",
+                ),
+                Sequence("VALID", "UNTIL", Ref("QuotedLiteralSegment"), optional=True),
+            ),
+            Sequence(
+                "RENAME",
+                "TO",
+                Ref("NakedIdentifierSegment"),
+            ),
+            Sequence(
+                "CONNECTION",
+                "LIMIT",
+                OneOf(
+                    Ref("NumericLiteralSegment"),
+                    "UNLIMITED",
+                ),
+            ),
+            OneOf(
+                Sequence(
+                    "SESSION",
+                    "TIMEOUT",
+                    Ref("NumericLiteralSegment"),
+                ),
+                Sequence(
+                    "RESET",
+                    "SESSION",
+                    "TIMEOUT",
+                ),
+            ),
+            OneOf(
+                Sequence(
+                    "SET",
+                    Ref("NakedIdentifierSegment"),
+                    OneOf(
+                        "TO",
+                        Ref("EqualsSegment"),
+                    ),
+                    OneOf(
+                        "DEFAULT",
+                        Ref("LiteralGrammar"),
+                    ),
+                ),
+                Sequence(
+                    "RESET",
+                    Ref("NakedIdentifierSegment"),
+                ),
+            ),
+            min_times=1,
+        ),
+    )
+
+
+@redshift_dialect.segment()
+class AlterGroupSegment(BaseSegment):
+    """`ALTER GROUP` statement.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_ALTER_GROUP.html
+    """
+
+    type = "alter_group"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "GROUP",
+        Ref("NakedIdentifierSegment"),
+        OneOf(
+            Sequence(
+                "ADD",
+                "USER",
+                Delimited(
+                    Ref("NakedIdentifierSegment"),
+                ),
+            ),
+            Sequence(
+                "DROP",
+                "USER",
+                Delimited(
+                    Ref("NakedIdentifierSegment"),
+                ),
+            ),
+            Sequence(
+                "RENAME",
+                "TO",
+                Ref("NakedIdentifierSegment"),
+            ),
         ),
     )
