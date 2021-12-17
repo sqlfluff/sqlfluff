@@ -2,7 +2,7 @@
 from typing import Optional
 
 from sqlfluff.core.rules.base import BaseRule, LintResult, RuleContext
-import sqlfluff.core.rules.surrogates.common_predicates as cp
+import sqlfluff.core.rules.surrogates.segment_predicates as segpred
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
 
@@ -83,9 +83,9 @@ class Rule_L050(BaseRule):
             # all preceding segments must be whitespace
             # and at least one is not meta.
             and raw_stack.all(*whitespace_types)
-            and not raw_stack.all(cp.is_meta)
+            and not raw_stack.all(segpred.is_meta)
             # Found leaf of parse tree.
-            and not segment.all(cp.is_expandable)
+            and not segment.all(segpred.is_expandable)
             # It is possible that a template segment (e.g. {{ config(materialized='view') }})
             # renders to an empty string and as such is omitted from the parsed tree.
             # We therefore should flag if a templated raw slice intersects with the
