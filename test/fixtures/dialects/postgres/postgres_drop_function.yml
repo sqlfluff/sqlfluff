@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c03cd688fad76ef981e529184fbc95c3da919d6e393d39d53e1c9a8ba6b8bb23
+_hash: abe8a0132db4afffb8fcec8cd293daca6bef9d0195e98ee50afcea483611033f
 file:
 - statement:
     drop_function_statement:
@@ -15,7 +15,7 @@ file:
         bracketed:
           start_bracket: (
           data_type:
-            data_type_identifier: integer
+            keyword: integer
           end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -28,7 +28,7 @@ file:
         bracketed:
           start_bracket: (
           data_type:
-            data_type_identifier: integer
+            keyword: integer
           end_bracket: )
     - comma: ','
     - function_name:
@@ -37,7 +37,7 @@ file:
         bracketed:
           start_bracket: (
           data_type:
-            data_type_identifier: bigint
+            keyword: bigint
           end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -72,7 +72,7 @@ file:
         - keyword: IN
         - parameter: my_var
         - data_type:
-            data_type_identifier: integer
+            keyword: integer
         - comma: ','
         - keyword: VARIADIC
         - parameter: my_var_2

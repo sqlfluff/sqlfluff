@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 207220496dc0af0254ddebfdca35ea6e961feb092d80b417c0d5da7c140fe5ec
+_hash: c444b64cf25735bfb6d3782185001cfc74794b174088f34547a01dd09275e089
 file:
 - statement:
     create_function_statement:
@@ -15,14 +15,14 @@ file:
         bracketed:
         - start_bracket: (
         - data_type:
-            data_type_identifier: integer
+            keyword: integer
         - comma: ','
         - data_type:
-            data_type_identifier: integer
+            keyword: integer
         - end_bracket: )
     - keyword: RETURNS
     - data_type:
-        data_type_identifier: integer
+        keyword: integer
     - base:
       - keyword: AS
       - literal: "'select $1 + $2;'"
@@ -42,11 +42,11 @@ file:
           start_bracket: (
           parameter: i
           data_type:
-            data_type_identifier: integer
+            keyword: integer
           end_bracket: )
     - keyword: RETURNS
     - data_type:
-        data_type_identifier: integer
+        keyword: integer
     - base:
       - keyword: AS
       - literal: "'\n    BEGIN\n        RETURN i + 1;\n    END;\n'"
@@ -67,11 +67,11 @@ file:
           start_bracket: (
           parameter: i
           data_type:
-            data_type_identifier: integer
+            keyword: integer
           end_bracket: )
     - keyword: RETURNS
     - data_type:
-        data_type_identifier: integer
+        keyword: integer
     - base:
       - keyword: AS
       - literal: "'\n    BEGIN\n        RETURN i + 1;\n    END;\n'"
@@ -109,11 +109,11 @@ file:
           start_bracket: (
           parameter: i
           data_type:
-            data_type_identifier: integer
+            keyword: integer
           end_bracket: )
     - keyword: RETURNS
     - data_type:
-        data_type_identifier: integer
+        keyword: integer
     - base:
       - keyword: AS
       - literal: "'C:\\\\my_file.c'"
@@ -160,11 +160,11 @@ file:
           start_bracket: (
           parameter: i
           data_type:
-            data_type_identifier: integer
+            keyword: integer
           end_bracket: )
     - keyword: RETURNS
     - data_type:
-        data_type_identifier: integer
+        keyword: integer
     - base:
       - keyword: PARALLEL
       - keyword: UNSAFE
@@ -185,14 +185,14 @@ file:
         bracketed:
         - start_bracket: (
         - data_type:
-            data_type_identifier: integer
+            keyword: integer
         - comma: ','
         - data_type:
-            data_type_identifier: integer
+            keyword: integer
         - end_bracket: )
     - keyword: RETURNS
     - data_type:
-        data_type_identifier: integer
+        keyword: integer
     - base:
       - keyword: AS
       - literal: "'select $1 + $2;'"
@@ -218,11 +218,11 @@ file:
           start_bracket: (
           parameter: i
           data_type:
-            data_type_identifier: integer
+            keyword: integer
           end_bracket: )
     - keyword: RETURNS
     - data_type:
-        data_type_identifier: integer
+        keyword: integer
     - base:
       - keyword: AS
       - literal: "$$\n        BEGIN\n                RETURN i + 1;\n        END;\n\
@@ -561,7 +561,7 @@ file:
         - end_bracket: )
     - keyword: RETURNS
     - data_type:
-        data_type_identifier: FLOAT
+        keyword: FLOAT
     - base:
       - keyword: AS
       - literal: "$$\n  RETURN 0.0\n$$"
