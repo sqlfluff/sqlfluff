@@ -6,7 +6,9 @@ writing rules than working with the related, lower-level classes.
 from operator import attrgetter as attrgetter
 from typing import Any, Callable
 
-from sqlfluff.core.rules.surrogates.segments import Segments  # noqa: F401
+__all__ = ("Segments", "attr")
+
+from sqlfluff.core.rules.surrogates.segments import Segments
 
 
 def attr(*attrs: str) -> Callable[[Any], bool]:

@@ -90,6 +90,11 @@ class Surrogates:
         """Returns a Segments object for context.raw_stack."""
         return Segments(self.context.templated_file, *self.context.raw_stack)
 
+    @cached_property
+    def parent_stack(self) -> "Segments":  # pragma: no cover
+        """Returns a Segments object for context.parent_stack."""
+        return Segments(self.context.templated_file, *self.context.parent_stack)
+
 
 class BaseRule:
     """The base class for a rule.
