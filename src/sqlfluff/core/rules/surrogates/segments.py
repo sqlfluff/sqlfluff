@@ -64,7 +64,11 @@ class Segments(tuple):
         start_seg: Optional[BaseSegment] = None,
         stop_seg: Optional[BaseSegment] = None,
     ) -> "Segments":
-        """Retrieve range/subset."""
+        """Retrieve range/subset.
+
+        NOTE: Iterates the segments BETWEEN start_seg and stop_seg, i.e. those
+        segments are not included in the loop.
+        """
         start_index = self.index(start_seg) if start_seg else -1
         stop_index = self.index(stop_seg) if stop_seg else len(self)
         buff = []
