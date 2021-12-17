@@ -885,3 +885,10 @@ def test_advanced_api_methods():
 
     # BaseFileSegment.get_table_references & StatementSegment.get_table_references
     assert parsed.tree.get_table_references() == {"tab_a", "tab_b"}
+
+
+def test_normalise_newlines():
+    """Test normalising newlines to unix-style line endings."""
+    in_str = "SELECT\r\n foo\n FROM \r \n\r bar;"
+    out_str = "SELECT\n foo\n FROM \n \n\n bar;"
+    assert out_str == Linter._normalise_newlines(in_str)
