@@ -30,7 +30,7 @@ class Rule_L039(BaseRule):
         FROM foo
     """
 
-    def _eval(self, context: RuleContext) -> Optional[List[LintResult]]:
+    def _eval(self, context: RuleContext):  # -> Optional[List[LintResult]]:
         """Unnecessary whitespace."""
         # For the given segment, lint whitespace directly within it.
         prev_newline = True
@@ -67,4 +67,31 @@ class Rule_L039(BaseRule):
                         )
                 prev_newline = False
                 prev_whitespace = None
+
+            if (
+                seg.is_type("object_reference")
+                or seg.is_type("table_reference")
+                or seg.is_type("schema_reference")
+                or seg.is_type("database_reference")
+                or seg.is_type("index_reference")
+                or seg.is_type("extension_reference")
+                or seg.is_type("column_reference")
+                or seg.is_type("sequence_reference")
+                or seg.is_type("trigger_reference")
+            ):
+                for reference_space in seg.get_children(
+                    "whitespace"
+                ) + seg.get_children("newline"):
+                    violations.append(
+                        LintResult(
+                            anchor=reference_space,
+                            fixes=[
+                                LintFix(
+                                    "delete",
+                                    reference_space,
+                                )
+                            ],
+                        )
+                    )
+
         return violations or None
