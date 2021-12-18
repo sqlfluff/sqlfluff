@@ -55,7 +55,7 @@ test_multiple_select_targets_including_wildcard_all_on_the_same_line_plus_from_c
   fail_str: |
     select *, b, c from x
   fix_str: "select\n*,\nb,\nc\nfrom x\n"
-  
+
 test_multiple_select_target_plus_from_clause_on_the_same_line:
   fail_str: |
     select

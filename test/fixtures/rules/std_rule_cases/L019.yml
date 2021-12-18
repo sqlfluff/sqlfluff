@@ -44,7 +44,7 @@ leading_commas_allowed:
 
 leading_commas_allowed_with_header:
   pass_str: |
-    
+
     SELECT
       a
       , b
@@ -148,16 +148,16 @@ leading_comma_fixing_flows_around_comments:
   fail_str: |
     SELECT
         a.foo
-        
+
         -- another comment
         , a.baz,
         -- another comment
          a.bar,
-    
+
         -- This is an important comment with awkward line spacing
-    
+
        a.foobar
-    
+
         /* Which might also
         be followed by a multiline one */
         , a.barfoo
@@ -172,16 +172,16 @@ leading_comma_fixing_flows_around_comments:
   fix_str: |
     SELECT
         a.foo
-        
+
         -- another comment
         , a.baz
         -- another comment
          , a.bar
-    
+
         -- This is an important comment with awkward line spacing
-    
+
        , a.foobar
-    
+
         /* Which might also
         be followed by a multiline one */
         , a.barfoo
