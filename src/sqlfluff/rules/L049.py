@@ -101,8 +101,7 @@ class Rule_L049(Rule_L006):
                     return LintResult(
                         anchor=operator,
                         fixes=[
-                            LintFix(
-                                "edit",
+                            LintFix.replace(
                                 operator,
                                 edit,
                             )

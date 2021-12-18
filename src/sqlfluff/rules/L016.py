@@ -138,12 +138,11 @@ class Rule_L016(Rule_L003):
                     # Remove any existing whitespace
                     for elem in self.segments:
                         if not elem.is_meta and elem.is_type("whitespace"):
-                            fixes.append(LintFix("delete", elem))
+                            fixes.append(LintFix.delete(elem))
 
                     # Create a newline and a similar indent
                     fixes.append(
-                        LintFix(
-                            "create_before",
+                        LintFix.create_before(
                             create_anchor,
                             [
                                 NewlineSegment(),
@@ -160,11 +159,10 @@ class Rule_L016(Rule_L003):
                     # Remove anything which is already here
                     for elem in self.segments:
                         if not elem.is_meta:
-                            fixes.append(LintFix("delete", elem))
+                            fixes.append(LintFix.delete(elem))
                     # Create a newline, create an indent of the relevant size
                     fixes.append(
-                        LintFix(
-                            "create_before",
+                        LintFix.create_before(
                             create_anchor,
                             [
                                 NewlineSegment(),
@@ -507,14 +505,14 @@ class Rule_L016(Rule_L003):
                     this_line[-1],
                 )
                 # Set up to delete the original comment and the preceding whitespace
-                delete_buffer = [LintFix("delete", this_line[-1])]
+                delete_buffer = [LintFix.delete(this_line[-1])]
                 idx = -2
                 while True:
                     if (
                         len(this_line) >= abs(idx)
                         and this_line[idx].name == "whitespace"
                     ):
-                        delete_buffer.append(LintFix("delete", this_line[idx]))
+                        delete_buffer.append(LintFix.delete(this_line[idx]))
                         idx -= 1
                     else:
                         break  # pragma: no cover
@@ -539,9 +537,7 @@ class Rule_L016(Rule_L003):
                 # Create a newline before this one with the existing comment, an
                 # identical indent AND a terminating newline, copied from the current
                 # target segment.
-                create_buffer = [
-                    LintFix("create_before", this_line[0], create_elements)
-                ]
+                create_buffer = [LintFix.create_before(this_line[0], create_elements)]
                 return LintResult(
                     anchor=context.segment, fixes=delete_buffer + create_buffer
                 )

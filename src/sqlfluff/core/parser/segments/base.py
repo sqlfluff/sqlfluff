@@ -974,7 +974,7 @@ class BaseSegment:
                                 # We're just getting rid of this segment.
                                 seg = None
                             elif f.edit_type in (
-                                "edit",
+                                "replace",
                                 "create_before",
                                 "create_after",
                             ):

@@ -155,10 +155,9 @@ class Rule_L034(BaseRule):
                 # implement, but minimizing the number of LintFixes makes the
                 # final application of patches (in "sqlfluff fix") more robust.
                 fixes = [
-                    LintFix(
-                        "edit",
+                    LintFix.replace(
                         initial_select_target_element,
-                        replace_select_target_element,
+                        [replace_select_target_element],
                     )
                     for initial_select_target_element, replace_select_target_element in zip(
                         select_target_elements, ordered_select_target_elements

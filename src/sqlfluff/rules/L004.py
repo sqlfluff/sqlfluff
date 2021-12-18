@@ -79,10 +79,11 @@ class Rule_L004(BaseRule):
                 )
             ):
                 fixes = [
-                    LintFix(
-                        "edit",
+                    LintFix.replace(
                         context.segment,
-                        WhitespaceSegment(raw=edit_indent),
+                        [
+                            WhitespaceSegment(raw=edit_indent),
+                        ],
                     )
                 ]
             elif not (
