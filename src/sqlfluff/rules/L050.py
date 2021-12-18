@@ -95,6 +95,6 @@ class Rule_L050(BaseRule):
         ):
             return LintResult(
                 anchor=context.parent_stack[0],
-                fixes=[LintFix("delete", d) for d in raw_stack],
+                fixes=[LintFix.delete(d) for d in raw_stack],
             )
         return None

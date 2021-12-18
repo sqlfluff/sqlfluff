@@ -25,4 +25,3 @@ jobs:
           echo "  python test/generate_parse_fixture_yml.py"
           exit 1
         fi
-

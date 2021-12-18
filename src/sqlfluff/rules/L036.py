@@ -147,8 +147,8 @@ class Rule_L036(BaseRule):
                     select_if=lambda s: s.is_type("whitespace"),
                     loop_while=lambda s: s.is_type("whitespace", "comma") or s.is_meta,
                 )
-                fixes += [LintFix("delete", ws) for ws in ws_to_delete]
-                fixes.append(LintFix("create_before", select_target, NewlineSegment()))
+                fixes += [LintFix.delete(ws) for ws in ws_to_delete]
+                fixes.append(LintFix.create_before(select_target, [NewlineSegment()]))
 
             # If we are at the last select target check if the FROM clause
             # is on the same line, and if so move it to its own line.
@@ -159,15 +159,14 @@ class Rule_L036(BaseRule):
                 ):
                     fixes.extend(
                         [
-                            LintFix("delete", ws)
+                            LintFix.delete(ws)
                             for ws in select_targets_info.pre_from_whitespace
                         ]
                     )
                     fixes.append(
-                        LintFix(
-                            "create_before",
+                        LintFix.create_before(
                             select_targets_info.from_segment,
-                            NewlineSegment(),
+                            [NewlineSegment()],
                         )
                     )
 
@@ -215,8 +214,7 @@ class Rule_L036(BaseRule):
                 # Delete the first select target from its original location.
                 # We'll add it to the right section at the end, once we know
                 # what to add.
-                LintFix(
-                    "delete",
+                LintFix.delete(
                     select_clause.segments[select_targets_info.first_select_target_idx],
                 ),
             ]
@@ -236,16 +234,14 @@ class Rule_L036(BaseRule):
                     and select_clause.segments[modifier_idx + 2].is_whitespace
                 ):
                     fixes += [
-                        LintFix(
-                            "delete",
+                        LintFix.delete(
                             select_clause.segments[modifier_idx + 2],
                         ),
                     ]
 
                 # Delete the modifier itself
                 fixes += [
-                    LintFix(
-                        "delete",
+                    LintFix.delete(
                         modifier,
                     ),
                 ]
@@ -281,8 +277,7 @@ class Rule_L036(BaseRule):
                                 "whitespace"
                             ):
                                 fixes += [
-                                    LintFix(
-                                        "delete",
+                                    LintFix.delete(
                                         select_clause.segments[start_idx - idx],
                                     ),
                                 ]
@@ -307,8 +302,7 @@ class Rule_L036(BaseRule):
                         # Finally delete the newline, unless we've decided not to
                         if delete_last_newline:
                             fixes.append(
-                                LintFix(
-                                    "delete",
+                                LintFix.delete(
                                     select_stmt.segments[after_select_clause_idx],
                                 )
                             )
@@ -321,8 +315,7 @@ class Rule_L036(BaseRule):
                         # so the other stuff aligns nicely based on where the select
                         # clause started
                         fixes += [
-                            LintFix(
-                                "delete",
+                            LintFix.delete(
                                 select_stmt.segments[after_select_clause_idx],
                             ),
                         ]
@@ -345,8 +338,7 @@ class Rule_L036(BaseRule):
                                 "whitespace"
                             ):
                                 fixes += [
-                                    LintFix(
-                                        "delete",
+                                    LintFix.delete(
                                         select_clause.segments[start_idx - idx],
                                     ),
                                 ]
@@ -373,8 +365,7 @@ class Rule_L036(BaseRule):
             fixes += [
                 # Insert the select_clause in place of the first newlin in the
                 # Select statement
-                LintFix(
-                    "edit",
+                LintFix.replace(
                     select_clause.segments[select_targets_info.first_new_line_idx],
                     insert_buff,
                 ),
@@ -403,14 +394,12 @@ class Rule_L036(BaseRule):
                 )
             ):
                 fixes = [
-                    LintFix("delete", ws)
-                    for ws in select_targets_info.pre_from_whitespace
+                    LintFix.delete(ws) for ws in select_targets_info.pre_from_whitespace
                 ]
                 fixes.append(
-                    LintFix(
-                        "create_before",
+                    LintFix.create_before(
                         select_targets_info.from_segment,
-                        NewlineSegment(),
+                        [NewlineSegment()],
                     )
                 )
                 return LintResult(anchor=select_clause, fixes=fixes)

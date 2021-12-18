@@ -61,7 +61,7 @@ class Rule_L025(Rule_L020):
         alias: AliasInfo
         for alias in table_aliases:
             if alias.aliased and alias.ref_str not in tbl_refs:
-                fixes = [LintFix("delete", alias.alias_expression)]
+                fixes = [LintFix.delete(alias.alias_expression)]
                 found_alias_segment = False
                 # Walk back to remove indents/whitespaces
                 for segment in reversed(alias.from_expression_element.segments):
@@ -74,7 +74,7 @@ class Rule_L025(Rule_L020):
                             or segment.name == "newline"
                             or segment.is_meta
                         ):
-                            fixes.append(LintFix("delete", segment))
+                            fixes.append(LintFix.delete(segment))
                         else:
                             # Stop once we reach an other, "regular" segment.
                             break

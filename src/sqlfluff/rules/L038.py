@@ -58,7 +58,7 @@ class Rule_L038(BaseRule):
                 if last_content.is_type("comma"):
                     return LintResult(
                         anchor=last_content,
-                        fixes=[LintFix("delete", last_content)],
+                        fixes=[LintFix.delete(last_content)],
                         description="Trailing comma in select statement forbidden",
                     )
             elif self.select_clause_trailing_comma == "require":
@@ -67,7 +67,7 @@ class Rule_L038(BaseRule):
                     return LintResult(
                         anchor=last_content,
                         fixes=[
-                            LintFix("edit", last_content, [last_content, new_comma])
+                            LintFix.replace(last_content, [last_content, new_comma])
                         ],
                         description="Trailing comma in select statement required",
                     )

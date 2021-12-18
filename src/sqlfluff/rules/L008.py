@@ -93,7 +93,7 @@ class Rule_L008(BaseRule):
             # therefore create a whitespace after the comma.
             return LintResult(
                 anchor=first_non_whitespace,
-                fixes=[LintFix("create_after", context.segment, WhitespaceSegment())],
+                fixes=[LintFix.create_after(context.segment, [WhitespaceSegment()])],
             )
         elif (
             (subsequent_whitespace is not None)
@@ -104,7 +104,7 @@ class Rule_L008(BaseRule):
             # Excess trailing whitespace therefore edit to only be one space long.
             return LintResult(
                 anchor=subsequent_whitespace,
-                fixes=[LintFix("edit", subsequent_whitespace, WhitespaceSegment())],
+                fixes=[LintFix.replace(subsequent_whitespace, [WhitespaceSegment()])],
             )
 
         return None
