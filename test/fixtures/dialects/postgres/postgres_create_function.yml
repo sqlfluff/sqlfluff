@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7e60f2aa16238fdbe5769ca0743d1152e2b28fa25d12d62217f234f3c73b005c
+_hash: 921ea06f5584d1b9017464c25ea9dca4e19e64e34e3ae87702feac683c0acdda
 file:
 - statement:
     create_function_statement:
@@ -411,7 +411,7 @@ file:
         - end_bracket: )
     - keyword: RETURNS
     - data_type:
-        data_type_identifier: BOOLEAN
+        keyword: BOOLEAN
     - base:
       - keyword: AS
       - literal: "$$\nDECLARE passed BOOLEAN;\nBEGIN\n        SELECT  (pwd = $2) INTO\
@@ -451,7 +451,7 @@ file:
         - end_bracket: )
     - keyword: RETURNS
     - data_type:
-        data_type_identifier: BOOLEAN
+        keyword: BOOLEAN
     - base:
       - keyword: AS
       - literal: "$$\nDECLARE passed BOOLEAN;\nBEGIN\n        SELECT  (pwd = $2) INTO\

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bf914425d3dbe80897d383594c928228d2117e0ed3e9d8389bbe6f110cff11c4
+_hash: dcab15324f4ca87e335d3b06e37e48c7e8b259e9af01a204d6d88bb4fcbc2091
 file:
 - statement:
     create_table_statement:
@@ -234,7 +234,7 @@ file:
         - keyword: varying
       - comma: ','
       - column_reference:
-          identifier: e
+          identifier: f
       - data_type:
         - keyword: character
         - keyword: varying
@@ -244,7 +244,7 @@ file:
             end_bracket: )
       - comma: ','
       - column_reference:
-          identifier: f
+          identifier: g
       - data_type:
           keyword: varchar
           bracketed:
@@ -253,12 +253,12 @@ file:
             end_bracket: )
       - comma: ','
       - column_reference:
-          identifier: g
+          identifier: h
       - data_type:
           keyword: varchar
       - comma: ','
       - column_reference:
-          identifier: h
+          identifier: i
       - data_type:
           keyword: text
       - end_bracket: )
@@ -406,3 +406,152 @@ file:
               end_bracket: )
       - end_bracket: )
 - statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        identifier: h
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          identifier: a
+      - data_type:
+          keyword: boolean
+      - comma: ','
+      - column_reference:
+          identifier: b
+      - data_type:
+          keyword: bool
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        identifier: i
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          identifier: a
+      - data_type:
+          keyword: point
+      - comma: ','
+      - column_reference:
+          identifier: b
+      - data_type:
+          keyword: line
+      - comma: ','
+      - column_reference:
+          identifier: c
+      - data_type:
+          keyword: lseg
+      - comma: ','
+      - column_reference:
+          identifier: d
+      - data_type:
+          keyword: box
+      - comma: ','
+      - column_reference:
+          identifier: e
+      - data_type:
+          keyword: path
+      - comma: ','
+      - column_reference:
+          identifier: f
+      - data_type:
+          keyword: polygon
+      - comma: ','
+      - column_reference:
+          identifier: g
+      - data_type:
+          keyword: circle
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        identifier: j
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          identifier: a
+      - data_type:
+          keyword: cidr
+      - comma: ','
+      - column_reference:
+          identifier: b
+      - data_type:
+          keyword: inet
+      - comma: ','
+      - column_reference:
+          identifier: c
+      - data_type:
+          keyword: macaddr
+      - comma: ','
+      - column_reference:
+          identifier: d
+      - data_type:
+          keyword: macaddr8
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        identifier: k
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          identifier: a
+      - data_type:
+          keyword: bit
+      - comma: ','
+      - column_reference:
+          identifier: b
+      - data_type:
+          keyword: bit
+          bracketed:
+            start_bracket: (
+            literal: '3'
+            end_bracket: )
+      - comma: ','
+      - column_reference:
+          identifier: c
+      - data_type:
+        - keyword: bit
+        - keyword: varying
+      - comma: ','
+      - column_reference:
+          identifier: d
+      - data_type:
+        - keyword: bit
+        - keyword: varying
+        - bracketed:
+            start_bracket: (
+            literal: '5'
+            end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        identifier: l
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          identifier: a
+      - data_type:
+          data_type_identifier: tsvector
+      - comma: ','
+      - column_reference:
+          identifier: b
+      - data_type:
+          data_type_identifier: tsquery
+      - end_bracket: )

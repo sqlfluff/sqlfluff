@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bc2480df6529f9f6f8f5ca84eec8102a691d5b1cc277db3a1339e2c078ad17e0
+_hash: 4ee451951de774734116fb6672bf5378642e0619c2e613bb98ccbd4a4493b5ce
 file:
 - statement:
     alter_function_statement:
@@ -711,7 +711,7 @@ file:
             keyword: text
         - comma: ','
         - data_type:
-            data_type_identifier: boolean
+            keyword: boolean
         - end_bracket: )
     - alter_function_action_segment:
       - keyword: SECURITY
@@ -733,7 +733,7 @@ file:
             keyword: text
         - comma: ','
         - data_type:
-            data_type_identifier: boolean
+            keyword: boolean
         - end_bracket: )
     - alter_function_action_segment:
       - keyword: SECURITY
@@ -866,7 +866,7 @@ file:
             keyword: text
         - comma: ','
         - data_type:
-            data_type_identifier: boolean
+            keyword: boolean
         - end_bracket: )
     - alter_function_action_segment:
       - keyword: EXTERNAL
@@ -891,7 +891,7 @@ file:
             keyword: text
         - comma: ','
         - data_type:
-            data_type_identifier: boolean
+            keyword: boolean
         - end_bracket: )
     - alter_function_action_segment:
       - keyword: EXTERNAL
@@ -1530,7 +1530,7 @@ file:
         bracketed:
           start_bracket: (
           data_type:
-            data_type_identifier: boolean
+            keyword: boolean
           end_bracket: )
     - alter_function_action_segment:
       - keyword: SET
@@ -1550,7 +1550,7 @@ file:
         bracketed:
         - start_bracket: (
         - data_type:
-            data_type_identifier: boolean
+            keyword: boolean
         - comma: ','
         - data_type:
             data_type_identifier: int

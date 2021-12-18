@@ -458,12 +458,13 @@ class DatatypeSegment(BaseSegment):
                 # network address types
                 OneOf("CIDR", "INET", "MACADDR", "MACADDR8"),
                 # bit string types
-                Sequence("BIT",
-                         OneOf("VARYING", optional=True),
-                         Bracketed(
-                             Ref("NumericLiteralSegment"),
-                             optional=True,
-                         )
+                Sequence(
+                    "BIT",
+                    OneOf("VARYING", optional=True),
+                    Bracketed(
+                        Ref("NumericLiteralSegment"),
+                        optional=True,
+                    ),
                 ),
                 Sequence(
                     "BINARY",
