@@ -106,6 +106,7 @@ postgres_docs_keywords = [
     ("BLOCKED", "not-keyword"),
     ("BOM", "not-keyword"),
     ("BOOLEAN", "non-reserved-(cannot-be-function-or-type)"),
+    ("BOOL", "non-reserved-(cannot-be-function-or-type)"),
     ("BOTH", "reserved"),
     ("BREADTH", "not-keyword"),
     ("BY", "non-reserved"),

@@ -451,6 +451,8 @@ class DatatypeSegment(BaseSegment):
                 ),
                 # binary type
                 "BYTEA",
+                # boolean types
+                OneOf("BOOLEAN", "BOOL"),
                 Sequence(
                     "BINARY",
                     OneOf("VARYING", Sequence("LARGE", "OBJECT")),

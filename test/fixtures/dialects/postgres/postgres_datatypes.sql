@@ -65,3 +65,8 @@ create table g(
     k timestamptz,
     l timestamptz(4)
 );
+
+create table h(
+    a boolean,
+    b bool
+);
