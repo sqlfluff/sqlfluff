@@ -208,28 +208,30 @@ class LintFix:
         return True  # pragma: no cover TODO?
 
     @classmethod
-    def delete(cls, anchor: BaseSegment) -> "LintFix":
+    def delete(cls, anchor_segment: BaseSegment) -> "LintFix":
         """Delete supplied anchor segment."""
-        return cls("delete", anchor)
+        return cls("delete", anchor_segment)
 
     @classmethod
-    def replace(cls, anchor: BaseSegment, edit: Iterable[BaseSegment]) -> "LintFix":
+    def replace(
+        cls, anchor_segment: BaseSegment, edit_segments: Iterable[BaseSegment]
+    ) -> "LintFix":
         """Replace supplied anchor segment with the edit segments."""
-        return cls("replace", anchor, edit)
+        return cls("replace", anchor_segment, edit_segments)
 
     @classmethod
     def create_before(
-        cls, anchor: BaseSegment, edit: Iterable[BaseSegment]
+        cls, anchor_segment: BaseSegment, edit_segments: Iterable[BaseSegment]
     ) -> "LintFix":
         """Create edit segments before the supplied anchor segment."""
-        return cls("create_before", anchor, edit)
+        return cls("create_before", anchor_segment, edit_segments)
 
     @classmethod
     def create_after(
-        cls, anchor: BaseSegment, edit: Iterable[BaseSegment]
+        cls, anchor_segment: BaseSegment, edit_segments: Iterable[BaseSegment]
     ) -> "LintFix":
         """Create edit segments after the supplied anchor segment."""
-        return cls("create_after", anchor, edit)
+        return cls("create_after", anchor_segment, edit_segments)
 
 
 EvalResultType = Union[LintResult, List[LintResult], None]
