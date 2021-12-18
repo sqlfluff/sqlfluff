@@ -6,7 +6,7 @@ repos:
             exclude: (.*\.sql$|test/fixtures/linter/sqlfluffignore/path_c)
 
         -   id: trailing-whitespace
-            exclude: .*\.sql$
+            exclude: (.*\.sql$|test/fixtures/linter/sqlfluffignore/path_c)
   -   repo: https://github.com/psf/black
       rev: 21.12b0
       hooks:
