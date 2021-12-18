@@ -50,7 +50,7 @@ class Rule_L038(BaseRule):
         children = segment.children()
         if segment.all("select_clause"):
             # Iterate content to find last element
-            last_content: BaseSegment = children.last(segpred.is_code)
+            last_content: BaseSegment = children.last(segpred.is_code)[0]
 
             # What mode are we in?
             if self.select_clause_trailing_comma == "forbid":
