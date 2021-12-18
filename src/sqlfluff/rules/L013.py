@@ -64,9 +64,9 @@ class Rule_L013(BaseRule):
                     # Check *how many* elements there are in the select
                     # statement. If this is the only one, then we won't
                     # report an error.
-                    num_elements = sum(
-                        e.is_type("select_clause_element")
-                        for e in context.parent_stack[-1].segments
+                    immediate_parent = context.surrogates.parent_stack.last()
+                    num_elements = len(
+                        immediate_parent.children("select_clause_element")
                     )
                     if num_elements > 1:
                         return LintResult(anchor=context.segment)

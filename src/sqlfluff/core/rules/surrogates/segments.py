@@ -61,21 +61,21 @@ class Segments(tuple):
                     child_segments.append(child)
         return Segments(self.templated_file, *child_segments)
 
-    def first(self, *predicates) -> Optional[BaseSegment]:
+    def first(self, *predicates) -> Optional["Segments"]:
         """Returns the first segment (if any) that satisfies the predicates."""
         cp = _CompositePredicate(*predicates)
         for s in self:
             if cp(s):
-                return s
+                return Segments(self.templated_file, s)
         # If no segment satisfies "predicates", return "None".
         return None
 
-    def last(self, *predicates) -> Optional[BaseSegment]:
+    def last(self, *predicates) -> Optional["Segments"]:
         """Returns the last segment (if any) that satisfies the predicates."""
         cp = _CompositePredicate(*predicates)
         for s in reversed(self):
             if cp(s):
-                return s
+                return Segments(self.templated_file, s)
         # If no segment satisfies "predicates", return "None".
         return None
 
