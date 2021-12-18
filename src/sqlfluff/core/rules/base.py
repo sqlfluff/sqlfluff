@@ -135,7 +135,7 @@ class LintFix:
             edit = list(edit)
             # Copy all the elements of edit to stop contamination.
             # We're about to start stripping the position markers
-            # of some of the elements and we don't want to end up
+            # off some of the elements and we don't want to end up
             # stripping the positions of the original elements of
             # the parsed structure.
             self.edit = copy.deepcopy(edit)
