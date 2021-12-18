@@ -454,7 +454,17 @@ class DatatypeSegment(BaseSegment):
                 # boolean types
                 OneOf("BOOLEAN", "BOOL"),
                 # geometric types
-                OneOf("POINT", "LINE", "LSEG", "BOX", "PATH", "POLYGON", "CIRCLE")
+                OneOf("POINT", "LINE", "LSEG", "BOX", "PATH", "POLYGON", "CIRCLE"),
+                # network address types
+                OneOf("CIDR", "INET", "MACADDR", "MACADDR8"),
+                # bit string types
+                Sequence("BIT",
+                         OneOf("VARYING", optional=True),
+                         Bracketed(
+                             Ref("NumericLiteralSegment"),
+                             optional=True,
+                         )
+                ),
                 Sequence(
                     "BINARY",
                     OneOf("VARYING", Sequence("LARGE", "OBJECT")),

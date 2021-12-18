@@ -80,3 +80,17 @@ create table i(
     f polygon,
     g circle
 );
+
+create table j(
+    a cidr,
+    b inet,
+    c macaddr,
+    d macaddr8
+);
+
+create table k(
+    a bit,
+    b bit(3),
+    c bit varying,
+    d bit varying(5)
+);
