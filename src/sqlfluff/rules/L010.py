@@ -186,7 +186,7 @@ class Rule_L010(BaseRule):
         May be overridden by subclasses, which is useful when the parse tree
         structure varies from this simple base case.
         """
-        return LintFix("edit", segment, segment.edit(fixed_raw))
+        return LintFix.replace(segment, [segment.edit(fixed_raw)])
 
     def _init_capitalisation_policy(self):
         """Called first time rule is evaluated to fetch & cache the policy."""

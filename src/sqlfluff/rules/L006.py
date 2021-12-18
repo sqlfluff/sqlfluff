@@ -163,11 +163,10 @@ class Rule_L006(BaseRule):
                                 before_anchor.raw[:10]
                             ),
                             fixes=[
-                                LintFix(
-                                    "create_before",
+                                LintFix.create_before(
                                     # NB the anchor here is always in the parent and not anchor
-                                    anchor=sub_seg,
-                                    edit=WhitespaceSegment(raw=" "),
+                                    anchor_segment=sub_seg,
+                                    edit_segments=[WhitespaceSegment(raw=" ")],
                                 )
                             ],
                         )
@@ -190,11 +189,10 @@ class Rule_L006(BaseRule):
                                 after_anchor.raw[-10:]
                             ),
                             fixes=[
-                                LintFix(
-                                    "create_before",
+                                LintFix.create_before(
                                     # NB the anchor here is always in the parent and not anchor
-                                    anchor=next_seg,
-                                    edit=WhitespaceSegment(raw=" "),
+                                    anchor_segment=next_seg,
+                                    edit_segments=[WhitespaceSegment(raw=" ")],
                                 )
                             ],
                         )

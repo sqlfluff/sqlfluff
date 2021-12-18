@@ -49,6 +49,6 @@ class Rule_L005(BaseRule):
                 and cm1.pos_marker.line_pos > 1
             ):
                 anchor = cm1
-                return LintResult(anchor=anchor, fixes=[LintFix("delete", cm1)])
+                return LintResult(anchor=anchor, fixes=[LintFix.delete(cm1)])
         # Otherwise fine
         return None
