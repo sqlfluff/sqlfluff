@@ -70,3 +70,13 @@ create table h(
     a boolean,
     b bool
 );
+
+create table i(
+    a point,
+    b line,
+    c lseg,
+    d box,
+    e path,
+    f polygon,
+    g circle
+);

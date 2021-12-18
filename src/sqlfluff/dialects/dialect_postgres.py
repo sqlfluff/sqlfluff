@@ -453,6 +453,8 @@ class DatatypeSegment(BaseSegment):
                 "BYTEA",
                 # boolean types
                 OneOf("BOOLEAN", "BOOL"),
+                # geometric types
+                OneOf("POINT", "LINE", "LSEG", "BOX", "PATH", "POLYGON", "CIRCLE")
                 Sequence(
                     "BINARY",
                     OneOf("VARYING", Sequence("LARGE", "OBJECT")),
@@ -465,6 +467,7 @@ class DatatypeSegment(BaseSegment):
                         allow_gaps=False,
                         optional=True,
                     ),
+                    # TODO change to UserDefinedDattypeIdentifierSegment as the standard types are listed above
                     Ref("DatatypeIdentifierSegment"),
                     OneOf(
                         Ref("ArrayAccessorSegment"),
