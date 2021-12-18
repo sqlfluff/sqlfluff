@@ -805,6 +805,8 @@ postgres_docs_keywords = [
     ("TRUE", "reserved"),
     ("TRUNCATE", "non-reserved"),
     ("TRUSTED", "non-reserved"),
+    ("TSQUERY", "non-reserved-(cannot-be-function-or-type)"),
+    ("TSVECTOR", "non-reserved-(cannot-be-function-or-type)"),
     ("TYPE", "non-reserved"),
     ("TYPES", "non-reserved"),
     ("UESCAPE", "non-reserved"),

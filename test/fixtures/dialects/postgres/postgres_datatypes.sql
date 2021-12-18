@@ -41,10 +41,10 @@ create table e(
     c character,
     d character(5),
     e character varying,
-    e character varying(8),
-    f varchar(9),
-    g varchar,
-    h text
+    f character varying(8),
+    g varchar(9),
+    h varchar,
+    i text
 );
 
 create table f(
@@ -94,3 +94,8 @@ create table k(
     c bit varying,
     d bit varying(5)
 );
+
+create table l(
+    a tsvector,
+    b tsquery
+)
