@@ -32,6 +32,10 @@ class Segments(tuple):
         cp = _CompositePredicate(*predicates)
         return any(cp(s) for s in self)
 
+    def reversed(self) -> "Segments":  # pragma: no cover
+        """Return the same segments in reverse order."""
+        return Segments(self.templated_file, *reversed(self))
+
     @property
     def raw_slices(self) -> RawFileSlices:
         """Raw slices of the segments."""
@@ -63,6 +67,7 @@ class Segments(tuple):
         for s in self:
             if cp(s):
                 return s
+        # If no segment satisfies "predicates", return "None".
         return None
 
     def last(self, *predicates) -> Optional[BaseSegment]:
@@ -71,6 +76,7 @@ class Segments(tuple):
         for s in reversed(self):
             if cp(s):
                 return s
+        # If no segment satisfies "predicates", return "None".
         return None
 
     def apply(self, fn: Callable[[BaseSegment], Any]) -> List[Any]:
