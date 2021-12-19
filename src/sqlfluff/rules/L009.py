@@ -114,8 +114,7 @@ class Rule_L009(BaseRule):
             return LintResult(
                 anchor=anchor_segment,
                 fixes=[
-                    LintFix(
-                        "create_after",
+                    LintFix.create_after(
                         edit_segment,
                         [NewlineSegment()],
                     )
@@ -125,5 +124,5 @@ class Rule_L009(BaseRule):
             # There are excess newlines so delete all bar one.
             return LintResult(
                 anchor=anchor_segment,
-                fixes=[LintFix("delete", d) for d in eof_newline_segments[1:]],
+                fixes=[LintFix.delete(d) for d in eof_newline_segments[1:]],
             )

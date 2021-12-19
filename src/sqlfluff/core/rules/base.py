@@ -20,7 +20,7 @@ import fnmatch
 import logging
 import pathlib
 import regex
-from typing import Optional, List, Set, Tuple, Union, Any
+from typing import Iterable, Optional, List, Set, Tuple, Union, Any
 from collections import namedtuple
 from dataclasses import dataclass
 
@@ -113,11 +113,16 @@ class LintFix:
 
     """
 
-    def __init__(self, edit_type, anchor: BaseSegment, edit=None):
+    def __init__(
+        self,
+        edit_type: str,
+        anchor: BaseSegment,
+        edit: Optional[Iterable[BaseSegment]] = None,
+    ) -> None:
         if edit_type not in (
             "create_before",
             "create_after",
-            "edit",
+            "replace",
             "delete",
         ):  # pragma: no cover
             raise ValueError(f"Unexpected edit_type: {edit_type}")
@@ -125,16 +130,16 @@ class LintFix:
         if not anchor:  # pragma: no cover
             raise ValueError("Fixes must provide an anchor.")
         self.anchor = anchor
-        # Coerce to list
-        if isinstance(edit, BaseSegment):
-            edit = [edit]
-        # Copy all the elements of edit to stop contamination.
-        # We're about to start stripping the position markers
-        # of some of the elements and we don't want to end up
-        # stripping the positions of the original elements of
-        # the parsed structure.
-        self.edit = copy.deepcopy(edit)
-        if self.edit:
+        self.edit: Optional[List[BaseSegment]] = None
+        if edit is not None:
+            # Coerce edit iterable to list
+            edit = list(edit)
+            # Copy all the elements of edit to stop contamination.
+            # We're about to start stripping the position markers
+            # off some of the elements and we don't want to end up
+            # stripping the positions of the original elements of
+            # the parsed structure.
+            self.edit = copy.deepcopy(edit)
             # Check that any edits don't have a position marker set.
             # We should rely on realignment to make position markers.
             # Strip position markers of anything enriched, otherwise things can get blurry
@@ -145,10 +150,10 @@ class LintFix:
                         "Developer Note: Edit segment found with preset position marker. "
                         "These should be unset and calculated later."
                     )
-                    seg.pos_marker = None
-        # Once stripped, we shouldn't replace any markers because
-        # later code may rely on them being accurate, which we
-        # can't guarantee with edits.
+                    seg.pos_marker = None  # type: ignore
+            # Once stripped, we shouldn't replace any markers because
+            # later code may rely on them being accurate, which we
+            # can't guarantee with edits.
 
     def is_trivial(self):
         """Return true if the fix is trivial.
@@ -165,20 +170,20 @@ class LintFix:
                     return True
             elif all(len(elem.raw) == 0 for elem in self.edit):
                 return True
-        elif self.edit_type == "edit" and self.edit == self.anchor:
+        elif self.edit_type == "replace" and self.edit == self.anchor:
             return True  # pragma: no cover TODO?
         return False
 
     def __repr__(self):
         if self.edit_type == "delete":
             detail = f"delete:{self.anchor.raw!r}"
-        elif self.edit_type in ("edit", "create_before", "create_after"):
+        elif self.edit_type in ("replace", "create_before", "create_after"):
             if hasattr(self.edit, "raw"):
                 new_detail = self.edit.raw  # pragma: no cover TODO?
             else:
                 new_detail = "".join(s.raw for s in self.edit)
 
-            if self.edit_type == "edit":
+            if self.edit_type == "replace":
                 detail = f"edt:{self.anchor.raw!r}->{new_detail!r}"
             else:
                 detail = f"create:{new_detail!r}"
@@ -202,6 +207,32 @@ class LintFix:
         if not self.edit == other.edit:
             return False
         return True  # pragma: no cover TODO?
+
+    @classmethod
+    def delete(cls, anchor_segment: BaseSegment) -> "LintFix":
+        """Delete supplied anchor segment."""
+        return cls("delete", anchor_segment)
+
+    @classmethod
+    def replace(
+        cls, anchor_segment: BaseSegment, edit_segments: Iterable[BaseSegment]
+    ) -> "LintFix":
+        """Replace supplied anchor segment with the edit segments."""
+        return cls("replace", anchor_segment, edit_segments)
+
+    @classmethod
+    def create_before(
+        cls, anchor_segment: BaseSegment, edit_segments: Iterable[BaseSegment]
+    ) -> "LintFix":
+        """Create edit segments before the supplied anchor segment."""
+        return cls("create_before", anchor_segment, edit_segments)
+
+    @classmethod
+    def create_after(
+        cls, anchor_segment: BaseSegment, edit_segments: Iterable[BaseSegment]
+    ) -> "LintFix":
+        """Create edit segments after the supplied anchor segment."""
+        return cls("create_after", anchor_segment, edit_segments)
 
 
 EvalResultType = Union[LintResult, List[LintResult], None]

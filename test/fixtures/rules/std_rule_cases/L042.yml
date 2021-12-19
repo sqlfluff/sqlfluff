@@ -18,7 +18,7 @@ select_multijoin_fail:
     join (
         select x, z from b
     ) using (x)
-  
+
 with_fail:
   fail_str: |
     select
@@ -30,7 +30,7 @@ with_fail:
         )
         select * from d
     ) using (x)
-  
+
 set_fail:
   fail_str: |
     select

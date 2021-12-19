@@ -70,6 +70,6 @@ class Rule_L001(BaseRule):
                     return LintResult()
             return LintResult(
                 anchor=deletions[-1],
-                fixes=[LintFix("delete", d) for d in deletions],
+                fixes=[LintFix.delete(d) for d in deletions],
             )
         return LintResult()
