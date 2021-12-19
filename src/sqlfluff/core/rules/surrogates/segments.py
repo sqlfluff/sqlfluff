@@ -21,6 +21,12 @@ class Segments(tuple):
 
     def __init__(self, templated_file: Optional[TemplatedFile], *_: BaseSegment):
         self.templated_file = templated_file
+    
+    def __add__(self, _segments: "Segments") -> "Segments":
+        return Segments(self.templated_file, *tuple(self).__add__(tuple(_segments)))
+    
+    def append(self, segment) -> "Segments":
+        return self.__add__(Segments(self.templated_file, segment))
 
     def all(self, *predicates: Predicate) -> bool:
         """Do all the segments match?"""

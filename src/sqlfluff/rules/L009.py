@@ -1,11 +1,12 @@
 """Implementation of Rule L009."""
-from typing import List, Optional
+from typing import Optional
 
 from sqlfluff.core.parser import NewlineSegment
-from sqlfluff.core.parser.segments.base import BaseSegment
 
 from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix, RuleContext
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
+from sqlfluff.core.rules.surrogates import Segments
+import sqlfluff.core.rules.surrogates.segment_predicates as segpred
 
 
 @document_fix_compatible
@@ -85,37 +86,32 @@ class Rule_L009(BaseRule):
         if not self.is_final_segment(context):
             return None
 
-        # Include current segment for complete stack.
-        complete_stack: List[BaseSegment] = list(context.raw_stack)
-        complete_stack.append(context.segment)
+        # Include current segment for complete stack and reverse.
+        parent_stack: Segments = context.surrogates.parent_stack
+        raw_stack: Segments = context.surrogates.raw_stack
+        complete_stack = raw_stack.append(context.segment)
+        reversed_complete_stack = complete_stack.reversed()
 
-        # Iterate backwards over complete stack to find
-        # last non-newline/whitespace/Dedent segment
-        # and the newline segments following it.
-        anchor_segment = context.segment
-        eof_newline_segments = []
-        for segment in complete_stack[::-1]:
-            if segment.is_type("newline"):
-                eof_newline_segments.append(segment)
-            elif segment.name not in ("whitespace", "Dedent"):
-                break
-            anchor_segment = segment
+        # Find the trailing newline segments.
+        trailing_newlines = reversed_complete_stack.select(
+            select_if=["newline"], loop_while=[lambda x: x.is_whitespace or x.is_meta]
+        )
 
-        if len(eof_newline_segments) == 1:
+        if len(trailing_newlines) == 1:
             # No need for fix if single new line exists.
             return None
-        elif len(eof_newline_segments) == 0:
+        elif len(trailing_newlines) == 0:
             # We make an edit to create this segment after the child of the FileSegment.
-            if len(context.parent_stack) == 1:
-                edit_segment = context.segment
+            if len(parent_stack) == 1:
+                fix_anchor_segment = context.segment
             else:
-                edit_segment = context.parent_stack[1]
+                fix_anchor_segment = parent_stack[1]
 
             return LintResult(
-                anchor=anchor_segment,
+                anchor=context.segment,
                 fixes=[
                     LintFix.create_after(
-                        edit_segment,
+                        fix_anchor_segment,
                         [NewlineSegment()],
                     )
                 ],
@@ -123,6 +119,6 @@ class Rule_L009(BaseRule):
         else:
             # There are excess newlines so delete all bar one.
             return LintResult(
-                anchor=anchor_segment,
-                fixes=[LintFix.delete(d) for d in eof_newline_segments[1:]],
+                anchor=context.segment,
+                fixes=[LintFix.delete(d) for d in trailing_newlines[1:]],
             )
