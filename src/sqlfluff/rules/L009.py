@@ -6,7 +6,7 @@ from sqlfluff.core.parser import NewlineSegment
 from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix, RuleContext
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 from sqlfluff.core.rules.surrogates import Segments
-import sqlfluff.core.rules.surrogates.segment_predicates as segpred
+from sqlfluff.core.rules.surrogates.segments import Predicate
 
 
 @document_fix_compatible
@@ -88,13 +88,15 @@ class Rule_L009(BaseRule):
 
         # Include current segment for complete stack and reverse.
         parent_stack: Segments = context.surrogates.parent_stack
-        raw_stack: Segments = context.surrogates.raw_stack
-        complete_stack = raw_stack.append(context.segment)
+        complete_stack: Segments = context.surrogates.raw_stack
+        complete_stack.append(context.segment)
         reversed_complete_stack = complete_stack.reversed()
 
         # Find the trailing newline segments.
+        p: Predicate = lambda x: bool(x.is_whitespace or x.is_meta)
         trailing_newlines = reversed_complete_stack.select(
-            select_if=["newline"], loop_while=[lambda x: x.is_whitespace or x.is_meta]
+            select_if=["newline"],
+            loop_while=[p],
         )
 
         if len(trailing_newlines) == 1:

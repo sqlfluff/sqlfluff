@@ -1,14 +1,14 @@
 """Surrogate class for working with Segment collections."""
-from typing import Any, Callable, List, Optional, Sequence, Type, TypeVar
+from typing import Any, Callable, List, Optional, Sequence, Type, Union
 
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.templaters.base import TemplatedFile
 from sqlfluff.core.rules.surrogates.raw_file_slice import RawFileSlices
 
-Predicate = TypeVar("Predicate", str, Type, Callable[[BaseSegment], bool])
+Predicate = Union[str, Type, Callable[[BaseSegment], bool]]
 
 
-class Segments(tuple):
+class Segments(list):
     """Encapsulates a sequence of one or more BaseSegments.
 
     The segments may or may not be contiguous in a parse tree.
@@ -19,26 +19,24 @@ class Segments(tuple):
         """Override new operator."""
         return super(Segments, cls).__new__(cls, segments)
 
-    def __init__(self, templated_file: Optional[TemplatedFile], *_: BaseSegment):
+    def __init__(self, templated_file: Optional[TemplatedFile], *segments: BaseSegment):
         self.templated_file = templated_file
-    
-    def __add__(self, _segments: "Segments") -> "Segments":
-        return Segments(self.templated_file, *tuple(self).__add__(tuple(_segments)))
-    
-    def append(self, segment) -> "Segments":
-        return self.__add__(Segments(self.templated_file, segment))
+        self[:] = list(segments)
+
+    def __add__(self, segments) -> "Segments":
+        return Segments(self.templated_file, *list(self).__add__(list(segments)))
 
     def all(self, *predicates: Predicate) -> bool:
         """Do all the segments match?"""
         cp = _CompositePredicate(*predicates)
         return all(cp(s) for s in self)
 
-    def any(self, *predicates: Predicate) -> bool:  # pragma: no cover
+    def any(self, *predicates: Predicate) -> bool:
         """Do any of the segments match?"""
         cp = _CompositePredicate(*predicates)
         return any(cp(s) for s in self)
 
-    def reversed(self) -> "Segments":  # pragma: no cover
+    def reversed(self) -> "Segments":
         """Return the same segments in reverse order."""
         return Segments(self.templated_file, *reversed(self))
 

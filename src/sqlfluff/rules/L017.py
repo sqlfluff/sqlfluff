@@ -39,8 +39,8 @@ class Rule_L017(BaseRule):
         if segment.all("function"):
             children = segment.children()
 
-            function_name = children.first("function_name")
-            start_bracket = children.first("bracketed")
+            function_name = children.first("function_name")[0]
+            start_bracket = children.first("bracketed")[0]
             if (
                 function_name
                 and start_bracket

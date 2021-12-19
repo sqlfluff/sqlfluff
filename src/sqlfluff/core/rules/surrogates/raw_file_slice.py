@@ -6,7 +6,7 @@ from sqlfluff.core.templaters.base import RawFileSlice, TemplatedFile
 Predicate = TypeVar("Predicate", str, Callable[[RawFileSlice], bool])
 
 
-class RawFileSlices(tuple):
+class RawFileSlices(list):
     """Encapsulates a sequence of one or more RawFileSlice.
 
     The slices may or may not be contiguous in a file.
@@ -17,8 +17,9 @@ class RawFileSlices(tuple):
         """Override new operator."""
         return super(RawFileSlices, cls).__new__(cls, raw_slices)
 
-    def __init__(self, templated_file: TemplatedFile, *_: RawFileSlice):
+    def __init__(self, templated_file: TemplatedFile, *raw_slices: RawFileSlice):
         self.templated_file = templated_file
+        self[:] = list(raw_slices)
 
     def all(self, *predicates: Predicate) -> bool:  # pragma: no cover
         """Do all the raw slices match?"""

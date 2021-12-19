@@ -266,17 +266,17 @@ class Surrogates:
     def __init__(self, context: RuleContext):
         self.context = context
 
-    @cached_property
+    @property
     def segment(self) -> "Segments":
         """Returns a Segments object for context.segment."""
         return Segments(self.context.templated_file, self.context.segment)
 
-    @cached_property
+    @property
     def raw_stack(self) -> "Segments":
         """Returns a Segments object for context.raw_stack."""
         return Segments(self.context.templated_file, *self.context.raw_stack)
 
-    @cached_property
+    @property
     def parent_stack(self) -> "Segments":  # pragma: no cover
         """Returns a Segments object for context.parent_stack."""
         return Segments(self.context.templated_file, *self.context.parent_stack)
