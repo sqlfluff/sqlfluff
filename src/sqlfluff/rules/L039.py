@@ -66,4 +66,22 @@ class Rule_L039(BaseRule):
                         )
                 prev_newline = False
                 prev_whitespace = None
+
+            if seg.is_type("object_reference"):
+                # This variable is a workaround to avoid removing new indents added at the beginning of a segment by L003.
+                # See Github issue #1304: https://github.com/sqlfluff/sqlfluff/issues/1304
+                # It represents the question: are we parsing through leading whitespace in this loop?
+                leading_whitespace = True
+                for child_seg in seg.get_raw_segments():
+                    if child_seg.is_whitespace:
+                        if not leading_whitespace:
+                            violations.append(
+                                LintResult(
+                                    anchor=child_seg,
+                                    fixes=[LintFix.delete(child_seg)],
+                                )
+                            )
+                    else:
+                        leading_whitespace = False
+
         return violations or None
