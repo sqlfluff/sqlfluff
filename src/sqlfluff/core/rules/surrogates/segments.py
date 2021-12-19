@@ -20,8 +20,8 @@ class Segments(list):
         return super(Segments, cls).__new__(cls, segments)
 
     def __init__(self, templated_file: Optional[TemplatedFile], *segments: BaseSegment):
+        super().__init__(segments)
         self.templated_file = templated_file
-        self[:] = list(segments)
 
     def __add__(self, segments) -> "Segments":
         return Segments(self.templated_file, *list(self).__add__(list(segments)))

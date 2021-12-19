@@ -1,9 +1,9 @@
 """Surrogate class for working with RawFileSlice collections."""
-from typing import Callable, Set, TypeVar
+from typing import Callable, Set, Union
 
 from sqlfluff.core.templaters.base import RawFileSlice, TemplatedFile
 
-Predicate = TypeVar("Predicate", str, Callable[[RawFileSlice], bool])
+Predicate = Union[str, Callable[[RawFileSlice], bool]]
 
 
 class RawFileSlices(list):
@@ -18,8 +18,8 @@ class RawFileSlices(list):
         return super(RawFileSlices, cls).__new__(cls, raw_slices)
 
     def __init__(self, templated_file: TemplatedFile, *raw_slices: RawFileSlice):
+        super().__init__(raw_slices)
         self.templated_file = templated_file
-        self[:] = list(raw_slices)
 
     def all(self, *predicates: Predicate) -> bool:  # pragma: no cover
         """Do all the raw slices match?"""
