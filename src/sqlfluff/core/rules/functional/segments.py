@@ -24,7 +24,10 @@ class Segments(list):
         self.templated_file = templated_file
 
     def __add__(self, segments) -> "Segments":
-        return Segments(self.templated_file, *list(self).__add__(list(segments)))
+        return Segments(self.templated_file, *super().__add__(segments))
+
+    def __radd__(self, segments) -> "Segments":
+        return Segments(self.templated_file, *list(segments).__add__(list(self)))
 
     def all(self, *predicates: Predicate) -> bool:
         """Do all the segments match?"""
@@ -118,23 +121,44 @@ class Segments(list):
 
 class _CompositePredicate:
     def __init__(self, *predicates: Predicate):
+        """Group the predicates into categories."""
         self.type_names: List[str] = []
-        self.other = []
+        self.types = []
+        self.functions: List[Callable[[BaseSegment], bool]] = []
         for p in predicates:
             if isinstance(p, str):
                 self.type_names.append(p)
+            elif isinstance(p, type):
+                self.types.append(p)
             else:
-                self.other.append(p)
+                self.functions.append(p)
 
     def __call__(self, segment: BaseSegment) -> bool:
+        """Evaluate whether True or False."""
+        # For each non-empty predicate category, check for a match, returning
+        # True if at least one predicate in that category matches the segment,
+        # otherwise False.
         if self.type_names and not segment.is_type(*self.type_names):
             return False
 
-        for p in self.other:
-            if isinstance(p, type):
-                # Check segment class
-                if not isinstance(segment, p):  # pragma: no cover
-                    return False
-            elif not p(segment):  # Arbitrary function
+        if self.types:
+            type_match = False
+            p_type: Type
+            for p_type in self.types:
+                if isinstance(segment, p_type):
+                    type_match = True
+                    break
+            if not type_match:
                 return False
+
+        if self.functions:
+            function_match = False
+            p_fn: Callable[[BaseSegment], bool]
+            for p_fn in self.functions:
+                if p_fn(segment):
+                    function_match = True
+                    break
+            if not function_match:
+                return False
+
         return True
