@@ -28,7 +28,7 @@ which should give you a sensible read out and not an error.
 .. code-block:: bash
 
     $ python --version
-    Python 3.6.7
+    Python 3.9.1
 
 For most people, their installation of python will come with
 :code:`pip` (the python package manager) preinstalled. To confirm
