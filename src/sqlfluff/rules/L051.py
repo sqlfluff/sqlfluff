@@ -47,8 +47,7 @@ class Rule_L051(BaseRule):
         return LintResult(
             context.segment.segments[0],
             fixes=[
-                LintFix(
-                    "create_before",
+                LintFix.create_before(
                     context.segment.segments[0],
                     [KeywordSegment("INNER"), WhitespaceSegment()],
                 )

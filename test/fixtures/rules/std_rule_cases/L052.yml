@@ -152,9 +152,9 @@ test_fail_multi_statement_no_trailing_semi_colon_custom_require_multiline:
 test_fail_space_semi_colon_default:
   fail_str: |
     SELECT a FROM foo  ;
-  fix_str: | 
+  fix_str: |
     SELECT a FROM foo;
-  
+
 test_fail_newline_semi_colon_default:
   fail_str: |
     SELECT a FROM foo
@@ -175,7 +175,7 @@ test_pass_newline_semi_colon_custom_newline:
 test_fail_multi_statement_semi_colon_default:
   fail_str: |
     SELECT a FROM foo
-    
+
     ;
     SELECT b FROM bar    ;
   fix_str: |
@@ -186,7 +186,7 @@ test_fail_multi_statement_semi_colon_custom_require_multiline:
   fail_str: |
     SELECT a
     FROM foo
-    
+
     ;
     SELECT b
     FROM bar    ;
@@ -286,7 +286,7 @@ test_fail_newline_inline_comment:
   fail_str: |
     SELECT a
     FROM foo -- inline comment
-    
+
     ;
   fix_str: |
     SELECT a
@@ -300,7 +300,7 @@ test_fail_newline_inline_comment:
 test_fail_newline_multiple_inline_comments_custom_oneline:
   fail_str: |
     SELECT a FROM foo -- inline comment #1
-    
+
     -- inline comment #2
 
     ;
@@ -317,7 +317,7 @@ test_fail_newline_multiple_inline_comments_custom_multiline:
   fail_str: |
     SELECT a
     FROM foo -- inline comment #1
-    
+
     -- inline comment #2
 
     ;

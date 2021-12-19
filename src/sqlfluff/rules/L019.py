@@ -179,17 +179,16 @@ class Rule_L019(BaseRule):
                         anchor=last_leading_comma_seg,
                         description="Found leading comma. Expected only trailing.",
                         fixes=[
-                            LintFix("delete", last_leading_comma_seg),
+                            LintFix.delete(last_leading_comma_seg),
                             *[
-                                LintFix("delete", d)
+                                LintFix.delete(d)
                                 for d in memory["whitespace_deletions"]
                             ],
-                            LintFix(
-                                "create_before",
-                                anchor=self._get_following_seg(
+                            LintFix.create_before(
+                                anchor_segment=self._get_following_seg(
                                     context.raw_stack, last_code_seg
                                 ),
-                                edit=last_leading_comma_seg,
+                                edit_segments=[last_leading_comma_seg],
                             ),
                         ],
                     )
@@ -218,11 +217,10 @@ class Rule_L019(BaseRule):
                         anchor=last_comma_seg,
                         description="Found trailing comma. Expected only leading.",
                         fixes=[
-                            LintFix("delete", anchor=last_comma_seg),
-                            LintFix(
-                                "create_before",
-                                anchor=context.segment,
-                                edit=[last_comma_seg, new_whitespace_seg],
+                            LintFix.delete(last_comma_seg),
+                            LintFix.create_before(
+                                anchor_segment=context.segment,
+                                edit_segments=[last_comma_seg, new_whitespace_seg],
                             ),
                         ],
                     )

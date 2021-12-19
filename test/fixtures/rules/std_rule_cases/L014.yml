@@ -60,14 +60,14 @@ test_pass_consistent_capitalisation_policy_pascal_3:
         extended_capitalisation_policy: pascal
 
 test_pass_consistent_capitalisation_policy_pascal_4:
-  pass_str: SELECT PasCalCaSe 
+  pass_str: SELECT PasCalCaSe
   configs:
     rules:
       L014:
         extended_capitalisation_policy: pascal
 
 test_pass_consistent_capitalisation_policy_pascal_5:
-  pass_str: SELECT PAscalcase 
+  pass_str: SELECT PAscalcase
   configs:
     rules:
       L014:
@@ -78,7 +78,7 @@ test_pass_consistent_capitalisation_policy_pascal_6:
   # unless we introduce a full dictionarry of words to recognise
   # where word breaks are (an impossible task!). Also what about
   # abbreviations (e.g. NASA)?
-  pass_str: SELECT PASCALCASE 
+  pass_str: SELECT PASCALCASE
   configs:
     rules:
       L014:
