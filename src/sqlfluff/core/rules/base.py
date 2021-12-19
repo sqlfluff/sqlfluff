@@ -130,6 +130,7 @@ class LintFix:
         if not anchor:  # pragma: no cover
             raise ValueError("Fixes must provide an anchor.")
         self.anchor = anchor
+        self.edit: Optional[List[BaseSegment]] = None
         if edit is not None:
             # Coerce edit iterable to list
             edit = list(edit)
@@ -153,8 +154,6 @@ class LintFix:
             # Once stripped, we shouldn't replace any markers because
             # later code may rely on them being accurate, which we
             # can't guarantee with edits.
-        else:
-            self.edit = None
 
     def is_trivial(self):
         """Return true if the fix is trivial.
