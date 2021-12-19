@@ -133,6 +133,7 @@ class LintFix:
         if not anchor:  # pragma: no cover
             raise ValueError("Fixes must provide an anchor.")
         self.anchor = anchor
+        self.edit: Optional[List[BaseSegment]] = None
         if edit is not None:
             # Coerce edit iterable to list
             edit = list(edit)
