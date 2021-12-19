@@ -16,3 +16,15 @@ test_simple_fix:
     select
         1 + 2 + 3 + 4        -- Comment
     from foo
+
+test_identifier_fix:
+  fail_str: |
+    SELECT [thistable] . [col]
+    FROM [thisdatabase] . [thisschema]
+            . [thistable]
+  fix_str: |
+    SELECT [thistable].[col]
+    FROM [thisdatabase].[thisschema].[thistable]
+  configs:
+    core:
+      dialect: tsql
