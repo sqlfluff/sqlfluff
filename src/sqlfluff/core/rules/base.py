@@ -153,6 +153,8 @@ class LintFix:
             # Once stripped, we shouldn't replace any markers because
             # later code may rely on them being accurate, which we
             # can't guarantee with edits.
+        else:
+            self.edit = None
 
     def is_trivial(self):
         """Return true if the fix is trivial.
