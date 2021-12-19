@@ -1,7 +1,7 @@
 """Contains SQL Dialects.
 
 Note that individual dialects are only imported as needed at runtime.
-This avoids circular references in python 3.6.
+This avoids circular references.
 
 To enable this, any modules outside of .dialects cannot import dialects
 directly. They should import `dialect_selector` and use that to fetch
