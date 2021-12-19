@@ -2,7 +2,7 @@
 from typing import Optional
 
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
-import sqlfluff.core.rules.surrogates.segment_predicates as segpred
+import sqlfluff.core.rules.functional.segment_predicates as segpred
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
 

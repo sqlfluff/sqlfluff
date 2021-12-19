@@ -30,7 +30,7 @@ from sqlfluff.core.linter import LintedFile
 from sqlfluff.core.parser import BaseSegment, RawSegment
 from sqlfluff.core.dialects import Dialect
 from sqlfluff.core.errors import SQLLintError
-from sqlfluff.core.rules.surrogates import Segments
+from sqlfluff.core.rules.functional import Segments
 from sqlfluff.core.templaters.base import RawFileSlice, TemplatedFile
 
 # The ghost of a rule (mostly used for testing)

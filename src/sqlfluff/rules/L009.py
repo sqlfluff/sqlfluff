@@ -5,8 +5,8 @@ from sqlfluff.core.parser import NewlineSegment
 
 from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix, RuleContext
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
-from sqlfluff.core.rules.surrogates import Segments
-from sqlfluff.core.rules.surrogates.segments import Predicate
+from sqlfluff.core.rules.functional import Segments
+from sqlfluff.core.rules.functional.segments import Predicate
 
 
 @document_fix_compatible
