@@ -28,7 +28,7 @@ which should give you a sensible read out and not an error.
 .. code-block:: bash
 
     $ python --version
-    Python 3.6.7
+    Python 3.9.1
 
 For most people, their installation of python will come with
 :code:`pip` (the python package manager) preinstalled. To confirm
@@ -37,7 +37,7 @@ this you can type :code:`pip --version` similar to python above.
 .. code-block:: bash
 
     $ pip --version
-    pip 10.0.1 from ...
+    pip 21.3.1 from ...
 
 If however, you do have python installed but not :code:`pip`, then
 the best instructions for what to do next are `on the python website`_.
