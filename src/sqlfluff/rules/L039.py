@@ -67,17 +67,7 @@ class Rule_L039(BaseRule):
                 prev_newline = False
                 prev_whitespace = None
 
-            if (
-                seg.is_type("object_reference")
-                or seg.is_type("table_reference")
-                or seg.is_type("schema_reference")
-                or seg.is_type("database_reference")
-                or seg.is_type("index_reference")
-                or seg.is_type("extension_reference")
-                or seg.is_type("column_reference")
-                or seg.is_type("sequence_reference")
-                or seg.is_type("trigger_reference")
-            ):
+            if seg.is_type("object_reference"):
                 # This FOR is a workaround to avoid removing new indents added at the beginning of a segment by L003.
                 # See Github issue #1304: https://github.com/sqlfluff/sqlfluff/issues/1304
                 for child_seg in seg.get_raw_segments()[1:]:
