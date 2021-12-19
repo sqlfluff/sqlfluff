@@ -86,9 +86,8 @@ class Rule_L039(BaseRule):
                             LintResult(
                                 anchor=child_seg,
                                 fixes=[
-                                    LintFix(
-                                        "delete",
-                                        child_seg,
+                                    LintFix.delete(
+                                        child_seg
                                     )
                                 ],
                             )
