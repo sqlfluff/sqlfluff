@@ -3,9 +3,7 @@ from typing import Optional
 
 from sqlfluff.core.rules.base import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import document_configuration
-
-# :TRICKY: Use relative import to work around a Python 3.6 issue.
-from ..core.rules.surrogates import segment_predicates as segpred
+import sqlfluff.core.rules.surrogates.segment_predicates as segpred
 
 
 @document_configuration
