@@ -81,7 +81,7 @@ class Rule_L039(BaseRule):
                 # This FOR is a workaround to avoid removing new indents added at the beginning of a segment by L003.
                 # See Github issue #1304: https://github.com/sqlfluff/sqlfluff/issues/1304
                 for child_seg in seg.get_raw_segments()[1:]:
-                    if child_seg.is_type("whitespace") or child_seg.is_type("newline"):
+                    if child_seg.is_whitespace:
                         violations.append(
                             LintResult(
                                 anchor=child_seg,
