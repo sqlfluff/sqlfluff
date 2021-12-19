@@ -3,6 +3,7 @@ from typing import Optional
 
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
 import sqlfluff.core.rules.functional.segment_predicates as segpred
+import sqlfluff.core.rules.functional.raw_file_slice_predicates as rfspred
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
 
@@ -78,11 +79,11 @@ class Rule_L050(BaseRule):
         # Non-whitespace segment.
         if (
             # Non-whitespace segment.
-            not segment.all(*whitespace_types)
+            not segment.all(segpred.is_type(*whitespace_types))
             # We want first Non-whitespace segment so
             # all preceding segments must be whitespace
             # and at least one is not meta.
-            and raw_stack.all(*whitespace_types)
+            and raw_stack.all(segpred.is_type(*whitespace_types))
             and not raw_stack.all(segpred.is_meta)
             # Found leaf of parse tree.
             and not segment.all(segpred.is_expandable)
@@ -91,7 +92,7 @@ class Rule_L050(BaseRule):
             # We therefore should flag if a templated raw slice intersects with the
             # source slices in the raw stack and skip this rule to avoid risking
             # collisions with template objects.
-            and not raw_stack.raw_slices.any("templated")
+            and not raw_stack.raw_slices.any(rfspred.is_slice_type("templated"))
         ):
             return LintResult(
                 anchor=context.parent_stack[0],

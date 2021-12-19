@@ -45,8 +45,8 @@ class Rule_L013(BaseRule):
         """
         segment = context.surrogates.segment
         children = segment.children()
-        if segment.all("select_clause_element") and not children.any(
-            "alias_expression"
+        if segment.all(segpred.is_type("select_clause_element")) and not children.any(
+            segpred.is_type("alias_expression")
         ):
             types = set(
                 children.select([lambda s: s.name != "star"]).apply(segpred.get_type)
@@ -66,7 +66,9 @@ class Rule_L013(BaseRule):
                     # report an error.
                     immediate_parent = context.surrogates.parent_stack.last()
                     num_elements = len(
-                        immediate_parent.children("select_clause_element")
+                        immediate_parent.children(
+                            segpred.is_type("select_clause_element")
+                        )
                     )
                     if num_elements > 1:
                         return LintResult(anchor=context.segment)

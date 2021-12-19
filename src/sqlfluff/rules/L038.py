@@ -48,7 +48,7 @@ class Rule_L038(BaseRule):
 
         segment = context.surrogates.segment
         children = segment.children()
-        if segment.all("select_clause"):
+        if segment.all(segpred.is_type("select_clause")):
             # Iterate content to find last element
             last_content: BaseSegment = children.last(segpred.is_code)[0]
 

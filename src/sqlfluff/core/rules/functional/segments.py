@@ -1,11 +1,11 @@
 """Surrogate class for working with Segment collections."""
-from typing import Any, Callable, List, Optional, Sequence, Type, Union
+from typing import Any, Callable, List, Optional, Sequence
 
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.templaters.base import TemplatedFile
 from sqlfluff.core.rules.functional.raw_file_slices import RawFileSlices
 
-Predicate = Union[str, Type, Callable[[BaseSegment], bool]]
+Predicate = Callable[[BaseSegment], bool]
 
 
 class Segments(list):
@@ -31,13 +31,17 @@ class Segments(list):
 
     def all(self, *predicates: Predicate) -> bool:
         """Do all the segments match?"""
-        cp = _CompositePredicate(*predicates)
-        return all(cp(s) for s in self)
+        for s in self:
+            if predicates and not any(p(s) for p in predicates):
+                return False
+        return True
 
     def any(self, *predicates: Predicate) -> bool:
         """Do any of the segments match?"""
-        cp = _CompositePredicate(*predicates)
-        return any(cp(s) for s in self)
+        for s in self:
+            if not predicates or any(p(s) for p in predicates):
+                return True
+        return False
 
     def reversed(self) -> "Segments":
         """Return the same segments in reverse order."""
@@ -61,27 +65,24 @@ class Segments(list):
     def children(self, *predicates: Predicate) -> "Segments":
         """Returns an object with children of the segments in this object."""
         child_segments: List[BaseSegment] = []
-        cp = _CompositePredicate(*predicates)
         for s in self:
             for child in s.segments:
-                if cp(child):
+                if not predicates or any(p(child) for p in predicates):
                     child_segments.append(child)
         return Segments(self.templated_file, *child_segments)
 
     def first(self, *predicates) -> Optional["Segments"]:
         """Returns the first segment (if any) that satisfies the predicates."""
-        cp = _CompositePredicate(*predicates)
         for s in self:
-            if cp(s):
+            if not predicates or any(p(s) for p in predicates):
                 return Segments(self.templated_file, s)
         # If no segment satisfies "predicates", return "None".
         return None
 
     def last(self, *predicates) -> Optional["Segments"]:
         """Returns the last segment (if any) that satisfies the predicates."""
-        cp = _CompositePredicate(*predicates)
         for s in reversed(self):
-            if cp(s):
+            if not predicates or any(p(s) for p in predicates):
                 return Segments(self.templated_file, s)
         # If no segment satisfies "predicates", return "None".
         return None
@@ -105,60 +106,9 @@ class Segments(list):
         start_index = self.index(start_seg) if start_seg else -1
         stop_index = self.index(stop_seg) if stop_seg else len(self)
         buff = []
-        cp_select_if = None
-        if select_if:
-            cp_select_if = _CompositePredicate(*select_if)
-        cp_loop_while = None
-        if loop_while:
-            cp_loop_while = _CompositePredicate(*loop_while)
         for seg in self[start_index + 1 : stop_index]:
-            if cp_loop_while and not cp_loop_while(seg):
+            if loop_while and not any(p(seg) for p in loop_while):
                 break
-            if not cp_select_if or cp_select_if(seg):
+            if not select_if or any(p(seg) for p in select_if):
                 buff.append(seg)
         return Segments(self.templated_file, *buff)
-
-
-class _CompositePredicate:
-    def __init__(self, *predicates: Predicate):
-        """Group the predicates into categories."""
-        self.type_names: List[str] = []
-        self.types = []
-        self.functions: List[Callable[[BaseSegment], bool]] = []
-        for p in predicates:
-            if isinstance(p, str):
-                self.type_names.append(p)
-            elif isinstance(p, type):
-                self.types.append(p)
-            else:
-                self.functions.append(p)
-
-    def __call__(self, segment: BaseSegment) -> bool:
-        """Evaluate whether True or False."""
-        # For each non-empty predicate category, check for a match, returning
-        # True if at least one predicate in that category matches the segment,
-        # otherwise False.
-        if self.type_names and not segment.is_type(*self.type_names):
-            return False
-
-        if self.types:
-            type_match = False
-            p_type: Type
-            for p_type in self.types:
-                if isinstance(segment, p_type):
-                    type_match = True
-                    break
-            if not type_match:
-                return False
-
-        if self.functions:
-            function_match = False
-            p_fn: Callable[[BaseSegment], bool]
-            for p_fn in self.functions:
-                if p_fn(segment):
-                    function_match = True
-                    break
-            if not function_match:
-                return False
-
-        return True

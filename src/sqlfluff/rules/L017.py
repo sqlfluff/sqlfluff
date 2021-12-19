@@ -2,6 +2,7 @@
 
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
+import sqlfluff.core.rules.functional.segment_predicates as segpred
 
 
 @document_fix_compatible
@@ -36,11 +37,11 @@ class Rule_L017(BaseRule):
         """
         segment = context.surrogates.segment
         # We only trigger on start_bracket (open parenthesis)
-        if segment.all("function"):
+        if segment.all(segpred.is_type("function")):
             children = segment.children()
 
-            function_name = children.first("function_name")[0]
-            start_bracket = children.first("bracketed")[0]
+            function_name = children.first(segpred.is_type("function_name"))[0]
+            start_bracket = children.first(segpred.is_type("bracketed"))[0]
             if (
                 function_name
                 and start_bracket
@@ -51,7 +52,7 @@ class Rule_L017(BaseRule):
                 intermediate_segments = children.select(
                     start_seg=function_name, stop_seg=start_bracket
                 )
-                if intermediate_segments.all("whitespace", "newline"):
+                if intermediate_segments.all(segpred.is_type("whitespace", "newline")):
                     return LintResult(
                         anchor=intermediate_segments[0],
                         fixes=[LintFix.delete(seg) for seg in intermediate_segments],

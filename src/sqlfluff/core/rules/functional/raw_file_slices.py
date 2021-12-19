@@ -1,9 +1,9 @@
 """Surrogate class for working with RawFileSlice collections."""
-from typing import Callable, Set, Union
+from typing import Callable
 
 from sqlfluff.core.templaters.base import RawFileSlice, TemplatedFile
 
-Predicate = Union[str, Callable[[RawFileSlice], bool]]
+Predicate = Callable[[RawFileSlice], bool]
 
 
 class RawFileSlices(list):
@@ -23,37 +23,14 @@ class RawFileSlices(list):
 
     def all(self, *predicates: Predicate) -> bool:
         """Do all the raw slices match?"""
-        cp = _CompositePredicate(*predicates)
-        return all(cp(rs) for rs in self)
+        for s in self:
+            if predicates and not any(p(s) for p in predicates):
+                return False
+        return True
 
     def any(self, *predicates: Predicate) -> bool:
         """Do any of the raw slices match?"""
-        cp = _CompositePredicate(*predicates)
-        return any(cp(rs) for rs in self)
-
-
-class _CompositePredicate:
-    def __init__(self, *predicates: Predicate):
-        self.slice_types: Set[str] = set()
-        self.functions = []
-        for p in predicates:
-            if isinstance(p, str):
-                self.slice_types.add(p)
-            else:
-                self.functions.append(p)
-
-    def __call__(self, raw_slice: RawFileSlice) -> bool:
-        if self.slice_types and raw_slice.slice_type not in self.slice_types:
-            return False
-
-        if self.functions:
-            function_match = False
-            p_fn: Callable[[RawFileSlice], bool]
-            for p_fn in self.functions:
-                if p_fn(raw_slice):
-                    function_match = True
-                    break
-            if not function_match:
-                return False
-
-        return True
+        for s in self:
+            if not predicates or any(p(s) for p in predicates):
+                return True
+        return False

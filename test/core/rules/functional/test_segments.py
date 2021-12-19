@@ -1,7 +1,6 @@
 """Tests for the segments module."""
 import pytest
 
-from sqlfluff.core.parser.segments.meta import MetaSegment
 from sqlfluff.core.parser.segments.raw import RawSegment
 from sqlfluff.core.rules.functional import segments
 
@@ -109,32 +108,3 @@ def test_segments_last():
 def test_segments_apply():
     """Test the "apply()" function."""
     assert segments.Segments(None, seg1, seg2).apply(lambda s: s.raw[-1]) == ["1", "2"]
-
-
-def test_composite_predicate_type_names():
-    """Test _CompositePredicate with strings, i.e. type names."""
-    cp_raw = segments._CompositePredicate("raw")
-    assert cp_raw(seg1)
-    cp_foobar = segments._CompositePredicate("foobar")
-    assert not cp_foobar(seg1)
-
-
-def test_composite_predicate_types():
-    """Test _CompositePredicate with segment types, e.g. BaseSegment."""
-    cp_raw = segments._CompositePredicate(RawSegment)
-    assert cp_raw(seg1)
-    cp_meta = segments._CompositePredicate(MetaSegment)
-    assert not cp_meta(seg1)
-    cp_both = segments._CompositePredicate(MetaSegment, RawSegment)
-    assert cp_both(seg1)
-
-
-def test_composite_predicate_functions():
-    """Test _CompositePredicate with function predicates."""
-    cp_1_or_3 = segments._CompositePredicate(
-        lambda s: s.raw[-1] == "1", lambda s: s.raw[-1] == "3"
-    )
-    assert cp_1_or_3(seg1)
-    assert not cp_1_or_3(seg2)
-    assert cp_1_or_3(seg3)
-    assert not cp_1_or_3(seg4)
