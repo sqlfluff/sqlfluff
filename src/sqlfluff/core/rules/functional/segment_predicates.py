@@ -44,6 +44,39 @@ def get_type(segment: BaseSegment) -> str:
     return segment.get_type()
 
 
+def and_(
+    fn1: Callable[[BaseSegment], bool], fn2: Callable[[BaseSegment], bool]
+) -> Callable[[BaseSegment], bool]:  # pragma: no cover
+    """Returns a function that computes: fn1() and fn2()."""
+
+    def _(segment: BaseSegment):
+        return fn1(segment) and fn2(segment)
+
+    return _
+
+
+def or_(
+    fn1: Callable[[BaseSegment], bool], fn2: Callable[[BaseSegment], bool]
+) -> Callable[[BaseSegment], bool]:
+    """Returns a function that computes: fn1() or fn2()."""
+
+    def _(segment: BaseSegment):
+        return fn1(segment) or fn2(segment)
+
+    return _
+
+
+def not_(
+    fn: Callable[[BaseSegment], bool]
+) -> Callable[[BaseSegment], bool]:  # pragma: no cover
+    """Returns a function that computes: not fn()."""
+
+    def _(segment: BaseSegment):
+        return not fn(segment)
+
+    return _
+
+
 def attr(*attrs: str) -> Callable[[Any], bool]:
     """Returns a function that gets an attribute of an object.
 

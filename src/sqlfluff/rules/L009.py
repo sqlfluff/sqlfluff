@@ -6,7 +6,7 @@ from sqlfluff.core.parser import NewlineSegment
 from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix, RuleContext
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 from sqlfluff.core.rules.functional import Segments
-from sqlfluff.core.rules.functional.segments import Predicate
+from sqlfluff.core.rules.functional import segment_predicates as segpred
 
 
 @document_fix_compatible
@@ -93,10 +93,9 @@ class Rule_L009(BaseRule):
         reversed_complete_stack = complete_stack.reversed()
 
         # Find the trailing newline segments.
-        p: Predicate = lambda x: bool(x.is_whitespace or x.is_meta)
         trailing_newlines = reversed_complete_stack.select(
             select_if=["newline"],
-            loop_while=[p],
+            loop_while=[segpred.or_(segpred.is_whitespace, segpred.is_meta)],
         )
 
         if len(trailing_newlines) == 1:
