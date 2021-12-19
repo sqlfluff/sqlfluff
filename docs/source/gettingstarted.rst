@@ -37,7 +37,7 @@ this you can type :code:`pip --version` similar to python above.
 .. code-block:: bash
 
     $ pip --version
-    pip 10.0.1 from ...
+    pip 21.3.1 from ...
 
 If however, you do have python installed but not :code:`pip`, then
 the best instructions for what to do next are `on the python website`_.
