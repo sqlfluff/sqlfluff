@@ -57,10 +57,9 @@ class Rule_L039(BaseRule):
                             LintResult(
                                 anchor=prev_whitespace,
                                 fixes=[
-                                    LintFix(
-                                        "edit",
+                                    LintFix.replace(
                                         prev_whitespace,
-                                        WhitespaceSegment(),
+                                        [WhitespaceSegment()],
                                     )
                                 ],
                             )

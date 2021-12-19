@@ -99,10 +99,13 @@ class Rule_L047(BaseRule):
                 return LintResult(
                     anchor=context.segment,
                     fixes=[
-                        LintFix(
-                            "edit",
+                        LintFix.replace(
                             f_content[0],
-                            f_content[0].edit(f_content[0].raw.replace("*", preferred)),
+                            [
+                                f_content[0].edit(
+                                    f_content[0].raw.replace("*", preferred)
+                                )
+                            ],
                         ),
                     ],
                 )
@@ -121,14 +124,15 @@ class Rule_L047(BaseRule):
                     return LintResult(
                         anchor=context.segment,
                         fixes=[
-                            LintFix(
-                                "edit",
+                            LintFix.replace(
                                 expression_content[0],
-                                expression_content[0].edit(
-                                    expression_content[0].raw.replace(
-                                        expression_content[0].raw, preferred
-                                    )
-                                ),
+                                [
+                                    expression_content[0].edit(
+                                        expression_content[0].raw.replace(
+                                            expression_content[0].raw, preferred
+                                        )
+                                    ),
+                                ],
                             ),
                         ],
                     )

@@ -195,31 +195,33 @@ class Rule_L003(BaseRule):
         """Generate fixes to make an indent a certain size."""
         # If there shouldn't be an indent at all, just delete.
         if len(desired_indent) == 0:
-            fixes = [LintFix("delete", elem) for elem in current_indent_buffer]
+            fixes = [LintFix.delete(elem) for elem in current_indent_buffer]
         # If we don't have any indent and we should, then add a single
         elif len("".join(elem.raw for elem in current_indent_buffer)) == 0:
             fixes = [
-                LintFix(
-                    "create_before",
+                LintFix.create_before(
                     current_anchor,
-                    WhitespaceSegment(
-                        raw=desired_indent,
-                    ),
-                )
+                    [
+                        WhitespaceSegment(
+                            raw=desired_indent,
+                        ),
+                    ],
+                ),
             ]
         # Otherwise edit the first element to be the right size
         else:
             # Edit the first element of this line's indent and remove any other
             # indents.
             fixes = [
-                LintFix(
-                    "edit",
+                LintFix.replace(
                     current_indent_buffer[0],
-                    WhitespaceSegment(
-                        raw=desired_indent,
-                    ),
-                )
-            ] + [LintFix("delete", elem) for elem in current_indent_buffer[1:]]
+                    [
+                        WhitespaceSegment(
+                            raw=desired_indent,
+                        ),
+                    ],
+                ),
+            ] + [LintFix.delete(elem) for elem in current_indent_buffer[1:]]
         return fixes
 
     @staticmethod
@@ -440,9 +442,7 @@ class Rule_L003(BaseRule):
                     anchor=trigger_segment,
                     memory=memory,
                     description="First line has unexpected indent",
-                    fixes=[
-                        LintFix("delete", elem) for elem in this_line["indent_buffer"]
-                    ],
+                    fixes=[LintFix.delete(elem) for elem in this_line["indent_buffer"]],
                 )
 
         # Special handling for template end blocks on a line by themselves.
@@ -696,16 +696,17 @@ class Rule_L003(BaseRule):
                             ),
                             # Add in an extra bit of whitespace for the indent
                             fixes=[
-                                LintFix(
-                                    "create_before",
+                                LintFix.create_before(
                                     trigger_segment,
-                                    WhitespaceSegment(
-                                        raw=self._make_indent(
-                                            indent_unit=self.indent_unit,
-                                            tab_space_size=self.tab_space_size,
+                                    [
+                                        WhitespaceSegment(
+                                            raw=self._make_indent(
+                                                indent_unit=self.indent_unit,
+                                                tab_space_size=self.tab_space_size,
+                                            ),
                                         ),
-                                    ),
-                                )
+                                    ],
+                                ),
                             ],
                         )
                 elif this_indent_num < comp_indent_num:
@@ -717,18 +718,19 @@ class Rule_L003(BaseRule):
                             k
                         ),
                         fixes=[
-                            LintFix(
-                                "create_before",
+                            LintFix.create_before(
                                 trigger_segment,
-                                WhitespaceSegment(
-                                    # Make the minimum indent for it to be ok.
-                                    raw=self._make_indent(
-                                        num=comp_indent_num - this_indent_num,
-                                        indent_unit=self.indent_unit,
-                                        tab_space_size=self.tab_space_size,
+                                [
+                                    WhitespaceSegment(
+                                        # Make the minimum indent for it to be ok.
+                                        raw=self._make_indent(
+                                            num=comp_indent_num - this_indent_num,
+                                            indent_unit=self.indent_unit,
+                                            tab_space_size=self.tab_space_size,
+                                        ),
                                     ),
-                                ),
-                            )
+                                ],
+                            ),
                         ],
                     )
                 elif this_indent_num > comp_indent_num + indent_diff:
