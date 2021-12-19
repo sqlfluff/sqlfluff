@@ -3,7 +3,6 @@
 from sqlfluff.core.rules.base import RuleSet
 from sqlfluff.core.rules.config_info import STANDARD_CONFIG_INFO_DICT
 from sqlfluff.core.plugin.host import get_plugin_manager
-import sqlfluff.core.rules.surrogates.segment_predicates  # noqa: F401
 
 # Sphinx effectively runs an import * from this module in rules.rst, so initialise
 # __all__ with an empty list before we populate it with the rule names.
