@@ -90,6 +90,12 @@ def test_segments_reversed():
     )
 
 
+def test_segments_raw_slices_no_templated_file():
+    """Test that raw_slices() fails if TemplatedFile not provided."""
+    with pytest.raises(ValueError):
+        segments.Segments(None, seg1).raw_slices
+
+
 def test_segments_first():
     """Test the "first()" function."""
     assert segments.Segments(None, seg1, seg2).first() == segments.Segments(None, seg1)

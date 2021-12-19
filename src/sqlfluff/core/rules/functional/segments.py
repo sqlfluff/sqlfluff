@@ -3,7 +3,7 @@ from typing import Any, Callable, List, Optional, Sequence, Type, Union
 
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.templaters.base import TemplatedFile
-from sqlfluff.core.rules.functional.raw_file_slice import RawFileSlices
+from sqlfluff.core.rules.functional.raw_file_slices import RawFileSlices
 
 Predicate = Union[str, Type, Callable[[BaseSegment], bool]]
 
@@ -46,7 +46,7 @@ class Segments(list):
     @property
     def raw_slices(self) -> RawFileSlices:
         """Raw slices of the segments."""
-        if not self.templated_file:  # pragma: no cover
+        if not self.templated_file:
             raise ValueError(
                 'Segments.raw_slices: "templated_file" property is required.'
             )
