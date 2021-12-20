@@ -3,8 +3,6 @@ from typing import Callable
 
 from sqlfluff.core.templaters.base import RawFileSlice, TemplatedFile
 
-Predicate = Callable[[RawFileSlice], bool]
-
 
 class RawFileSlices(list):
     """Encapsulates a sequence of one or more RawFileSlice.
@@ -21,14 +19,14 @@ class RawFileSlices(list):
         super().__init__(raw_slices)
         self.templated_file = templated_file
 
-    def all(self, *predicates: Predicate) -> bool:
+    def all(self, *predicates: Callable[[RawFileSlice], bool]) -> bool:
         """Do all the raw slices match?"""
         for s in self:
             if predicates and not any(p(s) for p in predicates):
                 return False
         return True
 
-    def any(self, *predicates: Predicate) -> bool:
+    def any(self, *predicates: Callable[[RawFileSlice], bool]) -> bool:
         """Do any of the raw slices match?"""
         for s in self:
             if not predicates or any(p(s) for p in predicates):

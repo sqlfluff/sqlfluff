@@ -4,7 +4,7 @@ from typing import Optional
 from sqlfluff.core.parser import BaseSegment, SymbolSegment
 
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
-import sqlfluff.core.rules.functional.segment_predicates as segpred
+import sqlfluff.core.rules.functional.segment_predicates as sp
 from sqlfluff.core.rules.doc_decorators import (
     document_fix_compatible,
     document_configuration,
@@ -48,9 +48,9 @@ class Rule_L038(BaseRule):
 
         segment = context.surrogates.segment
         children = segment.children()
-        if segment.all(segpred.is_type("select_clause")):
+        if segment.all(sp.is_type("select_clause")):
             # Iterate content to find last element
-            last_content: BaseSegment = children.last(segpred.is_code)[0]
+            last_content: BaseSegment = children.last(sp.is_code)[0]
 
             # What mode are we in?
             if self.select_clause_trailing_comma == "forbid":

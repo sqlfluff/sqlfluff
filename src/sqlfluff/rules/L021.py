@@ -2,7 +2,7 @@
 from typing import Optional
 
 from sqlfluff.core.rules.base import BaseRule, LintResult, RuleContext
-import sqlfluff.core.rules.functional.segment_predicates as segpred
+import sqlfluff.core.rules.functional.segment_predicates as sp
 
 
 class Rule_L021(BaseRule):
@@ -32,15 +32,15 @@ class Rule_L021(BaseRule):
         """Ambiguous use of DISTINCT in select statement with GROUP BY."""
         segment = context.surrogates.segment
         if (
-            segment.all(segpred.is_type("select_statement"))
+            segment.all(sp.is_type("select_statement"))
             # Do we have a group by clause
-            and segment.children(segpred.is_type("groupby_clause"))
+            and segment.children(sp.is_type("groupby_clause"))
         ):
             # Do we have the "DISTINCT" keyword in the select clause
             distinct = (
-                segment.children(segpred.is_type("select_clause"))
-                .children(segpred.is_type("select_clause_modifier"))
-                .children(segpred.is_type("keyword"))
+                segment.children(sp.is_type("select_clause"))
+                .children(sp.is_type("select_clause_modifier"))
+                .children(sp.is_type("keyword"))
                 .select([lambda s: s.name == "distinct"])
             )
             if distinct:

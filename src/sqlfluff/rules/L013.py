@@ -3,7 +3,7 @@ from typing import Optional
 
 from sqlfluff.core.rules.base import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import document_configuration
-import sqlfluff.core.rules.functional.segment_predicates as segpred
+import sqlfluff.core.rules.functional.segment_predicates as sp
 
 
 @document_configuration
@@ -45,11 +45,11 @@ class Rule_L013(BaseRule):
         """
         segment = context.surrogates.segment
         children = segment.children()
-        if segment.all(segpred.is_type("select_clause_element")) and not children.any(
-            segpred.is_type("alias_expression")
+        if segment.all(sp.is_type("select_clause_element")) and not children.any(
+            sp.is_type("alias_expression")
         ):
             types = set(
-                children.select([lambda s: s.name != "star"]).apply(segpred.get_type)
+                children.select([lambda s: s.name != "star"]).apply(sp.get_type)
             )
             unallowed_types = types - {
                 "whitespace",
@@ -66,9 +66,7 @@ class Rule_L013(BaseRule):
                     # report an error.
                     immediate_parent = context.surrogates.parent_stack.last()
                     num_elements = len(
-                        immediate_parent.children(
-                            segpred.is_type("select_clause_element")
-                        )
+                        immediate_parent.children(sp.is_type("select_clause_element"))
                     )
                     if num_elements > 1:
                         return LintResult(anchor=context.segment)

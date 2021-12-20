@@ -5,8 +5,6 @@ from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.templaters.base import TemplatedFile
 from sqlfluff.core.rules.functional.raw_file_slices import RawFileSlices
 
-Predicate = Callable[[BaseSegment], bool]
-
 
 class Segments(list):
     """Encapsulates a sequence of one or more BaseSegments.
@@ -29,14 +27,14 @@ class Segments(list):
     def __radd__(self, segments) -> "Segments":
         return Segments(self.templated_file, *list(segments).__add__(list(self)))
 
-    def all(self, *predicates: Predicate) -> bool:
+    def all(self, *predicates: Callable[[BaseSegment], bool]) -> bool:
         """Do all the segments match?"""
         for s in self:
             if predicates and not any(p(s) for p in predicates):
                 return False
         return True
 
-    def any(self, *predicates: Predicate) -> bool:
+    def any(self, *predicates: Callable[[BaseSegment], bool]) -> bool:
         """Do any of the segments match?"""
         for s in self:
             if not predicates or any(p(s) for p in predicates):
@@ -62,7 +60,7 @@ class Segments(list):
             )
         return RawFileSlices(self.templated_file, *raw_slices)
 
-    def children(self, *predicates: Predicate) -> "Segments":
+    def children(self, *predicates: Callable[[BaseSegment], bool]) -> "Segments":
         """Returns an object with children of the segments in this object."""
         child_segments: List[BaseSegment] = []
         for s in self:
@@ -93,8 +91,8 @@ class Segments(list):
 
     def select(
         self,
-        select_if: Optional[Sequence[Predicate]] = None,
-        loop_while: Optional[Sequence[Predicate]] = None,
+        select_if: Optional[Sequence[Callable[[BaseSegment], bool]]] = None,
+        loop_while: Optional[Sequence[Callable[[BaseSegment], bool]]] = None,
         start_seg: Optional[BaseSegment] = None,
         stop_seg: Optional[BaseSegment] = None,
     ) -> "Segments":
