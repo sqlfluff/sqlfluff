@@ -95,7 +95,7 @@ class Rule_L009(BaseRule):
         # Find the trailing newline segments.
         trailing_newlines = reversed_complete_stack.select(
             select_if=[sp.is_type("newline")],
-            loop_while=[sp.or_(sp.is_whitespace, sp.is_meta)],
+            loop_while=[sp.or_(sp.is_whitespace, sp.is_type("dedent"))],
         )
 
         if len(trailing_newlines) == 1:
