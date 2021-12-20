@@ -9,7 +9,7 @@ from sqlfluff.api import lint, fix, parse, list_rules, list_dialects
 if sys.version_info < (3, 8, 0):
     import importlib_metadata as metadata
 else:
-    from importlib import metadata
+    from importlib import metadata  # type: ignore
 
 __all__ = (
     "lint",
