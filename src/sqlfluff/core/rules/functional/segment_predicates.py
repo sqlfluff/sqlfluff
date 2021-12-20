@@ -62,6 +62,11 @@ def get_type(segment: BaseSegment) -> str:
     return segment.get_type()
 
 
+def get_name(segment: BaseSegment) -> str:
+    """Returns segment name."""
+    return segment.get_name()
+
+
 def and_(
     fn1: Callable[[BaseSegment], bool], fn2: Callable[[BaseSegment], bool]
 ) -> Callable[[BaseSegment], bool]:  # pragma: no cover
