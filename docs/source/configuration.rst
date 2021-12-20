@@ -478,7 +478,7 @@ In *.sqlfluffignore*:
 .. code-block::
 
     target/
-    dbt_modules/
+    dbt_packages/
     macros/
 
 You can set the dbt project directory, profiles directory and profile with:
