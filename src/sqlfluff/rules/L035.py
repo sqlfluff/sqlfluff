@@ -51,14 +51,14 @@ class Rule_L035(BaseRule):
                 # When we find ELSE we delete
                 # everything up to NULL
                 if fixes:
-                    fixes.append(LintFix("delete", seg))
+                    fixes.append(LintFix.delete(seg))
                     # Safe to look for NULL, as an expression
                     # would contain NULL but not be == NULL
                     if seg.raw_upper == "NULL":
                         return LintResult(anchor=context.segment, fixes=fixes)
 
                 if not fixes and seg.name == "else":
-                    fixes.append(LintFix("delete", seg))
+                    fixes.append(LintFix.delete(seg))
                     # Walk back to remove indents/whitespaces
                     walk_idx = idx - 1
                     while (
@@ -66,8 +66,6 @@ class Rule_L035(BaseRule):
                         or context.segment.segments[walk_idx].name == "newline"
                         or context.segment.segments[walk_idx].is_meta
                     ):
-                        fixes.append(
-                            LintFix("delete", context.segment.segments[walk_idx])
-                        )
+                        fixes.append(LintFix.delete(context.segment.segments[walk_idx]))
                         walk_idx = walk_idx - 1
         return None

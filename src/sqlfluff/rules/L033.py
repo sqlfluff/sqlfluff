@@ -52,8 +52,7 @@ class Rule_L033(BaseRule):
                 return LintResult(
                     anchor=context.segment,
                     fixes=[
-                        LintFix(
-                            "edit",
+                        LintFix.replace(
                             context.segment.segments[0],
                             [
                                 KeywordSegment("union"),
@@ -70,8 +69,7 @@ class Rule_L033(BaseRule):
                 return LintResult(
                     anchor=context.segment,
                     fixes=[
-                        LintFix(
-                            "edit",
+                        LintFix.replace(
                             context.segment.segments[0],
                             [
                                 KeywordSegment("UNION"),

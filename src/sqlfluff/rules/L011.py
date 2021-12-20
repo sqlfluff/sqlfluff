@@ -59,7 +59,7 @@ class Rule_L011(BaseRule):
                         if context.segment.segments[0].name.lower() == "as":
 
                             # Remove the AS as we're using implict aliasing
-                            fixes.append(LintFix("delete", context.segment.segments[0]))
+                            fixes.append(LintFix.delete(context.segment.segments[0]))
                             anchor = context.raw_stack[-1]
 
                             # Remove whitespace before (if exists) or after (if not)
@@ -67,13 +67,13 @@ class Rule_L011(BaseRule):
                                 len(context.raw_stack) > 0
                                 and context.raw_stack[-1].type == "whitespace"
                             ):
-                                fixes.append(LintFix("delete", context.raw_stack[-1]))
+                                fixes.append(LintFix.delete(context.raw_stack[-1]))
                             elif (
                                 len(context.segment.segments) > 0
                                 and context.segment.segments[1].type == "whitespace"
                             ):
                                 fixes.append(
-                                    LintFix("delete", context.segment.segments[1])
+                                    LintFix.delete(context.segment.segments[1])
                                 )
 
                             return LintResult(anchor=anchor, fixes=fixes)
@@ -98,8 +98,7 @@ class Rule_L011(BaseRule):
                     return LintResult(
                         anchor=context.segment,
                         fixes=[
-                            LintFix(
-                                "create_before",
+                            LintFix.create_before(
                                 context.segment.segments[0],
                                 insert_buff,
                             )

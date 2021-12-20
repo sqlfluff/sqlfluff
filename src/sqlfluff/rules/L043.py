@@ -93,8 +93,7 @@ class Rule_L043(BaseRule):
         edit_coalesce_target = context.segment.segments[0]
         fixes = []
         fixes.append(
-            LintFix(
-                "edit",
+            LintFix.replace(
                 edit_coalesce_target,
                 edits,
             )
@@ -107,8 +106,7 @@ class Rule_L043(BaseRule):
             SymbolSegment(")", name="end_bracket", type="end_bracket"),
         ]
         fixes.append(
-            LintFix(
-                "edit",
+            LintFix.replace(
                 context.segment.segments[coalesce_arg_1_idx + 1],
                 closing_parenthesis,
             )
@@ -118,9 +116,7 @@ class Rule_L043(BaseRule):
         # to "coalesce(". Deleting and editing the same segment has
         # unpredictable behavior.
         fixes += [
-            LintFix("delete", s)
-            for s in delete_segments
-            if s is not edit_coalesce_target
+            LintFix.delete(s) for s in delete_segments if s is not edit_coalesce_target
         ]
         return fixes
 

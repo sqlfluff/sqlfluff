@@ -204,11 +204,11 @@ class Rule_L031(BaseRule):
             # Fixes for deleting ` as sth` and for editing references to aliased tables
             fixes = [
                 *[
-                    LintFix("delete", d)
+                    LintFix.delete(d)
                     for d in [alias_info.alias_exp_ref, alias_info.whitespace_ref]
                 ],
                 *[
-                    LintFix("edit", alias, alias.edit(alias_info.table_ref.raw))
+                    LintFix.replace(alias, [alias.edit(alias_info.table_ref.raw)])
                     for alias in [alias_info.alias_identifier_ref, *ids_refs]
                 ],
             ]

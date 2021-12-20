@@ -76,14 +76,13 @@ class Rule_L041(BaseRule):
             ]
             fixes = [
                 # E.g. "\n" -> " DISTINCT\n.
-                LintFix("delete", newline_between),
-                LintFix(
-                    "create_before",
+                LintFix.delete(newline_between),
+                LintFix.create_before(
                     context.segment.segments[newline_idx + 1],
                     replace_newline_with,
                 ),
                 # E.g. "DISTINCT" -> X
-                LintFix("delete", select_modifier),
+                LintFix.delete(select_modifier),
             ]
 
             # E.g. " " after "DISTINCT"
@@ -94,7 +93,7 @@ class Rule_L041(BaseRule):
             )
 
             # E.g. " " -> X
-            fixes += [LintFix("delete", ws) for ws in ws_to_delete]
+            fixes += [LintFix.delete(ws) for ws in ws_to_delete]
             return LintResult(
                 anchor=context.segment,
                 fixes=fixes,
