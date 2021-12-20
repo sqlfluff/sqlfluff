@@ -583,7 +583,7 @@ class IntervalExpressionSegment(BaseSegment):
         Ref.keyword("INTERVAL", optional=True),
         OneOf(
             Sequence(
-                OneOf(Ref("QuotedLiteralSegment"), Ref("NumericLiteralSegment")),
+                OneOf(Ref("QuotedLiteralSegment"), Ref("NumericLiteralSegment"), Bracketed(Ref("ExpressionSegment"))),
                 Ref("DatetimeUnitSegment"),
                 Sequence("TO", Ref("DatetimeUnitSegment"), optional=True),
             ),

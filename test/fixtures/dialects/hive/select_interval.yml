@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 582ea542472a76d5db9c09ce9c9fdaca840bcb01df6c8989ccdd34f89a2f4a20
+_hash: bfa4a5a22d710f4da84e7a8655e8b8aff48defca57f8972133739fd9b4708ea7
 file:
 - statement:
     select_statement:
@@ -141,9 +141,8 @@ file:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          function:
-            function_name:
-              function_name_identifier: INTERVAL
+          interval_expression:
+            keyword: INTERVAL
             bracketed:
               start_bracket: (
               expression:
@@ -151,8 +150,7 @@ file:
               - binary_operator: +
               - literal: '2'
               end_bracket: )
-          alias_expression:
-            identifier: DAY
+            date_part: DAY
 - statement_terminator: ;
 - statement:
     select_statement:
