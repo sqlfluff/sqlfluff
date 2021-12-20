@@ -18,6 +18,15 @@ def is_type(*seg_type: str) -> Callable[[BaseSegment], bool]:  # pragma: no cove
     return _
 
 
+def is_name(*seg_name: str) -> Callable[[BaseSegment], bool]:  # pragma: no cover
+    """Returns a function that determines if segment is one the names."""
+
+    def _(segment: BaseSegment):
+        return segment.is_name(*seg_name)
+
+    return _
+
+
 def is_code(segment: BaseSegment) -> bool:
     """Check if segment is code."""
     return segment.is_code
@@ -51,6 +60,11 @@ def is_whitespace(segment: BaseSegment) -> bool:
 def get_type(segment: BaseSegment) -> str:
     """Returns segment type."""
     return segment.get_type()
+
+
+def get_name(segment: BaseSegment) -> str:
+    """Returns segment name."""
+    return segment.get_name()
 
 
 def and_(
