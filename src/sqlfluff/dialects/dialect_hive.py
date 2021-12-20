@@ -38,6 +38,20 @@ hive_dialect.sets("angle_bracket_pairs").update(
     ]
 )
 
+# Hive adds these timeunit aliases for intervals "to aid portability / readability"
+# https://cwiki.apache.org/confluence/display/hive/languagemanual+types#LanguageManualTypes-Intervals
+hive_dialect.sets("datetime_units").update(
+    [
+        "SECONDS",
+        "MINUTES",
+        "HOURS",
+        "DAYS",
+        "WEEKS",
+        "MONTHS",
+        "YEARS",
+    ]
+)
+
 hive_dialect.add(
     DoubleQuotedLiteralSegment=NamedParser(
         "double_quote",
@@ -560,21 +574,9 @@ class InsertStatementSegment(BaseSegment):
 class IntervalExpressionSegment(BaseSegment):
     """An interval expression segment.
 
-    Full Apache Hive `INSERT` reference here:
+    Full Apache Hive `INTERVAL` reference here:
     https://cwiki.apache.org/confluence/display/hive/languagemanual+types#LanguageManualTypes-Intervals
     """
-
-    # If these are added to hive_dialect's global datetime unit list, remove from here
-    # "Add timeunit aliases to aid portability / readability"
-    date_time_aliases = [
-        "SECONDS",
-        "MINUTES",
-        "HOURS",
-        "DAYS",
-        "WEEKS",
-        "MONTHS",
-        "YEARS",
-    ]
 
     type = "interval_expression"
     match_grammar = Sequence(
@@ -582,7 +584,7 @@ class IntervalExpressionSegment(BaseSegment):
         OneOf(
             Sequence(
                 OneOf(Ref("QuotedLiteralSegment"), Ref("NumericLiteralSegment")),
-                OneOf(Ref("DatetimeUnitSegment"), *date_time_aliases),
+                Ref("DatetimeUnitSegment"),
                 Sequence("TO", Ref("DatetimeUnitSegment"), optional=True),
             ),
         ),
