@@ -1,3 +1,4 @@
+# mypy: warn_unused_ignores=False
 """Sqlfluff is a SQL linter for humans."""
 import sys
 import pytest
