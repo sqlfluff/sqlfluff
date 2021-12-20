@@ -478,6 +478,9 @@ In *.sqlfluffignore*:
 .. code-block::
 
     target/
+    # dbt <1.0.0
+    dbt_modules/
+    # dbt >=1.0.0
     dbt_packages/
     macros/
 
