@@ -10,7 +10,7 @@ from sqlfluff.core.templaters.base import RawFileSlice
 
 def is_slice_type(
     *slice_types: str,
-) -> Callable[[RawFileSlice], bool]:  # pragma: no cover
+) -> Callable[[RawFileSlice], bool]:
     """Returns a function that determines if segment is one the types."""
 
     def _(raw_slice: RawFileSlice):
