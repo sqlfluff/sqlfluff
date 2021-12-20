@@ -151,3 +151,14 @@ test_fail_cte_floating_comma:
     other_cte as (select 1)
 
     select * from my_cte cross join other_cte
+
+test_pass_column_name_definition:
+  # Issue #2136
+  pass_str: |
+    with recursive t(n) as (
+        select 1
+        union all
+        select n + 1 from t
+    )
+
+    select n from t limit 100;

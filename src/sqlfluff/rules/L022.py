@@ -54,7 +54,20 @@ class Rule_L022(BaseRule):
             )
             for idx, seg in enumerate(expanded_segments):
                 if seg.is_type("bracketed"):
-                    bracket_indices.append(idx)
+                    # Check if the preceding keyword is AS, otherwise it's a column name definition in the CTE.
+                    preceding_keyword = next(
+                        (
+                            s
+                            for s in expanded_segments[:idx][::-1]
+                            if s.is_type("keyword")
+                        ),
+                        None,
+                    )
+                    if (
+                        preceding_keyword is not None
+                        and preceding_keyword.raw.upper() == "AS"
+                    ):
+                        bracket_indices.append(idx)
 
             # Work through each point and deal with it individually
             for bracket_idx in bracket_indices:
