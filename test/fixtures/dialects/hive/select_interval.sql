@@ -22,9 +22,7 @@ SELECT INTERVAL '1' DAY+
 
 SELECT INTERVAL 1 DAY;
 
--- This interpretation may be too simplistic
--- Original example was: INTERVAL (1+dt) DAY
-SELECT INTERVAL (1+2) DAY;
+SELECT INTERVAL (1+dt) DAY;
 
 SELECT 1 DAY;
 

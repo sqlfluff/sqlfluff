@@ -42,6 +42,8 @@ hive_dialect.sets("angle_bracket_pairs").update(
 # https://cwiki.apache.org/confluence/display/hive/languagemanual+types#LanguageManualTypes-Intervals
 hive_dialect.sets("datetime_units").update(
     [
+        "NANO",
+        "NANOS",
         "SECONDS",
         "MINUTES",
         "HOURS",
@@ -583,7 +585,11 @@ class IntervalExpressionSegment(BaseSegment):
         Ref.keyword("INTERVAL", optional=True),
         OneOf(
             Sequence(
-                OneOf(Ref("QuotedLiteralSegment"), Ref("NumericLiteralSegment"), Bracketed(Ref("ExpressionSegment"))),
+                OneOf(
+                    Ref("QuotedLiteralSegment"),
+                    Ref("NumericLiteralSegment"),
+                    Bracketed(Ref("ExpressionSegment")),
+                ),
                 Ref("DatetimeUnitSegment"),
                 Sequence("TO", Ref("DatetimeUnitSegment"), optional=True),
             ),
