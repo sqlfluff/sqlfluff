@@ -1,4 +1,3 @@
-# mypy: warn_unused_ignores=False
 """Sqlfluff is a SQL linter for humans."""
 import sys
 import pytest
@@ -7,10 +6,10 @@ import pytest
 from sqlfluff.api import lint, fix, parse, list_rules, list_dialects
 
 # Import metadata (using importlib_metadata backport for python versions <3.8)
-if sys.version_info < (3, 8, 0):
-    import importlib_metadata as metadata
+if sys.version_info >= (3, 8):
+    from importlib import metadata
 else:
-    from importlib import metadata  # type: ignore
+    import importlib_metadata as metadata
 
 __all__ = (
     "lint",
