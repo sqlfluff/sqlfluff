@@ -574,6 +574,10 @@ class BaseSegment:
         """Is this segment (or its parent) of the given type."""
         return self.class_is_type(*seg_type)
 
+    def is_name(self, *seg_name):
+        """Is this segment of the given name."""
+        return any(s == self.name for s in seg_name)
+
     def invalidate_caches(self):
         """Invalidate the cached properties.
 
