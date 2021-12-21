@@ -33,6 +33,31 @@ Implementation
 .. autoclass:: sqlfluff.core.rules.base.LintFix
    :members:
 
+Functional API
+--------------
+These newer modules provide a higher-level API for rules working with segments
+and slices. Rules that need to navigate or search the parse tree may benefit
+from using these. Eventually, the plan is for **all** rules to use these
+modules. At this time, the following rules use them:
+* `L001`
+* `L008`
+* `L009`
+* `L013`
+* `L021`
+* `L038`
+* `L050`
+
+.. autoclass:: sqlfluff.core.rules.functional.segments
+   :members:
+
+.. autoclass:: sqlfluff.core.rules.functional.segment_predicates
+   :members:
+
+.. autoclass:: sqlfluff.core.rules.functional.raw_file_slices
+   :members:
+
+.. autoclass:: sqlfluff.core.rules.functional.raw_file_slice_predicates
+   :members:
 
 The `_eval` function of each rule should take enough arguments that it can
 evaluate the position of the given segment in relation to its neighbors,
