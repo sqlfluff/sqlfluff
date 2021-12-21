@@ -94,7 +94,10 @@ class Rule_L026(Rule_L020):
         # Config type hints
         self.force_enable: bool
 
-        if context.dialect.name in ["bigquery", "hive", "redshift"] and not self.force_enable:
+        if (
+            context.dialect.name in ["bigquery", "hive", "redshift"]
+            and not self.force_enable
+        ):
             return LintResult()
 
         return super()._eval(context=context)
