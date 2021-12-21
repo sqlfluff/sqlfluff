@@ -76,9 +76,12 @@ class Rule_L057(BaseRule):
         # Strip the quotes
         identifier = context.segment.raw[1:-1]
 
-        # BigQuery table references are quoted i backticks so allow dots
-        # It allows a star at the end of table_references
-        # Strip both out
+        # BigQuery table references are quoted in back ticks so allow dots
+        #
+        # It allows a star at the end of table_references for wildcards
+        # (https://cloud.google.com/bigquery/docs/querying-wildcard-tables)
+        #
+        # Strip both out before testing the identifier
         if (
             context.dialect.name in ["bigquery"]
             and context.parent_stack
