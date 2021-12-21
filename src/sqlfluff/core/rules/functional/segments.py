@@ -67,12 +67,12 @@ class Segments(list):
         child_segments: List[BaseSegment] = []
         for s in self:
             for child in s.segments:
-                if not predicate or predicate(s):
+                if not predicate or predicate(child):
                     child_segments.append(child)
         return Segments(self.templated_file, *child_segments)
 
     def first(
-        self, predicate: Optional[Callable[[BaseSegment], bool]]
+        self, predicate: Optional[Callable[[BaseSegment], bool]] = None
     ) -> Optional["Segments"]:
         """Returns the first segment (if any) that satisfies the predicates."""
         for s in self:
