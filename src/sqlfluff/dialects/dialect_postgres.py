@@ -197,6 +197,12 @@ postgres_dialect.replace(
     ParameterNameSegment=RegexParser(
         r"[A-Z_][A-Z0-9_$]*", CodeSegment, name="parameter", type="parameter"
     ),
+    FunctionNameIdentifierSegment=RegexParser(
+        r"[A-Z_][A-Z0-9_$]*",
+        CodeSegment,
+        name="function_name_identifier",
+        type="function_name_identifier",
+    ),
     QuotedLiteralSegment=OneOf(
         NamedParser("single_quote", CodeSegment, name="quoted_literal", type="literal"),
         NamedParser(
