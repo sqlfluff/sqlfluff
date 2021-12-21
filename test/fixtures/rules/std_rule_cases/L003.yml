@@ -460,6 +460,66 @@ test_exasol_script:
     core:
       dialect: exasol
 
+test_pass_tsql_else_if:
+  pass_str: |
+    IF (1 > 1)
+        PRINT 'A';
+    ELSE IF (2 > 2)
+        PRINT 'B';
+    ELSE IF (3 > 3)
+        PRINT 'C';
+    ELSE
+        PRINT 'D';
+  configs:
+    core:
+      dialect: tsql
+
+test_fail_tsql_else_if:
+  fail_str: |
+    IF (1 > 1)
+      PRINT 'A';
+     ELSE IF (2 > 2)
+         PRINT 'B';
+    ELSE IF (3 > 3)
+     PRINT 'C';
+    ELSE
+            PRINT 'D';
+  fix_str: |
+    IF (1 > 1)
+        PRINT 'A';
+    ELSE IF (2 > 2)
+        PRINT 'B';
+    ELSE IF (3 > 3)
+        PRINT 'C';
+    ELSE
+        PRINT 'D';
+  configs:
+    core:
+      dialect: tsql
+
+test_fail_tsql_else_if_successive:
+  fail_str: |
+    IF (1 > 1)
+        PRINT 'A';
+        ELSE IF (2 > 2)
+            PRINT 'B';
+            ELSE IF (3 > 3)
+                PRINT 'C';
+                ELSE
+                    PRINT 'D';
+  fix_str: |
+    IF (1 > 1)
+        PRINT 'A';
+    ELSE IF (2 > 2)
+        PRINT 'B';
+    ELSE IF (3 > 3)
+        PRINT 'C';
+    ELSE
+        PRINT 'D';
+  configs:
+    core:
+      dialect: tsql
+
 # TSQL function
 test_tsql_function:
   fail_str: |
