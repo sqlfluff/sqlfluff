@@ -212,3 +212,11 @@ test_pass_star_bigquery:
   configs:
     core:
       dialect: bigquery
+
+test_fail_star_bigquery:
+  fail_str:
+    SELECT a
+    FROM `user.schema.table_*_something`
+  configs:
+    core:
+      dialect: bigquery

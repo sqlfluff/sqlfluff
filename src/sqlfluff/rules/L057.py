@@ -66,6 +66,7 @@ class Rule_L057(BaseRule):
                 return LintResult(anchor=context.segment)
         else:
             # Evaluate quoted identifiers.
+
             # Strip the quotes.
             identifier = context.segment.raw[1:-1]
 
