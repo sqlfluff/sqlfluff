@@ -8,8 +8,8 @@ from typing import Callable
 from sqlfluff.core.parser import BaseSegment
 
 
-def is_type(*seg_type: str) -> Callable[[BaseSegment], bool]:  # pragma: no cover
-    """Returns a function that determines if segment is one the types."""
+def is_type(*seg_type: str) -> Callable[[BaseSegment], bool]:
+    """Returns a function that determines if segment is one of the types."""
 
     def _(segment: BaseSegment):
         return segment.is_type(*seg_type)
@@ -17,7 +17,7 @@ def is_type(*seg_type: str) -> Callable[[BaseSegment], bool]:  # pragma: no cove
     return _
 
 
-def is_name(*seg_name: str) -> Callable[[BaseSegment], bool]:  # pragma: no cover
+def is_name(*seg_name: str) -> Callable[[BaseSegment], bool]:
     """Returns a function that determines if segment is one the names."""
 
     def _(segment: BaseSegment):
@@ -98,9 +98,7 @@ def get_name() -> Callable[[BaseSegment], str]:
     return _
 
 
-def and_(
-    *functions: Callable[[BaseSegment], bool]
-) -> Callable[[BaseSegment], bool]:  # pragma: no cover
+def and_(*functions: Callable[[BaseSegment], bool]) -> Callable[[BaseSegment], bool]:
     """Returns a function that computes the functions and-ed together."""
 
     def _(segment: BaseSegment):
@@ -118,9 +116,7 @@ def or_(*functions: Callable[[BaseSegment], bool]) -> Callable[[BaseSegment], bo
     return _
 
 
-def not_(
-    fn: Callable[[BaseSegment], bool]
-) -> Callable[[BaseSegment], bool]:  # pragma: no cover
+def not_(fn: Callable[[BaseSegment], bool]) -> Callable[[BaseSegment], bool]:
     """Returns a function that computes: not fn()."""
 
     def _(segment: BaseSegment):
