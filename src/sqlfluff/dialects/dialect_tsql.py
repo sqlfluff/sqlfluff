@@ -1253,7 +1253,8 @@ class CreateFunctionStatementSegment(BaseSegment):
             Ref("DatatypeSegment"),
             optional=True,
         ),
-        Ref("FunctionDefinitionGrammar"),
+        "AS"
+        Ref("ProcedureDefinitionGrammar"),
     )
 
 
