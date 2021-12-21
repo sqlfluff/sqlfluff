@@ -55,7 +55,7 @@ test_value_table_functions_do_not_require_qualification:
       dialect: bigquery
     rules:
       L028:
-        force_enable:true
+        force_enable: true
 
 test_object_references_1a:
   # This should fail as "a" is an unreference object

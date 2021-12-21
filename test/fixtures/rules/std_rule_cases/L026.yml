@@ -9,7 +9,7 @@ test_pass_object_referenced_1:
       dialect: bigquery
     rules:
       L026:
-        force_enable: True
+        force_enable: true
 
 test_fail_object_not_referenced_1:
   desc: Name foo is not referenced in FROM clause. It would need to be at the end of identifier in ticks or an alias.
@@ -20,7 +20,7 @@ test_fail_object_not_referenced_1:
       dialect: bigquery
     rules:
       L026:
-        force_enable: True
+        force_enable: true
 
 test_fail_object_not_referenced_2:
   # References in WHERE clause
@@ -48,7 +48,7 @@ test_pass_object_referenced_4:
       dialect: bigquery
     rules:
       L026:
-        force_enable: True
+        force_enable: true
 
 test_pass_object_referenced_5a:
   # Test ambiguous column reference caused by use of BigQuery structure fields.
@@ -79,7 +79,7 @@ test_pass_object_referenced_5c:
       dialect: bigquery
     rules:
       L026:
-        force_enable: True
+        force_enable: true
 
 test_pass_object_referenced_5d:
   # Test for extra dialect (hive) compatibility
