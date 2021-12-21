@@ -84,9 +84,9 @@ class Rule_L050(BaseRule):
             # all preceding segments must be whitespace
             # and at least one is not meta.
             and raw_stack.all(sp.is_type(*whitespace_types))
-            and not raw_stack.all(sp.is_meta)
+            and not raw_stack.all(sp.is_meta())
             # Found leaf of parse tree.
-            and not segment.all(sp.is_expandable)
+            and not segment.all(sp.is_expandable())
             # It is possible that a template segment (e.g. {{ config(materialized='view') }})
             # renders to an empty string and as such is omitted from the parsed tree.
             # We therefore should flag if a templated raw slice intersects with the
