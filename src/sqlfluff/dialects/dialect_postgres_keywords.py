@@ -843,6 +843,7 @@ postgres_docs_keywords = [
     ("UTF16", "not-keyword"),
     ("UTF32", "not-keyword"),
     ("UTF8", "not-keyword"),
+    ("UUID", "non-reserved-(cannot-be-function-or-type)"),
     ("VACUUM", "non-reserved"),
     ("VALID", "non-reserved"),
     ("VALIDATE", "non-reserved"),
