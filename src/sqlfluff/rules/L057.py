@@ -69,19 +69,35 @@ class Rule_L057(BaseRule):
         ):
             return LintResult(anchor=context.segment)
 
+        # Exit early if not a quoted_identifier
+        if not context.segment.name == "quoted_identifier":
+            return None
+
+        # Strip the quotes
+        identifier = context.segment.raw[1:-1]
+
+        # BigQuery table references are quoted i backticks so allow dots
+        # It allows a star at the end of table_references
+        # Strip both out
+        if (
+            context.dialect.name in ["bigquery"]
+            and context.parent_stack
+            and context.parent_stack[-1].name == "TableReferenceSegment"
+        ):
+            if identifier[-1] == "*":
+                identifier = identifier[0:-1]
+            identifier = identifier.replace(".", "")
+
         if (
             context.segment.name == "quoted_identifier"
             and identifiers_policy_applicable(
                 self.quoted_identifiers_policy, context.parent_stack
             )
             and not (
-                context.segment.raw[1:-1].replace("_", "").isalnum()
+                identifier.replace("_", "").isalnum()
                 or (
                     self.allow_space_in_identifier
-                    and context.segment.raw[1:-1]
-                    .replace("_", "")
-                    .replace(" ", "")
-                    .isalnum()
+                    and identifier.replace("_", "").replace(" ", "").isalnum()
                 )
             )
         ):
