@@ -87,15 +87,15 @@ class Rule_L009(BaseRule):
             return None
 
         # Include current segment for complete stack and reverse.
-        parent_stack: Segments = context.surrogates.parent_stack
-        complete_stack: Segments = context.surrogates.raw_stack
+        parent_stack: Segments = context.functional.parent_stack
+        complete_stack: Segments = context.functional.raw_stack
         complete_stack.append(context.segment)
         reversed_complete_stack = complete_stack.reversed()
 
         # Find the trailing newline segments.
         trailing_newlines = reversed_complete_stack.select(
             select_if=[sp.is_type("newline")],
-            loop_while=[sp.or_(sp.is_whitespace, sp.is_type("dedent"))],
+            loop_while=[sp.or_(sp.is_whitespace(), sp.is_type("dedent"))],
         )
 
         if len(trailing_newlines) == 1:

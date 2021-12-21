@@ -46,11 +46,11 @@ class Rule_L038(BaseRule):
         # Config type hints
         self.select_clause_trailing_comma: str
 
-        segment = context.surrogates.segment
+        segment = context.functional.segment
         children = segment.children()
         if segment.all(sp.is_type("select_clause")):
             # Iterate content to find last element
-            last_content: BaseSegment = children.last(sp.is_code)[0]
+            last_content: BaseSegment = children.last(sp.is_code())[0]
 
             # What mode are we in?
             if self.select_clause_trailing_comma == "forbid":

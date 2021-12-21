@@ -35,7 +35,7 @@ class Rule_L017(BaseRule):
         Look for Function Segment with anything other than the
         function name before brackets
         """
-        segment = context.surrogates.segment
+        segment = context.functional.segment
         # We only trigger on start_bracket (open parenthesis)
         if segment.all(sp.is_type("function")):
             children = segment.children()

@@ -43,7 +43,7 @@ class Rule_L013(BaseRule):
         elements there are.
 
         """
-        segment = context.surrogates.segment
+        segment = context.functional.segment
         children = segment.children()
         if segment.all(sp.is_type("select_clause_element")) and not children.any(
             sp.is_type("alias_expression")
@@ -64,7 +64,7 @@ class Rule_L013(BaseRule):
                     # Check *how many* elements there are in the select
                     # statement. If this is the only one, then we won't
                     # report an error.
-                    immediate_parent = context.surrogates.parent_stack.last()
+                    immediate_parent = context.functional.parent_stack.last()
                     num_elements = len(
                         immediate_parent.children(sp.is_type("select_clause_element"))
                     )

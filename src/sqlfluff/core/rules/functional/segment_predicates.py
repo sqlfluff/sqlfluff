@@ -27,34 +27,58 @@ def is_name(*seg_name: str) -> Callable[[BaseSegment], bool]:  # pragma: no cove
     return _
 
 
-def is_code(segment: BaseSegment) -> bool:
-    """Check if segment is code."""
-    return segment.is_code
+def is_code() -> Callable[[BaseSegment], bool]:
+    """Returns a function that checks if segment is code."""
+
+    def _(segment: BaseSegment) -> bool:
+        return segment.is_code
+
+    return _
 
 
-def is_comment(segment: BaseSegment) -> bool:
-    """Check if segment is comment."""
-    return segment.is_comment
+def is_comment() -> Callable[[BaseSegment], bool]:
+    """Returns a function that checks if segment is comment."""
+
+    def _(segment: BaseSegment) -> bool:
+        return segment.is_comment
+
+    return _
 
 
-def is_expandable(segment: BaseSegment) -> bool:
-    """Check if segment is expandable."""
-    return segment.is_expandable
+def is_expandable() -> Callable[[BaseSegment], bool]:
+    """Returns a function that checks if segment is expandable."""
+
+    def _(segment: BaseSegment) -> bool:
+        return segment.is_expandable
+
+    return _
 
 
-def is_meta(segment: BaseSegment) -> bool:
-    """Check if segment is meta."""
-    return segment.is_meta
+def is_meta() -> Callable[[BaseSegment], bool]:
+    """Returns a function that checks if segment is meta."""
+
+    def _(segment: BaseSegment) -> bool:
+        return segment.is_meta
+
+    return _
 
 
-def is_raw(segment: BaseSegment) -> bool:
-    """Check if segment is raw."""
-    return segment.is_raw()
+def is_raw() -> Callable[[BaseSegment], bool]:
+    """Returns a function that checks if segment is raw."""
+
+    def _(segment: BaseSegment) -> bool:
+        return segment.is_raw()
+
+    return _
 
 
-def is_whitespace(segment: BaseSegment) -> bool:
-    """Check if segment is whitespace."""
-    return segment.is_whitespace
+def is_whitespace() -> Callable[[BaseSegment], bool]:
+    """Returns a function that checks if segment is whitespace."""
+
+    def _(segment: BaseSegment) -> bool:
+        return segment.is_whitespace
+
+    return _
 
 
 def get_type(segment: BaseSegment) -> str:
@@ -68,23 +92,21 @@ def get_name(segment: BaseSegment) -> str:
 
 
 def and_(
-    fn1: Callable[[BaseSegment], bool], fn2: Callable[[BaseSegment], bool]
+    *functions: Callable[[BaseSegment], bool]
 ) -> Callable[[BaseSegment], bool]:  # pragma: no cover
-    """Returns a function that computes: fn1() and fn2()."""
+    """Returns a function that computes the functions and-ed together."""
 
     def _(segment: BaseSegment):
-        return fn1(segment) and fn2(segment)
+        return all(function(segment) for function in functions)
 
     return _
 
 
-def or_(
-    fn1: Callable[[BaseSegment], bool], fn2: Callable[[BaseSegment], bool]
-) -> Callable[[BaseSegment], bool]:
-    """Returns a function that computes: fn1() or fn2()."""
+def or_(*functions: Callable[[BaseSegment], bool]) -> Callable[[BaseSegment], bool]:
+    """Returns a function that computes the functions or-ed together."""
 
     def _(segment: BaseSegment):
-        return fn1(segment) or fn2(segment)
+        return any(function(segment) for function in functions)
 
     return _
 
