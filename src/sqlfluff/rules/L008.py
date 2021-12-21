@@ -59,13 +59,12 @@ class Rule_L008(BaseRule):
             start_seg=context.segment,
         )
         subsequent_whitespace = following_segments.last(sp.is_type("whitespace"))
-        index_following = (
-            raw_segments.index(context.segment) + len(following_segments) + 1
-        )
         try:
             return (
                 subsequent_whitespace[0] if subsequent_whitespace else None,
-                raw_segments[index_following],
+                raw_segments[
+                    raw_segments.index(context.segment) + len(following_segments) + 1
+                ],
             )
         except IndexError:
             # If we find ourselves here it's all whitespace (or nothing) to the
