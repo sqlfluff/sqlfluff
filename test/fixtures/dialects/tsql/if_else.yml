@@ -3,39 +3,40 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 39cb26283b2b0a6c616e448985191047bdbe96083d2ae4c209013f4acb77d9f6
+_hash: 499066367fdfc5eddede58a953e4501a95bce8f002ba298c2ef3fb82212fe719
 file:
   batch:
     statement:
       if_then_statement:
-      - keyword: IF
-      - expression:
-          literal: '1'
-          comparison_operator: <=
-          bracketed:
-            start_bracket: (
-            expression:
-              select_statement:
-                select_clause:
-                  keyword: SELECT
-                  select_clause_element:
-                    column_reference:
-                      identifier: Weight
-                from_clause:
-                  keyword: from
-                  from_expression:
-                    from_expression_element:
-                      table_expression:
-                        table_reference:
-                          identifier: DimProduct
-                where_clause:
-                  keyword: WHERE
-                  expression:
-                    column_reference:
-                      identifier: ProductKey
-                    comparison_operator: '='
-                    literal: '1'
-            end_bracket: )
+      - if_clause:
+          keyword: IF
+          expression:
+            literal: '1'
+            comparison_operator: <=
+            bracketed:
+              start_bracket: (
+              expression:
+                select_statement:
+                  select_clause:
+                    keyword: SELECT
+                    select_clause_element:
+                      column_reference:
+                        identifier: Weight
+                  from_clause:
+                    keyword: from
+                    from_expression:
+                      from_expression_element:
+                        table_expression:
+                          table_reference:
+                            identifier: DimProduct
+                  where_clause:
+                    keyword: WHERE
+                    expression:
+                      column_reference:
+                        identifier: ProductKey
+                      comparison_operator: '='
+                      literal: '1'
+              end_bracket: )
       - statement:
           select_statement:
             select_clause:
