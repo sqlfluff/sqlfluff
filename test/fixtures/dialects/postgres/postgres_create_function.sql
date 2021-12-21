@@ -107,3 +107,11 @@ RETURNS FLOAT AS
 $$
   RETURN 0.0
 $$ LANGUAGE plpgsql STABLE PARALLEL SAFE;
+
+CREATE FUNCTION _add(integer, integer) RETURNS integer
+    AS 'select $1 + $2;'
+    LANGUAGE SQL;
+
+CREATE FUNCTION _$add(integer, integer) RETURNS integer
+    AS 'select $1 + $2;'
+    LANGUAGE SQL;
