@@ -1,7 +1,7 @@
 rule: R001
 configs:
-    core:
-      dialect: exasol
+  core:
+    dialect: exasol
 
 
 tc1:

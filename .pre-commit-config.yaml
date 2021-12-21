@@ -16,9 +16,9 @@ repos:
       - id: mypy
         args: [--ignore-missing-imports]
         additional_dependencies: [
-            types-toml,
-            types-pkg_resources,
-            types-chardet,
+          types-toml,
+          types-pkg_resources,
+          types-chardet,
         ]
         files: ^src/sqlfluff/.*
   - repo: https://github.com/pycqa/flake8
@@ -26,16 +26,16 @@ repos:
     hooks:
       - id: flake8
         additional_dependencies: [
-            flake8-black,
-            flake8-docstrings,
+          flake8-black,
+          flake8-docstrings,
         ]
   - repo: https://github.com/pycqa/doc8
     rev: 0.10.1
     hooks:
       - id: doc8
         args: [
-            --file-encoding,
-            utf8,
+          --file-encoding,
+          utf8,
         ]
         files: docs/source/.*\.rst$
   - repo: https://github.com/adrienverge/yamllint.git
