@@ -3054,24 +3054,18 @@ class ThrowStatementSegment(BaseSegment):
                 Ref("NumericLiteralSegment"),
                 Ref("ParameterNameSegment"),
             ),
-            Sequence(
-                Ref("CommaSegment"),
-                OneOf(
-                    # message
-                    Ref("QuotedLiteralSegment"),
-                    Ref("QuotedLiteralSegmentWithN"),
-                    Ref("ParameterNameSegment"),
-                ),
-                Sequence(
-                    Ref("CommaSegment"),
-                    OneOf(
-                        # state
-                        Ref("NumericLiteralSegment"),
-                        Ref("ParameterNameSegment"),
-                        optional=True,
-                    ),
-                ),
-                optional=True,
+            Ref("CommaSegment"),
+            OneOf(
+                # message
+                Ref("QuotedLiteralSegment"),
+                Ref("QuotedLiteralSegmentWithN"),
+                Ref("ParameterNameSegment"),
+            ),
+            Ref("CommaSegment"),
+            OneOf(
+                # state
+                Ref("NumericLiteralSegment"),
+                Ref("ParameterNameSegment"),
             ),
             optional=True,
         ),
