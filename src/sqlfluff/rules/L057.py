@@ -54,56 +54,45 @@ class Rule_L057(BaseRule):
         self.unquoted_identifiers_policy: str
         self.allow_space_in_identifier: bool
 
-        if (
-            context.segment.name == "naked_identifier"
-            and identifiers_policy_applicable(
-                self.unquoted_identifiers_policy, context.parent_stack
-            )
-            and not (
-                context.segment.raw.replace("_", "").isalnum()
-                or (
-                    self.allow_space_in_identifier
-                    and context.segment.raw.replace("_", "").replace(" ", "").isalnum()
-                )
-            )
-        ):
-            return LintResult(anchor=context.segment)
-
-        # Exit early if not a quoted_identifier
-        if not context.segment.name == "quoted_identifier":
+        # Exit early if not a single identifier.
+        if context.segment.name not in ("naked_identifier", "quoted_identifier"):
             return None
 
-        # Strip the quotes
-        identifier = context.segment.raw[1:-1]
+        if context.segment.name == "naked_identifier":
+            # Evaluate unquoted identifiers.
+            if identifiers_policy_applicable(
+                self.unquoted_identifiers_policy, context.parent_stack
+            ) and not (context.segment.raw.replace("_", "").isalnum()):
+                return LintResult(anchor=context.segment)
+        else:
+            # Evaluate quoted identifiers.
+            # Strip the quotes.
+            identifier = context.segment.raw[1:-1]
 
-        # BigQuery table references are quoted in back ticks so allow dots
-        #
-        # It also allows a star at the end of table_references for wildcards
-        # (https://cloud.google.com/bigquery/docs/querying-wildcard-tables)
-        #
-        # Strip both out before testing the identifier
-        if (
-            context.dialect.name in ["bigquery"]
-            and context.parent_stack
-            and context.parent_stack[-1].name == "TableReferenceSegment"
-        ):
-            if identifier[-1] == "*":
-                identifier = identifier[0:-1]
-            identifier = identifier.replace(".", "")
+            # BigQuery table references are quoted in back ticks so allow dots
+            #
+            # It also allows a star at the end of table_references for wildcards
+            # (https://cloud.google.com/bigquery/docs/querying-wildcard-tables)
+            #
+            # Strip both out before testing the identifier
+            if (
+                context.dialect.name in ["bigquery"]
+                and context.parent_stack
+                and context.parent_stack[-1].name == "TableReferenceSegment"
+            ):
+                if identifier[-1] == "*":
+                    identifier = identifier[:-1]
+                identifier = identifier.replace(".", "")
 
-        if (
-            context.segment.name == "quoted_identifier"
-            and identifiers_policy_applicable(
+            if identifiers_policy_applicable(
                 self.quoted_identifiers_policy, context.parent_stack
-            )
-            and not (
+            ) and not (
                 identifier.replace("_", "").isalnum()
                 or (
                     self.allow_space_in_identifier
                     and identifier.replace("_", "").replace(" ", "").isalnum()
                 )
-            )
-        ):
-            return LintResult(anchor=context.segment)
+            ):
+                return LintResult(anchor=context.segment)
 
         return None
