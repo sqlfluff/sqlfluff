@@ -256,13 +256,13 @@ class RuleContext:
     templated_file: Optional[TemplatedFile]
 
     @cached_property
-    def surrogates(self):
+    def functional(self):
         """Returns a Surrogates object that simplifies writing rules."""
-        return Surrogates(self)
+        return FunctionalRuleContext(self)
 
 
-class Surrogates:
-    """Provides access to surrogate objects that simplify writing rules."""
+class FunctionalRuleContext:
+    """RuleContext written in a "functional" style; simplifies writing rules."""
 
     def __init__(self, context: RuleContext):
         self.context = context
@@ -273,14 +273,24 @@ class Surrogates:
         return Segments(self.context.templated_file, self.context.segment)
 
     @property
-    def raw_stack(self) -> "Segments":
-        """Returns a Segments object for context.raw_stack."""
-        return Segments(self.context.templated_file, *self.context.raw_stack)
-
-    @property
     def parent_stack(self) -> "Segments":  # pragma: no cover
         """Returns a Segments object for context.parent_stack."""
         return Segments(self.context.templated_file, *self.context.parent_stack)
+
+    @property
+    def siblings_pre(self) -> "Segments":  # pragma: no cover
+        """Returns a Segments object for context.siblings_pre."""
+        return Segments(self.context.templated_file, *self.context.siblings_pre)
+
+    @property
+    def siblings_post(self) -> "Segments":  # pragma: no cover
+        """Returns a Segments object for context.siblings_post."""
+        return Segments(self.context.templated_file, *self.context.siblings_post)
+
+    @property
+    def raw_stack(self) -> "Segments":
+        """Returns a Segments object for context.raw_stack."""
+        return Segments(self.context.templated_file, *self.context.raw_stack)
 
 
 class BaseRule:

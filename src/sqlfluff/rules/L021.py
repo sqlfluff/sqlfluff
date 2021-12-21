@@ -30,7 +30,7 @@ class Rule_L021(BaseRule):
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Ambiguous use of DISTINCT in select statement with GROUP BY."""
-        segment = context.surrogates.segment
+        segment = context.functional.segment
         if (
             segment.all(sp.is_type("select_statement"))
             # Do we have a group by clause

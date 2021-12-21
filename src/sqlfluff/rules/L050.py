@@ -73,8 +73,8 @@ class Rule_L050(BaseRule):
         if len(context.raw_stack) == 0:
             return None
 
-        segment = context.surrogates.segment
-        raw_stack = context.surrogates.raw_stack
+        segment = context.functional.segment
+        raw_stack = context.functional.raw_stack
         whitespace_types = {"newline", "whitespace", "indent", "dedent"}
         # Non-whitespace segment.
         if (

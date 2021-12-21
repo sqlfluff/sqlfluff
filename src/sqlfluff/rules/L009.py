@@ -87,8 +87,8 @@ class Rule_L009(BaseRule):
             return None
 
         # Include current segment for complete stack and reverse.
-        parent_stack: Segments = context.surrogates.parent_stack
-        complete_stack: Segments = context.surrogates.raw_stack
+        parent_stack: Segments = context.functional.parent_stack
+        complete_stack: Segments = context.functional.raw_stack
         complete_stack.append(context.segment)
         reversed_complete_stack = complete_stack.reversed()
 
