@@ -416,6 +416,7 @@ postgres_docs_keywords = [
     ("JSON_TABLE", "not-keyword"),
     ("JSON_TABLE_PRIMITIVE", "not-keyword"),
     ("JSON_VALUE", "not-keyword"),
+    ("JSONB", "not-keyword"),
     ("K", "not-keyword"),
     ("KEEP", "not-keyword"),
     ("KEY", "non-reserved"),

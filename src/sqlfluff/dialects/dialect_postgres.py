@@ -470,6 +470,8 @@ class DatatypeSegment(BaseSegment):
                 "UUID",
                 # xml type
                 "XML",
+                # json types
+                OneOf("JSON", "JSONB"),
                 Sequence(
                     "BINARY",
                     OneOf("VARYING", Sequence("LARGE", "OBJECT")),

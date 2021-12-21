@@ -106,4 +106,9 @@ create table m(
 
 create table n(
     a xml
-)
+);
+
+create table o(
+    a json,
+    b json b
+);
