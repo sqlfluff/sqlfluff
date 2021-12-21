@@ -334,6 +334,7 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref("BeginEndSegment"),
             Ref("TryCatchSegment"),
             Ref("MergeStatementSegment"),
+            Ref("ThrowStatementSegment"),
             Ref("ReturnStatementSegment"),
         ],
     )
@@ -3086,5 +3087,39 @@ class OutputClauseSegment(BaseSegment):
                 Dedent,
                 optional=True,
             ),
+        ),
+    )
+
+
+@tsql_dialect.segment()
+class ThrowStatementSegment(BaseSegment):
+    """A THROW statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/throw-transact-sql?view=sql-server-ver15
+    """
+
+    type = "throw_statement"
+    match_grammar = Sequence(
+        "THROW",
+        Sequence(
+            OneOf(
+                # error_number
+                Ref("NumericLiteralSegment"),
+                Ref("ParameterNameSegment"),
+            ),
+            Ref("CommaSegment"),
+            OneOf(
+                # message
+                Ref("QuotedLiteralSegment"),
+                Ref("QuotedLiteralSegmentWithN"),
+                Ref("ParameterNameSegment"),
+            ),
+            Ref("CommaSegment"),
+            OneOf(
+                # state
+                Ref("NumericLiteralSegment"),
+                Ref("ParameterNameSegment"),
+            ),
+            optional=True,
         ),
     )

@@ -352,6 +352,7 @@ UNRESERVED_KEYWORDS = [
     "TABLOCKX",
     "TARGET",
     "TEXTIMAGE_ON",
+    "THROW",
     "TIME",
     "TRANSACTION_ID",
     "TRUNCATE_TARGET",  # Azure Synapse Analytics specific
