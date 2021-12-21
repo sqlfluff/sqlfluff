@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0fb35f1480cbe9f929bb3a628600b12109259092f9660a9084c9d2c674d43bcb
+_hash: 58ba2c6b411d1efa5a50d6a4527eaddaf14ba2dde3593b3b1553cdd33b1a1cd3
 file:
   batch:
     statement:
@@ -56,5 +56,14 @@ file:
                   keyword: AS
                   identifier: ErrorMessage
             statement_terminator: ;
+      - statement:
+          throw_statement:
+          - keyword: THROW
+          - literal: '50005'
+          - comma: ','
+          - literal: "N'an error occurred'"
+          - comma: ','
+          - literal: '1'
+      - statement_terminator: ;
       - keyword: END
       - keyword: CATCH

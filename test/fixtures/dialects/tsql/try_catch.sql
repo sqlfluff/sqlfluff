@@ -6,5 +6,7 @@ END TRY
 BEGIN CATCH  
     SELECT   
         ERROR_NUMBER() AS ErrorNumber  
-       ,ERROR_MESSAGE() AS ErrorMessage;  
+       ,ERROR_MESSAGE() AS ErrorMessage;
+       
+    THROW 50005, N'an error occurred', 1;
 END CATCH  
