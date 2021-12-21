@@ -335,6 +335,7 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref("BeginEndSegment"),
             Ref("TryCatchSegment"),
             Ref("MergeStatementSegment"),
+            Ref("ReturnStatementSegment"),
         ],
     )
 
@@ -1240,12 +1241,6 @@ class CreateFunctionStatementSegment(BaseSegment):
         "CREATE",
         Sequence("OR", "ALTER", optional=True),
         "FUNCTION",
-        Anything(),
-    )
-    parse_grammar = Sequence(
-        "CREATE",
-        Sequence("OR", "ALTER", optional=True),
-        "FUNCTION",
         Ref("ObjectReferenceSegment"),
         Ref("FunctionParameterListGrammar"),
         Sequence(  # Optional function return type
@@ -1253,8 +1248,45 @@ class CreateFunctionStatementSegment(BaseSegment):
             Ref("DatatypeSegment"),
             optional=True,
         ),
-        "AS"
+        Ref("FunctionOptionSegment", optional=True),
+        "AS",
         Ref("ProcedureDefinitionGrammar"),
+    )
+
+
+@tsql_dialect.segment()
+class FunctionOptionSegment(BaseSegment):
+    """A function option segment."""
+
+    type = "function_option_segment"
+    match_grammar = Sequence(
+        "WITH",
+        AnyNumberOf(
+            "ENCRYPTION",
+            "SCHEMABINDING",
+            Sequence(
+                OneOf(
+                    Sequence(
+                        "RETURNS",
+                        "NULL",
+                    ),
+                    "CALLED",
+                ),
+                "ON",
+                "NULL",
+                "INPUT",
+            ),
+            Ref("ExecuteAsClauseSegment"),
+            Sequence(
+                "INLINE",
+                Ref("EqualsSegment"),
+                OneOf(
+                    "ON",
+                    "OFF",
+                ),
+            ),
+            min_times=1,
+        ),
     )
 
 
@@ -1273,6 +1305,38 @@ class DropFunctionStatementSegment(BaseSegment):
         Ref("IfExistsGrammar", optional=True),
         Delimited(Ref("FunctionNameSegment")),
         Ref("DelimiterSegment", optional=True),
+    )
+
+
+@tsql_dialect.segment()
+class ReturnStatementSegment(BaseSegment):
+    """A RETURN statement."""
+
+    type = "return_segment"
+    match_grammar = Sequence(
+        "RETURN",
+        Ref("ExpressionSegment"),
+        Ref("DelimiterSegment", optional=True),
+    )
+
+
+@tsql_dialect.segment()
+class ExecuteAsClauseSegment(BaseSegment):
+    """An EXECUTE AS clause.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/execute-as-clause-transact-sql?view=sql-server-ver15
+    """
+
+    type = "execute_as_clause"
+    match_grammar = Sequence(
+        OneOf("EXEC", "EXECUTE"),
+        "AS",
+        OneOf(
+            "CALLER",
+            "SELF",
+            "OWNER",
+            Ref("QuotedLiteralSegment"),
+        ),
     )
 
 
@@ -1353,20 +1417,6 @@ class SetStatementSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment(replace=True)
-class FunctionDefinitionGrammar(BaseSegment):
-    """This is the body of a `CREATE FUNCTION AS` statement.
-
-    Adjusted from ansi as Transact SQL does not seem to have the QuotedLiteralSegmentand Language.
-    Futhermore the body can contain almost anything like a function with table output.
-    """
-
-    type = "function_statement"
-    name = "function_statement"
-
-    match_grammar = Sequence("AS", Sequence(Anything()))
-
-
 @tsql_dialect.segment()
 class CreateProcedureStatementSegment(BaseSegment):
     """A `CREATE OR ALTER PROCEDURE` statement.
@@ -1407,7 +1457,10 @@ class DropProcedureStatementSegment(BaseSegment):
 
 @tsql_dialect.segment()
 class ProcedureDefinitionGrammar(BaseSegment):
-    """This is the body of a `CREATE OR ALTER PROCEDURE AS` statement."""
+    """This is the body of a `CREATE OR ALTER PROCEDURE AS` statement.
+
+    This also handles the body of a `CREATE FUNCTION AS` statement.
+    """
 
     type = "procedure_statement"
     name = "procedure_statement"
