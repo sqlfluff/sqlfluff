@@ -78,7 +78,7 @@ test_object_references_1c:
       dialect: bigquery
     rules:
       L028:
-        force_enable: "True"
+        force_enable: True
 
 test_object_references_1d:
   # This should not-fail as "a" is potentially a STRUCT
