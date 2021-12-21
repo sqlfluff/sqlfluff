@@ -475,6 +475,8 @@ class DatatypeSegment(BaseSegment):
                 OneOf("JSON", "JSONB"),
                 # range types
                 "INT4RANGE", "INT8RANGE","NUMRANGE","TSRANGE","TSTZRANGE","DATERANGE",
+                # pg_lsn type
+                "PG_LSN",
                 Sequence(
                     "BINARY",
                     OneOf("VARYING", Sequence("LARGE", "OBJECT")),
