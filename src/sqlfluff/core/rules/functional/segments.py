@@ -27,17 +27,17 @@ class Segments(list):
     def __radd__(self, segments) -> "Segments":
         return Segments(self.templated_file, *list(segments).__add__(list(self)))
 
-    def all(self, *predicates: Callable[[BaseSegment], bool]) -> bool:
+    def all(self, predicate: Optional[Callable[[BaseSegment], bool]] = None) -> bool:
         """Do all the segments match?"""
         for s in self:
-            if predicates and not any(p(s) for p in predicates):
+            if predicate and not predicate(s):
                 return False
         return True
 
-    def any(self, *predicates: Callable[[BaseSegment], bool]) -> bool:
+    def any(self, predicate: Optional[Callable[[BaseSegment], bool]] = None) -> bool:
         """Do any of the segments match?"""
         for s in self:
-            if not predicates or any(p(s) for p in predicates):
+            if not predicate or predicate(s):
                 return True
         return False
 
@@ -60,27 +60,33 @@ class Segments(list):
             )
         return RawFileSlices(self.templated_file, *raw_slices)
 
-    def children(self, *predicates: Callable[[BaseSegment], bool]) -> "Segments":
+    def children(
+        self, predicate: Optional[Callable[[BaseSegment], bool]] = None
+    ) -> "Segments":
         """Returns an object with children of the segments in this object."""
         child_segments: List[BaseSegment] = []
         for s in self:
             for child in s.segments:
-                if not predicates or any(p(child) for p in predicates):
+                if not predicate or predicate(s):
                     child_segments.append(child)
         return Segments(self.templated_file, *child_segments)
 
-    def first(self, *predicates) -> Optional["Segments"]:
+    def first(
+        self, predicate: Optional[Callable[[BaseSegment], bool]]
+    ) -> Optional["Segments"]:
         """Returns the first segment (if any) that satisfies the predicates."""
         for s in self:
-            if not predicates or any(p(s) for p in predicates):
+            if not predicate or predicate(s):
                 return Segments(self.templated_file, s)
         # If no segment satisfies "predicates", return "None".
         return None
 
-    def last(self, *predicates) -> Optional["Segments"]:
+    def last(
+        self, predicate: Optional[Callable[[BaseSegment], bool]] = None
+    ) -> Optional["Segments"]:
         """Returns the last segment (if any) that satisfies the predicates."""
         for s in reversed(self):
-            if not predicates or any(p(s) for p in predicates):
+            if not predicate or predicate(s):
                 return Segments(self.templated_file, s)
         # If no segment satisfies "predicates", return "None".
         return None

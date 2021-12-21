@@ -292,6 +292,12 @@ class FunctionalRuleContext:
         """Returns a Segments object for context.raw_stack."""
         return Segments(self.context.templated_file, *self.context.raw_stack)
 
+    @property
+    def raw_segments(self):
+        """Returns a Segments object for all the raw segments in the file."""
+        file_segment = self.context.parent_stack[0]
+        return Segments(self.context.templated_file, *file_segment.get_raw_segments())
+
 
 class BaseRule:
     """The base class for a rule.
