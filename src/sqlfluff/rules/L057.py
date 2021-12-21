@@ -78,7 +78,7 @@ class Rule_L057(BaseRule):
 
         # BigQuery table references are quoted in back ticks so allow dots
         #
-        # It allows a star at the end of table_references for wildcards
+        # It also allows a star at the end of table_references for wildcards
         # (https://cloud.google.com/bigquery/docs/querying-wildcard-tables)
         #
         # Strip both out before testing the identifier
