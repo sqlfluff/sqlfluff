@@ -975,9 +975,7 @@ class FromUnpivotExpressionSegment(BaseSegment):
     """
 
     type = "from_unpivot_expression"
-    match_grammar = Sequence("UNPIVOT", Bracketed(Anything()))
-
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "UNPIVOT",
         Sequence(
             OneOf("INCLUDE", "EXCLUDE"),
