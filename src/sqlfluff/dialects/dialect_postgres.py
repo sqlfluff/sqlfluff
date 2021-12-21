@@ -473,6 +473,8 @@ class DatatypeSegment(BaseSegment):
                 "XML",
                 # json types
                 OneOf("JSON", "JSONB"),
+                # range types
+                "INT4RANGE", "INT8RANGE","NUMRANGE","TSRANGE","TSTZRANGE","DATERANGE",
                 Sequence(
                     "BINARY",
                     OneOf("VARYING", Sequence("LARGE", "OBJECT")),
@@ -513,7 +515,7 @@ class DatatypeSegment(BaseSegment):
         OneOf(
             Bracketed(
                 Ref("NumericLiteralSegment", optional=True)
-                , type="square"),
+                , bracket_type="square"),
               Ref("SimpleArrayTypeGrammar"),
               Sequence(
                   Ref("SimpleArrayTypeGrammar"), Ref("ArrayLiteralSegment")

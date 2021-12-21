@@ -96,6 +96,10 @@ create table k(
 );
 
 create table l(
+    a pg_lsn
+);
+
+create table l(
     a tsvector,
     b tsquery
 );
