@@ -62,7 +62,7 @@ test_pass_line_too_long_with_comments_ignore_comment_lines:
     rules:
       max_line_length: 80
       L016:
-        ignore_comment_lines: True
+        ignore_comment_lines: true
 
 test_fail_line_too_long_only_comments:
   # Check long lines that are only comments are linted correctly
@@ -86,7 +86,7 @@ test_pass_line_too_long_ignore_comments_true:
     rules:
       max_line_length: 10
       L016:
-        ignore_comment_lines: True
+        ignore_comment_lines: true
 
 test_pass_line_too_long_ignore_comments_false:
   # Check we still pick up long comments if we don't want to ignore
@@ -95,7 +95,7 @@ test_pass_line_too_long_ignore_comments_false:
     rules:
       max_line_length: 10
       L016:
-        ignore_comment_lines: False
+        ignore_comment_lines: false
 
 test_compute_line_length_before_template_expansion_1:
   # Line 3 is fine before expansion. Too long after expansion is NOT considered
@@ -141,7 +141,7 @@ test_long_jina_comment:
     rules:
       max_line_length: 80
       L016:
-        ignore_comment_lines: False
+        ignore_comment_lines: false
 
 
 test_long_jina_comment_ignore:
@@ -155,7 +155,7 @@ test_long_jina_comment_ignore:
     rules:
       max_line_length: 80
       L016:
-        ignore_comment_lines: True
+        ignore_comment_lines: true
 
 
 test_for_loop:
