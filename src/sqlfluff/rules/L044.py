@@ -58,8 +58,6 @@ class Rule_L044(BaseRule):
 
     """
 
-    _works_on_unparsable = False
-
     def _handle_alias(self, selectable, alias_info, query):
         select_info_target = SelectCrawler.get(
             query, alias_info.from_expression_element

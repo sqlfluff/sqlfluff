@@ -51,7 +51,6 @@ class Rule_L019(BaseRule):
 
     """
 
-    _works_on_unparsable = False
     config_keywords = ["comma_style"]
 
     @staticmethod

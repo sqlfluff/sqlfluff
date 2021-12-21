@@ -265,7 +265,7 @@ class BaseRule:
     """
 
     _check_docstring = True
-    _works_on_unparsable = True
+    _works_on_unparsable = False
     targets_templated = False
 
     def __init__(self, code, description, **kwargs):
