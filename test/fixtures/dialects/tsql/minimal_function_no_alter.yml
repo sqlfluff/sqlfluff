@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f282a597361b61de945007c80c2324467a921b670420190f1d55940f36909ab0
+_hash: 1b7ec20d00140454850a367972e9579d5d2bd1ec5bf58a428cc817bd089f5cbb
 file:
   batch:
     statement:
@@ -28,11 +28,18 @@ file:
       - keyword: RETURNS
       - data_type:
           identifier: integer
-      - function_statement:
-        - keyword: AS
-        - raw: BEGIN
-        - raw: RETURN
-        - raw: '@add_1'
-        - raw: +
-        - raw: '@add_2'
-        - raw: END
+      - keyword: AS
+      - procedure_statement:
+          statement:
+            begin_end_block:
+            - keyword: BEGIN
+            - statement:
+                return_segment:
+                  keyword: RETURN
+                  expression:
+                  - column_reference:
+                      parameter: '@add_1'
+                  - binary_operator: +
+                  - column_reference:
+                      parameter: '@add_2'
+            - keyword: END

@@ -6,10 +6,10 @@ import pytest
 from sqlfluff.api import lint, fix, parse, list_rules, list_dialects
 
 # Import metadata (using importlib_metadata backport for python versions <3.8)
-if sys.version_info < (3, 8, 0):
-    import importlib_metadata as metadata
-else:
+if sys.version_info >= (3, 8):
     from importlib import metadata
+else:
+    import importlib_metadata as metadata
 
 __all__ = (
     "lint",
