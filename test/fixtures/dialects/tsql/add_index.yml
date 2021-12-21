@@ -3,42 +3,43 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6b6820d821497e48e4649c0c14f2f42c8882ccb1c79cf03de2d435c1079a84a8
+_hash: 671c929c9568d702b35f763d589e9a33923aa5201df84bcc9dda4698b9e2bf1b
 file:
 - batch:
     statement:
       if_then_statement:
-        keyword: IF
-        expression:
-        - keyword: NOT
-        - keyword: EXISTS
-        - bracketed:
-            start_bracket: (
-            expression:
-              select_statement:
-                select_clause:
-                  keyword: SELECT
-                  select_clause_element:
-                    wildcard_expression:
-                      wildcard_identifier:
-                        star: '*'
-                from_clause:
-                  keyword: FROM
-                  from_expression:
-                    from_expression_element:
-                      table_expression:
-                        table_reference:
-                        - identifier: sys
-                        - dot: .
-                        - identifier: indexes
-                where_clause:
-                  keyword: WHERE
-                  expression:
-                    column_reference:
-                      identifier: NAME
-                    comparison_operator: '='
-                    literal: "'IX_INTER_VIMR_INFECTIOUS_PEOPLE'"
-            end_bracket: )
+        if_clause:
+          keyword: IF
+          expression:
+          - keyword: NOT
+          - keyword: EXISTS
+          - bracketed:
+              start_bracket: (
+              expression:
+                select_statement:
+                  select_clause:
+                    keyword: SELECT
+                    select_clause_element:
+                      wildcard_expression:
+                        wildcard_identifier:
+                          star: '*'
+                  from_clause:
+                    keyword: FROM
+                    from_expression:
+                      from_expression_element:
+                        table_expression:
+                          table_reference:
+                          - identifier: sys
+                          - dot: .
+                          - identifier: indexes
+                  where_clause:
+                    keyword: WHERE
+                    expression:
+                      column_reference:
+                        identifier: NAME
+                      comparison_operator: '='
+                      literal: "'IX_INTER_VIMR_INFECTIOUS_PEOPLE'"
+              end_bracket: )
         statement:
           create_index_statement:
           - keyword: CREATE
@@ -63,37 +64,38 @@ file:
 - batch:
     statement:
       if_then_statement:
-        keyword: IF
-        expression:
-        - keyword: NOT
-        - keyword: EXISTS
-        - bracketed:
-            start_bracket: (
-            expression:
-              select_statement:
-                select_clause:
-                  keyword: SELECT
-                  select_clause_element:
-                    wildcard_expression:
-                      wildcard_identifier:
-                        star: '*'
-                from_clause:
-                  keyword: FROM
-                  from_expression:
-                    from_expression_element:
-                      table_expression:
-                        table_reference:
-                        - identifier: sys
-                        - dot: .
-                        - identifier: indexes
-                where_clause:
-                  keyword: WHERE
-                  expression:
-                    column_reference:
-                      identifier: NAME
-                    comparison_operator: '='
-                    literal: "'IX_INTER_FOUNDATION_NICE_IC_INTAKE_COUNT'"
-            end_bracket: )
+        if_clause:
+          keyword: IF
+          expression:
+          - keyword: NOT
+          - keyword: EXISTS
+          - bracketed:
+              start_bracket: (
+              expression:
+                select_statement:
+                  select_clause:
+                    keyword: SELECT
+                    select_clause_element:
+                      wildcard_expression:
+                        wildcard_identifier:
+                          star: '*'
+                  from_clause:
+                    keyword: FROM
+                    from_expression:
+                      from_expression_element:
+                        table_expression:
+                          table_reference:
+                          - identifier: sys
+                          - dot: .
+                          - identifier: indexes
+                  where_clause:
+                    keyword: WHERE
+                    expression:
+                      column_reference:
+                        identifier: NAME
+                      comparison_operator: '='
+                      literal: "'IX_INTER_FOUNDATION_NICE_IC_INTAKE_COUNT'"
+              end_bracket: )
         statement:
           create_index_statement:
           - keyword: CREATE
@@ -118,36 +120,37 @@ file:
 - batch:
     statement:
       if_then_statement:
-        keyword: IF
-        expression:
-          keyword: EXISTS
-          bracketed:
-            start_bracket: (
-            expression:
-              select_statement:
-                select_clause:
-                  keyword: SELECT
-                  select_clause_element:
-                    wildcard_expression:
-                      wildcard_identifier:
-                        star: '*'
-                from_clause:
-                  keyword: FROM
-                  from_expression:
-                    from_expression_element:
-                      table_expression:
-                        table_reference:
-                        - identifier: sys
-                        - dot: .
-                        - identifier: indexes
-                where_clause:
-                  keyword: WHERE
-                  expression:
-                    column_reference:
-                      identifier: NAME
-                    comparison_operator: '='
-                    literal: "'IX_INTER_VIMR_REPRODUCTION_NUMBER'"
-            end_bracket: )
+        if_clause:
+          keyword: IF
+          expression:
+            keyword: EXISTS
+            bracketed:
+              start_bracket: (
+              expression:
+                select_statement:
+                  select_clause:
+                    keyword: SELECT
+                    select_clause_element:
+                      wildcard_expression:
+                        wildcard_identifier:
+                          star: '*'
+                  from_clause:
+                    keyword: FROM
+                    from_expression:
+                      from_expression_element:
+                        table_expression:
+                          table_reference:
+                          - identifier: sys
+                          - dot: .
+                          - identifier: indexes
+                  where_clause:
+                    keyword: WHERE
+                    expression:
+                      column_reference:
+                        identifier: NAME
+                      comparison_operator: '='
+                      literal: "'IX_INTER_VIMR_REPRODUCTION_NUMBER'"
+              end_bracket: )
         statement:
           create_index_statement:
           - keyword: CREATE
