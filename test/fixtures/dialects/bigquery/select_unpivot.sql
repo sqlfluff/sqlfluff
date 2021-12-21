@@ -7,6 +7,12 @@ SELECT * FROM Produce
 UNPIVOT(sales FOR quarter IN (Q1, Q2, Q3, Q4));
 
 SELECT * FROM Produce
+UNPIVOT INCLUDE NULLS (sales FOR quarter IN (Q1, Q2, Q3, Q4));
+
+SELECT * FROM Produce
+UNPIVOT EXCLUDE NULLS (sales FOR quarter IN (Q1, Q2, Q3, Q4));
+
+SELECT * FROM Produce
 UNPIVOT(
   (first_half_sales, second_half_sales)
   FOR semesters

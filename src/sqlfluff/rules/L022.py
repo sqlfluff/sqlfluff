@@ -54,7 +54,20 @@ class Rule_L022(BaseRule):
             )
             for idx, seg in enumerate(expanded_segments):
                 if seg.is_type("bracketed"):
-                    bracket_indices.append(idx)
+                    # Check if the preceding keyword is AS, otherwise it's a column name definition in the CTE.
+                    preceding_keyword = next(
+                        (
+                            s
+                            for s in expanded_segments[:idx][::-1]
+                            if s.is_type("keyword")
+                        ),
+                        None,
+                    )
+                    if (
+                        preceding_keyword is not None
+                        and preceding_keyword.raw.upper() == "AS"
+                    ):
+                        bracket_indices.append(idx)
 
             # Work through each point and deal with it individually
             for bracket_idx in bracket_indices:
@@ -141,7 +154,7 @@ class Rule_L022(BaseRule):
                             # Optionally here, if the segment we've landed on is
                             # whitespace then we REPLACE it rather than inserting.
                             if forward_slice[comma_seg_idx + 1].is_type("whitespace"):
-                                fix_type = "edit"
+                                fix_type = "replace"
                         elif self.comma_style == "leading":
                             # Add a blank line before the comma
                             fix_point = forward_slice[comma_seg_idx]
@@ -159,7 +172,7 @@ class Rule_L022(BaseRule):
                                 # If the preceding segment is whitespace, replace it
                                 if forward_slice[seg_idx - 1].is_type("whitespace"):
                                     fix_point = forward_slice[seg_idx - 1]
-                                    fix_type = "edit"
+                                    fix_type = "replace"
                                 else:
                                     # Otherwise add a single newline before the end content.
                                     fix_point = forward_slice[seg_idx]

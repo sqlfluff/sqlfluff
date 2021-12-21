@@ -61,8 +61,7 @@ class Rule_L053(BaseRule):
         # children, excluding the bracket symbols.
         bracket_set = {"start_bracket", "end_bracket"}
         fixes = [
-            LintFix(
-                "edit",
+            LintFix.replace(
                 context.segment,
                 [
                     segment

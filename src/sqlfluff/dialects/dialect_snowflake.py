@@ -17,6 +17,7 @@ from sqlfluff.core.parser import (
     Indent,
     NamedParser,
     OneOf,
+    OptionallyBracketed,
     Ref,
     RegexLexer,
     RegexParser,
@@ -27,7 +28,6 @@ from sqlfluff.core.parser import (
     StringParser,
     SymbolSegment,
 )
-from sqlfluff.core.parser.grammar.anyof import OptionallyBracketed
 from sqlfluff.dialects.dialect_snowflake_keywords import (
     snowflake_reserved_keywords,
     snowflake_unreserved_keywords,
@@ -3169,4 +3169,176 @@ class FromClauseTerminatingUsingWhereSegment(ansi_dialect.get_segment("FromClaus
         "FROM",
         terminator=OneOf(Ref.keyword("USING"), Ref.keyword("WHERE")),
         enforce_whitespace_preceding_terminator=True,
+    )
+
+
+@snowflake_dialect.segment(replace=True)
+class DescribeStatementSegment(BaseSegment):
+    """`DESCRIBE` statement grammar.
+
+    https://docs.snowflake.com/en/sql-reference/sql/desc.html
+    """
+
+    match_grammar = Sequence(
+        OneOf("DESCRIBE", "DESC"),
+        OneOf(
+            # https://docs.snowflake.com/en/sql-reference/sql/desc-result.html
+            Sequence(
+                "RESULT",
+                OneOf(
+                    Ref("QuotedLiteralSegment"),
+                    Sequence("LAST_QUERY_ID", Bracketed()),
+                ),
+            ),
+            # https://docs.snowflake.com/en/sql-reference/sql/desc-network-policy.html
+            Sequence(
+                "NETWORK",
+                "POLICY",
+                Ref("ObjectReferenceSegment"),
+            ),
+            # https://docs.snowflake.com/en/sql-reference/sql/desc-share.html
+            Sequence(
+                "SHARE",
+                Ref("ObjectReferenceSegment"),
+                Sequence(
+                    Ref("DotSegment"),
+                    Ref("ObjectReferenceSegment"),
+                    optional=True,
+                ),
+            ),
+            # https://docs.snowflake.com/en/sql-reference/sql/desc-user.html
+            Sequence(
+                "USER",
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "WAREHOUSE",
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "DATABASE",
+                Ref("DatabaseReferenceSegment"),
+            ),
+            # https://docs.snowflake.com/en/sql-reference/sql/desc-integration.html
+            Sequence(
+                OneOf(
+                    "API",
+                    "NOTIFICATION",
+                    "SECURITY",
+                    "STORAGE",
+                ),
+                "INTEGRATION",
+                Ref("ObjectReferenceSegment"),
+            ),
+            # https://docs.snowflake.com/en/sql-reference/sql/desc-session-policy.html
+            Sequence(
+                "SESSION",
+                "POLICY",
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "SCHEMA",
+                Ref("SchemaReferenceSegment"),
+            ),
+            # https://docs.snowflake.com/en/sql-reference/sql/desc-table.html
+            Sequence(
+                "TABLE",
+                Ref("TableReferenceSegment"),
+                Sequence(
+                    "TYPE",
+                    Ref("EqualsSegment"),
+                    OneOf("COLUMNS", "STAGE"),
+                    optional=True,
+                ),
+            ),
+            # https://docs.snowflake.com/en/sql-reference/sql/desc-external-table.html
+            Sequence(
+                "EXTERNAL",
+                "TABLE",
+                Ref("TableReferenceSegment"),
+                Sequence(
+                    "TYPE",
+                    Ref("EqualsSegment"),
+                    OneOf("COLUMNS", "STAGE"),
+                    optional=True,
+                ),
+            ),
+            # https://docs.snowflake.com/en/sql-reference/sql/desc-view.html
+            Sequence(
+                "VIEW",
+                Ref("TableReferenceSegment"),
+            ),
+            # https://docs.snowflake.com/en/sql-reference/sql/desc-materialized-view.html
+            Sequence(
+                "MATERIALIZED",
+                "VIEW",
+                Ref("TableReferenceSegment"),
+            ),
+            # https://docs.snowflake.com/en/sql-reference/sql/desc-sequence.html
+            Sequence(
+                "SEQUENCE",
+                Ref("SequenceReferenceSegment"),
+            ),
+            # https://docs.snowflake.com/en/sql-reference/sql/desc-masking-policy.html
+            Sequence(
+                "MASKING",
+                "POLICY",
+                Ref("ObjectReferenceSegment"),
+            ),
+            # https://docs.snowflake.com/en/sql-reference/sql/desc-row-access-policy.html
+            Sequence(
+                "ROW",
+                "ACCESS",
+                "POLICY",
+                Ref("ObjectReferenceSegment"),
+            ),
+            # https://docs.snowflake.com/en/sql-reference/sql/desc-file-format.html
+            Sequence(
+                "FILE",
+                "FORMAT",
+                Ref("ObjectReferenceSegment"),
+            ),
+            # https://docs.snowflake.com/en/sql-reference/sql/desc-stage.html
+            Sequence(
+                "STAGE",
+                Ref("ObjectReferenceSegment"),
+            ),
+            # https://docs.snowflake.com/en/sql-reference/sql/desc-pipe.html
+            Sequence(
+                "PIPE",
+                Ref("ObjectReferenceSegment"),
+            ),
+            # https://docs.snowflake.com/en/sql-reference/sql/desc-stream.html
+            Sequence(
+                "STREAM",
+                Ref("ObjectReferenceSegment"),
+            ),
+            # https://docs.snowflake.com/en/sql-reference/sql/desc-task.html
+            Sequence(
+                "TASK",
+                Ref("ObjectReferenceSegment"),
+            ),
+            # https://docs.snowflake.com/en/sql-reference/sql/desc-function.html
+            Sequence(
+                "FUNCTION",
+                Ref("FunctionNameSegment"),
+                Bracketed(
+                    Delimited(
+                        Ref("DatatypeSegment"),
+                        optional=True,
+                    ),
+                ),
+            ),
+            # https://docs.snowflake.com/en/sql-reference/sql/desc-procedure.html
+            Sequence(
+                "PROCEDURE",
+                Ref("FunctionNameSegment"),
+                Bracketed(
+                    Delimited(
+                        Ref("DatatypeSegment"),
+                        optional=True,
+                    ),
+                ),
+            ),
+        ),
     )

@@ -61,15 +61,16 @@ class Rule_L002(BaseRule):
                     return LintResult(
                         anchor=context.segment,
                         fixes=[
-                            LintFix(
-                                "edit",
+                            LintFix.replace(
                                 context.segment,
-                                context.segment.edit(
-                                    context.segment.raw.replace(
-                                        "\t", " " * self.tab_space_size
-                                    )
-                                ),
-                            )
+                                [
+                                    context.segment.edit(
+                                        context.segment.raw.replace(
+                                            "\t", " " * self.tab_space_size
+                                        )
+                                    ),
+                                ],
+                            ),
                         ],
                     )
         return None

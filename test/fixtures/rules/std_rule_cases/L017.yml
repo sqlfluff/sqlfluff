@@ -5,7 +5,7 @@ passing_example:
 
 passing_example_window_function:
   pass_str: SELECT AVG(c) OVER (PARTITION BY a)
-  
+
 simple_fail:
   fail_str: SELECT SUM (1)
   fix_str: SELECT SUM(1)

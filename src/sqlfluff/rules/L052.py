@@ -155,20 +155,18 @@ class Rule_L052(BaseRule):
                     # semi-colon and its preceding whitespace and then insert
                     # the semi-colon in the correct location.
                     fixes = [
-                        LintFix(
-                            "edit",
+                        LintFix.replace(
                             anchor_segment,
                             [
                                 anchor_segment,
                                 SymbolSegment(raw=";", type="symbol", name="semicolon"),
                             ],
                         ),
-                        LintFix(
-                            "delete",
+                        LintFix.delete(
                             context.segment,
                         ),
                     ]
-                    fixes.extend(LintFix("delete", d) for d in whitespace_deletions)
+                    fixes.extend(LintFix.delete(d) for d in whitespace_deletions)
                     return LintResult(
                         anchor=anchor_segment,
                         fixes=fixes,
@@ -198,8 +196,7 @@ class Rule_L052(BaseRule):
                     )
 
                     fixes = [
-                        LintFix(
-                            "edit",
+                        LintFix.replace(
                             anchor_segment,
                             [
                                 anchor_segment,
@@ -207,12 +204,11 @@ class Rule_L052(BaseRule):
                                 SymbolSegment(raw=";", type="symbol", name="semicolon"),
                             ],
                         ),
-                        LintFix(
-                            "delete",
+                        LintFix.delete(
                             context.segment,
                         ),
                     ]
-                    fixes.extend(LintFix("delete", d) for d in whitespace_deletions)
+                    fixes.extend(LintFix.delete(d) for d in whitespace_deletions)
                     return LintResult(
                         anchor=anchor_segment,
                         fixes=fixes,
@@ -253,8 +249,7 @@ class Rule_L052(BaseRule):
                 # Semi-colon on same line.
                 if not semicolon_newline:
                     fixes = [
-                        LintFix(
-                            "edit",
+                        LintFix.replace(
                             anchor_segment,
                             [
                                 anchor_segment,
@@ -272,8 +267,7 @@ class Rule_L052(BaseRule):
                         pre_semicolon_segments, anchor_segment
                     )
                     fixes = [
-                        LintFix(
-                            "edit",
+                        LintFix.replace(
                             anchor_segment,
                             [
                                 anchor_segment,

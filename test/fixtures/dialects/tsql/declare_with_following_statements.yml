@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 79b6581e027a1d34417ebe0f432fbf5a2256b48f36ae9a72aca984387e664c19
+_hash: 657a4667a500793a6d76035e65cc1137fb2bda10033e03ec20d44213faa114b1
 file:
   batch:
     create_procedure_statement:
@@ -105,19 +105,20 @@ file:
                 statement_terminator: ;
           - statement:
               if_then_statement:
-                keyword: IF
-                expression:
-                - function:
-                    function_name:
-                      function_name_identifier: OBJECT_ID
-                    bracketed:
-                      start_bracket: (
-                      expression:
-                        literal: "'tempdb..#UP'"
-                      end_bracket: )
-                - keyword: IS
-                - keyword: NOT
-                - keyword: 'NULL'
+                if_clause:
+                  keyword: IF
+                  expression:
+                  - function:
+                      function_name:
+                        function_name_identifier: OBJECT_ID
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          literal: "'tempdb..#UP'"
+                        end_bracket: )
+                  - keyword: IS
+                  - keyword: NOT
+                  - keyword: 'NULL'
                 statement:
                   drop_statement:
                   - keyword: DROP

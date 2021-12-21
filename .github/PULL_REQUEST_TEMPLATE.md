@@ -15,7 +15,7 @@
 
 - Included test cases to demonstrate any code changes, which may be one or more of the following:
   - `.yml` rule test cases in `test/fixtures/rules/std_rule_cases`.
-  - `.sql`/`.yml` parser test cases in `test/fixtures/dialects` (note YML files can be auto generated with `python test/generate_parse_fixture_yml.py` or by running `tox` locally).
+  - `.sql`/`.yml` parser test cases in `test/fixtures/dialects` (note YML files can be auto generated with `tox -e generate-fixture-yml`).
   - Full autofix test cases in `test/fixtures/linter/autofix`.
   - Other.
 - Added appropriate documentation for the change.
