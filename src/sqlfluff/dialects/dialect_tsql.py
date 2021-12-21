@@ -1136,11 +1136,11 @@ class IfClauseSegment(BaseSegment):
 
     type = "if_clause"
 
-    match_grammar =         OneOf(
-            Sequence(Ref("IfNotExistsGrammar"), Ref("SelectStatementSegment")),
-            Sequence(Ref("IfExistsGrammar"), Ref("SelectStatementSegment")),
-            Sequence("IF", Ref("ExpressionSegment")),
-        )
+    match_grammar = OneOf(
+        Sequence(Ref("IfNotExistsGrammar"), Ref("SelectStatementSegment")),
+        Sequence(Ref("IfExistsGrammar"), Ref("SelectStatementSegment")),
+        Sequence("IF", Ref("ExpressionSegment")),
+    )
 
 
 @tsql_dialect.segment(replace=True)
