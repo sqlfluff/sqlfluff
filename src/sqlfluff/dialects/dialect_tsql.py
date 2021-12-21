@@ -9,7 +9,6 @@ from sqlfluff.core.parser import (
     OneOf,
     Bracketed,
     Ref,
-    Anything,
     Nothing,
     RegexLexer,
     CodeSegment,
