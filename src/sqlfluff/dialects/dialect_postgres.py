@@ -467,7 +467,9 @@ class DatatypeSegment(BaseSegment):
                     ),
                 ),
                 # uuid type
-                "UUID"
+                "UUID",
+                # xml type
+                "XML",
                 Sequence(
                     "BINARY",
                     OneOf("VARYING", Sequence("LARGE", "OBJECT")),

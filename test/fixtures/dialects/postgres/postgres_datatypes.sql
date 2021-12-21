@@ -98,8 +98,12 @@ create table k(
 create table l(
     a tsvector,
     b tsquery
-)
+);
 
 create table m(
     a uuid
+);
+
+create table n(
+    a xml
 )
