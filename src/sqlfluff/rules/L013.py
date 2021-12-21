@@ -49,7 +49,7 @@ class Rule_L013(BaseRule):
             sp.is_type("alias_expression")
         ):
             types = set(
-                children.select([sp.not_(sp.is_name("star"))]).apply(sp.get_type)
+                children.select(sp.not_(sp.is_name("star"))).apply(sp.get_type())
             )
             unallowed_types = types - {
                 "whitespace",

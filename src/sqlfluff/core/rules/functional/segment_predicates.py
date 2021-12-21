@@ -81,14 +81,22 @@ def is_whitespace() -> Callable[[BaseSegment], bool]:
     return _
 
 
-def get_type(segment: BaseSegment) -> str:
-    """Returns segment type."""
-    return segment.get_type()
+def get_type() -> Callable[[BaseSegment], str]:
+    """Returns a function that gets segment type."""
+
+    def _(segment: BaseSegment) -> str:
+        return segment.get_type()
+
+    return _
 
 
-def get_name(segment: BaseSegment) -> str:
-    """Returns segment name."""
-    return segment.get_name()
+def get_name() -> Callable[[BaseSegment], str]:
+    """Returns a function that gets segment name."""
+
+    def _(segment: BaseSegment) -> str:
+        return segment.get_name()
+
+    return _
 
 
 def and_(

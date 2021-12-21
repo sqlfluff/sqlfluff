@@ -1,5 +1,5 @@
 """Surrogate class for working with Segment collections."""
-from typing import Any, Callable, List, Optional, Sequence
+from typing import Any, Callable, List, Optional
 
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.templaters.base import TemplatedFile
@@ -91,8 +91,8 @@ class Segments(list):
 
     def select(
         self,
-        select_if: Optional[Sequence[Callable[[BaseSegment], bool]]] = None,
-        loop_while: Optional[Sequence[Callable[[BaseSegment], bool]]] = None,
+        select_if: Optional[Callable[[BaseSegment], bool]] = None,
+        loop_while: Optional[Callable[[BaseSegment], bool]] = None,
         start_seg: Optional[BaseSegment] = None,
         stop_seg: Optional[BaseSegment] = None,
     ) -> "Segments":
@@ -105,8 +105,8 @@ class Segments(list):
         stop_index = self.index(stop_seg) if stop_seg else len(self)
         buff = []
         for seg in self[start_index + 1 : stop_index]:
-            if loop_while and not any(p(seg) for p in loop_while):
+            if loop_while and not loop_while(seg):
                 break
-            if not select_if or any(p(seg) for p in select_if):
+            if not select_if or select_if(seg):
                 buff.append(seg)
         return Segments(self.templated_file, *buff)
