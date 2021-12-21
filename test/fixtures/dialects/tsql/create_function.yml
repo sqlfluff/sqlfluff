@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 17cd882b813b83f027b1f6eac5a542711c7d32ba8348256c983ae1618b395299
+_hash: 357d0e8c4390898b69702d11bda552382cc38f738b5000b4f6284eebfaf6daba
 file:
   batch:
     statement:
@@ -108,16 +108,17 @@ file:
                   statement_terminator: ;
             - statement:
                 if_then_statement:
-                  keyword: IF
-                  expression:
-                    bracketed:
-                      start_bracket: (
-                      expression:
-                        column_reference:
-                          parameter: '@ISOweek'
-                        comparison_operator: '='
-                        literal: '0'
-                      end_bracket: )
+                  if_clause:
+                    keyword: IF
+                    expression:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          column_reference:
+                            parameter: '@ISOweek'
+                          comparison_operator: '='
+                          literal: '0'
+                        end_bracket: )
                   statement:
                     set_segment:
                       keyword: SET
@@ -201,69 +202,70 @@ file:
                       statement_terminator: ;
             - statement:
                 if_then_statement:
-                  keyword: IF
-                  expression:
-                    bracketed:
-                      start_bracket: (
-                      expression:
-                      - bracketed:
-                          start_bracket: (
-                          expression:
-                            function:
-                              function_name:
-                                function_name_identifier: DATEPART
+                  if_clause:
+                    keyword: IF
+                    expression:
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                        - bracketed:
+                            start_bracket: (
+                            expression:
+                              function:
+                                function_name:
+                                  function_name_identifier: DATEPART
+                                bracketed:
+                                - start_bracket: (
+                                - expression:
+                                    column_reference:
+                                      identifier: mm
+                                - comma: ','
+                                - expression:
+                                    column_reference:
+                                      parameter: '@DATE'
+                                - end_bracket: )
+                              comparison_operator: '='
+                              literal: '12'
+                            end_bracket: )
+                        - binary_operator: AND
+                        - bracketed:
+                            start_bracket: (
+                            expression:
                               bracketed:
-                              - start_bracket: (
-                              - expression:
-                                  column_reference:
-                                    identifier: mm
-                              - comma: ','
-                              - expression:
-                                  column_reference:
-                                    parameter: '@DATE'
-                              - end_bracket: )
-                            comparison_operator: '='
-                            literal: '12'
-                          end_bracket: )
-                      - binary_operator: AND
-                      - bracketed:
-                          start_bracket: (
-                          expression:
-                            bracketed:
-                              start_bracket: (
-                              expression:
-                              - function:
-                                  function_name:
-                                    function_name_identifier: DATEPART
-                                  bracketed:
-                                  - start_bracket: (
-                                  - expression:
-                                      column_reference:
-                                        identifier: dd
-                                  - comma: ','
-                                  - expression:
-                                      column_reference:
-                                        parameter: '@DATE'
-                                  - end_bracket: )
-                              - binary_operator: '-'
-                              - function:
-                                  function_name:
-                                    function_name_identifier: DATEPART
-                                  bracketed:
-                                  - start_bracket: (
-                                  - expression:
-                                      column_reference:
-                                        identifier: dw
-                                  - comma: ','
-                                  - expression:
-                                      column_reference:
-                                        parameter: '@DATE'
-                                  - end_bracket: )
-                              end_bracket: )
-                            comparison_operator: '>='
-                            literal: '28'
-                          end_bracket: )
-                      end_bracket: )
+                                start_bracket: (
+                                expression:
+                                - function:
+                                    function_name:
+                                      function_name_identifier: DATEPART
+                                    bracketed:
+                                    - start_bracket: (
+                                    - expression:
+                                        column_reference:
+                                          identifier: dd
+                                    - comma: ','
+                                    - expression:
+                                        column_reference:
+                                          parameter: '@DATE'
+                                    - end_bracket: )
+                                - binary_operator: '-'
+                                - function:
+                                    function_name:
+                                      function_name_identifier: DATEPART
+                                    bracketed:
+                                    - start_bracket: (
+                                    - expression:
+                                        column_reference:
+                                          identifier: dw
+                                    - comma: ','
+                                    - expression:
+                                        column_reference:
+                                          parameter: '@DATE'
+                                    - end_bracket: )
+                                end_bracket: )
+                              comparison_operator: '>='
+                              literal: '28'
+                            end_bracket: )
+                        end_bracket: )
                   statement:
                     set_segment:
                       keyword: SET
