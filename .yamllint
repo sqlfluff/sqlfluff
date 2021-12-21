@@ -1,6 +1,11 @@
 ---
 
 extends: default
+ignore: |
+  .tox/
+  .venv/
+  dbt_modules/
+  dbt_packages/
 
 rules:
   brackets: disable
