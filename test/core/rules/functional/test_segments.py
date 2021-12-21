@@ -127,3 +127,13 @@ def test_segments_apply():
 def test_segments_apply_functions(function, expected):
     """Test the "apply()" function with the "get_name()" function."""
     assert segments.Segments(None, seg1, seg2).apply(function) == expected
+
+
+def test_segment_predicates_and():
+    """Test the "and_()" function."""
+    assert segments.Segments(None, seg1, seg2).select(
+        select_if=sp.and_(sp.is_raw(), lambda s: s.raw[-1] == "1")
+    ) == segments.Segments(None, seg1)
+    assert segments.Segments(None, seg1, seg2).select(
+        select_if=sp.and_(sp.is_raw(), lambda s: s.raw[-1] == "3")
+    ) == segments.Segments(None)
