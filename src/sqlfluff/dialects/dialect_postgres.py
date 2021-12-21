@@ -396,7 +396,8 @@ class DatatypeSegment(BaseSegment):
     """
 
     type = "data_type"
-    match_grammar = OneOf(
+    match_grammar = Sequence(
+        OneOf(
         Ref("WellKnownTextGeometrySegment"),
         Sequence(
             Ref("DateTimeTypeIdentifier"),
@@ -507,6 +508,18 @@ class DatatypeSegment(BaseSegment):
             ),
             Ref("CharCharacterSetSegment", optional=True),
         ),
+    ),
+        # array types
+        OneOf(
+            Bracketed(
+                Ref("NumericLiteralSegment", optional=True)
+                , type="square"),
+              Ref("SimpleArrayTypeGrammar"),
+              Sequence(
+                  Ref("SimpleArrayTypeGrammar"), Ref("ArrayLiteralSegment")
+              )
+                ,optional=True
+              )
     )
 
 

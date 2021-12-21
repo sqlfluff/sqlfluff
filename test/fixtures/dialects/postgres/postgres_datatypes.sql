@@ -112,3 +112,12 @@ create table o(
     a json,
     b json b
 );
+
+create table p(
+    a integer[],
+    b float[][],
+    c char[1],
+    d jsonb[3][5],
+    e money ARRAY,
+    f money ARRAY[7]
+);
