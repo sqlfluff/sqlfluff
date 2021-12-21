@@ -57,7 +57,7 @@ test_pass_object_referenced_5a:
   # disabled for bigquery
   # https://github.com/sqlfluff/sqlfluff/issues/1503
   pass_str: |
-    SELECT column.field, col
+    SELECT col1.field, col
     FROM `example_dataset2.example_table2`
   configs:
     core:
@@ -66,14 +66,14 @@ test_pass_object_referenced_5a:
 test_pass_object_referenced_5b:
   # Same test as above but default (ANSI) should trigger
   fail_str: |
-    SELECT column.field
+    SELECT col1.field
     FROM table1
 
 test_pass_object_referenced_5c:
   # Same test as above but for BigQuery but force is
   # enabled so should fail
   fail_str: |
-    SELECT column.field
+    SELECT col1.field
     FROM `example_dataset2.example_table2`
   configs:
     core:
@@ -84,14 +84,14 @@ test_pass_object_referenced_5c:
 
 test_pass_object_referenced_5d:
   # Test for extra dialect (hive) compatibility
-  pass_str: SELECT column.field, col FROM example_table
+  pass_str: SELECT col1.field, col2 FROM example_table
   configs:
     core:
       dialect: hive
 
 test_pass_object_referenced_5e:
   # Test for extra dialect (redshift) compatibility
-  pass_str: SELECT column.field, col FROM example_table
+  pass_str: SELECT col1.field, col2 FROM example_table
   configs:
     core:
       dialect: redshift
