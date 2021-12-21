@@ -12,4 +12,4 @@ default:
         threads: 4
 
 config:
-  send_anonymous_usage_stats: False
+  send_anonymous_usage_stats: false
