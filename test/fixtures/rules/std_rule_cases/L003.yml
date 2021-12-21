@@ -158,7 +158,7 @@ test_fail_indented_using_on_false:
       indented_joins: true
       indented_using_on: false
 
-test_fail_indented_joins_using_on_false:
+test_fail_indented_joins_using_on_true:
   # 2.e) specific True, and failing
   fail_str: |
     SELECT a, b, c
