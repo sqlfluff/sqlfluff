@@ -3,8 +3,7 @@
 This is not necessarily a complete set of predicates covering all possible
 requirements. Rule authors can define their own predicates as needed.
 """
-from operator import attrgetter as attrgetter
-from typing import Any, Callable
+from typing import Callable
 
 from sqlfluff.core.parser import BaseSegment
 
@@ -128,18 +127,3 @@ def not_(
         return not fn(segment)
 
     return _
-
-
-def attr(*attrs: str) -> Callable[[Any], bool]:
-    """Returns a function that gets an attribute of an object.
-
-    This function is useful for creating Predicates for use by
-    surrogate object methods.
-    """
-    # TODO: If the attribute is not defined, consider returning False.
-    getter = attrgetter(*attrs)
-
-    def fn(obj: Any) -> bool:
-        return bool(getter(obj))
-
-    return fn

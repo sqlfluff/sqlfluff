@@ -3,6 +3,7 @@ import pytest
 
 from sqlfluff.core.parser.segments.raw import RawSegment
 from sqlfluff.core.rules.functional import segments
+import sqlfluff.core.rules.functional.segment_predicates as sp
 
 seg1 = RawSegment("s1")
 seg2 = RawSegment("s2")
@@ -95,9 +96,14 @@ def test_segments_raw_slices_no_templated_file():
         segments.Segments(None, seg1).raw_slices
 
 
-def test_segments_first():
-    """Test the "first()" function."""
+def test_segments_first_no_predicate():
+    """Test the "first()" function with no predicate."""
     assert segments.Segments(None, seg1, seg2).first() == segments.Segments(None, seg1)
+
+
+def test_segments_first_with_predicate():
+    """Test the "first()" function with a predicate."""
+    assert segments.Segments(None, seg1, seg2).first(sp.is_meta()) is None
 
 
 def test_segments_last():
@@ -108,3 +114,16 @@ def test_segments_last():
 def test_segments_apply():
     """Test the "apply()" function."""
     assert segments.Segments(None, seg1, seg2).apply(lambda s: s.raw[-1]) == ["1", "2"]
+
+
+@pytest.mark.parametrize(
+    ["function", "expected"],
+    [
+        [sp.get_name(), ["RawSegment", "RawSegment"]],
+        [sp.is_comment(), [False, False]],
+        [sp.is_raw(), [True, True]],
+    ],
+)
+def test_segments_apply_functions(function, expected):
+    """Test the "apply()" function with the "get_name()" function."""
+    assert segments.Segments(None, seg1, seg2).apply(function) == expected
