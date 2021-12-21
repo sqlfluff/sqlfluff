@@ -483,14 +483,7 @@ class AlterGroupSegment(BaseSegment):
         Ref("NakedIdentifierSegment"),
         OneOf(
             Sequence(
-                "ADD",
-                "USER",
-                Delimited(
-                    Ref("NakedIdentifierSegment"),
-                ),
-            ),
-            Sequence(
-                "DROP",
+                OneOf("ADD", "DROP"),
                 "USER",
                 Delimited(
                     Ref("NakedIdentifierSegment"),
