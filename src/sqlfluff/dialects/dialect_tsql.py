@@ -1097,17 +1097,26 @@ class IfExpressionStatement(BaseSegment):
     type = "if_then_statement"
 
     match_grammar = Sequence(
-        OneOf(
-            Sequence(Ref("IfNotExistsGrammar"), Ref("SelectStatementSegment")),
-            Sequence(Ref("IfExistsGrammar"), Ref("SelectStatementSegment")),
-            Sequence("IF", Ref("ExpressionSegment")),
-        ),
+        Ref("IfClauseSegment"),
         Indent,
         Sequence(
             Ref("StatementSegment"),
             Ref("DelimiterSegment", optional=True),
         ),
         Dedent,
+        AnyNumberOf(
+            # ELSE IF included explicitly to allow for correct indentation
+            Sequence(
+                "ELSE",
+                Ref("IfClauseSegment"),
+                Indent,
+                Sequence(
+                    Ref("StatementSegment"),
+                    Ref("DelimiterSegment", optional=True),
+                ),
+                Dedent,
+            ),
+        ),
         Sequence(
             "ELSE",
             Indent,
@@ -1119,6 +1128,19 @@ class IfExpressionStatement(BaseSegment):
             optional=True,
         ),
     )
+
+
+@tsql_dialect.segment()
+class IfClauseSegment(BaseSegment):
+    """IF clause."""
+
+    type = "if_clause"
+
+    match_grammar =         OneOf(
+            Sequence(Ref("IfNotExistsGrammar"), Ref("SelectStatementSegment")),
+            Sequence(Ref("IfExistsGrammar"), Ref("SelectStatementSegment")),
+            Sequence("IF", Ref("ExpressionSegment")),
+        )
 
 
 @tsql_dialect.segment(replace=True)
