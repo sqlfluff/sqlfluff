@@ -783,3 +783,68 @@ class JoinClauseSegment(BaseSegment):
     get_eventual_alias = ansi_dialect.get_segment(
         "JoinClauseSegment"
     ).get_eventual_alias
+
+@spark3_dialect.segment(replace=True)
+class TableExpressionSegment(BaseSegment):
+    """The main table expression e.g. within a FROM clause."""
+
+    type = "table_expression"
+    match_grammar = OneOf(
+        Ref("ValuesClauseSegment"),
+        Ref("BareFunctionSegment"),
+        Ref("FunctionSegment"),
+        Ref("TableReferenceSegment"),
+        # Nested Selects
+        Bracketed(Ref("SelectableGrammar")),
+
+    )
+
+@spark3_dialect.segment()
+class TableAliasExpressionSegment(BaseSegment):
+    """A reference to an object with an `AS` clause, optionally with column aliasing."""
+
+    type = "table_alias_expression"
+    match_grammar = Sequence(
+        Ref("AliasExpressionSegment"),
+        # Optional column aliases too.
+        Bracketed(
+            Delimited(Ref("SingleIdentifierGrammar"), delimiter=Ref("CommaSegment")),
+            optional=True,
+        ),
+    )
+
+@spark3_dialect.segment(replace=True)
+class ValuesClauseSegment(BaseSegment):
+    """A `VALUES` clause within in `WITH` or `SELECT`."""
+
+    type = "values_clause"
+    match_grammar = Sequence(
+        "VALUES",
+        Delimited(
+            OneOf(
+                Bracketed(
+                    Delimited(
+                        Ref("LiteralGrammar"),
+                        Ref("IntervalExpressionSegment"),
+                        Ref("BareFunctionSegment"),
+                        Ref("FunctionSegment"),
+                        ephemeral_name="ValuesClauseElements",
+                    )
+                ),
+                Delimited(
+                    # e.g. SELECT * FROM (VALUES 1,2,3);
+                    Ref("LiteralGrammar"),
+                    Ref("BareFunctionSegment"),
+                    Ref("FunctionSegment"),
+                ),
+            ),
+        ),
+        OneOf(
+        Sequence(
+            OneOf("AS"),
+            Ref("TableAliasExpressionSegment"),
+        ),
+            Ref("TableAliasExpressionSegment"),
+        optional=True)
+
+    )
