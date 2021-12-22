@@ -278,7 +278,9 @@ tsql_dialect.replace(
         Ref("DelimiterSegment"),
     ),
     # Replace ANSI LikeGrammar to remove TSQL non-keywords RLIKE and ILIKE
-    LikeGrammar=Sequence("LIKE",),
+    LikeGrammar=Sequence(
+        "LIKE",
+    ),
     # Replace ANSI FunctionContentsGrammar to remove TSQL non-keyword Separator
     # TO DO: fully represent TSQL functionality
     FunctionContentsGrammar=AnyNumberOf(
@@ -1135,17 +1137,24 @@ class CreateSequenceOptionsSegment(BaseSegment):
     type = "create_sequence_options_segment"
 
     match_grammar = OneOf(
-        Sequence(
-            "START", "WITH", Ref("NumericLiteralSegment")
-        ),
+        Sequence("START", "WITH", Ref("NumericLiteralSegment")),
         Sequence("INCREMENT", "BY", Ref("NumericLiteralSegment")),
         Sequence("MINVALUE", Ref("NumericLiteralSegment")),
         Sequence("NO", "MINVALUE"),
         Sequence("MAXVALUE", Ref("NumericLiteralSegment")),
         Sequence("NO", "MAXVALUE"),
-        Sequence(Sequence("NO", optional=True),"CYCLE",),
-        Sequence("CACHE", Ref("NumericLiteralSegment"),),
-        Sequence("NO","CACHE",),
+        Sequence(
+            Sequence("NO", optional=True),
+            "CYCLE",
+        ),
+        Sequence(
+            "CACHE",
+            Ref("NumericLiteralSegment"),
+        ),
+        Sequence(
+            "NO",
+            "CACHE",
+        ),
     )
 
 
