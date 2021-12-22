@@ -41,8 +41,8 @@ ansi_dialect = load_raw_dialect("ansi")
 tsql_dialect = ansi_dialect.copy_as("tsql")
 
 # Should really clear down the old keywords but some are needed by certain segments
-# tsql_dialect.sets("reserved_keywords").clear()
-# tsql_dialect.sets("unreserved_keywords").clear()
+tsql_dialect.sets("reserved_keywords").clear()
+tsql_dialect.sets("unreserved_keywords").clear()
 tsql_dialect.sets("reserved_keywords").update(RESERVED_KEYWORDS)
 tsql_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
 
@@ -271,6 +271,50 @@ tsql_dialect.replace(
         Ref("SetOperatorSegment"),
         Ref("WithNoSchemaBindingClauseSegment"),
         Ref("DelimiterSegment"),
+    ),
+    # Replace ANSI LikeGrammar to remove TSQL non-keywords RLIKE and ILIKE
+    LikeGrammar=Sequence("LIKE",),
+    # Replace ANSI FunctionContentsGrammar to remove TSQL non-keyword Separator
+    # TO DO: fully represent TSQL functionality
+    FunctionContentsGrammar=AnyNumberOf(
+        Ref("ExpressionSegment"),
+        # A Cast-like function
+        Sequence(Ref("ExpressionSegment"), "AS", Ref("DatatypeSegment")),
+        # An extract-like or substring-like function
+        Sequence(
+            OneOf(Ref("DatetimeUnitSegment"), Ref("ExpressionSegment")),
+            "FROM",
+            Ref("ExpressionSegment"),
+        ),
+        Sequence(
+            # Allow an optional distinct keyword here.
+            Ref.keyword("DISTINCT", optional=True),
+            OneOf(
+                # Most functions will be using the delimited route
+                # but for COUNT(*) or similar we allow the star segment
+                # here.
+                Ref("StarSegment"),
+                Delimited(Ref("FunctionContentsExpressionGrammar")),
+            ),
+        ),
+        Ref(
+            "OrderByClauseSegment"
+        ),  # used by string_agg (postgres), group_concat (exasol), listagg (snowflake)...
+        # like a function call: POSITION ( 'QL' IN 'SQL')
+        Sequence(
+            OneOf(
+                Ref("QuotedLiteralSegment"),
+                Ref("SingleIdentifierGrammar"),
+                Ref("ColumnReferenceSegment"),
+            ),
+            "IN",
+            OneOf(
+                Ref("QuotedLiteralSegment"),
+                Ref("SingleIdentifierGrammar"),
+                Ref("ColumnReferenceSegment"),
+            ),
+        ),
+        Sequence(OneOf("IGNORE", "RESPECT"), "NULLS"),
     ),
     JoinKeywords=OneOf("JOIN", "APPLY", Sequence("OUTER", "APPLY")),
     # Replace Expression_D_Grammar to remove casting syntax invalid in TSQL
@@ -1577,6 +1621,29 @@ class OverlapsClauseSegment(BaseSegment):
     match_grammar = Nothing()
 
 
+@tsql_dialect.segment(replace=True)
+class DescribeStatementSegment(BaseSegment):
+    """A `Describe` statement.
+
+    Not present in T-SQL.
+    """
+
+    type = "describe_statement"
+    match_grammar = Nothing()
+
+
+@tsql_dialect.segment(replace=True)
+class MLTableExpressionSegment(BaseSegment):
+    """An ML table expression.
+
+    Not present in T-SQL.
+    TO DO: Consider whether this segment can be used to represent a PREDICT statement.
+    """
+
+    type = "ml_table_expression"
+    match_grammar = Nothing()
+
+
 @tsql_dialect.segment()
 class ConvertFunctionNameSegment(BaseSegment):
     """CONVERT function name segment.
@@ -1865,6 +1932,53 @@ class CreateTableStatementSegment(BaseSegment):
     )
 
     parse_grammar = match_grammar
+
+
+@tsql_dialect.segment(replace=True)
+class AlterTableStatementSegment(BaseSegment):
+    """An `ALTER TABLE` statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/alter-table-transact-sql?view=sql-server-ver15
+    Overriding ANSI to remove TSQL non-keyword MODIFY
+    TODO: Flesh out TSQL-specific functionality
+    """
+
+    type = "alter_table_statement"
+    match_grammar = Sequence(
+        "ALTER",
+        "TABLE",
+        Ref("TableReferenceSegment"),
+        Delimited(
+            OneOf(
+                # Table options
+                Sequence(
+                    Ref("ParameterNameSegment"),
+                    Ref("EqualsSegment", optional=True),
+                    OneOf(Ref("LiteralGrammar"), Ref("NakedIdentifierSegment")),
+                ),
+                # Add things
+                Sequence(
+                    "ADD",
+                    Ref.keyword("COLUMN", optional=True),
+                    Ref("ColumnDefinitionSegment"),
+                    OneOf(
+                        Sequence(
+                            OneOf("FIRST", "AFTER"), Ref("ColumnReferenceSegment")
+                        ),
+                        # Bracketed Version of the same
+                        Ref("BracketedColumnReferenceListGrammar"),
+                        optional=True,
+                    ),
+                ),
+                # Rename
+                Sequence(
+                    "RENAME",
+                    OneOf("AS", "TO", optional=True),
+                    Ref("TableReferenceSegment"),
+                ),
+            ),
+        ),
+    )
 
 
 @tsql_dialect.segment(replace=True)
@@ -2789,6 +2903,47 @@ class TableHintSegment(BaseSegment):
         "TABLOCKX",
         "UPDLOCK",
         "XLOCK",
+    )
+
+
+@tsql_dialect.segment(replace=True)
+class ValuesClauseSegment(BaseSegment):
+    """A `VALUES` clause like in `INSERT`.
+
+    Overriding ANSI to remove VALUE keyword not recognized in TSQL.
+    """
+
+    type = "values_clause"
+    match_grammar = Sequence(
+        "VALUES",
+        Delimited(
+            Bracketed(
+                Delimited(
+                    Ref("LiteralGrammar"),
+                    Ref("IntervalExpressionSegment"),
+                    Ref("FunctionSegment"),
+                    Ref("BareFunctionSegment"),
+                    "DEFAULT",  # not in `FROM` clause, rule?
+                    ephemeral_name="ValuesClauseElements",
+                )
+            ),
+        ),
+        Ref("AliasExpressionSegment", optional=True),
+    )
+
+
+@tsql_dialect.segment(replace=True)
+class SetOperatorSegment(BaseSegment):
+    """A set operator such as Union, Except or Intersect.
+
+    Override ANSI to remove TSQL non-keyword MINUS.
+    """
+
+    type = "set_operator"
+    match_grammar = OneOf(
+        Sequence("UNION", OneOf("DISTINCT", "ALL", optional=True)),
+        "INTERSECT",
+        "EXCEPT",
     )
 
 
