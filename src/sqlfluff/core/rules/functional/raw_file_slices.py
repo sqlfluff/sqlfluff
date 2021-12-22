@@ -1,5 +1,5 @@
 """Surrogate class for working with RawFileSlice collections."""
-from typing import Callable
+from typing import Callable, Optional
 
 from sqlfluff.core.templaters.base import RawFileSlice, TemplatedFile
 
@@ -19,16 +19,16 @@ class RawFileSlices(list):
         super().__init__(raw_slices)
         self.templated_file = templated_file
 
-    def all(self, *predicates: Callable[[RawFileSlice], bool]) -> bool:
+    def all(self, predicate: Optional[Callable[[RawFileSlice], bool]] = None) -> bool:
         """Do all the raw slices match?"""
         for s in self:
-            if predicates and not any(p(s) for p in predicates):
+            if predicate is not None and not predicate(s):
                 return False
         return True
 
-    def any(self, *predicates: Callable[[RawFileSlice], bool]) -> bool:
+    def any(self, predicate: Optional[Callable[[RawFileSlice], bool]] = None) -> bool:
         """Do any of the raw slices match?"""
         for s in self:
-            if not predicates or any(p(s) for p in predicates):
+            if predicate is None or predicate(s):
                 return True
         return False

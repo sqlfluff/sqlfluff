@@ -30,14 +30,14 @@ class Segments(list):
     def all(self, predicate: Optional[Callable[[BaseSegment], bool]] = None) -> bool:
         """Do all the segments match?"""
         for s in self:
-            if predicate and not predicate(s):
+            if predicate is not None and not predicate(s):
                 return False
         return True
 
     def any(self, predicate: Optional[Callable[[BaseSegment], bool]] = None) -> bool:
         """Do any of the segments match?"""
         for s in self:
-            if not predicate or predicate(s):
+            if predicate is None or predicate(s):
                 return True
         return False
 
@@ -67,7 +67,7 @@ class Segments(list):
         child_segments: List[BaseSegment] = []
         for s in self:
             for child in s.segments:
-                if not predicate or predicate(child):
+                if predicate is None or predicate(child):
                     child_segments.append(child)
         return Segments(self.templated_file, *child_segments)
 
@@ -76,7 +76,7 @@ class Segments(list):
     ) -> Optional["Segments"]:
         """Returns the first segment (if any) that satisfies the predicates."""
         for s in self:
-            if not predicate or predicate(s):
+            if predicate is None or predicate(s):
                 return Segments(self.templated_file, s)
         # If no segment satisfies "predicates", return "None".
         return None
@@ -86,7 +86,7 @@ class Segments(list):
     ) -> Optional["Segments"]:
         """Returns the last segment (if any) that satisfies the predicates."""
         for s in reversed(self):
-            if not predicate or predicate(s):
+            if predicate is None or predicate(s):
                 return Segments(self.templated_file, s)
         # If no segment satisfies "predicates", return "None".
         return None
@@ -111,8 +111,8 @@ class Segments(list):
         stop_index = self.index(stop_seg) if stop_seg else len(self)
         buff = []
         for seg in self[start_index + 1 : stop_index]:
-            if loop_while and not loop_while(seg):
+            if loop_while is not None and not loop_while(seg):
                 break
-            if not select_if or select_if(seg):
+            if select_if is None or select_if(seg):
                 buff.append(seg)
         return Segments(self.templated_file, *buff)
