@@ -229,6 +229,11 @@ tsql_dialect.replace(
         name="function_name_identifier",
         type="function_name_identifier",
     ),
+    # Override ANSI IsClauseGrammar to remove TSQL non-keyword NAN
+    IsClauseGrammar=OneOf(
+        "NULL",
+        Ref("BooleanLiteralGrammar"),
+    ),
     DatatypeIdentifierSegment=Ref("SingleIdentifierGrammar"),
     PrimaryKeyGrammar=Sequence(
         OneOf(
@@ -414,6 +419,7 @@ class SelectClauseModifierSegment(BaseSegment):
         "DISTINCT",
         "ALL",
         Sequence(
+            # https://docs.microsoft.com/en-us/sql/t-sql/queries/top-transact-sql?view=sql-server-ver15
             "TOP",
             OptionallyBracketed(Ref("ExpressionSegment")),
             Sequence("PERCENT", optional=True),
@@ -1119,6 +1125,30 @@ class DatatypeSegment(BaseSegment):
     )
 
 
+@tsql_dialect.segment(replace=True)
+class CreateSequenceOptionsSegment(BaseSegment):
+    """Options for Create Sequence statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-sequence-transact-sql?view=sql-server-ver15
+    """
+
+    type = "create_sequence_options_segment"
+
+    match_grammar = OneOf(
+        Sequence(
+            "START", "WITH", Ref("NumericLiteralSegment")
+        ),
+        Sequence("INCREMENT", "BY", Ref("NumericLiteralSegment")),
+        Sequence("MINVALUE", Ref("NumericLiteralSegment")),
+        Sequence("NO", "MINVALUE"),
+        Sequence("MAXVALUE", Ref("NumericLiteralSegment")),
+        Sequence("NO", "MAXVALUE"),
+        Sequence(Sequence("NO", optional=True),"CYCLE",),
+        Sequence("CACHE", Ref("NumericLiteralSegment"),),
+        Sequence("NO","CACHE",),
+    )
+
+
 @tsql_dialect.segment()
 class NextValueSequenceSegment(BaseSegment):
     """Segment to get next value from a sequence."""
@@ -1244,8 +1274,6 @@ class ColumnConstraintSegment(BaseSegment):
             Ref("RelationalIndexOptionsSegment"),
             Ref("OnPartitionOrFilegroupOptionSegment"),
             "UNIQUE",  # UNIQUE #can be removed as included in PrimaryKeyGrammar?
-            "AUTO_INCREMENT",  # AUTO_INCREMENT (MySQL) #can be removed as related to mysql and included in ANSI?
-            "UNSIGNED",  # UNSIGNED
             Ref("ForeignKeyGrammar"),
             Ref("ReferencesConstraintGrammar"),
             Ref("CheckConstraintGrammar"),
@@ -1633,6 +1661,17 @@ class DescribeStatementSegment(BaseSegment):
 
 
 @tsql_dialect.segment(replace=True)
+class CommentClauseSegment(BaseSegment):
+    """A comment clause.
+
+    Not present in T-SQL.
+    """
+
+    type = "comment_clause"
+    match_grammar = Nothing()
+
+
+@tsql_dialect.segment(replace=True)
 class MLTableExpressionSegment(BaseSegment):
     """An ML table expression.
 
@@ -1719,20 +1758,20 @@ class WithinGroupClause(BaseSegment):
         ),
         Sequence(
             "OVER",
-            Bracketed(Ref("PartitionByClause")),
+            Bracketed(Ref("PartitionClauseSegment")),
             optional=True,
         ),
     )
 
 
-@tsql_dialect.segment()
-class PartitionByClause(BaseSegment):
+@tsql_dialect.segment(replace=True)
+class PartitionClauseSegment(BaseSegment):
     """PARTITION BY clause.
 
     https://docs.microsoft.com/en-us/sql/t-sql/queries/select-over-clause-transact-sql?view=sql-server-ver15#partition-by
     """
 
-    type = "partition_by_clause"
+    type = "partitionby_clause"
     match_grammar = Sequence(
         "PARTITION",
         "BY",
@@ -1822,7 +1861,7 @@ class FunctionSegment(BaseSegment):
             ),
             "OVER",
             Bracketed(
-                Ref("PartitionByClause", optional=True),
+                Ref("PartitionClauseSegment", optional=True),
                 Ref("OrderByClauseSegment"),
             ),
         ),
@@ -2907,32 +2946,6 @@ class TableHintSegment(BaseSegment):
 
 
 @tsql_dialect.segment(replace=True)
-class ValuesClauseSegment(BaseSegment):
-    """A `VALUES` clause like in `INSERT`.
-
-    Overriding ANSI to remove VALUE keyword not recognized in TSQL.
-    """
-
-    type = "values_clause"
-    match_grammar = Sequence(
-        "VALUES",
-        Delimited(
-            Bracketed(
-                Delimited(
-                    Ref("LiteralGrammar"),
-                    Ref("IntervalExpressionSegment"),
-                    Ref("FunctionSegment"),
-                    Ref("BareFunctionSegment"),
-                    "DEFAULT",  # not in `FROM` clause, rule?
-                    ephemeral_name="ValuesClauseElements",
-                )
-            ),
-        ),
-        Ref("AliasExpressionSegment", optional=True),
-    )
-
-
-@tsql_dialect.segment(replace=True)
 class SetOperatorSegment(BaseSegment):
     """A set operator such as Union, Except or Intersect.
 
@@ -3277,4 +3290,21 @@ class ThrowStatementSegment(BaseSegment):
             ),
             optional=True,
         ),
+    )
+
+
+@tsql_dialect.segment(replace=True)
+class WindowSpecificationSegment(BaseSegment):
+    """Window specification within OVER(...).
+
+    Overriding ANSI to remove window name option not supported by TSQL
+    """
+
+    type = "window_specification"
+    match_grammar = Sequence(
+        Ref("PartitionClauseSegment", optional=True),
+        Ref("OrderByClauseSegment", optional=True),
+        Ref("FrameClauseSegment", optional=True),
+        optional=True,
+        ephemeral_name="OverClauseContent",
     )

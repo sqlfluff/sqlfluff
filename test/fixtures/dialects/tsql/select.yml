@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1173336585abb253db3451c169c9dc7df0dcb7d246ff12397181e4d458c5a511
+_hash: 87ba9040be00ddc807d5142fadc5d5e19f8aa8f1e8fc9e81306381cbc7661e15
 file:
   batch:
     statement:
@@ -318,7 +318,7 @@ file:
             - keyword: OVER
             - bracketed:
                 start_bracket: (
-                partition_by_clause:
+                partitionby_clause:
                 - keyword: PARTITION
                 - keyword: BY
                 - column_reference:
@@ -347,7 +347,7 @@ file:
             - keyword: OVER
             - bracketed:
                 start_bracket: (
-                partition_by_clause:
+                partitionby_clause:
                 - keyword: PARTITION
                 - keyword: BY
                 - column_reference:
@@ -373,7 +373,7 @@ file:
             - keyword: OVER
             - bracketed:
                 start_bracket: (
-                partition_by_clause:
+                partitionby_clause:
                 - keyword: PARTITION
                 - keyword: BY
                 - column_reference:
@@ -400,7 +400,7 @@ file:
             - keyword: OVER
             - bracketed:
                 start_bracket: (
-                partition_by_clause:
+                partitionby_clause:
                 - keyword: PARTITION
                 - keyword: BY
                 - column_reference:
@@ -436,17 +436,15 @@ file:
                     partitionby_clause:
                     - keyword: partition
                     - keyword: by
-                    - expression:
-                        column_reference:
-                        - identifier: t
-                        - dot: .
-                        - identifier: col2
+                    - column_reference:
+                      - identifier: t
+                      - dot: .
+                      - identifier: col2
                     - comma: ','
-                    - expression:
-                        column_reference:
-                        - identifier: t
-                        - dot: .
-                        - identifier: col3
+                    - column_reference:
+                      - identifier: t
+                      - dot: .
+                      - identifier: col3
                   end_bracket: )
         from_clause:
           keyword: FROM
