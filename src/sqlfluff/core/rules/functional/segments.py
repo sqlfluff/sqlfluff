@@ -3,7 +3,7 @@ from typing import Any, Callable, List, Optional
 
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.templaters.base import TemplatedFile
-from sqlfluff.core.rules.surrogates.raw_file_slice import RawFileSlices
+from sqlfluff.core.rules.functional.raw_file_slices import RawFileSlices
 
 
 class Segments(tuple):
