@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 87ba9040be00ddc807d5142fadc5d5e19f8aa8f1e8fc9e81306381cbc7661e15
+_hash: 1bb015a748711d0d33bfdf74b0bd914229cfbd09b4e7cd22b1c4bf52fafbdd80
 file:
   batch:
     statement:
@@ -307,6 +307,54 @@ file:
         - select_clause_element:
             column_reference:
               identifier: XACT_ABORT
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: Rows
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: NaN
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: Rlike
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: Ilike
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: Separator
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: Auto_Increment
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: Unsigned
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: Describe
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: Comment
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: Ml
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: Modify
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: Minus
         - comma: ','
         - select_clause_element:
             function:

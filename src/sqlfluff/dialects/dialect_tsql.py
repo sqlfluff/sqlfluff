@@ -1137,6 +1137,7 @@ class CreateSequenceOptionsSegment(BaseSegment):
     type = "create_sequence_options_segment"
 
     match_grammar = OneOf(
+        Sequence("AS", Ref("DatatypeSegment"),),
         Sequence("START", "WITH", Ref("NumericLiteralSegment")),
         Sequence("INCREMENT", "BY", Ref("NumericLiteralSegment")),
         Sequence("MINVALUE", Ref("NumericLiteralSegment")),
@@ -1987,7 +1988,7 @@ class AlterTableStatementSegment(BaseSegment):
     """An `ALTER TABLE` statement.
 
     https://docs.microsoft.com/en-us/sql/t-sql/statements/alter-table-transact-sql?view=sql-server-ver15
-    Overriding ANSI to remove TSQL non-keyword MODIFY
+    Overriding ANSI to remove TSQL non-keywords MODIFY, FIRST
     TODO: Flesh out TSQL-specific functionality
     """
 
@@ -2009,14 +2010,16 @@ class AlterTableStatementSegment(BaseSegment):
                     "ADD",
                     Ref.keyword("COLUMN", optional=True),
                     Ref("ColumnDefinitionSegment"),
-                    OneOf(
-                        Sequence(
-                            OneOf("FIRST", "AFTER"), Ref("ColumnReferenceSegment")
-                        ),
-                        # Bracketed Version of the same
-                        Ref("BracketedColumnReferenceListGrammar"),
-                        optional=True,
-                    ),
+                ),
+                Sequence(
+                    "ADD",
+                    Ref("ColumnConstraintSegment"),
+                    "FOR",
+                    Ref("ColumnReferenceSegment"),
+                ),
+                Sequence(
+                    "ADD",
+                    Ref("TableConstraintSegment"),
                 ),
                 # Rename
                 Sequence(
