@@ -561,6 +561,7 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref("AlterFunctionStatementSegment"),
             Ref("CreateStageSegment"),
             Ref("AlterStageSegment"),
+            Ref("CallStatementSegment"),
         ],
         remove=[
             Ref("CreateTypeStatementSegment"),
@@ -3339,6 +3340,30 @@ class DescribeStatementSegment(BaseSegment):
                         optional=True,
                     ),
                 ),
+            ),
+        ),
+    )
+
+
+@snowflake_dialect.segment()
+class CallStatementSegment(BaseSegment):
+    """`CALL` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/call.html
+    """
+
+    type = "call_statement"
+    match_grammar = Sequence(
+        "CALL",
+        Sequence(
+            Ref("FunctionNameSegment"),
+            Bracketed(
+                Ref(
+                    "FunctionContentsGrammar",
+                    # The brackets might be empty for some functions...
+                    optional=True,
+                    ephemeral_name="FunctionContentsGrammar",
+                )
             ),
         ),
     )
