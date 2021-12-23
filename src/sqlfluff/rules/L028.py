@@ -75,7 +75,8 @@ class Rule_L028(Rule_L025):
                 continue
 
             # Certain dialects allow use of SELECT alias in WHERE clauses
-            if self._allow_select_alias and ref.raw in col_aliases:
+            col_alias_names = [c.alias_identifier_name for c in col_aliases]
+            if self._allow_select_alias and ref.raw in col_alias_names:
                 continue
             this_ref_type = ref.qualification()
             if self.single_table_references == "consistent":

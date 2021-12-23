@@ -73,3 +73,30 @@ test_ignore_value_table_functions:
   configs:
     core:
       dialect: bigquery
+
+test_fail_column_and_alias_same_name:
+  # See issue #2169
+  fail_str: |
+    SELECT
+        foo AS foo,
+        bar AS bar
+    FROM
+        a LEFT JOIN b ON a.id = b.id
+
+test_pass_column_and_alias_same_name_1:
+  pass_str: |
+    SELECT
+        a.foo AS foo,
+        b.bar AS bar
+    FROM
+        a LEFT JOIN b ON a.id = b.id
+
+test_pass_column_and_alias_same_name_2:
+  # Possible for unqualified columns if
+  # it is actually an alias of another column.
+  pass_str: |
+    SELECT
+        a.bar AS baz,
+        baz
+    FROM
+        a LEFT JOIN b ON a.id = b.id

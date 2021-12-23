@@ -2,7 +2,7 @@
 from typing import List, NamedTuple, Optional
 
 from sqlfluff.core.dialects.base import Dialect
-from sqlfluff.core.dialects.common import AliasInfo
+from sqlfluff.core.dialects.common import AliasInfo, ColumnAliasInfo
 from sqlfluff.core.parser.segments.base import BaseSegment
 
 
@@ -14,7 +14,7 @@ class SelectStatementColumnsAndTables(NamedTuple):
     standalone_aliases: List[str]
     reference_buffer: List[BaseSegment]
     select_targets: List[BaseSegment]
-    col_aliases: List[str]
+    col_aliases: List[ColumnAliasInfo]
     using_cols: List[str]
 
 
@@ -47,11 +47,7 @@ def get_select_statement_info(
     )
 
     # Get all column aliases
-    col_aliases = []
-    for col_seg in list(sc.recursive_crawl("alias_expression")):
-        for seg in col_seg.segments:
-            if seg.is_type("identifier"):
-                col_aliases.append(seg.raw)
+    col_aliases = [s.get_alias() for s in select_targets if s.get_alias() is not None]
 
     # Get any columns referred to in a using clause, and extract anything
     # from ON clauses.
