@@ -2764,6 +2764,9 @@ class StatementSegment(BaseSegment):
             Ref("DropDatabaseStatementSegment"),
             Ref("AlterFunctionStatementSegment"),
             Ref("AlterViewStatementSegment"),
+            Ref("ListenStatementSegment"),
+            Ref("NotifyStatementSegment"),
+            Ref("UnlistenStatementSegment"),
         ],
     )
 
@@ -3053,4 +3056,51 @@ class DropPolicyStatementSegment(BaseSegment):
         "ON",
         Ref("TableReferenceSegment"),
         OneOf("CASCADE", "RESTRICT", optional=True),
+    )
+
+
+@postgres_dialect.segment()
+class ListenStatementSegment(BaseSegment):
+    """A `LISTEN` statement.
+
+    As Specified in https://www.postgresql.org/docs/current/sql-listen.html
+    """
+
+    type = "listen_statement"
+    match_grammar = Sequence("LISTEN", Ref("SingleIdentifierGrammar"))
+
+
+@postgres_dialect.segment()
+class NotifyStatementSegment(BaseSegment):
+    """A `NOTIFY` statement.
+
+    As Specified in https://www.postgresql.org/docs/current/sql-notify.html
+    """
+
+    type = "notify_statement"
+    match_grammar = Sequence(
+        "NOTIFY",
+        Ref("SingleIdentifierGrammar"),
+        Sequence(
+            Ref("CommaSegment"),
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
+    )
+
+
+@postgres_dialect.segment()
+class UnlistenStatementSegment(BaseSegment):
+    """A `UNLISTEN` statement.
+
+    As Specified in https://www.postgresql.org/docs/current/sql-unlisten.html
+    """
+
+    type = "unlisten_statement"
+    match_grammar = Sequence(
+        "UNLISTEN",
+        OneOf(
+            Ref("SingleIdentifierGrammar"),
+            Ref("StarSegment"),
+        ),
     )
