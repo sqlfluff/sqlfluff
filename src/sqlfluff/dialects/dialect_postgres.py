@@ -2764,6 +2764,7 @@ class StatementSegment(BaseSegment):
             Ref("DropDatabaseStatementSegment"),
             Ref("AlterFunctionStatementSegment"),
             Ref("AlterViewStatementSegment"),
+            Ref("ResetStatementSegment"),
         ],
     )
 
@@ -3053,4 +3054,18 @@ class DropPolicyStatementSegment(BaseSegment):
         "ON",
         Ref("TableReferenceSegment"),
         OneOf("CASCADE", "RESTRICT", optional=True),
+    )
+
+
+@postgres_dialect.segment()
+class ResetStatementSegment(BaseSegment):
+    """A `RESET` statement.
+
+    As Specified in https://www.postgresql.org/docs/14/sql-reset.html
+    """
+
+    type = "reset_statement"
+    match_grammar = Sequence(
+        "RESET",
+        OneOf("ALL", Ref("ParameterNameSegment")),
     )
