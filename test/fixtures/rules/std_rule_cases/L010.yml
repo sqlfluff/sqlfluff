@@ -58,3 +58,7 @@ test_fail_date_part_capitalisation_policy_upper:
     rules:
       L010:
         capitalisation_policy: upper
+
+test_pass_date_part_consistent_capitalisation:
+  # Test that correctly capitalized time units are left unchanged
+  pass_str: SELECT dt + INTERVAL 2 DAY, INTERVAL 3 HOUR
