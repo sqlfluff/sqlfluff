@@ -1137,7 +1137,10 @@ class CreateSequenceOptionsSegment(BaseSegment):
     type = "create_sequence_options_segment"
 
     match_grammar = OneOf(
-        Sequence("AS", Ref("DatatypeSegment"),),
+        Sequence(
+            "AS",
+            Ref("DatatypeSegment"),
+        ),
         Sequence("START", "WITH", Ref("NumericLiteralSegment")),
         Sequence("INCREMENT", "BY", Ref("NumericLiteralSegment")),
         Sequence("MINVALUE", Ref("NumericLiteralSegment")),
