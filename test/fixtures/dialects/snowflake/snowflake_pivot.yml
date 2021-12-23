@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 339850f32602604ee90d16dc80802d3914c451ff82ab87194e5ad12cc14a1c2c
+_hash: 17005657ac2d78f41aa5fd59b02ca74bf5dec1670f4dd5d97781bf774384a59a
 file:
 - statement:
     select_statement:
@@ -20,34 +20,40 @@ file:
             table_expression:
               table_reference:
                 identifier: my_tbl
-            alias_expression:
-              identifier: PIVOT
-        unparsable:
-        - bracketed:
-          - start_bracket: (
-          - raw: min
-          - bracketed:
-              start_bracket: (
-              raw: f_val
-              end_bracket: )
-          - raw: FOR
-          - raw: f_id
-          - raw: IN
-          - bracketed:
+          from_pivot_expression:
+            keyword: PIVOT
+            bracketed:
             - start_bracket: (
-            - raw: '1'
-            - comma: ','
-            - raw: '2'
+            - function:
+                function_name:
+                  function_name_identifier: min
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    column_reference:
+                      identifier: f_val
+                  end_bracket: )
+            - keyword: FOR
+            - identifier: f_id
+            - keyword: IN
+            - bracketed:
+              - start_bracket: (
+              - literal: '1'
+              - comma: ','
+              - literal: '2'
+              - end_bracket: )
             - end_bracket: )
-          - end_bracket: )
-        - raw: AS
-        - raw: f
-        - bracketed:
-          - start_bracket: (
-          - raw: a
-          - comma: ','
-          - raw: b
-          - end_bracket: )
+          table_alias_expression:
+            alias_expression:
+              keyword: AS
+              identifier: f
+              bracketed:
+                start_bracket: (
+                identifier_list:
+                - identifier: a
+                - comma: ','
+                - identifier: b
+                end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
