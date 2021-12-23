@@ -3355,6 +3355,7 @@ class CommentStatementSegment(BaseSegment):
     here so add any others to the OneOf grammar below.
     """
 
+    type = "comment_statement"
     match_grammar = Sequence(
         "COMMENT",
         Sequence(

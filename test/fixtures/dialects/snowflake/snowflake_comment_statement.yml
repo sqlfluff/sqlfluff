@@ -3,10 +3,10 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8453656e2054a90cdb65b5ad0dc4ce7dba4fadce6e2d3b9006051865352fa176
+_hash: 59675168860815eb9603e388f8926a7872dd381a2661625c9b5c1a879ef45644
 file:
 - statement:
-    base:
+    comment_statement:
     - keyword: comment
     - keyword: 'on'
     - keyword: column
@@ -18,7 +18,7 @@ file:
     - literal: "'comment'"
 - statement_terminator: ;
 - statement:
-    base:
+    comment_statement:
     - keyword: comment
     - keyword: 'on'
     - keyword: table
@@ -28,7 +28,7 @@ file:
     - literal: "'comment'"
 - statement_terminator: ;
 - statement:
-    base:
+    comment_statement:
     - keyword: comment
     - keyword: 'on'
     - keyword: view
@@ -38,7 +38,7 @@ file:
     - literal: "'comment'"
 - statement_terminator: ;
 - statement:
-    base:
+    comment_statement:
     - keyword: comment
     - keyword: 'on'
     - keyword: schema
@@ -48,7 +48,7 @@ file:
     - literal: "'comment'"
 - statement_terminator: ;
 - statement:
-    base:
+    comment_statement:
     - keyword: comment
     - keyword: 'on'
     - keyword: database
@@ -58,7 +58,7 @@ file:
     - literal: "'comment'"
 - statement_terminator: ;
 - statement:
-    base:
+    comment_statement:
     - keyword: comment
     - keyword: 'on'
     - keyword: warehouse
@@ -68,7 +68,7 @@ file:
     - literal: "'comment'"
 - statement_terminator: ;
 - statement:
-    base:
+    comment_statement:
     - keyword: comment
     - keyword: 'on'
     - keyword: user
@@ -78,7 +78,7 @@ file:
     - literal: "'comment'"
 - statement_terminator: ;
 - statement:
-    base:
+    comment_statement:
     - keyword: comment
     - keyword: 'on'
     - keyword: stage
@@ -88,7 +88,7 @@ file:
     - literal: "'comment'"
 - statement_terminator: ;
 - statement:
-    base:
+    comment_statement:
     - keyword: comment
     - keyword: 'on'
     - keyword: function
@@ -98,7 +98,7 @@ file:
     - literal: "'comment'"
 - statement_terminator: ;
 - statement:
-    base:
+    comment_statement:
     - keyword: comment
     - keyword: 'on'
     - keyword: procedure
@@ -108,7 +108,7 @@ file:
     - literal: "'comment'"
 - statement_terminator: ;
 - statement:
-    base:
+    comment_statement:
     - keyword: comment
     - keyword: 'on'
     - keyword: sequence
@@ -118,7 +118,7 @@ file:
     - literal: "'comment'"
 - statement_terminator: ;
 - statement:
-    base:
+    comment_statement:
     - keyword: comment
     - keyword: 'on'
     - keyword: share
@@ -128,7 +128,7 @@ file:
     - literal: "'comment'"
 - statement_terminator: ;
 - statement:
-    base:
+    comment_statement:
     - keyword: comment
     - keyword: 'on'
     - keyword: pipe
@@ -138,7 +138,7 @@ file:
     - literal: "'comment'"
 - statement_terminator: ;
 - statement:
-    base:
+    comment_statement:
     - keyword: comment
     - keyword: 'on'
     - keyword: stream
@@ -148,7 +148,7 @@ file:
     - literal: "'comment'"
 - statement_terminator: ;
 - statement:
-    base:
+    comment_statement:
     - keyword: comment
     - keyword: 'on'
     - keyword: task
@@ -158,7 +158,7 @@ file:
     - literal: "'comment'"
 - statement_terminator: ;
 - statement:
-    base:
+    comment_statement:
     - keyword: comment
     - keyword: 'on'
     - keyword: network
@@ -169,7 +169,7 @@ file:
     - literal: "'comment'"
 - statement_terminator: ;
 - statement:
-    base:
+    comment_statement:
     - keyword: comment
     - keyword: 'on'
     - keyword: api
@@ -180,7 +180,7 @@ file:
     - literal: "'comment'"
 - statement_terminator: ;
 - statement:
-    base:
+    comment_statement:
     - keyword: comment
     - keyword: 'on'
     - keyword: notification
@@ -191,7 +191,7 @@ file:
     - literal: "'comment'"
 - statement_terminator: ;
 - statement:
-    base:
+    comment_statement:
     - keyword: comment
     - keyword: 'on'
     - keyword: security
@@ -202,7 +202,7 @@ file:
     - literal: "'comment'"
 - statement_terminator: ;
 - statement:
-    base:
+    comment_statement:
     - keyword: comment
     - keyword: 'on'
     - keyword: storage
@@ -213,7 +213,7 @@ file:
     - literal: "'comment'"
 - statement_terminator: ;
 - statement:
-    base:
+    comment_statement:
     - keyword: comment
     - keyword: 'on'
     - keyword: session
@@ -224,7 +224,7 @@ file:
     - literal: "'comment'"
 - statement_terminator: ;
 - statement:
-    base:
+    comment_statement:
     - keyword: comment
     - keyword: 'on'
     - keyword: external
@@ -235,7 +235,7 @@ file:
     - literal: "'comment'"
 - statement_terminator: ;
 - statement:
-    base:
+    comment_statement:
     - keyword: comment
     - keyword: 'on'
     - keyword: materialized
@@ -246,7 +246,7 @@ file:
     - literal: "'comment'"
 - statement_terminator: ;
 - statement:
-    base:
+    comment_statement:
     - keyword: comment
     - keyword: 'on'
     - keyword: masking
@@ -257,7 +257,7 @@ file:
     - literal: "'comment'"
 - statement_terminator: ;
 - statement:
-    base:
+    comment_statement:
     - keyword: comment
     - keyword: 'on'
     - keyword: row
@@ -269,7 +269,7 @@ file:
     - literal: "'comment'"
 - statement_terminator: ;
 - statement:
-    base:
+    comment_statement:
     - keyword: comment
     - keyword: 'on'
     - keyword: file
