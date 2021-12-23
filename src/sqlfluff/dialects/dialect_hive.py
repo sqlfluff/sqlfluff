@@ -497,17 +497,6 @@ class TruncateStatementSegment(BaseSegment):
 
 
 @hive_dialect.segment(replace=True)
-class UseStatementSegment(BaseSegment):
-    """An `USE` statement."""
-
-    type = "use_statement"
-    match_grammar = Sequence(
-        "USE",
-        Ref("DatabaseReferenceSegment"),
-    )
-
-
-@hive_dialect.segment(replace=True)
 class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: ignore
     """Overriding StatementSegment to allow for additional segment parsing."""
 

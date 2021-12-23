@@ -539,7 +539,6 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
 
     parse_grammar = ansi_dialect.get_segment("StatementSegment").parse_grammar.copy(
         insert=[
-            Ref("UseStatementSegment"),
             Ref("CreateStatementSegment"),
             Ref("CreateTaskSegment"),
             Ref("CreateCloneStatementSegment"),
@@ -3338,6 +3337,49 @@ class DescribeStatementSegment(BaseSegment):
                         Ref("DatatypeSegment"),
                         optional=True,
                     ),
+                ),
+            ),
+        ),
+    )
+
+
+@snowflake_dialect.segment(replace=True)
+class UseStatementSegment(BaseSegment):
+    """A `USE` statement.
+
+    USE ROLE <name>
+
+    USE WAREHOUSE <name>
+
+    USE [ DATABASE ] <name>
+
+    USE [ SCHEMA ] [<db_name>.]<name>
+
+    USE SECONDARY ROLES { ALL | NONE }
+
+    https://docs.snowflake.com/en/sql-reference/sql/use.html
+    """
+
+    type = "use_statement"
+    match_grammar = Sequence(
+        "USE",
+        OneOf(
+            Sequence("ROLE", Ref("ObjectReferenceSegment")),
+            Sequence("WAREHOUSE", Ref("ObjectReferenceSegment")),
+            Sequence(
+                Ref.keyword("DATABASE", optional=True),
+                Ref("DatabaseReferenceSegment"),
+            ),
+            Sequence(
+                Ref.keyword("SCHEMA", optional=True),
+                Ref("SchemaReferenceSegment"),
+            ),
+            Sequence(
+                "SECONDARY",
+                "ROLES",
+                OneOf(
+                    "ALL",
+                    "NONE",
                 ),
             ),
         ),
