@@ -3347,11 +3347,28 @@ class DescribeStatementSegment(BaseSegment):
 
 @snowflake_dialect.segment()
 class UndropStatementSegment(BaseSegment):
-    """`UNDROP` statement."""
+    """`UNDROP` statement.
+
+    DATABASE: https://docs.snowflake.com/en/sql-reference/sql/undrop-database.html
+    SCHEMA: https://docs.snowflake.com/en/sql-reference/sql/undrop-schema.html
+    TABLE: https://docs.snowflake.com/en/sql-reference/sql/undrop-table.html
+    """
 
     type = "undrop_statement"
     match_grammar = Sequence(
         "UNDROP",
-        "DATABASE",
-        Ref("DatabaseReferenceSegment"),
+        OneOf(
+            Sequence(
+                "DATABASE",
+                Ref("DatabaseReferenceSegment"),
+            ),
+            Sequence(
+                "SCHEMA",
+                Ref("SchemaReferenceSegment"),
+            ),
+            Sequence(
+                "TABLE",
+                Ref("TableReferenceSegment"),
+            ),
+        ),
     )
