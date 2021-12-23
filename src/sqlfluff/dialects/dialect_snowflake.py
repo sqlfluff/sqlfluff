@@ -3342,3 +3342,16 @@ class DescribeStatementSegment(BaseSegment):
             ),
         ),
     )
+
+
+@snowflake_dialect.segment(replace=True)
+class TruncateStatementSegment(BaseSegment):
+    """`TRUNCATE TABLE` statement."""
+
+    type = "truncate_table"
+    match_grammar = Sequence(
+        "TRUNCATE",
+        Ref.keyword("TABLE", optional=True),
+        Sequence("IF", "EXISTS", optional=True),
+        Ref("TableReferenceSegment"),
+    )
