@@ -44,6 +44,7 @@ class Rule_L010(BaseRule):
     _target_elems: List[Tuple[str, str]] = [
         ("type", "keyword"),
         ("type", "binary_operator"),
+        ("type", "date_part"),
     ]
     config_keywords = ["capitalisation_policy"]
     # Human readable target elem for description
