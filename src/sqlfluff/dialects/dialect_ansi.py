@@ -58,7 +58,7 @@ ansi_dialect = Dialect("ansi", root_segment_name="FileSegment")
 
 ansi_dialect.set_lexer_matchers(
     [
-        RegexLexer("whitespace", r"[\t ]+", WhitespaceSegment),
+        RegexLexer("whitespace", r"[\t\xc2\xa0 ]+", WhitespaceSegment),
         RegexLexer(
             "inline_comment",
             r"(--|#)[^\n]*",
