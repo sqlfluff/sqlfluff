@@ -58,6 +58,9 @@ ansi_dialect = Dialect("ansi", root_segment_name="FileSegment")
 
 ansi_dialect.set_lexer_matchers(
     [
+        # Match all forms of whitespace except newlines and carriage returns:
+        # https://stackoverflow.com/questions/3469080/match-whitespace-but-not-newlines
+        # This pattern allows us to also match non-breaking spaces (#2189).
         RegexLexer("whitespace", r"[^\S\r\n]+", WhitespaceSegment),
         RegexLexer(
             "inline_comment",
@@ -76,7 +79,7 @@ ansi_dialect.set_lexer_matchers(
             ),
             trim_post_subdivide=RegexLexer(
                 "whitespace",
-                r"[\t ]+",
+                r"[^\S\r\n]+",
                 WhitespaceSegment,
             ),
         ),
