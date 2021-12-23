@@ -35,3 +35,26 @@ test_fail_capitalisation_policy_capitalise:
     rules:
       L010:
         capitalisation_policy: capitalise
+
+test_fail_date_part_inconsistent_capitalisation:
+  # Test that time unit capitalization is fixed
+  fail_str: SELECT dt + interval 2 day, interval 3 HOUR
+  fix_str: SELECT dt + INTERVAL 2 DAY, INTERVAL 3 HOUR
+
+test_fail_date_part_capitalisation_policy_lower:
+  # Test that capitalization policy is applied on time units
+  fail_str: SELECT dt + interval 2 day, interval 3 HOUR
+  fix_str: select dt + interval 2 day, interval 3 hour
+  configs:
+    rules:
+      L010:
+        capitalisation_policy: lower
+
+test_fail_date_part_capitalisation_policy_upper:
+  # Test that capitalization policy is applied on time units
+  fail_str: SELECT dt + interval 2 day, interval 3 HOUR
+  fix_str: SELECT dt + INTERVAL 2 DAY, INTERVAL 3 HOUR
+  configs:
+    rules:
+      L010:
+        capitalisation_policy: upper
