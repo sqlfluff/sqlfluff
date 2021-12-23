@@ -561,6 +561,7 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref("AlterFunctionStatementSegment"),
             Ref("CreateStageSegment"),
             Ref("AlterStageSegment"),
+            Ref("UndropStatementSegment"),
         ],
         remove=[
             Ref("CreateTypeStatementSegment"),
@@ -3341,4 +3342,16 @@ class DescribeStatementSegment(BaseSegment):
                 ),
             ),
         ),
+    )
+
+
+@snowflake_dialect.segment()
+class UndropStatementSegment(BaseSegment):
+    """`UNDROP` statement."""
+
+    type = "undrop_statement"
+    match_grammar = Sequence(
+        "UNDROP",
+        "DATABASE",
+        Ref("DatabaseReferenceSegment"),
     )
