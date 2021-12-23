@@ -3,10 +3,10 @@ from typing import Any, Callable, List, Optional
 
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.templaters.base import TemplatedFile
-from sqlfluff.core.rules.functional.raw_file_slices import RawFileSlices
+from sqlfluff.core.rules.surrogates.raw_file_slice import RawFileSlices
 
 
-class Segments(list):
+class Segments(tuple):
     """Encapsulates a sequence of one or more BaseSegments.
 
     The segments may or may not be contiguous in a parse tree.
@@ -17,15 +17,14 @@ class Segments(list):
         """Override new operator."""
         return super(Segments, cls).__new__(cls, segments)
 
-    def __init__(self, templated_file: Optional[TemplatedFile], *segments: BaseSegment):
-        super().__init__(segments)
+    def __init__(self, templated_file: Optional[TemplatedFile], *_: BaseSegment):
         self.templated_file = templated_file
 
-    def __add__(self, segments) -> "Segments":
-        return Segments(self.templated_file, *super().__add__(segments))
+    def __add__(self, segments_) -> "Segments":
+        return Segments(self.templated_file, *tuple(self).__add__(tuple(segments_)))
 
-    def __radd__(self, segments) -> "Segments":
-        return Segments(self.templated_file, *list(segments).__add__(list(self)))
+    def __radd__(self, segments_) -> "Segments":
+        return Segments(self.templated_file, *tuple(segments_).__add__(tuple(self)))
 
     def all(self, predicate: Optional[Callable[[BaseSegment], bool]] = None) -> bool:
         """Do all the segments match?"""
@@ -41,7 +40,7 @@ class Segments(list):
                 return True
         return False
 
-    def reversed(self) -> "Segments":
+    def reversed(self) -> "Segments":  # pragma: no cover
         """Return the same segments in reverse order."""
         return Segments(self.templated_file, *reversed(self))
 

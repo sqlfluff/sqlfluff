@@ -267,7 +267,7 @@ class FunctionalRuleContext:
     def __init__(self, context: RuleContext):
         self.context = context
 
-    @property
+    @cached_property
     def segment(self) -> "Segments":
         """Returns a Segments object for context.segment."""
         return Segments(self.context.templated_file, self.context.segment)
@@ -287,12 +287,12 @@ class FunctionalRuleContext:
         """Returns a Segments object for context.siblings_post."""
         return Segments(self.context.templated_file, *self.context.siblings_post)
 
-    @property
+    @cached_property
     def raw_stack(self) -> "Segments":
         """Returns a Segments object for context.raw_stack."""
         return Segments(self.context.templated_file, *self.context.raw_stack)
 
-    @property
+    @cached_property
     def raw_segments(self):
         """Returns a Segments object for all the raw segments in the file."""
         file_segment = self.context.parent_stack[0]

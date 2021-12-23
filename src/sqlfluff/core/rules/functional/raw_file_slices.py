@@ -4,7 +4,7 @@ from typing import Callable, Optional
 from sqlfluff.core.templaters.base import RawFileSlice, TemplatedFile
 
 
-class RawFileSlices(list):
+class RawFileSlices(tuple):
     """Encapsulates a sequence of one or more RawFileSlice.
 
     The slices may or may not be contiguous in a file.
@@ -15,8 +15,7 @@ class RawFileSlices(list):
         """Override new operator."""
         return super(RawFileSlices, cls).__new__(cls, raw_slices)
 
-    def __init__(self, templated_file: TemplatedFile, *raw_slices: RawFileSlice):
-        super().__init__(raw_slices)
+    def __init__(self, templated_file: TemplatedFile, *_: RawFileSlice):
         self.templated_file = templated_file
 
     def all(self, predicate: Optional[Callable[[RawFileSlice], bool]] = None) -> bool:

@@ -88,8 +88,9 @@ class Rule_L009(BaseRule):
 
         # Include current segment for complete stack and reverse.
         parent_stack: Segments = context.functional.parent_stack
-        complete_stack: Segments = context.functional.raw_stack
-        complete_stack.append(context.segment)
+        complete_stack: Segments = (
+            context.functional.raw_stack + context.functional.segment
+        )
         reversed_complete_stack = complete_stack.reversed()
 
         # Find the trailing newline segments.
