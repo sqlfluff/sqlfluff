@@ -67,6 +67,7 @@ mysql_dialect.sets("unreserved_keywords").difference_update(
 )
 mysql_dialect.sets("reserved_keywords").update(
     [
+        "HELP",
         "FORCE",
         "IGNORE",
         "USE",
@@ -433,6 +434,7 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref("CursorOpenCloseSegment"),
             Ref("CursorFetchSegment"),
             Ref("AlterTableStatementSegment"),
+            Ref("HelpStatementSegment"),
         ],
     )
 
@@ -1318,4 +1320,18 @@ class DropIndexStatementSegment(BaseSegment):
             ),
             optional=True,
         ),
+    )
+
+
+@mysql_dialect.segment()
+class HelpStatementSegment(BaseSegment):
+    """A `HELP` statement.
+
+    https://dev.mysql.com/doc/refman/8.0/en/help.html
+    """
+
+    type = "help_statement"
+    match_grammar = Sequence(
+        "HELP",
+        Ref("QuotedLiteralSegment"),
     )
