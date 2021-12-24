@@ -46,6 +46,7 @@ modules. At this time, the following rules use them:
 * `L015`
 * `L017`
 * `L021`
+* `L025`
 * `L038`
 * `L050`
 

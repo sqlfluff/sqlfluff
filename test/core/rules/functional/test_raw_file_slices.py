@@ -13,15 +13,17 @@ rs_literal_abc = RawFileSlice("abc", "literal", 0)
     ["input", "expected"],
     [
         [
-            raw_file_slices.RawFileSlices(None, rs_templated_abc),
+            raw_file_slices.RawFileSlices(rs_templated_abc, templated_file=None),
             True,
         ],
         [
-            raw_file_slices.RawFileSlices(None, rs_templated_def),
+            raw_file_slices.RawFileSlices(rs_templated_def, templated_file=None),
             False,
         ],
         [
-            raw_file_slices.RawFileSlices(None, rs_templated_abc, rs_templated_def),
+            raw_file_slices.RawFileSlices(
+                rs_templated_abc, rs_templated_def, templated_file=None
+            ),
             False,
         ],
     ],
@@ -35,15 +37,17 @@ def test_slices_all(input, expected):
     ["input", "expected"],
     [
         [
-            raw_file_slices.RawFileSlices(None, rs_templated_abc),
+            raw_file_slices.RawFileSlices(rs_templated_abc, templated_file=None),
             True,
         ],
         [
-            raw_file_slices.RawFileSlices(None, rs_templated_def),
+            raw_file_slices.RawFileSlices(rs_templated_def, templated_file=None),
             False,
         ],
         [
-            raw_file_slices.RawFileSlices(None, rs_templated_abc, rs_templated_def),
+            raw_file_slices.RawFileSlices(
+                rs_templated_abc, rs_templated_def, templated_file=None
+            ),
             True,
         ],
     ],
