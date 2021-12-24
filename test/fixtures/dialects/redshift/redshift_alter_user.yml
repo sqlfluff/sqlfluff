@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 14a8196f474dec4388b8eb1dacaf02f5d157aa2010205379e3e026fc47e3cba6
+_hash: 2c354b17ddb6b7d11c8b91843d328a19d4eca2b506cd7822ad39de1c3ccfaf6f
 file:
 - statement:
     alter_user:
@@ -38,6 +38,27 @@ file:
         identifier: admin
     - keyword: with
     - keyword: nocreatedb
+- statement_terminator: ;
+- statement:
+    alter_user:
+    - keyword: alter
+    - keyword: user
+    - object_reference:
+        identifier: '"dbuser"'
+    - keyword: reset
+    - object_reference:
+        identifier: var
+- statement_terminator: ;
+- statement:
+    alter_user:
+    - keyword: alter
+    - keyword: user
+    - object_reference:
+        identifier: '"dbuser"'
+    - keyword: with
+    - keyword: reset
+    - object_reference:
+        identifier: var
 - statement_terminator: ;
 - statement:
     alter_user:

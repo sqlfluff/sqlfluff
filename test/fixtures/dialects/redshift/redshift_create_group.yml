@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e4a5b2804398d25a6849dca92348747efe09d4b888f71292a802520696df3c82
+_hash: f46b35984c27779547c884bbe01cac77be3b6714e369022fb0133b40e889c403
 file:
 - statement:
     create_group:
@@ -11,6 +11,13 @@ file:
     - keyword: group
     - object_reference:
         identifier: admin_group
+- statement_terminator: ;
+- statement:
+    create_group:
+    - keyword: create
+    - keyword: group
+    - object_reference:
+        identifier: '"admin_group"'
 - statement_terminator: ;
 - statement:
     create_group:

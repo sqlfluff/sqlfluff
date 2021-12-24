@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4f0d192576331d7206f3c22d2e0ccb6e0dab790ae1dcdd0d9d6f6383f928dcaa
+_hash: 05fe589d56960f4d5d47b5c6e089fc2e011761ccf689cae65b608f06f2e5270d
 file:
 - statement:
     create_user:
@@ -39,6 +39,16 @@ file:
     - keyword: USER
     - object_reference:
         identifier: lazy
+    - keyword: WITH
+    - keyword: PASSWORD
+    - keyword: DISABLE
+- statement_terminator: ;
+- statement:
+    create_user:
+    - keyword: CREATE
+    - keyword: USER
+    - object_reference:
+        identifier: '"lazy"'
     - keyword: WITH
     - keyword: PASSWORD
     - keyword: DISABLE
