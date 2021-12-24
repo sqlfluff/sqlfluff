@@ -636,6 +636,9 @@ class SetAssignmentStatementSegment(BaseSegment):
         OneOf(Ref("SessionVariableNameSegment"), Ref("LocalVariableNameSegment")),
         Ref("EqualsSegment"),
         AnyNumberOf(
+            # Added to allow SET sql_log_bin Statement:
+            # https://dev.mysql.com/doc/refman/8.0/en/set-sql-log-bin.html
+            OneOf("ON", "OFF"),
             Ref("QuotedLiteralSegment"),
             Ref("DoubleQuotedLiteralSegment"),
             Ref("SessionVariableNameSegment"),
