@@ -3,6 +3,7 @@ from typing import List, Optional
 
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
+import sqlfluff.core.rules.functional.segment_predicates as sp
 
 
 @document_fix_compatible
@@ -47,7 +48,8 @@ class Rule_L035(BaseRule):
         """
         if context.segment.is_type("case_expression"):
             fixes: List[LintFix] = []
-            for idx, seg in enumerate(context.segment.segments):
+            children = context.functional.segment.children()
+            for seg in context.functional.segment.children():
                 # When we find ELSE we delete
                 # everything up to NULL
                 if fixes:
@@ -60,12 +62,11 @@ class Rule_L035(BaseRule):
                 if not fixes and seg.name == "else":
                     fixes.append(LintFix.delete(seg))
                     # Walk back to remove indents/whitespaces
-                    walk_idx = idx - 1
-                    while (
-                        context.segment.segments[walk_idx].name == "whitespace"
-                        or context.segment.segments[walk_idx].name == "newline"
-                        or context.segment.segments[walk_idx].is_meta
-                    ):
-                        fixes.append(LintFix.delete(context.segment.segments[walk_idx]))
-                        walk_idx = walk_idx - 1
+                    to_delete = children.reversed().select(
+                        loop_while=sp.or_(
+                            sp.is_name("whitespace", "newline"), sp.is_meta()
+                        ),
+                        start_seg=seg,
+                    )
+                    fixes += [LintFix.delete(s) for s in to_delete]
         return None
