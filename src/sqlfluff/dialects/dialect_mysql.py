@@ -98,6 +98,7 @@ mysql_dialect.sets("reserved_keywords").update(
         "NONE",
         "SHARED",
         "EXCLUSIVE",
+        "MASTER",
     ]
 )
 
@@ -433,6 +434,7 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref("CursorOpenCloseSegment"),
             Ref("CursorFetchSegment"),
             Ref("AlterTableStatementSegment"),
+            Ref("ResetMasterStatementSegment"),
         ],
     )
 
@@ -1318,4 +1320,19 @@ class DropIndexStatementSegment(BaseSegment):
             ),
             optional=True,
         ),
+    )
+
+
+@mysql_dialect.segment()
+class ResetMasterStatementSegment(BaseSegment):
+    """A `RESET MASTER` statement.
+
+    https://dev.mysql.com/doc/refman/8.0/en/reset-master.html
+    """
+
+    type = "reset_master_statement"
+    match_grammar = Sequence(
+        "RESET",
+        "MASTER",
+        Sequence("TO", Ref("NumericLiteralSegment"), optional=True),
     )
