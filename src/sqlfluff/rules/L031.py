@@ -65,28 +65,25 @@ class Rule_L031(BaseRule):
         if context.segment.is_type("select_statement"):
             children = context.functional.segment.children()
             from_clause_segment = children.select(sp.is_type("from_clause")).first()
-            from_expression_element = (
+            base_table = (
                 from_clause_segment.children(sp.is_type("from_expression"))
                 .first()
                 .children(sp.is_type("from_expression_element"))
                 .first()
                 .children(sp.is_type("table_expression"))
                 .first()
+                .children(sp.is_type("object_reference"))
+                .first()
             )
-            if not from_expression_element:
+            if not base_table:
                 return None
-
-            # Find base table
-            base_table = from_expression_element.children(
-                sp.is_type("object_reference")
-            ).first()
 
             # A buffer for all table expressions in join conditions
             from_expression_elements = []
             column_reference_segments = []
 
             after_from_clause = children.select(start_seg=from_clause_segment[0])
-            for clause in [from_clause_segment[0]] + after_from_clause:
+            for clause in from_clause_segment + after_from_clause:
                 for from_expression_element in clause.recursive_crawl(
                     "from_expression_element"
                 ):
