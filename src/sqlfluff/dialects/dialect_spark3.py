@@ -117,8 +117,7 @@ spark3_dialect.replace(
         Ref("LessThanSegment"),
         Ref("GreaterThanOrEqualToSegment"),
         Ref("LessThanOrEqualToSegment"),
-        Ref("NotEqualToSegment_a"),
-        Ref("NotEqualToSegment_b"),
+        Ref("NotEqualToSegment"),
         Ref("LikeOperatorSegment"),
     ),
     TemporaryGrammar=Sequence(

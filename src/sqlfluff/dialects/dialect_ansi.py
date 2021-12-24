@@ -95,16 +95,13 @@ ansi_dialect.set_lexer_matchers(
             r"(?>\d+(\.\d+)?|\.\d+)([eE][+-]?\d+)?(?=\b)",
             CodeSegment,
         ),
-        RegexLexer("not_equal", r"!=|<>", CodeSegment),
         RegexLexer("like_operator", r"!?~~?\*?", CodeSegment),
-        StringLexer("greater_than_or_equal", ">=", CodeSegment),
-        StringLexer("less_than_or_equal", "<=", CodeSegment),
         RegexLexer("newline", r"\r\n|\n", NewlineSegment),
         StringLexer("casting_operator", "::", CodeSegment),
-        StringLexer("concat_operator", "||", CodeSegment),
         StringLexer("equals", "=", CodeSegment),
         StringLexer("greater_than", ">", CodeSegment),
         StringLexer("less_than", "<", CodeSegment),
+        StringLexer("not", "!", CodeSegment),
         StringLexer("dot", ".", CodeSegment),
         StringLexer("comma", ",", CodeSegment, segment_kwargs={"type": "comma"}),
         StringLexer("plus", "+", CodeSegment),
@@ -233,9 +230,7 @@ ansi_dialect.add(
         "%", SymbolSegment, name="modulo", type="binary_operator"
     ),
     SlashSegment=StringParser("/", SymbolSegment, name="slash", type="slash"),
-    ConcatSegment=StringParser(
-        "||", SymbolSegment, name="concatenate", type="binary_operator"
-    ),
+    NotSegment=StringParser("!", SymbolSegment, name="not", type="comparison_operator"),
     BitwiseAndSegment=StringParser(
         "&", SymbolSegment, name="binary_and", type="binary_operator"
     ),
@@ -256,18 +251,6 @@ ansi_dialect.add(
     ),
     LessThanSegment=StringParser(
         "<", SymbolSegment, name="less_than", type="comparison_operator"
-    ),
-    GreaterThanOrEqualToSegment=StringParser(
-        ">=", SymbolSegment, name="greater_than_equal_to", type="comparison_operator"
-    ),
-    LessThanOrEqualToSegment=StringParser(
-        "<=", SymbolSegment, name="less_than_equal_to", type="comparison_operator"
-    ),
-    NotEqualToSegment_a=StringParser(
-        "!=", SymbolSegment, name="not_equal_to", type="comparison_operator"
-    ),
-    NotEqualToSegment_b=StringParser(
-        "<>", SymbolSegment, name="not_equal_to", type="comparison_operator"
     ),
     # The following functions can be called without parentheses per ANSI specification
     BareFunctionSegment=SegmentGenerator(
@@ -370,8 +353,7 @@ ansi_dialect.add(
         Ref("LessThanSegment"),
         Ref("GreaterThanOrEqualToSegment"),
         Ref("LessThanOrEqualToSegment"),
-        Ref("NotEqualToSegment_a"),
-        Ref("NotEqualToSegment_b"),
+        Ref("NotEqualToSegment"),
         Ref("LikeOperatorSegment"),
     ),
     # hookpoint for other dialects
@@ -1616,6 +1598,51 @@ ansi_dialect.add(
     ),
     Accessor_Grammar=AnyNumberOf(Ref("ArrayAccessorSegment")),
 )
+
+
+@ansi_dialect.segment()
+class ConcatSegment(BaseSegment):
+    """Concatenation operator."""
+
+    type = "binary_operator"
+    name = "concatenate"
+    match_grammar = Sequence(
+        Ref("BitwiseOrSegment"), Ref("BitwiseOrSegment"), allow_gaps=False
+    )
+
+
+@ansi_dialect.segment()
+class GreaterThanOrEqualToSegment(BaseSegment):
+    """Greater than or equal to operator."""
+
+    type = "comparison_operator"
+    name = "greater_than_equal_to"
+    match_grammar = Sequence(
+        Ref("GreaterThanSegment"), Ref("EqualsSegment"), allow_gaps=False
+    )
+
+
+@ansi_dialect.segment()
+class LessThanOrEqualToSegment(BaseSegment):
+    """Less than or equal to operator."""
+
+    type = "comparison_operator"
+    name = "less_than_equal_to"
+    match_grammar = Sequence(
+        Ref("LessThanSegment"), Ref("EqualsSegment"), allow_gaps=False
+    )
+
+
+@ansi_dialect.segment()
+class NotEqualToSegment(BaseSegment):
+    """Not equal to operator."""
+
+    type = "comparison_operator"
+    name = "not_equal_to"
+    match_grammar = OneOf(
+        Sequence(Ref("NotSegment"), Ref("EqualsSegment"), allow_gaps=False),
+        Sequence(Ref("LessThanSegment"), Ref("GreaterThanSegment"), allow_gaps=False),
+    )
 
 
 @ansi_dialect.segment()

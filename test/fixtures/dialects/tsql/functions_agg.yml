@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5e625eda78c73b9e1a56a210f0746362cace706b3ea090d9e6a542ba5d9e80e9
+_hash: af76121ea0977f0ad2914991b312ed8e19ba3a07791e931f9b7b27be696fba38
 file:
   batch:
   - statement:
@@ -135,7 +135,9 @@ file:
                   column_reference:
                     identifier: '[ArrivalDt]'
                 end_bracket: )
-          - comparison_operator: <=
+          - comparison_operator:
+            - comparison_operator: <
+            - comparison_operator: '='
           - function:
               function_name:
                 function_name_identifier: MAX

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8185d366b1449d3fc39f81ce7f4a3b44b56e732e3346967a9d742a0c718af685
+_hash: 127b02da708f25dcb8a3b212d2fe7467b5264d643b7aaf514c4cc3479c3e9c04
 file:
   statement:
     select_statement:
@@ -40,7 +40,9 @@ file:
                       identifier: year_number
                   - binary_operator: '%'
                   - literal: '100'
-                  - comparison_operator: '!='
+                  - comparison_operator:
+                    - comparison_operator: '!'
+                    - comparison_operator: '='
                   - literal: '0'
                   end_bracket: )
             - keyword: THEN

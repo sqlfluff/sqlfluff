@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9e2945c1cf79d11f1400e97583024ec6ed562707f55c351c7502a1ed10d778bb
+_hash: b7169dc4e276dd0a54dea0a5b09e4e9da6943edf3ff00e36288b61bc987eb89d
 file:
 - batch:
     statement:
@@ -125,13 +125,17 @@ file:
                 - binary_operator: and
                 - column_reference:
                     identifier: l_id
-                - comparison_operator: '>='
+                - comparison_operator:
+                  - comparison_operator: '>'
+                  - comparison_operator: '='
                 - column_reference:
                     identifier: dd
                 - binary_operator: and
                 - column_reference:
                     identifier: l_id
-                - comparison_operator: <=
+                - comparison_operator:
+                  - comparison_operator: <
+                  - comparison_operator: '='
                 - column_reference:
                     identifier: dd
             end_bracket: )
@@ -680,7 +684,9 @@ file:
             - identifier: src
             - dot: .
             - identifier: OrderQty
-          - comparison_operator: <=
+          - comparison_operator:
+            - comparison_operator: <
+            - comparison_operator: '='
           - literal: '0'
         - keyword: THEN
         - merge_delete_clause:
@@ -877,7 +883,9 @@ file:
             - identifier: src
             - dot: .
             - identifier: OrderQty
-          - comparison_operator: '>='
+          - comparison_operator:
+            - comparison_operator: '>'
+            - comparison_operator: '='
           - literal: '0'
         - keyword: THEN
         - merge_update_clause:
@@ -914,7 +922,9 @@ file:
             - identifier: src
             - dot: .
             - identifier: OrderQty
-          - comparison_operator: <=
+          - comparison_operator:
+            - comparison_operator: <
+            - comparison_operator: '='
           - literal: '0'
         - keyword: THEN
         - merge_delete_clause:

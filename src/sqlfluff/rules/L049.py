@@ -38,6 +38,9 @@ class Rule_L049(Rule_L006):
         # Context/motivation for this rule:
         # https://news.ycombinator.com/item?id=28772289
         # https://stackoverflow.com/questions/9581745/sql-is-null-and-null
+        if not context.segment.is_type("expression"):
+            return LintResult()
+
         if len(context.segment.segments) <= 2:
             return LintResult()
 

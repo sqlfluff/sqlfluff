@@ -22,10 +22,7 @@ from sqlfluff.core.parser import (
     Indent,
     AnyNumberOf,
     CommentSegment,
-    StringParser,
-    SymbolSegment,
     SegmentGenerator,
-    StringLexer,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -70,7 +67,6 @@ tsql_dialect.insert_lexer_matchers(
             r"[#][#]?[a-zA-Z0-9_]+",
             CodeSegment,
         ),
-        StringLexer("not", "!", CodeSegment),
     ],
     before="back_quote",
 )
@@ -124,9 +120,6 @@ tsql_dialect.patch_lexer_matchers(
                 WhitespaceSegment,
             ),
         ),
-        # Patching to add !<, !>
-        RegexLexer("greater_than_or_equal", ">=|!<", CodeSegment),
-        RegexLexer("less_than_or_equal", "<=|!>", CodeSegment),
         RegexLexer(
             "code", r"[0-9a-zA-Z_#@]+", CodeSegment
         ),  # overriding to allow hash mark and at-sign in code
@@ -147,13 +140,6 @@ tsql_dialect.add(
     QuotedLiteralSegmentWithN=NamedParser(
         "single_quote_with_n", CodeSegment, name="quoted_literal", type="literal"
     ),
-    NotSegment=StringParser("!", SymbolSegment, name="not", type="comparison_operator"),
-    NotGreaterThanSegment=StringParser(
-        "!>", SymbolSegment, name="less_than_equal_to", type="comparison_operator"
-    ),
-    NotLessThanSegment=StringParser(
-        "!<", SymbolSegment, name="greater_than_equal_to", type="comparison_operator"
-    ),
 )
 
 tsql_dialect.replace(
@@ -168,38 +154,6 @@ tsql_dialect.replace(
             type="identifier",
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
         )
-    ),
-    ComparisonOperatorGrammar=OneOf(
-        Ref("EqualsSegment"),
-        Ref("GreaterThanSegment"),
-        Ref("LessThanSegment"),
-        Ref("GreaterThanOrEqualToSegment"),
-        Ref("LessThanOrEqualToSegment"),
-        Ref("NotEqualToSegment_a"),
-        Ref("NotEqualToSegment_b"),
-        Ref("LikeOperatorSegment"),
-        Ref("NotGreaterThanSegment"),
-        Ref("NotLessThanSegment"),
-        # TSQL allows for whitespace between the parts of a comparison operator
-        Sequence(
-            Ref("GreaterThanSegment"),
-            Ref("EqualsSegment"),
-        ),
-        Sequence(
-            Ref("LessThanSegment"),
-            OneOf(
-                Ref("EqualsSegment"),
-                Ref("GreaterThanSegment"),
-            ),
-        ),
-        Sequence(
-            Ref("NotSegment"),
-            OneOf(
-                Ref("EqualsSegment"),
-                Ref("LessThanSegment"),
-                Ref("GreaterThanSegment"),
-            ),
-        ),
     ),
     SingleIdentifierGrammar=OneOf(
         Ref("NakedIdentifierSegment"),
@@ -340,6 +294,65 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
     )
 
     parse_grammar = match_grammar
+
+
+@tsql_dialect.segment(replace=True)
+class GreaterThanOrEqualToSegment(BaseSegment):
+    """Greater than or equal to operator.
+
+    N.B. Patching to add !< and
+    to allow spaces between operators.
+    """
+
+    type = "comparison_operator"
+    name = "greater_than_equal_to"
+    match_grammar = OneOf(
+        Sequence(
+            Ref("GreaterThanSegment"),
+            Ref("EqualsSegment"),
+        ),
+        Sequence(
+            Ref("NotSegment"),
+            Ref("LessThanSegment"),
+        ),
+    )
+
+
+@tsql_dialect.segment(replace=True)
+class LessThanOrEqualToSegment(BaseSegment):
+    """Greater than or equal to operator.
+
+    N.B. Patching to add !> and
+    to allow spaces between operators.
+    """
+
+    type = "comparison_operator"
+    name = "less_than_equal_to"
+    match_grammar = OneOf(
+        Sequence(
+            Ref("LessThanSegment"),
+            Ref("EqualsSegment"),
+        ),
+        Sequence(
+            Ref("NotSegment"),
+            Ref("GreaterThanSegment"),
+        ),
+    )
+
+
+@ansi_dialect.segment(replace=True)
+class NotEqualToSegment(BaseSegment):
+    """Not equal to operator.
+
+    N.B. Patching to allow spaces between operators.
+    """
+
+    type = "comparison_operator"
+    name = "not_equal_to"
+    match_grammar = OneOf(
+        Sequence(Ref("NotSegment"), Ref("EqualsSegment")),
+        Sequence(Ref("LessThanSegment"), Ref("GreaterThanSegment")),
+    )
 
 
 @tsql_dialect.segment(replace=True)

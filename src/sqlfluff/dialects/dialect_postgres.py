@@ -79,7 +79,7 @@ postgres_dialect.insert_lexer_matchers(
             CodeSegment,
         ),
     ],
-    before="not_equal",
+    before="like_operator",
 )
 
 postgres_dialect.insert_lexer_matchers(
@@ -177,8 +177,7 @@ postgres_dialect.replace(
         Ref("LessThanSegment"),
         Ref("GreaterThanOrEqualToSegment"),
         Ref("LessThanOrEqualToSegment"),
-        Ref("NotEqualToSegment_a"),
-        Ref("NotEqualToSegment_b"),
+        Ref("NotEqualToSegment"),
         Ref("LikeOperatorSegment"),
         Sequence("IS", "DISTINCT", "FROM"),
         Sequence("IS", "NOT", "DISTINCT", "FROM"),

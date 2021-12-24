@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8bfe4defa7aa9296d2a56563c94a1e75c4024f2e4155fd5689dc6261c28ef0d4
+_hash: 06d4cde719181cd25371968f74c66c1be8e65f0b182a3be6109fd4661606d62a
 file:
 - statement:
     select_statement:
@@ -19,7 +19,9 @@ file:
               - comma: ','
               - literal: '2'
               - end_square_bracket: ']'
-          - binary_operator: '||'
+          - binary_operator:
+            - binary_operator: '|'
+            - binary_operator: '|'
           - keyword: ARRAY
           - array_contents_grammar:
               simple_array_contents_grammar:
@@ -276,7 +278,9 @@ file:
             start_square_bracket: '['
             literal: '1'
             end_square_bracket: ']'
-        - comparison_operator: <>
+        - comparison_operator:
+          - comparison_operator: <
+          - comparison_operator: '>'
         - column_reference:
             identifier: pay_by_quarter
         - array_accessor:
@@ -386,7 +390,9 @@ file:
                   - comma: ','
                   - literal: '2'
                   - end_square_bracket: ']'
-              - binary_operator: '||'
+              - binary_operator:
+                - binary_operator: '|'
+                - binary_operator: '|'
               - keyword: ARRAY
               - array_contents_grammar:
                   simple_array_contents_grammar:
@@ -418,7 +424,9 @@ file:
                   - comma: ','
                   - literal: '2'
                   - end_square_bracket: ']'
-              - binary_operator: '||'
+              - binary_operator:
+                - binary_operator: '|'
+                - binary_operator: '|'
               - keyword: ARRAY
               - array_contents_grammar:
                 - start_square_bracket: '['
@@ -454,7 +462,9 @@ file:
               - comma: ','
               - literal: '2'
               - end_square_bracket: ']'
-            binary_operator: '||'
+            binary_operator:
+            - binary_operator: '|'
+            - binary_operator: '|'
             literal: "'{3, 4}'"
 - statement_terminator: ;
 - statement:
