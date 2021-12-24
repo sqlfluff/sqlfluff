@@ -76,23 +76,23 @@ class Segments(tuple):
 
     def first(
         self, predicate: Optional[Callable[[BaseSegment], bool]] = None
-    ) -> Optional["Segments"]:
+    ) -> "Segments":
         """Returns the first segment (if any) that satisfies the predicates."""
         for s in self:
             if predicate is None or predicate(s):
                 return Segments(s, templated_file=self.templated_file)
-        # If no segment satisfies "predicates", return "None".
-        return None
+        # If no segment satisfies "predicates", return empty Segments.
+        return Segments(templated_file=self.templated_file)
 
     def last(
         self, predicate: Optional[Callable[[BaseSegment], bool]] = None
-    ) -> Optional["Segments"]:
+    ) -> "Segments":
         """Returns the last segment (if any) that satisfies the predicates."""
         for s in reversed(self):
             if predicate is None or predicate(s):
                 return Segments(s, templated_file=self.templated_file)
-        # If no segment satisfies "predicates", return "None".
-        return None
+        # If no segment satisfies "predicates", return empty Segments.
+        return Segments(templated_file=self.templated_file)
 
     def apply(self, fn: Callable[[BaseSegment], Any]) -> List[Any]:
         """Apply function to every item."""

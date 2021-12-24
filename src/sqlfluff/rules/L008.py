@@ -84,7 +84,7 @@ class Rule_L008(BaseRule):
         )
 
         if (
-            (subsequent_whitespace is None)
+            not subsequent_whitespace
             and (first_non_whitespace is not None)
             and (not first_non_whitespace.is_type("newline"))
         ):
@@ -95,7 +95,7 @@ class Rule_L008(BaseRule):
                 fixes=[LintFix.create_after(context.segment, [WhitespaceSegment()])],
             )
         elif (
-            (subsequent_whitespace is not None)
+            subsequent_whitespace
             and (subsequent_whitespace.raw != " ")
             and (first_non_whitespace is not None)
             and (not first_non_whitespace.is_comment)

@@ -6,6 +6,7 @@ from typing import Generator, NamedTuple, Optional
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
+import sqlfluff.core.rules.functional.segment_predicates as sp
 
 
 class TableAliasInfo(NamedTuple):
@@ -62,37 +63,30 @@ class Rule_L031(BaseRule):
         and decide if it's needed to report them.
         """
         if context.segment.is_type("select_statement"):
+            children = context.functional.segment.children()
+            from_clause_segment = children.select(sp.is_type("from_clause")).first()
+            from_expression_element = (
+                from_clause_segment.children(sp.is_type("from_expression"))
+                .first()
+                .children(sp.is_type("from_expression_element"))
+                .first()
+                .children(sp.is_type("table_expression"))
+                .first()
+            )
+            if not from_expression_element:
+                return None
+
+            # Find base table
+            base_table = from_expression_element.children(
+                sp.is_type("object_reference")
+            ).first()
+
             # A buffer for all table expressions in join conditions
             from_expression_elements = []
             column_reference_segments = []
 
-            from_clause_segment = context.segment.get_child("from_clause")
-
-            if not from_clause_segment:
-                return None
-
-            from_expression = from_clause_segment.get_child("from_expression")
-            from_expression_element = None
-            if from_expression:
-                from_expression_element = from_expression.get_child(
-                    "from_expression_element"
-                )
-
-            if not from_expression_element:
-                return None
-            from_expression_element = from_expression_element.get_child(
-                "table_expression"
-            )
-
-            # Find base table
-            base_table = None
-            if from_expression_element:
-                base_table = from_expression_element.get_child("object_reference")
-
-            from_clause_index = context.segment.segments.index(from_clause_segment)
-            from_clause_and_after = context.segment.segments[from_clause_index:]
-
-            for clause in from_clause_and_after:
+            after_from_clause = children.select(start_seg=from_clause_segment[0])
+            for clause in [from_clause_segment[0]] + after_from_clause:
                 for from_expression_element in clause.recursive_crawl(
                     "from_expression_element"
                 ):
@@ -102,7 +96,7 @@ class Rule_L031(BaseRule):
 
             return (
                 self._lint_aliases_in_join(
-                    base_table,
+                    base_table[0] if base_table else None,
                     from_expression_elements,
                     column_reference_segments,
                     context.segment,
