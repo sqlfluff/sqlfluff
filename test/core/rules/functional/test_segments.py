@@ -15,24 +15,24 @@ seg4 = RawSegment("s4")
     ["lhs", "rhs", "expected"],
     [
         [
-            segments.Segments(None, seg1, seg2),
-            segments.Segments(None, seg3, seg4),
-            segments.Segments(None, seg1, seg2, seg3, seg4),
+            segments.Segments(seg1, seg2),
+            segments.Segments(seg3, seg4),
+            segments.Segments(seg1, seg2, seg3, seg4),
         ],
         [
-            segments.Segments(None, seg3, seg4),
-            segments.Segments(None, seg1, seg2),
-            segments.Segments(None, seg3, seg4, seg1, seg2),
+            segments.Segments(seg3, seg4),
+            segments.Segments(seg1, seg2),
+            segments.Segments(seg3, seg4, seg1, seg2),
         ],
         [
-            segments.Segments(None, seg1, seg2),
+            segments.Segments(seg1, seg2),
             [seg3, seg4],
-            segments.Segments(None, seg1, seg2, seg3, seg4),
+            segments.Segments(seg1, seg2, seg3, seg4),
         ],
         [
             [seg1, seg2],
-            segments.Segments(None, seg3, seg4),
-            segments.Segments(None, seg1, seg2, seg3, seg4),
+            segments.Segments(seg3, seg4),
+            segments.Segments(seg1, seg2, seg3, seg4),
         ],
     ],
 )
@@ -47,11 +47,11 @@ def test_segments_add(lhs, rhs, expected):
     ["input", "expected"],
     [
         [
-            segments.Segments(None, seg1, seg2),
+            segments.Segments(seg1, seg2),
             True,
         ],
         [
-            segments.Segments(None, seg1, seg3),
+            segments.Segments(seg1, seg3),
             False,
         ],
     ],
@@ -65,15 +65,15 @@ def test_segments_all(input, expected):
     ["input", "expected"],
     [
         [
-            segments.Segments(None, seg1, seg2),
+            segments.Segments(seg1, seg2),
             True,
         ],
         [
-            segments.Segments(None, seg1, seg3),
+            segments.Segments(seg1, seg3),
             True,
         ],
         [
-            segments.Segments(None, seg3),
+            segments.Segments(seg3),
             False,
         ],
     ],
@@ -85,35 +85,33 @@ def test_segments_any(input, expected):
 
 def test_segments_reversed():
     """Test the "reversed()" function."""
-    assert segments.Segments(None, seg1, seg2).reversed() == segments.Segments(
-        None, seg2, seg1
-    )
+    assert segments.Segments(seg1, seg2).reversed() == segments.Segments(seg2, seg1)
 
 
 def test_segments_raw_slices_no_templated_file():
     """Test that raw_slices() fails if TemplatedFile not provided."""
     with pytest.raises(ValueError):
-        segments.Segments(None, seg1).raw_slices
+        segments.Segments(seg1).raw_slices
 
 
 def test_segments_first_no_predicate():
     """Test the "first()" function with no predicate."""
-    assert segments.Segments(None, seg1, seg2).first() == segments.Segments(None, seg1)
+    assert segments.Segments(seg1, seg2).first() == segments.Segments(seg1)
 
 
 def test_segments_first_with_predicate():
     """Test the "first()" function with a predicate."""
-    assert segments.Segments(None, seg1, seg2).first(sp.is_meta()) is None
+    assert segments.Segments(seg1, seg2).first(sp.is_meta()) is None
 
 
 def test_segments_last():
     """Test the "last()" function."""
-    assert segments.Segments(None, seg1, seg2).last() == segments.Segments(None, seg2)
+    assert segments.Segments(seg1, seg2).last() == segments.Segments(seg2)
 
 
 def test_segments_apply():
     """Test the "apply()" function."""
-    assert segments.Segments(None, seg1, seg2).apply(lambda s: s.raw[-1]) == ["1", "2"]
+    assert segments.Segments(seg1, seg2).apply(lambda s: s.raw[-1]) == ["1", "2"]
 
 
 @pytest.mark.parametrize(
@@ -126,14 +124,17 @@ def test_segments_apply():
 )
 def test_segments_apply_functions(function, expected):
     """Test the "apply()" function with the "get_name()" function."""
-    assert segments.Segments(None, seg1, seg2).apply(function) == expected
+    assert segments.Segments(seg1, seg2).apply(function) == expected
 
 
 def test_segment_predicates_and():
     """Test the "and_()" function."""
-    assert segments.Segments(None, seg1, seg2).select(
+    assert segments.Segments(seg1, seg2).select(
         select_if=sp.and_(sp.is_raw(), lambda s: s.raw[-1] == "1")
-    ) == segments.Segments(None, seg1)
-    assert segments.Segments(None, seg1, seg2).select(
-        select_if=sp.and_(sp.is_raw(), lambda s: s.raw[-1] == "3")
-    ) == segments.Segments(None)
+    ) == segments.Segments(seg1)
+    assert (
+        segments.Segments(seg1, seg2).select(
+            select_if=sp.and_(sp.is_raw(), lambda s: s.raw[-1] == "3")
+        )
+        == segments.Segments()
+    )
