@@ -13,18 +13,22 @@ class Segments(tuple):
     Provides useful operations on a sequence of segments to simplify rule creation.
     """
 
-    def __new__(cls, templated_file, *segments):
+    def __new__(cls, *segments, templated_file=None):
         """Override new operator."""
         return super(Segments, cls).__new__(cls, segments)
 
-    def __init__(self, templated_file: Optional[TemplatedFile], *_: BaseSegment):
+    def __init__(self, *_: BaseSegment, templated_file: Optional[TemplatedFile] = None):
         self.templated_file = templated_file
 
     def __add__(self, segments_) -> "Segments":
-        return Segments(self.templated_file, *tuple(self).__add__(tuple(segments_)))
+        return Segments(
+            *tuple(self).__add__(tuple(segments_)), templated_file=self.templated_file
+        )
 
     def __radd__(self, segments_) -> "Segments":
-        return Segments(self.templated_file, *tuple(segments_).__add__(tuple(self)))
+        return Segments(
+            *tuple(segments_).__add__(tuple(self)), templated_file=self.templated_file
+        )
 
     def all(self, predicate: Optional[Callable[[BaseSegment], bool]] = None) -> bool:
         """Do all the segments match?"""
@@ -42,7 +46,7 @@ class Segments(tuple):
 
     def reversed(self) -> "Segments":  # pragma: no cover
         """Return the same segments in reverse order."""
-        return Segments(self.templated_file, *reversed(self))
+        return Segments(*reversed(self), templated_file=self.templated_file)
 
     @property
     def raw_slices(self) -> RawFileSlices:
@@ -57,7 +61,7 @@ class Segments(tuple):
             raw_slices.update(
                 self.templated_file.raw_slices_spanning_source_slice(source_slice)
             )
-        return RawFileSlices(self.templated_file, *raw_slices)
+        return RawFileSlices(*raw_slices, templated_file=self.templated_file)
 
     def children(
         self, predicate: Optional[Callable[[BaseSegment], bool]] = None
@@ -68,7 +72,7 @@ class Segments(tuple):
             for child in s.segments:
                 if predicate is None or predicate(child):
                     child_segments.append(child)
-        return Segments(self.templated_file, *child_segments)
+        return Segments(*child_segments, templated_file=self.templated_file)
 
     def first(
         self, predicate: Optional[Callable[[BaseSegment], bool]] = None
@@ -76,7 +80,7 @@ class Segments(tuple):
         """Returns the first segment (if any) that satisfies the predicates."""
         for s in self:
             if predicate is None or predicate(s):
-                return Segments(self.templated_file, s)
+                return Segments(s, templated_file=self.templated_file)
         # If no segment satisfies "predicates", return "None".
         return None
 
@@ -86,7 +90,7 @@ class Segments(tuple):
         """Returns the last segment (if any) that satisfies the predicates."""
         for s in reversed(self):
             if predicate is None or predicate(s):
-                return Segments(self.templated_file, s)
+                return Segments(s, templated_file=self.templated_file)
         # If no segment satisfies "predicates", return "None".
         return None
 
@@ -114,4 +118,4 @@ class Segments(tuple):
                 break
             if select_if is None or select_if(seg):
                 buff.append(seg)
-        return Segments(self.templated_file, *buff)
+        return Segments(*buff, templated_file=self.templated_file)

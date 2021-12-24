@@ -11,11 +11,11 @@ class RawFileSlices(tuple):
     Provides useful operations on a sequence of slices to simplify rule creation.
     """
 
-    def __new__(cls, templated_file, *raw_slices):
+    def __new__(cls, *raw_slices, templated_file=None):
         """Override new operator."""
         return super(RawFileSlices, cls).__new__(cls, raw_slices)
 
-    def __init__(self, templated_file: TemplatedFile, *_: RawFileSlice):
+    def __init__(self, *_: RawFileSlice, templated_file: TemplatedFile):
         self.templated_file = templated_file
 
     def all(self, predicate: Optional[Callable[[RawFileSlice], bool]] = None) -> bool:
