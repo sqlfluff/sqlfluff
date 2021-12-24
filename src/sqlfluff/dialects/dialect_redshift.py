@@ -480,7 +480,7 @@ class AlterGroupSegment(BaseSegment):
     match_grammar = Sequence(
         "ALTER",
         "GROUP",
-        Ref("NakedIdentifierSegment"),
+        Ref("ObjectReferenceSegment"),
         OneOf(
             Sequence(
                 OneOf("ADD", "DROP"),
