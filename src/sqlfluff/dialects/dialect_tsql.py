@@ -120,7 +120,7 @@ tsql_dialect.patch_lexer_matchers(
             ),
             trim_post_subdivide=RegexLexer(
                 "whitespace",
-                r"[\t ]+",
+                r"[^\S\r\n]+",
                 WhitespaceSegment,
             ),
         ),
