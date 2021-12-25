@@ -7,6 +7,7 @@ from sqlfluff.core.parser import WhitespaceSegment
 from sqlfluff.core.parser import BaseSegment, NewlineSegment
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
+import sqlfluff.core.rules.functional.segment_predicates as sp
 
 
 class SelectTargetsInfo(NamedTuple):
@@ -73,43 +74,26 @@ class Rule_L036(BaseRule):
 
     @staticmethod
     def _get_indexes(context: RuleContext):
-        select_idx = -1
-        first_new_line_idx = -1
-        first_select_target_idx = -1
+        children = context.functional.segment.children()
+        select_targets = children.select(sp.is_type("select_clause_element"))
+        first_select_target_idx = children.find(select_targets.get())
+        selects = children.select(sp.and_(sp.is_type("keyword"), sp.is_name("select")))
+        select_idx = children.find(selects.get())
+        newlines = children.select(sp.is_type("newline"))
+        first_new_line_idx = children.find(newlines.get())
         first_whitespace_idx = -1
-        select_targets = []
-        from_segment = next(
-            (seg for seg in context.siblings_post if seg.is_type("from_clause")),
-            None,
-        )
-        pre_from_whitespace = []
-
-        for fname_idx, seg in enumerate(context.segment.segments):
-            if seg.is_type("select_clause_element"):
-                select_targets.append(seg)
-                if first_select_target_idx == -1:
-                    first_select_target_idx = fname_idx
-            if seg.is_type("keyword") and seg.name == "select" and select_idx == -1:
-                select_idx = fname_idx
-            if seg.is_type("newline") and first_new_line_idx == -1:
-                first_new_line_idx = fname_idx
+        if first_new_line_idx != -1:
             # TRICKY: Ignore whitespace prior to the first newline, e.g. if
             # the line with "SELECT" (before any select targets) has trailing
             # whitespace.
-            if (
-                seg.is_type("whitespace")
-                and first_new_line_idx != -1
-                and first_whitespace_idx == -1
-            ):
-                first_whitespace_idx = fname_idx
+            segments_after_first_line = children.select(
+                sp.is_type("whitespace"), start_seg=children[first_new_line_idx]
+            )
+            first_whitespace_idx = children.find(segments_after_first_line.get())
 
-        for seg in context.siblings_post:
-            if seg is from_segment:
-                break
-
-            if seg.is_type("whitespace"):
-                pre_from_whitespace.append(seg)
-
+        siblings_post = context.functional.siblings_post
+        from_segment = siblings_post.first(sp.is_type("from_clause")).first().get()
+        pre_from_whitespace = siblings_post.select(stop_seg=from_segment)
         return SelectTargetsInfo(
             select_idx,
             first_new_line_idx,
@@ -117,7 +101,7 @@ class Rule_L036(BaseRule):
             first_whitespace_idx,
             select_targets,
             from_segment,
-            pre_from_whitespace,
+            list(pre_from_whitespace),
         )
 
     def _eval_multiple_select_target_elements(self, select_targets_info, segment):

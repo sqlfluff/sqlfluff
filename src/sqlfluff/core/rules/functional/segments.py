@@ -30,6 +30,13 @@ class Segments(tuple):
             *tuple(segments_).__add__(tuple(self)), templated_file=self.templated_file
         )
 
+    def find(self, segment: Optional[BaseSegment]) -> int:
+        """Returns index if found, -1 if not found."""
+        try:
+            return self.index(segment)
+        except ValueError:
+            return -1
+
     def all(self, predicate: Optional[Callable[[BaseSegment], bool]] = None) -> bool:
         """Do all the segments match?"""
         for s in self:
@@ -93,6 +100,13 @@ class Segments(tuple):
                 return Segments(s, templated_file=self.templated_file)
         # If no segment satisfies "predicates", return empty Segments.
         return Segments(templated_file=self.templated_file)
+
+    def get(self, index: int = 0, *, default: Any = None) -> Optional[BaseSegment]:
+        """Return specified item. Returns default if index out of range."""
+        try:
+            return self[index]
+        except IndexError:
+            return default
 
     def apply(self, fn: Callable[[BaseSegment], Any]) -> List[Any]:
         """Apply function to every item."""

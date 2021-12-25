@@ -3,6 +3,7 @@
 from sqlfluff.core.rules.base import LintFix, LintResult
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 from sqlfluff.core.rules.functional import Segments
+import sqlfluff.core.rules.functional.segment_predicates as sp
 from sqlfluff.rules.L020 import Rule_L020
 from sqlfluff.core.dialects.common import AliasInfo
 
@@ -70,8 +71,7 @@ class Rule_L025(Rule_L020):
                     .select(
                         start_seg=alias.alias_expression,
                         # Stop once we reach an other, "regular" segment.
-                        loop_while=lambda seg: seg.name in ("whitespace", "newline")
-                        or seg.is_meta,
+                        loop_while=sp.or_(sp.is_whitespace(), sp.is_meta()),
                     )
                 )
                 fixes += [LintFix.delete(seg) for seg in to_delete]
