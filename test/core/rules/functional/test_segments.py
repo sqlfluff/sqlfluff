@@ -101,7 +101,7 @@ def test_segments_first_no_predicate():
 
 def test_segments_first_with_predicate():
     """Test the "first()" function with a predicate."""
-    assert segments.Segments(seg1, seg2).first(sp.is_meta()) is None
+    assert segments.Segments(seg1, seg2).first(sp.is_meta()) == segments.Segments()
 
 
 def test_segments_last():
