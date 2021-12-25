@@ -33,6 +33,13 @@ Implementation
 .. autoclass:: sqlfluff.core.rules.base.LintFix
    :members:
 
+The `_eval` function of each rule takes a `RuleContext` parameter. It
+evaluate the given segment for violations, returning a `LintResult` if it
+finds an error. The `LintResult` includes a reference to the segment which
+"triggered" the error. Usually, it is the segment that needs correcting, **or**
+if the rule relates to something that is missing, then it should reference on
+the segment **following** the location where the missing element should be.
+
 Functional API
 --------------
 These newer modules provide a higher-level API for rules working with segments
@@ -65,13 +72,32 @@ modules. At this time, the following rules use them:
 .. autoclass:: sqlfluff.core.rules.functional.raw_file_slice_predicates
    :members:
 
-The `_eval` function of each rule should take enough arguments that it can
-evaluate the position of the given segment in relation to its neighbors,
-and that the segment which finally "triggers" the error, should be the one
-that would be corrected OR if the rule relates to something that is missing,
-then it should flag on the segment FOLLOWING, the place that the desired
-element is missing.
+Pattern Matching Segments
+-------------------------
+Often, rules need to scan parts of the parse tree looking for issues.
+The functional API is helpful for "query" type operations, e.g. looking
+for segments that match (or don't match) various conditions.
 
+However, the functional API is not helpful when looking for sequences of
+segments. For example, rule `L041` looks for violations, i.e. occurrences of
+the following pattern:
+* `SELECT` keyword
+* (Possible other segments)
+* Newline
+* (Possible other segments)
+* Select modifier, e.g. `DISTINCT` keyword
+
+To match the above pattern, you could write a complicated Python `for` loop.
+Some rules now use a package called
+[`awesome-pattern-matching`](https://pypi.org/project/awesome-pattern-matching/),
+which provides a higher-level declarative way of searching the SQLFluff parse
+tree for violations. The concept is similar to regular expressions, but
+operating on segments rather than strings. (Note that Python 3.10 adds a
+similar pattern matching capability to the core Python language.)
+
+While thus far, SQLFluff rules have only used the package to search a _single_
+level of the parse tree at a time, it should in principle be possible to use it
+across levels (i.e. parents & children).
 
 Inline Ignoring Errors
 -----------------------
