@@ -1,5 +1,7 @@
 # Used for finding os-specific application config dirs
 appdirs
+# Used by some rules to find "trigger patterns" in the parse tree
+awesome-pattern-matching
 # Cached property for performance gains
 cached-property
 # To get the encoding of files.
