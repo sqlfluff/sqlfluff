@@ -293,33 +293,20 @@ class Rule_L036(BaseRule):
                         # select_clause (see #1424)
                         copy_with_newline = False
 
-                        # Again let's strip back the whitespace, bnut simpler
+                        # Again let's strip back the whitespace, but simpler
                         # as don't need to worry about new line so just break
                         # if see non-whitespace
-                        idx = 1
-                        start_idx = select_clause_idx - 1
-                        while start_idx - idx < len(select_children):
-                            # Delete any whitespace
-                            if select_children[start_idx - idx].is_type("whitespace"):
-                                fixes += [
-                                    LintFix.delete(
-                                        select_children[start_idx - idx],
-                                    ),
-                                ]
+                        to_delete = select_children.reversed().select(
+                            loop_while=sp.is_type("whitespace"),
+                            start_seg=select_children[select_clause_idx - 1],
+                        )
+                        fixes += [LintFix.delete(seg) for seg in to_delete]
 
-                            # Once we see a newline, then we're done
-                            if select_children[start_idx - idx].is_type("newline"):
-                                break
-
-                            # If we see anything other than whitespace,
-                            # then we're done, but in this case we want to
-                            # keep the final newline.
-                            if not select_children[start_idx - idx].is_type(
-                                "whitespace", "newline"
-                            ):
-                                copy_with_newline = True
-                                break
-                            idx += 1
+                        # If we stopped due to something other than a newline,
+                        # we want to keep the final newline.
+                        copy_with_newline = not select_children[
+                            select_clause_idx - len(to_delete) - 2
+                        ].is_type("newline")
 
             if copy_with_newline:
                 insert_buff = insert_buff + [NewlineSegment()]
