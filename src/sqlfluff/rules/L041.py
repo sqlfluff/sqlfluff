@@ -1,7 +1,7 @@
 """Implementation of Rule L041."""
 from typing import Optional
 
-from apm import match, Check, Some, Not
+from apm import match, Check, Some
 
 from sqlfluff.core.parser import NewlineSegment, WhitespaceSegment
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
@@ -37,22 +37,29 @@ class Rule_L041(BaseRule):
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Select clause modifiers must appear on same line as SELECT."""
         if context.segment.is_type("select_clause"):
-            # Analyze the select clause's children, looking for the following pattern:
-            # 1. SELECT keyword (required)
-            # 2. Newline (optional)
-            # 3. Select modifier, e.g. "DISTINCT" (optional)
+            # Use "awesome-pattern-matching" package to scan child segments for
+            # violations, i.e. occurrences of this pattern (other segments may
+            # appears between each of these):
+            # 1. SELECT keyword
+            # 2. Newline
+            # 3. Select modifier, e.g. "DISTINCT"
             matched = match(
                 context.segment.segments,
                 [
+                    # 1. SELECT keyword
                     Check(
                         sp.and_(
                             sp.is_type("keyword"),
                             lambda seg: seg.raw.lower() == "select",
                         )
                     ),
-                    Some(Not(Check(sp.is_type("newline"))), at_least=0),
+                    Some(Check(sp.not_(sp.is_type("newline"))), at_least=0),
+                    # 2. Newline
                     "newline" @ Check(sp.is_type("newline")),
-                    Some(Not(Check(sp.is_type("select_clause_modifier"))), at_least=0),
+                    Some(
+                        Check(sp.not_(sp.is_type("select_clause_modifier"))), at_least=0
+                    ),
+                    # 3. Select modifier, e.g. "DISTINCT"
                     "modifier" @ Check(sp.is_type("select_clause_modifier")),
                     Some(...),
                 ],
@@ -61,9 +68,9 @@ class Rule_L041(BaseRule):
                 return None
 
             # We found a pattern match, thus there's an issue.
-            newline_between = matched.groups()["newline"]
+            newline_between = matched["newline"]
             newline_idx = context.segment.segments.index(newline_between)
-            select_modifier = matched.groups()["modifier"]
+            select_modifier = matched["modifier"]
 
             # E.g.: " DISTINCT\n"
             replace_newline_with = [
