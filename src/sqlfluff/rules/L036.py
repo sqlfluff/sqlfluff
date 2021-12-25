@@ -246,44 +246,26 @@ class Rule_L036(BaseRule):
                 after_select_clause_idx = select_clause_idx + 1
                 if len(select_stmt.segments) > after_select_clause_idx:
                     if select_stmt.segments[after_select_clause_idx].is_type("newline"):
-                        # The select_clause is immediately followed by a
-                        # newline. Delete the newline in order to avoid leaving
-                        # behind an empty line after fix.
-                        delete_last_newline = True
-
-                        # Since, we're deleting the newline, we should also delete all
+                        # Since we're deleting the newline, we should also delete all
                         # whitespace before it or it will add random whitespace to
                         # following statements. So walk back through the segment
                         # deleting whitespace until you get the previous newline, or
                         # something else.
-                        idx = 1
-                        while start_idx - idx < len(select_children):
-                            # Delete any whitespace
-                            if select_children[start_idx - idx].is_type("whitespace"):
-                                fixes += [
-                                    LintFix.delete(
-                                        select_children[start_idx - idx],
-                                    ),
-                                ]
+                        to_delete = select_children.reversed().select(
+                            loop_while=sp.is_type("whitespace"),
+                            start_seg=select_children[start_idx],
+                        )
+                        fixes += [LintFix.delete(seg) for seg in to_delete]
 
-                            # Once we see a newline, then we're done
-                            if select_children[start_idx - idx].is_type(
-                                "newline",
-                            ):
-                                break
+                        # The select_clause is immediately followed by a
+                        # newline. Delete the newline in order to avoid leaving
+                        # behind an empty line after fix, *unless* we stopped
+                        # due to something other than a newline.
+                        delete_last_newline = select_children[
+                            start_idx - len(to_delete) - 1
+                        ].is_type("newline")
 
-                            # If we see anything other than whitespace,
-                            # then we're done, but in this case we want to
-                            # keep the final newline.
-                            if not select_children[start_idx - idx].is_type(
-                                "whitespace", "newline"
-                            ):
-                                delete_last_newline = False
-                                break
-
-                            idx += 1
-
-                        # Finally delete the newline, unless we've decided not to
+                        # Delete the newline if we decided to.
                         if delete_last_newline:
                             fixes.append(
                                 LintFix.delete(
