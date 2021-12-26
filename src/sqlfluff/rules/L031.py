@@ -109,7 +109,7 @@ class Rule_L031(BaseRule):
         for from_expression in from_expression_elements:
             table_expression = from_expression.get_child("table_expression")
             if not table_expression:
-                continue
+                continue  # pragma: no cover
             table_ref = table_expression.get_child("object_reference")
 
             # If the from_expression_element has no object_references - skip it
