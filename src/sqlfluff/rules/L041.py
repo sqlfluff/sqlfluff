@@ -1,4 +1,4 @@
-"""Implementation of Rule L040."""
+"""Implementation of Rule L041."""
 from typing import Optional
 
 from sqlfluff.core.parser import NewlineSegment, WhitespaceSegment
