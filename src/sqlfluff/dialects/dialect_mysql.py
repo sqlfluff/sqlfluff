@@ -73,6 +73,8 @@ mysql_dialect.sets("unreserved_keywords").update(
         "EXTENDED",
         "CHANGED",
         "UPGRADE",
+        "HISTOGRAM",
+        "BUCKETS",
     ]
 )
 mysql_dialect.sets("reserved_keywords").update(
@@ -475,6 +477,7 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref("HelpStatementSegment"),
             Ref("CheckTableStatementSegment"),
             Ref("ChecksumTableStatementSegment"),
+            Ref("AnalyzeTableStatementSegment"),
         ],
     )
 
@@ -1490,5 +1493,55 @@ class ChecksumTableStatementSegment(BaseSegment):
         OneOf(
             "QUICK",
             "EXTENDED",
+        ),
+    )
+
+
+@mysql_dialect.segment()
+class AnalyzeTableStatementSegment(BaseSegment):
+    """A `ANALYZE TABLE` statement.
+
+    https://dev.mysql.com/doc/refman/8.0/en/analyze-table.html
+    """
+
+    type = "analyze_table_statement"
+    match_grammar = Sequence(
+        "ANALYZE",
+        OneOf(
+            "NO_WRITE_TO_BINLOG",
+            "LOCAL",
+            optional=True,
+        ),
+        "TABLE",
+        OneOf(
+            Sequence(
+                Delimited(
+                    Ref("TableReferenceSegment"),
+                ),
+            ),
+            Sequence(
+                Ref("TableReferenceSegment"),
+                "UPDATE",
+                "HISTOGRAM",
+                "ON",
+                Delimited(
+                    Ref("ColumnReferenceSegment"),
+                ),
+                Sequence(
+                    "WITH",
+                    Ref("NumericLiteralSegment"),
+                    "BUCKETS",
+                    optional=True,
+                ),
+            ),
+            Sequence(
+                Ref("TableReferenceSegment"),
+                "DROP",
+                "HISTOGRAM",
+                "ON",
+                Delimited(
+                    Ref("ColumnReferenceSegment"),
+                ),
+            ),
         ),
     )
