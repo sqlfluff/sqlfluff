@@ -474,6 +474,7 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref("PurgeBinaryLogsStatementSegment"),
             Ref("HelpStatementSegment"),
             Ref("CheckTableStatementSegment"),
+            Ref("ChecksumTableStatementSegment"),
         ],
     )
 
@@ -1468,5 +1469,26 @@ class CheckTableStatementSegment(BaseSegment):
             "EXTENDED",
             "CHANGED",
             min_times=1,
+        ),
+    )
+
+
+@mysql_dialect.segment()
+class ChecksumTableStatementSegment(BaseSegment):
+    """A `CHECKSUM TABLE` statement.
+
+    https://dev.mysql.com/doc/refman/8.0/en/checksum-table.html
+    """
+
+    type = "checksum_table_statement"
+    match_grammar = Sequence(
+        "CHECKSUM",
+        "TABLE",
+        Delimited(
+            Ref("TableReferenceSegment"),
+        ),
+        OneOf(
+            "QUICK",
+            "EXTENDED",
         ),
     )
