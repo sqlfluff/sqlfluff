@@ -451,6 +451,7 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref("CursorOpenCloseSegment"),
             Ref("CursorFetchSegment"),
             Ref("AlterTableStatementSegment"),
+            Ref("RenameTableStatementSegment"),
             Ref("ResetMasterStatementSegment"),
             Ref("PurgeBinaryLogsStatementSegment"),
             Ref("HelpStatementSegment"),
@@ -1338,6 +1339,27 @@ class DropIndexStatementSegment(BaseSegment):
                 OneOf("DEFAULT", "NONE", "SHARED", "EXCLUSIVE"),
             ),
             optional=True,
+        ),
+    )
+
+
+@mysql_dialect.segment()
+class RenameTableStatementSegment(BaseSegment):
+    """A `RENAME TABLE` statement.
+
+    https://dev.mysql.com/doc/refman/8.0/en/rename-table.html
+    """
+
+    type = "rename_table_statement"
+    match_grammar = Sequence(
+        "RENAME",
+        "TABLE",
+        Delimited(
+            Sequence(
+                Ref("TableReferenceSegment"),
+                "TO",
+                Ref("TableReferenceSegment"),
+            ),
         ),
     )
 
