@@ -46,9 +46,20 @@ class Rule_L027(Rule_L020):
         # Check all the references that we have.
         for r in references:
             this_ref_type = r.qualification()
+            # Discard column aliases that
+            # refer to the current column reference.
+            col_alias_names = [
+                c.alias_identifier_name
+                for c in col_aliases
+                if r not in c.column_reference_segments
+            ]
             if (
                 this_ref_type == "unqualified"
-                and r.raw not in col_aliases
+                # Allow unqualified columns that
+                # are actually aliases defined
+                # in a different select clause element.
+                and r.raw not in col_alias_names
+                # Allow columns defined in a USING expression.
                 and r.raw not in using_cols
             ):
                 violation_buff.append(
