@@ -3109,7 +3109,7 @@ class DiscardStatementSegment(BaseSegment):
         ),
     )
 
-          
+
 class ListenStatementSegment(BaseSegment):
     """A `LISTEN` statement.
 
@@ -3137,7 +3137,7 @@ class NotifyStatementSegment(BaseSegment):
             optional=True,
         ),
     )
-    
+
 
 @postgres_dialect.segment()
 class UnlistenStatementSegment(BaseSegment):
