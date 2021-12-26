@@ -3374,7 +3374,6 @@ class UndropStatementSegment(BaseSegment):
         ),
     )
     
-    
 @snowflake_dialect.segment()
 class CommentStatementSegment(BaseSegment):
     """`COMMENT` statement grammar.
