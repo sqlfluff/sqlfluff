@@ -4,6 +4,9 @@ alter user admin with createdb;
 alter user admin nocreatedb;
 alter user admin with nocreatedb;
 
+alter user "dbuser" reset var;
+alter user "dbuser" with reset var;
+
 alter user admin createuser;
 alter user admin with createuser;
 
