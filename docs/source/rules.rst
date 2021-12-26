@@ -59,6 +59,7 @@ modules. At this time, the following rules use them:
 * `L036`
 * `L038`
 * `L042`
+* `L043`
 * `L050`
 
 .. autoclass:: sqlfluff.core.rules.functional.segments
