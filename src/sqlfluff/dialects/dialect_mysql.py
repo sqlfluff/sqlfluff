@@ -1503,7 +1503,7 @@ class ChecksumTableStatementSegment(BaseSegment):
 
 @mysql_dialect.segment()
 class AnalyzeTableStatementSegment(BaseSegment):
-    """A `ANALYZE TABLE` statement.
+    """An `ANALYZE TABLE` statement.
 
     https://dev.mysql.com/doc/refman/8.0/en/analyze-table.html
     """
