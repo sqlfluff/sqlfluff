@@ -3518,8 +3518,8 @@ class CommentStatementSegment(BaseSegment):
         "IS",
         Ref("QuotedLiteralSegment"),
     )
-   
-  
+
+
 @snowflake_dialect.segment()
 class UseStatementSegment(BaseSegment):
     """A `USE` statement.
@@ -3550,4 +3550,4 @@ class UseStatementSegment(BaseSegment):
                 ),
             ),
         ),
-    )     
+    )
