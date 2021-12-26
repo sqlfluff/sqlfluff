@@ -99,6 +99,7 @@ mysql_dialect.sets("reserved_keywords").update(
         "NONE",
         "SHARED",
         "EXCLUSIVE",
+        "MASTER",
     ]
 )
 
@@ -133,6 +134,22 @@ mysql_dialect.replace(
             Ref("SessionVariableNameSegment"),
             Ref("LocalVariableNameSegment"),
         ]
+    ),
+    DateTimeLiteralGrammar=Sequence(
+        # MySQL does not require the keyword to be specified:
+        # https://dev.mysql.com/doc/refman/8.0/en/date-and-time-literals.html
+        OneOf(
+            "DATE",
+            "TIME",
+            "TIMESTAMP",
+            "DATETIME",
+            "INTERVAL",
+            optional=True,
+        ),
+        OneOf(
+            Ref("QuotedLiteralSegment"),
+            Ref("NumericLiteralSegment"),
+        ),
     ),
 )
 
@@ -434,6 +451,7 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref("CursorOpenCloseSegment"),
             Ref("CursorFetchSegment"),
             Ref("AlterTableStatementSegment"),
+            Ref("PurgeBinaryLogsStatementSegment"),
             Ref("HelpStatementSegment"),
         ],
     )
@@ -1319,6 +1337,36 @@ class DropIndexStatementSegment(BaseSegment):
                 OneOf("DEFAULT", "NONE", "SHARED", "EXCLUSIVE"),
             ),
             optional=True,
+        ),
+    )
+
+
+@mysql_dialect.segment()
+class PurgeBinaryLogsStatementSegment(BaseSegment):
+    """A `PURGE BINARY LOGS` statement.
+
+    https://dev.mysql.com/doc/refman/8.0/en/purge-binary-logs.html
+    """
+
+    type = "purge_binary_logs_statement"
+    match_grammar = Sequence(
+        "PURGE",
+        OneOf(
+            "BINARY",
+            "MASTER",
+        ),
+        "LOGS",
+        OneOf(
+            Sequence(
+                "TO",
+                Ref("QuotedLiteralSegment"),
+            ),
+            Sequence(
+                "BEFORE",
+                OneOf(
+                    Ref("DateTimeLiteralGrammar"),
+                ),
+            ),
         ),
     )
 
