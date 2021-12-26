@@ -2764,6 +2764,9 @@ class StatementSegment(BaseSegment):
             Ref("DropDatabaseStatementSegment"),
             Ref("AlterFunctionStatementSegment"),
             Ref("AlterViewStatementSegment"),
+            Ref("LoadStatementSegment"),
+            Ref("ResetStatementSegment"),
+            Ref("DiscardStatementSegment"),
         ],
     )
 
@@ -3053,4 +3056,52 @@ class DropPolicyStatementSegment(BaseSegment):
         "ON",
         Ref("TableReferenceSegment"),
         OneOf("CASCADE", "RESTRICT", optional=True),
+    )
+
+
+@postgres_dialect.segment()
+class LoadStatementSegment(BaseSegment):
+    """A `LOAD` statement.
+
+    As Specified in https://www.postgresql.org/docs/14/sql-load.html
+    """
+
+    type = "load_statement"
+    match_grammar = Sequence(
+        "LOAD",
+        Ref("QuotedLiteralSegment"),
+    )
+
+
+@postgres_dialect.segment()
+class ResetStatementSegment(BaseSegment):
+    """A `RESET` statement.
+
+    As Specified in https://www.postgresql.org/docs/14/sql-reset.html
+    """
+
+    type = "reset_statement"
+    match_grammar = Sequence(
+        "RESET",
+        OneOf("ALL", Ref("ParameterNameSegment")),
+    )
+
+
+@postgres_dialect.segment()
+class DiscardStatementSegment(BaseSegment):
+    """A `DISCARD` statement.
+
+    As Specified in https://www.postgresql.org/docs/14/sql-discard.html
+    """
+
+    type = "discard_statement"
+    match_grammar = Sequence(
+        "DISCARD",
+        OneOf(
+            "ALL",
+            "PLANS",
+            "SEQUENCES",
+            "TEMPORARY",
+            "TEMP",
+        ),
     )
