@@ -1,0 +1,62 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 6201c9745bafb2ee8470431a9479f32f3625cbed8dff6e19e22558f9a5326e55
+file:
+- statement:
+    optimize_table_statement:
+    - keyword: OPTIMIZE
+    - keyword: TABLE
+    - table_reference:
+        identifier: some_table
+- statement_terminator: ;
+- statement:
+    optimize_table_statement:
+    - keyword: OPTIMIZE
+    - keyword: TABLE
+    - table_reference:
+        identifier: some_table1
+    - comma: ','
+    - table_reference:
+        identifier: some_table2
+- statement_terminator: ;
+- statement:
+    optimize_table_statement:
+    - keyword: OPTIMIZE
+    - keyword: NO_WRITE_TO_BINLOG
+    - keyword: TABLE
+    - table_reference:
+        identifier: some_table
+- statement_terminator: ;
+- statement:
+    optimize_table_statement:
+    - keyword: OPTIMIZE
+    - keyword: NO_WRITE_TO_BINLOG
+    - keyword: TABLE
+    - table_reference:
+        identifier: some_table1
+    - comma: ','
+    - table_reference:
+        identifier: some_table2
+- statement_terminator: ;
+- statement:
+    optimize_table_statement:
+    - keyword: OPTIMIZE
+    - keyword: LOCAL
+    - keyword: TABLE
+    - table_reference:
+        identifier: some_table
+- statement_terminator: ;
+- statement:
+    optimize_table_statement:
+    - keyword: OPTIMIZE
+    - keyword: LOCAL
+    - keyword: TABLE
+    - table_reference:
+        identifier: some_table1
+    - comma: ','
+    - table_reference:
+        identifier: some_table2
+- statement_terminator: ;
