@@ -3,7 +3,7 @@ from typing import Optional
 
 from sqlfluff.core.rules.base import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import document_configuration
-import sqlfluff.core.rules.functional.segment_predicates as sp
+from sqlfluff.core.rules.functional.segment_predicates import is_type
 
 
 @document_configuration
@@ -61,17 +61,13 @@ class Rule_L042(BaseRule):
         for parent_type in parent_types:
             if context.segment.is_type(parent_type):
                 # Get the referenced table segment
-                from_expression_element = (
-                    context.functional.segment.children(
-                        sp.is_type("from_expression_element")
-                    )
-                    .first()
-                    .children(sp.is_type("table_expression"))
-                )
+                from_expression_element = context.functional.segment.children(
+                    is_type("from_expression_element")
+                ).children(is_type("table_expression"))
 
                 # Is it bracketed? If so, lint that instead.
-                bracketed_expression = from_expression_element.first().children(
-                    sp.is_type("bracketed")
+                bracketed_expression = from_expression_element.children(
+                    is_type("bracketed")
                 )
                 if bracketed_expression:
                     from_expression_element = bracketed_expression
@@ -79,7 +75,7 @@ class Rule_L042(BaseRule):
                 # If we find a child with a "problem" type, raise an issue.
                 # If not, we're fine.
                 seg = from_expression_element.children(
-                    sp.is_type(
+                    is_type(
                         "with_compound_statement",
                         "set_expression",
                         "select_statement",
