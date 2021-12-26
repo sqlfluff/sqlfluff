@@ -141,7 +141,9 @@ class Rule_L052(BaseRule):
             # We can tidy up any whitespace between the semi-colon
             # and the preceding code/comment segment.
             # Don't mess with comment spacing/placement.
-            whitespace_deletions = pre_semicolon_segments.select(sp.is_whitespace())
+            whitespace_deletions = pre_semicolon_segments.select(
+                loop_while=sp.is_whitespace()
+            )
 
             semicolon_newline = self.multiline_newline if not is_one_line else False
 
