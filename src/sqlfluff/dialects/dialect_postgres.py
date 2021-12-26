@@ -3110,6 +3110,7 @@ class DiscardStatementSegment(BaseSegment):
     )
 
 
+@postgres_dialect.segment()
 class ListenStatementSegment(BaseSegment):
     """A `LISTEN` statement.
 
