@@ -3095,24 +3095,12 @@ class DescribeStatementSegment(BaseSegment):
 
 @ansi_dialect.segment()
 class UseStatementSegment(BaseSegment):
-    """A `USE` statement.
-
-    USE [ ROLE ] <name>
-
-    USE [ WAREHOUSE ] <name>
-
-    USE [ DATABASE ] <name>
-
-    USE [ SCHEMA ] [<db_name>.]<name>
-    """
+    """A `USE` statement."""
 
     type = "use_statement"
-    match_grammar = StartsWith("USE")
-
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "USE",
-        OneOf("ROLE", "WAREHOUSE", "DATABASE", "SCHEMA", optional=True),
-        Ref("ObjectReferenceSegment"),
+        Ref("DatabaseReferenceSegment"),
     )
 
 
