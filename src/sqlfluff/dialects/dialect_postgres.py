@@ -3079,9 +3079,9 @@ class TruncateStatementSegment(BaseSegment):
                 ),
             ),
         ),
-        OneOf(
-            Sequence("RESTART", "IDENTITY"),
-            Sequence("CONTINUE", "IDENTITY"),
+        Sequence(
+            OneOf("RESTART", "CONTINUE"),
+            "IDENTITY",
             optional=True,
         ),
         OneOf(
