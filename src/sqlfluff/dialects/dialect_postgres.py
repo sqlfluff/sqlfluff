@@ -3105,3 +3105,39 @@ class DiscardStatementSegment(BaseSegment):
             "TEMP",
         ),
     )
+
+
+@postgres_dialect.segment(replace=True)
+class TruncateStatementSegment(BaseSegment):
+    """`TRUNCATE TABLE` statement.
+
+    https://www.postgresql.org/docs/14/sql-truncate.html
+    """
+
+    type = "truncate_table"
+    match_grammar = Sequence(
+        "TRUNCATE",
+        Ref.keyword("TABLE", optional=True),
+        Delimited(
+            OneOf(
+                Sequence(
+                    Ref.keyword("ONLY", optional=True),
+                    Ref("TableReferenceSegment"),
+                ),
+                Sequence(
+                    Ref("TableReferenceSegment"),
+                    Ref("StarSegment", optional=True),
+                ),
+            ),
+        ),
+        Sequence(
+            OneOf("RESTART", "CONTINUE"),
+            "IDENTITY",
+            optional=True,
+        ),
+        OneOf(
+            "CASCADE",
+            "RESTRICT",
+            optional=True,
+        ),
+    )
