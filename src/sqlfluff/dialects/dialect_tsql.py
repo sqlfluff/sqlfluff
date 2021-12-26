@@ -340,7 +340,7 @@ class LessThanOrEqualToSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment(replace=True)
+@tsql_dialect.segment(replace=True)
 class NotEqualToSegment(BaseSegment):
     """Not equal to operator.
 

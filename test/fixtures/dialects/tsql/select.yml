@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7fbfeb00976382ed36dfa5b20bab352ec3535ab63b9b29d3bfa8619f5d1fb1e2
+_hash: 7cc36d6c2b93ac748d22c4c368c6199409a9c501d47e8876eab5f9b652cf38ef
 file:
   batch:
     statement:
@@ -92,6 +92,16 @@ file:
               - expression:
                 - literal: '1'
                 - comparison_operator:
+                  - comparison_operator: <
+                  - comparison_operator: '>'
+                - literal: '1'
+              - keyword: THEN
+              - expression:
+                  literal: "'False'"
+              - keyword: WHEN
+              - expression:
+                - literal: '1'
+                - comparison_operator:
                   - comparison_operator: '!'
                   - comparison_operator: <
                 - literal: '1'
@@ -118,6 +128,26 @@ file:
               - keyword: THEN
               - expression:
                   literal: "'False'"
+              - keyword: WHEN
+              - expression:
+                - literal: '1'
+                - comparison_operator:
+                  - comparison_operator: '!'
+                  - comparison_operator: '='
+                - literal: '1'
+              - keyword: THEN
+              - expression:
+                  literal: "'False'"
+              - keyword: WHEN
+              - expression:
+                - literal: '1'
+                - comparison_operator:
+                  - comparison_operator: '!'
+                  - comparison_operator: '>'
+                - literal: '1'
+              - keyword: THEN
+              - expression:
+                  literal: "'NULL Handling, Probably'"
               - keyword: WHEN
               - expression:
                 - literal: '1'
