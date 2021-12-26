@@ -561,6 +561,7 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref("AlterFunctionStatementSegment"),
             Ref("CreateStageSegment"),
             Ref("AlterStageSegment"),
+            Ref("UnsetStatementSegment"),
             Ref("UndropStatementSegment"),
             Ref("CommentStatementSegment"),
         ],
@@ -3341,6 +3342,28 @@ class DescribeStatementSegment(BaseSegment):
                         optional=True,
                     ),
                 ),
+            ),
+        ),
+    )
+
+
+@snowflake_dialect.segment()
+class UnsetStatementSegment(BaseSegment):
+    """An `UNSET` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/unset.html
+    """
+
+    type = "unset_statement"
+
+    match_grammar = Sequence(
+        "UNSET",
+        OneOf(
+            Ref("LocalVariableNameSegment"),
+            Bracketed(
+                Delimited(
+                    Ref("LocalVariableNameSegment"),
+                )
             ),
         ),
     )
