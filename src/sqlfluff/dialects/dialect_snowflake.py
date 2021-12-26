@@ -3552,8 +3552,8 @@ class UseStatementSegment(BaseSegment):
             ),
         ),
     )
-    
-    
+
+
 @snowflake_dialect.segment()
 class CallStatementSegment(BaseSegment):
     """`CALL` statement.
