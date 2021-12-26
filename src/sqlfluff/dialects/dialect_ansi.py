@@ -624,6 +624,7 @@ class ObjectReferenceSegment(BaseSegment):
             Ref("BinaryOperatorGrammar"),
             Ref("ColonSegment"),
             Ref("DelimiterSegment"),
+            Ref("JoinLikeClauseGrammar"),
             BracketedSegment,
         ),
         allow_gaps=False,
