@@ -96,7 +96,9 @@ class Rule_L036(BaseRule):
 
         siblings_post = context.functional.siblings_post
         from_segment = siblings_post.first(sp.is_type("from_clause")).first().get()
-        pre_from_whitespace = siblings_post.select(stop_seg=from_segment)
+        pre_from_whitespace = siblings_post.select(
+            sp.is_type("whitespace"), stop_seg=from_segment
+        )
         return SelectTargetsInfo(
             select_idx,
             first_new_line_idx,
