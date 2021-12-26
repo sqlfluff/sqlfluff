@@ -334,6 +334,14 @@ mysql_dialect.add(
         name="declared_variable",
         type="variable",
     ),
+    BooleanDynamicSystemVariablesGrammar=OneOf(
+        # Boolean dynamic system varaiables can be set to ON/OFF, TRUE/FALSE, or 0/1:
+        # https://dev.mysql.com/doc/refman/8.0/en/dynamic-system-variables.html
+        # This allows us to match ON/OFF & TRUE/FALSE as keywords and therefore apply
+        # the correct capitalisation policy.
+        OneOf("ON", "OFF"),
+        OneOf("TRUE", "FALSE"),
+    ),
 )
 
 mysql_dialect.replace(
@@ -661,6 +669,8 @@ class SetAssignmentStatementSegment(BaseSegment):
             Ref("QuotedLiteralSegment"),
             Ref("DoubleQuotedLiteralSegment"),
             Ref("SessionVariableNameSegment"),
+            # Match boolean keywords before local variables.
+            Ref("BooleanDynamicSystemVariablesGrammar"),
             Ref("LocalVariableNameSegment"),
             Ref("FunctionSegment"),
             Ref("ArithmeticBinaryOperatorGrammar"),
