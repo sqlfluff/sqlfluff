@@ -3063,7 +3063,7 @@ class DropPolicyStatementSegment(BaseSegment):
 class ListenStatementSegment(BaseSegment):
     """A `LISTEN` statement.
 
-    As Specified in https://www.postgresql.org/docs/current/sql-listen.html
+    As Specified in https://www.postgresql.org/docs/14/sql-listen.html
     """
 
     type = "listen_statement"
@@ -3074,7 +3074,7 @@ class ListenStatementSegment(BaseSegment):
 class NotifyStatementSegment(BaseSegment):
     """A `NOTIFY` statement.
 
-    As Specified in https://www.postgresql.org/docs/current/sql-notify.html
+    As Specified in https://www.postgresql.org/docs/14/sql-notify.html
     """
 
     type = "notify_statement"
@@ -3093,7 +3093,7 @@ class NotifyStatementSegment(BaseSegment):
 class UnlistenStatementSegment(BaseSegment):
     """A `UNLISTEN` statement.
 
-    As Specified in https://www.postgresql.org/docs/current/sql-unlisten.html
+    As Specified in https://www.postgresql.org/docs/14/sql-unlisten.html
     """
 
     type = "unlisten_statement"
