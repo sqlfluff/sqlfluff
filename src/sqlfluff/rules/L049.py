@@ -49,11 +49,8 @@ class Rule_L049(Rule_L006):
             return LintResult()
 
         children = context.functional.segment.children()
-        filtered_children = children.select(
-            sp.and_(sp.not_(sp.is_whitespace()), sp.is_code())
-        )
         matched = match(
-            filtered_children,
+            children,
             [
                 Some(Check(sp.not_(sp.is_name("equals", "not_equal_to"))), at_least=0),
                 # "=" or "<>"
