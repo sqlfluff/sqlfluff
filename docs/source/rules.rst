@@ -102,6 +102,8 @@ While thus far, SQLFluff rules have only used the package to search a _single_
 level of the parse tree at a time, it should in principle be possible to use it
 across levels (i.e. parents & children).
 
+NOTE: Rule `L049` also uses pattern matching.
+
 Inline Ignoring Errors
 -----------------------
 `SQLFluff` features inline error ignoring. For example, the following will
