@@ -3095,7 +3095,7 @@ class DescribeStatementSegment(BaseSegment):
 
 @ansi_dialect.segment()
 class UseStatementSegment(BaseSegment):
-    """An `USE` statement."""
+    """A `USE` statement."""
 
     type = "use_statement"
     match_grammar = Sequence(
