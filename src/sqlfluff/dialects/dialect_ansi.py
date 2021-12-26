@@ -16,7 +16,7 @@ from enum import Enum
 from typing import Generator, List, NamedTuple, Optional, Tuple, Union
 
 from sqlfluff.core.dialects.base import Dialect
-from sqlfluff.core.dialects.common import AliasInfo
+from sqlfluff.core.dialects.common import AliasInfo, ColumnAliasInfo
 from sqlfluff.core.parser import (
     AnyNumberOf,
     Anything,
@@ -624,6 +624,7 @@ class ObjectReferenceSegment(BaseSegment):
             Ref("BinaryOperatorGrammar"),
             Ref("ColonSegment"),
             Ref("DelimiterSegment"),
+            Ref("JoinLikeClauseGrammar"),
             BracketedSegment,
         ),
         allow_gaps=False,
@@ -1238,6 +1239,39 @@ class SelectClauseElementSegment(BaseSegment):
             Ref("AliasExpressionSegment", optional=True),
         ),
     )
+
+    def get_alias(self) -> Optional[ColumnAliasInfo]:
+        """Get info on alias within SELECT clause element."""
+        alias_expression_segment = next(self.recursive_crawl("alias_expression"), None)
+        if alias_expression_segment is None:
+            # Return None if no alias expression is found.
+            return None
+
+        alias_identifier_segment = next(
+            s for s in alias_expression_segment.segments if s.is_type("identifier")
+        )
+
+        # Get segment being aliased.
+        aliased_segment = next(
+            s
+            for s in self.segments
+            if not s.is_whitespace and not s.is_meta and s != alias_expression_segment
+        )
+
+        # Find all the columns being aliased.
+        column_reference_segments = []
+        if aliased_segment.is_type("column_reference"):
+            column_reference_segments.append(aliased_segment)
+        else:
+            column_reference_segments.extend(
+                aliased_segment.recursive_crawl("column_reference")
+            )
+
+        return ColumnAliasInfo(
+            alias_identifier_name=alias_identifier_segment.raw,
+            aliased_segment=aliased_segment,
+            column_reference_segments=column_reference_segments,
+        )
 
 
 @ansi_dialect.segment()
@@ -3095,24 +3129,12 @@ class DescribeStatementSegment(BaseSegment):
 
 @ansi_dialect.segment()
 class UseStatementSegment(BaseSegment):
-    """A `USE` statement.
-
-    USE [ ROLE ] <name>
-
-    USE [ WAREHOUSE ] <name>
-
-    USE [ DATABASE ] <name>
-
-    USE [ SCHEMA ] [<db_name>.]<name>
-    """
+    """A `USE` statement."""
 
     type = "use_statement"
-    match_grammar = StartsWith("USE")
-
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "USE",
-        OneOf("ROLE", "WAREHOUSE", "DATABASE", "SCHEMA", optional=True),
-        Ref("ObjectReferenceSegment"),
+        Ref("DatabaseReferenceSegment"),
     )
 
 

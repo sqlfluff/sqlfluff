@@ -67,6 +67,7 @@ mysql_dialect.sets("unreserved_keywords").difference_update(
 )
 mysql_dialect.sets("reserved_keywords").update(
     [
+        "HELP",
         "FORCE",
         "IGNORE",
         "USE",
@@ -98,6 +99,7 @@ mysql_dialect.sets("reserved_keywords").update(
         "NONE",
         "SHARED",
         "EXCLUSIVE",
+        "MASTER",
     ]
 )
 
@@ -132,6 +134,22 @@ mysql_dialect.replace(
             Ref("SessionVariableNameSegment"),
             Ref("LocalVariableNameSegment"),
         ]
+    ),
+    DateTimeLiteralGrammar=Sequence(
+        # MySQL does not require the keyword to be specified:
+        # https://dev.mysql.com/doc/refman/8.0/en/date-and-time-literals.html
+        OneOf(
+            "DATE",
+            "TIME",
+            "TIMESTAMP",
+            "DATETIME",
+            "INTERVAL",
+            optional=True,
+        ),
+        OneOf(
+            Ref("QuotedLiteralSegment"),
+            Ref("NumericLiteralSegment"),
+        ),
     ),
 )
 
@@ -316,6 +334,14 @@ mysql_dialect.add(
         name="declared_variable",
         type="variable",
     ),
+    BooleanDynamicSystemVariablesGrammar=OneOf(
+        # Boolean dynamic system varaiables can be set to ON/OFF, TRUE/FALSE, or 0/1:
+        # https://dev.mysql.com/doc/refman/8.0/en/dynamic-system-variables.html
+        # This allows us to match ON/OFF & TRUE/FALSE as keywords and therefore apply
+        # the correct capitalisation policy.
+        OneOf("ON", "OFF"),
+        OneOf("TRUE", "FALSE"),
+    ),
 )
 
 mysql_dialect.replace(
@@ -433,6 +459,10 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref("CursorOpenCloseSegment"),
             Ref("CursorFetchSegment"),
             Ref("AlterTableStatementSegment"),
+            Ref("RenameTableStatementSegment"),
+            Ref("ResetMasterStatementSegment"),
+            Ref("PurgeBinaryLogsStatementSegment"),
+            Ref("HelpStatementSegment"),
         ],
     )
 
@@ -639,6 +669,8 @@ class SetAssignmentStatementSegment(BaseSegment):
             Ref("QuotedLiteralSegment"),
             Ref("DoubleQuotedLiteralSegment"),
             Ref("SessionVariableNameSegment"),
+            # Match boolean keywords before local variables.
+            Ref("BooleanDynamicSystemVariablesGrammar"),
             Ref("LocalVariableNameSegment"),
             Ref("FunctionSegment"),
             Ref("ArithmeticBinaryOperatorGrammar"),
@@ -866,6 +898,8 @@ class SelectClauseElementSegment(BaseSegment):
     parse_grammar = ansi_dialect.get_segment(
         "SelectClauseElementSegment"
     ).parse_grammar.copy()
+
+    get_alias = ansi_dialect.get_segment("SelectClauseElementSegment").get_alias
 
 
 @mysql_dialect.segment(replace=True)
@@ -1318,4 +1352,84 @@ class DropIndexStatementSegment(BaseSegment):
             ),
             optional=True,
         ),
+    )
+
+
+@mysql_dialect.segment()
+class RenameTableStatementSegment(BaseSegment):
+    """A `RENAME TABLE` statement.
+
+    https://dev.mysql.com/doc/refman/8.0/en/rename-table.html
+    """
+
+    type = "rename_table_statement"
+    match_grammar = Sequence(
+        "RENAME",
+        "TABLE",
+        Delimited(
+            Sequence(
+                Ref("TableReferenceSegment"),
+                "TO",
+                Ref("TableReferenceSegment"),
+            ),
+        ),
+    )
+
+
+@mysql_dialect.segment()
+class ResetMasterStatementSegment(BaseSegment):
+    """A `RESET MASTER` statement.
+
+    https://dev.mysql.com/doc/refman/8.0/en/reset-master.html
+    """
+
+    type = "reset_master_statement"
+    match_grammar = Sequence(
+        "RESET",
+        "MASTER",
+        Sequence("TO", Ref("NumericLiteralSegment"), optional=True),
+    )
+
+
+@mysql_dialect.segment()
+class PurgeBinaryLogsStatementSegment(BaseSegment):
+    """A `PURGE BINARY LOGS` statement.
+
+    https://dev.mysql.com/doc/refman/8.0/en/purge-binary-logs.html
+    """
+
+    type = "purge_binary_logs_statement"
+    match_grammar = Sequence(
+        "PURGE",
+        OneOf(
+            "BINARY",
+            "MASTER",
+        ),
+        "LOGS",
+        OneOf(
+            Sequence(
+                "TO",
+                Ref("QuotedLiteralSegment"),
+            ),
+            Sequence(
+                "BEFORE",
+                OneOf(
+                    Ref("DateTimeLiteralGrammar"),
+                ),
+            ),
+        ),
+    )
+
+
+@mysql_dialect.segment()
+class HelpStatementSegment(BaseSegment):
+    """A `HELP` statement.
+
+    https://dev.mysql.com/doc/refman/8.0/en/help.html
+    """
+
+    type = "help_statement"
+    match_grammar = Sequence(
+        "HELP",
+        Ref("QuotedLiteralSegment"),
     )
