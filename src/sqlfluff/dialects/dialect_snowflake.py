@@ -562,6 +562,7 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref("CreateStageSegment"),
             Ref("AlterStageSegment"),
             Ref("UndropStatementSegment"),
+            Ref("CommentStatementSegment"),
         ],
         remove=[
             Ref("CreateTypeStatementSegment"),
@@ -3371,4 +3372,84 @@ class UndropStatementSegment(BaseSegment):
                 Ref("TableReferenceSegment"),
             ),
         ),
+    )
+    
+    
+@snowflake_dialect.segment()
+class CommentStatementSegment(BaseSegment):
+    """`COMMENT` statement grammar.
+
+    https://docs.snowflake.com/en/sql-reference/sql/comment.html
+
+    N.B. this applies to all objects, so there may be some I've missed
+    here so add any others to the OneOf grammar below.
+    """
+
+    type = "comment_statement"
+    match_grammar = Sequence(
+        "COMMENT",
+        Sequence(
+            "IF",
+            "EXISTS",
+            optional=True,
+        ),
+        "ON",
+        OneOf(
+            "COLUMN",
+            "TABLE",
+            "VIEW",
+            "SCHEMA",
+            "DATABASE",
+            "WAREHOUSE",
+            "USER",
+            "STAGE",
+            "FUNCTION",
+            "PROCEDURE",
+            "SEQUENCE",
+            "SHARE",
+            "PIPE",
+            "STREAM",
+            "TASK",
+            Sequence(
+                "NETWORK",
+                "POLICY",
+            ),
+            Sequence(
+                OneOf(
+                    "API",
+                    "NOTIFICATION",
+                    "SECURITY",
+                    "STORAGE",
+                ),
+                "INTEGRATION",
+            ),
+            Sequence(
+                "SESSION",
+                "POLICY",
+            ),
+            Sequence(
+                "EXTERNAL",
+                "TABLE",
+            ),
+            Sequence(
+                "MATERIALIZED",
+                "VIEW",
+            ),
+            Sequence(
+                "MASKING",
+                "POLICY",
+            ),
+            Sequence(
+                "ROW",
+                "ACCESS",
+                "POLICY",
+            ),
+            Sequence(
+                "FILE",
+                "FORMAT",
+            ),
+        ),
+        Ref("ObjectReferenceSegment"),
+        "IS",
+        Ref("QuotedLiteralSegment"),
     )

@@ -486,13 +486,13 @@ class AlterGroupSegment(BaseSegment):
                 OneOf("ADD", "DROP"),
                 "USER",
                 Delimited(
-                    Ref("NakedIdentifierSegment"),
+                    Ref("ObjectReferenceSegment"),
                 ),
             ),
             Sequence(
                 "RENAME",
                 "TO",
-                Ref("NakedIdentifierSegment"),
+                Ref("ObjectReferenceSegment"),
             ),
         ),
     )
