@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: de67dcb5cd23d7c8524cc667ed0664a6ef68b72b59ea3652ae02b968da8bcb3b
+_hash: 4ddb653799309c48e0019733ae5c60a22c48494490d7886329a36bf453eb70f5
 file:
 - statement:
     call_segment:
@@ -38,5 +38,15 @@ file:
           start_bracket: (
           expression:
             variable: $Variable1
+          end_bracket: )
+- statement_terminator: ;
+- statement:
+    call_segment:
+      keyword: CALL
+      function:
+        function_name:
+          function_name_identifier: sv_proc3
+        bracketed:
+          start_bracket: (
           end_bracket: )
 - statement_terminator: ;
