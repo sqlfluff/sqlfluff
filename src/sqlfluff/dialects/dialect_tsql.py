@@ -40,7 +40,6 @@ from sqlfluff.core.parser.segments.raw import NewlineSegment, WhitespaceSegment
 ansi_dialect = load_raw_dialect("ansi")
 tsql_dialect = ansi_dialect.copy_as("tsql")
 
-# Should really clear down the old keywords but some are needed by certain segments
 tsql_dialect.sets("reserved_keywords").clear()
 tsql_dialect.sets("unreserved_keywords").clear()
 tsql_dialect.sets("reserved_keywords").update(RESERVED_KEYWORDS)
@@ -168,6 +167,14 @@ tsql_dialect.replace(
             type="identifier",
             anti_template=r"^(" + r"|".join(dialect.sets("reserved_keywords")) + r")$",
         )
+    ),
+    # Overring ANSI BaseExpressionElement to remove Interval Expression Segment
+    BaseExpressionElementGrammar=OneOf(
+        Ref("LiteralGrammar"),
+        Ref("BareFunctionSegment"),
+        Ref("FunctionSegment"),
+        Ref("ColumnReferenceSegment"),
+        Ref("ExpressionSegment"),
     ),
     ComparisonOperatorGrammar=OneOf(
         Ref("EqualsSegment"),
@@ -350,7 +357,6 @@ tsql_dialect.replace(
             # Allow potential select statement without brackets
             Ref("SelectStatementSegment"),
             Ref("LiteralGrammar"),
-            Ref("IntervalExpressionSegment"),
             Ref("ColumnReferenceSegment"),
             Sequence(
                 Ref("SimpleArrayTypeGrammar", optional=True), Ref("ArrayLiteralSegment")
@@ -387,6 +393,12 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref("MergeStatementSegment"),
             Ref("ThrowStatementSegment"),
             Ref("ReturnStatementSegment"),
+        ],
+        remove=[
+            Ref("CreateExtensionStatementSegment"),
+            Ref("CreateModelStatementSegment"),
+            Ref("DropModelStatementSegment"),
+            Ref("DescribeStatementSegment"),
         ],
     )
 
@@ -1269,7 +1281,6 @@ class ColumnConstraintSegment(BaseSegment):
                     OneOf(
                         OptionallyBracketed(Ref("LiteralGrammar")),  # ((-1))
                         Ref("FunctionSegment"),
-                        # ?? Ref('IntervalExpressionSegment')
                         Ref("NextValueSequenceSegment"),
                     ),
                 ),
@@ -1292,7 +1303,6 @@ class ColumnConstraintSegment(BaseSegment):
             Ref("ForeignKeyGrammar"),
             Ref("ReferencesConstraintGrammar"),
             Ref("CheckConstraintGrammar"),
-            Ref("CommentClauseSegment"),
             Ref("FilestreamOnOptionSegment", optional=True),
             # column_index
             Sequence(
@@ -1610,83 +1620,6 @@ class CreateViewStatementSegment(BaseSegment):
 
 
 @tsql_dialect.segment(replace=True)
-class IntervalExpressionSegment(BaseSegment):
-    """An interval expression segment.
-
-    Not present in T-SQL.
-    """
-
-    type = "interval_expression"
-    match_grammar = Nothing()
-
-
-@tsql_dialect.segment(replace=True)
-class CreateExtensionStatementSegment(BaseSegment):
-    """A `CREATE EXTENSION` statement.
-
-    Not present in T-SQL.
-    """
-
-    type = "create_extension_statement"
-    match_grammar = Nothing()
-
-
-@tsql_dialect.segment(replace=True)
-class CreateModelStatementSegment(BaseSegment):
-    """A BigQuery `CREATE MODEL` statement.
-
-    Not present in T-SQL.
-    """
-
-    type = "create_model_statement"
-    match_grammar = Nothing()
-
-
-@tsql_dialect.segment(replace=True)
-class DropModelStatementSegment(BaseSegment):
-    """A `DROP MODEL` statement.
-
-    Not present in T-SQL.
-    """
-
-    type = "drop_MODELstatement"
-    match_grammar = Nothing()
-
-
-@tsql_dialect.segment(replace=True)
-class OverlapsClauseSegment(BaseSegment):
-    """An `OVERLAPS` clause like in `SELECT.
-
-    Not present in T-SQL.
-    """
-
-    type = "overlaps_clause"
-    match_grammar = Nothing()
-
-
-@tsql_dialect.segment(replace=True)
-class DescribeStatementSegment(BaseSegment):
-    """A `Describe` statement.
-
-    Not present in T-SQL.
-    """
-
-    type = "describe_statement"
-    match_grammar = Nothing()
-
-
-@tsql_dialect.segment(replace=True)
-class CommentClauseSegment(BaseSegment):
-    """A comment clause.
-
-    Not present in T-SQL.
-    """
-
-    type = "comment_clause"
-    match_grammar = Nothing()
-
-
-@tsql_dialect.segment(replace=True)
 class MLTableExpressionSegment(BaseSegment):
     """An ML table expression.
 
@@ -1965,7 +1898,6 @@ class CreateTableStatementSegment(BaseSegment):
                         allow_trailing=True,
                     )
                 ),
-                Ref("CommentClauseSegment", optional=True),
             ),
             # Create AS syntax:
             Sequence(
