@@ -98,6 +98,7 @@ ansi_dialect.set_lexer_matchers(
         RegexLexer("like_operator", r"!?~~?\*?", CodeSegment),
         RegexLexer("newline", r"\r\n|\n", NewlineSegment),
         StringLexer("casting_operator", "::", CodeSegment),
+        StringLexer("concat_operator", "||", CodeSegment),
         StringLexer("equals", "=", CodeSegment),
         StringLexer("greater_than", ">", CodeSegment),
         StringLexer("less_than", "<", CodeSegment),
@@ -231,6 +232,9 @@ ansi_dialect.add(
     ),
     SlashSegment=StringParser("/", SymbolSegment, name="slash", type="slash"),
     NotSegment=StringParser("!", SymbolSegment, name="not", type="comparison_operator"),
+    ConcatSegment=StringParser(
+        "||", SymbolSegment, name="concatenate", type="binary_operator"
+    ),
     BitwiseAndSegment=StringParser(
         "&", SymbolSegment, name="binary_and", type="binary_operator"
     ),
@@ -1598,17 +1602,6 @@ ansi_dialect.add(
     ),
     Accessor_Grammar=AnyNumberOf(Ref("ArrayAccessorSegment")),
 )
-
-
-@ansi_dialect.segment()
-class ConcatSegment(BaseSegment):
-    """Concatenation operator."""
-
-    type = "binary_operator"
-    name = "concatenate"
-    match_grammar = Sequence(
-        Ref("BitwiseOrSegment"), Ref("BitwiseOrSegment"), allow_gaps=False
-    )
 
 
 @ansi_dialect.segment()

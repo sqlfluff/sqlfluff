@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 06d4cde719181cd25371968f74c66c1be8e65f0b182a3be6109fd4661606d62a
+_hash: 2617450a6a3848b035d672fc0159f22d4e36ac3509f8d3b2e8fdaa54a880afa0
 file:
 - statement:
     select_statement:
@@ -19,9 +19,7 @@ file:
               - comma: ','
               - literal: '2'
               - end_square_bracket: ']'
-          - binary_operator:
-            - binary_operator: '|'
-            - binary_operator: '|'
+          - binary_operator: '||'
           - keyword: ARRAY
           - array_contents_grammar:
               simple_array_contents_grammar:
@@ -390,9 +388,7 @@ file:
                   - comma: ','
                   - literal: '2'
                   - end_square_bracket: ']'
-              - binary_operator:
-                - binary_operator: '|'
-                - binary_operator: '|'
+              - binary_operator: '||'
               - keyword: ARRAY
               - array_contents_grammar:
                   simple_array_contents_grammar:
@@ -424,9 +420,7 @@ file:
                   - comma: ','
                   - literal: '2'
                   - end_square_bracket: ']'
-              - binary_operator:
-                - binary_operator: '|'
-                - binary_operator: '|'
+              - binary_operator: '||'
               - keyword: ARRAY
               - array_contents_grammar:
                 - start_square_bracket: '['
@@ -462,9 +456,7 @@ file:
               - comma: ','
               - literal: '2'
               - end_square_bracket: ']'
-            binary_operator:
-            - binary_operator: '|'
-            - binary_operator: '|'
+            binary_operator: '||'
             literal: "'{3, 4}'"
 - statement_terminator: ;
 - statement:
