@@ -561,6 +561,7 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref("AlterFunctionStatementSegment"),
             Ref("CreateStageSegment"),
             Ref("AlterStageSegment"),
+            Ref("UndropStatementSegment"),
             Ref("CommentStatementSegment"),
         ],
         remove=[
@@ -3340,6 +3341,35 @@ class DescribeStatementSegment(BaseSegment):
                         optional=True,
                     ),
                 ),
+            ),
+        ),
+    )
+
+
+@snowflake_dialect.segment()
+class UndropStatementSegment(BaseSegment):
+    """`UNDROP` statement.
+
+    DATABASE: https://docs.snowflake.com/en/sql-reference/sql/undrop-database.html
+    SCHEMA: https://docs.snowflake.com/en/sql-reference/sql/undrop-schema.html
+    TABLE: https://docs.snowflake.com/en/sql-reference/sql/undrop-table.html
+    """
+
+    type = "undrop_statement"
+    match_grammar = Sequence(
+        "UNDROP",
+        OneOf(
+            Sequence(
+                "DATABASE",
+                Ref("DatabaseReferenceSegment"),
+            ),
+            Sequence(
+                "SCHEMA",
+                Ref("SchemaReferenceSegment"),
+            ),
+            Sequence(
+                "TABLE",
+                Ref("TableReferenceSegment"),
             ),
         ),
     )
