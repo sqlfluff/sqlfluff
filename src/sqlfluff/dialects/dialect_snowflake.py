@@ -3348,6 +3348,33 @@ class DescribeStatementSegment(BaseSegment):
 
 
 @snowflake_dialect.segment(replace=True)
+class TransactionStatementSegment(BaseSegment):
+    """`BEGIN`, `START TRANSACTION`, `COMMIT`, AND `ROLLBACK` statement grammar.
+
+    Overwrites ANSI to match correct Snowflake grammar.
+
+    https://docs.snowflake.com/en/sql-reference/sql/begin.html
+    https://docs.snowflake.com/en/sql-reference/sql/commit.html
+    https://docs.snowflake.com/en/sql-reference/sql/rollback.html
+    """
+
+    match_grammar = OneOf(
+        Sequence(
+            "BEGIN",
+            OneOf("WORK", "TRANSACTION", optional=True),
+            Sequence("NAME", Ref("ObjectReferenceSegment"), optional=True),
+        ),
+        Sequence(
+            "START",
+            "TRANSACTION",
+            Sequence("NAME", Ref("ObjectReferenceSegment"), optional=True),
+        ),
+        "COMMIT",
+        "ROLLBACK",
+    )
+
+
+@snowflake_dialect.segment(replace=True)
 class TruncateStatementSegment(BaseSegment):
     """`TRUNCATE TABLE` statement.
 
