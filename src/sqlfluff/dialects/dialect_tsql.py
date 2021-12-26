@@ -289,7 +289,7 @@ tsql_dialect.replace(
         "LIKE",
     ),
     # Replace ANSI FunctionContentsGrammar to remove TSQL non-keyword Separator
-    # TO DO: fully represent TSQL functionality
+    # TODO: fully represent TSQL functionality
     FunctionContentsGrammar=AnyNumberOf(
         Ref("ExpressionSegment"),
         # A Cast-like function
@@ -1624,7 +1624,7 @@ class MLTableExpressionSegment(BaseSegment):
     """An ML table expression.
 
     Not present in T-SQL.
-    TO DO: Consider whether this segment can be used to represent a PREDICT statement.
+    TODO: Consider whether this segment can be used to represent a PREDICT statement.
     """
 
     type = "ml_table_expression"
