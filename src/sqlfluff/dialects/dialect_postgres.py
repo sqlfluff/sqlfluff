@@ -2764,6 +2764,7 @@ class StatementSegment(BaseSegment):
             Ref("DropDatabaseStatementSegment"),
             Ref("AlterFunctionStatementSegment"),
             Ref("AlterViewStatementSegment"),
+            Ref("LoadStatementSegment"),
             Ref("ResetStatementSegment"),
             Ref("DiscardStatementSegment"),
         ],
@@ -3055,6 +3056,20 @@ class DropPolicyStatementSegment(BaseSegment):
         "ON",
         Ref("TableReferenceSegment"),
         OneOf("CASCADE", "RESTRICT", optional=True),
+    )
+
+
+@postgres_dialect.segment()
+class LoadStatementSegment(BaseSegment):
+    """A `LOAD` statement.
+
+    As Specified in https://www.postgresql.org/docs/14/sql-load.html
+    """
+
+    type = "load_statement"
+    match_grammar = Sequence(
+        "LOAD",
+        Ref("QuotedLiteralSegment"),
     )
 
 
