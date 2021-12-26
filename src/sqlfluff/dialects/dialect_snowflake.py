@@ -3520,7 +3520,7 @@ class CommentStatementSegment(BaseSegment):
     )
 
 
-@snowflake_dialect.segment()
+@snowflake_dialect.segment(replace=True)
 class UseStatementSegment(BaseSegment):
     """A `USE` statement.
 
