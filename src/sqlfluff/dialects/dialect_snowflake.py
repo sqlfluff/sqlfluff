@@ -3347,16 +3347,6 @@ class DescribeStatementSegment(BaseSegment):
 class UseStatementSegment(BaseSegment):
     """A `USE` statement.
 
-    USE ROLE <name>
-
-    USE WAREHOUSE <name>
-
-    USE [ DATABASE ] <name>
-
-    USE [ SCHEMA ] [<db_name>.]<name>
-
-    USE SECONDARY ROLES { ALL | NONE }
-
     https://docs.snowflake.com/en/sql-reference/sql/use.html
     """
 
