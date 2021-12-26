@@ -1,9 +1,9 @@
 """Implementation of Rule L049."""
-from typing import List, Union
+from typing import Tuple
 
 from apm import match, Check, Some
 
-from sqlfluff.core.parser import KeywordSegment, WhitespaceSegment
+from sqlfluff.core.parser import KeywordSegment, RawSegment, WhitespaceSegment
 from sqlfluff.core.rules.base import LintResult, LintFix, RuleContext
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 import sqlfluff.core.rules.functional.segment_predicates as sp
@@ -71,29 +71,26 @@ class Rule_L049(Rule_L006):
             is_seg = KeywordSegment("is")
             not_seg = KeywordSegment("not")
 
-        edit: List[Union[WhitespaceSegment, KeywordSegment]] = (
-            [is_seg]
+        edit: Tuple[RawSegment, ...] = (
+            (is_seg,)
             if matched["operator"].name == "equals"
-            else [
+            else (
                 is_seg,
                 WhitespaceSegment(),
                 not_seg,
-            ]
+            )
         )
         idx_operator = children.index(matched["operator"])
         prev_seg = self._find_segment(
             idx_operator, context.segment.segments, before=True
         )
+        if self._missing_whitespace(prev_seg, before=True):
+            edit = (WhitespaceSegment(),) + edit
         next_seg = self._find_segment(
             idx_operator, context.segment.segments, before=False
         )
-        if self._missing_whitespace(prev_seg, before=True):
-            whitespace_segment: List[Union[WhitespaceSegment, KeywordSegment]] = [
-                WhitespaceSegment()
-            ]
-            edit = whitespace_segment + edit
         if self._missing_whitespace(next_seg, before=False):
-            edit = edit + [WhitespaceSegment()]
+            edit = edit + (WhitespaceSegment(),)
         return LintResult(
             anchor=matched["operator"],
             fixes=[
