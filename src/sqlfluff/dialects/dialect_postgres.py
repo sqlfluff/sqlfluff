@@ -2765,6 +2765,7 @@ class StatementSegment(BaseSegment):
             Ref("AlterFunctionStatementSegment"),
             Ref("AlterViewStatementSegment"),
             Ref("ResetStatementSegment"),
+            Ref("DiscardStatementSegment"),
         ],
     )
 
@@ -3068,4 +3069,24 @@ class ResetStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "RESET",
         OneOf("ALL", Ref("ParameterNameSegment")),
+    )
+
+
+@postgres_dialect.segment()
+class DiscardStatementSegment(BaseSegment):
+    """A `DISCARD` statement.
+
+    As Specified in https://www.postgresql.org/docs/14/sql-discard.html
+    """
+
+    type = "discard_statement"
+    match_grammar = Sequence(
+        "DISCARD",
+        OneOf(
+            "ALL",
+            "PLANS",
+            "SEQUENCES",
+            "TEMPORARY",
+            "TEMP",
+        ),
     )

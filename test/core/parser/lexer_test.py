@@ -83,9 +83,9 @@ def test__parser__lexer_string(raw, res):
         ("fsaljk", r"f", "f"),
         ("fsaljk", r"[fas]*", "fsa"),
         # Matching whitespace segments
-        ("   \t   fsaljk", r"[\t ]*", "   \t   "),
+        ("   \t   fsaljk", r"[^\S\r\n]*", "   \t   "),
         # Matching whitespace segments (with a newline)
-        ("   \t \n  fsaljk", r"[\t ]*", "   \t "),
+        ("   \t \n  fsaljk", r"[^\S\r\n]*", "   \t "),
         # Matching quotes containing stuff
         ("'something boring'   \t \n  fsaljk", r"'[^']*'", "'something boring'"),
         (
