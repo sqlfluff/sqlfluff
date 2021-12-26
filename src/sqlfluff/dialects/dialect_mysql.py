@@ -481,6 +481,7 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref("ChecksumTableStatementSegment"),
             Ref("AnalyzeTableStatementSegment"),
             Ref("RepairTableStatementSegment"),
+            Ref("OptimizeTableStatementSegment"),
         ],
     )
 
@@ -1573,5 +1574,27 @@ class RepairTableStatementSegment(BaseSegment):
             "QUICK",
             "EXTENDED",
             "USE_FRM",
+        ),
+    )
+
+
+@mysql_dialect.segment()
+class OptimizeTableStatementSegment(BaseSegment):
+    """An `OPTIMIZE TABLE` statement.
+
+    https://dev.mysql.com/doc/refman/8.0/en/optimize-table.html
+    """
+
+    type = "optimize_table_statement"
+    match_grammar = Sequence(
+        "OPTIMIZE",
+        OneOf(
+            "NO_WRITE_TO_BINLOG",
+            "LOCAL",
+            optional=True,
+        ),
+        "TABLE",
+        Delimited(
+            Ref("TableReferenceSegment"),
         ),
     )
