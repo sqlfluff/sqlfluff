@@ -3347,6 +3347,22 @@ class DescribeStatementSegment(BaseSegment):
     )
 
 
+@snowflake_dialect.segment(replace=True)
+class TruncateStatementSegment(BaseSegment):
+    """`TRUNCATE TABLE` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/truncate-table.html
+    """
+
+    type = "truncate_table"
+    match_grammar = Sequence(
+        "TRUNCATE",
+        Ref.keyword("TABLE", optional=True),
+        Sequence("IF", "EXISTS", optional=True),
+        Ref("TableReferenceSegment"),
+    )
+
+
 @snowflake_dialect.segment()
 class UnsetStatementSegment(BaseSegment):
     """An `UNSET` statement.
