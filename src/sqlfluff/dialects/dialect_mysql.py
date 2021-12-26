@@ -899,6 +899,8 @@ class SelectClauseElementSegment(BaseSegment):
         "SelectClauseElementSegment"
     ).parse_grammar.copy()
 
+    get_alias = ansi_dialect.get_segment("SelectClauseElementSegment").get_alias
+
 
 @mysql_dialect.segment(replace=True)
 class SelectClauseSegment(BaseSegment):

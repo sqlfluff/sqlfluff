@@ -360,6 +360,8 @@ class SelectClauseElementSegment(BaseSegment):
         ),
     )
 
+    get_alias = ansi_dialect.get_segment("SelectClauseElementSegment").get_alias
+
 
 @tsql_dialect.segment(replace=True)
 class SelectClauseModifierSegment(BaseSegment):
