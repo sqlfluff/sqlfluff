@@ -75,6 +75,8 @@ mysql_dialect.sets("unreserved_keywords").update(
         "UPGRADE",
         "HISTOGRAM",
         "BUCKETS",
+        "USE_FRM",
+        "REPAIR",
     ]
 )
 mysql_dialect.sets("reserved_keywords").update(
@@ -478,6 +480,7 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref("CheckTableStatementSegment"),
             Ref("ChecksumTableStatementSegment"),
             Ref("AnalyzeTableStatementSegment"),
+            Ref("RepairTableStatementSegment"),
         ],
     )
 
@@ -1543,5 +1546,32 @@ class AnalyzeTableStatementSegment(BaseSegment):
                     Ref("ColumnReferenceSegment"),
                 ),
             ),
+        ),
+    )
+
+
+@mysql_dialect.segment()
+class RepairTableStatementSegment(BaseSegment):
+    """A `REPAIR TABLE` statement.
+
+    https://dev.mysql.com/doc/refman/8.0/en/repair-table.html
+    """
+
+    type = "repair_table_statement"
+    match_grammar = Sequence(
+        "REPAIR",
+        OneOf(
+            "NO_WRITE_TO_BINLOG",
+            "LOCAL",
+            optional=True,
+        ),
+        "TABLE",
+        Delimited(
+            Ref("TableReferenceSegment"),
+        ),
+        AnyNumberOf(
+            "QUICK",
+            "EXTENDED",
+            "USE_FRM",
         ),
     )
