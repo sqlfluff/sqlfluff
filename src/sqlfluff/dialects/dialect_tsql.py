@@ -120,7 +120,7 @@ tsql_dialect.patch_lexer_matchers(
             ),
             trim_post_subdivide=RegexLexer(
                 "whitespace",
-                r"[\t ]+",
+                r"[^\S\r\n]+",
                 WhitespaceSegment,
             ),
         ),
@@ -410,6 +410,8 @@ class SelectClauseElementSegment(BaseSegment):
             Ref("AliasExpressionSegment", optional=True),
         ),
     )
+
+    get_alias = ansi_dialect.get_segment("SelectClauseElementSegment").get_alias
 
 
 @tsql_dialect.segment(replace=True)

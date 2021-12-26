@@ -3,13 +3,14 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a538acbf3613b80cf16457e14adde74d70dfa28d3dab8192a28ebf75f15488b5
+_hash: 029b318933b851dc01458231e585596fbeb48d071f477a903a5d5d51acf31e3e
 file:
 - statement:
     alter_group:
     - keyword: alter
     - keyword: group
-    - identifier: admin_group
+    - object_reference:
+        identifier: admin_group
     - keyword: add
     - keyword: user
     - object_reference:
@@ -19,7 +20,8 @@ file:
     alter_group:
     - keyword: alter
     - keyword: group
-    - identifier: admin_group
+    - object_reference:
+        identifier: admin_group
     - keyword: add
     - keyword: user
     - object_reference:
@@ -32,7 +34,8 @@ file:
     alter_group:
     - keyword: alter
     - keyword: group
-    - identifier: admin_group
+    - object_reference:
+        identifier: admin_group
     - keyword: drop
     - keyword: user
     - object_reference:
@@ -42,7 +45,8 @@ file:
     alter_group:
     - keyword: alter
     - keyword: group
-    - identifier: admin_group
+    - object_reference:
+        identifier: admin_group
     - keyword: drop
     - keyword: user
     - object_reference:
@@ -55,7 +59,8 @@ file:
     alter_group:
     - keyword: alter
     - keyword: group
-    - identifier: admin_group
+    - object_reference:
+        identifier: admin_group
     - keyword: rename
     - keyword: to
     - object_reference:
@@ -65,7 +70,19 @@ file:
     alter_group:
     - keyword: alter
     - keyword: group
-    - identifier: admin_group
+    - object_reference:
+        identifier: admin_group
+    - keyword: add
+    - keyword: user
+    - object_reference:
+        identifier: '"test.user"'
+- statement_terminator: ;
+- statement:
+    alter_group:
+    - keyword: alter
+    - keyword: group
+    - object_reference:
+        identifier: '"admin_group"'
     - keyword: add
     - keyword: user
     - object_reference:
