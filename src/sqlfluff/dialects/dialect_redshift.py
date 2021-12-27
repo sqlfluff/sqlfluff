@@ -250,7 +250,7 @@ class CreateTableStatementSegment(BaseSegment):
     )
 
 @redshift_dialect.segment(replace=True)
-class CreateTableAsStatementSegment(BaseSegment):
+class CreateTableAsSegment(BaseSegment):
     """A `CREATE TABLE AS` statement.
 
     As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_TABLE_AS.html
