@@ -5,7 +5,7 @@ from apm.core import MatchContext, MatchResult, Nested
 
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
-from sqlfluff.core.rules.functional import sp
+from sqlfluff.core.rules.functional import Segments, sp
 
 
 class Attr(Pattern, Nested):
@@ -98,18 +98,54 @@ class Rule_L058(BaseRule):
                                 @ Check(sp.is_type("case_expression"))
                             ],
                         ),
-                        Some(...),
+                        "junk_before_end" @ Some(Check(sp.not_(sp.is_keyword("end")))),
+                        Check(sp.is_keyword("end")),
                     ],
                 )
                 if matched:
+                    # Determine what to delete from the end of the outer CASE.
                     return LintResult(
                         anchor=matched["nested_expression"],
                         fixes=[
+                            # Replace outer ELSE with inner CASE body
                             LintFix.replace(
                                 matched["else"],
-                                matched["nested_case_expression"].segments[1:-1],
+                                self._to_keep_from_nested_case(matched),
                             ),
+                            # Delete inner CASE
                             LintFix.delete(matched["nested_expression"]),
+                        ]
+                        # Delete stuff from the end of the outer CASE
+                        + [
+                            LintFix.delete(seg)
+                            for seg in Segments(*matched["junk_before_end"]).select(
+                                sp.not_(sp.is_meta())
+                            )
                         ],
                     )
         return LintResult()
+
+    @staticmethod
+    def _to_keep_from_nested_case(matched):
+        """Determine what to keep from the nested CASE."""
+        nested_case_children = Segments(*matched["nested_case_expression"].segments)
+        # First pass: From the first WHEN (inclusive) to the END
+        # (excluding the END).
+        start_seg = (
+            nested_case_children.select(loop_while=sp.not_(sp.is_keyword("when")))
+            .last()
+            .get()
+        )
+        stop_seg = nested_case_children.last(sp.is_keyword("end")).get()
+        to_keep = nested_case_children.select(
+            start_seg=start_seg,
+            stop_seg=stop_seg,
+        )
+        # Find any trailing "non-code". From this, keep all dedents
+        # less 1 (i.e. drop the dedent associated with the nested
+        # END).
+        trailing_non_code = (
+            to_keep.reversed().select(loop_while=sp.not_(sp.is_code())).reversed()
+        )
+        trailing_keep = trailing_non_code.select(sp.is_type("dedent"))[:-1]
+        return to_keep[: -len(trailing_non_code)] + trailing_keep
