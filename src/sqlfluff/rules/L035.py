@@ -49,7 +49,7 @@ class Rule_L035(BaseRule):
         if context.segment.is_type("case_expression"):
             fixes: List[LintFix] = []
             children = context.functional.segment.children()
-            for seg in context.functional.segment.children():
+            for seg in children:
                 # When we find ELSE we delete
                 # everything up to NULL
                 if fixes:
