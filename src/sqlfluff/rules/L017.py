@@ -1,8 +1,10 @@
 """Implementation of Rule L017."""
 
+from apm import match, Check, Some
+
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
-import sqlfluff.core.rules.functional.segment_predicates as sp
+from sqlfluff.core.rules.functional import sp
 
 
 @document_fix_compatible
@@ -38,26 +40,25 @@ class Rule_L017(BaseRule):
         segment = context.functional.segment
         # We only trigger on start_bracket (open parenthesis)
         if segment.all(sp.is_type("function")):
-            children = segment.children()
-
-            function_name = children.first(sp.is_type("function_name"))[0]
-            start_bracket = children.first(sp.is_type("bracketed"))[0]
-
-            intermediate_segments = children.select(
-                start_seg=function_name, stop_seg=start_bracket
+            matched = match(
+                segment.children(),
+                [
+                    "fn_name" @ Check(sp.is_type("function_name")),
+                    "between"
+                    @ Some(Check(sp.not_(sp.is_type("bracketed"))), at_least=1),
+                    "bracket" @ Check(sp.is_type("bracketed")),
+                ],
             )
-            if intermediate_segments:
-                # It's only safe to fix if there is only whitespace
-                # or newlines in the intervening section.
-                if intermediate_segments.all(sp.is_type("whitespace", "newline")):
-                    return LintResult(
-                        anchor=intermediate_segments[0],
-                        fixes=[LintFix.delete(seg) for seg in intermediate_segments],
-                    )
-                else:
-                    # It's not all whitespace, just report the error.
-                    return LintResult(
-                        anchor=intermediate_segments[0],
-                    )
+            if matched:
+                fixes = None
+                if all(
+                    seg.is_type("whitespace", "newline") for seg in matched["between"]
+                ):
+                    # Fix if there is only whitespace or newlines between.
+                    fixes = [LintFix.delete(seg) for seg in matched["between"]]
 
+                return LintResult(
+                    anchor=matched["between"][0],
+                    fixes=fixes,
+                )
         return LintResult()

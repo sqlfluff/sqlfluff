@@ -12,6 +12,7 @@ lower-level classes, or a mix, but it is suggested that each rule primarily
 use one or the other for readability.
 """
 
-__all__ = ("Segments",)
+__all__ = ("Segments", "sp")
 
 from sqlfluff.core.rules.functional.segments import Segments
+import sqlfluff.core.rules.functional.segment_predicates as sp
