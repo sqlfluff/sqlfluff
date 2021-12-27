@@ -249,6 +249,7 @@ class CreateTableStatementSegment(BaseSegment):
         AnyNumberOf(Ref("TableAttributeSegment"), optional=True),
     )
 
+
 @redshift_dialect.segment(replace=True)
 class CreateTableAsSegment(BaseSegment):
     """A `CREATE TABLE AS` statement.
@@ -262,7 +263,7 @@ class CreateTableAsSegment(BaseSegment):
         Sequence(
             Ref.keyword("LOCAL", optional=True),
             OneOf("TEMPORARY", "TEMP"),
-            optional=True
+            optional=True,
         ),
         "TABLE",
         Ref("ObjectReferenceSegment"),
@@ -270,7 +271,7 @@ class CreateTableAsSegment(BaseSegment):
         Sequence("BACKUP", OneOf("YES", "NO"), optional=True),
         Ref("TableAttributeSegment", optional=True),
         "AS",
-        Ref("SelectableGrammar")
+        Ref("SelectableGrammar"),
     )
 
 
