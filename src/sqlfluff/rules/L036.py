@@ -80,7 +80,7 @@ class Rule_L036(BaseRule):
         children = context.functional.segment.children()
         select_targets = children.select(sp.is_type("select_clause_element"))
         first_select_target_idx = children.find(select_targets.get())
-        selects = children.select(sp.and_(sp.is_type("keyword"), sp.is_name("select")))
+        selects = children.select(sp.is_keyword("select"))
         select_idx = children.find(selects.get())
         newlines = children.select(sp.is_type("newline"))
         first_new_line_idx = children.find(newlines.get())
