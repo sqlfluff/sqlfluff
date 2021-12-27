@@ -18,12 +18,17 @@ def is_type(*seg_type: str) -> Callable[[BaseSegment], bool]:
 
 
 def is_name(*seg_name: str) -> Callable[[BaseSegment], bool]:
-    """Returns a function that determines if segment is one the names."""
+    """Returns a function that determines if segment is one of the names."""
 
     def _(segment: BaseSegment):
         return segment.is_name(*seg_name)
 
     return _
+
+
+def is_keyword(*keyword_name) -> Callable[[BaseSegment], bool]:
+    """Returns a function that determines if it's a matching keyword."""
+    return and_(is_type("keyword"), is_name(*keyword_name))
 
 
 def is_code() -> Callable[[BaseSegment], bool]:
