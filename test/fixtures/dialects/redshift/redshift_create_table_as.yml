@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d6dc8363ab384c3e80c0c7fdd4152dc5d89db5b650069caef4752b2995ecbe3b
+_hash: 37493a5f8638cf5aea8f7ae4e43b1bfc0ff1971e961b3be4f2f99c504699f765
 file:
 - statement:
     create_table_as_statement:
@@ -313,6 +313,50 @@ file:
           select_clause_element:
             column_reference:
               identifier: col1
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: t2
+- statement_terminator: ;
+- statement:
+    create_table_as_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - object_reference:
+        identifier: t1
+    - table_constraint_segment:
+      - keyword: DISTSTYLE
+      - keyword: ALL
+      - keyword: DISTKEY
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            identifier: col1
+          end_bracket: )
+      - keyword: COMPOUND
+      - keyword: SORTKEY
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            identifier: col1
+        - comma: ','
+        - column_reference:
+            identifier: col2
+        - end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              identifier: col1
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: col2
         from_clause:
           keyword: FROM
           from_expression:
