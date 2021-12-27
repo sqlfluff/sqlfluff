@@ -72,3 +72,11 @@ SELECT
     col1
 FROM t2
 ;
+
+CREATE TABLE t1 (col1 NUMERIC, col2 VARCHAR(10))
+BACKUP YES AS
+SELECT
+    col1
+    , col2
+FROM t2
+;
