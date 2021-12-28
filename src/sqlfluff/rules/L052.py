@@ -237,7 +237,7 @@ class Rule_L052(BaseRule):
                 ],
             )
             if not matched:
-                return None
+                return None  # pragma: no cover
 
             anchor_segment = (
                 matched["before"][-1] if matched["before"] else context.segment
