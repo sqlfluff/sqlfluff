@@ -616,10 +616,11 @@ class CreateTableStatementSegment(BaseSegment):
         Sequence("OPTIONS", Ref("BracketedPropertyListGrammar"), optional=True),
         Ref("PartitionSpecGrammar", optional=True),
         Ref("BucketSpecGrammar", optional=True),
-        Ref("LocationGrammar", optional=True),
-        Ref("CommentGrammar", optional=True),
-        Ref("TablePropertiesGrammar", optional=True),
-        Ref("LocationGrammar", optional=True),
+        AnyNumberOf(
+            Ref("LocationGrammar", optional=True),
+            Ref("CommentGrammar", optional=True),
+            Ref("TablePropertiesGrammar", optional=True),
+        ),
         # Create AS syntax:
         Sequence(
             "AS",
