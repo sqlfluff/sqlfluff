@@ -493,6 +493,8 @@ class DatatypeSegment(BaseSegment):
                     "PG_LSN",
                 ),
             ),
+            # user defined data types
+            Ref("DatatypeIdentifierSegment"),
         ),
         # array types
         OneOf(

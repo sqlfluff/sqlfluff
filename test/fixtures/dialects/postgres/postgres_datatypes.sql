@@ -4,6 +4,7 @@ create table a(
   ba int2,
   bb int4,
   bc int8,
+  bd int,
   c bigint,
   d real,
   e double precision,
