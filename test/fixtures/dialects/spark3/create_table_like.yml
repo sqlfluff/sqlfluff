@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4f2f5c695b819b17dd9e4d492b0d074f1c5152f0c3b1fad903ddfd8b1e0e53fe
+_hash: 91824c3c256efd684ca5cb5ce62f926c4fbdc591a29e0cfe3545fd4028a47caa
 file:
 - base:
     create_table_statement:
@@ -17,61 +17,65 @@ file:
     - keyword: LIKE
     - table_reference:
         identifier: source_table_identifier
-    - unparsable:
-      - raw: USING
-      - raw: PARQUET
-      - raw: ROW
-      - raw: FORMAT
-      - raw: DELIMITED
-      - raw: FIELDS
-      - raw: TERMINATED
-      - raw: BY
-      - raw: "','"
-      - raw: STORED
-      - raw: AS
-      - raw: PARQUET
-      - raw: TBLPROPERTIES
-      - bracketed:
-        - start_bracket: (
-        - raw: '"key1"'
-        - raw: '='
-        - raw: '"val1"'
-        - comma: ','
-        - raw: '"key2"'
-        - raw: '='
-        - raw: '"val2"'
-        - end_bracket: )
-      - raw: LOCATION
-      - raw: '"path/to/files"'
-      - raw: CREATE
-      - raw: TABLE
-      - raw: Student_Dupli
-      - raw: like
-      - raw: Student
+    - keyword: USING
+    - keyword: PARQUET
+    - row_format_clause:
+      - keyword: ROW
+      - keyword: FORMAT
+      - keyword: DELIMITED
+      - keyword: FIELDS
+      - keyword: TERMINATED
+      - keyword: BY
+      - literal: "','"
+    - keyword: STORED
+    - keyword: AS
+    - keyword: PARQUET
+    - keyword: TBLPROPERTIES
+    - bracketed:
+      - start_bracket: (
+      - literal: '"key1"'
+      - comparison_operator: '='
+      - literal: '"val1"'
+      - comma: ','
+      - literal: '"key2"'
+      - comparison_operator: '='
+      - literal: '"val2"'
+      - end_bracket: )
+    - keyword: LOCATION
+    - literal: '"path/to/files"'
 - statement_terminator: ;
 - base:
     create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: Student_Dupli
-    - keyword: like
+        identifier: student_dupli
+    - keyword: LIKE
     - table_reference:
-        identifier: Student
-    - unparsable:
-      - raw: USING
-      - raw: CSV
+        identifier: student
 - statement_terminator: ;
 - base:
     create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: Student_Dupli
-    - keyword: like
+        identifier: student_dupli
+    - keyword: LIKE
     - table_reference:
-        identifier: Student
-    - keyword: location
+        identifier: student
+    - keyword: USING
+    - keyword: CSV
+- statement_terminator: ;
+- base:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        identifier: student_dupli
+    - keyword: LIKE
+    - table_reference:
+        identifier: student
+    - keyword: LOCATION
     - literal: "'/root1/home'"
 - statement_terminator: ;
 - base:
@@ -79,26 +83,26 @@ file:
     - keyword: CREATE
     - keyword: TABLE
     - table_reference:
-        identifier: Student_Dupli
-    - keyword: like
+        identifier: student_dupli
+    - keyword: LIKE
     - table_reference:
-        identifier: Student
-    - unparsable:
-      - raw: ROW
-      - raw: FORMAT
-      - raw: DELIMITED
-      - raw: FIELDS
-      - raw: TERMINATED
-      - raw: BY
-      - raw: "','"
-      - raw: STORED
-      - raw: AS
-      - raw: TEXTFILE
-      - raw: TBLPROPERTIES
-      - bracketed:
-        - start_bracket: (
-        - raw: "'owner'"
-        - raw: '='
-        - raw: "'xxxx'"
-        - end_bracket: )
+        identifier: student
+    - row_format_clause:
+      - keyword: ROW
+      - keyword: FORMAT
+      - keyword: DELIMITED
+      - keyword: FIELDS
+      - keyword: TERMINATED
+      - keyword: BY
+      - literal: "','"
+    - keyword: STORED
+    - keyword: AS
+    - file_format: TEXTFILE
+    - keyword: TBLPROPERTIES
+    - bracketed:
+      - start_bracket: (
+      - literal: "'owner'"
+      - comparison_operator: '='
+      - literal: "'xxxx'"
+      - end_bracket: )
 - statement_terminator: ;
