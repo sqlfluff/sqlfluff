@@ -403,6 +403,13 @@ class DatatypeSegment(BaseSegment):
 
     type = "data_type"
     match_grammar = Sequence(
+        # Some dialects allow optional qualification of data types with schemas
+        Sequence(
+            Ref("SingleIdentifierGrammar"),
+            Ref("DotSegment"),
+            allow_gaps=False,
+            optional=True,
+        ),
         OneOf(
             Ref("WellKnownTextGeometrySegment"),
             Sequence(

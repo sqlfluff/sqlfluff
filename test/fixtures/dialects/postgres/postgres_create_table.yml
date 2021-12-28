@@ -3,20 +3,23 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 05e70b7535fa90fa3bb82a091e1e983ae26da5ccd517e8ef8639c58ef8674b95
+_hash: 2f9d70fef532efe444e7519427e71af97999d68bf889570b85071e1cd5f8c7c1
 file:
 - statement:
-    unparsable:
-    - raw: CREATE
-    - raw: TABLE
-    - raw: counters
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        identifier: counters
     - bracketed:
-      - start_bracket: (
-      - raw: my_type
-      - raw: public
-      - raw: .
-      - raw: MY_TYPE
-      - end_bracket: )
+        start_bracket: (
+        column_reference:
+          identifier: my_type
+        data_type:
+          identifier: public
+          dot: .
+          data_type_identifier: MY_TYPE
+        end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:

@@ -126,3 +126,17 @@ create table p(
     e money ARRAY,
     f money ARRAY[7]
 );
+
+-- user defined data types
+CREATE TYPE bar AS ENUM ('foo', 'bar');
+
+create table q(
+    a bar
+);
+
+-- data type with schema
+create type public.c AS ENUM ('foo', 'bar');
+
+create table r(
+    a public.c
+);
