@@ -1,0 +1,104 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 4f2f5c695b819b17dd9e4d492b0d074f1c5152f0c3b1fad903ddfd8b1e0e53fe
+file:
+- base:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+        identifier: table_identifier
+    - keyword: LIKE
+    - table_reference:
+        identifier: source_table_identifier
+    - unparsable:
+      - raw: USING
+      - raw: PARQUET
+      - raw: ROW
+      - raw: FORMAT
+      - raw: DELIMITED
+      - raw: FIELDS
+      - raw: TERMINATED
+      - raw: BY
+      - raw: "','"
+      - raw: STORED
+      - raw: AS
+      - raw: PARQUET
+      - raw: TBLPROPERTIES
+      - bracketed:
+        - start_bracket: (
+        - raw: '"key1"'
+        - raw: '='
+        - raw: '"val1"'
+        - comma: ','
+        - raw: '"key2"'
+        - raw: '='
+        - raw: '"val2"'
+        - end_bracket: )
+      - raw: LOCATION
+      - raw: '"path/to/files"'
+      - raw: CREATE
+      - raw: TABLE
+      - raw: Student_Dupli
+      - raw: like
+      - raw: Student
+- statement_terminator: ;
+- base:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        identifier: Student_Dupli
+    - keyword: like
+    - table_reference:
+        identifier: Student
+    - unparsable:
+      - raw: USING
+      - raw: CSV
+- statement_terminator: ;
+- base:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        identifier: Student_Dupli
+    - keyword: like
+    - table_reference:
+        identifier: Student
+    - keyword: location
+    - literal: "'/root1/home'"
+- statement_terminator: ;
+- base:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        identifier: Student_Dupli
+    - keyword: like
+    - table_reference:
+        identifier: Student
+    - unparsable:
+      - raw: ROW
+      - raw: FORMAT
+      - raw: DELIMITED
+      - raw: FIELDS
+      - raw: TERMINATED
+      - raw: BY
+      - raw: "','"
+      - raw: STORED
+      - raw: AS
+      - raw: TEXTFILE
+      - raw: TBLPROPERTIES
+      - bracketed:
+        - start_bracket: (
+        - raw: "'owner'"
+        - raw: '='
+        - raw: "'xxxx'"
+        - end_bracket: )
+- statement_terminator: ;
