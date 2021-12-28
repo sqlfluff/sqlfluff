@@ -83,8 +83,36 @@ SELECT
 FROM t2
 ;
 
-CREATE TABLE t1 (col1 NUMERIC, col2 VARCHAR(10))
-BACKUP YES AS
+CREATE TABLE t1
+DISTSTYLE ALL
+DISTKEY(col1)
+INTERLEAVED SORTKEY(col1, col2) AS
+SELECT
+    col1
+    , col2
+FROM t2
+;
+
+CREATE TABLE t1 (col1, col2)
+AS
+SELECT
+    col1
+    , col2
+FROM t2
+;
+
+CREATE TABLE t1 (col1, col2)
+BACKUP YES
+AS
+SELECT
+    col1
+    , col2
+FROM t2
+;
+
+CREATE TABLE t1 (col1, col2)
+BACKUP NO
+AS
 SELECT
     col1
     , col2

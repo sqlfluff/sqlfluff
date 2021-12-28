@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 37493a5f8638cf5aea8f7ae4e43b1bfc0ff1971e961b3be4f2f99c504699f765
+_hash: 99b5f2da4989b6af7f0a5ed99ce44b2a27ad7c5a6bbb6416a95a79ce7aa4b817
 file:
 - statement:
     create_table_as_statement:
@@ -149,7 +149,7 @@ file:
     - keyword: TABLE
     - object_reference:
         identifier: t1
-    - table_constraint_segment:
+    - table_attribute_segment:
         keyword: SORTKEY
         bracketed:
           start_bracket: (
@@ -177,7 +177,7 @@ file:
     - keyword: TABLE
     - object_reference:
         identifier: t1
-    - table_constraint_segment:
+    - table_attribute_segment:
         keyword: SORTKEY
         bracketed:
           start_bracket: (
@@ -205,7 +205,7 @@ file:
     - keyword: TABLE
     - object_reference:
         identifier: t1
-    - table_constraint_segment:
+    - table_attribute_segment:
         keyword: DISTKEY
         bracketed:
           start_bracket: (
@@ -233,7 +233,7 @@ file:
     - keyword: TABLE
     - object_reference:
         identifier: t1
-    - table_constraint_segment:
+    - table_attribute_segment:
       - keyword: DISTKEY
       - bracketed:
           start_bracket: (
@@ -267,7 +267,7 @@ file:
     - keyword: TABLE
     - object_reference:
         identifier: t1
-    - table_constraint_segment:
+    - table_attribute_segment:
       - keyword: DISTSTYLE
       - keyword: EVEN
     - keyword: AS
@@ -291,7 +291,7 @@ file:
     - keyword: TABLE
     - object_reference:
         identifier: t1
-    - table_constraint_segment:
+    - table_attribute_segment:
       - keyword: DISTSTYLE
       - keyword: ALL
       - keyword: DISTKEY
@@ -327,7 +327,7 @@ file:
     - keyword: TABLE
     - object_reference:
         identifier: t1
-    - table_constraint_segment:
+    - table_attribute_segment:
       - keyword: DISTSTYLE
       - keyword: ALL
       - keyword: DISTKEY
@@ -366,36 +366,149 @@ file:
                   identifier: t2
 - statement_terminator: ;
 - statement:
-    create_table_statement:
+    create_table_as_statement:
     - keyword: CREATE
     - keyword: TABLE
-    - table_reference:
+    - object_reference:
+        identifier: t1
+    - table_attribute_segment:
+      - keyword: DISTSTYLE
+      - keyword: ALL
+      - keyword: DISTKEY
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            identifier: col1
+          end_bracket: )
+      - keyword: INTERLEAVED
+      - keyword: SORTKEY
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            identifier: col1
+        - comma: ','
+        - column_reference:
+            identifier: col2
+        - end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              identifier: col1
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: col2
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: t2
+- statement_terminator: ;
+- statement:
+    create_table_as_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - object_reference:
         identifier: t1
     - bracketed:
       - start_bracket: (
       - column_reference:
           identifier: col1
-      - data_type:
-          data_type_identifier: NUMERIC
       - comma: ','
       - column_reference:
           identifier: col2
-      - data_type:
-          data_type_identifier: VARCHAR
-          bracketed:
-            start_bracket: (
-            expression:
-              literal: '10'
-            end_bracket: )
+      - end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              identifier: col1
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: col2
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: t2
+- statement_terminator: ;
+- statement:
+    create_table_as_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - object_reference:
+        identifier: t1
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          identifier: col1
+      - comma: ','
+      - column_reference:
+          identifier: col2
       - end_bracket: )
     - keyword: BACKUP
     - keyword: 'YES'
-    unparsable:
-    - raw: AS
-    - raw: SELECT
-    - raw: col1
-    - comma: ','
-    - raw: col2
-    - raw: FROM
-    - raw: t2
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              identifier: col1
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: col2
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: t2
+- statement_terminator: ;
+- statement:
+    create_table_as_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - object_reference:
+        identifier: t1
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          identifier: col1
+      - comma: ','
+      - column_reference:
+          identifier: col2
+      - end_bracket: )
+    - keyword: BACKUP
+    - keyword: 'NO'
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              identifier: col1
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: col2
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: t2
 - statement_terminator: ;
