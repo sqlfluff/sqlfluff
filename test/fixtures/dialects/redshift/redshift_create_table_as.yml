@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 99b5f2da4989b6af7f0a5ed99ce44b2a27ad7c5a6bbb6416a95a79ce7aa4b817
+_hash: b626b558a96d40df23f321e343c52f92c2f635525488fb69fab11a78fec8889c
 file:
 - statement:
     create_table_as_statement:
@@ -149,7 +149,7 @@ file:
     - keyword: TABLE
     - object_reference:
         identifier: t1
-    - table_attribute_segment:
+    - table_constraint_segment:
         keyword: SORTKEY
         bracketed:
           start_bracket: (
@@ -177,7 +177,7 @@ file:
     - keyword: TABLE
     - object_reference:
         identifier: t1
-    - table_attribute_segment:
+    - table_constraint_segment:
         keyword: SORTKEY
         bracketed:
           start_bracket: (
@@ -205,7 +205,7 @@ file:
     - keyword: TABLE
     - object_reference:
         identifier: t1
-    - table_attribute_segment:
+    - table_constraint_segment:
         keyword: DISTKEY
         bracketed:
           start_bracket: (
@@ -233,7 +233,7 @@ file:
     - keyword: TABLE
     - object_reference:
         identifier: t1
-    - table_attribute_segment:
+    - table_constraint_segment:
       - keyword: DISTKEY
       - bracketed:
           start_bracket: (
@@ -267,7 +267,7 @@ file:
     - keyword: TABLE
     - object_reference:
         identifier: t1
-    - table_attribute_segment:
+    - table_constraint_segment:
       - keyword: DISTSTYLE
       - keyword: EVEN
     - keyword: AS
@@ -291,7 +291,7 @@ file:
     - keyword: TABLE
     - object_reference:
         identifier: t1
-    - table_attribute_segment:
+    - table_constraint_segment:
       - keyword: DISTSTYLE
       - keyword: ALL
       - keyword: DISTKEY
@@ -327,7 +327,7 @@ file:
     - keyword: TABLE
     - object_reference:
         identifier: t1
-    - table_attribute_segment:
+    - table_constraint_segment:
       - keyword: DISTSTYLE
       - keyword: ALL
       - keyword: DISTKEY
@@ -371,7 +371,7 @@ file:
     - keyword: TABLE
     - object_reference:
         identifier: t1
-    - table_attribute_segment:
+    - table_constraint_segment:
       - keyword: DISTSTYLE
       - keyword: ALL
       - keyword: DISTKEY
