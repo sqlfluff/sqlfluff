@@ -267,7 +267,12 @@ class CreateTableAsStatementSegment(BaseSegment):
         ),
         "TABLE",
         Ref("ObjectReferenceSegment"),
-        Ref("ColumnReferenceSegment", optional=True),
+        Bracketed(
+            Delimited(
+                Ref("ColumnReferenceSegment"),
+            ),
+            optional=True,
+        ),
         Sequence("BACKUP", OneOf("YES", "NO"), optional=True),
         Ref("TableAttributeSegment", optional=True),
         "AS",
