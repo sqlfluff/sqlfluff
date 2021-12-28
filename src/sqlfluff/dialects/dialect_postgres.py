@@ -414,6 +414,7 @@ class DatatypeSegment(BaseSegment):
                     # numeric types
                     "SMALLINT",
                     "INTEGER",
+                    "INT",
                     "INT2",
                     "INT4",
                     "INT8",
