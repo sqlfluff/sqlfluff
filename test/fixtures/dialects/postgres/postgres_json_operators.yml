@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d232c01fa9b2c94cdffc024b479f2bdee2b5e0f3ef027aae1438d53b8f0264b7
+_hash: c91c4a9b33edc4620966a318e726661b1c244f15c952f4782cc0adb032f4e194
 file:
 - statement:
     select_statement:
@@ -54,7 +54,7 @@ file:
           - cast_expression:
               casting_operator: '::'
               data_type:
-                data_type_identifier: json
+                keyword: json
           - binary_operator: ->
           - literal: '2'
 - statement_terminator: ;
@@ -68,7 +68,7 @@ file:
           - cast_expression:
               casting_operator: '::'
               data_type:
-                data_type_identifier: json
+                keyword: json
           - binary_operator: ->
           - literal: "'a'"
 - statement_terminator: ;
@@ -82,7 +82,7 @@ file:
           - cast_expression:
               casting_operator: '::'
               data_type:
-                data_type_identifier: json
+                keyword: json
           - binary_operator: ->>
           - literal: '2'
 - statement_terminator: ;
@@ -96,7 +96,7 @@ file:
           - cast_expression:
               casting_operator: '::'
               data_type:
-                data_type_identifier: json
+                keyword: json
           - binary_operator: ->>
           - literal: "'b'"
 - statement_terminator: ;
@@ -110,7 +110,7 @@ file:
           - cast_expression:
               casting_operator: '::'
               data_type:
-                data_type_identifier: json
+                keyword: json
           - binary_operator: '#>'
           - literal: "'{a,b}'"
 - statement_terminator: ;
@@ -124,7 +124,7 @@ file:
           - cast_expression:
               casting_operator: '::'
               data_type:
-                data_type_identifier: json
+                keyword: json
           - binary_operator: '#>>'
           - literal: "'{a,2}'"
 - statement_terminator: ;

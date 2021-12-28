@@ -398,132 +398,106 @@ class DatatypeSegment(BaseSegment):
     type = "data_type"
     match_grammar = Sequence(
         OneOf(
-        Ref("WellKnownTextGeometrySegment"),
-        Sequence(
-            Ref("DateTimeTypeIdentifier"),
-            Ref("TimeZoneGrammar", optional=True),
-        ),
-        Sequence(
-            OneOf(
-                # numeric types
-                "SMALLINT",
-                "INTEGER",
-                "INT2",
-                "INT4",
-                "INT8",
-                "BIGINT",
-                "FLOAT4",
-                "FLOAT8",
-                "REAL",
-                Sequence("DOUBLE", "PRECISION"),
-                "SMALLSERIAL",
-                "SERIAL",
-                "SERIAL2",
-                "SERIAL4",
-                "SERIAL8",
-                "BIGSERIAL",
-                # numeric types [(precision)]
-                Sequence(
-                    OneOf("FLOAT"),
-                    Bracketed(Ref("NumericLiteralSegment"), optional=True),
-                ),
-                # numeric types [precision ["," scale])]
-                Sequence(
-                    OneOf("DECIMAL", "NUMERIC"),
-                    Bracketed(
-                        Delimited(Ref("NumericLiteralSegment")),
-                        optional=True,
-                    ),
-                ),
-                # monetary type
-                "MONEY",
-                # character types
+            Ref("WellKnownTextGeometrySegment"),
+            Sequence(
+                Ref("DateTimeTypeIdentifier"),
+                Ref("TimeZoneGrammar", optional=True),
+            ),
+            Sequence(
                 OneOf(
+                    # numeric types
+                    "SMALLINT",
+                    "INTEGER",
+                    "INT2",
+                    "INT4",
+                    "INT8",
+                    "BIGINT",
+                    "FLOAT4",
+                    "FLOAT8",
+                    "REAL",
+                    Sequence("DOUBLE", "PRECISION"),
+                    "SMALLSERIAL",
+                    "SERIAL",
+                    "SERIAL2",
+                    "SERIAL4",
+                    "SERIAL8",
+                    "BIGSERIAL",
+                    # numeric types [(precision)]
                     Sequence(
-                        OneOf(
-                            "CHAR",
-                            "CHARACTER",
-                            Sequence("CHARACTER", "VARYING"),
-                            "VARCHAR",
-                        ),
+                        OneOf("FLOAT"),
                         Bracketed(Ref("NumericLiteralSegment"), optional=True),
                     ),
-                    "TEXT",
-                ),
-                # binary type
-                "BYTEA",
-                # boolean types
-                OneOf("BOOLEAN", "BOOL"),
-                # geometric types
-                OneOf("POINT", "LINE", "LSEG", "BOX", "PATH", "POLYGON", "CIRCLE"),
-                # network address types
-                OneOf("CIDR", "INET", "MACADDR", "MACADDR8"),
-                # bit string types
-                Sequence(
-                    "BIT",
-                    OneOf("VARYING", optional=True),
-                    Bracketed(
-                        Ref("NumericLiteralSegment"),
-                        optional=True,
-                    ),
-                ),
-                # uuid type
-                "UUID",
-                # xml type
-                "XML",
-                # json types
-                OneOf("JSON", "JSONB"),
-                # range types
-                "INT4RANGE", "INT8RANGE","NUMRANGE","TSRANGE","TSTZRANGE","DATERANGE",
-                # pg_lsn type
-                "PG_LSN",
-                Sequence(
-                    "BINARY",
-                    OneOf("VARYING", Sequence("LARGE", "OBJECT")),
-                ),
-                Sequence(
-                    # Some dialects allow optional qualification of data types with schemas
+                    # numeric types [precision ["," scale])]
                     Sequence(
-                        Ref("SingleIdentifierGrammar"),
-                        Ref("DotSegment"),
-                        allow_gaps=False,
-                        optional=True,
-                    ),
-                    # TODO change to UserDefinedDattypeIdentifierSegment as the standard types are listed above
-                    Ref("DatatypeIdentifierSegment"),
-                    OneOf(
-                        Ref("ArrayAccessorSegment"),
-                        Sequence(
-                            Ref("SimpleArrayTypeGrammar"), Ref("ArrayLiteralSegment")
+                        OneOf("DECIMAL", "NUMERIC"),
+                        Bracketed(
+                            Delimited(Ref("NumericLiteralSegment")),
+                            optional=True,
                         ),
-                        optional=True,
                     ),
-                    allow_gaps=False,
+                    # monetary type
+                    "MONEY",
+                    # character types
+                    OneOf(
+                        Sequence(
+                            OneOf(
+                                "CHAR",
+                                "CHARACTER",
+                                Sequence("CHARACTER", "VARYING"),
+                                "VARCHAR",
+                            ),
+                            Bracketed(Ref("NumericLiteralSegment"), optional=True),
+                        ),
+                        "TEXT",
+                    ),
+                    # binary type
+                    "BYTEA",
+                    # boolean types
+                    OneOf("BOOLEAN", "BOOL"),
+                    # geometric types
+                    OneOf("POINT", "LINE", "LSEG", "BOX", "PATH", "POLYGON", "CIRCLE"),
+                    # network address types
+                    OneOf("CIDR", "INET", "MACADDR", "MACADDR8"),
+                    # text search types
+                    OneOf("TSVECTOR", "TSQUERY"),
+                    # bit string types
+                    Sequence(
+                        "BIT",
+                        OneOf("VARYING", optional=True),
+                        Bracketed(
+                            Ref("NumericLiteralSegment"),
+                            optional=True,
+                        ),
+                    ),
+                    # uuid type
+                    "UUID",
+                    # xml type
+                    "XML",
+                    # json types
+                    OneOf("JSON", "JSONB"),
+                    # range types
+                    "INT4RANGE",
+                    "INT8RANGE",
+                    "NUMRANGE",
+                    "TSRANGE",
+                    "TSTZRANGE",
+                    "DATERANGE",
+                    # pg_lsn type
+                    "PG_LSN",
                 ),
             ),
-            Bracketed(
-                OneOf(
-                    Delimited(Ref("ExpressionSegment")),
-                    # The brackets might be empty for some cases...
-                    optional=True,
-                ),
-                # There may be no brackets for some data types
-                optional=True,
-            ),
-            Ref("CharCharacterSetSegment", optional=True),
         ),
-    ),
         # array types
         OneOf(
-            Bracketed(
-                Ref("NumericLiteralSegment", optional=True)
-                , bracket_type="square"),
-              Ref("SimpleArrayTypeGrammar"),
-              Sequence(
-                  Ref("SimpleArrayTypeGrammar"), Ref("ArrayLiteralSegment")
-              )
-                ,optional=True
-              )
+            AnyNumberOf(
+                Bracketed(
+                    Ref("ExpressionSegment", optional=True), bracket_type="square"
+                )
+            ),
+            Ref("SimpleArrayTypeGrammar"),
+            Sequence(Ref("SimpleArrayTypeGrammar"), Ref("ArrayLiteralSegment")),
+            optional=True,
+        ),
     )
 
 

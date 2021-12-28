@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ec5570420ed294eb3bd86db8efdaf55eaada43056f5ce00f5883cf02e16ed64a
+_hash: b7357c21839c23b0d05579ce5f6fecfce12c672e295b7089bca9a98084905257
 file:
 - statement:
     select_statement:
@@ -70,20 +70,18 @@ file:
       - column_reference:
           identifier: pay_by_quarter
       - data_type:
-          data_type_identifier: integer
-          array_accessor:
-            start_square_bracket: '['
-            end_square_bracket: ']'
+          keyword: integer
+          start_square_bracket: '['
+          end_square_bracket: ']'
       - comma: ','
       - column_reference:
           identifier: schedule
       - data_type:
-          data_type_identifier: text
-          array_accessor:
-          - start_square_bracket: '['
-          - end_square_bracket: ']'
-          - start_square_bracket: '['
-          - end_square_bracket: ']'
+        - keyword: text
+        - start_square_bracket: '['
+        - end_square_bracket: ']'
+        - start_square_bracket: '['
+        - end_square_bracket: ']'
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -97,14 +95,15 @@ file:
         column_reference:
           identifier: squares
         data_type:
-          data_type_identifier: integer
-          array_accessor:
-          - start_square_bracket: '['
-          - literal: '3'
-          - end_square_bracket: ']'
-          - start_square_bracket: '['
-          - literal: '3'
-          - end_square_bracket: ']'
+        - keyword: integer
+        - start_square_bracket: '['
+        - expression:
+            literal: '3'
+        - end_square_bracket: ']'
+        - start_square_bracket: '['
+        - expression:
+            literal: '3'
+        - end_square_bracket: ']'
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -543,18 +542,14 @@ file:
                   select_clause:
                     keyword: SELECT
                     select_clause_element:
-                      expression:
-                        literal: "'[1:1][-2:-1][3:5]={{{1,2,3},{4,5,6}}}'"
-                        cast_expression:
-                          casting_operator: '::'
-                          data_type:
-                            data_type_identifier: int
-                            array_accessor:
-                              start_square_bracket: '['
-                              end_square_bracket: ']'
-                      alias_expression:
-                        keyword: AS
-                        identifier: f1
+                      literal: "'[1:1][-2:-1][3:5]={{{1,2,3},{4,5,6}}}'"
+                      unparsable:
+                      - raw: '::'
+                      - raw: int
+                      - start_square_bracket: '['
+                      - end_square_bracket: ']'
+                      - raw: AS
+                      - raw: f1
                 end_bracket: )
             alias_expression:
               keyword: AS

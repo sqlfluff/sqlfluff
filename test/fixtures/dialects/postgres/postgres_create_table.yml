@@ -3,23 +3,20 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7a89af6313c337647bd7ee463b6596ea3bbd84bf8496134dab5c68b235682252
+_hash: 4b22fca454919f7cf1592cae47d0dda71fb2349efe4b1654f59ff380be15070a
 file:
 - statement:
-    create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: counters
+    unparsable:
+    - raw: CREATE
+    - raw: TABLE
+    - raw: counters
     - bracketed:
-        start_bracket: (
-        column_reference:
-          identifier: my_type
-        data_type:
-          identifier: public
-          dot: .
-          data_type_identifier: MY_TYPE
-        end_bracket: )
+      - start_bracket: (
+      - raw: my_type
+      - raw: public
+      - raw: .
+      - raw: MY_TYPE
+      - end_bracket: )
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -450,96 +447,69 @@ file:
       - end_bracket: )
 - statement_terminator: ;
 - statement:
-    create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: measurement
+    unparsable:
+    - raw: CREATE
+    - raw: TABLE
+    - raw: measurement
     - bracketed:
       - start_bracket: (
-      - column_reference:
-          identifier: logdate
-      - data_type:
-          datetime_type_identifier:
-            keyword: date
-      - column_constraint_segment:
-        - keyword: not
-        - keyword: 'null'
+      - raw: logdate
+      - raw: date
+      - raw: not
+      - raw: 'null'
       - comma: ','
-      - column_reference:
-          identifier: peaktemp
-      - data_type:
-          data_type_identifier: int
+      - raw: peaktemp
+      - raw: int
       - comma: ','
-      - column_reference:
-          identifier: unitsales
-      - data_type:
-          data_type_identifier: int
+      - raw: unitsales
+      - raw: int
       - end_bracket: )
-    - keyword: PARTITION
-    - keyword: BY
-    - keyword: RANGE
+    - raw: PARTITION
+    - raw: BY
+    - raw: RANGE
     - bracketed:
         start_bracket: (
-        column_reference:
-          identifier: logdate
+        raw: logdate
         end_bracket: )
 - statement_terminator: ;
 - statement:
-    create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: measurement_year_month
+    unparsable:
+    - raw: CREATE
+    - raw: TABLE
+    - raw: measurement_year_month
     - bracketed:
       - start_bracket: (
-      - column_reference:
-          identifier: logdate
-      - data_type:
-          datetime_type_identifier:
-            keyword: date
-      - column_constraint_segment:
-        - keyword: not
-        - keyword: 'null'
+      - raw: logdate
+      - raw: date
+      - raw: not
+      - raw: 'null'
       - comma: ','
-      - column_reference:
-          identifier: peaktemp
-      - data_type:
-          data_type_identifier: int
+      - raw: peaktemp
+      - raw: int
       - comma: ','
-      - column_reference:
-          identifier: unitsales
-      - data_type:
-          data_type_identifier: int
+      - raw: unitsales
+      - raw: int
       - end_bracket: )
-    - keyword: PARTITION
-    - keyword: BY
-    - keyword: RANGE
+    - raw: PARTITION
+    - raw: BY
+    - raw: RANGE
     - bracketed:
       - start_bracket: (
-      - function:
-          function_name:
-            function_name_identifier: EXTRACT
-          bracketed:
-            start_bracket: (
-            date_part: YEAR
-            keyword: FROM
-            expression:
-              column_reference:
-                identifier: logdate
-            end_bracket: )
+      - raw: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - raw: YEAR
+        - raw: FROM
+        - raw: logdate
+        - end_bracket: )
       - comma: ','
-      - function:
-          function_name:
-            function_name_identifier: EXTRACT
-          bracketed:
-            start_bracket: (
-            date_part: MONTH
-            keyword: FROM
-            expression:
-              column_reference:
-                identifier: logdate
-            end_bracket: )
+      - raw: EXTRACT
+      - bracketed:
+        - start_bracket: (
+        - raw: MONTH
+        - raw: FROM
+        - raw: logdate
+        - end_bracket: )
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -1074,47 +1044,34 @@ file:
       - end_bracket: )
 - statement_terminator: ;
 - statement:
-    create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: measurement
+    unparsable:
+    - raw: CREATE
+    - raw: TABLE
+    - raw: measurement
     - bracketed:
       - start_bracket: (
-      - column_reference:
-          identifier: city_id
-      - data_type:
-          data_type_identifier: int
-      - column_constraint_segment:
-        - keyword: NOT
-        - keyword: 'NULL'
+      - raw: city_id
+      - raw: int
+      - raw: NOT
+      - raw: 'NULL'
       - comma: ','
-      - column_reference:
-          identifier: logdate
-      - data_type:
-          datetime_type_identifier:
-            keyword: date
-      - column_constraint_segment:
-        - keyword: NOT
-        - keyword: 'NULL'
+      - raw: logdate
+      - raw: date
+      - raw: NOT
+      - raw: 'NULL'
       - comma: ','
-      - column_reference:
-          identifier: peaktemp
-      - data_type:
-          data_type_identifier: int
+      - raw: peaktemp
+      - raw: int
       - comma: ','
-      - column_reference:
-          identifier: unitsales
-      - data_type:
-          data_type_identifier: int
+      - raw: unitsales
+      - raw: int
       - end_bracket: )
-    - keyword: PARTITION
-    - keyword: BY
-    - keyword: RANGE
+    - raw: PARTITION
+    - raw: BY
+    - raw: RANGE
     - bracketed:
         start_bracket: (
-        column_reference:
-          identifier: logdate
+        raw: logdate
         end_bracket: )
 - statement_terminator: ;
 - statement:

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: dcab15324f4ca87e335d3b06e37e48c7e8b259e9af01a204d6d88bb4fcbc2091
+_hash: 007acf35012bb045a045232fc5e33f12984bcaaeb92af48c0cdd2d4c0bcd7dfd
 file:
 - statement:
     create_table_statement:
@@ -544,14 +544,162 @@ file:
     - table_reference:
         identifier: l
     - bracketed:
+        start_bracket: (
+        column_reference:
+          identifier: a
+        data_type:
+          keyword: pg_lsn
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        identifier: l
+    - bracketed:
       - start_bracket: (
       - column_reference:
           identifier: a
       - data_type:
-          data_type_identifier: tsvector
+          keyword: tsvector
       - comma: ','
       - column_reference:
           identifier: b
       - data_type:
-          data_type_identifier: tsquery
+          keyword: tsquery
       - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        identifier: m
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          identifier: a
+        data_type:
+          keyword: uuid
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        identifier: n
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          identifier: a
+        data_type:
+          keyword: xml
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        identifier: o
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          identifier: a
+      - data_type:
+          keyword: json
+      - comma: ','
+      - column_reference:
+          identifier: b
+      - data_type:
+          keyword: jsonb
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        identifier: p
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          identifier: a
+      - data_type:
+          keyword: integer
+          start_square_bracket: '['
+          end_square_bracket: ']'
+      - comma: ','
+      - column_reference:
+          identifier: b
+      - data_type:
+        - keyword: float
+        - start_square_bracket: '['
+        - end_square_bracket: ']'
+        - start_square_bracket: '['
+        - end_square_bracket: ']'
+      - comma: ','
+      - column_reference:
+          identifier: c
+      - data_type:
+          keyword: char
+          start_square_bracket: '['
+          expression:
+            literal: '1'
+          end_square_bracket: ']'
+      - comma: ','
+      - column_reference:
+          identifier: d
+      - data_type:
+        - keyword: jsonb
+        - start_square_bracket: '['
+        - expression:
+            literal: '3'
+        - end_square_bracket: ']'
+        - start_square_bracket: '['
+        - expression:
+            literal: '5'
+        - end_square_bracket: ']'
+      - comma: ','
+      - column_reference:
+          identifier: e
+      - data_type:
+        - keyword: money
+        - keyword: ARRAY
+      - comma: ','
+      - column_reference:
+          identifier: f
+      - data_type:
+        - keyword: money
+        - keyword: ARRAY
+        - array_contents_grammar:
+            simple_array_contents_grammar:
+              start_square_bracket: '['
+              literal: '7'
+              end_square_bracket: ']'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: create
+    - keyword: table
+    - table_reference:
+        identifier: q
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          identifier: a
+      - data_type:
+        - keyword: integer
+        - keyword: ARRAY
+      - comma: ','
+      - column_reference:
+          identifier: b
+      - data_type:
+          keyword: integer
+          start_square_bracket: '['
+          end_square_bracket: ']'
+      - end_bracket: )
+- statement_terminator: ;

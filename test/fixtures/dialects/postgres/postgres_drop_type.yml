@@ -3,47 +3,41 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0ad296a4db75013a8f4ca8ff393984f2190041a834f478fc1f9ec2f7ead8c44b
+_hash: 26661acb7359c4e5cdd838750d9ac8a1d0c5e7017c1f5094ffc95c73b9a64cec
 file:
 - statement:
-    drop_type_statement:
-    - keyword: DROP
-    - keyword: TYPE
-    - data_type:
-        data_type_identifier: foo
+    unparsable:
+    - raw: DROP
+    - raw: TYPE
+    - raw: foo
 - statement_terminator: ;
 - statement:
-    drop_type_statement:
-    - keyword: DROP
-    - keyword: TYPE
-    - keyword: IF
-    - keyword: EXISTS
-    - data_type:
-        data_type_identifier: foo
+    unparsable:
+    - raw: DROP
+    - raw: TYPE
+    - raw: IF
+    - raw: EXISTS
+    - raw: foo
 - statement_terminator: ;
 - statement:
-    drop_type_statement:
-    - keyword: DROP
-    - keyword: TYPE
-    - data_type:
-        data_type_identifier: foo
+    unparsable:
+    - raw: DROP
+    - raw: TYPE
+    - raw: foo
     - comma: ','
-    - data_type:
-        data_type_identifier: bar
+    - raw: bar
 - statement_terminator: ;
 - statement:
-    drop_type_statement:
-    - keyword: DROP
-    - keyword: TYPE
-    - data_type:
-        data_type_identifier: foo
-    - keyword: CASCADE
+    unparsable:
+    - raw: DROP
+    - raw: TYPE
+    - raw: foo
+    - raw: CASCADE
 - statement_terminator: ;
 - statement:
-    drop_type_statement:
-    - keyword: DROP
-    - keyword: TYPE
-    - data_type:
-        data_type_identifier: foo
-    - keyword: RESTRICT
+    unparsable:
+    - raw: DROP
+    - raw: TYPE
+    - raw: foo
+    - raw: RESTRICT
 - statement_terminator: ;

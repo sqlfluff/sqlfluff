@@ -114,7 +114,7 @@ create table n(
 
 create table o(
     a json,
-    b json b
+    b jsonb
 );
 
 create table p(
