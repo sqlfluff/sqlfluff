@@ -106,7 +106,7 @@ test_pass_special_chars_create_table_space_allowed:
   configs:
     rules:
       L057:
-        allow_space_in_identifier: True
+        allow_space_in_identifier: true
 
 test_fail_special_chars_quoted_policy_alias:
   fail_str:

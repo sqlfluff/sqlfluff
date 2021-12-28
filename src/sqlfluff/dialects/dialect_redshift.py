@@ -320,7 +320,7 @@ class CreateUserSegment(BaseSegment):
     match_grammar = Sequence(
         "CREATE",
         "USER",
-        Ref("NakedIdentifierSegment"),
+        Ref("ObjectReferenceSegment"),
         Ref.keyword("WITH", optional=True),
         "PASSWORD",
         OneOf(Ref("QuotedLiteralSegment"), "DISABLE"),
@@ -341,7 +341,7 @@ class CreateUserSegment(BaseSegment):
                     "UNRESTRICTED",
                 ),
             ),
-            Sequence("IN", "GROUP", Delimited(Ref("NakedIdentifierSegment"))),
+            Sequence("IN", "GROUP", Delimited(Ref("ObjectReferenceSegment"))),
             Sequence("VALID", "UNTIL", Ref("QuotedLiteralSegment")),
             Sequence(
                 "CONNECTION",
@@ -372,12 +372,12 @@ class CreateGroupSegment(BaseSegment):
     match_grammar = Sequence(
         "CREATE",
         "GROUP",
-        Ref("NakedIdentifierSegment"),
+        Ref("ObjectReferenceSegment"),
         Sequence(
             Ref.keyword("WITH", optional=True),
             "USER",
             Delimited(
-                Ref("NakedIdentifierSegment"),
+                Ref("ObjectReferenceSegment"),
             ),
             optional=True,
         ),
@@ -396,7 +396,7 @@ class AlterUserSegment(BaseSegment):
     match_grammar = Sequence(
         "ALTER",
         "USER",
-        Ref("NakedIdentifierSegment"),
+        Ref("ObjectReferenceSegment"),
         Ref.keyword("WITH", optional=True),
         AnyNumberOf(
             OneOf(
@@ -426,7 +426,7 @@ class AlterUserSegment(BaseSegment):
             Sequence(
                 "RENAME",
                 "TO",
-                Ref("NakedIdentifierSegment"),
+                Ref("ObjectReferenceSegment"),
             ),
             Sequence(
                 "CONNECTION",
@@ -451,7 +451,7 @@ class AlterUserSegment(BaseSegment):
             OneOf(
                 Sequence(
                     "SET",
-                    Ref("NakedIdentifierSegment"),
+                    Ref("ObjectReferenceSegment"),
                     OneOf(
                         "TO",
                         Ref("EqualsSegment"),
@@ -463,7 +463,7 @@ class AlterUserSegment(BaseSegment):
                 ),
                 Sequence(
                     "RESET",
-                    Ref("NakedIdentifierSegment"),
+                    Ref("ObjectReferenceSegment"),
                 ),
             ),
             min_times=1,
@@ -483,19 +483,19 @@ class AlterGroupSegment(BaseSegment):
     match_grammar = Sequence(
         "ALTER",
         "GROUP",
-        Ref("NakedIdentifierSegment"),
+        Ref("ObjectReferenceSegment"),
         OneOf(
             Sequence(
                 OneOf("ADD", "DROP"),
                 "USER",
                 Delimited(
-                    Ref("NakedIdentifierSegment"),
+                    Ref("ObjectReferenceSegment"),
                 ),
             ),
             Sequence(
                 "RENAME",
                 "TO",
-                Ref("NakedIdentifierSegment"),
+                Ref("ObjectReferenceSegment"),
             ),
         ),
     )

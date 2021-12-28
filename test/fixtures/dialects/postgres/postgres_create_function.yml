@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c0a41069ff4afdb21e26600f5401ca9bfe880bfdbd3c9be1b6ef736b5f0d9fe5
+_hash: 8b940eaa937d8f81d68b21ee7c560575a81aaa245c0a85d4d7ffb283a5b34c89
 file:
 - statement:
     create_function_statement:
@@ -551,4 +551,52 @@ file:
       - raw: STABLE
       - raw: PARALLEL
       - raw: SAFE
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: _add
+    - base:
+        bracketed:
+        - start_bracket: (
+        - data_type:
+            data_type_identifier: integer
+        - comma: ','
+        - data_type:
+            data_type_identifier: integer
+        - end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: integer
+    - base:
+      - keyword: AS
+      - literal: "'select $1 + $2;'"
+      - keyword: LANGUAGE
+      - parameter: SQL
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: _$add
+    - base:
+        bracketed:
+        - start_bracket: (
+        - data_type:
+            data_type_identifier: integer
+        - comma: ','
+        - data_type:
+            data_type_identifier: integer
+        - end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        data_type_identifier: integer
+    - base:
+      - keyword: AS
+      - literal: "'select $1 + $2;'"
+      - keyword: LANGUAGE
+      - parameter: SQL
 - statement_terminator: ;

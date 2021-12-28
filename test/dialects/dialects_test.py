@@ -1,6 +1,6 @@
 """Automated tests for all dialects.
 
-Any files in the /tests/fixtures/parser directoy will be picked up
+Any files in the test/fixtures/dialects/ directory will be picked up
 and automatically tested against the appropriate dialect.
 """
 
