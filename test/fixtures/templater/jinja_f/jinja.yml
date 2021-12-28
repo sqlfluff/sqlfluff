@@ -111,7 +111,7 @@ file:
                   end_square_bracket: "]"
               keyword: AS
               data_type:
-                data_type_identifier: FLOAT64
+                keyword: FLOAT64
               end_bracket: )
           alias_expression:
             keyword: AS
@@ -140,7 +140,7 @@ file:
                   end_square_bracket: "]"
               keyword: AS
               data_type:
-                data_type_identifier: FLOAT64
+                keyword: FLOAT64
               end_bracket: )
           alias_expression:
             keyword: AS
