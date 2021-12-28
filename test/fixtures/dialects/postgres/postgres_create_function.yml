@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8b940eaa937d8f81d68b21ee7c560575a81aaa245c0a85d4d7ffb283a5b34c89
+_hash: 1d96a50ac1979e9bc0bcd27e419229eb79dd8c0dc3019cbdb3704f3a628ae119
 file:
 - statement:
     create_function_statement:
@@ -232,27 +232,32 @@ file:
 - statement_terminator: ;
 - statement:
     create_function_statement:
-      unparsable:
-      - keyword: CREATE
-      - keyword: FUNCTION
-      - raw: dup
-      - bracketed:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: dup
+    - base:
+        bracketed:
         - start_bracket: (
-        - raw: in
-        - raw: int
+        - keyword: in
+        - data_type:
+            keyword: int
         - comma: ','
-        - raw: out
-        - raw: f1
-        - raw: int
+        - keyword: out
+        - parameter: f1
+        - data_type:
+            keyword: int
         - comma: ','
-        - raw: out
-        - raw: f2
-        - raw: text
+        - keyword: out
+        - parameter: f2
+        - data_type:
+            keyword: text
         - end_bracket: )
-      - raw: AS
-      - raw: "$$ SELECT $1, CAST($1 AS text) || ' is text' $$"
-      - raw: LANGUAGE
-      - raw: SQL
+    - base:
+      - keyword: AS
+      - literal: "$$ SELECT $1, CAST($1 AS text) || ' is text' $$"
+      - keyword: LANGUAGE
+      - parameter: SQL
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -300,7 +305,8 @@ file:
       - raw: dup
       - bracketed:
           start_bracket: (
-          raw: int
+          data_type:
+            keyword: int
           end_bracket: )
       - raw: RETURNS
       - raw: dup_result
@@ -333,28 +339,33 @@ file:
 - statement_terminator: ;
 - statement:
     create_function_statement:
-      unparsable:
-      - keyword: CREATE
-      - keyword: FUNCTION
-      - raw: dup
-      - bracketed:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: dup
+    - base:
+        bracketed:
           start_bracket: (
-          raw: int
+          data_type:
+            keyword: int
           end_bracket: )
-      - raw: RETURNS
-      - raw: TABLE
-      - bracketed:
-        - start_bracket: (
-        - raw: f1
-        - raw: int
-        - comma: ','
-        - raw: f2
-        - raw: text
-        - end_bracket: )
-      - raw: AS
-      - raw: "$$ SELECT $1, CAST($1 AS text) || ' is text' $$"
-      - raw: LANGUAGE
-      - raw: SQL
+    - keyword: RETURNS
+    - keyword: TABLE
+    - bracketed:
+      - start_bracket: (
+      - parameter: f1
+      - data_type:
+          keyword: int
+      - comma: ','
+      - parameter: f2
+      - data_type:
+          keyword: text
+      - end_bracket: )
+    - base:
+      - keyword: AS
+      - literal: "$$ SELECT $1, CAST($1 AS text) || ' is text' $$"
+      - keyword: LANGUAGE
+      - parameter: SQL
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -526,31 +537,36 @@ file:
 - statement_terminator: ;
 - statement:
     create_function_statement:
-      unparsable:
-      - keyword: CREATE
-      - binary_operator: OR
-      - keyword: REPLACE
-      - keyword: FUNCTION
-      - raw: public
-      - raw: .
-      - raw: foo
-      - bracketed:
+    - keyword: CREATE
+    - binary_operator: OR
+    - keyword: REPLACE
+    - keyword: FUNCTION
+    - function_name:
+        identifier: public
+        dot: .
+        function_name_identifier: foo
+    - base:
+        bracketed:
         - start_bracket: (
-        - raw: _a
-        - raw: TEXT
+        - parameter: _a
+        - data_type:
+            keyword: TEXT
         - comma: ','
-        - raw: _$b
-        - raw: INT
+        - parameter: _$b
+        - data_type:
+            keyword: INT
         - end_bracket: )
-      - raw: RETURNS
-      - raw: FLOAT
-      - raw: AS
-      - raw: "$$\n  RETURN 0.0\n$$"
-      - raw: LANGUAGE
-      - raw: plpgsql
-      - raw: STABLE
-      - raw: PARALLEL
-      - raw: SAFE
+    - keyword: RETURNS
+    - data_type:
+        keyword: FLOAT
+    - base:
+      - keyword: AS
+      - literal: "$$\n  RETURN 0.0\n$$"
+      - keyword: LANGUAGE
+      - parameter: plpgsql
+      - keyword: STABLE
+      - keyword: PARALLEL
+      - keyword: SAFE
 - statement_terminator: ;
 - statement:
     create_function_statement:
@@ -562,14 +578,14 @@ file:
         bracketed:
         - start_bracket: (
         - data_type:
-            data_type_identifier: integer
+            keyword: integer
         - comma: ','
         - data_type:
-            data_type_identifier: integer
+            keyword: integer
         - end_bracket: )
     - keyword: RETURNS
     - data_type:
-        data_type_identifier: integer
+        keyword: integer
     - base:
       - keyword: AS
       - literal: "'select $1 + $2;'"
@@ -586,14 +602,14 @@ file:
         bracketed:
         - start_bracket: (
         - data_type:
-            data_type_identifier: integer
+            keyword: integer
         - comma: ','
         - data_type:
-            data_type_identifier: integer
+            keyword: integer
         - end_bracket: )
     - keyword: RETURNS
     - data_type:
-        data_type_identifier: integer
+        keyword: integer
     - base:
       - keyword: AS
       - literal: "'select $1 + $2;'"

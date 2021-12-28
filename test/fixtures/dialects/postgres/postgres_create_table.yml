@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4b22fca454919f7cf1592cae47d0dda71fb2349efe4b1654f59ff380be15070a
+_hash: 05e70b7535fa90fa3bb82a091e1e983ae26da5ccd517e8ef8639c58ef8674b95
 file:
 - statement:
     unparsable:
@@ -447,69 +447,96 @@ file:
       - end_bracket: )
 - statement_terminator: ;
 - statement:
-    unparsable:
-    - raw: CREATE
-    - raw: TABLE
-    - raw: measurement
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        identifier: measurement
     - bracketed:
       - start_bracket: (
-      - raw: logdate
-      - raw: date
-      - raw: not
-      - raw: 'null'
+      - column_reference:
+          identifier: logdate
+      - data_type:
+          datetime_type_identifier:
+            keyword: date
+      - column_constraint_segment:
+        - keyword: not
+        - keyword: 'null'
       - comma: ','
-      - raw: peaktemp
-      - raw: int
+      - column_reference:
+          identifier: peaktemp
+      - data_type:
+          keyword: int
       - comma: ','
-      - raw: unitsales
-      - raw: int
+      - column_reference:
+          identifier: unitsales
+      - data_type:
+          keyword: int
       - end_bracket: )
-    - raw: PARTITION
-    - raw: BY
-    - raw: RANGE
+    - keyword: PARTITION
+    - keyword: BY
+    - keyword: RANGE
     - bracketed:
         start_bracket: (
-        raw: logdate
+        column_reference:
+          identifier: logdate
         end_bracket: )
 - statement_terminator: ;
 - statement:
-    unparsable:
-    - raw: CREATE
-    - raw: TABLE
-    - raw: measurement_year_month
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        identifier: measurement_year_month
     - bracketed:
       - start_bracket: (
-      - raw: logdate
-      - raw: date
-      - raw: not
-      - raw: 'null'
+      - column_reference:
+          identifier: logdate
+      - data_type:
+          datetime_type_identifier:
+            keyword: date
+      - column_constraint_segment:
+        - keyword: not
+        - keyword: 'null'
       - comma: ','
-      - raw: peaktemp
-      - raw: int
+      - column_reference:
+          identifier: peaktemp
+      - data_type:
+          keyword: int
       - comma: ','
-      - raw: unitsales
-      - raw: int
+      - column_reference:
+          identifier: unitsales
+      - data_type:
+          keyword: int
       - end_bracket: )
-    - raw: PARTITION
-    - raw: BY
-    - raw: RANGE
+    - keyword: PARTITION
+    - keyword: BY
+    - keyword: RANGE
     - bracketed:
       - start_bracket: (
-      - raw: EXTRACT
-      - bracketed:
-        - start_bracket: (
-        - raw: YEAR
-        - raw: FROM
-        - raw: logdate
-        - end_bracket: )
+      - function:
+          function_name:
+            function_name_identifier: EXTRACT
+          bracketed:
+            start_bracket: (
+            date_part: YEAR
+            keyword: FROM
+            expression:
+              column_reference:
+                identifier: logdate
+            end_bracket: )
       - comma: ','
-      - raw: EXTRACT
-      - bracketed:
-        - start_bracket: (
-        - raw: MONTH
-        - raw: FROM
-        - raw: logdate
-        - end_bracket: )
+      - function:
+          function_name:
+            function_name_identifier: EXTRACT
+          bracketed:
+            start_bracket: (
+            date_part: MONTH
+            keyword: FROM
+            expression:
+              column_reference:
+                identifier: logdate
+            end_bracket: )
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -1044,34 +1071,47 @@ file:
       - end_bracket: )
 - statement_terminator: ;
 - statement:
-    unparsable:
-    - raw: CREATE
-    - raw: TABLE
-    - raw: measurement
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        identifier: measurement
     - bracketed:
       - start_bracket: (
-      - raw: city_id
-      - raw: int
-      - raw: NOT
-      - raw: 'NULL'
+      - column_reference:
+          identifier: city_id
+      - data_type:
+          keyword: int
+      - column_constraint_segment:
+        - keyword: NOT
+        - keyword: 'NULL'
       - comma: ','
-      - raw: logdate
-      - raw: date
-      - raw: NOT
-      - raw: 'NULL'
+      - column_reference:
+          identifier: logdate
+      - data_type:
+          datetime_type_identifier:
+            keyword: date
+      - column_constraint_segment:
+        - keyword: NOT
+        - keyword: 'NULL'
       - comma: ','
-      - raw: peaktemp
-      - raw: int
+      - column_reference:
+          identifier: peaktemp
+      - data_type:
+          keyword: int
       - comma: ','
-      - raw: unitsales
-      - raw: int
+      - column_reference:
+          identifier: unitsales
+      - data_type:
+          keyword: int
       - end_bracket: )
-    - raw: PARTITION
-    - raw: BY
-    - raw: RANGE
+    - keyword: PARTITION
+    - keyword: BY
+    - keyword: RANGE
     - bracketed:
         start_bracket: (
-        raw: logdate
+        column_reference:
+          identifier: logdate
         end_bracket: )
 - statement_terminator: ;
 - statement:

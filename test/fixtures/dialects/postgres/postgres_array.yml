@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b7357c21839c23b0d05579ce5f6fecfce12c672e295b7089bca9a98084905257
+_hash: 0a29edb0ab991abca10ba5e84f9087fcf0b8eb3db94b94547684996de9c30e3b
 file:
 - statement:
     select_statement:
@@ -542,14 +542,17 @@ file:
                   select_clause:
                     keyword: SELECT
                     select_clause_element:
-                      literal: "'[1:1][-2:-1][3:5]={{{1,2,3},{4,5,6}}}'"
-                      unparsable:
-                      - raw: '::'
-                      - raw: int
-                      - start_square_bracket: '['
-                      - end_square_bracket: ']'
-                      - raw: AS
-                      - raw: f1
+                      expression:
+                        literal: "'[1:1][-2:-1][3:5]={{{1,2,3},{4,5,6}}}'"
+                        cast_expression:
+                          casting_operator: '::'
+                          data_type:
+                            keyword: int
+                            start_square_bracket: '['
+                            end_square_bracket: ']'
+                      alias_expression:
+                        keyword: AS
+                        identifier: f1
                 end_bracket: )
             alias_expression:
               keyword: AS

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8ca9d5b1a6a2ff4aa97bd4c6865ad7e7f056643deea023fcd6e9ade4be795265
+_hash: 36cf5343a80d84c09013625fab69626f73d453d7c49f6368d021e66239fe1cc7
 file:
 - statement:
     alter_table_statement:
@@ -1091,28 +1091,36 @@ file:
         - literal: '3'
 - statement_terminator: ;
 - statement:
-    unparsable:
-    - raw: ALTER
-    - raw: TABLE
-    - raw: distributors
-    - raw: ADD
-    - raw: my_column
-    - raw: int
-    - raw: GENERATED
-    - raw: BY
-    - raw: DEFAULT
-    - raw: AS
-    - raw: IDENTITY
-    - bracketed:
-      - start_bracket: (
-      - raw: CACHE
-      - raw: '3'
-      - raw: MAXVALUE
-      - raw: '63'
-      - raw: OWNED
-      - raw: BY
-      - raw: NONE
-      - end_bracket: )
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        identifier: distributors
+    - alter_table_action_segment:
+        keyword: ADD
+        column_reference:
+          identifier: my_column
+        data_type:
+          keyword: int
+        column_constraint_segment:
+        - keyword: GENERATED
+        - keyword: BY
+        - keyword: DEFAULT
+        - keyword: AS
+        - keyword: IDENTITY
+        - bracketed:
+          - start_bracket: (
+          - alter_sequence_options_segment:
+              keyword: CACHE
+              literal: '3'
+          - alter_sequence_options_segment:
+              keyword: MAXVALUE
+              literal: '63'
+          - alter_sequence_options_segment:
+            - keyword: OWNED
+            - keyword: BY
+            - keyword: NONE
+          - end_bracket: )
 - statement_terminator: ;
 - statement:
     alter_table_statement:

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c20bfefcec4d0783860dabfd19564f3a7636b6c160d0b6ba22646c7a7bd0e76b
+_hash: f2801097ec8935463eb9433fdf9571636996c6c28f5f7c420cbd0d79f74353f1
 file:
 - statement:
     alter_function_statement:
@@ -17,20 +17,23 @@ file:
 - statement_terminator: ;
 - statement:
     alter_function_statement:
-      unparsable:
-      - keyword: ALTER
-      - keyword: FUNCTION
-      - raw: fn
-      - bracketed:
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: fn
+    - base:
+        bracketed:
         - start_bracket: (
-        - raw: int
+        - data_type:
+            keyword: int
         - comma: ','
-        - raw: arg2
-        - raw: text
+        - parameter: arg2
+        - data_type:
+            keyword: text
         - end_bracket: )
-      - raw: OWNER
-      - raw: TO
-      - raw: auser
+    - keyword: OWNER
+    - keyword: TO
+    - parameter: auser
 - statement_terminator: ;
 - statement:
     alter_function_statement:
@@ -161,39 +164,45 @@ file:
 - statement_terminator: ;
 - statement:
     alter_function_statement:
-      unparsable:
-      - keyword: ALTER
-      - keyword: FUNCTION
-      - raw: fn
-      - bracketed:
-        - start_bracket: (
-        - raw: arg1
-        - raw: int
-        - end_bracket: )
-      - raw: CALLED
-      - raw: 'ON'
-      - raw: 'NULL'
-      - raw: INPUT
-      - raw: RESTRICT
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: fn
+    - base:
+        bracketed:
+          start_bracket: (
+          parameter: arg1
+          data_type:
+            keyword: int
+          end_bracket: )
+    - alter_function_action_segment:
+      - keyword: CALLED
+      - keyword: 'ON'
+      - keyword: 'NULL'
+      - keyword: INPUT
+      - keyword: RESTRICT
 - statement_terminator: ;
 - statement:
     alter_function_statement:
-      unparsable:
-      - keyword: ALTER
-      - keyword: FUNCTION
-      - raw: public
-      - raw: .
-      - raw: fn
-      - bracketed:
-        - start_bracket: (
-        - raw: arg1
-        - raw: int
-        - end_bracket: )
-      - raw: CALLED
-      - raw: 'ON'
-      - raw: 'NULL'
-      - raw: INPUT
-      - raw: RESTRICT
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - function_name:
+        identifier: public
+        dot: .
+        function_name_identifier: fn
+    - base:
+        bracketed:
+          start_bracket: (
+          parameter: arg1
+          data_type:
+            keyword: int
+          end_bracket: )
+    - alter_function_action_segment:
+      - keyword: CALLED
+      - keyword: 'ON'
+      - keyword: 'NULL'
+      - keyword: INPUT
+      - keyword: RESTRICT
 - statement_terminator: ;
 - statement:
     alter_function_statement:
@@ -210,21 +219,25 @@ file:
 - statement_terminator: ;
 - statement:
     alter_function_statement:
-      unparsable:
-      - keyword: ALTER
-      - keyword: FUNCTION
-      - raw: fn
-      - bracketed:
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: fn
+    - base:
+        bracketed:
         - start_bracket: (
-        - raw: int
+        - data_type:
+            keyword: int
         - comma: ','
-        - raw: text
+        - data_type:
+            keyword: text
         - end_bracket: )
-      - raw: RETURNS
-      - raw: 'NULL'
-      - raw: 'ON'
-      - raw: 'NULL'
-      - raw: INPUT
+    - alter_function_action_segment:
+      - keyword: RETURNS
+      - keyword: 'NULL'
+      - keyword: 'ON'
+      - keyword: 'NULL'
+      - keyword: INPUT
 - statement_terminator: ;
 - statement:
     alter_function_statement:
@@ -258,22 +271,26 @@ file:
 - statement_terminator: ;
 - statement:
     alter_function_statement:
-      unparsable:
-      - keyword: ALTER
-      - keyword: FUNCTION
-      - raw: fn
-      - bracketed:
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: fn
+    - base:
+        bracketed:
         - start_bracket: (
-        - raw: int
+        - data_type:
+            keyword: int
         - comma: ','
-        - raw: text
+        - data_type:
+            keyword: text
         - end_bracket: )
-      - raw: RETURNS
-      - raw: 'NULL'
-      - raw: 'ON'
-      - raw: 'NULL'
-      - raw: INPUT
-      - raw: RESTRICT
+    - alter_function_action_segment:
+      - keyword: RETURNS
+      - keyword: 'NULL'
+      - keyword: 'ON'
+      - keyword: 'NULL'
+      - keyword: INPUT
+      - keyword: RESTRICT
 - statement_terminator: ;
 - statement:
     alter_function_statement:
@@ -286,15 +303,18 @@ file:
 - statement_terminator: ;
 - statement:
     alter_function_statement:
-      unparsable:
-      - keyword: ALTER
-      - keyword: FUNCTION
-      - raw: fn
-      - bracketed:
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: fn
+    - base:
+        bracketed:
           start_bracket: (
-          raw: int
+          data_type:
+            keyword: int
           end_bracket: )
-      - raw: STRICT
+    - alter_function_action_segment:
+        keyword: STRICT
 - statement_terminator: ;
 - statement:
     alter_function_statement:
@@ -320,17 +340,20 @@ file:
 - statement_terminator: ;
 - statement:
     alter_function_statement:
-      unparsable:
-      - keyword: ALTER
-      - keyword: FUNCTION
-      - raw: fn
-      - bracketed:
-        - start_bracket: (
-        - raw: arg1
-        - raw: int
-        - end_bracket: )
-      - raw: STRICT
-      - raw: RESTRICT
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: fn
+    - base:
+        bracketed:
+          start_bracket: (
+          parameter: arg1
+          data_type:
+            keyword: int
+          end_bracket: )
+    - alter_function_action_segment:
+      - keyword: STRICT
+      - keyword: RESTRICT
 - statement_terminator: ;
 - statement:
     alter_function_statement:
@@ -414,104 +437,128 @@ file:
 - statement_terminator: ;
 - statement:
     alter_function_statement:
-      unparsable:
-      - keyword: ALTER
-      - keyword: FUNCTION
-      - raw: fn
-      - bracketed:
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: fn
+    - base:
+        bracketed:
         - start_bracket: (
-        - raw: int
+        - data_type:
+            keyword: int
         - comma: ','
-        - raw: arg2
-        - raw: text
+        - parameter: arg2
+        - data_type:
+            keyword: text
         - end_bracket: )
-      - raw: IMMUTABLE
+    - alter_function_action_segment:
+        keyword: IMMUTABLE
 - statement_terminator: ;
 - statement:
     alter_function_statement:
-      unparsable:
-      - keyword: ALTER
-      - keyword: FUNCTION
-      - raw: fn
-      - bracketed:
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: fn
+    - base:
+        bracketed:
         - start_bracket: (
-        - raw: int
+        - data_type:
+            keyword: int
         - comma: ','
-        - raw: arg2
-        - raw: text
+        - parameter: arg2
+        - data_type:
+            keyword: text
         - end_bracket: )
-      - raw: IMMUTABLE
-      - raw: RESTRICT
+    - alter_function_action_segment:
+      - keyword: IMMUTABLE
+      - keyword: RESTRICT
 - statement_terminator: ;
 - statement:
     alter_function_statement:
-      unparsable:
-      - keyword: ALTER
-      - keyword: FUNCTION
-      - raw: public
-      - raw: .
-      - raw: fn
-      - bracketed:
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - function_name:
+        identifier: public
+        dot: .
+        function_name_identifier: fn
+    - base:
+        bracketed:
         - start_bracket: (
-        - raw: int
+        - data_type:
+            keyword: int
         - comma: ','
-        - raw: arg2
-        - raw: text
+        - parameter: arg2
+        - data_type:
+            keyword: text
         - end_bracket: )
-      - raw: IMMUTABLE
-      - raw: RESTRICT
+    - alter_function_action_segment:
+      - keyword: IMMUTABLE
+      - keyword: RESTRICT
 - statement_terminator: ;
 - statement:
     alter_function_statement:
-      unparsable:
-      - keyword: ALTER
-      - keyword: FUNCTION
-      - raw: fn
-      - bracketed:
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: fn
+    - base:
+        bracketed:
           start_bracket: (
-          raw: int
+          data_type:
+            keyword: int
           end_bracket: )
-      - raw: STABLE
+    - alter_function_action_segment:
+        keyword: STABLE
 - statement_terminator: ;
 - statement:
     alter_function_statement:
-      unparsable:
-      - keyword: ALTER
-      - keyword: FUNCTION
-      - raw: fn
-      - bracketed:
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: fn
+    - base:
+        bracketed:
           start_bracket: (
-          raw: int
+          data_type:
+            keyword: int
           end_bracket: )
-      - raw: STABLE
-      - raw: RESTRICT
+    - alter_function_action_segment:
+      - keyword: STABLE
+      - keyword: RESTRICT
 - statement_terminator: ;
 - statement:
     alter_function_statement:
-      unparsable:
-      - keyword: ALTER
-      - keyword: FUNCTION
-      - raw: fn
-      - bracketed:
-        - start_bracket: (
-        - raw: arg
-        - raw: int
-        - end_bracket: )
-      - raw: VOLATILE
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: fn
+    - base:
+        bracketed:
+          start_bracket: (
+          parameter: arg
+          data_type:
+            keyword: int
+          end_bracket: )
+    - alter_function_action_segment:
+        keyword: VOLATILE
 - statement_terminator: ;
 - statement:
     alter_function_statement:
-      unparsable:
-      - keyword: ALTER
-      - keyword: FUNCTION
-      - raw: fn
-      - bracketed:
-        - start_bracket: (
-        - raw: arg
-        - raw: int
-        - end_bracket: )
-      - raw: VOLATILE
-      - raw: RESTRICT
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: fn
+    - base:
+        bracketed:
+          start_bracket: (
+          parameter: arg
+          data_type:
+            keyword: int
+          end_bracket: )
+    - alter_function_action_segment:
+      - keyword: VOLATILE
+      - keyword: RESTRICT
 - statement_terminator: ;
 - statement:
     alter_function_statement:
@@ -534,34 +581,42 @@ file:
 - statement_terminator: ;
 - statement:
     alter_function_statement:
-      unparsable:
-      - keyword: ALTER
-      - keyword: FUNCTION
-      - raw: fn
-      - bracketed:
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: fn
+    - base:
+        bracketed:
         - start_bracket: (
-        - raw: int
+        - data_type:
+            keyword: int
         - comma: ','
-        - raw: arg2
-        - raw: text
+        - parameter: arg2
+        - data_type:
+            keyword: text
         - end_bracket: )
-      - raw: LEAKPROOF
+    - alter_function_action_segment:
+        keyword: LEAKPROOF
 - statement_terminator: ;
 - statement:
     alter_function_statement:
-      unparsable:
-      - keyword: ALTER
-      - keyword: FUNCTION
-      - raw: fn
-      - bracketed:
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: fn
+    - base:
+        bracketed:
         - start_bracket: (
-        - raw: int
+        - data_type:
+            keyword: int
         - comma: ','
-        - raw: arg2
-        - raw: text
+        - parameter: arg2
+        - data_type:
+            keyword: text
         - end_bracket: )
-      - raw: LEAKPROOF
-      - raw: RESTRICT
+    - alter_function_action_segment:
+      - keyword: LEAKPROOF
+      - keyword: RESTRICT
 - statement_terminator: ;
 - statement:
     alter_function_statement:
@@ -586,278 +641,318 @@ file:
 - statement_terminator: ;
 - statement:
     alter_function_statement:
-      unparsable:
-      - keyword: ALTER
-      - keyword: FUNCTION
-      - raw: fn
-      - bracketed:
-        - start_bracket: (
-        - raw: arg
-        - raw: int
-        - end_bracket: )
-      - raw: NOT
-      - raw: LEAKPROOF
-- statement_terminator: ;
-- statement:
-    alter_function_statement:
-      unparsable:
-      - keyword: ALTER
-      - keyword: FUNCTION
-      - raw: fn
-      - bracketed:
-        - start_bracket: (
-        - raw: arg
-        - raw: int
-        - end_bracket: )
-      - raw: NOT
-      - raw: LEAKPROOF
-      - raw: RESTRICT
-- statement_terminator: ;
-- statement:
-    alter_function_statement:
     - keyword: ALTER
     - keyword: FUNCTION
     - function_name:
         function_name_identifier: fn
-    - alter_function_action_segment:
-      - keyword: SECURITY
-      - keyword: INVOKER
-- statement_terminator: ;
-- statement:
-    alter_function_statement:
-    - keyword: ALTER
-    - keyword: FUNCTION
-    - function_name:
-        function_name_identifier: fn
-    - alter_function_action_segment:
-      - keyword: SECURITY
-      - keyword: INVOKER
-      - keyword: RESTRICT
-- statement_terminator: ;
-- statement:
-    alter_function_statement:
-      unparsable:
-      - keyword: ALTER
-      - keyword: FUNCTION
-      - raw: fn
-      - bracketed:
-        - start_bracket: (
-        - raw: int
-        - comma: ','
-        - raw: text
-        - comma: ','
-        - raw: boolean
-        - end_bracket: )
-      - raw: SECURITY
-      - raw: INVOKER
-- statement_terminator: ;
-- statement:
-    alter_function_statement:
-      unparsable:
-      - keyword: ALTER
-      - keyword: FUNCTION
-      - raw: fn
-      - bracketed:
-        - start_bracket: (
-        - raw: int
-        - comma: ','
-        - raw: text
-        - comma: ','
-        - raw: boolean
-        - end_bracket: )
-      - raw: SECURITY
-      - raw: INVOKER
-      - raw: RESTRICT
-- statement_terminator: ;
-- statement:
-    alter_function_statement:
-    - keyword: ALTER
-    - keyword: FUNCTION
-    - function_name:
-        function_name_identifier: fn
-    - alter_function_action_segment:
-      - keyword: EXTERNAL
-      - keyword: SECURITY
-      - keyword: INVOKER
-- statement_terminator: ;
-- statement:
-    alter_function_statement:
-    - keyword: ALTER
-    - keyword: FUNCTION
-    - function_name:
-        function_name_identifier: fn
-    - alter_function_action_segment:
-      - keyword: EXTERNAL
-      - keyword: SECURITY
-      - keyword: INVOKER
-      - keyword: RESTRICT
-- statement_terminator: ;
-- statement:
-    alter_function_statement:
-      unparsable:
-      - keyword: ALTER
-      - keyword: FUNCTION
-      - raw: fn
-      - bracketed:
-        - start_bracket: (
-        - raw: int
-        - comma: ','
-        - raw: text
-        - end_bracket: )
-      - raw: EXTERNAL
-      - raw: SECURITY
-      - raw: INVOKER
-- statement_terminator: ;
-- statement:
-    alter_function_statement:
-      unparsable:
-      - keyword: ALTER
-      - keyword: FUNCTION
-      - raw: fn
-      - bracketed:
-        - start_bracket: (
-        - raw: int
-        - comma: ','
-        - raw: text
-        - end_bracket: )
-      - raw: EXTERNAL
-      - raw: SECURITY
-      - raw: INVOKER
-      - raw: RESTRICT
-- statement_terminator: ;
-- statement:
-    alter_function_statement:
-    - keyword: ALTER
-    - keyword: FUNCTION
-    - function_name:
-        function_name_identifier: fn
-    - alter_function_action_segment:
-      - keyword: SECURITY
-      - keyword: DEFINER
-- statement_terminator: ;
-- statement:
-    alter_function_statement:
-    - keyword: ALTER
-    - keyword: FUNCTION
-    - function_name:
-        function_name_identifier: fn
-    - alter_function_action_segment:
-      - keyword: SECURITY
-      - keyword: DEFINER
-      - keyword: RESTRICT
-- statement_terminator: ;
-- statement:
-    alter_function_statement:
-    - keyword: ALTER
-    - keyword: FUNCTION
-    - function_name:
-        function_name_identifier: fn
-    - alter_function_action_segment:
-      - keyword: EXTERNAL
-      - keyword: SECURITY
-      - keyword: DEFINER
-- statement_terminator: ;
-- statement:
-    alter_function_statement:
-    - keyword: ALTER
-    - keyword: FUNCTION
-    - function_name:
-        function_name_identifier: fn
-    - alter_function_action_segment:
-      - keyword: EXTERNAL
-      - keyword: SECURITY
-      - keyword: DEFINER
-      - keyword: RESTRICT
-- statement_terminator: ;
-- statement:
-    alter_function_statement:
-      unparsable:
-      - keyword: ALTER
-      - keyword: FUNCTION
-      - raw: fn
-      - bracketed:
-        - start_bracket: (
-        - raw: arg1
-        - raw: int
-        - comma: ','
-        - raw: arg2
-        - raw: text
-        - comma: ','
-        - raw: boolean
-        - end_bracket: )
-      - raw: EXTERNAL
-      - raw: SECURITY
-      - raw: DEFINER
-- statement_terminator: ;
-- statement:
-    alter_function_statement:
-      unparsable:
-      - keyword: ALTER
-      - keyword: FUNCTION
-      - raw: fn
-      - bracketed:
-        - start_bracket: (
-        - raw: arg1
-        - raw: int
-        - comma: ','
-        - raw: arg2
-        - raw: text
-        - comma: ','
-        - raw: boolean
-        - end_bracket: )
-      - raw: EXTERNAL
-      - raw: SECURITY
-      - raw: DEFINER
-      - raw: RESTRICT
-- statement_terminator: ;
-- statement:
-    alter_function_statement:
-    - keyword: ALTER
-    - keyword: FUNCTION
-    - function_name:
-        function_name_identifier: fn
-    - alter_function_action_segment:
-      - keyword: PARALLEL
-      - keyword: UNSAFE
-- statement_terminator: ;
-- statement:
-    alter_function_statement:
-      unparsable:
-      - keyword: ALTER
-      - keyword: FUNCTION
-      - raw: fn
-      - bracketed:
-        - start_bracket: (
-        - raw: arg
-        - raw: int
-        - end_bracket: )
-      - raw: PARALLEL
-      - raw: UNSAFE
-- statement_terminator: ;
-- statement:
-    alter_function_statement:
-    - keyword: ALTER
-    - keyword: FUNCTION
-    - function_name:
-        function_name_identifier: fn
-    - alter_function_action_segment:
-      - keyword: PARALLEL
-      - keyword: UNSAFE
-      - keyword: RESTRICT
-- statement_terminator: ;
-- statement:
-    alter_function_statement:
-      unparsable:
-      - keyword: ALTER
-      - keyword: FUNCTION
-      - raw: fn
-      - bracketed:
+    - base:
+        bracketed:
           start_bracket: (
-          raw: int
+          parameter: arg
+          data_type:
+            keyword: int
           end_bracket: )
-      - raw: PARALLEL
-      - raw: UNSAFE
-      - raw: RESTRICT
+    - alter_function_action_segment:
+      - keyword: NOT
+      - keyword: LEAKPROOF
+- statement_terminator: ;
+- statement:
+    alter_function_statement:
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: fn
+    - base:
+        bracketed:
+          start_bracket: (
+          parameter: arg
+          data_type:
+            keyword: int
+          end_bracket: )
+    - alter_function_action_segment:
+      - keyword: NOT
+      - keyword: LEAKPROOF
+      - keyword: RESTRICT
+- statement_terminator: ;
+- statement:
+    alter_function_statement:
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: fn
+    - alter_function_action_segment:
+      - keyword: SECURITY
+      - keyword: INVOKER
+- statement_terminator: ;
+- statement:
+    alter_function_statement:
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: fn
+    - alter_function_action_segment:
+      - keyword: SECURITY
+      - keyword: INVOKER
+      - keyword: RESTRICT
+- statement_terminator: ;
+- statement:
+    alter_function_statement:
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: fn
+    - base:
+        bracketed:
+        - start_bracket: (
+        - data_type:
+            keyword: int
+        - comma: ','
+        - data_type:
+            keyword: text
+        - comma: ','
+        - data_type:
+            keyword: boolean
+        - end_bracket: )
+    - alter_function_action_segment:
+      - keyword: SECURITY
+      - keyword: INVOKER
+- statement_terminator: ;
+- statement:
+    alter_function_statement:
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: fn
+    - base:
+        bracketed:
+        - start_bracket: (
+        - data_type:
+            keyword: int
+        - comma: ','
+        - data_type:
+            keyword: text
+        - comma: ','
+        - data_type:
+            keyword: boolean
+        - end_bracket: )
+    - alter_function_action_segment:
+      - keyword: SECURITY
+      - keyword: INVOKER
+      - keyword: RESTRICT
+- statement_terminator: ;
+- statement:
+    alter_function_statement:
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: fn
+    - alter_function_action_segment:
+      - keyword: EXTERNAL
+      - keyword: SECURITY
+      - keyword: INVOKER
+- statement_terminator: ;
+- statement:
+    alter_function_statement:
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: fn
+    - alter_function_action_segment:
+      - keyword: EXTERNAL
+      - keyword: SECURITY
+      - keyword: INVOKER
+      - keyword: RESTRICT
+- statement_terminator: ;
+- statement:
+    alter_function_statement:
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: fn
+    - base:
+        bracketed:
+        - start_bracket: (
+        - data_type:
+            keyword: int
+        - comma: ','
+        - data_type:
+            keyword: text
+        - end_bracket: )
+    - alter_function_action_segment:
+      - keyword: EXTERNAL
+      - keyword: SECURITY
+      - keyword: INVOKER
+- statement_terminator: ;
+- statement:
+    alter_function_statement:
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: fn
+    - base:
+        bracketed:
+        - start_bracket: (
+        - data_type:
+            keyword: int
+        - comma: ','
+        - data_type:
+            keyword: text
+        - end_bracket: )
+    - alter_function_action_segment:
+      - keyword: EXTERNAL
+      - keyword: SECURITY
+      - keyword: INVOKER
+      - keyword: RESTRICT
+- statement_terminator: ;
+- statement:
+    alter_function_statement:
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: fn
+    - alter_function_action_segment:
+      - keyword: SECURITY
+      - keyword: DEFINER
+- statement_terminator: ;
+- statement:
+    alter_function_statement:
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: fn
+    - alter_function_action_segment:
+      - keyword: SECURITY
+      - keyword: DEFINER
+      - keyword: RESTRICT
+- statement_terminator: ;
+- statement:
+    alter_function_statement:
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: fn
+    - alter_function_action_segment:
+      - keyword: EXTERNAL
+      - keyword: SECURITY
+      - keyword: DEFINER
+- statement_terminator: ;
+- statement:
+    alter_function_statement:
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: fn
+    - alter_function_action_segment:
+      - keyword: EXTERNAL
+      - keyword: SECURITY
+      - keyword: DEFINER
+      - keyword: RESTRICT
+- statement_terminator: ;
+- statement:
+    alter_function_statement:
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: fn
+    - base:
+        bracketed:
+        - start_bracket: (
+        - parameter: arg1
+        - data_type:
+            keyword: int
+        - comma: ','
+        - parameter: arg2
+        - data_type:
+            keyword: text
+        - comma: ','
+        - data_type:
+            keyword: boolean
+        - end_bracket: )
+    - alter_function_action_segment:
+      - keyword: EXTERNAL
+      - keyword: SECURITY
+      - keyword: DEFINER
+- statement_terminator: ;
+- statement:
+    alter_function_statement:
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: fn
+    - base:
+        bracketed:
+        - start_bracket: (
+        - parameter: arg1
+        - data_type:
+            keyword: int
+        - comma: ','
+        - parameter: arg2
+        - data_type:
+            keyword: text
+        - comma: ','
+        - data_type:
+            keyword: boolean
+        - end_bracket: )
+    - alter_function_action_segment:
+      - keyword: EXTERNAL
+      - keyword: SECURITY
+      - keyword: DEFINER
+      - keyword: RESTRICT
+- statement_terminator: ;
+- statement:
+    alter_function_statement:
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: fn
+    - alter_function_action_segment:
+      - keyword: PARALLEL
+      - keyword: UNSAFE
+- statement_terminator: ;
+- statement:
+    alter_function_statement:
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: fn
+    - base:
+        bracketed:
+          start_bracket: (
+          parameter: arg
+          data_type:
+            keyword: int
+          end_bracket: )
+    - alter_function_action_segment:
+      - keyword: PARALLEL
+      - keyword: UNSAFE
+- statement_terminator: ;
+- statement:
+    alter_function_statement:
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: fn
+    - alter_function_action_segment:
+      - keyword: PARALLEL
+      - keyword: UNSAFE
+      - keyword: RESTRICT
+- statement_terminator: ;
+- statement:
+    alter_function_statement:
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: fn
+    - base:
+        bracketed:
+          start_bracket: (
+          data_type:
+            keyword: int
+          end_bracket: )
+    - alter_function_action_segment:
+      - keyword: PARALLEL
+      - keyword: UNSAFE
+      - keyword: RESTRICT
 - statement_terminator: ;
 - statement:
     alter_function_statement:
@@ -882,18 +977,22 @@ file:
 - statement_terminator: ;
 - statement:
     alter_function_statement:
-      unparsable:
-      - keyword: ALTER
-      - keyword: FUNCTION
-      - raw: fn
-      - bracketed:
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: fn
+    - base:
+        bracketed:
         - start_bracket: (
-        - raw: int
+        - data_type:
+            keyword: int
         - comma: ','
-        - raw: text
+        - data_type:
+            keyword: text
         - end_bracket: )
-      - raw: PARALLEL
-      - raw: RESTRICTED
+    - alter_function_action_segment:
+      - keyword: PARALLEL
+      - keyword: RESTRICTED
 - statement_terminator: ;
 - statement:
     alter_function_statement:
@@ -937,19 +1036,23 @@ file:
 - statement_terminator: ;
 - statement:
     alter_function_statement:
-      unparsable:
-      - keyword: ALTER
-      - keyword: FUNCTION
-      - raw: fn
-      - bracketed:
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: fn
+    - base:
+        bracketed:
         - start_bracket: (
-        - raw: text
+        - data_type:
+            keyword: text
         - comma: ','
-        - raw: arg2
-        - raw: int
+        - parameter: arg2
+        - data_type:
+            keyword: int
         - end_bracket: )
-      - raw: PARALLEL
-      - raw: SAFE
+    - alter_function_action_segment:
+      - keyword: PARALLEL
+      - keyword: SAFE
 - statement_terminator: ;
 - statement:
     alter_function_statement:
@@ -994,38 +1097,46 @@ file:
 - statement_terminator: ;
 - statement:
     alter_function_statement:
-      unparsable:
-      - keyword: ALTER
-      - keyword: FUNCTION
-      - raw: fn
-      - bracketed:
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: fn
+    - base:
+        bracketed:
         - start_bracket: (
-        - raw: arg1
-        - raw: int
+        - parameter: arg1
+        - data_type:
+            keyword: int
         - comma: ','
-        - raw: arg2
-        - raw: text
+        - parameter: arg2
+        - data_type:
+            keyword: text
         - end_bracket: )
-      - raw: COST
-      - raw: '10'
+    - alter_function_action_segment:
+        keyword: COST
+        literal: '10'
 - statement_terminator: ;
 - statement:
     alter_function_statement:
-      unparsable:
-      - keyword: ALTER
-      - keyword: FUNCTION
-      - raw: fn
-      - bracketed:
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: fn
+    - base:
+        bracketed:
         - start_bracket: (
-        - raw: arg1
-        - raw: int
+        - parameter: arg1
+        - data_type:
+            keyword: int
         - comma: ','
-        - raw: arg2
-        - raw: text
+        - parameter: arg2
+        - data_type:
+            keyword: text
         - end_bracket: )
-      - raw: COST
-      - raw: '10'
-      - raw: RESTRICT
+    - alter_function_action_segment:
+      - keyword: COST
+      - literal: '10'
+      - keyword: RESTRICT
 - statement_terminator: ;
 - statement:
     alter_function_statement:
@@ -1050,46 +1161,58 @@ file:
 - statement_terminator: ;
 - statement:
     alter_function_statement:
-      unparsable:
-      - keyword: ALTER
-      - keyword: FUNCTION
-      - raw: fn
-      - bracketed:
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: fn
+    - base:
+        bracketed:
         - start_bracket: (
-        - raw: arg1
-        - raw: int
+        - parameter: arg1
+        - data_type:
+            keyword: int
         - comma: ','
-        - raw: arg2
-        - raw: text
+        - parameter: arg2
+        - data_type:
+            keyword: text
         - comma: ','
-        - raw: int
+        - data_type:
+            keyword: int
         - comma: ','
-        - raw: int
+        - data_type:
+            keyword: int
         - end_bracket: )
-      - raw: ROWS
-      - raw: '10'
+    - alter_function_action_segment:
+        keyword: ROWS
+        literal: '10'
 - statement_terminator: ;
 - statement:
     alter_function_statement:
-      unparsable:
-      - keyword: ALTER
-      - keyword: FUNCTION
-      - raw: fn
-      - bracketed:
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: fn
+    - base:
+        bracketed:
         - start_bracket: (
-        - raw: arg1
-        - raw: int
+        - parameter: arg1
+        - data_type:
+            keyword: int
         - comma: ','
-        - raw: arg2
-        - raw: text
+        - parameter: arg2
+        - data_type:
+            keyword: text
         - comma: ','
-        - raw: int
+        - data_type:
+            keyword: int
         - comma: ','
-        - raw: int
+        - data_type:
+            keyword: int
         - end_bracket: )
-      - raw: ROWS
-      - raw: '10'
-      - raw: RESTRICT
+    - alter_function_action_segment:
+      - keyword: ROWS
+      - literal: '10'
+      - keyword: RESTRICT
 - statement_terminator: ;
 - statement:
     alter_function_statement:
@@ -1115,34 +1238,42 @@ file:
 - statement_terminator: ;
 - statement:
     alter_function_statement:
-      unparsable:
-      - keyword: ALTER
-      - keyword: FUNCTION
-      - raw: fn
-      - bracketed:
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: fn
+    - base:
+        bracketed:
         - start_bracket: (
-        - raw: int
+        - data_type:
+            keyword: int
         - comma: ','
-        - raw: int
+        - data_type:
+            keyword: int
         - end_bracket: )
-      - raw: SUPPORT
-      - raw: supportfn
+    - alter_function_action_segment:
+        keyword: SUPPORT
+        parameter: supportfn
 - statement_terminator: ;
 - statement:
     alter_function_statement:
-      unparsable:
-      - keyword: ALTER
-      - keyword: FUNCTION
-      - raw: fn
-      - bracketed:
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: fn
+    - base:
+        bracketed:
         - start_bracket: (
-        - raw: int
+        - data_type:
+            keyword: int
         - comma: ','
-        - raw: int
+        - data_type:
+            keyword: int
         - end_bracket: )
-      - raw: SUPPORT
-      - raw: supportfn
-      - raw: RESTRICT
+    - alter_function_action_segment:
+      - keyword: SUPPORT
+      - parameter: supportfn
+      - keyword: RESTRICT
 - statement_terminator: ;
 - statement:
     alter_function_statement:
@@ -1195,38 +1326,46 @@ file:
 - statement_terminator: ;
 - statement:
     alter_function_statement:
-      unparsable:
-      - keyword: ALTER
-      - keyword: FUNCTION
-      - raw: fn
-      - bracketed:
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: fn
+    - base:
+        bracketed:
         - start_bracket: (
-        - raw: int
+        - data_type:
+            keyword: int
         - comma: ','
-        - raw: int
+        - data_type:
+            keyword: int
         - end_bracket: )
-      - raw: SET
-      - raw: param1
-      - raw: TO
-      - raw: DEFAULT
+    - alter_function_action_segment:
+      - keyword: SET
+      - parameter: param1
+      - keyword: TO
+      - keyword: DEFAULT
 - statement_terminator: ;
 - statement:
     alter_function_statement:
-      unparsable:
-      - keyword: ALTER
-      - keyword: FUNCTION
-      - raw: fn
-      - bracketed:
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: fn
+    - base:
+        bracketed:
         - start_bracket: (
-        - raw: int
+        - data_type:
+            keyword: int
         - comma: ','
-        - raw: int
+        - data_type:
+            keyword: int
         - end_bracket: )
-      - raw: SET
-      - raw: param1
-      - raw: TO
-      - raw: DEFAULT
-      - raw: RESTRICT
+    - alter_function_action_segment:
+      - keyword: SET
+      - parameter: param1
+      - keyword: TO
+      - keyword: DEFAULT
+      - keyword: RESTRICT
 - statement_terminator: ;
 - statement:
     alter_function_statement:
@@ -1290,69 +1429,84 @@ file:
 - statement_terminator: ;
 - statement:
     alter_function_statement:
-      unparsable:
-      - keyword: ALTER
-      - keyword: FUNCTION
-      - raw: fn
-      - bracketed:
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: fn
+    - base:
+        bracketed:
         - start_bracket: (
-        - raw: arg1
-        - raw: int
+        - parameter: arg1
+        - data_type:
+            keyword: int
         - comma: ','
-        - raw: arg2
-        - raw: text
+        - parameter: arg2
+        - data_type:
+            keyword: text
         - end_bracket: )
-      - raw: SET
-      - raw: param1
-      - raw: '='
-      - raw: "'value'"
+    - alter_function_action_segment:
+        keyword: SET
+        parameter: param1
+        comparison_operator: '='
+        literal: "'value'"
 - statement_terminator: ;
 - statement:
     alter_function_statement:
-      unparsable:
-      - keyword: ALTER
-      - keyword: FUNCTION
-      - raw: fn
-      - bracketed:
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: fn
+    - base:
+        bracketed:
           start_bracket: (
-          raw: int
+          data_type:
+            keyword: int
           end_bracket: )
-      - raw: SET
-      - raw: param1
-      - raw: '='
-      - raw: avalue
+    - alter_function_action_segment:
+        keyword: SET
+        parameter: param1
+        comparison_operator: '='
+        identifier: avalue
 - statement_terminator: ;
 - statement:
     alter_function_statement:
-      unparsable:
-      - keyword: ALTER
-      - keyword: FUNCTION
-      - raw: fn
-      - bracketed:
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: fn
+    - base:
+        bracketed:
         - start_bracket: (
-        - raw: text
+        - data_type:
+            keyword: text
         - comma: ','
-        - raw: int
+        - data_type:
+            keyword: int
         - end_bracket: )
-      - raw: SET
-      - raw: param1
-      - raw: '='
-      - raw: avalue
+    - alter_function_action_segment:
+        keyword: SET
+        parameter: param1
+        comparison_operator: '='
+        identifier: avalue
 - statement_terminator: ;
 - statement:
     alter_function_statement:
-      unparsable:
-      - keyword: ALTER
-      - keyword: FUNCTION
-      - raw: fn
-      - bracketed:
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: fn
+    - base:
+        bracketed:
         - start_bracket: (
-        - raw: int
+        - data_type:
+            keyword: int
         - comma: ','
-        - raw: int
+        - data_type:
+            keyword: int
         - end_bracket: )
-      - raw: SUPPORT
-      - raw: supportfn
+    - alter_function_action_segment:
+        keyword: SUPPORT
+        parameter: supportfn
 - statement_terminator: ;
 - statement:
     alter_function_statement:
@@ -1386,22 +1540,26 @@ file:
 - statement_terminator: ;
 - statement:
     alter_function_statement:
-      unparsable:
-      - keyword: ALTER
-      - keyword: FUNCTION
-      - raw: public
-      - raw: .
-      - raw: fn
-      - bracketed:
+    - keyword: ALTER
+    - keyword: FUNCTION
+    - function_name:
+        identifier: public
+        dot: .
+        function_name_identifier: fn
+    - base:
+        bracketed:
         - start_bracket: (
-        - raw: boolean
+        - data_type:
+            keyword: boolean
         - comma: ','
-        - raw: int
+        - data_type:
+            keyword: int
         - end_bracket: )
-      - raw: SET
-      - raw: param1
-      - raw: FROM
-      - raw: CURRENT
+    - alter_function_action_segment:
+      - keyword: SET
+      - parameter: param1
+      - keyword: FROM
+      - keyword: CURRENT
 - statement_terminator: ;
 - statement:
     alter_function_statement:

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3322140819ccaf41732503c2e04e4a6d0acd0efa1390663e7254518e73714dfa
+_hash: 3d8487d9d19ed0379d88ad9657d4fe0b20e2efbea27394e27fcdb539b37ad3b0
 file:
 - statement:
     select_statement:
@@ -55,7 +55,7 @@ file:
       - comma: ','
       - select_clause_element:
           expression:
-            case_expression:
+          - case_expression:
             - keyword: case
             - keyword: when
             - expression:
@@ -70,13 +70,17 @@ file:
                 column_reference:
                   identifier: col3
             - keyword: end
-          unparsable:
-          - raw: '::'
-          - raw: int
-          - raw: '::'
-          - raw: float
-          - raw: as
-          - raw: mycol
+          - cast_expression:
+              casting_operator: '::'
+              data_type:
+                keyword: int
+          - cast_expression:
+              casting_operator: '::'
+              data_type:
+                keyword: float
+          alias_expression:
+            keyword: as
+            identifier: mycol
       from_clause:
         keyword: from
         from_expression:
