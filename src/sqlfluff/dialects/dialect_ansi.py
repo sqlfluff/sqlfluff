@@ -2495,10 +2495,15 @@ class CreateViewStatementSegment(BaseSegment):
 class DropStatementSegment(BaseSegment):
     """A `DROP` statement.
 
-    R7L208: Adding Function into this drop statement conflicts with
-            DropFunctionStatementSegment in Postgres dialect causing
-            an unparsable section resulting in failure of
-            test/fixtures/dialects/postgres/postgres_drop_function.sql
+    R7L208:
+        - Adding Function into this drop statement conflicts with
+          DropFunctionStatementSegment in Postgres dialect causing
+          an unparsable section resulting in failure of
+          test/fixtures/dialects/postgres/postgres_drop_function.sql
+
+        - Adding TemporaryGrammar into DropStatementSegment throws
+          an error since TEMPORARY and TEMP are not keyworks in tSQL
+          dialect.
     """
 
     type = "drop_statement"
