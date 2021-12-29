@@ -2506,7 +2506,6 @@ class DropStatementSegment(BaseSegment):
     # DROP [TEMPORARY] {TABLE | VIEW | USER | FUNCTION} <Table name> [IF EXISTS} {RESTRICT | CASCADE}
     match_grammar = Sequence(
         "DROP",
-        Ref("TemporaryGrammar", optional=True),
         OneOf(
             "TABLE",
             "VIEW",
