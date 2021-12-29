@@ -9,11 +9,16 @@ Here we define:
 """
 
 from io import StringIO
-from cached_property import cached_property
+import sys
 from typing import Any, Callable, Optional, List, Tuple, NamedTuple, Iterator
 import logging
 
 from tqdm import tqdm
+
+if sys.version_info >= (3, 8):
+    from functools import cached_property
+else:
+    from backports.cached_property import cached_property
 
 from sqlfluff.core.config import progress_bar_configuration
 from sqlfluff.core.string_helpers import (

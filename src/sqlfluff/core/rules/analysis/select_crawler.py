@@ -1,9 +1,13 @@
 """Tools for more complex analysis of SELECT statements."""
 from dataclasses import dataclass, field
 from enum import Enum
+import sys
 from typing import Dict, Generator, List, NamedTuple, Optional, Union
 
-from cached_property import cached_property
+if sys.version_info >= (3, 8):
+    from functools import cached_property
+else:
+    from backports.cached_property import cached_property
 
 from sqlfluff.core.dialects.common import AliasInfo
 from sqlfluff.core.dialects.base import Dialect

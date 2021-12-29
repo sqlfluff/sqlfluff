@@ -4,11 +4,16 @@ from collections import deque
 import os
 import os.path
 import logging
+import sys
 from typing import List, Optional, Iterator, Tuple, Any, Dict, Deque
 
 from dataclasses import dataclass
-from cached_property import cached_property
 from functools import partial
+
+if sys.version_info >= (3, 8):
+    from functools import cached_property
+else:
+    from backports.cached_property import cached_property
 
 from dbt.version import get_installed_version
 from dbt.config.runtime import RuntimeConfig as DbtRuntimeConfig
