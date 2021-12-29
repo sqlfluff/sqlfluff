@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8b81e4770b1ee9870fc8d3b209d85e887133cdb463e1106820b0e6fa7071cfaa
+_hash: 94189c80eaa62091932db37eb6e8874a36d46fe10df21e4fb8aed5bd4ba15ce0
 file:
   statement:
     update_statement:
@@ -19,31 +19,34 @@ file:
           expression:
             case_expression:
             - keyword: CASE
-            - keyword: WHEN
-            - expression:
-                column_reference:
-                - identifier: t2
-                - dot: .
-                - identifier: column
-                comparison_operator: '='
-                literal: "'T'"
-            - keyword: THEN
-            - expression:
-                literal: 'TRUE'
-            - keyword: WHEN
-            - expression:
-                column_reference:
-                - identifier: t2
-                - dot: .
-                - identifier: column
-                comparison_operator: '='
-                literal: "'F'"
-            - keyword: THEN
-            - expression:
-                literal: 'FALSE'
-            - keyword: ELSE
-            - expression:
-                literal: 'NULL'
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  column_reference:
+                  - identifier: t2
+                  - dot: .
+                  - identifier: column
+                  comparison_operator: '='
+                  literal: "'T'"
+              - keyword: THEN
+              - expression:
+                  literal: 'TRUE'
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  column_reference:
+                  - identifier: t2
+                  - dot: .
+                  - identifier: column
+                  comparison_operator: '='
+                  literal: "'F'"
+              - keyword: THEN
+              - expression:
+                  literal: 'FALSE'
+            - else_clause:
+                keyword: ELSE
+                expression:
+                  literal: 'NULL'
             - keyword: END
       from_clause:
         keyword: FROM
