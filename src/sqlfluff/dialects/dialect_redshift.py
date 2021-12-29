@@ -251,6 +251,36 @@ class CreateTableStatementSegment(BaseSegment):
 
 
 @redshift_dialect.segment(replace=True)
+class CreateTableAsStatementSegment(BaseSegment):
+    """A `CREATE TABLE AS` statement.
+
+    As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_TABLE_AS.html
+    """
+
+    type = "create_table_as_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        Sequence(
+            Ref.keyword("LOCAL", optional=True),
+            OneOf("TEMPORARY", "TEMP"),
+            optional=True,
+        ),
+        "TABLE",
+        Ref("ObjectReferenceSegment"),
+        Bracketed(
+            Delimited(
+                Ref("ColumnReferenceSegment"),
+            ),
+            optional=True,
+        ),
+        Sequence("BACKUP", OneOf("YES", "NO"), optional=True),
+        Ref("TableAttributeSegment", optional=True),
+        "AS",
+        Ref("SelectableGrammar"),
+    )
+
+
+@redshift_dialect.segment(replace=True)
 class InsertStatementSegment(BaseSegment):
     """An`INSERT` statement.
 
@@ -317,7 +347,7 @@ class CreateUserSegment(BaseSegment):
     match_grammar = Sequence(
         "CREATE",
         "USER",
-        Ref("NakedIdentifierSegment"),
+        Ref("ObjectReferenceSegment"),
         Ref.keyword("WITH", optional=True),
         "PASSWORD",
         OneOf(Ref("QuotedLiteralSegment"), "DISABLE"),
@@ -338,7 +368,7 @@ class CreateUserSegment(BaseSegment):
                     "UNRESTRICTED",
                 ),
             ),
-            Sequence("IN", "GROUP", Delimited(Ref("NakedIdentifierSegment"))),
+            Sequence("IN", "GROUP", Delimited(Ref("ObjectReferenceSegment"))),
             Sequence("VALID", "UNTIL", Ref("QuotedLiteralSegment")),
             Sequence(
                 "CONNECTION",
@@ -369,12 +399,12 @@ class CreateGroupSegment(BaseSegment):
     match_grammar = Sequence(
         "CREATE",
         "GROUP",
-        Ref("NakedIdentifierSegment"),
+        Ref("ObjectReferenceSegment"),
         Sequence(
             Ref.keyword("WITH", optional=True),
             "USER",
             Delimited(
-                Ref("NakedIdentifierSegment"),
+                Ref("ObjectReferenceSegment"),
             ),
             optional=True,
         ),
@@ -393,7 +423,7 @@ class AlterUserSegment(BaseSegment):
     match_grammar = Sequence(
         "ALTER",
         "USER",
-        Ref("NakedIdentifierSegment"),
+        Ref("ObjectReferenceSegment"),
         Ref.keyword("WITH", optional=True),
         AnyNumberOf(
             OneOf(
@@ -423,7 +453,7 @@ class AlterUserSegment(BaseSegment):
             Sequence(
                 "RENAME",
                 "TO",
-                Ref("NakedIdentifierSegment"),
+                Ref("ObjectReferenceSegment"),
             ),
             Sequence(
                 "CONNECTION",
@@ -448,7 +478,7 @@ class AlterUserSegment(BaseSegment):
             OneOf(
                 Sequence(
                     "SET",
-                    Ref("NakedIdentifierSegment"),
+                    Ref("ObjectReferenceSegment"),
                     OneOf(
                         "TO",
                         Ref("EqualsSegment"),
@@ -460,7 +490,7 @@ class AlterUserSegment(BaseSegment):
                 ),
                 Sequence(
                     "RESET",
-                    Ref("NakedIdentifierSegment"),
+                    Ref("ObjectReferenceSegment"),
                 ),
             ),
             min_times=1,
@@ -480,7 +510,7 @@ class AlterGroupSegment(BaseSegment):
     match_grammar = Sequence(
         "ALTER",
         "GROUP",
-        Ref("NakedIdentifierSegment"),
+        Ref("ObjectReferenceSegment"),
         OneOf(
             Sequence(
                 OneOf("ADD", "DROP"),

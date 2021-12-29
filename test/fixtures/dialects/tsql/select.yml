@@ -351,6 +351,54 @@ file:
               identifier: XACT_ABORT
         - comma: ','
         - select_clause_element:
+            column_reference:
+              identifier: Rows
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: NaN
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: Rlike
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: Ilike
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: Separator
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: Auto_Increment
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: Unsigned
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: Describe
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: Comment
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: Ml
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: Modify
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: Minus
+        - comma: ','
+        - select_clause_element:
             function:
             - function_name:
                 keyword: ROW_NUMBER
@@ -360,7 +408,7 @@ file:
             - keyword: OVER
             - bracketed:
                 start_bracket: (
-                partition_by_clause:
+                partitionby_clause:
                 - keyword: PARTITION
                 - keyword: BY
                 - column_reference:
@@ -389,7 +437,7 @@ file:
             - keyword: OVER
             - bracketed:
                 start_bracket: (
-                partition_by_clause:
+                partitionby_clause:
                 - keyword: PARTITION
                 - keyword: BY
                 - column_reference:
@@ -415,7 +463,7 @@ file:
             - keyword: OVER
             - bracketed:
                 start_bracket: (
-                partition_by_clause:
+                partitionby_clause:
                 - keyword: PARTITION
                 - keyword: BY
                 - column_reference:
@@ -442,7 +490,7 @@ file:
             - keyword: OVER
             - bracketed:
                 start_bracket: (
-                partition_by_clause:
+                partitionby_clause:
                 - keyword: PARTITION
                 - keyword: BY
                 - column_reference:
@@ -478,17 +526,15 @@ file:
                     partitionby_clause:
                     - keyword: partition
                     - keyword: by
-                    - expression:
-                        column_reference:
-                        - identifier: t
-                        - dot: .
-                        - identifier: col2
+                    - column_reference:
+                      - identifier: t
+                      - dot: .
+                      - identifier: col2
                     - comma: ','
-                    - expression:
-                        column_reference:
-                        - identifier: t
-                        - dot: .
-                        - identifier: col3
+                    - column_reference:
+                      - identifier: t
+                      - dot: .
+                      - identifier: col3
                   end_bracket: )
         from_clause:
           keyword: FROM

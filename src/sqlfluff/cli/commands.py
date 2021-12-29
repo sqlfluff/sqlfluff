@@ -13,7 +13,7 @@ from typing import (
     List,
 )
 
-import oyaml as yaml
+import yaml
 
 import click
 
@@ -498,7 +498,7 @@ def lint(
     if format == FormatType.json.value:
         click.echo(json.dumps(result.as_records()))
     elif format == FormatType.yaml.value:
-        click.echo(yaml.dump(result.as_records()))
+        click.echo(yaml.dump(result.as_records(), sort_keys=False))
     elif format == FormatType.github_annotation.value:
         github_result = []
         for record in result.as_records():
@@ -889,7 +889,7 @@ def parse(
             if format == FormatType.yaml.value:
                 # For yaml dumping always dump double quoted strings if they contain tabs or newlines.
                 yaml.add_representer(str, quoted_presenter)
-                click.echo(yaml.dump(parsed_strings_dict))
+                click.echo(yaml.dump(parsed_strings_dict, sort_keys=False))
             elif format == FormatType.json.value:
                 click.echo(json.dumps(parsed_strings_dict))
 

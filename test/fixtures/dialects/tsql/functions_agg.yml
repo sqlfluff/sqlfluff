@@ -65,7 +65,7 @@ file:
               - keyword: OVER
               - bracketed:
                   start_bracket: (
-                  partition_by_clause:
+                  partitionby_clause:
                   - keyword: PARTITION
                   - keyword: BY
                   - column_reference:
@@ -100,7 +100,7 @@ file:
               - keyword: OVER
               - bracketed:
                   start_bracket: (
-                  partition_by_clause:
+                  partitionby_clause:
                   - keyword: PARTITION
                   - keyword: BY
                   - column_reference:

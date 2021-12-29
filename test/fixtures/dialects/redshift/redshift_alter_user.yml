@@ -3,20 +3,22 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6de216c3c5ec63c9defdb98f3f763aadcac5f7367c2ead9c2c457fb9d37d6cfc
+_hash: 2c354b17ddb6b7d11c8b91843d328a19d4eca2b506cd7822ad39de1c3ccfaf6f
 file:
 - statement:
     alter_user:
     - keyword: alter
     - keyword: user
-    - identifier: admin
+    - object_reference:
+        identifier: admin
     - keyword: createdb
 - statement_terminator: ;
 - statement:
     alter_user:
     - keyword: alter
     - keyword: user
-    - identifier: admin
+    - object_reference:
+        identifier: admin
     - keyword: with
     - keyword: createdb
 - statement_terminator: ;
@@ -24,14 +26,16 @@ file:
     alter_user:
     - keyword: alter
     - keyword: user
-    - identifier: admin
+    - object_reference:
+        identifier: admin
     - keyword: nocreatedb
 - statement_terminator: ;
 - statement:
     alter_user:
     - keyword: alter
     - keyword: user
-    - identifier: admin
+    - object_reference:
+        identifier: admin
     - keyword: with
     - keyword: nocreatedb
 - statement_terminator: ;
@@ -39,14 +43,37 @@ file:
     alter_user:
     - keyword: alter
     - keyword: user
-    - identifier: admin
+    - object_reference:
+        identifier: '"dbuser"'
+    - keyword: reset
+    - object_reference:
+        identifier: var
+- statement_terminator: ;
+- statement:
+    alter_user:
+    - keyword: alter
+    - keyword: user
+    - object_reference:
+        identifier: '"dbuser"'
+    - keyword: with
+    - keyword: reset
+    - object_reference:
+        identifier: var
+- statement_terminator: ;
+- statement:
+    alter_user:
+    - keyword: alter
+    - keyword: user
+    - object_reference:
+        identifier: admin
     - keyword: createuser
 - statement_terminator: ;
 - statement:
     alter_user:
     - keyword: alter
     - keyword: user
-    - identifier: admin
+    - object_reference:
+        identifier: admin
     - keyword: with
     - keyword: createuser
 - statement_terminator: ;
@@ -54,14 +81,16 @@ file:
     alter_user:
     - keyword: alter
     - keyword: user
-    - identifier: admin
+    - object_reference:
+        identifier: admin
     - keyword: nocreateuser
 - statement_terminator: ;
 - statement:
     alter_user:
     - keyword: alter
     - keyword: user
-    - identifier: admin
+    - object_reference:
+        identifier: admin
     - keyword: with
     - keyword: nocreateuser
 - statement_terminator: ;
@@ -69,7 +98,8 @@ file:
     alter_user:
     - keyword: alter
     - keyword: user
-    - identifier: admin
+    - object_reference:
+        identifier: admin
     - keyword: syslog
     - keyword: access
     - keyword: restricted
@@ -78,7 +108,8 @@ file:
     alter_user:
     - keyword: alter
     - keyword: user
-    - identifier: admin
+    - object_reference:
+        identifier: admin
     - keyword: with
     - keyword: syslog
     - keyword: access
@@ -88,7 +119,8 @@ file:
     alter_user:
     - keyword: alter
     - keyword: user
-    - identifier: admin
+    - object_reference:
+        identifier: admin
     - keyword: syslog
     - keyword: access
     - keyword: unrestricted
@@ -97,7 +129,8 @@ file:
     alter_user:
     - keyword: alter
     - keyword: user
-    - identifier: admin
+    - object_reference:
+        identifier: admin
     - keyword: with
     - keyword: syslog
     - keyword: access
@@ -107,7 +140,8 @@ file:
     alter_user:
     - keyword: alter
     - keyword: user
-    - identifier: iam_superuser
+    - object_reference:
+        identifier: iam_superuser
     - keyword: password
     - literal: "'mdA51234567890123456780123456789012'"
 - statement_terminator: ;
@@ -115,7 +149,8 @@ file:
     alter_user:
     - keyword: alter
     - keyword: user
-    - identifier: iam_superuser
+    - object_reference:
+        identifier: iam_superuser
     - keyword: with
     - keyword: password
     - literal: "'mdA51234567890123456780123456789012'"
@@ -124,7 +159,8 @@ file:
     alter_user:
     - keyword: alter
     - keyword: user
-    - identifier: iam_superuser
+    - object_reference:
+        identifier: iam_superuser
     - keyword: password
     - keyword: DISABLE
 - statement_terminator: ;
@@ -132,7 +168,8 @@ file:
     alter_user:
     - keyword: alter
     - keyword: user
-    - identifier: iam_superuser
+    - object_reference:
+        identifier: iam_superuser
     - keyword: with
     - keyword: password
     - keyword: DISABLE
@@ -141,7 +178,8 @@ file:
     alter_user:
     - keyword: alter
     - keyword: user
-    - identifier: admin
+    - object_reference:
+        identifier: admin
     - keyword: password
     - literal: "'adminPass9'"
     - keyword: valid
@@ -152,7 +190,8 @@ file:
     alter_user:
     - keyword: alter
     - keyword: user
-    - identifier: admin
+    - object_reference:
+        identifier: admin
     - keyword: with
     - keyword: password
     - literal: "'adminPass9'"
@@ -164,26 +203,31 @@ file:
     alter_user:
     - keyword: alter
     - keyword: user
-    - identifier: admin
+    - object_reference:
+        identifier: admin
     - keyword: rename
     - keyword: to
-    - identifier: sysadmin
+    - object_reference:
+        identifier: sysadmin
 - statement_terminator: ;
 - statement:
     alter_user:
     - keyword: alter
     - keyword: user
-    - identifier: admin
+    - object_reference:
+        identifier: admin
     - keyword: with
     - keyword: rename
     - keyword: to
-    - identifier: sysadmin
+    - object_reference:
+        identifier: sysadmin
 - statement_terminator: ;
 - statement:
     alter_user:
     - keyword: alter
     - keyword: user
-    - identifier: admin
+    - object_reference:
+        identifier: admin
     - keyword: connection
     - keyword: limit
     - literal: '10'
@@ -192,7 +236,8 @@ file:
     alter_user:
     - keyword: alter
     - keyword: user
-    - identifier: admin
+    - object_reference:
+        identifier: admin
     - keyword: with
     - keyword: connection
     - keyword: limit
@@ -202,7 +247,8 @@ file:
     alter_user:
     - keyword: alter
     - keyword: user
-    - identifier: admin
+    - object_reference:
+        identifier: admin
     - keyword: connection
     - keyword: limit
     - keyword: unlimited
@@ -211,7 +257,8 @@ file:
     alter_user:
     - keyword: alter
     - keyword: user
-    - identifier: admin
+    - object_reference:
+        identifier: admin
     - keyword: with
     - keyword: connection
     - keyword: limit
@@ -221,7 +268,8 @@ file:
     alter_user:
     - keyword: alter
     - keyword: user
-    - identifier: dbuser
+    - object_reference:
+        identifier: dbuser
     - keyword: session
     - keyword: timeout
     - literal: '300'
@@ -230,7 +278,8 @@ file:
     alter_user:
     - keyword: alter
     - keyword: user
-    - identifier: dbuser
+    - object_reference:
+        identifier: dbuser
     - keyword: with
     - keyword: session
     - keyword: timeout
@@ -240,7 +289,8 @@ file:
     alter_user:
     - keyword: alter
     - keyword: user
-    - identifier: dbuser
+    - object_reference:
+        identifier: dbuser
     - keyword: reset
     - keyword: session
     - keyword: timeout
@@ -249,7 +299,8 @@ file:
     alter_user:
     - keyword: alter
     - keyword: user
-    - identifier: dbuser
+    - object_reference:
+        identifier: dbuser
     - keyword: with
     - keyword: reset
     - keyword: session
@@ -259,9 +310,11 @@ file:
     alter_user:
     - keyword: alter
     - keyword: user
-    - identifier: dbuser
+    - object_reference:
+        identifier: dbuser
     - keyword: set
-    - identifier: var
+    - object_reference:
+        identifier: var
     - keyword: to
     - literal: '100'
 - statement_terminator: ;
@@ -269,10 +322,12 @@ file:
     alter_user:
     - keyword: alter
     - keyword: user
-    - identifier: dbuser
+    - object_reference:
+        identifier: dbuser
     - keyword: with
     - keyword: set
-    - identifier: var
+    - object_reference:
+        identifier: var
     - keyword: to
     - literal: '100'
 - statement_terminator: ;
@@ -280,9 +335,11 @@ file:
     alter_user:
     - keyword: alter
     - keyword: user
-    - identifier: dbuser
+    - object_reference:
+        identifier: dbuser
     - keyword: set
-    - identifier: var
+    - object_reference:
+        identifier: var
     - comparison_operator: '='
     - literal: "'hi'"
 - statement_terminator: ;
@@ -290,10 +347,12 @@ file:
     alter_user:
     - keyword: alter
     - keyword: user
-    - identifier: dbuser
+    - object_reference:
+        identifier: dbuser
     - keyword: with
     - keyword: set
-    - identifier: var
+    - object_reference:
+        identifier: var
     - comparison_operator: '='
     - literal: "'hi'"
 - statement_terminator: ;
@@ -301,9 +360,11 @@ file:
     alter_user:
     - keyword: alter
     - keyword: user
-    - identifier: dbuser
+    - object_reference:
+        identifier: dbuser
     - keyword: set
-    - identifier: var
+    - object_reference:
+        identifier: var
     - keyword: to
     - keyword: default
 - statement_terminator: ;
@@ -311,10 +372,12 @@ file:
     alter_user:
     - keyword: alter
     - keyword: user
-    - identifier: dbuser
+    - object_reference:
+        identifier: dbuser
     - keyword: with
     - keyword: set
-    - identifier: var
+    - object_reference:
+        identifier: var
     - keyword: to
     - keyword: default
 - statement_terminator: ;
@@ -322,9 +385,11 @@ file:
     alter_user:
     - keyword: alter
     - keyword: user
-    - identifier: dbuser
+    - object_reference:
+        identifier: dbuser
     - keyword: set
-    - identifier: var
+    - object_reference:
+        identifier: var
     - comparison_operator: '='
     - keyword: default
 - statement_terminator: ;
@@ -332,10 +397,12 @@ file:
     alter_user:
     - keyword: alter
     - keyword: user
-    - identifier: dbuser
+    - object_reference:
+        identifier: dbuser
     - keyword: with
     - keyword: set
-    - identifier: var
+    - object_reference:
+        identifier: var
     - comparison_operator: '='
     - keyword: default
 - statement_terminator: ;
@@ -343,16 +410,20 @@ file:
     alter_user:
     - keyword: alter
     - keyword: user
-    - identifier: dbuser
+    - object_reference:
+        identifier: dbuser
     - keyword: reset
-    - identifier: var
+    - object_reference:
+        identifier: var
 - statement_terminator: ;
 - statement:
     alter_user:
     - keyword: alter
     - keyword: user
-    - identifier: dbuser
+    - object_reference:
+        identifier: dbuser
     - keyword: with
     - keyword: reset
-    - identifier: var
+    - object_reference:
+        identifier: var
 - statement_terminator: ;

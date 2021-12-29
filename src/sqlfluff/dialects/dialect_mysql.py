@@ -65,8 +65,23 @@ mysql_dialect.sets("unreserved_keywords").difference_update(
         "STACKED",
     ]
 )
+mysql_dialect.sets("unreserved_keywords").update(
+    [
+        "QUICK",
+        "FAST",
+        "MEDIUM",
+        "EXTENDED",
+        "CHANGED",
+        "UPGRADE",
+        "HISTOGRAM",
+        "BUCKETS",
+        "USE_FRM",
+        "REPAIR",
+    ]
+)
 mysql_dialect.sets("reserved_keywords").update(
     [
+        "HELP",
         "FORCE",
         "IGNORE",
         "USE",
@@ -98,6 +113,7 @@ mysql_dialect.sets("reserved_keywords").update(
         "NONE",
         "SHARED",
         "EXCLUSIVE",
+        "MASTER",
     ]
 )
 
@@ -132,6 +148,22 @@ mysql_dialect.replace(
             Ref("SessionVariableNameSegment"),
             Ref("LocalVariableNameSegment"),
         ]
+    ),
+    DateTimeLiteralGrammar=Sequence(
+        # MySQL does not require the keyword to be specified:
+        # https://dev.mysql.com/doc/refman/8.0/en/date-and-time-literals.html
+        OneOf(
+            "DATE",
+            "TIME",
+            "TIMESTAMP",
+            "DATETIME",
+            "INTERVAL",
+            optional=True,
+        ),
+        OneOf(
+            Ref("QuotedLiteralSegment"),
+            Ref("NumericLiteralSegment"),
+        ),
     ),
 )
 
@@ -316,6 +348,14 @@ mysql_dialect.add(
         name="declared_variable",
         type="variable",
     ),
+    BooleanDynamicSystemVariablesGrammar=OneOf(
+        # Boolean dynamic system varaiables can be set to ON/OFF, TRUE/FALSE, or 0/1:
+        # https://dev.mysql.com/doc/refman/8.0/en/dynamic-system-variables.html
+        # This allows us to match ON/OFF & TRUE/FALSE as keywords and therefore apply
+        # the correct capitalisation policy.
+        OneOf("ON", "OFF"),
+        OneOf("TRUE", "FALSE"),
+    ),
 )
 
 mysql_dialect.replace(
@@ -433,6 +473,15 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref("CursorOpenCloseSegment"),
             Ref("CursorFetchSegment"),
             Ref("AlterTableStatementSegment"),
+            Ref("RenameTableStatementSegment"),
+            Ref("ResetMasterStatementSegment"),
+            Ref("PurgeBinaryLogsStatementSegment"),
+            Ref("HelpStatementSegment"),
+            Ref("CheckTableStatementSegment"),
+            Ref("ChecksumTableStatementSegment"),
+            Ref("AnalyzeTableStatementSegment"),
+            Ref("RepairTableStatementSegment"),
+            Ref("OptimizeTableStatementSegment"),
         ],
     )
 
@@ -639,6 +688,8 @@ class SetAssignmentStatementSegment(BaseSegment):
             Ref("QuotedLiteralSegment"),
             Ref("DoubleQuotedLiteralSegment"),
             Ref("SessionVariableNameSegment"),
+            # Match boolean keywords before local variables.
+            Ref("BooleanDynamicSystemVariablesGrammar"),
             Ref("LocalVariableNameSegment"),
             Ref("FunctionSegment"),
             Ref("ArithmeticBinaryOperatorGrammar"),
@@ -866,6 +917,8 @@ class SelectClauseElementSegment(BaseSegment):
     parse_grammar = ansi_dialect.get_segment(
         "SelectClauseElementSegment"
     ).parse_grammar.copy()
+
+    get_alias = ansi_dialect.get_segment("SelectClauseElementSegment").get_alias
 
 
 @mysql_dialect.segment(replace=True)
@@ -1317,5 +1370,231 @@ class DropIndexStatementSegment(BaseSegment):
                 OneOf("DEFAULT", "NONE", "SHARED", "EXCLUSIVE"),
             ),
             optional=True,
+        ),
+    )
+
+
+@mysql_dialect.segment()
+class RenameTableStatementSegment(BaseSegment):
+    """A `RENAME TABLE` statement.
+
+    https://dev.mysql.com/doc/refman/8.0/en/rename-table.html
+    """
+
+    type = "rename_table_statement"
+    match_grammar = Sequence(
+        "RENAME",
+        "TABLE",
+        Delimited(
+            Sequence(
+                Ref("TableReferenceSegment"),
+                "TO",
+                Ref("TableReferenceSegment"),
+            ),
+        ),
+    )
+
+
+@mysql_dialect.segment()
+class ResetMasterStatementSegment(BaseSegment):
+    """A `RESET MASTER` statement.
+
+    https://dev.mysql.com/doc/refman/8.0/en/reset-master.html
+    """
+
+    type = "reset_master_statement"
+    match_grammar = Sequence(
+        "RESET",
+        "MASTER",
+        Sequence("TO", Ref("NumericLiteralSegment"), optional=True),
+    )
+
+
+@mysql_dialect.segment()
+class PurgeBinaryLogsStatementSegment(BaseSegment):
+    """A `PURGE BINARY LOGS` statement.
+
+    https://dev.mysql.com/doc/refman/8.0/en/purge-binary-logs.html
+    """
+
+    type = "purge_binary_logs_statement"
+    match_grammar = Sequence(
+        "PURGE",
+        OneOf(
+            "BINARY",
+            "MASTER",
+        ),
+        "LOGS",
+        OneOf(
+            Sequence(
+                "TO",
+                Ref("QuotedLiteralSegment"),
+            ),
+            Sequence(
+                "BEFORE",
+                OneOf(
+                    Ref("DateTimeLiteralGrammar"),
+                ),
+            ),
+        ),
+    )
+
+
+@mysql_dialect.segment()
+class HelpStatementSegment(BaseSegment):
+    """A `HELP` statement.
+
+    https://dev.mysql.com/doc/refman/8.0/en/help.html
+    """
+
+    type = "help_statement"
+    match_grammar = Sequence(
+        "HELP",
+        Ref("QuotedLiteralSegment"),
+    )
+
+
+@mysql_dialect.segment()
+class CheckTableStatementSegment(BaseSegment):
+    """A `CHECK TABLE` statement.
+
+    https://dev.mysql.com/doc/refman/8.0/en/check-table.html
+    """
+
+    type = "check_table_statement"
+    match_grammar = Sequence(
+        "CHECK",
+        "TABLE",
+        Delimited(
+            Ref("TableReferenceSegment"),
+        ),
+        AnyNumberOf(
+            Sequence("FOR", "UPGRADE"),
+            "QUICK",
+            "FAST",
+            "MEDIUM",
+            "EXTENDED",
+            "CHANGED",
+            min_times=1,
+        ),
+    )
+
+
+@mysql_dialect.segment()
+class ChecksumTableStatementSegment(BaseSegment):
+    """A `CHECKSUM TABLE` statement.
+
+    https://dev.mysql.com/doc/refman/8.0/en/checksum-table.html
+    """
+
+    type = "checksum_table_statement"
+    match_grammar = Sequence(
+        "CHECKSUM",
+        "TABLE",
+        Delimited(
+            Ref("TableReferenceSegment"),
+        ),
+        OneOf(
+            "QUICK",
+            "EXTENDED",
+        ),
+    )
+
+
+@mysql_dialect.segment()
+class AnalyzeTableStatementSegment(BaseSegment):
+    """An `ANALYZE TABLE` statement.
+
+    https://dev.mysql.com/doc/refman/8.0/en/analyze-table.html
+    """
+
+    type = "analyze_table_statement"
+    match_grammar = Sequence(
+        "ANALYZE",
+        OneOf(
+            "NO_WRITE_TO_BINLOG",
+            "LOCAL",
+            optional=True,
+        ),
+        "TABLE",
+        OneOf(
+            Sequence(
+                Delimited(
+                    Ref("TableReferenceSegment"),
+                ),
+            ),
+            Sequence(
+                Ref("TableReferenceSegment"),
+                "UPDATE",
+                "HISTOGRAM",
+                "ON",
+                Delimited(
+                    Ref("ColumnReferenceSegment"),
+                ),
+                Sequence(
+                    "WITH",
+                    Ref("NumericLiteralSegment"),
+                    "BUCKETS",
+                    optional=True,
+                ),
+            ),
+            Sequence(
+                Ref("TableReferenceSegment"),
+                "DROP",
+                "HISTOGRAM",
+                "ON",
+                Delimited(
+                    Ref("ColumnReferenceSegment"),
+                ),
+            ),
+        ),
+    )
+
+
+@mysql_dialect.segment()
+class RepairTableStatementSegment(BaseSegment):
+    """A `REPAIR TABLE` statement.
+
+    https://dev.mysql.com/doc/refman/8.0/en/repair-table.html
+    """
+
+    type = "repair_table_statement"
+    match_grammar = Sequence(
+        "REPAIR",
+        OneOf(
+            "NO_WRITE_TO_BINLOG",
+            "LOCAL",
+            optional=True,
+        ),
+        "TABLE",
+        Delimited(
+            Ref("TableReferenceSegment"),
+        ),
+        AnyNumberOf(
+            "QUICK",
+            "EXTENDED",
+            "USE_FRM",
+        ),
+    )
+
+
+@mysql_dialect.segment()
+class OptimizeTableStatementSegment(BaseSegment):
+    """An `OPTIMIZE TABLE` statement.
+
+    https://dev.mysql.com/doc/refman/8.0/en/optimize-table.html
+    """
+
+    type = "optimize_table_statement"
+    match_grammar = Sequence(
+        "OPTIMIZE",
+        OneOf(
+            "NO_WRITE_TO_BINLOG",
+            "LOCAL",
+            optional=True,
+        ),
+        "TABLE",
+        Delimited(
+            Ref("TableReferenceSegment"),
         ),
     )
