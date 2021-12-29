@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b87f3a3980afe193145d52dac614d424e692e16c69d73cdbd3b5d99c639f0573
+_hash: b324872f7ec92dbc8c022e0092457addec82e84049e00a68a4ac1be7e53a1ae5
 file:
 - base:
     create_database_statement:
@@ -91,4 +91,13 @@ file:
       - comparison_operator: '='
       - literal: "'John'"
       - end_bracket: )
+- statement_terminator: ;
+- base:
+    create_database_statement:
+    - keyword: CREATE
+    - keyword: DATABASE
+    - database_reference:
+        identifier: inventory_db
+    - keyword: COMMENT
+    - literal: "'This database is used to maintain Inventory'"
 - statement_terminator: ;

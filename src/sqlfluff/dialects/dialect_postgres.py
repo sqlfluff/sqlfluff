@@ -1877,7 +1877,7 @@ class AlterDatabaseStatementSegment(BaseSegment):
     )
 
 
-@postgres_dialect.segment()
+@postgres_dialect.segment(replace=True)
 class DropDatabaseStatementSegment(BaseSegment):
     """A `DROP DATABASE` statement.
 
