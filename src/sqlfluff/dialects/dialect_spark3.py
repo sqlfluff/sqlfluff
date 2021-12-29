@@ -572,7 +572,7 @@ class CreateFunctionStatementSegment(BaseSegment):
         Ref("FunctionNameIdentifierSegment"),
         "AS",
         Ref("SingleOrDoubleQuotedLiteralGrammar"),
-        Ref("ResourceLocationGrammar"),
+        Ref("ResourceLocationGrammar", optional=True),
     )
 
 
@@ -714,7 +714,6 @@ class StatementSegment(BaseSegment):
             Ref("TransactionStatementSegment"),
             Ref("CreateSchemaStatementSegment"),
             Ref("SetSchemaStatementSegment"),
-            Ref("DropSchemaStatementSegment"),
             Ref("CreateExtensionStatementSegment"),
             Ref("CreateModelStatementSegment"),
             Ref("DropModelStatementSegment"),

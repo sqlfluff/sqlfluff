@@ -448,22 +448,9 @@ class DropStatementSegment(BaseSegment):
     match_grammar = StartsWith("DROP")
     parse_grammar = OneOf(
         Ref("DropDatabaseStatementSegment"),
+        Ref("DropSchemaStatementSegment"),
         Ref("DropTableStatementSegment"),
         # TODO: add other drops
-    )
-
-
-@hive_dialect.segment()
-class DropDatabaseStatementSegment(BaseSegment):
-    """A `DROP DATEBASE/SCHEMA` statement."""
-
-    type = "drop_table_statement"
-    match_grammar = Sequence(
-        "DROP",
-        OneOf("DATABASE", "SCHEMA"),
-        Ref("IfExistsGrammar", optional=True),
-        Ref("DatabaseReferenceSegment"),
-        OneOf("RESTRICT", "CASCADE", optional=True),
     )
 
 

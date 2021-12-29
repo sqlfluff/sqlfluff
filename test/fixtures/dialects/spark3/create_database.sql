@@ -22,4 +22,5 @@ COMMENT 'This is customer database' LOCATION '/user'
 WITH DBPROPERTIES ("ID" = "001", "Name" = 'John');
 
 -- Create `inventory_db` Database
-CREATE DATABASE inventory_db COMMENT 'This database is used to maintain Inventory';
+CREATE DATABASE inventory_db
+COMMENT 'This database is used to maintain Inventory';
