@@ -2493,25 +2493,29 @@ class CreateViewStatementSegment(BaseSegment):
 
 @ansi_dialect.segment()
 class DropStatementSegment(BaseSegment):
-    """A `DROP` statement."""
+    """A `DROP` statement.
+
+    R7L208: Adding Function into this drop statement conflicts with
+            DropFunctionStatementSegment in Postgres dialect causing
+            an unparsable section resulting in failure of
+            test/fixtures/dialects/postgres/postgres_drop_function.sql
+    """
 
     type = "drop_statement"
 
-    # DROP {TABLE | VIEW | USER | FUNCTION} <Table name> [IF EXISTS} {RESTRICT | CASCADE}
+    # DROP [TEMPORARY] {TABLE | VIEW | USER | FUNCTION} <Table name> [IF EXISTS} {RESTRICT | CASCADE}
     match_grammar = Sequence(
         "DROP",
+        Ref("TemporaryGrammar", optional=True),
         OneOf(
             "TABLE",
             "VIEW",
             "USER",
-            "FUNCTION",
         ),
         Ref("IfExistsGrammar", optional=True),
         OneOf(
-            # Table/View
+            # TABLE/VIEW
             Ref("TableReferenceSegment"),
-            # Function
-            Ref("FunctionSegment"),
             # User
             Ref("ObjectReferenceSegment"),
         ),
