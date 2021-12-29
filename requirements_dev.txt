@@ -18,6 +18,8 @@ mypy
 types-toml
 types-pkg_resources
 types-chardet
+types-appdirs
+types-colorama
 # Requests is required for the util script
 requests
 yamllint
