@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4bf4f4edeaac5286379526a4187cc60a9c048430ef38e4a4cb3fb3a9fe35f513
+_hash: 716b4613d1b111b930856557461609bacea3e256371683c7a1ebc0a07df5c7c9
 file:
-  batch:
+- batch:
     statement:
       create_sequence_statement:
       - keyword: CREATE
@@ -20,3 +20,46 @@ file:
         - keyword: INCREMENT
         - keyword: BY
         - literal: '1'
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
+      create_sequence_statement:
+      - keyword: CREATE
+      - keyword: SEQUENCE
+      - sequence_reference:
+        - identifier: Test
+        - dot: .
+        - identifier: DecSeq
+      - create_sequence_options_segment:
+          keyword: AS
+          data_type:
+            identifier: decimal
+            bracketed:
+            - start_bracket: (
+            - expression:
+                literal: '3'
+            - comma: ','
+            - expression:
+                literal: '0'
+            - end_bracket: )
+      - create_sequence_options_segment:
+        - keyword: START
+        - keyword: WITH
+        - literal: '125'
+      - create_sequence_options_segment:
+        - keyword: INCREMENT
+        - keyword: BY
+        - literal: '25'
+      - create_sequence_options_segment:
+          keyword: MINVALUE
+          literal: '100'
+      - create_sequence_options_segment:
+          keyword: MAXVALUE
+          literal: '200'
+      - create_sequence_options_segment:
+          keyword: CYCLE
+      - create_sequence_options_segment:
+          keyword: CACHE
+          literal: '3'
+    statement_terminator: ;
