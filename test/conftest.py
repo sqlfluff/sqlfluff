@@ -4,7 +4,7 @@ import io
 import os
 
 import pytest
-import oyaml
+import yaml
 
 from sqlfluff.cli.commands import quoted_presenter
 from sqlfluff.core import FluffConfig
@@ -22,7 +22,7 @@ from sqlfluff.core.parser.segments import (
 from sqlfluff.core.templaters import TemplatedFile
 
 # When writing YAML files, double quotes string values needing escapes.
-oyaml.add_representer(str, quoted_presenter)
+yaml.add_representer(str, quoted_presenter)
 
 
 def get_parse_fixtures(fail_on_missing_yml=False):
@@ -111,7 +111,7 @@ def compute_parse_tree_hash(tree):
         r = tree.as_record(code_only=True, show_raw=True)
         if r:
             r_io = io.StringIO()
-            oyaml.dump(r, r_io)
+            yaml.dump(r, r_io, sort_keys=False)
             result = hashlib.blake2s(r_io.getvalue().encode("utf-8")).hexdigest()
             return result
     return None
@@ -123,7 +123,7 @@ def load_yaml(fpath):
     with open(fpath) as f:
         raw = f.read()
     # Parse the yaml
-    obj = oyaml.safe_load(raw)
+    obj = yaml.safe_load(raw)
     # Return the parsed and structured object
     _hash = None
     if obj:

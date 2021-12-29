@@ -251,6 +251,36 @@ class CreateTableStatementSegment(BaseSegment):
 
 
 @redshift_dialect.segment(replace=True)
+class CreateTableAsStatementSegment(BaseSegment):
+    """A `CREATE TABLE AS` statement.
+
+    As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_TABLE_AS.html
+    """
+
+    type = "create_table_as_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        Sequence(
+            Ref.keyword("LOCAL", optional=True),
+            OneOf("TEMPORARY", "TEMP"),
+            optional=True,
+        ),
+        "TABLE",
+        Ref("ObjectReferenceSegment"),
+        Bracketed(
+            Delimited(
+                Ref("ColumnReferenceSegment"),
+            ),
+            optional=True,
+        ),
+        Sequence("BACKUP", OneOf("YES", "NO"), optional=True),
+        Ref("TableAttributeSegment", optional=True),
+        "AS",
+        Ref("SelectableGrammar"),
+    )
+
+
+@redshift_dialect.segment(replace=True)
 class InsertStatementSegment(BaseSegment):
     """An`INSERT` statement.
 
