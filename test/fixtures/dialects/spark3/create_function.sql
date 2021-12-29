@@ -13,3 +13,10 @@ USING JAR '/tmp/SimpleUdf.jar' ;
 -- Replace the implementation of `simple_udf`
 CREATE OR REPLACE FUNCTION simple_udf AS 'SimpleUdfR'
 USING JAR '/tmp/SimpleUdfR.jar' ;
+
+-- Create a permanent function `test_avg`
+CREATE FUNCTION test_avg AS 'org.apache.hadoop.hive.ql.udf.generic.GenericUDAFAverage';
+
+-- Create Temporary function `test_avg`
+CREATE TEMPORARY FUNCTION test_avg AS
+    'org.apache.hadoop.hive.ql.udf.generic.GenericUDAFAverage';
