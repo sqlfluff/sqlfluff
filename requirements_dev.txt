@@ -20,6 +20,7 @@ types-pkg_resources
 types-chardet
 types-appdirs
 types-colorama
+types-pyyaml
 # Requests is required for the util script
 requests
 yamllint

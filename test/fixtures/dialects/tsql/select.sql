@@ -63,6 +63,20 @@ SELECT
 	SHOWPLAN_XML ,
 	XACT_ABORT,
 
+	--TSQL non-keywords
+	Rows,
+	NaN,
+	Rlike,
+	Ilike,
+	Separator,
+	Auto_Increment,
+	Unsigned,
+	Describe,
+	Comment,
+	Ml,
+	Modify,
+	Minus,
+
     ROW_NUMBER()OVER(PARTITION BY [EventNM], [PersonID] ORDER BY [DateofEvent] desc) AS [RN],
     RANK()OVER(PARTITION BY [EventNM] ORDER BY [DateofEvent] desc) AS [R],
     DENSE_RANK()OVER(PARTITION BY [EventNM] ORDER BY [DateofEvent] desc) AS [DR],

@@ -29,7 +29,7 @@ TBLPROPERTIES ('foo' = 'bar');
 CREATE TABLE student (id INT, student_name STRING, age INT)
 STORED AS ORC
 TBLPROPERTIES ('foo' = 'bar')
-COMMENT 'this is a comment' ;
+COMMENT 'this is a comment';
 
 --Create partitioned table
 CREATE TABLE student (id INT, student_name STRING)
@@ -59,7 +59,7 @@ MAP KEYS TERMINATED BY ':'
 LINES TERMINATED BY '\n'
 NULL DEFINED AS 'foonull'
 STORED AS TEXTFILE
-LOCATION '/tmp/family/' ;
+LOCATION '/tmp/family/';
 
 --Use predefined custom SerDe
 CREATE TABLE avroexample
@@ -70,19 +70,24 @@ OUTPUTFORMAT
 'org.apache.hadoop.hive.ql.io.avro.AvroContainerOutputFormat'
 TBLPROPERTIES (
     'avro.schema.literal' =
-    '{"namespace": "org.apache.hive", "name": "first_schema", "type": "record", "fields": [ { "name":"string1", "type":"string" }, { "name":"string2", "type":"string" }] }'
+    '{
+        "namespace": "org.apache.hive",
+        "name": "first_schema",
+        "type": "record",
+        "fields": [ { "name":"string1", "type":"string" }, { "name":"string2", "type":"string" }]
+    }'
 );
 
 --Use personalized custom SerDe
 --(we may need to `ADD JAR xxx.jar` first to ensure we can find the serde_class,
 --or you may run into `CLASSNOTFOUND` exception)
-ADD JAR '/tmp/hive_serde_example.jar' ;
+ADD JAR '/tmp/hive_serde_example.jar';
 
 CREATE EXTERNAL TABLE family (id INT, family_name STRING)
 ROW FORMAT SERDE 'com.ly.spark.serde.SerDeExample'
 STORED AS INPUTFORMAT 'com.ly.spark.example.serde.io.SerDeExampleInputFormat'
 OUTPUTFORMAT 'com.ly.spark.example.serde.io.SerDeExampleOutputFormat'
-LOCATION '/tmp/family/' ;
+LOCATION '/tmp/family/';
 
 --Use `CLUSTERED BY` clause to create bucket table without `SORTED BY`
 CREATE TABLE clustered_by_test1 (id INT, age STRING)
