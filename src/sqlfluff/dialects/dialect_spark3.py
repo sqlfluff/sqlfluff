@@ -630,6 +630,16 @@ class CreateTableStatementSegment(BaseSegment):
     )
 
 
+@spark3_dialect.segment()
+class CreateHiveFormatTableStatementSegment(hive_dialect.get_segment("CreateTableStatementSegment")):  # type: ignore
+    """A `CREATE TABLE` statement using Hive format.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-ddl-create-table-hiveformat.html
+    """
+
+    type = "create_table_statement"
+
+
 @spark3_dialect.segment(replace=True)
 class CreateViewStatementSegment(BaseSegment):
     """A `CREATE VIEW` statement.
@@ -666,15 +676,34 @@ class CreateViewStatementSegment(BaseSegment):
     )
 
 
-@spark3_dialect.segment()
-class CreateHiveFormatTableStatementSegment(hive_dialect.get_segment("CreateTableStatementSegment")):  # type: ignore
-    """A `CREATE TABLE` statement using Hive format.
+@spark3_dialect.segment(replace=True)
+class DropStatementSegment(BaseSegment):
+    """A `DROP` statement.
 
-    https://spark.apache.org/docs/latest/sql-ref-syntax-ddl-create-table-hiveformat.html
+    DROP [TEMPORARY | TEMP] {TABLE | VIEW | FUNCTION} <Table name> [IF EXISTS] {RESTRICT | CASCADE}
     """
 
-    type = "create_table_statement"
+    type = "drop_statement"
 
+    match_grammar = Sequence(
+        "DROP",
+        Ref("TemporaryGrammar", optional=True),
+        OneOf(
+            "TABLE",
+            "VIEW",
+            "FUNCTION",
+        ),
+        Ref("IfExistsGrammar", optional=True),
+        OneOf(
+            # Table/View
+            Ref("TableReferenceSegment"),
+            # Function
+            Ref("FunctionSegment"),
+            # User
+            Ref("ObjectReferenceSegment"),
+        ),
+        OneOf("RESTRICT", Ref.keyword("CASCADE", optional=True), optional=True),
+    )
 
 # Auxiliary Statements
 @spark3_dialect.segment()
