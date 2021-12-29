@@ -2502,7 +2502,7 @@ class DropStatementSegment(BaseSegment):
           test/fixtures/dialects/postgres/postgres_drop_function.sql
 
         - Adding TemporaryGrammar into DropStatementSegment throws
-          an error since TEMPORARY and TEMP are not keyworks in tSQL
+          an error since TEMPORARY and TEMP are not keywords in tSQL
           dialect.
     """
 
