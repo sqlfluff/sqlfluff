@@ -2368,6 +2368,7 @@ class CreateDatabaseStatementSegment(BaseSegment):
         Ref("DatabaseReferenceSegment"),
     )
 
+
 @ansi_dialect.segment()
 class DropDatabaseStatementSegment(BaseSegment):
     """A `DROP DATABASE` statement."""

@@ -705,6 +705,7 @@ class DropStatementSegment(BaseSegment):
         OneOf("RESTRICT", Ref.keyword("CASCADE", optional=True), optional=True),
     )
 
+
 # Auxiliary Statements
 @spark3_dialect.segment()
 class AddExecutablePackage(BaseSegment):
