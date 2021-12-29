@@ -1,5 +1,5 @@
 -- Drop TABLE with all optional syntax
-DROP TABLE IF EXISTS table_identifier
+DROP TABLE IF EXISTS table_identifier;
 
 -- Assumes a table named `employeetable` exists.
 DROP TABLE employeetable;

@@ -5,8 +5,8 @@ DROP VIEW IF EXISTS view_identifier
 DROP VIEW employeeView;
 
 -- Assumes a view named `employeeView` exists in the `userdb` database
-DROP VIEW userdb.employeeView;
+DROP VIEW userdb.employeeview;
 
 -- Assumes a view named `employeeView` does not exist,Try with IF EXISTS
 -- will not throw exception
-DROP VIEW IF EXISTS employeeView;
+DROP VIEW IF EXISTS employeeview;
