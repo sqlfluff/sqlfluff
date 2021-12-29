@@ -1942,9 +1942,11 @@ class AlterTableStatementSegment(BaseSegment):
                     Ref("EqualsSegment", optional=True),
                     OneOf(Ref("LiteralGrammar"), Ref("NakedIdentifierSegment")),
                 ),
-                # Add things
                 Sequence(
-                    "ADD",
+                    OneOf(
+                        "ADD",
+                        "ALTER",
+                    ),
                     Ref.keyword("COLUMN", optional=True),
                     Ref("ColumnDefinitionSegment"),
                 ),
