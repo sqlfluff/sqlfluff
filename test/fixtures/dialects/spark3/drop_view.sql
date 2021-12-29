@@ -1,8 +1,8 @@
 -- Drop FUNCTION with all optional syntax
-DROP VIEW IF EXISTS view_identifier
+DROP VIEW IF EXISTS view_identifier;
 
 -- Assumes a view named `employeeView` exists.
-DROP VIEW employeeView;
+DROP VIEW employeeview;
 
 -- Assumes a view named `employeeView` exists in the `userdb` database
 DROP VIEW userdb.employeeview;

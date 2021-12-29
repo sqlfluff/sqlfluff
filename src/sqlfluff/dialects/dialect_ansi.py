@@ -2496,16 +2496,26 @@ class DropStatementSegment(BaseSegment):
     """A `DROP` statement."""
 
     type = "drop_statement"
-    # DROP {TABLE | VIEW} <Table name> [IF EXISTS} {RESTRICT | CASCADE}
+
+    # DROP [TEMPORARY] {TABLE | VIEW | USER | FUNCTION} <Table name> [IF EXISTS} {RESTRICT | CASCADE}
     match_grammar = Sequence(
         "DROP",
+        Ref("TemporaryGrammar", optional=True),
         OneOf(
             "TABLE",
             "VIEW",
             "USER",
+            "FUNCTION",
         ),
         Ref("IfExistsGrammar", optional=True),
-        Ref("TableReferenceSegment"),
+        OneOf(
+            # Table/View
+            Ref("TableReferenceSegment"),
+            # Function
+            Ref("FunctionSegment"),
+            # User
+            Ref("ObjectReferenceSegment"),
+        ),
         OneOf("RESTRICT", Ref.keyword("CASCADE", optional=True), optional=True),
     )
 
