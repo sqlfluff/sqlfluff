@@ -578,9 +578,10 @@ class CreateFunctionStatementSegment(BaseSegment):
 
 @spark3_dialect.segment(replace=True)
 class CreateTableStatementSegment(BaseSegment):
-    """A `CREATE TABLE` statement using a Data Source.
+    """A `CREATE TABLE` statement using a Data Source or Like.
 
     http://spark.apache.org/docs/latest/sql-ref-syntax-ddl-create-table-datasource.html
+    https://spark.apache.org/docs/latest/sql-ref-syntax-ddl-create-table-like.html
     """
 
     type = "create_table_statement"
@@ -590,25 +591,36 @@ class CreateTableStatementSegment(BaseSegment):
         "TABLE",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
-        # Columns and comment syntax:
-        Sequence(
-            Bracketed(
-                Delimited(
-                    Sequence(
-                        Ref("ColumnDefinitionSegment"),
-                        Ref("CommentGrammar", optional=True),
+        OneOf(
+            # Columns and comment syntax:
+            Sequence(
+                Bracketed(
+                    Delimited(
+                        Sequence(
+                            Ref("ColumnDefinitionSegment"),
+                            Ref("CommentGrammar", optional=True),
+                        ),
                     ),
                 ),
+            ),
+            # Like Syntax
+            Sequence(
+                "LIKE",
+                Ref("TableReferenceSegment"),
             ),
             optional=True,
         ),
         Sequence("USING", Ref("DataSourceFormatGrammar"), optional=True),
+        Ref("RowFormatClauseSegment", optional=True),
+        Ref("StoredAsGrammar", optional=True),
         Sequence("OPTIONS", Ref("BracketedPropertyListGrammar"), optional=True),
         Ref("PartitionSpecGrammar", optional=True),
         Ref("BucketSpecGrammar", optional=True),
-        Ref("LocationGrammar", optional=True),
-        Ref("CommentGrammar", optional=True),
-        Ref("TablePropertiesGrammar", optional=True),
+        AnyNumberOf(
+            Ref("LocationGrammar", optional=True),
+            Ref("CommentGrammar", optional=True),
+            Ref("TablePropertiesGrammar", optional=True),
+        ),
         # Create AS syntax:
         Sequence(
             "AS",
