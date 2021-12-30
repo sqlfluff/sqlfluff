@@ -1486,7 +1486,7 @@ class CaseExpressionSegment(BaseSegment):
         ),
         Sequence(
             "CASE",
-            OneOf(Ref("ExpressionSegment")),
+            Ref("ExpressionSegment"),
             Indent,
             AnyNumberOf(Ref("WhenClauseSegment")),
             Ref("ElseClauseSegment", optional=True),
