@@ -24,7 +24,7 @@ from typing import Iterable, Optional, List, Set, Tuple, Union, Any
 from collections import namedtuple
 from dataclasses import dataclass
 
-from cached_property import cached_property
+from sqlfluff.core.cached_property import cached_property
 
 from sqlfluff.core.linter import LintedFile
 from sqlfluff.core.parser import BaseSegment, RawSegment
