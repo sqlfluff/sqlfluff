@@ -1,7 +1,12 @@
 """Defines commonly used segment predicates for rule writers.
 
+For consistency, all the predicates in this module are implemented as functions
+returning functions. This avoids rule writers having to remember the
+distinction between normal functions and functions returning functions.
+
 This is not necessarily a complete set of predicates covering all possible
-requirements. Rule authors can define their own predicates as needed.
+requirements. Rule authors can define their own predicates as needed, either
+as regular functions, `lambda`, etc.
 """
 from typing import Callable
 
