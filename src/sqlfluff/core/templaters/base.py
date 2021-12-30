@@ -3,13 +3,9 @@
 import logging
 from bisect import bisect_left
 from collections import defaultdict
-import sys
 from typing import Dict, Iterator, List, Tuple, Optional, NamedTuple, Iterable
 
-if sys.version_info >= (3, 8):
-    from functools import cached_property
-else:
-    from backports.cached_property import cached_property
+from sqlfluff.core.cached_property import cached_property
 
 # Instantiate the templater logger
 templater_logger = logging.getLogger("sqlfluff.templater")
