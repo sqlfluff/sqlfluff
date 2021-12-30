@@ -1,6 +1,6 @@
 """Implementation of Rule L058."""
 
-from apm import Check, match, Pattern, Some
+from apm import AllOf, Check, match, Pattern, Some
 from apm.core import MatchContext, MatchResult, Nested
 
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
@@ -80,33 +80,36 @@ class Rule_L058(BaseRule):
                 matched = match(
                     children,
                     [
-                        # WHEN <<expression>>
-                        Some(Check(sp.not_(sp.is_keyword("when")))),
-                        Check(sp.is_keyword("when")),
-                        Some(Check(sp.not_(sp.is_type("expression")))),
-                        Check(sp.is_type("expression")),
                         # ELSE <<expression>>
-                        Some(Check(sp.not_(sp.is_keyword("else")))),
-                        "else" @ Check(sp.is_keyword("else")),
-                        Some(Check(sp.not_(sp.is_type("expression")))),
-                        "nested_expression"
-                        @ Attr(
-                            "segments",
-                            [
-                                # case_expression
-                                "nested_case_expression"
-                                @ Check(sp.is_type("case_expression"))
-                            ],
+                        Some(Check(sp.not_(sp.is_type("else_clause")))),
+                        "else_clause"
+                        @ AllOf(
+                            Check(sp.is_type("else_clause")),
+                            Attr(
+                                "segments",
+                                [
+                                    "else" @ Check(sp.is_keyword("else")),
+                                    Some(Check(sp.not_(sp.is_type("expression")))),
+                                    "nested_expression"
+                                    @ Attr(
+                                        "segments",
+                                        [
+                                            # case_expression
+                                            "nested_case_expression"
+                                            @ Check(sp.is_type("case_expression"))
+                                        ],
+                                    ),
+                                    Some(Check(sp.not_(sp.is_keyword("end")))),
+                                ],
+                            ),
                         ),
                         "junk_before_end" @ Some(Check(sp.not_(sp.is_keyword("end")))),
                         Check(sp.is_keyword("end")),
                     ],
                 )
                 if matched:
-                    # Determine what to delete from the end of the outer CASE.
-                    return LintResult(
-                        anchor=matched["nested_expression"],
-                        fixes=[
+                    fixes = (
+                        [
                             # Replace outer ELSE with inner CASE body
                             LintFix.replace(
                                 matched["else"],
@@ -121,18 +124,19 @@ class Rule_L058(BaseRule):
                             for seg in Segments(*matched["junk_before_end"]).select(
                                 sp.not_(sp.is_meta())
                             )
-                        ],
+                        ]
                     )
+                    return LintResult(anchor=matched["nested_expression"], fixes=fixes)
         return LintResult()
 
     @staticmethod
     def _to_keep_from_nested_case(matched):
         """Determine what to keep from the nested CASE."""
         nested_case_children = Segments(*matched["nested_case_expression"].segments)
-        # First pass: From the first WHEN (inclusive) to the END
+        # First pass: From the first when_clause (inclusive) to the END
         # (excluding the END).
         start_seg = (
-            nested_case_children.select(loop_while=sp.not_(sp.is_keyword("when")))
+            nested_case_children.select(loop_while=sp.not_(sp.is_type("when_clause")))
             .last()
             .get()
         )
