@@ -46,6 +46,16 @@ alternate_case_when_syntax:
         end
     from x
 
+alternate_case_when_syntax_boolean:
+  pass_str: |
+    select
+        case name
+            when 'cat' then true
+            when 'dog' then true
+            else name is null
+        end
+    from x
+
 else_expression:
   pass_str: |
     select
