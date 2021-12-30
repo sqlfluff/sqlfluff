@@ -145,11 +145,8 @@ class Rule_L058(BaseRule):
             start_seg=start_seg,
             stop_seg=stop_seg,
         )
-        # Find any trailing "non-code". From this, keep all dedents
-        # less 1 (i.e. drop the dedent associated with the nested
-        # END).
+        # Find any trailing "non-code", and omit it from the stuff to keep.
         trailing_non_code = (
             to_keep.reversed().select(loop_while=sp.not_(sp.is_code())).reversed()
         )
-        trailing_keep = trailing_non_code.select(sp.is_type("dedent"))[:-1]
-        return to_keep[: -len(trailing_non_code)] + trailing_keep
+        return to_keep[: -len(trailing_non_code)]
