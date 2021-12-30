@@ -1,17 +1,25 @@
 """Implementation of Rule L043."""
-from typing import List, Optional
+from typing import List, NamedTuple, Optional
 
 from sqlfluff.core.parser import (
+    RawSegment,
     WhitespaceSegment,
     SymbolSegment,
     KeywordSegment,
-    RawSegment,
 )
 from sqlfluff.core.parser.segments.base import BaseSegment
 
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
-import sqlfluff.core.rules.functional.segment_predicates as sp
+from sqlfluff.core.rules.functional import Segments, sp
+
+
+class CaseExpressionInfo(NamedTuple):
+    """Segments in the "WHEN" or "THEN" expression."""
+
+    parent: BaseSegment  # parent segment (when_clause or then_clause)
+    expression: BaseSegment  # the expression itself
+    after_expression: BaseSegment  # the segment following the expression
 
 
 @document_fix_compatible
@@ -61,27 +69,24 @@ class Rule_L043(BaseRule):
     @staticmethod
     def _coalesce_fix_list(
         context: RuleContext,
-        coalesce_arg_1: BaseSegment,
+        coalesce_arg_1: CaseExpressionInfo,
         coalesce_arg_2: BaseSegment,
-        coalesce_arg_1_idx: int,
         preceding_not: bool = False,
     ) -> List[LintFix]:
-        """Generate list of fixes to convert CASE statement to COALESCE function.
-
-        Returns:
-            :obj:`List[LintFix]`.
-        """
+        """Generate list of fixes to convert CASE statement to COALESCE function."""
         # Add coalesce and opening parenthesis.
-        edits: List[RawSegment]
-        edits = [
+        edits: List[RawSegment] = (
+            [
+                KeywordSegment("not"),
+                WhitespaceSegment(),
+            ]
+            if preceding_not
+            else []
+        ) + [
             KeywordSegment("coalesce"),
             SymbolSegment("(", name="start_bracket", type="start_bracket"),
         ]
-        if preceding_not:
-            edits = [
-                KeywordSegment("not"),
-                WhitespaceSegment(),
-            ] + edits
+
         edit_coalesce_target = context.segment.segments[0]
         fixes = [
             LintFix.replace(
@@ -90,7 +95,7 @@ class Rule_L043(BaseRule):
             ),
             # Add comma, bool, closing parenthesis.
             LintFix.replace(
-                context.segment.segments[coalesce_arg_1_idx + 1],
+                coalesce_arg_1.after_expression,
                 [
                     SymbolSegment(",", name="comma", type="comma"),
                     WhitespaceSegment(),
@@ -99,16 +104,36 @@ class Rule_L043(BaseRule):
                 ],
             ),
         ] + (
-            # Delete all child segments EXCEPT:
-            # - Column reference segment
-            # - the one being edited to become a call to "coalesce("
-            # Re: The latter -- deleting and editing the same segment has
-            # unpredictable behavior.
+            # Segments to delete -- i.e. all child segments at both levels EXCEPT:
+            # - 'CASE' keyword segment being edited to become a call to "coalesce("
+            # - the overall 'when_clause' segment
+            # - the 'WHEN' filter 'expression' segment
+            # Re: The 'CASE' keyword segment: We avoid deleting this one because
+            # deleting and editing the same segment has unpredictable behavior.
             context.functional.segment.children(
-                lambda seg: seg not in (coalesce_arg_1, edit_coalesce_target)
-            ).apply(lambda seg: LintFix.delete(seg))
+                lambda s: s not in [edit_coalesce_target, coalesce_arg_1.parent]
+            )
+            + Segments(coalesce_arg_1.parent).children(
+                lambda s: s is not coalesce_arg_1.expression
+            )
+        ).apply(
+            lambda s: LintFix.delete(s)
         )
         return fixes
+
+    @staticmethod
+    def _build_case_expression_info(
+        clause_segment: BaseSegment, expr_idx: int
+    ) -> CaseExpressionInfo:
+        for idx, segment in enumerate(clause_segment.segments):
+            if segment.is_type("expression"):
+                if expr_idx:
+                    expr_idx -= 1
+                else:
+                    break
+        return CaseExpressionInfo(
+            clause_segment, segment, clause_segment.segments[idx + 1]
+        )
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Unnecessary CASE statement. Use COALESCE function instead."""
@@ -117,66 +142,57 @@ class Rule_L043(BaseRule):
             context.segment.is_type("case_expression")
             and context.segment.segments[0].name == "case"
         ):
-            # We can't reduce CASE expressions with multiple WHEN clauses.
+            # Find all 'WHEN' clauses and the optional 'ELSE' clause.
             children = context.functional.segment.children()
-            if len(children.select(sp.is_name("when"))) > 1:
+            when_clauses = children.select(sp.is_type("when_clause"))
+            else_clauses = children.select(sp.is_type("else_clause"))
+
+            # Can't fix if either or both of these hold:
+            # - Multiple WHEN clauses
+            # - No ELSE statement
+            if len(when_clauses) > 1 or not else_clauses:
                 return None
 
-            # Find condition expression.
-            condition_expression = children.select(
-                sp.is_type("expression"), loop_while=sp.not_(sp.is_name("then"))
-            )
-            if condition_expression:
-                condition_expression_idx = children.index(condition_expression[0])
+            # Find condition and then expressions.
+            condition_expression = self._build_case_expression_info(when_clauses[0], 0)
+            then_expression = self._build_case_expression_info(when_clauses[0], 1)
+            else_expression = self._build_case_expression_info(else_clauses[0], 0)
 
-                # Next, find THEN result expression.
-                then_expression = children.select(
-                    sp.is_type("expression"),
-                    start_seg=condition_expression[0],
-                    loop_while=sp.not_(sp.is_name("when", "else", "end")),
+            coalesce_arg_2: BaseSegment
+
+            # Method 1: Check if THEN/ELSE expressions are both Boolean and can therefore be reduced.
+            upper_bools = ["TRUE", "FALSE"]
+            if (
+                (then_expression.expression.raw_upper in upper_bools)
+                and (else_expression.expression.raw_upper in upper_bools)
+                and (
+                    then_expression.expression.raw_upper
+                    != else_expression.expression.raw_upper
                 )
-                if then_expression:
-                    then_expression_idx = children.index(then_expression[0])
+            ):
+                coalesce_arg_1 = condition_expression
+                coalesce_arg_2 = KeywordSegment("false")
+                preceding_not = then_expression.expression.raw_upper == "FALSE"
 
-                    # Finally, find the ELSE result expression.
-                    else_or_expression = children.select(
-                        sp.or_(sp.is_type("expression"), sp.is_name("else")),
-                        start_seg=then_expression[0],
-                        loop_while=sp.not_(sp.is_name("when", "end")),
-                    )
-                    # If no ELSE segment is found then we cannot reduce the expression.
-                    else_expression = else_or_expression.first(sp.is_type("expression"))
-                    if else_or_expression.first(sp.is_name("else")) and else_expression:
-                        else_expression_idx = children.index(else_expression[0])
+                fixes = self._coalesce_fix_list(
+                    context,
+                    coalesce_arg_1,
+                    coalesce_arg_2,
+                    preceding_not,
+                )
 
-                        # Method 1: Check if THEN/ELSE expressions are both
-                        # Boolean and can therefore be reduced.
-                        upper_bools = ["TRUE", "FALSE"]
-                        if (
-                            (then_expression[0].raw_upper in upper_bools)
-                            and (else_expression[0].raw_upper in upper_bools)
-                            and (
-                                then_expression[0].raw_upper
-                                != else_expression[0].raw_upper
-                            )
-                        ):
-                            return LintResult(
-                                anchor=condition_expression[0],
-                                fixes=self._coalesce_fix_list(
-                                    context,
-                                    condition_expression[0],
-                                    KeywordSegment("false"),
-                                    condition_expression_idx,
-                                    then_expression[0].raw_upper == "FALSE",
-                                ),
-                            )
+                return LintResult(
+                    anchor=condition_expression.expression,
+                    fixes=fixes,
+                )
 
             # Method 2: Check if the condition expression is comparing a column reference to NULL
             # and whether that column reference is also in either the THEN/ELSE expression.
             # We can only apply this method when there is only one condition in the condition expression.
-            condition_expression_segments_raw = set(
-                condition_expression.children().apply(lambda seg: seg.raw_upper)
-            )
+            condition_expression_segments_raw = {
+                segment.raw_upper
+                for segment in condition_expression.expression.segments
+            }
             if {"IS", "NULL"}.issubset(condition_expression_segments_raw) and (
                 not condition_expression_segments_raw.intersection({"AND", "OR"})
             ):
@@ -184,43 +200,40 @@ class Rule_L043(BaseRule):
                 is_not_prefix = "NOT" in condition_expression_segments_raw
 
                 # Locate column reference in condition expression.
-                column_reference_segment = condition_expression.children(
-                    sp.is_type("column_reference")
-                ).get()
+                column_reference_segment = (
+                    Segments(condition_expression.expression)
+                    .children(sp.is_type("column_reference"))
+                    .get()
+                )
 
-                # Return None if no column reference is detected (this condition
-                # does not apply to functions).
+                # Return None if none found (this condition does not apply to functions).
                 if not column_reference_segment:
                     return None
 
-                # Check if we can reduce the CASE expression to a single
-                # coalesce function.
+                # Check if we can reduce the CASE expression to a single coalesce function.
                 if (
                     not is_not_prefix
                     and column_reference_segment.raw_upper
-                    == else_expression[0].raw_upper
+                    == else_expression.expression.raw_upper
                 ):
-                    coalesce_arg_1 = else_expression[0]
-                    coalesce_arg_2 = then_expression[0]
-                    coalesce_arg_1_idx = else_expression_idx
+                    coalesce_arg_1 = else_expression
+                    coalesce_arg_2 = then_expression.expression
                 elif (
                     is_not_prefix
                     and column_reference_segment.raw_upper
-                    == then_expression[0].raw_upper
+                    == then_expression.expression.raw_upper
                 ):
-                    coalesce_arg_1 = then_expression[0]
-                    coalesce_arg_2 = else_expression[0]
-                    coalesce_arg_1_idx = then_expression_idx
+                    coalesce_arg_1 = then_expression
+                    coalesce_arg_2 = else_expression.expression
                 else:
                     return None
 
                 return LintResult(
-                    anchor=condition_expression[0],
+                    anchor=condition_expression.expression,
                     fixes=self._coalesce_fix_list(
                         context,
                         coalesce_arg_1,
                         coalesce_arg_2,
-                        coalesce_arg_1_idx,
                     ),
                 )
 

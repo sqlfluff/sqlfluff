@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d62d0ad018b0561615d2d0d00171b019be9bb18104b317ee34719a37a1859418
+_hash: 12a452f4eb61a2196d4e97e266e8a3b38161ef8baeb8baf9a85dad285a0c5b2e
 file:
 - batch:
     statement:
@@ -265,6 +265,28 @@ file:
               start_bracket: (
               index_column_definition:
                 identifier: TransactionID
+              end_bracket: )
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - identifier: Production
+        - dot: .
+        - identifier: TransactionHistoryArchive
+      - keyword: ALTER
+      - keyword: COLUMN
+      - column_definition:
+          identifier: rec_number
+          data_type:
+            identifier: VARCHAR
+            bracketed:
+              start_bracket: (
+              expression:
+                literal: '36'
               end_bracket: )
 - go_statement:
     keyword: GO

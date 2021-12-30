@@ -1,5 +1,5 @@
 """Implementation of Rule L035."""
-from typing import List, Optional
+from typing import Optional
 
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
@@ -47,26 +47,27 @@ class Rule_L035(BaseRule):
         5.b. We reach the end of case when without matching "NULL": the rule passes
         """
         if context.segment.is_type("case_expression"):
-            fixes: List[LintFix] = []
             children = context.functional.segment.children()
-            for seg in children:
-                # When we find ELSE we delete
-                # everything up to NULL
-                if fixes:
-                    fixes.append(LintFix.delete(seg))
-                    # Safe to look for NULL, as an expression
-                    # would contain NULL but not be == NULL
-                    if seg.raw_upper == "NULL":
-                        return LintResult(anchor=context.segment, fixes=fixes)
+            else_clause = children.first(sp.is_type("else_clause"))
 
-                if not fixes and seg.name == "else":
-                    fixes.append(LintFix.delete(seg))
-                    # Walk back to remove indents/whitespaces
-                    to_delete = children.reversed().select(
-                        loop_while=sp.or_(
-                            sp.is_name("whitespace", "newline"), sp.is_meta()
-                        ),
-                        start_seg=seg,
-                    )
-                    fixes += [LintFix.delete(s) for s in to_delete]
+            # Does the "ELSE" have a "NULL"? NOTE: Here, it's safe to look for
+            # "NULL", as an expression would *contain* NULL but not be == NULL.
+            if else_clause and else_clause.children(
+                lambda child: child.raw_upper == "NULL"
+            ):
+                # Found ELSE with NULL. Delete the whole else clause as well as
+                # indents/whitespaces/meta preceding the ELSE. :TRICKY: Note
+                # the use of reversed() to make select() effectively search in
+                # reverse.
+                before_else = children.reversed().select(
+                    start_seg=else_clause[0],
+                    loop_while=sp.or_(
+                        sp.is_name("whitespace", "newline"), sp.is_meta()
+                    ),
+                )
+                return LintResult(
+                    anchor=context.segment,
+                    fixes=[LintFix.delete(else_clause[0])]
+                    + [LintFix.delete(seg) for seg in before_else],
+                )
         return None

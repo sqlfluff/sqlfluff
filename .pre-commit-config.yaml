@@ -19,6 +19,9 @@ repos:
           types-toml,
           types-pkg_resources,
           types-chardet,
+          types-appdirs,
+          types-colorama,
+          types-pyyaml,
         ]
         files: ^src/sqlfluff/.*
   - repo: https://github.com/pycqa/flake8

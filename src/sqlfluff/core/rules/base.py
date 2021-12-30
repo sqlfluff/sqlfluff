@@ -24,7 +24,7 @@ from typing import Iterable, Optional, List, Set, Tuple, Union, Any
 from collections import namedtuple
 from dataclasses import dataclass
 
-from cached_property import cached_property
+from sqlfluff.core.cached_property import cached_property
 
 from sqlfluff.core.linter import LintedFile
 from sqlfluff.core.parser import BaseSegment, RawSegment
@@ -71,7 +71,13 @@ class LintResult:
 
     """
 
-    def __init__(self, anchor=None, fixes=None, memory=None, description=None):
+    def __init__(
+        self,
+        anchor: Optional[BaseSegment] = None,
+        fixes: Optional[List["LintFix"]] = None,
+        memory=None,
+        description=None,
+    ):
         # An anchor of none, means no issue
         self.anchor = anchor
         # Fixes might be blank
