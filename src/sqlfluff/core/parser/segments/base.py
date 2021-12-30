@@ -9,12 +9,12 @@ Here we define:
 """
 
 from io import StringIO
-from cached_property import cached_property
 from typing import Any, Callable, Optional, List, Tuple, NamedTuple, Iterator
 import logging
 
 from tqdm import tqdm
 
+from sqlfluff.core.cached_property import cached_property
 from sqlfluff.core.config import progress_bar_configuration
 from sqlfluff.core.string_helpers import (
     frame_msg,

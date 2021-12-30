@@ -71,7 +71,13 @@ class LintResult:
 
     """
 
-    def __init__(self, anchor=None, fixes=None, memory=None, description=None):
+    def __init__(
+        self,
+        anchor: Optional[BaseSegment] = None,
+        fixes: Optional[List["LintFix"]] = None,
+        memory=None,
+        description=None,
+    ):
         # An anchor of none, means no issue
         self.anchor = anchor
         # Fixes might be blank
