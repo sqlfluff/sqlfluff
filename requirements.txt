@@ -1,7 +1,8 @@
 # Used for finding os-specific application config dirs
 appdirs
 # Cached property for performance gains
-cached-property
+# (use functools version for python >= 3.8)
+backports.cached-property; python_version < '3.8'
 # To get the encoding of files.
 chardet
 click>=7.1
