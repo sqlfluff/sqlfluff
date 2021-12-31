@@ -1,5 +1,6 @@
 """Contains the CLI."""
 
+from itertools import chain
 import sys
 import json
 import logging
@@ -25,6 +26,8 @@ from io import StringIO
 import colorama
 from tqdm import tqdm
 
+from sqlfluff import list_dialects
+from sqlfluff.cli.autocomplete import generate_autocomplete_script
 from sqlfluff.cli.formatters import (
     format_rules,
     format_violation,
@@ -52,6 +55,7 @@ from sqlfluff.core.config import progress_bar_configuration
 
 from sqlfluff.core.enums import FormatType, Color
 from sqlfluff.core.linter import ParsedString
+from sqlfluff.core.plugin.host import get_plugin_manager
 
 
 class RedWarningsFilter(logging.Filter):
@@ -169,10 +173,23 @@ def core_options(f: Callable) -> Callable:
     `parse`, `lint` and `fix`.
     """
     f = click.option(
-        "--dialect", default=None, help="The dialect of SQL to lint (default=ansi)"
+        "--dialect",
+        default=None,
+        help="The dialect of SQL to lint (default=ansi)",
+        type=click.Choice([e.name for e in list_dialects()]),
     )(f)
     f = click.option(
-        "--templater", default=None, help="The templater to use (default=jinja)"
+        "--templater",
+        default=None,
+        help="The templater to use (default=jinja)",
+        type=click.Choice(
+            [
+                templater.name
+                for templater in chain.from_iterable(
+                    get_plugin_manager().hook.get_templaters()
+                )
+            ]
+        ),
     )(f)
     f = click.option(
         "--rules",
@@ -208,6 +225,7 @@ def core_options(f: Callable) -> Callable:
             "argument allows you to specify an additional configuration file that overrides "
             "the standard configuration files. N.B. cfg format is required."
         ),
+        type=click.Path(),
     )(f)
     f = click.option(
         "--ignore-local-config",
@@ -385,6 +403,25 @@ def dialects(**kwargs) -> None:
 
 @cli.command()
 @common_options
+@click.argument(
+    "--save-path",
+    default=None,
+    type=click.Path(),
+    help="Where to save the completion script. Defaults to ~/.config/sqlfluff",
+)
+@click.argument(
+    "shell_type",
+    default="bash",
+    type=click.Choice(["bash", "zsh", "fish"], case_sensitive=False),
+    help="What shell to generate autocompletion script for.",
+)
+def autocomplete(shell_type: str, save_path: str) -> None:
+    """Generate autocompletion script."""
+    generate_autocomplete_script(shell_type, save_path)
+
+
+@cli.command()
+@common_options
 @core_options
 @click.option(
     "-f",
@@ -425,7 +462,7 @@ def dialects(**kwargs) -> None:
     is_flag=True,
     help="Disables progress bars.",
 )
-@click.argument("paths", nargs=-1)
+@click.argument("paths", nargs=-1, type=click.Path(allow_dash=True))
 def lint(
     paths: Tuple[str],
     processes: int,
@@ -581,7 +618,7 @@ def do_fixes(lnt, result, formatter=None, **kwargs):
     is_flag=True,
     help="Disables progress bars.",
 )
-@click.argument("paths", nargs=-1)
+@click.argument("paths", nargs=-1, type=click.Path(allow_dash=True))
 def fix(
     force: bool,
     paths: Tuple[str],
@@ -758,7 +795,7 @@ def quoted_presenter(dumper, data):
 @cli.command()
 @common_options
 @core_options
-@click.argument("path", nargs=1)
+@click.argument("path", nargs=1, type=click.Path(allow_dash=True))
 @click.option(
     "--recurse", default=0, help="The depth to recursively parse to (0 for unlimited)"
 )
