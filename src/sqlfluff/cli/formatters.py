@@ -2,7 +2,8 @@
 
 
 from io import StringIO
-from typing import Callable, List, Union
+from os import get_terminal_size
+from typing import Callable, Dict, List, Union
 
 from sqlfluff.cli.helpers import (
     colorize,
@@ -180,6 +181,23 @@ def format_dialects(dialect_readout, verbose=0):
         cli_table(
             readouts,
             col_width=60,
+            cols=1,
+            label_color=Color.blue,
+            val_align="right",
+        )
+    )
+    return text_buffer.getvalue()
+
+
+def format_autocomplete(autocomplete_dict: Dict[str, str], verbose: int = 0) -> str:
+    """Format the autocomplete output."""
+    text_buffer = StringIO()
+    text_buffer.write("==== sqlfluff - autocomplete ====\n")
+    readouts = [(k, v) for k, v in autocomplete_dict.items()]
+    text_buffer.write(
+        cli_table(
+            readouts,
+            col_width=get_terminal_size().columns,
             cols=1,
             label_color=Color.blue,
             val_align="right",

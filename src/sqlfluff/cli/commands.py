@@ -7,16 +7,19 @@ import logging
 import time
 from logging import LogRecord
 from typing import (
+    Any,
     Callable,
     Tuple,
     NoReturn,
     Optional,
     List,
 )
+from click.types import ParamType
 
 import yaml
 
 import click
+from click.shell_completion import CompletionItem
 
 # For the profiler
 import pstats
@@ -29,6 +32,7 @@ from tqdm import tqdm
 from sqlfluff import list_dialects
 from sqlfluff.cli.autocomplete import generate_autocomplete_script
 from sqlfluff.cli.formatters import (
+    format_autocomplete,
     format_rules,
     format_violation,
     format_linting_result_header,
@@ -166,6 +170,23 @@ def common_options(f: Callable) -> Callable:
     return f
 
 
+class DialectClickType(ParamType):
+    """Custom click type for dialect autocompletion.
+
+    We use this over click.Choice as we want to internally
+    handle errors messages and codes for incorrect/outdated dialects.
+    """
+
+    def shell_complete(self, ctx, param, incomplete):
+        """Shell completion for possible dialect names."""
+        dialect_names = [e.name for e in list_dialects()]
+        return [
+            CompletionItem(name)
+            for name in dialect_names
+            if name.startswith(incomplete)
+        ]
+
+
 def core_options(f: Callable) -> Callable:
     """Add core operation options to commands via a decorator.
 
@@ -176,7 +197,7 @@ def core_options(f: Callable) -> Callable:
         "--dialect",
         default=None,
         help="The dialect of SQL to lint (default=ansi)",
-        type=click.Choice([e.name for e in list_dialects()]),
+        type=DialectClickType(),
     )(f)
     f = click.option(
         "--templater",
@@ -403,7 +424,7 @@ def dialects(**kwargs) -> None:
 
 @cli.command()
 @common_options
-@click.argument(
+@click.option(
     "--save-path",
     default=None,
     type=click.Path(),
@@ -413,11 +434,21 @@ def dialects(**kwargs) -> None:
     "shell_type",
     default="bash",
     type=click.Choice(["bash", "zsh", "fish"], case_sensitive=False),
-    help="What shell to generate autocompletion script for.",
+    # help="What shell to generate autocompletion script for.",
 )
-def autocomplete(shell_type: str, save_path: str) -> None:
-    """Generate autocompletion script."""
-    generate_autocomplete_script(shell_type, save_path)
+def autocomplete(shell_type: str, save_path: str, **kwargs: Any) -> None:
+    """Generate autocompletion script.
+
+    This saves an autocompletion shell script to ~/.config/sqlfluff that
+    the user can enable by adding the following line to their shell config:
+    . ~/.config/sqlfluff/sqlfluff-complete.{shell_type}
+
+    N.B. this is only available bash, zsh, and fish.
+    """
+    config = get_config(**kwargs)
+    autocomplete_dict = generate_autocomplete_script(shell_type, save_path)
+    click.echo(format_autocomplete(autocomplete_dict), color=config.get("color"))
+    _completion_message(config)
 
 
 @cli.command()
