@@ -1843,7 +1843,7 @@ class CreateStatementSegment(BaseSegment):
 
 @snowflake_dialect.segment(replace=True)
 class CreateViewStatementSegment(BaseSegment):
-    """A `CREATE VIEW` statement，specifically for Snowflake's dialect"""
+    """A `CREATE VIEW` statement, specifically for Snowflake's dialect"""
 
     type = "create_view_statement"
     # https://docs.snowflake.com/en/sql-reference/sql/create-view.html
