@@ -56,6 +56,7 @@ class Rule_L058(BaseRule):
             case1_to_delete = case1_children.select(
                 start_seg=case1_last_when.get(), stop_seg=case1_else_clause.get()
             )
+
             # Delete the nested "CASE" expression.
             fixes = case1_to_delete.apply(lambda seg: LintFix.delete(seg))
 
