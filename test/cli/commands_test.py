@@ -7,7 +7,7 @@ import shutil
 import json
 from unittest.mock import MagicMock, patch
 
-import oyaml as yaml
+import yaml
 import subprocess
 import chardet
 import sys

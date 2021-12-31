@@ -34,3 +34,6 @@ ALTER TABLE Production.TransactionHistoryArchive
 ADD CONSTRAINT PK_TransactionHistoryArchive_TransactionID PRIMARY KEY CLUSTERED (TransactionID)
 GO
 
+ALTER TABLE Production.TransactionHistoryArchive
+ALTER COLUMN rec_number VARCHAR(36)
+GO
