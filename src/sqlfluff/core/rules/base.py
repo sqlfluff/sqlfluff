@@ -534,6 +534,16 @@ class BaseRule:
 
     # HELPER METHODS --------
 
+    @cached_property
+    def indent(self) -> str:
+        """String for a single indent, based on configuration."""
+        self.tab_space_size: int
+        self.indent_unit: str
+
+        tab = "\t"
+        space = " "
+        return space * self.tab_space_size if self.indent_unit == "space" else tab
+
     def is_final_segment(self, context: RuleContext) -> bool:
         """Is the current segment the final segment in the parse tree."""
         if len(self.filter_meta(context.siblings_post)) > 0:
