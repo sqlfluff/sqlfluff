@@ -1,5 +1,5 @@
 """Surrogate class for working with Segment collections."""
-from typing import Any, Callable, List, Optional
+from typing import Any, Callable, List, Optional, overload
 
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.templaters.base import TemplatedFile
@@ -100,6 +100,21 @@ class Segments(tuple):
                 return Segments(s, templated_file=self.templated_file)
         # If no segment satisfies "predicates", return empty Segments.
         return Segments(templated_file=self.templated_file)
+
+    @overload
+    def __getitem__(self, item: int) -> BaseSegment:
+        pass
+
+    @overload
+    def __getitem__(self, item: slice) -> "Segments":
+        pass
+
+    def __getitem__(self, item):
+        result = super().__getitem__(item)
+        if isinstance(result, tuple):
+            return Segments(*result, templated_file=self.templated_file)
+        else:
+            return result
 
     def get(self, index: int = 0, *, default: Any = None) -> Optional[BaseSegment]:
         """Return specified item. Returns default if index out of range."""

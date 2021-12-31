@@ -21,6 +21,7 @@ types-chardet
 types-appdirs
 types-colorama
 types-pyyaml
+types-regex
 # Requests is required for the util script
 requests
 yamllint
