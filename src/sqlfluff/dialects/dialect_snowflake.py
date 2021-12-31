@@ -1843,10 +1843,13 @@ class CreateStatementSegment(BaseSegment):
 
 @snowflake_dialect.segment(replace=True)
 class CreateViewStatementSegment(BaseSegment):
-    """A `CREATE VIEW` statement, specifically for Snowflake's dialect"""
+    """A `CREATE VIEW` statement, specifically for Snowflake's dialect.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-view.html
+    """
 
     type = "create_view_statement"
-    # https://docs.snowflake.com/en/sql-reference/sql/create-view.html
+
     match_grammar = Sequence(
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),
@@ -1882,10 +1885,9 @@ class CreateViewStatementSegment(BaseSegment):
             Ref("TagBracketedEqualsSegment"),
             Sequence("COPY", "GRANTS"),
             Ref("CreateStatementCommentSegment"),
-            # @NOTE: Column-level mask policy & tagging have not been implemented.
         ),
         "AS",
-        Ref("SelectableGrammar")
+        Ref("SelectableGrammar"),
     )
 
 
