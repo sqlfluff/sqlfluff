@@ -1,38 +1,9 @@
 """Implementation of Rule L058."""
 
-from apm import AllOf, Check, match, Pattern, Some
-from apm.core import MatchContext, MatchResult, Nested
-
+from sqlfluff.core.parser import NewlineSegment, WhitespaceSegment
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
-from sqlfluff.core.rules.functional import Segments, sp
-
-
-class Attr(Pattern, Nested):
-    """Extension class for apm. Allows processing of an object field.
-
-    Adapted from the package's similar "At" class.
-    """
-
-    def __init__(self, path, pattern):
-        if isinstance(path, str):
-            self._path = path.split(".")
-        else:
-            self._path = list(path)
-        self._pattern = pattern
-
-    def match(self, value, *, ctx: MatchContext, strict: bool) -> MatchResult:
-        """Override abstract parent function."""
-        for k in self._path:
-            try:
-                value = getattr(value, k)
-            except AttributeError:
-                return ctx.no_match()
-        return ctx.match(value, self._pattern)
-
-    def descend(self, f):
-        """Override abstract parent function."""
-        return Attr(path=self._path, pattern=f(self._pattern))
+from sqlfluff.core.rules.functional import sp
 
 
 @document_fix_compatible
@@ -71,82 +42,47 @@ class Rule_L058(BaseRule):
     def _eval(self, context: RuleContext) -> LintResult:
         """Nested CASE should be simplified."""
         segment = context.functional.segment
-        if segment.all(sp.is_type("case_expression")):
-            children = segment.children()
+        if segment.select(sp.is_type("case_expression")):
+            case1_children = segment.children()
+            case1_last_when = case1_children.last(sp.is_type("when_clause"))
+            case1_else_clause = case1_children.select(sp.is_type("else_clause"))
+            case2 = case1_else_clause.children(sp.is_type("expression")).children(
+                sp.is_type("case_expression")
+            )
+            if not case1_last_when or not case2:
+                return LintResult()
 
-            # Search for occurrences of the pattern: WHEN <<expression>> ELSE CASE <<expression>>
-            matched = MatchResult(matches=True, context=None, match_stack=None)
-            while matched:
-                matched = match(
-                    children,
-                    [
-                        # ELSE <<expression>>
-                        Some(Check(sp.not_(sp.is_type("else_clause")))),
-                        "else_clause"
-                        @ AllOf(
-                            Check(sp.is_type("else_clause")),
-                            Attr(
-                                "segments",
-                                [
-                                    "else" @ Check(sp.is_keyword("else")),
-                                    Some(Check(sp.not_(sp.is_type("expression")))),
-                                    "nested_expression"
-                                    @ Attr(
-                                        "segments",
-                                        [
-                                            # case_expression
-                                            "nested_case_expression"
-                                            @ Check(sp.is_type("case_expression"))
-                                        ],
-                                    ),
-                                    Some(Check(sp.not_(sp.is_keyword("end")))),
-                                ],
-                            ),
-                        ),
-                        "junk_before_end" @ Some(Check(sp.not_(sp.is_keyword("end")))),
-                        Check(sp.is_keyword("end")),
-                    ],
+            # Delete stuff between the last "WHEN" clause and the "ELSE" clause.
+            case1_to_delete = case1_children.select(
+                start_seg=case1_last_when.get(), stop_seg=case1_else_clause.get()
+            )
+            # Delete the nested "CASE" expression.
+            fixes = case1_to_delete.apply(lambda seg: LintFix.delete(seg))
+
+            # Determine the indentation to use when we move the nested "WHEN"
+            # and "ELSE" clauses, based on the indentation of case1_last_when.
+            # If no whitespace segments found, use default indent.
+            indent = (
+                case1_children.select(stop_seg=case1_last_when.get())
+                .reversed()
+                .select(sp.is_type("whitespace"))
+            )
+            indent_str = "".join(seg.raw for seg in indent) if indent else self.indent
+
+            # Move the nested "when" and "else" clauses after the last outer
+            # "when".
+            nested_clauses = case2.children(sp.is_type("when_clause", "else_clause"))
+            create_after_last_when = nested_clauses.apply(
+                lambda seg: [NewlineSegment(), WhitespaceSegment(indent_str), seg]
+            )
+            fixes.append(
+                LintFix.create_after(
+                    case1_last_when.get(),
+                    [item for sublist in create_after_last_when for item in sublist],
                 )
-                if matched:
-                    fixes = (
-                        [
-                            # Replace outer ELSE with inner CASE body
-                            LintFix.replace(
-                                matched["else"],
-                                self._to_keep_from_nested_case(matched),
-                            ),
-                            # Delete inner CASE
-                            LintFix.delete(matched["nested_expression"]),
-                        ]
-                        # Delete stuff from the end of the outer CASE
-                        + [
-                            LintFix.delete(seg)
-                            for seg in Segments(*matched["junk_before_end"]).select(
-                                sp.not_(sp.is_meta())
-                            )
-                        ]
-                    )
-                    return LintResult(anchor=matched["nested_expression"], fixes=fixes)
-        return LintResult()
+            )
 
-    @staticmethod
-    def _to_keep_from_nested_case(matched):
-        """Determine what to keep from the nested CASE."""
-        nested_case_children = Segments(*matched["nested_case_expression"].segments)
-        # First pass: From the first when_clause (inclusive) to the END
-        # (excluding the END).
-        start_seg = (
-            nested_case_children.select(loop_while=sp.not_(sp.is_type("when_clause")))
-            .last()
-            .get()
-        )
-        stop_seg = nested_case_children.last(sp.is_keyword("end")).get()
-        to_keep = nested_case_children.select(
-            start_seg=start_seg,
-            stop_seg=stop_seg,
-        )
-        # Find any trailing "non-code", and omit it from the stuff to keep.
-        trailing_non_code = (
-            to_keep.reversed().select(loop_while=sp.not_(sp.is_code())).reversed()
-        )
-        return to_keep[: -len(trailing_non_code)]
+            # Delete the outer "else" clause.
+            fixes.append(LintFix.delete(case1_else_clause.get()))
+            return LintResult(case2[0], fixes=fixes)
+        return LintResult()
