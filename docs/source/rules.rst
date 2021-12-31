@@ -97,9 +97,14 @@ tree for violations. The concept is similar to regular expressions, but
 operating on segments rather than strings. (Note that Python 3.10 adds a
 similar pattern matching capability to the core Python language.)
 
+This package seems very promising but not yet mature. Consider trying to use
+it for rules, but be prepared for issues. As of December, 2021, it often has
+issues with patterns using `Some()`. Perhaps the SQLFluff maintainers can help
+isolate, report, and potentially fix issues we encounter.
+
 The awesome-pattern-matching package is capable of processing nested patterns,
 i.e. those that search segments at two or more levels of the parse tree at
-once. Stay tuned for advances in this area.
+once.
 
 Inline Ignoring Errors
 -----------------------
