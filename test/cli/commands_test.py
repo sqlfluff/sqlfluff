@@ -18,14 +18,7 @@ from click.testing import CliRunner
 
 # We import the library directly here to get the version
 import sqlfluff
-from sqlfluff.cli.commands import (
-    lint,
-    version,
-    rules,
-    fix,
-    parse,
-    dialects,
-)
+from sqlfluff.cli.commands import lint, version, rules, fix, parse, dialects
 
 
 def invoke_assert_code(
