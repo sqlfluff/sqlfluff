@@ -1773,7 +1773,6 @@ class CreateStatementSegment(BaseSegment):
             Sequence("SECURITY", "INTEGRATION"),
             Sequence("STORAGE", "INTEGRATION"),
             Sequence("MATERIALIZED", "VIEW"),
-            Sequence("SECURE", "VIEW"),
             Sequence("MASKING", "POLICY"),
             "PIPE",
             Sequence("EXTERNAL", "FUNCTION"),
@@ -1859,32 +1858,31 @@ class CreateViewStatementSegment(BaseSegment):
         ),
         "VIEW",
         Ref("IfNotExistsGrammar", optional=True),
-        Ref("ObjectReferenceSegment"),
+        Ref("TableReferenceSegment"),
         AnyNumberOf(
-            Sequence(
-                Bracketed(
-                    Delimited(
-                        Sequence(
-                            Ref("ObjectReferenceSegment"),
-                            Ref("CommentClauseSegment", optional=True),
-                        ),
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        Ref("ColumnReferenceSegment"),
+                        Ref("CommentClauseSegment", optional=True),
                     ),
                 ),
             ),
             Sequence(
-                Sequence("WITH", optional=True),
+                Ref.keyword("WITH", optional=True),
                 "ROW",
                 "ACCESS",
                 "POLICY",
                 Ref("NakedIdentifierSegment"),
                 "ON",
                 Bracketed(
-                    Delimited(Ref("NakedIdentifierSegment")),
+                    Delimited(Ref("ColumnReferenceSegment")),
                 ),
             ),
             Ref("TagBracketedEqualsSegment"),
             Sequence("COPY", "GRANTS"),
             Ref("CreateStatementCommentSegment"),
+            # @TODO: Support column-level masking policy & tagging.
         ),
         "AS",
         Ref("SelectableGrammar"),

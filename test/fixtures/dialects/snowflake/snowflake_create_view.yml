@@ -3,13 +3,13 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 73fbb8d0dea33f92165cd57d941e3506e38007cd219e01759ebd6c68571014df
+_hash: 0c8e990e5fa6b6ccc0b37d6c23ec1415c777feb35988a5c4884f78be69899aa9
 file:
 - statement:
     create_view_statement:
     - keyword: create
     - keyword: view
-    - object_reference:
+    - table_reference:
         identifier: another_view
     - snowflake_comment:
         keyword: comment
@@ -38,7 +38,7 @@ file:
     create_view_statement:
     - keyword: CREATE
     - keyword: VIEW
-    - object_reference:
+    - table_reference:
         identifier: basic_view
     - keyword: AS
     - select_statement:
@@ -63,7 +63,7 @@ file:
     create_view_statement:
     - keyword: CREATE
     - keyword: VIEW
-    - object_reference:
+    - table_reference:
         identifier: view_with_comments
     - snowflake_comment:
         keyword: COMMENT
@@ -94,7 +94,7 @@ file:
     - binary_operator: OR
     - keyword: REPLACE
     - keyword: VIEW
-    - object_reference:
+    - table_reference:
         identifier: view_with_replace_and_comment
     - snowflake_comment:
         keyword: COMMENT
@@ -130,7 +130,7 @@ file:
     - keyword: IF
     - keyword: NOT
     - keyword: EXISTS
-    - object_reference:
+    - table_reference:
         identifier: secure_recursive_view_with_comment
     - snowflake_comment:
         keyword: COMMENT
@@ -161,7 +161,7 @@ file:
     - binary_operator: OR
     - keyword: REPLACE
     - keyword: VIEW
-    - object_reference:
+    - table_reference:
         identifier: view_with_comment_and_copy_grants
     - snowflake_comment:
         keyword: COMMENT
@@ -194,7 +194,7 @@ file:
     - binary_operator: OR
     - keyword: REPLACE
     - keyword: VIEW
-    - object_reference:
+    - table_reference:
         identifier: view_with_tags_and_copy_grants
     - tag_bracketed_equals:
       - keyword: WITH
@@ -236,14 +236,14 @@ file:
     - binary_operator: OR
     - keyword: REPLACE
     - keyword: VIEW
-    - object_reference:
+    - table_reference:
         identifier: view_with_column_comment
     - bracketed:
       - start_bracket: (
-      - object_reference:
+      - column_reference:
           identifier: col1
       - comma: ','
-      - object_reference:
+      - column_reference:
           identifier: col2
       - comment_clause:
           keyword: COMMENT
@@ -279,7 +279,7 @@ file:
     - keyword: IF
     - keyword: NOT
     - keyword: EXISTS
-    - object_reference:
+    - table_reference:
         identifier: view_with_all_implemented_features
     - snowflake_comment:
         keyword: COMMENT
@@ -287,10 +287,10 @@ file:
         literal: "'table-level comment'"
     - bracketed:
       - start_bracket: (
-      - object_reference:
+      - column_reference:
           identifier: col1
       - comma: ','
-      - object_reference:
+      - column_reference:
           identifier: col2
       - comment_clause:
           keyword: COMMENT
