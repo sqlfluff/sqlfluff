@@ -3,6 +3,7 @@
 
 from io import StringIO
 from os import get_terminal_size
+import sys
 from typing import Callable, Dict, List, Union
 
 from sqlfluff.cli.helpers import (
@@ -197,7 +198,7 @@ def format_autocomplete(autocomplete_dict: Dict[str, str], verbose: int = 0) -> 
     text_buffer.write(
         cli_table(
             readouts,
-            col_width=get_terminal_size().columns,
+            col_width=get_terminal_size().columns if sys.stdout.isatty() else 60,
             cols=1,
             label_color=Color.blue,
             val_align="right",
