@@ -17,7 +17,6 @@ from typing import (
 import yaml
 
 import click
-from click.shell_completion import CompletionItem
 
 # For the profiler
 import pstats
@@ -26,8 +25,8 @@ from io import StringIO
 # To enable colour cross platform
 import colorama
 from tqdm import tqdm
+from sqlfluff.cli.autocomplete import dialect_shell_complete
 
-from sqlfluff import list_dialects
 from sqlfluff.cli.formatters import (
     format_rules,
     format_violation,
@@ -164,18 +163,6 @@ def common_options(f: Callable) -> Callable:
     )(f)
 
     return f
-
-
-def dialect_shell_complete(ctx, param, incomplete):
-    """Shell completion for possible dialect names.
-
-    We use this over click.Choice as we want to internally
-    handle errors messages and codes for incorrect/outdated dialects.
-    """
-    dialect_names = [e.name for e in list_dialects()]
-    return [
-        CompletionItem(name) for name in dialect_names if name.startswith(incomplete)
-    ]
 
 
 def core_options(f: Callable) -> Callable:

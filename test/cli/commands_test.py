@@ -19,7 +19,6 @@ from click.testing import CliRunner
 # We import the library directly here to get the version
 import sqlfluff
 from sqlfluff.cli.commands import (
-    dialect_shell_complete,
     lint,
     version,
     rules,
@@ -1046,20 +1045,3 @@ class TestProgressBars:
         assert r"\rparsing: 0it" not in raw_output
         assert r"\rlint by rules:" not in raw_output
         assert r"\rrule L001:" not in raw_output
-
-
-@pytest.mark.parametrize(
-    "incomplete,expected",
-    [
-        ["an", ["ansi"]],
-        ["s", ["snowflake", "spark3", "sqlite"]],
-        ["post", ["postgres"]],
-    ],
-)
-def test_dialect_click_type_shell_complete(incomplete, expected):
-    """Check that autocomplete returns dialects as expected."""
-    completion_items = dialect_shell_complete(
-        ctx="dummy_not_used", param="dummy_not_used", incomplete=incomplete
-    )
-    actual = [c.value for c in completion_items]
-    assert expected == actual
