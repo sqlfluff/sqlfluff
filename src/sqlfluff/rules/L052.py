@@ -1,7 +1,5 @@
 """Implementation of Rule L052."""
-from typing import Optional, Tuple
-
-from apm import match, Check, Some
+from typing import List, Optional
 
 from sqlfluff.core.parser import SymbolSegment
 from sqlfluff.core.parser.segments.base import BaseSegment
@@ -131,20 +129,25 @@ class Rule_L052(BaseRule):
             # to find the end of the preceding statement.
             reversed_raw_stack = context.functional.raw_stack.reversed()
             before_code = reversed_raw_stack.select(loop_while=sp.not_(sp.is_code()))
+            pre_semicolon_segments = before_code.select(sp.not_(sp.is_meta()))
             anchor_segment = before_code[-1] if before_code else context.segment
+            first_code = reversed_raw_stack.select(sp.is_code()).first()
+            is_one_line = (
+                self._is_one_line_statement(context, first_code[0])
+                if first_code
+                else False
+            )
 
             # We can tidy up any whitespace between the semi-colon
             # and the preceding code/comment segment.
             # Don't mess with comment spacing/placement.
-            pre_semicolon_segments = before_code.select(sp.not_(sp.is_meta()))
             whitespace_deletions = pre_semicolon_segments.select(
                 loop_while=sp.is_whitespace()
             )
 
-            # Semi-colon on same line.
-            first_code = reversed_raw_stack.select(sp.is_code()).first()
-            is_one_line = self._is_one_line_statement(context, first_code[0])
             semicolon_newline = self.multiline_newline if not is_one_line else False
+
+            # Semi-colon on same line.
             if not semicolon_newline:
                 if len(pre_semicolon_segments) >= 1:
                     # If preceding segments are found then delete the old
@@ -218,37 +221,28 @@ class Rule_L052(BaseRule):
                 return None
 
             # Include current segment for complete stack.
-            complete_stack: Tuple[BaseSegment, ...] = tuple(context.raw_stack) + (
-                context.segment,
-            )
+            complete_stack: List[BaseSegment] = list(context.raw_stack)
+            complete_stack.append(context.segment)
 
             # Iterate backwards over complete stack to find
             # if the final semi-colon is already present.
-            matched = match(
-                reversed(complete_stack),
-                [
-                    "before"
-                    @ Some(
-                        Check(sp.or_(sp.not_(sp.is_code()), sp.is_name("semicolon")))
-                    ),
-                    "code"
-                    @ Check(sp.and_(sp.is_code(), sp.not_(sp.is_name("semicolon")))),
-                    Some(...),
-                ],
-            )
-            if not matched:
-                return None  # pragma: no cover
+            anchor_segment = context.segment
+            semi_colon_exist_flag = False
+            is_one_line = False
+            pre_semicolon_segments = []
+            for segment in complete_stack[::-1]:
+                if segment.name == "semicolon":
+                    semi_colon_exist_flag = True
+                elif segment.is_code:
+                    is_one_line = self._is_one_line_statement(context, segment)
+                    break
+                elif not segment.is_meta:
+                    pre_semicolon_segments.append(segment)
+                anchor_segment = segment
 
-            anchor_segment = (
-                matched["before"][-1] if matched["before"] else context.segment
-            )
-            semicolon_newline = (
-                self.multiline_newline
-                if not self._is_one_line_statement(context, matched["code"])
-                else False
-            )
+            semicolon_newline = self.multiline_newline if not is_one_line else False
 
-            if not any(seg.is_name("semicolon") for seg in matched["before"]):
+            if not semi_colon_exist_flag:
                 # Create the final semi-colon if it does not yet exist.
 
                 # Semi-colon on same line.
@@ -264,11 +258,13 @@ class Rule_L052(BaseRule):
                     ]
                 # Semi-colon on new line.
                 else:
-                    # Adjust anchor_segment for inline comments.
-                    anchor_segment = self._handle_preceding_inline_comments(
-                        [seg for seg in matched["before"] if not seg.is_meta],
+                    # Adjust pre_semicolon_segments and anchor_segment for inline comments.
+                    (
+                        pre_semicolon_segments,
                         anchor_segment,
-                    )[1]
+                    ) = self._handle_preceding_inline_comments(
+                        pre_semicolon_segments, anchor_segment
+                    )
                     fixes = [
                         LintFix.replace(
                             anchor_segment,
