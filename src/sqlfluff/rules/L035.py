@@ -46,26 +46,24 @@ class Rule_L035(BaseRule):
         5.b. We reach the end of case when without matching "NULL": the rule passes
         """
         if context.segment.is_type("case_expression"):
-            fixes: List[LintFix] = []
             for idx, seg in enumerate(context.segment.segments):
-                # When we find ELSE we delete
-                # everything up to NULL
-                if fixes:
-                    fixes.append(LintFix.delete(seg))
-                    # Safe to look for NULL, as an expression
-                    # would contain NULL but not be == NULL
-                    if seg.raw_upper == "NULL":
-                        return LintResult(anchor=context.segment, fixes=fixes)
-
-                if not fixes and seg.name == "else":
-                    fixes.append(LintFix.delete(seg))
-                    # Walk back to remove indents/whitespaces
+                # When we find ELSE with NULL, we delete the whole else clause.
+                # Here, it's safe to look for NULL, as an expression would
+                # *contain* NULL but not be == NULL.
+                if seg.is_type("else_clause") and any(
+                    child.raw_upper == "NULL" for child in seg.segments
+                ):
+                    fixes: List[LintFix] = [LintFix.delete(seg)] + [
+                        LintFix.delete(child) for child in seg.segments
+                    ]
+                    # Walk back to remove indents/whitespaces before ELSE.
                     walk_idx = idx - 1
                     while (
-                        context.segment.segments[walk_idx].name == "whitespace"
-                        or context.segment.segments[walk_idx].name == "newline"
+                        context.segment.segments[walk_idx].name
+                        in ("whitespace", "newline")
                         or context.segment.segments[walk_idx].is_meta
                     ):
                         fixes.append(LintFix.delete(context.segment.segments[walk_idx]))
                         walk_idx = walk_idx - 1
+                    return LintResult(anchor=context.segment, fixes=fixes)
         return None

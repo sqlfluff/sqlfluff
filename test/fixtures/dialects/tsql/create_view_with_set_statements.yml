@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d57c42a6c870bce875207572c2c6ce44dd2ba35e693e8f12252a06f2e2ee15bb
+_hash: 1ae00bed393406058f53069d1e85df27fd98534aaf828dd03ef60c7c249a5422
 file:
 - batch:
     statement:
@@ -64,19 +64,21 @@ file:
               expression:
                 case_expression:
                 - keyword: CASE
-                - keyword: WHEN
-                - expression:
-                  - column_reference:
-                      identifier: OLD_VALUE
-                  - keyword: IS
-                  - keyword: 'NULL'
-                - keyword: THEN
-                - expression:
-                    literal: '0'
-                - keyword: ELSE
-                - expression:
-                    column_reference:
-                      identifier: OLD_VALUE
+                - when_clause:
+                  - keyword: WHEN
+                  - expression:
+                    - column_reference:
+                        identifier: OLD_VALUE
+                    - keyword: IS
+                    - keyword: 'NULL'
+                  - keyword: THEN
+                  - expression:
+                      literal: '0'
+                - else_clause:
+                    keyword: ELSE
+                    expression:
+                      column_reference:
+                        identifier: OLD_VALUE
                 - keyword: END
               alias_expression:
                 keyword: AS
@@ -86,19 +88,21 @@ file:
               expression:
                 case_expression:
                 - keyword: CASE
-                - keyword: WHEN
-                - expression:
-                  - column_reference:
-                      identifier: '[DIFFERENCE]'
-                  - keyword: IS
-                  - keyword: 'NULL'
-                - keyword: THEN
-                - expression:
-                    literal: '0'
-                - keyword: ELSE
-                - expression:
-                    column_reference:
-                      identifier: '[DIFFERENCE]'
+                - when_clause:
+                  - keyword: WHEN
+                  - expression:
+                    - column_reference:
+                        identifier: '[DIFFERENCE]'
+                    - keyword: IS
+                    - keyword: 'NULL'
+                  - keyword: THEN
+                  - expression:
+                      literal: '0'
+                - else_clause:
+                    keyword: ELSE
+                    expression:
+                      column_reference:
+                        identifier: '[DIFFERENCE]'
                 - keyword: END
               alias_expression:
                 keyword: AS
