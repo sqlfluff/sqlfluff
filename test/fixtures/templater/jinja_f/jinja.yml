@@ -21,7 +21,8 @@ file:
                   - expression:
                       column_reference:
                         identifier: word
-                      comparison_operator: "="
+                      comparison_operator:
+                        raw_comparison_operator: '='
                       literal: "'shop'"
                   - keyword: THEN
                   - expression:
@@ -50,7 +51,8 @@ file:
                   - expression:
                       column_reference:
                         identifier: word
-                      comparison_operator: "="
+                      comparison_operator:
+                        raw_comparison_operator: '='
                       literal: "'products'"
                   - keyword: THEN
                   - expression:
@@ -79,7 +81,8 @@ file:
                   - expression:
                       column_reference:
                         identifier: word
-                      comparison_operator: "="
+                      comparison_operator:
+                        raw_comparison_operator: '='
                       literal: "'code'"
                   - keyword: THEN
                   - expression:

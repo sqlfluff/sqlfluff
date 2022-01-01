@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5938c2bfade96e42018ccbc3d5583c96a3f03aa40dbd3d5d6586eb19c6d9dd15
+_hash: 829d94004b6f7732db54b153758beb4d10786c0c2bbdc48424961f25a8d26291
 file:
   statement:
     create_function_statement:
@@ -32,7 +32,8 @@ file:
               - expression:
                   column_reference:
                     identifier: y
-                  comparison_operator: '='
+                  comparison_operator:
+                    raw_comparison_operator: '='
                   literal: '1'
               - keyword: THEN
               - expression:
@@ -42,7 +43,8 @@ file:
               - expression:
                   column_reference:
                     identifier: y
-                  comparison_operator: '='
+                  comparison_operator:
+                    raw_comparison_operator: '='
                   literal: '2'
               - keyword: THEN
               - expression:
@@ -52,7 +54,8 @@ file:
               - expression:
                   column_reference:
                     identifier: y
-                  comparison_operator: '='
+                  comparison_operator:
+                    raw_comparison_operator: '='
                   literal: '3'
               - keyword: THEN
               - expression:
@@ -62,7 +65,8 @@ file:
               - expression:
                   column_reference:
                     identifier: y
-                  comparison_operator: '='
+                  comparison_operator:
+                    raw_comparison_operator: '='
                   literal: '4'
               - keyword: THEN
               - expression:
@@ -72,7 +76,8 @@ file:
               - expression:
                   column_reference:
                     identifier: y
-                  comparison_operator: '='
+                  comparison_operator:
+                    raw_comparison_operator: '='
                   literal: '5'
               - keyword: THEN
               - expression:

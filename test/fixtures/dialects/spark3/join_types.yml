@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 083b7cabc2d0da7873019cf780c8a8e0046fd187223d5da951159dbaf4d03ca4
+_hash: 83f28f7a56ceff71a79e121c3faf9c393f876056e2bf4c543a6a2e8106effea1
 file:
 - base:
     select_statement:
@@ -35,7 +35,8 @@ file:
                 - identifier: employee
                 - dot: .
                 - identifier: deptno
-              - comparison_operator: '='
+              - comparison_operator:
+                  raw_comparison_operator: '='
               - column_reference:
                 - identifier: department
                 - dot: .
@@ -71,7 +72,8 @@ file:
                 - identifier: employee
                 - dot: .
                 - identifier: deptno
-              - comparison_operator: '='
+              - comparison_operator:
+                  raw_comparison_operator: '='
               - column_reference:
                 - identifier: department
                 - dot: .
@@ -107,7 +109,8 @@ file:
                 - identifier: employee
                 - dot: .
                 - identifier: deptno
-              - comparison_operator: '='
+              - comparison_operator:
+                  raw_comparison_operator: '='
               - column_reference:
                 - identifier: department
                 - dot: .
@@ -143,7 +146,8 @@ file:
                 - identifier: employee
                 - dot: .
                 - identifier: deptno
-              - comparison_operator: '='
+              - comparison_operator:
+                  raw_comparison_operator: '='
               - column_reference:
                 - identifier: department
                 - dot: .

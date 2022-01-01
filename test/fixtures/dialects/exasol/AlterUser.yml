@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7a4e7fe64893d26c9d498f2cc6d49b67dad25dea6b4d37e21b39ece86fe07699
+_hash: ef6c4fab1026fefe3527bd694045f87ee72fc31fd16bdee6f748ed8249024399
 file:
 - statement:
     alter_user:
@@ -45,7 +45,8 @@ file:
     - keyword: USER
     - identifier: user_3
     - keyword: PASSWORD_EXPIRY_POLICY
-    - comparison_operator: '='
+    - comparison_operator:
+        raw_comparison_operator: '='
     - literal: "'42 days'"
 - statement_terminator: ;
 - statement:
@@ -73,7 +74,8 @@ file:
     - identifier: userx
     - keyword: SET
     - keyword: CONSUMER_GROUP
-    - comparison_operator: '='
+    - comparison_operator:
+        raw_comparison_operator: '='
     - identifier: CEO
 - statement_terminator: ;
 - statement:
@@ -83,6 +85,7 @@ file:
     - identifier: userx
     - keyword: SET
     - keyword: CONSUMER_GROUP
-    - comparison_operator: '='
+    - comparison_operator:
+        raw_comparison_operator: '='
     - keyword: 'NULL'
 - statement_terminator: ;

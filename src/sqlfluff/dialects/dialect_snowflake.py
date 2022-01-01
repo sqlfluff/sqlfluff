@@ -66,7 +66,7 @@ snowflake_dialect.insert_lexer_matchers(
         ),
         RegexLexer("inline_dollar_sign", r"[a-zA-Z_][a-zA-Z0-9_$]*", CodeSegment),
     ],
-    before="not_equal",
+    before="like_operator",
 )
 
 snowflake_dialect.add(
