@@ -100,6 +100,16 @@ class LintResult:
         else:
             return None
 
+    @property
+    def segments(self):
+        """Returns the set of segments referenced or affected."""
+        result = set()
+        if self.anchor:
+            result.add(self.anchor)
+        for fix in self.fixes:
+            result.update(fix.segments)
+        return result
+
 
 class LintFix:
     """A class to hold a potential fix to a linting violation.
@@ -239,6 +249,14 @@ class LintFix:
     ) -> "LintFix":
         """Create edit segments after the supplied anchor segment."""
         return cls("create_after", anchor_segment, edit_segments)
+
+    @property
+    def segments(self) -> Set[BaseSegment]:
+        """Returns the segments referenced or affected by the fix."""
+        result = {self.anchor}
+        if self.edit:
+            result.update(self.edit)
+        return result
 
 
 EvalResultType = Union[LintResult, List[LintResult], None]
@@ -562,13 +580,22 @@ class BaseRule:
 
         # Get the set of slices touched by any of the fixes.
         fix_slices: Set[RawFileSlice] = set()
-        for fix in lint_result.fixes:
-            if fix.anchor:
+        for segment in lint_result.segments:
+            if segment.pos_marker:
                 fix_slices.update(
                     templated_file.raw_slices_spanning_source_slice(
-                        fix.anchor.pos_marker.source_slice
+                        segment.pos_marker.source_slice
                     )
                 )
+
+        # If any of the affected slices are templated, discard the fixes.
+        if any(fs.slice_type == "templated" for fs in fix_slices):
+            linter_logger.info(
+                "      * Discarding fixes that touch templated code: %s",
+                lint_result.fixes,
+            )
+            lint_result.fixes = []
+            return
 
         # Compute the set of block IDs affected by the fixes. If it's more than
         # one, discard the fixes. Rationale: Fixes that span block boundaries
