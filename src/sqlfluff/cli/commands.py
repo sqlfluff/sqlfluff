@@ -14,7 +14,6 @@ from typing import (
     Optional,
     List,
 )
-from click.types import ParamType
 
 import yaml
 
@@ -170,21 +169,16 @@ def common_options(f: Callable) -> Callable:
     return f
 
 
-class DialectClickType(ParamType):
-    """Custom click type for dialect autocompletion.
+def dialect_shell_complete(ctx, param, incomplete):
+    """Shell completion for possible dialect names.
 
     We use this over click.Choice as we want to internally
     handle errors messages and codes for incorrect/outdated dialects.
     """
-
-    def shell_complete(self, ctx, param, incomplete):
-        """Shell completion for possible dialect names."""
-        dialect_names = [e.name for e in list_dialects()]
-        return [
-            CompletionItem(name)
-            for name in dialect_names
-            if name.startswith(incomplete)
-        ]
+    dialect_names = [e.name for e in list_dialects()]
+    return [
+        CompletionItem(name) for name in dialect_names if name.startswith(incomplete)
+    ]
 
 
 def core_options(f: Callable) -> Callable:
@@ -197,7 +191,7 @@ def core_options(f: Callable) -> Callable:
         "--dialect",
         default=None,
         help="The dialect of SQL to lint (default=ansi)",
-        type=DialectClickType(),
+        shell_complete=dialect_shell_complete,
     )(f)
     f = click.option(
         "--templater",
@@ -434,7 +428,6 @@ def dialects(**kwargs) -> None:
     "shell_type",
     default="bash",
     type=click.Choice(["bash", "zsh", "fish"], case_sensitive=False),
-    # help="What shell to generate autocompletion script for.",
 )
 def autocomplete(shell_type: str, save_path: str, **kwargs: Any) -> None:
     """Generate autocompletion script.
