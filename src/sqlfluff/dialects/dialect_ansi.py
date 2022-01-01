@@ -1434,6 +1434,29 @@ class FromClauseSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
+class WhenClauseSegment(BaseSegment):
+    """A 'WHEN' clause for a 'CASE' statement."""
+
+    type = "when_clause"
+    match_grammar = Sequence(
+        "WHEN",
+        Indent,
+        Ref("ExpressionSegment"),
+        "THEN",
+        Ref("ExpressionSegment"),
+        Dedent,
+    )
+
+
+@ansi_dialect.segment()
+class ElseClauseSegment(BaseSegment):
+    """An 'ELSE' clause for a 'CASE' statement."""
+
+    type = "else_clause"
+    match_grammar = Sequence("ELSE", Indent, Ref("ExpressionSegment"), Dedent)
+
+
+@ansi_dialect.segment()
 class CaseExpressionSegment(BaseSegment):
     """A `CASE WHEN` clause."""
 
@@ -1442,35 +1465,17 @@ class CaseExpressionSegment(BaseSegment):
         Sequence(
             "CASE",
             Indent,
-            AnyNumberOf(
-                Sequence(
-                    "WHEN",
-                    Indent,
-                    Ref("ExpressionSegment"),
-                    "THEN",
-                    Ref("ExpressionSegment"),
-                    Dedent,
-                )
-            ),
-            Sequence("ELSE", Indent, Ref("ExpressionSegment"), Dedent, optional=True),
+            AnyNumberOf(Ref("WhenClauseSegment")),
+            Ref("ElseClauseSegment", optional=True),
             Dedent,
             "END",
         ),
         Sequence(
             "CASE",
-            OneOf(Ref("ExpressionSegment")),
+            Ref("ExpressionSegment"),
             Indent,
-            AnyNumberOf(
-                Sequence(
-                    "WHEN",
-                    Indent,
-                    Ref("ExpressionSegment"),
-                    "THEN",
-                    Ref("ExpressionSegment"),
-                    Dedent,
-                )
-            ),
-            Sequence("ELSE", Indent, Ref("ExpressionSegment"), Dedent, optional=True),
+            AnyNumberOf(Ref("WhenClauseSegment")),
+            Ref("ElseClauseSegment", optional=True),
             Dedent,
             "END",
         ),

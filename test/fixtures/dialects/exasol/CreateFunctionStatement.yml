@@ -141,19 +141,21 @@ file:
           expression:
             case_expression:
             - keyword: CASE
-            - keyword: WHEN
-            - expression:
-                column_reference:
-                  identifier: input_variable
-                comparison_operator: <
-                literal: '0'
-            - keyword: THEN
-            - expression:
-                literal: '0'
-            - keyword: ELSE
-            - expression:
-                column_reference:
-                  identifier: input_variable
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  column_reference:
+                    identifier: input_variable
+                  comparison_operator: <
+                  literal: '0'
+              - keyword: THEN
+              - expression:
+                  literal: '0'
+            - else_clause:
+                keyword: ELSE
+                expression:
+                  column_reference:
+                    identifier: input_variable
             - keyword: END
           statement_terminator: ;
     - keyword: RETURN

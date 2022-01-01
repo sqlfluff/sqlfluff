@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 39d77feee506ea353720caff56269e439dfe835847320c36c15429e446dad20b
+_hash: 5938c2bfade96e42018ccbc3d5583c96a3f03aa40dbd3d5d6586eb19c6d9dd15
 file:
   statement:
     create_function_statement:
@@ -27,53 +27,59 @@ file:
           expression:
             case_expression:
             - keyword: CASE
-            - keyword: WHEN
-            - expression:
-                column_reference:
-                  identifier: y
-                comparison_operator: '='
-                literal: '1'
-            - keyword: THEN
-            - expression:
-                literal: "'low'"
-            - keyword: WHEN
-            - expression:
-                column_reference:
-                  identifier: y
-                comparison_operator: '='
-                literal: '2'
-            - keyword: THEN
-            - expression:
-                literal: "'midlow'"
-            - keyword: WHEN
-            - expression:
-                column_reference:
-                  identifier: y
-                comparison_operator: '='
-                literal: '3'
-            - keyword: THEN
-            - expression:
-                literal: "'mid'"
-            - keyword: WHEN
-            - expression:
-                column_reference:
-                  identifier: y
-                comparison_operator: '='
-                literal: '4'
-            - keyword: THEN
-            - expression:
-                literal: "'midhigh'"
-            - keyword: WHEN
-            - expression:
-                column_reference:
-                  identifier: y
-                comparison_operator: '='
-                literal: '5'
-            - keyword: THEN
-            - expression:
-                literal: "'high'"
-            - keyword: ELSE
-            - expression:
-                literal: '"unknown"'
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  column_reference:
+                    identifier: y
+                  comparison_operator: '='
+                  literal: '1'
+              - keyword: THEN
+              - expression:
+                  literal: "'low'"
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  column_reference:
+                    identifier: y
+                  comparison_operator: '='
+                  literal: '2'
+              - keyword: THEN
+              - expression:
+                  literal: "'midlow'"
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  column_reference:
+                    identifier: y
+                  comparison_operator: '='
+                  literal: '3'
+              - keyword: THEN
+              - expression:
+                  literal: "'mid'"
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  column_reference:
+                    identifier: y
+                  comparison_operator: '='
+                  literal: '4'
+              - keyword: THEN
+              - expression:
+                  literal: "'midhigh'"
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  column_reference:
+                    identifier: y
+                  comparison_operator: '='
+                  literal: '5'
+              - keyword: THEN
+              - expression:
+                  literal: "'high'"
+            - else_clause:
+                keyword: ELSE
+                expression:
+                  literal: '"unknown"'
             - keyword: END
           end_bracket: )
