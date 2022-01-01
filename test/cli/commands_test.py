@@ -1058,7 +1058,7 @@ class TestProgressBars:
 )
 def test__cli__command_autocomplete(shell_type, tmp_path):
     """Check autocomplete command creates scripts."""
-    save_path = str(tmp_path / f"shell_autocomplete.{shell_type}")
+    save_path = str(tmp_path / "autocompletion" / f"shell_autocomplete.{shell_type}")
     if sys.platform.lower() not in {"linux", "darwin"}:
         invoke_assert_code(
             ret_code=1,

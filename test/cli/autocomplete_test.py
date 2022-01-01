@@ -18,7 +18,7 @@ from sqlfluff.cli.commands import dialect_shell_complete
 )
 def test_generate_autocomplete_script(shell_type, tmp_path):
     """Verify that autocomplete script is created and dictionary result is returned."""
-    save_path = str(tmp_path / f"shell_autocomplete.{shell_type}")
+    save_path = str(tmp_path / "autocompletion" / f"shell_autocomplete.{shell_type}")
     autocomplete_result = generate_autocomplete_script(
         shell_type=shell_type,
         save_path=save_path,
