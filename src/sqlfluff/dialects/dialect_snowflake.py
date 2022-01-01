@@ -886,17 +886,9 @@ class SelectClauseModifierSegment(BaseSegment):
 
     type = "select_clause_modifier"
     match_grammar = Sequence(
-        OneOf(
-            "DISTINCT",
-            "ALL",
-            optional=True
-        ),
+        OneOf("DISTINCT", "ALL", optional=True),
         # TOP N is unique to Snowflake, and we can optionally add DISTINCT/ALL in front of it.
-        Sequence(
-            "TOP",
-            Ref("NumericLiteralSegment"),
-            optional=True
-        )
+        Sequence("TOP", Ref("NumericLiteralSegment"), optional=True),
     )
 
 
