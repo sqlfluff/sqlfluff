@@ -1761,7 +1761,7 @@ class CreateStatementSegment(BaseSegment):
 
     match_grammar = Sequence(
         "CREATE",
-        Sequence("OR", "REPLACE", optional=True),
+        Ref("OrReplaceGrammar", optional=True),
         OneOf(
             Sequence("NETWORK", "POLICY"),
             Sequence("RESOURCE", "MONITOR"),
@@ -1772,9 +1772,7 @@ class CreateStatementSegment(BaseSegment):
             Sequence("NOTIFICATION", "INTEGRATION"),
             Sequence("SECURITY", "INTEGRATION"),
             Sequence("STORAGE", "INTEGRATION"),
-            "VIEW",
             Sequence("MATERIALIZED", "VIEW"),
-            Sequence("SECURE", "VIEW"),
             Sequence("MASKING", "POLICY"),
             "PIPE",
             Sequence("EXTERNAL", "FUNCTION"),
@@ -1784,7 +1782,7 @@ class CreateStatementSegment(BaseSegment):
             Sequence("FILE", "FORMAT"),
             "STREAM",
         ),
-        Sequence("IF", "NOT", "EXISTS", optional=True),
+        Ref("IfNotExistsGrammar", optional=True),
         Ref("ObjectReferenceSegment"),
         # Next set are Pipe statements https://docs.snowflake.com/en/sql-reference/sql/create-pipe.html
         Sequence(
@@ -1839,6 +1837,55 @@ class CreateStatementSegment(BaseSegment):
             Ref("CopyIntoStatementSegment"),
             optional=True,
         ),
+    )
+
+
+@snowflake_dialect.segment(replace=True)
+class CreateViewStatementSegment(BaseSegment):
+    """A `CREATE VIEW` statement, specifically for Snowflake's dialect.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-view.html
+    """
+
+    type = "create_view_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        AnyNumberOf(
+            "SECURE",
+            "RECURSIVE",
+        ),
+        "VIEW",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        AnyNumberOf(
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        Ref("ColumnReferenceSegment"),
+                        Ref("CommentClauseSegment", optional=True),
+                    ),
+                ),
+            ),
+            Sequence(
+                Ref.keyword("WITH", optional=True),
+                "ROW",
+                "ACCESS",
+                "POLICY",
+                Ref("NakedIdentifierSegment"),
+                "ON",
+                Bracketed(
+                    Delimited(Ref("ColumnReferenceSegment")),
+                ),
+            ),
+            Ref("TagBracketedEqualsSegment"),
+            Sequence("COPY", "GRANTS"),
+            Ref("CreateStatementCommentSegment"),
+            # @TODO: Support column-level masking policy & tagging.
+        ),
+        "AS",
+        Ref("SelectableGrammar"),
     )
 
 
