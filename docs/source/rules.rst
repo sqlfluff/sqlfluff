@@ -73,38 +73,6 @@ The modules listed below are submodules of `sqlfluff.core.rules.functional`.
 .. automodule:: sqlfluff.core.rules.functional.raw_file_slice_predicates
    :members:
 
-Pattern Matching Segments
--------------------------
-Often, rules need to scan parts of the parse tree looking for issues.
-The functional API is helpful for "query" type operations, e.g. looking
-for segments that match (or don't match) various conditions.
-
-However, the functional API is not helpful when looking for sequences of
-segments. For example, rule `L041` looks for violations, i.e. occurrences of
-the following pattern:
-
-* :code:`SELECT` keyword
-* (Possible other segments)
-* Newline
-* (Possible other segments)
-* Select modifier, e.g. :code:`DISTINCT` keyword
-
-To match the above pattern, you could write a complicated Python :code:`for` loop.
-Some rules now use a package called
-`awesome-pattern-matching <https://pypi.org/project/awesome-pattern-matching/>`_,
-which provides a higher-level declarative way of searching the SQLFluff parse
-tree for violations. The concept is similar to regular expressions, but
-operating on segments rather than strings. (Note that Python 3.10 adds a
-similar pattern matching capability to the core Python language.)
-
-This package seems very promising but not yet mature. Consider trying to use
-it for rules, but be prepared for issues. As of December, 2021, it often has
-issues with patterns using `Some()`. Perhaps the SQLFluff maintainers can help
-isolate, report, and potentially fix issues we encounter.
-
-The awesome-pattern-matching package is capable of processing nested patterns,
-i.e. those that search segments at two or more levels of the parse tree at
-once.
 
 Inline Ignoring Errors
 -----------------------
