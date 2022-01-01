@@ -1,0 +1,247 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: c2f7708096f526a51c7f5d0e0afe420cdbff71fc0cc1ef0d9605edc31577b578
+file:
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: col1
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: col2
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - identifier: my_table
+          - dot: .
+          - identifier: col1
+      - comma: ','
+      - select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              identifier: my_table
+              dot: .
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: my_table
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_modifier:
+          keyword: DISTINCT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: my_table
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_modifier:
+          keyword: DISTINCT
+        select_clause_element:
+          column_reference:
+            identifier: col1
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: my_table
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_modifier:
+          keyword: ALL
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              identifier: my_table
+              dot: .
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: my_table
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_modifier:
+          keyword: TOP
+          literal: '1'
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: my_table
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_modifier:
+          keyword: TOP
+          literal: '2'
+        select_clause_element:
+          column_reference:
+            identifier: col1
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: my_table
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_modifier:
+          keyword: TOP
+          literal: '3'
+      - select_clause_element:
+          column_reference:
+            identifier: col1
+      - comma: ','
+      - select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              identifier: my_table
+              dot: .
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: my_table
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_modifier:
+        - keyword: ALL
+        - keyword: TOP
+        - literal: '10'
+        select_clause_element:
+          column_reference:
+            identifier: col1
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: my_table
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_modifier:
+        - keyword: DISTINCT
+        - keyword: TOP
+        - literal: '20'
+        select_clause_element:
+          column_reference:
+          - identifier: my_table
+          - dot: .
+          - identifier: col1
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: my_table
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_modifier:
+        - keyword: DISTINCT
+        - keyword: TOP
+        - literal: '30'
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: my_table
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_modifier:
+        - keyword: DISTINCT
+        - keyword: TOP
+        - literal: '40'
+      - select_clause_element:
+          column_reference:
+            identifier: col1
+      - comma: ','
+      - select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              identifier: my_table
+              dot: .
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: my_table
+- statement_terminator: ;

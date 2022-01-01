@@ -877,6 +877,29 @@ class SelectStatementSegment(ansi_dialect.get_segment("SelectStatementSegment"))
     )
 
 
+@snowflake_dialect.segment(replace=True)
+class SelectClauseModifierSegment(BaseSegment):
+    """Things that come after SELECT but before the columns, specifically for Snowflake.
+
+    https://docs.snowflake.com/en/sql-reference/constructs.html
+    """
+
+    type = "select_clause_modifier"
+    match_grammar = Sequence(
+        OneOf(
+            "DISTINCT",
+            "ALL",
+            optional=True
+        ),
+        # TOP N is unique to Snowflake, and we can optionally add DISTINCT/ALL in front of it.
+        Sequence(
+            "TOP",
+            Ref("NumericLiteralSegment"),
+            optional=True
+        )
+    )
+
+
 @snowflake_dialect.segment()
 class AlterTableColumnStatementSegment(BaseSegment):
     """An `ALTER TABLE .. ALTER COLUMN` statement.
