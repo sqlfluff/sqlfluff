@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e30ac870b37caef9be67bf46f101a591c2c3bef1c0d6ed6822107fc4121c9a96
+_hash: 4d558eb10d9fa2f0c84f99656e2b8b42a0e68644f61ca1d246ae43ed0c03c9d1
 file:
 - statement:
     with_compound_statement:
@@ -202,7 +202,8 @@ file:
         expression:
           column_reference:
             identifier: o_totalprice
-          comparison_operator: '>'
+          comparison_operator:
+            raw_comparison_operator: '>'
           literal: '450000'
 - statement_terminator: ;
 - statement:
@@ -244,7 +245,8 @@ file:
         expression:
           column_reference:
             identifier: o_totalprice
-          comparison_operator: '>'
+          comparison_operator:
+            raw_comparison_operator: '>'
           literal: '450000'
       orderby_clause:
       - keyword: order
@@ -295,7 +297,8 @@ file:
         expression:
           column_reference:
             identifier: o_totalprice
-          comparison_operator: '>'
+          comparison_operator:
+            raw_comparison_operator: '>'
           literal: '450000'
       groupby_clause:
       - keyword: group
@@ -338,7 +341,8 @@ file:
         expression:
           column_reference:
             identifier: o_totalprice
-          comparison_operator: '>'
+          comparison_operator:
+            raw_comparison_operator: '>'
           literal: '450000'
 - statement_terminator: ;
 - statement:
@@ -371,7 +375,8 @@ file:
         expression:
           column_reference:
             identifier: o_totalprice
-          comparison_operator: '>'
+          comparison_operator:
+            raw_comparison_operator: '>'
           literal: '450000'
 - statement_terminator: ;
 - statement:
@@ -419,7 +424,8 @@ file:
         expression:
           column_reference:
             identifier: o_totalprice
-          comparison_operator: '>'
+          comparison_operator:
+            raw_comparison_operator: '>'
           literal: '450000'
       groupby_clause:
       - keyword: group

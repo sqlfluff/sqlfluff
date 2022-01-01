@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8c1f890a4f46fdd67dc9b1d659dddb9fdfbaa4f95e2bcbc6045522df57371597
+_hash: 1eab6d2ef472eff8df68975182f9a4baf6759a437159c7b2aeeb0c42e8e0aea4
 file:
 - base:
     alter_view_statement:
@@ -42,7 +42,8 @@ file:
     - bracketed:
       - start_bracket: (
       - literal: '"property_key"'
-      - comparison_operator: '='
+      - comparison_operator:
+          raw_comparison_operator: '='
       - literal: '"property_val"'
       - end_bracket: )
 - statement_terminator: ;
@@ -59,11 +60,13 @@ file:
     - bracketed:
       - start_bracket: (
       - literal: "'created.by.user'"
-      - comparison_operator: '='
+      - comparison_operator:
+          raw_comparison_operator: '='
       - literal: '"John"'
       - comma: ','
       - literal: "'created.date'"
-      - comparison_operator: '='
+      - comparison_operator:
+          raw_comparison_operator: '='
       - literal: "'01-01-2001'"
       - end_bracket: )
 - statement_terminator: ;

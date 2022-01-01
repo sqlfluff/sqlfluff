@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1bd7cdbaf30a3b0d2a4bf09e784464e6c3b88a049eec29757edd53653e34c139
+_hash: 8c884e8b32379f7fd5c7ce717acb8aeb4da193dd9436dbb10024992e6d447229
 file:
 - statement:
     base:
@@ -294,7 +294,8 @@ file:
     - table_reference:
         identifier: my_table
     - keyword: TYPE
-    - comparison_operator: '='
+    - comparison_operator:
+        raw_comparison_operator: '='
     - keyword: COLUMNS
 - statement_terminator: ;
 - statement:
@@ -304,7 +305,8 @@ file:
     - table_reference:
         identifier: my_table
     - keyword: TYPE
-    - comparison_operator: '='
+    - comparison_operator:
+        raw_comparison_operator: '='
     - keyword: COLUMNS
 - statement_terminator: ;
 - statement:
@@ -314,7 +316,8 @@ file:
     - table_reference:
         identifier: my_table
     - keyword: TYPE
-    - comparison_operator: '='
+    - comparison_operator:
+        raw_comparison_operator: '='
     - keyword: STAGE
 - statement_terminator: ;
 - statement:
@@ -324,7 +327,8 @@ file:
     - table_reference:
         identifier: my_table
     - keyword: TYPE
-    - comparison_operator: '='
+    - comparison_operator:
+        raw_comparison_operator: '='
     - keyword: STAGE
 - statement_terminator: ;
 - statement:
@@ -351,7 +355,8 @@ file:
     - table_reference:
         identifier: my_table
     - keyword: TYPE
-    - comparison_operator: '='
+    - comparison_operator:
+        raw_comparison_operator: '='
     - keyword: COLUMNS
 - statement_terminator: ;
 - statement:
@@ -362,7 +367,8 @@ file:
     - table_reference:
         identifier: my_table
     - keyword: TYPE
-    - comparison_operator: '='
+    - comparison_operator:
+        raw_comparison_operator: '='
     - keyword: COLUMNS
 - statement_terminator: ;
 - statement:
@@ -373,7 +379,8 @@ file:
     - table_reference:
         identifier: my_table
     - keyword: TYPE
-    - comparison_operator: '='
+    - comparison_operator:
+        raw_comparison_operator: '='
     - keyword: STAGE
 - statement_terminator: ;
 - statement:
@@ -384,7 +391,8 @@ file:
     - table_reference:
         identifier: my_table
     - keyword: TYPE
-    - comparison_operator: '='
+    - comparison_operator:
+        raw_comparison_operator: '='
     - keyword: STAGE
 - statement_terminator: ;
 - statement:

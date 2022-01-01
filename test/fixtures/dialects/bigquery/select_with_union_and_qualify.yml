@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 669a8e56c1499e9363fdb0e31e1d3040e2b6628b5acd4b7b3fb156fe1e11337b
+_hash: c745daf68d6bbcd2509c5f7eeaf3ea49dab3516841f2ba07aca21a1a972277fb
 file:
   statement:
     set_expression:
@@ -56,7 +56,8 @@ file:
             - identifier: Produce
             - dot: .
             - identifier: category
-            comparison_operator: '='
+            comparison_operator:
+              raw_comparison_operator: '='
             literal: "'vegetable'"
         qualify_clause:
           keyword: QUALIFY
@@ -64,8 +65,8 @@ file:
             column_reference:
               identifier: rank
             comparison_operator:
-            - comparison_operator: <
-            - comparison_operator: '='
+            - raw_comparison_operator: <
+            - raw_comparison_operator: '='
             literal: '3'
     - set_operator:
       - keyword: UNION
@@ -119,7 +120,8 @@ file:
             - identifier: Produce
             - dot: .
             - identifier: category
-            comparison_operator: '='
+            comparison_operator:
+              raw_comparison_operator: '='
             literal: "'vegetable'"
         qualify_clause:
           keyword: QUALIFY
@@ -127,6 +129,6 @@ file:
             column_reference:
               identifier: rank
             comparison_operator:
-            - comparison_operator: <
-            - comparison_operator: '='
+            - raw_comparison_operator: <
+            - raw_comparison_operator: '='
             literal: '3'

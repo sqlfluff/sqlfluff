@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 69aa107c5a45ef81529c848a1fe07cc51b397208f75e8f351525c2de2e35680b
+_hash: c5d4aaf945a0b33eedca24cbf1da8067d6b561793567c998626d0d1c98464f76
 file:
   statement:
     select_statement:
@@ -56,8 +56,8 @@ file:
           - dot: .
           - identifier: datetime
           comparison_operator:
-          - comparison_operator: '>'
-          - comparison_operator: '='
+          - raw_comparison_operator: '>'
+          - raw_comparison_operator: '='
           function:
             function_name:
               function_name_identifier: DATE_TRUNC

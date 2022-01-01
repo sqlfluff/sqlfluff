@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f0d43f5df32b89e238e8bf4a7dd3b8b7d50e3c73126ae23a174342013cf6616d
+_hash: 1fd1fd2b7eed9c1c015e485681fdf3cb02d4d849de471f9f497e75520c5a26cf
 file:
   statement:
     alter_session_statement:
@@ -12,5 +12,6 @@ file:
     - alter_session_set_statement:
         keyword: SET
         parameter: TIMEZONE
-        comparison_operator: '='
+        comparison_operator:
+          raw_comparison_operator: '='
         literal: "'UTC'"

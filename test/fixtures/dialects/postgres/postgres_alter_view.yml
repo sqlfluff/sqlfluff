@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bad5f939248c55ff51b8532d988381141f68dc179967c6268d63925bd9136b76
+_hash: 2357559a783cecacb1c2d3843fca153dedaf81672fe4b92d87176a1fc92f4abf
 file:
 - statement:
     alter_view_statement:
@@ -543,7 +543,8 @@ file:
     - bracketed:
         start_bracket: (
         parameter: view_option_name
-        comparison_operator: '='
+        comparison_operator:
+          raw_comparison_operator: '='
         literal: '1'
         end_bracket: )
 - statement_terminator: ;
@@ -557,17 +558,20 @@ file:
     - bracketed:
       - start_bracket: (
       - parameter: view_option_name
-      - comparison_operator: '='
+      - comparison_operator:
+          raw_comparison_operator: '='
       - literal: '1'
       - comma: ','
       - parameter: view_option_name2
-      - comparison_operator: '='
+      - comparison_operator:
+          raw_comparison_operator: '='
       - literal: "'value'"
       - comma: ','
       - parameter: view_option_name3
       - comma: ','
       - parameter: view_option_name4
-      - comparison_operator: '='
+      - comparison_operator:
+          raw_comparison_operator: '='
       - literal: 'false'
       - end_bracket: )
 - statement_terminator: ;
@@ -597,7 +601,8 @@ file:
     - bracketed:
         start_bracket: (
         parameter: view_option_name
-        comparison_operator: '='
+        comparison_operator:
+          raw_comparison_operator: '='
         literal: '1'
         end_bracket: )
 - statement_terminator: ;
@@ -615,7 +620,8 @@ file:
       - parameter: view_option_name
       - comma: ','
       - parameter: view_option_name2
-      - comparison_operator: '='
+      - comparison_operator:
+          raw_comparison_operator: '='
       - literal: '1'
       - comma: ','
       - parameter: view_option_name3

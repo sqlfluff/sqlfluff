@@ -231,7 +231,6 @@ ansi_dialect.add(
         "%", SymbolSegment, name="modulo", type="binary_operator"
     ),
     SlashSegment=StringParser("/", SymbolSegment, name="slash", type="slash"),
-    NotSegment=StringParser("!", SymbolSegment, name="not", type="comparison_operator"),
     ConcatSegment=StringParser(
         "||", SymbolSegment, name="concatenate", type="binary_operator"
     ),
@@ -244,17 +243,20 @@ ansi_dialect.add(
     BitwiseXorSegment=StringParser(
         "^", SymbolSegment, name="binary_xor", type="binary_operator"
     ),
-    EqualsSegment=StringParser(
-        "=", SymbolSegment, name="equals", type="comparison_operator"
-    ),
     LikeOperatorSegment=NamedParser(
         "like_operator", SymbolSegment, name="like_operator", type="comparison_operator"
     ),
-    GreaterThanSegment=StringParser(
-        ">", SymbolSegment, name="greater_than", type="comparison_operator"
+    RawNotSegment=StringParser(
+        "!", SymbolSegment, name="raw_not", type="raw_comparison_operator"
     ),
-    LessThanSegment=StringParser(
-        "<", SymbolSegment, name="less_than", type="comparison_operator"
+    RawEqualsSegment=StringParser(
+        "=", SymbolSegment, name="raw_equals", type="raw_comparison_operator"
+    ),
+    RawGreaterThanSegment=StringParser(
+        ">", SymbolSegment, name="raw_greater_than", type="raw_comparison_operator"
+    ),
+    RawLessThanSegment=StringParser(
+        "<", SymbolSegment, name="raw_less_than", type="raw_comparison_operator"
     ),
     # The following functions can be called without parentheses per ANSI specification
     BareFunctionSegment=SegmentGenerator(
@@ -1644,13 +1646,40 @@ ansi_dialect.add(
 
 
 @ansi_dialect.segment()
+class EqualsSegment(BaseSegment):
+    """Equals operator."""
+
+    type = "comparison_operator"
+    name = "equals"
+    match_grammar = Ref("RawEqualsSegment")
+
+
+@ansi_dialect.segment()
+class GreaterThanSegment(BaseSegment):
+    """Greater than operator."""
+
+    type = "comparison_operator"
+    name = "greater_than"
+    match_grammar = Ref("RawGreaterThanSegment")
+
+
+@ansi_dialect.segment()
+class LessThanSegment(BaseSegment):
+    """Less than operator."""
+
+    type = "comparison_operator"
+    name = "less_than"
+    match_grammar = Ref("RawLessThanSegment")
+
+
+@ansi_dialect.segment()
 class GreaterThanOrEqualToSegment(BaseSegment):
     """Greater than or equal to operator."""
 
     type = "comparison_operator"
     name = "greater_than_equal_to"
     match_grammar = Sequence(
-        Ref("GreaterThanSegment"), Ref("EqualsSegment"), allow_gaps=False
+        Ref("RawGreaterThanSegment"), Ref("RawEqualsSegment"), allow_gaps=False
     )
 
 
@@ -1661,7 +1690,7 @@ class LessThanOrEqualToSegment(BaseSegment):
     type = "comparison_operator"
     name = "less_than_equal_to"
     match_grammar = Sequence(
-        Ref("LessThanSegment"), Ref("EqualsSegment"), allow_gaps=False
+        Ref("RawLessThanSegment"), Ref("RawEqualsSegment"), allow_gaps=False
     )
 
 
@@ -1672,8 +1701,10 @@ class NotEqualToSegment(BaseSegment):
     type = "comparison_operator"
     name = "not_equal_to"
     match_grammar = OneOf(
-        Sequence(Ref("NotSegment"), Ref("EqualsSegment"), allow_gaps=False),
-        Sequence(Ref("LessThanSegment"), Ref("GreaterThanSegment"), allow_gaps=False),
+        Sequence(Ref("RawNotSegment"), Ref("RawEqualsSegment"), allow_gaps=False),
+        Sequence(
+            Ref("RawLessThanSegment"), Ref("RawGreaterThanSegment"), allow_gaps=False
+        ),
     )
 
 
@@ -1683,7 +1714,7 @@ class BitwiseLShiftSegment(BaseSegment):
 
     type = "binary_operator"
     match_grammar = Sequence(
-        Ref("LessThanSegment"), Ref("LessThanSegment"), allow_gaps=False
+        Ref("RawLessThanSegment"), Ref("RawLessThanSegment"), allow_gaps=False
     )
 
 
@@ -1693,7 +1724,7 @@ class BitwiseRShiftSegment(BaseSegment):
 
     type = "binary_operator"
     match_grammar = Sequence(
-        Ref("GreaterThanSegment"), Ref("GreaterThanSegment"), allow_gaps=False
+        Ref("RawGreaterThanSegment"), Ref("RawGreaterThanSegment"), allow_gaps=False
     )
 
 

@@ -371,12 +371,12 @@ class GreaterThanOrEqualToSegment(BaseSegment):
     name = "greater_than_equal_to"
     match_grammar = OneOf(
         Sequence(
-            Ref("GreaterThanSegment"),
-            Ref("EqualsSegment"),
+            Ref("RawGreaterThanSegment"),
+            Ref("RawEqualsSegment"),
         ),
         Sequence(
-            Ref("NotSegment"),
-            Ref("LessThanSegment"),
+            Ref("RawNotSegment"),
+            Ref("RawLessThanSegment"),
         ),
     )
 
@@ -393,12 +393,12 @@ class LessThanOrEqualToSegment(BaseSegment):
     name = "less_than_equal_to"
     match_grammar = OneOf(
         Sequence(
-            Ref("LessThanSegment"),
-            Ref("EqualsSegment"),
+            Ref("RawLessThanSegment"),
+            Ref("RawEqualsSegment"),
         ),
         Sequence(
-            Ref("NotSegment"),
-            Ref("GreaterThanSegment"),
+            Ref("RawNotSegment"),
+            Ref("RawGreaterThanSegment"),
         ),
     )
 
@@ -413,8 +413,8 @@ class NotEqualToSegment(BaseSegment):
     type = "comparison_operator"
     name = "not_equal_to"
     match_grammar = OneOf(
-        Sequence(Ref("NotSegment"), Ref("EqualsSegment")),
-        Sequence(Ref("LessThanSegment"), Ref("GreaterThanSegment")),
+        Sequence(Ref("RawNotSegment"), Ref("RawEqualsSegment")),
+        Sequence(Ref("RawLessThanSegment"), Ref("RawGreaterThanSegment")),
     )
 
 

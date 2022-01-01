@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f5cce4c317cbbdbe0453376e1881ce9ec99d295f5fbd734cae74b81d9d8420d7
+_hash: 6780f4ce434647ca9c96d5ed07a88659c8e222dca11bc8bac8e274ff4d90f722
 file:
 - statement:
     create_statement:
@@ -56,7 +56,8 @@ file:
               literal: "'*** masked ***'"
         - keyword: END
     - keyword: COMMENT
-    - comparison_operator: '='
+    - comparison_operator:
+        raw_comparison_operator: '='
     - literal: "'Applied 2021-07-13T03:12:16+0000'"
 - statement_terminator: ;
 - statement:

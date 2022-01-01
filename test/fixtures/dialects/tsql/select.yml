@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8000a0113cdc2d86282e108b71e97edd30306cf1a38a5fd28d0918d1ca1df700
+_hash: 5a56bc97a1a608d13ba90bb2f2ab72f3d7a322e9837ca1653a51f8323b31c378
 file:
   batch:
     statement:
@@ -14,153 +14,172 @@ file:
             expression:
               case_expression:
               - keyword: CASE
-              - keyword: WHEN
-              - expression:
-                - literal: '1'
-                - comparison_operator: '='
-                - literal: '1'
-              - keyword: THEN
-              - expression:
-                  literal: "'True'"
-              - keyword: WHEN
-              - expression:
-                - literal: '1'
-                - comparison_operator: '>'
-                - literal: '1'
-              - keyword: THEN
-              - expression:
-                  literal: "'False'"
-              - keyword: WHEN
-              - expression:
-                - literal: '1'
-                - comparison_operator: <
-                - literal: '1'
-              - keyword: THEN
-              - expression:
-                  literal: "'False'"
-              - keyword: WHEN
-              - expression:
-                - literal: '1'
-                - comparison_operator:
-                  - comparison_operator: '>'
-                  - comparison_operator: '='
-                - literal: '1'
-              - keyword: THEN
-              - expression:
-                  literal: "'True'"
-              - keyword: WHEN
-              - expression:
-                - literal: '1'
-                - comparison_operator:
-                  - comparison_operator: '>'
-                  - comparison_operator: '='
-                - literal: '1'
-              - keyword: THEN
-              - expression:
-                  literal: "'True'"
-              - keyword: WHEN
-              - expression:
-                - literal: '1'
-                - comparison_operator:
-                  - comparison_operator: <
-                  - comparison_operator: '='
-                - literal: '1'
-              - keyword: THEN
-              - expression:
-                  literal: "'True'"
-              - keyword: WHEN
-              - expression:
-                - literal: '1'
-                - comparison_operator:
-                  - comparison_operator: <
-                  - comparison_operator: '='
-                - literal: '1'
-              - keyword: THEN
-              - expression:
-                  literal: "'True'"
-              - keyword: WHEN
-              - expression:
-                - literal: '1'
-                - comparison_operator:
-                  - comparison_operator: <
-                  - comparison_operator: '>'
-                - literal: '1'
-              - keyword: THEN
-              - expression:
-                  literal: "'False'"
-              - keyword: WHEN
-              - expression:
-                - literal: '1'
-                - comparison_operator:
-                  - comparison_operator: <
-                  - comparison_operator: '>'
-                - literal: '1'
-              - keyword: THEN
-              - expression:
-                  literal: "'False'"
-              - keyword: WHEN
-              - expression:
-                - literal: '1'
-                - comparison_operator:
-                  - comparison_operator: '!'
-                  - comparison_operator: <
-                - literal: '1'
-              - keyword: THEN
-              - expression:
-                  literal: "'Why is this a thing?'"
-              - keyword: WHEN
-              - expression:
-                - literal: '1'
-                - comparison_operator:
-                  - comparison_operator: '!'
-                  - comparison_operator: <
-                - literal: '1'
-              - keyword: THEN
-              - expression:
-                  literal: "'Or this sort of thing?'"
-              - keyword: WHEN
-              - expression:
-                - literal: '1'
-                - comparison_operator:
-                  - comparison_operator: '!'
-                  - comparison_operator: '='
-                - literal: '1'
-              - keyword: THEN
-              - expression:
-                  literal: "'False'"
-              - keyword: WHEN
-              - expression:
-                - literal: '1'
-                - comparison_operator:
-                  - comparison_operator: '!'
-                  - comparison_operator: '='
-                - literal: '1'
-              - keyword: THEN
-              - expression:
-                  literal: "'False'"
-              - keyword: WHEN
-              - expression:
-                - literal: '1'
-                - comparison_operator:
-                  - comparison_operator: '!'
-                  - comparison_operator: '>'
-                - literal: '1'
-              - keyword: THEN
-              - expression:
-                  literal: "'NULL Handling, Probably'"
-              - keyword: WHEN
-              - expression:
-                - literal: '1'
-                - comparison_operator:
-                  - comparison_operator: '!'
-                  - comparison_operator: '>'
-                - literal: '1'
-              - keyword: THEN
-              - expression:
-                  literal: "'NULL Handling, Probably'"
-              - keyword: ELSE
-              - expression:
-                  literal: "'Silly Tests'"
+              - when_clause:
+                - keyword: WHEN
+                - expression:
+                  - literal: '1'
+                  - comparison_operator:
+                      raw_comparison_operator: '='
+                  - literal: '1'
+                - keyword: THEN
+                - expression:
+                    literal: "'True'"
+              - when_clause:
+                - keyword: WHEN
+                - expression:
+                  - literal: '1'
+                  - comparison_operator:
+                      raw_comparison_operator: '>'
+                  - literal: '1'
+                - keyword: THEN
+                - expression:
+                    literal: "'False'"
+              - when_clause:
+                - keyword: WHEN
+                - expression:
+                  - literal: '1'
+                  - comparison_operator:
+                      raw_comparison_operator: <
+                  - literal: '1'
+                - keyword: THEN
+                - expression:
+                    literal: "'False'"
+              - when_clause:
+                - keyword: WHEN
+                - expression:
+                  - literal: '1'
+                  - comparison_operator:
+                    - raw_comparison_operator: '>'
+                    - raw_comparison_operator: '='
+                  - literal: '1'
+                - keyword: THEN
+                - expression:
+                    literal: "'True'"
+              - when_clause:
+                - keyword: WHEN
+                - expression:
+                  - literal: '1'
+                  - comparison_operator:
+                    - raw_comparison_operator: '>'
+                    - raw_comparison_operator: '='
+                  - literal: '1'
+                - keyword: THEN
+                - expression:
+                    literal: "'True'"
+              - when_clause:
+                - keyword: WHEN
+                - expression:
+                  - literal: '1'
+                  - comparison_operator:
+                    - raw_comparison_operator: <
+                    - raw_comparison_operator: '='
+                  - literal: '1'
+                - keyword: THEN
+                - expression:
+                    literal: "'True'"
+              - when_clause:
+                - keyword: WHEN
+                - expression:
+                  - literal: '1'
+                  - comparison_operator:
+                    - raw_comparison_operator: <
+                    - raw_comparison_operator: '='
+                  - literal: '1'
+                - keyword: THEN
+                - expression:
+                    literal: "'True'"
+              - when_clause:
+                - keyword: WHEN
+                - expression:
+                  - literal: '1'
+                  - comparison_operator:
+                    - raw_comparison_operator: <
+                    - raw_comparison_operator: '>'
+                  - literal: '1'
+                - keyword: THEN
+                - expression:
+                    literal: "'False'"
+              - when_clause:
+                - keyword: WHEN
+                - expression:
+                  - literal: '1'
+                  - comparison_operator:
+                    - raw_comparison_operator: <
+                    - raw_comparison_operator: '>'
+                  - literal: '1'
+                - keyword: THEN
+                - expression:
+                    literal: "'False'"
+              - when_clause:
+                - keyword: WHEN
+                - expression:
+                  - literal: '1'
+                  - comparison_operator:
+                    - raw_comparison_operator: '!'
+                    - raw_comparison_operator: <
+                  - literal: '1'
+                - keyword: THEN
+                - expression:
+                    literal: "'Why is this a thing?'"
+              - when_clause:
+                - keyword: WHEN
+                - expression:
+                  - literal: '1'
+                  - comparison_operator:
+                    - raw_comparison_operator: '!'
+                    - raw_comparison_operator: <
+                  - literal: '1'
+                - keyword: THEN
+                - expression:
+                    literal: "'Or this sort of thing?'"
+              - when_clause:
+                - keyword: WHEN
+                - expression:
+                  - literal: '1'
+                  - comparison_operator:
+                    - raw_comparison_operator: '!'
+                    - raw_comparison_operator: '='
+                  - literal: '1'
+                - keyword: THEN
+                - expression:
+                    literal: "'False'"
+              - when_clause:
+                - keyword: WHEN
+                - expression:
+                  - literal: '1'
+                  - comparison_operator:
+                    - raw_comparison_operator: '!'
+                    - raw_comparison_operator: '='
+                  - literal: '1'
+                - keyword: THEN
+                - expression:
+                    literal: "'False'"
+              - when_clause:
+                - keyword: WHEN
+                - expression:
+                  - literal: '1'
+                  - comparison_operator:
+                    - raw_comparison_operator: '!'
+                    - raw_comparison_operator: '>'
+                  - literal: '1'
+                - keyword: THEN
+                - expression:
+                    literal: "'NULL Handling, Probably'"
+              - when_clause:
+                - keyword: WHEN
+                - expression:
+                  - literal: '1'
+                  - comparison_operator:
+                    - raw_comparison_operator: '!'
+                    - raw_comparison_operator: '>'
+                  - literal: '1'
+                - keyword: THEN
+                - expression:
+                    literal: "'NULL Handling, Probably'"
+              - else_clause:
+                  keyword: ELSE
+                  expression:
+                    literal: "'Silly Tests'"
               - keyword: END
         - comma: ','
         - select_clause_element:

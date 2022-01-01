@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 59202d90193c4d265c1e253a4d4a911b2f3464346590c15d70eef16c9d93e443
+_hash: 78ccaf051ff69a9b345b40b1e919650bb2d8426d445229b12f895659e8b94dcf
 file:
 - batch:
     statement:
@@ -37,7 +37,8 @@ file:
                     expression:
                     - column_reference:
                         identifier: object_id
-                    - comparison_operator: '='
+                    - comparison_operator:
+                        raw_comparison_operator: '='
                     - function:
                         function_name:
                           function_name_identifier: OBJECT_ID
@@ -49,7 +50,8 @@ file:
                     - binary_operator: AND
                     - column_reference:
                         identifier: type
-                    - comparison_operator: '='
+                    - comparison_operator:
+                        raw_comparison_operator: '='
                     - literal: "'SO'"
               end_bracket: )
         statement:
@@ -200,7 +202,8 @@ file:
                     expression:
                     - column_reference:
                         identifier: object_id
-                    - comparison_operator: '='
+                    - comparison_operator:
+                        raw_comparison_operator: '='
                     - function:
                         function_name:
                           function_name_identifier: OBJECT_ID
@@ -212,7 +215,8 @@ file:
                     - binary_operator: AND
                     - column_reference:
                         identifier: type
-                    - comparison_operator: '='
+                    - comparison_operator:
+                        raw_comparison_operator: '='
                     - literal: "'SO'"
               end_bracket: )
         statement:
