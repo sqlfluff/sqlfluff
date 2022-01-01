@@ -101,11 +101,12 @@ class LintResult:
             return None
 
     @property
-    def segments(self):
-        """Returns the set of segments referenced or affected."""
+    def fix_segments(self):
+        """Returns the set of segments affected by fixes.
+
+        NOTE: The anchor is not included.
+        """
         result = set()
-        if self.anchor:
-            result.add(self.anchor)
         for fix in self.fixes:
             result.update(fix.segments)
         return result
@@ -580,22 +581,13 @@ class BaseRule:
 
         # Get the set of slices touched by any of the fixes.
         fix_slices: Set[RawFileSlice] = set()
-        for segment in lint_result.segments:
-            if segment.pos_marker:
+        for fix in lint_result.fixes:
+            if fix.anchor:
                 fix_slices.update(
                     templated_file.raw_slices_spanning_source_slice(
-                        segment.pos_marker.source_slice
+                        fix.anchor.pos_marker.source_slice
                     )
                 )
-
-        # If any of the affected slices are templated, discard the fixes.
-        if any(fs.slice_type == "templated" for fs in fix_slices):
-            linter_logger.info(
-                "      * Discarding fixes that touch templated code: %s",
-                lint_result.fixes,
-            )
-            lint_result.fixes = []
-            return
 
         # Compute the set of block IDs affected by the fixes. If it's more than
         # one, discard the fixes. Rationale: Fixes that span block boundaries
@@ -626,6 +618,27 @@ class BaseRule:
                 )
                 lint_result.fixes = []
                 return
+
+        # We compute fix_slices_extended similarly to fix_slices above, but we
+        # consider not just the *anchor* segment for each fix, but also *every*
+        # segment involved in the fixes.
+        fix_slices_extended: Set[RawFileSlice] = set()
+        for segment in lint_result.fix_segments:
+            if segment.pos_marker:
+                fix_slices_extended.update(
+                    templated_file.raw_slices_spanning_source_slice(
+                        segment.pos_marker.source_slice
+                    )
+                )
+
+        # If any of the affected slices are templated, discard the fixes.
+        if any(fs.slice_type == "templated" for fs in fix_slices_extended):
+            linter_logger.info(
+                "      * Discarding fixes that touch templated code: %s",
+                lint_result.fixes,
+            )
+            lint_result.fixes = []
+            return
 
 
 class RuleSet:
