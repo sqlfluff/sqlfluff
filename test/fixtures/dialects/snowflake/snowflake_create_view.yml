@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0c8e990e5fa6b6ccc0b37d6c23ec1415c777feb35988a5c4884f78be69899aa9
+_hash: 2a973e3473c6431e18398d9afd83d4393a73bb277fa0f78e005e7b0c60523b5a
 file:
 - statement:
     create_view_statement:
@@ -13,7 +13,8 @@ file:
         identifier: another_view
     - snowflake_comment:
         keyword: comment
-        comparison_operator: '='
+        comparison_operator:
+          raw_comparison_operator: '='
         literal: "'a great description'"
     - keyword: as
     - select_statement:
@@ -67,7 +68,8 @@ file:
         identifier: view_with_comments
     - snowflake_comment:
         keyword: COMMENT
-        comparison_operator: '='
+        comparison_operator:
+          raw_comparison_operator: '='
         literal: "'my comment'"
     - keyword: AS
     - select_statement:
@@ -98,7 +100,8 @@ file:
         identifier: view_with_replace_and_comment
     - snowflake_comment:
         keyword: COMMENT
-        comparison_operator: '='
+        comparison_operator:
+          raw_comparison_operator: '='
         literal: "'my comment'"
     - keyword: AS
     - select_statement:
@@ -134,7 +137,8 @@ file:
         identifier: secure_recursive_view_with_comment
     - snowflake_comment:
         keyword: COMMENT
-        comparison_operator: '='
+        comparison_operator:
+          raw_comparison_operator: '='
         literal: "'my comment'"
     - keyword: AS
     - select_statement:
@@ -165,7 +169,8 @@ file:
         identifier: view_with_comment_and_copy_grants
     - snowflake_comment:
         keyword: COMMENT
-        comparison_operator: '='
+        comparison_operator:
+          raw_comparison_operator: '='
         literal: "'my comment'"
     - keyword: COPY
     - keyword: GRANTS
@@ -202,11 +207,13 @@ file:
       - bracketed:
         - start_bracket: (
         - identifier: foo
-        - comparison_operator: '='
+        - comparison_operator:
+            raw_comparison_operator: '='
         - literal: "'bar'"
         - comma: ','
         - identifier: hello
-        - comparison_operator: '='
+        - comparison_operator:
+            raw_comparison_operator: '='
         - literal: "'world'"
         - end_bracket: )
     - keyword: COPY
@@ -283,7 +290,8 @@ file:
         identifier: view_with_all_implemented_features
     - snowflake_comment:
         keyword: COMMENT
-        comparison_operator: '='
+        comparison_operator:
+          raw_comparison_operator: '='
         literal: "'table-level comment'"
     - bracketed:
       - start_bracket: (
@@ -349,7 +357,8 @@ file:
                     - identifier: table_1
                     - dot: .
                     - identifier: pk
-                  - comparison_operator: '='
+                  - comparison_operator:
+                      raw_comparison_operator: '='
                   - column_reference:
                     - identifier: table_2
                     - dot: .

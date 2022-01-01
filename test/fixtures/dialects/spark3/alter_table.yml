@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a2a50b71a82690ae3c164a8739b6c202fdbe4411b2a9a05e3b9af1b46b5dc2c5
+_hash: 77550df7710ce679821933e86ada8f005011bb2360066c1c3be6101e38c80696
 file:
 - base:
     alter_table_statement:
@@ -29,7 +29,8 @@ file:
         start_bracket: (
         column_reference:
           identifier: Age
-        comparison_operator: '='
+        comparison_operator:
+          raw_comparison_operator: '='
         literal: "'10'"
         end_bracket: )
     - keyword: RENAME
@@ -39,7 +40,8 @@ file:
         start_bracket: (
         column_reference:
           identifier: Age
-        comparison_operator: '='
+        comparison_operator:
+          raw_comparison_operator: '='
         literal: "'15'"
         end_bracket: )
 - statement_terminator: ;
@@ -107,7 +109,8 @@ file:
         start_bracket: (
         column_reference:
           identifier: Age
-        comparison_operator: '='
+        comparison_operator:
+          raw_comparison_operator: '='
         literal: '18'
         end_bracket: )
 - statement_terminator: ;
@@ -126,7 +129,8 @@ file:
         start_bracket: (
         column_reference:
           identifier: Age
-        comparison_operator: '='
+        comparison_operator:
+          raw_comparison_operator: '='
         literal: '18'
         end_bracket: )
     - keyword: PARTITION
@@ -134,7 +138,8 @@ file:
         start_bracket: (
         column_reference:
           identifier: Age
-        comparison_operator: '='
+        comparison_operator:
+          raw_comparison_operator: '='
         literal: '20'
         end_bracket: )
 - statement_terminator: ;
@@ -152,7 +157,8 @@ file:
         start_bracket: (
         column_reference:
           identifier: Age
-        comparison_operator: '='
+        comparison_operator:
+          raw_comparison_operator: '='
         literal: '18'
         end_bracket: )
 - statement_terminator: ;
@@ -169,7 +175,8 @@ file:
     - bracketed:
       - start_bracket: (
       - literal: "'winner'"
-      - comparison_operator: '='
+      - comparison_operator:
+          raw_comparison_operator: '='
       - literal: "'loser'"
       - end_bracket: )
 - statement_terminator: ;
@@ -186,7 +193,8 @@ file:
     - bracketed:
       - start_bracket: (
       - literal: "'comment'"
-      - comparison_operator: '='
+      - comparison_operator:
+          raw_comparison_operator: '='
       - literal: "'A table comment.'"
       - end_bracket: )
 - statement_terminator: ;
@@ -203,7 +211,8 @@ file:
     - bracketed:
       - start_bracket: (
       - literal: "'comment'"
-      - comparison_operator: '='
+      - comparison_operator:
+          raw_comparison_operator: '='
       - literal: "'This is a new comment.'"
       - end_bracket: )
 - statement_terminator: ;
@@ -233,11 +242,13 @@ file:
     - bracketed:
       - start_bracket: (
       - literal: '"key1"'
-      - comparison_operator: '='
+      - comparison_operator:
+          raw_comparison_operator: '='
       - literal: '"val1"'
       - comma: ','
       - literal: '"key2"'
-      - comparison_operator: '='
+      - comparison_operator:
+          raw_comparison_operator: '='
       - literal: '"val2"'
       - end_bracket: )
 - statement_terminator: ;
@@ -267,11 +278,13 @@ file:
     - bracketed:
       - start_bracket: (
       - literal: "'k'"
-      - comparison_operator: '='
+      - comparison_operator:
+          raw_comparison_operator: '='
       - literal: "'v'"
       - comma: ','
       - literal: "'kay'"
-      - comparison_operator: '='
+      - comparison_operator:
+          raw_comparison_operator: '='
       - literal: "'vee'"
       - end_bracket: )
 - statement_terminator: ;
@@ -296,12 +309,14 @@ file:
       - start_bracket: (
       - column_reference:
           identifier: Month
-      - comparison_operator: '='
+      - comparison_operator:
+          raw_comparison_operator: '='
       - literal: '2'
       - comma: ','
       - column_reference:
           identifier: Day
-      - comparison_operator: '='
+      - comparison_operator:
+          raw_comparison_operator: '='
       - literal: '2'
       - end_bracket: )
     - keyword: SET
@@ -321,12 +336,14 @@ file:
       - start_bracket: (
       - column_reference:
           identifier: A
-      - comparison_operator: '='
+      - comparison_operator:
+          raw_comparison_operator: '='
       - literal: "'1'"
       - comma: ','
       - column_reference:
           identifier: B
-      - comparison_operator: '='
+      - comparison_operator:
+          raw_comparison_operator: '='
       - literal: "'2'"
       - end_bracket: )
     - keyword: SET

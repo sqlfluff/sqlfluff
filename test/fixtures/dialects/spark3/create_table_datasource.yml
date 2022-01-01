@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2982b5549bd6c0592922d427fbe7126972a7a388d5f4739376079e037e269b7f
+_hash: fbeb2346e82296c016b221a7ab6962ff396929616fea07a87519e66199df20ec
 file:
 - base:
     create_table_statement:
@@ -30,11 +30,13 @@ file:
     - bracketed:
       - start_bracket: (
       - literal: '"key1"'
-      - comparison_operator: '='
+      - comparison_operator:
+          raw_comparison_operator: '='
       - literal: '"val1"'
       - comma: ','
       - literal: '"key2"'
-      - comparison_operator: '='
+      - comparison_operator:
+          raw_comparison_operator: '='
       - literal: '"val2"'
       - end_bracket: )
     - keyword: PARTITIONED
@@ -80,11 +82,13 @@ file:
     - bracketed:
       - start_bracket: (
       - literal: '"key1"'
-      - comparison_operator: '='
+      - comparison_operator:
+          raw_comparison_operator: '='
       - literal: '"val1"'
       - comma: ','
       - literal: '"key2"'
-      - comparison_operator: '='
+      - comparison_operator:
+          raw_comparison_operator: '='
       - literal: '"val2"'
       - end_bracket: )
     - keyword: AS
@@ -217,7 +221,8 @@ file:
     - bracketed:
       - start_bracket: (
       - literal: "'foo'"
-      - comparison_operator: '='
+      - comparison_operator:
+          raw_comparison_operator: '='
       - literal: "'bar'"
       - end_bracket: )
 - statement_terminator: ;
