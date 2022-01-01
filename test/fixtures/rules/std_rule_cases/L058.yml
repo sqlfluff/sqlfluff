@@ -1,0 +1,127 @@
+rule: L058
+
+test_pass_1:
+  # The nested CASE is under a "WHEN", not an "ELSE".
+  pass_str: |
+    SELECT
+        c1,
+        CASE
+            WHEN species = 'Rat' THEN
+              CASE
+                  WHEN species = 'Dog' THEN 'Woof'
+              END
+        END AS sound
+    FROM mytable
+
+test_fail_1:
+  # Simple case.
+  fail_str: |
+    SELECT
+        c1,
+        CASE
+            WHEN species = 'Rat' THEN 'Squeak'
+            ELSE
+                CASE
+                    WHEN species = 'Dog' THEN 'Woof'
+                END
+        END AS sound
+    FROM mytable
+  pass_str: |
+    SELECT
+        c1,
+        CASE
+            WHEN species = 'Rat' THEN 'Squeak'
+            WHEN species = 'Dog' THEN 'Woof'
+        END AS sound
+    FROM mytable
+
+test_fail_2:
+  # The nested "CASE" has two "WHEN" clauses. Getting
+  # reasonable indentation is tricky.
+  fail_str: |
+    SELECT
+        c1,
+        CASE
+            WHEN species = 'Rat' THEN 'Squeak'
+            ELSE
+                CASE
+                    WHEN species = 'Dog' THEN 'Woof'
+                    WHEN species = 'Mouse' THEN 'Squeak'
+                END
+        END AS sound
+    FROM mytable
+  fix_str: |
+    SELECT
+        c1,
+        CASE
+            WHEN species = 'Rat' THEN 'Squeak'
+            WHEN species = 'Dog' THEN 'Woof'
+            WHEN species = 'Mouse' THEN 'Squeak'
+        END AS sound
+    FROM mytable
+
+test_fail_3:
+  fail_str: |
+    SELECT
+        c1,
+        CASE
+            WHEN species = 'Rat' THEN 'Squeak'
+            ELSE
+                CASE
+                    WHEN species = 'Dog' THEN 'Woof'
+                    WHEN species = 'Mouse' THEN 'Squeak'
+                    ELSE "Whaa"
+                END
+        END AS sound
+    FROM mytable
+  fix_str: |
+    SELECT
+        c1,
+        CASE
+            WHEN species = 'Rat' THEN 'Squeak'
+            WHEN species = 'Dog' THEN 'Woof'
+            WHEN species = 'Mouse' THEN 'Squeak'
+            ELSE "Whaa"
+        END AS sound
+    FROM mytable
+
+test_fail_4:
+  fail_str: |
+    SELECT
+        c1,
+        CASE
+            WHEN species = 'Rat' THEN 'Squeak'
+            ELSE
+                CASE
+                    ELSE "Whaa"
+                END
+        END AS sound
+    FROM mytable
+  fix_str: |
+    SELECT
+        c1,
+        CASE
+            WHEN species = 'Rat' THEN 'Squeak'
+            ELSE "Whaa"
+        END AS sound
+    FROM mytable
+
+test_fail_5:
+  # The nested "CASE" is a one-liner.
+  fail_str: |
+    SELECT
+        c1,
+        CASE
+            WHEN species = 'Rat' THEN 'Squeak'
+            ELSE
+                CASE WHEN species = 'Dog' THEN 'Woof' END
+        END AS sound
+    FROM mytable
+  pass_str: |
+    SELECT
+        c1,
+        CASE
+            WHEN species = 'Rat' THEN 'Squeak'
+            WHEN species = 'Dog' THEN 'Woof'
+        END AS sound
+    FROM mytable
