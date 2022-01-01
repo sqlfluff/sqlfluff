@@ -32,7 +32,7 @@ def generate_autocomplete_script(
             success=False,
             message="Autocompletion is only available for Linux/MacOS.",
         )
-    if save_path is None:
+    if save_path is None:  # pragma: no cover
         # Use default save_path if none is specified.
         if shell_type.lower() == "fish":
             save_path = "~/.config/fish/completions/.sqlfluff.fish"
