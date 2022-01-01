@@ -436,12 +436,22 @@ def autocomplete(shell_type: str, save_path: str, **kwargs: Any) -> None:
     the user can enable by adding the following line to their shell config:
     . ~/.config/sqlfluff/sqlfluff-complete.{shell_type}
 
-    N.B. this is only available bash, zsh, and fish.
+    N.B. this is only available bash, zsh, and fish on Linux/MacOS.
     """
     config = get_config(**kwargs)
-    autocomplete_dict = generate_autocomplete_script(shell_type, save_path)
-    click.echo(format_autocomplete(autocomplete_dict), color=config.get("color"))
-    _completion_message(config)
+    autocomplete_result = generate_autocomplete_script(shell_type, save_path)
+    if not autocomplete_result:
+        click.echo(
+            colorize(
+                autocomplete_result.message,
+                Color.red,
+            )
+        )
+        sys.exit(1)
+    else:
+        click.echo(format_autocomplete(autocomplete_result), color=config.get("color"))
+        _completion_message(config)
+        sys.exit(0)
 
 
 @cli.command()

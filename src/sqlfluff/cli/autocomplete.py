@@ -1,12 +1,22 @@
 """CLI autocompletion methods."""
 import os
 import subprocess
-from typing import Dict, Optional
+import sys
+from typing import NamedTuple, Optional
+
+
+class AutoCompleteResult(NamedTuple):
+    """Result of `generate_autocomplete_script`."""
+
+    success: bool
+    message: str
+    shell_type: Optional[str] = None
+    save_path: Optional[str] = None
 
 
 def generate_autocomplete_script(
     shell_type: str = "bash", save_path: Optional[str] = None
-) -> Dict[str, str]:
+) -> AutoCompleteResult:
     """Generate autocompletion script for specified shell type.
 
     Args:
@@ -15,8 +25,13 @@ def generate_autocomplete_script(
                                              Defaults to None.
 
     Returns:
-        Dict[str, str]: Result dictionary object.
+        AutoCompleteResult: Result object.
     """
+    if sys.platform.lower() not in {"linux", "darwin"}:
+        return AutoCompleteResult(
+            success=False,
+            message="Autocompletion is only available for Linux/MacOS.",
+        )
     if save_path is None:
         # Use default save_path if none is specified.
         if shell_type.lower() == "fish":
@@ -44,8 +59,9 @@ def generate_autocomplete_script(
         shell=True,
     )
 
-    return {
-        "shell_type": shell_type,
-        "save_path": save_path,
-        "message": message,
-    }
+    return AutoCompleteResult(
+        success=True,
+        message=message,
+        shell_type=shell_type,
+        save_path=save_path,
+    )

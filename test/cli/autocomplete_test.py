@@ -1,5 +1,6 @@
 """Tests for shell autocompletion."""
 import os
+import sys
 
 import pytest
 
@@ -22,9 +23,18 @@ def test_generate_autocomplete_script(shell_type, tmp_path):
         shell_type=shell_type,
         save_path=save_path,
     )
-    assert autocomplete_result["shell_type"] == shell_type
-    assert autocomplete_result["save_path"] == save_path
-    assert os.path.exists(save_path)
+    if sys.platform.lower() not in {"linux", "darwin"}:
+        assert not autocomplete_result.success
+        assert (
+            autocomplete_result.message
+            == "Autocompletion is only available for Linux/MacOS."
+        )
+        assert not os.path.exists(save_path)
+    else:
+        assert autocomplete_result.success
+        assert autocomplete_result.shell_type == shell_type
+        assert autocomplete_result.save_path == save_path
+        assert os.path.exists(save_path)
 
 
 @pytest.mark.parametrize(

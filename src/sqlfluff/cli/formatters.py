@@ -4,7 +4,7 @@
 from io import StringIO
 from os import get_terminal_size
 import sys
-from typing import Callable, Dict, List, Union
+from typing import Callable, List, Union
 
 from sqlfluff.cli.helpers import (
     colorize,
@@ -15,6 +15,7 @@ from sqlfluff.cli.helpers import (
     pad_line,
 )
 from sqlfluff.core import SQLBaseError, FluffConfig, Linter
+from sqlfluff.cli.autocomplete import AutoCompleteResult
 from sqlfluff.core.enums import Color
 from sqlfluff.core.linter import LintedFile
 
@@ -190,11 +191,18 @@ def format_dialects(dialect_readout, verbose=0):
     return text_buffer.getvalue()
 
 
-def format_autocomplete(autocomplete_dict: Dict[str, str], verbose: int = 0) -> str:
+def format_autocomplete(
+    autocomplete_result: AutoCompleteResult, verbose: int = 0
+) -> str:
     """Format the autocomplete output."""
     text_buffer = StringIO()
     text_buffer.write("==== sqlfluff - autocomplete ====\n")
-    readouts = [(k, v) for k, v in autocomplete_dict.items()]
+    readouts = [
+        ("shell_type", autocomplete_result.shell_type),
+        ("save_path", autocomplete_result.save_path),
+        ("message", autocomplete_result.message),
+    ]
+
     text_buffer.write(
         cli_table(
             readouts,
