@@ -440,7 +440,7 @@ def autocomplete(shell_type: str, save_path: str, **kwargs: Any) -> None:
     """
     config = get_config(**kwargs)
     autocomplete_result = generate_autocomplete_script(shell_type, save_path)
-    if not autocomplete_result:
+    if not autocomplete_result.success:
         click.echo(
             colorize(
                 autocomplete_result.message,
