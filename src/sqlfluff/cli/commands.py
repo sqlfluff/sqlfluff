@@ -7,7 +7,6 @@ import logging
 import time
 from logging import LogRecord
 from typing import (
-    Any,
     Callable,
     Tuple,
     NoReturn,
@@ -29,9 +28,7 @@ import colorama
 from tqdm import tqdm
 
 from sqlfluff import list_dialects
-from sqlfluff.cli.autocomplete import generate_autocomplete_script
 from sqlfluff.cli.formatters import (
-    format_autocomplete,
     format_rules,
     format_violation,
     format_linting_result_header,
@@ -414,44 +411,6 @@ def dialects(**kwargs) -> None:
     """Show the current dialects available."""
     c = get_config(**kwargs)
     click.echo(format_dialects(dialect_readout), color=c.get("color"))
-
-
-@cli.command()
-@common_options
-@click.option(
-    "--save-path",
-    default=None,
-    type=click.Path(),
-    help="Where to save the completion script. Defaults to ~/.config/sqlfluff",
-)
-@click.argument(
-    "shell_type",
-    default="bash",
-    type=click.Choice(["bash", "zsh", "fish"], case_sensitive=False),
-)
-def autocomplete(shell_type: str, save_path: str, **kwargs: Any) -> None:
-    """Generate autocompletion script.
-
-    This saves an autocompletion shell script to ~/.config/sqlfluff that
-    the user can enable by adding the following line to their shell config:
-    . ~/.config/sqlfluff/sqlfluff-complete.{shell_type}
-
-    N.B. this is only available bash, zsh, and fish on Linux/MacOS.
-    """
-    config = get_config(**kwargs)
-    autocomplete_result = generate_autocomplete_script(shell_type, save_path)
-    if not autocomplete_result.success:
-        click.echo(
-            colorize(
-                autocomplete_result.message,
-                Color.red,
-            )
-        )
-        sys.exit(1)
-    else:
-        click.echo(format_autocomplete(autocomplete_result), color=config.get("color"))
-        _completion_message(config)
-        sys.exit(0)
 
 
 @cli.command()

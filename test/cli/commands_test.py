@@ -25,7 +25,6 @@ from sqlfluff.cli.commands import (
     fix,
     parse,
     dialects,
-    autocomplete,
 )
 
 
@@ -1046,42 +1045,3 @@ class TestProgressBars:
         assert r"\rparsing: 0it" not in raw_output
         assert r"\rlint by rules:" not in raw_output
         assert r"\rrule L001:" not in raw_output
-
-
-@pytest.mark.parametrize(
-    "shell_type",
-    [
-        "bash",
-        "zsh",
-        "fish",
-    ],
-)
-def test__cli__command_autocomplete(shell_type, tmp_path):
-    """Check autocomplete command creates scripts."""
-    save_path = str(tmp_path / "autocompletion" / f"shell_autocomplete.{shell_type}")
-    if sys.platform.lower() not in {"linux", "darwin"}:
-        invoke_assert_code(
-            ret_code=1,
-            args=[
-                autocomplete,
-                [
-                    "--save-path",
-                    save_path,
-                    shell_type,
-                ],
-            ],
-        )
-        assert not os.path.exists(save_path)
-    else:
-        invoke_assert_code(
-            ret_code=0,
-            args=[
-                autocomplete,
-                [
-                    "--save-path",
-                    save_path,
-                    shell_type,
-                ],
-            ],
-        )
-        assert os.path.exists(save_path)
