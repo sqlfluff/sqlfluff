@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8f8facc7654e95a286ebae7597b2882a3612183ae10f599240adf58e15cf86a2
+_hash: bc800772bddcc5a5dc88ade38635d1ba1bb1ccef103cfbb178b88df146e8ecb4
 file:
 - base:
     alter_database_statement:
@@ -16,7 +16,8 @@ file:
     - bracketed:
       - start_bracket: (
       - literal: "'Edited-by'"
-      - comparison_operator: '='
+      - comparison_operator:
+          raw_comparison_operator: '='
       - literal: "'John'"
       - end_bracket: )
 - statement_terminator: ;
@@ -31,11 +32,13 @@ file:
     - bracketed:
       - start_bracket: (
       - literal: "'Edited-by'"
-      - comparison_operator: '='
+      - comparison_operator:
+          raw_comparison_operator: '='
       - literal: "'John'"
       - comma: ','
       - literal: "'Edit-date'"
-      - comparison_operator: '='
+      - comparison_operator:
+          raw_comparison_operator: '='
       - literal: "'01/01/2001'"
       - end_bracket: )
 - statement_terminator: ;
@@ -50,7 +53,8 @@ file:
     - bracketed:
       - start_bracket: (
       - literal: "'Edited-by'"
-      - comparison_operator: '='
+      - comparison_operator:
+          raw_comparison_operator: '='
       - literal: "'John'"
       - end_bracket: )
 - statement_terminator: ;
@@ -65,11 +69,13 @@ file:
     - bracketed:
       - start_bracket: (
       - literal: "'Edited-by'"
-      - comparison_operator: '='
+      - comparison_operator:
+          raw_comparison_operator: '='
       - literal: "'John'"
       - comma: ','
       - literal: "'Edit-date'"
-      - comparison_operator: '='
+      - comparison_operator:
+          raw_comparison_operator: '='
       - literal: "'01/01/2001'"
       - end_bracket: )
 - statement_terminator: ;
