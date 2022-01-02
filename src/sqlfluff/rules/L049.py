@@ -1,12 +1,9 @@
 """Implementation of Rule L049."""
-from typing import Tuple
+from typing import List, Union
 
-from apm import match, Check, Some
-
-from sqlfluff.core.parser import KeywordSegment, RawSegment, WhitespaceSegment
+from sqlfluff.core.parser import KeywordSegment, WhitespaceSegment
 from sqlfluff.core.rules.base import LintResult, LintFix, RuleContext
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
-import sqlfluff.core.rules.functional.segment_predicates as sp
 from sqlfluff.rules.L006 import Rule_L006
 
 
@@ -48,55 +45,67 @@ class Rule_L049(Rule_L006):
         if context.parent_stack and context.parent_stack[-1].is_type("set_clause_list"):
             return LintResult()
 
-        children = context.functional.segment.children()
-        matched = match(
-            children,
-            [
-                Some(Check(sp.not_(sp.is_name("equals", "not_equal_to"))), at_least=0),
-                # "=" or "<>"
-                "operator" @ Check(sp.is_name("equals", "not_equal_to")),
-                Some(Check(sp.not_(sp.is_name("null_literal"))), at_least=0),
-                # "NULL" literal
-                "null" @ Check(sp.is_name("null_literal")),
-                Some(...),
-            ],
-        )
-        if not matched:
-            return LintResult()
+        # Iterate through children of this segment looking for equals or "not
+        # equals". Once found, check if the next code segment is a NULL literal.
+        idx_operator = None
+        operator = None
+        for idx, sub_seg in enumerate(context.segment.segments):
+            # Skip anything which is whitespace or non-code.
+            if sub_seg.is_whitespace or not sub_seg.is_code:
+                continue
 
-        if matched["null"].raw[0] == "N":
-            is_seg = KeywordSegment("IS")
-            not_seg = KeywordSegment("NOT")
-        else:
-            is_seg = KeywordSegment("is")
-            not_seg = KeywordSegment("not")
-
-        edit: Tuple[RawSegment, ...] = (
-            (is_seg,)
-            if matched["operator"].name == "equals"
-            else (
-                is_seg,
-                WhitespaceSegment(),
-                not_seg,
-            )
-        )
-        idx_operator = children.index(matched["operator"])
-        prev_seg = self._find_segment(
-            idx_operator, context.segment.segments, before=True
-        )
-        if self._missing_whitespace(prev_seg, before=True):
-            edit = (WhitespaceSegment(),) + edit
-        next_seg = self._find_segment(
-            idx_operator, context.segment.segments, before=False
-        )
-        if self._missing_whitespace(next_seg, before=False):
-            edit = edit + (WhitespaceSegment(),)
-        return LintResult(
-            anchor=matched["operator"],
-            fixes=[
-                LintFix.replace(
-                    matched["operator"],
-                    edit,
+            # Look for "=" or "<>".
+            if not operator and sub_seg.name in ("equals", "not_equal_to"):
+                self.logger.debug(
+                    "Found equals/not equals @%s: %r", sub_seg.pos_marker, sub_seg.raw
                 )
-            ],
-        )
+                idx_operator = idx
+                operator = sub_seg
+            elif operator:
+                # Look for a "NULL" literal.
+                if sub_seg.name == "null_literal":
+                    self.logger.debug(
+                        "Found NULL literal following equals/not equals @%s: %r",
+                        sub_seg.pos_marker,
+                        sub_seg.raw,
+                    )
+                    if sub_seg.raw[0] == "N":
+                        is_seg = KeywordSegment("IS")
+                        not_seg = KeywordSegment("NOT")
+                    else:
+                        is_seg = KeywordSegment("is")
+                        not_seg = KeywordSegment("not")
+
+                    edit: List[Union[WhitespaceSegment, KeywordSegment]] = (
+                        [is_seg]
+                        if operator.name == "equals"
+                        else [
+                            is_seg,
+                            WhitespaceSegment(),
+                            not_seg,
+                        ]
+                    )
+                    prev_seg = self._find_segment(
+                        idx_operator, context.segment.segments, before=True
+                    )
+                    next_seg = self._find_segment(
+                        idx_operator, context.segment.segments, before=False
+                    )
+                    if self._missing_whitespace(prev_seg, before=True):
+                        whitespace_segment: List[
+                            Union[WhitespaceSegment, KeywordSegment]
+                        ] = [WhitespaceSegment()]
+                        edit = whitespace_segment + edit
+                    if self._missing_whitespace(next_seg, before=False):
+                        edit = edit + [WhitespaceSegment()]
+                    return LintResult(
+                        anchor=operator,
+                        fixes=[
+                            LintFix.replace(
+                                operator,
+                                edit,
+                            )
+                        ],
+                    )
+        # If we get to here, it's not a violation
+        return LintResult()

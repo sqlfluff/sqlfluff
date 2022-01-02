@@ -1,12 +1,10 @@
 """Implementation of Rule L041."""
 from typing import Optional
 
-from apm import match, Check, Some
-
 from sqlfluff.core.parser import NewlineSegment, WhitespaceSegment
+
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
-import sqlfluff.core.rules.functional.segment_predicates as sp
 
 
 @document_fix_compatible
@@ -37,40 +35,38 @@ class Rule_L041(BaseRule):
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Select clause modifiers must appear on same line as SELECT."""
         if context.segment.is_type("select_clause"):
-            # Use "awesome-pattern-matching" package to scan child segments for
-            # violations, i.e. occurrences of this pattern (other segments may
-            # appears between each of these):
-            # 1. SELECT keyword
-            # 2. Newline
-            # 3. Select modifier, e.g. "DISTINCT"
-            matched = match(
-                context.segment.segments,
-                [
-                    # 1. SELECT keyword
-                    Check(
-                        sp.and_(
-                            sp.is_type("keyword"),
-                            lambda seg: seg.raw.lower() == "select",
-                        )
-                    ),
-                    Some(Check(sp.not_(sp.is_type("newline"))), at_least=0),
-                    # 2. Newline
-                    "newline" @ Check(sp.is_type("newline")),
-                    Some(
-                        Check(sp.not_(sp.is_type("select_clause_modifier"))), at_least=0
-                    ),
-                    # 3. Select modifier, e.g. "DISTINCT"
-                    "modifier" @ Check(sp.is_type("select_clause_modifier")),
-                    Some(...),
-                ],
-            )
-            if not matched:
-                return None
+            # Scan the select clause's children. Look for three things in sequence:
+            # 1. SELECT keyword (required)
+            # 2. Newline (optional)
+            # 3. Select modifier, e.g. "DISTINCT" (optional)
+            select_keyword = None
+            newline_between = None
+            select_modifier = None
+            for idx, child in enumerate(context.segment.segments):
+                if select_keyword is None:
+                    if child.is_type("keyword") and child.raw.lower() == "select":
+                        select_keyword = child
+                if (
+                    select_keyword
+                    and newline_between is None
+                    and select_modifier is None
+                    and child.is_type("newline")
+                ):
+                    newline_between = child
+                    newline_idx = idx
+                if select_modifier is None and child.is_type("select_clause_modifier"):
+                    select_modifier = child
+                    break
 
-            # We found a pattern match, thus there's an issue.
-            newline_between = matched["newline"]
-            newline_idx = context.segment.segments.index(newline_between)
-            select_modifier = matched["modifier"]
+            # Does the select clause have modifiers?
+            if not select_modifier:
+                return None  # No. We're done.
+
+            # Does select clause contain a newline between SELECT and the modifiers?
+            if not newline_between:
+                return None  # No. We're done.
+
+            # Yes to all the above. We found an issue.
 
             # E.g.: " DISTINCT\n"
             replace_newline_with = [
