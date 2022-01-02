@@ -73,6 +73,7 @@ The modules listed below are submodules of `sqlfluff.core.rules.functional`.
 .. automodule:: sqlfluff.core.rules.functional.raw_file_slice_predicates
    :members:
 
+
 Inline Ignoring Errors
 -----------------------
 `SQLFluff` features inline error ignoring. For example, the following will
