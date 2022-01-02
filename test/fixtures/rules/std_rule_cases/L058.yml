@@ -125,3 +125,30 @@ test_fail_5:
             WHEN species = 'Dog' THEN 'Woof'
         END AS sound
     FROM mytable
+
+test_double_nesting:
+  fail_str: |
+    SELECT
+        c1,
+        CASE
+            WHEN species = 'Rat' THEN
+                CASE
+                    WHEN species = 'Dog' THEN 'Woof'
+                    ELSE
+                        CASE
+                            WHEN species = 'Bird' THEN 'tweet'
+                        END
+                END
+        END AS sound
+    FROM mytable
+  pass_str: |
+    SELECT
+    c1,
+    CASE
+        WHEN species = 'Rat' THEN
+            CASE
+                WHEN species = 'Dog' THEN 'Woof'
+                WHEN species = 'Bird' THEN 'tweet'
+            END
+    END AS sound
+    FROM mytable
