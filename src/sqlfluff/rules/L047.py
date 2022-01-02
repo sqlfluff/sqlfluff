@@ -6,6 +6,7 @@ from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
 )
+import sqlfluff.core.rules.functional.segment_predicates as sp
 
 
 @document_configuration
@@ -68,22 +69,18 @@ class Rule_L047(BaseRule):
             and context.segment.get_child("function_name").raw_upper == "COUNT"
         ):
             # Get bracketed content
-            bracketed = context.segment.get_child("bracketed")
-
-            if not bracketed:  # pragma: no cover
-                return None
-
-            f_content = [
-                seg
-                for seg in bracketed.segments
-                if not seg.is_meta
-                and not seg.is_type(
-                    "start_bracket",
-                    "end_bracket",
-                    "whitespace",
-                    "newline",
+            f_content = context.functional.segment.children(
+                sp.is_type("bracketed")
+            ).children(
+                sp.and_(
+                    sp.not_(sp.is_meta()),
+                    sp.not_(
+                        sp.is_type(
+                            "start_bracket", "end_bracket", "whitespace", "newline"
+                        )
+                    ),
                 )
-            ]
+            )
             if len(f_content) != 1:  # pragma: no cover
                 return None
 
