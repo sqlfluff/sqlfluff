@@ -126,7 +126,7 @@ test_fail_5:
         END AS sound
     FROM mytable
 
-test_double_nesting:
+test_double_nesting_1:
   fail_str: |
     SELECT
         c1,
@@ -151,4 +151,39 @@ test_double_nesting:
                 WHEN species = 'Bird' THEN 'tweet'
             END
     END AS sound
+    FROM mytable
+
+test_double_nesting_2:
+  # NOTE: This could be simplified more, but the current version of the rule
+  # only unnests "ELSE" statements. To do this safely, it'd have to verify
+  # that the various "WHEN" clauses are mutually exclusive.
+  fail_str: |
+    SELECT
+        c1,
+        CASE
+            WHEN species = 'Rat' THEN
+                CASE
+                    WHEN species = 'Dog' THEN 'Woof'
+                    ELSE
+                        CASE
+                            WHEN species = 'Bird' THEN 'tweet'
+                        END
+                END
+           ELSE
+                CASE
+                    WHEN species = 'Hyena' THEN 'Cackle'
+                END
+        END AS sound
+    FROM mytable
+  fix_str: |
+    SELECT
+        c1,
+        CASE
+            WHEN species = 'Rat' THEN
+                CASE
+                    WHEN species = 'Dog' THEN 'Woof'
+                    WHEN species = 'Bird' THEN 'tweet'
+                END
+            WHEN species = 'Hyena' THEN 'Cackle'
+        END AS sound
     FROM mytable
