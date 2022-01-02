@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ef71c2ee1a7d8f36054c785b0bea10c0c9dff58f4da500b1c64a9c01dbf14e24
+_hash: 78afd20635d7822692b5974c31c3b389df3d196daa0534f7d44eed8a27128bb9
 file:
 - batch:
     statement:
@@ -45,7 +45,8 @@ file:
                   - identifier: c
                   - dot: .
                   - identifier: CustomerID
-                - comparison_operator: '='
+                - comparison_operator:
+                    raw_comparison_operator: '='
                 - column_reference:
                   - identifier: ca
                   - dot: .
@@ -55,7 +56,8 @@ file:
           expression:
             column_reference:
               identifier: TerritoryID
-            comparison_operator: '='
+            comparison_operator:
+              raw_comparison_operator: '='
             literal: '5'
         option_clause:
           keyword: OPTION
@@ -118,13 +120,15 @@ file:
               expression:
               - column_reference:
                   identifier: City
-              - comparison_operator: '='
+              - comparison_operator:
+                  raw_comparison_operator: '='
               - column_reference:
                   parameter: '@city_name'
               - binary_operator: AND
               - column_reference:
                   identifier: PostalCode
-              - comparison_operator: '='
+              - comparison_operator:
+                  raw_comparison_operator: '='
               - column_reference:
                   parameter: '@postal_code'
             option_clause:
@@ -137,7 +141,8 @@ file:
                 - bracketed:
                   - start_bracket: (
                   - parameter: '@city_name'
-                  - comparison_operator: '='
+                  - comparison_operator:
+                      raw_comparison_operator: '='
                   - literal: "'Seattle'"
                   - comma: ','
                   - parameter: '@postal_code'
@@ -245,7 +250,8 @@ file:
                           - identifier: cte
                           - dot: .
                           - identifier: PersonID
-                        - comparison_operator: '='
+                        - comparison_operator:
+                            raw_comparison_operator: '='
                         - column_reference:
                           - identifier: e
                           - dot: .
@@ -377,7 +383,8 @@ file:
           expression:
             column_reference:
               identifier: UnitPrice
-            comparison_operator: <
+            comparison_operator:
+              raw_comparison_operator: <
             literal: '5'
         groupby_clause:
         - keyword: GROUP
@@ -450,7 +457,8 @@ file:
           expression:
             column_reference:
               identifier: UnitPrice
-            comparison_operator: <
+            comparison_operator:
+              raw_comparison_operator: <
             literal: '5'
         groupby_clause:
         - keyword: GROUP
@@ -502,12 +510,14 @@ file:
           expression:
           - column_reference:
               identifier: City
-          - comparison_operator: '='
+          - comparison_operator:
+              raw_comparison_operator: '='
           - literal: "'SEATTLE'"
           - binary_operator: AND
           - column_reference:
               identifier: PostalCode
-          - comparison_operator: '='
+          - comparison_operator:
+              raw_comparison_operator: '='
           - literal: '98104'
         option_clause:
           keyword: OPTION
@@ -552,12 +562,14 @@ file:
           expression:
           - column_reference:
               identifier: City
-          - comparison_operator: '='
+          - comparison_operator:
+              raw_comparison_operator: '='
           - literal: "'SEATTLE'"
           - binary_operator: AND
           - column_reference:
               identifier: PostalCode
-          - comparison_operator: '='
+          - comparison_operator:
+              raw_comparison_operator: '='
           - literal: '98104'
         option_clause:
           keyword: OPTION
@@ -593,12 +605,14 @@ file:
           expression:
           - column_reference:
               identifier: City
-          - comparison_operator: '='
+          - comparison_operator:
+              raw_comparison_operator: '='
           - literal: "'SEATTLE'"
           - binary_operator: AND
           - column_reference:
               identifier: PostalCode
-          - comparison_operator: '='
+          - comparison_operator:
+              raw_comparison_operator: '='
           - literal: '98104'
         option_clause:
           keyword: OPTION
@@ -635,7 +649,8 @@ file:
           set_clause:
             column_reference:
               identifier: ListPrice
-            comparison_operator: '='
+            comparison_operator:
+              raw_comparison_operator: '='
             expression:
               column_reference:
                 identifier: ListPrice
@@ -698,7 +713,8 @@ file:
                   - identifier: h
                   - dot: .
                   - identifier: SalesOrderID
-                - comparison_operator: '='
+                - comparison_operator:
+                    raw_comparison_operator: '='
                 - column_reference:
                   - identifier: d
                   - dot: .
@@ -710,7 +726,8 @@ file:
             - identifier: h
             - dot: .
             - identifier: TotalDue
-            comparison_operator: '>'
+            comparison_operator:
+              raw_comparison_operator: '>'
             literal: '100'
             binary_operator: AND
             bracketed:
@@ -720,14 +737,16 @@ file:
                 - identifier: d
                 - dot: .
                 - identifier: OrderQty
-              - comparison_operator: '>'
+              - comparison_operator:
+                  raw_comparison_operator: '>'
               - literal: '5'
               - binary_operator: OR
               - column_reference:
                 - identifier: d
                 - dot: .
                 - identifier: LineTotal
-              - comparison_operator: <
+              - comparison_operator:
+                  raw_comparison_operator: <
               - literal: '1000.00'
               end_bracket: )
         statement_terminator: ;
@@ -802,7 +821,8 @@ file:
                   - identifier: h
                   - dot: .
                   - identifier: SalesOrderID
-                - comparison_operator: '='
+                - comparison_operator:
+                    raw_comparison_operator: '='
                 - column_reference:
                   - identifier: d
                   - dot: .
@@ -814,7 +834,8 @@ file:
             - identifier: h
             - dot: .
             - identifier: TotalDue
-            comparison_operator: '>'
+            comparison_operator:
+              raw_comparison_operator: '>'
             literal: '100'
             binary_operator: AND
             bracketed:
@@ -824,14 +845,16 @@ file:
                 - identifier: d
                 - dot: .
                 - identifier: OrderQty
-              - comparison_operator: '>'
+              - comparison_operator:
+                  raw_comparison_operator: '>'
               - literal: '5'
               - binary_operator: OR
               - column_reference:
                 - identifier: d
                 - dot: .
                 - identifier: LineTotal
-              - comparison_operator: <
+              - comparison_operator:
+                  raw_comparison_operator: <
               - literal: '1000.00'
               end_bracket: )
         statement_terminator: ;
@@ -897,7 +920,8 @@ file:
                   - identifier: h
                   - dot: .
                   - identifier: SalesOrderID
-                - comparison_operator: '='
+                - comparison_operator:
+                    raw_comparison_operator: '='
                 - column_reference:
                   - identifier: d
                   - dot: .
@@ -909,7 +933,8 @@ file:
             - identifier: h
             - dot: .
             - identifier: TotalDue
-            comparison_operator: '>'
+            comparison_operator:
+              raw_comparison_operator: '>'
             literal: '100'
             binary_operator: AND
             bracketed:
@@ -919,14 +944,16 @@ file:
                 - identifier: d
                 - dot: .
                 - identifier: OrderQty
-              - comparison_operator: '>'
+              - comparison_operator:
+                  raw_comparison_operator: '>'
               - literal: '5'
               - binary_operator: OR
               - column_reference:
                 - identifier: d
                 - dot: .
                 - identifier: LineTotal
-              - comparison_operator: <
+              - comparison_operator:
+                  raw_comparison_operator: <
               - literal: '1000.00'
               end_bracket: )
         statement_terminator: ;

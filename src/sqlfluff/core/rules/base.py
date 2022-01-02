@@ -24,10 +24,13 @@ from typing import Iterable, Optional, List, Set, Tuple, Union, Any
 from collections import namedtuple
 from dataclasses import dataclass
 
+from sqlfluff.core.cached_property import cached_property
+
 from sqlfluff.core.linter import LintedFile
 from sqlfluff.core.parser import BaseSegment, RawSegment
 from sqlfluff.core.dialects import Dialect
 from sqlfluff.core.errors import SQLLintError
+from sqlfluff.core.rules.functional import Segments
 from sqlfluff.core.templaters.base import RawFileSlice, TemplatedFile
 
 # The ghost of a rule (mostly used for testing)
@@ -277,6 +280,61 @@ class RuleContext:
     path: Optional[pathlib.Path]
     templated_file: Optional[TemplatedFile]
 
+    @cached_property
+    def functional(self):
+        """Returns a Surrogates object that simplifies writing rules."""
+        return FunctionalRuleContext(self)
+
+
+class FunctionalRuleContext:
+    """RuleContext written in a "functional" style; simplifies writing rules."""
+
+    def __init__(self, context: RuleContext):
+        self.context = context
+
+    @cached_property
+    def segment(self) -> "Segments":
+        """Returns a Segments object for context.segment."""
+        return Segments(
+            self.context.segment, templated_file=self.context.templated_file
+        )
+
+    @property
+    def parent_stack(self) -> "Segments":  # pragma: no cover
+        """Returns a Segments object for context.parent_stack."""
+        return Segments(
+            *self.context.parent_stack, templated_file=self.context.templated_file
+        )
+
+    @property
+    def siblings_pre(self) -> "Segments":  # pragma: no cover
+        """Returns a Segments object for context.siblings_pre."""
+        return Segments(
+            *self.context.siblings_pre, templated_file=self.context.templated_file
+        )
+
+    @property
+    def siblings_post(self) -> "Segments":  # pragma: no cover
+        """Returns a Segments object for context.siblings_post."""
+        return Segments(
+            *self.context.siblings_post, templated_file=self.context.templated_file
+        )
+
+    @cached_property
+    def raw_stack(self) -> "Segments":
+        """Returns a Segments object for context.raw_stack."""
+        return Segments(
+            *self.context.raw_stack, templated_file=self.context.templated_file
+        )
+
+    @cached_property
+    def raw_segments(self):
+        """Returns a Segments object for all the raw segments in the file."""
+        file_segment = self.context.parent_stack[0]
+        return Segments(
+            *file_segment.get_raw_segments(), templated_file=self.context.templated_file
+        )
+
 
 class BaseRule:
     """The base class for a rule.
@@ -494,6 +552,16 @@ class BaseRule:
         return vs, raw_stack, fixes, memory
 
     # HELPER METHODS --------
+
+    @cached_property
+    def indent(self) -> str:
+        """String for a single indent, based on configuration."""
+        self.tab_space_size: int
+        self.indent_unit: str
+
+        tab = "\t"
+        space = " "
+        return space * self.tab_space_size if self.indent_unit == "space" else tab
 
     def is_final_segment(self, context: RuleContext) -> bool:
         """Is the current segment the final segment in the parse tree."""

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a18c86f29aa197a2f2f6820db8864e1383579ed116cd5f823438bc564273deff
+_hash: 8fd539b1a4afae185cac29a1a317e13637e530ac698b31e12692d0d8079dabef
 file:
 - statement:
     create_table_statement:
@@ -62,7 +62,9 @@ file:
             expression:
               column_reference:
                 identifier: name
-              comparison_operator: <>
+              comparison_operator:
+              - raw_comparison_operator: <
+              - raw_comparison_operator: '>'
               literal: "''"
             end_bracket: )
       - end_bracket: )
@@ -86,7 +88,8 @@ file:
             expression:
               column_reference:
                 identifier: did
-              comparison_operator: '>'
+              comparison_operator:
+                raw_comparison_operator: '>'
               literal: '100'
             end_bracket: )
       - comma: ','
@@ -134,12 +137,15 @@ file:
             expression:
             - column_reference:
                 identifier: did
-            - comparison_operator: '>'
+            - comparison_operator:
+                raw_comparison_operator: '>'
             - literal: '100'
             - binary_operator: AND
             - column_reference:
                 identifier: name
-            - comparison_operator: <>
+            - comparison_operator:
+              - raw_comparison_operator: <
+              - raw_comparison_operator: '>'
             - literal: "''"
             end_bracket: )
       - end_bracket: )
@@ -376,7 +382,8 @@ file:
             bracketed:
               start_bracket: (
               parameter: fillfactor
-              comparison_operator: '='
+              comparison_operator:
+                raw_comparison_operator: '='
               literal: '70'
               end_bracket: )
       - end_bracket: )
@@ -384,7 +391,8 @@ file:
     - bracketed:
         start_bracket: (
         parameter: fillfactor
-        comparison_operator: '='
+        comparison_operator:
+          raw_comparison_operator: '='
         literal: '70'
         end_bracket: )
 - statement_terminator: ;
@@ -831,7 +839,9 @@ file:
             expression:
               column_reference:
                 identifier: city_id
-              comparison_operator: '!='
+              comparison_operator:
+              - raw_comparison_operator: '!'
+              - raw_comparison_operator: '='
               literal: '0'
             end_bracket: )
         end_bracket: )
@@ -870,7 +880,9 @@ file:
             expression:
               column_reference:
                 identifier: city_id
-              comparison_operator: '!='
+              comparison_operator:
+              - raw_comparison_operator: '!'
+              - raw_comparison_operator: '='
               literal: '0'
             end_bracket: )
         end_bracket: )

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b57c637e8032b8365e16b49692abd0751c7fcae30c365c34aa67576673dd2e46
+_hash: 45d3ef7caec5daf3a027287840ef348b256052a62da37721697160ca4042d3a6
 file:
 - batch:
     statement:
@@ -221,7 +221,8 @@ file:
             - bracketed:
                 start_bracket: (
                 keyword: FUNCTION
-                comparison_operator: '='
+                comparison_operator:
+                  raw_comparison_operator: '='
                 literal: "'my_func'"
                 end_bracket: )
         - comma: ','
@@ -277,15 +278,18 @@ file:
               - bracketed:
                 - start_bracket: (
                 - keyword: COLUMN_ENCRYPTION_KEY
-                - comparison_operator: '='
+                - comparison_operator:
+                    raw_comparison_operator: '='
                 - identifier: key_name
                 - comma: ','
                 - keyword: ENCRYPTION_TYPE
-                - comparison_operator: '='
+                - comparison_operator:
+                    raw_comparison_operator: '='
                 - keyword: RANDOMIZED
                 - comma: ','
                 - keyword: ALGORITHM
-                - comparison_operator: '='
+                - comparison_operator:
+                    raw_comparison_operator: '='
                 - literal: "'AEAD_AES_256_CBC_HMAC_SHA_256'"
                 - end_bracket: )
         - comma: ','

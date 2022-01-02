@@ -2,6 +2,7 @@
 from typing import Optional
 
 from sqlfluff.core.rules.base import BaseRule, LintResult, RuleContext
+import sqlfluff.core.rules.functional.segment_predicates as sp
 
 
 class Rule_L021(BaseRule):
@@ -29,19 +30,19 @@ class Rule_L021(BaseRule):
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Ambiguous use of DISTINCT in select statement with GROUP BY."""
-        if context.segment.is_type("select_statement"):
+        segment = context.functional.segment
+        if (
+            segment.all(sp.is_type("select_statement"))
             # Do we have a group by clause
-            group_clause = context.segment.get_child("groupby_clause")
-            if not group_clause:
-                return None
-
+            and segment.children(sp.is_type("groupby_clause"))
+        ):
             # Do we have the "DISTINCT" keyword in the select clause
-            select_clause = context.segment.get_child("select_clause")
-            select_modifier = select_clause.get_child("select_clause_modifier")
-            if not select_modifier:
-                return None
-            select_keywords = select_modifier.get_children("keyword")
-            for kw in select_keywords:
-                if kw.name == "distinct":
-                    return LintResult(anchor=kw)
+            distinct = (
+                segment.children(sp.is_type("select_clause"))
+                .children(sp.is_type("select_clause_modifier"))
+                .children(sp.is_type("keyword"))
+                .select(sp.is_name("distinct"))
+            )
+            if distinct:
+                return LintResult(anchor=distinct[0])
         return None

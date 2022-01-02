@@ -18,7 +18,7 @@ from test.fixtures.dbt.templater import (  # noqa
         # Group By
         ("L021", "models/my_new_project/select_distinct_group_by.sql", [(1, 8)]),
         # Multiple trailing newline
-        ("L009", "models/my_new_project/multiple_trailing_newline.sql", [(2, 13)]),
+        ("L009", "models/my_new_project/multiple_trailing_newline.sql", [(3, 1)]),
     ],
 )
 def test__rules__std_file_dbt(rule, path, violations, project_dir):  # noqa

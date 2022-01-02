@@ -66,7 +66,7 @@ snowflake_dialect.insert_lexer_matchers(
         ),
         RegexLexer("inline_dollar_sign", r"[a-zA-Z_][a-zA-Z0-9_$]*", CodeSegment),
     ],
-    before="not_equal",
+    before="like_operator",
 )
 
 snowflake_dialect.add(
@@ -874,6 +874,21 @@ class SelectStatementSegment(ansi_dialect.get_segment("SelectStatementSegment"))
     ).parse_grammar.copy(
         insert=[Ref("QualifyClauseSegment", optional=True)],
         before=Ref("OrderByClauseSegment", optional=True),
+    )
+
+
+@snowflake_dialect.segment(replace=True)
+class SelectClauseModifierSegment(BaseSegment):
+    """Things that come after SELECT but before the columns, specifically for Snowflake.
+
+    https://docs.snowflake.com/en/sql-reference/constructs.html
+    """
+
+    type = "select_clause_modifier"
+    match_grammar = Sequence(
+        OneOf("DISTINCT", "ALL", optional=True),
+        # TOP N is unique to Snowflake, and we can optionally add DISTINCT/ALL in front of it.
+        Sequence("TOP", Ref("NumericLiteralSegment"), optional=True),
     )
 
 
