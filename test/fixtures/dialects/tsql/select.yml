@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e47691656e46ce4fe2f1b1041000581eab5774d1545d75fd602c492714a91146
+_hash: 5a56bc97a1a608d13ba90bb2f2ab72f3d7a322e9837ca1653a51f8323b31c378
 file:
   batch:
     statement:
@@ -18,7 +18,8 @@ file:
                 - keyword: WHEN
                 - expression:
                   - literal: '1'
-                  - comparison_operator: '='
+                  - comparison_operator:
+                      raw_comparison_operator: '='
                   - literal: '1'
                 - keyword: THEN
                 - expression:
@@ -27,7 +28,8 @@ file:
                 - keyword: WHEN
                 - expression:
                   - literal: '1'
-                  - comparison_operator: '>'
+                  - comparison_operator:
+                      raw_comparison_operator: '>'
                   - literal: '1'
                 - keyword: THEN
                 - expression:
@@ -36,7 +38,8 @@ file:
                 - keyword: WHEN
                 - expression:
                   - literal: '1'
-                  - comparison_operator: <
+                  - comparison_operator:
+                      raw_comparison_operator: <
                   - literal: '1'
                 - keyword: THEN
                 - expression:
@@ -45,7 +48,9 @@ file:
                 - keyword: WHEN
                 - expression:
                   - literal: '1'
-                  - comparison_operator: '>='
+                  - comparison_operator:
+                    - raw_comparison_operator: '>'
+                    - raw_comparison_operator: '='
                   - literal: '1'
                 - keyword: THEN
                 - expression:
@@ -54,8 +59,9 @@ file:
                 - keyword: WHEN
                 - expression:
                   - literal: '1'
-                  - comparison_operator: '>'
-                  - comparison_operator: '='
+                  - comparison_operator:
+                    - raw_comparison_operator: '>'
+                    - raw_comparison_operator: '='
                   - literal: '1'
                 - keyword: THEN
                 - expression:
@@ -64,7 +70,9 @@ file:
                 - keyword: WHEN
                 - expression:
                   - literal: '1'
-                  - comparison_operator: <=
+                  - comparison_operator:
+                    - raw_comparison_operator: <
+                    - raw_comparison_operator: '='
                   - literal: '1'
                 - keyword: THEN
                 - expression:
@@ -73,8 +81,9 @@ file:
                 - keyword: WHEN
                 - expression:
                   - literal: '1'
-                  - comparison_operator: <
-                  - comparison_operator: '='
+                  - comparison_operator:
+                    - raw_comparison_operator: <
+                    - raw_comparison_operator: '='
                   - literal: '1'
                 - keyword: THEN
                 - expression:
@@ -83,7 +92,9 @@ file:
                 - keyword: WHEN
                 - expression:
                   - literal: '1'
-                  - comparison_operator: <>
+                  - comparison_operator:
+                    - raw_comparison_operator: <
+                    - raw_comparison_operator: '>'
                   - literal: '1'
                 - keyword: THEN
                 - expression:
@@ -92,8 +103,20 @@ file:
                 - keyword: WHEN
                 - expression:
                   - literal: '1'
-                  - comparison_operator: '!'
-                  - comparison_operator: <
+                  - comparison_operator:
+                    - raw_comparison_operator: <
+                    - raw_comparison_operator: '>'
+                  - literal: '1'
+                - keyword: THEN
+                - expression:
+                    literal: "'False'"
+              - when_clause:
+                - keyword: WHEN
+                - expression:
+                  - literal: '1'
+                  - comparison_operator:
+                    - raw_comparison_operator: '!'
+                    - raw_comparison_operator: <
                   - literal: '1'
                 - keyword: THEN
                 - expression:
@@ -102,8 +125,9 @@ file:
                 - keyword: WHEN
                 - expression:
                   - literal: '1'
-                  - comparison_operator: '!'
-                  - comparison_operator: <
+                  - comparison_operator:
+                    - raw_comparison_operator: '!'
+                    - raw_comparison_operator: <
                   - literal: '1'
                 - keyword: THEN
                 - expression:
@@ -112,8 +136,9 @@ file:
                 - keyword: WHEN
                 - expression:
                   - literal: '1'
-                  - comparison_operator: '!'
-                  - comparison_operator: '='
+                  - comparison_operator:
+                    - raw_comparison_operator: '!'
+                    - raw_comparison_operator: '='
                   - literal: '1'
                 - keyword: THEN
                 - expression:
@@ -122,8 +147,31 @@ file:
                 - keyword: WHEN
                 - expression:
                   - literal: '1'
-                  - comparison_operator: '!'
-                  - comparison_operator: '>'
+                  - comparison_operator:
+                    - raw_comparison_operator: '!'
+                    - raw_comparison_operator: '='
+                  - literal: '1'
+                - keyword: THEN
+                - expression:
+                    literal: "'False'"
+              - when_clause:
+                - keyword: WHEN
+                - expression:
+                  - literal: '1'
+                  - comparison_operator:
+                    - raw_comparison_operator: '!'
+                    - raw_comparison_operator: '>'
+                  - literal: '1'
+                - keyword: THEN
+                - expression:
+                    literal: "'NULL Handling, Probably'"
+              - when_clause:
+                - keyword: WHEN
+                - expression:
+                  - literal: '1'
+                  - comparison_operator:
+                    - raw_comparison_operator: '!'
+                    - raw_comparison_operator: '>'
                   - literal: '1'
                 - keyword: THEN
                 - expression:

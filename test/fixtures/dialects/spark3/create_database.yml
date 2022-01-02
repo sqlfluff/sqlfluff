@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b87f3a3980afe193145d52dac614d424e692e16c69d73cdbd3b5d99c639f0573
+_hash: 84a7d297dc85508bc71fb428728d436b01d7f780f6db972eb103cb1dc6edb8c5
 file:
 - base:
     create_database_statement:
@@ -23,7 +23,8 @@ file:
     - bracketed:
       - start_bracket: (
       - literal: '"property_name"'
-      - comparison_operator: '='
+      - comparison_operator:
+          raw_comparison_operator: '='
       - literal: '"property_value"'
       - end_bracket: )
 - statement_terminator: ;
@@ -45,7 +46,8 @@ file:
     - bracketed:
       - start_bracket: (
       - literal: '"property_name"'
-      - comparison_operator: '='
+      - comparison_operator:
+          raw_comparison_operator: '='
       - literal: '"property_value"'
       - end_bracket: )
 - statement_terminator: ;
@@ -84,11 +86,13 @@ file:
     - bracketed:
       - start_bracket: (
       - literal: '"ID"'
-      - comparison_operator: '='
+      - comparison_operator:
+          raw_comparison_operator: '='
       - literal: '"001"'
       - comma: ','
       - literal: '"Name"'
-      - comparison_operator: '='
+      - comparison_operator:
+          raw_comparison_operator: '='
       - literal: "'John'"
       - end_bracket: )
 - statement_terminator: ;

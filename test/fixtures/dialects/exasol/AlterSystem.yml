@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0ac1b1e339be03b5295ca45944a59d3c4347560fa48ee88794eb22ebe62e5338
+_hash: e0b172fdc980a67a84efa3eb8a9f2295567ab689b9cf2aefa9a3ef46913f80c7
 file:
 - statement:
     alter_system_statement:
@@ -11,7 +11,8 @@ file:
     - keyword: SYSTEM
     - keyword: SET
     - system_parameter: NLS_DATE_LANGUAGE
-    - comparison_operator: '='
+    - comparison_operator:
+        raw_comparison_operator: '='
     - literal: "'DEU'"
 - statement_terminator: ;
 - statement:
@@ -20,6 +21,7 @@ file:
     - keyword: SYSTEM
     - keyword: SET
     - system_parameter: NLS_FIRST_DAY_OF_WEEK
-    - comparison_operator: '='
+    - comparison_operator:
+        raw_comparison_operator: '='
     - literal: '1'
 - statement_terminator: ;

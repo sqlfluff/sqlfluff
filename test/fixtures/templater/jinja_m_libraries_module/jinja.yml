@@ -19,10 +19,12 @@ file:
         expression:
           - column_reference:
               identifier: x
-          - comparison_operator: '='
+          - comparison_operator:
+              raw_comparison_operator: '='
           - literal: '23'
           - binary_operator: and
           - column_reference:
               identifier: y
-          - comparison_operator: '='
+          - comparison_operator:
+              raw_comparison_operator: '='
           - literal: '42'

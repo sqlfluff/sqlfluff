@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 755bd299eb68a4dec809ff8b84723bfd2f4bb14087b3cb1267f75b051131099b
+_hash: 0176d330d41a71ee6123e9254338d307154a4aef45328154afb2d9fcba1d0870
 file:
 - statement:
     alter_session_statement:
@@ -11,7 +11,8 @@ file:
     - keyword: SESSION
     - keyword: SET
     - session_parameter: TIME_ZONE
-    - comparison_operator: '='
+    - comparison_operator:
+        raw_comparison_operator: '='
     - literal: "'EUROPE/BERLIN'"
 - statement_terminator: ;
 - statement:
@@ -20,7 +21,8 @@ file:
     - keyword: SESSION
     - keyword: SET
     - session_parameter: QUERY_TIMEOUT
-    - comparison_operator: '='
+    - comparison_operator:
+        raw_comparison_operator: '='
     - literal: '120'
 - statement_terminator: ;
 - statement:
@@ -29,7 +31,8 @@ file:
     - keyword: SESSION
     - keyword: SET
     - session_parameter: NLS_DATE_FORMAT
-    - comparison_operator: '='
+    - comparison_operator:
+        raw_comparison_operator: '='
     - literal: "'DDD-YYYY'"
 - statement_terminator: ;
 - statement:
@@ -38,6 +41,7 @@ file:
     - keyword: SESSION
     - keyword: SET
     - session_parameter: SESSION_TEMP_DB_RAM_LIMIT
-    - comparison_operator: '='
+    - comparison_operator:
+        raw_comparison_operator: '='
     - literal: "'10240M'"
 - statement_terminator: ;

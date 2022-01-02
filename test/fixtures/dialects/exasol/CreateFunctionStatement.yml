@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 131263c279e80ed50cea8a24813149c02af20fdb98631b22cf82fe99f8af07d0
+_hash: e70f94559bd9e4b55da3e053e41e0462eb2ebc3cacb008e8d7e2d70c506cd456
 file:
 - statement:
     create_function_statement:
@@ -146,7 +146,8 @@ file:
               - expression:
                   column_reference:
                     identifier: input_variable
-                  comparison_operator: <
+                  comparison_operator:
+                    raw_comparison_operator: <
                   literal: '0'
               - keyword: THEN
               - expression:
@@ -234,7 +235,8 @@ file:
         - expression:
             column_reference:
               identifier: input_variable
-            comparison_operator: '='
+            comparison_operator:
+              raw_comparison_operator: '='
             literal: '0'
         - keyword: THEN
         - function_body:
@@ -247,7 +249,8 @@ file:
         - expression:
             column_reference:
               identifier: input_variable
-            comparison_operator: '='
+            comparison_operator:
+              raw_comparison_operator: '='
             literal: '1'
         - keyword: THEN
         - function_body:
@@ -260,7 +263,8 @@ file:
         - expression:
             column_reference:
               identifier: input_variable
-            comparison_operator: '='
+            comparison_operator:
+              raw_comparison_operator: '='
             literal: '2'
         - keyword: THEN
         - function_body:
@@ -430,7 +434,9 @@ file:
         - expression:
           - column_reference:
               identifier: cnt
-          - comparison_operator: <=
+          - comparison_operator:
+            - raw_comparison_operator: <
+            - raw_comparison_operator: '='
           - column_reference:
               identifier: input_variable
         - keyword: DO

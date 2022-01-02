@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e3cd5f0eb9f3cf88293d3e230509ac4cef2fcc7561ec2f200ab72a70927f2e94
+_hash: 773c7fb30e5d50a8160f290fcf127411a9836e423665167dd6df2f56d19cfaba
 file:
 - statement:
     import_statement:
@@ -134,23 +134,27 @@ file:
             - start_bracket: (
             - literal: '1'
             - keyword: FORMAT
-            - comparison_operator: '='
+            - comparison_operator:
+                raw_comparison_operator: '='
             - literal: "'DD-MM-YYYY'"
             - comma: ','
             - literal: '2'
             - range_operator: ..
             - literal: '4'
             - keyword: FORMAT
-            - comparison_operator: '='
+            - comparison_operator:
+                raw_comparison_operator: '='
             - literal: "'YYYYMMDD'"
             - end_bracket: )
         - file_opts:
           - keyword: COLUMN
           - keyword: SEPARATOR
-          - comparison_operator: '='
+          - comparison_operator:
+              raw_comparison_operator: '='
           - literal: "';'"
           - keyword: SKIP
-          - comparison_operator: '='
+          - comparison_operator:
+              raw_comparison_operator: '='
           - literal: '5'
 - statement_terminator: ;
 - statement:
@@ -172,28 +176,35 @@ file:
             bracketed:
             - start_bracket: (
             - keyword: SIZE
-            - comparison_operator: '='
+            - comparison_operator:
+                raw_comparison_operator: '='
             - literal: '8'
             - keyword: PADDING
-            - comparison_operator: '='
+            - comparison_operator:
+                raw_comparison_operator: '='
             - literal: "'+'"
             - keyword: ALIGN
-            - comparison_operator: '='
+            - comparison_operator:
+                raw_comparison_operator: '='
             - keyword: RIGHT
             - comma: ','
             - keyword: SIZE
-            - comparison_operator: '='
+            - comparison_operator:
+                raw_comparison_operator: '='
             - literal: '4'
             - comma: ','
             - keyword: SIZE
-            - comparison_operator: '='
+            - comparison_operator:
+                raw_comparison_operator: '='
             - literal: '8'
             - comma: ','
             - keyword: SIZE
-            - comparison_operator: '='
+            - comparison_operator:
+                raw_comparison_operator: '='
             - literal: '32'
             - keyword: FORMAT
-            - comparison_operator: '='
+            - comparison_operator:
+                raw_comparison_operator: '='
             - literal: "'DD-MM-YYYY'"
             - end_bracket: )
         - file_opts:
@@ -223,16 +234,20 @@ file:
           - literal: "'secret'"
         - keyword: WITH
         - parameter: HCAT_DB
-        - comparison_operator: '='
+        - comparison_operator:
+            raw_comparison_operator: '='
         - literal: "'default'"
         - parameter: HCAT_TABLE
-        - comparison_operator: '='
+        - comparison_operator:
+            raw_comparison_operator: '='
         - literal: "'my_hcat_table'"
         - parameter: HCAT_ADDRESS
-        - comparison_operator: '='
+        - comparison_operator:
+            raw_comparison_operator: '='
         - literal: "'hcatalog-server:50111'"
         - parameter: HDFS_USER
-        - comparison_operator: '='
+        - comparison_operator:
+            raw_comparison_operator: '='
         - literal: "'hdfs'"
 - statement_terminator: ;
 - statement:
@@ -246,7 +261,8 @@ file:
         import_export_dbsrc:
         - keyword: JDBC
         - keyword: DRIVER
-        - comparison_operator: '='
+        - comparison_operator:
+            raw_comparison_operator: '='
         - literal: "'MSSQL'"
         - keyword: AT
         - connection_definition:
@@ -333,10 +349,12 @@ file:
         - file_opts:
           - keyword: COLUMN
           - keyword: SEPARATOR
-          - comparison_operator: '='
+          - comparison_operator:
+              raw_comparison_operator: '='
           - literal: "';'"
           - keyword: SKIP
-          - comparison_operator: '='
+          - comparison_operator:
+              raw_comparison_operator: '='
           - literal: '5'
 - statement_terminator: ;
 - statement:
