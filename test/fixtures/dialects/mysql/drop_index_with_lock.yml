@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: fbef98f38df25bcc26611bb0ddd260b27ffaed6baf51ec8fb10e2061839d9fa0
+_hash: bb73391972a39c39bc7df7e42c38ba00a34fc1cf5529d378311ad9d5a3104384
 file:
 - statement:
     drop_statement:
@@ -15,7 +15,8 @@ file:
     - table_reference:
         identifier: '`table`'
     - keyword: LOCK
-    - comparison_operator: '='
+    - comparison_operator:
+        raw_comparison_operator: '='
     - keyword: DEFAULT
 - statement_terminator: ;
 - statement:
@@ -28,7 +29,8 @@ file:
     - table_reference:
         identifier: '`table`'
     - keyword: LOCK
-    - comparison_operator: '='
+    - comparison_operator:
+        raw_comparison_operator: '='
     - keyword: NONE
 - statement_terminator: ;
 - statement:
@@ -41,7 +43,8 @@ file:
     - table_reference:
         identifier: '`table`'
     - keyword: LOCK
-    - comparison_operator: '='
+    - comparison_operator:
+        raw_comparison_operator: '='
     - keyword: SHARED
 - statement_terminator: ;
 - statement:
@@ -54,7 +57,8 @@ file:
     - table_reference:
         identifier: '`table`'
     - keyword: LOCK
-    - comparison_operator: '='
+    - comparison_operator:
+        raw_comparison_operator: '='
     - keyword: EXCLUSIVE
 - statement_terminator: ;
 - statement:

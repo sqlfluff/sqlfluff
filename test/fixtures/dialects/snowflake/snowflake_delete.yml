@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bba1031dd85ce7c9672b2c2b8121f860fdf76d9ac09e35cad0a4d804ac59b0c6
+_hash: 937141de0046adf7b36e4128faa5ea819443aecf32ac37e57bbc9b172bb661e1
 file:
 - statement:
     delete_statement:
@@ -41,7 +41,8 @@ file:
         keyword: WHERE
         expression:
         - literal: '1'
-        - comparison_operator: '='
+        - comparison_operator:
+            raw_comparison_operator: '='
         - literal: '2'
 - statement_terminator: ;
 - statement:
@@ -67,7 +68,8 @@ file:
           - identifier: leased_bicycles
           - dot: .
           - identifier: bicycle_id
-        - comparison_operator: '='
+        - comparison_operator:
+            raw_comparison_operator: '='
         - column_reference:
           - identifier: returned_bicycles
           - dot: .
@@ -116,7 +118,8 @@ file:
           - identifier: leased_bicycles
           - dot: .
           - identifier: bicycle_id
-        - comparison_operator: '='
+        - comparison_operator:
+            raw_comparison_operator: '='
         - column_reference:
           - identifier: returned
           - dot: .
@@ -158,7 +161,8 @@ file:
                   keyword: where
                   expression:
                   - literal: '1'
-                  - comparison_operator: '='
+                  - comparison_operator:
+                      raw_comparison_operator: '='
                   - literal: '2'
               end_bracket: )
           alias_expression:
@@ -171,7 +175,8 @@ file:
           - identifier: leased_bicycles
           - dot: .
           - identifier: bicycle_id
-        - comparison_operator: '='
+        - comparison_operator:
+            raw_comparison_operator: '='
         - column_reference:
           - identifier: returned
           - dot: .

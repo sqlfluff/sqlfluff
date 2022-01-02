@@ -102,11 +102,11 @@ class Segments(tuple):
         return Segments(templated_file=self.templated_file)
 
     @overload
-    def __getitem__(self, item: int) -> BaseSegment:
+    def __getitem__(self, item: int) -> BaseSegment:  # pragma: no cover
         pass
 
     @overload
-    def __getitem__(self, item: slice) -> "Segments":
+    def __getitem__(self, item: slice) -> "Segments":  # pragma: no cover
         pass
 
     def __getitem__(self, item):

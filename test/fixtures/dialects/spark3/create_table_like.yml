@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 91824c3c256efd684ca5cb5ce62f926c4fbdc591a29e0cfe3545fd4028a47caa
+_hash: 3cfff2ad6c3655dc653283adbb87a254ec4a96f42c4a650a09492570f013139b
 file:
 - base:
     create_table_statement:
@@ -34,11 +34,13 @@ file:
     - bracketed:
       - start_bracket: (
       - literal: '"key1"'
-      - comparison_operator: '='
+      - comparison_operator:
+          raw_comparison_operator: '='
       - literal: '"val1"'
       - comma: ','
       - literal: '"key2"'
-      - comparison_operator: '='
+      - comparison_operator:
+          raw_comparison_operator: '='
       - literal: '"val2"'
       - end_bracket: )
     - keyword: LOCATION
@@ -102,7 +104,8 @@ file:
     - bracketed:
       - start_bracket: (
       - literal: "'owner'"
-      - comparison_operator: '='
+      - comparison_operator:
+          raw_comparison_operator: '='
       - literal: "'xxxx'"
       - end_bracket: )
 - statement_terminator: ;

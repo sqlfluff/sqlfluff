@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5f4d4acff2adde74dcf0ba8ed959a7e0fb6abc5c8063cbb1d83adc8cb72e4ec9
+_hash: 391766124c6c3a2bee69f0f7c714515638cc7f986d5cc1408b21023604756b64
 file:
   statement:
     select_statement:
@@ -34,7 +34,8 @@ file:
                 - identifier: data
                 - dot: .
                 - identifier: event_id
-              - comparison_operator: '='
+              - comparison_operator:
+                  raw_comparison_operator: '='
               - column_reference:
                 - identifier: data_max
                 - dot: .
@@ -58,7 +59,8 @@ file:
                 - identifier: od
                 - dot: .
                 - identifier: fid
-              - comparison_operator: '='
+              - comparison_operator:
+                  raw_comparison_operator: '='
               - column_reference:
                 - identifier: data_max
                 - dot: .

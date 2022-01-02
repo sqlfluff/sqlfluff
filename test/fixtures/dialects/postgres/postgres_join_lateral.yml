@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 64dc0e53b02b2039649d486992d1a6d08a2b7a354fc8b8dd4475a6c551138ed9
+_hash: 7ca8d0c31e6a34e52b8aa2802c2710b071d68cb2506e871d699214980304c839
 file:
 - statement:
     select_statement:
@@ -34,7 +34,8 @@ file:
                 - identifier: tbl1
                 - dot: .
                 - identifier: id
-              - comparison_operator: '='
+              - comparison_operator:
+                  raw_comparison_operator: '='
               - column_reference:
                 - identifier: tbl2
                 - dot: .
@@ -70,7 +71,8 @@ file:
                 - identifier: tbl1
                 - dot: .
                 - identifier: id
-              - comparison_operator: '='
+              - comparison_operator:
+                  raw_comparison_operator: '='
               - column_reference:
                 - identifier: tbl2
                 - dot: .
@@ -108,7 +110,8 @@ file:
                 - identifier: tbl1
                 - dot: .
                 - identifier: id
-              - comparison_operator: '='
+              - comparison_operator:
+                  raw_comparison_operator: '='
               - column_reference:
                 - identifier: tbl2
                 - dot: .
@@ -127,7 +130,8 @@ file:
                 - identifier: tbl1
                 - dot: .
                 - identifier: id
-              - comparison_operator: '='
+              - comparison_operator:
+                  raw_comparison_operator: '='
               - column_reference:
                 - identifier: tbl3
                 - dot: .
@@ -147,7 +151,8 @@ file:
                 - identifier: tbl1
                 - dot: .
                 - identifier: id
-              - comparison_operator: '='
+              - comparison_operator:
+                  raw_comparison_operator: '='
               - column_reference:
                 - identifier: tbl4
                 - dot: .
