@@ -6,12 +6,10 @@ test_fail_inconsistent_capitalisation_1:
   fix_str: CREATE TABLE table1 (account_id BIGINT);
 
 test_fail_inconsistent_capitalisation_2:
-  # Test that we don't have the "inconsistent" bug
   fail_str: CREATE TABLE table1 (account_id BiGinT);
   fix_str: CREATE TABLE table1 (account_id bigint);
 
 test_fail_inconsistent_capitalisation_3:
-  # Test that we don't have the "inconsistent" bug
   fail_str: CREATE TABLE table1 (account_id BiGinT);
   fix_str: CREATE TABLE table1 (account_id Bigint);
 
