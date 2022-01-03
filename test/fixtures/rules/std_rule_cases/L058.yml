@@ -8,7 +8,8 @@ test_pass_1:
         CASE
             WHEN species = 'Rat' THEN
               CASE
-                  WHEN species = 'Dog' THEN 'Woof'
+                  WHEN colour = 'Black' THEN 'Growl'
+                  WHEN colour = 'Grey' THEN 'Squeak'
               END
         END AS sound
     FROM mytable
