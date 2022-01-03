@@ -103,17 +103,6 @@ class LintResult:
         else:
             return None
 
-    @property
-    def fix_segments(self):
-        """Returns the set of segments affected by fixes.
-
-        NOTE: The anchor is not included.
-        """
-        result = set()
-        for fix in self.fixes:
-            result.update(fix.segments)
-        return result
-
 
 class LintFix:
     """A class to hold a potential fix to a linting violation.
@@ -253,20 +242,6 @@ class LintFix:
     ) -> "LintFix":
         """Create edit segments after the supplied anchor segment."""
         return cls("create_after", anchor_segment, edit_segments)
-
-    @property
-    def segments(self) -> Set[BaseSegment]:
-        """Returns the segments referenced or affected by the fix."""
-        result = {self.anchor}
-        # TODO: After thinking more, we don't want this. Reasons:
-        # 1. If these are new segments, they won't have slice info.
-        # 2. If these are pre-existing segments being moved, the slice info
-        #    will be wrong (from their *old* positions).
-        #
-        # Instead, just use the anchor, potentially looking to the left and right of it.
-        if self.edit:
-            result.update(self.edit)
-        return result
 
     def has_template_conflicts(self, templated_file: TemplatedFile) -> bool:
         """Does this fix conflict with (i.e. touch) templated code?"""
@@ -538,7 +513,7 @@ class BaseRule:
         new_fixes = []
 
         def _process_lint_result(res):
-            self.discard_unsafe_fixes(res, self.code, templated_file)
+            self.discard_unsafe_fixes(res, templated_file)
             lerr = res.to_linting_error(rule=self)
             ignored = False
             if lerr:
@@ -692,7 +667,7 @@ class BaseRule:
 
     @staticmethod
     def discard_unsafe_fixes(
-        lint_result: LintResult, rule_code: str, templated_file: Optional[TemplatedFile]
+        lint_result: LintResult, templated_file: Optional[TemplatedFile]
     ):
         """Remove (discard) LintResult fixes if they are "unsafe".
 
@@ -748,8 +723,7 @@ class BaseRule:
         for fix in lint_result.fixes:
             if fix.has_template_conflicts(templated_file):
                 linter_logger.info(
-                    "      * [%s] Discarding fixes that touch templated code: %s",
-                    rule_code,
+                    "      * Discarding fixes that touch templated code: %s",
                     lint_result.fixes,
                 )
                 lint_result.fixes = []
