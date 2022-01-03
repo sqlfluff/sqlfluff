@@ -302,7 +302,9 @@ class LintFix:
         fix_slices: Set[RawFileSlice] = set()
         for templated_slice in templated_slices:
             fix_slices.update(
-                templated_file.raw_slices_spanning_source_slice(templated_slice)
+                templated_file.raw_slices_spanning_source_slice(
+                    templated_file.templated_slice_to_source_slice(templated_slice)
+                )
             )
 
         # Check the result from checking the fix slices.
