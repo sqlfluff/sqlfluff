@@ -307,8 +307,8 @@ class LintFix:
                         templated_file.templated_slice_to_source_slice(templated_slice)
                     )
                 )
-            except ValueError:
-                # This error will happen with "create_before" at the beginning
+            except (IndexError, ValueError):
+                # These errors will happen with "create_before" at the beginning
                 # of the file or "create_after" at the end of the file. Ignoring
                 # it is the correct action, because the other (anchor) slice
                 # is still valid.
