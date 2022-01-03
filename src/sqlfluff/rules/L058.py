@@ -11,7 +11,7 @@ class Rule_L058(BaseRule):
     """Nested CASE statements could be flattened.
 
     | **Anti-pattern**
-    | In this example, the outer CASE's "ELSE" is another CASE.
+    | In this example, the outer CASE's "ELSE" is an unnecessary other CASE.
 
     .. code-block:: sql
 
