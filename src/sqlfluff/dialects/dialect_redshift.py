@@ -322,6 +322,39 @@ class CreateExternalTableStatementSegment(BaseSegment):
     )
 
 
+@redshift_dialect.segment()
+class CreateExternalTableAsStatementSegment(BaseSegment):
+    """A `CREATE EXTERNAL TABLE` statement.
+
+    As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_EXTERNAL_TABLE.html
+    """
+
+    type = "create_external_table_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        "EXTERNAL",
+        "TABLE",
+        Ref("TableReferenceSegment"),
+        OneOf(Ref("PartitionedBySegment"), optional=True),
+        "STORED",
+        "AS",
+        OneOf(
+            "PARQUET",
+            "RCFILE",
+            "SEQUENCEFILE",
+            "TEXTFILE",
+            "ORC",
+            "AVRO",
+            Ref("QuotedLiteralSegment"),
+        ),
+        "LOCATION",
+        Ref("QuotedLiteralSegment"),
+        "AS",
+        OptionallyBracketed(Ref("SelectableGrammar")),
+    )
+
+
 @redshift_dialect.segment(replace=True)
 class InsertStatementSegment(BaseSegment):
     """An`INSERT` statement.
@@ -366,6 +399,7 @@ class StatementSegment(BaseSegment):
             Ref("AlterUserSegment"),
             Ref("ColumnAttributeSegment"),
             Ref("ColumnEncodingSegment"),
+            Ref("CreateExternalTableAsStatementSegment"),
             Ref("CreateExternalTableStatementSegment"),
             Ref("CreateGroupSegment"),
             Ref("CreateUserSegment"),
