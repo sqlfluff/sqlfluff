@@ -280,6 +280,57 @@ class CreateTableAsStatementSegment(BaseSegment):
     )
 
 
+@redshift_dialect.segment()
+class CreateExternalTableStatementSegment(BaseSegment):
+    """A `CREATE EXTERNAL TABLE` statement.
+
+    As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_EXTERNAL_TABLE.html
+    """
+
+    type = "create_external_table_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        "EXTERNAL",
+        "TABLE",
+        Ref("TableReferenceSegment"),
+        Bracketed(
+            OneOf(
+                # Columns and comment syntax:
+                Delimited(
+                    Sequence(
+                        Ref("ColumnReferenceSegment"),
+                        Ref("DatatypeSegment"),
+                    ),
+                ),
+            )
+        ),
+        OneOf(Ref("PartitionedBySegment"), optional=True),
+        # # OneOf(
+        # #     Ref("RowFormatDelimited"),
+        # #     Ref("RowFormatSerde"),
+        # #     optional=True
+        # # ),
+        "STORED",
+        "AS",
+        OneOf(
+            "PARQUET",
+            "RCFILE",
+            "SEQUENCEFILE",
+            "TEXTFILE",
+            "ORC",
+            "AVRO",
+            Ref("QuotedLiteralSegment"),
+        ),
+        "LOCATION",
+        Ref("QuotedLiteralSegment"),
+        # OneOf(
+        #     Ref("TableProperties"),
+        #     optional=True
+        # )
+    )
+
+
 @redshift_dialect.segment(replace=True)
 class InsertStatementSegment(BaseSegment):
     """An`INSERT` statement.
@@ -324,15 +375,42 @@ class StatementSegment(BaseSegment):
             Ref("ColumnAttributeSegment"),
             Ref("ColumnEncodingSegment"),
             Ref("CreateUserSegment"),
+            Ref("CreateExternalTableStatementSegment"),
             Ref("CreateGroupSegment"),
             Ref("AlterUserSegment"),
             Ref("AlterGroupSegment"),
+            Ref("PartitionedBySegment"),
         ],
     )
 
     match_grammar = redshift_dialect.get_segment(
         "StatementSegment"
     ).match_grammar.copy()
+
+
+@redshift_dialect.segment()
+class PartitionedBySegment(BaseSegment):
+    """Partitioned By Segment.
+
+    As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_EXTERNAL_TABLE.html
+    """
+
+    type = "partitioned_by_segment"
+
+    match_grammar = Sequence(
+        Ref.keyword("PARTITIONED"),
+        "BY",
+        Bracketed(
+            OneOf(
+                Delimited(
+                    Sequence(
+                        Ref("ColumnReferenceSegment"),
+                        Ref("DatatypeSegment"),
+                    ),
+                ),
+            )
+        ),
+    )
 
 
 @redshift_dialect.segment()

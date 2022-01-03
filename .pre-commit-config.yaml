@@ -16,6 +16,7 @@ repos:
       - id: mypy
         args: [--ignore-missing-imports]
         additional_dependencies: [
+          types-backports,
           types-toml,
           types-pkg_resources,
           types-chardet,
