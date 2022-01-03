@@ -17,24 +17,24 @@ class Rule_L058(Rule_L010):
     The functionality for this rule is inherited from :obj:`Rule_L010`.
 
     | **Anti-pattern**
-    | In this example, the two SUM functions don't have the same capitalisation.
+    | In this example, the two data types don't have the same capitalisation.
 
     .. code-block:: sql
 
-        SELECT
-            sum(a) AS aa,
-            SUM(b) AS bb
-        FROM foo
+        CREATE TABLE table1 (
+            account_id bigint
+            , account_compound_id VARCHAR(255)
+        );
 
     | **Best practice**
     |  Make the case consistent.
 
     .. code-block:: sql
 
-        SELECT
-            sum(a) AS aa,
-            sum(b) AS bb
-        FROM foo
+        CREATE TABLE table1 (
+            account_id BIGINT
+            , account_compound_id VARCHAR(255)
+        );
 
     """
 
