@@ -108,8 +108,8 @@ class LintFix:
     """A class to hold a potential fix to a linting violation.
 
     Args:
-        edit_type (:obj:`str`): One of `create`, `edit`, `delete` to indicate
-            the kind of fix this represents.
+        edit_type (:obj:`str`): One of `create_before`, `create_after,
+            `replace`, `delete` to indicate the kind of fix this represents.
         anchor (:obj:`BaseSegment`): A segment which represents
             the *position* that this fix should be applied at. For deletions
             it represents the segment to delete, for creations it implies the
@@ -242,6 +242,55 @@ class LintFix:
     ) -> "LintFix":
         """Create edit segments after the supplied anchor segment."""
         return cls("create_after", anchor_segment, edit_segments)
+
+    def has_template_conflicts(self, templated_file: TemplatedFile) -> bool:
+        """Does this fix conflict with (i.e. touch) templated code?"""
+        # Goal: Find the raw slices touched by the fix. Two cases, based on
+        # edit type:
+        # 1. "delete", "replace": Raw slices touching the anchor segment. If
+        #    ANY are templated, discard the fix.
+        # 2. "create_before", "create_after": Raw slices encompassing the two
+        #    character positions surrounding the insertion point (**NOT** the
+        #    whole anchor segment, because we're not *touching* the anchor
+        #    segment, we're inserting **RELATIVE** to it. If ALL are templated,
+        #    discard the fix.
+        anchor_slice = self.anchor.pos_marker.templated_slice
+        templated_slices = [anchor_slice]
+        check_fn = any
+
+        if self.edit_type == "create_before":
+            # Consider the first position of the anchor segment and the
+            # position just before it.
+            templated_slices = [
+                slice(anchor_slice.start, anchor_slice.start + 1),
+                slice(anchor_slice.start - 1, anchor_slice.start),
+            ]
+            check_fn = all
+        elif self.edit_type == "create_after":
+            # Consider the last position of the anchor segment and the
+            # character just after it.
+            templated_slices = [
+                slice(anchor_slice.stop - 1, anchor_slice.stop),
+                slice(anchor_slice.stop, anchor_slice.stop + 1),
+            ]
+            check_fn = all
+        fix_slices: Set[RawFileSlice] = set()
+        for templated_slice in templated_slices:
+            try:
+                fix_slices.update(
+                    templated_file.raw_slices_spanning_source_slice(
+                        templated_file.templated_slice_to_source_slice(templated_slice)
+                    )
+                )
+            except (IndexError, ValueError):
+                # These errors will happen with "create_before" at the beginning
+                # of the file or "create_after" at the end of the file. Ignoring
+                # it is the correct action, because the other (anchor) slice
+                # is still valid.
+                pass
+
+        # Check the result from checking the fix slices.
+        return check_fn(fs.slice_type == "templated" for fs in fix_slices)
 
 
 EvalResultType = Union[LintResult, List[LintResult], None]
@@ -654,7 +703,7 @@ class BaseRule:
 
         # If the fixes touch a literal-only loop, discard the fixes.
         # Rationale: Fixes to a template loop that contains only literals are:
-        # - Difficult to correctly back to source code, so there's a risk of
+        # - Difficult to map correctly back to source code, so there's a risk of
         #   accidentally "expanding" the loop body if we apply them.
         # - Highly unusual (In practice, templated loops in SQL are usually for
         #   expanding the same code using different column names, types, etc.,
@@ -663,6 +712,15 @@ class BaseRule:
             if block_id in block_info.literal_only_loops:
                 linter_logger.info(
                     "      * Discarding fixes to literal-only loop: %s",
+                    lint_result.fixes,
+                )
+                lint_result.fixes = []
+                return
+
+        for fix in lint_result.fixes:
+            if fix.has_template_conflicts(templated_file):
+                linter_logger.info(
+                    "      * Discarding fixes that touch templated code: %s",
                     lint_result.fixes,
                 )
                 lint_result.fixes = []
@@ -734,6 +792,7 @@ class RuleSet:
         The second group captures the rule code.
 
         Examples of valid rule names:
+
         * Rule_PluginName_L001
         * Rule_L001
         """
