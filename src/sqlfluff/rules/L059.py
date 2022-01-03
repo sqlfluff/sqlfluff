@@ -11,7 +11,7 @@ from sqlfluff.rules.L010 import Rule_L010
 
 @document_configuration
 @document_fix_compatible
-class Rule_L058(Rule_L010):
+class Rule_L059(Rule_L010):
     """Inconsistent capitalisation of data types.
 
     The functionality for this rule is inherited from :obj:`Rule_L010`.
