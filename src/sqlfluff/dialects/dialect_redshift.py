@@ -306,11 +306,6 @@ class CreateExternalTableStatementSegment(BaseSegment):
             )
         ),
         OneOf(Ref("PartitionedBySegment"), optional=True),
-        # # OneOf(
-        # #     Ref("RowFormatDelimited"),
-        # #     Ref("RowFormatSerde"),
-        # #     optional=True
-        # # ),
         "STORED",
         "AS",
         OneOf(
@@ -324,10 +319,6 @@ class CreateExternalTableStatementSegment(BaseSegment):
         ),
         "LOCATION",
         Ref("QuotedLiteralSegment"),
-        # OneOf(
-        #     Ref("TableProperties"),
-        #     optional=True
-        # )
     )
 
 
@@ -371,15 +362,15 @@ class StatementSegment(BaseSegment):
 
     parse_grammar = redshift_dialect.get_segment("StatementSegment").parse_grammar.copy(
         insert=[
-            Ref("TableAttributeSegment"),
+            Ref("AlterGroupSegment"),
+            Ref("AlterUserSegment"),
             Ref("ColumnAttributeSegment"),
             Ref("ColumnEncodingSegment"),
-            Ref("CreateUserSegment"),
             Ref("CreateExternalTableStatementSegment"),
             Ref("CreateGroupSegment"),
-            Ref("AlterUserSegment"),
-            Ref("AlterGroupSegment"),
+            Ref("CreateUserSegment"),
             Ref("PartitionedBySegment"),
+            Ref("TableAttributeSegment"),
         ],
     )
 
