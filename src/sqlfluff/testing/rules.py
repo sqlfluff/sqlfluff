@@ -7,7 +7,7 @@ from typing import Tuple, List, NamedTuple, Optional
 from glob import glob
 
 import pytest
-import oyaml as yaml
+import yaml
 
 
 class RuleTestCase(NamedTuple):

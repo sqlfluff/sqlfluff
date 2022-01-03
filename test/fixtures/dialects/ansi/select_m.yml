@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 68a356b25bcde6bc7a3311cd6b3f29457ecbde13998e971b94e639f55f4fe8e8
+_hash: 509214b5f3950a60784c85b192bc9b46ac645396398f44914d9457d3bf7bbaa9
 file:
 - statement:
     select_statement:
@@ -33,7 +33,8 @@ file:
                 - identifier: zendesk
                 - dot: .
                 - identifier: ticket_id
-              - comparison_operator: '='
+              - comparison_operator:
+                  raw_comparison_operator: '='
               - column_reference:
                 - identifier: ticket
                 - dot: .
@@ -67,7 +68,8 @@ file:
                   expression:
                   - column_reference:
                       identifier: business_type
-                  - comparison_operator: '='
+                  - comparison_operator:
+                      raw_comparison_operator: '='
                   - column_reference:
                       identifier: low_business_type
                   end_bracket: )
@@ -77,13 +79,15 @@ file:
                   expression:
                   - column_reference:
                       identifier: business_type
-                  - comparison_operator: '='
+                  - comparison_operator:
+                      raw_comparison_operator: '='
                   - column_reference:
                       identifier: low_business_type
                   - binary_operator: OR
                   - column_reference:
                       identifier: size_label
-                  - comparison_operator: '='
+                  - comparison_operator:
+                      raw_comparison_operator: '='
                   - column_reference:
                       identifier: low_size_label
                   end_bracket: )

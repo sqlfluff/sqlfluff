@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 39d77feee506ea353720caff56269e439dfe835847320c36c15429e446dad20b
+_hash: 829d94004b6f7732db54b153758beb4d10786c0c2bbdc48424961f25a8d26291
 file:
   statement:
     create_function_statement:
@@ -27,53 +27,64 @@ file:
           expression:
             case_expression:
             - keyword: CASE
-            - keyword: WHEN
-            - expression:
-                column_reference:
-                  identifier: y
-                comparison_operator: '='
-                literal: '1'
-            - keyword: THEN
-            - expression:
-                literal: "'low'"
-            - keyword: WHEN
-            - expression:
-                column_reference:
-                  identifier: y
-                comparison_operator: '='
-                literal: '2'
-            - keyword: THEN
-            - expression:
-                literal: "'midlow'"
-            - keyword: WHEN
-            - expression:
-                column_reference:
-                  identifier: y
-                comparison_operator: '='
-                literal: '3'
-            - keyword: THEN
-            - expression:
-                literal: "'mid'"
-            - keyword: WHEN
-            - expression:
-                column_reference:
-                  identifier: y
-                comparison_operator: '='
-                literal: '4'
-            - keyword: THEN
-            - expression:
-                literal: "'midhigh'"
-            - keyword: WHEN
-            - expression:
-                column_reference:
-                  identifier: y
-                comparison_operator: '='
-                literal: '5'
-            - keyword: THEN
-            - expression:
-                literal: "'high'"
-            - keyword: ELSE
-            - expression:
-                literal: '"unknown"'
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  column_reference:
+                    identifier: y
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  literal: '1'
+              - keyword: THEN
+              - expression:
+                  literal: "'low'"
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  column_reference:
+                    identifier: y
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  literal: '2'
+              - keyword: THEN
+              - expression:
+                  literal: "'midlow'"
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  column_reference:
+                    identifier: y
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  literal: '3'
+              - keyword: THEN
+              - expression:
+                  literal: "'mid'"
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  column_reference:
+                    identifier: y
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  literal: '4'
+              - keyword: THEN
+              - expression:
+                  literal: "'midhigh'"
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  column_reference:
+                    identifier: y
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  literal: '5'
+              - keyword: THEN
+              - expression:
+                  literal: "'high'"
+            - else_clause:
+                keyword: ELSE
+                expression:
+                  literal: '"unknown"'
             - keyword: END
           end_bracket: )

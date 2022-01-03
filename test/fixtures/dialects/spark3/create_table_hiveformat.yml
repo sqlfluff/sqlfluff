@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: db583620b384aa5e754c6dc48569e2851a0686452db00329236ac0fb0a15c4b6
+_hash: e3654b736e37007ba92c0ac12ba5c0ec51cc2168634ecf3f632670a95f8ec888
 file:
 - base:
     create_table_statement:
@@ -81,11 +81,13 @@ file:
     - bracketed:
       - start_bracket: (
       - literal: '"key1"'
-      - comparison_operator: '='
+      - comparison_operator:
+          raw_comparison_operator: '='
       - literal: '"val1"'
       - comma: ','
       - literal: '"key2"'
-      - comparison_operator: '='
+      - comparison_operator:
+          raw_comparison_operator: '='
       - literal: '"val2"'
       - end_bracket: )
     - keyword: AS
@@ -197,7 +199,8 @@ file:
     - bracketed:
       - start_bracket: (
       - literal: "'foo'"
-      - comparison_operator: '='
+      - comparison_operator:
+          raw_comparison_operator: '='
       - literal: "'bar'"
       - end_bracket: )
 - statement_terminator: ;
@@ -234,7 +237,8 @@ file:
     - bracketed:
       - start_bracket: (
       - literal: "'foo'"
-      - comparison_operator: '='
+      - comparison_operator:
+          raw_comparison_operator: '='
       - literal: "'bar'"
       - end_bracket: )
     - keyword: COMMENT
@@ -452,10 +456,12 @@ file:
     - bracketed:
       - start_bracket: (
       - literal: "'avro.schema.literal'"
-      - comparison_operator: '='
-      - literal: "'{\"namespace\": \"org.apache.hive\", \"name\": \"first_schema\"\
-          , \"type\": \"record\", \"fields\": [ { \"name\":\"string1\", \"type\":\"\
-          string\" }, { \"name\":\"string2\", \"type\":\"string\" }] }'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - literal: "'{\n        \"namespace\": \"org.apache.hive\",\n        \"name\"\
+          : \"first_schema\",\n        \"type\": \"record\",\n        \"fields\":\
+          \ [ { \"name\":\"string1\", \"type\":\"string\" }, { \"name\":\"string2\"\
+          , \"type\":\"string\" }]\n    }'"
       - end_bracket: )
 - statement_terminator: ;
 - base:

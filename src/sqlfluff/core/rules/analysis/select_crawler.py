@@ -3,8 +3,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Dict, Generator, List, NamedTuple, Optional, Union
 
-from cached_property import cached_property
-
+from sqlfluff.core.cached_property import cached_property
 from sqlfluff.core.dialects.common import AliasInfo
 from sqlfluff.core.dialects.base import Dialect
 from sqlfluff.core.parser import BaseSegment

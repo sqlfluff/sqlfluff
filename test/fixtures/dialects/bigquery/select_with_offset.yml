@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9000d23493a6d228b7be5a14fa7ae90a9ea4b2d016a34239e494d15a3ef965b2
+_hash: 1334dc3dd54ed2f051d62f77a5923c32025826be3ce5e57a654cbde5c3c24e8c
 file:
   statement:
     select_statement:
@@ -18,19 +18,23 @@ file:
               expression:
                 case_expression:
                 - keyword: CASE
-                - keyword: WHEN
-                - expression:
-                  - column_reference:
-                      identifier: value
-                  - comparison_operator: '!='
-                  - column_reference:
-                      identifier: previous_value
-                - keyword: THEN
-                - expression:
-                    literal: '1.0'
-                - keyword: ELSE
-                - expression:
-                    literal: '0.0'
+                - when_clause:
+                  - keyword: WHEN
+                  - expression:
+                    - column_reference:
+                        identifier: value
+                    - comparison_operator:
+                      - raw_comparison_operator: '!'
+                      - raw_comparison_operator: '='
+                    - column_reference:
+                        identifier: previous_value
+                  - keyword: THEN
+                  - expression:
+                      literal: '1.0'
+                - else_clause:
+                    keyword: ELSE
+                    expression:
+                      literal: '0.0'
                 - keyword: END
               end_bracket: )
       from_clause:
@@ -51,39 +55,43 @@ file:
                       expression:
                         case_expression:
                         - keyword: CASE
-                        - keyword: WHEN
-                        - expression:
-                            column_reference:
-                              identifier: ix
-                            comparison_operator: '!='
-                            literal: '0'
-                        - keyword: THEN
-                        - expression:
-                            function:
-                              function_name:
-                                function_name_identifier: LAG
-                              bracketed:
-                                start_bracket: (
-                                expression:
-                                  column_reference:
-                                    identifier: value
-                                end_bracket: )
-                              over_clause:
-                                keyword: OVER
+                        - when_clause:
+                          - keyword: WHEN
+                          - expression:
+                              column_reference:
+                                identifier: ix
+                              comparison_operator:
+                              - raw_comparison_operator: '!'
+                              - raw_comparison_operator: '='
+                              literal: '0'
+                          - keyword: THEN
+                          - expression:
+                              function:
+                                function_name:
+                                  function_name_identifier: LAG
                                 bracketed:
                                   start_bracket: (
-                                  window_specification:
-                                    orderby_clause:
-                                    - keyword: ORDER
-                                    - keyword: BY
-                                    - column_reference:
-                                        identifier: ix
-                                    - keyword: ASC
+                                  expression:
+                                    column_reference:
+                                      identifier: value
                                   end_bracket: )
-                        - keyword: ELSE
-                        - expression:
-                            column_reference:
-                              identifier: value
+                                over_clause:
+                                  keyword: OVER
+                                  bracketed:
+                                    start_bracket: (
+                                    window_specification:
+                                      orderby_clause:
+                                      - keyword: ORDER
+                                      - keyword: BY
+                                      - column_reference:
+                                          identifier: ix
+                                      - keyword: ASC
+                                    end_bracket: )
+                        - else_clause:
+                            keyword: ELSE
+                            expression:
+                              column_reference:
+                                identifier: value
                         - keyword: END
                       alias_expression:
                         keyword: AS
