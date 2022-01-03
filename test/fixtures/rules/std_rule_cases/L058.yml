@@ -35,5 +35,5 @@ test_fail_capitalisation_policy_capitalise:
   fix_str: CREATE TABLE table1 (account_id Bigint);
   configs:
     rules:
-      L010:
+      L057:
         capitalisation_policy: capitalise
