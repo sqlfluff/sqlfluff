@@ -795,6 +795,7 @@ class RuleSet:
         The second group captures the rule code.
 
         Examples of valid rule names:
+
         * Rule_PluginName_L001
         * Rule_L001
         """
