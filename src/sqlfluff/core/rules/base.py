@@ -114,13 +114,6 @@ class LintResult:
             result.update(fix.segments)
         return result
 
-    def fix_raw_slices(self, templated_file: TemplatedFile) -> Set[RawFileSlice]:
-        """Return the raw slices touched by the fixes."""
-        fix_slices: Set[RawFileSlice] = set()
-        for fix in self.fixes:
-            fix_slices.update(fix.raw_slices(templated_file))
-        return fix_slices
-
 
 class LintFix:
     """A class to hold a potential fix to a linting violation.
@@ -275,19 +268,45 @@ class LintFix:
             result.update(self.edit)
         return result
 
-    def raw_slices(self, templated_file: TemplatedFile) -> Set[RawFileSlice]:
-        """Return the raw slices touched by the fix."""
-        result: Set[RawFileSlice] = set()
-        source_slice = self.anchor.pos_marker.source_slice
+    def has_template_conflicts(self, templated_file: TemplatedFile) -> bool:
+        """Does this fix conflict with (i.e. touch) templated code?"""
+        # Goal: Find the raw slices touched by the fix. Two cases, based on
+        # edit type:
+        # 1. "delete", "replace": Raw slices touching the anchor segment. If
+        #    ANY are templated, discard the fix.
+        # 2. "create_before", "create_after": Raw slices encompassing the two
+        #    character positions surrounding the insertion point (**NOT** the
+        #    whole anchor segment, because we're not *touching* the anchor
+        #    segment, we're inserting **RELATIVE** to it. If ALL are templated,
+        #    discard the fix.
+        anchor_slice = self.anchor.pos_marker.templated_slice
+        templated_slices = [anchor_slice]
+        check_fn = any
 
         if self.edit_type == "create_before":
-            # Focus on the first character of the anchor and one left of it.
-            source_slice = slice(source_slice.start - 1, source_slice.start + 1)
+            # Consider the first position of the anchor segment and the
+            # position just before it.
+            templated_slices = [
+                slice(anchor_slice.start, anchor_slice.start + 1),
+                slice(anchor_slice.start - 1, anchor_slice.start),
+            ]
+            check_fn = all
         elif self.edit_type == "create_after":
-            # Focus on the last character of the anchor and one right of it.
-            source_slice = slice(source_slice.stop - 1, source_slice.stop + 1)
-        result.update(templated_file.raw_slices_spanning_source_slice(source_slice))
-        return result
+            # Consider the last position of the anchor segment and the
+            # character just after it.
+            templated_slices = [
+                slice(anchor_slice.stop - 1, anchor_slice.stop),
+                slice(anchor_slice.stop, anchor_slice.stop + 1),
+            ]
+            check_fn = all
+        fix_slices: Set[RawFileSlice] = set()
+        for templated_slice in templated_slices:
+            fix_slices.update(
+                templated_file.raw_slices_spanning_source_slice(templated_slice)
+            )
+
+        # Check the result from checking the fix slices.
+        return check_fn(fs.slice_type == "templated" for fs in fix_slices)
 
 
 EvalResultType = Union[LintResult, List[LintResult], None]
@@ -510,7 +529,7 @@ class BaseRule:
         new_fixes = []
 
         def _process_lint_result(res):
-            self.discard_unsafe_fixes(res, templated_file)
+            self.discard_unsafe_fixes(res, self.code, templated_file)
             lerr = res.to_linting_error(rule=self)
             ignored = False
             if lerr:
@@ -664,7 +683,7 @@ class BaseRule:
 
     @staticmethod
     def discard_unsafe_fixes(
-        lint_result: LintResult, templated_file: Optional[TemplatedFile]
+        lint_result: LintResult, rule_code: str, templated_file: Optional[TemplatedFile]
     ):
         """Remove (discard) LintResult fixes if they are "unsafe".
 
@@ -717,18 +736,15 @@ class BaseRule:
         # We compute fix_slices_extended similarly to fix_slices above, but we
         # consider not just the *anchor* segment for each fix, but also *every*
         # segment involved in the fixes.
-        fix_slices_extended: Set[RawFileSlice] = lint_result.fix_raw_slices(
-            templated_file
-        )
-
-        # If all of the fix slices are templated, discard the fixes.
-        if all(fs.slice_type == "templated" for fs in fix_slices_extended):
-            linter_logger.info(
-                "      * Discarding fixes that touch templated code: %s",
-                lint_result.fixes,
-            )
-            lint_result.fixes = []
-            return
+        for fix in lint_result.fixes:
+            if fix.has_template_conflicts(templated_file):
+                linter_logger.info(
+                    "      * [%s] Discarding fixes that touch templated code: %s",
+                    rule_code,
+                    lint_result.fixes,
+                )
+                lint_result.fixes = []
+                return
 
 
 class RuleSet:
