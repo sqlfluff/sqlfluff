@@ -324,7 +324,7 @@ class CreateExternalTableStatementSegment(BaseSegment):
 
 @redshift_dialect.segment()
 class CreateExternalTableAsStatementSegment(BaseSegment):
-    """A `CREATE EXTERNAL TABLE` statement.
+    """A `CREATE EXTERNAL TABLE AS` statement.
 
     As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_EXTERNAL_TABLE.html
     """
