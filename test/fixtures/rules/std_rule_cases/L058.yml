@@ -1,0 +1,41 @@
+rule: L057
+
+test_fail_inconsistent_capitalisation_1:
+  # Test that we don't have the "inconsistent" bug
+  fail_str: CREATE TABLE table1 (account_id BiGinT);
+  fix_str: CREATE TABLE table1 (account_id BIGINT);
+
+test_fail_inconsistent_capitalisation_2:
+  # Test that we don't have the "inconsistent" bug
+  fail_str: CREATE TABLE table1 (account_id BiGinT);
+  fix_str: CREATE TABLE table1 (account_id bigint);
+
+test_fail_inconsistent_capitalisation_3:
+  # Test that we don't have the "inconsistent" bug
+  fail_str: CREATE TABLE table1 (account_id BiGinT);
+  fix_str: CREATE TABLE table1 (account_id Bigint);
+
+test_fail_capitalisation_policy_lower:
+  fail_str: CREATE TABLE table1 (account_id BIGINT);
+  fix_str: CREATE TABLE table1 (account_id bigint);
+  configs:
+    rules:
+      L057:
+        capitalisation_policy: lower
+
+test_fail_capitalisation_policy_upper:
+  fail_str: CREATE TABLE table1 (account_id bigint);
+  fix_str: CREATE TABLE table1 (account_id BIGINT);
+  configs:
+    rules:
+      L057:
+        capitalisation_policy: upper
+
+test_fail_capitalisation_policy_capitalise:
+  # Test for capitalised casing
+  fail_str: CREATE TABLE table1 (account_id BIGINT);
+  fix_str: CREATE TABLE table1 (account_id Bigint);
+  configs:
+    rules:
+      L010:
+        capitalisation_policy: capitalise
