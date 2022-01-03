@@ -1,1 +1,1 @@
-select a, b from values (1, 2);
+select * from values (1, 2);
