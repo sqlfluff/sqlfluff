@@ -114,13 +114,20 @@ class LintResult:
             result.update(fix.segments)
         return result
 
+    def fix_raw_slices(self, templated_file: TemplatedFile) -> Set[RawFileSlice]:
+        """Return the raw slices touched by the fixes."""
+        fix_slices: Set[RawFileSlice] = set()
+        for fix in self.fixes:
+            fix_slices.update(fix.raw_slices(templated_file))
+        return fix_slices
+
 
 class LintFix:
     """A class to hold a potential fix to a linting violation.
 
     Args:
-        edit_type (:obj:`str`): One of `create`, `edit`, `delete` to indicate
-            the kind of fix this represents.
+        edit_type (:obj:`str`): One of `create_before`, `create_after,
+            `replace`, `delete` to indicate the kind of fix this represents.
         anchor (:obj:`BaseSegment`): A segment which represents
             the *position* that this fix should be applied at. For deletions
             it represents the segment to delete, for creations it implies the
@@ -258,8 +265,28 @@ class LintFix:
     def segments(self) -> Set[BaseSegment]:
         """Returns the segments referenced or affected by the fix."""
         result = {self.anchor}
+        # TODO: After thinking more, we don't want this. Reasons:
+        # 1. If these are new segments, they won't have slice info.
+        # 2. If these are pre-existing segments being moved, the slice info
+        #    will be wrong (from their *old* positions).
+        #
+        # Instead, just use the anchor, potentially looking to the left and right of it.
         if self.edit:
             result.update(self.edit)
+        return result
+
+    def raw_slices(self, templated_file: TemplatedFile) -> Set[RawFileSlice]:
+        """Return the raw slices touched by the fix."""
+        result: Set[RawFileSlice] = set()
+        source_slice = self.anchor.pos_marker.source_slice
+
+        if self.edit_type == "create_before":
+            # Focus on the first character of the anchor and one left of it.
+            source_slice = slice(source_slice.start - 1, source_slice.start + 1)
+        elif self.edit_type == "create_after":
+            # Focus on the last character of the anchor and one right of it.
+            source_slice = slice(source_slice.stop - 1, source_slice.stop + 1)
+        result.update(templated_file.raw_slices_spanning_source_slice(source_slice))
         return result
 
 
@@ -673,7 +700,7 @@ class BaseRule:
 
         # If the fixes touch a literal-only loop, discard the fixes.
         # Rationale: Fixes to a template loop that contains only literals are:
-        # - Difficult to correctly back to source code, so there's a risk of
+        # - Difficult to map correctly back to source code, so there's a risk of
         #   accidentally "expanding" the loop body if we apply them.
         # - Highly unusual (In practice, templated loops in SQL are usually for
         #   expanding the same code using different column names, types, etc.,
@@ -690,17 +717,12 @@ class BaseRule:
         # We compute fix_slices_extended similarly to fix_slices above, but we
         # consider not just the *anchor* segment for each fix, but also *every*
         # segment involved in the fixes.
-        fix_slices_extended: Set[RawFileSlice] = set()
-        for segment in lint_result.fix_segments:
-            if segment.pos_marker:
-                fix_slices_extended.update(
-                    templated_file.raw_slices_spanning_source_slice(
-                        segment.pos_marker.source_slice
-                    )
-                )
+        fix_slices_extended: Set[RawFileSlice] = lint_result.fix_raw_slices(
+            templated_file
+        )
 
-        # If any of the affected slices are templated, discard the fixes.
-        if any(fs.slice_type == "templated" for fs in fix_slices_extended):
+        # If all of the fix slices are templated, discard the fixes.
+        if all(fs.slice_type == "templated" for fs in fix_slices_extended):
             linter_logger.info(
                 "      * Discarding fixes that touch templated code: %s",
                 lint_result.fixes,
