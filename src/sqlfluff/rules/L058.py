@@ -8,7 +8,7 @@ from sqlfluff.core.rules.functional import sp
 
 @document_fix_compatible
 class Rule_L058(BaseRule):
-    """Nested CASE statements could be flattened.
+    """Nested CASE statement in ELSE clause could be flattened.
 
     | **Anti-pattern**
     | In this example, the outer CASE's "ELSE" is an unnecessary other CASE.
@@ -40,7 +40,7 @@ class Rule_L058(BaseRule):
     """
 
     def _eval(self, context: RuleContext) -> LintResult:
-        """Nested CASE should be simplified."""
+        """Nested CASE statement in ELSE clause could be flattened."""
         segment = context.functional.segment
         if segment.select(sp.is_type("case_expression")):
             case1_children = segment.children()
