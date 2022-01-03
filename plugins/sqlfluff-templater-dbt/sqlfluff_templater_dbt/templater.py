@@ -7,7 +7,6 @@ import logging
 from typing import List, Optional, Iterator, Tuple, Any, Dict, Deque
 
 from dataclasses import dataclass
-from cached_property import cached_property
 from functools import partial
 
 from dbt.version import get_installed_version
@@ -22,6 +21,7 @@ from dbt import flags
 from jinja2 import Environment
 from jinja2_simple_tags import StandaloneTag
 
+from sqlfluff.core.cached_property import cached_property
 from sqlfluff.core.errors import SQLTemplaterError, SQLTemplaterSkipFile
 
 from sqlfluff.core.templaters.base import (

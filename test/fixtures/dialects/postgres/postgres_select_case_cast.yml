@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7d26fa771004edf865282c60bb242a3b79f88f339ba4b27dddb01cad247c4ccd
+_hash: 5272ee4e7bb436024ae230f1e1b374ac2434bcccdcc1da97969bb0666eda3e4a
 file:
 - statement:
     select_statement:
@@ -17,18 +17,20 @@ file:
           expression:
             case_expression:
             - keyword: case
-            - keyword: when
-            - expression:
-                column_reference:
-                  identifier: col1
-            - keyword: then
-            - expression:
-                column_reference:
-                  identifier: col2
-            - keyword: else
-            - expression:
-                column_reference:
-                  identifier: col3
+            - when_clause:
+              - keyword: when
+              - expression:
+                  column_reference:
+                    identifier: col1
+              - keyword: then
+              - expression:
+                  column_reference:
+                    identifier: col2
+            - else_clause:
+                keyword: else
+                expression:
+                  column_reference:
+                    identifier: col3
             - keyword: end
             cast_expression:
               casting_operator: '::'
@@ -57,18 +59,20 @@ file:
           expression:
           - case_expression:
             - keyword: case
-            - keyword: when
-            - expression:
-                column_reference:
-                  identifier: col1
-            - keyword: then
-            - expression:
-                column_reference:
-                  identifier: col2
-            - keyword: else
-            - expression:
-                column_reference:
-                  identifier: col3
+            - when_clause:
+              - keyword: when
+              - expression:
+                  column_reference:
+                    identifier: col1
+              - keyword: then
+              - expression:
+                  column_reference:
+                    identifier: col2
+            - else_clause:
+                keyword: else
+                expression:
+                  column_reference:
+                    identifier: col3
             - keyword: end
           - cast_expression:
               casting_operator: '::'
@@ -106,18 +110,20 @@ file:
               expression:
                 case_expression:
                 - keyword: case
-                - keyword: when
-                - expression:
-                    column_reference:
-                      identifier: col1
-                - keyword: then
-                - expression:
-                    column_reference:
-                      identifier: col2
-                - keyword: else
-                - expression:
-                    column_reference:
-                      identifier: col3
+                - when_clause:
+                  - keyword: when
+                  - expression:
+                      column_reference:
+                        identifier: col1
+                  - keyword: then
+                  - expression:
+                      column_reference:
+                        identifier: col2
+                - else_clause:
+                    keyword: else
+                    expression:
+                      column_reference:
+                        identifier: col3
                 - keyword: end
               keyword: as
               data_type:

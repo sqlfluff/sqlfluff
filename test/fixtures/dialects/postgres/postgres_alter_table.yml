@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4b4d674351c381ca18130cf851463e859022bf7d854f8fe92c1a343857014cd1
+_hash: 7eed6291b666ac542da3eded981a5aeb88d69cd27175062b6eaa76ec068cd775
 file:
 - statement:
     alter_table_statement:
@@ -625,7 +625,8 @@ file:
                     column_reference:
                       identifier: zipcode
                   end_bracket: )
-              comparison_operator: '='
+              comparison_operator:
+                raw_comparison_operator: '='
               literal: '5'
             end_bracket: )
 - statement_terminator: ;
@@ -654,7 +655,8 @@ file:
                     column_reference:
                       identifier: zipcode
                   end_bracket: )
-              comparison_operator: '='
+              comparison_operator:
+                raw_comparison_operator: '='
               literal: '5'
             end_bracket: )
         - keyword: 'NO'
@@ -813,7 +815,8 @@ file:
         bracketed:
           start_bracket: (
           parameter: parameter_1
-          comparison_operator: '='
+          comparison_operator:
+            raw_comparison_operator: '='
           literal: "'value'"
           end_bracket: )
 - statement_terminator: ;
@@ -828,7 +831,8 @@ file:
         bracketed:
           start_bracket: (
           parameter: parameter_1
-          comparison_operator: '='
+          comparison_operator:
+            raw_comparison_operator: '='
           literal: '1'
           end_bracket: )
 - statement_terminator: ;
@@ -843,11 +847,13 @@ file:
         bracketed:
         - start_bracket: (
         - parameter: parameter_1
-        - comparison_operator: '='
+        - comparison_operator:
+            raw_comparison_operator: '='
         - literal: '1'
         - comma: ','
         - parameter: parameter_2
-        - comparison_operator: '='
+        - comparison_operator:
+            raw_comparison_operator: '='
         - literal: "'value'"
         - end_bracket: )
 - statement_terminator: ;
