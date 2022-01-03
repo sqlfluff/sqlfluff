@@ -1,4 +1,4 @@
-rule: L058
+rule: L059
 
 test_fail_inconsistent_capitalisation_1:
   # Test that we don't have the "inconsistent" bug
@@ -6,7 +6,7 @@ test_fail_inconsistent_capitalisation_1:
   fix_str: CREATE TABLE table1 (account_id BIGINT);
   configs:
     rules:
-      L058:
+      L059:
         capitalisation_policy: upper
 
 test_fail_inconsistent_capitalisation_2:
@@ -14,7 +14,7 @@ test_fail_inconsistent_capitalisation_2:
   fix_str: CREATE TABLE table1 (account_id bigint);
   configs:
     rules:
-      L058:
+      L059:
         capitalisation_policy: lower
 
 test_fail_inconsistent_capitalisation_3:
@@ -22,7 +22,7 @@ test_fail_inconsistent_capitalisation_3:
   fix_str: CREATE TABLE table1 (account_id Bigint);
   configs:
     rules:
-      L058:
+      L059:
         capitalisation_policy: capitalise
 
 test_fail_capitalisation_policy_lower:
@@ -30,7 +30,15 @@ test_fail_capitalisation_policy_lower:
   fix_str: CREATE TABLE table1 (account_id bigint);
   configs:
     rules:
-      L058:
+      L059:
+        capitalisation_policy: lower
+
+test_fail_capitalisation_policy_lower_2:
+  fail_str: CREATE TABLE table1 (account_id BIGINT, column_two varchar(255));
+  fix_str: CREATE TABLE table1 (account_id bigint, column_two varchar(255));
+  configs:
+    rules:
+      L059:
         capitalisation_policy: lower
 
 test_fail_capitalisation_policy_upper:
@@ -38,7 +46,15 @@ test_fail_capitalisation_policy_upper:
   fix_str: CREATE TABLE table1 (account_id BIGINT);
   configs:
     rules:
-      L058:
+      L059:
+        capitalisation_policy: upper
+
+test_fail_capitalisation_policy_upper_2:
+  fail_str: CREATE TABLE table1 (account_id BIGINT, column_two varchar(255));
+  fix_str: CREATE TABLE table1 (account_id BIGINT, column_two VARCHAR(255));
+  configs:
+    rules:
+      L059:
         capitalisation_policy: upper
 
 test_fail_capitalisation_policy_capitalise:
@@ -47,5 +63,15 @@ test_fail_capitalisation_policy_capitalise:
   fix_str: CREATE TABLE table1 (account_id Bigint);
   configs:
     rules:
-      L058:
+      L059:
         capitalisation_policy: capitalise
+
+test_fail_capitalisation_policy_keywords:
+  # Test cases where data types are keywords, not data_type_identifiers
+  # See: https://github.com/sqlfluff/sqlfluff/pull/2121
+  fail_str: CREATE TABLE table1 (account_id BIGINT, column_two serial);
+  fix_str: CREATE TABLE table1 (account_id BIGINT, column_two SERIAL));
+  configs:
+    rules:
+      L059:
+        capitalisation_policy: upper
