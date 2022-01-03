@@ -301,11 +301,18 @@ class LintFix:
             check_fn = all
         fix_slices: Set[RawFileSlice] = set()
         for templated_slice in templated_slices:
-            fix_slices.update(
-                templated_file.raw_slices_spanning_source_slice(
-                    templated_file.templated_slice_to_source_slice(templated_slice)
+            try:
+                fix_slices.update(
+                    templated_file.raw_slices_spanning_source_slice(
+                        templated_file.templated_slice_to_source_slice(templated_slice)
+                    )
                 )
-            )
+            except ValueError:
+                # This error will happen with "create_before" at the beginning
+                # of the file or "create_after" at the end of the file. Ignoring
+                # it is the correct action, because the other (anchor) slice
+                # is still valid.
+                pass
 
         # Check the result from checking the fix slices.
         return check_fn(fs.slice_type == "templated" for fs in fix_slices)
