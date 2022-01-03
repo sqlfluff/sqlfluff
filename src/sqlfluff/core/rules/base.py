@@ -717,9 +717,6 @@ class BaseRule:
                 lint_result.fixes = []
                 return
 
-        # We compute fix_slices_extended similarly to fix_slices above, but we
-        # consider not just the *anchor* segment for each fix, but also *every*
-        # segment involved in the fixes.
         for fix in lint_result.fixes:
             if fix.has_template_conflicts(templated_file):
                 linter_logger.info(
