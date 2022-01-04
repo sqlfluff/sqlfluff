@@ -114,11 +114,14 @@ class LintFix:
             the *position* that this fix should be applied at. For deletions
             it represents the segment to delete, for creations it implies the
             position to create at (with the existing element at this position
-            to be moved *after* the edit), for an `edit` it implies the segment
-            to be replaced.
-        edit (:obj:`BaseSegment`, optional): For `edit` and `create` fixes, this
-            hold the segment, or iterable of segments to create or replace at the
+            to be moved *after* the edit), for a `replace` it implies the
+            segment to be replaced.
+        edit (:obj:`BaseSegment`, optional): For `replace` and `create` fixes,
+            this holsd the iterable of segments to create or replace at the
             given `anchor` point.
+        source (:obj:`BaseSegment`, optional): For `replace` and `create` fixes,
+            this holds iterable of segments that provided code. IMPORTANT: The
+            linter uses this to prevent copying material from templated areas.
 
     """
 
@@ -127,6 +130,7 @@ class LintFix:
         edit_type: str,
         anchor: BaseSegment,
         edit: Optional[Iterable[BaseSegment]] = None,
+        source: Optional[Iterable[BaseSegment]] = None,
     ) -> None:
         if edit_type not in (
             "create_before",
@@ -163,6 +167,8 @@ class LintFix:
             # Once stripped, we shouldn't replace any markers because
             # later code may rely on them being accurate, which we
             # can't guarantee with edits.
+        if source:
+            self.source = list(source) or []
 
     def is_trivial(self):
         """Return true if the fix is trivial.
@@ -274,6 +280,19 @@ class LintFix:
                 slice(anchor_slice.stop, anchor_slice.stop + 1),
             ]
             check_fn = all
+        fix_slices = self._raw_slices_from_templated_slices(
+            templated_file, templated_slices
+        )
+
+        # Check the result from checking the fix slices.
+        result = check_fn(fs.slice_type == "templated" for fs in fix_slices)
+
+        # TODO: Also use _raw_slices_from_templated_slices() to check template
+        # safety of the "sources" field.
+        return result
+
+    @staticmethod
+    def _raw_slices_from_templated_slices(templated_file, templated_slices):
         fix_slices: Set[RawFileSlice] = set()
         for templated_slice in templated_slices:
             try:
@@ -288,9 +307,7 @@ class LintFix:
                 # it is the correct action, because the other (anchor) slice
                 # is still valid.
                 pass
-
-        # Check the result from checking the fix slices.
-        return check_fn(fs.slice_type == "templated" for fs in fix_slices)
+        return fix_slices
 
 
 EvalResultType = Union[LintResult, List[LintResult], None]
