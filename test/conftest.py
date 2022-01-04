@@ -2,13 +2,14 @@
 import hashlib
 import io
 import os
+from typing import List, Callable
 
-import pytest
 import oyaml
+import pytest
 
 from sqlfluff.cli.commands import quoted_presenter
 from sqlfluff.core import FluffConfig
-from sqlfluff.core.parser import Parser, Lexer
+from sqlfluff.core.parser import Parser, Lexer, RawSegment
 from sqlfluff.core.parser.markers import PositionMarker
 from sqlfluff.core.parser.segments import (
     Indent,
@@ -143,7 +144,7 @@ def yaml_loader():
 
 
 @pytest.fixture(scope="module")
-def generate_test_segments():
+def generate_test_segments()->Callable[[List[str]], List[RawSegment]]:
     """Roughly generate test segments.
 
     This is a factory function so that it works as a fixture,
@@ -151,7 +152,7 @@ def generate_test_segments():
     which is what you actually need.
     """
 
-    def generate_test_segments_func(elems):
+    def generate_test_segments_func(elems:List[str])->List[RawSegment]:
         """Roughly generate test segments.
 
         This function isn't totally robust, but good enough
