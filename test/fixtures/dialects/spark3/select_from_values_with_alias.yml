@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 74e466fb0919002c317cdb30e2e58d1f68c76ecc4156a558193d89ec7e598119
+_hash: dc13748eee073f670b223e70b836c4b3a44527ee42b16787d43b2f1771a1b2d2
 file:
 - base:
     select_statement:
@@ -29,50 +29,15 @@ file:
                 - comma: ','
                 - literal: '2'
                 - end_bracket: )
-        unparsable:
-          raw: as
-          bracketed:
-          - start_bracket: (
-          - raw: a
-          - comma: ','
-          - raw: b
-          - end_bracket: )
-- statement_terminator: ;
-- base:
-    select_statement:
-      select_clause:
-      - keyword: select
-      - select_clause_element:
-          column_reference:
-            identifier: a
-      - comma: ','
-      - select_clause_element:
-          column_reference:
-            identifier: b
-      from_clause:
-        keyword: from
-        from_expression:
-          from_expression_element:
-            table_expression:
-              values_clause:
-              - keyword: values
-              - bracketed:
-                - start_bracket: (
-                - literal: '1'
-                - comma: ','
-                - literal: '2'
-                - end_bracket: )
-              - keyword: as
-              - table_alias_expression:
-                  alias_expression:
-                    identifier: t
-                    bracketed:
-                      start_bracket: (
-                      identifier_list:
-                      - identifier: a
-                      - comma: ','
-                      - identifier: b
-                      end_bracket: )
+                alias_expression:
+                  keyword: as
+                  bracketed:
+                    start_bracket: (
+                    identifier_list:
+                    - identifier: a
+                    - comma: ','
+                    - identifier: b
+                    end_bracket: )
 - statement_terminator: ;
 - base:
     select_statement:
@@ -98,16 +63,16 @@ file:
                 - comma: ','
                 - literal: '2'
                 - end_bracket: )
-                table_alias_expression:
-                  alias_expression:
-                    identifier: t
-                    bracketed:
-                      start_bracket: (
-                      identifier_list:
-                      - identifier: a
-                      - comma: ','
-                      - identifier: b
-                      end_bracket: )
+                alias_expression:
+                  keyword: as
+                  identifier: t
+                  bracketed:
+                    start_bracket: (
+                    identifier_list:
+                    - identifier: a
+                    - comma: ','
+                    - identifier: b
+                    end_bracket: )
 - statement_terminator: ;
 - base:
     select_statement:
@@ -133,13 +98,48 @@ file:
                 - comma: ','
                 - literal: '2'
                 - end_bracket: )
-        unparsable:
-          bracketed:
-          - start_bracket: (
-          - raw: a
-          - comma: ','
-          - raw: b
-          - end_bracket: )
+                alias_expression:
+                  identifier: t
+                  bracketed:
+                    start_bracket: (
+                    identifier_list:
+                    - identifier: a
+                    - comma: ','
+                    - identifier: b
+                    end_bracket: )
+- statement_terminator: ;
+- base:
+    select_statement:
+      select_clause:
+      - keyword: select
+      - select_clause_element:
+          column_reference:
+            identifier: a
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: b
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              values_clause:
+                keyword: values
+                bracketed:
+                - start_bracket: (
+                - literal: '1'
+                - comma: ','
+                - literal: '2'
+                - end_bracket: )
+                alias_expression:
+                  bracketed:
+                    start_bracket: (
+                    identifier_list:
+                    - identifier: a
+                    - comma: ','
+                    - identifier: b
+                    end_bracket: )
 - statement_terminator: ;
 - base:
     select_statement:
