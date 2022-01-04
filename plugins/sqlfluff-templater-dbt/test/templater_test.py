@@ -333,8 +333,6 @@ def test__templater_dbt_handle_database_connection_failure(
     # as dbt throws an error if a node fails to parse while computing the DAG
     os.rename(src_fpath, target_fpath)
     try:
-        # Override the host value set in plugins/sqlfluff-templater-dbt/test/fixtures/dbt/profiles.yml
-        os.environ["SQLFLUFF_PG_HOST"] = "NON_EXISTENT_HOST"
         _, violations = dbt_templater.process(
             in_str="",
             fname=target_fpath,
@@ -349,7 +347,6 @@ def test__templater_dbt_handle_database_connection_failure(
         else:
             raise (e)
     finally:
-        del os.environ["SQLFLUFF_PG_HOST"]
         get_adapter(dbt_templater.dbt_config).connections.release()
         os.rename(target_fpath, src_fpath)
     if DBT_VERSION_TUPLE < (1, 0):
