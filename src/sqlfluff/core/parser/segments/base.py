@@ -155,7 +155,11 @@ class BaseSegment:
 
     def __hash__(self):
         return hash(
-            (self.__class__.__name__, self.raw, self.pos_marker.source_position())
+            (
+                self.__class__.__name__,
+                self.raw,
+                self.pos_marker.source_position() if self.pos_marker else None,
+            )
         )
 
     def __repr__(self):
