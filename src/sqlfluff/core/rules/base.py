@@ -167,8 +167,7 @@ class LintFix:
             # Once stripped, we shouldn't replace any markers because
             # later code may rely on them being accurate, which we
             # can't guarantee with edits.
-        if source:
-            self.source = list(source) or []
+        self.source = list(source) if source else None
 
     def is_trivial(self):
         """Return true if the fix is trivial.
@@ -295,10 +294,15 @@ class LintFix:
 
         # Check the result from checking the fix slices.
         result = check_fn(fs.slice_type == "templated" for fs in fix_slices)
+        if result or not self.source:
+            return result
 
-        # TODO: Also use _raw_slices_from_templated_slices() to check template
-        # safety of the "sources" field.
-        return result
+        # Fix slices were okay. Now check template safety of the "source" field.
+        templated_slices = [source.pos_marker.templated_slice for source in self.source]
+        raw_slices = self._raw_slices_from_templated_slices(
+            templated_file, templated_slices
+        )
+        return any(fs.slice_type == "templated" for fs in raw_slices)
 
     @staticmethod
     def _raw_slices_from_templated_slices(templated_file, templated_slices):

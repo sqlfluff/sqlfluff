@@ -193,3 +193,16 @@ issue_1639:
   configs:
     core:
       dialect: tsql
+
+test_no_copy_code_out_of_template:
+  fail_str: |
+    SELECT t.repo_id
+    FROM {{ source_table }} AS t
+  fix_str: |
+    SELECT t.repo_id
+    FROM {{ source_table }} AS t
+  configs:
+    templater:
+      jinja:
+        context:
+          source_table: foobar
