@@ -188,3 +188,37 @@ test_double_nesting_2:
             WHEN species = 'Hyena' THEN 'Cackle'
         END AS sound
     FROM mytable
+
+test_fail_no_copy_code_out_of_template:
+  # The rule wants to replace the case statement with coalesce(), but
+  # LintFix.has_template_conflicts() correctly prevents it copying code out
+  # of the templated region. Hence, fix_str and fail_str are the same.
+  fail_str: |
+    SELECT
+        c1,
+        CASE
+            WHEN species = 'Rat' THEN 'Squeak'
+            ELSE
+                CASE
+                    {{ inner_when }}
+                END
+        END AS sound
+    FROM mytable
+  fix_str: |
+    SELECT
+        c1,
+        CASE
+            WHEN species = 'Rat' THEN 'Squeak'
+            ELSE
+                CASE
+                    {{ inner_when }}
+                END
+        END AS sound
+    FROM mytable
+  configs:
+    core:
+      ignore_templated_areas: False
+    templater:
+      jinja:
+        context:
+          inner_when: "WHEN species = 'Dog' THEN 'Woof'"
