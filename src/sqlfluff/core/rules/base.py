@@ -230,24 +230,33 @@ class LintFix:
 
     @classmethod
     def replace(
-        cls, anchor_segment: BaseSegment, edit_segments: Iterable[BaseSegment]
+        cls,
+        anchor_segment: BaseSegment,
+        edit_segments: Iterable[BaseSegment],
+        source: Optional[Iterable[BaseSegment]] = None,
     ) -> "LintFix":
         """Replace supplied anchor segment with the edit segments."""
-        return cls("replace", anchor_segment, edit_segments)
+        return cls("replace", anchor_segment, edit_segments, source)
 
     @classmethod
     def create_before(
-        cls, anchor_segment: BaseSegment, edit_segments: Iterable[BaseSegment]
+        cls,
+        anchor_segment: BaseSegment,
+        edit_segments: Iterable[BaseSegment],
+        source: Optional[Iterable[BaseSegment]] = None,
     ) -> "LintFix":
         """Create edit segments before the supplied anchor segment."""
-        return cls("create_before", anchor_segment, edit_segments)
+        return cls("create_before", anchor_segment, edit_segments, source)
 
     @classmethod
     def create_after(
-        cls, anchor_segment: BaseSegment, edit_segments: Iterable[BaseSegment]
+        cls,
+        anchor_segment: BaseSegment,
+        edit_segments: Iterable[BaseSegment],
+        source: Optional[Iterable[BaseSegment]] = None,
     ) -> "LintFix":
         """Create edit segments after the supplied anchor segment."""
-        return cls("create_after", anchor_segment, edit_segments)
+        return cls("create_after", anchor_segment, edit_segments, source)
 
     def has_template_conflicts(self, templated_file: TemplatedFile) -> bool:
         """Does this fix conflict with (i.e. touch) templated code?"""
