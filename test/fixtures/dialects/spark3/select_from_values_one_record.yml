@@ -3,9 +3,46 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8f9447a84f9283b214f18acb8ec0446ad9c4c12d80639671123df2a34df03c60
+_hash: 9c91afbff85094fffa78a01227f9bc0c33745d98cbbdf4705b3e6adfedf0218f
 file:
-  base:
+- base:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              values_clause:
+                keyword: values
+                literal: '1'
+- statement_terminator: ;
+- base:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            bracketed:
+              start_bracket: (
+              table_expression:
+                values_clause:
+                  keyword: values
+                  literal: '1'
+              end_bracket: )
+- statement_terminator: ;
+- base:
     select_statement:
       select_clause:
         keyword: select
@@ -26,4 +63,29 @@ file:
                 - comma: ','
                 - literal: '2'
                 - end_bracket: )
-  statement_terminator: ;
+- statement_terminator: ;
+- base:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            bracketed:
+              start_bracket: (
+              table_expression:
+                values_clause:
+                  keyword: values
+                  bracketed:
+                  - start_bracket: (
+                  - literal: '1'
+                  - comma: ','
+                  - literal: '2'
+                  - end_bracket: )
+              end_bracket: )
+- statement_terminator: ;
