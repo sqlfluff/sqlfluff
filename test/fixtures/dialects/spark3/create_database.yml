@@ -23,7 +23,8 @@ file:
     - bracketed:
       - start_bracket: (
       - literal: '"property_name"'
-      - comparison_operator: '='
+      - comparison_operator:
+          raw_comparison_operator: '='
       - literal: '"property_value"'
       - end_bracket: )
 - statement_terminator: ;
@@ -45,7 +46,8 @@ file:
     - bracketed:
       - start_bracket: (
       - literal: '"property_name"'
-      - comparison_operator: '='
+      - comparison_operator:
+          raw_comparison_operator: '='
       - literal: '"property_value"'
       - end_bracket: )
 - statement_terminator: ;
@@ -84,11 +86,13 @@ file:
     - bracketed:
       - start_bracket: (
       - literal: '"ID"'
-      - comparison_operator: '='
+      - comparison_operator:
+          raw_comparison_operator: '='
       - literal: '"001"'
       - comma: ','
       - literal: '"Name"'
-      - comparison_operator: '='
+      - comparison_operator:
+          raw_comparison_operator: '='
       - literal: "'John'"
       - end_bracket: )
 - statement_terminator: ;
