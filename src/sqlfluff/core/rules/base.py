@@ -167,7 +167,7 @@ class LintFix:
             # Once stripped, we shouldn't replace any markers because
             # later code may rely on them being accurate, which we
             # can't guarantee with edits.
-        self.source = list(source) if source else None
+        self.source = [seg for seg in source if seg.pos_marker] if source else []
 
     def is_trivial(self):
         """Return true if the fix is trivial.
@@ -292,7 +292,7 @@ class LintFix:
             templated_file, templated_slices
         )
 
-        # Check the result from checking the fix slices.
+        # We have the fix slices. Now check for conflicts.
         result = check_fn(fs.slice_type == "templated" for fs in fix_slices)
         if result or not self.source:
             return result
@@ -306,10 +306,10 @@ class LintFix:
 
     @staticmethod
     def _raw_slices_from_templated_slices(templated_file, templated_slices):
-        fix_slices: Set[RawFileSlice] = set()
+        raw_slices: Set[RawFileSlice] = set()
         for templated_slice in templated_slices:
             try:
-                fix_slices.update(
+                raw_slices.update(
                     templated_file.raw_slices_spanning_source_slice(
                         templated_file.templated_slice_to_source_slice(templated_slice)
                     )
@@ -320,7 +320,7 @@ class LintFix:
                 # it is the correct action, because the other (anchor) slice
                 # is still valid.
                 pass
-        return fix_slices
+        return raw_slices
 
 
 EvalResultType = Union[LintResult, List[LintResult], None]
