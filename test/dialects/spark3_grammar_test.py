@@ -22,6 +22,16 @@ def fresh_spark3_dialect() -> Dialect:
     return dialect_selector("spark3")
 
 
+def lex_segments(fragment:str):
+    """For given test examples, check successful parsing."""
+    config = FluffConfig(overrides=dict(dialect='spark3'))
+    tokens, lex_vs = Lexer(config=config).lex(fragment)
+    # From just the initial parse, check we're all there
+    assert "".join(token.raw for token in tokens) == fragment
+    # Check we don't have lexing issues
+    assert not lex_vs
+    return tokens
+
 
 
 @pytest.mark.parametrize(
@@ -57,14 +67,19 @@ def test__dialect__spark3__grammars(token_list: List[str], matching_segment:str,
     This test can help us diagnose that, since we pick both the sequence of segments _and_ the grammar we think it
     should match.
     """
+
     seg_list = generate_test_segments(token_list)
+    fragment = ' '.join(token_list)
+    lexed_seg_list = lex_segments(fragment)
     g = fresh_spark3_dialect._library[matching_segment].match_grammar
     maybe_bracketed_g = OptionallyBracketed(g)
     with RootParseContext(dialect=fresh_spark3_dialect) as ctx:
         with caplog.at_level(logging.DEBUG, logger="sqlfluff.parser"):
-            # Matching with whitespace shouldn't match if we need at least one delimiter
             m = g.match(seg_list, parse_context=ctx)
             assert not m.unmatched_segments
 
             mb = maybe_bracketed_g.match(seg_list, parse_context=ctx)
             assert not mb.unmatched_segments
+
+            m_lexed = g.match(lexed_seg_list, parse_context=ctx)
+            assert not m_lexed.unmatched_segments
