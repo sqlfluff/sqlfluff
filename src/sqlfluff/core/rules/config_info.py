@@ -65,7 +65,7 @@ STANDARD_CONFIG_INFO_DICT = {
         "definition": (
             "The capitalisation policy to enforce, extended with PascalCase. "
             "This is separate from capitalisation_policy as it should not be "
-            "applied to keywords."
+            "applied to keywords"
         ),
     },
     "select_clause_trailing_comma": {
