@@ -10,7 +10,7 @@ import sqlfluff.core.rules.functional.segment_predicates as sp
 
 @document_fix_compatible
 class Rule_L015(BaseRule):
-    """DISTINCT used with parentheses.
+    """``DISTINCT`` used with parentheses.
 
     | **Anti-pattern**
     | In this example, parenthesis are not needed and confuse
