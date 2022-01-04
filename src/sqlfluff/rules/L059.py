@@ -1,4 +1,4 @@
-"""Implementation of Rule L030."""
+"""Implementation of Rule L059."""
 
 from typing import List, Tuple
 
