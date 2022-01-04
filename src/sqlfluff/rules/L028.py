@@ -11,10 +11,10 @@ class Rule_L028(Rule_L025):
 
     NB: This rule is disabled by default for BigQuery due to its use of
     structs which trigger false positives. It can be enabled with the
-    `force_enable = True` flag.
+    ``force_enable = True`` flag.
 
     | **Anti-pattern**
-    | In this example, only the field `b` is referenced.
+    | In this example, only the field ``b`` is referenced.
 
     .. code-block:: sql
 
@@ -24,7 +24,7 @@ class Rule_L028(Rule_L025):
         FROM foo
 
     | **Best practice**
-    |  Remove all the reference or reference all the fields.
+    |  Remove or add references to all fields.
 
     .. code-block:: sql
 

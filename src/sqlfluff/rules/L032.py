@@ -5,7 +5,7 @@ from sqlfluff.core.rules.base import BaseRule, LintResult, RuleContext
 
 
 class Rule_L032(BaseRule):
-    """Prefer specifying join keys instead of using "USING".
+    """Prefer specifying join keys instead of using ``USING``.
 
     | **Anti-pattern**
 

@@ -10,8 +10,8 @@ from sqlfluff.core.rules.functional.segment_predicates import is_type
 class Rule_L042(BaseRule):
     """Join/From clauses should not contain subqueries. Use CTEs instead.
 
-    By default this rule is configured to allow subqueries within `FROM`
-    clauses but not within `JOIN` clauses. If you prefer a stricter lint
+    By default this rule is configured to allow subqueries within ``FROM``
+    clauses but not within ``JOIN`` clauses. If you prefer a stricter lint
     then this is configurable.
 
     NB: Some dialects don't allow CTEs, and for those dialects
