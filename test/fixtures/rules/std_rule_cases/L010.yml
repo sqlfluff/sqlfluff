@@ -66,8 +66,7 @@ test_pass_date_part_consistent_capitalisation:
 test_pass_capitalisation_policy_data_type_keywords:
   # Test cases where data types are keywords but are handled by L059 instead of L010
   # See: https://github.com/sqlfluff/sqlfluff/pull/2121
-  fail_str: create table table1 (account_id bigint, column_two serial);
-  fix_str: CREATE TABLE table1 (account_id bigint, column_two serial);
+  pass_str: CREATE TABLE table1 (account_id bigint, column_two serial);
   configs:
     rules:
       L010:
