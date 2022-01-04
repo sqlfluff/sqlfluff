@@ -66,7 +66,17 @@ test_fail_capitalisation_policy_capitalise:
       L059:
         capitalisation_policy: capitalise
 
-test_fail_capitalisation_policy_keywords:
+test_fail_capitalisation_policy_keywords_1:
+  # Test cases where data types are keywords, not data_type_identifiers
+  # See: https://github.com/sqlfluff/sqlfluff/pull/2121
+  fail_str: CREATE TABLE table1 (account_id BIGINT, column_two serial);
+  fix_str: CREATE TABLE table1 (account_id BIGINT, column_two SERIAL);
+  configs:
+    rules:
+      L059:
+        capitalisation_policy: upper
+
+test_fail_capitalisation_policy_keywords_1:
   # Test cases where data types are keywords, not data_type_identifiers
   # See: https://github.com/sqlfluff/sqlfluff/pull/2121
   fail_str: CREATE TABLE table1 (account_id BIGINT, column_two serial);
