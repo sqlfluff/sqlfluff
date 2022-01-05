@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: cf422399c294273732c90493883d5657060c0c3e5d028d2a660650d9bbd31509
+_hash: 66451363dcebe7112abe11f58fa3b784d9c551a1ba5465fdb90dc9941804e937
 file:
   statement:
     create_table_statement:
@@ -18,7 +18,7 @@ file:
       - column_reference:
           identifier: quadkey
       - data_type:
-          data_type_identifier: TEXT
+          keyword: TEXT
       - comma: ','
       - column_reference:
           identifier: my_geometry_column

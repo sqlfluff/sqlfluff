@@ -8,14 +8,14 @@ from sqlfluff.rules.L025 import Rule_L020
 
 @document_configuration
 class Rule_L026(Rule_L020):
-    """References cannot reference objects not present in FROM clause.
+    """References cannot reference objects not present in ``FROM`` clause.
 
     NB: This rule is disabled by default for BigQuery due to its use of
     structs which trigger false positives. It can be enabled with the
-    `force_enable = True` flag.
+    ``force_enable = True`` flag.
 
     | **Anti-pattern**
-    | In this example, the reference 'vee' has not been declared.
+    | In this example, the reference ``vee`` has not been declared.
 
     .. code-block:: sql
 

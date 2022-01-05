@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 252a3ff7798b62db9d272e79c7651940dc7c78d01d9b12d4a373791856ce0b7f
+_hash: 7850580cd7d2591084073d32501f05bb668e2bdb333250f21a3bce62db9b9124
 file:
-  batch:
+- batch:
     statement:
       select_statement:
         select_clause:
@@ -127,3 +127,51 @@ file:
               table_expression:
                 table_reference:
                   identifier: tbl_b
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
+      create_function_statement:
+      - keyword: CREATE
+      - keyword: FUNCTION
+      - object_reference:
+        - identifier: dbo
+        - dot: .
+        - identifier: RandDate
+      - function_parameter_list:
+          bracketed:
+            start_bracket: (
+            parameter: '@admit'
+            data_type:
+              identifier: DATE
+            end_bracket: )
+      - keyword: RETURNS
+      - keyword: TABLE
+      - keyword: AS
+      - procedure_statement:
+          statement:
+            return_segment:
+              keyword: RETURN
+              expression:
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    select_statement:
+                      select_clause:
+                        keyword: SELECT
+                        select_clause_element:
+                          column_reference:
+                            parameter: '@admit'
+                      from_clause:
+                        keyword: FROM
+                        from_expression:
+                          from_expression_element:
+                            table_expression:
+                              table_reference:
+                              - identifier: dbo
+                              - dot: .
+                              - identifier: '[RandomDate]'
+                  end_bracket: )
+              statement_terminator: ;
+- go_statement:
+    keyword: GO

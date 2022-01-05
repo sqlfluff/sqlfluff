@@ -5,10 +5,10 @@ from sqlfluff.core.rules.base import BaseRule, LintResult, RuleContext
 
 
 class Rule_L055(BaseRule):
-    """Use LEFT JOIN instead of RIGHT JOIN.
+    """Use ``LEFT JOIN`` instead of ``RIGHT JOIN``.
 
     | **Anti-pattern**
-    | RIGHT JOIN is used.
+    | ``RIGHT JOIN`` is used.
 
     .. code-block:: sql
        :force:
@@ -21,7 +21,7 @@ class Rule_L055(BaseRule):
             ON foo.bar_id = bar.id;
 
     | **Best practice**
-    | Refactor and use LEFT JOIN instead.
+    | Refactor and use ``LEFT JOIN`` instead.
 
     .. code-block:: sql
        :force:

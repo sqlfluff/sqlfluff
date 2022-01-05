@@ -7,7 +7,7 @@ from sqlfluff.rules.L023 import Rule_L023
 
 @document_fix_compatible
 class Rule_L024(Rule_L023):
-    """Single whitespace expected after USING in JOIN clause.
+    """Single whitespace expected after ``USING`` in ``JOIN`` clause.
 
     | **Anti-pattern**
 
@@ -19,7 +19,7 @@ class Rule_L024(Rule_L023):
 
     | **Best practice**
     | The • character represents a space.
-    | Add a space after USING, to avoid confusing it
+    | Add a space after ``USING``, to avoid confusing it
     | for a function.
 
     .. code-block:: sql

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7eed6291b666ac542da3eded981a5aeb88d69cd27175062b6eaa76ec068cd775
+_hash: d6bdbbb62ba9c54674b7e4155627a3c327092e4aca8b3d7ffa28ff996443de43
 file:
 - statement:
     alter_table_statement:
@@ -17,11 +17,10 @@ file:
       - column_reference:
           identifier: address
       - data_type:
-          data_type_identifier: varchar
+          keyword: varchar
           bracketed:
             start_bracket: (
-            expression:
-              literal: '30'
+            literal: '30'
             end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -62,11 +61,10 @@ file:
       - column_reference:
           identifier: status
       - data_type:
-          data_type_identifier: varchar
+          keyword: varchar
           bracketed:
             start_bracket: (
-            expression:
-              literal: '30'
+            literal: '30'
             end_bracket: )
       - column_constraint_segment:
           keyword: DEFAULT
@@ -107,11 +105,10 @@ file:
           identifier: address
       - keyword: TYPE
       - data_type:
-          data_type_identifier: varchar
+          keyword: varchar
           bracketed:
             start_bracket: (
-            expression:
-              literal: '80'
+            literal: '80'
             end_bracket: )
     - comma: ','
     - alter_table_action_segment:
@@ -121,11 +118,10 @@ file:
           identifier: name
       - keyword: TYPE
       - data_type:
-          data_type_identifier: varchar
+          keyword: varchar
           bracketed:
             start_bracket: (
-            expression:
-              literal: '100'
+            literal: '100'
             end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -1042,7 +1038,7 @@ file:
       - column_reference:
           identifier: foo
       - data_type:
-          data_type_identifier: TEXT
+          keyword: TEXT
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -1111,7 +1107,7 @@ file:
         column_reference:
           identifier: my_column
         data_type:
-          data_type_identifier: int
+          keyword: int
         column_constraint_segment:
         - keyword: GENERATED
         - keyword: BY
