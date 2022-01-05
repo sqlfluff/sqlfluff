@@ -39,13 +39,22 @@ def test__templater_dbt_missing(dbt_templater, project_dir):  # noqa: F811
 def test__templater_dbt_profiles_dir_expanded(dbt_templater):  # noqa: F811
     """Check that the profiles_dir is expanded."""
     dbt_templater.sqlfluff_config = FluffConfig(
-        configs={"templater": {"dbt": {"profiles_dir": "~/.dbt"}}}
+        configs={
+            "templater": {
+                "dbt": {
+                    "profiles_dir": "~/.dbt",
+                    "profile": "default",
+                    "target": "dev",
+                }
+            }}
     )
     profiles_dir = dbt_templater._get_profiles_dir()
     # Normalise paths to control for OS variance
     assert os.path.normpath(profiles_dir) == os.path.normpath(
         os.path.expanduser("~/.dbt")
     )
+    assert dbt_templater._get_profile() == "default"
+    assert dbt_templater._get_target() == "dev"
 
 
 @pytest.mark.parametrize(
