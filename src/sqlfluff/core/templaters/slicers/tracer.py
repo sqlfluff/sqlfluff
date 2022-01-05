@@ -22,6 +22,18 @@ from sqlfluff.core.templaters.base import (
 templater_logger = logging.getLogger("sqlfluff.templater")
 
 
+uuid_idx = 0
+
+
+def uuid4() -> str:
+    """Returns a unique ID (really just a counter for now)."""
+    global uuid_idx
+    result = uuid.uuid4().hex  # NOTE: We're discarding this value.
+    result = "{0:#0{1}x}".format(uuid_idx, 34)[2:]
+    uuid_idx += 1
+    return result
+
+
 class JinjaTrace(NamedTuple):
     """Returned by JinjaTracer.process()."""
 
@@ -70,9 +82,24 @@ class JinjaTracer:
         trace_template = self.make_template(trace_template_str)
         trace_template_output = trace_template.render()
         # Split output by section. Each section has two possible formats.
-        for p in trace_template_output.split("\0"):
+        pos = 0
+        while trace_template_output.find("\0", pos) != -1:
+            pos1 = trace_template_output.find("\0", pos)
+            pos2 = trace_template_output.find("\0", pos1 + 1)
+            if pos2 != -1:
+                pos = pos2
+            else:
+                pos = len(trace_template_output)
+            p = (
+                trace_template_output[pos1 + 1 : pos2]
+                if pos2 != -1
+                else trace_template_output[pos1 + 1 :]
+            )
             if not p:
                 continue
+            is_set = p[:3] == "set"
+            if is_set:
+                p = p[3:]
             m_id = regex.match(r"^([0-9a-f]+)(_(\d+))?", p)
             if not m_id:
                 raise ValueError(  # pragma: no cover
@@ -89,10 +116,18 @@ class JinjaTracer:
                 value = [m_id.group(0), p[len(m_id.group(0)) + 1 :], False]
             alt_id, content_info, literal = value
             target_slice_idx = self.find_slice_index(alt_id)
-            if literal:
-                self.move_to_slice(target_slice_idx, content_info)
+            if not is_set:
+                if literal:
+                    self.move_to_slice(target_slice_idx, content_info)
+                else:
+                    self.move_to_slice(target_slice_idx, len(str(content_info)))
             else:
-                self.move_to_slice(target_slice_idx, len(str(content_info)))
+                # If we find output from a {% set %} directive, record a trace
+                # without reading or updating the program counter.
+                if literal:
+                    self.record_trace(content_info, target_slice_idx)
+                else:
+                    self.record_trace(len(str(content_info)), target_slice_idx)
         return JinjaTrace(
             self.make_template(self.raw_str).render(), self.raw_sliced, self.sliced_file
         )
@@ -139,16 +174,18 @@ class JinjaTracer:
                 candidates.sort(key=lambda c: abs(target_slice_idx - c))
                 self.program_counter = candidates[0]
 
-    def record_trace(self, target_slice_length):
-        """Add the current location to the trace."""
-        slice_type = self.raw_sliced[self.program_counter].slice_type
+    def record_trace(self, target_slice_length, slice_idx=None):
+        """Add the specified (default: current) location to the trace."""
+        if slice_idx is None:
+            slice_idx = self.program_counter
+        slice_type = self.raw_sliced[slice_idx].slice_type
         self.sliced_file.append(
             TemplatedFileSlice(
                 slice_type,
                 slice(
-                    self.raw_sliced[self.program_counter].source_idx,
-                    self.raw_sliced[self.program_counter + 1].source_idx
-                    if self.program_counter + 1 < len(self.raw_sliced)
+                    self.raw_sliced[slice_idx].source_idx,
+                    self.raw_sliced[slice_idx + 1].source_idx
+                    if slice_idx + 1 < len(self.raw_sliced)
                     else len(self.raw_str),
                 ),
                 slice(self.source_idx, self.source_idx + target_slice_length),
@@ -183,13 +220,18 @@ class JinjaTracer:
         # https://jinja.palletsprojects.com/en/2.11.x/api/#jinja2.Environment.lex
         stack = []
         result = []
+        set_idx = None
         unique_alternate_id: Optional[str]
         alternate_code: Optional[str]
         for _, elem_type, raw in self.env.lex(self.raw_str):
             # Replace literal text with a unique ID.
             if elem_type == "data":
-                unique_alternate_id = uuid.uuid4().hex
-                alternate_code = f"{unique_alternate_id}_{len(raw)}\0"
+                if set_idx is None:
+                    unique_alternate_id = uuid4()
+                    alternate_code = f"\0{unique_alternate_id}_{len(raw)}"
+                else:
+                    unique_alternate_id = uuid4()
+                    alternate_code = f"\0set{unique_alternate_id}_{len(raw)}"
                 result.append(
                     RawFileSlice(
                         raw,
@@ -277,9 +319,29 @@ class JinjaTracer:
                         # effects, but return a UUID.
                         if trimmed_content:
                             assert m_open and m_close
-                            unique_id = uuid.uuid4().hex
+                            unique_id = uuid4()
                             unique_alternate_id = unique_id
-                            alternate_code = f"{unique_alternate_id} {m_open.group(1)} {trimmed_content} {m_close.group(1)}\0"
+                            prefix = "set" if set_idx is not None else ""
+                            open_ = m_open.group(1)
+                            close_ = m_close.group(1)
+                            alternate_code = f"\0{prefix}{unique_alternate_id} {open_} {trimmed_content} {close_}"
+                if block_type == "block_start" and trimmed_content.split()[0] == "set":
+                    # Jinja supports two forms of {% set %}:
+                    # - {% set variable = value %}
+                    # - {% set variable %}value{% endset %}
+                    # https://jinja.palletsprojects.com/en/2.10.x/templates/#block-assignments
+                    # When the second format is used, set the variable 'is_set'
+                    # to a non-None value. This info is used elsewhere, as
+                    # literals inside a {% set %} block require special handling
+                    # during the trace.
+                    trimmed_content_parts = trimmed_content.split(maxsplit=2)
+                    if len(trimmed_content_parts) <= 2 or not trimmed_content_parts[
+                        2
+                    ].startswith("="):
+                        set_idx = len(result)
+                elif block_type == "block_end" and set_idx is not None:
+                    # Exiting a {% set %} block. Clear the indicator variable.
+                    set_idx = None
                 m = regex.search(r"\s+$", raw, regex.MULTILINE | regex.DOTALL)
                 if raw.startswith("-") and m:
                     # Right whitespace was stripped. Split off the trailing
