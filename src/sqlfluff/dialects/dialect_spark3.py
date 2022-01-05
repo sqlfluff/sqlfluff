@@ -11,6 +11,7 @@ Based on:
 - https://github.com/apache/spark/blob/master/sql/catalyst/src/main/antlr4/org/apache/spark/sql/catalyst/parser/SqlBase.g4
 """
 
+from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
     BaseSegment,
@@ -29,9 +30,8 @@ from sqlfluff.core.parser import (
     StringParser,
     SymbolSegment,
     Anything,
+    StartsWith,
 )
-
-from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser.segments.raw import CodeSegment, KeywordSegment
 from sqlfluff.dialects.dialect_spark3_keywords import (
     RESERVED_KEYWORDS,
@@ -784,6 +784,7 @@ class JoinClauseSegment(BaseSegment):
         "JoinClauseSegment"
     ).get_eventual_alias
 
+
 @spark3_dialect.segment(replace=True)
 class TableExpressionSegment(BaseSegment):
     """The main table expression e.g. within a FROM clause."""
@@ -796,55 +797,103 @@ class TableExpressionSegment(BaseSegment):
         Ref("TableReferenceSegment"),
         # Nested Selects
         Bracketed(Ref("SelectableGrammar")),
-
     )
 
-@spark3_dialect.segment()
-class TableAliasExpressionSegment(BaseSegment):
-    """A reference to an object with an `AS` clause, optionally with column aliasing."""
 
-    type = "table_alias_expression"
+@spark3_dialect.segment(replace=True)
+class AliasExpressionSegment(BaseSegment):
+    """A reference to an object with an `AS` clause.
+
+    The optional AS keyword allows both implicit and explicit aliasing.
+    Note also that it's possible to specify just column aliases without aliasing the table as well:
+    .. code-block:: sql
+
+        SELECT * FROM VALUES (1,2) as t (a, b);
+        SELECT * FROM VALUES (1,2) as t;
+        SELECT * FROM VALUES (1,2) as (a, b);
+
+    """
+
+    type = "alias_expression"
     match_grammar = Sequence(
-        Ref("AliasExpressionSegment"),
-        # Optional column aliases too.
-        Bracketed(
-            Delimited(Ref("SingleIdentifierGrammar"), delimiter=Ref("CommaSegment")),
-            optional=True,
+        Ref.keyword("AS", optional=True),
+        OneOf(
+            Sequence(
+                Ref("SingleIdentifierGrammar", optional=True),
+                # Column alias in VALUES clause
+                Bracketed(Ref("SingleIdentifierListSegment"), optional=True),
+            ),
+            Ref("QuotedLiteralSegment"),
         ),
     )
+
+
+@spark3_dialect.segment()
+class DelimitedValues(BaseSegment):
+    """A ``VALUES`` clause can be a sequence either of scalar values or tuple values.
+
+    We make no attempt to ensure that all records have the same number of columns besides the distinction between
+    all scalar or all tuple, so for instance ``VALUES (1,2), (3,4,5)`` will parse but is not legal SQL.
+
+
+    """
+
+    type = "delimited_values"
+    match_grammar = OneOf(Delimited(Ref("ScalarValue")), Delimited(Ref("TupleValue")))
+
+
+@spark3_dialect.segment()
+class ScalarValue(BaseSegment):
+    """An element of a ``VALUES`` clause that has a single column.
+
+    Ex: ``VALUES 1,2,3``
+    """
+
+    type = "scalar_value"
+    match_grammar = OneOf(
+        Ref("LiteralGrammar"),
+        Ref("BareFunctionSegment"),
+        Ref("FunctionSegment"),
+    )
+
+
+@spark3_dialect.segment()
+class TupleValue(BaseSegment):
+    """An element of a ``VALUES`` clause that has a multiple columns.
+
+    Ex: ``VALUES (1,2), (3,4)``
+    """
+
+    type = "tuple_value"
+    match_grammar = Bracketed(
+        Delimited(
+            Ref("ScalarValue"),
+        )
+    )
+
 
 @spark3_dialect.segment(replace=True)
 class ValuesClauseSegment(BaseSegment):
-    """A `VALUES` clause within in `WITH` or `SELECT`."""
+    """A ``VALUES`` clause, as typically used with ``INSERT`` or ``SELECT``.
+
+    The Spark SQL reference does not mention ``VALUES``` clauses except in the context of ``INSERT`` statements.
+    However, they appear to behave the same as in `postgres <https://www.postgresql.org/docs/13/sql-values.html>`.
+
+    In short, they can appear anywhere a ``SELECT`` can, and also as bare ``VALUES`` statements. Here are some examples:
+    .. code-block:: sql
+
+        VALUES 1,2 LIMIT 1;
+        SELECT * FROM VALUES (1,2) as t (a,b);
+        SELECT * FROM (VALUES (1,2) as t (a,b));
+        WITH a AS (VALUES 1,2) SELECT * FROM a;
+
+    """
 
     type = "values_clause"
-    match_grammar = Sequence(
-        "VALUES",
-        Delimited(
-            OneOf(
-                Bracketed(
-                    Delimited(
-                        Ref("LiteralGrammar"),
-                        Ref("IntervalExpressionSegment"),
-                        Ref("BareFunctionSegment"),
-                        Ref("FunctionSegment"),
-                        ephemeral_name="ValuesClauseElements",
-                    )
-                ),
-                Delimited(
-                    # e.g. SELECT * FROM (VALUES 1,2,3);
-                    Ref("LiteralGrammar"),
-                    Ref("BareFunctionSegment"),
-                    Ref("FunctionSegment"),
-                ),
-            ),
-        ),
-        OneOf(
-        Sequence(
-            OneOf("AS"),
-            Ref("TableAliasExpressionSegment"),
-        ),
-            Ref("TableAliasExpressionSegment"),
-        optional=True)
+    match_grammar = StartsWith(Ref.keyword("VALUES"))
 
+    parse_grammar = Sequence(
+        Ref.keyword("VALUES"),
+        DelimitedValues,
+        Ref("AliasExpressionSegment", optional=True),
     )
