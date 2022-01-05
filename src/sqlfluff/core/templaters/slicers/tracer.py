@@ -183,20 +183,13 @@ class JinjaTracer:
         # https://jinja.palletsprojects.com/en/2.11.x/api/#jinja2.Environment.lex
         stack = []
         result = []
-        set_idx = None
         unique_alternate_id: Optional[str]
         alternate_code: Optional[str]
         for _, elem_type, raw in self.env.lex(self.raw_str):
-            # Replace literal text with a unique ID, except for "set"
-            # statements, which don't emit output and thus don't need this
-            # treatment.
+            # Replace literal text with a unique ID.
             if elem_type == "data":
-                if set_idx is None:
-                    unique_alternate_id = uuid.uuid4().hex
-                    alternate_code = f"{unique_alternate_id}_{len(raw)}\0"
-                else:
-                    unique_alternate_id = None
-                    alternate_code = None
+                unique_alternate_id = uuid.uuid4().hex
+                alternate_code = f"{unique_alternate_id}_{len(raw)}\0"
                 result.append(
                     RawFileSlice(
                         raw,
@@ -287,22 +280,6 @@ class JinjaTracer:
                             unique_id = uuid.uuid4().hex
                             unique_alternate_id = unique_id
                             alternate_code = f"{unique_alternate_id} {m_open.group(1)} {trimmed_content} {m_close.group(1)}\0"
-                if block_type == "block_start" and trimmed_content.split()[0] == "set":
-                    # Jinja supports two forms of {% set %}:
-                    # - {% set variable = value %}
-                    # - {% set variable %}value{% endset %}
-                    # https://jinja.palletsprojects.com/en/2.10.x/templates/#block-assignments
-                    # When the second format is used, leave the value "as is".
-                    # It won't be rendered directly to the template output
-                    # anyway, so substituting our special UUID values would just
-                    # confuse things.
-                    trimmed_content_parts = trimmed_content.split(maxsplit=2)
-                    if len(trimmed_content_parts) <= 2 or not trimmed_content_parts[
-                        2
-                    ].startswith("="):
-                        set_idx = len(result)
-                elif block_type == "block_end" and set_idx is not None:
-                    set_idx = None
                 m = regex.search(r"\s+$", raw, regex.MULTILINE | regex.DOTALL)
                 if raw.startswith("-") and m:
                     # Right whitespace was stripped. Split off the trailing
