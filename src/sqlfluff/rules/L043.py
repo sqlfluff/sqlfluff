@@ -102,6 +102,7 @@ class Rule_L043(BaseRule):
                     coalesce_arg_2,
                     SymbolSegment(")", name="end_bracket", type="end_bracket"),
                 ],
+                source=[coalesce_arg_2],
             ),
         ] + (
             # Segments to delete -- i.e. all child segments at both levels EXCEPT:
