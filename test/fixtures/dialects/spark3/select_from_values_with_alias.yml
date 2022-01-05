@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: dc13748eee073f670b223e70b836c4b3a44527ee42b16787d43b2f1771a1b2d2
+_hash: b81ff91af70d691c6b76817efec0e30b0ce9db7772f1632a87d13521712b51b6
 file:
 - base:
     select_statement:
@@ -23,12 +23,16 @@ file:
             table_expression:
               values_clause:
                 keyword: values
-                bracketed:
-                - start_bracket: (
-                - literal: '1'
-                - comma: ','
-                - literal: '2'
-                - end_bracket: )
+                delimited_values:
+                  tuple_value:
+                    bracketed:
+                    - start_bracket: (
+                    - scalar_value:
+                        literal: '1'
+                    - comma: ','
+                    - scalar_value:
+                        literal: '2'
+                    - end_bracket: )
                 alias_expression:
                   keyword: as
                   bracketed:
@@ -57,12 +61,16 @@ file:
             table_expression:
               values_clause:
                 keyword: values
-                bracketed:
-                - start_bracket: (
-                - literal: '1'
-                - comma: ','
-                - literal: '2'
-                - end_bracket: )
+                delimited_values:
+                  tuple_value:
+                    bracketed:
+                    - start_bracket: (
+                    - scalar_value:
+                        literal: '1'
+                    - comma: ','
+                    - scalar_value:
+                        literal: '2'
+                    - end_bracket: )
                 alias_expression:
                   keyword: as
                   identifier: t
@@ -92,12 +100,16 @@ file:
             table_expression:
               values_clause:
                 keyword: values
-                bracketed:
-                - start_bracket: (
-                - literal: '1'
-                - comma: ','
-                - literal: '2'
-                - end_bracket: )
+                delimited_values:
+                  tuple_value:
+                    bracketed:
+                    - start_bracket: (
+                    - scalar_value:
+                        literal: '1'
+                    - comma: ','
+                    - scalar_value:
+                        literal: '2'
+                    - end_bracket: )
                 alias_expression:
                   identifier: t
                   bracketed:
@@ -126,12 +138,16 @@ file:
             table_expression:
               values_clause:
                 keyword: values
-                bracketed:
-                - start_bracket: (
-                - literal: '1'
-                - comma: ','
-                - literal: '2'
-                - end_bracket: )
+                delimited_values:
+                  tuple_value:
+                    bracketed:
+                    - start_bracket: (
+                    - scalar_value:
+                        literal: '1'
+                    - comma: ','
+                    - scalar_value:
+                        literal: '2'
+                    - end_bracket: )
                 alias_expression:
                   bracketed:
                     start_bracket: (
@@ -158,9 +174,9 @@ file:
         - raw: values
         - bracketed:
           - start_bracket: (
-          - literal: '1'
+          - raw: '1'
           - comma: ','
-          - literal: '2'
+          - raw: '2'
           - end_bracket: )
         - comma: ','
         - bracketed:
@@ -194,9 +210,9 @@ file:
         - raw: values
         - bracketed:
           - start_bracket: (
-          - literal: '1'
+          - raw: '1'
           - comma: ','
-          - literal: '2'
+          - raw: '2'
           - end_bracket: )
         - comma: ','
         - bracketed:
@@ -231,9 +247,9 @@ file:
         - raw: values
         - bracketed:
           - start_bracket: (
-          - literal: '1'
+          - raw: '1'
           - comma: ','
-          - literal: '2'
+          - raw: '2'
           - end_bracket: )
         - comma: ','
         - bracketed:
@@ -267,9 +283,9 @@ file:
         - raw: values
         - bracketed:
           - start_bracket: (
-          - literal: '1'
+          - raw: '1'
           - comma: ','
-          - literal: '2'
+          - raw: '2'
           - end_bracket: )
         - comma: ','
         - bracketed:

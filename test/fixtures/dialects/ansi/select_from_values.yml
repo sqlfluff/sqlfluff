@@ -3,19 +3,55 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 13baf5d11c83f836903379ac65f88696992fc48e154b8b03737ec2318c418cda
+_hash: c7d7fd98fe454f1598eeeaecedc12483f3c7f42840795ca430b60f5a4a11455e
 file:
 - statement:
     select_statement:
       select_clause:
-      - keyword: select
-      - select_clause_element:
-          column_reference:
-            identifier: a
-      - comma: ','
-      - select_clause_element:
-          column_reference:
-            identifier: b
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: values
+        unparsable:
+        - raw: '1'
+        - comma: ','
+        - raw: '2'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        unparsable:
+          keyword: from
+          bracketed:
+          - start_bracket: (
+          - raw: values
+          - raw: '1'
+          - comma: ','
+          - raw: '2'
+          - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
       from_clause:
         keyword: from
         from_expression:
@@ -36,14 +72,11 @@ file:
 - statement:
     select_statement:
       select_clause:
-      - keyword: select
-      - select_clause_element:
-          column_reference:
-            identifier: a
-      - comma: ','
-      - select_clause_element:
-          column_reference:
-            identifier: b
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
       from_clause:
         keyword: from
         from_expression:
@@ -72,14 +105,11 @@ file:
 - statement:
     select_statement:
       select_clause:
-      - keyword: select
-      - select_clause_element:
-          column_reference:
-            identifier: a
-      - comma: ','
-      - select_clause_element:
-          column_reference:
-            identifier: b
+        keyword: select
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
       from_clause:
         unparsable:
         - keyword: from

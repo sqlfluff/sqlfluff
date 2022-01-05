@@ -3,70 +3,55 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bb4d51b968ea817e3ce9622fa1beb48219d405e25cfa50bdb62e46350f94cdc9
+_hash: 04d24cc13f9e48060677aaa964bac73ba7bc0fac333c4676fa32c0970e9cd1a9
 file:
 - base:
     values_clause:
       keyword: values
-      bracketed:
-      - start_bracket: (
-      - literal: '1'
-      - comma: ','
-      - literal: '2'
-      - end_bracket: )
-      alias_expression:
-        keyword: as
-        identifier: t
-- statement_terminator: ;
-- base:
-    values_clause:
-      keyword: values
-      bracketed:
-      - start_bracket: (
-      - literal: '1'
-      - comma: ','
-      - literal: '2'
-      - end_bracket: )
-      alias_expression:
-        identifier: t
-- statement_terminator: ;
-- base:
-    values_clause:
-      keyword: values
-      bracketed:
-      - start_bracket: (
-      - literal: '1'
-      - comma: ','
-      - literal: '2'
-      - end_bracket: )
-      alias_expression:
-        keyword: as
-        identifier: t
-        bracketed:
-          start_bracket: (
-          identifier_list:
-          - identifier: a
+      delimited_values:
+        tuple_value:
+          bracketed:
+          - start_bracket: (
+          - scalar_value:
+              literal: '1'
           - comma: ','
-          - identifier: b
-          end_bracket: )
+          - scalar_value:
+              literal: '2'
+          - end_bracket: )
+      alias_expression:
+        keyword: as
+        identifier: t
 - statement_terminator: ;
 - base:
     values_clause:
-    - keyword: values
-    - bracketed:
-      - start_bracket: (
-      - literal: '1'
-      - comma: ','
-      - literal: '2'
-      - end_bracket: )
-    - comma: ','
-    - bracketed:
-      - start_bracket: (
-      - literal: '3'
-      - comma: ','
-      - literal: '4'
-      - end_bracket: )
-    - alias_expression:
+      keyword: values
+      delimited_values:
+        tuple_value:
+          bracketed:
+          - start_bracket: (
+          - scalar_value:
+              literal: '1'
+          - comma: ','
+          - scalar_value:
+              literal: '2'
+          - end_bracket: )
+      alias_expression:
+        identifier: t
+- statement_terminator: ;
+- base:
+    values_clause:
+      keyword: values
+      delimited_values:
+        tuple_value:
+          bracketed:
+          - start_bracket: (
+          - scalar_value:
+              literal: '1'
+          - comma: ','
+          - scalar_value:
+              literal: '2'
+          - end_bracket: )
+      alias_expression:
         keyword: as
         identifier: t
         bracketed:
@@ -80,12 +65,50 @@ file:
 - base:
     values_clause:
       keyword: values
-      bracketed:
-      - start_bracket: (
-      - literal: '1'
+      delimited_values:
+      - tuple_value:
+          bracketed:
+          - start_bracket: (
+          - scalar_value:
+              literal: '1'
+          - comma: ','
+          - scalar_value:
+              literal: '2'
+          - end_bracket: )
       - comma: ','
-      - literal: '2'
-      - end_bracket: )
+      - tuple_value:
+          bracketed:
+          - start_bracket: (
+          - scalar_value:
+              literal: '3'
+          - comma: ','
+          - scalar_value:
+              literal: '4'
+          - end_bracket: )
+      alias_expression:
+        keyword: as
+        identifier: t
+        bracketed:
+          start_bracket: (
+          identifier_list:
+          - identifier: a
+          - comma: ','
+          - identifier: b
+          end_bracket: )
+- statement_terminator: ;
+- base:
+    values_clause:
+      keyword: values
+      delimited_values:
+        tuple_value:
+          bracketed:
+          - start_bracket: (
+          - scalar_value:
+              literal: '1'
+          - comma: ','
+          - scalar_value:
+              literal: '2'
+          - end_bracket: )
       alias_expression:
         keyword: as
         bracketed:
@@ -99,12 +122,16 @@ file:
 - base:
     values_clause:
       keyword: values
-      bracketed:
-      - start_bracket: (
-      - literal: '1'
-      - comma: ','
-      - literal: '2'
-      - end_bracket: )
+      delimited_values:
+        tuple_value:
+          bracketed:
+          - start_bracket: (
+          - scalar_value:
+              literal: '1'
+          - comma: ','
+          - scalar_value:
+              literal: '2'
+          - end_bracket: )
       alias_expression:
         identifier: t
         bracketed:
@@ -118,12 +145,16 @@ file:
 - base:
     values_clause:
       keyword: values
-      bracketed:
-      - start_bracket: (
-      - literal: '1'
-      - comma: ','
-      - literal: '2'
-      - end_bracket: )
+      delimited_values:
+        tuple_value:
+          bracketed:
+          - start_bracket: (
+          - scalar_value:
+              literal: '1'
+          - comma: ','
+          - scalar_value:
+              literal: '2'
+          - end_bracket: )
       alias_expression:
         bracketed:
           start_bracket: (
@@ -135,21 +166,28 @@ file:
 - statement_terminator: ;
 - base:
     values_clause:
-    - keyword: values
-    - bracketed:
-      - start_bracket: (
-      - literal: '1'
+      keyword: values
+      delimited_values:
+      - tuple_value:
+          bracketed:
+          - start_bracket: (
+          - scalar_value:
+              literal: '1'
+          - comma: ','
+          - scalar_value:
+              literal: '2'
+          - end_bracket: )
       - comma: ','
-      - literal: '2'
-      - end_bracket: )
-    - comma: ','
-    - bracketed:
-      - start_bracket: (
-      - literal: '3'
-      - comma: ','
-      - literal: '4'
-      - end_bracket: )
-    - alias_expression:
+      - tuple_value:
+          bracketed:
+          - start_bracket: (
+          - scalar_value:
+              literal: '3'
+          - comma: ','
+          - scalar_value:
+              literal: '4'
+          - end_bracket: )
+      alias_expression:
         keyword: as
         bracketed:
           start_bracket: (
@@ -161,21 +199,28 @@ file:
 - statement_terminator: ;
 - base:
     values_clause:
-    - keyword: values
-    - bracketed:
-      - start_bracket: (
-      - literal: '1'
+      keyword: values
+      delimited_values:
+      - tuple_value:
+          bracketed:
+          - start_bracket: (
+          - scalar_value:
+              literal: '1'
+          - comma: ','
+          - scalar_value:
+              literal: '2'
+          - end_bracket: )
       - comma: ','
-      - literal: '2'
-      - end_bracket: )
-    - comma: ','
-    - bracketed:
-      - start_bracket: (
-      - literal: '3'
-      - comma: ','
-      - literal: '4'
-      - end_bracket: )
-    - alias_expression:
+      - tuple_value:
+          bracketed:
+          - start_bracket: (
+          - scalar_value:
+              literal: '3'
+          - comma: ','
+          - scalar_value:
+              literal: '4'
+          - end_bracket: )
+      alias_expression:
         identifier: t
         bracketed:
           start_bracket: (
@@ -187,21 +232,28 @@ file:
 - statement_terminator: ;
 - base:
     values_clause:
-    - keyword: values
-    - bracketed:
-      - start_bracket: (
-      - literal: '1'
+      keyword: values
+      delimited_values:
+      - tuple_value:
+          bracketed:
+          - start_bracket: (
+          - scalar_value:
+              literal: '1'
+          - comma: ','
+          - scalar_value:
+              literal: '2'
+          - end_bracket: )
       - comma: ','
-      - literal: '2'
-      - end_bracket: )
-    - comma: ','
-    - bracketed:
-      - start_bracket: (
-      - literal: '3'
-      - comma: ','
-      - literal: '4'
-      - end_bracket: )
-    - alias_expression:
+      - tuple_value:
+          bracketed:
+          - start_bracket: (
+          - scalar_value:
+              literal: '3'
+          - comma: ','
+          - scalar_value:
+              literal: '4'
+          - end_bracket: )
+      alias_expression:
         bracketed:
           start_bracket: (
           identifier_list:
