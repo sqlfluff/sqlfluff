@@ -492,6 +492,7 @@ You can set the dbt project directory, profiles directory and profile with:
     project_dir = <relative or absolute path to dbt_project directory>
     profiles_dir = <relative or absolute path to the directory that contains the profiles.yml file>
     profile = <dbt profile>
+    target = <dbt target>
 
 .. note::
 
