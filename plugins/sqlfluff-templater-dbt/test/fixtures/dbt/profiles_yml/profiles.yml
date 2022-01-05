@@ -3,7 +3,7 @@ default:
   outputs:
     dev:
       type: postgres
-      host: "{{ env_var('SQLFLUFF_PG_HOST', 'localhost') }}"
+      host: localhost
       user: postgres
       pass: password
       port: 5432
