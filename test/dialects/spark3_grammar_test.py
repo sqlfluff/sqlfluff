@@ -33,30 +33,37 @@ def lex_segments(fragment:str):
     return tokens
 
 
-
 @pytest.mark.parametrize(
-    ["token_list", "matching_segment"],
-    [
-        ("as t ( col1 , col2 )".split(), "AliasExpressionSegment"),
-        ("as t \t ( col1 , col2 )".split(), "AliasExpressionSegment"),
-        ("from t".split(), "FromClauseSegment"),
-        ("from t as u".split(), "FromClauseSegment"),
-        ("from values ( 1 , 2 )".split(), "FromClauseSegment"),
-        ("values ( 1 , 2 ) , ( 3 , 4 )".split(), "ValuesClauseSegment"),
-        ("values ( 1 , 2 )".split(), "TableExpressionSegment"),
-        ("values ( 1 , 2 ) , ( 3 , 4 )".split(), "TableExpressionSegment"),
-        ("values ( 1 , 2 )".split(), "FromExpressionElementSegment"),
-        ("values ( 1 , 2 ) , ( 3 , 4 )".split(), "FromExpressionElementSegment"),
-        ("values ( 1 , 2 ) , ( 3 , 4 )".split(), "FromExpressionSegment"),
-        ("from values ( 1 , 2 ) , ( 3 , 4 )".split(), "FromClauseSegment"),
-        ("select * from t".split(), "SelectStatementSegment"),
-        ("select * from values ( 1 , 2 ) , ( 3 , 4 ) ;".split(), "SelectStatementSegment"),
-    ],
+    ["segment_class", "match_or_parse", "fragment"],
+    [(t[1], b, t[0]) for t in [
+        ("as t ( col1 , col2 )", "AliasExpressionSegment"),
+        ("as t \t ( col1 , col2 )", "AliasExpressionSegment"),
+        ("from t", "FromClauseSegment"),
+        ("from t as u", "FromClauseSegment"),
+        ("from values ( 1 , 2 )", "FromClauseSegment"),
+        ("from values 1", "FromClauseSegment"),
+        ("from values 1 , 2 ", "FromClauseSegment"),
+        ("1 , 2 , 3", "DelimitedValues"),
+        ("values 1 , 2 , 3", "ValuesClauseSegment"),
+        ("values ( 1 , 2 , 3 )", "ValuesClauseSegment"),
+        ("values ( 1 , 2 ) , ( 3 , 4 )", "ValuesClauseSegment"),
+        ("values ( 1 , 2 )", "TableExpressionSegment"),
+        ("values ( 1 , 2 ) , ( 3 , 4 )", "TableExpressionSegment"),
+        ("values ( 1 , 2 )", "FromExpressionElementSegment"),
+        ("values ( 1 , 2 ) , ( 3 , 4 )", "FromExpressionElementSegment"),
+        ("values ( 1 , 2 ) , ( 3 , 4 )", "FromExpressionSegment"),
+        ("from values ( 1 , 2 )", "FromClauseSegment"),
+        ("from values 1 , 2", "FromClauseSegment"),
+        ("from values ( 1 , 2 ) , ( 3 , 4 )", "FromClauseSegment"),
+        ("select * from t", "SelectStatementSegment"),
+        ("select * from values ( 1 , 2 ) , ( 3 , 4 ) ;", "SelectStatementSegment"),
+    ]
+     for b in ['match', 'parse']
+     ]
 )
-def test__dialect__spark3__grammars(token_list: List[str], matching_segment:str,
+def test__dialect__spark3__grammars(segment_class:str, match_or_parse:str,fragment: str,
                                          generate_test_segments: Callable[[List[str]], List[RawSegment]],
-                                         caplog:Any,
-                                         fresh_spark3_dialect: Dialect):
+                                         fresh_spark3_dialect: Dialect, caplog:Any):
     """Test that some grammars match as expected
 
     When the fixtured tests fail to parse some particular query, it can be difficult to tell where things went wrong.
@@ -68,18 +75,19 @@ def test__dialect__spark3__grammars(token_list: List[str], matching_segment:str,
     should match.
     """
 
-    seg_list = generate_test_segments(token_list)
-    fragment = ' '.join(token_list)
     lexed_seg_list = lex_segments(fragment)
-    g = fresh_spark3_dialect._library[matching_segment].match_grammar
-    maybe_bracketed_g = OptionallyBracketed(g)
+    segment = fresh_spark3_dialect._library[segment_class]
+    grammar = segment.parse_grammar if (match_or_parse=='parse' and segment.parse_grammar ) else segment.match_grammar
+
     with RootParseContext(dialect=fresh_spark3_dialect) as ctx:
-        with caplog.at_level(logging.DEBUG, logger="sqlfluff.parser"):
-            m = g.match(seg_list, parse_context=ctx)
+        ctx.logger.setLevel(logging.DEBUG)
+
+        if match_or_parse=='match':
+            m = grammar.match(lexed_seg_list, parse_context=ctx)
             assert not m.unmatched_segments
 
-            mb = maybe_bracketed_g.match(seg_list, parse_context=ctx)
-            assert not mb.unmatched_segments
-
-            m_lexed = g.match(lexed_seg_list, parse_context=ctx)
-            assert not m_lexed.unmatched_segments
+        with caplog.at_level(logging.DEBUG):
+            p = grammar.match(lexed_seg_list, parse_context=ctx)
+        if not p.unmatched_segments:
+            print(caplog.text)
+        assert not p.unmatched_segments
