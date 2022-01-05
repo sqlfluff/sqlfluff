@@ -76,11 +76,9 @@ class Rule_L058(BaseRule):
             create_after_last_when = nested_clauses.apply(
                 lambda seg: [NewlineSegment(), WhitespaceSegment(indent_str), seg]
             )
+            segments = [item for sublist in create_after_last_when for item in sublist]
             fixes.append(
-                LintFix.create_after(
-                    case1_last_when.get(),
-                    [item for sublist in create_after_last_when for item in sublist],
-                )
+                LintFix.create_after(case1_last_when.get(), segments, source=segments)
             )
 
             # Delete the outer "else" clause.
