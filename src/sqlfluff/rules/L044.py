@@ -120,6 +120,9 @@ class Rule_L044(BaseRule):
                         if isinstance(o, Query):
                             self._analyze_result_columns(o)
                             return
+                    self.logger.debug(
+                        f'Query target "{query.selectables[0].selectable.raw}" has no targets. Generating warning.'
+                    )
                     raise RuleFailure(query.selectables[0].selectable)
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
