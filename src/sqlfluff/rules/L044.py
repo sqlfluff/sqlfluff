@@ -22,6 +22,7 @@ class Rule_L044(BaseRule):
     | This should generally be avoided because it can cause slow performance,
     | cause important schema changes to go undetected, or break production code.
     | For example:
+    |
     | * If a query does `SELECT t.*` and is expected to return columns `a`, `b`,
     |   and `c`, the actual columns returned will be wrong/different if columns
     |   are added to or deleted from the input table.

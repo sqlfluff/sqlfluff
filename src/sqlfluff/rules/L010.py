@@ -45,6 +45,7 @@ class Rule_L010(BaseRule):
         ("type", "keyword"),
         ("type", "binary_operator"),
         ("type", "date_part"),
+        ("type", "data_type_identifier"),
     ]
     config_keywords = ["capitalisation_policy"]
     # Human readable target elem for description

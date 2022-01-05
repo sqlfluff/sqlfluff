@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f9db33a070b927be5d0eb9179fab2829fea24e06cc6a5e8d10fa6745b98999f3
+_hash: 72ba092a18c35c0903f109751f20490e82561f4e1969d22c5e9f5f0de6dacdf0
 file:
 - statement:
     select_statement:
@@ -92,7 +92,7 @@ file:
         - cast_expression:
             casting_operator: '::'
             data_type:
-              data_type_identifier: text
+              keyword: text
         - binary_operator: AND
         - column_reference:
           - identifier: rona_mms_charge_accounts
@@ -116,7 +116,7 @@ file:
                 cast_expression:
                   casting_operator: '::'
                   data_type:
-                    data_type_identifier: text
+                    keyword: text
             - comma: ','
             - expression:
                 literal: '10'

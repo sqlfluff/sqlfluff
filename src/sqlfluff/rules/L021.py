@@ -6,10 +6,10 @@ import sqlfluff.core.rules.functional.segment_predicates as sp
 
 
 class Rule_L021(BaseRule):
-    """Ambiguous use of DISTINCT in select statement with GROUP BY.
+    """Ambiguous use of ``DISTINCT`` in select statement with ``GROUP BY``.
 
     | **Anti-pattern**
-    | DISTINCT and GROUP BY are conflicting.
+    | ``DISTINCT`` and ``GROUP BY`` are conflicting.
 
     .. code-block:: sql
 
@@ -19,7 +19,7 @@ class Rule_L021(BaseRule):
         GROUP BY a
 
     | **Best practice**
-    | Remove DISTINCT or GROUP BY. In our case, removing GROUP BY is better.
+    | Remove ``DISTINCT`` or ``GROUP BY``. In our case, removing GROUP BY is better.
 
     .. code-block:: sql
 
