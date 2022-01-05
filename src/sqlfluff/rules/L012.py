@@ -9,7 +9,7 @@ class Rule_L012(Rule_L011):
     Aliasing of columns to follow preference
     (explicit using an `AS` clause is default).
 
-    NB: This rule inherits its functionality from obj:`Rule_L011` but is
+    NB: This rule inherits its functionality from :obj:`Rule_L011` but is
     separate so that they can be enabled and disabled separately.
 
     | **Anti-pattern**

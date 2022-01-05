@@ -349,12 +349,12 @@ class LintedFile(NamedTuple):
                 filtered_source_patches.append(enriched_patch)
                 dedupe_buffer.append(enriched_patch.dedupe_tuple())
             # If it's ONLY templated then we should skip it.
-            elif "literal" not in local_type_list:
+            elif "literal" not in local_type_list:  # pragma: no cover
                 linter_logger.info(
                     "      - Skipping patch over templated section: %s", enriched_patch
                 )
             # If we span more than two slices then we should just skip it. Too Hard.
-            elif len(local_raw_slices) > 2:
+            elif len(local_raw_slices) > 2:  # pragma: no cover
                 linter_logger.info(
                     "      - Skipping patch over more than two raw slices: %s",
                     enriched_patch,

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a3dfa2cbb2ff207f69194d7a543e40452ce2a92286b26e86ea864b337b056ce8
+_hash: 4647aadb3bd7b3b87160096ca061b991a6e29740d6255ff5543dc325cd793fe3
 file:
   statement:
     create_statement:
@@ -14,10 +14,12 @@ file:
     - object_reference:
         identifier: mypipe_s3
     - keyword: auto_ingest
-    - comparison_operator: '='
+    - comparison_operator:
+        raw_comparison_operator: '='
     - literal: 'true'
     - keyword: aws_sns_topic
-    - comparison_operator: '='
+    - comparison_operator:
+        raw_comparison_operator: '='
     - literal: "'arn:aws:blablabla..0:s3_mybucket'"
     - keyword: as
     - copy_into_statement:
@@ -38,12 +40,14 @@ file:
         - dot: .
         - identifier: mystage
       - keyword: file_format
-      - comparison_operator: '='
+      - comparison_operator:
+          raw_comparison_operator: '='
       - file_format_segment:
           bracketed:
             start_bracket: (
             keyword: type
-            comparison_operator: '='
+            comparison_operator:
+              raw_comparison_operator: '='
             file_type: "'JSON'"
             end_bracket: )
   statement_terminator: ;

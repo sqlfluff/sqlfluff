@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 00e6fe8bd1247d37d06c48415c9aba343997a36dc76a5c04671ee817570dcf6d
+_hash: f54637958703d3b817943a9355d7b1ba06801ef83b58c6cac0b341ccf781fea9
 file:
 - statement:
     update_statement:
@@ -15,7 +15,8 @@ file:
         set_clause:
           column_reference:
             identifier: salary
-          comparison_operator: '='
+          comparison_operator:
+            raw_comparison_operator: '='
           expression:
             column_reference:
               identifier: salary
@@ -26,7 +27,8 @@ file:
         expression:
           column_reference:
             identifier: name
-          comparison_operator: '='
+          comparison_operator:
+            raw_comparison_operator: '='
           literal: "'SMITH'"
 - statement_terminator: ;
 - statement:
@@ -44,7 +46,8 @@ file:
           - identifier: U
           - dot: .
           - identifier: salary
-          comparison_operator: '='
+          comparison_operator:
+            raw_comparison_operator: '='
           expression:
             column_reference:
             - identifier: U
@@ -58,7 +61,8 @@ file:
           - identifier: U
           - dot: .
           - identifier: currency
-          comparison_operator: '='
+          comparison_operator:
+            raw_comparison_operator: '='
           expression:
             literal: "'EUR'"
       where_clause:
@@ -68,7 +72,8 @@ file:
           - identifier: U
           - dot: .
           - identifier: currency
-          comparison_operator: '='
+          comparison_operator:
+            raw_comparison_operator: '='
           literal: "'DM'"
 - statement_terminator: ;
 - statement:
@@ -86,7 +91,8 @@ file:
           - identifier: U
           - dot: .
           - identifier: salary
-          comparison_operator: '='
+          comparison_operator:
+            raw_comparison_operator: '='
           expression:
             column_reference:
             - identifier: V
@@ -98,7 +104,8 @@ file:
           - identifier: U
           - dot: .
           - identifier: currency
-          comparison_operator: '='
+          comparison_operator:
+            raw_comparison_operator: '='
           expression:
             column_reference:
             - identifier: V
@@ -130,7 +137,8 @@ file:
           - identifier: U
           - dot: .
           - identifier: name
-        - comparison_operator: '='
+        - comparison_operator:
+            raw_comparison_operator: '='
         - column_reference:
           - identifier: V
           - dot: .
@@ -146,7 +154,8 @@ file:
         set_clause:
           column_reference:
             identifier: stocks
-          comparison_operator: '='
+          comparison_operator:
+            raw_comparison_operator: '='
           expression:
             column_reference:
               identifier: stocks
@@ -188,7 +197,8 @@ file:
       - set_clause:
           column_reference:
             identifier: x
-          comparison_operator: '='
+          comparison_operator:
+            raw_comparison_operator: '='
           expression:
             column_reference:
             - identifier: t2
@@ -198,7 +208,8 @@ file:
       - set_clause:
           column_reference:
             identifier: w
-          comparison_operator: '='
+          comparison_operator:
+            raw_comparison_operator: '='
           expression:
             column_reference:
             - identifier: t4
@@ -226,7 +237,8 @@ file:
                 - identifier: t2
                 - dot: .
                 - identifier: c1
-              - comparison_operator: '='
+              - comparison_operator:
+                  raw_comparison_operator: '='
               - column_reference:
                 - identifier: t3
                 - dot: .
@@ -245,7 +257,8 @@ file:
                 - identifier: t4
                 - dot: .
                 - identifier: c3
-              - comparison_operator: '='
+              - comparison_operator:
+                  raw_comparison_operator: '='
               - column_reference:
                 - identifier: t3
                 - dot: .

@@ -1,0 +1,224 @@
+rule: L058
+
+test_pass_1:
+  # The nested CASE is under a "WHEN", not an "ELSE".
+  pass_str: |
+    SELECT
+        c1,
+        CASE
+            WHEN species = 'Rat' THEN
+              CASE
+                  WHEN colour = 'Black' THEN 'Growl'
+                  WHEN colour = 'Grey' THEN 'Squeak'
+              END
+        END AS sound
+    FROM mytable
+
+test_fail_1:
+  # Simple case.
+  fail_str: |
+    SELECT
+        c1,
+        CASE
+            WHEN species = 'Rat' THEN 'Squeak'
+            ELSE
+                CASE
+                    WHEN species = 'Dog' THEN 'Woof'
+                END
+        END AS sound
+    FROM mytable
+  pass_str: |
+    SELECT
+        c1,
+        CASE
+            WHEN species = 'Rat' THEN 'Squeak'
+            WHEN species = 'Dog' THEN 'Woof'
+        END AS sound
+    FROM mytable
+
+test_fail_2:
+  # The nested "CASE" has two "WHEN" clauses. Getting
+  # reasonable indentation is tricky.
+  fail_str: |
+    SELECT
+        c1,
+        CASE
+            WHEN species = 'Rat' THEN 'Squeak'
+            ELSE
+                CASE
+                    WHEN species = 'Dog' THEN 'Woof'
+                    WHEN species = 'Mouse' THEN 'Squeak'
+                END
+        END AS sound
+    FROM mytable
+  fix_str: |
+    SELECT
+        c1,
+        CASE
+            WHEN species = 'Rat' THEN 'Squeak'
+            WHEN species = 'Dog' THEN 'Woof'
+            WHEN species = 'Mouse' THEN 'Squeak'
+        END AS sound
+    FROM mytable
+
+test_fail_3:
+  fail_str: |
+    SELECT
+        c1,
+        CASE
+            WHEN species = 'Rat' THEN 'Squeak'
+            ELSE
+                CASE
+                    WHEN species = 'Dog' THEN 'Woof'
+                    WHEN species = 'Mouse' THEN 'Squeak'
+                    ELSE "Whaa"
+                END
+        END AS sound
+    FROM mytable
+  fix_str: |
+    SELECT
+        c1,
+        CASE
+            WHEN species = 'Rat' THEN 'Squeak'
+            WHEN species = 'Dog' THEN 'Woof'
+            WHEN species = 'Mouse' THEN 'Squeak'
+            ELSE "Whaa"
+        END AS sound
+    FROM mytable
+
+test_fail_4:
+  fail_str: |
+    SELECT
+        c1,
+        CASE
+            WHEN species = 'Rat' THEN 'Squeak'
+            ELSE
+                CASE
+                    ELSE "Whaa"
+                END
+        END AS sound
+    FROM mytable
+  fix_str: |
+    SELECT
+        c1,
+        CASE
+            WHEN species = 'Rat' THEN 'Squeak'
+            ELSE "Whaa"
+        END AS sound
+    FROM mytable
+
+test_fail_5:
+  # The nested "CASE" is a one-liner.
+  fail_str: |
+    SELECT
+        c1,
+        CASE
+            WHEN species = 'Rat' THEN 'Squeak'
+            ELSE
+                CASE WHEN species = 'Dog' THEN 'Woof' END
+        END AS sound
+    FROM mytable
+  pass_str: |
+    SELECT
+        c1,
+        CASE
+            WHEN species = 'Rat' THEN 'Squeak'
+            WHEN species = 'Dog' THEN 'Woof'
+        END AS sound
+    FROM mytable
+
+test_double_nesting_1:
+  fail_str: |
+    SELECT
+        c1,
+        CASE
+            WHEN species = 'Rat' THEN
+                CASE
+                    WHEN species = 'Dog' THEN 'Woof'
+                    ELSE
+                        CASE
+                            WHEN species = 'Bird' THEN 'tweet'
+                        END
+                END
+        END AS sound
+    FROM mytable
+  pass_str: |
+    SELECT
+    c1,
+    CASE
+        WHEN species = 'Rat' THEN
+            CASE
+                WHEN species = 'Dog' THEN 'Woof'
+                WHEN species = 'Bird' THEN 'tweet'
+            END
+    END AS sound
+    FROM mytable
+
+test_double_nesting_2:
+  # NOTE: This could be simplified more, but the current version of the rule
+  # only unnests "ELSE" statements. To do this safely, it'd have to verify
+  # that the various "WHEN" clauses are mutually exclusive.
+  fail_str: |
+    SELECT
+        c1,
+        CASE
+            WHEN species = 'Rat' THEN
+                CASE
+                    WHEN species = 'Dog' THEN 'Woof'
+                    ELSE
+                        CASE
+                            WHEN species = 'Bird' THEN 'tweet'
+                        END
+                END
+           ELSE
+                CASE
+                    WHEN species = 'Hyena' THEN 'Cackle'
+                END
+        END AS sound
+    FROM mytable
+  fix_str: |
+    SELECT
+        c1,
+        CASE
+            WHEN species = 'Rat' THEN
+                CASE
+                    WHEN species = 'Dog' THEN 'Woof'
+                    WHEN species = 'Bird' THEN 'tweet'
+                END
+            WHEN species = 'Hyena' THEN 'Cackle'
+        END AS sound
+    FROM mytable
+
+test_fail_no_copy_code_out_of_template:
+  # The rule wants to replace the case statement with coalesce(), but
+  # LintFix.has_template_conflicts() correctly prevents it copying code out
+  # of the templated region. Hence, fix_str and fail_str are the same.
+  fail_str: |
+    SELECT
+        c1,
+        CASE
+            WHEN species = 'Rat' THEN 'Squeak'
+            ELSE
+                CASE
+                    {{ inner_when }}
+                END
+        END AS sound
+    FROM mytable
+  fix_str: |
+    SELECT
+        c1,
+        CASE
+            WHEN species = 'Rat' THEN 'Squeak'
+            ELSE
+                CASE
+                    {{ inner_when }}
+                END
+        END AS sound
+    FROM mytable
+  configs:
+    core:
+      ignore_templated_areas: False
+    templater:
+      jinja:
+        context:
+          inner_when: "WHEN species = 'Dog' THEN 'Woof'"

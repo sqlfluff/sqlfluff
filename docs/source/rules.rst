@@ -33,13 +33,45 @@ Implementation
 .. autoclass:: sqlfluff.core.rules.base.LintFix
    :members:
 
+The `_eval` function of each rule takes a `RuleContext` parameter. It
+evaluate the given segment for violations, returning a `LintResult` if it
+finds an error. The `LintResult` includes a reference to the segment which
+"triggered" the error. Usually, it is the segment that needs correcting, **or**
+if the rule relates to something that is missing, then it should reference on
+the segment **following** the location where the missing element should be.
 
-The `_eval` function of each rule should take enough arguments that it can
-evaluate the position of the given segment in relation to its neighbors,
-and that the segment which finally "triggers" the error, should be the one
-that would be corrected OR if the rule relates to something that is missing,
-then it should flag on the segment FOLLOWING, the place that the desired
-element is missing.
+Functional API
+--------------
+These newer modules provide a higher-level API for rules working with segments
+and slices. Rules that need to navigate or search the parse tree may benefit
+from using these. Eventually, the plan is for **all** rules to use these
+modules. As of December 30, 2021, 17+ rules use these modules.
+
+The modules listed below are submodules of `sqlfluff.core.rules.functional`.
+
+`segments` Module
+^^^^^^^^^^^^^^^^^
+
+.. automodule:: sqlfluff.core.rules.functional.segments
+   :members:
+
+`segment_predicates` Module
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. automodule:: sqlfluff.core.rules.functional.segment_predicates
+   :members:
+
+`raw_file_slices` Module
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. automodule:: sqlfluff.core.rules.functional.raw_file_slices
+   :members:
+
+`raw_file_slice_predicates` Module
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. automodule:: sqlfluff.core.rules.functional.raw_file_slice_predicates
+   :members:
 
 
 Inline Ignoring Errors

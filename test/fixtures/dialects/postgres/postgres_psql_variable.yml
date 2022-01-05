@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1db3237e3fb68f9c59f52a3f57bdebdb27122a647e6af191f7f86b85fd23ce8e
+_hash: 72ba092a18c35c0903f109751f20490e82561f4e1969d22c5e9f5f0de6dacdf0
 file:
 - statement:
     select_statement:
@@ -46,7 +46,8 @@ file:
                 - identifier: users
                 - dot: .
                 - identifier: id
-              - comparison_operator: '='
+              - comparison_operator:
+                  raw_comparison_operator: '='
               - column_reference:
                 - identifier: memberships
                 - dot: .
@@ -66,7 +67,8 @@ file:
                 - identifier: users
                 - dot: .
                 - identifier: id
-              - comparison_operator: '='
+              - comparison_operator:
+                  raw_comparison_operator: '='
               - column_reference:
                 - identifier: rona_mms_charge_accounts
                 - dot: .
@@ -78,7 +80,8 @@ file:
           - identifier: memberships
           - dot: .
           - identifier: code
-        - comparison_operator: '='
+        - comparison_operator:
+            raw_comparison_operator: '='
         - bracketed:
             start_bracket: (
             expression:
@@ -95,7 +98,8 @@ file:
           - identifier: rona_mms_charge_accounts
           - dot: .
           - identifier: account_number
-        - comparison_operator: '='
+        - comparison_operator:
+            raw_comparison_operator: '='
         - function:
             function_name:
               function_name_identifier: lpad
@@ -162,7 +166,8 @@ file:
                 - identifier: users
                 - dot: .
                 - identifier: id
-              - comparison_operator: '='
+              - comparison_operator:
+                  raw_comparison_operator: '='
               - column_reference:
                 - identifier: memberships
                 - dot: .
@@ -182,7 +187,8 @@ file:
                 - identifier: users
                 - dot: .
                 - identifier: id
-              - comparison_operator: '='
+              - comparison_operator:
+                  raw_comparison_operator: '='
               - column_reference:
                 - identifier: rona_mms_charge_accounts
                 - dot: .
@@ -194,7 +200,8 @@ file:
           - identifier: memberships
           - dot: .
           - identifier: code
-        - comparison_operator: '='
+        - comparison_operator:
+            raw_comparison_operator: '='
         - psql_variable:
             colon: ':'
             literal: "'m1'"
@@ -203,7 +210,8 @@ file:
           - identifier: rona_mms_charge_accounts
           - dot: .
           - identifier: account_number
-        - comparison_operator: '='
+        - comparison_operator:
+            raw_comparison_operator: '='
         - function:
             function_name:
               function_name_identifier: lpad
