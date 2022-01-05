@@ -24,10 +24,10 @@ class CaseExpressionInfo(NamedTuple):
 
 @document_fix_compatible
 class Rule_L043(BaseRule):
-    """Unnecessary CASE statement. Use COALESCE function instead.
+    """Unnecessary ``CASE`` statement. Use ``COALESCE`` function instead.
 
     | **Anti-pattern**
-    | CASE statement returns booleans.
+    | ``CASE`` statement returns booleans.
 
     .. code-block:: sql
         :force:
@@ -39,7 +39,8 @@ class Rule_L043(BaseRule):
             end as is_fab
         from fancy_table
 
-        -- We can also simplify CASE statements that aim to fill NULL values.
+        -- This rule can also simplify ``CASE`` statements
+        -- that aim to fill NULL values.
 
         select
             case
@@ -49,7 +50,7 @@ class Rule_L043(BaseRule):
         from fancy_table
 
     | **Best practice**
-    | Reduce to WHEN condition within COALESCE function.
+    | Reduce to ``WHEN`` condition within ``COALESCE`` function.
 
     .. code-block:: sql
         :force:
@@ -58,7 +59,7 @@ class Rule_L043(BaseRule):
             coalesce(fab > 0, false) as is_fab
         from fancy_table
 
-        -- To fill NULL values.
+        -- To fill ``NULL`` values.
 
         select
             coalesce(fab, 0) as fab_clean

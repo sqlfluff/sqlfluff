@@ -23,7 +23,7 @@ class Rule_L031(BaseRule):
     """Avoid table aliases in from clauses and join conditions.
 
     | **Anti-pattern**
-    | In this example, alias 'o' is used for the orders table, and 'c' is used for 'customers' table.
+    | In this example, alias ``o`` is used for the orders table, and ``c`` is used for 'customers' table.
 
     .. code-block:: sql
 

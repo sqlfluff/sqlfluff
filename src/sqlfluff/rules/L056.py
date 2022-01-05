@@ -5,10 +5,10 @@ from sqlfluff.core.rules.base import BaseRule, LintResult, RuleContext
 
 
 class Rule_L056(BaseRule):
-    r"""'SP\_' prefix should not be used for user-defined stored procedures in T-SQL.
+    r"""``SP_`` prefix should not be used for user-defined stored procedures in T-SQL.
 
     | **Anti-pattern**
-    | The 'SP\_' prefix is used to identify system procedures and
+    | The ``SP_`` prefix is used to identify system procedures and
     | can adversely affect performance of the user-defined stored procedure.
     | It can also break system procedures if there is a naming conflict.
 
@@ -37,7 +37,7 @@ class Rule_L056(BaseRule):
             CaseOutput
         FROM table1
 
-        -- Alternatively prefix with 'USP_' to
+        -- Alternatively prefix with ``USP_`` to
         -- indicate a user-defined stored procedure.
 
         CREATE PROCEDURE dbo.usp_pull_data
@@ -50,7 +50,7 @@ class Rule_L056(BaseRule):
     """
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
-        r"""'SP\_' prefix should not be used for user-defined stored procedures."""
+        r"""``SP_`` prefix should not be used for user-defined stored procedures."""
         # Rule only applies to T-SQL syntax.
         if context.dialect.name != "tsql":
             return None

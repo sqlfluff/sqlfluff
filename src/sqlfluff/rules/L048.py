@@ -13,8 +13,8 @@ class Rule_L048(Rule_L006):
     """Quoted literals should be surrounded by a single whitespace.
 
     | **Anti-pattern**
-    | In this example, there is a space missing space between the string 'foo'
-    | and the keyword AS.
+    | In this example, there is a space missing space between the string
+    | ``'foo'`` and the keyword ``AS``.
 
     .. code-block:: sql
 

@@ -17,7 +17,7 @@ class Rule_L030(Rule_L010):
     The functionality for this rule is inherited from :obj:`Rule_L010`.
 
     | **Anti-pattern**
-    | In this example, the two SUM functions don't have the same capitalisation.
+    | In this example, the two ``SUM`` functions don't have the same capitalisation.
 
     .. code-block:: sql
 

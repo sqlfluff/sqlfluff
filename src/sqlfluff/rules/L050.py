@@ -12,7 +12,8 @@ class Rule_L050(BaseRule):
     """Files must not begin with newlines or whitespace.
 
     | **Anti-pattern**
-    | The content in file begins with newlines or whitespace, the ^ represents the beginning of file.
+    | The content in file begins with newlines or whitespace. The ``^``
+    | represents the beginning of the file.
 
     .. code-block:: sql
        :force:
@@ -32,7 +33,8 @@ class Rule_L050(BaseRule):
         ••••foo
 
     | **Best practice**
-    | Start file on either code or comment, the ^ represents the beginning of file.
+    | Start file on either code or comment. (The ``^`` represents the beginning
+    | of the file.)
 
     .. code-block:: sql
        :force:
