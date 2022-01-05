@@ -120,7 +120,7 @@ class Rule_L044(BaseRule):
                         if isinstance(o, Query):
                             self._analyze_result_columns(o)
                             return
-                    assert False, "Should be unreachable"  # pragma: no cover
+                    raise RuleFailure(query.selectables[0].selectable)
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Outermost query should produce known number of columns."""
