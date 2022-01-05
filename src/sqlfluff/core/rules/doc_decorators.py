@@ -47,7 +47,7 @@ def document_configuration(cls, ruleset="std"):
                         keyword, cls.__name__
                     )
                 )
-            config_doc += "\n    |     `{}`: {}.".format(
+            config_doc += "\n    |     `{}`: {}".format(
                 keyword, info_dict["definition"]
             )
             if "validation" in info_dict:

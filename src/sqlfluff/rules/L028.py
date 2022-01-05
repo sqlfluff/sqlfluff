@@ -24,7 +24,7 @@ class Rule_L028(Rule_L025):
         FROM foo
 
     | **Best practice**
-    |  Remove or add references to all fields.
+    |  Add or remove references to all fields.
 
     .. code-block:: sql
 

@@ -39,8 +39,8 @@ class Rule_L043(BaseRule):
             end as is_fab
         from fancy_table
 
-        -- This rule can also simplify ``CASE`` statements that aim to fill
-        -- NULL values.
+        -- This rule can also simplify ``CASE`` statements
+        -- that aim to fill NULL values.
 
         select
             case
