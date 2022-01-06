@@ -680,27 +680,8 @@ class LimitClauseSegment(BaseSegment):
 ############################
 
 
-@exasol_dialect.segment(replace=True)
-class DropStatementSegment(BaseSegment):
-    """A `DROP` statement without any options."""
-
-    type = "drop_statement"
-    is_ddl = False
-    is_dml = False
-    is_dql = False
-    is_dcl = True
-    match_grammar = StartsWith("DROP")
-    parse_grammar = OneOf(
-        Ref("DropWithouOptionsStatementSegment"),
-        Ref("DropCascadeStatementSegment"),
-        Ref("DropCascadeRestrictStatementSegment"),
-        Ref("DropSchemaStatementSegment"),
-        Ref("DropTableStatementSegment"),
-    )
-
-
 @exasol_dialect.segment()
-class DropWithouOptionsStatementSegment(BaseSegment):
+class DropWithoutOptionsStatementSegment(BaseSegment):
     """A `DROP` statement without any options."""
 
     type = "drop_wo_options"
@@ -3685,7 +3666,11 @@ class StatementSegment(BaseSegment):
         Ref("CreateTableStatementSegment"),
         Ref("CreateViewStatementSegment"),
         Ref("CreateVirtualSchemaStatementSegment"),
-        Ref("DropStatementSegment"),
+        Ref("DropWithoutOptionsStatementSegment"),
+        Ref("DropCascadeStatementSegment"),
+        Ref("DropCascadeRestrictStatementSegment"),
+        Ref("DropSchemaStatementSegment"),
+        Ref("DropTableStatementSegment"),
         Ref("RenameStatementSegment"),
         # Access Control Language (DCL)
         Ref("AccessStatementSegment"),
