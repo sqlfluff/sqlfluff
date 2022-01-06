@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1b21984aa43e4360974f6dc7afd8ceb9261c0aa700c221f5d9864af86e87e35c
+_hash: 12a452f4eb61a2196d4e97e266e8a3b38161ef8baeb8baf9a85dad285a0c5b2e
 file:
 - batch:
     statement:
@@ -108,14 +108,14 @@ file:
     keyword: GO
 - batch:
     statement:
-      drop_table_statement:
+      drop_statement:
       - keyword: DROP
       - keyword: TABLE
       - table_reference:
         - identifier: dbo
         - dot: .
         - identifier: doc_exc
-    statement_terminator: ;
+      - statement_terminator: ;
 - go_statement:
     keyword: GO
 - batch:
@@ -233,14 +233,14 @@ file:
     keyword: GO
 - batch:
     statement:
-      drop_table_statement:
+      drop_statement:
       - keyword: DROP
       - keyword: TABLE
       - table_reference:
         - identifier: dbo
         - dot: .
         - identifier: doc_exz
-    statement_terminator: ;
+      - statement_terminator: ;
 - go_statement:
     keyword: GO
 - batch:

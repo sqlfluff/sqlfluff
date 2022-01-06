@@ -2552,7 +2552,7 @@ class CreateViewStatementSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
-class DropStatementSegment(BaseSegment): # TODO BREAK OUT HERE
+class DropStatementSegment(BaseSegment): # TODO REMOVE HERE
     """A `DROP` statement.
 
     R7L208:
@@ -2572,23 +2572,23 @@ class DropStatementSegment(BaseSegment): # TODO BREAK OUT HERE
     match_grammar = Sequence(
         "DROP",
         OneOf(
-            # "TABLE",
-            # "VIEW",
+            "TABLE",
+            "VIEW",
             "USER",
         ),
         Ref("IfExistsGrammar", optional=True),
-        # OneOf(
+        OneOf(
             # TABLE/VIEW
-            # Ref("TableReferenceSegment"),
+            Ref("TableReferenceSegment"),
             # User
             Ref("ObjectReferenceSegment"),
-        # ),
+        ),
         Ref("DropBehaviorGrammar", optional=True),
     )
 
 
 @ansi_dialect.segment()
-class DropTableStatementSegment(BaseSegment): # TODO BREAK OUT HERE
+class DropTableStatementSegment(BaseSegment):
     """A `DROP TABLE` statement."""
 
     type = "drop_table_statement"
@@ -2603,7 +2603,7 @@ class DropTableStatementSegment(BaseSegment): # TODO BREAK OUT HERE
 
 
 @ansi_dialect.segment()
-class DropViewStatementSegment(BaseSegment): # TODO BREAK OUT HERE
+class DropViewStatementSegment(BaseSegment):
     """A `DROP VIEW` statement."""
 
     type = "drop_table_statement"
@@ -2613,6 +2613,21 @@ class DropViewStatementSegment(BaseSegment): # TODO BREAK OUT HERE
         "VIEW",
         Ref("IfExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
+        Ref("DropBehaviorGrammar", optional=True),
+    )
+
+
+@ansi_dialect.segment()
+class DropUserStatementSegment(BaseSegment):
+    """A `DROP USER` statement."""
+
+    type = "drop_user_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        "USER",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
         Ref("DropBehaviorGrammar", optional=True),
     )
 
@@ -3158,9 +3173,10 @@ class StatementSegment(BaseSegment):
         Ref("SelectableGrammar"),
         Ref("InsertStatementSegment"),
         Ref("TransactionStatementSegment"),
-        Ref("DropStatementSegment"),  # TODO BREAK OUT HERE
+        Ref("DropStatementSegment"),  # TODO REMOVE HERE
         Ref("DropTableStatementSegment"),
         Ref("DropViewStatementSegment"),
+        Ref("DropUserStatementSegment"),
         Ref("TruncateStatementSegment"),
         Ref("AccessStatementSegment"),
         Ref("CreateTableStatementSegment"),

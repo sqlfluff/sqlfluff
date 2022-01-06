@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: babf3db955772cb96d2b5ffa1c71ec3e2aef5998da9ecfd8c99f9cd072445c04
+_hash: 7d12d006b5b041ec3b4ca7037425b8cc1efe7799e969dd2974dc1947d3e8c7ee
 file:
   batch:
     create_procedure_statement:
@@ -31,14 +31,14 @@ file:
                   start_bracket: (
                   end_bracket: )
       - statement:
-          drop_table_statement:
+          drop_statement:
           - keyword: DROP
           - keyword: TABLE
           - table_reference:
             - identifier: '[Reporting]'
             - dot: .
             - identifier: '[PowerPlan_BASE]'
-      - statement_terminator: ;
+          - statement_terminator: ;
       - statement:
           begin_end_block:
           - keyword: BEGIN
