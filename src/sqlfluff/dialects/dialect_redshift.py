@@ -343,6 +343,7 @@ class CreateExternalTableAsStatementSegment(BaseSegment):
         "TABLE",
         Ref("TableReferenceSegment"),
         Ref("PartitionedBySegment", optional=True),
+        Ref("RowFormatDelimitedSegment", optional=True),
         "STORED",
         "AS",
         OneOf(
@@ -405,6 +406,7 @@ class StatementSegment(BaseSegment):
             Ref("CreateGroupSegment"),
             Ref("CreateUserSegment"),
             Ref("PartitionedBySegment"),
+            Ref("RowFormatDelimitedSegment"),
             Ref("TableAttributeSegment"),
         ],
     )
@@ -434,6 +436,26 @@ class PartitionedBySegment(BaseSegment):
                 ),
             ),
         ),
+    )
+
+
+@redshift_dialect.segment()
+class RowFormatDelimitedSegment(BaseSegment):
+    """Row Format Delimited Segment.
+
+    As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_EXTERNAL_TABLE.html
+    """
+
+    type = "row_format_deimited_segment"
+
+    match_grammar = Sequence(
+        "ROW",
+        "FORMAT",
+        "DELIMITED",
+        OneOf("FIELDS", "LINES"),
+        "TERMINATED",
+        "BY",
+        Ref("QuotedLiteralSegment"),
     )
 
 
