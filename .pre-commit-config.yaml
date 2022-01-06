@@ -16,14 +16,13 @@ repos:
       - id: mypy
         args: [--ignore-missing-imports]
         additional_dependencies: [
-          types-appdirs,
-          types-backports,
-          types-chardet,
-          types-colorama,
+          types-toml,
           types-pkg_resources,
+          types-chardet,
+          types-appdirs,
+          types-colorama,
           types-pyyaml,
           types-regex,
-          types-toml,
         ]
         files: ^src/sqlfluff/.*
   - repo: https://github.com/pycqa/flake8
