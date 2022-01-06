@@ -3,32 +3,32 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: eea985959ec23939d605c7c364b61057309c262dcd650cb5d8b480c8cb40485f
+_hash: 675a5d6f9c3e508a1d0e04a1e83d6ecebc1dcdd8bd0adbdc5680c9ab0d504e8d
 file:
 - base:
-    drop_statement:
+    drop_function_statement:
     - keyword: DROP
     - keyword: TEMPORARY
     - keyword: FUNCTION
     - keyword: IF
     - keyword: EXISTS
-    - table_reference:
+    - object_reference:
         identifier: function_name
 - statement_terminator: ;
 - base:
-    drop_statement:
+    drop_function_statement:
     - keyword: DROP
     - keyword: FUNCTION
-    - table_reference:
+    - object_reference:
         identifier: test_avg
 - statement_terminator: ;
 - base:
-    drop_statement:
+    drop_function_statement:
     - keyword: DROP
     - keyword: TEMPORARY
     - keyword: FUNCTION
     - keyword: IF
     - keyword: EXISTS
-    - table_reference:
+    - object_reference:
         identifier: test_avg
 - statement_terminator: ;
