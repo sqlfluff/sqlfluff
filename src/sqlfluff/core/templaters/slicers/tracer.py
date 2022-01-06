@@ -92,8 +92,8 @@ class JinjaTracer:
                 # in raw_str.
                 value = [m_id.group(1), int(m_id.group(3)), True]
             else:
-                # E.g. "adc15d2a41d14ead97411bce3fb55e32 a < 10". The characters
-                # after the UUID are executable code from raw_str.
+                # E.g. "00000000000000000000000000000002 a < 10". The characters
+                # after the slice ID are executable code from raw_str.
                 value = [m_id.group(0), p[len(m_id.group(0)) + 1 :], False]
             alt_id, content_info, literal = value
             target_slice_idx = self.find_slice_index(alt_id)
@@ -109,7 +109,10 @@ class JinjaTracer:
         )
 
     def find_slice_index(self, slice_identifier) -> int:
-        """Given a slice identifier (UUID string), return its index."""
+        """Given a slice identifier, return its index.
+
+        A slice identifier is a string like 00000000000000000000000000000002.
+        """
         raw_slices_search_result = [
             idx
             for idx, rs in enumerate(self.raw_sliced)
@@ -298,7 +301,7 @@ class JinjaTracer:
                                 block_subtype = "loop"
                     else:
                         # For "templated", evaluate the content in case of side
-                        # effects, but return a UUID.
+                        # effects, but return a unique slice ID.
                         if trimmed_content:
                             assert m_open and m_close
                             unique_id = self.next_slice_id()
