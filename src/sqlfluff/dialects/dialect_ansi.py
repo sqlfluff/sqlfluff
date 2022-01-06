@@ -484,9 +484,7 @@ ansi_dialect.add(
         Sequence("NO", "ACTION"),
         Sequence("SET", "DEFAULT"),
     ),
-    DropBehaviorGrammar=OneOf(
-        "RESTRICT", "CASCADE", optional=True
-    ),
+    DropBehaviorGrammar=OneOf("RESTRICT", "CASCADE", optional=True),
 )
 
 

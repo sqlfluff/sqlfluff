@@ -674,6 +674,7 @@ class CreateViewStatementSegment(BaseSegment):
         Ref("WithNoSchemaBindingClauseSegment", optional=True),
     )
 
+
 @spark3_dialect.segment()
 class DropFunctionStatementSegment(BaseSegment):
     """A `DROP FUNCTION` STATEMENT.
@@ -690,6 +691,7 @@ class DropFunctionStatementSegment(BaseSegment):
         Ref("IfExistsGrammar", optional=True),
         Ref("ObjectReferenceSegment"),
     )
+
 
 # Auxiliary Statements
 @spark3_dialect.segment()

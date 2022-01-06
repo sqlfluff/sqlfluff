@@ -1357,8 +1357,7 @@ class DropIndexStatementSegment(BaseSegment):
 
 @mysql_dialect.segment()
 class DropRoutineStatementSegment(BaseSegment):
-    """A `DROP` statement that address stored procedures, stored
-    functions, and loadable functions.
+    """A `DROP` statement that address stored procedures, stored functions, and loadable functions.
 
     https://dev.mysql.com/doc/refman/8.0/en/drop-procedure.html
     https://dev.mysql.com/doc/refman/8.0/en/drop-function-loadable.html

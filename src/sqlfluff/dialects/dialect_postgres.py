@@ -3184,7 +3184,8 @@ class TruncateStatementSegment(BaseSegment):
             "IDENTITY",
             optional=True,
         ),
-        Ref("DropBehaviorGrammar",
+        Ref(
+            "DropBehaviorGrammar",
             optional=True,
         ),
     )
