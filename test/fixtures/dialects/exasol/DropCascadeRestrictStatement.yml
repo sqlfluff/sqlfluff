@@ -3,20 +3,20 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 76fc29b3886b22a93c4d3131ade96e0d591ea7a52301b5e1b7a53799be5aa059
+_hash: d2c38a3929ff3cfb0995da3daa1d27d20ee1b5e5e41e33f0384ff896fbad557c
 file:
 - statement:
-    drop_cascade_restrict:
+    drop_view_statement:
     - keyword: DROP
     - keyword: VIEW
     - keyword: IF
     - keyword: EXISTS
-    - object_reference:
+    - table_reference:
         identifier: my_view
     - keyword: RESTRICT
 - statement_terminator: ;
 - statement:
-    drop_cascade_restrict:
+    drop_function_statement:
     - keyword: DROP
     - keyword: FUNCTION
     - object_reference:

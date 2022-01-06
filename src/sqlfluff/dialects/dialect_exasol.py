@@ -757,14 +757,13 @@ class DropUserStatementSegment(BaseSegment):
 
 
 @exasol_dialect.segment()
-class DropCascadeRestrictStatementSegment(BaseSegment):
-    """A `DROP` statement with CASCADE and RESTRICT option.
+class DropviewStatementSegment(BaseSegment):
+    """A `DROP VIEW` statement with CASCADE and RESTRICT option.
 
     https://docs.exasol.com/sql/drop_view.htm
-    https://docs.exasol.com/sql/drop_function.htm
     """
 
-    type = "drop_cascade_restrict"
+    type = "drop_view_statement"
 
     is_ddl = True
     is_dml = False
@@ -773,10 +772,30 @@ class DropCascadeRestrictStatementSegment(BaseSegment):
 
     match_grammar = Sequence(
         "DROP",
-        OneOf(
-            "VIEW",
-            "FUNCTION",
-        ),
+        "VIEW",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        Ref("DropBehaviorGrammar", optional=True),
+    )
+
+
+@exasol_dialect.segment()
+class DropFunctionStatementSegment(BaseSegment):
+    """A `DROP FUNCTION` statement with CASCADE and RESTRICT option.
+
+    https://docs.exasol.com/sql/drop_function.htm
+    """
+
+    type = "drop_function_statement"
+
+    is_ddl = True
+    is_dml = False
+    is_dql = False
+    is_dcl = False
+
+    match_grammar = Sequence(
+        "DROP",
+        "FUNCTION",
         Ref("IfExistsGrammar", optional=True),
         Ref("ObjectReferenceSegment"),
         Ref("DropBehaviorGrammar", optional=True),
@@ -3693,7 +3712,8 @@ class StatementSegment(BaseSegment):
         Ref("CreateViewStatementSegment"),
         Ref("CreateVirtualSchemaStatementSegment"),
         Ref("DropWithoutOptionsStatementSegment"),
-        Ref("DropCascadeRestrictStatementSegment"),
+        Ref("DropViewStatementSegment"),
+        Ref("DropFunctionStatementSegment"),
         Ref("DropSchemaStatementSegment"),
         Ref("DropTableStatementSegment"),
         Ref("RenameStatementSegment"),
