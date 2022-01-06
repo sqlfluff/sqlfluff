@@ -295,17 +295,15 @@ class CreateExternalTableStatementSegment(BaseSegment):
         "TABLE",
         Ref("TableReferenceSegment"),
         Bracketed(
-            OneOf(
-                # Columns and comment syntax:
-                Delimited(
-                    Sequence(
-                        Ref("ColumnReferenceSegment"),
-                        Ref("DatatypeSegment"),
-                    ),
+            # Columns and comment syntax:
+            Delimited(
+                Sequence(
+                    Ref("ColumnReferenceSegment"),
+                    Ref("DatatypeSegment"),
                 ),
-            )
+            ),
         ),
-        OneOf(Ref("PartitionedBySegment"), optional=True),
+        Ref("PartitionedBySegment", optional=True),
         "STORED",
         "AS",
         OneOf(
@@ -336,7 +334,7 @@ class CreateExternalTableAsStatementSegment(BaseSegment):
         "EXTERNAL",
         "TABLE",
         Ref("TableReferenceSegment"),
-        OneOf(Ref("PartitionedBySegment"), optional=True),
+        Ref("PartitionedBySegment", optional=True),
         "STORED",
         "AS",
         OneOf(
@@ -426,14 +424,12 @@ class PartitionedBySegment(BaseSegment):
         Ref.keyword("PARTITIONED"),
         "BY",
         Bracketed(
-            OneOf(
-                Delimited(
-                    Sequence(
-                        Ref("ColumnReferenceSegment"),
-                        Ref("DatatypeSegment"),
-                    ),
+            Delimited(
+                Sequence(
+                    Ref("ColumnReferenceSegment"),
+                    Ref("DatatypeSegment"),
                 ),
-            )
+            ),
         ),
     )
 
