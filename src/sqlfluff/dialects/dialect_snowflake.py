@@ -112,9 +112,9 @@ snowflake_dialect.add(
     ),
     # We use a RegexParser instead of keywords as some (those with dashes) require quotes:
     WarehouseSize=RegexParser(
-        r"('?XSMALL'?|'?SMALL'?|'?MEDIUM'?|'?LARGE'?|'?XLARGE'?|'?XXLARGE'?|'?X2LARGE'?|"
+        r"'?XSMALL'?|'?SMALL'?|'?MEDIUM'?|'?LARGE'?|'?XLARGE'?|'?XXLARGE'?|'?X2LARGE'?|"
         r"'?XXXLARGE'?|'?X3LARGE'?|'?X4LARGE'?|'?X5LARGE|'?X6LARGE'?|"
-        r"'X-SMALL'|'X-LARGE'|'2X-LARGE'|'3X-LARGE'|'4X-LARGE'|'5X-LARGE'|'6X-LARGE')",
+        r"'X-SMALL'|'X-LARGE'|'2X-LARGE'|'3X-LARGE'|'4X-LARGE'|'5X-LARGE'|'6X-LARGE'",
         CodeSegment,
         name="warehouse_size",
         type="warehouse_size",
@@ -140,7 +140,7 @@ snowflake_dialect.add(
         type="literal",
     ),
     CopyOptionOnErrorSegment=RegexParser(
-        r"(?:'?CONTINUE'?)|(?:'?SKIP_FILE(_[0-9]+%?)?'?)|(?:'?ABORT_STATEMENT'?)",
+        r"'?CONTINUE'?|'?SKIP_FILE(?:_[0-9]+%?)?'?|'?ABORT_STATEMENT'?",
         CodeSegment,
         name="literal",
         type="literal",
@@ -188,13 +188,13 @@ snowflake_dialect.add(
         type="bucket_path",
     ),
     SnowflakeEncryptionOption=RegexParser(
-        r"(?:'SNOWFLAKE_FULL')|(?:'SNOWFLAKE_SSE')",
+        r"'SNOWFLAKE_FULL'|'SNOWFLAKE_SSE'",
         CodeSegment,
         name="snowflake_encryption_option",
         type="stage_encryption_option",
     ),
     S3EncryptionOption=RegexParser(
-        r"(?:'AWS_CSE')|(?:'AWS_SSE_S3')|(?:'AWS_SSE_KMS')",
+        r"'AWS_CSE'|'AWS_SSE_S3'|'AWS_SSE_KMS'",
         CodeSegment,
         name="s3_encryption_option",
         type="stage_encryption_option",
@@ -212,7 +212,7 @@ snowflake_dialect.add(
         type="stage_encryption_option",
     ),
     FileType=RegexParser(
-        r"(?:'?CSV'?)|(?:'?JSON'?)|(?:'?AVRO'?)|(?:'?ORC'?)|(?:'?PARQUET'?)|(?:'?XML'?)",
+        r"'?CSV'?|'?JSON'?|'?AVRO'?|'?ORC'?|'?PARQUET'?|'?XML'?",
         CodeSegment,
         name="file_type",
         type="file_type",
