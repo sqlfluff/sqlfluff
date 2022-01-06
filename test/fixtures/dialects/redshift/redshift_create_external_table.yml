@@ -1,0 +1,216 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: ab4221e70acb2ce9bb2b8cc1878944c8873c1d0de2e8a82311353b858124c82b
+file:
+- statement:
+    create_external_table_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - table_reference:
+      - identifier: external_schema
+      - dot: .
+      - identifier: table_name
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          identifier: col1
+        data_type:
+          data_type_identifier: INTEGER
+        end_bracket: )
+    - keyword: STORED
+    - keyword: AS
+    - keyword: PARQUET
+    - keyword: LOCATION
+    - literal: "'s3://bucket/folder'"
+- statement_terminator: ;
+- statement:
+    create_external_table_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - table_reference:
+      - identifier: external_schema
+      - dot: .
+      - identifier: table_name
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          identifier: col1
+      - data_type:
+          data_type_identifier: INTEGER
+      - comma: ','
+      - column_reference:
+          identifier: col2
+      - data_type:
+          data_type_identifier: STRING
+      - end_bracket: )
+    - keyword: STORED
+    - keyword: AS
+    - keyword: PARQUET
+    - keyword: LOCATION
+    - literal: "'s3://bucket/folder'"
+- statement_terminator: ;
+- statement:
+    create_external_table_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - table_reference:
+      - identifier: external_schema
+      - dot: .
+      - identifier: table_name
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          identifier: col1
+      - data_type:
+          data_type_identifier: INTEGER
+      - comma: ','
+      - column_reference:
+          identifier: col2
+      - data_type:
+          data_type_identifier: STRING
+      - end_bracket: )
+    - keyword: STORED
+    - keyword: AS
+    - keyword: ORC
+    - keyword: LOCATION
+    - literal: "'s3://bucket/folder'"
+- statement_terminator: ;
+- statement:
+    create_external_table_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - table_reference:
+      - identifier: external_schema
+      - dot: .
+      - identifier: table_name
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          identifier: col1
+      - data_type:
+          data_type_identifier: INTEGER
+      - comma: ','
+      - column_reference:
+          identifier: col2
+      - data_type:
+          data_type_identifier: STRING
+      - end_bracket: )
+    - keyword: STORED
+    - keyword: AS
+    - keyword: AVRO
+    - keyword: LOCATION
+    - literal: "'s3://bucket/folder'"
+- statement_terminator: ;
+- statement:
+    create_external_table_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - table_reference:
+      - identifier: external_schema
+      - dot: .
+      - identifier: table_name
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          identifier: col1
+      - data_type:
+          data_type_identifier: INTEGER
+      - comma: ','
+      - column_reference:
+          identifier: col2
+      - data_type:
+          data_type_identifier: STRING
+      - end_bracket: )
+    - keyword: STORED
+    - keyword: AS
+    - keyword: TEXTFILE
+    - keyword: LOCATION
+    - literal: "'s3://bucket/folder'"
+- statement_terminator: ;
+- statement:
+    create_external_table_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - table_reference:
+      - identifier: external_schema
+      - dot: .
+      - identifier: table_name
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          identifier: col1
+      - data_type:
+          data_type_identifier: INTEGER
+      - comma: ','
+      - column_reference:
+          identifier: col2
+      - data_type:
+          data_type_identifier: STRING
+      - end_bracket: )
+    - partitioned_by_segment:
+      - keyword: PARTITIONED
+      - keyword: BY
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            identifier: col3
+          data_type:
+            data_type_identifier: integer
+          end_bracket: )
+    - keyword: STORED
+    - keyword: AS
+    - keyword: PARQUET
+    - keyword: LOCATION
+    - literal: "'s3://bucket/folder'"
+- statement_terminator: ;
+- statement:
+    create_external_table_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - table_reference:
+      - identifier: external_schema
+      - dot: .
+      - identifier: table_name
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          identifier: col1
+      - data_type:
+          data_type_identifier: INTEGER
+      - comma: ','
+      - column_reference:
+          identifier: col2
+      - data_type:
+          data_type_identifier: STRING
+      - end_bracket: )
+    - partitioned_by_segment:
+      - keyword: PARTITIONED
+      - keyword: BY
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            identifier: col3
+        - data_type:
+            data_type_identifier: INTEGER
+        - comma: ','
+        - column_reference:
+            identifier: col4
+        - data_type:
+            data_type_identifier: INTEGER
+        - end_bracket: )
+    - keyword: STORED
+    - keyword: AS
+    - keyword: PARQUET
+    - keyword: LOCATION
+    - literal: "'s3://bucket/folder'"
+- statement_terminator: ;
