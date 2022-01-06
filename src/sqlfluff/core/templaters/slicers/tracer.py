@@ -97,18 +97,13 @@ class JinjaTracer:
                 value = [m_id.group(0), p[len(m_id.group(0)) + 1 :], False]
             alt_id, content_info, literal = value
             target_slice_idx = self.find_slice_index(alt_id)
+            slice_length = content_info if literal else len(str(content_info))
             if not is_set:
-                if literal:
-                    self.move_to_slice(target_slice_idx, content_info)
-                else:
-                    self.move_to_slice(target_slice_idx, len(str(content_info)))
+                self.move_to_slice(target_slice_idx, slice_length)
             else:
                 # If we find output from a {% set %} directive, record a trace
                 # without reading or updating the program counter.
-                if literal:
-                    self.record_trace(content_info, target_slice_idx)
-                else:
-                    self.record_trace(len(str(content_info)), target_slice_idx)
+                self.record_trace(slice_length, target_slice_idx)
         return JinjaTrace(
             self.make_template(self.raw_str).render(), self.raw_sliced, self.sliced_file
         )
