@@ -2610,7 +2610,7 @@ class TruncateStatementSegment(BaseSegment):
 class DropIndexStatementSegment(BaseSegment):
     """A `DROP INDEX` statement."""
 
-    type = "drop_statement"
+    type = "drop_index_statement"
     # DROP INDEX <Index name> [CONCURRENTLY] [IF EXISTS] {RESTRICT | CASCADE}
     match_grammar = Sequence(
         "DROP",

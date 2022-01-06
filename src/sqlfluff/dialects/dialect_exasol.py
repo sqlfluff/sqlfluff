@@ -682,7 +682,12 @@ class LimitClauseSegment(BaseSegment):
 
 @exasol_dialect.segment()
 class DropWithoutOptionsStatementSegment(BaseSegment):
-    """A `DROP` statement without any options."""
+    """A `DROP` statement without any options.
+
+    https://docs.exasol.com/sql/drop_connection.htm
+    https://docs.exasol.com/sql/drop_script.htm
+    https://docs.exasol.com/sql/consumer_group.htm
+    """
 
     type = "drop_wo_options"
     is_ddl = False
@@ -1543,14 +1548,15 @@ class DropTableStatementSegment(BaseSegment):
     https://docs.exasol.com/sql/drop_table.htm
     """
 
-    type = "drop_table"
+    type = "drop_table_statement"
+
     match_grammar = StartsWith(Sequence("DROP", "TABLE"))
+
     parse_grammar = Sequence(
         "DROP",
         "TABLE",
         Ref("IfExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
-        # OneOf("RESTRICT", Ref.keyword("CASCADE", optional=True), optional=True),
         Ref("DropBehaviorGrammar", optional=True),
         Sequence("CASCADE", "CONSTRAINTS", optional=True),
     )
