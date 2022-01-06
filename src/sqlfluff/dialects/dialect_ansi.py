@@ -2581,16 +2581,15 @@ class DropViewStatementSegment(BaseSegment):
 
 @ansi_dialect.segment()
 class DropUserStatementSegment(BaseSegment):
-    """A `DROP USER` statement."""
+    """A `DROP` statement for role, user, or group."""
 
     type = "drop_user_statement"
 
     match_grammar = Sequence(
         "DROP",
-        "USER",
+        OneOf("ROLE", "USER", "GROUP"),
         Ref("IfExistsGrammar", optional=True),
         Ref("ObjectReferenceSegment"),
-        Ref("DropBehaviorGrammar", optional=True),
     )
 
 
