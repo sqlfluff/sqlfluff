@@ -701,7 +701,7 @@ class DropStatementSegment(BaseSegment):
             # User
             Ref("ObjectReferenceSegment"),
         ),
-        OneOf("RESTRICT", Ref.keyword("CASCADE", optional=True), optional=True),
+        Ref("DropBehaviorGrammar", optional=True),
     )
 
 

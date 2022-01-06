@@ -521,7 +521,7 @@ class DropFunctionStatementSegment(BaseSegment):
                 Ref("FunctionParameterListGrammar", optional=True),
             )
         ),
-        OneOf("CASCADE", "RESTRICT", optional=True),
+        Ref("DropBehaviorGrammar", optional=True),
     )
 
 
@@ -1263,7 +1263,7 @@ class AlterTableActionSegment(BaseSegment):
             Ref.keyword("COLUMN", optional=True),
             Sequence("IF", "EXISTS", optional=True),
             Ref("ColumnReferenceSegment"),
-            OneOf("RESTRICT", "CASCADE", optional=True),
+            Ref("DropBehaviorGrammar", optional=True),
         ),
         Sequence(
             "ALTER",
@@ -1366,7 +1366,7 @@ class AlterTableActionSegment(BaseSegment):
             "CONSTRAINT",
             Sequence("IF", "EXISTS", optional=True),
             Ref("ParameterNameSegment"),
-            OneOf("RESTRICT", "CASCADE", optional=True),
+            Ref("DropBehaviorGrammar", optional=True),
         ),
         Sequence(
             OneOf("ENABLE", "DISABLE"),
@@ -1659,7 +1659,7 @@ class DropMaterializedViewStatementSegment(BaseSegment):
         "VIEW",
         Sequence("IF", "EXISTS", optional=True),
         Delimited(Ref("TableReferenceSegment")),
-        OneOf("CASCADE", "RESTRICT", optional=True),
+        Ref("DropBehaviorGrammar", optional=True),
     )
 
 
@@ -2336,7 +2336,7 @@ class AlterDefaultPrivilegesRevokeSegment(BaseSegment):
             Ref("AlterDefaultPrivilegesToFromRolesSegment"),
             terminator=OneOf("RESTRICT", "CASCADE"),
         ),
-        OneOf("RESTRICT", "CASCADE", optional=True),
+        Ref("DropBehaviorGrammar", optional=True),
     )
 
 
@@ -2708,7 +2708,7 @@ class DropSequenceStatementSegment(BaseSegment):
         "SEQUENCE",
         Ref("IfExistsGrammar", optional=True),
         Delimited(Ref("SequenceReferenceSegment")),
-        OneOf("CASCADE", "RESTRICT", optional=True),
+        Ref("DropBehaviorGrammar", optional=True),
     )
 
 
@@ -2933,7 +2933,7 @@ class DropTriggerStatementSegment(BaseSegment):
         Ref("TriggerReferenceSegment"),
         "ON",
         Ref("TableReferenceSegment"),
-        OneOf("CASCADE", "RESTRICT", optional=True),
+        Ref("DropBehaviorGrammar", optional=True),
     )
 
 
@@ -2972,7 +2972,7 @@ class DropTypeStatementSegment(BaseSegment):
         "TYPE",
         Ref("IfExistsGrammar", optional=True),
         Delimited(Ref("DatatypeSegment")),
-        OneOf("CASCADE", "RESTRICT", optional=True),
+        Ref("DropBehaviorGrammar", optional=True),
     )
 
 
@@ -3057,7 +3057,7 @@ class DropPolicyStatementSegment(BaseSegment):
         Ref("ObjectReferenceSegment"),
         "ON",
         Ref("TableReferenceSegment"),
-        OneOf("CASCADE", "RESTRICT", optional=True),
+        Ref("DropBehaviorGrammar", optional=True),
     )
 
 
@@ -3184,9 +3184,7 @@ class TruncateStatementSegment(BaseSegment):
             "IDENTITY",
             optional=True,
         ),
-        OneOf(
-            "CASCADE",
-            "RESTRICT",
+        Ref("DropBehaviorGrammar",
             optional=True,
         ),
     )

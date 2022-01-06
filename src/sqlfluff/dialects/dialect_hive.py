@@ -454,7 +454,7 @@ class DropStatementSegment(BaseSegment):
     )
 
 
-@hive_dialect.segment()
+@hive_dialect.segment(replace=True)
 class DropTableStatementSegment(BaseSegment):
     """A `DROP TABLE` statement."""
 

@@ -773,7 +773,7 @@ class DropCascadeRestrictStatementSegment(BaseSegment):
         ),
         Ref("IfExistsGrammar", optional=True),
         Ref("ObjectReferenceSegment"),
-        OneOf("RESTRICT", "CASCADE", optional=True),
+        Ref("DropBehaviorGrammar", optional=True),
     )
 
 
@@ -929,7 +929,7 @@ class DropSchemaStatementSegment(BaseSegment):
         "SCHEMA",
         Ref("IfExistsGrammar", optional=True),
         Ref("SchemaReferenceSegment"),
-        OneOf("RESTRICT", Ref.keyword("CASCADE", optional=True), optional=True),
+        Ref("DropBehaviorGrammar", optional=True),
     )
 
 
@@ -1555,7 +1555,7 @@ class AlterTableDistributePartitionSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
+@exasol_dialect.segment(replace=True)
 class DropTableStatementSegment(BaseSegment):
     """A `DROP` table statement.
 
@@ -1569,7 +1569,8 @@ class DropTableStatementSegment(BaseSegment):
         "TABLE",
         Ref("IfExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
-        OneOf("RESTRICT", Ref.keyword("CASCADE", optional=True), optional=True),
+        # OneOf("RESTRICT", Ref.keyword("CASCADE", optional=True), optional=True),
+        Ref("DropBehaviorGrammar", optional=True),
         Sequence("CASCADE", "CONSTRAINTS", optional=True),
     )
 
