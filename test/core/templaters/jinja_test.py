@@ -413,14 +413,6 @@ def assert_structure(yaml_loader, path, code_only=True, include_meta=False):
     if parsed is None:
         print(p)
         raise RuntimeError(p[0][1])
-    # Enable this code to create a new test .yml file, i.e. when adding a new
-    # test case.
-    # if parsed:
-    #     r = parsed.as_record(code_only=True, show_raw=True)
-    #     if r:
-    #         with open(path + ".yml", "w") as f:
-    #             import yaml
-    #             yaml.dump(r, f, sort_keys=False)
     # Whitespace is important here to test how that's treated
     tpl = parsed.to_tuple(code_only=code_only, show_raw=True, include_meta=include_meta)
     # Check nothing unparsable
