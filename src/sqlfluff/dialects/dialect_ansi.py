@@ -2551,22 +2551,6 @@ class CreateViewStatementSegment(BaseSegment):
     )
 
 
-# @ansi_dialect.segment()  # TODO REMOVE
-# class DropStatementSegment(BaseSegment):
-#     """A `DROP` statement."""
-#
-#     type = "drop_statement"
-#     match_grammar = StartsWith("DROP")
-#     parse_grammar = OneOf(
-#         Ref("DropTableStatementSegment"),
-#         Ref("DropViewStatementSegment"),
-#         Ref("DropUserStatementSegment"),
-#         Ref("DropDatabaseStatementSegment"),
-#         Ref("DropSchemaStatementSegment"),
-#         # TODO: add other drops
-#     )
-
-
 @ansi_dialect.segment()
 class DropTableStatementSegment(BaseSegment):
     """A `DROP TABLE` statement."""
