@@ -1,0 +1,185 @@
+file:
+  statement:
+    select_statement:
+      select_clause:
+        keyword: select
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: date_trunc
+            bracketed:
+            - start_bracket: (
+            - expression:
+                literal: "'week'"
+            - comma: ','
+            - expression:
+                function:
+                  function_name:
+                    function_name_identifier: TO_DATE
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      literal: "'01 July'"
+                      binary_operator: '||'
+                      case_expression:
+                      - keyword: case
+                      - when_clause:
+                        - keyword: when
+                        - expression:
+                          - function:
+                              function_name:
+                                function_name_identifier: TO_DATE
+                              bracketed:
+                              - start_bracket: (
+                              - expression:
+                                  literal: "'01 July'"
+                                  binary_operator: '||'
+                                  function:
+                                    function_name:
+                                      function_name_identifier: extract
+                                    bracketed:
+                                      start_bracket: (
+                                      date_part: year
+                                      keyword: from
+                                      expression:
+                                        function:
+                                          function_name:
+                                            function_name_identifier: date_trunc
+                                          bracketed:
+                                          - start_bracket: (
+                                          - expression:
+                                              literal: "'week'"
+                                          - comma: ','
+                                          - expression:
+                                              function:
+                                                function_name:
+                                                  function_name_identifier: CONVERT_TIMEZONE
+                                                bracketed:
+                                                - start_bracket: (
+                                                - expression:
+                                                    literal: "'UTC'"
+                                                - comma: ','
+                                                - expression:
+                                                    literal: "'America/New_York'"
+                                                - comma: ','
+                                                - expression:
+                                                  - literal: '2021'
+                                                  - binary_operator: '-'
+                                                  - literal: '05'
+                                                  - binary_operator: '-'
+                                                  - literal: '01'
+                                                - end_bracket: )
+                                          - end_bracket: )
+                                      end_bracket: )
+                              - comma: ','
+                              - expression:
+                                  literal: "'DD Mon YYYY'"
+                              - end_bracket: )
+                          - comparison_operator:
+                            - raw_comparison_operator: <
+                            - raw_comparison_operator: '='
+                          - function:
+                              function_name:
+                                function_name_identifier: CONVERT_TIMEZONE
+                              bracketed:
+                              - start_bracket: (
+                              - expression:
+                                  literal: "'UTC'"
+                              - comma: ','
+                              - expression:
+                                  literal: "'America/New_York'"
+                              - comma: ','
+                              - expression:
+                                - literal: '2021'
+                                - binary_operator: '-'
+                                - literal: '05'
+                                - binary_operator: '-'
+                                - literal: '01'
+                              - end_bracket: )
+                        - keyword: then
+                        - expression:
+                            function:
+                              function_name:
+                                function_name_identifier: extract
+                              bracketed:
+                                start_bracket: (
+                                date_part: year
+                                keyword: from
+                                expression:
+                                  function:
+                                    function_name:
+                                      function_name_identifier: date_trunc
+                                    bracketed:
+                                    - start_bracket: (
+                                    - expression:
+                                        literal: "'week'"
+                                    - comma: ','
+                                    - expression:
+                                        function:
+                                          function_name:
+                                            function_name_identifier: CONVERT_TIMEZONE
+                                          bracketed:
+                                          - start_bracket: (
+                                          - expression:
+                                              literal: "'UTC'"
+                                          - comma: ','
+                                          - expression:
+                                              literal: "'America/New_York'"
+                                          - comma: ','
+                                          - expression:
+                                            - literal: '2021'
+                                            - binary_operator: '-'
+                                            - literal: '05'
+                                            - binary_operator: '-'
+                                            - literal: '01'
+                                          - end_bracket: )
+                                    - end_bracket: )
+                                end_bracket: )
+                      - else_clause:
+                          keyword: else
+                          expression:
+                            function:
+                              function_name:
+                                function_name_identifier: extract
+                              bracketed:
+                                start_bracket: (
+                                date_part: year
+                                keyword: from
+                                expression:
+                                  function:
+                                    function_name:
+                                      function_name_identifier: date_trunc
+                                    bracketed:
+                                    - start_bracket: (
+                                    - expression:
+                                        literal: "'week'"
+                                    - comma: ','
+                                    - expression:
+                                        function:
+                                          function_name:
+                                            function_name_identifier: CONVERT_TIMEZONE
+                                          bracketed:
+                                          - start_bracket: (
+                                          - expression:
+                                              literal: "'UTC'"
+                                          - comma: ','
+                                          - expression:
+                                              literal: "'America/New_York'"
+                                          - comma: ','
+                                          - expression:
+                                            - literal: '2021'
+                                            - binary_operator: '-'
+                                            - literal: '05'
+                                            - binary_operator: '-'
+                                            - literal: '01'
+                                          - end_bracket: )
+                                    - end_bracket: )
+                                end_bracket: )
+                            binary_operator: '-'
+                            literal: '1'
+                      - keyword: end
+                  - comma: ','
+                  - expression:
+                      literal: "'DD Mon YYYY'"
+                  - end_bracket: )
+            - end_bracket: )
