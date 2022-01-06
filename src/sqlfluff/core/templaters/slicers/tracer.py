@@ -70,19 +70,14 @@ class JinjaTracer:
         trace_template = self.make_template(trace_template_str)
         trace_template_output = trace_template.render()
         # Split output by section. Each section has two possible formats.
-        pos = 0
-        while trace_template_output.find("\0", pos) != -1:
-            pos1 = trace_template_output.find("\0", pos)
-            pos2 = trace_template_output.find("\0", pos1 + 1)
-            if pos2 != -1:
-                pos = pos2
-            else:
-                pos = len(trace_template_output)
-            p = (
-                trace_template_output[pos1 + 1 : pos2]
-                if pos2 != -1
-                else trace_template_output[pos1 + 1 :]
-            )
+        trace_entries = list(regex.finditer(r"\0", trace_template_output))
+        for match_idx, match in enumerate(trace_entries):
+            pos1 = match.span()[0]
+            try:
+                pos2 = trace_entries[match_idx + 1].span()[0]
+            except IndexError:
+                pos2 = len(trace_template_output)
+            p = trace_template_output[pos1 + 1 : pos2]
             is_set = p[:3] == "set"
             if is_set:
                 p = p[3:]
