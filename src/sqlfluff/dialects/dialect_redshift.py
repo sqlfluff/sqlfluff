@@ -318,7 +318,12 @@ class CreateExternalTableStatementSegment(BaseSegment):
             "TEXTFILE",
             "ORC",
             "AVRO",
-            Ref("QuotedLiteralSegment"),
+            Sequence(
+                "INPUTFORMAT",
+                Ref("QuotedLiteralSegment"),
+                "OUTPUTFORMAT",
+                Ref("QuotedLiteralSegment"),
+            ),
         ),
         "LOCATION",
         Ref("QuotedLiteralSegment"),
