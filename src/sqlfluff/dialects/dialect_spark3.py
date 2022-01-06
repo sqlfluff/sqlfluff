@@ -675,34 +675,34 @@ class CreateViewStatementSegment(BaseSegment):
     )
 
 
-@spark3_dialect.segment(replace=True)
-class DropStatementSegment(BaseSegment):
-    """A `DROP` statement.
-
-    DROP [TEMPORARY | TEMP] {TABLE | VIEW | FUNCTION} <Table name> [IF EXISTS] {RESTRICT | CASCADE}
-    """
-
-    type = "drop_statement"
-
-    match_grammar = Sequence(
-        "DROP",
-        Ref("TemporaryGrammar", optional=True),
-        OneOf(
-            "TABLE",
-            "VIEW",
-            "FUNCTION",
-        ),
-        Ref("IfExistsGrammar", optional=True),
-        OneOf(
-            # Table/View
-            Ref("TableReferenceSegment"),
-            # Function
-            Ref("FunctionSegment"),
-            # User
-            Ref("ObjectReferenceSegment"),
-        ),
-        Ref("DropBehaviorGrammar", optional=True),
-    )
+# @spark3_dialect.segment(replace=True)  # TODO REMOVE
+# class DropStatementSegment(BaseSegment):
+#     """A `DROP` statement.
+#
+#     DROP [TEMPORARY | TEMP] {TABLE | VIEW | FUNCTION} <Table name> [IF EXISTS] {RESTRICT | CASCADE}
+#     """
+#
+#     type = "drop_statement"
+#
+#     match_grammar = Sequence(
+#         "DROP",
+#         Ref("TemporaryGrammar", optional=True),
+#         OneOf(
+#             "TABLE",
+#             "VIEW",
+#             "FUNCTION",
+#         ),
+#         Ref("IfExistsGrammar", optional=True),
+#         OneOf(
+#             # Table/View
+#             Ref("TableReferenceSegment"),
+#             # Function
+#             Ref("FunctionSegment"),
+#             # User
+#             Ref("ObjectReferenceSegment"),
+#         ),
+#         Ref("DropBehaviorGrammar", optional=True),
+#     )
 
 
 # Auxiliary Statements
