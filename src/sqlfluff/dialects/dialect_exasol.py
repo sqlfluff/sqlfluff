@@ -710,14 +710,14 @@ class DropWithoutOptionsStatementSegment(BaseSegment):
 
 
 @exasol_dialect.segment()
-class DropCascadeStatementSegment(BaseSegment):
-    """A `DROP` statement with CASCADE option.
+class DropRoleStatementSegment(BaseSegment):
+    """A `DROP ROLE` statement with CASCADE option.
 
     https://docs.exasol.com/sql/drop_role.htm
     https://docs.exasol.com/sql/drop_user.htm
     """
 
-    type = "drop_cascade"
+    type = "drop_role_statement"
 
     is_ddl = False
     is_dml = False
@@ -726,10 +726,30 @@ class DropCascadeStatementSegment(BaseSegment):
 
     match_grammar = Sequence(
         "DROP",
-        OneOf(
-            "USER",
-            "ROLE",
-        ),
+        "ROLE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+        Ref.keyword("CASCADE", optional=True),
+    )
+
+
+@exasol_dialect.segment(replace=True)
+class DropUserStatementSegment(BaseSegment):
+    """A `DROP USER` statement with CASCADE option.
+
+    https://docs.exasol.com/sql/drop_user.htm
+    """
+
+    type = "drop_user_statement"
+
+    is_ddl = False
+    is_dml = False
+    is_dql = False
+    is_dcl = True
+
+    match_grammar = Sequence(
+        "DROP",
+        "USER",
         Ref("IfExistsGrammar", optional=True),
         Ref("ObjectReferenceSegment"),
         Ref.keyword("CASCADE", optional=True),
@@ -3673,7 +3693,6 @@ class StatementSegment(BaseSegment):
         Ref("CreateViewStatementSegment"),
         Ref("CreateVirtualSchemaStatementSegment"),
         Ref("DropWithoutOptionsStatementSegment"),
-        Ref("DropCascadeStatementSegment"),
         Ref("DropCascadeRestrictStatementSegment"),
         Ref("DropSchemaStatementSegment"),
         Ref("DropTableStatementSegment"),
@@ -3685,6 +3704,8 @@ class StatementSegment(BaseSegment):
         Ref("CreateConnectionSegment"),
         Ref("CreateRoleSegment"),
         Ref("CreateUserSegment"),
+        Ref("DropRoleStatementSegment"),
+        Ref("DropUserStatementSegment"),
         # System
         Ref("CreateConsumerGroupSegment"),
         Ref("AlterConsumerGroupSegment"),

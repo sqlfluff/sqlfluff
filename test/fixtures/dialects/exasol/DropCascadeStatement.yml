@@ -3,17 +3,17 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: aa4f1e7703a872d706c923ee95028dfb03cbde9bbec1a36f7ad750ab0cf71c29
+_hash: d4a0953233295271d0b977206a9582804a465f83fda049958d1a08cbdb4a4e19
 file:
 - statement:
-    drop_cascade:
+    drop_user_statement:
     - keyword: DROP
     - keyword: USER
     - object_reference:
         identifier: test_user1
 - statement_terminator: ;
 - statement:
-    drop_cascade:
+    drop_user_statement:
     - keyword: DROP
     - keyword: USER
     - object_reference:
@@ -21,7 +21,7 @@ file:
     - keyword: CASCADE
 - statement_terminator: ;
 - statement:
-    drop_cascade:
+    drop_role_statement:
     - keyword: DROP
     - keyword: ROLE
     - object_reference:
