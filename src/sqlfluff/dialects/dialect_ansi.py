@@ -484,6 +484,9 @@ ansi_dialect.add(
         Sequence("NO", "ACTION"),
         Sequence("SET", "DEFAULT"),
     ),
+    DropBehaviorGrammar=OneOf(
+        "RESTRICT", "CASCADE", optional=True
+    ),
 )
 
 
@@ -2394,7 +2397,7 @@ class DropSchemaStatementSegment(BaseSegment):
         "SCHEMA",
         Ref("IfExistsGrammar", optional=True),
         Ref("SchemaReferenceSegment"),
-        OneOf("RESTRICT", "CASCADE", optional=True),
+        Ref("DropBehaviorGrammar", optional=True),
     )
 
 
@@ -2408,7 +2411,7 @@ class DropTypeStatementSegment(BaseSegment):
         "TYPE",
         Ref("IfExistsGrammar", optional=True),
         Ref("ObjectReferenceSegment"),
-        OneOf("RESTRICT", "CASCADE", optional=True),
+        Ref("DropBehaviorGrammar", optional=True),
     )
 
 
@@ -2435,7 +2438,7 @@ class DropDatabaseStatementSegment(BaseSegment):
         "DATABASE",
         Ref("IfExistsGrammar", optional=True),
         Ref("DatabaseReferenceSegment"),
-        OneOf("RESTRICT", "CASCADE", optional=True),
+        Ref("DropBehaviorGrammar", optional=True),
     )
 
 
@@ -2580,7 +2583,7 @@ class DropStatementSegment(BaseSegment):
             # User
             Ref("ObjectReferenceSegment"),
         ),
-        OneOf("RESTRICT", Ref.keyword("CASCADE", optional=True), optional=True),
+        Ref("DropBehaviorGrammar", optional=True),
     )
 
 
@@ -2609,7 +2612,7 @@ class DropIndexStatementSegment(BaseSegment):
         Ref.keyword("CONCURRENTLY", optional=True),
         Ref("IfExistsGrammar", optional=True),
         Ref("IndexReferenceSegment"),
-        OneOf("RESTRICT", Ref.keyword("CASCADE", optional=True), optional=True),
+        Ref("DropBehaviorGrammar", optional=True),
     )
 
 
@@ -2822,7 +2825,7 @@ class AccessStatementSegment(BaseSegment):
                 Ref("ObjectReferenceSegment"),
                 delimiter=Ref("CommaSegment"),
             ),
-            OneOf("RESTRICT", Ref.keyword("CASCADE", optional=True), optional=True),
+            Ref("DropBehaviorGrammar", optional=True),
         ),
     )
 
