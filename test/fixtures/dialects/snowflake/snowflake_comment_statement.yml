@@ -1,0 +1,281 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 59675168860815eb9603e388f8926a7872dd381a2661625c9b5c1a879ef45644
+file:
+- statement:
+    comment_statement:
+    - keyword: comment
+    - keyword: 'on'
+    - keyword: column
+    - object_reference:
+      - identifier: my_table
+      - dot: .
+      - identifier: my_column
+    - keyword: is
+    - literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_statement:
+    - keyword: comment
+    - keyword: 'on'
+    - keyword: table
+    - object_reference:
+        identifier: foo
+    - keyword: is
+    - literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_statement:
+    - keyword: comment
+    - keyword: 'on'
+    - keyword: view
+    - object_reference:
+        identifier: foo
+    - keyword: is
+    - literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_statement:
+    - keyword: comment
+    - keyword: 'on'
+    - keyword: schema
+    - object_reference:
+        identifier: foo
+    - keyword: is
+    - literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_statement:
+    - keyword: comment
+    - keyword: 'on'
+    - keyword: database
+    - object_reference:
+        identifier: foo
+    - keyword: is
+    - literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_statement:
+    - keyword: comment
+    - keyword: 'on'
+    - keyword: warehouse
+    - object_reference:
+        identifier: foo
+    - keyword: is
+    - literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_statement:
+    - keyword: comment
+    - keyword: 'on'
+    - keyword: user
+    - object_reference:
+        identifier: foo
+    - keyword: is
+    - literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_statement:
+    - keyword: comment
+    - keyword: 'on'
+    - keyword: stage
+    - object_reference:
+        identifier: foo
+    - keyword: is
+    - literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_statement:
+    - keyword: comment
+    - keyword: 'on'
+    - keyword: function
+    - object_reference:
+        identifier: foo
+    - keyword: is
+    - literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_statement:
+    - keyword: comment
+    - keyword: 'on'
+    - keyword: procedure
+    - object_reference:
+        identifier: foo
+    - keyword: is
+    - literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_statement:
+    - keyword: comment
+    - keyword: 'on'
+    - keyword: sequence
+    - object_reference:
+        identifier: foo
+    - keyword: is
+    - literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_statement:
+    - keyword: comment
+    - keyword: 'on'
+    - keyword: share
+    - object_reference:
+        identifier: foo
+    - keyword: is
+    - literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_statement:
+    - keyword: comment
+    - keyword: 'on'
+    - keyword: pipe
+    - object_reference:
+        identifier: foo
+    - keyword: is
+    - literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_statement:
+    - keyword: comment
+    - keyword: 'on'
+    - keyword: stream
+    - object_reference:
+        identifier: foo
+    - keyword: is
+    - literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_statement:
+    - keyword: comment
+    - keyword: 'on'
+    - keyword: task
+    - object_reference:
+        identifier: foo
+    - keyword: is
+    - literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_statement:
+    - keyword: comment
+    - keyword: 'on'
+    - keyword: network
+    - keyword: policy
+    - object_reference:
+        identifier: foo
+    - keyword: is
+    - literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_statement:
+    - keyword: comment
+    - keyword: 'on'
+    - keyword: api
+    - keyword: integration
+    - object_reference:
+        identifier: foo
+    - keyword: is
+    - literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_statement:
+    - keyword: comment
+    - keyword: 'on'
+    - keyword: notification
+    - keyword: integration
+    - object_reference:
+        identifier: foo
+    - keyword: is
+    - literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_statement:
+    - keyword: comment
+    - keyword: 'on'
+    - keyword: security
+    - keyword: integration
+    - object_reference:
+        identifier: foo
+    - keyword: is
+    - literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_statement:
+    - keyword: comment
+    - keyword: 'on'
+    - keyword: storage
+    - keyword: integration
+    - object_reference:
+        identifier: foo
+    - keyword: is
+    - literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_statement:
+    - keyword: comment
+    - keyword: 'on'
+    - keyword: session
+    - keyword: policy
+    - object_reference:
+        identifier: foo
+    - keyword: is
+    - literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_statement:
+    - keyword: comment
+    - keyword: 'on'
+    - keyword: external
+    - keyword: table
+    - object_reference:
+        identifier: foo
+    - keyword: is
+    - literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_statement:
+    - keyword: comment
+    - keyword: 'on'
+    - keyword: materialized
+    - keyword: view
+    - object_reference:
+        identifier: foo
+    - keyword: is
+    - literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_statement:
+    - keyword: comment
+    - keyword: 'on'
+    - keyword: masking
+    - keyword: policy
+    - object_reference:
+        identifier: foo
+    - keyword: is
+    - literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_statement:
+    - keyword: comment
+    - keyword: 'on'
+    - keyword: row
+    - keyword: access
+    - keyword: policy
+    - object_reference:
+        identifier: foo
+    - keyword: is
+    - literal: "'comment'"
+- statement_terminator: ;
+- statement:
+    comment_statement:
+    - keyword: comment
+    - keyword: 'on'
+    - keyword: file
+    - keyword: format
+    - object_reference:
+        identifier: foo
+    - keyword: is
+    - literal: "'comment'"
+- statement_terminator: ;

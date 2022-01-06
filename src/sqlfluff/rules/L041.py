@@ -1,4 +1,4 @@
-"""Implementation of Rule L040."""
+"""Implementation of Rule L041."""
 from typing import Optional
 
 from sqlfluff.core.parser import NewlineSegment, WhitespaceSegment
@@ -9,7 +9,7 @@ from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
 @document_fix_compatible
 class Rule_L041(BaseRule):
-    """SELECT clause modifiers such as DISTINCT must be on the same line as SELECT.
+    """``SELECT`` clause modifiers such as ``DISTINCT`` must be on the same line as ``SELECT``.
 
     | **Anti-pattern**
 
@@ -76,14 +76,13 @@ class Rule_L041(BaseRule):
             ]
             fixes = [
                 # E.g. "\n" -> " DISTINCT\n.
-                LintFix("delete", newline_between),
-                LintFix(
-                    "create_before",
+                LintFix.delete(newline_between),
+                LintFix.create_before(
                     context.segment.segments[newline_idx + 1],
                     replace_newline_with,
                 ),
                 # E.g. "DISTINCT" -> X
-                LintFix("delete", select_modifier),
+                LintFix.delete(select_modifier),
             ]
 
             # E.g. " " after "DISTINCT"
@@ -94,7 +93,7 @@ class Rule_L041(BaseRule):
             )
 
             # E.g. " " -> X
-            fixes += [LintFix("delete", ws) for ws in ws_to_delete]
+            fixes += [LintFix.delete(ws) for ws in ws_to_delete]
             return LintResult(
                 anchor=context.segment,
                 fixes=fixes,

@@ -1,0 +1,65 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: b923e67ed7225b5498e4e83f8aa888730880c55d9fcfd69b0c1d457809c1afb8
+file:
+- statement:
+    listen_statement:
+      keyword: LISTEN
+      identifier: virtual
+- statement_terminator: ;
+- statement:
+    notify_statement:
+      keyword: NOTIFY
+      identifier: virtual
+- statement_terminator: ;
+- statement:
+    unlisten_statement:
+      keyword: UNLISTEN
+      identifier: virtual
+- statement_terminator: ;
+- statement:
+    listen_statement:
+      keyword: LISTEN
+      identifier: '"virtual listener"'
+- statement_terminator: ;
+- statement:
+    notify_statement:
+      keyword: NOTIFY
+      identifier: '"virtual listener"'
+- statement_terminator: ;
+- statement:
+    unlisten_statement:
+      keyword: UNLISTEN
+      identifier: '"virtual listener"'
+- statement_terminator: ;
+- statement:
+    listen_statement:
+      keyword: LISTEN
+      identifier: listener_a
+- statement_terminator: ;
+- statement:
+    listen_statement:
+      keyword: LISTEN
+      identifier: listener_b
+- statement_terminator: ;
+- statement:
+    notify_statement:
+      keyword: NOTIFY
+      identifier: listener_a
+      comma: ','
+      literal: "'payload_a'"
+- statement_terminator: ;
+- statement:
+    notify_statement:
+      keyword: NOTIFY
+      identifier: listener_b
+      comma: ','
+      literal: "'payload_b'"
+- statement_terminator: ;
+- statement:
+    unlisten_statement:
+      keyword: UNLISTEN
+      star: '*'

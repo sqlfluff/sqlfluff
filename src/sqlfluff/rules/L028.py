@@ -11,10 +11,10 @@ class Rule_L028(Rule_L025):
 
     NB: This rule is disabled by default for BigQuery due to its use of
     structs which trigger false positives. It can be enabled with the
-    `force_enable = True` flag.
+    ``force_enable = True`` flag.
 
     | **Anti-pattern**
-    | In this example, only the field `b` is referenced.
+    | In this example, only the field ``b`` is referenced.
 
     .. code-block:: sql
 
@@ -24,7 +24,7 @@ class Rule_L028(Rule_L025):
         FROM foo
 
     | **Best practice**
-    |  Remove all the reference or reference all the fields.
+    |  Add or remove references to all fields.
 
     .. code-block:: sql
 
@@ -75,7 +75,8 @@ class Rule_L028(Rule_L025):
                 continue
 
             # Certain dialects allow use of SELECT alias in WHERE clauses
-            if self._allow_select_alias and ref.raw in col_aliases:
+            col_alias_names = [c.alias_identifier_name for c in col_aliases]
+            if self._allow_select_alias and ref.raw in col_alias_names:
                 continue
             this_ref_type = ref.qualification()
             if self.single_table_references == "consistent":
@@ -108,7 +109,10 @@ class Rule_L028(Rule_L025):
 
         # Some dialects use structs (e.g. column.field) which look like
         # table references and so incorrectly trigger this rule.
-        if context.dialect.name in ["bigquery"] and not self.force_enable:
+        if (
+            context.dialect.name in ["bigquery", "hive", "redshift"]
+            and not self.force_enable
+        ):
             return LintResult()
 
         # Certain dialects allow use of SELECT alias in WHERE clauses

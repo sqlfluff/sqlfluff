@@ -8,11 +8,11 @@ from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
 @document_fix_compatible
 class Rule_L018(BaseRule):
-    """WITH clause closing bracket should be aligned with WITH keyword.
+    """``WITH`` clause closing bracket should be aligned with ``WITH`` keyword.
 
     | **Anti-pattern**
     | The • character represents a space.
-    | In this example, the closing bracket is not aligned with WITH keyword.
+    | In this example, the closing bracket is not aligned with ``WITH`` keyword.
 
     .. code-block:: sql
        :force:
@@ -24,7 +24,7 @@ class Rule_L018(BaseRule):
         SELECT * FROM zoo
 
     | **Best practice**
-    | Remove the spaces to align the WITH keyword with the closing bracket.
+    | Remove the spaces to align the ``WITH`` keyword with the closing bracket.
 
     .. code-block:: sql
 
@@ -101,10 +101,9 @@ class Rule_L018(BaseRule):
                             return LintResult(
                                 anchor=seg,
                                 fixes=[
-                                    LintFix(
-                                        "create_before",
+                                    LintFix.create_before(
                                         seg,
-                                        WhitespaceSegment(" " * (-indent_diff)),
+                                        [WhitespaceSegment(" " * (-indent_diff))],
                                     )
                                 ],
                             )
@@ -124,20 +123,15 @@ class Rule_L018(BaseRule):
                             ):
                                 # We can move it back, it's all whitespace
                                 fixes = [
-                                    LintFix(
-                                        "create_before",
+                                    LintFix.create_before(
                                         seg,
                                         [WhitespaceSegment(with_indent_str)],
                                     )
-                                ] + [
-                                    LintFix("delete", elem)
-                                    for elem in prev_segs_on_line
-                                ]
+                                ] + [LintFix.delete(elem) for elem in prev_segs_on_line]
                             else:
                                 # We have to move it to a newline
                                 fixes = [
-                                    LintFix(
-                                        "create_before",
+                                    LintFix.create_before(
                                         seg,
                                         [
                                             NewlineSegment(),

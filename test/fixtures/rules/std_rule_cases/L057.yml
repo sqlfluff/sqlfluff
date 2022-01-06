@@ -106,7 +106,7 @@ test_pass_special_chars_create_table_space_allowed:
   configs:
     rules:
       L057:
-        allow_space_in_identifier: True
+        allow_space_in_identifier: true
 
 test_fail_special_chars_quoted_policy_alias:
   fail_str:
@@ -196,3 +196,27 @@ test_pass_special_chars_quoted_policy_column_aliases:
     rules:
       L057:
         quoted_identifiers_policy: column_aliases
+
+test_pass_dots_bigquery:
+  pass_str:
+    SELECT a
+    FROM `user.schema.table`
+  configs:
+    core:
+      dialect: bigquery
+
+test_pass_star_bigquery:
+  pass_str:
+    SELECT a
+    FROM `user.schema.table_*`
+  configs:
+    core:
+      dialect: bigquery
+
+test_fail_star_bigquery:
+  fail_str:
+    SELECT a
+    FROM `user.schema.table_*_something`
+  configs:
+    core:
+      dialect: bigquery

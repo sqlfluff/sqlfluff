@@ -1,0 +1,33 @@
+{
+    "file": {
+        "statement": {
+            "select_statement": {
+                "select_clause": {
+                    "keyword": "SELECT",
+                    "whitespace": " ",
+                    "select_clause_element": {
+                        "column_reference": {
+                            "identifier": "foo"
+                        }
+                    }
+                },
+                "whitespace": " ",
+                "from_clause": {
+                    "keyword": "FROM",
+                    "whitespace": " ",
+                    "from_expression": {
+                        "from_expression_element": {
+                            "table_expression": {
+                                "table_reference": {
+                                    "identifier": "bar"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "statement_terminator": ";",
+        "newline": "\n"
+    }
+}

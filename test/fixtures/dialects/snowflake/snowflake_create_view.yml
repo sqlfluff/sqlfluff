@@ -1,0 +1,366 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 2a973e3473c6431e18398d9afd83d4393a73bb277fa0f78e005e7b0c60523b5a
+file:
+- statement:
+    create_view_statement:
+    - keyword: create
+    - keyword: view
+    - table_reference:
+        identifier: another_view
+    - snowflake_comment:
+        keyword: comment
+        comparison_operator:
+          raw_comparison_operator: '='
+        literal: "'a great description'"
+    - keyword: as
+    - select_statement:
+        select_clause:
+        - keyword: select
+        - select_clause_element:
+            column_reference:
+              identifier: col_1
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: col_2
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: other_table
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: VIEW
+    - table_reference:
+        identifier: basic_view
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              identifier: col1
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: col2
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: src_table
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: VIEW
+    - table_reference:
+        identifier: view_with_comments
+    - snowflake_comment:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        literal: "'my comment'"
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              identifier: col1
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: col2
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: src_table
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - binary_operator: OR
+    - keyword: REPLACE
+    - keyword: VIEW
+    - table_reference:
+        identifier: view_with_replace_and_comment
+    - snowflake_comment:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        literal: "'my comment'"
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              identifier: col1
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: col2
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: src_table
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - binary_operator: OR
+    - keyword: REPLACE
+    - keyword: SECURE
+    - keyword: RECURSIVE
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+        identifier: secure_recursive_view_with_comment
+    - snowflake_comment:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        literal: "'my comment'"
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              identifier: col1
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: col2
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: src_table
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - binary_operator: OR
+    - keyword: REPLACE
+    - keyword: VIEW
+    - table_reference:
+        identifier: view_with_comment_and_copy_grants
+    - snowflake_comment:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        literal: "'my comment'"
+    - keyword: COPY
+    - keyword: GRANTS
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              identifier: col1
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: col2
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: src_table
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - binary_operator: OR
+    - keyword: REPLACE
+    - keyword: VIEW
+    - table_reference:
+        identifier: view_with_tags_and_copy_grants
+    - tag_bracketed_equals:
+      - keyword: WITH
+      - keyword: TAG
+      - bracketed:
+        - start_bracket: (
+        - identifier: foo
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - literal: "'bar'"
+        - comma: ','
+        - identifier: hello
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - literal: "'world'"
+        - end_bracket: )
+    - keyword: COPY
+    - keyword: GRANTS
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              identifier: col1
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: col2
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: src_table
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - binary_operator: OR
+    - keyword: REPLACE
+    - keyword: VIEW
+    - table_reference:
+        identifier: view_with_column_comment
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          identifier: col1
+      - comma: ','
+      - column_reference:
+          identifier: col2
+      - comment_clause:
+          keyword: COMMENT
+          literal: "'some comment'"
+      - end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              identifier: col1
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: col2
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: src_table
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - binary_operator: OR
+    - keyword: REPLACE
+    - keyword: SECURE
+    - keyword: RECURSIVE
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+        identifier: view_with_all_implemented_features
+    - snowflake_comment:
+        keyword: COMMENT
+        comparison_operator:
+          raw_comparison_operator: '='
+        literal: "'table-level comment'"
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          identifier: col1
+      - comma: ','
+      - column_reference:
+          identifier: col2
+      - comment_clause:
+          keyword: COMMENT
+          literal: "'some comment'"
+      - end_bracket: )
+    - keyword: AS
+    - with_compound_statement:
+        keyword: WITH
+        common_table_expression:
+          identifier: cte
+          keyword: AS
+          bracketed:
+            start_bracket: (
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  column_reference:
+                    identifier: col1
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        identifier: table_1
+            end_bracket: )
+        select_statement:
+          select_clause:
+          - keyword: SELECT
+          - select_clause_element:
+              column_reference:
+                identifier: col1
+          - comma: ','
+          - select_clause_element:
+              column_reference:
+                identifier: col2
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    identifier: table_2
+              join_clause:
+              - keyword: INNER
+              - keyword: JOIN
+              - from_expression_element:
+                  table_expression:
+                    table_reference:
+                      identifier: my_cte
+              - join_on_condition:
+                  keyword: 'ON'
+                  expression:
+                  - column_reference:
+                    - identifier: table_1
+                    - dot: .
+                    - identifier: pk
+                  - comparison_operator:
+                      raw_comparison_operator: '='
+                  - column_reference:
+                    - identifier: table_2
+                    - dot: .
+                    - identifier: pk
+- statement_terminator: ;

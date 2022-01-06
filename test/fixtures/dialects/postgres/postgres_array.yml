@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8bfe4defa7aa9296d2a56563c94a1e75c4024f2e4155fd5689dc6261c28ef0d4
+_hash: 47a61a4c68d5d045d5257a1180e1c8b09c0f84b29d6240517c75892b00949a99
 file:
 - statement:
     select_statement:
@@ -65,25 +65,23 @@ file:
       - column_reference:
           identifier: name
       - data_type:
-          data_type_identifier: text
+          keyword: text
       - comma: ','
       - column_reference:
           identifier: pay_by_quarter
       - data_type:
-          data_type_identifier: integer
-          array_accessor:
-            start_square_bracket: '['
-            end_square_bracket: ']'
+          keyword: integer
+          start_square_bracket: '['
+          end_square_bracket: ']'
       - comma: ','
       - column_reference:
           identifier: schedule
       - data_type:
-          data_type_identifier: text
-          array_accessor:
-          - start_square_bracket: '['
-          - end_square_bracket: ']'
-          - start_square_bracket: '['
-          - end_square_bracket: ']'
+        - keyword: text
+        - start_square_bracket: '['
+        - end_square_bracket: ']'
+        - start_square_bracket: '['
+        - end_square_bracket: ']'
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -97,14 +95,15 @@ file:
         column_reference:
           identifier: squares
         data_type:
-          data_type_identifier: integer
-          array_accessor:
-          - start_square_bracket: '['
-          - literal: '3'
-          - end_square_bracket: ']'
-          - start_square_bracket: '['
-          - literal: '3'
-          - end_square_bracket: ']'
+        - keyword: integer
+        - start_square_bracket: '['
+        - expression:
+            literal: '3'
+        - end_square_bracket: ']'
+        - start_square_bracket: '['
+        - expression:
+            literal: '3'
+        - end_square_bracket: ']'
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -131,7 +130,8 @@ file:
             start_square_bracket: '['
             literal: '1'
             end_square_bracket: ']'
-        - comparison_operator: '='
+        - comparison_operator:
+            raw_comparison_operator: '='
         - literal: '10000'
         - binary_operator: OR
         - column_reference:
@@ -140,7 +140,8 @@ file:
             start_square_bracket: '['
             literal: '2'
             end_square_bracket: ']'
-        - comparison_operator: '='
+        - comparison_operator:
+            raw_comparison_operator: '='
         - literal: '10000'
         - binary_operator: OR
         - column_reference:
@@ -149,7 +150,8 @@ file:
             start_square_bracket: '['
             literal: '3'
             end_square_bracket: ']'
-        - comparison_operator: '='
+        - comparison_operator:
+            raw_comparison_operator: '='
         - literal: '10000'
         - binary_operator: OR
         - column_reference:
@@ -158,7 +160,8 @@ file:
             start_square_bracket: '['
             literal: '4'
             end_square_bracket: ']'
-        - comparison_operator: '='
+        - comparison_operator:
+            raw_comparison_operator: '='
         - literal: '10000'
 - statement_terminator: ;
 - statement:
@@ -276,7 +279,9 @@ file:
             start_square_bracket: '['
             literal: '1'
             end_square_bracket: ']'
-        - comparison_operator: <>
+        - comparison_operator:
+          - raw_comparison_operator: <
+          - raw_comparison_operator: '>'
         - column_reference:
             identifier: pay_by_quarter
         - array_accessor:
@@ -314,7 +319,8 @@ file:
         expression:
           column_reference:
             identifier: name
-          comparison_operator: '='
+          comparison_operator:
+            raw_comparison_operator: '='
           literal: "'Bill'"
 - statement_terminator: ;
 - statement:
@@ -331,14 +337,16 @@ file:
             start_square_bracket: '['
             literal: '4'
             end_square_bracket: ']'
-          comparison_operator: '='
+          comparison_operator:
+            raw_comparison_operator: '='
           literal: '15000'
       where_clause:
         keyword: WHERE
         expression:
           column_reference:
             identifier: name
-          comparison_operator: '='
+          comparison_operator:
+            raw_comparison_operator: '='
           literal: "'Bill'"
 - statement_terminator: ;
 - statement:
@@ -357,14 +365,16 @@ file:
           - slice: ':'
           - literal: '2'
           - end_square_bracket: ']'
-          comparison_operator: '='
+          comparison_operator:
+            raw_comparison_operator: '='
           literal: "'{27000,27000}'"
       where_clause:
         keyword: WHERE
         expression:
           column_reference:
             identifier: name
-          comparison_operator: '='
+          comparison_operator:
+            raw_comparison_operator: '='
           literal: "'Carol'"
 - statement_terminator: ;
 - statement:
@@ -548,10 +558,9 @@ file:
                         cast_expression:
                           casting_operator: '::'
                           data_type:
-                            data_type_identifier: int
-                            array_accessor:
-                              start_square_bracket: '['
-                              end_square_bracket: ']'
+                            keyword: int
+                            start_square_bracket: '['
+                            end_square_bracket: ']'
                       alias_expression:
                         keyword: AS
                         identifier: f1

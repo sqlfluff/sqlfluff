@@ -2,6 +2,8 @@
 
 from sqlfluff.core.rules.base import LintFix, LintResult
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
+from sqlfluff.core.rules.functional import Segments
+import sqlfluff.core.rules.functional.segment_predicates as sp
 from sqlfluff.rules.L020 import Rule_L020
 from sqlfluff.core.dialects.common import AliasInfo
 
@@ -61,23 +63,18 @@ class Rule_L025(Rule_L020):
         alias: AliasInfo
         for alias in table_aliases:
             if alias.aliased and alias.ref_str not in tbl_refs:
-                fixes = [LintFix("delete", alias.alias_expression)]
-                found_alias_segment = False
+                fixes = [LintFix.delete(alias.alias_expression)]
                 # Walk back to remove indents/whitespaces
-                for segment in reversed(alias.from_expression_element.segments):
-                    if not found_alias_segment:
-                        if segment is alias.alias_expression:
-                            found_alias_segment = True
-                    else:
-                        if (
-                            segment.name == "whitespace"
-                            or segment.name == "newline"
-                            or segment.is_meta
-                        ):
-                            fixes.append(LintFix("delete", segment))
-                        else:
-                            # Stop once we reach an other, "regular" segment.
-                            break
+                to_delete = (
+                    Segments(*alias.from_expression_element.segments)
+                    .reversed()
+                    .select(
+                        start_seg=alias.alias_expression,
+                        # Stop once we reach an other, "regular" segment.
+                        loop_while=sp.or_(sp.is_whitespace(), sp.is_meta()),
+                    )
+                )
+                fixes += [LintFix.delete(seg) for seg in to_delete]
                 violation_buff.append(
                     LintResult(
                         anchor=alias.segment,

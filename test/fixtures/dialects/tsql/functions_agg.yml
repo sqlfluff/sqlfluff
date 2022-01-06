@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5e625eda78c73b9e1a56a210f0746362cace706b3ea090d9e6a542ba5d9e80e9
+_hash: 45ede5d07360064be66441c3587fd61b202ec48c98bc764c4259f20828f951e4
 file:
   batch:
   - statement:
@@ -65,7 +65,7 @@ file:
               - keyword: OVER
               - bracketed:
                   start_bracket: (
-                  partition_by_clause:
+                  partitionby_clause:
                   - keyword: PARTITION
                   - keyword: BY
                   - column_reference:
@@ -100,7 +100,7 @@ file:
               - keyword: OVER
               - bracketed:
                   start_bracket: (
-                  partition_by_clause:
+                  partitionby_clause:
                   - keyword: PARTITION
                   - keyword: BY
                   - column_reference:
@@ -135,7 +135,9 @@ file:
                   column_reference:
                     identifier: '[ArrivalDt]'
                 end_bracket: )
-          - comparison_operator: <=
+          - comparison_operator:
+            - raw_comparison_operator: <
+            - raw_comparison_operator: '='
           - function:
               function_name:
                 function_name_identifier: MAX

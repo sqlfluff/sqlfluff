@@ -44,6 +44,8 @@ class Rule_L010(BaseRule):
     _target_elems: List[Tuple[str, str]] = [
         ("type", "keyword"),
         ("type", "binary_operator"),
+        ("type", "date_part"),
+        ("type", "data_type_identifier"),
     ]
     config_keywords = ["capitalisation_policy"]
     # Human readable target elem for description
@@ -186,7 +188,7 @@ class Rule_L010(BaseRule):
         May be overridden by subclasses, which is useful when the parse tree
         structure varies from this simple base case.
         """
-        return LintFix("edit", segment, segment.edit(fixed_raw))
+        return LintFix.replace(segment, [segment.edit(fixed_raw)])
 
     def _init_capitalisation_policy(self):
         """Called first time rule is evaluated to fetch & cache the policy."""

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9847203dfe62aa77d02827bd8d172a378991a31f879aaecdd7ea2f81fd78a125
+_hash: 69f2edb341a502903b3fe5048ff31230bf0dc98540a0c9127048de1a7e56332d
 file:
   batch:
   - statement:
@@ -59,7 +59,8 @@ file:
             expression:
               column_reference:
                 identifier: OrderDate
-              comparison_operator: '>'
+              comparison_operator:
+                raw_comparison_operator: '>'
               function:
                 function_name:
                   keyword: CONVERT
@@ -133,7 +134,8 @@ file:
             expression:
               column_reference:
                 identifier: OrderDate
-              comparison_operator: '>'
+              comparison_operator:
+                raw_comparison_operator: '>'
               function:
                 function_name:
                   keyword: CONVERT
@@ -211,12 +213,14 @@ file:
             - binary_operator: /
             - column_reference:
                 identifier: ReceivedQty
-            - comparison_operator: '>'
+            - comparison_operator:
+                raw_comparison_operator: '>'
             - literal: '0'
             - binary_operator: AND
             - column_reference:
                 identifier: DueDate
-            - comparison_operator: '>'
+            - comparison_operator:
+                raw_comparison_operator: '>'
             - function:
                 function_name:
                   keyword: CONVERT
@@ -302,7 +306,8 @@ file:
                     - identifier: p
                     - dot: .
                     - identifier: BusinessEntityID
-                  - comparison_operator: '='
+                  - comparison_operator:
+                      raw_comparison_operator: '='
                   - column_reference:
                     - identifier: e
                     - dot: .
@@ -325,7 +330,8 @@ file:
                     - identifier: bea
                     - dot: .
                     - identifier: BusinessEntityID
-                  - comparison_operator: '='
+                  - comparison_operator:
+                      raw_comparison_operator: '='
                   - column_reference:
                     - identifier: e
                     - dot: .
@@ -348,7 +354,8 @@ file:
                     - identifier: a
                     - dot: .
                     - identifier: AddressID
-                  - comparison_operator: '='
+                  - comparison_operator:
+                      raw_comparison_operator: '='
                   - column_reference:
                     - identifier: bea
                     - dot: .
@@ -371,7 +378,8 @@ file:
                     - identifier: sp
                     - dot: .
                     - identifier: StateProvinceID
-                  - comparison_operator: '='
+                  - comparison_operator:
+                      raw_comparison_operator: '='
                   - column_reference:
                     - identifier: a
                     - dot: .
@@ -383,7 +391,8 @@ file:
               - identifier: a
               - dot: .
               - identifier: City
-              comparison_operator: '='
+              comparison_operator:
+                raw_comparison_operator: '='
               literal: "'Seattle'"
       - keyword: WITH
       - keyword: CHECK

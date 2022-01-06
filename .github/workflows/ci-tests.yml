@@ -25,7 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        jobs: [ 'linting', 'doclinting', 'docbuild' ]
+        jobs: [ 'linting', 'doclinting', 'docbuild', 'yamllint' ]
     name: ${{ matrix.jobs }} tests
     steps:
     - uses: actions/checkout@v2
@@ -43,7 +43,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [ '3.6', '3.7', '3.8', '3.9', '3.10' ]
+        python-version: [ '3.7', '3.8', '3.9', '3.10' ]
     name: Python ${{ matrix.python-version }} tests
     steps:
     - uses: actions/checkout@v2
@@ -113,7 +113,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        dbt-version: [ 'dbt018', 'dbt019', 'dbt020', 'dbt021' ]
+        dbt-version: [ 'dbt018', 'dbt019', 'dbt020', 'dbt021', 'dbt100' ]
     name: DBT Plugin ${{ matrix.dbt-version }} tests
     steps:
     - uses: actions/checkout@v2

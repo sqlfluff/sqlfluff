@@ -17,6 +17,7 @@ from sqlfluff.core.parser import (
     Indent,
     NamedParser,
     OneOf,
+    OptionallyBracketed,
     Ref,
     RegexLexer,
     RegexParser,
@@ -27,7 +28,6 @@ from sqlfluff.core.parser import (
     StringParser,
     SymbolSegment,
 )
-from sqlfluff.core.parser.grammar.anyof import OptionallyBracketed
 from sqlfluff.dialects.dialect_snowflake_keywords import (
     snowflake_reserved_keywords,
     snowflake_unreserved_keywords,
@@ -66,7 +66,7 @@ snowflake_dialect.insert_lexer_matchers(
         ),
         RegexLexer("inline_dollar_sign", r"[a-zA-Z_][a-zA-Z0-9_$]*", CodeSegment),
     ],
-    before="not_equal",
+    before="like_operator",
 )
 
 snowflake_dialect.add(
@@ -139,8 +139,8 @@ snowflake_dialect.add(
         name="literal",
         type="literal",
     ),
-    SkipFileNumeSegment=RegexParser(
-        r"SKIP_FILE_[0-9][0-9]%?",
+    CopyOptionOnErrorSegment=RegexParser(
+        r"(?:'?CONTINUE'?)|(?:'?SKIP_FILE(_[0-9]+%?)?'?)|(?:'?ABORT_STATEMENT'?)",
         CodeSegment,
         name="literal",
         type="literal",
@@ -165,6 +165,57 @@ snowflake_dialect.add(
         name="udf_body",
         type="udf_body",
         trim_chars=("$",),
+    ),
+    S3Path=RegexParser(
+        # See https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucketnamingrules.html
+        r"'s3://[a-z0-9][a-z0-9\.-]{1,61}[a-z0-9](?:/.+)?'",
+        CodeSegment,
+        name="s3_path",
+        type="bucket_path",
+    ),
+    GCSPath=RegexParser(
+        # See https://cloud.google.com/storage/docs/naming-buckets
+        r"'gcs://[a-z0-9][\w\.-]{1,61}[a-z0-9](?:/.+)?'",
+        CodeSegment,
+        name="gcs_path",
+        type="bucket_path",
+    ),
+    AzureBlobStoragePath=RegexParser(
+        # See https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/resource-name-rules#microsoftstorage
+        r"'azure://[a-z0-9][a-z0-9-]{1,61}[a-z0-9]\.blob\.core\.windows\.net/[a-z0-9][a-z0-9\.-]{1,61}[a-z0-9](?:/.+)?'",
+        CodeSegment,
+        name="azure_blob_storage_path",
+        type="bucket_path",
+    ),
+    SnowflakeEncryptionOption=RegexParser(
+        r"(?:'SNOWFLAKE_FULL')|(?:'SNOWFLAKE_SSE')",
+        CodeSegment,
+        name="snowflake_encryption_option",
+        type="stage_encryption_option",
+    ),
+    S3EncryptionOption=RegexParser(
+        r"(?:'AWS_CSE')|(?:'AWS_SSE_S3')|(?:'AWS_SSE_KMS')",
+        CodeSegment,
+        name="s3_encryption_option",
+        type="stage_encryption_option",
+    ),
+    GCSEncryptionOption=RegexParser(
+        r"'GCS_SSE_KMS'",
+        CodeSegment,
+        name="gcs_encryption_option",
+        type="stage_encryption_option",
+    ),
+    AzureBlobStorageEncryptionOption=RegexParser(
+        r"'AZURE_CSE'",
+        CodeSegment,
+        name="azure_blob_storage_encryption_option",
+        type="stage_encryption_option",
+    ),
+    FileType=RegexParser(
+        r"(?:'?CSV'?)|(?:'?JSON'?)|(?:'?AVRO'?)|(?:'?ORC'?)|(?:'?PARQUET'?)|(?:'?XML'?)",
+        CodeSegment,
+        name="file_type",
+        type="file_type",
     ),
 )
 
@@ -488,7 +539,6 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
 
     parse_grammar = ansi_dialect.get_segment("StatementSegment").parse_grammar.copy(
         insert=[
-            Ref("UseStatementSegment"),
             Ref("CreateStatementSegment"),
             Ref("CreateTaskSegment"),
             Ref("CreateCloneStatementSegment"),
@@ -508,6 +558,12 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref("AlterSchemaStatementSegment"),
             Ref("CreateFunctionStatementSegment"),
             Ref("AlterFunctionStatementSegment"),
+            Ref("CreateStageSegment"),
+            Ref("AlterStageSegment"),
+            Ref("UnsetStatementSegment"),
+            Ref("UndropStatementSegment"),
+            Ref("CommentStatementSegment"),
+            Ref("CallStatementSegment"),
         ],
         remove=[
             Ref("CreateTypeStatementSegment"),
@@ -818,6 +874,21 @@ class SelectStatementSegment(ansi_dialect.get_segment("SelectStatementSegment"))
     ).parse_grammar.copy(
         insert=[Ref("QualifyClauseSegment", optional=True)],
         before=Ref("OrderByClauseSegment", optional=True),
+    )
+
+
+@snowflake_dialect.segment(replace=True)
+class SelectClauseModifierSegment(BaseSegment):
+    """Things that come after SELECT but before the columns, specifically for Snowflake.
+
+    https://docs.snowflake.com/en/sql-reference/constructs.html
+    """
+
+    type = "select_clause_modifier"
+    match_grammar = Sequence(
+        OneOf("DISTINCT", "ALL", optional=True),
+        # TOP N is unique to Snowflake, and we can optionally add DISTINCT/ALL in front of it.
+        Sequence("TOP", Ref("NumericLiteralSegment"), optional=True),
     )
 
 
@@ -1383,30 +1454,27 @@ class CopyOptionsSegment(BaseSegment):
     """
 
     type = "copy_options"
-    match_grammar = AnyNumberOf(
-        Sequence(
-            "ON_ERROR",
-            Ref("EqualsSegment"),
-            OneOf(
-                "CONTINUE",
-                "SKIP_FILE",
-                Ref("SkipFileNumeSegment"),
-                "ABORT_STATEMENT",
+    match_grammar = Bracketed(
+        AnyNumberOf(
+            Sequence("ON_ERROR", Ref("EqualsSegment"), Ref("CopyOptionOnErrorSegment")),
+            Sequence("SIZE_LIMIT", Ref("EqualsSegment"), Ref("LiteralNumericSegment")),
+            Sequence("PURGE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+            Sequence(
+                "RETURN_FAILED_ONLY", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
             ),
-        ),
-        Sequence("SIZE_LIMIT", Ref("EqualsSegment"), Ref("LiteralNumericSegment")),
-        Sequence("PURGE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
-        Sequence(
-            "RETURN_FAILED_ONLY", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
-        ),
-        Sequence(
-            "MATCH_BY_COLUMN_NAME",
-            Ref("EqualsSegment"),
-            OneOf("CASE_SENSITIVE", "CASE_INSENSITIVE", "NONE"),
-        ),
-        Sequence("ENFORCE_LENGTH", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
-        Sequence("TRUNCATECOLUMNS", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
-        Sequence("FORCE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+            Sequence(
+                "MATCH_BY_COLUMN_NAME",
+                Ref("EqualsSegment"),
+                OneOf("CASE_SENSITIVE", "CASE_INSENSITIVE", "NONE"),
+            ),
+            Sequence(
+                "ENFORCE_LENGTH", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
+            ),
+            Sequence(
+                "TRUNCATECOLUMNS", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
+            ),
+            Sequence("FORCE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+        )
     )
 
 
@@ -1548,36 +1616,12 @@ class CreateTableStatementSegment(BaseSegment):
         Sequence(
             "STAGE_FILE_FORMAT",
             Ref("EqualsSegment"),
-            Bracketed(
-                OneOf(
-                    Sequence(
-                        "FORMAT_NAME",
-                        Ref("EqualsSegment"),
-                        Ref("QuotedLiteralSegment"),
-                    ),
-                    Sequence(
-                        "TYPE",
-                        Ref("EqualsSegment"),
-                        OneOf(
-                            "CSV",
-                            "JSON",
-                            "AVRO",
-                            "ORC",
-                            "PARQUET",
-                            "XML",
-                            Ref("QuotedLiteralSegment"),
-                        ),
-                        # formatTypeOptions - To Do to make this more specific
-                        Ref("FormatTypeOptionsSegment", optional=True),
-                        optional=True,
-                    ),
-                ),
-            ),
+            Ref("FileFormatSegment"),
             optional=True,
         ),
         Sequence(
             "STAGE_COPY_OPTIONS",
-            "BY",
+            Ref("EqualsSegment"),
             Ref("CopyOptionsSegment"),
             optional=True,
         ),
@@ -1732,7 +1776,7 @@ class CreateStatementSegment(BaseSegment):
 
     match_grammar = Sequence(
         "CREATE",
-        Sequence("OR", "REPLACE", optional=True),
+        Ref("OrReplaceGrammar", optional=True),
         OneOf(
             Sequence("NETWORK", "POLICY"),
             Sequence("RESOURCE", "MONITOR"),
@@ -1743,9 +1787,7 @@ class CreateStatementSegment(BaseSegment):
             Sequence("NOTIFICATION", "INTEGRATION"),
             Sequence("SECURITY", "INTEGRATION"),
             Sequence("STORAGE", "INTEGRATION"),
-            "VIEW",
             Sequence("MATERIALIZED", "VIEW"),
-            Sequence("SECURE", "VIEW"),
             Sequence("MASKING", "POLICY"),
             "PIPE",
             Sequence("EXTERNAL", "FUNCTION"),
@@ -1753,10 +1795,9 @@ class CreateStatementSegment(BaseSegment):
             "DATABASE",
             "SEQUENCE",
             Sequence("FILE", "FORMAT"),
-            "STAGE",
             "STREAM",
         ),
-        Sequence("IF", "NOT", "EXISTS", optional=True),
+        Ref("IfNotExistsGrammar", optional=True),
         Ref("ObjectReferenceSegment"),
         # Next set are Pipe statements https://docs.snowflake.com/en/sql-reference/sql/create-pipe.html
         Sequence(
@@ -1814,15 +1855,97 @@ class CreateStatementSegment(BaseSegment):
     )
 
 
+@snowflake_dialect.segment(replace=True)
+class CreateViewStatementSegment(BaseSegment):
+    """A `CREATE VIEW` statement, specifically for Snowflake's dialect.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-view.html
+    """
+
+    type = "create_view_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        AnyNumberOf(
+            "SECURE",
+            "RECURSIVE",
+        ),
+        "VIEW",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        AnyNumberOf(
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        Ref("ColumnReferenceSegment"),
+                        Ref("CommentClauseSegment", optional=True),
+                    ),
+                ),
+            ),
+            Sequence(
+                Ref.keyword("WITH", optional=True),
+                "ROW",
+                "ACCESS",
+                "POLICY",
+                Ref("NakedIdentifierSegment"),
+                "ON",
+                Bracketed(
+                    Delimited(Ref("ColumnReferenceSegment")),
+                ),
+            ),
+            Ref("TagBracketedEqualsSegment"),
+            Sequence("COPY", "GRANTS"),
+            Ref("CreateStatementCommentSegment"),
+            # @TODO: Support column-level masking policy & tagging.
+        ),
+        "AS",
+        Ref("SelectableGrammar"),
+    )
+
+
+@snowflake_dialect.segment()
+class FileFormatSegment(BaseSegment):
+    """A Snowflake FILE_FORMAT Segment.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-table.html
+    https://docs.snowflake.com/en/sql-reference/sql/create-external-table.html
+    https://docs.snowflake.com/en/sql-reference/sql/create-stage.html
+    """
+
+    type = "file_format_segment"
+
+    match_grammar = OneOf(
+        OneOf(Ref("NakedIdentifierSegment"), Ref("QuotedLiteralSegment")),
+        Bracketed(
+            OneOf(
+                Sequence(
+                    "FORMAT_NAME",
+                    Ref("EqualsSegment"),
+                    OneOf(Ref("NakedIdentifierSegment"), Ref("QuotedLiteralSegment")),
+                ),
+                Sequence(
+                    "TYPE",
+                    Ref("EqualsSegment"),
+                    Ref("FileType"),
+                    # formatTypeOptions - To Do to make this more specific
+                    Ref("FormatTypeOptionsSegment", optional=True),
+                ),
+            ),
+        ),
+    )
+
+
 @snowflake_dialect.segment()
 class FormatTypeOptionsSegment(BaseSegment):
     """A snowflake `formatTypeOptions` Segment.
 
     https://docs.snowflake.com/en/sql-reference/sql/create-table.html
     https://docs.snowflake.com/en/sql-reference/sql/create-external-table.html
+    https://docs.snowflake.com/en/sql-reference/sql/create-stage.html
     """
 
-    type = "create_external_table_statement"
+    type = "format_type_options_segment"
 
     match_grammar = AnyNumberOf(
         # formatTypeOptions - To Do to make this more specific
@@ -1831,6 +1954,7 @@ class FormatTypeOptionsSegment(BaseSegment):
         OneOf(
             Ref("NakedIdentifierSegment"),
             Ref("QuotedLiteralSegment"),
+            Ref("NumericLiteralSegment"),
             Bracketed(
                 Delimited(
                     Ref("QuotedLiteralSegment"),
@@ -1917,31 +2041,7 @@ class CreateExternalTableSegment(BaseSegment):
             Sequence(
                 "FILE_FORMAT",
                 Ref("EqualsSegment"),
-                Bracketed(
-                    OneOf(
-                        Sequence(
-                            "FORMAT_NAME",
-                            Ref("EqualsSegment"),
-                            Ref("QuotedLiteralSegment"),
-                        ),
-                        Sequence(
-                            "TYPE",
-                            Ref("EqualsSegment"),
-                            OneOf(
-                                "CSV",
-                                "JSON",
-                                "AVRO",
-                                "ORC",
-                                "PARQUET",
-                                "XML",
-                                Ref("QuotedLiteralSegment"),
-                            ),
-                            # formatTypeOptions - To Do to make this more specific
-                            Ref("FormatTypeOptionsSegment", optional=True),
-                            optional=True,
-                        ),
-                    ),
-                ),
+                Ref("FileFormatSegment"),
                 optional=True,
             ),
             Sequence(
@@ -2029,47 +2129,7 @@ class CopyIntoStatementSegment(BaseSegment):
                 Sequence(
                     "FILE_FORMAT",
                     Ref("EqualsSegment"),
-                    Bracketed(
-                        OneOf(
-                            Sequence(
-                                "FORMAT_NAME",
-                                Ref("EqualsSegment"),
-                                OneOf(
-                                    Ref("NakedIdentifierSegment"),
-                                    Ref("QuotedLiteralSegment"),
-                                ),
-                            ),
-                            Sequence(
-                                "TYPE",
-                                Ref("EqualsSegment"),
-                                OneOf(
-                                    "CSV",
-                                    "JSON",
-                                    "AVRO",
-                                    "ORC",
-                                    "PARQUET",
-                                    "XML",
-                                    Ref("QuotedLiteralSegment"),
-                                ),
-                                AnyNumberOf(
-                                    # Copy Options
-                                    Ref("NakedIdentifierSegment"),
-                                    Ref("EqualsSegment"),
-                                    OneOf(
-                                        Ref("NakedIdentifierSegment"),
-                                        Ref("NumericLiteralSegment"),
-                                        Ref("QuotedLiteralSegment"),
-                                        Bracketed(
-                                            Delimited(
-                                                Ref("QuotedLiteralSegment"),
-                                            )
-                                        ),
-                                    ),
-                                    optional=True,
-                                ),
-                            ),
-                        ),
-                    ),
+                    Ref("FileFormatSegment"),
                     optional=True,
                 ),
             ),
@@ -2136,6 +2196,447 @@ class IntExtStageLocation(BaseSegment):
             Ref("ModuloSegment", optional=True),
             Ref("NakedIdentifierSegment"),
             Sequence(Ref("SlashSegment"), Ref("PathSegment"), optional=True),
+        ),
+    )
+
+
+@snowflake_dialect.segment()
+class InternalStageParameters(BaseSegment):
+    """Parameters for an internal stage in Snowflake.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-stage.html
+    https://docs.snowflake.com/en/sql-reference/sql/alter-stage.html
+    """
+
+    name = "internal_stage_parameters"
+    type = "stage_parameters"
+
+    match_grammar = Sequence(
+        Sequence(
+            "ENCRYPTION",
+            Ref("EqualsSegment"),
+            Bracketed(
+                "TYPE",
+                Ref("EqualsSegment"),
+                Ref("SnowflakeEncryptionOption"),
+            ),
+            optional=True,
+        ),
+    )
+
+
+@snowflake_dialect.segment()
+class S3ExternalStageParameters(BaseSegment):
+    """Parameters for an S3 external stage in Snowflake.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-stage.html
+    https://docs.snowflake.com/en/sql-reference/sql/alter-stage.html
+    """
+
+    name = "s3_external_stage_parameters"
+    type = "stage_parameters"
+
+    match_grammar = Sequence(
+        OneOf(
+            Sequence(
+                "STORAGE_INTEGRATION",
+                Ref("EqualsSegment"),
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "CREDENTIALS",
+                Ref("EqualsSegment"),
+                Bracketed(
+                    OneOf(
+                        Sequence(
+                            "AWS_KEY_ID",
+                            Ref("EqualsSegment"),
+                            Ref("QuotedLiteralSegment"),
+                            "AWS_SECRET_KEY",
+                            Ref("EqualsSegment"),
+                            Ref("QuotedLiteralSegment"),
+                            Sequence(
+                                "AWS_TOKEN",
+                                Ref("EqualsSegment"),
+                                Ref("QuotedLiteralSegment"),
+                                optional=True,
+                            ),
+                        ),
+                        Sequence(
+                            "AWS_ROLE",
+                            Ref("EqualsSegment"),
+                            Ref("QuotedLiteralSegment"),
+                        ),
+                    )
+                ),
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "ENCRYPTION",
+            Ref("EqualsSegment"),
+            Bracketed(
+                OneOf(
+                    Sequence(
+                        Sequence(
+                            "TYPE",
+                            Ref("EqualsSegment"),
+                            Ref("S3EncryptionOption"),
+                            optional=True,
+                        ),
+                        "MASTER_KEY",
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                    Sequence("TYPE", Ref("EqualsSegment"), Ref("S3EncryptionOption")),
+                    Sequence(
+                        "TYPE",
+                        Ref("EqualsSegment"),
+                        Ref("S3EncryptionOption"),
+                        Sequence(
+                            "KMS_KEY_ID",
+                            Ref("EqualsSegment"),
+                            Ref("QuotedLiteralSegment"),
+                            optional=True,
+                        ),
+                    ),
+                    Sequence("TYPE", Ref("EqualsSegment"), "NONE"),
+                )
+            ),
+            optional=True,
+        ),
+    )
+
+
+@snowflake_dialect.segment()
+class GCSExternalStageParameters(BaseSegment):
+    """Parameters for a GCS external stage in Snowflake.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-stage.html
+    https://docs.snowflake.com/en/sql-reference/sql/alter-stage.html
+    """
+
+    name = "gcs_external_stage_parameters"
+    type = "stage_parameters"
+
+    match_grammar = Sequence(
+        Sequence(
+            "STORAGE_INTEGRATION",
+            Ref("EqualsSegment"),
+            Ref("ObjectReferenceSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "ENCRYPTION",
+            Ref("EqualsSegment"),
+            Bracketed(
+                Sequence(
+                    "TYPE",
+                    Ref("EqualsSegment"),
+                    OneOf(
+                        Sequence(
+                            Ref("GCSEncryptionOption"),
+                            Sequence(
+                                "KMS_KEY_ID",
+                                Ref("EqualsSegment"),
+                                Ref("QuotedLiteralSegment"),
+                                optional=True,
+                            ),
+                        ),
+                        "NONE",
+                    ),
+                )
+            ),
+            optional=True,
+        ),
+    )
+
+
+@snowflake_dialect.segment()
+class AzureBlobStorageExternalStageParameters(BaseSegment):
+    """Parameters for an Azure Blob Storage external stage in Snowflake.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-stage.html
+    https://docs.snowflake.com/en/sql-reference/sql/alter-stage.html
+    """
+
+    name = "azure_blob_storage_external_stage_parameters"
+    type = "stage_parameters"
+
+    match_grammar = Sequence(
+        OneOf(
+            Sequence(
+                "STORAGE_INTEGRATION",
+                Ref("EqualsSegment"),
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "CREDENTIALS",
+                Ref("EqualsSegment"),
+                Bracketed(
+                    Sequence("AZURE_SAS_TOKEN"),
+                    Ref("EqualsSegment"),
+                    Ref("QuotedLiteralSegment"),
+                ),
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "ENCRYPTION",
+            Ref("EqualsSegment"),
+            Bracketed(
+                Sequence(
+                    "TYPE",
+                    Ref("EqualsSegment"),
+                    OneOf(
+                        Sequence(
+                            Ref("AzureBlobStorageEncryptionOption"),
+                            Sequence(
+                                "MASTER_KEY",
+                                Ref("EqualsSegment"),
+                                Ref("QuotedLiteralSegment"),
+                                optional=True,
+                            ),
+                        ),
+                        "NONE",
+                    ),
+                )
+            ),
+            optional=True,
+        ),
+    )
+
+
+@snowflake_dialect.segment()
+class CreateStageSegment(BaseSegment):
+    """A Snowflake CREATE STAGE statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/create-stage.html
+    """
+
+    type = "create_stage_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Sequence("OR", "REPLACE", optional=True),
+        Ref.keyword("TEMPORARY", optional=True),
+        "STAGE",
+        Sequence("IF", "NOT", "EXISTS", optional=True),
+        Ref("ObjectReferenceSegment"),
+        Indent,
+        OneOf(
+            # Internal stages
+            Sequence(
+                Ref("InternalStageParameters", optional=True),
+                Sequence(
+                    "DIRECTORY",
+                    Ref("EqualsSegment"),
+                    Bracketed(
+                        Sequence(
+                            "ENABLE",
+                            Ref("EqualsSegment"),
+                            Ref("BooleanLiteralGrammar"),
+                        )
+                    ),
+                    optional=True,
+                ),
+            ),
+            # External S3 stage
+            Sequence(
+                "URL",
+                Ref("EqualsSegment"),
+                Ref("S3Path"),
+                Ref("S3ExternalStageParameters", optional=True),
+                Sequence(
+                    "DIRECTORY",
+                    Ref("EqualsSegment"),
+                    Bracketed(
+                        Sequence(
+                            "ENABLE",
+                            Ref("EqualsSegment"),
+                            Ref("BooleanLiteralGrammar"),
+                        ),
+                        Sequence(
+                            "AUTO_REFRESH",
+                            Ref("EqualsSegment"),
+                            Ref("BooleanLiteralGrammar"),
+                            optional=True,
+                        ),
+                    ),
+                    optional=True,
+                ),
+            ),
+            # External GCS stage
+            Sequence(
+                "URL",
+                Ref("EqualsSegment"),
+                Ref("GCSPath"),
+                Ref("GCSExternalStageParameters", optional=True),
+                Sequence(
+                    "DIRECTORY",
+                    Ref("EqualsSegment"),
+                    Bracketed(
+                        Sequence(
+                            "ENABLE",
+                            Ref("EqualsSegment"),
+                            Ref("BooleanLiteralGrammar"),
+                        ),
+                        Sequence(
+                            "AUTO_REFRESH",
+                            Ref("EqualsSegment"),
+                            Ref("BooleanLiteralGrammar"),
+                            optional=True,
+                        ),
+                        Sequence(
+                            "NOTIFICATION_INTEGRATION",
+                            Ref("EqualsSegment"),
+                            OneOf(
+                                Ref("NakedIdentifierSegment"),
+                                Ref("QuotedLiteralSegment"),
+                            ),
+                            optional=True,
+                        ),
+                    ),
+                    optional=True,
+                ),
+            ),
+            # External Azure Blob Storage stage
+            Sequence(
+                "URL",
+                Ref("EqualsSegment"),
+                Ref("AzureBlobStoragePath"),
+                Ref("AzureBlobStorageExternalStageParameters", optional=True),
+                Sequence(
+                    "DIRECTORY",
+                    Ref("EqualsSegment"),
+                    Bracketed(
+                        Sequence(
+                            "ENABLE",
+                            Ref("EqualsSegment"),
+                            Ref("BooleanLiteralGrammar"),
+                        ),
+                        Sequence(
+                            "AUTO_REFRESH",
+                            Ref("EqualsSegment"),
+                            Ref("BooleanLiteralGrammar"),
+                            optional=True,
+                        ),
+                        Sequence(
+                            "NOTIFICATION_INTEGRATION",
+                            Ref("EqualsSegment"),
+                            OneOf(
+                                Ref("NakedIdentifierSegment"),
+                                Ref("QuotedLiteralSegment"),
+                            ),
+                            optional=True,
+                        ),
+                    ),
+                    optional=True,
+                ),
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "FILE_FORMAT", Ref("EqualsSegment"), Ref("FileFormatSegment"), optional=True
+        ),
+        Sequence(
+            "COPY_OPTIONS",
+            Ref("EqualsSegment"),
+            Ref("CopyOptionsSegment"),
+            optional=True,
+        ),
+        Ref("TagBracketedEqualsSegment", optional=True),
+        Ref("CommentEqualsClauseSegment", optional=True),
+    )
+
+
+@snowflake_dialect.segment()
+class AlterStageSegment(BaseSegment):
+    """A Snowflake ALTER STAGE statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-stage.html
+    """
+
+    type = "alter_stage_statement"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "STAGE",
+        Sequence("IF", "EXISTS", optional=True),
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Sequence("RENAME", "TO", Ref("ObjectReferenceSegment")),
+            Sequence(
+                "SET",
+                Indent,
+                OneOf(
+                    Sequence(
+                        OneOf(
+                            Ref("InternalStageParameters"),
+                            Sequence(
+                                Sequence(
+                                    "URL",
+                                    Ref("EqualsSegment"),
+                                    Ref("S3Path"),
+                                    optional=True,
+                                ),
+                                Ref(
+                                    "S3ExternalStageParameters",
+                                    optional=True,
+                                ),
+                            ),
+                            Sequence(
+                                Sequence(
+                                    "URL",
+                                    Ref("EqualsSegment"),
+                                    Ref("GCSPath"),
+                                    optional=True,
+                                ),
+                                Ref(
+                                    "GCSExternalStageParameters",
+                                    optional=True,
+                                ),
+                            ),
+                            Sequence(
+                                Sequence(
+                                    "URL",
+                                    Ref("EqualsSegment"),
+                                    Ref("AzureBlobStoragePath"),
+                                    optional=True,
+                                ),
+                                Ref(
+                                    "AzureBlobStorageExternalStageParameters",
+                                    optional=True,
+                                ),
+                            ),
+                            optional=True,
+                        ),
+                        Sequence(
+                            "FILE_FORMAT",
+                            Ref("EqualsSegment"),
+                            Ref("FileFormatSegment"),
+                            optional=True,
+                        ),
+                        Sequence(
+                            "COPY_OPTIONS",
+                            Ref("EqualsSegment"),
+                            Ref("CopyOptionsSegment"),
+                            optional=True,
+                        ),
+                        Ref("CommentEqualsClauseSegment", optional=True),
+                    ),
+                    Ref("TagEqualsSegment"),
+                ),
+            ),
+            Sequence(
+                "REFRESH",
+                Sequence(
+                    "SUBPATH",
+                    Ref("EqualsSegment"),
+                    Ref("QuotedLiteralSegment"),
+                    optional=True,
+                ),
+            ),
         ),
     )
 
@@ -2733,4 +3234,407 @@ class FromClauseTerminatingUsingWhereSegment(ansi_dialect.get_segment("FromClaus
         "FROM",
         terminator=OneOf(Ref.keyword("USING"), Ref.keyword("WHERE")),
         enforce_whitespace_preceding_terminator=True,
+    )
+
+
+@snowflake_dialect.segment(replace=True)
+class DescribeStatementSegment(BaseSegment):
+    """`DESCRIBE` statement grammar.
+
+    https://docs.snowflake.com/en/sql-reference/sql/desc.html
+    """
+
+    match_grammar = Sequence(
+        OneOf("DESCRIBE", "DESC"),
+        OneOf(
+            # https://docs.snowflake.com/en/sql-reference/sql/desc-result.html
+            Sequence(
+                "RESULT",
+                OneOf(
+                    Ref("QuotedLiteralSegment"),
+                    Sequence("LAST_QUERY_ID", Bracketed()),
+                ),
+            ),
+            # https://docs.snowflake.com/en/sql-reference/sql/desc-network-policy.html
+            Sequence(
+                "NETWORK",
+                "POLICY",
+                Ref("ObjectReferenceSegment"),
+            ),
+            # https://docs.snowflake.com/en/sql-reference/sql/desc-share.html
+            Sequence(
+                "SHARE",
+                Ref("ObjectReferenceSegment"),
+                Sequence(
+                    Ref("DotSegment"),
+                    Ref("ObjectReferenceSegment"),
+                    optional=True,
+                ),
+            ),
+            # https://docs.snowflake.com/en/sql-reference/sql/desc-user.html
+            Sequence(
+                "USER",
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "WAREHOUSE",
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "DATABASE",
+                Ref("DatabaseReferenceSegment"),
+            ),
+            # https://docs.snowflake.com/en/sql-reference/sql/desc-integration.html
+            Sequence(
+                OneOf(
+                    "API",
+                    "NOTIFICATION",
+                    "SECURITY",
+                    "STORAGE",
+                ),
+                "INTEGRATION",
+                Ref("ObjectReferenceSegment"),
+            ),
+            # https://docs.snowflake.com/en/sql-reference/sql/desc-session-policy.html
+            Sequence(
+                "SESSION",
+                "POLICY",
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "SCHEMA",
+                Ref("SchemaReferenceSegment"),
+            ),
+            # https://docs.snowflake.com/en/sql-reference/sql/desc-table.html
+            Sequence(
+                "TABLE",
+                Ref("TableReferenceSegment"),
+                Sequence(
+                    "TYPE",
+                    Ref("EqualsSegment"),
+                    OneOf("COLUMNS", "STAGE"),
+                    optional=True,
+                ),
+            ),
+            # https://docs.snowflake.com/en/sql-reference/sql/desc-external-table.html
+            Sequence(
+                "EXTERNAL",
+                "TABLE",
+                Ref("TableReferenceSegment"),
+                Sequence(
+                    "TYPE",
+                    Ref("EqualsSegment"),
+                    OneOf("COLUMNS", "STAGE"),
+                    optional=True,
+                ),
+            ),
+            # https://docs.snowflake.com/en/sql-reference/sql/desc-view.html
+            Sequence(
+                "VIEW",
+                Ref("TableReferenceSegment"),
+            ),
+            # https://docs.snowflake.com/en/sql-reference/sql/desc-materialized-view.html
+            Sequence(
+                "MATERIALIZED",
+                "VIEW",
+                Ref("TableReferenceSegment"),
+            ),
+            # https://docs.snowflake.com/en/sql-reference/sql/desc-sequence.html
+            Sequence(
+                "SEQUENCE",
+                Ref("SequenceReferenceSegment"),
+            ),
+            # https://docs.snowflake.com/en/sql-reference/sql/desc-masking-policy.html
+            Sequence(
+                "MASKING",
+                "POLICY",
+                Ref("ObjectReferenceSegment"),
+            ),
+            # https://docs.snowflake.com/en/sql-reference/sql/desc-row-access-policy.html
+            Sequence(
+                "ROW",
+                "ACCESS",
+                "POLICY",
+                Ref("ObjectReferenceSegment"),
+            ),
+            # https://docs.snowflake.com/en/sql-reference/sql/desc-file-format.html
+            Sequence(
+                "FILE",
+                "FORMAT",
+                Ref("ObjectReferenceSegment"),
+            ),
+            # https://docs.snowflake.com/en/sql-reference/sql/desc-stage.html
+            Sequence(
+                "STAGE",
+                Ref("ObjectReferenceSegment"),
+            ),
+            # https://docs.snowflake.com/en/sql-reference/sql/desc-pipe.html
+            Sequence(
+                "PIPE",
+                Ref("ObjectReferenceSegment"),
+            ),
+            # https://docs.snowflake.com/en/sql-reference/sql/desc-stream.html
+            Sequence(
+                "STREAM",
+                Ref("ObjectReferenceSegment"),
+            ),
+            # https://docs.snowflake.com/en/sql-reference/sql/desc-task.html
+            Sequence(
+                "TASK",
+                Ref("ObjectReferenceSegment"),
+            ),
+            # https://docs.snowflake.com/en/sql-reference/sql/desc-function.html
+            Sequence(
+                "FUNCTION",
+                Ref("FunctionNameSegment"),
+                Bracketed(
+                    Delimited(
+                        Ref("DatatypeSegment"),
+                        optional=True,
+                    ),
+                ),
+            ),
+            # https://docs.snowflake.com/en/sql-reference/sql/desc-procedure.html
+            Sequence(
+                "PROCEDURE",
+                Ref("FunctionNameSegment"),
+                Bracketed(
+                    Delimited(
+                        Ref("DatatypeSegment"),
+                        optional=True,
+                    ),
+                ),
+            ),
+        ),
+    )
+
+
+@snowflake_dialect.segment(replace=True)
+class TransactionStatementSegment(BaseSegment):
+    """`BEGIN`, `START TRANSACTION`, `COMMIT`, AND `ROLLBACK` statement grammar.
+
+    Overwrites ANSI to match correct Snowflake grammar.
+
+    https://docs.snowflake.com/en/sql-reference/sql/begin.html
+    https://docs.snowflake.com/en/sql-reference/sql/commit.html
+    https://docs.snowflake.com/en/sql-reference/sql/rollback.html
+    """
+
+    match_grammar = OneOf(
+        Sequence(
+            "BEGIN",
+            OneOf("WORK", "TRANSACTION", optional=True),
+            Sequence("NAME", Ref("ObjectReferenceSegment"), optional=True),
+        ),
+        Sequence(
+            "START",
+            "TRANSACTION",
+            Sequence("NAME", Ref("ObjectReferenceSegment"), optional=True),
+        ),
+        "COMMIT",
+        "ROLLBACK",
+    )
+
+
+@snowflake_dialect.segment(replace=True)
+class TruncateStatementSegment(BaseSegment):
+    """`TRUNCATE TABLE` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/truncate-table.html
+    """
+
+    type = "truncate_table"
+    match_grammar = Sequence(
+        "TRUNCATE",
+        Ref.keyword("TABLE", optional=True),
+        Sequence("IF", "EXISTS", optional=True),
+        Ref("TableReferenceSegment"),
+    )
+
+
+@snowflake_dialect.segment()
+class UnsetStatementSegment(BaseSegment):
+    """An `UNSET` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/unset.html
+    """
+
+    type = "unset_statement"
+
+    match_grammar = Sequence(
+        "UNSET",
+        OneOf(
+            Ref("LocalVariableNameSegment"),
+            Bracketed(
+                Delimited(
+                    Ref("LocalVariableNameSegment"),
+                ),
+            ),
+        ),
+    )
+
+
+@snowflake_dialect.segment()
+class UndropStatementSegment(BaseSegment):
+    """`UNDROP` statement.
+
+    DATABASE: https://docs.snowflake.com/en/sql-reference/sql/undrop-database.html
+    SCHEMA: https://docs.snowflake.com/en/sql-reference/sql/undrop-schema.html
+    TABLE: https://docs.snowflake.com/en/sql-reference/sql/undrop-table.html
+    """
+
+    type = "undrop_statement"
+    match_grammar = Sequence(
+        "UNDROP",
+        OneOf(
+            Sequence(
+                "DATABASE",
+                Ref("DatabaseReferenceSegment"),
+            ),
+            Sequence(
+                "SCHEMA",
+                Ref("SchemaReferenceSegment"),
+            ),
+            Sequence(
+                "TABLE",
+                Ref("TableReferenceSegment"),
+            ),
+        ),
+    )
+
+
+@snowflake_dialect.segment()
+class CommentStatementSegment(BaseSegment):
+    """`COMMENT` statement grammar.
+
+    https://docs.snowflake.com/en/sql-reference/sql/comment.html
+
+    N.B. this applies to all objects, so there may be some I've missed
+    here so add any others to the OneOf grammar below.
+    """
+
+    type = "comment_statement"
+    match_grammar = Sequence(
+        "COMMENT",
+        Sequence(
+            "IF",
+            "EXISTS",
+            optional=True,
+        ),
+        "ON",
+        OneOf(
+            "COLUMN",
+            "TABLE",
+            "VIEW",
+            "SCHEMA",
+            "DATABASE",
+            "WAREHOUSE",
+            "USER",
+            "STAGE",
+            "FUNCTION",
+            "PROCEDURE",
+            "SEQUENCE",
+            "SHARE",
+            "PIPE",
+            "STREAM",
+            "TASK",
+            Sequence(
+                "NETWORK",
+                "POLICY",
+            ),
+            Sequence(
+                OneOf(
+                    "API",
+                    "NOTIFICATION",
+                    "SECURITY",
+                    "STORAGE",
+                ),
+                "INTEGRATION",
+            ),
+            Sequence(
+                "SESSION",
+                "POLICY",
+            ),
+            Sequence(
+                "EXTERNAL",
+                "TABLE",
+            ),
+            Sequence(
+                "MATERIALIZED",
+                "VIEW",
+            ),
+            Sequence(
+                "MASKING",
+                "POLICY",
+            ),
+            Sequence(
+                "ROW",
+                "ACCESS",
+                "POLICY",
+            ),
+            Sequence(
+                "FILE",
+                "FORMAT",
+            ),
+        ),
+        Ref("ObjectReferenceSegment"),
+        "IS",
+        Ref("QuotedLiteralSegment"),
+    )
+
+
+@snowflake_dialect.segment(replace=True)
+class UseStatementSegment(BaseSegment):
+    """A `USE` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/use.html
+    """
+
+    type = "use_statement"
+    match_grammar = Sequence(
+        "USE",
+        OneOf(
+            Sequence("ROLE", Ref("ObjectReferenceSegment")),
+            Sequence("WAREHOUSE", Ref("ObjectReferenceSegment")),
+            Sequence(
+                Ref.keyword("DATABASE", optional=True),
+                Ref("DatabaseReferenceSegment"),
+            ),
+            Sequence(
+                Ref.keyword("SCHEMA", optional=True),
+                Ref("SchemaReferenceSegment"),
+            ),
+            Sequence(
+                "SECONDARY",
+                "ROLES",
+                OneOf(
+                    "ALL",
+                    "NONE",
+                ),
+            ),
+        ),
+    )
+
+
+@snowflake_dialect.segment()
+class CallStatementSegment(BaseSegment):
+    """`CALL` statement.
+
+    https://docs.snowflake.com/en/sql-reference/sql/call.html
+    """
+
+    type = "call_statement"
+    match_grammar = Sequence(
+        "CALL",
+        Sequence(
+            Ref("FunctionNameSegment"),
+            Bracketed(
+                Ref(
+                    "FunctionContentsGrammar",
+                    # The brackets might be empty for some functions...
+                    optional=True,
+                    ephemeral_name="FunctionContentsGrammar",
+                ),
+            ),
+        ),
     )

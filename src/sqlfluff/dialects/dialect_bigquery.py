@@ -135,6 +135,19 @@ bigquery_dialect.add(
         Ref("QuotedIdentifierSegment"),
         Ref("NakedIdentifierSegmentFull"),
     ),
+    DefaultDeclareOptionsGrammar=Sequence(
+        "DEFAULT",
+        OneOf(
+            Ref("LiteralGrammar"),
+            Bracketed(Ref("SelectStatementSegment")),
+            Ref("BareFunctionSegment"),
+            Ref("FunctionSegment"),
+            Ref("ArrayLiteralSegment"),
+            Ref("TypelessStructSegment"),
+            Ref("TupleSegment"),
+            Ref("BaseExpressionElementGrammar"),
+        ),
+    ),
 )
 
 
@@ -587,17 +600,24 @@ class TypelessStructSegment(BaseSegment):
         "STRUCT",
         Bracketed(
             Delimited(
-                AnyNumberOf(
-                    Sequence(
-                        Ref("BaseExpressionElementGrammar"),
-                        Ref("AliasExpressionSegment", optional=True),
-                    ),
+                Sequence(
+                    Ref("BaseExpressionElementGrammar"),
+                    Ref("AliasExpressionSegment", optional=True),
                 ),
-                delimiter=Ref("CommaSegment"),
             ),
-            optional=True,
         ),
     )
+
+
+@bigquery_dialect.segment()
+class TupleSegment(BaseSegment):
+    """Expression to construct a TUPLE.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-types#tuple_syntax
+    """
+
+    type = "tuple"
+    match_grammar = Bracketed(Delimited(Ref("BaseExpressionElementGrammar")))
 
 
 @bigquery_dialect.segment()
@@ -764,16 +784,13 @@ class DeclareStatementSegment(BaseSegment):
     parse_grammar = Sequence(
         "DECLARE",
         Delimited(Ref("NakedIdentifierSegment")),
-        Ref("DatatypeSegment"),
-        Sequence(
-            "DEFAULT",
-            OneOf(
-                Ref("LiteralGrammar"),
-                Bracketed(Ref("SelectStatementSegment")),
-                Ref("BareFunctionSegment"),
-                Ref("FunctionSegment"),
+        OneOf(
+            Ref("DatatypeSegment"),
+            Ref("DefaultDeclareOptionsGrammar"),
+            Sequence(
+                Ref("DatatypeSegment"),
+                Ref("DefaultDeclareOptionsGrammar"),
             ),
-            optional=True,
         ),
     )
 
@@ -794,26 +811,24 @@ class SetStatementSegment(BaseSegment):
             Bracketed(Delimited(Ref("NakedIdentifierSegment"))),
         ),
         Ref("EqualsSegment"),
-        OneOf(
-            Delimited(
-                OneOf(
-                    Ref("LiteralGrammar"),
-                    Bracketed(Ref("SelectStatementSegment")),
-                    Ref("BareFunctionSegment"),
-                    Ref("FunctionSegment"),
-                    Bracketed(
-                        Delimited(
-                            OneOf(
-                                Ref("LiteralGrammar"),
-                                Bracketed(Ref("SelectStatementSegment")),
-                                Ref("BareFunctionSegment"),
-                                Ref("FunctionSegment"),
-                            )
+        Delimited(
+            OneOf(
+                Ref("LiteralGrammar"),
+                Bracketed(Ref("SelectStatementSegment")),
+                Ref("BareFunctionSegment"),
+                Ref("FunctionSegment"),
+                Bracketed(
+                    Delimited(
+                        OneOf(
+                            Ref("LiteralGrammar"),
+                            Bracketed(Ref("SelectStatementSegment")),
+                            Ref("BareFunctionSegment"),
+                            Ref("FunctionSegment"),
                         )
-                    ),
-                    Ref("ArrayLiteralSegment"),
-                )
-            )
+                    )
+                ),
+                Ref("ArrayLiteralSegment"),
+            ),
         ),
     )
 
@@ -960,9 +975,7 @@ class FromUnpivotExpressionSegment(BaseSegment):
     """
 
     type = "from_unpivot_expression"
-    match_grammar = Sequence("UNPIVOT", Bracketed(Anything()))
-
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "UNPIVOT",
         Sequence(
             OneOf("INCLUDE", "EXCLUDE"),

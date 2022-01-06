@@ -158,7 +158,7 @@ test_fail_indented_using_on_false:
       indented_joins: true
       indented_using_on: false
 
-test_fail_indented_joins_using_on_false:
+test_fail_indented_joins_using_on_true:
   # 2.e) specific True, and failing
   fail_str: |
     SELECT a, b, c
@@ -459,3 +459,111 @@ test_exasol_script:
   configs:
     core:
       dialect: exasol
+
+test_pass_tsql_else_if:
+  pass_str: |
+    IF (1 > 1)
+        PRINT 'A';
+    ELSE IF (2 > 2)
+        PRINT 'B';
+    ELSE IF (3 > 3)
+        PRINT 'C';
+    ELSE
+        PRINT 'D';
+  configs:
+    core:
+      dialect: tsql
+
+test_fail_tsql_else_if:
+  fail_str: |
+    IF (1 > 1)
+      PRINT 'A';
+     ELSE IF (2 > 2)
+         PRINT 'B';
+    ELSE IF (3 > 3)
+     PRINT 'C';
+    ELSE
+            PRINT 'D';
+  fix_str: |
+    IF (1 > 1)
+        PRINT 'A';
+    ELSE IF (2 > 2)
+        PRINT 'B';
+    ELSE IF (3 > 3)
+        PRINT 'C';
+    ELSE
+        PRINT 'D';
+  configs:
+    core:
+      dialect: tsql
+
+test_fail_tsql_else_if_successive:
+  fail_str: |
+    IF (1 > 1)
+        PRINT 'A';
+        ELSE IF (2 > 2)
+            PRINT 'B';
+            ELSE IF (3 > 3)
+                PRINT 'C';
+                ELSE
+                    PRINT 'D';
+  fix_str: |
+    IF (1 > 1)
+        PRINT 'A';
+    ELSE IF (2 > 2)
+        PRINT 'B';
+    ELSE IF (3 > 3)
+        PRINT 'C';
+    ELSE
+        PRINT 'D';
+  configs:
+    core:
+      dialect: tsql
+
+# TSQL function
+test_tsql_function:
+  fail_str: |
+    CREATE FUNCTION dbo.isoweek (@DATE datetime)
+    RETURNS int
+    WITH EXECUTE AS CALLER
+    AS
+    BEGIN
+        DECLARE @ISOweek int;
+        SET @ISOweek = DATEPART(wk, @DATE) + 1
+            - DATEPART(wk, CAST(DATEPART(yy, @DATE) AS char(4)) + '0104');
+    --Special cases Jan 1-3 may belong to the previous year
+        IF (@ISOweek = 0)
+            SET @ISOweek = dbo.ISOWEEK(CAST(DATEPART(yy, @DATE) - 1
+                AS char(4)
+            ) + '12' + CAST(24 + DATEPART(day, @DATE) AS char(2))) + 1;
+    --Special case Dec 29-31 may belong to the next year
+        IF ((DATEPART(mm, @DATE) = 12)
+        AND ((DATEPART(dd, @DATE) - DATEPART(dw, @DATE)) >= 28))
+        SET @ISOweek = 1;
+        RETURN(@ISOweek);
+    END;
+    GO
+  fix_str: |
+    CREATE FUNCTION dbo.isoweek (@DATE datetime)
+    RETURNS int
+    WITH EXECUTE AS CALLER
+    AS
+    BEGIN
+        DECLARE @ISOweek int;
+        SET @ISOweek = DATEPART(wk, @DATE) + 1
+        - DATEPART(wk, CAST(DATEPART(yy, @DATE) AS char(4)) + '0104');
+        --Special cases Jan 1-3 may belong to the previous year
+        IF (@ISOweek = 0)
+            SET @ISOweek = dbo.ISOWEEK(CAST(DATEPART(yy, @DATE) - 1
+                AS char(4)
+            ) + '12' + CAST(24 + DATEPART(day, @DATE) AS char(2))) + 1;
+        --Special case Dec 29-31 may belong to the next year
+        IF ((DATEPART(mm, @DATE) = 12)
+            AND ((DATEPART(dd, @DATE) - DATEPART(dw, @DATE)) >= 28))
+            SET @ISOweek = 1;
+        RETURN(@ISOweek);
+    END;
+    GO
+  configs:
+    core:
+      dialect: tsql

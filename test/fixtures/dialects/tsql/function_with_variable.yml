@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 48d8c348827f95622f0ace38bf1eec6f735ef098b5f96aecfdf763819c291c45
+_hash: 25a5d409763ab2ce047a5499d7188dc4bd213fd647c42e027ff0ebe9dab0fe7c
 file:
   batch:
     statement:
@@ -30,20 +30,35 @@ file:
       - keyword: RETURNS
       - data_type:
           identifier: BIGINT
-      - function_statement:
-        - keyword: AS
-        - raw: BEGIN
-        - raw: DECLARE
-        - raw: '@result'
-        - raw: BIGINT
-        - raw: SET
-        - raw: '@result'
-        - raw: '='
-        - raw: '4'
-        - raw: RETURN
-        - raw: '@result'
-        - raw: +
-        - raw: '@year'
-        - raw: +
-        - raw: '@week'
-        - raw: END
+      - keyword: AS
+      - procedure_statement:
+          statement:
+            begin_end_block:
+            - keyword: BEGIN
+            - statement:
+                declare_segment:
+                  keyword: DECLARE
+                  parameter: '@result'
+                  data_type:
+                    identifier: BIGINT
+            - statement:
+                set_segment:
+                  keyword: SET
+                  parameter: '@result'
+                  comparison_operator:
+                    raw_comparison_operator: '='
+                  expression:
+                    literal: '4'
+            - statement:
+                return_segment:
+                  keyword: RETURN
+                  expression:
+                  - column_reference:
+                      parameter: '@result'
+                  - binary_operator: +
+                  - column_reference:
+                      parameter: '@year'
+                  - binary_operator: +
+                  - column_reference:
+                      parameter: '@week'
+            - keyword: END

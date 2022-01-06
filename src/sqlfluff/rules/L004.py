@@ -51,9 +51,7 @@ class Rule_L004(BaseRule):
 
         tab = "\t"
         space = " "
-        correct_indent = (
-            space * self.tab_space_size if self.indent_unit == "space" else tab
-        )
+        correct_indent = self.indent
         wrong_indent = (
             tab if self.indent_unit == "space" else space * self.tab_space_size
         )
@@ -79,10 +77,11 @@ class Rule_L004(BaseRule):
                 )
             ):
                 fixes = [
-                    LintFix(
-                        "edit",
+                    LintFix.replace(
                         context.segment,
-                        WhitespaceSegment(raw=edit_indent),
+                        [
+                            WhitespaceSegment(raw=edit_indent),
+                        ],
                     )
                 ]
             elif not (

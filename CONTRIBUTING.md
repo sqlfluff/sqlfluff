@@ -18,11 +18,18 @@ at [docs.sqlfluff.com](https://docs.sqlfluff.com) and the source can be found
 in the [docs](./docs/) folder of the repo). Pull requests are always welcome
 with documentation improvements. Keep in mind that there are linting checks in
 place for good formatting so keep an eye on the tests whenever submitting a PR.
+We also have a [GitHub wiki](https://github.com/sqlfluff/sqlfluff/wiki) for
+longer tutorials. We welcome
+[contributions, suggestions or requests](https://github.com/sqlfluff/sqlfluff/issues/2104)
+for the wiki.
 
 :star2: **Fifth** - if you are so inclined - pull requests on the core codebase
-are always welcome. Bear in mind that all the tests should pass, and test
-coverage should not decrease unduly as part of the changes which you make.
-You may find it useful to familiarise yourself with the
+are always welcome. Dialect additions are often a good entry point for new
+contributors, and we have
+[a wiki page](https://github.com/sqlfluff/sqlfluff/wiki/Contributing-Dialect-Changes)
+to help you through your first contribution. Bear in mind that all the tests
+should pass, and test coverage should not decrease unduly as part of the
+changes which you make. You may find it useful to familiarise yourself with the
 [architectural principles here](https://docs.sqlfluff.com/en/latest/architecture.html)
 and with the [current documentation here](https://docs.sqlfluff.com).
 
@@ -97,6 +104,14 @@ Windows users should call `.venv\Scripts\activate` rather than `source .venv/bin
 This virtual environment will already have the package installed in editable mode for you, as well as
 `requirements_dev.txt` and `plugins/sqlfluff-plugin-example`. Additionally if a dbt virtual environment
 was specified, you will also have `dbt-core`, `dbt-postgres`, and `plugins/sqlfluff-templater-dbt` available.
+
+### Wiki
+
+We have a [GitHub wiki](https://github.com/sqlfluff/sqlfluff/wiki) with some
+more long form tutorials for contributors, particualrly those new to SQLFluff
+or contributing to open source. We welcome
+[contributions, suggestions or requests](https://github.com/sqlfluff/sqlfluff/issues/2104)
+for the wiki.
 
 ### Developing plugins
 
@@ -185,6 +200,7 @@ whenever a new release is published to GitHub.
 - [ ] Check each issue title is clear, and if not edit issue title (which will automatically update Release notes on next PR merged, as the Draft one is recreated in full each time). Also edit locally in [CHANGELOG.md](CHANGELOG.md)
 - [ ] Categorise them into "Enhancements" and "Bug Fixes". Enhancements should go above Bug Fixes (lead with the positive!)
 - [ ] Add a comment at the top to highlight the main things in this release
+- [ ] If this is a non-patch release then update the `Notable changes` section in `index.rst` with a brief summary of the new features added.
 - [ ] View the CHANGELOG in this branch on GitHub to ensure you didn't miss any link conversions or other markup errors.
 - [ ] Open draft PR with those change a few days in advance to give contributors notice. Tag those with open PRs in the PR to give them time to merge their work before the new release
 - [ ] Comment in #contributing slack channel about release candidate
@@ -200,7 +216,7 @@ whenever a new release is published to GitHub.
 If this is not done, PyPI will reject the package. Also, ensure you have used that
 version as a part of the tag and have described the changes accordingly.
 
-#### Manually
+#### Releasing Manually
 
 If for some reason the package needs to be submitted to PyPI manually, we use `twine`.
 You will need to be an admin to submit this to PyPI, and you will need a properly

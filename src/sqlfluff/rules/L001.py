@@ -1,5 +1,6 @@
 """Implementation of Rule L001."""
 from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix, RuleContext
+from sqlfluff.core.rules.functional import segment_predicates as sp
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
 
@@ -40,13 +41,9 @@ class Rule_L001(BaseRule):
             and context.raw_stack[-1].is_type("whitespace")
         ):
             # If we find a newline, which is preceded by whitespace, then bad
-            deletions = []
-            idx = -1
-            while abs(idx) <= len(context.raw_stack) and context.raw_stack[idx].is_type(
-                "whitespace"
-            ):
-                deletions.append(context.raw_stack[idx])
-                idx -= 1
+            deletions = context.functional.raw_stack.reversed().select(
+                loop_while=sp.is_type("whitespace")
+            )
             last_deletion_slice = deletions[-1].pos_marker.source_slice
 
             # Check the raw source (before template expansion) immediately
@@ -70,6 +67,6 @@ class Rule_L001(BaseRule):
                     return LintResult()
             return LintResult(
                 anchor=deletions[-1],
-                fixes=[LintFix("delete", d) for d in deletions],
+                fixes=[LintFix.delete(d) for d in deletions],
             )
         return LintResult()

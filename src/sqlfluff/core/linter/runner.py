@@ -229,9 +229,7 @@ def get_runner(
     allow_process_parallelism: bool = True,
 ) -> BaseRunner:
     """Generate a runner instance based on parallel and system configuration."""
-    # Python multiprocessing isn't supported in 3.6 and before.
-    # The library exists but we get pickling errors with LintedFile.
-    if processes > 1 and sys.version_info >= (3, 7):
+    if processes > 1:
         # Process parallelism isn't really supported during testing
         # so this flag allows us to fall back to a threaded runner
         # in those cases.
@@ -240,10 +238,4 @@ def get_runner(
         else:
             return MultiThreadRunner(linter, config, processes=processes)
     else:
-        if processes > 1:
-            linter_logger.warning(
-                "Parallel linting is not supported in Python %s.%s.",
-                sys.version_info.major,
-                sys.version_info.minor,
-            )
         return SequentialRunner(linter, config)

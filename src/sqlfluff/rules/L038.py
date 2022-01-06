@@ -4,6 +4,7 @@ from typing import Optional
 from sqlfluff.core.parser import BaseSegment, SymbolSegment
 
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
+import sqlfluff.core.rules.functional.segment_predicates as sp
 from sqlfluff.core.rules.doc_decorators import (
     document_fix_compatible,
     document_configuration,
@@ -45,12 +46,11 @@ class Rule_L038(BaseRule):
         # Config type hints
         self.select_clause_trailing_comma: str
 
-        if context.segment.is_type("select_clause"):
+        segment = context.functional.segment
+        children = segment.children()
+        if segment.all(sp.is_type("select_clause")):
             # Iterate content to find last element
-            last_content: BaseSegment = None  # type: ignore
-            for seg in context.segment.segments:
-                if seg.is_code:
-                    last_content = seg
+            last_content: BaseSegment = children.last(sp.is_code())[0]
 
             # What mode are we in?
             if self.select_clause_trailing_comma == "forbid":
@@ -58,7 +58,7 @@ class Rule_L038(BaseRule):
                 if last_content.is_type("comma"):
                     return LintResult(
                         anchor=last_content,
-                        fixes=[LintFix("delete", last_content)],
+                        fixes=[LintFix.delete(last_content)],
                         description="Trailing comma in select statement forbidden",
                     )
             elif self.select_clause_trailing_comma == "require":
@@ -67,7 +67,7 @@ class Rule_L038(BaseRule):
                     return LintResult(
                         anchor=last_content,
                         fixes=[
-                            LintFix("edit", last_content, [last_content, new_comma])
+                            LintFix.replace(last_content, [last_content, new_comma])
                         ],
                         description="Trailing comma in select statement required",
                     )

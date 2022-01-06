@@ -9,12 +9,12 @@ Here we define:
 """
 
 from io import StringIO
-from cached_property import cached_property
 from typing import Any, Callable, Optional, List, Tuple, NamedTuple, Iterator
 import logging
 
 from tqdm import tqdm
 
+from sqlfluff.core.cached_property import cached_property
 from sqlfluff.core.config import progress_bar_configuration
 from sqlfluff.core.string_helpers import (
     frame_msg,
@@ -155,7 +155,11 @@ class BaseSegment:
 
     def __hash__(self):
         return hash(
-            (self.__class__.__name__, self.raw, self.pos_marker.source_position())
+            (
+                self.__class__.__name__,
+                self.raw,
+                self.pos_marker.source_position() if self.pos_marker else None,
+            )
         )
 
     def __repr__(self):
@@ -574,6 +578,14 @@ class BaseSegment:
         """Is this segment (or its parent) of the given type."""
         return self.class_is_type(*seg_type)
 
+    def get_name(self):
+        """Returns the name of this segment as a string."""
+        return self.name
+
+    def is_name(self, *seg_name):
+        """Is this segment of the given name."""
+        return any(s == self.name for s in seg_name)
+
     def invalidate_caches(self):
         """Invalidate the cached properties.
 
@@ -974,7 +986,7 @@ class BaseSegment:
                                 # We're just getting rid of this segment.
                                 seg = None
                             elif f.edit_type in (
-                                "edit",
+                                "replace",
                                 "create_before",
                                 "create_after",
                             ):

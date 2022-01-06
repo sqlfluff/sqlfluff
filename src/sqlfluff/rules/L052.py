@@ -10,6 +10,7 @@ from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
 )
+import sqlfluff.core.rules.functional.segment_predicates as sp
 
 
 @document_configuration
@@ -124,27 +125,25 @@ class Rule_L052(BaseRule):
         # First we can simply handle the case of existing semi-colon alignment.
         if context.segment.name == "semicolon":
 
-            # Locate semicolon and iterate back over the raw stack
+            # Locate semicolon and search back over the raw stack
             # to find the end of the preceding statement.
-            anchor_segment = context.segment
-            is_one_line = False
-            pre_semicolon_segments = []
-            for segment in context.raw_stack[::-1]:
-                if segment.is_code:
-                    is_one_line = self._is_one_line_statement(context, segment)
-                    break
-                elif not segment.is_meta:
-                    pre_semicolon_segments.append(segment)
-                anchor_segment = segment
+            reversed_raw_stack = context.functional.raw_stack.reversed()
+            before_code = reversed_raw_stack.select(loop_while=sp.not_(sp.is_code()))
+            pre_semicolon_segments = before_code.select(sp.not_(sp.is_meta()))
+            anchor_segment = before_code[-1] if before_code else context.segment
+            first_code = reversed_raw_stack.select(sp.is_code()).first()
+            is_one_line = (
+                self._is_one_line_statement(context, first_code[0])
+                if first_code
+                else False
+            )
 
             # We can tidy up any whitespace between the semi-colon
             # and the preceding code/comment segment.
             # Don't mess with comment spacing/placement.
-            whitespace_deletions = []
-            for segment in pre_semicolon_segments:
-                if not segment.is_whitespace:
-                    break
-                whitespace_deletions.append(segment)
+            whitespace_deletions = pre_semicolon_segments.select(
+                loop_while=sp.is_whitespace()
+            )
 
             semicolon_newline = self.multiline_newline if not is_one_line else False
 
@@ -155,20 +154,18 @@ class Rule_L052(BaseRule):
                     # semi-colon and its preceding whitespace and then insert
                     # the semi-colon in the correct location.
                     fixes = [
-                        LintFix(
-                            "edit",
+                        LintFix.replace(
                             anchor_segment,
                             [
                                 anchor_segment,
                                 SymbolSegment(raw=";", type="symbol", name="semicolon"),
                             ],
                         ),
-                        LintFix(
-                            "delete",
+                        LintFix.delete(
                             context.segment,
                         ),
                     ]
-                    fixes.extend(LintFix("delete", d) for d in whitespace_deletions)
+                    fixes.extend(LintFix.delete(d) for d in whitespace_deletions)
                     return LintResult(
                         anchor=anchor_segment,
                         fixes=fixes,
@@ -198,8 +195,7 @@ class Rule_L052(BaseRule):
                     )
 
                     fixes = [
-                        LintFix(
-                            "edit",
+                        LintFix.replace(
                             anchor_segment,
                             [
                                 anchor_segment,
@@ -207,12 +203,11 @@ class Rule_L052(BaseRule):
                                 SymbolSegment(raw=";", type="symbol", name="semicolon"),
                             ],
                         ),
-                        LintFix(
-                            "delete",
+                        LintFix.delete(
                             context.segment,
                         ),
                     ]
-                    fixes.extend(LintFix("delete", d) for d in whitespace_deletions)
+                    fixes.extend(LintFix.delete(d) for d in whitespace_deletions)
                     return LintResult(
                         anchor=anchor_segment,
                         fixes=fixes,
@@ -235,7 +230,7 @@ class Rule_L052(BaseRule):
             semi_colon_exist_flag = False
             is_one_line = False
             pre_semicolon_segments = []
-            for segment in complete_stack[::-1]:  # type: ignore
+            for segment in complete_stack[::-1]:
                 if segment.name == "semicolon":
                     semi_colon_exist_flag = True
                 elif segment.is_code:
@@ -253,8 +248,7 @@ class Rule_L052(BaseRule):
                 # Semi-colon on same line.
                 if not semicolon_newline:
                     fixes = [
-                        LintFix(
-                            "edit",
+                        LintFix.replace(
                             anchor_segment,
                             [
                                 anchor_segment,
@@ -272,8 +266,7 @@ class Rule_L052(BaseRule):
                         pre_semicolon_segments, anchor_segment
                     )
                     fixes = [
-                        LintFix(
-                            "edit",
+                        LintFix.replace(
                             anchor_segment,
                             [
                                 anchor_segment,

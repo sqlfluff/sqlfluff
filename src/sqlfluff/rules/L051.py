@@ -8,10 +8,10 @@ from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
 @document_fix_compatible
 class Rule_L051(BaseRule):
-    """INNER JOIN must be fully qualified.
+    """``INNER JOIN`` must be fully qualified.
 
     | **Anti-pattern**
-    | Lone JOIN is used.
+    | Lone ``JOIN`` is used.
 
     .. code-block:: sql
        :force:
@@ -22,7 +22,7 @@ class Rule_L051(BaseRule):
         JOIN baz;
 
     | **Best practice**
-    | Use INNER JOIN rather than JOIN.
+    | Use ``INNER JOIN`` rather than ``JOIN``.
 
     .. code-block:: sql
        :force:
@@ -47,8 +47,7 @@ class Rule_L051(BaseRule):
         return LintResult(
             context.segment.segments[0],
             fixes=[
-                LintFix(
-                    "create_before",
+                LintFix.create_before(
                     context.segment.segments[0],
                     [KeywordSegment("INNER"), WhitespaceSegment()],
                 )

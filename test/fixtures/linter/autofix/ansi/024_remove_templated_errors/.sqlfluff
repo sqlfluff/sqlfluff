@@ -1,0 +1,4 @@
+[sqlfluff:templater:jinja:macros]
+par_wrap = {% macro par_wrap() %}
+    ( col ) AS col
+    {% endmacro %}

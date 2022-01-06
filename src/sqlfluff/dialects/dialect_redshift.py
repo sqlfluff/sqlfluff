@@ -44,6 +44,9 @@ redshift_dialect.sets("bare_functions").clear()
 redshift_dialect.sets("bare_functions").update(["current_date", "sysdate"])
 
 redshift_dialect.replace(WellKnownTextGeometrySegment=Nothing())
+# TODO: for the time use the ANSI definition and not the updated one from Postgres as not all
+#       data types are supported by Redshift
+redshift_dialect.replace(DatatypeSegment=ansi_dialect.get_segment("DatatypeSegment"))
 
 
 @redshift_dialect.segment(replace=True)
@@ -251,6 +254,36 @@ class CreateTableStatementSegment(BaseSegment):
 
 
 @redshift_dialect.segment(replace=True)
+class CreateTableAsStatementSegment(BaseSegment):
+    """A `CREATE TABLE AS` statement.
+
+    As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_TABLE_AS.html
+    """
+
+    type = "create_table_as_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        Sequence(
+            Ref.keyword("LOCAL", optional=True),
+            OneOf("TEMPORARY", "TEMP"),
+            optional=True,
+        ),
+        "TABLE",
+        Ref("ObjectReferenceSegment"),
+        Bracketed(
+            Delimited(
+                Ref("ColumnReferenceSegment"),
+            ),
+            optional=True,
+        ),
+        Sequence("BACKUP", OneOf("YES", "NO"), optional=True),
+        Ref("TableAttributeSegment", optional=True),
+        "AS",
+        Ref("SelectableGrammar"),
+    )
+
+
+@redshift_dialect.segment(replace=True)
 class InsertStatementSegment(BaseSegment):
     """An`INSERT` statement.
 
@@ -293,9 +326,206 @@ class StatementSegment(BaseSegment):
             Ref("TableAttributeSegment"),
             Ref("ColumnAttributeSegment"),
             Ref("ColumnEncodingSegment"),
+            Ref("CreateUserSegment"),
+            Ref("CreateGroupSegment"),
+            Ref("AlterUserSegment"),
+            Ref("AlterGroupSegment"),
         ],
     )
 
     match_grammar = redshift_dialect.get_segment(
         "StatementSegment"
     ).match_grammar.copy()
+
+
+@redshift_dialect.segment()
+class CreateUserSegment(BaseSegment):
+    """`CREATE USER` statement.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_USER.html
+    """
+
+    type = "create_user"
+
+    match_grammar = Sequence(
+        "CREATE",
+        "USER",
+        Ref("ObjectReferenceSegment"),
+        Ref.keyword("WITH", optional=True),
+        "PASSWORD",
+        OneOf(Ref("QuotedLiteralSegment"), "DISABLE"),
+        AnyNumberOf(
+            OneOf(
+                "CREATEDB",
+                "NOCREATEDB",
+            ),
+            OneOf(
+                "CREATEUSER",
+                "NOCREATEUSER",
+            ),
+            Sequence(
+                "SYSLOG",
+                "ACCESS",
+                OneOf(
+                    "RESTRICTED",
+                    "UNRESTRICTED",
+                ),
+            ),
+            Sequence("IN", "GROUP", Delimited(Ref("ObjectReferenceSegment"))),
+            Sequence("VALID", "UNTIL", Ref("QuotedLiteralSegment")),
+            Sequence(
+                "CONNECTION",
+                "LIMIT",
+                OneOf(
+                    Ref("NumericLiteralSegment"),
+                    "UNLIMITED",
+                ),
+            ),
+            Sequence(
+                "SESSION",
+                "TIMEOUT",
+                Ref("NumericLiteralSegment"),
+            ),
+        ),
+    )
+
+
+@redshift_dialect.segment()
+class CreateGroupSegment(BaseSegment):
+    """`CREATE GROUP` statement.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_GROUP.html
+    """
+
+    type = "create_group"
+
+    match_grammar = Sequence(
+        "CREATE",
+        "GROUP",
+        Ref("ObjectReferenceSegment"),
+        Sequence(
+            Ref.keyword("WITH", optional=True),
+            "USER",
+            Delimited(
+                Ref("ObjectReferenceSegment"),
+            ),
+            optional=True,
+        ),
+    )
+
+
+@redshift_dialect.segment()
+class AlterUserSegment(BaseSegment):
+    """`ALTER USER` statement.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_ALTER_USER.html
+    """
+
+    type = "alter_user"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "USER",
+        Ref("ObjectReferenceSegment"),
+        Ref.keyword("WITH", optional=True),
+        AnyNumberOf(
+            OneOf(
+                "CREATEDB",
+                "NOCREATEDB",
+            ),
+            OneOf(
+                "CREATEUSER",
+                "NOCREATEUSER",
+            ),
+            Sequence(
+                "SYSLOG",
+                "ACCESS",
+                OneOf(
+                    "RESTRICTED",
+                    "UNRESTRICTED",
+                ),
+            ),
+            Sequence(
+                "PASSWORD",
+                OneOf(
+                    Ref("QuotedLiteralSegment"),
+                    "DISABLE",
+                ),
+                Sequence("VALID", "UNTIL", Ref("QuotedLiteralSegment"), optional=True),
+            ),
+            Sequence(
+                "RENAME",
+                "TO",
+                Ref("ObjectReferenceSegment"),
+            ),
+            Sequence(
+                "CONNECTION",
+                "LIMIT",
+                OneOf(
+                    Ref("NumericLiteralSegment"),
+                    "UNLIMITED",
+                ),
+            ),
+            OneOf(
+                Sequence(
+                    "SESSION",
+                    "TIMEOUT",
+                    Ref("NumericLiteralSegment"),
+                ),
+                Sequence(
+                    "RESET",
+                    "SESSION",
+                    "TIMEOUT",
+                ),
+            ),
+            OneOf(
+                Sequence(
+                    "SET",
+                    Ref("ObjectReferenceSegment"),
+                    OneOf(
+                        "TO",
+                        Ref("EqualsSegment"),
+                    ),
+                    OneOf(
+                        "DEFAULT",
+                        Ref("LiteralGrammar"),
+                    ),
+                ),
+                Sequence(
+                    "RESET",
+                    Ref("ObjectReferenceSegment"),
+                ),
+            ),
+            min_times=1,
+        ),
+    )
+
+
+@redshift_dialect.segment()
+class AlterGroupSegment(BaseSegment):
+    """`ALTER GROUP` statement.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_ALTER_GROUP.html
+    """
+
+    type = "alter_group"
+
+    match_grammar = Sequence(
+        "ALTER",
+        "GROUP",
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            Sequence(
+                OneOf("ADD", "DROP"),
+                "USER",
+                Delimited(
+                    Ref("ObjectReferenceSegment"),
+                ),
+            ),
+            Sequence(
+                "RENAME",
+                "TO",
+                Ref("ObjectReferenceSegment"),
+            ),
+        ),
+    )

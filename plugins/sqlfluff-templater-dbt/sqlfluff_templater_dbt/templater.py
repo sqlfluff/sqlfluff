@@ -7,11 +7,9 @@ import logging
 from typing import List, Optional, Iterator, Tuple, Any, Dict, Deque
 
 from dataclasses import dataclass
-from cached_property import cached_property
 from functools import partial
 
 from dbt.version import get_installed_version
-from dbt.config.profile import PROFILES_DIR
 from dbt.config.runtime import RuntimeConfig as DbtRuntimeConfig
 from dbt.adapters.factory import register_adapter
 from dbt.compilation import Compiler as DbtCompiler
@@ -19,9 +17,11 @@ from dbt.exceptions import (
     CompilationException as DbtCompilationException,
     FailedToConnectException as DbtFailedToConnectException,
 )
+from dbt import flags
 from jinja2 import Environment
 from jinja2_simple_tags import StandaloneTag
 
+from sqlfluff.core.cached_property import cached_property
 from sqlfluff.core.errors import SQLTemplaterError, SQLTemplaterSkipFile
 
 from sqlfluff.core.templaters.base import (
@@ -40,6 +40,11 @@ templater_logger = logging.getLogger("sqlfluff.templater")
 DBT_VERSION = get_installed_version()
 DBT_VERSION_STRING = DBT_VERSION.to_version_string()
 DBT_VERSION_TUPLE = (int(DBT_VERSION.major), int(DBT_VERSION.minor))
+
+if DBT_VERSION_TUPLE >= (1, 0):
+    from dbt.flags import PROFILES_DIR
+else:
+    from dbt.config.profile import PROFILES_DIR
 
 
 @dataclass
@@ -83,6 +88,15 @@ class DbtTemplater(JinjaTemplater):
     @cached_property
     def dbt_config(self):
         """Loads the dbt config."""
+        if self.dbt_version_tuple >= (1, 0):
+            flags.set_from_args(
+                "",
+                DbtConfigArgs(
+                    project_dir=self.project_dir,
+                    profiles_dir=self.profiles_dir,
+                    profile=self._get_profile(),
+                ),
+            )
         self.dbt_config = DbtRuntimeConfig.from_args(
             DbtConfigArgs(
                 project_dir=self.project_dir,
@@ -367,7 +381,18 @@ class DbtTemplater(JinjaTemplater):
 
         if not results:
             model_name = os.path.splitext(os.path.basename(fname))[0]
-            disabled_model = self.dbt_manifest.find_disabled_by_name(name=model_name)
+            if DBT_VERSION_TUPLE >= (1, 0):
+                disabled_model = None
+                for key, disabled_model_nodes in self.dbt_manifest.disabled.items():
+                    for disabled_model_node in disabled_model_nodes:
+                        if os.path.abspath(
+                            disabled_model_node.original_file_path
+                        ) == os.path.abspath(fname):
+                            disabled_model = disabled_model_node
+            else:
+                disabled_model = self.dbt_manifest.find_disabled_by_name(
+                    name=model_name
+                )
             if disabled_model and os.path.abspath(
                 disabled_model.original_file_path
             ) == os.path.abspath(fname):

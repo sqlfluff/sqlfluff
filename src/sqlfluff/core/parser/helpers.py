@@ -28,7 +28,7 @@ def check_still_complete(
     initial_str = join_segments_raw(segments_in)
     current_str = join_segments_raw(matched_segments + unmatched_segments)
 
-    if initial_str != current_str:
+    if initial_str != current_str:  # pragma: no cover
         raise SQLParseError(
             f"Could not parse: {current_str}",
             segment=unmatched_segments[0],

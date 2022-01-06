@@ -5,10 +5,10 @@ from sqlfluff.core.rules.base import BaseRule, LintResult, RuleContext
 
 
 class Rule_L054(BaseRule):
-    """Inconsistent column references in GROUP BY/ORDER BY clauses.
+    """Inconsistent column references in ``GROUP BY/ORDER BY`` clauses.
 
     | **Anti-pattern**
-    | A mix of implicit and explicit column references are used in a GROUP BY clause.
+    | A mix of implicit and explicit column references are used in a ``GROUP BY`` clause.
 
     .. code-block:: sql
        :force:
@@ -32,7 +32,7 @@ class Rule_L054(BaseRule):
             1, bar;
 
     | **Best practice**
-    | Reference all GROUP BY/ORDER BY columns either by name or by position.
+    | Reference all ``GROUP BY/ORDER BY`` columns either by name or by position.
 
     .. code-block:: sql
        :force:

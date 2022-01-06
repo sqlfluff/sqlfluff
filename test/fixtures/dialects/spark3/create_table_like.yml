@@ -1,0 +1,111 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 3cfff2ad6c3655dc653283adbb87a254ec4a96f42c4a650a09492570f013139b
+file:
+- base:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+        identifier: table_identifier
+    - keyword: LIKE
+    - table_reference:
+        identifier: source_table_identifier
+    - keyword: USING
+    - keyword: PARQUET
+    - row_format_clause:
+      - keyword: ROW
+      - keyword: FORMAT
+      - keyword: DELIMITED
+      - keyword: FIELDS
+      - keyword: TERMINATED
+      - keyword: BY
+      - literal: "','"
+    - keyword: STORED
+    - keyword: AS
+    - keyword: PARQUET
+    - keyword: TBLPROPERTIES
+    - bracketed:
+      - start_bracket: (
+      - literal: '"key1"'
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - literal: '"val1"'
+      - comma: ','
+      - literal: '"key2"'
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - literal: '"val2"'
+      - end_bracket: )
+    - keyword: LOCATION
+    - literal: '"path/to/files"'
+- statement_terminator: ;
+- base:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        identifier: student_dupli
+    - keyword: LIKE
+    - table_reference:
+        identifier: student
+- statement_terminator: ;
+- base:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        identifier: student_dupli
+    - keyword: LIKE
+    - table_reference:
+        identifier: student
+    - keyword: USING
+    - keyword: CSV
+- statement_terminator: ;
+- base:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        identifier: student_dupli
+    - keyword: LIKE
+    - table_reference:
+        identifier: student
+    - keyword: LOCATION
+    - literal: "'/root1/home'"
+- statement_terminator: ;
+- base:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        identifier: student_dupli
+    - keyword: LIKE
+    - table_reference:
+        identifier: student
+    - row_format_clause:
+      - keyword: ROW
+      - keyword: FORMAT
+      - keyword: DELIMITED
+      - keyword: FIELDS
+      - keyword: TERMINATED
+      - keyword: BY
+      - literal: "','"
+    - keyword: STORED
+    - keyword: AS
+    - file_format: TEXTFILE
+    - keyword: TBLPROPERTIES
+    - bracketed:
+      - start_bracket: (
+      - literal: "'owner'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - literal: "'xxxx'"
+      - end_bracket: )
+- statement_terminator: ;

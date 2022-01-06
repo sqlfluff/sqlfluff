@@ -16,7 +16,7 @@ from typing import (
 )
 
 import pathspec
-
+import regex
 from tqdm import tqdm
 
 from sqlfluff.core.errors import (
@@ -115,6 +115,11 @@ class Linter:
         file_config.process_raw_file_for_config(raw_file)
         # Return the raw file and config
         return raw_file, file_config, encoding
+
+    @staticmethod
+    def _normalise_newlines(string: str) -> str:
+        """Normalise newlines to unix-style line endings."""
+        return regex.sub(r"\r\n|\r", "\n", string)
 
     @staticmethod
     def _lex_templated_file(
@@ -605,6 +610,11 @@ class Linter:
 
         # Start the templating timer
         t0 = time.monotonic()
+
+        # Newlines are normalised to unix-style line endings (\n).
+        # The motivation is that Jinja normalises newlines during templating and
+        # we want consistent mapping between the raw and templated slices.
+        in_str = self._normalise_newlines(in_str)
 
         if not config.get("templater_obj") == self.templater:
             linter_logger.warning(

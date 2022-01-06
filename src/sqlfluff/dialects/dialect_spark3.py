@@ -55,6 +55,11 @@ spark3_dialect.patch_lexer_matchers(
         # <=> is a non-null equals in Spark SQL
         # https://spark.apache.org/docs/latest/api/sql/index.html#_10
         RegexLexer("equals", r"=|==|<=>", CodeSegment),
+        # identifiers are delimited with `
+        # within a delimited identifier, ` is used to escape special characters, including `
+        # Ex: select `delimited `` with escaped` from `just delimited`
+        # https://spark.apache.org/docs/latest/sql-ref-identifier.html#delimited-identifier
+        RegexLexer("back_quote", r"`([^`]|``)*`", CodeSegment),
     ]
 )
 
@@ -112,13 +117,19 @@ spark3_dialect.replace(
         Ref("LessThanSegment"),
         Ref("GreaterThanOrEqualToSegment"),
         Ref("LessThanOrEqualToSegment"),
-        Ref("NotEqualToSegment_a"),
-        Ref("NotEqualToSegment_b"),
+        Ref("NotEqualToSegment"),
         Ref("LikeOperatorSegment"),
     ),
     TemporaryGrammar=Sequence(
         Sequence("GLOBAL", optional=True),
         OneOf("TEMP", "TEMPORARY"),
+    ),
+    QuotedIdentifierSegment=NamedParser(
+        "back_quote",
+        CodeSegment,
+        name="quoted_identifier",
+        type="identifier",
+        trim_chars=("`",),
     ),
 )
 
@@ -566,9 +577,10 @@ class CreateFunctionStatementSegment(BaseSegment):
 
 @spark3_dialect.segment(replace=True)
 class CreateTableStatementSegment(BaseSegment):
-    """A `CREATE TABLE` statement using a Data Source.
+    """A `CREATE TABLE` statement using a Data Source or Like.
 
     http://spark.apache.org/docs/latest/sql-ref-syntax-ddl-create-table-datasource.html
+    https://spark.apache.org/docs/latest/sql-ref-syntax-ddl-create-table-like.html
     """
 
     type = "create_table_statement"
@@ -578,25 +590,36 @@ class CreateTableStatementSegment(BaseSegment):
         "TABLE",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
-        # Columns and comment syntax:
-        Sequence(
-            Bracketed(
-                Delimited(
-                    Sequence(
-                        Ref("ColumnDefinitionSegment"),
-                        Ref("CommentGrammar", optional=True),
+        OneOf(
+            # Columns and comment syntax:
+            Sequence(
+                Bracketed(
+                    Delimited(
+                        Sequence(
+                            Ref("ColumnDefinitionSegment"),
+                            Ref("CommentGrammar", optional=True),
+                        ),
                     ),
                 ),
+            ),
+            # Like Syntax
+            Sequence(
+                "LIKE",
+                Ref("TableReferenceSegment"),
             ),
             optional=True,
         ),
         Sequence("USING", Ref("DataSourceFormatGrammar"), optional=True),
+        Ref("RowFormatClauseSegment", optional=True),
+        Ref("StoredAsGrammar", optional=True),
         Sequence("OPTIONS", Ref("BracketedPropertyListGrammar"), optional=True),
         Ref("PartitionSpecGrammar", optional=True),
         Ref("BucketSpecGrammar", optional=True),
-        Ref("LocationGrammar", optional=True),
-        Ref("CommentGrammar", optional=True),
-        Ref("TablePropertiesGrammar", optional=True),
+        AnyNumberOf(
+            Ref("LocationGrammar", optional=True),
+            Ref("CommentGrammar", optional=True),
+            Ref("TablePropertiesGrammar", optional=True),
+        ),
         # Create AS syntax:
         Sequence(
             "AS",

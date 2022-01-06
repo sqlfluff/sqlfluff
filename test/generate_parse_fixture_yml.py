@@ -2,7 +2,7 @@
 import multiprocessing
 import os
 
-import oyaml as yaml
+import yaml
 
 from conftest import compute_parse_tree_hash, get_parse_fixtures, parse_example_file
 
@@ -31,7 +31,7 @@ def generate_parse_fixture(example):
                 file=f,
                 sep="\n",
             )
-            yaml.dump(r, f, default_flow_style=False)
+            yaml.dump(r, f, default_flow_style=False, sort_keys=False)
         else:
             f.write("")
 
