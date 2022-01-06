@@ -283,6 +283,83 @@ class CreateTableAsStatementSegment(BaseSegment):
     )
 
 
+@redshift_dialect.segment()
+class CreateExternalTableStatementSegment(BaseSegment):
+    """A `CREATE EXTERNAL TABLE` statement.
+
+    As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_EXTERNAL_TABLE.html
+    TODO: support ROW FORMAT SERDE and WITH SERDEPROPERTIES
+    TODO: support TABLE PROPERTIES
+    """
+
+    type = "create_external_table_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        "EXTERNAL",
+        "TABLE",
+        Ref("TableReferenceSegment"),
+        Bracketed(
+            # Columns and comment syntax:
+            Delimited(
+                Sequence(
+                    Ref("ColumnReferenceSegment"),
+                    Ref("DatatypeSegment"),
+                ),
+            ),
+        ),
+        Ref("PartitionedBySegment", optional=True),
+        "STORED",
+        "AS",
+        OneOf(
+            "PARQUET",
+            "RCFILE",
+            "SEQUENCEFILE",
+            "TEXTFILE",
+            "ORC",
+            "AVRO",
+            Sequence(
+                "INPUTFORMAT",
+                Ref("QuotedLiteralSegment"),
+                "OUTPUTFORMAT",
+                Ref("QuotedLiteralSegment"),
+            ),
+        ),
+        "LOCATION",
+        Ref("QuotedLiteralSegment"),
+    )
+
+
+@redshift_dialect.segment()
+class CreateExternalTableAsStatementSegment(BaseSegment):
+    """A `CREATE EXTERNAL TABLE AS` statement.
+
+    As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_EXTERNAL_TABLE.html
+    TODO: support TABLE PROPERTIES
+    """
+
+    type = "create_external_table_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        "EXTERNAL",
+        "TABLE",
+        Ref("TableReferenceSegment"),
+        Ref("PartitionedBySegment", optional=True),
+        Ref("RowFormatDelimitedSegment", optional=True),
+        "STORED",
+        "AS",
+        OneOf(
+            "PARQUET",
+            "TEXTFILE",
+        ),
+        "LOCATION",
+        Ref("QuotedLiteralSegment"),
+        "AS",
+        OptionallyBracketed(Ref("SelectableGrammar")),
+    )
+
+
 @redshift_dialect.segment(replace=True)
 class InsertStatementSegment(BaseSegment):
     """An`INSERT` statement.
@@ -330,12 +407,59 @@ class StatementSegment(BaseSegment):
             Ref("CreateGroupSegment"),
             Ref("AlterUserSegment"),
             Ref("AlterGroupSegment"),
+            Ref("CreateExternalTableAsStatementSegment"),
+            Ref("CreateExternalTableStatementSegment"),
+            Ref("PartitionedBySegment"),
+            Ref("RowFormatDelimitedSegment"),
         ],
     )
 
     match_grammar = redshift_dialect.get_segment(
         "StatementSegment"
     ).match_grammar.copy()
+
+
+@redshift_dialect.segment()
+class PartitionedBySegment(BaseSegment):
+    """Partitioned By Segment.
+
+    As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_EXTERNAL_TABLE.html
+    """
+
+    type = "partitioned_by_segment"
+
+    match_grammar = Sequence(
+        Ref.keyword("PARTITIONED"),
+        "BY",
+        Bracketed(
+            Delimited(
+                Sequence(
+                    Ref("ColumnReferenceSegment"),
+                    Ref("DatatypeSegment"),
+                ),
+            ),
+        ),
+    )
+
+
+@redshift_dialect.segment()
+class RowFormatDelimitedSegment(BaseSegment):
+    """Row Format Delimited Segment.
+
+    As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_EXTERNAL_TABLE.html
+    """
+
+    type = "row_format_deimited_segment"
+
+    match_grammar = Sequence(
+        "ROW",
+        "FORMAT",
+        "DELIMITED",
+        OneOf("FIELDS", "LINES"),
+        "TERMINATED",
+        "BY",
+        Ref("QuotedLiteralSegment"),
+    )
 
 
 @redshift_dialect.segment()
