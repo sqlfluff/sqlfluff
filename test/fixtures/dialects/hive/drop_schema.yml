@@ -3,16 +3,15 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 59156923c1d2cc3e47f864ae5497bb435a1a4cd6c8ce0a40f37c716cb376f0a1
+_hash: 94969476483c32842069008562f561781e5016b01eb975e5d326a060c783af68
 file:
   statement:
-    drop_statement:
-      drop_schema_statement:
-      - keyword: DROP
-      - keyword: SCHEMA
-      - keyword: IF
-      - keyword: EXISTS
-      - schema_reference:
-          identifier: foo
-      - keyword: CASCADE
+    drop_schema_statement:
+    - keyword: DROP
+    - keyword: SCHEMA
+    - keyword: IF
+    - keyword: EXISTS
+    - schema_reference:
+        identifier: foo
+    - keyword: CASCADE
   statement_terminator: ;
