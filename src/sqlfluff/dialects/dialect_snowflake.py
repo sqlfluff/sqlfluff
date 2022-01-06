@@ -2547,6 +2547,7 @@ class CreateStageSegment(BaseSegment):
         ),
         Ref("TagBracketedEqualsSegment", optional=True),
         Ref("CommentEqualsClauseSegment", optional=True),
+        Dedent,
     )
 
 
@@ -2627,6 +2628,7 @@ class AlterStageSegment(BaseSegment):
                     ),
                     Ref("TagEqualsSegment"),
                 ),
+                Dedent,
             ),
             Sequence(
                 "REFRESH",
