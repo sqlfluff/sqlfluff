@@ -83,8 +83,6 @@ class JinjaTracer:
                 if pos2 != -1
                 else trace_template_output[pos1 + 1 :]
             )
-            if not p:
-                continue
             is_set = p[:3] == "set"
             if is_set:
                 p = p[3:]
@@ -183,7 +181,7 @@ class JinjaTracer:
             self.source_idx += target_slice_length
 
     def next_slice_id(self) -> str:
-        """Returns a unique ID (really just a counter for now)."""
+        """Returns a new, unique slice ID."""
         result = "{0:#0{1}x}".format(self.slice_id, 34)[2:]
         self.slice_id += 1
         return result
