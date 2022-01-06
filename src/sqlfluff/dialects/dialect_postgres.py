@@ -2922,7 +2922,7 @@ class DropTriggerStatementSegment(BaseSegment):
     As Specified in https://www.postgresql.org/docs/14/sql-droptrigger.html
     """
 
-    type = "drop_trigger"
+    type = "drop_trigger_statement"
 
     match_grammar = Sequence("DROP", "TRIGGER", Anything())
 
