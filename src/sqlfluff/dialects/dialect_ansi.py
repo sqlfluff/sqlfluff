@@ -2573,29 +2573,44 @@ class DropStatementSegment(BaseSegment): # TODO BREAK OUT HERE
         "DROP",
         OneOf(
             # "TABLE",
-            "VIEW",
+            # "VIEW",
             "USER",
         ),
         Ref("IfExistsGrammar", optional=True),
-        OneOf(
+        # OneOf(
             # TABLE/VIEW
-            Ref("TableReferenceSegment"),
+            # Ref("TableReferenceSegment"),
             # User
             Ref("ObjectReferenceSegment"),
-        ),
+        # ),
         Ref("DropBehaviorGrammar", optional=True),
     )
 
 
 @ansi_dialect.segment()
 class DropTableStatementSegment(BaseSegment): # TODO BREAK OUT HERE
-    """A `DROP` statement."""
+    """A `DROP TABLE` statement."""
 
     type = "drop_table_statement"
 
     match_grammar = Sequence(
         "DROP",
         "TABLE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        Ref("DropBehaviorGrammar", optional=True),
+    )
+
+
+@ansi_dialect.segment()
+class DropViewStatementSegment(BaseSegment): # TODO BREAK OUT HERE
+    """A `DROP VIEW` statement."""
+
+    type = "drop_table_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        "VIEW",
         Ref("IfExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
         Ref("DropBehaviorGrammar", optional=True),
@@ -3145,6 +3160,7 @@ class StatementSegment(BaseSegment):
         Ref("TransactionStatementSegment"),
         Ref("DropStatementSegment"),  # TODO BREAK OUT HERE
         Ref("DropTableStatementSegment"),
+        Ref("DropViewStatementSegment"),
         Ref("TruncateStatementSegment"),
         Ref("AccessStatementSegment"),
         Ref("CreateTableStatementSegment"),
