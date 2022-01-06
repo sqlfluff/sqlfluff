@@ -1,4 +1,4 @@
-"""Register all the rule classes with their corresponding rulesets (just std currently)."""
+"""Configuration and examples for individual rules."""
 
 from sqlfluff.core.rules.base import RuleSet
 from sqlfluff.core.rules.config_info import STANDARD_CONFIG_INFO_DICT
