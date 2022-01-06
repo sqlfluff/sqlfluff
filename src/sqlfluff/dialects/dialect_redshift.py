@@ -401,17 +401,17 @@ class StatementSegment(BaseSegment):
 
     parse_grammar = redshift_dialect.get_segment("StatementSegment").parse_grammar.copy(
         insert=[
-            Ref("AlterGroupSegment"),
-            Ref("AlterUserSegment"),
+            Ref("TableAttributeSegment"),
             Ref("ColumnAttributeSegment"),
             Ref("ColumnEncodingSegment"),
+            Ref("CreateUserSegment"),
+            Ref("CreateGroupSegment"),
+            Ref("AlterUserSegment"),
+            Ref("AlterGroupSegment"),
             Ref("CreateExternalTableAsStatementSegment"),
             Ref("CreateExternalTableStatementSegment"),
-            Ref("CreateGroupSegment"),
-            Ref("CreateUserSegment"),
             Ref("PartitionedBySegment"),
             Ref("RowFormatDelimitedSegment"),
-            Ref("TableAttributeSegment"),
         ],
     )
 
