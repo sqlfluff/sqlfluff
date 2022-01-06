@@ -2551,40 +2551,20 @@ class CreateViewStatementSegment(BaseSegment):
     )
 
 
-@ansi_dialect.segment()
-class DropStatementSegment(BaseSegment): # TODO REMOVE HERE
-    """A `DROP` statement.
-
-    R7L208:
-        - Adding Function into this drop statement conflicts with
-          DropFunctionStatementSegment in Postgres dialect causing
-          an unparsable section resulting in failure of
-          test/fixtures/dialects/postgres/postgres_drop_function.sql
-
-        - Adding TemporaryGrammar into DropStatementSegment throws
-          an error since TEMPORARY and TEMP are not keywords in tSQL
-          dialect.
-    """
-
-    type = "drop_statement"
-
-    # DROP [TEMPORARY] {TABLE | VIEW | USER | FUNCTION} <Table name> [IF EXISTS} {RESTRICT | CASCADE}
-    match_grammar = Sequence(
-        "DROP",
-        OneOf(
-            "TABLE",
-            "VIEW",
-            "USER",
-        ),
-        Ref("IfExistsGrammar", optional=True),
-        OneOf(
-            # TABLE/VIEW
-            Ref("TableReferenceSegment"),
-            # User
-            Ref("ObjectReferenceSegment"),
-        ),
-        Ref("DropBehaviorGrammar", optional=True),
-    )
+# @ansi_dialect.segment()  # TODO REMOVE
+# class DropStatementSegment(BaseSegment):
+#     """A `DROP` statement."""
+#
+#     type = "drop_statement"
+#     match_grammar = StartsWith("DROP")
+#     parse_grammar = OneOf(
+#         Ref("DropTableStatementSegment"),
+#         Ref("DropViewStatementSegment"),
+#         Ref("DropUserStatementSegment"),
+#         Ref("DropDatabaseStatementSegment"),
+#         Ref("DropSchemaStatementSegment"),
+#         # TODO: add other drops
+#     )
 
 
 @ansi_dialect.segment()
@@ -2606,7 +2586,7 @@ class DropTableStatementSegment(BaseSegment):
 class DropViewStatementSegment(BaseSegment):
     """A `DROP VIEW` statement."""
 
-    type = "drop_table_statement"
+    type = "drop_view_statement"
 
     match_grammar = Sequence(
         "DROP",
@@ -3173,7 +3153,6 @@ class StatementSegment(BaseSegment):
         Ref("SelectableGrammar"),
         Ref("InsertStatementSegment"),
         Ref("TransactionStatementSegment"),
-        Ref("DropStatementSegment"),  # TODO REMOVE HERE
         Ref("DropTableStatementSegment"),
         Ref("DropViewStatementSegment"),
         Ref("DropUserStatementSegment"),
