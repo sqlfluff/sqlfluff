@@ -280,7 +280,6 @@ class CreateTableAsStatementSegment(BaseSegment):
         Ref("TableAttributeSegment", optional=True),
         "AS",
         Ref("SelectableGrammar"),
-        # TODO: support TABLE PROPERITES
     )
 
 
@@ -289,7 +288,8 @@ class CreateExternalTableStatementSegment(BaseSegment):
     """A `CREATE EXTERNAL TABLE` statement.
 
     As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_EXTERNAL_TABLE.html
-    TODO: support TABLE PROPERITES
+    TODO: support ROW FORMAT SERDE and WITH SERDEPROPERTIES
+    TODO: support TABLE PROPERTIES
     """
 
     type = "create_external_table_statement"
@@ -335,8 +335,7 @@ class CreateExternalTableAsStatementSegment(BaseSegment):
     """A `CREATE EXTERNAL TABLE AS` statement.
 
     As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_EXTERNAL_TABLE.html
-    TODO: support ROW FORMAT SERDE and WITH SERDEPROPERTIES
-    TODO: support TABLE PROPERITES
+    TODO: support TABLE PROPERTIES
     """
 
     type = "create_external_table_statement"
