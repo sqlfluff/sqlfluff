@@ -5,7 +5,6 @@ This is a newer slicing algorithm that handles cases heuristic.py does not.
 
 import logging
 import regex
-import uuid
 from itertools import chain
 from typing import Callable, cast, Dict, List, NamedTuple, Optional
 
@@ -20,18 +19,6 @@ from sqlfluff.core.templaters.base import (
 
 # Instantiate the templater logger
 templater_logger = logging.getLogger("sqlfluff.templater")
-
-
-uuid_idx = 0
-
-
-def uuid4() -> str:
-    """Returns a unique ID (really just a counter for now)."""
-    global uuid_idx
-    result = uuid.uuid4().hex  # NOTE: We're discarding this value.
-    result = "{0:#0{1}x}".format(uuid_idx, 34)[2:]
-    uuid_idx += 1
-    return result
 
 
 class JinjaTrace(NamedTuple):
@@ -66,6 +53,7 @@ class JinjaTracer:
         self.env = env
         self.make_template: Callable[[str], Template] = make_template
         self.program_counter: int = 0
+        self.slice_id: int = 0
         self.raw_slice_info: Dict[RawFileSlice, RawSliceInfo] = {}
         self.raw_sliced: List[RawFileSlice] = self._slice_template()
         self.sliced_file: List[TemplatedFileSlice] = []
@@ -194,6 +182,12 @@ class JinjaTracer:
         if slice_type in ("literal", "templated"):
             self.source_idx += target_slice_length
 
+    def next_slice_id(self) -> str:
+        """Returns a unique ID (really just a counter for now)."""
+        result = "{0:#0{1}x}".format(self.slice_id, 34)[2:]
+        self.slice_id += 1
+        return result
+
     def _slice_template(self) -> List[RawFileSlice]:
         """Slice template in jinja.
 
@@ -227,10 +221,10 @@ class JinjaTracer:
             # Replace literal text with a unique ID.
             if elem_type == "data":
                 if set_idx is None:
-                    unique_alternate_id = uuid4()
+                    unique_alternate_id = self.next_slice_id()
                     alternate_code = f"\0{unique_alternate_id}_{len(raw)}"
                 else:
-                    unique_alternate_id = uuid4()
+                    unique_alternate_id = self.next_slice_id()
                     alternate_code = f"\0set{unique_alternate_id}_{len(raw)}"
                 result.append(
                     RawFileSlice(
@@ -319,7 +313,7 @@ class JinjaTracer:
                         # effects, but return a UUID.
                         if trimmed_content:
                             assert m_open and m_close
-                            unique_id = uuid4()
+                            unique_id = self.next_slice_id()
                             unique_alternate_id = unique_id
                             prefix = "set" if set_idx is not None else ""
                             open_ = m_open.group(1)
