@@ -3,10 +3,10 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b7805c78f884bfaaf21d96c53640ef9dfc8701778b98a45182b66a654f6cb39d
+_hash: 78788e6f976ade74a558bc5a8691b0a028acc43b24c4c77a2a5de18efd484391
 file:
 - statement:
-    drop_schema:
+    drop_schema_statement:
     - keyword: DROP
     - keyword: FORCE
     - keyword: SCHEMA
@@ -14,7 +14,7 @@ file:
         identifier: my_schema
 - statement_terminator: ;
 - statement:
-    drop_schema:
+    drop_schema_statement:
     - keyword: DROP
     - keyword: SCHEMA
     - keyword: IF
@@ -23,7 +23,7 @@ file:
         identifier: my_schema
 - statement_terminator: ;
 - statement:
-    drop_schema:
+    drop_schema_statement:
     - keyword: DROP
     - keyword: SCHEMA
     - schema_reference:
@@ -31,7 +31,7 @@ file:
     - keyword: CASCADE
 - statement_terminator: ;
 - statement:
-    drop_schema:
+    drop_schema_statement:
     - keyword: DROP
     - keyword: VIRTUAL
     - keyword: SCHEMA

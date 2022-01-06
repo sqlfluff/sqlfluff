@@ -454,7 +454,7 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
     """Overriding StatementSegment to allow for additional segment parsing."""
 
     parse_grammar = ansi_dialect.get_segment("StatementSegment").parse_grammar.copy(
-        insert=[  # TODO MEOW
+        insert=[
             Ref("DelimiterStatement"),
             Ref("CreateProcedureStatementSegment"),
             Ref("DeclareStatement"),
@@ -472,7 +472,8 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref("ResignalSegment"),
             Ref("CursorOpenCloseSegment"),
             Ref("CursorFetchSegment"),
-            Ref("DropRoutineStatementSegment"),
+            Ref("DropFunctionStatementSegment"),
+            Ref("DropProcedureStatementSegment"),
             Ref("AlterTableStatementSegment"),
             Ref("RenameTableStatementSegment"),
             Ref("ResetMasterStatementSegment"),
@@ -1356,18 +1357,36 @@ class DropIndexStatementSegment(BaseSegment):
 
 
 @mysql_dialect.segment()
-class DropRoutineStatementSegment(BaseSegment):
-    """A `DROP` statement that address stored procedures, stored functions, and loadable functions.
+class DropProcedureStatementSegment(BaseSegment):
+    """A `DROP` statement that addresses stored procedures and functions.
 
     https://dev.mysql.com/doc/refman/8.0/en/drop-procedure.html
-    https://dev.mysql.com/doc/refman/8.0/en/drop-function-loadable.html
     """
 
-    type = "drop_statement"
-    # DROP {PROCEDURE | FUNCTION} [IF EXISTS] {sp_name | function_name}
+    type = "drop_procedure_statement"
+
+    # DROP {PROCEDURE | FUNCTION} [IF EXISTS] sp_name
     match_grammar = Sequence(
         "DROP",
         OneOf("PROCEDURE", "FUNCTION"),
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+    )
+
+
+@mysql_dialect.segment()
+class DropFunctionStatementSegment(BaseSegment):
+    """A `DROP` statement that addresses loadable functions.
+
+    https://dev.mysql.com/doc/refman/8.0/en/drop-function-loadable.html
+    """
+
+    type = "drop_function_ statement"
+
+    # DROP FUNCTION [IF EXISTS] function_name
+    match_grammar = Sequence(
+        "DROP",
+        "FUNCTION",
         Ref("IfExistsGrammar", optional=True),
         Ref("ObjectReferenceSegment"),
     )
