@@ -344,12 +344,7 @@ class CreateExternalTableAsStatementSegment(BaseSegment):
         "AS",
         OneOf(
             "PARQUET",
-            "RCFILE",
-            "SEQUENCEFILE",
             "TEXTFILE",
-            "ORC",
-            "AVRO",
-            Ref("QuotedLiteralSegment"),
         ),
         "LOCATION",
         Ref("QuotedLiteralSegment"),
