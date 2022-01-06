@@ -23,7 +23,7 @@ class Rule_L031(BaseRule):
     """Avoid table aliases in from clauses and join conditions.
 
     | **Anti-pattern**
-    | In this example, alias 'o' is used for the orders table, and 'c' is used for 'customers' table.
+    | In this example, alias ``o`` is used for the orders table, and ``c`` is used for 'customers' table.
 
     .. code-block:: sql
 
@@ -199,7 +199,11 @@ class Rule_L031(BaseRule):
                     for d in [alias_info.alias_exp_ref, alias_info.whitespace_ref]
                 ],
                 *[
-                    LintFix.replace(alias, [alias.edit(alias_info.table_ref.raw)])
+                    LintFix.replace(
+                        alias,
+                        [alias.edit(alias_info.table_ref.raw)],
+                        source=[alias_info.table_ref],
+                    )
                     for alias in [alias_info.alias_identifier_ref, *ids_refs]
                 ],
             ]

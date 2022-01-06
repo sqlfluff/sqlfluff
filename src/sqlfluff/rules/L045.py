@@ -3,10 +3,8 @@ from typing import Optional
 
 from sqlfluff.core.rules.base import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.analysis.select_crawler import Query, SelectCrawler
-from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
 
-@document_fix_compatible
 class Rule_L045(BaseRule):
     """Query defines a CTE (common-table expression) but does not use it.
 

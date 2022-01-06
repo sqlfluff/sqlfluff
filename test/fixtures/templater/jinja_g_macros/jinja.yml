@@ -27,7 +27,7 @@ file:
             cast_expression:
               casting_operator: '::'
               data_type:
-                data_type_identifier: int
+                keyword: int
           alias_expression:
             keyword: as
             identifier: id

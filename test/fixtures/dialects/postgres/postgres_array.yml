@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: cf95afd7a4d0102c4849fb609a9a2f76477defc3ddfedeec7b0ffdb59d0a50ac
+_hash: 47a61a4c68d5d045d5257a1180e1c8b09c0f84b29d6240517c75892b00949a99
 file:
 - statement:
     select_statement:
@@ -65,25 +65,23 @@ file:
       - column_reference:
           identifier: name
       - data_type:
-          data_type_identifier: text
+          keyword: text
       - comma: ','
       - column_reference:
           identifier: pay_by_quarter
       - data_type:
-          data_type_identifier: integer
-          array_accessor:
-            start_square_bracket: '['
-            end_square_bracket: ']'
+          keyword: integer
+          start_square_bracket: '['
+          end_square_bracket: ']'
       - comma: ','
       - column_reference:
           identifier: schedule
       - data_type:
-          data_type_identifier: text
-          array_accessor:
-          - start_square_bracket: '['
-          - end_square_bracket: ']'
-          - start_square_bracket: '['
-          - end_square_bracket: ']'
+        - keyword: text
+        - start_square_bracket: '['
+        - end_square_bracket: ']'
+        - start_square_bracket: '['
+        - end_square_bracket: ']'
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -97,14 +95,15 @@ file:
         column_reference:
           identifier: squares
         data_type:
-          data_type_identifier: integer
-          array_accessor:
-          - start_square_bracket: '['
-          - literal: '3'
-          - end_square_bracket: ']'
-          - start_square_bracket: '['
-          - literal: '3'
-          - end_square_bracket: ']'
+        - keyword: integer
+        - start_square_bracket: '['
+        - expression:
+            literal: '3'
+        - end_square_bracket: ']'
+        - start_square_bracket: '['
+        - expression:
+            literal: '3'
+        - end_square_bracket: ']'
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -559,10 +558,9 @@ file:
                         cast_expression:
                           casting_operator: '::'
                           data_type:
-                            data_type_identifier: int
-                            array_accessor:
-                              start_square_bracket: '['
-                              end_square_bracket: ']'
+                            keyword: int
+                            start_square_bracket: '['
+                            end_square_bracket: ']'
                       alias_expression:
                         keyword: AS
                         identifier: f1

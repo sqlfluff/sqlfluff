@@ -85,12 +85,8 @@ def assert_rule_fail_in_sql(code, sql, configs=None, line_numbers=None):
                     line_numbers, actual_line_numbers
                 )
             )
-    # The query should already have been fixed if possible so just return the raw.
-    if linted.num_violations(fixable=True) > 0:
-        fixed, _ = linted.fix_string()
-        return fixed
-    else:
-        return linted.tree.raw
+    fixed, _ = linted.fix_string()
+    return fixed
 
 
 def assert_rule_pass_in_sql(code, sql, configs=None):
