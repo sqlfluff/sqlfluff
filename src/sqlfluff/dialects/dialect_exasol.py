@@ -935,12 +935,12 @@ class AlterVirtualSchemaStatementSegment(BaseSegment):
 
 @exasol_dialect.segment(replace=True)
 class DropSchemaStatementSegment(BaseSegment):
-    """A `DROP` statement for EXASOL schema.
+    """A `DROP SCHEMA` statement for EXASOL schema.
 
     https://docs.exasol.com/sql/drop_schema.htm
     """
 
-    type = "drop_schema"
+    type = "drop_schema_statement"
 
     is_ddl = True
     is_dml = False
