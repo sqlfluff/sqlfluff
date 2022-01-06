@@ -507,6 +507,25 @@ def test__templater_full(subpath, code_only, include_meta, yaml_loader, caplog):
                 (" BAR", "literal", 30),
             ],
         ),
+        (
+            # Tests Jinja "block assignment" syntax. Also tests the use of
+            # template substitution within the block: {{ "dev" }}.
+            """{% set my_query %}
+select 1 from foobarfoobarfoobarfoobar_{{ "dev" }}
+{% endset %}
+{{ my_query }}
+""",
+            [
+                ("{% set my_query %}", "block_start", 0),
+                ("\nselect 1 from foobarfoobarfoobarfoobar_", "literal", 18),
+                ('{{ "dev" }}', "templated", 58),
+                ("\n", "literal", 69),
+                ("{% endset %}", "block_end", 70),
+                ("\n", "literal", 82),
+                ("{{ my_query }}", "templated", 83),
+                ("\n", "literal", 97),
+            ],
+        ),
     ],
 )
 def test__templater_jinja_slice_template(test, result):
