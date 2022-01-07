@@ -1,11 +1,15 @@
 """Tests for the dbt templater."""
 
+import glob
 import os
+import logging
+from pathlib import Path
 from unittest import mock
 
 import pytest
 
-from sqlfluff.core import FluffConfig, Linter
+from sqlfluff.core import FluffConfig, Lexer, Linter
+from sqlfluff.core.errors import SQLTemplaterSkipFile
 from sqlfluff_templater_dbt.templater import DBT_VERSION_TUPLE
 from test.fixtures.dbt.templater import (  # noqa: F401
     DBT_FLUFF_CONFIG,
@@ -13,25 +17,6 @@ from test.fixtures.dbt.templater import (  # noqa: F401
     project_dir,
 )
 from sqlfluff_templater_dbt.templater import DbtFailedToConnectException
-
-
-@pytest.mark.parametrize(
-    "fname",
-    [
-        "incremental.sql",
-        "single_trailing_newline.sql",
-    ],
-)
-def test__dbt_templated_models_do_not_raise_lint_error(
-    project_dir, fname  # noqa: F811
-):
-    """Test that templated dbt models do not raise a linting error."""
-    lntr = Linter(config=FluffConfig(configs=DBT_FLUFF_CONFIG))
-    lnt = lntr.lint_path(
-        path=os.path.join(project_dir, "models/my_new_project/", fname)
-    )
-    violations = lnt.check_tuples()
-    assert len(violations) == 0
 
 
 @pytest.mark.parametrize(
