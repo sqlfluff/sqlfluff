@@ -4,11 +4,11 @@ services:
   app:
     platform: linux/amd64
     build:
-      context: .
-      dockerfile: Dockerfile.dev
+      context: ../../..
+      dockerfile: plugins/sqlfluff-templater-dbt/docker/Dockerfile.dev
     volumes:
       # Host source code directory
-      - ./:/app/
+      - ../../../:/app/
     entrypoint: /bin/bash
     tty: true
   postgres:
