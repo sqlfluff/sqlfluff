@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d2c38a3929ff3cfb0995da3daa1d27d20ee1b5e5e41e33f0384ff896fbad557c
+_hash: a9f8a499a048e2f4cfc485eccb404564c6037b3f62b1fe5eb266fa2ce59d8674
 file:
 - statement:
     drop_view_statement:
@@ -19,7 +19,7 @@ file:
     drop_function_statement:
     - keyword: DROP
     - keyword: FUNCTION
-    - object_reference:
-        identifier: my_function
+    - function_name:
+        function_name_identifier: my_function
     - keyword: CASCADE
 - statement_terminator: ;

@@ -756,7 +756,7 @@ class DropUserStatementSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
+@exasol_dialect.segment(replace=True)
 class DropViewStatementSegment(BaseSegment):
     """A `DROP VIEW` statement with CASCADE and RESTRICT option.
 
@@ -774,7 +774,7 @@ class DropViewStatementSegment(BaseSegment):
         "DROP",
         "VIEW",
         Ref("IfExistsGrammar", optional=True),
-        Ref("ObjectReferenceSegment"),
+        Ref("TableReferenceSegment"),
         Ref("DropBehaviorGrammar", optional=True),
     )
 
@@ -797,7 +797,7 @@ class DropFunctionStatementSegment(BaseSegment):
         "DROP",
         "FUNCTION",
         Ref("IfExistsGrammar", optional=True),
-        Ref("ObjectReferenceSegment"),
+        Ref("FunctionNameSegment"),
         Ref("DropBehaviorGrammar", optional=True),
     )
 

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b80b5ddc52b4db65d32649592ba0aec5934ca3096c21b082adbe238ea5c52128
+_hash: db26b93d572fe6a6c16cf46d5b4ceec8c7d22b40caec0db28211a2e841261171
 file:
   batch:
   - statement:
@@ -153,4 +153,4 @@ file:
       - keyword: TABLE
       - table_reference:
           identifier: '#Mercury'
-  - statement_terminator: ;
+      - statement_terminator: ;

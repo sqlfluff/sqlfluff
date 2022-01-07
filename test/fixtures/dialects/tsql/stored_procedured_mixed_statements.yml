@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: babf3db955772cb96d2b5ffa1c71ec3e2aef5998da9ecfd8c99f9cd072445c04
+_hash: 848b3e1d65b2dd96288b1bcfb401a5b25adf2fe694030e279f7344fcf3b10a08
 file:
   batch:
     create_procedure_statement:
@@ -38,7 +38,7 @@ file:
             - identifier: '[Reporting]'
             - dot: .
             - identifier: '[PowerPlan_BASE]'
-      - statement_terminator: ;
+          - statement_terminator: ;
       - statement:
           begin_end_block:
           - keyword: BEGIN
