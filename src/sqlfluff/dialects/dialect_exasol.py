@@ -757,7 +757,7 @@ class DropUserStatementSegment(BaseSegment):
 
 
 @exasol_dialect.segment()
-class DropviewStatementSegment(BaseSegment):
+class DropViewStatementSegment(BaseSegment):
     """A `DROP VIEW` statement with CASCADE and RESTRICT option.
 
     https://docs.exasol.com/sql/drop_view.htm
