@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 78afd20635d7822692b5974c31c3b389df3d196daa0534f7d44eed8a27128bb9
+_hash: f8400c792174f1e994e2c188f0f0e85d337eb1b2d4623ee5776be6b9b9f95f53
 file:
 - batch:
     statement:
@@ -957,5 +957,31 @@ file:
               - literal: '1000.00'
               end_bracket: )
         statement_terminator: ;
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              identifier: ID
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - identifier: dbo
+                - dot: .
+                - identifier: tableX
+              base:
+                keyword: WITH
+                bracketed:
+                  start_bracket: (
+                  query_hint_segment:
+                    keyword: NOLOCK
+                  end_bracket: )
 - go_statement:
     keyword: GO
