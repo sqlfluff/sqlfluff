@@ -592,7 +592,7 @@ class DropFunctionStatementSegment(BaseSegment):
                 Ref("FunctionParameterListGrammar", optional=True),
             )
         ),
-        OneOf("CASCADE", "RESTRICT", optional=True),
+        Ref("DropBehaviorGrammar", optional=True),
     )
 
 
@@ -1334,7 +1334,7 @@ class AlterTableActionSegment(BaseSegment):
             Ref.keyword("COLUMN", optional=True),
             Sequence("IF", "EXISTS", optional=True),
             Ref("ColumnReferenceSegment"),
-            OneOf("RESTRICT", "CASCADE", optional=True),
+            Ref("DropBehaviorGrammar", optional=True),
         ),
         Sequence(
             "ALTER",
@@ -1437,7 +1437,7 @@ class AlterTableActionSegment(BaseSegment):
             "CONSTRAINT",
             Sequence("IF", "EXISTS", optional=True),
             Ref("ParameterNameSegment"),
-            OneOf("RESTRICT", "CASCADE", optional=True),
+            Ref("DropBehaviorGrammar", optional=True),
         ),
         Sequence(
             OneOf("ENABLE", "DISABLE"),
@@ -1730,7 +1730,7 @@ class DropMaterializedViewStatementSegment(BaseSegment):
         "VIEW",
         Sequence("IF", "EXISTS", optional=True),
         Delimited(Ref("TableReferenceSegment")),
-        OneOf("CASCADE", "RESTRICT", optional=True),
+        Ref("DropBehaviorGrammar", optional=True),
     )
 
 
@@ -1947,7 +1947,7 @@ class AlterDatabaseStatementSegment(BaseSegment):
     )
 
 
-@postgres_dialect.segment()
+@postgres_dialect.segment(replace=True)
 class DropDatabaseStatementSegment(BaseSegment):
     """A `DROP DATABASE` statement.
 
@@ -2407,7 +2407,7 @@ class AlterDefaultPrivilegesRevokeSegment(BaseSegment):
             Ref("AlterDefaultPrivilegesToFromRolesSegment"),
             terminator=OneOf("RESTRICT", "CASCADE"),
         ),
-        OneOf("RESTRICT", "CASCADE", optional=True),
+        Ref("DropBehaviorGrammar", optional=True),
     )
 
 
@@ -2779,7 +2779,7 @@ class DropSequenceStatementSegment(BaseSegment):
         "SEQUENCE",
         Ref("IfExistsGrammar", optional=True),
         Delimited(Ref("SequenceReferenceSegment")),
-        OneOf("CASCADE", "RESTRICT", optional=True),
+        Ref("DropBehaviorGrammar", optional=True),
     )
 
 
@@ -2993,7 +2993,7 @@ class DropTriggerStatementSegment(BaseSegment):
     As Specified in https://www.postgresql.org/docs/14/sql-droptrigger.html
     """
 
-    type = "drop_trigger"
+    type = "drop_trigger_statement"
 
     match_grammar = Sequence("DROP", "TRIGGER", Anything())
 
@@ -3004,7 +3004,7 @@ class DropTriggerStatementSegment(BaseSegment):
         Ref("TriggerReferenceSegment"),
         "ON",
         Ref("TableReferenceSegment"),
-        OneOf("CASCADE", "RESTRICT", optional=True),
+        Ref("DropBehaviorGrammar", optional=True),
     )
 
 
@@ -3043,7 +3043,7 @@ class DropTypeStatementSegment(BaseSegment):
         "TYPE",
         Ref("IfExistsGrammar", optional=True),
         Delimited(Ref("DatatypeSegment")),
-        OneOf("CASCADE", "RESTRICT", optional=True),
+        Ref("DropBehaviorGrammar", optional=True),
     )
 
 
@@ -3128,7 +3128,7 @@ class DropPolicyStatementSegment(BaseSegment):
         Ref("ObjectReferenceSegment"),
         "ON",
         Ref("TableReferenceSegment"),
-        OneOf("CASCADE", "RESTRICT", optional=True),
+        Ref("DropBehaviorGrammar", optional=True),
     )
 
 
@@ -3255,9 +3255,8 @@ class TruncateStatementSegment(BaseSegment):
             "IDENTITY",
             optional=True,
         ),
-        OneOf(
-            "CASCADE",
-            "RESTRICT",
+        Ref(
+            "DropBehaviorGrammar",
             optional=True,
         ),
     )
