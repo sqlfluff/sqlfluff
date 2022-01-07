@@ -1,0 +1,19 @@
+version: "2"
+
+services:
+  app:
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    volumes:
+      # Host source code directory
+      - ./:/app/
+    entrypoint: /bin/bash
+    tty: true
+  postgres:
+    image: postgres:14-bullseye
+    # TODO: Add environment variables to configure Postgres, e.g. password.
+    #environment:
+    ports:
+      - 5432

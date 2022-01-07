@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+set -ex
+docker/shutdown
+docker-compose build
+docker-compose up -d

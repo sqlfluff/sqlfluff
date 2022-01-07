@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# Convenience script so you don't have to remember the below docker-compose command.
+
+docker-compose exec app bash
