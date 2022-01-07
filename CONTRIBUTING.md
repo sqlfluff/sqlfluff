@@ -180,6 +180,26 @@ tox -e cov-init,dbt018-py38,cov-report-dbt -- plugins/sqlfluff-templater-dbt
 
 For more information on adding and running test cases see the [Parser Test README](test/fixtures/dialects/README.md) and the [Rules Test README](test/fixtures/rules/std_rule_cases/README.md).
 
+#### Running dbt templater tests in Docker Compose
+
+NOTE: If you prefer, you can develop and debug the dbt templater using a
+Docker Compose environment. It's a simple two-container configuration:
+* `app`: Hosts the SQLFluff development environment. The host's source
+  directory is mounted into the container, so you can iterate on code
+  changes without having to constantly rebuild and restart the container.
+* `postgres`: Hosts a transient Postgres database instance.
+
+Steps to use the Docker Compose environment:
+* Install Docker on your machine.
+* Run `plugins/sqlfluff-templater-dbt/docker/startup` to create the containers.
+* Run `plugins/sqlfluff-templater-dbt/docker/shell` to start a bash session in the `app` container.
+* Manually edit the `host` value in `plugins/sqlfluff-templater-dbt/test/fixtures/dbt/profiles_yml/profiles.yml`, changing it to `postgres`. (This will likely be automated somehow in the future.)
+
+Inside the container, run:
+```
+py.test -v plugins/sqlfluff-templater-dbt/test/
+```
+
 ### Pre-Commit Config
 
 For development convenience we also provide a `.pre-commit-config.yaml` file to allow the user to install a selection of pre-commit hooks via `tox -e pre-commit -- install`. These hooks can help the user identify and fix potential linting/typing violations prior to committing their code and therefore reduce having to deal with these sort of issues during code review.
