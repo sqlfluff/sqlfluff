@@ -226,8 +226,8 @@ def test__templater_dbt_skips_disabled_model(dbt_templater, project_dir):  # noq
     "fname",
     [
         "use_var.sql",
-        "incremental.sql",
-        "single_trailing_newline.sql",
+        pytest.param("incremental.sql", marks=pytest.mark.needs_dbt_connection),
+        pytest.param("single_trailing_newline.sql", marks=pytest.mark.needs_dbt_connection),
         "L034_test.sql",
     ],
 )
@@ -285,10 +285,11 @@ def test__templater_dbt_templating_absolute_path(
 @pytest.mark.parametrize(
     "fname,exception_msg",
     [
-        (
+        pytest.param(
             "compiler_error.sql",
             "dbt compilation error on file 'models/my_new_project/compiler_error.sql', "
             "Unexpected end of template. Jinja was looking for the following tags: 'endfor'",
+            marks=pytest.mark.needs_dbt_connection,
         ),
     ],
 )

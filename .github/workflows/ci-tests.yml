@@ -203,7 +203,7 @@ jobs:
       # Do not set explicitly temp dir for dbt as causes problems
       # None of these test need temp dir set
       run: |
-        python -m tox -e dbt018-winpy -- plugins/sqlfluff-templater-dbt
+        python -m tox -e dbt018-winpy -- plugins/sqlfluff-templater-dbt -m "not dbt_connection_failure and not needs_dbt_connection"
     - name: Upload Coverage Report
       uses: codecov/codecov-action@v1
       with:
