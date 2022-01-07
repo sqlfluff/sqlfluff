@@ -9,11 +9,16 @@ services:
     volumes:
       # Host source code directory
       - ../../../:/app/
+    depends_on:
+      - postgres
     entrypoint: /bin/bash
     tty: true
   postgres:
     image: postgres:14-bullseye
-    # TODO: Add environment variables to configure Postgres, e.g. password.
-    #environment:
+    environment:
+      - POSTGRES_PASSWORD=password
     ports:
-      - 5432
+      # NOTE: "5432:5432" makes the Postgres server accessible to both the host
+      # developer machine *and* the "app" container in Docker. If you don't want
+      # it available on the host machine, change this to simply "5432".
+      - 5432:5432
