@@ -2606,14 +2606,50 @@ class RenameStatementSegment(BaseSegment):
 
 
 @tsql_dialect.segment(replace=True)
-class DropStatementSegment(BaseSegment):
-    """A `DROP` statement.
+class DropTableStatementSegment(BaseSegment):
+    """A `DROP TABLE` statement.
 
     Overriding ANSI to add optional delimiter.
     """
 
-    type = "drop_statement"
-    match_grammar = ansi_dialect.get_segment("DropStatementSegment").match_grammar.copy(
+    type = "drop_table_statement"
+    match_grammar = ansi_dialect.get_segment(
+        "DropTableStatementSegment"
+    ).match_grammar.copy(
+        insert=[
+            Ref("DelimiterSegment", optional=True),
+        ],
+    )
+
+
+@tsql_dialect.segment(replace=True)
+class DropViewStatementSegment(BaseSegment):
+    """A `DROP VIEW` statement.
+
+    Overriding ANSI to add optional delimiter.
+    """
+
+    type = "drop_view_statement"
+    match_grammar = ansi_dialect.get_segment(
+        "DropViewStatementSegment"
+    ).match_grammar.copy(
+        insert=[
+            Ref("DelimiterSegment", optional=True),
+        ],
+    )
+
+
+@tsql_dialect.segment(replace=True)
+class DropUserStatementSegment(BaseSegment):
+    """A `DROP USER` statement.
+
+    Overriding ANSI to add optional delimiter.
+    """
+
+    type = "drop_user_statement"
+    match_grammar = ansi_dialect.get_segment(
+        "DropUserStatementSegment"
+    ).match_grammar.copy(
         insert=[
             Ref("DelimiterSegment", optional=True),
         ],

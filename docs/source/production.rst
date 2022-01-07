@@ -50,13 +50,13 @@ SQL code to be checked.
 
 2. Run `diff-quality`, specifying SQLFluff as the underlying tool:
 
-.. code-block:: bash
+.. code-block:: text
 
-    diff-quality --violations sqlfluff
+    $ diff-quality --violations sqlfluff
 
 The output will look something like:
 
-.. code-block:: bash
+.. code-block:: text
 
     -------------
     Diff Quality

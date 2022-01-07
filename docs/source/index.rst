@@ -44,7 +44,7 @@ To get started just install the package, make a sql file and then run
 SQLFluff and point it at the file. For more details or if you don't
 have python or pip already installed see :ref:`gettingstartedref`.
 
-.. code-block:: bash
+.. code-block:: text
 
     $ pip install sqlfluff
     $ echo "  SELECT a  +  b FROM tbl;  " > test.sql
