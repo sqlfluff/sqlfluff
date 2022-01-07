@@ -490,3 +490,7 @@ test_fail_two_join_subqueries_one_with_unknown_number_of_columns:
         select b
         from bar
     ) t2;
+
+test_fail_no_source_table:
+  fail_str: |
+    SELECT *

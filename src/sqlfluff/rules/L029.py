@@ -11,7 +11,7 @@ class Rule_L029(BaseRule):
     """Keywords should not be used as identifiers.
 
     | **Anti-pattern**
-    | In this example, SUM function is used as an alias.
+    | In this example, ``SUM`` (built-in function) is used as an alias.
 
     .. code-block:: sql
 

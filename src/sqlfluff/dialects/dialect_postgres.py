@@ -374,8 +374,10 @@ class DateTimeTypeIdentifier(BaseSegment):
             Bracketed(Ref("NumericLiteralSegment"), optional=True),
             Sequence(OneOf("WITH", "WITHOUT"), "TIME", "ZONE", optional=True),
         ),
-        Sequence("TIMESTAMPTZ", Bracketed(Ref("NumericLiteralSegment"), optional=True)),
-        "INTERVAL",
+        Sequence(
+            OneOf("INTERVAL", "TIMETZ", "TIMESTAMPTZ"),
+            Bracketed(Ref("NumericLiteralSegment"), optional=True),
+        ),
     )
 
 
@@ -399,48 +401,117 @@ class DatatypeSegment(BaseSegment):
     """
 
     type = "data_type"
-    match_grammar = OneOf(
-        Ref("WellKnownTextGeometrySegment"),
+    match_grammar = Sequence(
+        # Some dialects allow optional qualification of data types with schemas
         Sequence(
-            Ref("DateTimeTypeIdentifier"),
-            Ref("TimeZoneGrammar", optional=True),
+            Ref("SingleIdentifierGrammar"),
+            Ref("DotSegment"),
+            allow_gaps=False,
+            optional=True,
         ),
-        Sequence(
-            OneOf(
-                Sequence("DOUBLE", "PRECISION"),
-                Sequence(
-                    OneOf("CHARACTER", "BINARY"),
-                    OneOf("VARYING", Sequence("LARGE", "OBJECT")),
-                ),
-                Sequence(
-                    # Some dialects allow optional qualification of data types with schemas
-                    Sequence(
-                        Ref("SingleIdentifierGrammar"),
-                        Ref("DotSegment"),
-                        allow_gaps=False,
-                        optional=True,
-                    ),
-                    Ref("DatatypeIdentifierSegment"),
-                    OneOf(
-                        Ref("ArrayAccessorSegment"),
-                        Sequence(
-                            Ref("SimpleArrayTypeGrammar"), Ref("ArrayLiteralSegment")
-                        ),
-                        optional=True,
-                    ),
-                    allow_gaps=False,
-                ),
+        OneOf(
+            Ref("WellKnownTextGeometrySegment"),
+            Sequence(
+                Ref("DateTimeTypeIdentifier"),
+                Ref("TimeZoneGrammar", optional=True),
             ),
-            Bracketed(
+            Sequence(
                 OneOf(
-                    Delimited(Ref("ExpressionSegment")),
-                    # The brackets might be empty for some cases...
-                    optional=True,
+                    # numeric types
+                    "SMALLINT",
+                    "INTEGER",
+                    "INT",
+                    "INT2",
+                    "INT4",
+                    "INT8",
+                    "BIGINT",
+                    "FLOAT4",
+                    "FLOAT8",
+                    "REAL",
+                    Sequence("DOUBLE", "PRECISION"),
+                    "SMALLSERIAL",
+                    "SERIAL",
+                    "SERIAL2",
+                    "SERIAL4",
+                    "SERIAL8",
+                    "BIGSERIAL",
+                    # numeric types [(precision)]
+                    Sequence(
+                        OneOf("FLOAT"),
+                        Bracketed(Ref("NumericLiteralSegment"), optional=True),
+                    ),
+                    # numeric types [precision ["," scale])]
+                    Sequence(
+                        OneOf("DECIMAL", "NUMERIC"),
+                        Bracketed(
+                            Delimited(Ref("NumericLiteralSegment")),
+                            optional=True,
+                        ),
+                    ),
+                    # monetary type
+                    "MONEY",
+                    # character types
+                    OneOf(
+                        Sequence(
+                            OneOf(
+                                "CHAR",
+                                "CHARACTER",
+                                Sequence("CHARACTER", "VARYING"),
+                                "VARCHAR",
+                            ),
+                            Bracketed(Ref("NumericLiteralSegment"), optional=True),
+                        ),
+                        "TEXT",
+                    ),
+                    # binary type
+                    "BYTEA",
+                    # boolean types
+                    OneOf("BOOLEAN", "BOOL"),
+                    # geometric types
+                    OneOf("POINT", "LINE", "LSEG", "BOX", "PATH", "POLYGON", "CIRCLE"),
+                    # network address types
+                    OneOf("CIDR", "INET", "MACADDR", "MACADDR8"),
+                    # text search types
+                    OneOf("TSVECTOR", "TSQUERY"),
+                    # bit string types
+                    Sequence(
+                        "BIT",
+                        OneOf("VARYING", optional=True),
+                        Bracketed(
+                            Ref("NumericLiteralSegment"),
+                            optional=True,
+                        ),
+                    ),
+                    # uuid type
+                    "UUID",
+                    # xml type
+                    "XML",
+                    # json types
+                    OneOf("JSON", "JSONB"),
+                    # range types
+                    "INT4RANGE",
+                    "INT8RANGE",
+                    "NUMRANGE",
+                    "TSRANGE",
+                    "TSTZRANGE",
+                    "DATERANGE",
+                    # pg_lsn type
+                    "PG_LSN",
                 ),
-                # There may be no brackets for some data types
-                optional=True,
             ),
-            Ref("CharCharacterSetSegment", optional=True),
+            # user defined data types
+            Ref("DatatypeIdentifierSegment"),
+        ),
+        # array types
+        OneOf(
+            AnyNumberOf(
+                Bracketed(
+                    Ref("ExpressionSegment", optional=True), bracket_type="square"
+                )
+            ),
+            Ref("SimpleArrayTypeGrammar"),
+            Sequence(Ref("SimpleArrayTypeGrammar"), Ref("ArrayLiteralSegment")),
+            optional=True,
         ),
     )
 

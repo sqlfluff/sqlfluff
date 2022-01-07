@@ -25,7 +25,7 @@ You can confirm that python is working as expected by heading to
 your terminal or console of choice and typing :code:`python --version`
 which should give you a sensible read out and not an error.
 
-.. code-block:: bash
+.. code-block:: text
 
     $ python --version
     Python 3.9.1
@@ -34,7 +34,7 @@ For most people, their installation of python will come with
 :code:`pip` (the python package manager) preinstalled. To confirm
 this you can type :code:`pip --version` similar to python above.
 
-.. code-block:: bash
+.. code-block:: text
 
     $ pip --version
     pip 21.3.1 from ...
@@ -51,14 +51,14 @@ Installing SQLFluff
 Assuming that python and pip are already installed, then installing
 *SQLFluff* is straight forward.
 
-.. code-block:: bash
+.. code-block:: text
 
     $ pip install sqlfluff
 
 You can confirm its installation by getting *SQLFluff* to show its
 version number.
 
-.. code-block:: bash
+.. code-block:: text
 
     $ sqlfluff version
     0.3.1
@@ -78,7 +78,7 @@ same folder that you're currently in with the following content:
 
 You can then run :code:`sqlfluff lint test.sql` to lint this file.
 
-.. code-block:: bash
+.. code-block:: text
 
     $ sqlfluff lint test.sql
     == [test.sql] FAIL
@@ -112,7 +112,7 @@ looks like this:
 Rerun the same command as before, and you'll see that the original
 error (violation of *L006*) no longer shows up.
 
-.. code-block:: bash
+.. code-block:: text
 
     $ sqlfluff lint test.sql
     == [test.sql] FAIL
@@ -135,7 +135,7 @@ it's a good place to start.
 
 For now, we only want to fix the following rules: *L003*, *L009*, *L010*
 
-.. code-block:: bash
+.. code-block:: text
 
     $ sqlfluff fix test.sql --rules L003,L009,L010
     ==== finding violations ====
@@ -150,7 +150,7 @@ For now, we only want to fix the following rules: *L003*, *L009*, *L010*
 ...at this point you'll have to confirm that you want to make the
 changes by pressing :code:`y` on your keyboard...
 
-.. code-block:: bash
+.. code-block:: text
 
     Are you sure you wish to attempt to fix these? [Y/n] ...
     Attempting fixes...
@@ -178,7 +178,7 @@ In particular:
 We could also fix *all* of the fixable errors by not
 specifying :code:`--rules`.
 
-.. code-block:: bash
+.. code-block:: text
 
     $ sqlfluff fix test.sql
     ==== finding violations ====
@@ -227,7 +227,7 @@ To achieve this we create a configuration file named :code:`.sqlfluff`
 and place it in the same directory as the current file. In that file
 put the following content:
 
-.. code-block:: ini
+.. code-block:: cfg
 
     [sqlfluff:rules]
     tab_space_size = 2
@@ -237,7 +237,7 @@ put the following content:
 
 Then rerun the same command as before.
 
-.. code-block:: bash
+.. code-block:: text
 
     $ sqlfluff fix test.sql --rules L003,L009,L010,L034,L036,L039
 

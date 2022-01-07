@@ -1377,7 +1377,7 @@ class CreateFunctionStatementSegment(BaseSegment):
         Ref("FunctionParameterListGrammar"),
         Sequence(  # Optional function return type
             "RETURNS",
-            Ref("DatatypeSegment"),
+            OneOf(Ref("DatatypeSegment"), "TABLE"),
             optional=True,
         ),
         Ref("FunctionOptionSegment", optional=True),

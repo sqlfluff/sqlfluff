@@ -8,10 +8,10 @@ from sqlfluff.core.rules.functional import sp
 
 @document_fix_compatible
 class Rule_L058(BaseRule):
-    """Nested CASE statement in ELSE clause could be flattened.
+    """Nested ``CASE`` statement in ``ELSE`` clause could be flattened.
 
     | **Anti-pattern**
-    | In this example, the outer CASE's "ELSE" is an unnecessary other CASE.
+    | In this example, the outer ``CASE``'s ``ELSE`` is an unnecessary other ``CASE``.
 
     .. code-block:: sql
 
@@ -26,7 +26,7 @@ class Rule_L058(BaseRule):
         FROM mytable
 
     | **Best practice**
-    | Move the body of the inner "CASE" to the end of the outer one.
+    | Move the body of the inner ``CASE`` to the end of the outer one.
 
     .. code-block:: sql
 
@@ -76,11 +76,9 @@ class Rule_L058(BaseRule):
             create_after_last_when = nested_clauses.apply(
                 lambda seg: [NewlineSegment(), WhitespaceSegment(indent_str), seg]
             )
+            segments = [item for sublist in create_after_last_when for item in sublist]
             fixes.append(
-                LintFix.create_after(
-                    case1_last_when.get(),
-                    [item for sublist in create_after_last_when for item in sublist],
-                )
+                LintFix.create_after(case1_last_when.get(), segments, source=segments)
             )
 
             # Delete the outer "else" clause.
