@@ -563,7 +563,7 @@ class IntervalExpressionSegment(BaseSegment):
 
 @hive_dialect.segment()
 class MsckRepairTableStatementSegment(BaseSegment):
-    """An interval expression segment.
+    """A repair table statement.
 
     `MSCK REPAIR` reference here within Language Manual DDL page:
     https://cwiki.apache.org/confluence/display/Hive/LanguageManual+DDL
