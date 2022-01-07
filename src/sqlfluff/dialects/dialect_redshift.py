@@ -391,6 +391,42 @@ class InsertStatementSegment(BaseSegment):
     )
 
 
+@redshift_dialect.segment(replace=True)
+class CreateSchemaStatementSegment(BaseSegment):
+    """A `CREATE SCHEMA` statement.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_SCHEMA.html
+    """
+
+    type = "create_schema_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        "SCHEMA",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("SchemaReferenceSegment"),
+        Sequence(
+            "AUTHORIZATION",
+            Ref("ObjectReferenceSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "QUOTA",
+            OneOf(
+                Sequence(
+                    Ref("NumericLiteralSegment"),
+                    OneOf(
+                        "MB",
+                        "GB",
+                        "TB",
+                    )
+                ),
+                "UNLIMITED",
+            ),
+            optional=True,
+        ),
+    )
+
+
 # Adding Redshift specific statements
 @redshift_dialect.segment(replace=True)
 class StatementSegment(BaseSegment):
