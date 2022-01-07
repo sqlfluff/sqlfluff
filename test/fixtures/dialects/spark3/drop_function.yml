@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 675a5d6f9c3e508a1d0e04a1e83d6ecebc1dcdd8bd0adbdc5680c9ab0d504e8d
+_hash: 27ffb62078d30fab80a6a2e4870e5177216cfc877d45d1e3537a662661698d51
 file:
 - base:
     drop_function_statement:
@@ -12,15 +12,15 @@ file:
     - keyword: FUNCTION
     - keyword: IF
     - keyword: EXISTS
-    - object_reference:
-        identifier: function_name
+    - function_name:
+        function_name_identifier: function_name
 - statement_terminator: ;
 - base:
     drop_function_statement:
     - keyword: DROP
     - keyword: FUNCTION
-    - object_reference:
-        identifier: test_avg
+    - function_name:
+        function_name_identifier: test_avg
 - statement_terminator: ;
 - base:
     drop_function_statement:
@@ -29,6 +29,6 @@ file:
     - keyword: FUNCTION
     - keyword: IF
     - keyword: EXISTS
-    - object_reference:
-        identifier: test_avg
+    - function_name:
+        function_name_identifier: test_avg
 - statement_terminator: ;

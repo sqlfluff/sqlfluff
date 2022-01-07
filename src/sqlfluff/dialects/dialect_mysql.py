@@ -1388,7 +1388,7 @@ class DropFunctionStatementSegment(BaseSegment):
         "DROP",
         "FUNCTION",
         Ref("IfExistsGrammar", optional=True),
-        Ref("ObjectReferenceSegment"),
+        Ref("FunctionNameSegment"),
     )
 
 
