@@ -441,33 +441,6 @@ class AlterDatabaseStatementSegment(BaseSegment):
 
 
 @hive_dialect.segment(replace=True)
-class DropStatementSegment(BaseSegment):
-    """A `DROP` statement."""
-
-    type = "drop_statement"
-    match_grammar = StartsWith("DROP")
-    parse_grammar = OneOf(
-        Ref("DropDatabaseStatementSegment"),
-        Ref("DropTableStatementSegment"),
-        # TODO: add other drops
-    )
-
-
-@hive_dialect.segment()
-class DropDatabaseStatementSegment(BaseSegment):
-    """A `DROP DATEBASE/SCHEMA` statement."""
-
-    type = "drop_table_statement"
-    match_grammar = Sequence(
-        "DROP",
-        OneOf("DATABASE", "SCHEMA"),
-        Ref("IfExistsGrammar", optional=True),
-        Ref("DatabaseReferenceSegment"),
-        OneOf("RESTRICT", "CASCADE", optional=True),
-    )
-
-
-@hive_dialect.segment()
 class DropTableStatementSegment(BaseSegment):
     """A `DROP TABLE` statement."""
 
@@ -506,7 +479,6 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref("TransactionStatementSegment"),
             Ref("CreateSchemaStatementSegment"),
             Ref("SetSchemaStatementSegment"),
-            Ref("DropSchemaStatementSegment"),
             Ref("CreateExtensionStatementSegment"),
             Ref("CreateModelStatementSegment"),
             Ref("DropModelStatementSegment"),

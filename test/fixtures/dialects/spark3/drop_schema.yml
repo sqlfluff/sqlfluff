@@ -3,38 +3,43 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 78788e6f976ade74a558bc5a8691b0a028acc43b24c4c77a2a5de18efd484391
+_hash: bd18ac46af7cb7909cd959933e095b0b0ee4945aa1e31c62d18e8326065e46fc
 file:
-- statement:
-    drop_schema_statement:
-    - keyword: DROP
-    - keyword: FORCE
-    - keyword: SCHEMA
-    - schema_reference:
-        identifier: my_schema
-- statement_terminator: ;
-- statement:
+- base:
     drop_schema_statement:
     - keyword: DROP
     - keyword: SCHEMA
     - keyword: IF
     - keyword: EXISTS
     - schema_reference:
-        identifier: my_schema
+        identifier: dbname
+    - keyword: RESTRICT
 - statement_terminator: ;
-- statement:
+- base:
     drop_schema_statement:
     - keyword: DROP
     - keyword: SCHEMA
+    - keyword: IF
+    - keyword: EXISTS
     - schema_reference:
-        identifier: my_schema
+        identifier: dbname
     - keyword: CASCADE
 - statement_terminator: ;
-- statement:
+- base:
     drop_schema_statement:
     - keyword: DROP
-    - keyword: VIRTUAL
     - keyword: SCHEMA
     - schema_reference:
-        identifier: my_virtual_schema
+        identifier: inventory_db
+    - keyword: CASCADE
+- statement_terminator: ;
+- base:
+    drop_schema_statement:
+    - keyword: DROP
+    - keyword: SCHEMA
+    - keyword: IF
+    - keyword: EXISTS
+    - schema_reference:
+        identifier: inventory_db
+    - keyword: CASCADE
 - statement_terminator: ;

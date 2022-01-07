@@ -472,6 +472,8 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref("ResignalSegment"),
             Ref("CursorOpenCloseSegment"),
             Ref("CursorFetchSegment"),
+            Ref("DropFunctionStatementSegment"),
+            Ref("DropProcedureStatementSegment"),
             Ref("AlterTableStatementSegment"),
             Ref("RenameTableStatementSegment"),
             Ref("ResetMasterStatementSegment"),
@@ -635,26 +637,6 @@ class AlterTableStatementSegment(BaseSegment):
                 ),
             ),
         ),
-    )
-
-
-@mysql_dialect.segment(replace=True)
-class DropStatementSegment(BaseSegment):
-    """A `DROP` statement."""
-
-    type = "drop_statement"
-
-    match_grammar = Sequence(
-        "DROP",
-        OneOf(
-            "TABLE",
-            "VIEW",
-            "USER",
-            "FUNCTION",
-            "PROCEDURE",
-        ),
-        Ref("IfExistsGrammar", optional=True),
-        Ref("TableReferenceSegment"),
     )
 
 
@@ -1371,6 +1353,42 @@ class DropIndexStatementSegment(BaseSegment):
             ),
             optional=True,
         ),
+    )
+
+
+@mysql_dialect.segment()
+class DropProcedureStatementSegment(BaseSegment):
+    """A `DROP` statement that addresses stored procedures and functions.
+
+    https://dev.mysql.com/doc/refman/8.0/en/drop-procedure.html
+    """
+
+    type = "drop_procedure_statement"
+
+    # DROP {PROCEDURE | FUNCTION} [IF EXISTS] sp_name
+    match_grammar = Sequence(
+        "DROP",
+        OneOf("PROCEDURE", "FUNCTION"),
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
+    )
+
+
+@mysql_dialect.segment()
+class DropFunctionStatementSegment(BaseSegment):
+    """A `DROP` statement that addresses loadable functions.
+
+    https://dev.mysql.com/doc/refman/8.0/en/drop-function-loadable.html
+    """
+
+    type = "drop_function_ statement"
+
+    # DROP FUNCTION [IF EXISTS] function_name
+    match_grammar = Sequence(
+        "DROP",
+        "FUNCTION",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("FunctionNameSegment"),
     )
 
 

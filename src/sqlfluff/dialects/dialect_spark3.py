@@ -571,7 +571,7 @@ class CreateFunctionStatementSegment(BaseSegment):
         Ref("FunctionNameIdentifierSegment"),
         "AS",
         Ref("SingleOrDoubleQuotedLiteralGrammar"),
-        Ref("ResourceLocationGrammar"),
+        Ref("ResourceLocationGrammar", optional=True),
     )
 
 
@@ -629,6 +629,16 @@ class CreateTableStatementSegment(BaseSegment):
     )
 
 
+@spark3_dialect.segment()
+class CreateHiveFormatTableStatementSegment(hive_dialect.get_segment("CreateTableStatementSegment")):  # type: ignore
+    """A `CREATE TABLE` statement using Hive format.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-ddl-create-table-hiveformat.html
+    """
+
+    type = "create_table_statement"
+
+
 @spark3_dialect.segment(replace=True)
 class CreateViewStatementSegment(BaseSegment):
     """A `CREATE VIEW` statement.
@@ -666,13 +676,21 @@ class CreateViewStatementSegment(BaseSegment):
 
 
 @spark3_dialect.segment()
-class CreateHiveFormatTableStatementSegment(hive_dialect.get_segment("CreateTableStatementSegment")):  # type: ignore
-    """A `CREATE TABLE` statement using Hive format.
+class DropFunctionStatementSegment(BaseSegment):
+    """A `DROP FUNCTION` STATEMENT.
 
-    https://spark.apache.org/docs/latest/sql-ref-syntax-ddl-create-table-hiveformat.html
+    https://spark.apache.org/docs/latest/sql-ref-syntax-ddl-drop-function.html
     """
 
-    type = "create_table_statement"
+    type = "drop_function_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        Ref("TemporaryGrammar", optional=True),
+        "FUNCTION",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("FunctionNameSegment"),
+    )
 
 
 # Auxiliary Statements
@@ -706,6 +724,7 @@ class StatementSegment(BaseSegment):
             Ref("AlterTableStatementSegment"),
             Ref("AlterViewStatementSegment"),
             Ref("CreateHiveFormatTableStatementSegment"),
+            Ref("DropFunctionStatementSegment"),
             # Auxiliary Statements
             Ref("AddExecutablePackage"),
         ],
@@ -713,7 +732,6 @@ class StatementSegment(BaseSegment):
             Ref("TransactionStatementSegment"),
             Ref("CreateSchemaStatementSegment"),
             Ref("SetSchemaStatementSegment"),
-            Ref("DropSchemaStatementSegment"),
             Ref("CreateExtensionStatementSegment"),
             Ref("CreateModelStatementSegment"),
             Ref("DropModelStatementSegment"),
