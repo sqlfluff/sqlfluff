@@ -2,10 +2,11 @@
 
 import glob
 import os
-import pytest
 import logging
 from pathlib import Path
+from unittest import mock
 
+import pytest
 
 from sqlfluff.core import FluffConfig, Lexer, Linter
 from sqlfluff.core.errors import SQLTemplaterSkipFile
@@ -15,6 +16,7 @@ from test.fixtures.dbt.templater import (  # noqa: F401
     dbt_templater,
     project_dir,
 )
+from sqlfluff_templater_dbt.templater import DbtFailedToConnectException
 
 
 def test__templater_dbt_missing(dbt_templater, project_dir):  # noqa: F811
@@ -317,12 +319,15 @@ def test__templater_dbt_handle_exceptions(
     assert violations[0].desc().replace("\\", "/").startswith(exception_msg)
 
 
+@mock.patch("dbt.adapters.postgres.impl.PostgresAdapter.set_relations_cache")
 @pytest.mark.dbt_connection_failure
 def test__templater_dbt_handle_database_connection_failure(
-    project_dir, dbt_templater  # noqa: F811
+    set_relations_cache, project_dir, dbt_templater  # noqa: F811
 ):
     """Test the result of a failed database connection."""
     from dbt.adapters.factory import get_adapter
+
+    set_relations_cache.side_effect = DbtFailedToConnectException("dummy error")
 
     src_fpath = "plugins/sqlfluff-templater-dbt/test/fixtures/dbt/error_models/exception_connect_database.sql"
     target_fpath = os.path.abspath(
