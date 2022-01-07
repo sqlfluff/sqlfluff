@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 77824b4f2e518992642150e161ab81f72fa8dff0e651255b49f6cc2b0256c788
+_hash: c982f831040aca5cdb8792df12ce9e51a9c1cce8b07cf9cca9b58b05350d5a39
 file:
 - statement:
     copy_into_statement:
@@ -175,7 +175,7 @@ file:
     - keyword: validation_mode
     - comparison_operator:
         raw_comparison_operator: '='
-    - validation_mode_setting: "'RETURN_ERRORS'"
+    - validation_mode_option: "'RETURN_ERRORS'"
 - statement_terminator: ;
 - statement:
     copy_into_statement:
@@ -186,7 +186,7 @@ file:
     - keyword: validation_mode
     - comparison_operator:
         raw_comparison_operator: '='
-    - validation_mode_setting: "'RETURN_2_ROWS'"
+    - validation_mode_option: "'RETURN_2_ROWS'"
 - statement_terminator: ;
 - statement:
     copy_into_statement:
@@ -197,7 +197,7 @@ file:
     - keyword: validation_mode
     - comparison_operator:
         raw_comparison_operator: '='
-    - validation_mode_setting: "'RETURN_3_ROWS'"
+    - validation_mode_option: "'RETURN_3_ROWS'"
 - statement_terminator: ;
 - statement:
     copy_into_statement:
