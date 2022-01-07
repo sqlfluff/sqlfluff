@@ -6,7 +6,13 @@ from functools import reduce
 from typing import Callable, Dict, List, Optional, Tuple
 
 import jinja2.nodes
-from jinja2 import Environment, TemplateError, TemplateSyntaxError, meta
+from jinja2 import (
+    Environment,
+    FileSystemLoader,
+    TemplateError,
+    TemplateSyntaxError,
+    meta,
+)
 from jinja2.environment import Template
 from jinja2.sandbox import SandboxedEnvironment
 
@@ -195,7 +201,7 @@ class JinjaTemplater(PythonTemplater):
             )
 
     @staticmethod
-    def _get_jinja_env():
+    def _get_jinja_env(macros_path: Optional[str] = None):
         """Get a properly configured jinja environment."""
         # We explicitly want to preserve newlines.
         return SandboxedEnvironment(
@@ -203,6 +209,7 @@ class JinjaTemplater(PythonTemplater):
             # The do extension allows the "do" directive
             autoescape=False,
             extensions=["jinja2.ext.do"],
+            loader=FileSystemLoader(macros_path) if macros_path else None,
         )
 
     def get_context(self, fname=None, config=None) -> Dict:
@@ -232,6 +239,7 @@ class JinjaTemplater(PythonTemplater):
                 (self.templater_selector, self.name, "load_macros_from_path")
             )
             if macros_path:
+                env = self._get_jinja_env(macros_path)
                 live_context.update(
                     self._extract_macros_from_path(
                         macros_path, env=env, ctx=live_context

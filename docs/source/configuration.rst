@@ -475,7 +475,7 @@ In *.sqlfluff*:
 
 In *.sqlfluffignore*:
 
-.. code-block::
+.. code-block:: text
 
     target/
     # dbt <1.0.0
@@ -486,7 +486,7 @@ In *.sqlfluffignore*:
 
 You can set the dbt project directory, profiles directory and profile with:
 
-.. code-block::
+.. code-block:: cfg
 
     [sqlfluff:templater:dbt]
     project_dir = <relative or absolute path to dbt_project directory>
@@ -522,7 +522,7 @@ You already know you can pass arguments (:code:`--verbose`,
 :code:`--exclude-rules`, etc.) through the CLI commands (:code:`lint`,
 :code:`fix`, etc.):
 
-.. code-block:: console
+.. code-block:: text
 
     $ sqlfluff lint my_code.sql -v --exclude-rules L022,L027
 
