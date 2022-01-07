@@ -459,10 +459,7 @@ class AlterTableStatementSegment(BaseSegment):
                 Sequence("PURGE", optional=True),
             ),
             # ALTER TABLE - REPAIR PARTITION
-            Sequence(
-                "RECOVER",
-                "PARTITIONS"
-            ),
+            Sequence("RECOVER", "PARTITIONS"),
             # ALTER TABLE - SET PROPERTIES
             Sequence("SET", Ref("TablePropertiesGrammar")),
             # ALTER TABLE - UNSET PROPERTIES
@@ -706,6 +703,7 @@ class MsckRepairTableStatementSegment(hive_dialect.get_segment("MsckRepairTableS
     """
 
     type = "msck_repair_table_statement"
+
 
 # Auxiliary Statements
 @spark3_dialect.segment()
