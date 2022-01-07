@@ -49,7 +49,7 @@ snowflake_dialect.insert_lexer_matchers(
         # Keyword assigner needed for keyword functions.
         StringLexer("parameter_assigner", "=>", CodeSegment),
         StringLexer("function_assigner", "->", CodeSegment),
-        RegexLexer("stage_path", r"(?:@[^\s\n;)]+|'@[^']+')", CodeSegment),
+        RegexLexer("stage_path", r"(?:@[^\s;)]+|'@[^']+')", CodeSegment),
         # Column selector
         # https://docs.snowflake.com/en/sql-reference/sql/select.html#parameters
         RegexLexer("column_selector", r"\$[0-9]+", CodeSegment),
