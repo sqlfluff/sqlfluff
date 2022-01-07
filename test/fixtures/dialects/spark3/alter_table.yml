@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 77550df7710ce679821933e86ada8f005011bb2360066c1c3be6101e38c80696
+_hash: 042c721d3689b3ce3c9b22bc5fd459ce50833088561b9bd7d31fe97b6c9b17c4
 file:
 - base:
     alter_table_statement:
@@ -349,3 +349,15 @@ file:
     - keyword: SET
     - keyword: LOCATION
     - literal: "'/path/to/part/ways'"
+- statement_terminator: ;
+- base:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - identifier: Dbx
+      - dot: .
+      - identifier: Tab1
+    - keyword: RECOVER
+    - keyword: PARTITIONS
+- statement_terminator: ;
