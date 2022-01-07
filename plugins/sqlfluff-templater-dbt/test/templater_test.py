@@ -9,6 +9,7 @@ import pytest
 
 from sqlfluff.core import FluffConfig, Lexer, Linter
 from sqlfluff.core.errors import SQLTemplaterSkipFile
+from sqlfluff_templater_dbt.templater import DBT_VERSION_TUPLE
 from test.fixtures.dbt.templater import (  # noqa: F401
     DBT_FLUFF_CONFIG,
     dbt_templater,
