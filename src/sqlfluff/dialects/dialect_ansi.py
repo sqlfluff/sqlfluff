@@ -484,6 +484,7 @@ ansi_dialect.add(
         Sequence("NO", "ACTION"),
         Sequence("SET", "DEFAULT"),
     ),
+    DropBehaviorGrammar=OneOf("RESTRICT", "CASCADE", optional=True),
 )
 
 
@@ -2394,7 +2395,7 @@ class DropSchemaStatementSegment(BaseSegment):
         "SCHEMA",
         Ref("IfExistsGrammar", optional=True),
         Ref("SchemaReferenceSegment"),
-        OneOf("RESTRICT", "CASCADE", optional=True),
+        Ref("DropBehaviorGrammar", optional=True),
     )
 
 
@@ -2408,7 +2409,7 @@ class DropTypeStatementSegment(BaseSegment):
         "TYPE",
         Ref("IfExistsGrammar", optional=True),
         Ref("ObjectReferenceSegment"),
-        OneOf("RESTRICT", "CASCADE", optional=True),
+        Ref("DropBehaviorGrammar", optional=True),
     )
 
 
@@ -2422,6 +2423,20 @@ class CreateDatabaseStatementSegment(BaseSegment):
         "DATABASE",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("DatabaseReferenceSegment"),
+    )
+
+
+@ansi_dialect.segment()
+class DropDatabaseStatementSegment(BaseSegment):
+    """A `DROP DATABASE` statement."""
+
+    type = "drop_database_statement"
+    match_grammar = Sequence(
+        "DROP",
+        "DATABASE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("DatabaseReferenceSegment"),
+        Ref("DropBehaviorGrammar", optional=True),
     )
 
 
@@ -2535,21 +2550,46 @@ class CreateViewStatementSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
-class DropStatementSegment(BaseSegment):
-    """A `DROP` statement."""
+class DropTableStatementSegment(BaseSegment):
+    """A `DROP TABLE` statement."""
 
-    type = "drop_statement"
-    # DROP {TABLE | VIEW} <Table name> [IF EXISTS} {RESTRICT | CASCADE}
+    type = "drop_table_statement"
+
     match_grammar = Sequence(
         "DROP",
-        OneOf(
-            "TABLE",
-            "VIEW",
-            "USER",
-        ),
+        "TABLE",
         Ref("IfExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
-        OneOf("RESTRICT", Ref.keyword("CASCADE", optional=True), optional=True),
+        Ref("DropBehaviorGrammar", optional=True),
+    )
+
+
+@ansi_dialect.segment()
+class DropViewStatementSegment(BaseSegment):
+    """A `DROP VIEW` statement."""
+
+    type = "drop_view_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        "VIEW",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        Ref("DropBehaviorGrammar", optional=True),
+    )
+
+
+@ansi_dialect.segment()
+class DropUserStatementSegment(BaseSegment):
+    """A `DROP USER` statement."""
+
+    type = "drop_user_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        "USER",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ObjectReferenceSegment"),
     )
 
 
@@ -2570,7 +2610,7 @@ class TruncateStatementSegment(BaseSegment):
 class DropIndexStatementSegment(BaseSegment):
     """A `DROP INDEX` statement."""
 
-    type = "drop_statement"
+    type = "drop_index_statement"
     # DROP INDEX <Index name> [CONCURRENTLY] [IF EXISTS] {RESTRICT | CASCADE}
     match_grammar = Sequence(
         "DROP",
@@ -2578,7 +2618,7 @@ class DropIndexStatementSegment(BaseSegment):
         Ref.keyword("CONCURRENTLY", optional=True),
         Ref("IfExistsGrammar", optional=True),
         Ref("IndexReferenceSegment"),
-        OneOf("RESTRICT", Ref.keyword("CASCADE", optional=True), optional=True),
+        Ref("DropBehaviorGrammar", optional=True),
     )
 
 
@@ -2791,7 +2831,7 @@ class AccessStatementSegment(BaseSegment):
                 Ref("ObjectReferenceSegment"),
                 delimiter=Ref("CommaSegment"),
             ),
-            OneOf("RESTRICT", Ref.keyword("CASCADE", optional=True), optional=True),
+            Ref("DropBehaviorGrammar", optional=True),
         ),
     )
 
@@ -3094,7 +3134,9 @@ class StatementSegment(BaseSegment):
         Ref("SelectableGrammar"),
         Ref("InsertStatementSegment"),
         Ref("TransactionStatementSegment"),
-        Ref("DropStatementSegment"),
+        Ref("DropTableStatementSegment"),
+        Ref("DropViewStatementSegment"),
+        Ref("DropUserStatementSegment"),
         Ref("TruncateStatementSegment"),
         Ref("AccessStatementSegment"),
         Ref("CreateTableStatementSegment"),
@@ -3106,6 +3148,7 @@ class StatementSegment(BaseSegment):
         Ref("DropSchemaStatementSegment"),
         Ref("DropTypeStatementSegment"),
         Ref("CreateDatabaseStatementSegment"),
+        Ref("DropDatabaseStatementSegment"),
         Ref("CreateExtensionStatementSegment"),
         Ref("CreateIndexStatementSegment"),
         Ref("DropIndexStatementSegment"),

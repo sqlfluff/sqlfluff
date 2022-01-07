@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a2088a7d6bdb62ce764dea491d248f4bcf65a1cf278e75d8d3e30afceef98420
+_hash: 213d5d5867cbcbf4ea7e66d218e738e09fe3bf1a7b1fb4f6c170f909e5a054e4
 file:
 - base:
     create_function_statement:
@@ -57,4 +57,21 @@ file:
     - keyword: USING
     - file_type: JAR
     - literal: "'/tmp/SimpleUdfR.jar'"
+- statement_terminator: ;
+- base:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name_identifier: test_avg
+    - keyword: AS
+    - literal: "'org.apache.hadoop.hive.ql.udf.generic.GenericUDAFAverage'"
+- statement_terminator: ;
+- base:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: TEMPORARY
+    - keyword: FUNCTION
+    - function_name_identifier: test_avg
+    - keyword: AS
+    - literal: "'org.apache.hadoop.hive.ql.udf.generic.GenericUDAFAverage'"
 - statement_terminator: ;
