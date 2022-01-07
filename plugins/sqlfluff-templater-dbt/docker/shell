@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+my_path="$( cd "$(dirname "$0")"; pwd -P)"
+docker-compose -f ${my_path}/docker-compose.yml exec app bash
