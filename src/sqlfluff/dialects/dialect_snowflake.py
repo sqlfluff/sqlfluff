@@ -125,7 +125,7 @@ snowflake_dialect.add(
         type="literal",
         trim_chars=('"',),
     ),
-    ValidationModeSettingSegment=RegexParser(
+    ValidationModeOptionSegment=RegexParser(
         r"'?RETURN_(?:\d+_ROWS|ERRORS|ALL_ERRORS)'?",
         CodeSegment,
         name="validation_mode_setting",
@@ -2112,7 +2112,7 @@ class CopyIntoTableStatementSegment(BaseSegment):
         Sequence(
             "VALIDATION_MODE",
             Ref("EqualsSegment"),
-            Ref("ValidationModeSettingSegment"),
+            Ref("ValidationModeOptionSegment"),
             optional=True,
         ),
     )
