@@ -227,7 +227,9 @@ def test__templater_dbt_skips_disabled_model(dbt_templater, project_dir):  # noq
     [
         "use_var.sql",
         pytest.param("incremental.sql", marks=pytest.mark.needs_dbt_connection),
-        pytest.param("single_trailing_newline.sql", marks=pytest.mark.needs_dbt_connection),
+        pytest.param(
+            "single_trailing_newline.sql", marks=pytest.mark.needs_dbt_connection
+        ),
         "L034_test.sql",
     ],
 )
