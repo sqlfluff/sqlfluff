@@ -474,7 +474,10 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
     """Overriding StatementSegment to allow for additional segment parsing."""
 
     parse_grammar = ansi_dialect.get_segment("StatementSegment").parse_grammar.copy(
-        insert=[Ref("AlterDatabaseStatementSegment")],
+        insert=[
+            Ref("AlterDatabaseStatementSegment"),
+            Ref("MsckRepairTableStatementSegment"),
+        ],
         remove=[
             Ref("TransactionStatementSegment"),
             Ref("CreateSchemaStatementSegment"),
@@ -554,5 +557,32 @@ class IntervalExpressionSegment(BaseSegment):
                 Ref("DatetimeUnitSegment"),
                 Sequence("TO", Ref("DatetimeUnitSegment"), optional=True),
             ),
+        ),
+    )
+
+
+@hive_dialect.segment()
+class MsckRepairTableStatementSegment(BaseSegment):
+    """An interval expression segment.
+
+    `MSCK REPAIR` reference here within Language Manual DDL page:
+    https://cwiki.apache.org/confluence/display/Hive/LanguageManual+DDL
+    """
+
+    type = "msck_repair_table_statement"
+
+    match_grammar = Sequence(
+        "MSCK",
+        "REPAIR",
+        "TABLE",
+        Ref("TableReferenceSegment"),
+        Sequence(
+            OneOf(
+                "ADD",
+                "DROP",
+                "SYNC",
+            ),
+            "PARTITIONS",
+            optional=True,
         ),
     )
