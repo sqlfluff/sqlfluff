@@ -128,8 +128,8 @@ snowflake_dialect.add(
     ValidationModeOptionSegment=RegexParser(
         r"'?RETURN_(?:\d+_ROWS|ERRORS|ALL_ERRORS)'?",
         CodeSegment,
-        name="validation_mode_setting",
-        type="validation_mode_setting",
+        name="validation_mode_option",
+        type="validation_mode_option",
     ),
     CopyOptionOnErrorSegment=RegexParser(
         r"'?CONTINUE'?|'?SKIP_FILE(?:_[0-9]+%?)?'?|'?ABORT_STATEMENT'?",
