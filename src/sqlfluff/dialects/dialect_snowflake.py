@@ -159,7 +159,7 @@ snowflake_dialect.add(
         trim_chars=("$",),
     ),
     StagePath=RegexParser(
-        r"(?:@[^\s\n;)]+|'@[^']+')",
+        r"(?:@[^\s;)]+|'@[^']+')",
         CodeSegment,
         name="stage_path",
         type="stage_path",
