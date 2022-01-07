@@ -4,7 +4,6 @@ import glob
 import os
 import logging
 from pathlib import Path
-from unittest import mock
 
 import pytest
 
@@ -16,7 +15,6 @@ from test.fixtures.dbt.templater import (  # noqa: F401
     dbt_templater,
     project_dir,
 )
-from sqlfluff_templater_dbt.templater import DbtFailedToConnectException
 
 
 def test__templater_dbt_missing(dbt_templater, project_dir):  # noqa: F811
@@ -226,8 +224,6 @@ def test__templater_dbt_skips_disabled_model(dbt_templater, project_dir):  # noq
     "fname",
     [
         "use_var.sql",
-        "incremental.sql",
-        "single_trailing_newline.sql",
         "L034_test.sql",
     ],
 )
