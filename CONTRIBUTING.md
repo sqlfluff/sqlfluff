@@ -168,6 +168,10 @@ tox -e py38 -- test/cli
 tox -e py38 -- test/cli/commands_test.py
 ```
 
+#### dbt templater tests
+
+The dbt templater tests require a locally running Postgres instance. See the required connection parameters in `plugins/sqlfluff-templater-dbt/test/fixtures/dbt/profiles.yml`. We recommend using https://postgresapp.com/.
+
 To run the dbt-related tests you will have to explicitly include these tests:
 
 ```shell
@@ -175,6 +179,26 @@ tox -e cov-init,dbt018-py38,cov-report-dbt -- plugins/sqlfluff-templater-dbt
 ```
 
 For more information on adding and running test cases see the [Parser Test README](test/fixtures/dialects/README.md) and the [Rules Test README](test/fixtures/rules/std_rule_cases/README.md).
+
+#### Running dbt templater tests in Docker Compose
+
+NOTE: If you prefer, you can develop and debug the dbt templater using a
+Docker Compose environment. It's a simple two-container configuration:
+* `app`: Hosts the SQLFluff development environment. The host's source
+  directory is mounted into the container, so you can iterate on code
+  changes without having to constantly rebuild and restart the container.
+* `postgres`: Hosts a transient Postgres database instance.
+
+Steps to use the Docker Compose environment:
+* Install Docker on your machine.
+* Run `plugins/sqlfluff-templater-dbt/docker/startup` to create the containers.
+* Run `plugins/sqlfluff-templater-dbt/docker/shell` to start a bash session in the `app` container.
+* Manually edit the `host` value in `plugins/sqlfluff-templater-dbt/test/fixtures/dbt/profiles_yml/profiles.yml`, changing it to `postgres`. (This will likely be automated somehow in the future.)
+
+Inside the container, run:
+```
+py.test -v plugins/sqlfluff-templater-dbt/test/
+```
 
 ### Pre-Commit Config
 

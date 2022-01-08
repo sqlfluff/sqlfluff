@@ -11,7 +11,7 @@ from functools import partial
 
 from dbt.version import get_installed_version
 from dbt.config.runtime import RuntimeConfig as DbtRuntimeConfig
-from dbt.adapters.factory import register_adapter
+from dbt.adapters.factory import register_adapter, get_adapter
 from dbt.compilation import Compiler as DbtCompiler
 from dbt.exceptions import (
     CompilationException as DbtCompilationException,
@@ -54,6 +54,7 @@ class DbtConfigArgs:
     project_dir: Optional[str] = None
     profiles_dir: Optional[str] = None
     profile: Optional[str] = None
+    single_threaded: bool = False
 
 
 class DbtTemplater(JinjaTemplater):
@@ -445,6 +446,13 @@ class DbtTemplater(JinjaTemplater):
             Environment.from_string = from_string
 
         node = self._find_node(fname, config)
+
+        # We have to register the connection in dbt >= 1.0.0 ourselves
+        # In previous versions, we relied on the functionality removed in https://github.com/dbt-labs/dbt-core/pull/4062
+        if DBT_VERSION_TUPLE >= (1, 0):
+            adapter = get_adapter(self.dbt_config)
+            with adapter.connection_named("master"):
+                adapter.set_relations_cache(self.dbt_manifest)
 
         node = self.dbt_compiler.compile_node(
             node=node,
