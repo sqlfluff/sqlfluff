@@ -458,6 +458,8 @@ class AlterTableStatementSegment(BaseSegment):
                 Ref("PartitionSpecGrammar"),
                 Sequence("PURGE", optional=True),
             ),
+            # ALTER TABLE - REPAIR PARTITION
+            Sequence("RECOVER", "PARTITIONS"),
             # ALTER TABLE - SET PROPERTIES
             Sequence("SET", Ref("TablePropertiesGrammar")),
             # ALTER TABLE - UNSET PROPERTIES
@@ -693,6 +695,19 @@ class DropFunctionStatementSegment(BaseSegment):
     )
 
 
+@spark3_dialect.segment()
+class MsckRepairTableStatementSegment(hive_dialect.get_segment("MsckRepairTableStatementSegment")):  # type: ignore
+    """A `REPAIR TABLE` statement using Hive MSCK (Metastore Check) format.
+
+    This class inherits from Hive since Spark leverages Hive format for this command and
+    is dependent on the Hive metastore.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-ddl-repair-table.html
+    """
+
+    type = "msck_repair_table_statement"
+
+
 # Auxiliary Statements
 @spark3_dialect.segment()
 class AddExecutablePackage(BaseSegment):
@@ -725,6 +740,7 @@ class StatementSegment(BaseSegment):
             Ref("AlterViewStatementSegment"),
             Ref("CreateHiveFormatTableStatementSegment"),
             Ref("DropFunctionStatementSegment"),
+            Ref("MsckRepairTableStatementSegment"),
             # Auxiliary Statements
             Ref("AddExecutablePackage"),
         ],
