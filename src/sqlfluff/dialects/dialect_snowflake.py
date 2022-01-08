@@ -49,8 +49,7 @@ snowflake_dialect.insert_lexer_matchers(
         # Keyword assigner needed for keyword functions.
         StringLexer("parameter_assigner", "=>", CodeSegment),
         StringLexer("function_assigner", "->", CodeSegment),
-        StringLexer("atsign", "@", CodeSegment),
-        RegexLexer("atsign_literal", r"@[a-zA-Z_][\w]*", CodeSegment),
+        RegexLexer("stage_path", r"(?:@[^\s;)]+|'@[^']+')", CodeSegment),
         # Column selector
         # https://docs.snowflake.com/en/sql-reference/sql/select.html#parameters
         RegexLexer("column_selector", r"\$[0-9]+", CodeSegment),
@@ -112,9 +111,9 @@ snowflake_dialect.add(
     ),
     # We use a RegexParser instead of keywords as some (those with dashes) require quotes:
     WarehouseSize=RegexParser(
-        r"('?XSMALL'?|'?SMALL'?|'?MEDIUM'?|'?LARGE'?|'?XLARGE'?|'?XXLARGE'?|'?X2LARGE'?|"
+        r"'?XSMALL'?|'?SMALL'?|'?MEDIUM'?|'?LARGE'?|'?XLARGE'?|'?XXLARGE'?|'?X2LARGE'?|"
         r"'?XXXLARGE'?|'?X3LARGE'?|'?X4LARGE'?|'?X5LARGE|'?X6LARGE'?|"
-        r"'X-SMALL'|'X-LARGE'|'2X-LARGE'|'3X-LARGE'|'4X-LARGE'|'5X-LARGE'|'6X-LARGE')",
+        r"'X-SMALL'|'X-LARGE'|'2X-LARGE'|'3X-LARGE'|'4X-LARGE'|'5X-LARGE'|'6X-LARGE'",
         CodeSegment,
         name="warehouse_size",
         type="warehouse_size",
@@ -126,21 +125,14 @@ snowflake_dialect.add(
         type="literal",
         trim_chars=('"',),
     ),
-    AtSignLiteralSegment=NamedParser(
-        "atsign",
+    ValidationModeOptionSegment=RegexParser(
+        r"'?RETURN_(?:\d+_ROWS|ERRORS|ALL_ERRORS)'?",
         CodeSegment,
-        name="atsign_literal",
-        type="literal",
-        trim_chars=("@",),
-    ),
-    ReturnNRowsSegment=RegexParser(
-        r"RETURN_[0-9][0-9]*_ROWS",
-        CodeSegment,
-        name="literal",
-        type="literal",
+        name="validation_mode_option",
+        type="validation_mode_option",
     ),
     CopyOptionOnErrorSegment=RegexParser(
-        r"(?:'?CONTINUE'?)|(?:'?SKIP_FILE(_[0-9]+%?)?'?)|(?:'?ABORT_STATEMENT'?)",
+        r"'?CONTINUE'?|'?SKIP_FILE(?:_[0-9]+%?)?'?|'?ABORT_STATEMENT'?",
         CodeSegment,
         name="literal",
         type="literal",
@@ -166,6 +158,12 @@ snowflake_dialect.add(
         type="udf_body",
         trim_chars=("$",),
     ),
+    StagePath=RegexParser(
+        r"(?:@[^\s;)]+|'@[^']+')",
+        CodeSegment,
+        name="stage_path",
+        type="stage_path",
+    ),
     S3Path=RegexParser(
         # See https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucketnamingrules.html
         r"'s3://[a-z0-9][a-z0-9\.-]{1,61}[a-z0-9](?:/.+)?'",
@@ -188,13 +186,13 @@ snowflake_dialect.add(
         type="bucket_path",
     ),
     SnowflakeEncryptionOption=RegexParser(
-        r"(?:'SNOWFLAKE_FULL')|(?:'SNOWFLAKE_SSE')",
+        r"'SNOWFLAKE_FULL'|'SNOWFLAKE_SSE'",
         CodeSegment,
         name="snowflake_encryption_option",
         type="stage_encryption_option",
     ),
     S3EncryptionOption=RegexParser(
-        r"(?:'AWS_CSE')|(?:'AWS_SSE_S3')|(?:'AWS_SSE_KMS')",
+        r"'AWS_CSE'|'AWS_SSE_S3'|'AWS_SSE_KMS'",
         CodeSegment,
         name="s3_encryption_option",
         type="stage_encryption_option",
@@ -212,7 +210,7 @@ snowflake_dialect.add(
         type="stage_encryption_option",
     ),
     FileType=RegexParser(
-        r"(?:'?CSV'?)|(?:'?JSON'?)|(?:'?AVRO'?)|(?:'?ORC'?)|(?:'?PARQUET'?)|(?:'?XML'?)",
+        r"'?CSV'?|'?JSON'?|'?AVRO'?|'?ORC'?|'?PARQUET'?|'?XML'?",
         CodeSegment,
         name="file_type",
         type="file_type",
@@ -267,7 +265,7 @@ snowflake_dialect.replace(
         Ref("QuotedIdentifierSegment"),
         Ref("ColumnIndexIdentifierSegment"),
         Ref("ReferencedVariableNameSegment"),
-        Ref("AtSignLiteralSegment"),
+        Ref("StagePath"),
     ),
     PostFunctionGrammar=Sequence(
         Ref("WithinGroupClauseSegment", optional=True),
@@ -551,7 +549,7 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref("CallStoredProcedureSegment"),
             Ref("MergeStatementSegment"),
             Ref("AlterTableColumnStatementSegment"),
-            Ref("CopyIntoStatementSegment"),
+            Ref("CopyIntoTableStatementSegment"),
             Ref("AlterWarehouseStatementSegment"),
             Ref("CreateExternalTableSegment"),
             Ref("CreateSchemaStatementSegment"),
@@ -1454,27 +1452,21 @@ class CopyOptionsSegment(BaseSegment):
     """
 
     type = "copy_options"
-    match_grammar = Bracketed(
-        AnyNumberOf(
-            Sequence("ON_ERROR", Ref("EqualsSegment"), Ref("CopyOptionOnErrorSegment")),
-            Sequence("SIZE_LIMIT", Ref("EqualsSegment"), Ref("LiteralNumericSegment")),
-            Sequence("PURGE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
-            Sequence(
-                "RETURN_FAILED_ONLY", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
-            ),
-            Sequence(
-                "MATCH_BY_COLUMN_NAME",
-                Ref("EqualsSegment"),
-                OneOf("CASE_SENSITIVE", "CASE_INSENSITIVE", "NONE"),
-            ),
-            Sequence(
-                "ENFORCE_LENGTH", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
-            ),
-            Sequence(
-                "TRUNCATECOLUMNS", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
-            ),
-            Sequence("FORCE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
-        )
+    match_grammar = AnyNumberOf(
+        Sequence("ON_ERROR", Ref("EqualsSegment"), Ref("CopyOptionOnErrorSegment")),
+        Sequence("SIZE_LIMIT", Ref("EqualsSegment"), Ref("LiteralNumericSegment")),
+        Sequence("PURGE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+        Sequence(
+            "RETURN_FAILED_ONLY", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")
+        ),
+        Sequence(
+            "MATCH_BY_COLUMN_NAME",
+            Ref("EqualsSegment"),
+            OneOf("CASE_SENSITIVE", "CASE_INSENSITIVE", "NONE"),
+        ),
+        Sequence("ENFORCE_LENGTH", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+        Sequence("TRUNCATECOLUMNS", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
+        Sequence("FORCE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
     )
 
 
@@ -1622,7 +1614,7 @@ class CreateTableStatementSegment(BaseSegment):
         Sequence(
             "STAGE_COPY_OPTIONS",
             Ref("EqualsSegment"),
-            Ref("CopyOptionsSegment"),
+            Bracketed(Ref("CopyOptionsSegment")),
             optional=True,
         ),
         Sequence(
@@ -1849,7 +1841,7 @@ class CreateStatementSegment(BaseSegment):
                 ),
                 optional=True,
             ),
-            Ref("CopyIntoStatementSegment"),
+            Ref("CopyIntoTableStatementSegment"),
             optional=True,
         ),
     )
@@ -2006,19 +1998,7 @@ class CreateExternalTableSegment(BaseSegment):
                 Sequence("WITH", optional=True),
                 "LOCATION",
                 Ref("EqualsSegment"),
-                Ref("AtSignLiteralSegment"),
-                Bracketed(
-                    Ref("NakedIdentifierSegment"),
-                    Ref("DotSegment"),
-                    bracket_type="square",
-                    optional=True,
-                ),
-                AnyNumberOf(
-                    Ref("NakedIdentifierSegment"),
-                    Ref("SlashSegment"),
-                    allow_gaps=False,
-                ),
-                optional=True,
+                Ref("StagePath"),
             ),
             Sequence(
                 "REFRESH_ON_CREATE",
@@ -2081,14 +2061,13 @@ class TableExpressionSegment(BaseSegment):
         # Nested Selects
         Bracketed(Ref("SelectableGrammar")),
         # Values clause?
-        Ref("IntExtStageLocation"),
-        Ref("PathSegment"),
+        Ref("StorageLocation"),
     )
 
 
 @snowflake_dialect.segment()
-class CopyIntoStatementSegment(BaseSegment):
-    """A snowflake `COPY INTO` statement.
+class CopyIntoTableStatementSegment(BaseSegment):
+    """A Snowflake `COPY INTO <table>` statement.
 
     # https://docs.snowflake.com/en/sql-reference/sql/copy-into-table.html
     """
@@ -2103,100 +2082,53 @@ class CopyIntoStatementSegment(BaseSegment):
         Sequence(
             "FROM",
             OneOf(
-                Ref("IntExtStageLocation"),
-                Ref("QuotedLiteralSegment"),
-                Bracketed(
-                    Ref("SelectStatementSegment"),
-                ),
-            ),
-            AnyNumberOf(
-                Sequence(
-                    "FILES",
-                    Ref("EqualsSegment"),
-                    Bracketed(
-                        Delimited(
-                            Ref("QuotedLiteralSegment"),
-                        ),
-                    ),
-                    optional=True,
-                ),
-                Sequence(
-                    "PATTERN",
-                    Ref("EqualsSegment"),
-                    Ref("QuotedLiteralSegment"),
-                    optional=True,
-                ),
-                Sequence(
-                    "FILE_FORMAT",
-                    Ref("EqualsSegment"),
-                    Ref("FileFormatSegment"),
-                    optional=True,
-                ),
+                Ref("StorageLocation"),
+                Bracketed(Ref("SelectStatementSegment")),
             ),
             optional=True,
         ),
-        # Copy Options
         AnyNumberOf(
-            Ref("NakedIdentifierSegment"),
-            Ref("EqualsSegment"),
-            OneOf(
-                Ref("NakedIdentifierSegment"),
-                Ref("QuotedLiteralSegment"),
+            Sequence(
+                "FILES",
+                Ref("EqualsSegment"),
                 Bracketed(
                     Delimited(
                         Ref("QuotedLiteralSegment"),
-                    )
+                    ),
                 ),
             ),
+            Sequence(
+                "PATTERN",
+                Ref("EqualsSegment"),
+                Ref("QuotedLiteralSegment"),
+            ),
+            Sequence(
+                "FILE_FORMAT",
+                Ref("EqualsSegment"),
+                Ref("FileFormatSegment"),
+            ),
+            Ref("CopyOptionsSegment"),
         ),
         Sequence(
             "VALIDATION_MODE",
             Ref("EqualsSegment"),
-            OneOf(
-                Ref("ReturnNRowsSegment"),
-                "RETURN_ERRORS",
-                "RETURN_ALL_ERRORS",
-            ),
+            Ref("ValidationModeOptionSegment"),
             optional=True,
         ),
     )
 
 
 @snowflake_dialect.segment()
-class PathSegment(BaseSegment):
-    """Path Segment."""
-
-    type = "path"
-
-    match_grammar = Delimited(
-        Ref("NakedIdentifierSegment"), delimiter=Ref("SlashSegment")
-    )
-
-
-@snowflake_dialect.segment()
-class IntExtStageLocation(BaseSegment):
-    """A snowflake internalStage / externalStage segment used by copy into tables.
+class StorageLocation(BaseSegment):
+    """A Snowflake storage location.
 
     https://docs.snowflake.com/en/sql-reference/sql/copy-into-table.html#syntax
     """
 
-    type = "internal_external_stage"
+    type = "storage_location"
 
-    # TODO - currently External Locations are not supported
-    match_grammar = Sequence(
-        Ref("AtSignLiteralSegment"),
-        Sequence(
-            AnyNumberOf(
-                Sequence(
-                    Ref("NakedIdentifierSegment"),
-                    Ref("DotSegment"),
-                ),
-                optional=True,
-            ),
-            Ref("ModuloSegment", optional=True),
-            Ref("NakedIdentifierSegment"),
-            Sequence(Ref("SlashSegment"), Ref("PathSegment"), optional=True),
-        ),
+    match_grammar = OneOf(
+        Ref("StagePath"), Ref("S3Path"), Ref("GCSPath"), Ref("AzureBlobStoragePath")
     )
 
 
@@ -2542,11 +2474,12 @@ class CreateStageSegment(BaseSegment):
         Sequence(
             "COPY_OPTIONS",
             Ref("EqualsSegment"),
-            Ref("CopyOptionsSegment"),
+            Bracketed(Ref("CopyOptionsSegment")),
             optional=True,
         ),
         Ref("TagBracketedEqualsSegment", optional=True),
         Ref("CommentEqualsClauseSegment", optional=True),
+        Dedent,
     )
 
 
@@ -2620,13 +2553,14 @@ class AlterStageSegment(BaseSegment):
                         Sequence(
                             "COPY_OPTIONS",
                             Ref("EqualsSegment"),
-                            Ref("CopyOptionsSegment"),
+                            Bracketed(Ref("CopyOptionsSegment")),
                             optional=True,
                         ),
                         Ref("CommentEqualsClauseSegment", optional=True),
                     ),
                     Ref("TagEqualsSegment"),
                 ),
+                Dedent,
             ),
             Sequence(
                 "REFRESH",

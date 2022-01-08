@@ -185,6 +185,14 @@ jobs:
     runs-on: windows-latest
     name: DBT Plugin Python 3.8 Windows tests
     steps:
+    - name: Start PostgreSQL on Windows
+      run: |
+        $pgService = Get-Service -Name postgresql*
+        Set-Service -InputObject $pgService -Status running -StartupType automatic
+        Start-Process -FilePath "$env:PGBIN\pg_isready" -Wait -PassThru
+    - name: Set postgres user password
+      run: |
+        & $env:PGBIN\psql --command="ALTER USER postgres PASSWORD 'password';" --command="\du"
     - name: Set git to use LF
       run: |
         git config --global core.autocrlf false
@@ -203,7 +211,7 @@ jobs:
       # Do not set explicitly temp dir for dbt as causes problems
       # None of these test need temp dir set
       run: |
-        python -m tox -e dbt018-winpy -- plugins/sqlfluff-templater-dbt -m "not dbt_connection_failure and not needs_dbt_connection"
+        python -m tox -e dbt018-winpy -- plugins/sqlfluff-templater-dbt
     - name: Upload Coverage Report
       uses: codecov/codecov-action@v1
       with:

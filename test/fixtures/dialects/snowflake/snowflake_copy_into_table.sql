@@ -20,6 +20,18 @@ from @my_int_stage
 
 copy into mytable;
 
+copy into mytable
+from @%mytable;
+
+copy into mytable
+from @~/data_files;
+
+copy into mytable
+from @mydb.myschema.mystage;
+
+copy into mytable
+from @mydatabase.myschema.%mytable;
+
 copy into mytable purge = true;
 
 copy into mytable validation_mode = 'RETURN_ERRORS';
@@ -45,3 +57,11 @@ copy into mytable1
 copy into mytable1
     from 's3://bucket/source'
     file_format = (type=csv SKIP_HEADER=1);
+
+copy into mytable1 (column1)
+    from @public.stage/sub-folder/myfile-1.csv
+    file_format = (TYPE = JSON);
+
+copy into mytable1 (column1)
+    from @public.stage/subfolder/
+    file_format = (TYPE = JSON);
