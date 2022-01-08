@@ -396,18 +396,27 @@ class CreateSchemaStatementSegment(BaseSegment):
     """A `CREATE SCHEMA` statement.
 
     https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_SCHEMA.html
+    TODO: support optional SCHEMA_ELEMENT
     """
 
     type = "create_schema_statement"
     match_grammar = Sequence(
         "CREATE",
         "SCHEMA",
-        Ref("IfNotExistsGrammar", optional=True),
-        Ref("SchemaReferenceSegment"),
-        Sequence(
-            "AUTHORIZATION",
-            Ref("ObjectReferenceSegment"),
-            optional=True,
+        OneOf(
+            Sequence(
+                Ref("IfNotExistsGrammar", optional=True),
+                Ref("SchemaReferenceSegment"),
+                Sequence(
+                    "AUTHORIZATION",
+                    Ref("ObjectReferenceSegment"),
+                    optional=True,
+                ),
+            ),
+            Sequence(
+                "AUTHORIZATION",
+                Ref("ObjectReferenceSegment"),
+            ),
         ),
         Sequence(
             "QUOTA",
@@ -418,7 +427,7 @@ class CreateSchemaStatementSegment(BaseSegment):
                         "MB",
                         "GB",
                         "TB",
-                    )
+                    ),
                 ),
                 "UNLIMITED",
             ),
