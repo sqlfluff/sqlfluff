@@ -19,7 +19,7 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 * Remove support for Python 3.6
 
 ## What's Changed
-* fix delimited identifier parsing for spark3 [#2111](https://github.com/sqlfluff/sqlfluff/pull/2111) [@mcannamela](https://github.com/mcannamela)
+* Fix delimited identifier parsing for spark3 [#2111](https://github.com/sqlfluff/sqlfluff/pull/2111) [@mcannamela](https://github.com/mcannamela)
 * Stop numeric literal from splitting valid naked identifiers. [#2114](https://github.com/sqlfluff/sqlfluff/pull/2114) [@jpy-git](https://github.com/jpy-git)
 * Grammar: Add CREATE USER/GROUP statement to Redshift dialect [#2115](https://github.com/sqlfluff/sqlfluff/pull/2115) [@jpy-git](https://github.com/jpy-git)
 * Fix mypy type raise in L003 [#2127](https://github.com/sqlfluff/sqlfluff/pull/2127) [@barrywhart](https://github.com/barrywhart)
