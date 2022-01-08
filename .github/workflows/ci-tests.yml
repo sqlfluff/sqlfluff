@@ -192,7 +192,7 @@ jobs:
         Start-Process -FilePath "$env:PGBIN\pg_isready" -Wait -PassThru
     - name: Create postgres user on Windows
       run: |
-        & $env:PGBIN\psql --command="CREATE USER postgres PASSWORD 'password'" --command="\du"
+        & $env:PGBIN\psql --command="ALTER USER postgres PASSWORD 'password';" --command="\du"
     - name: Create postgres database
       run: |
         & $env:PGBIN\createdb --owner=postgres postgres
