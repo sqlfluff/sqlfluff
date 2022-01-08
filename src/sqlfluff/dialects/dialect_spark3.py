@@ -697,9 +697,10 @@ class DropFunctionStatementSegment(BaseSegment):
 
 @spark3_dialect.segment()
 class MsckRepairTableStatementSegment(hive_dialect.get_segment("MsckRepairTableStatementSegment")):  # type: ignore
-    """A `REPAIR TABLE` statement using Hive MSCK format.
+    """A `REPAIR TABLE` statement using Hive MSCK (Metastore Check) format.
 
-    This class inherits from Hive since Spark leverages Hive format for this command.
+    This class inherits from Hive since Spark leverages Hive format for this command and
+    is dependent on the Hive metastore.
 
     https://spark.apache.org/docs/latest/sql-ref-syntax-ddl-repair-table.html
     """
