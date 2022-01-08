@@ -190,7 +190,7 @@ jobs:
         $pgService = Get-Service -Name postgresql*
         Set-Service -InputObject $pgService -Status running -StartupType automatic
         Start-Process -FilePath "$env:PGBIN\pg_isready" -Wait -PassThru
-    - name: Create postgres user on Windows
+    - name: Set postgres user password
       run: |
         & $env:PGBIN\psql --command="ALTER USER postgres PASSWORD 'password';" --command="\du"
     - name: Set git to use LF
