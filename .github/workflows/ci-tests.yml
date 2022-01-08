@@ -195,8 +195,8 @@ jobs:
         & $env:PGBIN\psql --command="ALTER USER postgres PASSWORD 'password';" --command="\du"
     - name: Create postgres database
       run: |
-        & $env:PGBIN\createdb --owner=postgres postgres
         $env:PGPASSWORD = 'password'
+        & $env:PGBIN\createdb --owner=postgres postgres
         & $env:PGBIN\psql --username=postgres --host=localhost --list postgres
     - name: Set git to use LF
       run: |
