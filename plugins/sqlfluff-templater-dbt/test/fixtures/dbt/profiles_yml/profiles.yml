@@ -4,10 +4,10 @@ default:
     dev:
       type: postgres
       host: localhost
-      user: alice
-      pass: <password>
+      user: postgres
+      pass: password
       port: 5432
-      dbname: jaffle_shop
+      dbname: postgres
       schema: dbt_alice
       threads: 4
 
