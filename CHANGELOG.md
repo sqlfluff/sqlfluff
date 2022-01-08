@@ -113,11 +113,11 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 * Redshift CREATE SCHEMA statements by  [#2252](https://github.com/sqlfluff/sqlfluff/pull/2252) [@rpr-ableton](https://github.com/rpr-ableton)
 
 ## New Contributors
-* @mcannamela made their first contribution in https://github.com/sqlfluff/sqlfluff/pull/2111
-* @ciklista made their first contribution in https://github.com/sqlfluff/sqlfluff/pull/2143
-* @juhoautio made their first contribution in https://github.com/sqlfluff/sqlfluff/pull/2144
-* @tinder-albertyue made their first contribution in https://github.com/sqlfluff/sqlfluff/pull/2229
-* @rpr-ableton made their first contribution in https://github.com/sqlfluff/sqlfluff/pull/2252
+* [@mcannamela](https://github.com/mcannamela) made their first contribution in [#2111](https://github.com/sqlfluff/sqlfluff/pull/2111)
+* [@ciklista](https://github.com/ciklista) made their first contribution in [#2143](https://github.com/sqlfluff/sqlfluff/pull/2143)
+* [@juhoautio](https://github.com/juhoautio) made their first contribution in [#2144](https://github.com/sqlfluff/sqlfluff/pull/2144)
+* [@tinder-albertyue](https://github.com/tinder-albertyue) made their first contribution in [#2229](https://github.com/sqlfluff/sqlfluff/pull/2229)
+* [@rpr-ableton](https://github.com/rpr-ableton) made their first contribution in [#2252](https://github.com/sqlfluff/sqlfluff/pull/2252)
 
 ## [0.9.0] - 2021-12-13
 
