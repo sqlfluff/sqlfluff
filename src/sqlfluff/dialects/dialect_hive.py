@@ -477,6 +477,7 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
         insert=[
             Ref("AlterDatabaseStatementSegment"),
             Ref("MsckRepairTableStatementSegment"),
+            Ref("MsckTableStatementSegment"),
         ],
         remove=[
             Ref("TransactionStatementSegment"),
@@ -563,10 +564,15 @@ class IntervalExpressionSegment(BaseSegment):
 
 @hive_dialect.segment()
 class MsckRepairTableStatementSegment(BaseSegment):
-    """A repair table statement.
+    """An `MSCK REPAIR TABLE`statement.
 
-    `MSCK REPAIR` reference here within Language Manual DDL page:
-    https://cwiki.apache.org/confluence/display/Hive/LanguageManual+DDL
+    Updates the Hive metastore to be aware of any changes to partitions on the underlying file store.
+
+    The `MSCK TABLE` command, and corresponding class in Hive dialect MsckTableStatementSegment,
+    is used to determine mismatches between the Hive metastore and file system. Essentially, it is a dry
+    run of the `MSCK REPAIR TABLE` command.
+
+    https://cwiki.apache.org/confluence/display/Hive/LanguageManual+DDL#LanguageManualDDL-RecoverPartitions(MSCKREPAIRTABLE)
     """
 
     type = "msck_repair_table_statement"
@@ -574,6 +580,36 @@ class MsckRepairTableStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "MSCK",
         "REPAIR",
+        "TABLE",
+        Ref("TableReferenceSegment"),
+        Sequence(
+            OneOf(
+                "ADD",
+                "DROP",
+                "SYNC",
+            ),
+            "PARTITIONS",
+            optional=True,
+        ),
+    )
+
+
+@hive_dialect.segment()
+class MsckTableStatementSegment(BaseSegment):
+    """An `MSCK TABLE`statement.
+
+    Checks for difference between partition metadata in the Hive metastore and underlying file system.
+
+    Commonly used prior to `MSCK REPAIR TABLE` command, corresponding with class `MsckRepairTableStatementSegment`
+    in Hive dialect, to asses size of updates for one-time or irregularly sized file system updates.
+
+    https://cwiki.apache.org/confluence/display/Hive/LanguageManual+DDL#LanguageManualDDL-RecoverPartitions(MSCKREPAIRTABLE)
+    """
+
+    type = "msck_table_statement"
+
+    match_grammar = Sequence(
+        "MSCK",
         "TABLE",
         Ref("TableReferenceSegment"),
         Sequence(
