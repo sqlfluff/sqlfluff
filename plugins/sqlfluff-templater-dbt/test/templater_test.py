@@ -226,10 +226,8 @@ def test__templater_dbt_skips_disabled_model(dbt_templater, project_dir):  # noq
     "fname",
     [
         "use_var.sql",
-        pytest.param("incremental.sql", marks=pytest.mark.needs_dbt_connection),
-        pytest.param(
-            "single_trailing_newline.sql", marks=pytest.mark.needs_dbt_connection
-        ),
+        "incremental.sql",
+        "single_trailing_newline.sql",
         "L034_test.sql",
     ],
 )
@@ -325,7 +323,6 @@ def test__templater_dbt_handle_exceptions(
     DBT_VERSION_TUPLE < (1, 0), reason="mocks a function that's only used in dbt >= 1.0"
 )
 @mock.patch("dbt.adapters.postgres.impl.PostgresAdapter.set_relations_cache")
-@pytest.mark.dbt_connection_failure
 def test__templater_dbt_handle_database_connection_failure(
     set_relations_cache, project_dir, dbt_templater  # noqa: F811
 ):
