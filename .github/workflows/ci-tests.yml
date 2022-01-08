@@ -185,6 +185,19 @@ jobs:
     runs-on: windows-latest
     name: DBT Plugin Python 3.8 Windows tests
     steps:
+    - name: Start PostgreSQL on Windows
+      run: |
+        $pgService = Get-Service -Name postgresql*
+        Set-Service -InputObject $pgService -Status running -StartupType automatic
+        Start-Process -FilePath "$env:PGBIN\pg_isready" -Wait -PassThru
+    - name: Create postgres user on Windows
+      run: |
+        & $env:PGBIN\psql --command="CREATE USER postgres PASSWORD 'password'" --command="\du"
+    - name: Create postgres database
+      run: |
+        & $env:PGBIN\createdb --owner=postgres postgres
+        $env:PGPASSWORD = 'password'
+        & $env:PGBIN\psql --username=postgres --host=localhost --list postgres
     - name: Set git to use LF
       run: |
         git config --global core.autocrlf false
