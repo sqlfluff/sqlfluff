@@ -111,6 +111,8 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 * TSQL: Add OFFSET unreserved keyword [#2258](https://github.com/sqlfluff/sqlfluff/pull/2258) [@jpers36](https://github.com/jpers36)
 * Fix connection issue in dbt 1.0.0 [#2230](https://github.com/sqlfluff/sqlfluff/pull/2230) [@NiallRees](https://github.com/NiallRees)
 * Redshift CREATE SCHEMA statements [#2252](https://github.com/sqlfluff/sqlfluff/pull/2252) [@rpr-ableton](https://github.com/rpr-ableton)
+* Enhance Snowflake COPY INTO [#2250](https://github.com/sqlfluff/sqlfluff/pull/2250) [@chwiese](https://github.com/chwiese)
+* Coverage for 'REPAIR' Statements for Hive & Spark3 dialect [#2256](https://github.com/sqlfluff/sqlfluff/pull/2256) [@R7L208](https://github.com/R7L208)
 
 ## New Contributors
 * [@mcannamela](https://github.com/mcannamela) made their first contribution in [#2111](https://github.com/sqlfluff/sqlfluff/pull/2111)
