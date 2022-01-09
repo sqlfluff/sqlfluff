@@ -44,8 +44,8 @@ redshift_dialect.sets("bare_functions").clear()
 redshift_dialect.sets("bare_functions").update(["current_date", "sysdate"])
 
 redshift_dialect.replace(WellKnownTextGeometrySegment=Nothing())
-# TODO: for the time use the ANSI definition and not the updated one from Postgres as not all
-#       data types are supported by Redshift
+# TODO: for the time use the ANSI definition and not the updated one from Postgres as
+# not all data types are supported by Redshift
 redshift_dialect.replace(DatatypeSegment=ansi_dialect.get_segment("DatatypeSegment"))
 
 
@@ -77,7 +77,8 @@ class ColumnEncodingSegment(BaseSegment):
 
     Indicates column compression encoding.
 
-    As specified by: https://docs.aws.amazon.com/redshift/latest/dg/c_Compression_encodings.html
+    As specified by:
+    https://docs.aws.amazon.com/redshift/latest/dg/c_Compression_encodings.html
     """
 
     type = "column_encoding_segment"
@@ -103,7 +104,8 @@ class ColumnEncodingSegment(BaseSegment):
 class ColumnAttributeSegment(BaseSegment):
     """Redshift specific column attributes.
 
-    As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_TABLE_NEW.html
+    As specified in
+    https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_TABLE_NEW.html
     """
 
     type = "column_attribute_segment"
@@ -133,7 +135,8 @@ class ColumnAttributeSegment(BaseSegment):
 class ColumnConstraintSegment(BaseSegment):
     """Redshift specific column constraints.
 
-    As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_TABLE_NEW.html
+    As specified in
+    https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_TABLE_NEW.html
     """
 
     type = "column_constraint_segment"
@@ -153,7 +156,8 @@ class ColumnConstraintSegment(BaseSegment):
 class TableAttributeSegment(BaseSegment):
     """Redshift specific table attributes.
 
-    As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_TABLE_NEW.html
+    As specified in
+    https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_TABLE_NEW.html
     """
 
     type = "table_constraint_segment"
@@ -178,7 +182,8 @@ class TableAttributeSegment(BaseSegment):
 class TableConstraintSegment(BaseSegment):
     """Redshift specific table constraints.
 
-    As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_TABLE_NEW.html
+    As specified in
+    https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_TABLE_NEW.html
     """
 
     type = "table_constraint_segment"
@@ -205,7 +210,8 @@ class TableConstraintSegment(BaseSegment):
 class LikeOptionSegment(BaseSegment):
     """Like Option Segment.
 
-    As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_TABLE_NEW.html
+    As specified in
+    https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_TABLE_NEW.html
     """
 
     type = "like_option_segment"
@@ -217,7 +223,8 @@ class LikeOptionSegment(BaseSegment):
 class CreateTableStatementSegment(BaseSegment):
     """A `CREATE TABLE` statement.
 
-    As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_TABLE_NEW.html
+    As specified in
+    https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_TABLE_NEW.html
     """
 
     type = "create_table_statement"
@@ -257,7 +264,8 @@ class CreateTableStatementSegment(BaseSegment):
 class CreateTableAsStatementSegment(BaseSegment):
     """A `CREATE TABLE AS` statement.
 
-    As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_TABLE_AS.html
+    As specified in
+    https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_TABLE_AS.html
     """
 
     type = "create_table_as_statement"
@@ -287,7 +295,8 @@ class CreateTableAsStatementSegment(BaseSegment):
 class CreateExternalTableStatementSegment(BaseSegment):
     """A `CREATE EXTERNAL TABLE` statement.
 
-    As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_EXTERNAL_TABLE.html
+    As specified in
+    https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_EXTERNAL_TABLE.html
     TODO: support ROW FORMAT SERDE and WITH SERDEPROPERTIES
     TODO: support TABLE PROPERTIES
     """
@@ -334,7 +343,8 @@ class CreateExternalTableStatementSegment(BaseSegment):
 class CreateExternalTableAsStatementSegment(BaseSegment):
     """A `CREATE EXTERNAL TABLE AS` statement.
 
-    As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_EXTERNAL_TABLE.html
+    As specified in
+    https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_EXTERNAL_TABLE.html
     TODO: support TABLE PROPERTIES
     """
 
@@ -468,7 +478,8 @@ class StatementSegment(BaseSegment):
 class PartitionedBySegment(BaseSegment):
     """Partitioned By Segment.
 
-    As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_EXTERNAL_TABLE.html
+    As specified in
+    https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_EXTERNAL_TABLE.html
     """
 
     type = "partitioned_by_segment"
@@ -491,7 +502,8 @@ class PartitionedBySegment(BaseSegment):
 class RowFormatDelimitedSegment(BaseSegment):
     """Row Format Delimited Segment.
 
-    As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_EXTERNAL_TABLE.html
+    As specified in
+    https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_EXTERNAL_TABLE.html
     """
 
     type = "row_format_deimited_segment"

@@ -55,10 +55,11 @@ bigquery_dialect.insert_lexer_matchers(
 bigquery_dialect.patch_lexer_matchers(
     [
         # Quoted literals can have r or b (case insensitive) prefixes, in any order, to
-        # indicate a raw/regex string or byte sequence, respectively.  Allow escaped quote
-        # characters inside strings by allowing \" with an optional even multiple of
-        # backslashes in front of it.
-        # https://cloud.google.com/bigquery/docs/reference/standard-sql/lexical#string_and_bytes_literals
+        # indicate a raw/regex string or byte sequence, respectively.  Allow escaped
+        # quote characters inside strings by allowing \" with an optional even multiple
+        # of backslashes in front of it.
+        # https://cloud.google.com/bigquery/docs/reference/standard-sql
+        # /lexical#string_and_bytes_literals
         # Triple quoted variant first, then single quoted
         RegexLexer(
             "single_quote",
@@ -176,7 +177,8 @@ bigquery_dialect.replace(
         insert=[Ref("TypelessStructSegment")],
         before=Ref("ExpressionSegment"),
     ),
-    # BigQuery allows underscore in parameter names, and also anything if quoted in backticks
+    # BigQuery allows underscore in parameter names, and also anything if quoted in
+    # backticks
     ParameterNameSegment=OneOf(
         RegexParser(
             r"[A-Z_][A-Z0-9_]*", CodeSegment, name="parameter", type="parameter"
@@ -213,7 +215,8 @@ bigquery_dialect.sets("datetime_units").update(
 )
 
 # In BigQuery, UNNEST() returns a "value table".
-# https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax#value_tables
+# https://cloud.google.com/bigquery/docs/reference/standard-sql
+# /query-syntax#value_tables
 bigquery_dialect.sets("value_table_functions").update(["unnest"])
 
 # Bracket pairs (a set of tuples). Note that BigQuery inherits the default
@@ -491,7 +494,8 @@ class WildcardExpressionSegment(BaseSegment):
     ).match_grammar.copy(
         insert=[
             # Optional EXCEPT or REPLACE clause
-            # https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax#select_replace
+            # https://cloud.google.com/bigquery/docs/reference/standard-sql
+            # /query-syntax#select_replace
             Ref("ExceptClauseSegment", optional=True),
             Ref("ReplaceClauseSegment", optional=True),
         ]
@@ -592,7 +596,8 @@ class FunctionParameterListGrammar(BaseSegment):
 class TypelessStructSegment(BaseSegment):
     """Expression to construct a STRUCT with implicit types.
 
-    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-types#typeless_struct_syntax
+    https://cloud.google.com/bigquery/docs/reference/standard-sql
+    /data-types#typeless_struct_syntax
     """
 
     type = "typeless_struct"
@@ -613,7 +618,8 @@ class TypelessStructSegment(BaseSegment):
 class TupleSegment(BaseSegment):
     """Expression to construct a TUPLE.
 
-    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-types#tuple_syntax
+    https://cloud.google.com/bigquery/docs/reference/standard-sql
+    /data-types#tuple_syntax
     """
 
     type = "tuple"
@@ -624,7 +630,8 @@ class TupleSegment(BaseSegment):
 class NamedArgumentSegment(BaseSegment):
     """Named argument to a function.
 
-    https://cloud.google.com/bigquery/docs/reference/standard-sql/geography_functions#st_geogfromgeojson
+    https://cloud.google.com/bigquery/docs/reference/standard-sql
+    /geography_functions#st_geogfromgeojson
     """
 
     type = "named_argument"
@@ -646,7 +653,8 @@ class LiteralCoercionSegment(BaseSegment):
     - TIME
     - TIMESTAMP
 
-    https://cloud.google.com/bigquery/docs/reference/standard-sql/conversion_rules#literal_coercion
+    https://cloud.google.com/bigquery/docs/reference/standard-sql
+    /conversion_rules#literal_coercion
 
     """
 
@@ -892,7 +900,8 @@ class CreateTableStatementSegment(BaseSegment):
     """A `CREATE TABLE` statement."""
 
     type = "create_table_statement"
-    # https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#create_table_statement
+    # https://cloud.google.com/bigquery/docs/reference/standard-sql
+    # /data-definition-language#create_table_statement
     match_grammar = Sequence(
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),
@@ -940,7 +949,8 @@ class ParameterizedSegment(BaseSegment):
 class FromPivotExpressionSegment(BaseSegment):
     """A PIVOT expression.
 
-    https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax#pivot_operator
+    https://cloud.google.com/bigquery/docs/reference/standard-sql
+    /query-syntax#pivot_operator
     """
 
     type = "from_pivot_expression"
@@ -971,7 +981,8 @@ class FromPivotExpressionSegment(BaseSegment):
 class FromUnpivotExpressionSegment(BaseSegment):
     """An UNPIVOT expression.
 
-    https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax#unpivot_operator
+    https://cloud.google.com/bigquery/docs/reference/standard-sql
+    /query-syntax#unpivot_operator
     """
 
     type = "from_unpivot_expression"
@@ -1058,7 +1069,8 @@ class InsertStatementSegment(BaseSegment):
 class SamplingExpressionSegment(BaseSegment):
     """A sampling expression.
 
-    As per https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax#tablesample_operator
+    As per https://cloud.google.com/bigquery/docs/reference/standard-sql
+    /query-syntax#tablesample_operator
     """
 
     type = "sample_expression"

@@ -73,7 +73,10 @@ class Rule_L008(BaseRule):
             return subsequent_whitespace, None
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
-        """Commas should be followed by a single whitespace unless followed by a comment."""
+        """Commas should be followed by a single whitespace unless followed by a # noqa: D415
+
+        comment.
+        """
         # We only care about commas.
         if context.segment.name != "comma":
             return None

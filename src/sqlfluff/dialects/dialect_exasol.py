@@ -88,9 +88,11 @@ exasol_dialect.insert_lexer_matchers(
 
 exasol_dialect.patch_lexer_matchers(
     [
-        # In EXASOL, a double single/double quote resolves as a single/double quote in the string.
-        # It's also used for escaping single quotes inside of STATEMENT strings like in the IMPORT function
-        # https://docs.exasol.com/sql_references/basiclanguageelements.htm#Delimited_Identifiers
+        # In EXASOL, a double single/double quote resolves as a single/double quote in
+        # the string. It's also used for escaping single quotes inside of STATEMENT
+        # strings like in the IMPORT function
+        # https://docs.exasol.com/sql_references
+        # /basiclanguageelements.htm#Delimited_Identifiers
         # https://docs.exasol.com/sql_references/literals.htm
         RegexLexer("single_quote", r"'([^']|'')*'", CodeSegment),
         RegexLexer("double_quote", r'"([^"]|"")*"', CodeSegment),
@@ -962,7 +964,9 @@ class DropSchemaStatementSegment(BaseSegment):
 # VIEW
 ############################
 @exasol_dialect.segment()
-class ViewReferenceSegment(ansi_dialect.get_segment("ObjectReferenceSegment")):  # type: ignore
+class ViewReferenceSegment(
+    ansi_dialect.get_segment("ObjectReferenceSegment")  # type: ignore
+):
     """A reference to an schema."""
 
     type = "view_reference"
@@ -1253,8 +1257,8 @@ class TableInlineConstraintSegment(BaseSegment):
                 max_times=1,
                 min_times=0,
                 # exclude UNRESERVED_KEYWORDS which could used as NakedIdentifier
-                # to make e.g. `id NUMBER CONSTRAINT PRIMARY KEY` work (which is equal to just
-                # `id NUMBER PRIMARY KEY`)
+                # to make e.g. `id NUMBER CONSTRAINT PRIMARY KEY` work (which is equal
+                # to just `id NUMBER PRIMARY KEY`)
                 exclude=OneOf("NOT", "NULL", "PRIMARY", "FOREIGN"),
             ),
             optional=True,
@@ -1288,8 +1292,8 @@ class TableOutOfLineConstraintSegment(BaseSegment):
                 max_times=1,
                 min_times=0,
                 # exclude UNRESERVED_KEYWORDS which could used as NakedIdentifier
-                # to make e.g. `id NUMBER, CONSTRAINT PRIMARY KEY(id)` work (which is equal to just
-                # `id NUMBER, PRIMARY KEY(id)`)
+                # to make e.g. `id NUMBER, CONSTRAINT PRIMARY KEY(id)` work (which is
+                # equal to just `id NUMBER, PRIMARY KEY(id)`)
                 exclude=OneOf("NOT", "NULL", "PRIMARY", "FOREIGN"),
             ),
             optional=True,
@@ -3042,7 +3046,10 @@ class PreferringPreferenceTermSegment(BaseSegment):
 
 @exasol_dialect.segment()
 class PreferringPlusPriorTermSegment(BaseSegment):
-    """The `PLUS` / `PRIOR TO` or `INVERSE` term within a preferring preference term expression."""
+    """The `PLUS` / `PRIOR TO` or `INVERSE` term within a preferring # noqa: D415
+
+    preference term expression.
+    """
 
     type = "plus_prior_inverse"
     match_grammar = OneOf(
@@ -3267,7 +3274,9 @@ class ExplainVirtualSegment(BaseSegment):
 
 
 @exasol_dialect.segment()
-class FunctionReferenceSegment(exasol_dialect.get_segment("ObjectReferenceSegment")):  # type: ignore
+class FunctionReferenceSegment(
+    exasol_dialect.get_segment("ObjectReferenceSegment")  # type: ignore
+):
     """A reference to a function."""
 
     type = "function_reference"
@@ -3513,7 +3522,9 @@ class DatePartFunctionNameSegment(BaseSegment):
 # SCRIPT
 ############################
 @exasol_dialect.segment()
-class ScriptReferenceSegment(exasol_dialect.get_segment("ObjectReferenceSegment")):  # type: ignore
+class ScriptReferenceSegment(
+    exasol_dialect.get_segment("ObjectReferenceSegment")  # type: ignore
+):
     """A reference to a script."""
 
     type = "script_reference"

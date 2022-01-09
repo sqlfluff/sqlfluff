@@ -50,7 +50,8 @@ class Rule_L025(Rule_L020):
         """Check all aliased references against tables referenced in the query."""
         # A buffer to keep any violations.
         violation_buff = []
-        # Check all the references that we have, keep track of which aliases we refer to.
+        # Check all the references that we have, keep track of which aliases we refer
+        # to.
         tbl_refs = set()
         for r in references:
             tbl_refs.update(
@@ -78,9 +79,8 @@ class Rule_L025(Rule_L020):
                 violation_buff.append(
                     LintResult(
                         anchor=alias.segment,
-                        description="Alias {!r} is never used in SELECT statement.".format(
-                            alias.ref_str
-                        ),
+                        description="Alias {!r} is never used in SELECT "
+                        "statement.".format(alias.ref_str),
                         fixes=fixes,
                     )
                 )

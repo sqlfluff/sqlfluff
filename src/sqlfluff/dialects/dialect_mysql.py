@@ -1333,7 +1333,8 @@ class DropIndexStatementSegment(BaseSegment):
 
     type = "drop_statement"
     # DROP INDEX <Index name> ON <table_name>
-    # [ALGORITHM [=] {DEFAULT | INPLACE | COPY} | LOCK [=] {DEFAULT | NONE | SHARED | EXCLUSIVE}]
+    # [ALGORITHM [=] {DEFAULT | INPLACE | COPY} | LOCK [=] {DEFAULT | NONE | SHARED |
+    # EXCLUSIVE}]
     match_grammar = Sequence(
         "DROP",
         "INDEX",

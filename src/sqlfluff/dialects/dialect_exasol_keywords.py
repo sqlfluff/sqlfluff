@@ -307,7 +307,8 @@ RESERVED_KEYWORDS = [
     "PARAMETER_SPECIFIC_NAME",
     "PARAMETER_SPECIFIC_SCHEMA",
     "PARTIAL",
-    "PARTITION",  # Should really be an unreserved keyword but need to make Window clauses work
+    "PARTITION",  # Should really be an unreserved keyword but need to make Window
+    # clauses work
     "PATH",
     "PERMISSION",
     "PLACING",

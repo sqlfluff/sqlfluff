@@ -41,7 +41,10 @@ def get_package_version() -> str:
 
 
 def wrap_elem(s: str, width: int) -> List[str]:
-    """Take a string, and attempt to wrap into a list of strings all less than <width>."""
+    """Take a string, and attempt to wrap into a list of strings all less # noqa: D415
+
+    than <width>.
+    """
     return textwrap.wrap(s, width=width)
 
 
@@ -157,7 +160,10 @@ def cli_table(
     max_label_width=10,
     val_align="right",
 ) -> str:
-    """Make a crude ascii table, assuming that `fields` is an iterable of (label, value) pairs."""
+    """Make a crude ascii table, assuming that `fields` is an iterable of # noqa: D415
+
+    (label, value) pairs.
+    """
     # First format all the values into strings
     formatted_fields = []
     for label, value in fields:

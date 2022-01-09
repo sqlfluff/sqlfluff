@@ -4,7 +4,10 @@ import sqlfluff
 
 
 def test__rules__std_L020_one_aliases_one_duplicate():
-    """Verify that L020 returns the correct error message for one duplicate table aliases occur one times."""
+    """Verify that L020 returns the correct error message for one # noqa: D415
+
+    duplicate table aliases occur one times.
+    """
     sql = """
         SELECT
             a.pk
@@ -17,7 +20,10 @@ def test__rules__std_L020_one_aliases_one_duplicate():
 
 
 def test__rules__std_L020_one_aliases_two_duplicate():
-    """Verify that L020 returns the correct error message for one duplicate table aliases occur two times."""
+    """Verify that L020 returns the correct error message for one # noqa: D415
+
+    duplicate table aliases occur two times.
+    """
     sql = """
         SELECT
             a.pk

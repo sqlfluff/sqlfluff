@@ -151,15 +151,17 @@ def common_options(f: Callable) -> Callable:
         "--verbose",
         count=True,
         help=(
-            "Verbosity, how detailed should the output be. This is *stackable*, so `-vv`"
-            " is more verbose than `-v`. For the most verbose option try `-vvvv` or `-vvvvv`."
+            "Verbosity, how detailed should the output be. This is *stackable*, so "
+            "`-vv` is more verbose than `-v`. For the most verbose option try `-vvvv` "
+            "or `-vvvvv`."
         ),
     )(f)
     f = click.option(
         "-n",
         "--nocolor",
         is_flag=True,
-        help="No color - if this is set then the output will be without ANSI color codes.",
+        help="No color - if this is set then the output will be without ANSI color "
+        "codes.",
     )(f)
 
     return f
@@ -220,9 +222,9 @@ def core_options(f: Callable) -> Callable:
         default=None,
         help=(
             "Include additional config file. By default the config is generated "
-            "from the standard configuration files described in the documentation. This "
-            "argument allows you to specify an additional configuration file that overrides "
-            "the standard configuration files. N.B. cfg format is required."
+            "from the standard configuration files described in the documentation. "
+            "This argument allows you to specify an additional configuration file that "
+            "overrides the standard configuration files. N.B. cfg format is required."
         ),
         type=click.Path(),
     )(f)
@@ -240,7 +242,8 @@ def core_options(f: Callable) -> Callable:
         "--encoding",
         default="autodetect",
         help=(
-            "Specifiy encoding to use when reading and writing files. Defaults to autodetect."
+            "Specifiy encoding to use when reading and writing files. Defaults to "
+            "autodetect."
         ),
     )(f)
     f = click.option(
@@ -250,7 +253,8 @@ def core_options(f: Callable) -> Callable:
             "Ignore particular families of errors so that they don't cause a failed "
             "run. For example `--ignore parsing` would mean that any parsing errors "
             "are ignored and don't influence the success or fail of a run. Multiple "
-            "options are possible if comma separated e.g. `--ignore parsing,templating`."
+            "options are possible if comma separated e.g. "
+            "`--ignore parsing,templating`."
         ),
     )(f)
     f = click.option(
@@ -282,7 +286,8 @@ def get_config(
     """Get a config object from kwargs."""
     if "dialect" in kwargs:
         try:
-            # We're just making sure it exists at this stage - it will be fetched properly in the linter
+            # We're just making sure it exists at this stage - it will be fetched
+            # properly in the linter
             dialect_selector(kwargs["dialect"])
         except SQLFluffUserError as err:
             click.echo(
@@ -341,7 +346,8 @@ def get_linter_and_formatter(
 ) -> Tuple[Linter, CallbackFormatter]:
     """Get a linter object given a config."""
     try:
-        # We're just making sure it exists at this stage - it will be fetched properly in the linter
+        # We're just making sure it exists at this stage - it will be fetched properly
+        # in the linter
         dialect_selector(cfg.get("dialect"))
     except KeyError:  # pragma: no cover
         click.echo(f"Error: Unknown dialect '{cfg.get('dialect')}'")
@@ -415,7 +421,8 @@ def dialects(**kwargs) -> None:
     "--annotation-level",
     default="notice",
     type=click.Choice(["notice", "warning", "failure"], case_sensitive=False),
-    help="When format is set to github-annotation, default annotation level (default=notice).",
+    help="When format is set to github-annotation, default annotation level "
+    "(default=notice).",
 )
 @click.option(
     "--nofail",
@@ -503,7 +510,8 @@ def lint(
         except OSError:
             click.echo(
                 colorize(
-                    f"The path(s) '{paths}' could not be accessed. Check it/they exist(s).",
+                    f"The path(s) '{paths}' could not be accessed. Check it/they "
+                    "exist(s).",
                     Color.red,
                 )
             )
@@ -692,7 +700,8 @@ def fix(
     if result.num_violations(types=SQLLintError, fixable=True) > 0:
         click.echo("==== fixing violations ====")
         click.echo(
-            f"{result.num_violations(types=SQLLintError, fixable=True)} fixable linting violations found"
+            f"{result.num_violations(types=SQLLintError, fixable=True)} fixable "
+            "linting violations found"
         )
         if force:
             click.echo(f"{colorize('FORCE MODE', Color.red)}: Attempting fixes...")
@@ -737,13 +746,15 @@ def fix(
 
     if result.num_violations(types=SQLLintError, fixable=False) > 0:
         click.echo(
-            f"  [{result.num_violations(types=SQLLintError, fixable=False)} unfixable linting violations found]"
+            f"  [{result.num_violations(types=SQLLintError, fixable=False)} unfixable "
+            "linting violations found]"
         )
         exit_code = 1
 
     if result.num_violations(types=SQLTemplaterError) > 0:
         click.echo(
-            f"  [{result.num_violations(types=SQLTemplaterError)} templating errors found]"
+            f"  [{result.num_violations(types=SQLTemplaterError)} templating errors "
+            "found]"
         )
         exit_code = 1
 
@@ -760,7 +771,8 @@ def fix(
 
 def _completion_message(config: FluffConfig) -> None:
     click.echo(
-        f"All Finished{'' if (config.get('nocolor') or not sys.stdout.isatty()) else ' 📜 🎉'}!"
+        "All Finished"
+        f"{'' if (config.get('nocolor') or not sys.stdout.isatty()) else ' 📜 🎉'}!"
     )
 
 
@@ -904,7 +916,8 @@ def parse(
             ]
 
             if format == FormatType.yaml.value:
-                # For yaml dumping always dump double quoted strings if they contain tabs or newlines.
+                # For yaml dumping always dump double quoted strings if they contain
+                # tabs or newlines.
                 yaml.add_representer(str, quoted_presenter)
                 click.echo(yaml.dump(parsed_strings_dict, sort_keys=False))
             elif format == FormatType.json.value:

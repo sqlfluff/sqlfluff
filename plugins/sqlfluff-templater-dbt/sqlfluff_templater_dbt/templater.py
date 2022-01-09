@@ -209,7 +209,8 @@ class DbtTemplater(JinjaTemplater):
 
         if not os.path.exists(dbt_profiles_dir):
             templater_logger.error(
-                f"dbt_profiles_dir: {dbt_profiles_dir} could not be accessed. Check it exists."
+                f"dbt_profiles_dir: {dbt_profiles_dir} could not be accessed. "
+                "Check it exists."
             )
 
         return dbt_profiles_dir
@@ -229,7 +230,8 @@ class DbtTemplater(JinjaTemplater):
         )
         if not os.path.exists(dbt_project_dir):
             templater_logger.error(
-                f"dbt_project_dir: {dbt_project_dir} could not be accessed. Check it exists."
+                f"dbt_project_dir: {dbt_project_dir} could not be accessed. Check it "
+                "exists."
             )
 
         return dbt_project_dir
@@ -338,7 +340,8 @@ class DbtTemplater(JinjaTemplater):
             if e.node:
                 return None, [
                     SQLTemplaterError(
-                        f"dbt compilation error on file '{e.node.original_file_path}', {e.msg}",
+                        f"dbt compilation error on file '{e.node.original_file_path}', "
+                        f"{e.msg}",
                         # It's fatal if we're over the limit
                         fatal=self._sequential_fails > self.sequential_fail_limit,
                     )
@@ -348,9 +351,9 @@ class DbtTemplater(JinjaTemplater):
         except DbtFailedToConnectException as e:
             return None, [
                 SQLTemplaterError(
-                    "dbt tried to connect to the database and failed: "
-                    "you could use 'execute' https://docs.getdbt.com/reference/dbt-jinja-functions/execute/ "
-                    f"to skip the database calls. Error: {e.msg}",
+                    "dbt tried to connect to the database and failed: you could use "
+                    "'execute' https://docs.getdbt.com/reference/dbt-jinja-functions"
+                    f"/execute/ to skip the database calls. Error: {e.msg}",
                     fatal=True,
                 )
             ]
@@ -363,7 +366,8 @@ class DbtTemplater(JinjaTemplater):
     def _find_node(self, fname, config=None):
         if not config:  # pragma: no cover
             raise ValueError(
-                "For the dbt templater, the `process()` method requires a config object."
+                "For the dbt templater, the `process()` method requires a config "
+                "object."
             )
         if not fname:  # pragma: no cover
             raise ValueError(
@@ -448,7 +452,8 @@ class DbtTemplater(JinjaTemplater):
         node = self._find_node(fname, config)
 
         # We have to register the connection in dbt >= 1.0.0 ourselves
-        # In previous versions, we relied on the functionality removed in https://github.com/dbt-labs/dbt-core/pull/4062
+        # In previous versions, we relied on the functionality removed in
+        # https://github.com/dbt-labs/dbt-core/pull/4062
         if DBT_VERSION_TUPLE >= (1, 0):
             adapter = get_adapter(self.dbt_config)
             with adapter.connection_named("master"):
@@ -548,7 +553,8 @@ class DbtTemplater(JinjaTemplater):
 class SnapshotExtension(StandaloneTag):
     """Dummy "snapshot" tags so raw dbt templates will parse.
 
-    Context: dbt snapshots (https://docs.getdbt.com/docs/building-a-dbt-project/snapshots/#example)
+    Context: dbt snapshots
+    (https://docs.getdbt.com/docs/building-a-dbt-project/snapshots/#example)
     use custom Jinja "snapshot" and "endsnapshot" tags. However, dbt does not
     actually register those tags with Jinja. Instead, it finds and removes these
     tags during a preprocessing step. However, DbtTemplater needs those tags to

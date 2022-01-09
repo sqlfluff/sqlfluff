@@ -8,7 +8,8 @@ some syntax with hive.
 Based on:
 - https://spark.apache.org/docs/latest/sql-ref.html
 - https://spark.apache.org/docs/latest/sql-ref-ansi-compliance.html
-- https://github.com/apache/spark/blob/master/sql/catalyst/src/main/antlr4/org/apache/spark/sql/catalyst/parser/SqlBase.g4
+- https://github.com/apache/spark/blob/master/sql/catalyst/src/main/antlr4/org/apache
+  /spark/sql/catalyst/parser/SqlBase.g4
 """
 
 from sqlfluff.core.parser import (
@@ -56,9 +57,11 @@ spark3_dialect.patch_lexer_matchers(
         # https://spark.apache.org/docs/latest/api/sql/index.html#_10
         RegexLexer("equals", r"=|==|<=>", CodeSegment),
         # identifiers are delimited with `
-        # within a delimited identifier, ` is used to escape special characters, including `
+        # within a delimited identifier, ` is used to escape special characters,
+        # including `
         # Ex: select `delimited `` with escaped` from `just delimited`
-        # https://spark.apache.org/docs/latest/sql-ref-identifier.html#delimited-identifier
+        # https://spark.apache.org/docs/latest
+        # /sql-ref-identifier.html#delimited-identifier
         RegexLexer("back_quote", r"`([^`]|``)*`", CodeSegment),
     ]
 )
@@ -270,14 +273,18 @@ spark3_dialect.add(
 
 # Hive Segments
 @spark3_dialect.segment()
-class RowFormatClauseSegment(hive_dialect.get_segment("RowFormatClauseSegment")):  # type: ignore
+class RowFormatClauseSegment(
+    hive_dialect.get_segment("RowFormatClauseSegment")  # type: ignore
+):
     """`ROW FORMAT` clause in a CREATE HIVEFORMAT TABLE statement."""
 
     type = "row_format_clause"
 
 
 @spark3_dialect.segment()
-class SkewedByClauseSegment(hive_dialect.get_segment("SkewedByClauseSegment")):  # type: ignore
+class SkewedByClauseSegment(
+    hive_dialect.get_segment("SkewedByClauseSegment")  # type: ignore
+):
     """`SKEWED BY` clause in a CREATE HIVEFORMAT TABLE statement."""
 
     type = "skewed_by_clause"
@@ -632,7 +639,9 @@ class CreateTableStatementSegment(BaseSegment):
 
 
 @spark3_dialect.segment()
-class CreateHiveFormatTableStatementSegment(hive_dialect.get_segment("CreateTableStatementSegment")):  # type: ignore
+class CreateHiveFormatTableStatementSegment(
+    hive_dialect.get_segment("CreateTableStatementSegment")  # type: ignore
+):
     """A `CREATE TABLE` statement using Hive format.
 
     https://spark.apache.org/docs/latest/sql-ref-syntax-ddl-create-table-hiveformat.html
@@ -696,7 +705,9 @@ class DropFunctionStatementSegment(BaseSegment):
 
 
 @spark3_dialect.segment()
-class MsckRepairTableStatementSegment(hive_dialect.get_segment("MsckRepairTableStatementSegment")):  # type: ignore
+class MsckRepairTableStatementSegment(
+    hive_dialect.get_segment("MsckRepairTableStatementSegment")  # type: ignore
+):
     """A `REPAIR TABLE` statement using Hive MSCK (Metastore Check) format.
 
     This class inherits from Hive since Spark leverages Hive format for this command and
@@ -767,7 +778,8 @@ class JoinClauseSegment(BaseSegment):
     match_grammar = Sequence(
         # NB These qualifiers are optional
         # TODO: Allow nested joins like:
-        # ....FROM S1.T1 t1 LEFT JOIN ( S2.T2 t2 JOIN S3.T3 t3 ON t2.col1=t3.col1) ON tab1.col1 = tab2.col1
+        # ....FROM S1.T1 t1 LEFT JOIN ( S2.T2 t2 JOIN S3.T3 t3 ON t2.col1=t3.col1) ON
+        # tab1.col1 = tab2.col1
         OneOf(
             "CROSS",
             "INNER",

@@ -211,7 +211,8 @@ class CreateTableStatementSegment(BaseSegment):
                     optional=True,
                 ),
                 Ref("CommentGrammar", optional=True),
-                # `STORED AS` can be called before or after the additional table properties below
+                # `STORED AS` can be called before or after the additional table
+                # properties below
                 Ref("StoredAsGrammar", optional=True),
                 Sequence(
                     "PARTITIONED",
@@ -566,13 +567,16 @@ class IntervalExpressionSegment(BaseSegment):
 class MsckRepairTableStatementSegment(BaseSegment):
     """An `MSCK REPAIR TABLE`statement.
 
-    Updates the Hive metastore to be aware of any changes to partitions on the underlying file store.
+    Updates the Hive metastore to be aware of any changes to partitions on the
+    underlying file store.
 
-    The `MSCK TABLE` command, and corresponding class in Hive dialect MsckTableStatementSegment,
-    is used to determine mismatches between the Hive metastore and file system. Essentially, it is a dry
-    run of the `MSCK REPAIR TABLE` command.
+    The `MSCK TABLE` command, and corresponding class in Hive dialect
+    MsckTableStatementSegment, is used to determine mismatches between the Hive
+    metastore and file system. Essentially, it is a dry run of the `MSCK REPAIR TABLE`
+    command.
 
-    https://cwiki.apache.org/confluence/display/Hive/LanguageManual+DDL#LanguageManualDDL-RecoverPartitions(MSCKREPAIRTABLE)
+    https://cwiki.apache.org/confluence/display/Hive
+    /LanguageManual+DDL#LanguageManualDDL-RecoverPartitions(MSCKREPAIRTABLE)
     """
 
     type = "msck_repair_table_statement"
@@ -598,10 +602,12 @@ class MsckRepairTableStatementSegment(BaseSegment):
 class MsckTableStatementSegment(BaseSegment):
     """An `MSCK TABLE`statement.
 
-    Checks for difference between partition metadata in the Hive metastore and underlying file system.
+    Checks for difference between partition metadata in the Hive metastore and
+    underlying file system.
 
-    Commonly used prior to `MSCK REPAIR TABLE` command, corresponding with class `MsckRepairTableStatementSegment`
-    in Hive dialect, to asses size of updates for one-time or irregularly sized file system updates.
+    Commonly used prior to `MSCK REPAIR TABLE` command, corresponding with class
+    `MsckRepairTableStatementSegment` in Hive dialect, to asses size of updates for
+    one-time or irregularly sized file system updates.
 
     https://cwiki.apache.org/confluence/display/Hive/LanguageManual+DDL#LanguageManualDDL-RecoverPartitions(MSCKREPAIRTABLE)
     """

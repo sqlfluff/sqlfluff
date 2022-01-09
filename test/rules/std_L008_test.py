@@ -4,7 +4,8 @@ import sqlfluff
 
 def test__rules__std_L008_single_raise() -> None:
     """Test case for multiple L008 errors raised when no post comma whitespace."""
-    # This query used to triple count L008. Added memory to log previously fixed commas (issue #2001).
+    # This query used to triple count L008. Added memory to log previously fixed commas
+    # (issue #2001).
     sql = """
     SELECT
         col_a AS a

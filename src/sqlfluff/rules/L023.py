@@ -45,7 +45,10 @@ class Rule_L023(BaseRule):
     expand_children: Optional[List[str]] = ["common_table_expression"]
 
     def _eval(self, context: RuleContext) -> Optional[List[LintResult]]:
-        """Single whitespace expected in mother segment between pre and post segments."""
+        """Single whitespace expected in mother segment between pre and post # noqa: D415
+
+        segments.
+        """
         error_buffer: List[LintResult] = []
         if context.segment.is_type(self.expected_mother_segment_type):
             last_code = None

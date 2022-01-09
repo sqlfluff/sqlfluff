@@ -24,7 +24,10 @@ def test__rules__std_L007_default():
 
 
 def test__rules__std_L007_after():
-    """Verify that L007 returns the correct error message when after is explicitly used."""
+    """Verify that L007 returns the correct error message when after # noqa: D415
+
+    is explicitly used.
+    """
     sql = """
         SELECT
             a,

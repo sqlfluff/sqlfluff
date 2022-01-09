@@ -39,32 +39,43 @@ postgres_dialect.insert_lexer_matchers(
         # - (?s) Switch - .* includes newline characters
         # - U& - must start with U&
         # - (('')+?(?!')|('.*?(?<!')(?:'')*'(?!')))
-        #    ('')+?                                 Any non-zero number of pairs of single quotes -
-        #          (?!')                            that are not then followed by a single quote
+        #    ('')+?                                 Any non-zero number of pairs of
+        #                                           single quotes -
+        #          (?!')                            that are not then followed by a
+        #                                           single quote
         #               |                           OR
         #                ('.*?(?<!')(?:'')*'(?!'))
-        #                 '.*?                      A single quote followed by anything (non-greedy)
-        #                     (?<!')(?:'')*         Any even number of single quotes, including zero
-        #                                  '(?!')   Followed by a single quote, which is not followed by a single quote
+        #                 '.*?                      A single quote followed by anything
+        #                                           (non-greedy)
+        #                     (?<!')(?:'')*         Any even number of single quotes,
+        #                                           including zero
+        #                                  '(?!')   Followed by a single quote, which is
+        #                                           not followed by a single quote
         # - (\s*UESCAPE\s*'[^0-9A-Fa-f'+\-\s)]')?
-        #    \s*UESCAPE\s*                          Whitespace, followed by UESCAPE, followed by whitespace
-        #                 '[^0-9A-Fa-f'+\-\s)]'     Any character that isn't A-F, a-f, 0-9, +-, or whitespace, in quotes
+        #    \s*UESCAPE\s*                          Whitespace, followed by UESCAPE,
+        #                                           followed by whitespace
+        #                 '[^0-9A-Fa-f'+\-\s)]'     Any character that isn't A-F, a-f,
+        #                                           0-9, +-, or whitespace, in quotes
         #                                       ?   This last block is optional
         RegexLexer(
             "unicode_single_quote",
-            r"(?s)U&(('')+?(?!')|('.*?(?<!')(?:'')*'(?!')))(\s*UESCAPE\s*'[^0-9A-Fa-f'+\-\s)]')?",
+            r"(?s)U&(('')+?(?!')|('.*?(?<!')(?:'')*'(?!')))(\s*UESCAPE\s*'"
+            r"[^0-9A-Fa-f'+\-\s)]')?",
             CodeSegment,
         ),
         # This is similar to the Unicode regex, the key differences being:
         # - E - must start with E
         # - The final quote character must be preceded by:
-        # (?<!\\)(?:\\\\)*(?<!')(?:'')     An even/zero number of \ followed by an even/zero number of '
+        # (?<!\\)(?:\\\\)*(?<!')(?:'')     An even/zero number of \ followed by an
+        # even/zero number of '
         # OR
-        # (?<!\\)(?:\\\\)*\\(?<!')(?:'')*' An odd number of \ followed by an odd number of '
+        # (?<!\\)(?:\\\\)*\\(?<!')(?:'')*' An odd number of \ followed by an odd number
+        # of '
         # There is no UESCAPE block
         RegexLexer(
             "escaped_single_quote",
-            r"(?s)E(('')+?(?!')|'.*?((?<!\\)(?:\\\\)*(?<!')(?:'')*|(?<!\\)(?:\\\\)*\\(?<!')(?:'')*')'(?!'))",
+            r"(?s)E(('')+?(?!')|'.*?((?<!\\)(?:\\\\)*(?<!')(?:'')*|(?<!\\)(?:\\\\)*\\"
+            r"(?<!')(?:'')*')'(?!'))",
             CodeSegment,
         ),
         # Double quote Unicode string cannot be empty, and have no single quote escapes
@@ -87,19 +98,21 @@ postgres_dialect.insert_lexer_matchers(
         # Explanation for the regex
         # \\([^(\\\r\n)])+((\\\\)|(?=\n)|(?=\r\n))?
         # \\                                        Starts with backslash
-        #   ([^\\\r\n])+                            Anything that is not a newline or a backslash
+        #   ([^\\\r\n])+                            Anything that is not a newline or a
+        #                                           backslash
         #                 (
         #                  (\\\\)                   Double backslash
         #                        |                  OR
         #                         (?=\n)            The next character is a newline
         #                               |           OR
-        #                                (?=\r\n)   The next 2 characters are a carriage return and a newline
+        #                                (?=\r\n)   The next 2 characters are a carriage
+        #                                           return and a newline
         #                                        )
         #                                         ? The previous clause is optional
         RegexLexer(
-            # For now we'll just treat meta syntax like comments and so just ignore them.
-            # In future we may want to enhance this to actually parse them to ensure they are
-            # valid meta commands.
+            # For now we'll just treat meta syntax like comments and so just ignore
+            # them. In future we may want to enhance this to actually parse them to
+            # ensure they are valid meta commands.
             "meta_command",
             r"\\([^\\\r\n])+((\\\\)|(?=\n)|(?=\r\n))?",
             CommentSegment,
@@ -185,7 +198,8 @@ postgres_dialect.replace(
     NakedIdentifierSegment=SegmentGenerator(
         # Generate the anti template from the set of reserved keywords
         lambda dialect: RegexParser(
-            # Can’t begin with $, must only contain digits, letters, underscore it $ but can’t be all digits.
+            # Can’t begin with $, must only contain digits, letters, underscore it $ but
+            # can’t be all digits.
             r"([A-Z_]+|[0-9]+[A-Z_$])[A-Z0-9_$]*",
             CodeSegment,
             name="naked_identifier",
@@ -245,7 +259,8 @@ postgres_dialect.replace(
     ),
     FrameClauseUnitGrammar=OneOf("RANGE", "ROWS", "GROUPS"),
     # In Postgres, column references may be followed by a time zone cast in all cases.
-    # For more information, see https://www.postgresql.org/docs/11/functions-datetime.html
+    # For more information, see https://www.postgresql.org/docs/11
+    # /functions-datetime.html
     ColumnReferenceSegment=Sequence(
         ansi_dialect.get_segment("ColumnReferenceSegment"),
         Ref("ArrayAccessorSegment", optional=True),
@@ -644,7 +659,8 @@ class AlterFunctionStatementSegment(BaseSegment):
 class AlterFunctionActionSegment(BaseSegment):
     """Alter Function Action Segment.
 
-    Matches the definition of action in https://www.postgresql.org/docs/14/sql-alterfunction.html
+    Matches the definition of action in https://www.postgresql.org/docs/14
+    /sql-alterfunction.html
     """
 
     type = "alter_function_action_segment"
@@ -694,7 +710,8 @@ class WellKnownTextGeometrySegment(BaseSegment):
 
     As specified in https://postgis.net/stuff/postgis-3.1.pdf
 
-    This approach is to maximise 'accepted code' for the parser, rather than be overly restrictive.
+    This approach is to maximise 'accepted code' for the parser, rather than be overly
+    restrictive.
     """
 
     type = "wkt_geometry_type"
@@ -732,7 +749,8 @@ class WellKnownTextGeometrySegment(BaseSegment):
 class FunctionDefinitionGrammar(BaseSegment):
     """This is the body of a `CREATE FUNCTION AS` statement.
 
-    Options supported as defined in https://www.postgresql.org/docs/13/sql-createfunction.html
+    Options supported as defined in https://www.postgresql.org/docs/13
+    /sql-createfunction.html
     """
 
     match_grammar = Sequence(
@@ -949,7 +967,9 @@ class CreateRoleStatementSegment(BaseSegment):
 
 
 @postgres_dialect.segment(replace=True)
-class ExplainStatementSegment(ansi_dialect.get_segment("ExplainStatementSegment")):  # type: ignore
+class ExplainStatementSegment(
+    ansi_dialect.get_segment("ExplainStatementSegment")  # type: ignore
+):
     """An `Explain` statement.
 
     EXPLAIN [ ( option [, ...] ) ] statement
@@ -1314,7 +1334,8 @@ class AlterTableStatementSegment(BaseSegment):
 class AlterTableActionSegment(BaseSegment):
     """Alter Table Action Segment.
 
-    Matches the definition of action in https://www.postgresql.org/docs/13/sql-altertable.html
+    Matches the definition of action in https://www.postgresql.org/docs/13
+    /sql-altertable.html
     """
 
     type = "alter_table_action_segment"
@@ -1626,7 +1647,8 @@ class AlterMaterializedViewStatementSegment(BaseSegment):
 class AlterMaterializedViewActionSegment(BaseSegment):
     """Alter Materialized View Action Segment.
 
-    Matches the definition of action in https://www.postgresql.org/docs/14/sql-altermaterializedview.html
+    Matches the definition of action in https://www.postgresql.org/docs/14
+    /sql-altermaterializedview.html
     """
 
     type = "alter_materialized_view_action_segment"
@@ -2000,7 +2022,8 @@ class LikeOptionSegment(BaseSegment):
 class ColumnConstraintSegment(BaseSegment):
     """A column option; each CREATE TABLE column can have 0 or more.
 
-    This matches the definition in https://www.postgresql.org/docs/13/sql-altertable.html
+    This matches the definition in https://www.postgresql.org/docs/13
+    /sql-altertable.html
     """
 
     type = "column_constraint_segment"
@@ -2065,7 +2088,10 @@ class ColumnConstraintSegment(BaseSegment):
 
 @postgres_dialect.segment()
 class PartitionBoundSpecSegment(BaseSegment):
-    """partition_bound_spec as per https://www.postgresql.org/docs/13/sql-altertable.html."""
+    """partition_bound_spec as per https://www.postgresql.org/docs/13 # noqa: D415
+
+    /sql-altertable.html.
+    """
 
     match_grammar = OneOf(
         Sequence(
@@ -2180,7 +2206,10 @@ class TableConstraintSegment(BaseSegment):
 
 @postgres_dialect.segment()
 class TableConstraintUsingIndexSegment(BaseSegment):
-    """table_constraint_using_index as specified in https://www.postgresql.org/docs/13/sql-altertable.html."""
+    """table_constraint_using_index as specified in https://www.postgresql.org # noqa: D415
+
+    /docs/13/sql-altertable.html.
+    """
 
     match_grammar = Sequence(
         Sequence(  # [ CONSTRAINT <Constraint name> ]
@@ -2203,7 +2232,10 @@ class TableConstraintUsingIndexSegment(BaseSegment):
 
 @postgres_dialect.segment()
 class IndexParametersSegment(BaseSegment):
-    """index_parameters as specified in https://www.postgresql.org/docs/13/sql-altertable.html."""
+    """index_parameters as specified in https://www.postgresql.org # noqa: D415
+
+    /docs/13/sql-altertable.html.
+    """
 
     type = "index_parameters"
 
@@ -2233,7 +2265,8 @@ class IndexParametersSegment(BaseSegment):
 class ReferentialActionSegment(BaseSegment):
     """Foreign Key constraints.
 
-    As found in https://www.postgresql.org/docs/13/infoschema-referential-constraints.html
+    As found in https://www.postgresql.org/docs/13
+    /infoschema-referential-constraints.html
     """
 
     type = "referential_action"
@@ -2249,7 +2282,10 @@ class ReferentialActionSegment(BaseSegment):
 
 @postgres_dialect.segment()
 class ExcludeElementSegment(BaseSegment):
-    """exclude_element segment as found in https://www.postgresql.org/docs/13/sql-altertable.html."""
+    """exclude_element segment as found in https://www.postgresql.org # noqa: D415
+
+    /docs/13/sql-altertable.html.
+    """
 
     match_grammar = Sequence(
         OneOf(Ref("ColumnReferenceSegment"), Bracketed(Ref("ExpressionSegment"))),

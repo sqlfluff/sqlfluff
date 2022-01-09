@@ -96,7 +96,10 @@ def test_rules_configs_are_dynamically_documented():
 
 
 def test_rule_exception_is_caught_to_validation():
-    """Assert that a rule that throws an exception on _eval returns it as a validation."""
+    """Assert that a rule that throws an exception on _eval # noqa: D415
+
+    returns it as a validation.
+    """
     std_rule_set = get_ruleset()
 
     @std_rule_set.register
@@ -134,7 +137,10 @@ def test_std_rule_import_fail_bad_naming():
 
 
 def test_rule_set_return_informative_error_when_rule_not_registered():
-    """Assert that a rule that throws an exception on _eval returns it as a validation."""
+    """Assert that a rule that throws an exception on _eval # noqa: D415
+
+    returns it as a validation.
+    """
     cfg = FluffConfig()
     with pytest.raises(ValueError) as e:
         get_rule_from_set("L000", config=cfg)

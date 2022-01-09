@@ -51,9 +51,8 @@ class RootParseContext:
             indentation_config = {k: bool(v) for k, v in indentation_config.items()}
         except TypeError:  # pragma: no cover
             raise TypeError(
-                "One of the configuration keys in the `indentation` section is not True or False: {!r}".format(
-                    indentation_config
-                )
+                "One of the configuration keys in the `indentation` section is not "
+                "True or False: {!r}".format(indentation_config)
             )
         ctx = cls(
             dialect=config.get("dialect_obj"),

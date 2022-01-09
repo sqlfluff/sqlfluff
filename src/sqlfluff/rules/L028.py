@@ -63,7 +63,8 @@ class Rule_L028(Rule_L025):
         # Check all the references that we have.
         seen_ref_types = set()
         for ref in references:
-            # We skip any unqualified wildcard references (i.e. *). They shouldn't count.
+            # We skip any unqualified wildcard references (i.e. *). They shouldn't
+            # count.
             if not ref.is_qualified() and ref.is_type("wildcard_identifier"):
                 continue
             # Oddball case: Column aliases provided via function calls in by
@@ -93,9 +94,8 @@ class Rule_L028(Rule_L025):
                 violation_buff.append(
                     LintResult(
                         anchor=ref,
-                        description="{} reference {!r} found in single table select.".format(
-                            this_ref_type.capitalize(), ref.raw
-                        ),
+                        description="{} reference {!r} found in single table "
+                        "select.".format(this_ref_type.capitalize(), ref.raw),
                     )
                 )
             seen_ref_types.add(this_ref_type)

@@ -162,7 +162,8 @@ class Rule_L043(BaseRule):
 
             coalesce_arg_2: BaseSegment
 
-            # Method 1: Check if THEN/ELSE expressions are both Boolean and can therefore be reduced.
+            # Method 1: Check if THEN/ELSE expressions are both Boolean and can
+            # therefore be reduced.
             upper_bools = ["TRUE", "FALSE"]
             if (
                 (then_expression.expression.raw_upper in upper_bools)
@@ -188,9 +189,10 @@ class Rule_L043(BaseRule):
                     fixes=fixes,
                 )
 
-            # Method 2: Check if the condition expression is comparing a column reference to NULL
-            # and whether that column reference is also in either the THEN/ELSE expression.
-            # We can only apply this method when there is only one condition in the condition expression.
+            # Method 2: Check if the condition expression is comparing a column
+            # reference to NULL and whether that column reference is also in either the
+            # THEN/ELSE expression. We can only apply this method when there is only one
+            # condition in the condition expression.
             condition_expression_segments_raw = {
                 segment.raw_upper
                 for segment in condition_expression.expression.segments
@@ -208,11 +210,12 @@ class Rule_L043(BaseRule):
                     .get()
                 )
 
-                # Return None if none found (this condition does not apply to functions).
+                # Return None if none found (this condition does not apply to functions)
                 if not column_reference_segment:
                     return None
 
-                # Check if we can reduce the CASE expression to a single coalesce function.
+                # Check if we can reduce the CASE expression to a single coalesce
+                # function.
                 if (
                     not is_not_prefix
                     and column_reference_segment.raw_upper

@@ -23,7 +23,8 @@ class Rule_L031(BaseRule):
     """Avoid table aliases in from clauses and join conditions.
 
     | **Anti-pattern**
-    | In this example, alias ``o`` is used for the orders table, and ``c`` is used for 'customers' table.
+    | In this example, alias ``o`` is used for the orders table, and ``c`` is used for
+    | 'customers' table.
 
     .. code-block:: sql
 
@@ -52,15 +53,16 @@ class Rule_L031(BaseRule):
             table_alias.b,
         FROM
             table
-            LEFT JOIN table AS table_alias ON table.foreign_key = table_alias.foreign_key
+            LEFT JOIN table AS table_alias ON
+                table.foreign_key = table_alias.foreign_key
 
     """
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Identify aliases in from clause and join conditions.
 
-        Find base table, table expressions in join, and other expressions in select clause
-        and decide if it's needed to report them.
+        Find base table, table expressions in join, and other expressions in select
+        clause and decide if it's needed to report them.
         """
         if context.segment.is_type("select_statement"):
             children = context.functional.segment.children()
@@ -184,7 +186,8 @@ class Rule_L031(BaseRule):
             # Find all references to alias in column references
             for exp_ref in column_reference_segments:
                 used_alias_ref = exp_ref.get_child("identifier")
-                # exp_ref.get_child('dot') ensures that the column reference includes a table reference
+                # exp_ref.get_child('dot') ensures that the column reference includes a
+                # table reference
                 if (
                     used_alias_ref
                     and used_alias_ref.raw == alias_name

@@ -401,10 +401,10 @@ class RawTemplater:
         """Placeholder init function.
 
         Here we should load any initial config found in the root directory. The init
-        function shouldn't take any arguments at this stage as we assume that it will load
-        its own config. Maybe at this stage we might allow override parameters to be passed
-        to the linter at runtime from the cli - that would be the only time we would pass
-        arguments in here.
+        function shouldn't take any arguments at this stage as we assume that it will
+        load its own config. Maybe at this stage we might allow override parameters to
+        be passed to the linter at runtime from the cli - that would be the only time we
+        would pass arguments in here.
         """
 
     def sequence_files(

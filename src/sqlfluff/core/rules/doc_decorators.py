@@ -43,9 +43,8 @@ def document_configuration(cls, ruleset="std"):
                 info_dict = config_info[keyword]
             except KeyError:  # pragma: no cover
                 raise KeyError(
-                    "Config value {!r} for rule {} is not configured in `config_info`.".format(
-                        keyword, cls.__name__
-                    )
+                    "Config value {!r} for rule {} is not configured in "
+                    "`config_info`.".format(keyword, cls.__name__)
                 )
             config_doc += "\n    |     `{}`: {}".format(
                 keyword, info_dict["definition"]
