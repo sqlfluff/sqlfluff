@@ -335,8 +335,10 @@ def test__templater_dbt_handle_database_connection_failure(
 
     set_relations_cache.side_effect = DbtFailedToConnectException("dummy error")
 
-    src_fpath = "plugins/sqlfluff-templater-dbt/test/fixtures/dbt/error_models"
-    "/exception_connect_database.sql"
+    src_fpath = (
+        "plugins/sqlfluff-templater-dbt/test/fixtures/dbt/error_models"
+        "/exception_connect_database.sql"
+    )
     target_fpath = os.path.abspath(
         os.path.join(
             project_dir, "models/my_new_project/exception_connect_database.sql"
