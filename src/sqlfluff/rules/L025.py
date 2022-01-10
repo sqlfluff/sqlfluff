@@ -17,8 +17,7 @@ from sqlfluff.core.rules.base import (
     EvalResultType,
 )
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
-from sqlfluff.core.rules.functional import Segments
-import sqlfluff.core.rules.functional.segment_predicates as sp
+from sqlfluff.core.rules.functional import Segments, sp
 from sqlfluff.core.dialects.common import AliasInfo
 
 
