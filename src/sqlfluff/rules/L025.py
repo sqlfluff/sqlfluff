@@ -96,7 +96,6 @@ class Rule_L025(BaseRule):
                 for r in select_info.reference_buffer:
                     for tr in r.extract_possible_references(level=r.ObjectReferenceLevel.TABLE):  # type: ignore
                         # This function walks up the query's parent stack if necessary.
-                        # Reuses the existing "for r in references:" loop from L025.
                         cls._resolve_and_mark_reference(query, tr.part)
 
         # Visit children.
