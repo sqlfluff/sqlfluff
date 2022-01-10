@@ -1,0 +1,209 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 5a508aa5c1a5cadbf403e81e385744ed78c266d45e5dcce40d8beb54a9adce47
+file:
+- statement:
+    unparsable:
+    - raw: PROMPT
+    - raw: ALTER
+    - raw: TABLE
+    - raw: CAMPAIGN_GROUPS
+    - raw: TO
+    - raw: ADD
+    - raw: OBJECTIVE_TYPE
+    - comma: ','
+    - raw: DAILY_BUDGET
+    - comma: ','
+    - raw: LIFETIME_BUDGET
+    - comma: ','
+    - raw: WEEKLY_BUDGET
+    - comma: ','
+    - raw: WEEKLY_BUDGET_UPDATE_TIME
+    - comma: ','
+    - raw: OPTIMIZATION_TARGET
+    - comma: ','
+    - raw: COST_TYPE
+    - comma: ','
+    - raw: DYNAMIC_BUDGET_OPT_ENABLED
+    - raw: COLUMNS
+    - raw: ALTER
+    - raw: TABLE
+    - raw: CAMPAIGN_GROUPS
+    - raw: ADD
+    - bracketed:
+      - start_bracket: (
+      - raw: OBJECTIVE_TYPE
+      - raw: VARCHAR2
+      - bracketed:
+          start_bracket: (
+          raw: '50'
+          end_bracket: )
+      - comma: ','
+      - raw: DAILY_BUDGET
+      - raw: NUMBER
+      - bracketed:
+        - start_bracket: (
+        - raw: '20'
+        - comma: ','
+        - raw: '2'
+        - end_bracket: )
+      - comma: ','
+      - raw: LIFETIME_BUDGET
+      - raw: NUMBER
+      - bracketed:
+        - start_bracket: (
+        - raw: '20'
+        - comma: ','
+        - raw: '2'
+        - end_bracket: )
+      - comma: ','
+      - raw: WEEKLY_BUDGET
+      - raw: NUMBER
+      - bracketed:
+        - start_bracket: (
+        - raw: '20'
+        - comma: ','
+        - raw: '2'
+        - end_bracket: )
+      - comma: ','
+      - raw: WEEKLY_BUDGET_UPDATE_TIME
+      - raw: TIMESTAMP
+      - bracketed:
+          start_bracket: (
+          raw: '6'
+          end_bracket: )
+      - comma: ','
+      - raw: OPTIMIZATION_TARGET
+      - raw: VARCHAR2
+      - bracketed:
+          start_bracket: (
+          raw: '50'
+          end_bracket: )
+      - comma: ','
+      - raw: COST_TYPE
+      - raw: VARCHAR2
+      - bracketed:
+          start_bracket: (
+          raw: '20'
+          end_bracket: )
+      - comma: ','
+      - raw: DYNAMIC_BUDGET_OPT_ENABLED
+      - raw: NUMBER
+      - bracketed:
+          start_bracket: (
+          raw: '1'
+          end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - raw: COMMENT
+    - raw: 'ON'
+    - raw: COLUMN
+    - raw: CAMPAIGN_GROUPS
+    - raw: .
+    - raw: OBJECTIVE_TYPE
+    - raw: IS
+    - raw: "'<compliance> {\"dataType\": \"NONE\"} </compliance> Indicates the objective\
+        \ type for a campaign group'"
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - raw: COMMENT
+    - raw: 'ON'
+    - raw: COLUMN
+    - raw: CAMPAIGN_GROUPS
+    - raw: .
+    - raw: DAILY_BUDGET
+    - raw: IS
+    - raw: "'<compliance> {\"dataType\": \"NONE\"} </compliance> The daily amount\
+        \ to spend across all campaigns under this campaign group, used only if the\
+        \ campaign group is enabled for dynamic budget optimization'"
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - raw: COMMENT
+    - raw: 'ON'
+    - raw: COLUMN
+    - raw: CAMPAIGN_GROUPS
+    - raw: .
+    - raw: LIFETIME_BUDGET
+    - raw: IS
+    - raw: "'<compliance> {\"dataType\": \"NONE\"} </compliance> The lifetime budget\
+        \ amount to spend during the lifetime of the campaign group, which is derived\
+        \ from the runSchedule, used only if the campaign group is enabled for dynamic\
+        \ budget optimization'"
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - raw: COMMENT
+    - raw: 'ON'
+    - raw: COLUMN
+    - raw: CAMPAIGN_GROUPS
+    - raw: .
+    - raw: WEEKLY_BUDGET
+    - raw: IS
+    - raw: "'<compliance> {\"dataType\": \"NONE\"} </compliance> The weekly delivery\
+        \ goal and charging limit of a campaign group, used only if the campaign group\
+        \ is enabled for dynamic budget optimization'"
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - raw: COMMENT
+    - raw: 'ON'
+    - raw: COLUMN
+    - raw: CAMPAIGN_GROUPS
+    - raw: .
+    - raw: WEEKLY_BUDGET_UPDATE_TIME
+    - raw: IS
+    - raw: "'<compliance> {\"dataType\": \"NONE\"} </compliance> Indicates the last\
+        \ timestamp the weekly budget was updated, used only if the campaign group\
+        \ is enabled for dynamic budget optimization'"
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - raw: COMMENT
+    - raw: 'ON'
+    - raw: COLUMN
+    - raw: CAMPAIGN_GROUPS
+    - raw: .
+    - raw: OPTIMIZATION_TARGET
+    - raw: IS
+    - raw: "'<compliance> {\"dataType\": \"NONE\"} </compliance> Indicates how this\
+        \ campaign group is optimized, used only if the campaign group is enabled\
+        \ for dynamic budget optimization'"
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - raw: COMMENT
+    - raw: 'ON'
+    - raw: COLUMN
+    - raw: CAMPAIGN_GROUPS
+    - raw: .
+    - raw: COST_TYPE
+    - raw: IS
+    - raw: "'<compliance> {\"dataType\": \"NONE\"} </compliance> Indicates whether\
+        \ this campaign group is charged per impression, per click, or other model,\
+        \ used only if the campaign group is enabled for dynamic budget optimization'"
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - raw: COMMENT
+    - raw: 'ON'
+    - raw: COLUMN
+    - raw: CAMPAIGN_GROUPS
+    - raw: .
+    - raw: DYNAMIC_BUDGET_OPT_ENABLED
+    - raw: IS
+    - raw: "'<compliance> {\"dataType\": \"NONE\"} </compliance> Indicates whether\
+        \ this campaign group is enabled for Dynamic Budget Optimization, which dynamically\
+        \ allocates budget across campaigns'"
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - raw: SHOW
+    - raw: ERRORS
+- statement_terminator: ;
