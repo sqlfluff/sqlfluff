@@ -1,7 +1,7 @@
 """Tools for more complex analysis of SELECT statements."""
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Dict, Generator, List, NamedTuple, Optional, Union
+from typing import Dict, Generator, List, NamedTuple, Optional, Type, Union
 
 from sqlfluff.core.cached_property import cached_property
 from sqlfluff.core.dialects.common import AliasInfo
@@ -85,6 +85,8 @@ class Query:
     ctes: Dict[str, "Query"] = field(default_factory=dict)
     # Parent scope. This query can "see" CTEs defined by parents.
     parent: Optional["Query"] = field(default=None)
+    # Children (could be CTE, subselect, or other).
+    children: List["Query"] = field(default_factory=list)
 
     def lookup_cte(self, name: str, pop: bool = True) -> Optional["Query"]:
         """Look up a CTE by name, in the current or any parent scope."""
@@ -146,9 +148,14 @@ class SelectCrawler:
     """Class for dependency analysis among parts of a query."""
 
     def __init__(
-        self, segment: BaseSegment, dialect: Dialect, parent: Optional[Query] = None
+        self,
+        segment: BaseSegment,
+        dialect: Dialect,
+        parent: Optional[Query] = None,
+        query_class: Type = Query,
     ):
         self.dialect: Dialect = dialect
+        self.query_class = query_class
         self.query_tree: Optional[Query] = None
 
         # Stack of segments currently being processed
@@ -161,6 +168,7 @@ class SelectCrawler:
             """Bookkeeping when a new Query is created."""
             if query_stack:
                 query.parent = query_stack[-1]
+                query.parent.children.append(query)
             query_stack.append(query)
             if len(query_stack) == 1 and self.query_tree is None:
                 self.query_tree = query_stack[0]
@@ -197,7 +205,7 @@ class SelectCrawler:
                             # selectables. A set_expression always has child
                             # select_statement segments, and those will be
                             # added to this Query later.
-                            query = Query(QueryType.Simple, dialect)
+                            query = self.query_class(QueryType.Simple, dialect)
                             append_query(query)
                         else:
                             # It's a select_statement.
@@ -212,14 +220,16 @@ class SelectCrawler:
                                 # It's a standalone select_statement, not part
                                 # of a set_expression. Create a Query containing
                                 # this select_statement.
-                                query = Query(QueryType.Simple, dialect, [selectable])
+                                query = self.query_class(
+                                    QueryType.Simple, dialect, [selectable]
+                                )
                                 append_query(query)
                     else:
                         # We're processing a "with" statement.
                         if cte_name:
                             # If we have a CTE name, this is the Query for that
                             # name.
-                            query = Query(QueryType.Simple, dialect)
+                            query = self.query_class(QueryType.Simple, dialect)
                             if path[-1].is_type("select_statement"):
                                 # Processing a select_statement. Add it to the
                                 # Query object we just created.
@@ -256,7 +266,7 @@ class SelectCrawler:
                                     pass
                 elif path[-1].is_type("with_compound_statement"):
                     # Beginning a "with" statement, i.e. a block of CTEs.
-                    query = Query(QueryType.WithCompound, dialect)
+                    query = self.query_class(QueryType.WithCompound, dialect)
                     if cte_name:
                         query_stack[-1].ctes[cte_name] = query
                         cte_name = None

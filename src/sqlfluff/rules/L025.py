@@ -1,15 +1,37 @@
 """Implementation of Rule L025."""
 
-from sqlfluff.core.rules.base import LintFix, LintResult
+from dataclasses import dataclass, field
+from typing import cast, List, Set
+
+from sqlfluff.core.dialects.base import Dialect
+from sqlfluff.core.rules.analysis.select import get_select_statement_info
+from sqlfluff.core.rules.analysis.select_crawler import (
+    Query as SelectCrawlerQuery,
+    SelectCrawler,
+)
+from sqlfluff.core.rules.base import (
+    BaseRule,
+    LintFix,
+    LintResult,
+    RuleContext,
+    EvalResultType,
+)
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 from sqlfluff.core.rules.functional import Segments
 import sqlfluff.core.rules.functional.segment_predicates as sp
-from sqlfluff.rules.L020 import Rule_L020
 from sqlfluff.core.dialects.common import AliasInfo
 
 
+@dataclass
+class L025Query(SelectCrawlerQuery):
+    """SelectCrawler Query with custom L025 info."""
+
+    aliases: List[AliasInfo] = field(default_factory=list)
+    tbl_refs: Set[str] = field(default_factory=set)
+
+
 @document_fix_compatible
-class Rule_L025(Rule_L020):
+class Rule_L025(BaseRule):
     """Tables should not be aliased if that alias is not used.
 
     | **Anti-pattern**
@@ -38,50 +60,73 @@ class Rule_L025(Rule_L020):
 
     """
 
-    def _lint_references_and_aliases(
-        self,
-        table_aliases,
-        standalone_aliases,
-        references,
-        col_aliases,
-        using_cols,
-        parent_select,
-    ):
-        """Check all aliased references against tables referenced in the query."""
-        # A buffer to keep any violations.
-        violation_buff = []
-        # Check all the references that we have, keep track of which aliases we refer to.
-        tbl_refs = set()
-        for r in references:
-            tbl_refs.update(
-                tr.part
-                for tr in r.extract_possible_references(
-                    level=r.ObjectReferenceLevel.TABLE
-                )
-            )
+    def _eval(self, context: RuleContext) -> EvalResultType:
+        violations: List[LintResult] = []
+        if context.segment.is_type("select_statement"):
+            select_info = get_select_statement_info(context.segment, context.dialect)
+            if not select_info or not select_info.table_aliases:
+                return None
 
-        alias: AliasInfo
-        for alias in table_aliases:
-            if alias.aliased and alias.ref_str not in tbl_refs:
-                fixes = [LintFix.delete(alias.alias_expression)]
-                # Walk back to remove indents/whitespaces
-                to_delete = (
-                    Segments(*alias.from_expression_element.segments)
-                    .reversed()
-                    .select(
-                        start_seg=alias.alias_expression,
-                        # Stop once we reach an other, "regular" segment.
-                        loop_while=sp.or_(sp.is_whitespace(), sp.is_meta()),
-                    )
-                )
-                fixes += [LintFix.delete(seg) for seg in to_delete]
-                violation_buff.append(
-                    LintResult(
-                        anchor=alias.segment,
-                        description="Alias {!r} is never used in SELECT statement.".format(
-                            alias.ref_str
-                        ),
-                        fixes=fixes,
-                    )
-                )
-        return violation_buff or None
+            crawler = SelectCrawler(
+                context.segment, context.dialect, query_class=L025Query
+            )
+            query: L025Query = cast(L025Query, crawler.query_tree)
+            self._visit_query(query, context.dialect)
+
+            alias: AliasInfo
+            for alias in query.aliases:
+                if alias.aliased and alias.ref_str not in query.tbl_refs:
+                    # Unused alias. Report and fix.
+                    violations.append(self._report_unused_alias(alias))
+        return violations or None
+
+    @classmethod
+    def _visit_query(cls, query: L025Query, dialect: Dialect):
+        # Get aliases defined in query.
+        for selectable in query.selectables:
+            select_info = get_select_statement_info(selectable.selectable, dialect)
+            if select_info:
+                query.aliases += select_info.table_aliases
+
+                # Process references.
+                for r in select_info.reference_buffer:
+                    for tr in r.extract_possible_references(level=r.ObjectReferenceLevel.TABLE):  # type: ignore
+                        # This function walks up the query's parent stack if necessary.
+                        # Reuses the existing "for r in references:" loop from L025.
+                        cls._resolve_and_mark_reference(query, tr.part)
+
+        # Visit children.
+        for child in query.children:
+            cls._visit_query(cast(L025Query, child), dialect)
+
+    @classmethod
+    def _resolve_and_mark_reference(cls, query: L025Query, ref: str):
+        # Does this query define the referenced alias?
+        if ref in query.aliases:
+            # Yes. Record the reference.
+            query.tbl_refs.add(ref)
+        elif query.parent:
+            # No. Check the query's parent hierarchy.
+            cls._resolve_and_mark_reference(cast(L025Query, query.parent), ref)
+
+    @classmethod
+    def _report_unused_alias(cls, alias: AliasInfo) -> LintResult:
+        fixes = [LintFix.delete(alias.alias_expression)]  # type: ignore
+        # Walk back to remove indents/whitespaces
+        to_delete = (
+            Segments(*alias.from_expression_element.segments)
+            .reversed()
+            .select(
+                start_seg=alias.alias_expression,
+                # Stop once we reach an other, "regular" segment.
+                loop_while=sp.or_(sp.is_whitespace(), sp.is_meta()),
+            )
+        )
+        fixes += [LintFix.delete(seg) for seg in to_delete]
+        return LintResult(
+            anchor=alias.segment,
+            description="Alias {!r} is never used in SELECT statement.".format(
+                alias.ref_str
+            ),
+            fixes=fixes,
+        )
