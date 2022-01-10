@@ -194,7 +194,7 @@ class Rule_L052(BaseRule):
                         context, anchor_segment
                     )
                     fixes = []
-                    if anchor_segment == context.segment:
+                    if anchor_segment is context.segment:
                         fixes.append(
                             LintFix.replace(
                                 anchor_segment,
