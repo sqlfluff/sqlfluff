@@ -88,10 +88,13 @@ class Rule_L057(BaseRule):
             if identifiers_policy_applicable(
                 self.quoted_identifiers_policy, context.parent_stack
             ) and not (
-                identifier.replace("_", "").isalnum()
+                identifier.replace("_", "").replace("-", "").isalnum()
                 or (
                     self.allow_space_in_identifier
-                    and identifier.replace("_", "").replace(" ", "").isalnum()
+                    and identifier.replace("_", "")
+                    .replace("-", "")
+                    .replace(" ", "")
+                    .isalnum()
                 )
             ):
                 return LintResult(anchor=context.segment)
