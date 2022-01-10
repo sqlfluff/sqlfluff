@@ -62,15 +62,17 @@ class Rule_L025(BaseRule):
     def _eval(self, context: RuleContext) -> EvalResultType:
         violations: List[LintResult] = []
         if context.segment.is_type("select_statement"):
+            # Exit early if the SELECT does not define any aliases.
             select_info = get_select_statement_info(context.segment, context.dialect)
             if not select_info or not select_info.table_aliases:
                 return None
 
+            # Analyze the SELECT.
             crawler = SelectCrawler(
                 context.segment, context.dialect, query_class=L025Query
             )
             query: L025Query = cast(L025Query, crawler.query_tree)
-            self._visit_query(query, context.dialect)
+            self._analyze_table_aliases(query, context.dialect)
 
             alias: AliasInfo
             for alias in query.aliases:
@@ -80,14 +82,17 @@ class Rule_L025(BaseRule):
         return violations or None
 
     @classmethod
-    def _visit_query(cls, query: L025Query, dialect: Dialect):
-        # Get aliases defined in query.
+    def _analyze_table_aliases(cls, query: L025Query, dialect: Dialect):
+        # Get table aliases defined in query.
         for selectable in query.selectables:
             select_info = get_select_statement_info(selectable.selectable, dialect)
             if select_info:
+                # Record the aliases.
                 query.aliases += select_info.table_aliases
 
-                # Process references.
+                # Look at each table reference; if its an alias reference,
+                # resolve the alias: could be an alias defined in "query"
+                # itself or an "ancestor" query.
                 for r in select_info.reference_buffer:
                     for tr in r.extract_possible_references(level=r.ObjectReferenceLevel.TABLE):  # type: ignore
                         # This function walks up the query's parent stack if necessary.
@@ -96,7 +101,7 @@ class Rule_L025(BaseRule):
 
         # Visit children.
         for child in query.children:
-            cls._visit_query(cast(L025Query, child), dialect)
+            cls._analyze_table_aliases(cast(L025Query, child), dialect)
 
     @classmethod
     def _resolve_and_mark_reference(cls, query: L025Query, ref: str):
@@ -105,7 +110,7 @@ class Rule_L025(BaseRule):
             # Yes. Record the reference.
             query.tbl_refs.add(ref)
         elif query.parent:
-            # No. Check the query's parent hierarchy.
+            # No. Recursively check the query's parent hierarchy.
             cls._resolve_and_mark_reference(cast(L025Query, query.parent), ref)
 
     @classmethod
