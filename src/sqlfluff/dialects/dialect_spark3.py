@@ -724,6 +724,7 @@ class TruncateStatementSegment(BaseSegment):
         Ref("PartitionSpecGrammar", optional=True),
     )
 
+
 @spark3_dialect.segment()
 class UseDatabaseStatementSegment(BaseSegment):
     """A `TRUNCATE TABLE` statement.
