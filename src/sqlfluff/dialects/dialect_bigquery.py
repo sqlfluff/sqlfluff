@@ -726,9 +726,12 @@ class ColumnReferenceSegment(ObjectReferenceSegment):  # type: ignore
             return [refs[0]]  # pragma: no cover
         if level == self.ObjectReferenceLevel.TABLE.value:
             # One part: Could be a table, e.g. TO_JSON_STRING(t)
-            # Two parts: Could be dataset+table or table+column.
-            # Three parts: Could be table+column+struct or dataset+table+column.
-            return refs[:2]
+            # Two parts: Could be dataset.table or table.column.
+            # Three parts: Could be table.column.struct or dataset.table.column.
+            # Four parts: dataset.table.column.struct
+            # Five parts: project.dataset.table.column.struct
+            # So... return the first 3 parts.
+            return refs[:3]
         if (
             level == self.ObjectReferenceLevel.OBJECT.value and len(refs) >= 3
         ):  # pragma: no cover
