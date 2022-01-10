@@ -100,6 +100,45 @@ class ColumnEncodingSegment(BaseSegment):
 
 
 @redshift_dialect.segment()
+class AuthorizationSegment(BaseSegment):
+    """Authorization segment.
+
+    Specifies authorization to access data in another AWS resource.
+
+    As specified by: https://docs.aws.amazon.com/redshift/latest/dg/copy-parameters-authorization.html
+    """
+
+    type = "authorization_segment"
+
+    match_grammar = OneOf(
+        Sequence(
+            "IAM_ROLE",
+            OneOf(
+                "DEFAULT",
+                Ref("QuotedLiteralSegment"),
+            ),
+        ),
+        Sequence(
+            Ref.keyword("WITH", optional=True),
+            "CREDENTIALS",
+            Ref.keyword("AS", optional=True),
+            Ref("QuotedLiteralSegment"),
+        ),
+        Sequence(
+            "ACCESS_KEY_ID",
+            Ref("QuotedLiteralSegment"),
+            "SECRET_ACCESS_KEY",
+            Ref("QuotedLiteralSegment"),
+            Sequence(
+                "SESSION_TOKEN",
+                Ref("QuotedLiteralSegment"),
+                optional=True,
+            ),
+        ),
+    )
+
+
+@redshift_dialect.segment()
 class ColumnAttributeSegment(BaseSegment):
     """Redshift specific column attributes.
 
@@ -360,6 +399,45 @@ class CreateExternalTableAsStatementSegment(BaseSegment):
     )
 
 
+@redshift_dialect.segment()
+class CreateLibraryStatementSegment(BaseSegment):
+    """A `CREATE LIBRARY` statement.
+
+    As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_LIBRARY.html
+    TODO: Region sequence can be either before or after the authorization
+    """
+
+    type = "create_library_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Sequence(
+            "OR",
+            "REPLACE",
+            optional=True,
+        ),
+        "LIBRARY",
+        Ref("ObjectReferenceSegment"),
+        "LANGUAGE",
+        "PLPYTHONU",
+        "FROM",
+        OneOf(
+            # public URL or path to AWS S3
+            Ref("QuotedLiteralSegment"),
+            Sequence(
+                Ref("QuotedLiteralSegment"),
+                Ref("AuthorizationSegment", optional=False),
+                Sequence(
+                    "REGION",
+                    Ref.keyword("AS", optional=True),
+                    Ref("QuotedLiteralSegment"),
+                    optional=True,
+                ),
+            ),
+        ),
+    )
+
+
 @redshift_dialect.segment(replace=True)
 class InsertStatementSegment(BaseSegment):
     """An`INSERT` statement.
@@ -448,6 +526,8 @@ class StatementSegment(BaseSegment):
             Ref("TableAttributeSegment"),
             Ref("ColumnAttributeSegment"),
             Ref("ColumnEncodingSegment"),
+            Ref("AuthorizationSegment"),
+            Ref("CreateLibraryStatementSegment"),
             Ref("CreateUserSegment"),
             Ref("CreateGroupSegment"),
             Ref("AlterUserSegment"),
