@@ -708,6 +708,23 @@ class MsckRepairTableStatementSegment(hive_dialect.get_segment("MsckRepairTableS
     type = "msck_repair_table_statement"
 
 
+@spark3_dialect.segment(replace=True)
+class TruncateStatementSegment(BaseSegment):
+    """A `TRUNCATE TABLE` statement.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-ddl-truncate-table.html
+    """
+
+    type = "truncate_table_statement"
+
+    match_grammar = Sequence(
+        "TRUNCATE",
+        "TABLE",
+        Ref("TableReferenceSegment"),
+        Ref("PartitionSpecGrammar", optional=True),
+    )
+
+
 # Auxiliary Statements
 @spark3_dialect.segment()
 class AddExecutablePackage(BaseSegment):
