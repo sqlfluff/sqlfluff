@@ -102,7 +102,7 @@ class Rule_L025(BaseRule):
     @classmethod
     def _resolve_and_mark_reference(cls, query: L025Query, ref: str):
         # Does this query define the referenced alias?
-        if ref in query.aliases:
+        if any(ref == a.ref_str for a in query.aliases):
             # Yes. Record the reference.
             query.tbl_refs.add(ref)
         elif query.parent:
