@@ -64,7 +64,11 @@ class Rule_L057(BaseRule):
             # Evaluate unquoted identifiers.
             if identifiers_policy_applicable(
                 self.unquoted_identifiers_policy, context.parent_stack
-            ) and not (context.segment.raw.replace("_", "").isalnum()):
+            ) and not (
+                context.segment.raw.replace("_", "")
+                .translate(str.maketrans("", "", self.additional_allowed_identifiers))
+                .isalnum()
+            ):
                 return LintResult(anchor=context.segment)
         else:
             # Evaluate quoted identifiers.
