@@ -711,7 +711,7 @@ class ColumnReferenceSegment(ObjectReferenceSegment):  # type: ignore
         """Extract possible references of a given level.
 
         Overrides the parent-class function. BigQuery's support for things like
-        the following
+        the following:
         - Functions that take a table as a parameter (e.g. TO_JSON_STRING)
           https://cloud.google.com/bigquery/docs/reference/standard-sql/
           json_functions#to_json_string
