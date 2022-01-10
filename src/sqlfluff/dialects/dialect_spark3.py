@@ -727,9 +727,9 @@ class TruncateStatementSegment(BaseSegment):
 
 @spark3_dialect.segment()
 class UseDatabaseStatementSegment(BaseSegment):
-    """A `TRUNCATE TABLE` statement.
+    """A `USE DATABASE` statement.
 
-    https://spark.apache.org/docs/latest/sql-ref-syntax-ddl-truncate-table.html
+    https://spark.apache.org/docs/latest/sql-ref-syntax-ddl-usedb.html
     """
 
     type = "use_database_statement"
