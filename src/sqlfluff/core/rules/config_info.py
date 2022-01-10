@@ -130,7 +130,8 @@ STANDARD_CONFIG_INFO_DICT = {
     },
     "additional_allowed_characters": {
         "definition": (
-            "Optional list of extra allowed characters, in addition to alphanumerics (A-Z, a-z, 0-9) and underscores."
+            "Optional list of extra allowed characters, "
+            "in addition to alphanumerics (A-Z, a-z, 0-9) and underscores."
         ),
     },
 }
