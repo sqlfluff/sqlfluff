@@ -76,3 +76,29 @@ test_pass_tsql_object_reference_override:
   configs:
     core:
       dialect: tsql
+
+test_pass_subselect_uses_alias_1:
+  pass_str: |
+    SELECT
+        col1,
+        (
+            SELECT count(*)
+            FROM base
+            WHERE a.col2 = base.col2
+        )
+    FROM
+        without_dup AS a
+
+test_pass_subselect_uses_alias_2:
+  pass_str: |
+    select
+      COL_A
+      , COL_B
+    from INSERTS INS
+    where COL_B != (select max(COL_B) from INSERTS X where INS.COL_A = X.COL_A)
+
+test_pass_subselect_uses_alias_3:
+  pass_str: |
+    SELECT col_1
+    FROM table_a AS a
+    WHERE NOT EXISTS (SELECT TRUE FROM table_b AS b WHERE a.col_4 = b.col_1)
