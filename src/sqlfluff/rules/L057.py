@@ -45,6 +45,7 @@ class Rule_L057(BaseRule):
         "quoted_identifiers_policy",
         "unquoted_identifiers_policy",
         "allow_space_in_identifier",
+        "additional_allowed_identifiers",
     ]
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
@@ -53,6 +54,7 @@ class Rule_L057(BaseRule):
         self.quoted_identifiers_policy: str
         self.unquoted_identifiers_policy: str
         self.allow_space_in_identifier: bool
+        self.additional_allowed_identifiers: str
 
         # Exit early if not a single identifier.
         if context.segment.name not in ("naked_identifier", "quoted_identifier"):
@@ -88,12 +90,16 @@ class Rule_L057(BaseRule):
             if identifiers_policy_applicable(
                 self.quoted_identifiers_policy, context.parent_stack
             ) and not (
-                identifier.replace("_", "").replace("-", "").isalnum()
+                identifier.replace("_", "")
+                .translate(str.maketrans("", "", self.additional_allowed_identifiers))
+                .isalnum()
                 or (
                     self.allow_space_in_identifier
                     and identifier.replace("_", "")
-                    .replace("-", "")
                     .replace(" ", "")
+                    .translate(
+                        str.maketrans("", "", self.additional_allowed_identifiers)
+                    )
                     .isalnum()
                 )
             ):
