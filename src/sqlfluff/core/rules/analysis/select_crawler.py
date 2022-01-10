@@ -155,6 +155,8 @@ class SelectCrawler:
         query_class: Type = Query,
     ):
         self.dialect: Dialect = dialect
+        # "query_class" allows users of the class to customize/extend the
+        # Query class, so they can manage additional, custom info.
         self.query_class = query_class
         self.query_tree: Optional[Query] = None
 
