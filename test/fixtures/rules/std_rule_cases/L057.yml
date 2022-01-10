@@ -220,3 +220,59 @@ test_fail_star_bigquery:
   configs:
     core:
       dialect: bigquery
+
+test_pass_hyphen_bigquery:
+  pass_str:
+    SELECT a
+    FROM `user.schema.table-something`
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      L057:
+        additional_allowed_characters: '-'
+
+test_pass_dot_bigquery:
+  pass_str:
+    SELECT a
+    FROM `user.schema.table-something`
+    WHERE `user.schema.table-something`.a = 1
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      L057:
+        additional_allowed_characters: '-.'
+
+test_fail_single_quote_bigquery:
+  fail_str:
+    SELECT a
+    FROM `user.schema.table'something`
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      L057:
+        additional_allowed_characters: '-.'
+
+test_pass_single_quote_bigquery:
+  pass_str:
+    SELECT a
+    FROM `user.schema.table'something`
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      L057:
+        additional_allowed_characters: '-''.'
+
+test_pass_single_quote2_bigquery:
+  pass_str:
+    SELECT a
+    FROM `user.schema.table'something`
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      L057:
+        additional_allowed_characters: "-'."
