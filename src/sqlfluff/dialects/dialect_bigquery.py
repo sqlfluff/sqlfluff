@@ -713,10 +713,8 @@ class ColumnReferenceSegment(ObjectReferenceSegment):  # type: ignore
         refs = list(self.iter_raw_references())
         if level == self.ObjectReferenceLevel.SCHEMA.value and len(refs) >= 3:
             return [refs[0]]  # pragma: no cover
-        if level == self.ObjectReferenceLevel.TABLE.value and len(refs) >= 3:
-            # Ambiguous case: The table could be the first or second part, so
-            # return both.
-            return [refs[0], refs[1]]
+        if level == self.ObjectReferenceLevel.TABLE.value:
+            return refs[:2]
         if level == self.ObjectReferenceLevel.OBJECT.value and len(refs) >= 3:
             # Ambiguous case: The object (i.e. column) could be the first or
             # second part, so return both.
