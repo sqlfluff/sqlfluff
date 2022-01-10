@@ -129,7 +129,9 @@ STANDARD_CONFIG_INFO_DICT = {
         "definition": ("Should spaces in identifiers be allowed?"),
     },
     "additional_allowed_characters": {
-        "definition": ("List of allowed characters."),
+        "definition": (
+            "Optional list of extra allowed characters, in addition to alphanumerics (A-Z,a-z,0-9) and underscores."
+        ),
     },
 }
 
