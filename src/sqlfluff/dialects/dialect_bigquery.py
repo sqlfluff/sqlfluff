@@ -717,7 +717,7 @@ class ColumnReferenceSegment(ObjectReferenceSegment):  # type: ignore
           json_functions#to_json_string
         - STRUCT
 
-        mean that, without schema information (which SQLFluff does not have),
+        means that, without schema information (which SQLFluff does not have),
         references to data are often ambiguous.
         """
         level = self._level_to_int(level)
