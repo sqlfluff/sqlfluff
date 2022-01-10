@@ -48,28 +48,6 @@ class Rule_L057(BaseRule):
         "additional_allowed_characters",
     ]
 
-    @staticmethod
-    def _standard_cleanups(
-        identifier: str,
-        allow_space_in_identifier: bool,
-        additional_allowed_characters: str,
-    ) -> str:
-
-        # We always allow underscores so strip them out
-        identifier = identifier.replace("_", "")
-
-        # Set the identified minus the allowed characters
-        if additional_allowed_characters:
-            identifier = identifier.translate(
-                str.maketrans("", "", additional_allowed_characters)
-            )
-
-        # Strip spaces if allowed (note a separate config as only valid for quoted identifiers)
-        if allow_space_in_identifier:
-            identifier = identifier.replace(" ", "")
-
-        return identifier
-
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Do not use special characters in object names."""
         # Config type hints
@@ -82,31 +60,19 @@ class Rule_L057(BaseRule):
         if context.segment.name not in ("naked_identifier", "quoted_identifier"):
             return None
 
+        # Assume unquoted (we'll update if quoted)
+        policy = self.unquoted_identifiers_policy
+
         identifier = context.segment.raw
 
-        if context.segment.name == "naked_identifier":
+        # Do some extra processing for quoted identifiers.
+        if context.segment.name == "quoted_identifier":
 
-            identifier = self._standard_cleanups(
-                identifier, False, self.additional_allowed_characters
-            )
-
-            # Evaluate unquoted identifiers.
-            if identifiers_policy_applicable(
-                self.unquoted_identifiers_policy, context.parent_stack
-            ) and not (identifier.isalnum()):
-                return LintResult(anchor=context.segment)
-        else:
-            # Evaluate quoted identifiers.
+            # Update the default policy to quoted
+            policy = self.quoted_identifiers_policy
 
             # Strip the quotes first
             identifier = context.segment.raw[1:-1]
-
-            # Then strip the standard stuff
-            identifier = self._standard_cleanups(
-                identifier,
-                self.allow_space_in_identifier,
-                self.additional_allowed_characters,
-            )
 
             # BigQuery table references are quoted in back ticks so allow dots
             #
@@ -123,9 +89,23 @@ class Rule_L057(BaseRule):
                     identifier = identifier[:-1]
                 identifier = identifier.replace(".", "")
 
-            if identifiers_policy_applicable(
-                self.quoted_identifiers_policy, context.parent_stack
-            ) and not (identifier.isalnum()):
-                return LintResult(anchor=context.segment)
+            # Strip spaces if allowed (note a separate config as only valid for quoted identifiers)
+            if self.allow_space_in_identifier:
+                identifier = identifier.replace(" ", "")
+
+        # We always allow underscores so strip them out
+        identifier = identifier.replace("_", "")
+
+        # Set the identified minus the allowed characters
+        if self.additional_allowed_characters:
+            identifier = identifier.translate(
+                str.maketrans("", "", self.additional_allowed_characters)
+            )
+
+        # Finally test if the remaining identifier is only made up of alphanumerics
+        if identifiers_policy_applicable(policy, context.parent_stack) and not (
+            identifier.isalnum()
+        ):
+            return LintResult(anchor=context.segment)
 
         return None
