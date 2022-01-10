@@ -421,19 +421,16 @@ class CreateLibraryStatementSegment(BaseSegment):
         "LANGUAGE",
         "PLPYTHONU",
         "FROM",
-        OneOf(
-            # public URL or path to AWS S3
-            Ref("QuotedLiteralSegment"),
+        Ref("QuotedLiteralSegment"),
+        Sequence(
+            Ref("AuthorizationSegment", optional=False),
             Sequence(
+                "REGION",
+                Ref.keyword("AS", optional=True),
                 Ref("QuotedLiteralSegment"),
-                Ref("AuthorizationSegment", optional=False),
-                Sequence(
-                    "REGION",
-                    Ref.keyword("AS", optional=True),
-                    Ref("QuotedLiteralSegment"),
-                    optional=True,
-                ),
+                optional=True,
             ),
+            optional=True,
         ),
     )
 
