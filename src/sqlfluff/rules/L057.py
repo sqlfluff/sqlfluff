@@ -45,23 +45,23 @@ class Rule_L057(BaseRule):
         "quoted_identifiers_policy",
         "unquoted_identifiers_policy",
         "allow_space_in_identifier",
-        "additional_allowed_identifiers",
+        "additional_allowed_characters",
     ]
 
     @staticmethod
     def _standard_cleanups(
         identifier: str,
         allow_space_in_identifier: bool,
-        additional_allowed_identifiers: str,
+        additional_allowed_characters: str,
     ) -> str:
 
         # We always allow underscores so strip them out
         identifier = identifier.replace("_", "")
 
         # Set the identified minus the allowed characters
-        if additional_allowed_identifiers:
+        if additional_allowed_characters:
             identifier = identifier.translate(
-                str.maketrans("", "", additional_allowed_identifiers)
+                str.maketrans("", "", additional_allowed_characters)
             )
 
         # Strip spaces if allowed (note a separate config as only valid for quoted identifiers)
@@ -76,7 +76,7 @@ class Rule_L057(BaseRule):
         self.quoted_identifiers_policy: str
         self.unquoted_identifiers_policy: str
         self.allow_space_in_identifier: bool
-        self.additional_allowed_identifiers: str
+        self.additional_allowed_characters: str
 
         # Exit early if not a single identifier.
         if context.segment.name not in ("naked_identifier", "quoted_identifier"):
@@ -87,7 +87,7 @@ class Rule_L057(BaseRule):
         if context.segment.name == "naked_identifier":
 
             identifier = self._standard_cleanups(
-                identifier, False, self.additional_allowed_identifiers
+                identifier, False, self.additional_allowed_characters
             )
 
             # Evaluate unquoted identifiers.
@@ -105,7 +105,7 @@ class Rule_L057(BaseRule):
             identifier = self._standard_cleanups(
                 identifier,
                 self.allow_space_in_identifier,
-                self.additional_allowed_identifiers,
+                self.additional_allowed_characters,
             )
 
             # BigQuery table references are quoted in back ticks so allow dots

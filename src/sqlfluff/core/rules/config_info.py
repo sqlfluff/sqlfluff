@@ -128,7 +128,7 @@ STANDARD_CONFIG_INFO_DICT = {
         "validation": [True, False],
         "definition": ("Should spaces in identifiers be allowed?"),
     },
-    "additional_allowed_identifiers": {
+    "additional_allowed_characters": {
         "definition": ("List of allowed characters."),
     },
 }
