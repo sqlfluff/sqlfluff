@@ -111,9 +111,25 @@ test_ansi_function_not_table_parameter:
     SELECT TO_JSON_STRING(t)
     FROM my_table
 
-test_bigquery_function_takes_table_parameter:
+test_bigquery_function_takes_tablealias_parameter:
   pass_str: |
     SELECT TO_JSON_STRING(t)
+    FROM my_table AS t
+  configs:
+    core:
+      dialect: bigquery
+
+test_bigquery_function_takes_tablealias_column_parameter:
+  pass_str: |
+    SELECT TO_JSON_STRING(t.c)
+    FROM my_table AS t
+  configs:
+    core:
+      dialect: bigquery
+
+test_bigquery_function_takes_tablealias_column_struct_parameter:
+  pass_str: |
+    SELECT TO_JSON_STRING(t.c.structure)
     FROM my_table AS t
   configs:
     core:
