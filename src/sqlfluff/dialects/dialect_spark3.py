@@ -724,6 +724,20 @@ class TruncateStatementSegment(BaseSegment):
         Ref("PartitionSpecGrammar", optional=True),
     )
 
+@spark3_dialect.segment()
+class UseDatabaseStatementSegment(BaseSegment):
+    """A `TRUNCATE TABLE` statement.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-ddl-truncate-table.html
+    """
+
+    type = "use_database_statement"
+
+    match_grammar = Sequence(
+        "USE",
+        Ref("DatabaseReferenceSegment"),
+    )
+
 
 # Auxiliary Statements
 @spark3_dialect.segment()
@@ -758,6 +772,7 @@ class StatementSegment(BaseSegment):
             Ref("CreateHiveFormatTableStatementSegment"),
             Ref("DropFunctionStatementSegment"),
             Ref("MsckRepairTableStatementSegment"),
+            Ref("UseDatabaseStatementSegment"),
             # Auxiliary Statements
             Ref("AddExecutablePackage"),
         ],
