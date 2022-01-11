@@ -742,6 +742,21 @@ class AddExecutablePackage(BaseSegment):
     )
 
 
+@spark3_dialect.segment()
+class RefreshStatementSegment(BaseSegment):
+    """A `REFRESH` statement for given data source path.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-aux-cache-refresh.html
+    """
+
+    type = "refresh_statement"
+
+    match_grammar = Sequence(
+        "REFRESH",
+        Ref("SingleOrDoubleQuotedLiteralGrammar"),
+    )
+
+
 @spark3_dialect.segment(replace=True)
 class StatementSegment(BaseSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
@@ -760,6 +775,7 @@ class StatementSegment(BaseSegment):
             Ref("MsckRepairTableStatementSegment"),
             # Auxiliary Statements
             Ref("AddExecutablePackage"),
+            Ref("RefreshStatementSegment"),
         ],
         remove=[
             Ref("TransactionStatementSegment"),
