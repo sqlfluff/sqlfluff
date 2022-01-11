@@ -743,43 +743,47 @@ class UseDatabaseStatementSegment(BaseSegment):
 # Data Manipulation Statements
 @spark3_dialect.segment()
 class InsertTableStatement(BaseSegment):
-        """A `INSERT INTO` statement to insert new rows into a table.
+    """A `INSERT [TABLE]` statement to insert new rows into a table.
 
-        https://spark.apache.org/docs/latest/sql-ref-syntax-dml-insert-into.html
-        """
+    https://spark.apache.org/docs/latest/sql-ref-syntax-dml-insert-into.html
+    """
 
-        type = "insert_into_statement"
+    type = "insert_table_statement"
 
-        match_grammar = Sequence(
-            "INSERT",
-            OneOf("INTO", "OVERWRITE"),
-            Ref.keyword("TABLE", optional=True),
-            Ref("TableReferenceSegment"),
-            Ref("PartitionSpecGrammar", optional=True),
-            Ref("BracketedColumnReferenceListGrammar", optional=True),
-            OneOf(
-                AnyNumberOf(
-                    Ref("ValuesClauseSegment"),
-                    min_times=1,
-                ),
-                Ref("SelectableGrammar"),
-                Sequence(
-                    Ref.keyword("TABLE", optional=True),
-                    Ref("TableReferenceSegment"),
-                ),
-                Sequence(
-                    # TODO is there a less brittle way to do this using an existing class?
-                    # TODO `SelectClauseSegment` is not matching
-                    Ref("FromClauseSegment"),
-                    Ref("SelectClauseSegment"),
-                    # # Ref("TableReferenceSegment", optional=True),
-                    # Ref("WhereClauseSegment", optional=True),
-                    # Ref("GroupByClauseSegment", optional=True),
-                    # Ref("OrderByClauseSegment", optional=True),
-                    # Ref("LimitClauseSegment", optional=True),
-                ),
+    match_grammar = Sequence(
+        "INSERT",
+        OneOf("INTO", "OVERWRITE"),
+        Ref.keyword("TABLE", optional=True),
+        Ref("TableReferenceSegment"),
+        Ref("PartitionSpecGrammar", optional=True),
+        Ref("BracketedColumnReferenceListGrammar", optional=True),
+        OneOf(
+            AnyNumberOf(
+                Ref("ValuesClauseSegment"),
+                min_times=1,
             ),
-        )
+            Ref("SelectableGrammar"),
+            Sequence(
+                Ref.keyword("TABLE", optional=True),
+                Ref("TableReferenceSegment"),
+            ),
+            Sequence(
+                # TODO is there a less brittle way to do this using an existing class(es)?
+                # TODO if not, how to best construct a new class for `SELECT` match?
+                "FROM",
+                Ref("TableReferenceSegment"),
+                "SELECT",
+                Delimited(
+                    Ref("ColumnReferenceSegment"),
+                ),
+                Ref("TableReferenceSegment", optional=True),
+                Ref("WhereClauseSegment", optional=True),
+                Ref("GroupByClauseSegment", optional=True),
+                Ref("OrderByClauseSegment", optional=True),
+                Ref("LimitClauseSegment", optional=True),
+            ),
+        ),
+    )
 
 
 # Auxiliary Statements

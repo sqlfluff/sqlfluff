@@ -20,10 +20,13 @@ FROM persons WHERE name = 'Dora Williams';
 INSERT INTO students TABLE visiting_students;
 
 -- TODO
----- Insert Using a FROM Statement
---INSERT INTO students
---     FROM applicants SELECT name, address, id applicants WHERE qualified = true;
---     FROM applicants SELECT name, address, id WHERE qualified = true;
+-- Insert Using a FROM Statement
+INSERT INTO students
+FROM applicants
+SELECT
+--name, address, id
+applicants
+WHERE qualified = TRUE;
 
 -- Insert Using a Typed Date Literal for a Partition Column Value
 INSERT INTO students PARTITION (birthday = DATE'2019-01-02')

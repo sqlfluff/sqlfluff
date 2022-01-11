@@ -3,10 +3,10 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ad84dfd2ed32b6039b6b59a034ca10be8badda2dfef4fddef4afcaa256eb4f92
+_hash: 909a4b9387245e689123e09c391671b804d047bb05b9218122754029f47aee2a
 file:
 - base:
-    insert_into_statement:
+    insert_table_statement:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
@@ -23,7 +23,7 @@ file:
         - end_bracket: )
 - statement_terminator: ;
 - base:
-    insert_into_statement:
+    insert_table_statement:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
@@ -49,7 +49,7 @@ file:
         - end_bracket: )
 - statement_terminator: ;
 - base:
-    insert_into_statement:
+    insert_table_statement:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
@@ -90,7 +90,7 @@ file:
             literal: "'Dora Williams'"
 - statement_terminator: ;
 - base:
-    insert_into_statement:
+    insert_table_statement:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
@@ -100,7 +100,28 @@ file:
         identifier: visiting_students
 - statement_terminator: ;
 - base:
-    insert_into_statement:
+    insert_table_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        identifier: students
+    - keyword: FROM
+    - table_reference:
+        identifier: applicants
+    - keyword: SELECT
+    - column_reference:
+        identifier: applicants
+    - where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            identifier: qualified
+          comparison_operator:
+            raw_comparison_operator: '='
+          literal: 'TRUE'
+- statement_terminator: ;
+- base:
+    insert_table_statement:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
@@ -125,7 +146,7 @@ file:
         - end_bracket: )
 - statement_terminator: ;
 - base:
-    insert_into_statement:
+    insert_table_statement:
     - keyword: INSERT
     - keyword: INTO
     - table_reference:
