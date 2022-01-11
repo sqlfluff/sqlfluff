@@ -708,6 +708,38 @@ class MsckRepairTableStatementSegment(hive_dialect.get_segment("MsckRepairTableS
     type = "msck_repair_table_statement"
 
 
+@spark3_dialect.segment(replace=True)
+class TruncateStatementSegment(BaseSegment):
+    """A `TRUNCATE TABLE` statement.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-ddl-truncate-table.html
+    """
+
+    type = "truncate_table_statement"
+
+    match_grammar = Sequence(
+        "TRUNCATE",
+        "TABLE",
+        Ref("TableReferenceSegment"),
+        Ref("PartitionSpecGrammar", optional=True),
+    )
+
+
+@spark3_dialect.segment()
+class UseDatabaseStatementSegment(BaseSegment):
+    """A `USE DATABASE` statement.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-ddl-usedb.html
+    """
+
+    type = "use_database_statement"
+
+    match_grammar = Sequence(
+        "USE",
+        Ref("DatabaseReferenceSegment"),
+    )
+
+
 # Auxiliary Statements
 @spark3_dialect.segment()
 class AddExecutablePackage(BaseSegment):
@@ -722,6 +754,53 @@ class AddExecutablePackage(BaseSegment):
         "ADD",
         Ref("ResourceFileGrammar"),
         Ref("SingleOrDoubleQuotedLiteralGrammar"),
+    )
+
+
+@spark3_dialect.segment()
+class RefreshStatementSegment(BaseSegment):
+    """A `REFRESH` statement for given data source path.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-aux-cache-refresh.html
+    """
+
+    type = "refresh_statement"
+
+    match_grammar = Sequence(
+        "REFRESH",
+        Ref("SingleOrDoubleQuotedLiteralGrammar"),
+    )
+
+
+@spark3_dialect.segment()
+class RefreshTableStatementSegment(BaseSegment):
+    """A `REFRESH TABLE` statement.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-aux-cache-refresh-table.html
+    """
+
+    type = "refresh_table_statement"
+
+    match_grammar = Sequence(
+        "REFRESH",
+        Ref.keyword("TABLE", optional=True),
+        Ref("TableReferenceSegment"),
+    )
+
+
+@spark3_dialect.segment()
+class RefreshFunctionStatementSegment(BaseSegment):
+    """A `REFRESH FUNCTION` statement.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-aux-cache-refresh-function.html
+    """
+
+    type = "refresh_function_statement"
+
+    match_grammar = Sequence(
+        "REFRESH",
+        "FUNCTION",
+        Ref("FunctionNameSegment"),
     )
 
 
@@ -741,8 +820,12 @@ class StatementSegment(BaseSegment):
             Ref("CreateHiveFormatTableStatementSegment"),
             Ref("DropFunctionStatementSegment"),
             Ref("MsckRepairTableStatementSegment"),
+            Ref("UseDatabaseStatementSegment"),
             # Auxiliary Statements
             Ref("AddExecutablePackage"),
+            Ref("RefreshStatementSegment"),
+            Ref("RefreshTableStatementSegment"),
+            Ref("RefreshFunctionStatementSegment"),
         ],
         remove=[
             Ref("TransactionStatementSegment"),

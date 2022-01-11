@@ -3,7 +3,7 @@
 from sqlfluff.core.rules.analysis.select import get_aliases_from_select
 from sqlfluff.core.rules.base import EvalResultType, LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import document_configuration
-from sqlfluff.rules.L025 import Rule_L020
+from sqlfluff.rules.L020 import Rule_L020
 
 
 @document_configuration
