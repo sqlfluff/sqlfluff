@@ -8,9 +8,11 @@ This is not necessarily a complete set of predicates covering all possible
 requirements. Rule authors can define their own predicates as needed, either
 as regular functions, `lambda`, etc.
 """
-from typing import Callable
+from typing import Callable, Optional
 
 from sqlfluff.core.parser import BaseSegment
+from sqlfluff.core.rules.functional.raw_file_slices import RawFileSlices
+from sqlfluff.core.templaters.base import TemplatedFile
 
 
 def is_type(*seg_type: str) -> Callable[[BaseSegment], bool]:
@@ -133,3 +135,20 @@ def not_(fn: Callable[[BaseSegment], bool]) -> Callable[[BaseSegment], bool]:
         return not fn(segment)
 
     return _
+
+
+def raw_slices(
+    segment: BaseSegment,
+    templated_file: Optional[TemplatedFile],
+) -> RawFileSlices:
+    """Returns raw slices for a segment."""
+    if not templated_file:
+        raise ValueError(
+            'raw_slices: "templated_file" parameter is required.'
+        )  # pragma: no cover
+    return RawFileSlices(
+        *templated_file.raw_slices_spanning_source_slice(
+            segment.pos_marker.source_slice
+        ),
+        templated_file=templated_file
+    )
