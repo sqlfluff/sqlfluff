@@ -117,15 +117,15 @@ class Rule_L009(BaseRule):
         else:
             # There are one or more trailing newlines in templated space.
             # Translate to "raw" space and count them there. Delete any extras.
-            filtered_trailing_newlines = trailing_newlines.select(
-                lambda seg: sp.raw_slices(seg, context.templated_file).all(
+            extra_newlines = trailing_newlines[1:].select(
+                loop_while=lambda seg: sp.raw_slices(seg, context.templated_file).all(
                     rsp.is_slice_type("literal")
                 )
             )
-            if len(filtered_trailing_newlines) > 1:
+            if extra_newlines:
                 return LintResult(
                     anchor=context.segment,
-                    fixes=[LintFix.delete(d) for d in filtered_trailing_newlines[1:]],
+                    fixes=[LintFix.delete(d) for d in extra_newlines],
                 )
             # Single newline, no need for fix.
             return None
