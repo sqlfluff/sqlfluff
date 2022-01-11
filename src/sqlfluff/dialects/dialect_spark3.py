@@ -775,12 +775,12 @@ class RefreshTableStatementSegment(BaseSegment):
 
 @spark3_dialect.segment()
 class RefreshFunctionStatementSegment(BaseSegment):
-    """A `REFRESH FUNCTINO` statement.
+    """A `REFRESH FUNCTION` statement.
 
     https://spark.apache.org/docs/latest/sql-ref-syntax-aux-cache-refresh-function.html
     """
 
-    type = "refresh_table_statement"
+    type = "refresh_function_statement"
 
     match_grammar = Sequence(
         "REFRESH",
