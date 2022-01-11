@@ -88,6 +88,34 @@ in projects which utilise a lot of complicated templating.
 
 .. _templateconfig:
 
+Rule Configuration
+------------------
+
+Rules can be configured with the `.sqlfluff` config files.
+
+Common rule configurations can be set in the *[sqlfluff:rules]* section.
+
+For example:
+
+.. code-block:: cfg
+
+    [sqlfluff:rules]
+    unquoted_identifiers_policy = all
+    max_line_length = 88
+
+Rule specific configurations are set in the *[sqlfluff:rules:\*]* sections.
+
+For example, enforce that keywords are upper case by configuring the rule :class:`L010 <sqlfluff.core.rules.Rule_L010>`:
+
+.. code-block:: cfg
+
+    [sqlfluff:rules:L010]  # Keywords
+    capitalisation_policy = upper
+
+All possible options for rule sections are documented in :ref:`ruleref`.
+
+For an overview of the most common rule configurations that you may want to tweak, see `Default Configuration`_ (and use :ref:`ruleref` to find the available alternatives).
+
 Jinja Templating Configuration
 ------------------------------
 
