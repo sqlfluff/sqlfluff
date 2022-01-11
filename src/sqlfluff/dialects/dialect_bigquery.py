@@ -738,7 +738,7 @@ class ColumnReferenceSegment(ObjectReferenceSegment):  # type: ignore
             # Ambiguous case: The object (i.e. column) could be the first or
             # second part, so return both.
             return [refs[1], refs[2]]
-        return super().extract_possible_references(level)
+        return super().extract_possible_references(level)  # pragma: no cover
 
 
 @bigquery_dialect.segment()
