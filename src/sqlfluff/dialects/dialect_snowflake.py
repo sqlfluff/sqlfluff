@@ -894,6 +894,7 @@ class AlterTableStatementSegment(BaseSegment):
     """An `ALTER TABLE` statement.
 
     https://docs.snowflake.com/en/sql-reference/sql/alter-table.html
+    If possible, please keep the order below the same as Snowflake's doc:
     """
 
     type = "alter_table_statement"
