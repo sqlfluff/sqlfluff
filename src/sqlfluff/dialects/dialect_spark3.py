@@ -757,6 +757,22 @@ class RefreshStatementSegment(BaseSegment):
     )
 
 
+@spark3_dialect.segment()
+class RefreshTableStatementSegment(BaseSegment):
+    """A `REFRESH TABLE` statement.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-aux-cache-refresh-table.html
+    """
+
+    type = "refresh_table_statement"
+
+    match_grammar = Sequence(
+        "REFRESH",
+        Ref.keyword("TABLE", optional=True),
+        Ref("TableReferenceSegment"),
+    )
+
+
 @spark3_dialect.segment(replace=True)
 class StatementSegment(BaseSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
@@ -776,6 +792,7 @@ class StatementSegment(BaseSegment):
             # Auxiliary Statements
             Ref("AddExecutablePackage"),
             Ref("RefreshStatementSegment"),
+            Ref("RefreshTableStatementSegment"),
         ],
         remove=[
             Ref("TransactionStatementSegment"),
