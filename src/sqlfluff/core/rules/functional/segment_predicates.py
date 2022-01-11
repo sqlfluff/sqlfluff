@@ -143,7 +143,9 @@ def raw_slices(
 ) -> RawFileSlices:
     """Returns raw slices for a segment."""
     if not templated_file:
-        raise ValueError('raw_slices: "templated_file" parameter is required.')
+        raise ValueError(
+            'raw_slices: "templated_file" parameter is required.'
+        )  # pragma: no cover
     return RawFileSlices(
         *templated_file.raw_slices_spanning_source_slice(
             segment.pos_marker.source_slice
