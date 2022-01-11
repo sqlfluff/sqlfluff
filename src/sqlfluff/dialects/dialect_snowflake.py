@@ -954,10 +954,6 @@ class AlterTableTableColumnActionSegment(BaseSegment):
 
     type = "alter_table_table_column_action"
 
-    # If possible, please match the order of this sequence with what's defined in Snowflake's
-    # tableColumnAction grammar.
-    #
-    # https://docs.snowflake.com/en/sql-reference/sql/alter-table.html#table-column-actions-tablecolumnaction
     match_grammar = Sequence(
         OneOf(
             # @TODO: Add Column
