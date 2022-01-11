@@ -902,8 +902,6 @@ class AlterTableStatementSegment(BaseSegment):
         "ALTER",
         "TABLE",
         Ref("TableReferenceSegment"),
-        # If possible, please keep the order below the same as Snowflake's doc:
-        # https://docs.snowflake.com/en/sql-reference/sql/alter-table.html#syntax
         OneOf(
             # Rename
             Sequence(
