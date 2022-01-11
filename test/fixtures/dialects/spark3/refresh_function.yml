@@ -3,17 +3,17 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9b53d7d1cd07231e9c05f3a1137b5eb7d5441f99abd2ca93a56638f5bb722af0
+_hash: 1243bb8be622939f3614af18852629f95ea0e90872dbeb789835773cd716ed7b
 file:
 - base:
-    refresh_table_statement:
+    refresh_function_statement:
     - keyword: REFRESH
     - keyword: FUNCTION
     - function_name:
         function_name_identifier: func1
 - statement_terminator: ;
 - base:
-    refresh_table_statement:
+    refresh_function_statement:
     - keyword: REFRESH
     - keyword: FUNCTION
     - function_name:
