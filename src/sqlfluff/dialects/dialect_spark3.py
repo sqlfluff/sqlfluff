@@ -725,6 +725,21 @@ class TruncateStatementSegment(BaseSegment):
     )
 
 
+@spark3_dialect.segment()
+class UseDatabaseStatementSegment(BaseSegment):
+    """A `USE DATABASE` statement.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-ddl-usedb.html
+    """
+
+    type = "use_database_statement"
+
+    match_grammar = Sequence(
+        "USE",
+        Ref("DatabaseReferenceSegment"),
+    )
+
+
 # Auxiliary Statements
 @spark3_dialect.segment()
 class AddExecutablePackage(BaseSegment):
@@ -758,6 +773,7 @@ class StatementSegment(BaseSegment):
             Ref("CreateHiveFormatTableStatementSegment"),
             Ref("DropFunctionStatementSegment"),
             Ref("MsckRepairTableStatementSegment"),
+            Ref("UseDatabaseStatementSegment"),
             # Auxiliary Statements
             Ref("AddExecutablePackage"),
         ],
