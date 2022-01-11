@@ -773,6 +773,22 @@ class RefreshTableStatementSegment(BaseSegment):
     )
 
 
+@spark3_dialect.segment()
+class RefreshFunctionStatementSegment(BaseSegment):
+    """A `REFRESH FUNCTINO` statement.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-aux-cache-refresh-function.html
+    """
+
+    type = "refresh_table_statement"
+
+    match_grammar = Sequence(
+        "REFRESH",
+        "FUNCTION",
+        Ref("FunctionNameSegment"),
+    )
+
+
 @spark3_dialect.segment(replace=True)
 class StatementSegment(BaseSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
@@ -793,6 +809,7 @@ class StatementSegment(BaseSegment):
             Ref("AddExecutablePackage"),
             Ref("RefreshStatementSegment"),
             Ref("RefreshTableStatementSegment"),
+            Ref("RefreshFunctionStatementSegment"),
         ],
         remove=[
             Ref("TransactionStatementSegment"),
