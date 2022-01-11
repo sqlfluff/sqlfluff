@@ -5,8 +5,7 @@ from sqlfluff.core.parser import NewlineSegment
 
 from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix, RuleContext
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
-from sqlfluff.core.rules.functional import Segments
-from sqlfluff.core.rules.functional import segment_predicates as sp
+from sqlfluff.core.rules.functional import Segments, rsp, sp
 
 
 @document_fix_compatible
@@ -99,10 +98,7 @@ class Rule_L009(BaseRule):
             loop_while=sp.or_(sp.is_whitespace(), sp.is_type("dedent")),
         )
 
-        if len(trailing_newlines) == 1:
-            # No need for fix if single new line exists.
-            return None
-        elif len(trailing_newlines) == 0:
+        if not trailing_newlines:
             # We make an edit to create this segment after the child of the FileSegment.
             if len(parent_stack) == 1:
                 fix_anchor_segment = context.segment
@@ -119,8 +115,20 @@ class Rule_L009(BaseRule):
                 ],
             )
         else:
-            # There are excess newlines so delete all bar one.
-            return LintResult(
-                anchor=context.segment,
-                fixes=[LintFix.delete(d) for d in trailing_newlines[1:]],
+            # There are one or more trailing newlines in templated space.
+            # For any excess newlines, translate to "raw" space to determine if
+            # they are literal (rather than templated). Delete any extras.
+            # (Note that 'trailing_newlines' is ordered in reverse, i.e. from
+            # the end of the file *backwards*.)
+            extra_newlines = trailing_newlines[1:].select(
+                loop_while=lambda seg: sp.raw_slices(seg, context.templated_file).all(
+                    rsp.is_slice_type("literal")
+                )
             )
+            if extra_newlines:
+                return LintResult(
+                    anchor=context.segment,
+                    fixes=[LintFix.delete(d) for d in extra_newlines],
+                )
+            # Single newline, no need for fix.
+            return None
