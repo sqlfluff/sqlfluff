@@ -105,7 +105,8 @@ For example:
 
 Rule specific configurations are set in the *[sqlfluff:rules:\*]* sections.
 
-For example, enforce that keywords are upper case by configuring the rule :class:`L010 <sqlfluff.core.rules.Rule_L010>`:
+For example, enforce that keywords are upper case by configuring the rule
+:class:`L010 <sqlfluff.core.rules.Rule_L010>`:
 
 .. code-block:: cfg
 
@@ -114,7 +115,9 @@ For example, enforce that keywords are upper case by configuring the rule :class
 
 All possible options for rule sections are documented in :ref:`ruleref`.
 
-For an overview of the most common rule configurations that you may want to tweak, see `Default Configuration`_ (and use :ref:`ruleref` to find the available alternatives).
+For an overview of the most common rule configurations that you may want to
+tweak, see `Default Configuration`_ (and use :ref:`ruleref` to find the
+available alternatives).
 
 Jinja Templating Configuration
 ------------------------------
