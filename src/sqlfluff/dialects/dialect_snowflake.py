@@ -950,6 +950,9 @@ class AlterTableTableColumnActionSegment(BaseSegment):
 
     https://docs.snowflake.com/en/sql-reference/sql/alter-table.html
     https://docs.snowflake.com/en/sql-reference/sql/alter-table-column.html
+    
+    If possible, please match the order of this sequence with what's defined in Snowflake's
+    tableColumnAction grammar.
     """
 
     type = "alter_table_table_column_action"
