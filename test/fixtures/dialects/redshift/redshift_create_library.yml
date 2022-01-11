@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2631acc8fb726a82c6f7417c4aeacc8b570a182856c43c42af2269bd71a2e9f7
+_hash: a1ad6d131f7e8fefc7fd3dcebf40a0f53098f7f587a01eb3f6588a703a2be2d6
 file:
 - statement:
     create_library_statement:
@@ -21,6 +21,23 @@ file:
     - keyword: region
     - keyword: as
     - literal: "'us-east-1'"
+- statement_terminator: ;
+- statement:
+    create_library_statement:
+    - keyword: create
+    - keyword: library
+    - object_reference:
+        identifier: lib1
+    - keyword: language
+    - keyword: plpythonu
+    - keyword: from
+    - literal: "'s3://s3bucket/lib1.0.3.zip'"
+    - keyword: region
+    - keyword: as
+    - literal: "'us-east-1'"
+    - authorization_segment:
+        keyword: credentials
+        literal: "'aws_iam_role=arn:aws:iam::123456789:role/role_name'"
 - statement_terminator: ;
 - statement:
     create_library_statement:

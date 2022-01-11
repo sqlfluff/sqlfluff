@@ -404,7 +404,6 @@ class CreateLibraryStatementSegment(BaseSegment):
     """A `CREATE LIBRARY` statement.
 
     As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_LIBRARY.html
-    TODO: Region sequence can be either before or after the authorization
     """
 
     type = "create_library_statement"
@@ -422,7 +421,7 @@ class CreateLibraryStatementSegment(BaseSegment):
         "PLPYTHONU",
         "FROM",
         Ref("QuotedLiteralSegment"),
-        Sequence(
+        AnyNumberOf(
             Ref("AuthorizationSegment", optional=False),
             Sequence(
                 "REGION",
@@ -430,7 +429,6 @@ class CreateLibraryStatementSegment(BaseSegment):
                 Ref("QuotedLiteralSegment"),
                 optional=True,
             ),
-            optional=True,
         ),
     )
 

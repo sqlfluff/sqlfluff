@@ -3,6 +3,11 @@ from 's3://s3bucket/lib1.0.3.zip'
 credentials 'aws_iam_role=arn:aws:iam::123456789:role/role_name'
 region as 'us-east-1';
 
+create library lib1 language plpythonu
+from 's3://s3bucket/lib1.0.3.zip'
+region as 'us-east-1'
+credentials 'aws_iam_role=arn:aws:iam::123456789:role/role_name';
+
 create or replace library lib1 language plpythonu
 from 's3://s3bucket/lib1.0.3.zip'
 with credentials as 'aws_iam_role=arn:aws:iam::123456789:role/role_name'
