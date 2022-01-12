@@ -6,6 +6,7 @@ from typing import Generator, NamedTuple, Optional
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
+import sqlfluff.core.rules.functional.segment_predicates as sp
 
 
 class TableAliasInfo(NamedTuple):
@@ -22,7 +23,7 @@ class Rule_L031(BaseRule):
     """Avoid table aliases in from clauses and join conditions.
 
     | **Anti-pattern**
-    | In this example, alias 'o' is used for the orders table, and 'c' is used for 'customers' table.
+    | In this example, alias ``o`` is used for the orders table, and ``c`` is used for 'customers' table.
 
     .. code-block:: sql
 
@@ -62,37 +63,27 @@ class Rule_L031(BaseRule):
         and decide if it's needed to report them.
         """
         if context.segment.is_type("select_statement"):
+            children = context.functional.segment.children()
+            from_clause_segment = children.select(sp.is_type("from_clause")).first()
+            base_table = (
+                from_clause_segment.children(sp.is_type("from_expression"))
+                .first()
+                .children(sp.is_type("from_expression_element"))
+                .first()
+                .children(sp.is_type("table_expression"))
+                .first()
+                .children(sp.is_type("object_reference"))
+                .first()
+            )
+            if not base_table:
+                return None
+
             # A buffer for all table expressions in join conditions
             from_expression_elements = []
             column_reference_segments = []
 
-            from_clause_segment = context.segment.get_child("from_clause")
-
-            if not from_clause_segment:
-                return None
-
-            from_expression = from_clause_segment.get_child("from_expression")
-            from_expression_element = None
-            if from_expression:
-                from_expression_element = from_expression.get_child(
-                    "from_expression_element"
-                )
-
-            if not from_expression_element:
-                return None
-            from_expression_element = from_expression_element.get_child(
-                "table_expression"
-            )
-
-            # Find base table
-            base_table = None
-            if from_expression_element:
-                base_table = from_expression_element.get_child("object_reference")
-
-            from_clause_index = context.segment.segments.index(from_clause_segment)
-            from_clause_and_after = context.segment.segments[from_clause_index:]
-
-            for clause in from_clause_and_after:
+            after_from_clause = children.select(start_seg=from_clause_segment[0])
+            for clause in from_clause_segment + after_from_clause:
                 for from_expression_element in clause.recursive_crawl(
                     "from_expression_element"
                 ):
@@ -102,7 +93,7 @@ class Rule_L031(BaseRule):
 
             return (
                 self._lint_aliases_in_join(
-                    base_table,
+                    base_table[0] if base_table else None,
                     from_expression_elements,
                     column_reference_segments,
                     context.segment,
@@ -118,7 +109,7 @@ class Rule_L031(BaseRule):
         for from_expression in from_expression_elements:
             table_expression = from_expression.get_child("table_expression")
             if not table_expression:
-                continue
+                continue  # pragma: no cover
             table_ref = table_expression.get_child("object_reference")
 
             # If the from_expression_element has no object_references - skip it
@@ -208,7 +199,11 @@ class Rule_L031(BaseRule):
                     for d in [alias_info.alias_exp_ref, alias_info.whitespace_ref]
                 ],
                 *[
-                    LintFix.replace(alias, [alias.edit(alias_info.table_ref.raw)])
+                    LintFix.replace(
+                        alias,
+                        [alias.edit(alias_info.table_ref.raw)],
+                        source=[alias_info.table_ref],
+                    )
                     for alias in [alias_info.alias_identifier_ref, *ids_refs]
                 ],
             ]

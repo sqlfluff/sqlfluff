@@ -117,8 +117,7 @@ spark3_dialect.replace(
         Ref("LessThanSegment"),
         Ref("GreaterThanOrEqualToSegment"),
         Ref("LessThanOrEqualToSegment"),
-        Ref("NotEqualToSegment_a"),
-        Ref("NotEqualToSegment_b"),
+        Ref("NotEqualToSegment"),
         Ref("LikeOperatorSegment"),
     ),
     TemporaryGrammar=Sequence(
@@ -459,6 +458,8 @@ class AlterTableStatementSegment(BaseSegment):
                 Ref("PartitionSpecGrammar"),
                 Sequence("PURGE", optional=True),
             ),
+            # ALTER TABLE - REPAIR PARTITION
+            Sequence("RECOVER", "PARTITIONS"),
             # ALTER TABLE - SET PROPERTIES
             Sequence("SET", Ref("TablePropertiesGrammar")),
             # ALTER TABLE - UNSET PROPERTIES
@@ -572,15 +573,16 @@ class CreateFunctionStatementSegment(BaseSegment):
         Ref("FunctionNameIdentifierSegment"),
         "AS",
         Ref("SingleOrDoubleQuotedLiteralGrammar"),
-        Ref("ResourceLocationGrammar"),
+        Ref("ResourceLocationGrammar", optional=True),
     )
 
 
 @spark3_dialect.segment(replace=True)
 class CreateTableStatementSegment(BaseSegment):
-    """A `CREATE TABLE` statement using a Data Source.
+    """A `CREATE TABLE` statement using a Data Source or Like.
 
     http://spark.apache.org/docs/latest/sql-ref-syntax-ddl-create-table-datasource.html
+    https://spark.apache.org/docs/latest/sql-ref-syntax-ddl-create-table-like.html
     """
 
     type = "create_table_statement"
@@ -590,25 +592,36 @@ class CreateTableStatementSegment(BaseSegment):
         "TABLE",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
-        # Columns and comment syntax:
-        Sequence(
-            Bracketed(
-                Delimited(
-                    Sequence(
-                        Ref("ColumnDefinitionSegment"),
-                        Ref("CommentGrammar", optional=True),
+        OneOf(
+            # Columns and comment syntax:
+            Sequence(
+                Bracketed(
+                    Delimited(
+                        Sequence(
+                            Ref("ColumnDefinitionSegment"),
+                            Ref("CommentGrammar", optional=True),
+                        ),
                     ),
                 ),
+            ),
+            # Like Syntax
+            Sequence(
+                "LIKE",
+                Ref("TableReferenceSegment"),
             ),
             optional=True,
         ),
         Sequence("USING", Ref("DataSourceFormatGrammar"), optional=True),
+        Ref("RowFormatClauseSegment", optional=True),
+        Ref("StoredAsGrammar", optional=True),
         Sequence("OPTIONS", Ref("BracketedPropertyListGrammar"), optional=True),
         Ref("PartitionSpecGrammar", optional=True),
         Ref("BucketSpecGrammar", optional=True),
-        Ref("LocationGrammar", optional=True),
-        Ref("CommentGrammar", optional=True),
-        Ref("TablePropertiesGrammar", optional=True),
+        AnyNumberOf(
+            Ref("LocationGrammar", optional=True),
+            Ref("CommentGrammar", optional=True),
+            Ref("TablePropertiesGrammar", optional=True),
+        ),
         # Create AS syntax:
         Sequence(
             "AS",
@@ -616,6 +629,16 @@ class CreateTableStatementSegment(BaseSegment):
             optional=True,
         ),
     )
+
+
+@spark3_dialect.segment()
+class CreateHiveFormatTableStatementSegment(hive_dialect.get_segment("CreateTableStatementSegment")):  # type: ignore
+    """A `CREATE TABLE` statement using Hive format.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-ddl-create-table-hiveformat.html
+    """
+
+    type = "create_table_statement"
 
 
 @spark3_dialect.segment(replace=True)
@@ -655,13 +678,66 @@ class CreateViewStatementSegment(BaseSegment):
 
 
 @spark3_dialect.segment()
-class CreateHiveFormatTableStatementSegment(hive_dialect.get_segment("CreateTableStatementSegment")):  # type: ignore
-    """A `CREATE TABLE` statement using Hive format.
+class DropFunctionStatementSegment(BaseSegment):
+    """A `DROP FUNCTION` STATEMENT.
 
-    https://spark.apache.org/docs/latest/sql-ref-syntax-ddl-create-table-hiveformat.html
+    https://spark.apache.org/docs/latest/sql-ref-syntax-ddl-drop-function.html
     """
 
-    type = "create_table_statement"
+    type = "drop_function_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        Ref("TemporaryGrammar", optional=True),
+        "FUNCTION",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("FunctionNameSegment"),
+    )
+
+
+@spark3_dialect.segment()
+class MsckRepairTableStatementSegment(hive_dialect.get_segment("MsckRepairTableStatementSegment")):  # type: ignore
+    """A `REPAIR TABLE` statement using Hive MSCK (Metastore Check) format.
+
+    This class inherits from Hive since Spark leverages Hive format for this command and
+    is dependent on the Hive metastore.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-ddl-repair-table.html
+    """
+
+    type = "msck_repair_table_statement"
+
+
+@spark3_dialect.segment(replace=True)
+class TruncateStatementSegment(BaseSegment):
+    """A `TRUNCATE TABLE` statement.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-ddl-truncate-table.html
+    """
+
+    type = "truncate_table_statement"
+
+    match_grammar = Sequence(
+        "TRUNCATE",
+        "TABLE",
+        Ref("TableReferenceSegment"),
+        Ref("PartitionSpecGrammar", optional=True),
+    )
+
+
+@spark3_dialect.segment()
+class UseDatabaseStatementSegment(BaseSegment):
+    """A `USE DATABASE` statement.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-ddl-usedb.html
+    """
+
+    type = "use_database_statement"
+
+    match_grammar = Sequence(
+        "USE",
+        Ref("DatabaseReferenceSegment"),
+    )
 
 
 # Auxiliary Statements
@@ -681,6 +757,53 @@ class AddExecutablePackage(BaseSegment):
     )
 
 
+@spark3_dialect.segment()
+class RefreshStatementSegment(BaseSegment):
+    """A `REFRESH` statement for given data source path.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-aux-cache-refresh.html
+    """
+
+    type = "refresh_statement"
+
+    match_grammar = Sequence(
+        "REFRESH",
+        Ref("SingleOrDoubleQuotedLiteralGrammar"),
+    )
+
+
+@spark3_dialect.segment()
+class RefreshTableStatementSegment(BaseSegment):
+    """A `REFRESH TABLE` statement.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-aux-cache-refresh-table.html
+    """
+
+    type = "refresh_table_statement"
+
+    match_grammar = Sequence(
+        "REFRESH",
+        Ref.keyword("TABLE", optional=True),
+        Ref("TableReferenceSegment"),
+    )
+
+
+@spark3_dialect.segment()
+class RefreshFunctionStatementSegment(BaseSegment):
+    """A `REFRESH FUNCTION` statement.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-aux-cache-refresh-function.html
+    """
+
+    type = "refresh_function_statement"
+
+    match_grammar = Sequence(
+        "REFRESH",
+        "FUNCTION",
+        Ref("FunctionNameSegment"),
+    )
+
+
 @spark3_dialect.segment(replace=True)
 class StatementSegment(BaseSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
@@ -695,14 +818,19 @@ class StatementSegment(BaseSegment):
             Ref("AlterTableStatementSegment"),
             Ref("AlterViewStatementSegment"),
             Ref("CreateHiveFormatTableStatementSegment"),
+            Ref("DropFunctionStatementSegment"),
+            Ref("MsckRepairTableStatementSegment"),
+            Ref("UseDatabaseStatementSegment"),
             # Auxiliary Statements
             Ref("AddExecutablePackage"),
+            Ref("RefreshStatementSegment"),
+            Ref("RefreshTableStatementSegment"),
+            Ref("RefreshFunctionStatementSegment"),
         ],
         remove=[
             Ref("TransactionStatementSegment"),
             Ref("CreateSchemaStatementSegment"),
             Ref("SetSchemaStatementSegment"),
-            Ref("DropSchemaStatementSegment"),
             Ref("CreateExtensionStatementSegment"),
             Ref("CreateModelStatementSegment"),
             Ref("DropModelStatementSegment"),

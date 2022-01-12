@@ -5,7 +5,7 @@ from bisect import bisect_left
 from collections import defaultdict
 from typing import Dict, Iterator, List, Tuple, Optional, NamedTuple, Iterable
 
-from cached_property import cached_property
+from sqlfluff.core.cached_property import cached_property
 
 # Instantiate the templater logger
 templater_logger = logging.getLogger("sqlfluff.templater")

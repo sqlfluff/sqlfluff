@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bf0419eb155b4c20542f0e1ab165842230c83141de675fac2adaf76e071c0820
+_hash: 40cd2f0875aa659febcf5bf857e4c9b37091d6570a0855fe929a2df570205197
 file:
 - statement:
     select_statement:
@@ -84,19 +84,22 @@ file:
           expression:
             case_expression:
             - keyword: CASE
-            - keyword: WHEN
-            - expression:
-              - column_reference:
-                  identifier: order_month
-              - comparison_operator: '='
-              - column_reference:
-                  identifier: max_month
-            - keyword: THEN
-            - expression:
-                literal: '1'
-            - keyword: ELSE
-            - expression:
-                literal: '0'
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                - column_reference:
+                    identifier: order_month
+                - comparison_operator:
+                    raw_comparison_operator: '='
+                - column_reference:
+                    identifier: max_month
+              - keyword: THEN
+              - expression:
+                  literal: '1'
+            - else_clause:
+                keyword: ELSE
+                expression:
+                  literal: '0'
             - keyword: END
           alias_expression:
             identifier: churn

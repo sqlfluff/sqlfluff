@@ -44,6 +44,9 @@ redshift_dialect.sets("bare_functions").clear()
 redshift_dialect.sets("bare_functions").update(["current_date", "sysdate"])
 
 redshift_dialect.replace(WellKnownTextGeometrySegment=Nothing())
+# TODO: for the time use the ANSI definition and not the updated one from Postgres as not all
+#       data types are supported by Redshift
+redshift_dialect.replace(DatatypeSegment=ansi_dialect.get_segment("DatatypeSegment"))
 
 
 @redshift_dialect.segment(replace=True)
@@ -93,6 +96,45 @@ class ColumnEncodingSegment(BaseSegment):
         "TEXT255",
         "TEXT32K",
         "ZSTD",
+    )
+
+
+@redshift_dialect.segment()
+class AuthorizationSegment(BaseSegment):
+    """Authorization segment.
+
+    Specifies authorization to access data in another AWS resource.
+
+    As specified by: https://docs.aws.amazon.com/redshift/latest/dg/copy-parameters-authorization.html
+    """
+
+    type = "authorization_segment"
+
+    match_grammar = OneOf(
+        Sequence(
+            "IAM_ROLE",
+            OneOf(
+                "DEFAULT",
+                Ref("QuotedLiteralSegment"),
+            ),
+        ),
+        Sequence(
+            Ref.keyword("WITH", optional=True),
+            "CREDENTIALS",
+            Ref.keyword("AS", optional=True),
+            Ref("QuotedLiteralSegment"),
+        ),
+        Sequence(
+            "ACCESS_KEY_ID",
+            Ref("QuotedLiteralSegment"),
+            "SECRET_ACCESS_KEY",
+            Ref("QuotedLiteralSegment"),
+            Sequence(
+                "SESSION_TOKEN",
+                Ref("QuotedLiteralSegment"),
+                optional=True,
+            ),
+        ),
     )
 
 
@@ -251,6 +293,147 @@ class CreateTableStatementSegment(BaseSegment):
 
 
 @redshift_dialect.segment(replace=True)
+class CreateTableAsStatementSegment(BaseSegment):
+    """A `CREATE TABLE AS` statement.
+
+    As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_TABLE_AS.html
+    """
+
+    type = "create_table_as_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        Sequence(
+            Ref.keyword("LOCAL", optional=True),
+            OneOf("TEMPORARY", "TEMP"),
+            optional=True,
+        ),
+        "TABLE",
+        Ref("ObjectReferenceSegment"),
+        Bracketed(
+            Delimited(
+                Ref("ColumnReferenceSegment"),
+            ),
+            optional=True,
+        ),
+        Sequence("BACKUP", OneOf("YES", "NO"), optional=True),
+        Ref("TableAttributeSegment", optional=True),
+        "AS",
+        Ref("SelectableGrammar"),
+    )
+
+
+@redshift_dialect.segment()
+class CreateExternalTableStatementSegment(BaseSegment):
+    """A `CREATE EXTERNAL TABLE` statement.
+
+    As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_EXTERNAL_TABLE.html
+    TODO: support ROW FORMAT SERDE and WITH SERDEPROPERTIES
+    TODO: support TABLE PROPERTIES
+    """
+
+    type = "create_external_table_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        "EXTERNAL",
+        "TABLE",
+        Ref("TableReferenceSegment"),
+        Bracketed(
+            # Columns and comment syntax:
+            Delimited(
+                Sequence(
+                    Ref("ColumnReferenceSegment"),
+                    Ref("DatatypeSegment"),
+                ),
+            ),
+        ),
+        Ref("PartitionedBySegment", optional=True),
+        "STORED",
+        "AS",
+        OneOf(
+            "PARQUET",
+            "RCFILE",
+            "SEQUENCEFILE",
+            "TEXTFILE",
+            "ORC",
+            "AVRO",
+            Sequence(
+                "INPUTFORMAT",
+                Ref("QuotedLiteralSegment"),
+                "OUTPUTFORMAT",
+                Ref("QuotedLiteralSegment"),
+            ),
+        ),
+        "LOCATION",
+        Ref("QuotedLiteralSegment"),
+    )
+
+
+@redshift_dialect.segment()
+class CreateExternalTableAsStatementSegment(BaseSegment):
+    """A `CREATE EXTERNAL TABLE AS` statement.
+
+    As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_EXTERNAL_TABLE.html
+    TODO: support TABLE PROPERTIES
+    """
+
+    type = "create_external_table_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        "EXTERNAL",
+        "TABLE",
+        Ref("TableReferenceSegment"),
+        Ref("PartitionedBySegment", optional=True),
+        Ref("RowFormatDelimitedSegment", optional=True),
+        "STORED",
+        "AS",
+        OneOf(
+            "PARQUET",
+            "TEXTFILE",
+        ),
+        "LOCATION",
+        Ref("QuotedLiteralSegment"),
+        "AS",
+        OptionallyBracketed(Ref("SelectableGrammar")),
+    )
+
+
+@redshift_dialect.segment()
+class CreateLibraryStatementSegment(BaseSegment):
+    """A `CREATE LIBRARY` statement.
+
+    As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_LIBRARY.html
+    """
+
+    type = "create_library_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Sequence(
+            "OR",
+            "REPLACE",
+            optional=True,
+        ),
+        "LIBRARY",
+        Ref("ObjectReferenceSegment"),
+        "LANGUAGE",
+        "PLPYTHONU",
+        "FROM",
+        Ref("QuotedLiteralSegment"),
+        AnyNumberOf(
+            Ref("AuthorizationSegment", optional=False),
+            Sequence(
+                "REGION",
+                Ref.keyword("AS", optional=True),
+                Ref("QuotedLiteralSegment"),
+                optional=True,
+            ),
+        ),
+    )
+
+
+@redshift_dialect.segment(replace=True)
 class InsertStatementSegment(BaseSegment):
     """An`INSERT` statement.
 
@@ -281,6 +464,51 @@ class InsertStatementSegment(BaseSegment):
     )
 
 
+@redshift_dialect.segment(replace=True)
+class CreateSchemaStatementSegment(BaseSegment):
+    """A `CREATE SCHEMA` statement.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_SCHEMA.html
+    TODO: support optional SCHEMA_ELEMENT
+    """
+
+    type = "create_schema_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        "SCHEMA",
+        OneOf(
+            Sequence(
+                Ref("IfNotExistsGrammar", optional=True),
+                Ref("SchemaReferenceSegment"),
+                Sequence(
+                    "AUTHORIZATION",
+                    Ref("ObjectReferenceSegment"),
+                    optional=True,
+                ),
+            ),
+            Sequence(
+                "AUTHORIZATION",
+                Ref("ObjectReferenceSegment"),
+            ),
+        ),
+        Sequence(
+            "QUOTA",
+            OneOf(
+                Sequence(
+                    Ref("NumericLiteralSegment"),
+                    OneOf(
+                        "MB",
+                        "GB",
+                        "TB",
+                    ),
+                ),
+                "UNLIMITED",
+            ),
+            optional=True,
+        ),
+    )
+
+
 # Adding Redshift specific statements
 @redshift_dialect.segment(replace=True)
 class StatementSegment(BaseSegment):
@@ -293,16 +521,65 @@ class StatementSegment(BaseSegment):
             Ref("TableAttributeSegment"),
             Ref("ColumnAttributeSegment"),
             Ref("ColumnEncodingSegment"),
+            Ref("AuthorizationSegment"),
+            Ref("CreateLibraryStatementSegment"),
             Ref("CreateUserSegment"),
             Ref("CreateGroupSegment"),
             Ref("AlterUserSegment"),
             Ref("AlterGroupSegment"),
+            Ref("CreateExternalTableAsStatementSegment"),
+            Ref("CreateExternalTableStatementSegment"),
+            Ref("PartitionedBySegment"),
+            Ref("RowFormatDelimitedSegment"),
         ],
     )
 
     match_grammar = redshift_dialect.get_segment(
         "StatementSegment"
     ).match_grammar.copy()
+
+
+@redshift_dialect.segment()
+class PartitionedBySegment(BaseSegment):
+    """Partitioned By Segment.
+
+    As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_EXTERNAL_TABLE.html
+    """
+
+    type = "partitioned_by_segment"
+
+    match_grammar = Sequence(
+        Ref.keyword("PARTITIONED"),
+        "BY",
+        Bracketed(
+            Delimited(
+                Sequence(
+                    Ref("ColumnReferenceSegment"),
+                    Ref("DatatypeSegment"),
+                ),
+            ),
+        ),
+    )
+
+
+@redshift_dialect.segment()
+class RowFormatDelimitedSegment(BaseSegment):
+    """Row Format Delimited Segment.
+
+    As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_EXTERNAL_TABLE.html
+    """
+
+    type = "row_format_deimited_segment"
+
+    match_grammar = Sequence(
+        "ROW",
+        "FORMAT",
+        "DELIMITED",
+        OneOf("FIELDS", "LINES"),
+        "TERMINATED",
+        "BY",
+        Ref("QuotedLiteralSegment"),
+    )
 
 
 @redshift_dialect.segment()
@@ -317,7 +594,7 @@ class CreateUserSegment(BaseSegment):
     match_grammar = Sequence(
         "CREATE",
         "USER",
-        Ref("NakedIdentifierSegment"),
+        Ref("ObjectReferenceSegment"),
         Ref.keyword("WITH", optional=True),
         "PASSWORD",
         OneOf(Ref("QuotedLiteralSegment"), "DISABLE"),
@@ -338,7 +615,7 @@ class CreateUserSegment(BaseSegment):
                     "UNRESTRICTED",
                 ),
             ),
-            Sequence("IN", "GROUP", Delimited(Ref("NakedIdentifierSegment"))),
+            Sequence("IN", "GROUP", Delimited(Ref("ObjectReferenceSegment"))),
             Sequence("VALID", "UNTIL", Ref("QuotedLiteralSegment")),
             Sequence(
                 "CONNECTION",
@@ -369,12 +646,12 @@ class CreateGroupSegment(BaseSegment):
     match_grammar = Sequence(
         "CREATE",
         "GROUP",
-        Ref("NakedIdentifierSegment"),
+        Ref("ObjectReferenceSegment"),
         Sequence(
             Ref.keyword("WITH", optional=True),
             "USER",
             Delimited(
-                Ref("NakedIdentifierSegment"),
+                Ref("ObjectReferenceSegment"),
             ),
             optional=True,
         ),
@@ -393,7 +670,7 @@ class AlterUserSegment(BaseSegment):
     match_grammar = Sequence(
         "ALTER",
         "USER",
-        Ref("NakedIdentifierSegment"),
+        Ref("ObjectReferenceSegment"),
         Ref.keyword("WITH", optional=True),
         AnyNumberOf(
             OneOf(
@@ -423,7 +700,7 @@ class AlterUserSegment(BaseSegment):
             Sequence(
                 "RENAME",
                 "TO",
-                Ref("NakedIdentifierSegment"),
+                Ref("ObjectReferenceSegment"),
             ),
             Sequence(
                 "CONNECTION",
@@ -448,7 +725,7 @@ class AlterUserSegment(BaseSegment):
             OneOf(
                 Sequence(
                     "SET",
-                    Ref("NakedIdentifierSegment"),
+                    Ref("ObjectReferenceSegment"),
                     OneOf(
                         "TO",
                         Ref("EqualsSegment"),
@@ -460,7 +737,7 @@ class AlterUserSegment(BaseSegment):
                 ),
                 Sequence(
                     "RESET",
-                    Ref("NakedIdentifierSegment"),
+                    Ref("ObjectReferenceSegment"),
                 ),
             ),
             min_times=1,
@@ -480,19 +757,19 @@ class AlterGroupSegment(BaseSegment):
     match_grammar = Sequence(
         "ALTER",
         "GROUP",
-        Ref("NakedIdentifierSegment"),
+        Ref("ObjectReferenceSegment"),
         OneOf(
             Sequence(
                 OneOf("ADD", "DROP"),
                 "USER",
                 Delimited(
-                    Ref("NakedIdentifierSegment"),
+                    Ref("ObjectReferenceSegment"),
                 ),
             ),
             Sequence(
                 "RENAME",
                 "TO",
-                Ref("NakedIdentifierSegment"),
+                Ref("ObjectReferenceSegment"),
             ),
         ),
     )

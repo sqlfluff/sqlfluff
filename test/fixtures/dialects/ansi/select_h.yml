@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4ad8399122fee0c883182459d0d818eb17ed0859da120c3415187dc3c94b94c5
+_hash: 108cd55147abeb069b0b0399e41f009f6cd6a36bec8a1e7c35871a3cb14c85da
 file:
   statement:
     select_statement:
@@ -37,24 +37,25 @@ file:
               expression:
                 case_expression:
                 - keyword: CASE
-                - keyword: WHEN
-                - expression:
-                    column_reference:
-                    - identifier: zendesk
-                    - dot: .
-                    - identifier: support_team
-                    keyword: IN
-                    bracketed:
-                    - start_bracket: (
-                    - literal: "'tech support'"
-                    - comma: ','
-                    - literal: "'taskus'"
-                    - comma: ','
-                    - literal: "'onc'"
-                    - end_bracket: )
-                - keyword: THEN
-                - expression:
-                    literal: '1'
+                - when_clause:
+                  - keyword: WHEN
+                  - expression:
+                      column_reference:
+                      - identifier: zendesk
+                      - dot: .
+                      - identifier: support_team
+                      keyword: IN
+                      bracketed:
+                      - start_bracket: (
+                      - literal: "'tech support'"
+                      - comma: ','
+                      - literal: "'taskus'"
+                      - comma: ','
+                      - literal: "'onc'"
+                      - end_bracket: )
+                  - keyword: THEN
+                  - expression:
+                      literal: '1'
                 - keyword: END
               end_bracket: )
           alias_expression:

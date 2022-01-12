@@ -1,5 +1,6 @@
 """Contains the CLI."""
 
+from itertools import chain
 import sys
 import json
 import logging
@@ -13,7 +14,7 @@ from typing import (
     List,
 )
 
-import oyaml as yaml
+import yaml
 
 import click
 
@@ -24,6 +25,7 @@ from io import StringIO
 # To enable colour cross platform
 import colorama
 from tqdm import tqdm
+from sqlfluff.cli.autocomplete import dialect_shell_complete
 
 from sqlfluff.cli.formatters import (
     format_rules,
@@ -52,6 +54,7 @@ from sqlfluff.core.config import progress_bar_configuration
 
 from sqlfluff.core.enums import FormatType, Color
 from sqlfluff.core.linter import ParsedString
+from sqlfluff.core.plugin.host import get_plugin_manager
 
 
 class RedWarningsFilter(logging.Filter):
@@ -169,10 +172,23 @@ def core_options(f: Callable) -> Callable:
     `parse`, `lint` and `fix`.
     """
     f = click.option(
-        "--dialect", default=None, help="The dialect of SQL to lint (default=ansi)"
+        "--dialect",
+        default=None,
+        help="The dialect of SQL to lint (default=ansi)",
+        shell_complete=dialect_shell_complete,
     )(f)
     f = click.option(
-        "--templater", default=None, help="The templater to use (default=jinja)"
+        "--templater",
+        default=None,
+        help="The templater to use (default=jinja)",
+        type=click.Choice(
+            [
+                templater.name
+                for templater in chain.from_iterable(
+                    get_plugin_manager().hook.get_templaters()
+                )
+            ]
+        ),
     )(f)
     f = click.option(
         "--rules",
@@ -208,6 +224,7 @@ def core_options(f: Callable) -> Callable:
             "argument allows you to specify an additional configuration file that overrides "
             "the standard configuration files. N.B. cfg format is required."
         ),
+        type=click.Path(),
     )(f)
     f = click.option(
         "--ignore-local-config",
@@ -425,7 +442,7 @@ def dialects(**kwargs) -> None:
     is_flag=True,
     help="Disables progress bars.",
 )
-@click.argument("paths", nargs=-1)
+@click.argument("paths", nargs=-1, type=click.Path(allow_dash=True))
 def lint(
     paths: Tuple[str],
     processes: int,
@@ -498,7 +515,7 @@ def lint(
     if format == FormatType.json.value:
         click.echo(json.dumps(result.as_records()))
     elif format == FormatType.yaml.value:
-        click.echo(yaml.dump(result.as_records()))
+        click.echo(yaml.dump(result.as_records(), sort_keys=False))
     elif format == FormatType.github_annotation.value:
         github_result = []
         for record in result.as_records():
@@ -581,7 +598,7 @@ def do_fixes(lnt, result, formatter=None, **kwargs):
     is_flag=True,
     help="Disables progress bars.",
 )
-@click.argument("paths", nargs=-1)
+@click.argument("paths", nargs=-1, type=click.Path(allow_dash=True))
 def fix(
     force: bool,
     paths: Tuple[str],
@@ -758,7 +775,7 @@ def quoted_presenter(dumper, data):
 @cli.command()
 @common_options
 @core_options
-@click.argument("path", nargs=1)
+@click.argument("path", nargs=1, type=click.Path(allow_dash=True))
 @click.option(
     "--recurse", default=0, help="The depth to recursively parse to (0 for unlimited)"
 )
@@ -889,7 +906,7 @@ def parse(
             if format == FormatType.yaml.value:
                 # For yaml dumping always dump double quoted strings if they contain tabs or newlines.
                 yaml.add_representer(str, quoted_presenter)
-                click.echo(yaml.dump(parsed_strings_dict))
+                click.echo(yaml.dump(parsed_strings_dict, sort_keys=False))
             elif format == FormatType.json.value:
                 click.echo(json.dumps(parsed_strings_dict))
 

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 72f3e66588b68471cc1691806fe8720a4c2f91af0d1517ec1f2b1ce55509a1fd
+_hash: 90b9abf0e8b5a8bc8dec52c184f7f35e594821f558a40c0210837523a1f3395d
 file:
 - statement:
     create_materialized_view_statement:
@@ -188,7 +188,8 @@ file:
             expression:
               column_reference:
                 identifier: y
-              comparison_operator: '='
+              comparison_operator:
+                raw_comparison_operator: '='
               literal: "'value'"
         end_bracket: )
 - statement_terminator: ;
@@ -227,7 +228,8 @@ file:
             expression:
               column_reference:
                 identifier: y
-              comparison_operator: '='
+              comparison_operator:
+                raw_comparison_operator: '='
               literal: "'value'"
         end_bracket: )
 - statement_terminator: ;
@@ -261,7 +263,8 @@ file:
           expression:
             column_reference:
               identifier: y
-            comparison_operator: '='
+            comparison_operator:
+              raw_comparison_operator: '='
             literal: "'value'"
 - statement_terminator: ;
 - statement:
@@ -297,7 +300,8 @@ file:
           expression:
             column_reference:
               identifier: y
-            comparison_operator: '='
+            comparison_operator:
+              raw_comparison_operator: '='
             literal: "'value'"
 - statement_terminator: ;
 - statement:
@@ -431,15 +435,18 @@ file:
     - bracketed:
       - start_bracket: (
       - parameter: prop_a
-      - comparison_operator: '='
+      - comparison_operator:
+          raw_comparison_operator: '='
       - literal: '1'
       - comma: ','
       - parameter: prob_b
-      - comparison_operator: '='
+      - comparison_operator:
+          raw_comparison_operator: '='
       - literal: "'some_value'"
       - comma: ','
       - parameter: prop_c
-      - comparison_operator: '='
+      - comparison_operator:
+          raw_comparison_operator: '='
       - literal: 'FALSE'
       - comma: ','
       - parameter: prop_d
@@ -496,7 +503,8 @@ file:
             expression:
               column_reference:
                 identifier: col
-              comparison_operator: '>'
+              comparison_operator:
+                raw_comparison_operator: '>'
               literal: '2'
         end_bracket: )
     - with_data_clause:
@@ -521,15 +529,18 @@ file:
     - bracketed:
       - start_bracket: (
       - parameter: prop_a
-      - comparison_operator: '='
+      - comparison_operator:
+          raw_comparison_operator: '='
       - literal: '1'
       - comma: ','
       - parameter: prob_b
-      - comparison_operator: '='
+      - comparison_operator:
+          raw_comparison_operator: '='
       - literal: "'some_value'"
       - comma: ','
       - parameter: prop_c
-      - comparison_operator: '='
+      - comparison_operator:
+          raw_comparison_operator: '='
       - literal: 'FALSE'
       - comma: ','
       - parameter: prop_d
@@ -586,7 +597,8 @@ file:
             expression:
               column_reference:
                 identifier: col
-              comparison_operator: '>'
+              comparison_operator:
+                raw_comparison_operator: '>'
               literal: '2'
         end_bracket: )
     - with_data_clause:

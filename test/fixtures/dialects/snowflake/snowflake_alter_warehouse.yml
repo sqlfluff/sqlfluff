@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: cafd424f48bcaf1e2cc5194c0d6f1d734cc60cb01fd0ff87bbeae52f3898ba48
+_hash: 7ae641eced1ed2314c6e2df12af85f687fc5266430633f8a1bd8f292faa7a198
 file:
 - statement:
     alter_warehouse_statement:
@@ -24,7 +24,8 @@ file:
     - keyword: set
     - warehouse_object_properties:
         keyword: warehouse_size
-        comparison_operator: '='
+        comparison_operator:
+          raw_comparison_operator: '='
         warehouse_size: medium
 - statement_terminator: ;
 - statement:
@@ -35,7 +36,8 @@ file:
     - keyword: set
     - warehouse_object_properties:
         keyword: warehouse_size
-        comparison_operator: '='
+        comparison_operator:
+          raw_comparison_operator: '='
         warehouse_size: XXLARGE
 - statement_terminator: ;
 - statement:
@@ -46,7 +48,8 @@ file:
     - keyword: set
     - warehouse_object_properties:
         keyword: WAIT_FOR_COMPLETION
-        comparison_operator: '='
+        comparison_operator:
+          raw_comparison_operator: '='
         literal: 'TRUE'
 - statement_terminator: ;
 - statement:
@@ -57,7 +60,8 @@ file:
     - keyword: set
     - warehouse_object_properties:
         keyword: MAX_CLUSTER_COUNT
-        comparison_operator: '='
+        comparison_operator:
+          raw_comparison_operator: '='
         literal: '5'
 - statement_terminator: ;
 - statement:
@@ -68,7 +72,8 @@ file:
     - keyword: set
     - warehouse_object_properties:
         keyword: MIN_CLUSTER_COUNT
-        comparison_operator: '='
+        comparison_operator:
+          raw_comparison_operator: '='
         literal: '1'
 - statement_terminator: ;
 - statement:
@@ -79,7 +84,8 @@ file:
     - keyword: set
     - warehouse_object_properties:
       - keyword: SCALING_POLICY
-      - comparison_operator: '='
+      - comparison_operator:
+          raw_comparison_operator: '='
       - keyword: STANDARD
 - statement_terminator: ;
 - statement:
@@ -90,7 +96,8 @@ file:
     - keyword: set
     - warehouse_object_properties:
         keyword: AUTO_SUSPEND
-        comparison_operator: '='
+        comparison_operator:
+          raw_comparison_operator: '='
         literal: '1'
 - statement_terminator: ;
 - statement:
@@ -101,7 +108,8 @@ file:
     - keyword: set
     - warehouse_object_properties:
         keyword: AUTO_RESUME
-        comparison_operator: '='
+        comparison_operator:
+          raw_comparison_operator: '='
         literal: 'FALSE'
 - statement_terminator: ;
 - statement:
@@ -112,7 +120,8 @@ file:
     - keyword: set
     - warehouse_object_properties:
         keyword: RESOURCE_MONITOR
-        comparison_operator: '='
+        comparison_operator:
+          raw_comparison_operator: '='
         identifier: monitor_name
 - statement_terminator: ;
 - statement:
@@ -123,7 +132,8 @@ file:
     - keyword: set
     - comment_equals_clause:
         keyword: COMMENT
-        comparison_operator: '='
+        comparison_operator:
+          raw_comparison_operator: '='
         literal: "'This is a comment'"
 - statement_terminator: ;
 - statement:
@@ -134,7 +144,8 @@ file:
     - keyword: set
     - warehouse_object_properties:
         keyword: MAX_CONCURRENCY_LEVEL
-        comparison_operator: '='
+        comparison_operator:
+          raw_comparison_operator: '='
         literal: '1'
 - statement_terminator: ;
 - statement:
@@ -145,7 +156,8 @@ file:
     - keyword: set
     - warehouse_object_properties:
         keyword: STATEMENT_QUEUED_TIMEOUT_IN_SECONDS
-        comparison_operator: '='
+        comparison_operator:
+          raw_comparison_operator: '='
         literal: '300'
 - statement_terminator: ;
 - statement:
@@ -156,7 +168,8 @@ file:
     - keyword: set
     - warehouse_object_properties:
         keyword: STATEMENT_TIMEOUT_IN_SECONDS
-        comparison_operator: '='
+        comparison_operator:
+          raw_comparison_operator: '='
         literal: '300'
 - statement_terminator: ;
 - statement:
@@ -168,7 +181,8 @@ file:
     - tag_equals:
         keyword: TAG
         identifier: thetag
-        comparison_operator: '='
+        comparison_operator:
+          raw_comparison_operator: '='
         literal: "'tag1'"
 - statement_terminator: ;
 - statement:
@@ -180,11 +194,13 @@ file:
     - tag_equals:
       - keyword: TAG
       - identifier: thetag1
-      - comparison_operator: '='
+      - comparison_operator:
+          raw_comparison_operator: '='
       - literal: "'tag1'"
       - comma: ','
       - identifier: thetag2
-      - comparison_operator: '='
+      - comparison_operator:
+          raw_comparison_operator: '='
       - literal: "'tag2'"
 - statement_terminator: ;
 - statement:
@@ -222,7 +238,8 @@ file:
     - keyword: SET
     - warehouse_object_properties:
         keyword: MAX_CONCURRENCY_LEVEL
-        comparison_operator: '='
+        comparison_operator:
+          raw_comparison_operator: '='
         literal: '1'
 - statement_terminator: ;
 - statement:

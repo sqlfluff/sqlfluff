@@ -1,0 +1,53 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 4ed2f62aa738480cdb3833e454d2bc53c76dc47d6fd77c2664a178d37d3d436c
+file:
+- base:
+    msck_repair_table_statement:
+    - keyword: MSCK
+    - keyword: REPAIR
+    - keyword: TABLE
+    - table_reference:
+        identifier: table_identifier
+    - keyword: ADD
+    - keyword: PARTITIONS
+- statement_terminator: ;
+- base:
+    msck_repair_table_statement:
+    - keyword: MSCK
+    - keyword: REPAIR
+    - keyword: TABLE
+    - table_reference:
+        identifier: table_identifier
+    - keyword: DROP
+    - keyword: PARTITIONS
+- statement_terminator: ;
+- base:
+    msck_repair_table_statement:
+    - keyword: MSCK
+    - keyword: REPAIR
+    - keyword: TABLE
+    - table_reference:
+        identifier: table_identifier
+    - keyword: SYNC
+    - keyword: PARTITIONS
+- statement_terminator: ;
+- base:
+    msck_repair_table_statement:
+    - keyword: MSCK
+    - keyword: REPAIR
+    - keyword: TABLE
+    - table_reference:
+        identifier: table_identifier
+- statement_terminator: ;
+- base:
+    msck_repair_table_statement:
+    - keyword: MSCK
+    - keyword: REPAIR
+    - keyword: TABLE
+    - table_reference:
+        identifier: t1
+- statement_terminator: ;

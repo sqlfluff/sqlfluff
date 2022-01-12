@@ -14,7 +14,7 @@ import click
 import time
 import subprocess
 import sys
-import oyaml as yaml
+import yaml
 import requests
 
 

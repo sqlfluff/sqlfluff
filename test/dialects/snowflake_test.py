@@ -34,7 +34,7 @@ from sqlfluff.core.dialects import dialect_selector
             "SemiStructuredAccessorSegment",
             "SELECT ID :: VARCHAR as id, OBJ : userId :: VARCHAR as user_id from x",
         ),
-        ("DropStatementSegment", "DROP USER my_user;"),
+        ("DropUserStatementSegment", "DROP USER my_user;"),
         ("AlterSessionStatementSegment", "ALTER SESSION SET TIMEZONE = 'UTC'"),
         (
             "AlterSessionStatementSegment",

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b5da892683d4d7e2e4ae8062d5ea1e3e62969eccf0d4071939ea1ccc89130c61
+_hash: 1db7dac12484ee7d94193cf04926145a524f69310ac7b210b2c23c7a7022751e
 file:
 - statement:
     merge_statement:
@@ -25,7 +25,8 @@ file:
           - identifier: T
           - dot: .
           - identifier: name
-        - comparison_operator: '='
+        - comparison_operator:
+            raw_comparison_operator: '='
         - column_reference:
           - identifier: U
           - dot: .
@@ -43,7 +44,8 @@ file:
               - identifier: T
               - dot: .
               - identifier: salary
-              comparison_operator: '='
+              comparison_operator:
+                raw_comparison_operator: '='
               expression:
                 column_reference:
                 - identifier: U
@@ -55,7 +57,8 @@ file:
               - identifier: T
               - dot: .
               - identifier: lastChange
-              comparison_operator: '='
+              comparison_operator:
+                raw_comparison_operator: '='
               expression:
                 bare_function: CURRENT_DATE
           where_clause:
@@ -65,7 +68,8 @@ file:
               - identifier: T
               - dot: .
               - identifier: salary
-            - comparison_operator: <
+            - comparison_operator:
+                raw_comparison_operator: <
             - column_reference:
               - identifier: U
               - dot: .
@@ -130,7 +134,8 @@ file:
           - identifier: T
           - dot: .
           - identifier: name
-        - comparison_operator: '='
+        - comparison_operator:
+            raw_comparison_operator: '='
         - column_reference:
           - identifier: U
           - dot: .
@@ -176,7 +181,8 @@ file:
           - identifier: T
           - dot: .
           - identifier: name
-        - comparison_operator: '='
+        - comparison_operator:
+            raw_comparison_operator: '='
         - column_reference:
           - identifier: U
           - dot: .

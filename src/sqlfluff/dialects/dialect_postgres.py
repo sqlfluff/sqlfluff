@@ -79,7 +79,7 @@ postgres_dialect.insert_lexer_matchers(
             CodeSegment,
         ),
     ],
-    before="not_equal",
+    before="like_operator",
 )
 
 postgres_dialect.insert_lexer_matchers(
@@ -177,8 +177,7 @@ postgres_dialect.replace(
         Ref("LessThanSegment"),
         Ref("GreaterThanOrEqualToSegment"),
         Ref("LessThanOrEqualToSegment"),
-        Ref("NotEqualToSegment_a"),
-        Ref("NotEqualToSegment_b"),
+        Ref("NotEqualToSegment"),
         Ref("LikeOperatorSegment"),
         Sequence("IS", "DISTINCT", "FROM"),
         Sequence("IS", "NOT", "DISTINCT", "FROM"),
@@ -375,8 +374,10 @@ class DateTimeTypeIdentifier(BaseSegment):
             Bracketed(Ref("NumericLiteralSegment"), optional=True),
             Sequence(OneOf("WITH", "WITHOUT"), "TIME", "ZONE", optional=True),
         ),
-        Sequence("TIMESTAMPTZ", Bracketed(Ref("NumericLiteralSegment"), optional=True)),
-        "INTERVAL",
+        Sequence(
+            OneOf("INTERVAL", "TIMETZ", "TIMESTAMPTZ"),
+            Bracketed(Ref("NumericLiteralSegment"), optional=True),
+        ),
     )
 
 
@@ -400,48 +401,117 @@ class DatatypeSegment(BaseSegment):
     """
 
     type = "data_type"
-    match_grammar = OneOf(
-        Ref("WellKnownTextGeometrySegment"),
+    match_grammar = Sequence(
+        # Some dialects allow optional qualification of data types with schemas
         Sequence(
-            Ref("DateTimeTypeIdentifier"),
-            Ref("TimeZoneGrammar", optional=True),
+            Ref("SingleIdentifierGrammar"),
+            Ref("DotSegment"),
+            allow_gaps=False,
+            optional=True,
         ),
-        Sequence(
-            OneOf(
-                Sequence("DOUBLE", "PRECISION"),
-                Sequence(
-                    OneOf("CHARACTER", "BINARY"),
-                    OneOf("VARYING", Sequence("LARGE", "OBJECT")),
-                ),
-                Sequence(
-                    # Some dialects allow optional qualification of data types with schemas
-                    Sequence(
-                        Ref("SingleIdentifierGrammar"),
-                        Ref("DotSegment"),
-                        allow_gaps=False,
-                        optional=True,
-                    ),
-                    Ref("DatatypeIdentifierSegment"),
-                    OneOf(
-                        Ref("ArrayAccessorSegment"),
-                        Sequence(
-                            Ref("SimpleArrayTypeGrammar"), Ref("ArrayLiteralSegment")
-                        ),
-                        optional=True,
-                    ),
-                    allow_gaps=False,
-                ),
+        OneOf(
+            Ref("WellKnownTextGeometrySegment"),
+            Sequence(
+                Ref("DateTimeTypeIdentifier"),
+                Ref("TimeZoneGrammar", optional=True),
             ),
-            Bracketed(
+            Sequence(
                 OneOf(
-                    Delimited(Ref("ExpressionSegment")),
-                    # The brackets might be empty for some cases...
-                    optional=True,
+                    # numeric types
+                    "SMALLINT",
+                    "INTEGER",
+                    "INT",
+                    "INT2",
+                    "INT4",
+                    "INT8",
+                    "BIGINT",
+                    "FLOAT4",
+                    "FLOAT8",
+                    "REAL",
+                    Sequence("DOUBLE", "PRECISION"),
+                    "SMALLSERIAL",
+                    "SERIAL",
+                    "SERIAL2",
+                    "SERIAL4",
+                    "SERIAL8",
+                    "BIGSERIAL",
+                    # numeric types [(precision)]
+                    Sequence(
+                        OneOf("FLOAT"),
+                        Bracketed(Ref("NumericLiteralSegment"), optional=True),
+                    ),
+                    # numeric types [precision ["," scale])]
+                    Sequence(
+                        OneOf("DECIMAL", "NUMERIC"),
+                        Bracketed(
+                            Delimited(Ref("NumericLiteralSegment")),
+                            optional=True,
+                        ),
+                    ),
+                    # monetary type
+                    "MONEY",
+                    # character types
+                    OneOf(
+                        Sequence(
+                            OneOf(
+                                "CHAR",
+                                "CHARACTER",
+                                Sequence("CHARACTER", "VARYING"),
+                                "VARCHAR",
+                            ),
+                            Bracketed(Ref("NumericLiteralSegment"), optional=True),
+                        ),
+                        "TEXT",
+                    ),
+                    # binary type
+                    "BYTEA",
+                    # boolean types
+                    OneOf("BOOLEAN", "BOOL"),
+                    # geometric types
+                    OneOf("POINT", "LINE", "LSEG", "BOX", "PATH", "POLYGON", "CIRCLE"),
+                    # network address types
+                    OneOf("CIDR", "INET", "MACADDR", "MACADDR8"),
+                    # text search types
+                    OneOf("TSVECTOR", "TSQUERY"),
+                    # bit string types
+                    Sequence(
+                        "BIT",
+                        OneOf("VARYING", optional=True),
+                        Bracketed(
+                            Ref("NumericLiteralSegment"),
+                            optional=True,
+                        ),
+                    ),
+                    # uuid type
+                    "UUID",
+                    # xml type
+                    "XML",
+                    # json types
+                    OneOf("JSON", "JSONB"),
+                    # range types
+                    "INT4RANGE",
+                    "INT8RANGE",
+                    "NUMRANGE",
+                    "TSRANGE",
+                    "TSTZRANGE",
+                    "DATERANGE",
+                    # pg_lsn type
+                    "PG_LSN",
                 ),
-                # There may be no brackets for some data types
-                optional=True,
             ),
-            Ref("CharCharacterSetSegment", optional=True),
+            # user defined data types
+            Ref("DatatypeIdentifierSegment"),
+        ),
+        # array types
+        OneOf(
+            AnyNumberOf(
+                Bracketed(
+                    Ref("ExpressionSegment", optional=True), bracket_type="square"
+                )
+            ),
+            Ref("SimpleArrayTypeGrammar"),
+            Sequence(Ref("SimpleArrayTypeGrammar"), Ref("ArrayLiteralSegment")),
+            optional=True,
         ),
     )
 
@@ -522,7 +592,7 @@ class DropFunctionStatementSegment(BaseSegment):
                 Ref("FunctionParameterListGrammar", optional=True),
             )
         ),
-        OneOf("CASCADE", "RESTRICT", optional=True),
+        Ref("DropBehaviorGrammar", optional=True),
     )
 
 
@@ -1264,7 +1334,7 @@ class AlterTableActionSegment(BaseSegment):
             Ref.keyword("COLUMN", optional=True),
             Sequence("IF", "EXISTS", optional=True),
             Ref("ColumnReferenceSegment"),
-            OneOf("RESTRICT", "CASCADE", optional=True),
+            Ref("DropBehaviorGrammar", optional=True),
         ),
         Sequence(
             "ALTER",
@@ -1367,7 +1437,7 @@ class AlterTableActionSegment(BaseSegment):
             "CONSTRAINT",
             Sequence("IF", "EXISTS", optional=True),
             Ref("ParameterNameSegment"),
-            OneOf("RESTRICT", "CASCADE", optional=True),
+            Ref("DropBehaviorGrammar", optional=True),
         ),
         Sequence(
             OneOf("ENABLE", "DISABLE"),
@@ -1660,7 +1730,7 @@ class DropMaterializedViewStatementSegment(BaseSegment):
         "VIEW",
         Sequence("IF", "EXISTS", optional=True),
         Delimited(Ref("TableReferenceSegment")),
-        OneOf("CASCADE", "RESTRICT", optional=True),
+        Ref("DropBehaviorGrammar", optional=True),
     )
 
 
@@ -1877,7 +1947,7 @@ class AlterDatabaseStatementSegment(BaseSegment):
     )
 
 
-@postgres_dialect.segment()
+@postgres_dialect.segment(replace=True)
 class DropDatabaseStatementSegment(BaseSegment):
     """A `DROP DATABASE` statement.
 
@@ -2337,7 +2407,7 @@ class AlterDefaultPrivilegesRevokeSegment(BaseSegment):
             Ref("AlterDefaultPrivilegesToFromRolesSegment"),
             terminator=OneOf("RESTRICT", "CASCADE"),
         ),
-        OneOf("RESTRICT", "CASCADE", optional=True),
+        Ref("DropBehaviorGrammar", optional=True),
     )
 
 
@@ -2709,7 +2779,7 @@ class DropSequenceStatementSegment(BaseSegment):
         "SEQUENCE",
         Ref("IfExistsGrammar", optional=True),
         Delimited(Ref("SequenceReferenceSegment")),
-        OneOf("CASCADE", "RESTRICT", optional=True),
+        Ref("DropBehaviorGrammar", optional=True),
     )
 
 
@@ -2764,6 +2834,12 @@ class StatementSegment(BaseSegment):
             Ref("DropDatabaseStatementSegment"),
             Ref("AlterFunctionStatementSegment"),
             Ref("AlterViewStatementSegment"),
+            Ref("ListenStatementSegment"),
+            Ref("NotifyStatementSegment"),
+            Ref("UnlistenStatementSegment"),
+            Ref("LoadStatementSegment"),
+            Ref("ResetStatementSegment"),
+            Ref("DiscardStatementSegment"),
         ],
     )
 
@@ -2917,7 +2993,7 @@ class DropTriggerStatementSegment(BaseSegment):
     As Specified in https://www.postgresql.org/docs/14/sql-droptrigger.html
     """
 
-    type = "drop_trigger"
+    type = "drop_trigger_statement"
 
     match_grammar = Sequence("DROP", "TRIGGER", Anything())
 
@@ -2928,7 +3004,7 @@ class DropTriggerStatementSegment(BaseSegment):
         Ref("TriggerReferenceSegment"),
         "ON",
         Ref("TableReferenceSegment"),
-        OneOf("CASCADE", "RESTRICT", optional=True),
+        Ref("DropBehaviorGrammar", optional=True),
     )
 
 
@@ -2967,7 +3043,7 @@ class DropTypeStatementSegment(BaseSegment):
         "TYPE",
         Ref("IfExistsGrammar", optional=True),
         Delimited(Ref("DatatypeSegment")),
-        OneOf("CASCADE", "RESTRICT", optional=True),
+        Ref("DropBehaviorGrammar", optional=True),
     )
 
 
@@ -3052,5 +3128,135 @@ class DropPolicyStatementSegment(BaseSegment):
         Ref("ObjectReferenceSegment"),
         "ON",
         Ref("TableReferenceSegment"),
-        OneOf("CASCADE", "RESTRICT", optional=True),
+        Ref("DropBehaviorGrammar", optional=True),
+    )
+
+
+@postgres_dialect.segment()
+class LoadStatementSegment(BaseSegment):
+    """A `LOAD` statement.
+
+    As Specified in https://www.postgresql.org/docs/14/sql-load.html
+    """
+
+    type = "load_statement"
+    match_grammar = Sequence(
+        "LOAD",
+        Ref("QuotedLiteralSegment"),
+    )
+
+
+@postgres_dialect.segment()
+class ResetStatementSegment(BaseSegment):
+    """A `RESET` statement.
+
+    As Specified in https://www.postgresql.org/docs/14/sql-reset.html
+    """
+
+    type = "reset_statement"
+    match_grammar = Sequence(
+        "RESET",
+        OneOf("ALL", Ref("ParameterNameSegment")),
+    )
+
+
+@postgres_dialect.segment()
+class DiscardStatementSegment(BaseSegment):
+    """A `DISCARD` statement.
+
+    As Specified in https://www.postgresql.org/docs/14/sql-discard.html
+    """
+
+    type = "discard_statement"
+    match_grammar = Sequence(
+        "DISCARD",
+        OneOf(
+            "ALL",
+            "PLANS",
+            "SEQUENCES",
+            "TEMPORARY",
+            "TEMP",
+        ),
+    )
+
+
+@postgres_dialect.segment()
+class ListenStatementSegment(BaseSegment):
+    """A `LISTEN` statement.
+
+    As Specified in https://www.postgresql.org/docs/14/sql-listen.html
+    """
+
+    type = "listen_statement"
+    match_grammar = Sequence("LISTEN", Ref("SingleIdentifierGrammar"))
+
+
+@postgres_dialect.segment()
+class NotifyStatementSegment(BaseSegment):
+    """A `NOTIFY` statement.
+
+    As Specified in https://www.postgresql.org/docs/14/sql-notify.html
+    """
+
+    type = "notify_statement"
+    match_grammar = Sequence(
+        "NOTIFY",
+        Ref("SingleIdentifierGrammar"),
+        Sequence(
+            Ref("CommaSegment"),
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
+    )
+
+
+@postgres_dialect.segment()
+class UnlistenStatementSegment(BaseSegment):
+    """A `UNLISTEN` statement.
+
+    As Specified in https://www.postgresql.org/docs/14/sql-unlisten.html
+    """
+
+    type = "unlisten_statement"
+    match_grammar = Sequence(
+        "UNLISTEN",
+        OneOf(
+            Ref("SingleIdentifierGrammar"),
+            Ref("StarSegment"),
+        ),
+    )
+
+
+@postgres_dialect.segment(replace=True)
+class TruncateStatementSegment(BaseSegment):
+    """`TRUNCATE TABLE` statement.
+
+    https://www.postgresql.org/docs/14/sql-truncate.html
+    """
+
+    type = "truncate_table"
+    match_grammar = Sequence(
+        "TRUNCATE",
+        Ref.keyword("TABLE", optional=True),
+        Delimited(
+            OneOf(
+                Sequence(
+                    Ref.keyword("ONLY", optional=True),
+                    Ref("TableReferenceSegment"),
+                ),
+                Sequence(
+                    Ref("TableReferenceSegment"),
+                    Ref("StarSegment", optional=True),
+                ),
+            ),
+        ),
+        Sequence(
+            OneOf("RESTART", "CONTINUE"),
+            "IDENTITY",
+            optional=True,
+        ),
+        Ref(
+            "DropBehaviorGrammar",
+            optional=True,
+        ),
     )

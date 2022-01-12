@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e24737e642c299665d6431069fe39ed65fcd2cf7f28707b993c9580007690dce
+_hash: 50095af709a53d3d25342e80861f5ffcc0a0ebddb056281a375c76a3edbaa8b4
 file:
   statement:
     select_statement:
@@ -13,45 +13,51 @@ file:
           expression:
             case_expression:
             - keyword: CASE
-            - keyword: WHEN
-            - expression:
-              - literal: '1'
-              - comparison_operator: '='
-              - literal: '2'
-            - keyword: THEN
-            - expression:
-                literal: '3'
-            - keyword: WHEN
-            - expression:
-              - literal: '4'
-              - comparison_operator: '>'
-              - literal: '3'
-            - keyword: THEN
-            - expression:
-              - literal: '5'
-              - binary_operator: +
-              - literal: '2'
-            - keyword: WHEN
-            - expression:
-                column_reference:
-                  identifier: some_var
-                keyword: IN
-                bracketed:
-                - start_bracket: (
+            - when_clause:
+              - keyword: WHEN
+              - expression:
                 - literal: '1'
-                - comma: ','
+                - comparison_operator:
+                    raw_comparison_operator: '='
                 - literal: '2'
-                - comma: ','
+              - keyword: THEN
+              - expression:
+                  literal: '3'
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                - literal: '4'
+                - comparison_operator:
+                    raw_comparison_operator: '>'
                 - literal: '3'
-                - end_bracket: )
-            - keyword: then
-            - expression:
-                column_reference:
-                  identifier: '"nothing"'
-            - keyword: ELSE
-            - expression:
-                column_reference:
-                  identifier: '"boo"'
+              - keyword: THEN
+              - expression:
+                - literal: '5'
+                - binary_operator: +
+                - literal: '2'
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  column_reference:
+                    identifier: some_var
+                  keyword: IN
+                  bracketed:
+                  - start_bracket: (
+                  - literal: '1'
+                  - comma: ','
+                  - literal: '2'
+                  - comma: ','
+                  - literal: '3'
+                  - end_bracket: )
+              - keyword: then
+              - expression:
+                  column_reference:
+                    identifier: '"nothing"'
+            - else_clause:
+                keyword: ELSE
+                expression:
+                  column_reference:
+                    identifier: '"boo"'
             - keyword: END
           alias_expression:
             keyword: as

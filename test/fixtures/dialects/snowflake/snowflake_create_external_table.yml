@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3bb4c6725e63b08c2385336fec3f68dd1563e94a9cf1ac0a2dc0a2193f9b0403
+_hash: 68fffe180f72ede227095df69fc448c3b5b74429529d177a859bfe9b26fa536b
 file:
 - statement:
     create_external_table_statement:
@@ -16,23 +16,23 @@ file:
         identifier: ext_table
     - keyword: with
     - keyword: location
-    - comparison_operator: '='
-    - literal: '@'
-    - identifier: mystage
-    - slash: /
-    - identifier: path1
-    - slash: /
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - stage_path: '@mystage/path1/'
     - keyword: file_format
-    - comparison_operator: '='
+    - comparison_operator:
+        raw_comparison_operator: '='
     - file_format_segment:
         bracketed:
           start_bracket: (
           keyword: type
-          comparison_operator: '='
+          comparison_operator:
+            raw_comparison_operator: '='
           file_type: json
           end_bracket: )
     - keyword: aws_sns_topic
-    - comparison_operator: '='
+    - comparison_operator:
+        raw_comparison_operator: '='
     - literal: "'arn:aws:sns:us-west-2:001234567890:s3_mybucket'"
 - statement_terminator: ;
 - statement:
@@ -46,24 +46,26 @@ file:
         identifier: '"_p08"'
     - keyword: with
     - keyword: location
-    - comparison_operator: '='
-    - literal: '@'
-    - identifier: carpe_datastore_commercial
-    - slash: /
-    - identifier: p08
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - stage_path: '@carpe_datastore_commercial/p08'
     - keyword: auto_refresh
-    - comparison_operator: '='
+    - comparison_operator:
+        raw_comparison_operator: '='
     - literal: 'true'
     - keyword: file_format
-    - comparison_operator: '='
+    - comparison_operator:
+        raw_comparison_operator: '='
     - file_format_segment:
         bracketed:
           start_bracket: (
           keyword: type
-          comparison_operator: '='
+          comparison_operator:
+            raw_comparison_operator: '='
           file_type: parquet
           end_bracket: )
     - keyword: pattern
-    - comparison_operator: '='
+    - comparison_operator:
+        raw_comparison_operator: '='
     - literal: "'.*[.]parquet.*'"
 - statement_terminator: ;

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 03530dfd2b82682aadd3c492e59e2cf036ac9a2e62fe312d513cdc9fbe1c93e4
+_hash: 146c0ab69c396f1f6fda497f956c569ad38e58ef9aaac6f91fb596338c32566a
 file:
   statement:
     alter_task_statement:
@@ -14,7 +14,8 @@ file:
     - alter_task_special_set_clause:
       - keyword: SET
       - keyword: WAREHOUSE
-      - comparison_operator: '='
+      - comparison_operator:
+          raw_comparison_operator: '='
       - object_reference:
           identifier: my_warehouse
   statement_terminator: ;

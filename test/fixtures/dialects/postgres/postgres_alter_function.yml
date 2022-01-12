@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 52606ea41a82be5630bd02690139672155fd7b5f385e64349a429b0640e9f935
+_hash: 3d7f4385ee6cf816a55a9f5cfc772d5936328055f4d4b156e0a39b30e0c426c9
 file:
 - statement:
     alter_function_statement:
@@ -25,11 +25,11 @@ file:
         bracketed:
         - start_bracket: (
         - data_type:
-            data_type_identifier: int
+            keyword: int
         - comma: ','
         - parameter: arg2
         - data_type:
-            data_type_identifier: text
+            keyword: text
         - end_bracket: )
     - keyword: OWNER
     - keyword: TO
@@ -173,7 +173,7 @@ file:
           start_bracket: (
           parameter: arg1
           data_type:
-            data_type_identifier: int
+            keyword: int
           end_bracket: )
     - alter_function_action_segment:
       - keyword: CALLED
@@ -195,7 +195,7 @@ file:
           start_bracket: (
           parameter: arg1
           data_type:
-            data_type_identifier: int
+            keyword: int
           end_bracket: )
     - alter_function_action_segment:
       - keyword: CALLED
@@ -227,10 +227,10 @@ file:
         bracketed:
         - start_bracket: (
         - data_type:
-            data_type_identifier: int
+            keyword: int
         - comma: ','
         - data_type:
-            data_type_identifier: text
+            keyword: text
         - end_bracket: )
     - alter_function_action_segment:
       - keyword: RETURNS
@@ -279,10 +279,10 @@ file:
         bracketed:
         - start_bracket: (
         - data_type:
-            data_type_identifier: int
+            keyword: int
         - comma: ','
         - data_type:
-            data_type_identifier: text
+            keyword: text
         - end_bracket: )
     - alter_function_action_segment:
       - keyword: RETURNS
@@ -311,7 +311,7 @@ file:
         bracketed:
           start_bracket: (
           data_type:
-            data_type_identifier: int
+            keyword: int
           end_bracket: )
     - alter_function_action_segment:
         keyword: STRICT
@@ -349,7 +349,7 @@ file:
           start_bracket: (
           parameter: arg1
           data_type:
-            data_type_identifier: int
+            keyword: int
           end_bracket: )
     - alter_function_action_segment:
       - keyword: STRICT
@@ -445,11 +445,11 @@ file:
         bracketed:
         - start_bracket: (
         - data_type:
-            data_type_identifier: int
+            keyword: int
         - comma: ','
         - parameter: arg2
         - data_type:
-            data_type_identifier: text
+            keyword: text
         - end_bracket: )
     - alter_function_action_segment:
         keyword: IMMUTABLE
@@ -464,11 +464,11 @@ file:
         bracketed:
         - start_bracket: (
         - data_type:
-            data_type_identifier: int
+            keyword: int
         - comma: ','
         - parameter: arg2
         - data_type:
-            data_type_identifier: text
+            keyword: text
         - end_bracket: )
     - alter_function_action_segment:
       - keyword: IMMUTABLE
@@ -486,11 +486,11 @@ file:
         bracketed:
         - start_bracket: (
         - data_type:
-            data_type_identifier: int
+            keyword: int
         - comma: ','
         - parameter: arg2
         - data_type:
-            data_type_identifier: text
+            keyword: text
         - end_bracket: )
     - alter_function_action_segment:
       - keyword: IMMUTABLE
@@ -506,7 +506,7 @@ file:
         bracketed:
           start_bracket: (
           data_type:
-            data_type_identifier: int
+            keyword: int
           end_bracket: )
     - alter_function_action_segment:
         keyword: STABLE
@@ -521,7 +521,7 @@ file:
         bracketed:
           start_bracket: (
           data_type:
-            data_type_identifier: int
+            keyword: int
           end_bracket: )
     - alter_function_action_segment:
       - keyword: STABLE
@@ -538,7 +538,7 @@ file:
           start_bracket: (
           parameter: arg
           data_type:
-            data_type_identifier: int
+            keyword: int
           end_bracket: )
     - alter_function_action_segment:
         keyword: VOLATILE
@@ -554,7 +554,7 @@ file:
           start_bracket: (
           parameter: arg
           data_type:
-            data_type_identifier: int
+            keyword: int
           end_bracket: )
     - alter_function_action_segment:
       - keyword: VOLATILE
@@ -589,11 +589,11 @@ file:
         bracketed:
         - start_bracket: (
         - data_type:
-            data_type_identifier: int
+            keyword: int
         - comma: ','
         - parameter: arg2
         - data_type:
-            data_type_identifier: text
+            keyword: text
         - end_bracket: )
     - alter_function_action_segment:
         keyword: LEAKPROOF
@@ -608,11 +608,11 @@ file:
         bracketed:
         - start_bracket: (
         - data_type:
-            data_type_identifier: int
+            keyword: int
         - comma: ','
         - parameter: arg2
         - data_type:
-            data_type_identifier: text
+            keyword: text
         - end_bracket: )
     - alter_function_action_segment:
       - keyword: LEAKPROOF
@@ -650,7 +650,7 @@ file:
           start_bracket: (
           parameter: arg
           data_type:
-            data_type_identifier: int
+            keyword: int
           end_bracket: )
     - alter_function_action_segment:
       - keyword: NOT
@@ -667,7 +667,7 @@ file:
           start_bracket: (
           parameter: arg
           data_type:
-            data_type_identifier: int
+            keyword: int
           end_bracket: )
     - alter_function_action_segment:
       - keyword: NOT
@@ -705,13 +705,13 @@ file:
         bracketed:
         - start_bracket: (
         - data_type:
-            data_type_identifier: int
+            keyword: int
         - comma: ','
         - data_type:
-            data_type_identifier: text
+            keyword: text
         - comma: ','
         - data_type:
-            data_type_identifier: boolean
+            keyword: boolean
         - end_bracket: )
     - alter_function_action_segment:
       - keyword: SECURITY
@@ -727,13 +727,13 @@ file:
         bracketed:
         - start_bracket: (
         - data_type:
-            data_type_identifier: int
+            keyword: int
         - comma: ','
         - data_type:
-            data_type_identifier: text
+            keyword: text
         - comma: ','
         - data_type:
-            data_type_identifier: boolean
+            keyword: boolean
         - end_bracket: )
     - alter_function_action_segment:
       - keyword: SECURITY
@@ -773,10 +773,10 @@ file:
         bracketed:
         - start_bracket: (
         - data_type:
-            data_type_identifier: int
+            keyword: int
         - comma: ','
         - data_type:
-            data_type_identifier: text
+            keyword: text
         - end_bracket: )
     - alter_function_action_segment:
       - keyword: EXTERNAL
@@ -793,10 +793,10 @@ file:
         bracketed:
         - start_bracket: (
         - data_type:
-            data_type_identifier: int
+            keyword: int
         - comma: ','
         - data_type:
-            data_type_identifier: text
+            keyword: text
         - end_bracket: )
     - alter_function_action_segment:
       - keyword: EXTERNAL
@@ -859,14 +859,14 @@ file:
         - start_bracket: (
         - parameter: arg1
         - data_type:
-            data_type_identifier: int
+            keyword: int
         - comma: ','
         - parameter: arg2
         - data_type:
-            data_type_identifier: text
+            keyword: text
         - comma: ','
         - data_type:
-            data_type_identifier: boolean
+            keyword: boolean
         - end_bracket: )
     - alter_function_action_segment:
       - keyword: EXTERNAL
@@ -884,14 +884,14 @@ file:
         - start_bracket: (
         - parameter: arg1
         - data_type:
-            data_type_identifier: int
+            keyword: int
         - comma: ','
         - parameter: arg2
         - data_type:
-            data_type_identifier: text
+            keyword: text
         - comma: ','
         - data_type:
-            data_type_identifier: boolean
+            keyword: boolean
         - end_bracket: )
     - alter_function_action_segment:
       - keyword: EXTERNAL
@@ -920,7 +920,7 @@ file:
           start_bracket: (
           parameter: arg
           data_type:
-            data_type_identifier: int
+            keyword: int
           end_bracket: )
     - alter_function_action_segment:
       - keyword: PARALLEL
@@ -947,7 +947,7 @@ file:
         bracketed:
           start_bracket: (
           data_type:
-            data_type_identifier: int
+            keyword: int
           end_bracket: )
     - alter_function_action_segment:
       - keyword: PARALLEL
@@ -985,10 +985,10 @@ file:
         bracketed:
         - start_bracket: (
         - data_type:
-            data_type_identifier: int
+            keyword: int
         - comma: ','
         - data_type:
-            data_type_identifier: text
+            keyword: text
         - end_bracket: )
     - alter_function_action_segment:
       - keyword: PARALLEL
@@ -1004,7 +1004,7 @@ file:
         bracketed:
           start_bracket: (
           data_type:
-            data_type_identifier: text
+            keyword: text
           end_bracket: )
     - alter_function_action_segment:
       - keyword: PARALLEL
@@ -1044,11 +1044,11 @@ file:
         bracketed:
         - start_bracket: (
         - data_type:
-            data_type_identifier: text
+            keyword: text
         - comma: ','
         - parameter: arg2
         - data_type:
-            data_type_identifier: int
+            keyword: int
         - end_bracket: )
     - alter_function_action_segment:
       - keyword: PARALLEL
@@ -1064,10 +1064,10 @@ file:
         bracketed:
         - start_bracket: (
         - data_type:
-            data_type_identifier: text
+            keyword: text
         - comma: ','
         - data_type:
-            data_type_identifier: text
+            keyword: text
         - end_bracket: )
     - alter_function_action_segment:
       - keyword: PARALLEL
@@ -1106,11 +1106,11 @@ file:
         - start_bracket: (
         - parameter: arg1
         - data_type:
-            data_type_identifier: int
+            keyword: int
         - comma: ','
         - parameter: arg2
         - data_type:
-            data_type_identifier: text
+            keyword: text
         - end_bracket: )
     - alter_function_action_segment:
         keyword: COST
@@ -1127,11 +1127,11 @@ file:
         - start_bracket: (
         - parameter: arg1
         - data_type:
-            data_type_identifier: int
+            keyword: int
         - comma: ','
         - parameter: arg2
         - data_type:
-            data_type_identifier: text
+            keyword: text
         - end_bracket: )
     - alter_function_action_segment:
       - keyword: COST
@@ -1170,17 +1170,17 @@ file:
         - start_bracket: (
         - parameter: arg1
         - data_type:
-            data_type_identifier: int
+            keyword: int
         - comma: ','
         - parameter: arg2
         - data_type:
-            data_type_identifier: text
+            keyword: text
         - comma: ','
         - data_type:
-            data_type_identifier: int
+            keyword: int
         - comma: ','
         - data_type:
-            data_type_identifier: int
+            keyword: int
         - end_bracket: )
     - alter_function_action_segment:
         keyword: ROWS
@@ -1197,17 +1197,17 @@ file:
         - start_bracket: (
         - parameter: arg1
         - data_type:
-            data_type_identifier: int
+            keyword: int
         - comma: ','
         - parameter: arg2
         - data_type:
-            data_type_identifier: text
+            keyword: text
         - comma: ','
         - data_type:
-            data_type_identifier: int
+            keyword: int
         - comma: ','
         - data_type:
-            data_type_identifier: int
+            keyword: int
         - end_bracket: )
     - alter_function_action_segment:
       - keyword: ROWS
@@ -1246,10 +1246,10 @@ file:
         bracketed:
         - start_bracket: (
         - data_type:
-            data_type_identifier: int
+            keyword: int
         - comma: ','
         - data_type:
-            data_type_identifier: int
+            keyword: int
         - end_bracket: )
     - alter_function_action_segment:
         keyword: SUPPORT
@@ -1265,10 +1265,10 @@ file:
         bracketed:
         - start_bracket: (
         - data_type:
-            data_type_identifier: int
+            keyword: int
         - comma: ','
         - data_type:
-            data_type_identifier: int
+            keyword: int
         - end_bracket: )
     - alter_function_action_segment:
       - keyword: SUPPORT
@@ -1334,10 +1334,10 @@ file:
         bracketed:
         - start_bracket: (
         - data_type:
-            data_type_identifier: int
+            keyword: int
         - comma: ','
         - data_type:
-            data_type_identifier: int
+            keyword: int
         - end_bracket: )
     - alter_function_action_segment:
       - keyword: SET
@@ -1355,10 +1355,10 @@ file:
         bracketed:
         - start_bracket: (
         - data_type:
-            data_type_identifier: int
+            keyword: int
         - comma: ','
         - data_type:
-            data_type_identifier: int
+            keyword: int
         - end_bracket: )
     - alter_function_action_segment:
       - keyword: SET
@@ -1388,7 +1388,8 @@ file:
     - alter_function_action_segment:
         keyword: SET
         parameter: param1
-        comparison_operator: '='
+        comparison_operator:
+          raw_comparison_operator: '='
         literal: '1'
 - statement_terminator: ;
 - statement:
@@ -1400,7 +1401,8 @@ file:
     - alter_function_action_segment:
         keyword: SET
         parameter: param1
-        comparison_operator: '='
+        comparison_operator:
+          raw_comparison_operator: '='
         literal: "'value'"
 - statement_terminator: ;
 - statement:
@@ -1412,7 +1414,8 @@ file:
     - alter_function_action_segment:
         keyword: SET
         parameter: param1
-        comparison_operator: '='
+        comparison_operator:
+          raw_comparison_operator: '='
         identifier: avalue
 - statement_terminator: ;
 - statement:
@@ -1424,7 +1427,8 @@ file:
     - alter_function_action_segment:
       - keyword: SET
       - parameter: param1
-      - comparison_operator: '='
+      - comparison_operator:
+          raw_comparison_operator: '='
       - keyword: DEFAULT
 - statement_terminator: ;
 - statement:
@@ -1438,16 +1442,17 @@ file:
         - start_bracket: (
         - parameter: arg1
         - data_type:
-            data_type_identifier: int
+            keyword: int
         - comma: ','
         - parameter: arg2
         - data_type:
-            data_type_identifier: text
+            keyword: text
         - end_bracket: )
     - alter_function_action_segment:
         keyword: SET
         parameter: param1
-        comparison_operator: '='
+        comparison_operator:
+          raw_comparison_operator: '='
         literal: "'value'"
 - statement_terminator: ;
 - statement:
@@ -1460,12 +1465,13 @@ file:
         bracketed:
           start_bracket: (
           data_type:
-            data_type_identifier: int
+            keyword: int
           end_bracket: )
     - alter_function_action_segment:
         keyword: SET
         parameter: param1
-        comparison_operator: '='
+        comparison_operator:
+          raw_comparison_operator: '='
         identifier: avalue
 - statement_terminator: ;
 - statement:
@@ -1478,15 +1484,16 @@ file:
         bracketed:
         - start_bracket: (
         - data_type:
-            data_type_identifier: text
+            keyword: text
         - comma: ','
         - data_type:
-            data_type_identifier: int
+            keyword: int
         - end_bracket: )
     - alter_function_action_segment:
         keyword: SET
         parameter: param1
-        comparison_operator: '='
+        comparison_operator:
+          raw_comparison_operator: '='
         identifier: avalue
 - statement_terminator: ;
 - statement:
@@ -1499,10 +1506,10 @@ file:
         bracketed:
         - start_bracket: (
         - data_type:
-            data_type_identifier: int
+            keyword: int
         - comma: ','
         - data_type:
-            data_type_identifier: int
+            keyword: int
         - end_bracket: )
     - alter_function_action_segment:
         keyword: SUPPORT
@@ -1530,7 +1537,7 @@ file:
         bracketed:
           start_bracket: (
           data_type:
-            data_type_identifier: boolean
+            keyword: boolean
           end_bracket: )
     - alter_function_action_segment:
       - keyword: SET
@@ -1550,10 +1557,10 @@ file:
         bracketed:
         - start_bracket: (
         - data_type:
-            data_type_identifier: boolean
+            keyword: boolean
         - comma: ','
         - data_type:
-            data_type_identifier: int
+            keyword: int
         - end_bracket: )
     - alter_function_action_segment:
       - keyword: SET

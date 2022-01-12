@@ -8,11 +8,14 @@ SELECT
 		 WHEN 1 <= 1 THEN 'True'
 		 WHEN 1 <	= 1 THEN 'True'
 		 WHEN 1 <> 1 THEN 'False'
+		 WHEN 1 <   > 1 THEN 'False'
 		 WHEN 1 !< 1 THEN 'Why is this a thing?'
 		 WHEN 1 !
 				 < 1 THEN 'Or this sort of thing?'
 		 WHEN 1 != 1 THEN 'False'
+		 WHEN 1 ! = 1 THEN 'False'
 		 WHEN 1 !> 1 THEN 'NULL Handling, Probably'
+		 WHEN 1 !  > 1 THEN 'NULL Handling, Probably'
 		 ELSE 'Silly Tests'
 	END,
 	all_pop. [Arrival Date],
@@ -62,6 +65,20 @@ SELECT
 	SHOWPLAN_TEXT ,
 	SHOWPLAN_XML ,
 	XACT_ABORT,
+
+	--TSQL non-keywords
+	Rows,
+	NaN,
+	Rlike,
+	Ilike,
+	Separator,
+	Auto_Increment,
+	Unsigned,
+	Describe,
+	Comment,
+	Ml,
+	Modify,
+	Minus,
 
     ROW_NUMBER()OVER(PARTITION BY [EventNM], [PersonID] ORDER BY [DateofEvent] desc) AS [RN],
     RANK()OVER(PARTITION BY [EventNM] ORDER BY [DateofEvent] desc) AS [R],

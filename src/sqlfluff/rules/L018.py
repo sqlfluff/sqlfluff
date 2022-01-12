@@ -8,11 +8,11 @@ from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
 @document_fix_compatible
 class Rule_L018(BaseRule):
-    """WITH clause closing bracket should be aligned with WITH keyword.
+    """``WITH`` clause closing bracket should be aligned with ``WITH`` keyword.
 
     | **Anti-pattern**
     | The • character represents a space.
-    | In this example, the closing bracket is not aligned with WITH keyword.
+    | In this example, the closing bracket is not aligned with ``WITH`` keyword.
 
     .. code-block:: sql
        :force:
@@ -24,7 +24,7 @@ class Rule_L018(BaseRule):
         SELECT * FROM zoo
 
     | **Best practice**
-    | Remove the spaces to align the WITH keyword with the closing bracket.
+    | Remove the spaces to align the ``WITH`` keyword with the closing bracket.
 
     .. code-block:: sql
 
