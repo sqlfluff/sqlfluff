@@ -1,0 +1,124 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 9f056dce81a10b5502cec1f80930fa5ce3faa7c1b745b188d2ddc8172cd05792
+file:
+- statement:
+    comment_statement:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: COLUMN
+    - column_reference:
+      - identifier: CAMPAIGN_GROUPS
+      - dot: .
+      - identifier: OBJECTIVE_TYPE
+    - keyword: IS
+    - literal: "'<compliance> {\"dataType\": \"NONE\"} </compliance> Indicates the\
+        \ objective type for a campaign group'"
+- statement_terminator: ;
+- statement:
+    comment_statement:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: COLUMN
+    - column_reference:
+      - identifier: CAMPAIGN_GROUPS
+      - dot: .
+      - identifier: DAILY_BUDGET
+    - keyword: IS
+    - literal: "'<compliance> {\"dataType\": \"NONE\"} </compliance> The daily amount\
+        \ to spend across all campaigns under this campaign group, used only if the\
+        \ campaign group is enabled for dynamic budget optimization'"
+- statement_terminator: ;
+- statement:
+    comment_statement:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: COLUMN
+    - column_reference:
+      - identifier: CAMPAIGN_GROUPS
+      - dot: .
+      - identifier: LIFETIME_BUDGET
+    - keyword: IS
+    - literal: "'<compliance> {\"dataType\": \"NONE\"} </compliance> The lifetime\
+        \ budget amount to spend during the lifetime of the campaign group, which\
+        \ is derived from the runSchedule, used only if the campaign group is enabled\
+        \ for dynamic budget optimization'"
+- statement_terminator: ;
+- statement:
+    comment_statement:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: COLUMN
+    - column_reference:
+      - identifier: CAMPAIGN_GROUPS
+      - dot: .
+      - identifier: WEEKLY_BUDGET
+    - keyword: IS
+    - literal: "'<compliance> {\"dataType\": \"NONE\"} </compliance> The weekly delivery\
+        \ goal and charging limit of a campaign group, used only if the campaign group\
+        \ is enabled for dynamic budget optimization'"
+- statement_terminator: ;
+- statement:
+    comment_statement:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: COLUMN
+    - column_reference:
+      - identifier: CAMPAIGN_GROUPS
+      - dot: .
+      - identifier: WEEKLY_BUDGET_UPDATE_TIME
+    - keyword: IS
+    - literal: "'<compliance> {\"dataType\": \"NONE\"} </compliance> Indicates the\
+        \ last timestamp the weekly budget was updated, used only if the campaign\
+        \ group is enabled for dynamic budget optimization'"
+- statement_terminator: ;
+- statement:
+    comment_statement:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: COLUMN
+    - column_reference:
+      - identifier: CAMPAIGN_GROUPS
+      - dot: .
+      - identifier: OPTIMIZATION_TARGET
+    - keyword: IS
+    - literal: "'<compliance> {\"dataType\": \"NONE\"} </compliance> Indicates how\
+        \ this campaign group is optimized, used only if the campaign group is enabled\
+        \ for dynamic budget optimization'"
+- statement_terminator: ;
+- statement:
+    comment_statement:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: COLUMN
+    - column_reference:
+      - identifier: CAMPAIGN_GROUPS
+      - dot: .
+      - identifier: COST_TYPE
+    - keyword: IS
+    - literal: "'<compliance> {\"dataType\": \"NONE\"} </compliance> Indicates whether\
+        \ this campaign group is charged per impression, per click, or other model,\
+        \ used only if the campaign group is enabled for dynamic budget optimization'"
+- statement_terminator: ;
+- statement:
+    comment_statement:
+    - keyword: COMMENT
+    - keyword: 'ON'
+    - keyword: COLUMN
+    - column_reference:
+      - identifier: CAMPAIGN_GROUPS
+      - dot: .
+      - identifier: DYNAMIC_BUDGET_OPT_ENABLED
+    - keyword: IS
+    - literal: "'<compliance> {\"dataType\": \"NONE\"} </compliance> Indicates whether\
+        \ this campaign group is enabled for Dynamic Budget Optimization, which dynamically\
+        \ allocates budget across campaigns'"
+- statement_terminator: ;
+- statement:
+    unparsable:
+    - raw: SHOW
+    - raw: ERRORS
+- statement_terminator: ;
