@@ -164,24 +164,19 @@ def templated_slices(
         raise ValueError(
             'templated_slices: "templated_file" parameter is required.'
         )  # pragma: no cover
-    filtered_templated_slices = []
-    if (
-        segment.pos_marker.templated_slice.start
-        != segment.pos_marker.templated_slice.stop
-    ):
-        start = segment.pos_marker.templated_slice.start
-        stop = segment.pos_marker.templated_slice.stop
-        first_idx, _ = templated_file._find_slice_indices_of_templated_pos(start)
-        _, last_idx = templated_file._find_slice_indices_of_templated_pos(stop)
-        templated_slices = templated_file.sliced_file[first_idx:last_idx]
-        slice_: TemplatedFileSlice
-        for slice_ in templated_slices:
-            if (
-                stop >= slice_.templated_slice.start
-                and start < slice_.templated_slice.stop
-            ):
-                filtered_templated_slices.append(slice_)
-
-    return TemplatedFileSlices(
-        *filtered_templated_slices, templated_file=templated_file
-    )
+    templated_slices = []
+    # :TRICKY: We don't use _find_slice_indices_of_templated_pos() here because
+    # it treats TemplatedFileSlice.templated_slice.stop as inclusive, not
+    # exclusive. Other parts of SQLFluff rely on this behavior, but we don't
+    # want it. It's easy enough to do this ourselves.
+    start = segment.pos_marker.templated_slice.start
+    stop = segment.pos_marker.templated_slice.stop
+    slice_: TemplatedFileSlice
+    templated_slices = [
+        slice_
+        for slice_ in templated_file.sliced_file
+        if (
+            stop >= slice_.templated_slice.start and start < slice_.templated_slice.stop
+        )
+    ]
+    return TemplatedFileSlices(*templated_slices, templated_file=templated_file)
