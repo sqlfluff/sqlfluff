@@ -7,7 +7,6 @@ import pytest
 @pytest.mark.parametrize(
     "segmentref,raw",
     [
-        ("PromptStatementSegment", "PROMPT this is an arbitrary string"),
         ("CommentStatementSegment", "COMMENT ON TABLE foo IS 'this is an arbitrary string'"),
     ],
 )

@@ -4,15 +4,15 @@ This inherits from the ansi dialect.
 """
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser.segments import NewlineSegment
+from sqlfluff.core.parser.segments.raw import KeywordSegment
 from sqlfluff.core.parser import (
     Anything,
     BaseSegment,
-    GreedyUntil,
     CommentSegment,
-    RegexLexer,
     Ref,
     Sequence,
     StartsWith,
+    StringParser,
     OptionallyBracketed,
     OneOf,
 )
@@ -20,8 +20,14 @@ from sqlfluff.core.parser import (
 ansi_dialect = load_raw_dialect("ansi")
 oracle_dialect = ansi_dialect.copy_as("oracle")
 
-oracle_dialect.sets("unreserved_keywords").difference_update(["PROMPT", "COMMENT"])
+oracle_dialect.sets("unreserved_keywords").difference_update(["COMMENT"])
 oracle_dialect.sets("reserved_keywords").update(["ON"])
+
+oracle_dialect.add(
+        CommentKeywordSegment=StringParser(
+            "COMMENT", KeywordSegment, name="comment"
+        )
+)
 
 # Adding Oracle specific statements.
 @oracle_dialect.segment(replace=True)
@@ -32,29 +38,11 @@ class StatementSegment(BaseSegment):
 
     parse_grammar = ansi_dialect.get_segment("StatementSegment").parse_grammar.copy(
         insert=[
-            Ref("PromptStatementSegment"),
             Ref("CommentStatementSegment"),
         ],
     )
 
     match_grammar = ansi_dialect.get_segment("StatementSegment").match_grammar.copy()
-
-
-@oracle_dialect.segment()
-class PromptStatementSegment(BaseSegment):
-    """A `Prompt` statement.
-    PRO[MPT] [text]
-    https://docs.oracle.com/cd/E11882_01/server.112/e16604/ch_twelve032.htm#SQPUG052
-    """
-    
-    type = "prompt_statement"
-    
-    match_grammar = StartsWith("PROMPT")
-    
-    parse_grammar = Sequence(
-        "PROMPT",
-        Anything()
-    )
 
 @oracle_dialect.segment()
 class CommentStatementSegment(BaseSegment):
