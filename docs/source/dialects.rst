@@ -97,8 +97,7 @@ The dialect for `Oracle`_ SQL. Note: this does not include PL/SQL.
 
 .. _`Oracle`: https://www.oracle.com/database/technologies/appdev/sql.html
 
-.. _oracle_dialect_ref:
-
+.. _postgres_dialect_ref:
 
 PostgreSQL
 ----------
