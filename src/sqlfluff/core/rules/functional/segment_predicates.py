@@ -164,8 +164,6 @@ def templated_slices(
         raise ValueError(
             'templated_slices: "templated_file" parameter is required.'
         )  # pragma: no cover
-    # if segment.pos_marker.templated_slice.start == 2:
-    #     import pdb; pdb.set_trace()
     filtered_templated_slices = []
     if (
         segment.pos_marker.templated_slice.start

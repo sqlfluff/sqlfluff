@@ -288,12 +288,16 @@ class LintFix:
                 slice(anchor_slice.stop, anchor_slice.stop + 1),
             ]
             check_fn = all
+        # TRICKY: For creations at the end of the file, there won't be an
+        # existing slice. In this case, file_end_slice is returned instead. We
+        # pass a literal slice so the fix is interpreted as literal code. We do
+        # this because fixes to *templated* code would cause the fix to be
+        # incorrectly discarded.
         fix_slices = self._raw_slices_from_templated_slices(
             templated_file,
             templated_slices,
             file_end_slice=RawFileSlice("", "literal", -1),
         )
-        # import pdb; pdb.set_trace()
 
         # We have the fix slices. Now check for conflicts.
         result = check_fn(fs.slice_type == "templated" for fs in fix_slices)
@@ -305,13 +309,14 @@ class LintFix:
         raw_slices = self._raw_slices_from_templated_slices(
             templated_file, templated_slices
         )
-        result = any(fs.slice_type == "templated" for fs in raw_slices)
-        return result
+        return any(fs.slice_type == "templated" for fs in raw_slices)
 
     @staticmethod
     def _raw_slices_from_templated_slices(
-        templated_file, templated_slices, file_end_slice=None
-    ):
+        templated_file: TemplatedFile,
+        templated_slices: List[slice],
+        file_end_slice: Optional[RawFileSlice] = None,
+    ) -> Set[RawFileSlice]:
         raw_slices: Set[RawFileSlice] = set()
         for templated_slice in templated_slices:
             try:

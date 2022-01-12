@@ -104,9 +104,6 @@ class Rule_L009(BaseRule):
                 tsp.is_slice_type("literal")
             )
         )
-        # mapping = trailing_newlines.apply(
-        #     lambda seg: sp.templated_slices(seg, context.templated_file)
-        # )
 
         if not trailing_literal_newlines:
             # We make an edit to create this segment after the child of the FileSegment.
@@ -115,7 +112,6 @@ class Rule_L009(BaseRule):
             else:
                 fix_anchor_segment = parent_stack[1]
 
-            # import pdb; pdb.set_trace()
             return LintResult(
                 anchor=context.segment,
                 fixes=[
@@ -127,9 +123,10 @@ class Rule_L009(BaseRule):
             )
         elif len(trailing_literal_newlines) >= 2:
             # Delete extra newlines.
-            if len(trailing_literal_newlines) >= 2:
-                return LintResult(
-                    anchor=context.segment,
-                    fixes=[LintFix.delete(d) for d in trailing_literal_newlines[1:]],
-                )
-        return None
+            return LintResult(
+                anchor=context.segment,
+                fixes=[LintFix.delete(d) for d in trailing_literal_newlines[1:]],
+            )
+        else:
+            # Single newline, no need for fix.
+            return None
