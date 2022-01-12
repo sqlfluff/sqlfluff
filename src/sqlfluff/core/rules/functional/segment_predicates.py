@@ -141,7 +141,7 @@ def not_(fn: Callable[[BaseSegment], bool]) -> Callable[[BaseSegment], bool]:
 def raw_slices(
     segment: BaseSegment,
     templated_file: Optional[TemplatedFile],
-) -> RawFileSlices:
+) -> RawFileSlices:  # pragma: no cover
     """Returns raw slices for a segment."""
     if not templated_file:
         raise ValueError(
