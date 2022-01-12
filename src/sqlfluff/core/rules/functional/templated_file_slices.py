@@ -29,7 +29,7 @@ class TemplatedFileSlices(tuple):
 
     def any(
         self, predicate: Optional[Callable[[TemplatedFileSlice], bool]] = None
-    ) -> bool:
+    ) -> bool:  # pragma: no cover
         """Do any of the templated slices match?"""
         for s in self:
             if predicate is None or predicate(s):
