@@ -88,7 +88,7 @@ The dialect for `MySQL`_.
 
 .. _`MySQL`: https://www.mysql.com/
 
-.. _postgres_dialect_ref:
+.. _oracle_dialect_ref:
 
 Oracle
 -----
