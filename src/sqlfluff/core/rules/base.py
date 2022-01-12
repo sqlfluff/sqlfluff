@@ -289,10 +289,11 @@ class LintFix:
             ]
             check_fn = all
         # TRICKY: For creations at the end of the file, there won't be an
-        # existing slice. In this case, file_end_slice is returned instead. We
-        # pass a literal slice so the fix is interpreted as literal code. We do
-        # this because fixes to *templated* code would cause the fix to be
-        # incorrectly discarded.
+        # existing slice. In this case, the function adds file_end_slice to the
+        # result, as a sort of placeholder or sentinel value. We pass a literal
+        # slice for "file_end_slice" so that later in this function, the LintFix
+        # is interpreted as literal code. Otherwise, it could be interpreted as
+        # a fix to *templated* code and incorrectly discarded.
         fix_slices = self._raw_slices_from_templated_slices(
             templated_file,
             templated_slices,
@@ -329,7 +330,8 @@ class LintFix:
                 # These errors will happen with "create_before" at the beginning
                 # of the file or "create_after" at the end of the file. By
                 # default, we ignore this situation. If the caller passed
-                # "file_end_slice", add that to the result.
+                # "file_end_slice", add that to the result. In effect,
+                # file_end_slice serves as a placeholder or sentinel value.
                 if file_end_slice is not None:
                     raw_slices.add(file_end_slice)
         return raw_slices
