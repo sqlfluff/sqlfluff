@@ -121,7 +121,7 @@ class Rule_L009(BaseRule):
                     )
                 ],
             )
-        elif len(trailing_literal_newlines) >= 2:
+        elif len(trailing_literal_newlines) > 1:
             # Delete extra newlines.
             return LintResult(
                 anchor=context.segment,
