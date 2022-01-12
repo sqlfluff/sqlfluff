@@ -289,8 +289,11 @@ class LintFix:
             ]
             check_fn = all
         fix_slices = self._raw_slices_from_templated_slices(
-            templated_file, templated_slices
+            templated_file,
+            templated_slices,
+            file_end_slice=RawFileSlice("", "literal", -1),
         )
+        # import pdb; pdb.set_trace()
 
         # We have the fix slices. Now check for conflicts.
         result = check_fn(fs.slice_type == "templated" for fs in fix_slices)
@@ -302,10 +305,13 @@ class LintFix:
         raw_slices = self._raw_slices_from_templated_slices(
             templated_file, templated_slices
         )
-        return any(fs.slice_type == "templated" for fs in raw_slices)
+        result = any(fs.slice_type == "templated" for fs in raw_slices)
+        return result
 
     @staticmethod
-    def _raw_slices_from_templated_slices(templated_file, templated_slices):
+    def _raw_slices_from_templated_slices(
+        templated_file, templated_slices, file_end_slice=None
+    ):
         raw_slices: Set[RawFileSlice] = set()
         for templated_slice in templated_slices:
             try:
@@ -316,10 +322,11 @@ class LintFix:
                 )
             except (IndexError, ValueError):
                 # These errors will happen with "create_before" at the beginning
-                # of the file or "create_after" at the end of the file. Ignoring
-                # it is the correct action, because the other (anchor) slice
-                # is still valid.
-                pass
+                # of the file or "create_after" at the end of the file. By
+                # default, we ignore this situation. If the caller passed
+                # "file_end_slice", add that to the result.
+                if file_end_slice is not None:
+                    raw_slices.add(file_end_slice)
         return raw_slices
 
 

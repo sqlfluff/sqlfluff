@@ -12,7 +12,8 @@ from typing import Callable, Optional
 
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules.functional.raw_file_slices import RawFileSlices
-from sqlfluff.core.templaters.base import TemplatedFile
+from sqlfluff.core.rules.functional.templated_file_slices import TemplatedFileSlices
+from sqlfluff.core.templaters.base import TemplatedFile, TemplatedFileSlice
 
 
 def is_type(*seg_type: str) -> Callable[[BaseSegment], bool]:
@@ -151,4 +152,38 @@ def raw_slices(
             segment.pos_marker.source_slice
         ),
         templated_file=templated_file
+    )
+
+
+def templated_slices(
+    segment: BaseSegment,
+    templated_file: Optional[TemplatedFile],
+) -> TemplatedFileSlices:
+    """Returns raw slices for a segment."""
+    if not templated_file:
+        raise ValueError(
+            'templated_slices: "templated_file" parameter is required.'
+        )  # pragma: no cover
+    # if segment.pos_marker.templated_slice.start == 2:
+    #     import pdb; pdb.set_trace()
+    filtered_templated_slices = []
+    if (
+        segment.pos_marker.templated_slice.start
+        != segment.pos_marker.templated_slice.stop
+    ):
+        start = segment.pos_marker.templated_slice.start
+        stop = segment.pos_marker.templated_slice.stop
+        first_idx, _ = templated_file._find_slice_indices_of_templated_pos(start)
+        _, last_idx = templated_file._find_slice_indices_of_templated_pos(stop)
+        templated_slices = templated_file.sliced_file[first_idx:last_idx]
+        slice_: TemplatedFileSlice
+        for slice_ in templated_slices:
+            if (
+                stop >= slice_.templated_slice.start
+                and start < slice_.templated_slice.stop
+            ):
+                filtered_templated_slices.append(slice_)
+
+    return TemplatedFileSlices(
+        *filtered_templated_slices, templated_file=templated_file
     )

@@ -13,3 +13,7 @@ test_fail_multiple_final_newlines:
 
 test_pass_templated_plus_raw_newlines:
   pass_str: "{{ '\n\n' }}\n"
+
+test_fail_templated_plus_raw_newlines:
+  fail_str: "{{ '\n\n' }}"
+  fix_str: "{{ '\n\n' }}\n"

@@ -510,8 +510,8 @@ class Linter:
         if fix and loop + 1 == loop_limit:
             linter_logger.warning(f"Loop limit on fixes reached [{loop_limit}].")
 
-        if config.get("ignore_templated_areas", default=True):
-            initial_linting_errors = cls.remove_templated_errors(initial_linting_errors)
+        # if config.get("ignore_templated_areas", default=True):
+        #     initial_linting_errors = cls.remove_templated_errors(initial_linting_errors)
 
         return tree, initial_linting_errors, ignore_buff
 
