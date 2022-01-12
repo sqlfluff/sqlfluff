@@ -91,7 +91,7 @@ The dialect for `MySQL`_.
 .. _oracle_dialect_ref:
 
 Oracle
------
+------
 
 The dialect for `Oracle`_ SQL. Note: this does not include PL/SQL.
 
