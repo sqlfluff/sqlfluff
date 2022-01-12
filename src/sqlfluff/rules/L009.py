@@ -74,6 +74,8 @@ class Rule_L009(BaseRule):
 
     """
 
+    targets_templated = True
+
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Files must end with a single trailing newline.
 
