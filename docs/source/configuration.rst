@@ -168,8 +168,8 @@ For example, to enable :class:`L010 <sqlfluff.core.rules.Rule_L027>`:
     [sqlfluff]
     rules = L027
 
-^ **TODO** does this make sense only if overriding an exclusion from a higher level
-configuration? Or what does this conf mean? How is it interpreted if
+^ **TODO** does this make sense only if overriding an exclusion from a higher
+level configuration? Or what does this conf mean? How is it interpreted if
 :code:`exclude_rules = None` but :code:`exclude_rules != None`?
 
 Additionally, some rules have a special :code:`force_enable` configuration
