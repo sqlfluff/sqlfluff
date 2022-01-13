@@ -859,7 +859,7 @@ class ScalarValue(BaseSegment):
 
 @spark3_dialect.segment()
 class TupleValue(BaseSegment):
-    """An element of a ``VALUES`` clause that has a multiple columns.
+    """An element of a ``VALUES`` clause that has multiple columns.
 
     Ex: ``VALUES (1,2), (3,4)``
     """
