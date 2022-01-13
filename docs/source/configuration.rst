@@ -22,13 +22,13 @@ any vales read from earlier files.
 - :code:`pyproject.toml`
 
 Within these files, the first four will be read like a `cfg file`_, and
-*SQLFluff* will look for sections which start with `sqlfluff`, and where
+*SQLFluff* will look for sections which start with :code:`sqlfluff`, and where
 subsections are delimited by a semicolon. For example the *jinjacontext*
 section will be indicated in the section started with
-*[sqlfluff:jinjacontext]*.
+:code:`[sqlfluff:jinjacontext]`.
 
-For example, a snippet from a `.sqlfluff` file (as well as any of the supported `cfg
-file` types):
+For example, a snippet from a :code:`.sqlfluff` file (as well as any of the
+supported cfg file types):
 
 .. code-block:: cfg
 
@@ -47,11 +47,12 @@ file` types):
     [sqlfluff:templater:jinja]
     apply_dbt_builtins = true
 
-For the `pyproject.toml file`_, all valid sections start with `tool.sqlfluff`
-and subsections are delimited by a dot. For example the *jinjacontext* section
-will be indicated in the section started with *[tool.sqlfluff.jinjacontext]*.
+For the `pyproject.toml file`_, all valid sections start with
+:code:`tool.sqlfluff` and subsections are delimited by a dot. For example the
+*jinjacontext* section will be indicated in the section started with
+:code:`[tool.sqlfluff.jinjacontext]`.
 
-For example, a snippet from a `pyproject.toml` file:
+For example, a snippet from a :code:`pyproject.toml` file:
 
 .. code-block:: toml
 
@@ -111,15 +112,14 @@ in projects which utilise a lot of complicated templating.
 Rule Configuration
 ------------------
 
-Rules can be configured with the `.sqlfluff` config files.
+Rules can be configured with the :code:`.sqlfluff` config files.
 
-Common rule configurations can be set in the *[sqlfluff:rules]* section.
+Common rule configurations can be set in the :code:`[sqlfluff:rules]` section.
 
 For example:
 
 .. code-block:: cfg
 
-    # Some rules can be configured directly from the config common to other rules.
    [sqlfluff:rules]
    tab_space_size = 4
    max_line_length = 80
@@ -129,7 +129,7 @@ For example:
    single_table_references = consistent
    unquoted_identifiers_policy = all
 
-Rule specific configurations are set in the *[sqlfluff:rules:\*]* sections.
+Rule specific configurations are set in rule specific subsections.
 
 For example, enforce that keywords are upper case by configuring the rule
 :class:`L010 <sqlfluff.core.rules.Rule_L010>`:
@@ -144,6 +144,43 @@ All possible options for rule sections are documented in :ref:`ruleref`.
 For an overview of the most common rule configurations that you may want to
 tweak, see `Default Configuration`_ (and use :ref:`ruleref` to find the
 available alternatives).
+
+Enabling and Disabling Rules
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+To disable individual rules, set :code:`exclude_rules` in the top level section
+of sqlfluff configuration. The value is a comma separated list of rule ids.
+
+For example, to disable the rules :class:`L010 <sqlfluff.core.rules.Rule_L022>`
+and :class:`L010 <sqlfluff.core.rules.Rule_L027>`:
+
+.. code-block:: cfg
+
+    [sqlfluff]
+    exclude_rules = L022, L027
+
+To enable individual rules, configure :code:`rules`, respectively.
+
+For example, to enable :class:`L010 <sqlfluff.core.rules.Rule_L027>`:
+
+.. code-block:: cfg
+
+    [sqlfluff]
+    rules = L027
+
+^ **TODO** does this make sense only if overriding an exclusion from a higher level
+configuration? Or what does this conf mean? How is it interpreted if
+:code:`exclude_rules = None` but :code:`exclude_rules != None`?
+
+Additionally, some rules have a special :code:`force_enable` configuration
+option, which allows to enable the given rule even for dialects where it is
+disabled by default. The rules that support this can be found in the
+:ref:`ruleref`.
+
+The default values can be seen in `Default Configuration`_.
+
+See also: :ref:`inline_ignoring_errors` and `Ignoring Errors & Files`_.
+(**TODO** aren't those two pretty much overlapping?)
 
 Jinja Templating Configuration
 ------------------------------
@@ -596,7 +633,8 @@ Note that while the :code:`exclude_rules` config looks similar to the
 above example, the :code:`verbose` config has an integer value. This is
 because :code:`verbose` is *stackable* meaning there are multiple levels
 of verbosity that are available for configuration. See :ref:`cliref` for
-more details about the available CLI arguments.
+more details about the available CLI arguments. For more details about rule
+exclusion, see `Enabling and Disabling Rules`_.
 
 Ignoring Errors & Files
 -----------------------
