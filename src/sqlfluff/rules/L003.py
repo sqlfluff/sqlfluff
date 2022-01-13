@@ -3,6 +3,7 @@ from typing import List, Optional, Sequence, Tuple
 
 from sqlfluff.core.parser import WhitespaceSegment
 from sqlfluff.core.parser.segments import BaseSegment, RawSegment
+from sqlfluff.core.rules.functional import rsp, Segments
 from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix, RuleContext
 from sqlfluff.core.rules.doc_decorators import (
     document_fix_compatible,
@@ -46,6 +47,7 @@ class Rule_L003(BaseRule):
 
     """
 
+    targets_templated = True
     _works_on_unparsable = False
     _ignore_types: List[str] = ["script_content"]
     config_keywords = ["tab_space_size", "indent_unit"]
@@ -68,7 +70,29 @@ class Rule_L003(BaseRule):
     def _indent_size(segments: Sequence[BaseSegment], tab_space_size: int = 4) -> int:
         indent_size = 0
         for elem in segments:
-            raw = elem.raw
+            if (
+                not elem.is_type("whitespace")
+                or elem.raw == elem.pos_marker.source_str()
+            ):
+                # Typical case: Need not consider slices or templating.
+                raw = elem.raw
+            else:
+                # Templated case: Find the leading *literal* whitespace.
+                templated_file = elem.pos_marker.templated_file
+                # Extract the leading literal whitespace, slice by slice.
+                raw = ""
+                for raw_slice in Segments(
+                    elem, templated_file=templated_file
+                ).raw_slices.select(loop_while=rsp.is_slice_type("literal")):
+                    # Compute raw_slice's contribution.
+                    start = max(
+                        elem.pos_marker.source_slice.start, raw_slice.source_idx
+                    )
+                    stop = min(
+                        elem.pos_marker.source_slice.stop,
+                        raw_slice.source_idx + len(raw_slice.raw),
+                    )
+                    raw += templated_file.source_str[slice(start, stop)]
             # convert to spaces for convenience (and hanging indents)
             raw = raw.replace("\t", " " * tab_space_size)
             indent_size += len(raw)

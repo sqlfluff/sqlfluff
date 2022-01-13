@@ -567,3 +567,13 @@ test_tsql_function:
   configs:
     core:
       dialect: tsql
+
+test_pass_ignore_templated_whitespace:
+  pass_str: |
+    SELECT
+        c1,
+        {{ "      c2" }}
+    FROM my_table
+  configs:
+    core:
+      ignore_templated_areas: False
