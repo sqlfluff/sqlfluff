@@ -21,17 +21,37 @@ any vales read from earlier files.
 - :code:`.sqlfluff`
 - :code:`pyproject.toml`
 
-Within these files, the first four will be read like an `cfg file`_, and
-*SQLFluff* will look for sections which start with *SQLFluff*, and where
+Within these files, the first four will be read like a `cfg file`_, and
+*SQLFluff* will look for sections which start with `sqlfluff`, and where
 subsections are delimited by a semicolon. For example the *jinjacontext*
 section will be indicated in the section started with
 *[sqlfluff:jinjacontext]*.
+
+For example, a snippet from a `.sqlfluff` file (as well as any of the supported `cfg
+file` types):
+
+.. code-block:: cfg
+
+    [sqlfluff]
+    templater = "jinja"
+    sql_file_exts = ".sql,.sql.j2,.dml,.ddl"
+
+    [sqlfluff:indentation]
+    indented_joins = false
+    indented_using_on = true
+    template_blocks_indent = false
+
+    [sqlfluff:templater]
+    unwrap_wrapped_queries = true
+
+    [sqlfluff:templater:jinja]
+    apply_dbt_builtins = true
 
 For the `pyproject.toml file`_, all valid sections start with `tool.sqlfluff`
 and subsections are delimited by a dot. For example the *jinjacontext* section
 will be indicated in the section started with *[tool.sqlfluff.jinjacontext]*.
 
-For example
+For example, a snippet from a `pyproject.toml` file:
 
 .. code-block:: toml
 
