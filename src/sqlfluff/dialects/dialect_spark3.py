@@ -819,8 +819,9 @@ class AliasExpressionSegment(BaseSegment):
         Ref.keyword("AS", optional=True),
         OneOf(
             Sequence(
+                # maybe table alias
                 Ref("SingleIdentifierGrammar", optional=True),
-                # Column alias in VALUES clause
+                # maybe column aliases
                 Bracketed(Ref("SingleIdentifierListSegment"), optional=True),
             ),
             Ref("QuotedLiteralSegment"),
