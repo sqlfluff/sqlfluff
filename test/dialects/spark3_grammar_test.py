@@ -52,15 +52,18 @@ def test__dialect__spark3__grammars(
     fresh_spark3_dialect: Dialect,
     caplog: Any,
 ):
-    """Test that some grammars match as expected.
+    """Test that some grammars match or parse as expected.
 
     When the fixtured tests fail to parse some particular query, it can be difficult to tell where things went wrong.
-    For instance, "values (1, 2)" is a `ValuesClauseSegment` but also a `TableExpressionSegment`. If this fails to be
-    recognized, is it because `ValuesClauseSegment` is wrong, or because a `ValuesClauseSegment` is not recognized as
-    a `TableExpressionSegment`?
+    For instance, "values (1, 2)" is a ``ValuesClauseSegment`` but also a ``TableExpressionSegment``. If this fails to be
+    recognized, is it because `ValuesClauseSegment` is wrong, or because a ``ValuesClauseSegment`` is not recognized as
+    a ``TableExpressionSegment``?
+
+    It can also happen that the ``match_grammar`` is fine but the ``parse_grammar`` is wrong, if it exists. In this test
+    we can also specify which of those we want to test.
 
     This test can help us diagnose that, since we pick both the sequence of segments _and_ the grammar we think it
-    should match.
+    should match or parse.
     """
     _assert_spark3_matches_or_parses_segment(
         caplog, fragment, fresh_spark3_dialect, match_or_parse, segment_class
@@ -77,8 +80,10 @@ def test__dialect__spark3__grammars(
         ("from values ( 1 , 2 ) , ( 3 , 4 )", "parse", "FromClauseSegment"),
         ("from values 1 , 2 , values 3 , 4", "parse", "FromClauseSegment"),
         ("values 1 , 2 , values 3 , 4", "parse", "FromClauseSegment"),
+        # A VALUES clause can include LIMIT, ORDER BY specifiers just like a SELECT.
+        # These are not yet implemented.
         ("values 1 , 2 , 3 limit 1", "parse", "ValuesClauseSegment"),
-        ("values 1 , 2 , 3 order by 2", "parse", "ValuesClauseSegment"),
+        ("values 3 , 2 , 1 order by 2", "parse", "ValuesClauseSegment"),
     ],
 )
 def test__dialect__spark3__known_grammar_failures(
