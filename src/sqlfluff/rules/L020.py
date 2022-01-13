@@ -13,7 +13,7 @@ class Rule_L020(BaseRule):
     """Table aliases should be unique within each clause.
 
     | **Anti-pattern**
-    | In this example, the alias 't' is reused for two different ables:
+    | In this example, the alias 't' is reused for two different tables:
 
     .. code-block:: sql
 
