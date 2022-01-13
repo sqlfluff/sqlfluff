@@ -5,7 +5,7 @@ from sqlfluff.core.parser import NewlineSegment
 
 from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix, RuleContext
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
-from sqlfluff.core.rules.functional import Segments, rsp, sp
+from sqlfluff.core.rules.functional import Segments, sp, tsp
 
 
 @document_fix_compatible
@@ -74,6 +74,8 @@ class Rule_L009(BaseRule):
 
     """
 
+    targets_templated = True
+
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Files must end with a single trailing newline.
 
@@ -97,8 +99,13 @@ class Rule_L009(BaseRule):
             select_if=sp.is_type("newline"),
             loop_while=sp.or_(sp.is_whitespace(), sp.is_type("dedent")),
         )
+        trailing_literal_newlines = trailing_newlines.select(
+            loop_while=lambda seg: sp.templated_slices(seg, context.templated_file).all(
+                tsp.is_slice_type("literal")
+            )
+        )
 
-        if not trailing_newlines:
+        if not trailing_literal_newlines:
             # We make an edit to create this segment after the child of the FileSegment.
             if len(parent_stack) == 1:
                 fix_anchor_segment = context.segment
@@ -114,21 +121,12 @@ class Rule_L009(BaseRule):
                     )
                 ],
             )
-        else:
-            # There are one or more trailing newlines in templated space.
-            # For any excess newlines, translate to "raw" space to determine if
-            # they are literal (rather than templated). Delete any extras.
-            # (Note that 'trailing_newlines' is ordered in reverse, i.e. from
-            # the end of the file *backwards*.)
-            extra_newlines = trailing_newlines[1:].select(
-                loop_while=lambda seg: sp.raw_slices(seg, context.templated_file).all(
-                    rsp.is_slice_type("literal")
-                )
+        elif len(trailing_literal_newlines) > 1:
+            # Delete extra newlines.
+            return LintResult(
+                anchor=context.segment,
+                fixes=[LintFix.delete(d) for d in trailing_literal_newlines[1:]],
             )
-            if extra_newlines:
-                return LintResult(
-                    anchor=context.segment,
-                    fixes=[LintFix.delete(d) for d in extra_newlines],
-                )
+        else:
             # Single newline, no need for fix.
             return None
