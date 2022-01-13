@@ -7,6 +7,7 @@ import logging
 import time
 from logging import LogRecord
 from typing import (
+    Any,
     Callable,
     Tuple,
     NoReturn,
@@ -299,8 +300,19 @@ def get_config(
                 )
             )
             sys.exit(66)
+
     # Instantiate a config object (filtering out the nulls)
-    overrides = {k: kwargs[k] for k in kwargs if kwargs[k] is not None}
+    def null(key: str, val: Any) -> bool:
+        if val is None:
+            return True
+        if key == "nocolor" and val is False:
+            return True
+        if key == "verbose" and val == 0:
+            return True
+        return False
+
+    overrides = {k: kwargs[k] for k in kwargs if not null(k, kwargs[k])}
+
     try:
         return FluffConfig.from_root(
             extra_config_path=extra_config_path,
