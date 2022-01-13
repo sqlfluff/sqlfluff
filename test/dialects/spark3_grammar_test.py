@@ -12,7 +12,7 @@ from sqlfluff.core.parser.context import RootParseContext
 
 @pytest.fixture(scope="function")
 def fresh_spark3_dialect() -> Dialect:
-    """Expand the ansi dialect for use."""
+    """Expand the spark3 dialect for use."""
     return dialect_selector("spark3")
 
 
