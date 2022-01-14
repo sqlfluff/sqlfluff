@@ -42,7 +42,13 @@ class Rule_L049(Rule_L006):
             return LintResult()
 
         # Allow assignments in SET clauses
-        if context.parent_stack and context.parent_stack[-1].is_type("set_clause_list"):
+        if context.parent_stack and context.parent_stack[-1].is_type(
+            "set_clause_list", "execute_script_statement"
+        ):
+            return LintResult()
+
+        # Allow assignments in EXEC clauses
+        if context.segment.is_type("set_clause_list", "execute_script_statement"):
             return LintResult()
 
         # Iterate through children of this segment looking for equals or "not

@@ -209,7 +209,7 @@ bigquery_dialect.sets("reserved_keywords").update(
 # Add additional datetime units
 # https://cloud.google.com/bigquery/docs/reference/standard-sql/date_functions#extract
 bigquery_dialect.sets("datetime_units").update(
-    ["MICROSECOND", "DAYOFWEEK", "ISOWEEK", "ISOYEAR", "DATE", "DATETIME", "TIME"]
+    ["MICROSECOND", "DAYOFWEEK", "ISOWEEK", "ISOYEAR"]
 )
 
 # In BigQuery, UNNEST() returns a "value table".
