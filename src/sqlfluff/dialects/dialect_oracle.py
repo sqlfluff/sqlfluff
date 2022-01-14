@@ -15,13 +15,12 @@ ansi_dialect = load_raw_dialect("ansi")
 oracle_dialect = ansi_dialect.copy_as("oracle")
 
 oracle_dialect.sets("unreserved_keywords").difference_update(["COMMENT"])
-oracle_dialect.sets("reserved_keywords").update(["COMMENT", "ON", "UPDATE"])
+oracle_dialect.sets("reserved_keywords").update(["COMMENT", "ON", "UPDATE", "INDEXTYPE"])
 
 
 @oracle_dialect.segment()
 class IndexTypeReferenceSegment(BaseSegment):
     """A reference to an indextype"""
-    parse_grammar = ansi_dialect.get_segment("ObjectReferenceSegment").parse_grammar.copy()
     match_grammar = ansi_dialect.get_segment("ObjectReferenceSegment").match_grammar.copy()
 
     type = "indextype_reference"
