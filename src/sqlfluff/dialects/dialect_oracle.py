@@ -15,15 +15,20 @@ ansi_dialect = load_raw_dialect("ansi")
 oracle_dialect = ansi_dialect.copy_as("oracle")
 
 oracle_dialect.sets("unreserved_keywords").difference_update(["COMMENT"])
-oracle_dialect.sets("reserved_keywords").update(["COMMENT", "ON", "UPDATE", "INDEXTYPE"])
+oracle_dialect.sets("reserved_keywords").update(
+    ["COMMENT", "ON", "UPDATE", "INDEXTYPE"]
+)
 
 
 @oracle_dialect.segment()
 class IndexTypeReferenceSegment(BaseSegment):
-    """A reference to an indextype"""
-    match_grammar = ansi_dialect.get_segment("ObjectReferenceSegment").match_grammar.copy()
+    """A reference to an indextype."""
 
     type = "indextype_reference"
+
+    match_grammar = ansi_dialect.get_segment(
+        "ObjectReferenceSegment"
+    ).match_grammar.copy()
 
 
 # Adding Oracle specific statements.
@@ -79,8 +84,8 @@ class CommentStatementSegment(BaseSegment):
                     "MATERIALIZED",
                     "VIEW",
                     Ref("TableReferenceSegment"),
-                )
+                ),
             ),
             Sequence("IS", OneOf(Ref("QuotedLiteralSegment"), "NULL")),
-        )
+        ),
     )
