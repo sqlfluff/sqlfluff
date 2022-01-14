@@ -310,7 +310,10 @@ class ConfigLoader:
             return self._config_cache[str(extra_config_path)]
 
         configs: dict = {}
-        elems = self._get_config_elems_from_file(extra_config_path)
+        if extra_config_path.endswith("pyproject.toml"):
+            elems = self._get_config_elems_from_toml(extra_config_path)
+        else:
+            elems = self._get_config_elems_from_file(extra_config_path)
         configs = self._incorporate_vals(configs, elems)
 
         # Store in the cache
