@@ -288,8 +288,16 @@ class LintFix:
                 slice(anchor_slice.stop, anchor_slice.stop + 1),
             ]
             check_fn = all
+        # TRICKY: For creations at the end of the file, there won't be an
+        # existing slice. In this case, the function adds file_end_slice to the
+        # result, as a sort of placeholder or sentinel value. We pass a literal
+        # slice for "file_end_slice" so that later in this function, the LintFix
+        # is interpreted as literal code. Otherwise, it could be interpreted as
+        # a fix to *templated* code and incorrectly discarded.
         fix_slices = self._raw_slices_from_templated_slices(
-            templated_file, templated_slices
+            templated_file,
+            templated_slices,
+            file_end_slice=RawFileSlice("", "literal", -1),
         )
 
         # We have the fix slices. Now check for conflicts.
@@ -305,7 +313,11 @@ class LintFix:
         return any(fs.slice_type == "templated" for fs in raw_slices)
 
     @staticmethod
-    def _raw_slices_from_templated_slices(templated_file, templated_slices):
+    def _raw_slices_from_templated_slices(
+        templated_file: TemplatedFile,
+        templated_slices: List[slice],
+        file_end_slice: Optional[RawFileSlice] = None,
+    ) -> Set[RawFileSlice]:
         raw_slices: Set[RawFileSlice] = set()
         for templated_slice in templated_slices:
             try:
@@ -316,10 +328,12 @@ class LintFix:
                 )
             except (IndexError, ValueError):
                 # These errors will happen with "create_before" at the beginning
-                # of the file or "create_after" at the end of the file. Ignoring
-                # it is the correct action, because the other (anchor) slice
-                # is still valid.
-                pass
+                # of the file or "create_after" at the end of the file. By
+                # default, we ignore this situation. If the caller passed
+                # "file_end_slice", add that to the result. In effect,
+                # file_end_slice serves as a placeholder or sentinel value.
+                if file_end_slice is not None:
+                    raw_slices.add(file_end_slice)
         return raw_slices
 
 
