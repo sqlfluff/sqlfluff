@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 30ea41964588cbd451f989a20ac2597df08e4f32798906e4958545b3c2044a80
+_hash: a845c6f7f827ee9c48ec52901ce26dd296ae60417f8e24bbbe3aa626ffef09b0
 file:
 - statement:
     unload_statement:
@@ -209,7 +209,7 @@ file:
     - keyword: delimiter
     - keyword: as
     - literal: "'\\t'"
-    - compression_segment:
+    - compression_type_segment:
         keyword: gzip
 - statement_terminator: ;
 - statement:

@@ -100,7 +100,7 @@ class ColumnEncodingSegment(BaseSegment):
 
 
 @redshift_dialect.segment()
-class CompressionSegment(BaseSegment):
+class CompressionTypeSegment(BaseSegment):
     """Compression segment.
 
     Indicates file compression.
@@ -108,7 +108,7 @@ class CompressionSegment(BaseSegment):
     As specified by: https://docs.aws.amazon.com/redshift/latest/dg/copy-parameters-file-compression.html
     """
 
-    type = "compression_segment"
+    type = "compression_type_segment"
 
     match_grammar = OneOf(
         "BZIP2",
@@ -539,7 +539,7 @@ class UnloadStatementSegment(BaseSegment):
                 Ref("QuotedLiteralSegment"),
                 optional=True,
             ),
-            Ref("CompressionSegment", optional=True),
+            Ref("CompressionTypeSegment", optional=True),
             Sequence(
                 Sequence(
                     "FORMAT",
@@ -653,7 +653,7 @@ class CopyStatementSegment(BaseSegment):
                 Ref("QuotedLiteralSegment"),
                 optional=True,
             ),
-            Ref("CompressionSegment", optional=True),
+            Ref("CompressionTypeSegment", optional=True),
             Ref("DataFormatSegment", optional=True),
             OneOf(
                 Sequence(
@@ -877,7 +877,7 @@ class StatementSegment(BaseSegment):
             Ref("PartitionedBySegment"),
             Ref("RowFormatDelimitedSegment"),
             Ref("DataFormatSegment"),
-            Ref("CompressionSegment"),
+            Ref("CompressionTypeSegment"),
             Ref("UnloadStatementSegment"),
             Ref("CopyStatementSegment"),
         ],
