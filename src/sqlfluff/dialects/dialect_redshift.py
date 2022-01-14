@@ -101,9 +101,9 @@ class ColumnEncodingSegment(BaseSegment):
 
 @redshift_dialect.segment()
 class CompressionTypeSegment(BaseSegment):
-    """Compression segment.
+    """Compression type segment.
 
-    Indicates file compression.
+    Indicates file compression type.
 
     As specified by: https://docs.aws.amazon.com/redshift/latest/dg/copy-parameters-file-compression.html
     """
