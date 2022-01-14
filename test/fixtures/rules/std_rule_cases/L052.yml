@@ -433,3 +433,34 @@ test_fail_newline_block_comment_semi_colon_after:
     rules:
       L052:
         multiline_newline: true
+
+test_fail_newline_create_table:
+  # https://github.com/sqlfluff/sqlfluff/issues/2268
+  fail_str: |
+    CREATE TABLE my_table (
+      id INTEGER
+    );
+  fix_str: |
+    CREATE TABLE my_table (
+      id INTEGER
+    )
+    ;
+  configs:
+    rules:
+      L052:
+        multiline_newline: true
+
+test_fail_newline_create_table_inline_comment:
+  fail_str: |
+    CREATE TABLE my_table (
+      id INTEGER
+    ); --inline comment
+  fix_str: |
+    CREATE TABLE my_table (
+      id INTEGER
+    ) --inline comment
+    ;
+  configs:
+    rules:
+      L052:
+        multiline_newline: true
