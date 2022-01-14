@@ -655,7 +655,6 @@ class CopyStatementSegment(BaseSegment):
             ),
             Ref("CompressionSegment", optional=True),
             Ref("DataFormatSegment", optional=True),
-            # <Data load options
             OneOf(
                 Sequence(
                     "DELIMITER",
@@ -675,8 +674,6 @@ class CopyStatementSegment(BaseSegment):
                 optional=True,
             ),
             Ref.keyword("MANIFEST", optional=True),
-            # Data load options/>
-            # <Data load operations
             Sequence(
                 "COMPROWS",
                 Ref("NumericLiteralSegment"),
@@ -712,8 +709,6 @@ class CopyStatementSegment(BaseSegment):
                 optional=True,
             ),
             Ref.keyword("NOLOAD", optional=True),
-            # Data load operations/>
-            # <Data conversion parameters
             Ref.keyword("ACCEPTANYDATE", optional=True),
             Sequence(
                 "ACCEPTINVCHARS",
@@ -779,7 +774,6 @@ class CopyStatementSegment(BaseSegment):
             ),
             Ref.keyword("TRIMBLANKS", optional=True),
             Ref.keyword("TRUNCATECOLUMNS", optional=True),
-            # Data conversion parameters/>
         ),
     )
 
