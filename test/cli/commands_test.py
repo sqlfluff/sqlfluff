@@ -924,7 +924,8 @@ def test_cli_disable_noqa_flag():
     assert r"L:   5 | P:  11 | L010 |" in raw_output
 
 
-def test_cli_get_config():
+def test_cli_get_default_config():
+    """`nocolor` and `verbose` values loaded from config if not specified via CLI."""
     config = get_config(
         "test/fixtures/config/toml/pyproject.toml",
         True,
