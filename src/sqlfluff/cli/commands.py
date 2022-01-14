@@ -7,7 +7,6 @@ import logging
 import time
 from logging import LogRecord
 from typing import (
-    Any,
     Callable,
     Tuple,
     NoReturn,
@@ -151,6 +150,7 @@ def common_options(f: Callable) -> Callable:
         "-v",
         "--verbose",
         count=True,
+        default=None,
         help=(
             "Verbosity, how detailed should the output be. This is *stackable*, so `-vv`"
             " is more verbose than `-v`. For the most verbose option try `-vvvv` or `-vvvvv`."
@@ -160,6 +160,7 @@ def common_options(f: Callable) -> Callable:
         "-n",
         "--nocolor",
         is_flag=True,
+        default=None,
         help="No color - if this is set then the output will be without ANSI color codes.",
     )(f)
 
@@ -300,19 +301,8 @@ def get_config(
                 )
             )
             sys.exit(66)
-
     # Instantiate a config object (filtering out the nulls)
-    def null(key: str, val: Any) -> bool:
-        if val is None:
-            return True
-        if key == "nocolor" and val is False:
-            return True
-        if key == "verbose" and val == 0:
-            return True
-        return False
-
-    overrides = {k: kwargs[k] for k in kwargs if not null(k, kwargs[k])}
-
+    overrides = {k: kwargs[k] for k in kwargs if kwargs[k] is not None}
     try:
         return FluffConfig.from_root(
             extra_config_path=extra_config_path,

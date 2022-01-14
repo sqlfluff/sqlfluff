@@ -928,8 +928,8 @@ def test_cli_get_config():
     config = get_config(
         "test/fixtures/config/toml/pyproject.toml",
         True,
-        nocolor=False,
-        verbose=0,
+        nocolor=None,
+        verbose=None,
     )
     assert config.get("nocolor") is True
     assert config.get("verbose") == 2
