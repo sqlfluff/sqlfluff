@@ -3,7 +3,7 @@ from typing import List, Optional, Sequence, Tuple
 
 from sqlfluff.core.parser import WhitespaceSegment
 from sqlfluff.core.parser.segments import BaseSegment, RawSegment
-from sqlfluff.core.rules.functional import rsp, Segments
+from sqlfluff.core.rules.functional import rsp, sp, Segments
 from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix, RuleContext
 from sqlfluff.core.rules.doc_decorators import (
     document_fix_compatible,
@@ -91,12 +91,7 @@ class Rule_L003(BaseRule):
                 elem, templated_file=templated_file
             ).raw_slices.select(loop_while=rsp.is_slice_type("literal")):
                 # Compute and append raw_slice's contribution.
-                start = max(elem.pos_marker.source_slice.start, raw_slice.source_idx)
-                stop = min(
-                    elem.pos_marker.source_slice.stop,
-                    raw_slice.source_idx + len(raw_slice.raw),
-                )
-                raw += templated_file.source_str[slice(start, stop)]
+                raw += sp.raw_slice(elem, raw_slice)
 
         # convert to spaces for convenience (and hanging indents)
         return raw.replace("\t", " " * tab_space_size)

@@ -13,7 +13,11 @@ from typing import Callable, Optional
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules.functional.raw_file_slices import RawFileSlices
 from sqlfluff.core.rules.functional.templated_file_slices import TemplatedFileSlices
-from sqlfluff.core.templaters.base import TemplatedFile, TemplatedFileSlice
+from sqlfluff.core.templaters.base import (
+    RawFileSlice,
+    TemplatedFile,
+    TemplatedFileSlice,
+)
 
 
 def is_type(*seg_type: str) -> Callable[[BaseSegment], bool]:
@@ -180,3 +184,13 @@ def templated_slices(
         )
     ]
     return TemplatedFileSlices(*templated_slices, templated_file=templated_file)
+
+
+def raw_slice(segment: BaseSegment, raw_slice_: RawFileSlice) -> str:
+    """Return the portion of a segment's source provided by raw_slice."""
+    start = max(segment.pos_marker.source_slice.start, raw_slice_.source_idx)
+    stop = min(
+        segment.pos_marker.source_slice.stop,
+        raw_slice_.source_idx + len(raw_slice_.raw),
+    )
+    return segment.pos_marker.templated_file.source_str[slice(start, stop)]
