@@ -291,6 +291,14 @@ def test__cli__command_lint_stdin(command):
                 "test/fixtures/cli/extra_config_tsql.sql",
             ],
         ),
+        (
+            lint,
+            [
+                "--config",
+                "test/fixtures/cli/extra_configs/pyproject.toml",
+                "test/fixtures/cli/extra_config_tsql.sql",
+            ],
+        ),
     ],
 )
 def test__cli__command_lint_parse(command):
