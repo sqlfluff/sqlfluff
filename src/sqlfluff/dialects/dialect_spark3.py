@@ -81,7 +81,7 @@ spark3_dialect.patch_lexer_matchers(
         #     |\d+([dDfFlLsSyY]|BD|bd)?          3. Integer only with integral or fractional data types.
         # )
         # (
-        #     (?<=\.)                            If matched character is . (e.g. 123.) then
+        #     (?<=\.)                            If matched character ends with . (e.g. 123.) then
         #                                        don't worry about word boundary check.
         #     |(?=\b)                            Check that we are at word boundary to avoid matching
         #                                        valid naked identifiers (e.g. 123column).
