@@ -131,17 +131,11 @@ spark3_dialect.replace(
         type="identifier",
         trim_chars=("`",),
     ),
+    QuotedLiteralSegment=hive_dialect.get_grammar("QuotedLiteralSegment"),
 )
 
 spark3_dialect.add(
     # Add Hive Segments TODO : Is there a way to retrieve this w/o redefining?
-    DoubleQuotedLiteralSegment=NamedParser(
-        "double_quote",
-        CodeSegment,
-        name="quoted_literal",
-        type="literal",
-        trim_chars=('"',),
-    ),
     JsonfileKeywordSegment=StringParser(
         "JSONFILE",
         KeywordSegment,
@@ -187,9 +181,6 @@ spark3_dialect.add(
     StoredAsGrammar=hive_dialect.get_grammar("StoredAsGrammar"),
     StoredByGrammar=hive_dialect.get_grammar("StoredByGrammar"),
     StorageFormatGrammar=hive_dialect.get_grammar("StorageFormatGrammar"),
-    SingleOrDoubleQuotedLiteralGrammar=hive_dialect.get_grammar(
-        "SingleOrDoubleQuotedLiteralGrammar"
-    ),
     TerminatedByGrammar=hive_dialect.get_grammar("TerminatedByGrammar"),
     # Add Spark Grammar
     BucketSpecGrammar=Sequence(
@@ -241,7 +232,7 @@ spark3_dialect.add(
     ResourceLocationGrammar=Sequence(
         "USING",
         Ref("ResourceFileGrammar"),
-        Ref("SingleOrDoubleQuotedLiteralGrammar"),
+        Ref("QuotedLiteralSegment"),
     ),
     SortSpecGrammar=Sequence(
         "SORTED",
@@ -260,7 +251,7 @@ spark3_dialect.add(
         "UNSET",
         "TBLPROPERTIES",
         Ref("IfExistsGrammar", optional=True),
-        Bracketed(Delimited(Ref("SingleOrDoubleQuotedLiteralGrammar"))),
+        Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
     ),
     TablePropertiesGrammar=Sequence(
         "TBLPROPERTIES", Ref("BracketedPropertyListGrammar")
@@ -475,7 +466,7 @@ class AlterTableStatementSegment(BaseSegment):
                     ),
                     Sequence(
                         "SERDE",
-                        Ref("SingleOrDoubleQuotedLiteralGrammar"),
+                        Ref("QuotedLiteralSegment"),
                         Ref("SerdePropertiesGrammar", optional=True),
                     ),
                 ),
@@ -572,7 +563,7 @@ class CreateFunctionStatementSegment(BaseSegment):
         Ref("IfNotExistsGrammar", optional=True),
         Ref("FunctionNameIdentifierSegment"),
         "AS",
-        Ref("SingleOrDoubleQuotedLiteralGrammar"),
+        Ref("QuotedLiteralSegment"),
         Ref("ResourceLocationGrammar", optional=True),
     )
 
@@ -800,7 +791,7 @@ class AddExecutablePackage(BaseSegment):
     match_grammar = Sequence(
         "ADD",
         Ref("ResourceFileGrammar"),
-        Ref("SingleOrDoubleQuotedLiteralGrammar"),
+        Ref("QuotedLiteralSegment"),
     )
 
 
@@ -815,7 +806,7 @@ class RefreshStatementSegment(BaseSegment):
 
     match_grammar = Sequence(
         "REFRESH",
-        Ref("SingleOrDoubleQuotedLiteralGrammar"),
+        Ref("QuotedLiteralSegment"),
     )
 
 
