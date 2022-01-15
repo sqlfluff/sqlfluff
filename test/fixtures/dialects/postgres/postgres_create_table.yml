@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ab21360a00b1dc48abe7ab97180f983a521fcc46bec6aabb6caf99fe303aebe5
+_hash: 2ec6a83499eb7b79fbf441749e8707b84429da5a0916ed52d40534e378d125cb
 file:
 - statement:
     create_table_statement:
@@ -1264,61 +1264,56 @@ file:
       - end_bracket: )
 - statement_terminator: ;
 - statement:
-    create_table_statement:
-    - keyword: CREATE
-    - keyword: TABLE
-    - table_reference:
-        identifier: users
+    unparsable:
+    - raw: CREATE
+    - raw: TABLE
+    - raw: users
     - bracketed:
       - start_bracket: (
-      - column_reference:
-          identifier: user_id
-      - data_type:
-          keyword: INTEGER
-      - column_constraint_segment:
-        - keyword: PRIMARY
-        - keyword: KEY
-      - column_constraint_segment:
-        - keyword: generated
-        - keyword: BY
-        - keyword: DEFAULT
-        - keyword: AS
-        - keyword: IDENTITY
+      - raw: user_id
+      - raw: INTEGER
+      - raw: PRIMARY
+      - raw: KEY
+      - raw: generated
+      - raw: BY
+      - raw: DEFAULT
+      - raw: AS
+      - raw: IDENTITY
       - comma: ','
-      - column_reference:
-          identifier: group_id
-      - data_type:
-          keyword: INTEGER
-      - column_constraint_segment:
-        - keyword: REFERENCES
-        - column_reference:
-            identifier: groups
-        - bracketed:
-            start_bracket: (
-            column_reference:
-              identifier: group_id
-            end_bracket: )
-        - keyword: 'ON'
-        - keyword: DELETE
-        - referential_action:
-            keyword: CASCADE
+      - raw: group_id
+      - raw: INTEGER
+      - raw: REFERENCES
+      - raw: groups
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            identifier: group_id
+          end_bracket: )
+      - raw: 'ON'
+      - raw: DELETE
+      - raw: CASCADE
       - comma: ','
-      - column_reference:
-          identifier: domain_id
-      - data_type:
-          keyword: INTEGER
-      - column_constraint_segment:
-        - keyword: REFERENCES
-        - column_reference:
-            identifier: groups
-        - bracketed:
-            start_bracket: (
-            column_reference:
-              identifier: group_id
-            end_bracket: )
-        - keyword: 'ON'
-        - keyword: UPDATE
-        - referential_action:
-            keyword: RESTRICT
+      - raw: domain_id
+      - raw: INTEGER
+      - raw: REFERENCES
+      - raw: groups
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            identifier: group_id
+          end_bracket: )
+      - raw: 'ON'
+      - raw: UPDATE
+      - raw: RESTRICT
+      - raw: other_id
+      - raw: INTEGER
+      - raw: REFERENCES
+      - raw: groups
+      - bracketed:
+          start_bracket: (
+          raw: group_id
+          end_bracket: )
+      - raw: MATCH
+      - raw: SIMPLE
       - end_bracket: )
 - statement_terminator: ;
