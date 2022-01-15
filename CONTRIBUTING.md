@@ -172,7 +172,7 @@ Running your code changes against a SQL file you can run
 ```shell
 sqlfluff parse my-sql.sql
 ```
-in the virtual environment. This executes the locally changed SQLFluff program.
+(ensure your virtual environment is activated first)
 
 #### dbt templater tests
 
