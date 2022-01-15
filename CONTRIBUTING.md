@@ -168,6 +168,12 @@ tox -e py38 -- test/cli
 tox -e py38 -- test/cli/commands_test.py
 ```
 
+Running your code changes against a SQL file you can run
+```shell
+sqlfluff parse my-sql.sql
+```
+in the virtual environment. This executes the locally changed SQLFluff program.
+
 #### dbt templater tests
 
 The dbt templater tests require a locally running Postgres instance. See the required connection parameters in `plugins/sqlfluff-templater-dbt/test/fixtures/dbt/profiles.yml`. We recommend using https://postgresapp.com/.
