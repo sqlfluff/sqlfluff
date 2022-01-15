@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: fbeb2346e82296c016b221a7ab6962ff396929616fea07a87519e66199df20ec
+_hash: 2e8a2a7473af740794b633ddf989f55250f697fecec012d09cf34f6a6f9c3bc9
 file:
 - base:
     create_table_statement:
@@ -21,8 +21,10 @@ file:
           data_type:
             primitive_type:
               keyword: STRING
-        keyword: COMMENT
-        literal: '"col_comment1"'
+          column_constraint_segment:
+            comment_clause:
+              keyword: COMMENT
+              literal: '"col_comment1"'
         end_bracket: )
     - keyword: USING
     - keyword: PARQUET
