@@ -170,7 +170,7 @@ tox -e py38 -- test/cli/commands_test.py
 
 Running your code changes against a SQL file you can run
 ```shell
-sqlfluff parse my-sql.sql
+sqlfluff parse test.sql
 ```
 (ensure your virtual environment is activated first).
 
