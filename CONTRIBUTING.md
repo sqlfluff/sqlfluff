@@ -91,7 +91,7 @@ python3 -m pip install -U tox
 A virtual environment can then be created and activated by running:
 ```shell
 tox -e py --devenv .venv
-source .venv/bin/activate
+source .venv/Scripts/activate
 ```
 (The `py` environment defaults to the python version used
 to install tox, however any version you want can be installed
