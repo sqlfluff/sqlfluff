@@ -99,6 +99,8 @@ def test__config__load_toml():
     )
     assert cfg == {
         "core": {
+            "nocolor": True,
+            "verbose": 2,
             "testing_int": 5,
             "testing_bar": 7.698,
             "testing_bool": False,
