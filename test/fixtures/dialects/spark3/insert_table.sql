@@ -22,17 +22,13 @@ INSERT INTO students PARTITION (student_id = 444444)
 SELECT
     name,
     address
--- TODO double quotes creates an unparsable section
--- FROM persons WHERE name = "Dora Williams";
-FROM persons WHERE name = 'Dora Williams';
+FROM persons WHERE name = "Dora Williams";
 
 INSERT OVERWRITE students PARTITION (student_id = 444444)
 SELECT
     name,
     address
--- TODO double quotes creates an unparsable section
--- FROM persons WHERE name = "Dora Williams";
-FROM persons WHERE name = 'Dora Williams';
+FROM persons WHERE name = "Dora Williams";
 
 -- Insert Using a TABLE Statement
 INSERT INTO students TABLE visiting_students;
