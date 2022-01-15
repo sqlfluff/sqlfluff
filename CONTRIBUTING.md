@@ -168,7 +168,7 @@ tox -e py38 -- test/cli
 tox -e py38 -- test/cli/commands_test.py
 ```
 
-Running your code changes against a SQL file you can run
+You can also manually test your updated code against a SQL file via:
 ```shell
 sqlfluff parse test.sql
 ```
