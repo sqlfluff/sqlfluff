@@ -57,7 +57,7 @@ class Segments(tuple):
 
     @property
     def raw_slices(self) -> RawFileSlices:
-        """Raw slices of the segments."""
+        """Raw slices of the segments, sorted in source file order."""
         if not self.templated_file:
             raise ValueError(
                 'Segments.raw_slices: "templated_file" property is required.'
@@ -68,7 +68,10 @@ class Segments(tuple):
             raw_slices.update(
                 self.templated_file.raw_slices_spanning_source_slice(source_slice)
             )
-        return RawFileSlices(*raw_slices, templated_file=self.templated_file)
+        return RawFileSlices(
+            *sorted(raw_slices, key=lambda slice_: slice_.source_idx),
+            templated_file=self.templated_file
+        )
 
     def children(
         self, predicate: Optional[Callable[[BaseSegment], bool]] = None
