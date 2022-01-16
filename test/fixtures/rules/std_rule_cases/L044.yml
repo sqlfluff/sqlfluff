@@ -494,3 +494,23 @@ test_fail_two_join_subqueries_one_with_unknown_number_of_columns:
 test_fail_no_source_table:
   fail_str: |
     SELECT *
+
+test_query_on_snowflake_stage:
+  pass_str:
+    select mycolumn1
+    from @public.mytable1
+  configs:
+    core:
+      dialect: snowflake
+
+test_snowflake_delete_cte:
+  pass_str: |
+    DELETE FROM MYTABLE1
+        USING (
+            WITH MYCTE AS (SELECT COLUMN2 FROM MYTABLE3)
+            SELECT COLUMN3 FROM MYTABLE3
+        ) X
+    WHERE COLUMN1 = X.COLUMN3
+  configs:
+    core:
+      dialect: snowflake

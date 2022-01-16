@@ -477,7 +477,7 @@ ansi_dialect.add(
     FrameClauseUnitGrammar=OneOf("ROWS", "RANGE"),
     # It's as a sequence to allow to parametrize that in Postgres dialect with LATERAL
     JoinKeywords=Sequence("JOIN"),
-    TableConstraintReferenceOptionGrammar=OneOf(
+    ReferentialActionGrammar=OneOf(
         "RESTRICT",
         "CASCADE",
         Sequence("SET", "NULL"),
@@ -485,6 +485,35 @@ ansi_dialect.add(
         Sequence("SET", "DEFAULT"),
     ),
     DropBehaviorGrammar=OneOf("RESTRICT", "CASCADE", optional=True),
+    ReferenceDefinitionGrammar=Sequence(
+        "REFERENCES",
+        Ref("TableReferenceSegment"),
+        # Foreign columns making up FOREIGN KEY constraint
+        Ref("BracketedColumnReferenceListGrammar", optional=True),
+        Sequence(
+            "MATCH",
+            OneOf(
+                "FULL",
+                "PARTIAL",
+                "SIMPLE",
+            ),
+            optional=True,
+        ),
+        AnyNumberOf(
+            # ON DELETE clause, e.g. ON DELETE NO ACTION
+            Sequence(
+                "ON",
+                "DELETE",
+                Ref("ReferentialActionGrammar"),
+            ),
+            # ON UPDATE clause, e.g. ON UPDATE SET NULL
+            Sequence(
+                "ON",
+                "UPDATE",
+                Ref("ReferentialActionGrammar"),
+            ),
+        ),
+    ),
 )
 
 
@@ -2208,12 +2237,7 @@ class ColumnConstraintSegment(BaseSegment):
             "UNIQUE",  # UNIQUE
             "AUTO_INCREMENT",  # AUTO_INCREMENT (MySQL)
             "UNSIGNED",  # UNSIGNED (MySQL)
-            Sequence(  # REFERENCES reftable [ ( refcolumn) ]
-                "REFERENCES",
-                Ref("ColumnReferenceSegment"),
-                # Foreign columns making up FOREIGN KEY constraint
-                Ref("BracketedColumnReferenceListGrammar", optional=True),
-            ),
+            Ref("ReferenceDefinitionGrammar"),  # REFERENCES reftable [ ( refcolumn) ]x
             Ref("CommentClauseSegment"),
         ),
     )
@@ -2274,25 +2298,9 @@ class TableConstraintSegment(BaseSegment):
                 Ref("ForeignKeyGrammar"),
                 # Local columns making up FOREIGN KEY constraint
                 Ref("BracketedColumnReferenceListGrammar"),
-                "REFERENCES",
-                Ref("ColumnReferenceSegment"),
-                # Foreign columns making up FOREIGN KEY constraint
-                Ref("BracketedColumnReferenceListGrammar"),
-                # Later add support for [MATCH FULL/PARTIAL/SIMPLE] ?
-                AnyNumberOf(
-                    # ON DELETE clause, e.g. ON DELETE NO ACTION
-                    Sequence(
-                        "ON",
-                        "DELETE",
-                        Ref("TableConstraintReferenceOptionGrammar"),
-                    ),
-                    # ON UPDATE clause, e.g. ON UPDATE SET NULL
-                    Sequence(
-                        "ON",
-                        "UPDATE",
-                        Ref("TableConstraintReferenceOptionGrammar"),
-                    ),
-                ),
+                Ref(
+                    "ReferenceDefinitionGrammar"
+                ),  # REFERENCES reftable [ ( refcolumn) ]
             ),
         ),
     )

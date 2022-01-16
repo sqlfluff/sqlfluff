@@ -567,3 +567,59 @@ test_tsql_function:
   configs:
     core:
       dialect: tsql
+
+test_pass_ignore_templated_whitespace:
+  pass_str: |
+    SELECT
+        c1,
+        {{ "      c2" }}
+    FROM my_table
+  configs:
+    core:
+      ignore_templated_areas: False
+
+test_fail_ignore_templated_whitespace_1:
+  fail_str: |
+    SELECT
+        c1,
+    d{{ "      c2" }}
+    FROM my_table
+  fix_str: |
+    SELECT
+        c1,
+        d{{ "      c2" }}
+    FROM my_table
+
+  configs:
+    core:
+      ignore_templated_areas: False
+
+test_fail_ignore_templated_whitespace_2:
+  fail_str: |
+    SELECT
+        c1,
+      d{{ "      c2" }}
+    FROM my_table
+  fix_str: |
+    SELECT
+        c1,
+        d{{ "      c2" }}
+    FROM my_table
+  configs:
+    core:
+      ignore_templated_areas: False
+
+test_fail_ignore_templated_whitespace_3:
+  fail_str: |
+    SELECT
+        c1,
+          d{{ "      c2" }}
+    FROM my_table
+  fix_str: |
+    SELECT
+        c1,
+        d{{ "      c2" }}
+    FROM my_table
+  configs:
+    core:
+      ignore_templated_areas: False
