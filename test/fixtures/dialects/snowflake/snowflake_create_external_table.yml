@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 68fffe180f72ede227095df69fc448c3b5b74429529d177a859bfe9b26fa536b
+_hash: 8b1825c6ca4bec6d65b0619be18b57228c5245a2e1e7f2ba0e4547a67ff15e61
 file:
 - statement:
     create_external_table_statement:
@@ -18,7 +18,7 @@ file:
     - keyword: location
     - comparison_operator:
         raw_comparison_operator: '='
-    - stage_path: '@mystage/path1/'
+    - identifier: '@mystage/path1/'
     - keyword: file_format
     - comparison_operator:
         raw_comparison_operator: '='
@@ -48,7 +48,7 @@ file:
     - keyword: location
     - comparison_operator:
         raw_comparison_operator: '='
-    - stage_path: '@carpe_datastore_commercial/p08'
+    - identifier: '@carpe_datastore_commercial/p08'
     - keyword: auto_refresh
     - comparison_operator:
         raw_comparison_operator: '='

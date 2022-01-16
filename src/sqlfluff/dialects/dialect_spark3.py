@@ -99,6 +99,14 @@ spark3_dialect.patch_lexer_matchers(
     ]
 )
 
+spark3_dialect.insert_lexer_matchers(
+    [
+        RegexLexer("bytes_single_quote", r"X'([^'\\]|\\.)*'", CodeSegment),
+        RegexLexer("bytes_double_quote", r'X"([^"\\]|\\.)*"', CodeSegment),
+    ],
+    before="single_quote",
+)
+
 # Set the bare functions
 spark3_dialect.sets("bare_functions").clear()
 spark3_dialect.sets("bare_functions").update(
@@ -168,6 +176,11 @@ spark3_dialect.replace(
         trim_chars=("`",),
     ),
     QuotedLiteralSegment=hive_dialect.get_grammar("QuotedLiteralSegment"),
+    LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar").copy(
+        insert=[
+            Ref("BytesQuotedLiteralSegment"),
+        ]
+    ),
 )
 
 spark3_dialect.add(
@@ -291,6 +304,20 @@ spark3_dialect.add(
     ),
     TablePropertiesGrammar=Sequence(
         "TBLPROPERTIES", Ref("BracketedPropertyListGrammar")
+    ),
+    BytesQuotedLiteralSegment=OneOf(
+        NamedParser(
+            "bytes_single_quote",
+            CodeSegment,
+            name="bytes_quoted_literal",
+            type="literal",
+        ),
+        NamedParser(
+            "bytes_double_quote",
+            CodeSegment,
+            name="bytes_quoted_literal",
+            type="literal",
+        ),
     ),
 )
 
