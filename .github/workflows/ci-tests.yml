@@ -229,7 +229,7 @@ jobs:
         python-version: '3.10'
     - name: Install dependencies
       run: |
-        pip install git+https://github.com/${{ github.event.pull_request.head.repo.full_name }}@${{ github.head_ref }}
+        pip install "git+https://github.com/${{ github.event.pull_request.head.repo.full_name }}@${{ github.head_ref }}"
     - name: Run the version test
       run: |
         sqlfluff --version
