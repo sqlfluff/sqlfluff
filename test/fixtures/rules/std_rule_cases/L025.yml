@@ -134,3 +134,15 @@ test_bigquery_function_takes_tablealias_column_struct_parameter:
   configs:
     core:
       dialect: bigquery
+
+test_snowflake_delete_cte:
+  fail_str: |
+    DELETE FROM MYTABLE1
+        USING (
+            WITH MYCTE AS (SELECT COLUMN2 FROM MYTABLE3 AS MT3)
+            SELECT COLUMN3 FROM MYTABLE3
+        ) X
+    WHERE COLUMN1 = X.COLUMN3
+  configs:
+    core:
+      dialect: snowflake
