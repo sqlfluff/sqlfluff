@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c982f831040aca5cdb8792df12ce9e51a9c1cce8b07cf9cca9b58b05350d5a39
+_hash: 9396e7c7b8f6c8cc368ede657010047edd1f6a4adf79ccbc184d23a4907170b9
 file:
 - statement:
     copy_into_statement:
@@ -13,7 +13,7 @@ file:
         identifier: mytable
     - keyword: from
     - storage_location:
-        stage_path: '@my_int_stage'
+        identifier: '@my_int_stage'
 - statement_terminator: ;
 - statement:
     copy_into_statement:
@@ -23,7 +23,7 @@ file:
         identifier: mytable
     - keyword: from
     - storage_location:
-        stage_path: '@my_int_stage'
+        identifier: '@my_int_stage'
     - keyword: file_format
     - comparison_operator:
         raw_comparison_operator: '='
@@ -44,7 +44,7 @@ file:
         identifier: mytable
     - keyword: from
     - storage_location:
-        stage_path: '@my_int_stage'
+        identifier: '@my_int_stage'
     - keyword: file_format
     - comparison_operator:
         raw_comparison_operator: '='
@@ -65,7 +65,7 @@ file:
         identifier: mytable
     - keyword: from
     - storage_location:
-        stage_path: '@my_int_stage'
+        identifier: '@my_int_stage'
     - keyword: file_format
     - comparison_operator:
         raw_comparison_operator: '='
@@ -90,7 +90,7 @@ file:
         identifier: mytable
     - keyword: from
     - storage_location:
-        stage_path: '@my_int_stage'
+        identifier: '@my_int_stage'
     - keyword: file_format
     - comparison_operator:
         raw_comparison_operator: '='
@@ -122,7 +122,7 @@ file:
         identifier: mytable
     - keyword: from
     - storage_location:
-        stage_path: '@%mytable'
+        identifier: '@%mytable'
 - statement_terminator: ;
 - statement:
     copy_into_statement:
@@ -132,7 +132,7 @@ file:
         identifier: mytable
     - keyword: from
     - storage_location:
-        stage_path: '@~/data_files'
+        identifier: '@~/data_files'
 - statement_terminator: ;
 - statement:
     copy_into_statement:
@@ -142,7 +142,7 @@ file:
         identifier: mytable
     - keyword: from
     - storage_location:
-        stage_path: '@mydb.myschema.mystage'
+        identifier: '@mydb.myschema.mystage'
 - statement_terminator: ;
 - statement:
     copy_into_statement:
@@ -152,7 +152,7 @@ file:
         identifier: mytable
     - keyword: from
     - storage_location:
-        stage_path: '@mydatabase.myschema.%mytable'
+        identifier: '@mydatabase.myschema.%mytable'
 - statement_terminator: ;
 - statement:
     copy_into_statement:
@@ -220,7 +220,7 @@ file:
               from_expression_element:
                 table_expression:
                   table_reference:
-                    stage_path: '@source_stage'
+                    identifier: '@source_stage'
         end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -270,7 +270,7 @@ file:
               from_expression_element:
                 table_expression:
                   table_reference:
-                    stage_path: '@ext.stage/path1'
+                    identifier: '@ext.stage/path1'
         end_bracket: )
     - keyword: file_format
     - comparison_operator:
@@ -323,7 +323,7 @@ file:
         end_bracket: )
     - keyword: from
     - storage_location:
-        stage_path: '@public.stage/sub-folder/myfile-1.csv'
+        identifier: '@public.stage/sub-folder/myfile-1.csv'
     - keyword: file_format
     - comparison_operator:
         raw_comparison_operator: '='
@@ -349,7 +349,7 @@ file:
         end_bracket: )
     - keyword: from
     - storage_location:
-        stage_path: '@public.stage/subfolder/'
+        identifier: '@public.stage/subfolder/'
     - keyword: file_format
     - comparison_operator:
         raw_comparison_operator: '='

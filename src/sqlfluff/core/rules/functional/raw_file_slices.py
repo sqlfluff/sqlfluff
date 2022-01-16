@@ -31,3 +31,25 @@ class RawFileSlices(tuple):
             if predicate is None or predicate(s):
                 return True
         return False
+
+    def select(
+        self,
+        select_if: Optional[Callable[[RawFileSlice], bool]] = None,
+        loop_while: Optional[Callable[[RawFileSlice], bool]] = None,
+        start_slice: Optional[RawFileSlice] = None,
+        stop_slice: Optional[RawFileSlice] = None,
+    ) -> "RawFileSlices":
+        """Retrieve range/subset.
+
+        NOTE: Iterates the slices BETWEEN start_slice and stop_slice, i.e. those
+        slices are not included in the loop.
+        """
+        start_index = self.index(start_slice) if start_slice else -1
+        stop_index = self.index(stop_slice) if stop_slice else len(self)
+        buff = []
+        for slice_ in self[start_index + 1 : stop_index]:
+            if loop_while is not None and not loop_while(slice_):
+                break
+            if select_if is None or select_if(slice_):
+                buff.append(slice_)
+        return RawFileSlices(*buff, templated_file=self.templated_file)
