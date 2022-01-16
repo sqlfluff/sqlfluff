@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d6bdbbb62ba9c54674b7e4155627a3c327092e4aca8b3d7ffa28ff996443de43
+_hash: bc77d03157e3ce8516d662706bca4f3cc3a7054cb0db202cc8bb90925970a146
 file:
 - statement:
     alter_table_statement:
@@ -701,13 +701,77 @@ file:
               identifier: address
             end_bracket: )
         - keyword: REFERENCES
-        - column_reference:
+        - table_reference:
             identifier: addresses
         - bracketed:
             start_bracket: (
             column_reference:
               identifier: address
             end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        identifier: distributors
+    - alter_table_action_segment:
+        keyword: ADD
+        table_constraint_segment:
+        - keyword: CONSTRAINT
+        - object_reference:
+            identifier: distfk
+        - keyword: FOREIGN
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              identifier: address
+            end_bracket: )
+        - keyword: REFERENCES
+        - table_reference:
+            identifier: addresses
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              identifier: address
+            end_bracket: )
+        - keyword: MATCH
+        - keyword: FULL
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        identifier: distributors
+    - alter_table_action_segment:
+        keyword: ADD
+        table_constraint_segment:
+        - keyword: CONSTRAINT
+        - object_reference:
+            identifier: distfk
+        - keyword: FOREIGN
+        - keyword: KEY
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              identifier: address
+            end_bracket: )
+        - keyword: REFERENCES
+        - table_reference:
+            identifier: addresses
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              identifier: address
+            end_bracket: )
+        - keyword: 'ON'
+        - keyword: DELETE
+        - keyword: RESTRICT
+        - keyword: 'ON'
+        - keyword: UPDATE
+        - keyword: CASCADE
 - statement_terminator: ;
 - statement:
     alter_table_statement:
@@ -729,7 +793,7 @@ file:
               identifier: address
             end_bracket: )
         - keyword: REFERENCES
-        - column_reference:
+        - table_reference:
             identifier: addresses
         - bracketed:
             start_bracket: (
@@ -1013,7 +1077,7 @@ file:
               identifier: workorderid
             end_bracket: )
         - keyword: REFERENCES
-        - column_reference:
+        - table_reference:
           - identifier: landing
           - dot: .
           - identifier: workorder
