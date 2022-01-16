@@ -4,6 +4,7 @@ from typing import Optional
 from sqlfluff.core.rules.analysis.select_crawler import Query, SelectCrawler
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules.base import BaseRule, LintResult, RuleContext
+from sqlfluff.core.rules.functional import sp
 
 
 class RuleFailure(Exception):
@@ -127,7 +128,10 @@ class Rule_L044(BaseRule):
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Outermost query should produce known number of columns."""
-        if context.segment.is_type("statement"):
+        start_types = ["select_statement", "set_expression", "with_compound_statement"]
+        if context.segment.is_type(
+            *start_types
+        ) and not context.functional.parent_stack.any(sp.is_type(*start_types)):
             crawler = SelectCrawler(context.segment, context.dialect)
 
             # Begin analysis at the outer query.

@@ -2041,18 +2041,7 @@ class ColumnConstraintSegment(BaseSegment):
             ),
             "UNIQUE",
             Ref("PrimaryKeyGrammar"),
-            Sequence(  # REFERENCES reftable [ ( refcolumn) ]
-                "REFERENCES",
-                Ref("ColumnReferenceSegment"),
-                # Foreign columns making up FOREIGN KEY constraint
-                Ref("BracketedColumnReferenceListGrammar", optional=True),
-                Sequence(
-                    "ON",
-                    OneOf("DELETE", "UPDATE"),
-                    Ref("ReferentialActionSegment"),
-                    optional=True,
-                ),
-            ),
+            Ref("ReferenceDefinitionGrammar"),  # REFERENCES reftable [ ( refcolumn) ]
         ),
         OneOf("DEFERRABLE", Sequence("NOT", "DEFERRABLE"), optional=True),
         OneOf(
@@ -2156,17 +2145,9 @@ class TableConstraintSegment(BaseSegment):
                 "KEY",
                 # Local columns making up FOREIGN KEY constraint
                 Ref("BracketedColumnReferenceListGrammar"),
-                "REFERENCES",
-                Ref("ColumnReferenceSegment"),
-                # Foreign columns making up FOREIGN KEY constraint
-                Ref("BracketedColumnReferenceListGrammar", optional=True),
-                Sequence("MATCH", OneOf("FULL", "PARTIAL", "SIMPLE"), optional=True),
-                Sequence(
-                    "ON", "DELETE", Ref("ReferentialActionSegment"), optional=True
-                ),
-                Sequence(
-                    "ON", "UPDATE", Ref("ReferentialActionSegment"), optional=True
-                ),
+                Ref(
+                    "ReferenceDefinitionGrammar"
+                ),  # REFERENCES reftable [ ( refcolumn) ]
             ),
             OneOf("DEFERRABLE", Sequence("NOT", "DEFERRABLE"), optional=True),
             OneOf(

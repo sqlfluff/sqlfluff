@@ -162,7 +162,7 @@ snowflake_dialect.add(
         r"(?:@[^\s;)]+|'@[^']+')",
         CodeSegment,
         name="stage_path",
-        type="stage_path",
+        type="identifier",
     ),
     S3Path=RegexParser(
         # See https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucketnamingrules.html
@@ -2135,7 +2135,7 @@ class TableExpressionSegment(BaseSegment):
         # Nested Selects
         Bracketed(Ref("SelectableGrammar")),
         # Values clause?
-        Ref("StorageLocation"),
+        Ref("StagePath"),
     )
 
 

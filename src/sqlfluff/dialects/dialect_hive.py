@@ -55,16 +55,6 @@ hive_dialect.sets("datetime_units").update(
 )
 
 hive_dialect.add(
-    DoubleQuotedLiteralSegment=NamedParser(
-        "double_quote",
-        CodeSegment,
-        name="quoted_literal",
-        type="literal",
-        trim_chars=('"',),
-    ),
-    SingleOrDoubleQuotedLiteralGrammar=OneOf(
-        Ref("QuotedLiteralSegment"), Ref("DoubleQuotedLiteralSegment")
-    ),
     StartAngleBracketSegment=StringParser(
         "<", SymbolSegment, name="start_angle_bracket", type="start_angle_bracket"
     ),
@@ -83,11 +73,11 @@ hive_dialect.add(
     TextfileKeywordSegment=StringParser(
         "TEXTFILE", KeywordSegment, name="text_file", type="file_format"
     ),
-    LocationGrammar=Sequence("LOCATION", Ref("SingleOrDoubleQuotedLiteralGrammar")),
+    LocationGrammar=Sequence("LOCATION", Ref("QuotedLiteralSegment")),
     PropertyGrammar=Sequence(
-        Ref("SingleOrDoubleQuotedLiteralGrammar"),
+        Ref("QuotedLiteralSegment"),
         Ref("EqualsSegment"),
-        Ref("SingleOrDoubleQuotedLiteralGrammar"),
+        Ref("QuotedLiteralSegment"),
     ),
     BracketedPropertyListGrammar=Bracketed(Delimited(Ref("PropertyGrammar"))),
     TablePropertiesGrammar=Sequence(
@@ -107,16 +97,16 @@ hive_dialect.add(
         "JSONFILE",
         Sequence(
             "INPUTFORMAT",
-            Ref("SingleOrDoubleQuotedLiteralGrammar"),
+            Ref("QuotedLiteralSegment"),
             "OUTPUTFORMAT",
-            Ref("SingleOrDoubleQuotedLiteralGrammar"),
+            Ref("QuotedLiteralSegment"),
         ),
     ),
     StoredAsGrammar=Sequence("STORED", "AS", Ref("FileFormatGrammar")),
     StoredByGrammar=Sequence(
         "STORED",
         "BY",
-        Ref("SingleOrDoubleQuotedLiteralGrammar"),
+        Ref("QuotedLiteralSegment"),
         Ref("SerdePropertiesGrammar", optional=True),
     ),
     StorageFormatGrammar=OneOf(
@@ -126,7 +116,7 @@ hive_dialect.add(
         ),
         Ref("StoredByGrammar"),
     ),
-    CommentGrammar=Sequence("COMMENT", Ref("SingleOrDoubleQuotedLiteralGrammar")),
+    CommentGrammar=Sequence("COMMENT", Ref("QuotedLiteralSegment")),
     PartitionSpecGrammar=Sequence(
         "PARTITION",
         Bracketed(
@@ -144,6 +134,10 @@ hive_dialect.add(
 # https://cwiki.apache.org/confluence/display/hive/languagemanual+joins
 hive_dialect.replace(
     JoinKeywords=Sequence(Sequence("SEMI", optional=True), "JOIN"),
+    QuotedLiteralSegment=OneOf(
+        NamedParser("single_quote", CodeSegment, name="quoted_literal", type="literal"),
+        NamedParser("double_quote", CodeSegment, name="quoted_literal", type="literal"),
+    ),
 )
 
 
@@ -159,9 +153,7 @@ class CreateDatabaseStatementSegment(BaseSegment):
         Ref("DatabaseReferenceSegment"),
         Ref("CommentGrammar", optional=True),
         Ref("LocationGrammar", optional=True),
-        Sequence(
-            "MANAGEDLOCATION", Ref("SingleOrDoubleQuotedLiteralGrammar"), optional=True
-        ),
+        Sequence("MANAGEDLOCATION", Ref("QuotedLiteralSegment"), optional=True),
         Sequence(
             "WITH", "DBPROPERTIES", Ref("BracketedPropertyListGrammar"), optional=True
         ),
@@ -410,7 +402,7 @@ class RowFormatClauseSegment(BaseSegment):
             ),
             Sequence(
                 "SERDE",
-                Ref("SingleOrDoubleQuotedLiteralGrammar"),
+                Ref("QuotedLiteralSegment"),
                 Ref("SerdePropertiesGrammar", optional=True),
             ),
         ),
@@ -432,10 +424,10 @@ class AlterDatabaseStatementSegment(BaseSegment):
             Sequence(
                 "OWNER",
                 OneOf("USER", "ROLE"),
-                Ref("SingleOrDoubleQuotedLiteralGrammar"),
+                Ref("QuotedLiteralSegment"),
             ),
             Ref("LocationGrammar"),
-            Sequence("MANAGEDLOCATION", Ref("SingleOrDoubleQuotedLiteralGrammar")),
+            Sequence("MANAGEDLOCATION", Ref("QuotedLiteralSegment")),
         ),
     )
 
@@ -516,7 +508,7 @@ class InsertStatementSegment(BaseSegment):
                     Sequence(
                         Sequence("LOCAL", optional=True),
                         "DIRECTORY",
-                        Ref("SingleOrDoubleQuotedLiteralGrammar"),
+                        Ref("QuotedLiteralSegment"),
                         Ref("RowFormatClauseSegment", optional=True),
                         Ref("StoredAsGrammar", optional=True),
                         Ref("SelectableGrammar"),
