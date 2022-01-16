@@ -128,7 +128,7 @@ class Rule_L044(BaseRule):
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Outermost query should produce known number of columns."""
-        start_types = ["select_statement", "with_compound_statement"]
+        start_types = ["select_statement", "set_expression", "with_compound_statement"]
         if context.segment.is_type(
             *start_types
         ) and not context.functional.parent_stack.any(sp.is_type(*start_types)):
