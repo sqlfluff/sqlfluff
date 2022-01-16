@@ -48,6 +48,7 @@ from sqlfluff.core.parser import (
     SymbolSegment,
     WhitespaceSegment,
 )
+from sqlfluff.core.parser.grammar.anyof import AnySetOf
 from sqlfluff.core.parser.segments.base import BracketedSegment
 from sqlfluff.dialects.dialect_ansi_keywords import (
     ansi_reserved_keywords,
@@ -499,7 +500,7 @@ ansi_dialect.add(
             ),
             optional=True,
         ),
-        AnyNumberOf(
+        AnySetOf(
             # ON DELETE clause, e.g. ON DELETE NO ACTION
             Sequence(
                 "ON",
