@@ -495,6 +495,14 @@ test_fail_no_source_table:
   fail_str: |
     SELECT *
 
+test_query_on_snowflake_stage:
+  pass_str:
+    select mycolumn1
+    from @public.mytable1
+  configs:
+    core:
+      dialect: snowflake
+
 test_snowflake_delete_cte:
   pass_str: |
     DELETE FROM MYTABLE1
