@@ -60,6 +60,42 @@ spark3_dialect.patch_lexer_matchers(
         # Ex: select `delimited `` with escaped` from `just delimited`
         # https://spark.apache.org/docs/latest/sql-ref-identifier.html#delimited-identifier
         RegexLexer("back_quote", r"`([^`]|``)*`", CodeSegment),
+        # Numeric literal matches integers, decimals, and exponential formats.
+        # https://spark.apache.org/docs/latest/sql-ref-literals.html#numeric-literal
+        # Pattern breakdown:
+        # (?>                                    Atomic grouping
+        #                                        (https://www.regular-expressions.info/atomic.html).
+        #                                        3 distinct groups here:
+        #                                        1. Obvious fractional types (can optionally be exponential).
+        #                                        2. Integer followed by exponential. These must be fractional types.
+        #                                        3. Integer only. These can either be integral or fractional types.
+        #
+        #     (?>                                1.
+        #         \d+\.\d+                       e.g. 123.456
+        #         |\d+\.                         e.g. 123.
+        #         |\.\d+                         e.g. .123
+        #     )
+        #     ([eE][+-]?\d+)?                    Optional exponential.
+        #     ([dDfF]|BD|bd)?                    Fractional data types.
+        #     |\d+[eE][+-]?\d+([dDfF]|BD|bd)?    2. Integer + exponential with fractional data types.
+        #     |\d+([dDfFlLsSyY]|BD|bd)?          3. Integer only with integral or fractional data types.
+        # )
+        # (
+        #     (?<=\.)                            If matched character ends with . (e.g. 123.) then
+        #                                        don't worry about word boundary check.
+        #     |(?=\b)                            Check that we are at word boundary to avoid matching
+        #                                        valid naked identifiers (e.g. 123column).
+        # )
+        RegexLexer(
+            "numeric_literal",
+            (
+                r"(?>(?>\d+\.\d+|\d+\.|\.\d+)([eE][+-]?\d+)?([dDfF]|BD|bd)?"
+                r"|\d+[eE][+-]?\d+([dDfF]|BD|bd)?"
+                r"|\d+([dDfFlLsSyY]|BD|bd)?)"
+                r"((?<=\.)|(?=\b))"
+            ),
+            CodeSegment,
+        ),
     ]
 )
 
