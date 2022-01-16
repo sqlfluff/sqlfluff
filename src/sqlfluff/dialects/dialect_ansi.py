@@ -19,6 +19,7 @@ from sqlfluff.core.dialects.base import Dialect
 from sqlfluff.core.dialects.common import AliasInfo, ColumnAliasInfo
 from sqlfluff.core.parser import (
     AnyNumberOf,
+    AnySetOf,
     Anything,
     BaseFileSegment,
     BaseSegment,
@@ -48,7 +49,6 @@ from sqlfluff.core.parser import (
     SymbolSegment,
     WhitespaceSegment,
 )
-from sqlfluff.core.parser.grammar.anyof import AnySetOf
 from sqlfluff.core.parser.segments.base import BracketedSegment
 from sqlfluff.dialects.dialect_ansi_keywords import (
     ansi_reserved_keywords,
