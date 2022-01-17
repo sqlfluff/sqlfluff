@@ -973,8 +973,7 @@ class AlterTableTableColumnActionSegment(BaseSegment):
                     # Auto-increment/identity column
                     Sequence(
                         OneOf(
-                            Ref.keyword("AUTOINCREMENT"),
-                            Ref.keyword("IDENTITY"),
+                            "AUTOINCREMENT", "IDENTITY",
                         ),
                         OneOf(
                             # ( <start_num>, <step_num> )
