@@ -3,174 +3,217 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e96e904a863c121e05868d36181faed96219162fc10dfb3432527bac5acd292f
+_hash: 4db9f464f87c27464350e4314b93708eeda0b3c5b6d44a95cd0984edd9b01dbb
 file:
 - statement:
-    alter_table_column_statement:
+    alter_table_statement:
     - keyword: alter
     - keyword: table
     - table_reference:
         identifier: t1
-    - keyword: alter
-    - keyword: column
-    - identifier: c1
-    - keyword: drop
-    - keyword: not
-    - keyword: 'null'
+    - alter_table_table_column_action:
+      - keyword: alter
+      - keyword: column
+      - column_reference:
+          identifier: c1
+      - keyword: drop
+      - keyword: not
+      - keyword: 'null'
 - statement_terminator: ;
 - statement:
-    alter_table_column_statement:
+    alter_table_statement:
     - keyword: alter
     - keyword: table
     - table_reference:
         identifier: t1
-    - keyword: modify
-    - identifier: c2
-    - keyword: drop
-    - keyword: default
-    - comma: ','
-    - identifier: c3
-    - keyword: set
-    - keyword: default
-    - identifier: seq5
-    - dot: .
-    - keyword: nextval
+    - alter_table_table_column_action:
+      - keyword: alter
+      - column_reference:
+          identifier: c5
+      - keyword: comment
+      - literal: "'50 character column'"
 - statement_terminator: ;
 - statement:
-    alter_table_column_statement:
+    alter_table_statement:
     - keyword: alter
     - keyword: table
     - table_reference:
         identifier: t1
-    - keyword: alter
-    - identifier: c4
-    - keyword: set
-    - keyword: data
-    - keyword: type
-    - data_type:
-        data_type_identifier: varchar
-        bracketed:
-          start_bracket: (
-          expression:
-            literal: '50'
-          end_bracket: )
-    - comma: ','
-    - keyword: column
-    - identifier: c4
-    - keyword: drop
-    - keyword: default
+    - alter_table_table_column_action:
+      - keyword: modify
+      - column_reference:
+          identifier: c2
+      - keyword: drop
+      - keyword: default
+      - comma: ','
+      - column_reference:
+          identifier: c3
+      - keyword: set
+      - keyword: default
+      - identifier: seq5
+      - dot: .
+      - keyword: nextval
 - statement_terminator: ;
 - statement:
-    alter_table_column_statement:
+    alter_table_statement:
     - keyword: alter
     - keyword: table
     - table_reference:
         identifier: t1
-    - keyword: alter
-    - identifier: c5
-    - keyword: comment
-    - literal: "'50 character column'"
+    - alter_table_table_column_action:
+      - keyword: alter
+      - column_reference:
+          identifier: c4
+      - keyword: set
+      - keyword: data
+      - keyword: type
+      - data_type:
+          data_type_identifier: varchar
+          bracketed:
+            start_bracket: (
+            expression:
+              literal: '50'
+            end_bracket: )
+      - comma: ','
+      - keyword: column
+      - column_reference:
+          identifier: c4
+      - keyword: drop
+      - keyword: default
 - statement_terminator: ;
 - statement:
-    alter_table_column_statement:
+    alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
       - identifier: xxxx
       - dot: .
       - identifier: example_table
-    - keyword: MODIFY
-    - keyword: COLUMN
-    - identifier: employeeCode
-    - keyword: SET
-    - keyword: MASKING
-    - keyword: POLICY
-    - function_name_identifier: example_MASKING_POLICY
-- statement_terminator: ;
-- statement:
-    alter_table_column_statement:
-    - keyword: alter
-    - keyword: table
-    - table_reference:
-        identifier: empl_info
-    - keyword: modify
-    - keyword: column
-    - identifier: empl_id
-    - keyword: set
-    - keyword: masking
-    - keyword: policy
-    - function_name_identifier: mask_empl_id
-- statement_terminator: ;
-- statement:
-    alter_table_column_statement:
-    - keyword: alter
-    - keyword: table
-    - table_reference:
-        identifier: empl_info
-    - keyword: modify
-    - keyword: column
-    - identifier: empl_id
-    - keyword: set
-    - keyword: masking
-    - keyword: policy
-    - function_name_identifier: mask_empl_id
-    - comma: ','
-    - keyword: column
-    - identifier: empl_dob
-    - keyword: set
-    - keyword: masking
-    - keyword: policy
-    - function_name_identifier: mask_empl_dob
-- statement_terminator: ;
-- statement:
-    alter_table_column_statement:
-    - keyword: alter
-    - keyword: table
-    - table_reference:
-        identifier: empl_info
-    - keyword: modify
-    - keyword: column
-    - identifier: empl_id
-    - keyword: unset
-    - keyword: masking
-    - keyword: policy
-- statement_terminator: ;
-- statement:
-    alter_table_column_statement:
-    - keyword: alter
-    - keyword: table
-    - table_reference:
-        identifier: empl_info
-    - keyword: modify
-    - keyword: column
-    - identifier: empl_id
-    - keyword: unset
-    - keyword: masking
-    - keyword: policy
-    - comma: ','
-    - keyword: column
-    - identifier: empl_dob
-    - keyword: unset
-    - keyword: masking
-    - keyword: policy
+    - alter_table_table_column_action:
+      - keyword: MODIFY
+      - keyword: COLUMN
+      - column_reference:
+          identifier: employeeCode
+      - keyword: SET
+      - keyword: MASKING
+      - keyword: POLICY
+      - function_name_identifier: example_MASKING_POLICY
 - statement_terminator: ;
 - statement:
     alter_table_statement:
     - keyword: alter
     - keyword: table
     - table_reference:
-        identifier: test_table
-    - parameter: column
-    - identifier: test_column
+        identifier: empl_info
+    - alter_table_table_column_action:
+      - keyword: modify
+      - keyword: column
+      - column_reference:
+          identifier: empl_id
+      - keyword: set
+      - keyword: masking
+      - keyword: policy
+      - function_name_identifier: mask_empl_id
 - statement_terminator: ;
 - statement:
     alter_table_statement:
     - keyword: alter
     - keyword: table
     - table_reference:
-      - identifier: test_schema
+        identifier: empl_info
+    - alter_table_table_column_action:
+      - keyword: modify
+      - keyword: column
+      - column_reference:
+          identifier: empl_id
+      - keyword: set
+      - keyword: masking
+      - keyword: policy
+      - function_name_identifier: mask_empl_id
+      - comma: ','
+      - keyword: column
+      - column_reference:
+          identifier: empl_dob
+      - keyword: set
+      - keyword: masking
+      - keyword: policy
+      - function_name_identifier: mask_empl_dob
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: alter
+    - keyword: table
+    - table_reference:
+        identifier: empl_info
+    - alter_table_table_column_action:
+      - keyword: modify
+      - keyword: column
+      - column_reference:
+          identifier: empl_id
+      - keyword: unset
+      - keyword: masking
+      - keyword: policy
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: alter
+    - keyword: table
+    - table_reference:
+        identifier: empl_info
+    - alter_table_table_column_action:
+      - keyword: modify
+      - keyword: column
+      - column_reference:
+          identifier: empl_id
+      - keyword: unset
+      - keyword: masking
+      - keyword: policy
+      - comma: ','
+      - keyword: column
+      - column_reference:
+          identifier: empl_dob
+      - keyword: unset
+      - keyword: masking
+      - keyword: policy
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        identifier: empl_info
+    - alter_table_table_column_action:
+      - keyword: DROP
+      - keyword: COLUMN
+      - column_reference:
+          identifier: my_column
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - identifier: some_schema
       - dot: .
-      - identifier: test_table
-    - parameter: column
-    - identifier: test_column
+      - identifier: empl_info
+    - alter_table_table_column_action:
+      - keyword: DROP
+      - keyword: COLUMN
+      - column_reference:
+          identifier: my_column
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        identifier: empl_info
+    - alter_table_table_column_action:
+      - keyword: RENAME
+      - keyword: COLUMN
+      - column_reference:
+          identifier: old_col_name
+      - keyword: TO
+      - column_reference:
+          identifier: new_col_name
 - statement_terminator: ;
