@@ -1,12 +1,9 @@
 """Implementation of Rule L026."""
 
 from dataclasses import dataclass, field
-from typing import cast, List
+from typing import cast, List, Optional
 
 from sqlfluff.core.dialects.base import Dialect
-from sqlfluff.core.rules.analysis.select import (
-    get_select_statement_info,
-)
 from sqlfluff.core.rules.analysis.select_crawler import (
     Query as SelectCrawlerQuery,
     SelectCrawler,
@@ -70,28 +67,37 @@ class Rule_L026(BaseRule):
             return LintResult()
 
         violations: List[LintResult] = []
-        start_types = ["select_statement"]
+        start_types = ["select_statement", "update_statement"]
         if context.segment.is_type(
             *start_types
         ) and not context.functional.parent_stack.any(sp.is_type(*start_types)):
-            select_info = get_select_statement_info(context.segment, context.dialect)
-            if not select_info:
-                return LintResult()
+            dml_target_table: Optional[str] = None
+            if context.segment.is_type("update_statement"):
+                # Extract table reference.
+                table_reference = context.segment.get_child("table_reference")
+                if table_reference:
+                    dml_target_table = table_reference.raw
 
             # Analyze the SELECT.
             crawler = SelectCrawler(
                 context.segment, context.dialect, query_class=L026Query
             )
             query: L026Query = cast(L026Query, crawler.query_tree)
-            self._analyze_table_references(query, context.dialect, violations)
+            self._analyze_table_references(
+                query, dml_target_table, context.dialect, violations
+            )
         return violations or None
 
     def _analyze_table_references(
-        self, query: L026Query, dialect: Dialect, violations: List[LintResult]
+        self,
+        query: L026Query,
+        dml_target_table: Optional[str],
+        dialect: Dialect,
+        violations: List[LintResult],
     ):
         # Get table aliases defined in query.
         for selectable in query.selectables:
-            select_info = get_select_statement_info(selectable.selectable, dialect)
+            select_info = selectable.select_info
             if select_info:
                 # Record the table references.
                 query.aliases += select_info.table_aliases
@@ -100,17 +106,21 @@ class Rule_L026(BaseRule):
                 # resolve the alias: could be an alias defined in "query"
                 # itself or an "ancestor" query.
                 for r in select_info.reference_buffer:
-                    tbl_refs = r.extract_possible_references(  # type: ignore
-                        level=r.ObjectReferenceLevel.TABLE  # type: ignore
+                    tbl_refs = r.extract_possible_references(
+                        level=r.ObjectReferenceLevel.TABLE
                     )
                     # This function walks up the query's parent stack if necessary.
-                    violation = self._resolve_reference(query, r, tbl_refs)
+                    violation = self._resolve_reference(
+                        r, tbl_refs, dml_target_table, query
+                    )
                     if violation:
                         violations.append(violation)
 
         # Visit children.
         for child in query.children:
-            self._analyze_table_references(cast(L026Query, child), dialect, violations)
+            self._analyze_table_references(
+                cast(L026Query, child), dml_target_table, dialect, violations
+            )
 
     @staticmethod
     def _is_bad_tbl_ref(table_aliases, tbl_ref):
@@ -118,16 +128,20 @@ class Rule_L026(BaseRule):
         # Is it referring to one of the table aliases?
         return tbl_ref[0] not in [a.ref_str for a in table_aliases]
 
-    def _resolve_reference(self, query: L026Query, r, tbl_refs):
+    def _resolve_reference(
+        self, r, tbl_refs, dml_target_table: Optional[str], query: L026Query
+    ):
         # Does this query define the referenced table?
         if tbl_refs and all(
             self._is_bad_tbl_ref(query.aliases, tbl_ref) for tbl_ref in tbl_refs
         ):
             if query.parent:
                 return self._resolve_reference(
-                    cast(L026Query, query.parent), r, tbl_refs
+                    r, tbl_refs, dml_target_table, cast(L026Query, query.parent)
                 )
-            else:
+            elif not dml_target_table or all(
+                tbl_ref[0] != dml_target_table for tbl_ref in tbl_refs
+            ):
                 return LintResult(
                     # Return the first segment rather than the string
                     anchor=tbl_refs[0].segments[0],

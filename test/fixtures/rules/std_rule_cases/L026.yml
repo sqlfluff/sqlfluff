@@ -110,3 +110,14 @@ test_pass_object_referenced_6:
                 table3
                 on table2.y_id = table3.y_id
     ) as cc
+
+test_pass_object_referenced_7:
+  pass_str: |
+    UPDATE my_table
+    SET row_sum = (
+        SELECT COUNT(*) AS row_sum
+        FROM
+            another_table
+        WHERE
+            another_table.id = my_table.id
+    )
