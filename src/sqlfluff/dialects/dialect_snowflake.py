@@ -973,7 +973,8 @@ class AlterTableTableColumnActionSegment(BaseSegment):
                     # Auto-increment/identity column
                     Sequence(
                         OneOf(
-                            "AUTOINCREMENT", "IDENTITY",
+                            "AUTOINCREMENT",
+                            "IDENTITY",
                         ),
                         OneOf(
                             # ( <start_num>, <step_num> )
