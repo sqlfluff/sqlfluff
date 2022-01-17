@@ -46,7 +46,8 @@ def test__templater_dbt_profiles_dir_expanded(dbt_templater):  # noqa: F811
                     "profile": "default",
                     "target": "dev",
                 }
-            }}
+            }
+        }
     )
     profiles_dir = dbt_templater._get_profiles_dir()
     # Normalise paths to control for OS variance
