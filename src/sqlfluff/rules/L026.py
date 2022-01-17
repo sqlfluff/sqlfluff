@@ -1,13 +1,36 @@
 """Implementation of Rule L026."""
 
-from sqlfluff.core.rules.analysis.select import get_aliases_from_select
-from sqlfluff.core.rules.base import EvalResultType, LintResult, RuleContext
+from dataclasses import dataclass, field
+from typing import cast, List
+
+from sqlfluff.core.dialects.base import Dialect
+from sqlfluff.core.rules.analysis.select import (
+    get_select_statement_info,
+)
+from sqlfluff.core.rules.analysis.select_crawler import (
+    Query as SelectCrawlerQuery,
+    SelectCrawler,
+)
+from sqlfluff.core.dialects.common import AliasInfo
+from sqlfluff.core.rules.base import (
+    BaseRule,
+    LintResult,
+    RuleContext,
+    EvalResultType,
+)
+from sqlfluff.core.rules.functional import sp
 from sqlfluff.core.rules.doc_decorators import document_configuration
-from sqlfluff.rules.L020 import Rule_L020
+
+
+@dataclass
+class L026Query(SelectCrawlerQuery):
+    """SelectCrawler Query with custom L026 info."""
+
+    aliases: List[AliasInfo] = field(default_factory=list)
 
 
 @document_configuration
-class Rule_L026(Rule_L020):
+class Rule_L026(BaseRule):
     """References cannot reference objects not present in ``FROM`` clause.
 
     NB: This rule is disabled by default for BigQuery due to its use of
@@ -36,61 +59,7 @@ class Rule_L026(Rule_L020):
 
     config_keywords = ["force_enable"]
 
-    @staticmethod
-    def _is_bad_tbl_ref(table_aliases, parent_select, tbl_ref):
-        """Given a table reference, try to find what it's referring to."""
-        # Is it referring to one of the table aliases?
-        if tbl_ref[0] in [a.ref_str for a in table_aliases]:
-            # Yes. Therefore okay.
-            return False
-
-        # Not a table alias. It it referring to a correlated subquery?
-        if parent_select:
-            parent_aliases, _ = get_aliases_from_select(parent_select)
-            if parent_aliases and tbl_ref[0] in [a[0] for a in parent_aliases]:
-                # Yes. Therefore okay.
-                return False
-
-        # It's not referring to an alias or a correlated subquery. Looks like a
-        # bad reference (i.e. referring to something unknown.)
-        return True
-
-    def _lint_references_and_aliases(
-        self,
-        table_aliases,
-        standalone_aliases,
-        references,
-        col_aliases,
-        using_cols,
-        parent_select,
-    ):
-        # A buffer to keep any violations.
-        violation_buff = []
-
-        # Check all the references that we have, do they reference present aliases?
-        for r in references:
-            tbl_refs = r.extract_possible_references(level=r.ObjectReferenceLevel.TABLE)
-            if tbl_refs and all(
-                self._is_bad_tbl_ref(table_aliases, parent_select, tbl_ref)
-                for tbl_ref in tbl_refs
-            ):
-                violation_buff.append(
-                    LintResult(
-                        # Return the first segment rather than the string
-                        anchor=tbl_refs[0].segments[0],
-                        description=f"Reference {r.raw!r} refers to table/view "
-                        "not found in the FROM clause or found in parent "
-                        "subquery.",
-                    )
-                )
-        return violation_buff or None
-
     def _eval(self, context: RuleContext) -> EvalResultType:
-        """Override Rule L020 for dialects that use structs.
-
-        Some dialects use structs (e.g. column.field) which look like
-        table references and so incorrectly trigger this rule.
-        """
         # Config type hints
         self.force_enable: bool
 
@@ -100,4 +69,69 @@ class Rule_L026(Rule_L020):
         ):
             return LintResult()
 
-        return super()._eval(context=context)
+        violations: List[LintResult] = []
+        start_types = ["select_statement"]
+        if context.segment.is_type(
+            *start_types
+        ) and not context.functional.parent_stack.any(sp.is_type(*start_types)):
+            select_info = get_select_statement_info(context.segment, context.dialect)
+            if not select_info:
+                return LintResult()
+
+            # Analyze the SELECT.
+            crawler = SelectCrawler(
+                context.segment, context.dialect, query_class=L026Query
+            )
+            query: L026Query = cast(L026Query, crawler.query_tree)
+            self._analyze_table_references(query, context.dialect, violations)
+        return violations or None
+
+    def _analyze_table_references(
+        self, query: L026Query, dialect: Dialect, violations: List[LintResult]
+    ):
+        # Get table aliases defined in query.
+        for selectable in query.selectables:
+            select_info = get_select_statement_info(selectable.selectable, dialect)
+            if select_info:
+                # Record the table references.
+                query.aliases += select_info.table_aliases
+
+                # Look at each table reference; if it's an alias reference,
+                # resolve the alias: could be an alias defined in "query"
+                # itself or an "ancestor" query.
+                for r in select_info.reference_buffer:
+                    tbl_refs = r.extract_possible_references(  # type: ignore
+                        level=r.ObjectReferenceLevel.TABLE  # type: ignore
+                    )
+                    # This function walks up the query's parent stack if necessary.
+                    violation = self._resolve_reference(query, r, tbl_refs)
+                    if violation:
+                        violations.append(violation)
+
+        # Visit children.
+        for child in query.children:
+            self._analyze_table_references(cast(L026Query, child), dialect, violations)
+
+    @staticmethod
+    def _is_bad_tbl_ref(table_aliases, tbl_ref):
+        """Given a table reference, try to find what it's referring to."""
+        # Is it referring to one of the table aliases?
+        return tbl_ref[0] not in [a.ref_str for a in table_aliases]
+
+    def _resolve_reference(self, query: L026Query, r, tbl_refs):
+        # Does this query define the referenced table?
+        if tbl_refs and all(
+            self._is_bad_tbl_ref(query.aliases, tbl_ref) for tbl_ref in tbl_refs
+        ):
+            if query.parent:
+                return self._resolve_reference(
+                    cast(L026Query, query.parent), r, tbl_refs
+                )
+            else:
+                return LintResult(
+                    # Return the first segment rather than the string
+                    anchor=tbl_refs[0].segments[0],
+                    description=f"Reference {r.raw!r} refers to table/view "
+                    "not found in the FROM clause or found in ancestor "
+                    "statement.",
+                )
