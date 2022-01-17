@@ -1056,9 +1056,6 @@ class AlterTableClusteringActionSegment(BaseSegment):
     """ALTER TABLE `clusteringAction` per defined in Snowflake's grammar.
 
     https://docs.snowflake.com/en/sql-reference/sql/alter-table.html#clustering-actions-clusteringaction
-
-    If possible, please match the order of this sequence with what's defined in Snowflake's
-    clusteringAction grammar.
     """
 
     type = "alter_table_clustering_action"
