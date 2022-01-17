@@ -3,8 +3,183 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4db9f464f87c27464350e4314b93708eeda0b3c5b6d44a95cd0984edd9b01dbb
+_hash: 02ca9441761c2d3a711a6cb836de875f72be59b8976731a689ec9b58f2ef73ff
 file:
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        identifier: my_table
+    - alter_table_table_column_action:
+      - keyword: ADD
+      - keyword: COLUMN
+      - column_reference:
+          identifier: my_column
+      - data_type:
+          data_type_identifier: INTEGER
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        identifier: my_table
+    - alter_table_table_column_action:
+      - keyword: ADD
+      - keyword: COLUMN
+      - column_definition:
+          identifier: my_column
+          data_type:
+            data_type_identifier: VARCHAR
+            bracketed:
+              start_bracket: (
+              expression:
+                literal: '5000'
+              end_bracket: )
+          column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        identifier: my_table
+    - alter_table_table_column_action:
+      - keyword: ADD
+      - keyword: COLUMN
+      - column_reference:
+          identifier: my_column
+      - data_type:
+          data_type_identifier: INTEGER
+      - keyword: DEFAULT
+      - expression:
+          literal: '1'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        identifier: my_table
+    - alter_table_table_column_action:
+      - keyword: ADD
+      - keyword: COLUMN
+      - column_reference:
+          identifier: my_column
+      - data_type:
+          data_type_identifier: INTEGER
+      - keyword: AUTOINCREMENT
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        identifier: my_table
+    - alter_table_table_column_action:
+      - keyword: ADD
+      - keyword: COLUMN
+      - column_reference:
+          identifier: my_column
+      - data_type:
+          data_type_identifier: INTEGER
+      - keyword: IDENTITY
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        identifier: my_table
+    - alter_table_table_column_action:
+      - keyword: ADD
+      - keyword: COLUMN
+      - column_reference:
+          identifier: my_column
+      - data_type:
+          data_type_identifier: INTEGER
+      - keyword: AUTOINCREMENT
+      - bracketed:
+        - start_bracket: (
+        - literal: '10000'
+        - comma: ','
+        - literal: '1'
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        identifier: my_table
+    - alter_table_table_column_action:
+      - keyword: ADD
+      - keyword: COLUMN
+      - column_reference:
+          identifier: my_column
+      - data_type:
+          data_type_identifier: INTEGER
+      - keyword: IDENTITY
+      - keyword: START
+      - literal: '10000'
+      - keyword: INCREMENT
+      - literal: '1'
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        identifier: my_table
+    - alter_table_table_column_action:
+      - keyword: ADD
+      - keyword: COLUMN
+      - column_reference:
+          identifier: my_column
+      - data_type:
+          data_type_identifier: INTEGER
+      - keyword: MASKING
+      - keyword: POLICY
+      - object_reference:
+          identifier: my_policy
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        identifier: my_table
+    - alter_table_table_column_action:
+      - keyword: ADD
+      - keyword: COLUMN
+      - column_reference:
+          identifier: my_column
+      - data_type:
+          data_type_identifier: INTEGER
+      - keyword: WITH
+      - keyword: MASKING
+      - keyword: POLICY
+      - object_reference:
+          identifier: my_policy
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+        identifier: empl_info
+    - alter_table_table_column_action:
+      - keyword: RENAME
+      - keyword: COLUMN
+      - column_reference:
+          identifier: old_col_name
+      - keyword: TO
+      - column_reference:
+          identifier: new_col_name
+- statement_terminator: ;
 - statement:
     alter_table_statement:
     - keyword: alter
@@ -201,19 +376,4 @@ file:
       - keyword: COLUMN
       - column_reference:
           identifier: my_column
-- statement_terminator: ;
-- statement:
-    alter_table_statement:
-    - keyword: ALTER
-    - keyword: TABLE
-    - table_reference:
-        identifier: empl_info
-    - alter_table_table_column_action:
-      - keyword: RENAME
-      - keyword: COLUMN
-      - column_reference:
-          identifier: old_col_name
-      - keyword: TO
-      - column_reference:
-          identifier: new_col_name
 - statement_terminator: ;
