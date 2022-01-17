@@ -123,7 +123,7 @@ test_pass_object_referenced_7:
     )
 
 test_fail_object_referenced_7:
-  pass_str: |
+  fail_str: |
     UPDATE my_table
     SET row_sum = (
         SELECT COUNT(*) AS row_sum

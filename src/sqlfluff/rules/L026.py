@@ -80,7 +80,8 @@ class Rule_L026(BaseRule):
                 if table_reference:
                     dml_target_table = table_reference.raw
 
-            # Analyze the SELECT.
+            # Verify table references in any SELECT statements found in or
+            # below context.segment.
             crawler = SelectCrawler(
                 context.segment, context.dialect, query_class=L026Query
             )
@@ -97,16 +98,14 @@ class Rule_L026(BaseRule):
         dialect: Dialect,
         violations: List[LintResult],
     ):
-        # Get table aliases defined in query.
+        # For each query...
         for selectable in query.selectables:
             select_info = selectable.select_info
             if select_info:
                 # Record the table references.
                 query.aliases += select_info.table_aliases
 
-                # Look at each table reference; if it's an alias reference,
-                # resolve the alias: could be an alias defined in "query"
-                # itself or an "ancestor" query.
+                # Try and resolve each table reference.
                 for r in select_info.reference_buffer:
                     tbl_refs = r.extract_possible_references(
                         level=r.ObjectReferenceLevel.TABLE
@@ -124,23 +123,20 @@ class Rule_L026(BaseRule):
                 cast(L026Query, child), dml_target_table, dialect, violations
             )
 
-    @staticmethod
-    def _is_bad_tbl_ref(table_aliases, tbl_ref):
-        """Given a table reference, try to find what it's referring to."""
-        # Is it referring to one of the table aliases?
-        return tbl_ref[0] not in [a.ref_str for a in table_aliases]
-
     def _resolve_reference(
         self, r, tbl_refs, dml_target_table: Optional[str], query: L026Query
     ):
         # Does this query define the referenced table?
         if tbl_refs and all(
-            self._is_bad_tbl_ref(query.aliases, tbl_ref) for tbl_ref in tbl_refs
+            tbl_ref[0] not in [a.ref_str for a in query.aliases] for tbl_ref in tbl_refs
         ):
+            # No. Check the parent query, if there is one.
             if query.parent:
                 return self._resolve_reference(
                     r, tbl_refs, dml_target_table, cast(L026Query, query.parent)
                 )
+            # No parent query. If there's a DML statement at the root, check its
+            # target table.
             elif not dml_target_table or all(
                 tbl_ref[0] != dml_target_table for tbl_ref in tbl_refs
             ):
