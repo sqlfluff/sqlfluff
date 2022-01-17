@@ -121,3 +121,10 @@ test_pass_object_referenced_7:
         WHERE
             another_table.id = my_table.id
     )
+
+test_pass_object_referenced_8:
+  pass_str: |
+    DELETE FROM agent1
+    WHERE EXISTS(
+        SELECT customer.cust_id FROM customer
+        WHERE agent1.agent_code <> customer.agent_code);

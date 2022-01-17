@@ -67,14 +67,16 @@ class Rule_L026(BaseRule):
             return LintResult()
 
         violations: List[LintResult] = []
-        start_types = ["select_statement", "update_statement"]
+        start_types = ["select_statement", "delete_statement", "update_statement"]
         if context.segment.is_type(
             *start_types
         ) and not context.functional.parent_stack.any(sp.is_type(*start_types)):
             dml_target_table: Optional[str] = None
-            if context.segment.is_type("update_statement"):
-                # Extract table reference.
-                table_reference = context.segment.get_child("table_reference")
+            if not context.segment.is_type("select_statement"):
+                # Extract first table reference.
+                table_reference = next(
+                    context.segment.recursive_crawl("table_reference"), None
+                )
                 if table_reference:
                     dml_target_table = table_reference.raw
 
