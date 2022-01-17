@@ -122,9 +122,27 @@ test_pass_object_referenced_7:
             another_table.id = my_table.id
     )
 
+test_fail_object_referenced_7:
+  pass_str: |
+    UPDATE my_table
+    SET row_sum = (
+        SELECT COUNT(*) AS row_sum
+        FROM
+            another_table
+        WHERE
+            another_table.id = my_tableeee.id
+    )
+
 test_pass_object_referenced_8:
   pass_str: |
     DELETE FROM agent1
     WHERE EXISTS(
         SELECT customer.cust_id FROM customer
         WHERE agent1.agent_code <> customer.agent_code);
+
+test_fail_object_referenced_8:
+  fail_str: |
+    DELETE FROM agent1
+    WHERE EXISTS(
+        SELECT customer.cust_id FROM customer
+        WHERE agent11.agent_code <> customer.agent_code);
