@@ -959,7 +959,14 @@ class AlterTableTableColumnActionSegment(BaseSegment):
     match_grammar = Sequence(
         OneOf(
             # @TODO: Add Column
-            # @TODO: Rename column
+            # Rename column
+            Sequence(
+                "RENAME",
+                "COLUMN",
+                Ref("ColumnReferenceSegment"),
+                "TO",
+                Ref("ColumnReferenceSegment"),
+            ),
             # Alter/Modify column(s)
             Sequence(
                 OneOf("ALTER", "MODIFY"),
