@@ -90,10 +90,26 @@ ansi_dialect.set_lexer_matchers(
         # See https://www.geeksforgeeks.org/postgresql-dollar-quoted-string-constants/
         RegexLexer("dollar_quote", r"\$(\w*)\$[^\1]*?\$\1\$", CodeSegment),
         # Numeric literal matches integers, decimals, and exponential formats,
-        # with a positve lookahead assertion to check it is not part of a naked identifier.
+        # Pattern breakdown:
+        # (?>                                    Atomic grouping
+        #                                        (https://www.regular-expressions.info/atomic.html).
+        #     \d+\.\d+                           e.g. 123.456
+        #     |\d+\.(?!\.)                       e.g. 123.
+        #                                        (N.B. negative lookahead assertion to ensure we
+        #                                        don't match range operators `..` in Exasol).
+        #     |\.\d+                             e.g. .456
+        #     |\d+                               e.g. 123
+        # )
+        # ([eE][+-]?\d+)?                        Optional exponential.
+        # (
+        #     (?<=\.)                            If matched character ends with . (e.g. 123.) then
+        #                                        don't worry about word boundary check.
+        #     |(?=\b)                            Check that we are at word boundary to avoid matching
+        #                                        valid naked identifiers (e.g. 123column).
+        # )
         RegexLexer(
             "numeric_literal",
-            r"(?>\d+(\.\d+)?|\.\d+)([eE][+-]?\d+)?(?=\b)",
+            r"(?>\d+\.\d+|\d+\.(?!\.)|\.\d+|\d+)([eE][+-]?\d+)?((?<=\.)|(?=\b))",
             CodeSegment,
         ),
         RegexLexer("like_operator", r"!?~~?\*?", CodeSegment),

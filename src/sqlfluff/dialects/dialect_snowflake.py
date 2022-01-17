@@ -916,11 +916,22 @@ class AlterTableStatementSegment(BaseSegment):
                 "WITH",
                 Ref("TableReferenceSegment"),
             ),
-            # @TODO: clusteringAction
+            # searchOptimizationAction
+            # N.B. Since SEARCH and OPTIMIZATION are unreserved keywords
+            # we move this above AlterTableTableColumnActionSegment
+            # in order to avoid matching these as columns.
+            Sequence(
+                OneOf(
+                    "ADD",
+                    "DROP",
+                ),
+                "SEARCH",
+                "OPTIMIZATION",
+            ),
+            Ref("AlterTableClusteringActionSegment"),
             Ref("AlterTableTableColumnActionSegment"),
             # @TODO: constraintAction
             # @TODO: extTableColumnAction
-            # @TODO: searchOptimizationAction
             # SET Table options
             # @TODO: Restrict the list of parameters supported per Snowflake doc.
             Sequence(
@@ -958,7 +969,53 @@ class AlterTableTableColumnActionSegment(BaseSegment):
 
     match_grammar = Sequence(
         OneOf(
-            # @TODO: Add Column
+            # Add Column
+            Sequence(
+                "ADD",
+                "COLUMN",
+                Ref("ColumnReferenceSegment"),
+                Ref("DatatypeSegment"),
+                OneOf(
+                    # Default
+                    Sequence(
+                        "DEFAULT",
+                        Ref("ExpressionSegment"),
+                    ),
+                    # Auto-increment/identity column
+                    Sequence(
+                        OneOf(
+                            "AUTOINCREMENT",
+                            "IDENTITY",
+                        ),
+                        OneOf(
+                            # ( <start_num>, <step_num> )
+                            Bracketed(
+                                Ref("NumericLiteralSegment"),
+                                Ref("CommaSegment"),
+                                Ref("NumericLiteralSegment"),
+                            ),
+                            # START <num> INCREMENT <num>
+                            Sequence(
+                                "START",
+                                Ref("NumericLiteralSegment"),
+                                "INCREMENT",
+                                Ref("NumericLiteralSegment"),
+                            ),
+                            optional=True,
+                        ),
+                    ),
+                    optional=True,
+                ),
+                # @TODO: Add support for `inlineConstraint`
+                Sequence(
+                    Ref.keyword("WITH", optional=True),
+                    "MASKING",
+                    "POLICY",
+                    Ref("ObjectReferenceSegment"),
+                    # @TODO: Add support for delimited col/expression list
+                    optional=True,
+                ),
+            ),
             # Rename column
             Sequence(
                 "RENAME",
@@ -1036,6 +1093,49 @@ class AlterTableTableColumnActionSegment(BaseSegment):
                 ),
             ),
             # ^^^^^ COPIED FROM ANSI ^^^^^
+        ),
+    )
+
+
+@snowflake_dialect.segment()
+class AlterTableClusteringActionSegment(BaseSegment):
+    """ALTER TABLE `clusteringAction` per defined in Snowflake's grammar.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-table.html#clustering-actions-clusteringaction
+    """
+
+    type = "alter_table_clustering_action"
+
+    match_grammar = OneOf(
+        Sequence(
+            "CLUSTER",
+            "BY",
+            Bracketed(
+                Delimited(Ref("ExpressionSegment")),
+            ),
+        ),
+        # N.B. RECLUSTER is deprecated: https://docs.snowflake.com/en/user-guide/tables-clustering-manual.html
+        Sequence(
+            "RECLUSTER",
+            Sequence(
+                "MAX_SIZE",
+                Ref("EqualsSegment"),
+                Ref("NumericLiteralSegment"),
+                optional=True,
+            ),
+            Ref("WhereClauseSegment", optional=True),
+        ),
+        Sequence(
+            OneOf(
+                "SUSPEND",
+                "RESUME",
+            ),
+            "RECLUSTER",
+        ),
+        Sequence(
+            "DROP",
+            "CLUSTERING",
+            "KEY",
         ),
     )
 

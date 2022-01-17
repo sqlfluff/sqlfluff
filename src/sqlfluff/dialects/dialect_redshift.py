@@ -402,7 +402,7 @@ class CreateTableAsStatementSegment(BaseSegment):
         Sequence("BACKUP", OneOf("YES", "NO"), optional=True),
         Ref("TableAttributeSegment", optional=True),
         "AS",
-        Ref("SelectableGrammar"),
+        OptionallyBracketed(Ref("SelectableGrammar")),
     )
 
 
@@ -412,7 +412,6 @@ class CreateExternalTableStatementSegment(BaseSegment):
 
     As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_EXTERNAL_TABLE.html
     TODO: support ROW FORMAT SERDE and WITH SERDEPROPERTIES
-    TODO: support TABLE PROPERTIES
     """
 
     type = "create_external_table_statement"
@@ -450,6 +449,20 @@ class CreateExternalTableStatementSegment(BaseSegment):
         ),
         "LOCATION",
         Ref("QuotedLiteralSegment"),
+        Sequence(
+            "TABLE",
+            "PROPERTIES",
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        Ref("QuotedLiteralSegment"),
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                ),
+            ),
+            optional=True,
+        ),
     )
 
 
@@ -458,7 +471,6 @@ class CreateExternalTableAsStatementSegment(BaseSegment):
     """A `CREATE EXTERNAL TABLE AS` statement.
 
     As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_EXTERNAL_TABLE.html
-    TODO: support TABLE PROPERTIES
     """
 
     type = "create_external_table_statement"
@@ -478,6 +490,20 @@ class CreateExternalTableAsStatementSegment(BaseSegment):
         ),
         "LOCATION",
         Ref("QuotedLiteralSegment"),
+        Sequence(
+            "TABLE",
+            "PROPERTIES",
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        Ref("QuotedLiteralSegment"),
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                ),
+            ),
+            optional=True,
+        ),
         "AS",
         OptionallyBracketed(Ref("SelectableGrammar")),
     )
