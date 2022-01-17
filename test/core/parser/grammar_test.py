@@ -12,6 +12,7 @@ from sqlfluff.core.parser import (
     Indent,
 )
 from sqlfluff.core.parser.context import RootParseContext
+from sqlfluff.core.parser.grammar.anyof import AnySetOf
 from sqlfluff.core.parser.segments import EphemeralSegment, BaseSegment
 from sqlfluff.core.parser.grammar.base import BaseGrammar
 from sqlfluff.core.parser.grammar.noncode import NonCodeMatcher
@@ -678,3 +679,22 @@ def test__parser__grammar_noncode(seg_list, fresh_ansi_dialect):
         m = NonCodeMatcher().match(seg_list[1:], parse_context=ctx)
     # We should match one and only one segment
     assert len(m) == 1
+
+
+def test__parser__grammar_anysetof(generate_test_segments):
+    """Test the AnySetOf grammar."""
+    token_list = ["bar", "  \t ", "foo", "  \t ", "bar"]
+    seg_list = generate_test_segments(token_list)
+
+    bs = StringParser("bar", KeywordSegment)
+    fs = StringParser("foo", KeywordSegment)
+    g = AnySetOf(fs, bs)
+    with RootParseContext(dialect=None) as ctx:
+        # Check directly
+        assert g.match(seg_list, parse_context=ctx).matched_segments == (
+            KeywordSegment("bar", seg_list[0].pos_marker),
+            WhitespaceSegment("  \t ", seg_list[1].pos_marker),
+            KeywordSegment("foo", seg_list[2].pos_marker),
+        )
+        # Check with a bit of whitespace
+        assert not g.match(seg_list[1:], parse_context=ctx)
