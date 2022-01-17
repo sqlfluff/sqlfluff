@@ -84,7 +84,12 @@ SELECT
     RANK()OVER(PARTITION BY [EventNM] ORDER BY [DateofEvent] desc) AS [R],
     DENSE_RANK()OVER(PARTITION BY [EventNM] ORDER BY [DateofEvent] desc) AS [DR],
     NTILE(5)OVER(PARTITION BY [EventNM] ORDER BY [DateofEvent] desc) AS [NT],
-	sum(t.col1) over (partition by t.col2, t.col3)
+	sum(t.col1) over (partition by t.col2, t.col3),
+
+	ROW_NUMBER() OVER (PARTITION BY (SELECT mediaty FROM dbo.MediaTypes ms WHERE ms.MediaTypeID = f.mediatypeid) ORDER BY AdjustedPriorityScore DESC) AS Subselect_Partition,
+
+	ROW_NUMBER() OVER (PARTITION BY COALESCE(NPI1, NPI2) ORDER BY COALESCE(SystemEffectiveDTS1, SystemEffectiveDTS2) DESC) AS Coalesce_Partition
+
 
 FROM dbo . all_pop	
 
