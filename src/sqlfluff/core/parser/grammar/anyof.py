@@ -210,20 +210,17 @@ class AnyNumberOf(BaseGrammar):
             )
 
             # Increment counter for matched option.
-            if (
-                available_option_counter
-                and matched_option
-                and (str(matched_option) in available_option_counter)
-            ):
+            if matched_option and (str(matched_option) in available_option_counter):
                 available_option_counter[str(matched_option)] += 1
-            # Check if we have matched an option too many times.
-            if self.max_times_per_element and any(
-                c > self.max_times_per_element
-                for c in available_option_counter.values()
-            ):
-                return MatchResult(
-                    matched_segments.matched_segments, unmatched_segments
-                )
+                # Check if we have matched an option too many times.
+                if (
+                    self.max_times_per_element
+                    and available_option_counter[str(matched_option)]
+                    > self.max_times_per_element
+                ):
+                    return MatchResult(
+                        matched_segments.matched_segments, unmatched_segments
+                    )
 
             if match:
                 matched_segments += pre_seg + match.matched_segments
