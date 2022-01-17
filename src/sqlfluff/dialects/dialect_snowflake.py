@@ -916,7 +916,7 @@ class AlterTableStatementSegment(BaseSegment):
                 "WITH",
                 Ref("TableReferenceSegment"),
             ),
-            # @TODO: clusteringAction
+            Ref("AlterTableClusteringActionSegment"),
             Ref("AlterTableTableColumnActionSegment"),
             # @TODO: constraintAction
             # @TODO: extTableColumnAction
@@ -1036,6 +1036,52 @@ class AlterTableTableColumnActionSegment(BaseSegment):
                 ),
             ),
             # ^^^^^ COPIED FROM ANSI ^^^^^
+        ),
+    )
+
+
+@snowflake_dialect.segment()
+class AlterTableClusteringActionSegment(BaseSegment):
+    """ALTER TABLE `clusteringAction` per defined in Snowflake's grammar.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-table.html#clustering-actions-clusteringaction
+
+    If possible, please match the order of this sequence with what's defined in Snowflake's
+    clusteringAction grammar.
+    """
+
+    type = "alter_table_clustering_action"
+
+    match_grammar = OneOf(
+        Sequence(
+            "CLUSTER",
+            "BY",
+            Bracketed(
+                Delimited(Ref("ExpressionSegment")),
+            ),
+        ),
+        # N.B. RECLUSTER is deprecated: https://docs.snowflake.com/en/user-guide/tables-clustering-manual.html
+        Sequence(
+            "RECLUSTER",
+            Sequence(
+                "MAX_SIZE",
+                Ref("EqualsSegment"),
+                Ref("NumericLiteralSegment"),
+                optional=True,
+            ),
+            Ref("WhereClauseSegment", optional=True),
+        ),
+        Sequence(
+            OneOf(
+                "SUSPEND",
+                "RESUME",
+            ),
+            "RECLUSTER",
+        ),
+        Sequence(
+            "DROP",
+            "CLUSTERING",
+            "KEY",
         ),
     )
 
