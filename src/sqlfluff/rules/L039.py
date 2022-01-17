@@ -85,6 +85,18 @@ class Rule_L039(BaseRule):
                     else:
                         leading_whitespace = False
 
+            if seg.is_type("comparison_operator"):
+                delete_fixes = [
+                    LintFix.delete(s) for s in seg.get_raw_segments() if s.is_whitespace
+                ]
+                if delete_fixes:
+                    violations.append(
+                        LintResult(
+                            anchor=child_seg,
+                            fixes=delete_fixes,
+                        )
+                    )
+
         if context.segment.is_type("casting_operator"):
             leading_whitespace_segments = (
                 context.functional.raw_stack.reversed().select(

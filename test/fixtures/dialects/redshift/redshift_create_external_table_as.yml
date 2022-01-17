@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3bad2db9e335293e19ae615b8e2e7b058286600fe0ec3bed3221016301c51465
+_hash: 442f62172fd51520c77bb814303481e5492f34ab8108d32401d602ca596eac23
 file:
 - statement:
     create_external_table_statement:
@@ -430,4 +430,53 @@ file:
                   - dot: .
                   - identifier: source_table
         end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_external_table_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - table_reference:
+      - identifier: external_schema
+      - dot: .
+      - identifier: table_name
+    - keyword: STORED
+    - keyword: AS
+    - keyword: PARQUET
+    - keyword: LOCATION
+    - literal: "'s3://bucket/folder/'"
+    - keyword: TABLE
+    - keyword: PROPERTIES
+    - bracketed:
+      - start_bracket: (
+      - literal: "'some_property1'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - literal: "'some_value1'"
+      - comma: ','
+      - literal: "'some_property2'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - literal: "'some_value2'"
+      - end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              identifier: col1
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: col2
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - identifier: external_schema
+                - dot: .
+                - identifier: source_table
 - statement_terminator: ;

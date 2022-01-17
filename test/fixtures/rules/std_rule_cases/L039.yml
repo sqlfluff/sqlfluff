@@ -29,6 +29,28 @@ test_identifier_fix:
     core:
       dialect: tsql
 
+test_comparison_operator_fix:
+  fail_str: |
+    SELECT foo
+    FROM bar
+    WHERE baz > = 10;
+  fix_str: |
+    SELECT foo
+    FROM bar
+    WHERE baz >= 10;
+  configs:
+    core:
+      dialect: tsql
+
+test_comparison_operator_pass:
+  pass_str: |
+    SELECT foo
+    FROM bar
+    WHERE baz >= 10;
+  configs:
+    core:
+      dialect: tsql
+
 test_casting_operator_fix:
   fail_str: |
     SELECT '1' :: INT;
