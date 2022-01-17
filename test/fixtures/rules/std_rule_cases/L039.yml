@@ -50,3 +50,19 @@ test_comparison_operator_pass:
   configs:
     core:
       dialect: tsql
+
+test_casting_operator_fix:
+  fail_str: |
+    SELECT '1' :: INT;
+  fix_str: |
+    SELECT '1'::INT;
+  configs:
+    core:
+      dialect: postgres
+
+test_casting_operator_pass:
+  pass_str: |
+    SELECT '1'::INT;
+  configs:
+    core:
+      dialect: postgres
