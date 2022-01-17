@@ -548,7 +548,6 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref("SetAssignmentStatementSegment"),
             Ref("CallStoredProcedureSegment"),
             Ref("MergeStatementSegment"),
-            Ref("AlterTableColumnStatementSegment"),
             Ref("CopyIntoTableStatementSegment"),
             Ref("AlterWarehouseStatementSegment"),
             Ref("CreateExternalTableSegment"),
@@ -890,25 +889,78 @@ class SelectClauseModifierSegment(BaseSegment):
     )
 
 
-@snowflake_dialect.segment()
-class AlterTableColumnStatementSegment(BaseSegment):
-    """An `ALTER TABLE .. ALTER COLUMN` statement.
+@snowflake_dialect.segment(replace=True)
+class AlterTableStatementSegment(BaseSegment):
+    """An `ALTER TABLE` statement.
 
-    https://docs.snowflake.com/en/sql-reference/sql/alter-table-column.html
-
+    https://docs.snowflake.com/en/sql-reference/sql/alter-table.html
+    If possible, please keep the order below the same as Snowflake's doc:
     """
 
-    type = "alter_table_column_statement"
+    type = "alter_table_statement"
+
     match_grammar = Sequence(
         "ALTER",
         "TABLE",
         Ref("TableReferenceSegment"),
         OneOf(
+            # Rename
             Sequence(
-                "DROP",
-                Ref.keyword("COLUMN", optional=True),
-                Ref("SingleIdentifierGrammar"),
+                "RENAME",
+                "TO",
+                Ref("TableReferenceSegment"),
             ),
+            # Swap With
+            Sequence(
+                "SWAP",
+                "WITH",
+                Ref("TableReferenceSegment"),
+            ),
+            # @TODO: clusteringAction
+            Ref("AlterTableTableColumnActionSegment"),
+            # @TODO: constraintAction
+            # @TODO: extTableColumnAction
+            # @TODO: searchOptimizationAction
+            # SET Table options
+            # @TODO: Restrict the list of parameters supported per Snowflake doc.
+            Sequence(
+                Ref.keyword("SET"),
+                OneOf(
+                    Ref("ParameterNameSegment"),
+                    Ref.keyword("COMMENT"),
+                ),
+                Ref("EqualsSegment", optional=True),
+                OneOf(
+                    Ref("LiteralGrammar"),
+                    Ref("NakedIdentifierSegment"),
+                    Ref("QuotedLiteralSegment"),
+                ),
+            ),
+            # @TODO: Set/unset TAG
+            # @TODO: Unset table options
+            # @TODO: Add/drop row access policies
+        ),
+    )
+
+
+@snowflake_dialect.segment()
+class AlterTableTableColumnActionSegment(BaseSegment):
+    """ALTER TABLE `tableColumnAction` per defined in Snowflake's grammar.
+
+    https://docs.snowflake.com/en/sql-reference/sql/alter-table.html
+    https://docs.snowflake.com/en/sql-reference/sql/alter-table-column.html
+
+    If possible, please match the order of this sequence with what's defined in Snowflake's
+    tableColumnAction grammar.
+    """
+
+    type = "alter_table_table_column_action"
+
+    match_grammar = Sequence(
+        OneOf(
+            # @TODO: Add Column
+            # @TODO: Rename column
+            # Alter/Modify column(s)
             Sequence(
                 OneOf("ALTER", "MODIFY"),
                 OptionallyBracketed(
@@ -917,7 +969,7 @@ class AlterTableColumnStatementSegment(BaseSegment):
                             # Add things
                             Sequence(
                                 Ref.keyword("COLUMN", optional=True),
-                                Ref("SingleIdentifierGrammar"),
+                                Ref("ColumnReferenceSegment"),
                                 OneOf(
                                     Sequence("DROP", "DEFAULT"),
                                     Sequence(
@@ -945,16 +997,38 @@ class AlterTableColumnStatementSegment(BaseSegment):
                             ),
                             Sequence(
                                 "COLUMN",
-                                Ref("SingleIdentifierGrammar"),
+                                Ref("ColumnReferenceSegment"),
                                 OneOf("SET", "UNSET"),
                                 "MASKING",
                                 "POLICY",
                                 Ref("FunctionNameIdentifierSegment", optional=True),
                             ),
+                            # @TODO: Set/Unset TAG support
                         ),
                     ),
                 ),
             ),
+            # Drop column
+            Sequence(
+                "DROP",
+                Ref.keyword("COLUMN", optional=True),
+                Ref("ColumnReferenceSegment"),
+            ),
+            # @TODO: Drop columns
+            # vvvvv COPIED FROM ANSI vvvvv
+            # @TODO: Removed these once `tableColumnAction` is properly supported.
+            Sequence(
+                OneOf("ADD", "MODIFY"),
+                Ref.keyword("COLUMN", optional=True),
+                Ref("ColumnDefinitionSegment"),
+                OneOf(
+                    Sequence(OneOf("FIRST", "AFTER"), Ref("ColumnReferenceSegment")),
+                    # Bracketed Version of the same
+                    Ref("BracketedColumnReferenceListGrammar"),
+                    optional=True,
+                ),
+            ),
+            # ^^^^^ COPIED FROM ANSI ^^^^^
         ),
     )
 
