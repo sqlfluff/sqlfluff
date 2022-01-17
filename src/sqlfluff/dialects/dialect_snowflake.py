@@ -916,11 +916,22 @@ class AlterTableStatementSegment(BaseSegment):
                 "WITH",
                 Ref("TableReferenceSegment"),
             ),
+            # searchOptimizationAction
+            # N.B. Since SEARCH and OPTIMIZATION are unreserved keywords
+            # we move this above AlterTableTableColumnActionSegment
+            # in order to avoid matching these as columns.
+            Sequence(
+                OneOf(
+                    "ADD",
+                    "DROP",
+                ),
+                "SEARCH",
+                "OPTIMIZATION",
+            ),
             # @TODO: clusteringAction
             Ref("AlterTableTableColumnActionSegment"),
             # @TODO: constraintAction
             # @TODO: extTableColumnAction
-            # @TODO: searchOptimizationAction
             # SET Table options
             # @TODO: Restrict the list of parameters supported per Snowflake doc.
             Sequence(
