@@ -917,7 +917,7 @@ class AlterTableStatementSegment(BaseSegment):
                 Ref("TableReferenceSegment"),
             ),
             # searchOptimizationAction
-            # N.B. Since SEARCH and Optimization are unreserved keywords
+            # N.B. Since SEARCH and OPTIMIZATION are unreserved keywords
             # we move this above AlterTableTableColumnActionSegment
             # in order to avoid matching these as columns.
             Sequence(
