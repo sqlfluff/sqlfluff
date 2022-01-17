@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ab21360a00b1dc48abe7ab97180f983a521fcc46bec6aabb6caf99fe303aebe5
+_hash: 97264f8d61d2c75949200de92737617871092e995a14997c2c85cf3fb004ac99
 file:
 - statement:
     create_table_statement:
@@ -1291,7 +1291,7 @@ file:
           keyword: INTEGER
       - column_constraint_segment:
         - keyword: REFERENCES
-        - column_reference:
+        - table_reference:
             identifier: groups
         - bracketed:
             start_bracket: (
@@ -1300,8 +1300,7 @@ file:
             end_bracket: )
         - keyword: 'ON'
         - keyword: DELETE
-        - referential_action:
-            keyword: CASCADE
+        - keyword: CASCADE
       - comma: ','
       - column_reference:
           identifier: domain_id
@@ -1309,7 +1308,7 @@ file:
           keyword: INTEGER
       - column_constraint_segment:
         - keyword: REFERENCES
-        - column_reference:
+        - table_reference:
             identifier: groups
         - bracketed:
             start_bracket: (
@@ -1318,7 +1317,22 @@ file:
             end_bracket: )
         - keyword: 'ON'
         - keyword: UPDATE
-        - referential_action:
-            keyword: RESTRICT
+        - keyword: RESTRICT
+      - comma: ','
+      - column_reference:
+          identifier: other_id
+      - data_type:
+          keyword: INTEGER
+      - column_constraint_segment:
+        - keyword: REFERENCES
+        - table_reference:
+            identifier: groups
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              identifier: group_id
+            end_bracket: )
+        - keyword: MATCH
+        - keyword: SIMPLE
       - end_bracket: )
 - statement_terminator: ;
