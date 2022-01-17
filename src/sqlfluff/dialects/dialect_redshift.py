@@ -402,7 +402,7 @@ class CreateTableAsStatementSegment(BaseSegment):
         Sequence("BACKUP", OneOf("YES", "NO"), optional=True),
         Ref("TableAttributeSegment", optional=True),
         "AS",
-        Ref("SelectableGrammar"),
+        OptionallyBracketed(Ref("SelectableGrammar")),
     )
 
 
