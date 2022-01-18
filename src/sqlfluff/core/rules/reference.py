@@ -1,11 +1,10 @@
 """Components for working with object and table references."""
-from typing import List, Tuple
+from typing import Sequence, Tuple
 
 
-# TODO:
-# - Extend to handle differing levels of specificity in the references
-# - This may require tweaking the parameter types
-def matches(possible_references: List[Tuple[str, ...]], targets: List[str]) -> bool:
+def object_ref_matches_table(
+    possible_references: Sequence[Tuple[str, ...]], targets: Sequence[Tuple[str, ...]]
+) -> bool:
     """Return True if any of the possible references matches a target."""
     if not possible_references:
         # Corner case: If there are no references, assume okay

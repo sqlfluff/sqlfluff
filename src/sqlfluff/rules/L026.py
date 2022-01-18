@@ -16,7 +16,7 @@ from sqlfluff.core.rules.base import (
 )
 from sqlfluff.core.rules.functional import sp
 from sqlfluff.core.rules.doc_decorators import document_configuration
-from sqlfluff.core.rules.reference import matches
+from sqlfluff.core.rules.reference import object_ref_matches_table
 
 
 @dataclass
@@ -133,11 +133,10 @@ class Rule_L026(BaseRule):
                 ref.ObjectReferenceLevel.TABLE,
             ]
         ):
-            ref_str = f"{sr[0]}.{tr[0]}" if sr else tr[0]
-            tbl_refs.append((tr, ref_str))
+            tbl_refs.append((tr, (sr.part, tr.part)))
         # Next, handle any table references (without schema).
         for tr in ref.extract_possible_references(level=ref.ObjectReferenceLevel.TABLE):
-            tbl_refs.append((tr, tr[0]))
+            tbl_refs.append((tr, (tr.part,)))
         return tbl_refs
 
     def _resolve_reference(
@@ -145,8 +144,8 @@ class Rule_L026(BaseRule):
     ):
         # Does this query define the referenced table?
         possible_references = [tbl_ref[1] for tbl_ref in tbl_refs]
-        targets = [a.ref_str for a in query.aliases]
-        if not matches(possible_references, targets):
+        targets = [(a.ref_str,) for a in query.aliases]
+        if not object_ref_matches_table(possible_references, targets):
             # No. Check the parent query, if there is one.
             if query.parent:
                 return self._resolve_reference(
@@ -154,8 +153,8 @@ class Rule_L026(BaseRule):
                 )
             # No parent query. If there's a DML statement at the root, check its
             # target table.
-            elif not dml_target_table or not matches(
-                possible_references, [dml_target_table]
+            elif not dml_target_table or not object_ref_matches_table(
+                possible_references, [(dml_target_table,)]
             ):
                 return LintResult(
                     # Return the first segment rather than the string
