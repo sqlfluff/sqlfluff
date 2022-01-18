@@ -2,7 +2,6 @@
 from typing import List, NamedTuple, Optional
 
 from sqlfluff.core.parser import (
-    RawSegment,
     WhitespaceSegment,
     SymbolSegment,
     KeywordSegment,
@@ -76,51 +75,29 @@ class Rule_L043(BaseRule):
     ) -> List[LintFix]:
         """Generate list of fixes to convert CASE statement to COALESCE function."""
         # Add coalesce and opening parenthesis.
-        edits: List[RawSegment] = (
-            [
+        edits = [
+            KeywordSegment("coalesce"),
+            SymbolSegment("(", name="start_bracket", type="start_bracket"),
+            coalesce_arg_1.expression,
+            SymbolSegment(",", name="comma", type="comma"),
+            WhitespaceSegment(),
+            coalesce_arg_2,
+            SymbolSegment(")", name="end_bracket", type="end_bracket"),
+        ]
+
+        if preceding_not:
+            not_edits: List[BaseSegment] = [
                 KeywordSegment("not"),
                 WhitespaceSegment(),
             ]
-            if preceding_not
-            else []
-        ) + [
-            KeywordSegment("coalesce"),
-            SymbolSegment("(", name="start_bracket", type="start_bracket"),
-        ]
+            edits = not_edits + edits
 
-        edit_coalesce_target = context.segment.segments[0]
         fixes = [
             LintFix.replace(
-                edit_coalesce_target,
+                context.segment,
                 edits,
-            ),
-            # Add comma, bool, closing parenthesis.
-            LintFix.replace(
-                coalesce_arg_1.after_expression,
-                [
-                    SymbolSegment(",", name="comma", type="comma"),
-                    WhitespaceSegment(),
-                    coalesce_arg_2,
-                    SymbolSegment(")", name="end_bracket", type="end_bracket"),
-                ],
-                source=[coalesce_arg_2],
-            ),
-        ] + (
-            # Segments to delete -- i.e. all child segments at both levels EXCEPT:
-            # - 'CASE' keyword segment being edited to become a call to "coalesce("
-            # - the overall 'when_clause' segment
-            # - the 'WHEN' filter 'expression' segment
-            # Re: The 'CASE' keyword segment: We avoid deleting this one because
-            # deleting and editing the same segment has unpredictable behavior.
-            context.functional.segment.children(
-                lambda s: s not in [edit_coalesce_target, coalesce_arg_1.parent]
             )
-            + Segments(coalesce_arg_1.parent).children(
-                lambda s: s is not coalesce_arg_1.expression
-            )
-        ).apply(
-            lambda s: LintFix.delete(s)
-        )
+        ]
         return fixes
 
     @staticmethod
