@@ -193,21 +193,38 @@ class Rule_L052(BaseRule):
                     anchor_segment = self._handle_trailing_inline_comments(
                         context, anchor_segment
                     )
-
-                    fixes = [
-                        LintFix.replace(
-                            anchor_segment,
-                            [
+                    fixes = []
+                    if anchor_segment is context.segment:
+                        fixes.append(
+                            LintFix.replace(
                                 anchor_segment,
-                                NewlineSegment(),
-                                SymbolSegment(raw=";", type="symbol", name="semicolon"),
-                            ],
-                        ),
-                        LintFix.delete(
-                            context.segment,
-                        ),
-                    ]
-                    fixes.extend(LintFix.delete(d) for d in whitespace_deletions)
+                                [
+                                    NewlineSegment(),
+                                    SymbolSegment(
+                                        raw=";", type="symbol", name="semicolon"
+                                    ),
+                                ],
+                            )
+                        )
+                    else:
+                        fixes.extend(
+                            [
+                                LintFix.replace(
+                                    anchor_segment,
+                                    [
+                                        anchor_segment,
+                                        NewlineSegment(),
+                                        SymbolSegment(
+                                            raw=";", type="symbol", name="semicolon"
+                                        ),
+                                    ],
+                                ),
+                                LintFix.delete(
+                                    context.segment,
+                                ),
+                            ]
+                        )
+                        fixes.extend(LintFix.delete(d) for d in whitespace_deletions)
                     return LintResult(
                         anchor=anchor_segment,
                         fixes=fixes,

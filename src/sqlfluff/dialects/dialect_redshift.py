@@ -7,6 +7,7 @@ We should monitor in future and see if it should be rebased off of ANSI
 from sqlfluff.core.parser import (
     OneOf,
     AnyNumberOf,
+    Anything,
     Ref,
     Sequence,
     Bracketed,
@@ -44,9 +45,91 @@ redshift_dialect.sets("bare_functions").clear()
 redshift_dialect.sets("bare_functions").update(["current_date", "sysdate"])
 
 redshift_dialect.replace(WellKnownTextGeometrySegment=Nothing())
-# TODO: for the time use the ANSI definition and not the updated one from Postgres as not all
-#       data types are supported by Redshift
-redshift_dialect.replace(DatatypeSegment=ansi_dialect.get_segment("DatatypeSegment"))
+
+
+@redshift_dialect.segment(replace=True)
+class DatatypeSegment(BaseSegment):
+    """A data type segment.
+
+    Indicates a data type.
+
+    As specified by: https://docs.aws.amazon.com/redshift/latest/dg/c_Supported_data_types.html
+    """
+
+    type = "data_type"
+    match_grammar = OneOf(
+        # numeric types
+        "SMALLINT",
+        "INT2",
+        "INTEGER",
+        "INT",
+        "INT4",
+        "BIGINT",
+        "INT8",
+        "REAL",
+        "FLOAT4",
+        Sequence("DOUBLE", "PRECISION"),
+        "FLOAT8",
+        "FLOAT",
+        # numeric types [precision ["," scale])]
+        Sequence(
+            OneOf("DECIMAL", "NUMERIC"),
+            Bracketed(
+                Delimited(Ref("NumericLiteralSegment")),
+                optional=True,
+            ),
+        ),
+        # character types
+        OneOf(
+            Sequence(
+                OneOf(
+                    "CHAR",
+                    "CHARACTER",
+                    "NCHAR",
+                    "VARCHAR",
+                    Sequence("CHARACTER", "VARYING"),
+                    "NVARCHAR",
+                ),
+                Bracketed(
+                    OneOf(
+                        Ref("NumericLiteralSegment"),
+                        "MAX",
+                    ),
+                    optional=True,
+                ),
+            ),
+            "BPCHAR",
+            "TEXT",
+        ),
+        # datetime types
+        "DATE",
+        Sequence(
+            OneOf("TIME", "TIMESTAMP"),
+            Sequence(OneOf("WITH", "WITHOUT"), "TIME", "ZONE", optional=True),
+        ),
+        OneOf("TIMETZ", "TIMESTAMPTZ"),
+        # boolean types
+        OneOf("BOOLEAN", "BOOL"),
+        # hllsketch type
+        "HLLSKETCH",
+        # super type
+        "SUPER",
+        # spatial data
+        "GEOMETRY",
+        "GEOGRAPHY",
+        # binary type
+        Sequence(
+            OneOf(
+                "VARBYTE",
+                "VARBINARY",
+                Sequence("BINARY", "VARYING"),
+            ),
+            Bracketed(
+                Ref("NumericLiteralSegment"),
+                optional=True,
+            ),
+        ),
+    )
 
 
 @redshift_dialect.segment(replace=True)
@@ -100,6 +183,77 @@ class ColumnEncodingSegment(BaseSegment):
 
 
 @redshift_dialect.segment()
+class CompressionTypeSegment(BaseSegment):
+    """Compression type segment.
+
+    Indicates file compression type.
+
+    As specified by: https://docs.aws.amazon.com/redshift/latest/dg/copy-parameters-file-compression.html
+    """
+
+    type = "compression_type_segment"
+
+    match_grammar = OneOf(
+        "BZIP2",
+        "GZIP",
+        "LZOP",
+        "ZSTD",
+    )
+
+
+@redshift_dialect.segment()
+class DataFormatSegment(BaseSegment):
+    """DataFormat segment.
+
+    Indicates data format available for COPY commands.
+
+    As specified by: https://docs.aws.amazon.com/redshift/latest/dg/c_Compression_encodings.html
+    """
+
+    type = "data_format_segment"
+
+    match_grammar = Sequence(
+        Sequence(
+            "FORMAT",
+            Ref.keyword("AS", optional=True),
+            optional=True,
+        ),
+        OneOf(
+            Sequence(
+                "CSV",
+                Sequence(
+                    "QUOTE",
+                    Ref.keyword("AS", optional=True),
+                    Ref("QuotedLiteralSegment"),
+                    optional=True,
+                ),
+            ),
+            Sequence(
+                "SHAPEFILE",
+                Sequence(
+                    "SIMPLIFY",
+                    Ref.keyword("AUTO", optional=True),
+                    Ref("NumericLiteralSegment", optional=True),
+                    optional=True,
+                ),
+            ),
+            Sequence(
+                OneOf("AVRO", "JSON"),
+                Sequence(
+                    Ref.keyword("AS", optional=True),
+                    Ref("QuotedLiteralSegment"),
+                    optional=True,
+                ),
+            ),
+            "PARQUET",
+            "ORC",
+            "RCFILE",
+            "SEQUENCEFILE",
+        ),
+    )
+
+
+@redshift_dialect.segment()
 class AuthorizationSegment(BaseSegment):
     """Authorization segment.
 
@@ -110,30 +264,43 @@ class AuthorizationSegment(BaseSegment):
 
     type = "authorization_segment"
 
-    match_grammar = OneOf(
-        Sequence(
-            "IAM_ROLE",
-            OneOf(
-                "DEFAULT",
-                Ref("QuotedLiteralSegment"),
-            ),
-        ),
-        Sequence(
-            Ref.keyword("WITH", optional=True),
-            "CREDENTIALS",
-            Ref.keyword("AS", optional=True),
-            Ref("QuotedLiteralSegment"),
-        ),
-        Sequence(
-            "ACCESS_KEY_ID",
-            Ref("QuotedLiteralSegment"),
-            "SECRET_ACCESS_KEY",
-            Ref("QuotedLiteralSegment"),
+    match_grammar = AnyNumberOf(
+        OneOf(
             Sequence(
-                "SESSION_TOKEN",
-                Ref("QuotedLiteralSegment"),
-                optional=True,
+                "IAM_ROLE",
+                OneOf(
+                    "DEFAULT",
+                    Ref("QuotedLiteralSegment"),
+                ),
             ),
+            Sequence(
+                Ref.keyword("WITH", optional=True),
+                "CREDENTIALS",
+                Ref.keyword("AS", optional=True),
+                Ref("QuotedLiteralSegment"),
+            ),
+            Sequence(
+                "ACCESS_KEY_ID",
+                Ref("QuotedLiteralSegment"),
+                "SECRET_ACCESS_KEY",
+                Ref("QuotedLiteralSegment"),
+                Sequence(
+                    "SESSION_TOKEN",
+                    Ref("QuotedLiteralSegment"),
+                    optional=True,
+                ),
+            ),
+            optional=False,
+        ),
+        Sequence(
+            "KMS_KEY_ID",
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "MASTER_SYMMETRIC_KEY",
+            Ref("QuotedLiteralSegment"),
+            optional=True,
         ),
     )
 
@@ -318,7 +485,164 @@ class CreateTableAsStatementSegment(BaseSegment):
         Sequence("BACKUP", OneOf("YES", "NO"), optional=True),
         Ref("TableAttributeSegment", optional=True),
         "AS",
-        Ref("SelectableGrammar"),
+        OptionallyBracketed(Ref("SelectableGrammar")),
+    )
+
+
+@redshift_dialect.segment(replace=True)
+class CreateModelStatementSegment(BaseSegment):
+    """A `CREATE MODEL` statement.
+
+    As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_MODEL.html
+    NB: order of keywords matter
+    """
+
+    type = "create_model_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        "MODEL",
+        Ref("ObjectReferenceSegment"),
+        Sequence(
+            "FROM",
+            OneOf(
+                Ref("QuotedLiteralSegment"),
+                Bracketed(Ref("SelectableGrammar")),
+                Ref("ObjectReferenceSegment"),
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "TARGET",
+            Ref("ColumnReferenceSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "FUNCTION",
+            Ref("ObjectReferenceSegment"),
+            Bracketed(
+                Delimited(Ref("DatatypeSegment")),
+                optional=True,
+            ),
+        ),
+        Sequence(
+            "RETURNS",
+            Ref("DatatypeSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "SAGEMAKER",
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "IAM_ROLE",
+            OneOf(
+                "DEFAULT",
+                Ref("QuotedLiteralSegment"),
+            ),
+        ),
+        Sequence(
+            "AUTO",
+            OneOf(
+                "ON",
+                "OFF",
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "MODEL_TYPE",
+            OneOf(
+                "XGBOOST",
+                "MLP",
+                "KMEANS",
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "PROBLEM_TYPE",
+            OneOf(
+                "REGRESSION",
+                "BINARY_CLASSIFICATION",
+                "MULTICLASS_CLASSIFICATION",
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "OBJECTIVE",
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "PREPROCESSORS",
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "HYPERPARAMETERS",
+            "DEFAULT",
+            Sequence(
+                "EXCEPT",
+                Bracketed(
+                    Delimited(
+                        Anything(),
+                    ),
+                ),
+                optional=True,
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "SETTINGS",
+            Bracketed(
+                Sequence(
+                    "S3_BUCKET",
+                    Ref("QuotedLiteralSegment"),
+                    Sequence(
+                        "KMS_KEY_ID",
+                        Ref("QuotedLiteralSegment"),
+                        optional=True,
+                    ),
+                    Sequence(
+                        "S3_GARBAGE_COLLECT",
+                        OneOf(
+                            "ON",
+                            "OFF",
+                        ),
+                        optional=True,
+                    ),
+                    Sequence(
+                        "MAX_CELLS",
+                        Ref("NumericLiteralSegment"),
+                        optional=True,
+                    ),
+                    Sequence(
+                        "MAX_RUNTIME",
+                        Ref("NumericLiteralSegment"),
+                        optional=True,
+                    ),
+                ),
+            ),
+            optional=True,
+        ),
+    )
+
+
+@redshift_dialect.segment()
+class ShowModelSegment(BaseSegment):
+    """A `SHOW MODEL` statement.
+
+    As specified in: https://docs.aws.amazon.com/redshift/latest/dg/r_SHOW_MODEL.html
+    """
+
+    type = "show_model_statement"
+
+    match_grammar = Sequence(
+        "SHOW",
+        "MODEL",
+        OneOf(
+            "ALL",
+            Ref("ObjectReferenceSegment"),
+        ),
     )
 
 
@@ -328,7 +652,6 @@ class CreateExternalTableStatementSegment(BaseSegment):
 
     As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_EXTERNAL_TABLE.html
     TODO: support ROW FORMAT SERDE and WITH SERDEPROPERTIES
-    TODO: support TABLE PROPERTIES
     """
 
     type = "create_external_table_statement"
@@ -366,6 +689,20 @@ class CreateExternalTableStatementSegment(BaseSegment):
         ),
         "LOCATION",
         Ref("QuotedLiteralSegment"),
+        Sequence(
+            "TABLE",
+            "PROPERTIES",
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        Ref("QuotedLiteralSegment"),
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                ),
+            ),
+            optional=True,
+        ),
     )
 
 
@@ -374,7 +711,6 @@ class CreateExternalTableAsStatementSegment(BaseSegment):
     """A `CREATE EXTERNAL TABLE AS` statement.
 
     As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_EXTERNAL_TABLE.html
-    TODO: support TABLE PROPERTIES
     """
 
     type = "create_external_table_statement"
@@ -394,6 +730,20 @@ class CreateExternalTableAsStatementSegment(BaseSegment):
         ),
         "LOCATION",
         Ref("QuotedLiteralSegment"),
+        Sequence(
+            "TABLE",
+            "PROPERTIES",
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        Ref("QuotedLiteralSegment"),
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                ),
+            ),
+            optional=True,
+        ),
         "AS",
         OptionallyBracketed(Ref("SelectableGrammar")),
     )
@@ -429,6 +779,267 @@ class CreateLibraryStatementSegment(BaseSegment):
                 Ref("QuotedLiteralSegment"),
                 optional=True,
             ),
+        ),
+    )
+
+
+@redshift_dialect.segment()
+class UnloadStatementSegment(BaseSegment):
+    """A `UNLOAD` statement.
+
+    As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_UNLOAD.html
+    """
+
+    type = "unload_statement"
+
+    match_grammar = Sequence(
+        "UNLOAD",
+        Bracketed(Ref("QuotedLiteralSegment")),
+        "TO",
+        Ref("QuotedLiteralSegment"),
+        AnyNumberOf(
+            Ref("AuthorizationSegment", optional=False),
+            Sequence(
+                "REGION",
+                Ref.keyword("AS", optional=True),
+                Ref("QuotedLiteralSegment"),
+                optional=True,
+            ),
+            Ref("CompressionTypeSegment", optional=True),
+            Sequence(
+                Sequence(
+                    "FORMAT",
+                    Ref.keyword("AS", optional=True),
+                    optional=True,
+                ),
+                OneOf(
+                    "CSV",
+                    "JSON",
+                    "PARQUET",
+                ),
+                optional=True,
+            ),
+            Sequence(
+                "PARTITION",
+                "BY",
+                Ref("BracketedColumnReferenceListGrammar"),
+                Ref.keyword("INCLUDE", optional=True),
+            ),
+            Sequence(
+                "PARALLEL",
+                OneOf(
+                    "PRESET",
+                    "ON",
+                    "OFF",
+                    "TRUE",
+                    "FALSE",
+                    optional=True,
+                ),
+                optional=True,
+            ),
+            OneOf(
+                Sequence(
+                    "DELIMITER",
+                    Ref.keyword("AS", optional=True),
+                    Ref("QuotedLiteralSegment"),
+                ),
+                Sequence(
+                    "FIXEDWIDTH",
+                    Ref.keyword("AS", optional=True),
+                    Ref("QuotedLiteralSegment"),
+                ),
+                optional=True,
+            ),
+            Sequence(
+                "MANIFEST",
+                Ref.keyword("VERBOSE", optional=True),
+                optional=True,
+            ),
+            Sequence(
+                "NULL",
+                "AS",
+                Ref("QuotedLiteralSegment"),
+                optional=True,
+            ),
+            Sequence(
+                "NULL",
+                "AS",
+                Ref("QuotedLiteralSegment"),
+                optional=True,
+            ),
+            AnyNumberOf(
+                OneOf(
+                    "MAXFILESIZE",
+                    "ROWGROUPSIZE",
+                ),
+                Ref.keyword("AS", optional=True),
+                Ref("NumericLiteralSegment"),
+                OneOf(
+                    "MB",
+                    "GB",
+                ),
+                optional=True,
+            ),
+            Sequence(
+                "ENCRYPTED",
+                Ref.keyword("AUTO", optional=True),
+                optional=True,
+            ),
+            Ref.keyword("ALLOWOVERWRITE", optional=True),
+            Ref.keyword("CLEANPATH", optional=True),
+            Ref.keyword("ESCAPE", optional=True),
+            Ref.keyword("ADDQUOTES", optional=True),
+            Ref.keyword("HEADER", optional=True),
+        ),
+    )
+
+
+@redshift_dialect.segment()
+class CopyStatementSegment(BaseSegment):
+    """A `COPY` statement.
+
+    As specified in :
+        - https://docs.aws.amazon.com/redshift/latest/dg/r_COPY.html
+        - https://docs.aws.amazon.com/redshift/latest/dg/r_COPY-parameters.html
+    """
+
+    type = "copy_statement"
+
+    match_grammar = Sequence(
+        "COPY",
+        Ref("TableReferenceSegment"),
+        Ref("BracketedColumnReferenceListGrammar", optional=True),
+        "FROM",
+        Ref("QuotedLiteralSegment"),
+        AnyNumberOf(
+            Ref("AuthorizationSegment", optional=False),
+            Sequence(
+                "REGION",
+                Ref.keyword("AS", optional=True),
+                Ref("QuotedLiteralSegment"),
+                optional=True,
+            ),
+            Ref("CompressionTypeSegment", optional=True),
+            Ref("DataFormatSegment", optional=True),
+            OneOf(
+                Sequence(
+                    "DELIMITER",
+                    Ref.keyword("AS", optional=True),
+                    Ref("QuotedLiteralSegment"),
+                ),
+                Sequence(
+                    "FIXEDWIDTH",
+                    Ref.keyword("AS", optional=True),
+                    Ref("QuotedLiteralSegment"),
+                ),
+                optional=True,
+            ),
+            Sequence(
+                "ENCRYPTED",
+                Ref.keyword("AUTO", optional=True),
+                optional=True,
+            ),
+            Ref.keyword("MANIFEST", optional=True),
+            Sequence(
+                "COMPROWS",
+                Ref("NumericLiteralSegment"),
+                optional=True,
+            ),
+            Sequence(
+                "MAXERROR",
+                Ref.keyword("AS", optional=True),
+                Ref("NumericLiteralSegment"),
+                optional=True,
+            ),
+            Sequence(
+                "COMPUPDATE",
+                OneOf(
+                    "PRESET",
+                    "ON",
+                    "OFF",
+                    "TRUE",
+                    "FALSE",
+                    optional=True,
+                ),
+                optional=True,
+            ),
+            Sequence(
+                "STATUPDATE",
+                OneOf(
+                    "ON",
+                    "OFF",
+                    "TRUE",
+                    "FALSE",
+                    optional=True,
+                ),
+                optional=True,
+            ),
+            Ref.keyword("NOLOAD", optional=True),
+            Ref.keyword("ACCEPTANYDATE", optional=True),
+            Sequence(
+                "ACCEPTINVCHARS",
+                Ref.keyword("AS", optional=True),
+                Ref("QuotedLiteralSegment"),
+                optional=True,
+            ),
+            Ref.keyword("BLANKSASNULL", optional=True),
+            Sequence(
+                "DATEFORMAT",
+                Ref.keyword("AS", optional=True),
+                OneOf(
+                    "AUTO",
+                    Ref("QuotedLiteralSegment"),
+                ),
+                optional=True,
+            ),
+            Ref.keyword("EMPTYASNULL", optional=True),
+            Sequence(
+                "ENCODING",
+                Ref.keyword("AS", optional=True),
+                OneOf(
+                    "UTF8",
+                    "UTF16",
+                    "UTF16BE",
+                    "UTF16LE",
+                ),
+                optional=True,
+            ),
+            Ref.keyword("ESCAPE", optional=True),
+            Ref.keyword("EXPLICIT_IDS", optional=True),
+            Ref.keyword("FILLRECORD", optional=True),
+            Ref.keyword("IGNOREBLANKLINES", optional=True),
+            Sequence(
+                "IGNOREHEADER",
+                Ref.keyword("AS", optional=True),
+                Ref("QuotedLiteralSegment"),
+                optional=True,
+            ),
+            Sequence(
+                "NULL",
+                "AS",
+                Ref("QuotedLiteralSegment"),
+                optional=True,
+            ),
+            Sequence(
+                "READRATIO",
+                Ref("NumericLiteralSegment"),
+                optional=True,
+            ),
+            Ref.keyword("REMOVEQUOTES", optional=True),
+            Ref.keyword("ROUNDEC", optional=True),
+            Sequence(
+                "TIMEFORMAT",
+                Ref.keyword("AS", optional=True),
+                OneOf(
+                    "AUTO",
+                    "EPOCHSECS",
+                    "EPOCHMILLISECS",
+                    Ref("QuotedLiteralSegment"),
+                ),
+                optional=True,
+            ),
+            Ref.keyword("TRIMBLANKS", optional=True),
+            Ref.keyword("TRUNCATECOLUMNS", optional=True),
         ),
     )
 
@@ -531,6 +1142,11 @@ class StatementSegment(BaseSegment):
             Ref("CreateExternalTableStatementSegment"),
             Ref("PartitionedBySegment"),
             Ref("RowFormatDelimitedSegment"),
+            Ref("DataFormatSegment"),
+            Ref("CompressionTypeSegment"),
+            Ref("UnloadStatementSegment"),
+            Ref("CopyStatementSegment"),
+            Ref("ShowModelSegment"),
         ],
     )
 

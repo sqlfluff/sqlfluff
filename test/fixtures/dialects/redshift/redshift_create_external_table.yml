@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ab4221e70acb2ce9bb2b8cc1878944c8873c1d0de2e8a82311353b858124c82b
+_hash: 4364e1286ba4a22e8f26b1b08aeb938ab11e257989bf0687ab4ea6583959fb72
 file:
 - statement:
     create_external_table_statement:
@@ -19,7 +19,7 @@ file:
         column_reference:
           identifier: col1
         data_type:
-          data_type_identifier: INTEGER
+          keyword: INTEGER
         end_bracket: )
     - keyword: STORED
     - keyword: AS
@@ -41,12 +41,12 @@ file:
       - column_reference:
           identifier: col1
       - data_type:
-          data_type_identifier: INTEGER
+          keyword: INTEGER
       - comma: ','
       - column_reference:
           identifier: col2
       - data_type:
-          data_type_identifier: STRING
+          keyword: TEXT
       - end_bracket: )
     - keyword: STORED
     - keyword: AS
@@ -68,12 +68,12 @@ file:
       - column_reference:
           identifier: col1
       - data_type:
-          data_type_identifier: INTEGER
+          keyword: INTEGER
       - comma: ','
       - column_reference:
           identifier: col2
       - data_type:
-          data_type_identifier: STRING
+          keyword: TEXT
       - end_bracket: )
     - keyword: STORED
     - keyword: AS
@@ -95,12 +95,12 @@ file:
       - column_reference:
           identifier: col1
       - data_type:
-          data_type_identifier: INTEGER
+          keyword: INTEGER
       - comma: ','
       - column_reference:
           identifier: col2
       - data_type:
-          data_type_identifier: STRING
+          keyword: TEXT
       - end_bracket: )
     - keyword: STORED
     - keyword: AS
@@ -122,12 +122,12 @@ file:
       - column_reference:
           identifier: col1
       - data_type:
-          data_type_identifier: INTEGER
+          keyword: INTEGER
       - comma: ','
       - column_reference:
           identifier: col2
       - data_type:
-          data_type_identifier: STRING
+          keyword: TEXT
       - end_bracket: )
     - keyword: STORED
     - keyword: AS
@@ -149,12 +149,12 @@ file:
       - column_reference:
           identifier: col1
       - data_type:
-          data_type_identifier: INTEGER
+          keyword: INTEGER
       - comma: ','
       - column_reference:
           identifier: col2
       - data_type:
-          data_type_identifier: STRING
+          keyword: TEXT
       - end_bracket: )
     - partitioned_by_segment:
       - keyword: PARTITIONED
@@ -164,7 +164,7 @@ file:
           column_reference:
             identifier: col3
           data_type:
-            data_type_identifier: integer
+            keyword: integer
           end_bracket: )
     - keyword: STORED
     - keyword: AS
@@ -186,12 +186,12 @@ file:
       - column_reference:
           identifier: col1
       - data_type:
-          data_type_identifier: INTEGER
+          keyword: INTEGER
       - comma: ','
       - column_reference:
           identifier: col2
       - data_type:
-          data_type_identifier: STRING
+          keyword: TEXT
       - end_bracket: )
     - partitioned_by_segment:
       - keyword: PARTITIONED
@@ -201,16 +201,52 @@ file:
         - column_reference:
             identifier: col3
         - data_type:
-            data_type_identifier: INTEGER
+            keyword: INTEGER
         - comma: ','
         - column_reference:
             identifier: col4
         - data_type:
-            data_type_identifier: INTEGER
+            keyword: INTEGER
         - end_bracket: )
     - keyword: STORED
     - keyword: AS
     - keyword: PARQUET
     - keyword: LOCATION
     - literal: "'s3://bucket/folder'"
+- statement_terminator: ;
+- statement:
+    create_external_table_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - table_reference:
+      - identifier: external_schema
+      - dot: .
+      - identifier: table_name
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          identifier: col1
+        data_type:
+          keyword: INTEGER
+        end_bracket: )
+    - keyword: STORED
+    - keyword: AS
+    - keyword: PARQUET
+    - keyword: LOCATION
+    - literal: "'s3://bucket/folder'"
+    - keyword: TABLE
+    - keyword: PROPERTIES
+    - bracketed:
+      - start_bracket: (
+      - literal: "'some_property1'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - literal: "'some_value1'"
+      - comma: ','
+      - literal: "'some_property2'"
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - literal: "'some_value2'"
+      - end_bracket: )
 - statement_terminator: ;

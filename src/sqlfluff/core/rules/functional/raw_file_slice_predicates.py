@@ -16,7 +16,7 @@ from sqlfluff.core.templaters.base import RawFileSlice
 def is_slice_type(
     *slice_types: str,
 ) -> Callable[[RawFileSlice], bool]:
-    """Returns a function that determines if segment is one the types."""
+    """Returns a function that determines if segment is one of the types."""
 
     def _(raw_slice: RawFileSlice):
         return any(raw_slice.slice_type == slice_type for slice_type in slice_types)

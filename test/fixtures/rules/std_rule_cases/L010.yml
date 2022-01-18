@@ -146,3 +146,12 @@ test_fail_data_type_capitalisation_policy_keywords_2:
     rules:
       L010:
         capitalisation_policy: upper
+
+test_pass_bigquery_date:
+  pass_str: SELECT DATE_ADD(date, INTERVAL 5 YEAR) AS display_date
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      L010:
+        capitalisation_policy: upper
