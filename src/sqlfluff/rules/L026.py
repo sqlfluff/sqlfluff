@@ -16,6 +16,7 @@ from sqlfluff.core.rules.base import (
 )
 from sqlfluff.core.rules.functional import sp
 from sqlfluff.core.rules.doc_decorators import document_configuration
+from sqlfluff.core.rules.reference import matches
 
 
 @dataclass
@@ -143,9 +144,9 @@ class Rule_L026(BaseRule):
         self, r, tbl_refs, dml_target_table: Optional[str], query: L026Query
     ):
         # Does this query define the referenced table?
-        if tbl_refs and all(
-            tbl_ref[1] not in [a.ref_str for a in query.aliases] for tbl_ref in tbl_refs
-        ):
+        possible_references = [tbl_ref[1] for tbl_ref in tbl_refs]
+        targets = [a.ref_str for a in query.aliases]
+        if not matches(possible_references, targets):
             # No. Check the parent query, if there is one.
             if query.parent:
                 return self._resolve_reference(
@@ -153,8 +154,8 @@ class Rule_L026(BaseRule):
                 )
             # No parent query. If there's a DML statement at the root, check its
             # target table.
-            elif not dml_target_table or all(
-                tbl_ref[1] != dml_target_table for tbl_ref in tbl_refs
+            elif not dml_target_table or not matches(
+                possible_references, [dml_target_table]
             ):
                 return LintResult(
                     # Return the first segment rather than the string
