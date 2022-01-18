@@ -15,7 +15,7 @@ from sqlfluff.core.rules.functional import Segments, sp
 
 @document_fix_compatible
 class Rule_L043(BaseRule):
-    """Unnecessary ``CASE`` statement. Use ``COALESCE`` function instead.
+    """Unnecessary ``CASE`` statement.
 
     | **Anti-pattern**
     | ``CASE`` statement returns booleans.
@@ -40,6 +40,16 @@ class Rule_L043(BaseRule):
             end as fab_clean
         from fancy_table
 
+        -- This also covers where the case statement
+        -- replaces NULL values with NULL values.
+
+        select
+            case
+                when fab is null then null
+                else fab
+            end as fab_clean
+        from fancy_table
+
     | **Best practice**
     | Reduce to ``WHEN`` condition within ``COALESCE`` function.
 
@@ -55,6 +65,12 @@ class Rule_L043(BaseRule):
         select
             coalesce(fab, 0) as fab_clean
         from fancy_table
+
+        -- ``NULL`` filling ``NULL``.
+
+        select fab as fab_clean
+        from fancy_table
+
 
     """
 
@@ -92,8 +108,22 @@ class Rule_L043(BaseRule):
         ]
         return fixes
 
+    @staticmethod
+    def _column_only_fix_list(
+        context: RuleContext,
+        column_reference_segment: BaseSegment,
+    ) -> List[LintFix]:
+        """Generate list of fixes to reduce CASE statement to a single column."""
+        fixes = [
+            LintFix.replace(
+                context.segment,
+                [column_reference_segment],
+            )
+        ]
+        return fixes
+
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
-        """Unnecessary CASE statement. Use COALESCE function instead."""
+        """Unnecessary CASE statement."""
         # Look for CASE expression.
         if (
             context.segment.is_type("case_expression")
@@ -136,6 +166,7 @@ class Rule_L043(BaseRule):
                 return LintResult(
                     anchor=condition_expression,
                     fixes=fixes,
+                    description="Unnecessary CASE statement. Use COALESCE function instead.",
                 )
 
             # Method 2: Check if the condition expression is comparing a column reference to NULL
@@ -177,6 +208,18 @@ class Rule_L043(BaseRule):
                 else:
                     return None
 
+                if coalesce_arg_2.raw_upper == "NULL":
+                    # Can just specify the column on it's own
+                    # rather than using a COALESCE function.
+                    return LintResult(
+                        anchor=condition_expression,
+                        fixes=self._column_only_fix_list(
+                            context,
+                            column_reference_segment,
+                        ),
+                        description=f"Unnecessary CASE statement. Just use column '{column_reference_segment.raw}'.",
+                    )
+
                 return LintResult(
                     anchor=condition_expression,
                     fixes=self._coalesce_fix_list(
@@ -184,6 +227,7 @@ class Rule_L043(BaseRule):
                         coalesce_arg_1,
                         coalesce_arg_2,
                     ),
+                    description="Unnecessary CASE statement. Use COALESCE function instead.",
                 )
 
         return None
