@@ -74,6 +74,8 @@ The modules listed below are submodules of `sqlfluff.core.rules.functional`.
    :members:
 
 
+.. _inline_ignoring_errors:
+
 Inline Ignoring Errors
 -----------------------
 `SQLFluff` features inline error ignoring. For example, the following will
