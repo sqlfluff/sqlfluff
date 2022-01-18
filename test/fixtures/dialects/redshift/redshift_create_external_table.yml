@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 456873dd504516c2ecdd728633df297a1bcf8b9791f98ecd4262a3a493cf3de1
+_hash: 4364e1286ba4a22e8f26b1b08aeb938ab11e257989bf0687ab4ea6583959fb72
 file:
 - statement:
     create_external_table_statement:
@@ -19,7 +19,7 @@ file:
         column_reference:
           identifier: col1
         data_type:
-          data_type_identifier: INTEGER
+          keyword: INTEGER
         end_bracket: )
     - keyword: STORED
     - keyword: AS
@@ -41,12 +41,12 @@ file:
       - column_reference:
           identifier: col1
       - data_type:
-          data_type_identifier: INTEGER
+          keyword: INTEGER
       - comma: ','
       - column_reference:
           identifier: col2
       - data_type:
-          data_type_identifier: STRING
+          keyword: TEXT
       - end_bracket: )
     - keyword: STORED
     - keyword: AS
@@ -68,12 +68,12 @@ file:
       - column_reference:
           identifier: col1
       - data_type:
-          data_type_identifier: INTEGER
+          keyword: INTEGER
       - comma: ','
       - column_reference:
           identifier: col2
       - data_type:
-          data_type_identifier: STRING
+          keyword: TEXT
       - end_bracket: )
     - keyword: STORED
     - keyword: AS
@@ -95,12 +95,12 @@ file:
       - column_reference:
           identifier: col1
       - data_type:
-          data_type_identifier: INTEGER
+          keyword: INTEGER
       - comma: ','
       - column_reference:
           identifier: col2
       - data_type:
-          data_type_identifier: STRING
+          keyword: TEXT
       - end_bracket: )
     - keyword: STORED
     - keyword: AS
@@ -122,12 +122,12 @@ file:
       - column_reference:
           identifier: col1
       - data_type:
-          data_type_identifier: INTEGER
+          keyword: INTEGER
       - comma: ','
       - column_reference:
           identifier: col2
       - data_type:
-          data_type_identifier: STRING
+          keyword: TEXT
       - end_bracket: )
     - keyword: STORED
     - keyword: AS
@@ -149,12 +149,12 @@ file:
       - column_reference:
           identifier: col1
       - data_type:
-          data_type_identifier: INTEGER
+          keyword: INTEGER
       - comma: ','
       - column_reference:
           identifier: col2
       - data_type:
-          data_type_identifier: STRING
+          keyword: TEXT
       - end_bracket: )
     - partitioned_by_segment:
       - keyword: PARTITIONED
@@ -164,7 +164,7 @@ file:
           column_reference:
             identifier: col3
           data_type:
-            data_type_identifier: integer
+            keyword: integer
           end_bracket: )
     - keyword: STORED
     - keyword: AS
@@ -186,12 +186,12 @@ file:
       - column_reference:
           identifier: col1
       - data_type:
-          data_type_identifier: INTEGER
+          keyword: INTEGER
       - comma: ','
       - column_reference:
           identifier: col2
       - data_type:
-          data_type_identifier: STRING
+          keyword: TEXT
       - end_bracket: )
     - partitioned_by_segment:
       - keyword: PARTITIONED
@@ -201,12 +201,12 @@ file:
         - column_reference:
             identifier: col3
         - data_type:
-            data_type_identifier: INTEGER
+            keyword: INTEGER
         - comma: ','
         - column_reference:
             identifier: col4
         - data_type:
-            data_type_identifier: INTEGER
+            keyword: INTEGER
         - end_bracket: )
     - keyword: STORED
     - keyword: AS
@@ -228,7 +228,7 @@ file:
         column_reference:
           identifier: col1
         data_type:
-          data_type_identifier: INTEGER
+          keyword: INTEGER
         end_bracket: )
     - keyword: STORED
     - keyword: AS

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 442f62172fd51520c77bb814303481e5492f34ab8108d32401d602ca596eac23
+_hash: cc67717f46d49fe44107008a2851126a869ca47a11ced4c24292cdba9d6ce026
 file:
 - statement:
     create_external_table_statement:
@@ -89,7 +89,7 @@ file:
           column_reference:
             identifier: col1
           data_type:
-            data_type_identifier: integer
+            keyword: integer
           end_bracket: )
     - keyword: STORED
     - keyword: AS
@@ -134,7 +134,7 @@ file:
           column_reference:
             identifier: col1
           data_type:
-            data_type_identifier: integer
+            keyword: integer
           end_bracket: )
     - keyword: STORED
     - keyword: AS
@@ -176,12 +176,12 @@ file:
         - column_reference:
             identifier: col1
         - data_type:
-            data_type_identifier: integer
+            keyword: integer
         - comma: ','
         - column_reference:
             identifier: col2
         - data_type:
-            data_type_identifier: integer
+            keyword: integer
         - end_bracket: )
     - keyword: STORED
     - keyword: AS
@@ -226,12 +226,12 @@ file:
         - column_reference:
             identifier: col1
         - data_type:
-            data_type_identifier: integer
+            keyword: integer
         - comma: ','
         - column_reference:
             identifier: col2
         - data_type:
-            data_type_identifier: integer
+            keyword: integer
         - end_bracket: )
     - keyword: STORED
     - keyword: AS
@@ -273,12 +273,12 @@ file:
         - column_reference:
             identifier: col1
         - data_type:
-            data_type_identifier: integer
+            keyword: integer
         - comma: ','
         - column_reference:
             identifier: col2
         - data_type:
-            data_type_identifier: integer
+            keyword: integer
         - end_bracket: )
     - keyword: STORED
     - keyword: AS
@@ -326,12 +326,12 @@ file:
         - column_reference:
             identifier: col1
         - data_type:
-            data_type_identifier: integer
+            keyword: integer
         - comma: ','
         - column_reference:
             identifier: col2
         - data_type:
-            data_type_identifier: integer
+            keyword: integer
         - end_bracket: )
     - row_format_deimited_segment:
       - keyword: ROW
@@ -387,12 +387,12 @@ file:
         - column_reference:
             identifier: col1
         - data_type:
-            data_type_identifier: integer
+            keyword: integer
         - comma: ','
         - column_reference:
             identifier: col2
         - data_type:
-            data_type_identifier: integer
+            keyword: integer
         - end_bracket: )
     - row_format_deimited_segment:
       - keyword: ROW
