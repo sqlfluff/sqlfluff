@@ -73,3 +73,5 @@ class Rule_L059(BaseRule):
                 ],
                 description=f"Unnecessary quoted identifier {context.segment.raw}.",
             )
+
+        return None
