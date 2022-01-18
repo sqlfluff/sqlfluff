@@ -51,7 +51,7 @@ redshift_dialect.replace(WellKnownTextGeometrySegment=Nothing())
 class DatatypeSegment(BaseSegment):
     """A data type segment.
 
-    Supports timestamp with(out) time zone. Doesn't currently support intervals.
+    Indicates a data type.
 
     As specified by: https://docs.aws.amazon.com/redshift/latest/dg/c_Supported_data_types.html
     """
