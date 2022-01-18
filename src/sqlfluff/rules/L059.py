@@ -1,5 +1,7 @@
 """Implementation of Rule L059."""
 
+from typing import Optional
+
 import regex
 
 from sqlfluff.core.parser.segments.raw import CodeSegment
@@ -28,7 +30,7 @@ class Rule_L059(BaseRule):
 
     """
 
-    def _eval(self, context: RuleContext) -> LintResult:
+    def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Unnecessary quoted identifier."""
         # We only care about quoted identifiers.
         if context.segment.name != "quoted_identifier":
