@@ -1,5 +1,4 @@
 """Implementation of Rule L026."""
-
 from dataclasses import dataclass, field
 from typing import cast, List, Optional
 
@@ -78,7 +77,8 @@ class Rule_L026(BaseRule):
                     context.segment.recursive_crawl("table_reference"), None
                 )
                 if table_reference:
-                    dml_target_table = table_reference.raw
+                    penultimate_ref = list(table_reference.iter_raw_references())[-1]
+                    dml_target_table = penultimate_ref.part
 
             # Verify table references in any SELECT statements found in or
             # below context.segment.
@@ -102,17 +102,15 @@ class Rule_L026(BaseRule):
         for selectable in query.selectables:
             select_info = selectable.select_info
             if select_info:
-                # Record the table references.
+                # Record the available tables.
                 query.aliases += select_info.table_aliases
 
-                # Try and resolve each table reference.
+                # Try and resolve each reference to a value in query.aliases (or
+                # in an ancestor query).
                 for r in select_info.reference_buffer:
-                    tbl_refs = r.extract_possible_references(
-                        level=r.ObjectReferenceLevel.TABLE
-                    )
                     # This function walks up the query's parent stack if necessary.
                     violation = self._resolve_reference(
-                        r, tbl_refs, dml_target_table, query
+                        r, self._get_table_refs(r), dml_target_table, query
                     )
                     if violation:
                         violations.append(violation)
@@ -123,12 +121,30 @@ class Rule_L026(BaseRule):
                 cast(L026Query, child), dml_target_table, dialect, violations
             )
 
+    @staticmethod
+    def _get_table_refs(ref):
+        """Given ObjectReferenceSegment, determine possible table references."""
+        tbl_refs = []
+        # First, handle any schema.table references.
+        for sr, tr in ref.extract_possible_multipart_references(
+            levels=[
+                ref.ObjectReferenceLevel.SCHEMA,
+                ref.ObjectReferenceLevel.TABLE,
+            ]
+        ):
+            ref_str = f"{sr[0]}.{tr[0]}" if sr else tr[0]
+            tbl_refs.append((tr, ref_str))
+        # Next, handle any table references (without schema).
+        for tr in ref.extract_possible_references(level=ref.ObjectReferenceLevel.TABLE):
+            tbl_refs.append((tr, tr[0]))
+        return tbl_refs
+
     def _resolve_reference(
         self, r, tbl_refs, dml_target_table: Optional[str], query: L026Query
     ):
         # Does this query define the referenced table?
         if tbl_refs and all(
-            tbl_ref[0] not in [a.ref_str for a in query.aliases] for tbl_ref in tbl_refs
+            tbl_ref[1] not in [a.ref_str for a in query.aliases] for tbl_ref in tbl_refs
         ):
             # No. Check the parent query, if there is one.
             if query.parent:
@@ -138,11 +154,11 @@ class Rule_L026(BaseRule):
             # No parent query. If there's a DML statement at the root, check its
             # target table.
             elif not dml_target_table or all(
-                tbl_ref[0] != dml_target_table for tbl_ref in tbl_refs
+                tbl_ref[1] != dml_target_table for tbl_ref in tbl_refs
             ):
                 return LintResult(
                     # Return the first segment rather than the string
-                    anchor=tbl_refs[0].segments[0],
+                    anchor=tbl_refs[0][0].segments[0],
                     description=f"Reference {r.raw!r} refers to table/view "
                     "not found in the FROM clause or found in ancestor "
                     "statement.",
