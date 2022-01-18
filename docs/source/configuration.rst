@@ -151,8 +151,8 @@ Enabling and Disabling Rules
 To disable individual rules, set :code:`exclude_rules` in the top level section
 of sqlfluff configuration. The value is a comma separated list of rule ids.
 
-For example, to disable the rules :class:`L010 <sqlfluff.core.rules.Rule_L022>`
-and :class:`L010 <sqlfluff.core.rules.Rule_L027>`:
+For example, to disable the rules :class:`L022 <sqlfluff.core.rules.Rule_L022>`
+and :class:`L027 <sqlfluff.core.rules.Rule_L027>`:
 
 .. code-block:: cfg
 
@@ -161,16 +161,16 @@ and :class:`L010 <sqlfluff.core.rules.Rule_L027>`:
 
 To enable individual rules, configure :code:`rules`, respectively.
 
-For example, to enable :class:`L010 <sqlfluff.core.rules.Rule_L027>`:
+For example, to enable :class:`L027 <sqlfluff.core.rules.Rule_L027>`:
 
 .. code-block:: cfg
 
     [sqlfluff]
     rules = L027
 
-^ **TODO** does this make sense only if overriding an exclusion from a higher
-level configuration? Or what does this conf mean? How is it interpreted if
-:code:`exclude_rules = None` but :code:`exclude_rules != None`?
+If both :code:`exclude_rules` and :code:`rules` have non-empty value, then the
+excluded rules are removed from the rules list. This allows for example
+enabling common rules on top level but excluding some on subdirectory level.
 
 Additionally, some rules have a special :code:`force_enable` configuration
 option, which allows to enable the given rule even for dialects where it is
@@ -179,8 +179,12 @@ disabled by default. The rules that support this can be found in the
 
 The default values can be seen in `Default Configuration`_.
 
-See also: :ref:`inline_ignoring_errors` and `Ignoring Errors & Files`_.
-(**TODO** aren't those two pretty much overlapping?)
+See also: `Ignoring Errors & Files`_.
+
+..
+    TODO ^ There is also :ref:`inline_ignoring_errors` with overlapping
+    content. Might be worth reviewing to ensure they are both saying the same
+    thing and sync up if not.
 
 Jinja Templating Configuration
 ------------------------------
