@@ -19,6 +19,7 @@ from sqlfluff.core.dialects.base import Dialect
 from sqlfluff.core.dialects.common import AliasInfo, ColumnAliasInfo
 from sqlfluff.core.parser import (
     AnyNumberOf,
+    AnySetOf,
     Anything,
     BaseFileSegment,
     BaseSegment,
@@ -515,7 +516,7 @@ ansi_dialect.add(
             ),
             optional=True,
         ),
-        AnyNumberOf(
+        AnySetOf(
             # ON DELETE clause, e.g. ON DELETE NO ACTION
             Sequence(
                 "ON",
