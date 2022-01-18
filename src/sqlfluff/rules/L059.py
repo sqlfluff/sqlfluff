@@ -1,13 +1,10 @@
 """Implementation of Rule L059."""
 
-from unicodedata import name
 import regex
 
-from sqlfluff.core.parser import NewlineSegment, WhitespaceSegment
 from sqlfluff.core.parser.segments.raw import CodeSegment
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
-from sqlfluff.core.rules.functional import sp
 
 
 @document_fix_compatible
