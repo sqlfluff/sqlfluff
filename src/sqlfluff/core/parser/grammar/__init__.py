@@ -1,7 +1,12 @@
 """Definitions of grammars."""
 
 from sqlfluff.core.parser.grammar.base import Ref, Anything, Nothing
-from sqlfluff.core.parser.grammar.anyof import AnyNumberOf, OneOf, OptionallyBracketed
+from sqlfluff.core.parser.grammar.anyof import (
+    AnyNumberOf,
+    AnySetOf,
+    OneOf,
+    OptionallyBracketed,
+)
 from sqlfluff.core.parser.grammar.delimited import Delimited
 from sqlfluff.core.parser.grammar.greedy import GreedyUntil, StartsWith
 from sqlfluff.core.parser.grammar.sequence import Sequence, Bracketed
@@ -12,6 +17,7 @@ __all__ = (
     "Anything",
     "Nothing",
     "AnyNumberOf",
+    "AnySetOf",
     "OneOf",
     "OptionallyBracketed",
     "Delimited",
