@@ -1122,7 +1122,7 @@ class CreateSchemaStatementSegment(BaseSegment):
 
 @redshift_dialect.segment()
 class AltereDatashareStatementSegment(BaseSegment):
-    """A `ALTER DATASHARE` statement.
+    """An `ALTER DATASHARE` statement.
 
     As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_ALTER_DATASHARE.html
     """
@@ -1168,18 +1168,12 @@ class AltereDatashareStatementSegment(BaseSegment):
                     Sequence(
                         "PUBLICACCESSIBLE",
                         Ref("EqualsSegment", optional=True),
-                        OneOf(
-                            "TRUE",
-                            "FALSE",
-                        ),
+                        Ref("BooleanLiteralGrammar"),
                     ),
                     Sequence(
                         "INCLUDENEW",
                         Ref("EqualsSegment", optional=True),
-                        OneOf(
-                            "TRUE",
-                            "FALSE",
-                        ),
+                        Ref("BooleanLiteralGrammar"),
                         "FOR",
                         "SCHEMA",
                         Ref("SchemaReferenceSegment"),
