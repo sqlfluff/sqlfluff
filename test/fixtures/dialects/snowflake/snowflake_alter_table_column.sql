@@ -54,3 +54,4 @@ alter table empl_info modify
 -- Drop column
 ALTER TABLE empl_info DROP COLUMN my_column;
 ALTER TABLE some_schema.empl_info DROP COLUMN my_column;
+ALTER TABLE my_table DROP COLUMN column_1, column_2, column_3;

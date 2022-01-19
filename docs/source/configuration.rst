@@ -21,19 +21,40 @@ any vales read from earlier files.
 - :code:`.sqlfluff`
 - :code:`pyproject.toml`
 
-Within these files, the first four will be read like an `cfg file`_, and
-*SQLFluff* will look for sections which start with *SQLFluff*, and where
+Within these files, the first four will be read like a `cfg file`_, and
+*SQLFluff* will look for sections which start with :code:`sqlfluff`, and where
 subsections are delimited by a semicolon. For example the *jinjacontext*
 section will be indicated in the section started with
-*[sqlfluff:jinjacontext]*.
+:code:`[sqlfluff:jinjacontext]`.
 
-For the `pyproject.toml file`_, all valid sections start with `tool.sqlfluff`
-and subsections are delimited by a dot. For example the *jinjacontext* section
-will be indicated in the section started with *[tool.sqlfluff.jinjacontext]*.
+For example, a snippet from a :code:`.sqlfluff` file (as well as any of the
+supported cfg file types):
 
-For example
+.. code-block:: cfg
 
-.. code-block:: toml
+    [sqlfluff]
+    templater = "jinja"
+    sql_file_exts = ".sql,.sql.j2,.dml,.ddl"
+
+    [sqlfluff:indentation]
+    indented_joins = false
+    indented_using_on = true
+    template_blocks_indent = false
+
+    [sqlfluff:templater]
+    unwrap_wrapped_queries = true
+
+    [sqlfluff:templater:jinja]
+    apply_dbt_builtins = true
+
+For the `pyproject.toml file`_, all valid sections start with
+:code:`tool.sqlfluff` and subsections are delimited by a dot. For example the
+*jinjacontext* section will be indicated in the section started with
+:code:`[tool.sqlfluff.jinjacontext]`.
+
+For example, a snippet from a :code:`pyproject.toml` file:
+
+.. code-block:: cfg
 
     [tool.sqlfluff.core]
     templater = "jinja"
@@ -85,6 +106,81 @@ steps overriding those from earlier:
 
 This whole structure leads to efficient configuration, in particular
 in projects which utilise a lot of complicated templating.
+
+.. _ruleconfig:
+
+Rule Configuration
+------------------
+
+Rules can be configured with the :code:`.sqlfluff` config files.
+
+Common rule configurations can be set in the :code:`[sqlfluff:rules]` section.
+
+For example:
+
+.. code-block:: cfg
+
+   [sqlfluff:rules]
+   tab_space_size = 4
+   max_line_length = 80
+   indent_unit = space
+   comma_style = trailing
+   allow_scalar = True
+   single_table_references = consistent
+   unquoted_identifiers_policy = all
+
+Rule specific configurations are set in rule specific subsections.
+
+For example, enforce that keywords are upper case by configuring the rule
+:class:`L010 <sqlfluff.core.rules.Rule_L010>`:
+
+.. code-block:: cfg
+
+    [sqlfluff:rules:L010]
+    # Keywords
+    capitalisation_policy = upper
+
+All possible options for rule sections are documented in :ref:`ruleref`.
+
+For an overview of the most common rule configurations that you may want to
+tweak, see `Default Configuration`_ (and use :ref:`ruleref` to find the
+available alternatives).
+
+Enabling and Disabling Rules
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+To disable individual rules, set :code:`exclude_rules` in the top level section
+of sqlfluff configuration. The value is a comma separated list of rule ids.
+
+For example, to disable the rules :class:`L022 <sqlfluff.core.rules.Rule_L022>`
+and :class:`L027 <sqlfluff.core.rules.Rule_L027>`:
+
+.. code-block:: cfg
+
+    [sqlfluff]
+    exclude_rules = L022, L027
+
+To enable individual rules, configure :code:`rules`, respectively.
+
+For example, to enable :class:`L027 <sqlfluff.core.rules.Rule_L027>`:
+
+.. code-block:: cfg
+
+    [sqlfluff]
+    rules = L027
+
+If both :code:`exclude_rules` and :code:`rules` have non-empty value, then the
+excluded rules are removed from the rules list. This allows for example
+enabling common rules on top level but excluding some on subdirectory level.
+
+Additionally, some rules have a special :code:`force_enable` configuration
+option, which allows to enable the given rule even for dialects where it is
+disabled by default. The rules that support this can be found in the
+:ref:`ruleref`.
+
+The default values can be seen in `Default Configuration`_.
+
+See also: `Ignoring Errors & Files`_.
 
 .. _templateconfig:
 
@@ -163,37 +259,40 @@ Placeholder templating can be enabled in the config using:
 
 A few common styles are supported:
 
-colon
- WHERE bla = :my_name
+.. code-block:: sql
+   :force:
 
-numeric_colon
- WHERE bla = :2
+    -- colon
+    WHERE bla = :my_name
 
-pyformat
- WHERE bla = %(my_name)s
+    -- numeric_colon
+    WHERE bla = :2
 
-dollar
- WHERE bla = $my_name
+    -- pyformat
+    WHERE bla = %(my_name)s
 
-question_mark
- WHERE bla = ?
+    -- dollar
+    WHERE bla = $my_name
 
-numeric_dollar
- WHERE bla = $3
+    -- question_mark
+    WHERE bla = ?
 
-percent
- WHERE bla = %s
+    -- numeric_dollar
+    WHERE bla = $3
 
-ampersand
- WHERE bla = &s or WHERE bla = &{s} or USE DATABASE MARKETING_{ENV}
+    -- percent
+    WHERE bla = %s
+
+    -- ampersand
+    WHERE bla = &s or WHERE bla = &{s} or USE DATABASE MARK_{ENV}
 
 These can be configured by setting `param_style` to the names above:
 
 .. code-block:: cfg
 
     [sqlfluff:templater:placeholder]
-    param_style=colon
-    my_name='john'
+    param_style = colon
+    my_name = 'john'
 
 then it is necessary to set sample values for each parameter, like `my_name`
 above. Notice that the value needs to be escaped as it will be replaced as a
@@ -205,8 +304,8 @@ simply the order in which they appear, starting with `1`.
 .. code-block:: cfg
 
     [sqlfluff:templater:placeholder]
-    param_style=question_mark
-    1='john'
+    param_style = question_mark
+    1 = 'john'
 
 In case you need a parameter style different from the ones above, you can pass
 a custom regex.
@@ -214,8 +313,8 @@ a custom regex.
 .. code-block:: cfg
 
     [sqlfluff:templater:placeholder]
-    param_regex=__(?P<param_name>[\w_]+)__
-    my_name='john'
+    param_regex = __(?P<param_name>[\w_]+)__
+    my_name = 'john'
 
 N.B. quotes around `param_regex` in the config are
 interpreted literally by the templater.
@@ -237,9 +336,9 @@ and *native python types*. Both are illustrated in the following example:
 .. code-block:: cfg
 
     [sqlfluff:templater:jinja:context]
-    my_list=['a', 'b', 'c']
-    MY_LIST=("d", "e", "f")
-    my_where_dict={"field_1": 1, "field_2": 2}
+    my_list = ['a', 'b', 'c']
+    MY_LIST = ("d", "e", "f")
+    my_where_dict = {"field_1": 1, "field_2": 2}
 
 .. code-block:: jinja
 
@@ -287,7 +386,7 @@ the tight control of whitespace):
 .. code-block:: cfg
 
     [sqlfluff:templater:jinja:macros]
-    a_macro_def = {% macro my_macro(something) %}{{something}} + {{something * 2}}{% endmacro %}
+    a_macro_def = {% macro my_macro(n) %}{{ n }} + {{ n * 2 }}{% endmacro %}
 
 ...then before parsing, the sql will be transformed to:
 
@@ -309,7 +408,7 @@ specified in the config file to function as below:
 .. code-block:: cfg
 
     [sqlfluff:templater:jinja]
-    load_macros_from_path=my_macros
+    load_macros_from_path = my_macros
 
 In this case, SQLFluff will load macros from any :code:`.sql` file found at the
 path specified on this variable. The path is interpreted *relative to the
@@ -380,7 +479,7 @@ config option:
 .. code-block:: cfg
 
     [sqlfluff:templater:jinja]
-    library_path=sqlfluff_libs
+    library_path = sqlfluff_libs
 
 This will pull in any python modules from that directory and allow sqlfluff
 to use them for templated. In the above example, you might define a file at
@@ -540,7 +639,8 @@ Note that while the :code:`exclude_rules` config looks similar to the
 above example, the :code:`verbose` config has an integer value. This is
 because :code:`verbose` is *stackable* meaning there are multiple levels
 of verbosity that are available for configuration. See :ref:`cliref` for
-more details about the available CLI arguments.
+more details about the available CLI arguments. For more details about rule
+exclusion, see `Enabling and Disabling Rules`_.
 
 Ignoring Errors & Files
 -----------------------
@@ -576,13 +676,13 @@ ignored until a corresponding `-- noqa:enable=<rule>[,...] | all` directive.
 .. code-block:: sql
 
     -- Ignore rule L012 from this line forward
-    SELECT col_a a FROM foo --noqa: disable=L012
+    SELECT col_a a FROM foo -- noqa: disable=L012
 
     -- Ignore all rules from this line forward
-    SELECT col_a a FROM foo --noqa: disable=all
+    SELECT col_a a FROM foo -- noqa: disable=all
 
     -- Enforce all rules from this line forward
-    SELECT col_a a FROM foo --noqa: enable=all
+    SELECT col_a a FROM foo -- noqa: enable=all
 
 
 .. _`pylint's "pylint" directive"`: http://pylint.pycqa.org/en/latest/user_guide/message-control.html
