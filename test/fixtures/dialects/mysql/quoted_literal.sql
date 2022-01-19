@@ -12,10 +12,10 @@ SELECT '
 ''
 ';
 
-SELECT '\';
-
 SELECT 'foo'
 'bar';
+
+SELECT 'foo'   'bar';
 
 SELECT 'foo'
 
@@ -24,3 +24,5 @@ SELECT 'foo'
 
 SELECT 'foo' -- some comment
 'bar';
+
+SELECT 'foo' /*  some comment */ 'bar';

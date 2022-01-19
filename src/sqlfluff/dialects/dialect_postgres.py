@@ -19,6 +19,7 @@ from sqlfluff.core.parser import (
     CommentSegment,
     Dedent,
     SegmentGenerator,
+    NewlineSegment,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -203,12 +204,55 @@ postgres_dialect.replace(
         type="function_name_identifier",
     ),
     QuotedLiteralSegment=OneOf(
-        NamedParser("single_quote", CodeSegment, name="quoted_literal", type="literal"),
-        NamedParser(
-            "unicode_single_quote", CodeSegment, name="quoted_literal", type="literal"
+        # Postgres allows newline-concatenated string literals (#1488).
+        # Since these string literals can have comments between them,
+        # we use grammar to handle this.
+        Delimited(
+            NamedParser(
+                "single_quote",
+                CodeSegment,
+                name="quoted_literal",
+                type="literal",
+            ),
+            delimiter=NamedParser(
+                "newline",
+                NewlineSegment,
+                name="newline",
+                type="newline",
+            ),
+            allow_trailing=True,
         ),
-        NamedParser(
-            "escaped_single_quote", CodeSegment, name="quoted_literal", type="literal"
+        Delimited(
+            NamedParser(
+                "unicode_single_quote",
+                CodeSegment,
+                name="quoted_literal",
+                type="literal",
+            ),
+            delimiter=NamedParser(
+                "newline",
+                NewlineSegment,
+                name="newline",
+                type="newline",
+            ),
+            allow_trailing=True,
+        ),
+        Delimited(
+            AnyNumberOf(
+                NamedParser(
+                    "escaped_single_quote",
+                    CodeSegment,
+                    name="quoted_literal",
+                    type="literal",
+                )
+            ),
+            delimiter=NamedParser(
+                "newline",
+                NewlineSegment,
+                name="newline",
+                type="newline",
+            ),
+            allow_trailing=True,
         ),
     ),
     QuotedIdentifierSegment=OneOf(
