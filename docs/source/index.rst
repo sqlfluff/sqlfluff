@@ -73,6 +73,7 @@ Contents
    architecture
    cli
    api
+   developingrules
    developingplugins
    inthewild
    jointhecommunity

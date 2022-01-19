@@ -54,7 +54,7 @@ For the `pyproject.toml file`_, all valid sections start with
 
 For example, a snippet from a :code:`pyproject.toml` file:
 
-.. code-block:: toml
+.. code-block:: cfg
 
     [tool.sqlfluff.core]
     templater = "jinja"
@@ -107,7 +107,7 @@ steps overriding those from earlier:
 This whole structure leads to efficient configuration, in particular
 in projects which utilise a lot of complicated templating.
 
-.. _templateconfig:
+.. _ruleconfig:
 
 Rule Configuration
 ------------------
@@ -136,7 +136,8 @@ For example, enforce that keywords are upper case by configuring the rule
 
 .. code-block:: cfg
 
-    [sqlfluff:rules:L010]  # Keywords
+    [sqlfluff:rules:L010]
+    # Keywords
     capitalisation_policy = upper
 
 All possible options for rule sections are documented in :ref:`ruleref`.
@@ -181,10 +182,7 @@ The default values can be seen in `Default Configuration`_.
 
 See also: `Ignoring Errors & Files`_.
 
-..
-    TODO ^ There is also :ref:`inline_ignoring_errors` with overlapping
-    content. Might be worth reviewing to ensure they are both saying the same
-    thing and sync up if not.
+.. _templateconfig:
 
 Jinja Templating Configuration
 ------------------------------
@@ -261,37 +259,40 @@ Placeholder templating can be enabled in the config using:
 
 A few common styles are supported:
 
-colon
- WHERE bla = :my_name
+.. code-block:: sql
+   :force:
 
-numeric_colon
- WHERE bla = :2
+    -- colon
+    WHERE bla = :my_name
 
-pyformat
- WHERE bla = %(my_name)s
+    -- numeric_colon
+    WHERE bla = :2
 
-dollar
- WHERE bla = $my_name
+    -- pyformat
+    WHERE bla = %(my_name)s
 
-question_mark
- WHERE bla = ?
+    -- dollar
+    WHERE bla = $my_name
 
-numeric_dollar
- WHERE bla = $3
+    -- question_mark
+    WHERE bla = ?
 
-percent
- WHERE bla = %s
+    -- numeric_dollar
+    WHERE bla = $3
 
-ampersand
- WHERE bla = &s or WHERE bla = &{s} or USE DATABASE MARKETING_{ENV}
+    -- percent
+    WHERE bla = %s
+
+    -- ampersand
+    WHERE bla = &s or WHERE bla = &{s} or USE DATABASE MARK_{ENV}
 
 These can be configured by setting `param_style` to the names above:
 
 .. code-block:: cfg
 
     [sqlfluff:templater:placeholder]
-    param_style=colon
-    my_name='john'
+    param_style = colon
+    my_name = 'john'
 
 then it is necessary to set sample values for each parameter, like `my_name`
 above. Notice that the value needs to be escaped as it will be replaced as a
@@ -303,8 +304,8 @@ simply the order in which they appear, starting with `1`.
 .. code-block:: cfg
 
     [sqlfluff:templater:placeholder]
-    param_style=question_mark
-    1='john'
+    param_style = question_mark
+    1 = 'john'
 
 In case you need a parameter style different from the ones above, you can pass
 a custom regex.
@@ -312,8 +313,8 @@ a custom regex.
 .. code-block:: cfg
 
     [sqlfluff:templater:placeholder]
-    param_regex=__(?P<param_name>[\w_]+)__
-    my_name='john'
+    param_regex = __(?P<param_name>[\w_]+)__
+    my_name = 'john'
 
 N.B. quotes around `param_regex` in the config are
 interpreted literally by the templater.
@@ -335,9 +336,9 @@ and *native python types*. Both are illustrated in the following example:
 .. code-block:: cfg
 
     [sqlfluff:templater:jinja:context]
-    my_list=['a', 'b', 'c']
-    MY_LIST=("d", "e", "f")
-    my_where_dict={"field_1": 1, "field_2": 2}
+    my_list = ['a', 'b', 'c']
+    MY_LIST = ("d", "e", "f")
+    my_where_dict = {"field_1": 1, "field_2": 2}
 
 .. code-block:: jinja
 
@@ -385,7 +386,7 @@ the tight control of whitespace):
 .. code-block:: cfg
 
     [sqlfluff:templater:jinja:macros]
-    a_macro_def = {% macro my_macro(something) %}{{something}} + {{something * 2}}{% endmacro %}
+    a_macro_def = {% macro my_macro(n) %}{{ n }} + {{ n * 2 }}{% endmacro %}
 
 ...then before parsing, the sql will be transformed to:
 
@@ -407,7 +408,7 @@ specified in the config file to function as below:
 .. code-block:: cfg
 
     [sqlfluff:templater:jinja]
-    load_macros_from_path=my_macros
+    load_macros_from_path = my_macros
 
 In this case, SQLFluff will load macros from any :code:`.sql` file found at the
 path specified on this variable. The path is interpreted *relative to the
@@ -478,7 +479,7 @@ config option:
 .. code-block:: cfg
 
     [sqlfluff:templater:jinja]
-    library_path=sqlfluff_libs
+    library_path = sqlfluff_libs
 
 This will pull in any python modules from that directory and allow sqlfluff
 to use them for templated. In the above example, you might define a file at
@@ -675,13 +676,13 @@ ignored until a corresponding `-- noqa:enable=<rule>[,...] | all` directive.
 .. code-block:: sql
 
     -- Ignore rule L012 from this line forward
-    SELECT col_a a FROM foo --noqa: disable=L012
+    SELECT col_a a FROM foo -- noqa: disable=L012
 
     -- Ignore all rules from this line forward
-    SELECT col_a a FROM foo --noqa: disable=all
+    SELECT col_a a FROM foo -- noqa: disable=all
 
     -- Enforce all rules from this line forward
-    SELECT col_a a FROM foo --noqa: enable=all
+    SELECT col_a a FROM foo -- noqa: enable=all
 
 
 .. _`pylint's "pylint" directive"`: http://pylint.pycqa.org/en/latest/user_guide/message-control.html

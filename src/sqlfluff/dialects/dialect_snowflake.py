@@ -1076,7 +1076,7 @@ class AlterTableTableColumnActionSegment(BaseSegment):
             Sequence(
                 "DROP",
                 Ref.keyword("COLUMN", optional=True),
-                Ref("ColumnReferenceSegment"),
+                Delimited(Ref("ColumnReferenceSegment")),
             ),
             # @TODO: Drop columns
             # vvvvv COPIED FROM ANSI vvvvv

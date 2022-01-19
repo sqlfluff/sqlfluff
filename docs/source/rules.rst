@@ -16,64 +16,6 @@ Specific Rules
    :members:
    :member-order: alphabetical
 
-
-Implementation
---------------
-
-.. autoclass:: sqlfluff.core.rules.base.RuleSet
-   :members:
-
-.. autoclass:: sqlfluff.core.rules.base.BaseRule
-   :members:
-   :private-members:
-
-.. autoclass:: sqlfluff.core.rules.base.LintResult
-   :members:
-
-.. autoclass:: sqlfluff.core.rules.base.LintFix
-   :members:
-
-The `_eval` function of each rule takes a `RuleContext` parameter. It
-evaluate the given segment for violations, returning a `LintResult` if it
-finds an error. The `LintResult` includes a reference to the segment which
-"triggered" the error. Usually, it is the segment that needs correcting, **or**
-if the rule relates to something that is missing, then it should reference on
-the segment **following** the location where the missing element should be.
-
-Functional API
---------------
-These newer modules provide a higher-level API for rules working with segments
-and slices. Rules that need to navigate or search the parse tree may benefit
-from using these. Eventually, the plan is for **all** rules to use these
-modules. As of December 30, 2021, 17+ rules use these modules.
-
-The modules listed below are submodules of `sqlfluff.core.rules.functional`.
-
-`segments` Module
-^^^^^^^^^^^^^^^^^
-
-.. automodule:: sqlfluff.core.rules.functional.segments
-   :members:
-
-`segment_predicates` Module
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. automodule:: sqlfluff.core.rules.functional.segment_predicates
-   :members:
-
-`raw_file_slices` Module
-^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. automodule:: sqlfluff.core.rules.functional.raw_file_slices
-   :members:
-
-`raw_file_slice_predicates` Module
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. automodule:: sqlfluff.core.rules.functional.raw_file_slice_predicates
-   :members:
-
-
 .. _inline_ignoring_errors:
 
 Inline Ignoring Errors
@@ -117,13 +59,13 @@ ignored until a corresponding `-- noqa:enable=<rule>[,...] | all` directive.
 .. code-block:: sql
 
     -- Ignore rule L012 from this line forward
-    SELECT col_a a FROM foo --noqa: disable=L012
+    SELECT col_a a FROM foo -- noqa: disable=L012
 
     -- Ignore all rules from this line forward
-    SELECT col_a a FROM foo --noqa: disable=all
+    SELECT col_a a FROM foo -- noqa: disable=all
 
     -- Enforce all rules from this line forward
-    SELECT col_a a FROM foo --noqa: enable=all
+    SELECT col_a a FROM foo -- noqa: enable=all
 
 
 .. _`pylint's "pylint" directive"`: http://pylint.pycqa.org/en/latest/user_guide/message-control.html
