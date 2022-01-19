@@ -13,13 +13,14 @@ def object_ref_matches_table(
     # Simple case: Reference exactly matches a target.
     if any(pr in targets for pr in possible_references):
         return True
-    # Tricky case: If reference is shorter than target, it's allowed to match a
-    # suffix of the target. (Note this is an "optimistic" check, i.e. it assumes
-    # the ignored parts of the target don't matter. In a SQL context, this is
-    # basically assuming there was an earlier "USE <<database>>" or similar
-    # directive.
+    # Tricky case: If one is shorter than the other, check for a suffix match.
+    # (Note this is an "optimistic" check, i.e. it assumes the ignored parts of
+    # the target don't matter. In a SQL context, this is basically assuming
+    # there was an earlier "USE <<database>>" or similar directive.
     for pr in possible_references:
         for t in targets:
-            if len(pr) < len(t) and pr == t[-len(pr) :]:
+            if (len(pr) < len(t) and pr == t[-len(pr) :]) or (
+                len(t) < len(pr) and t == pr[-len(t) :]
+            ):
                 return True
     return False

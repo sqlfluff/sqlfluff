@@ -19,8 +19,8 @@ from sqlfluff.core.rules import reference
         [[("table1",)], [("table1",), ("table2",), ("table3",)], True],
         [[("tbl2",)], [("db", "sc", "tbl1")], False],
         [[("tbl2",)], [("db", "sc", "tbl2")], True],
-        # Multi-part references and targets. If reference tuple is shorter than
-        # target, checks for a suffix match.
+        # Multi-part references and targets. If one tuple is shorter than
+        # the other, checks for a suffix match.
         [
             [
                 (
@@ -63,6 +63,8 @@ from sqlfluff.core.rules import reference
             [("db", "sc", "tbl1")],
             True,
         ],
+        [[("public", "agent1")], [("agent1",)], True],
+        [[("public", "agent1")], [("public",)], False],
     ],
 )
 def test_object_ref_matches_table(possible_references, targets, result):
