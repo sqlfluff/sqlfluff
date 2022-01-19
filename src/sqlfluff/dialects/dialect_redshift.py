@@ -1120,6 +1120,155 @@ class CreateSchemaStatementSegment(BaseSegment):
     )
 
 
+@redshift_dialect.segment()
+class AltereDatashareStatementSegment(BaseSegment):
+    """An `ALTER DATASHARE` statement.
+
+    As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_ALTER_DATASHARE.html
+    """
+
+    type = "create_datashare_statement"
+    match_grammar = Sequence(
+        "ALTER",
+        "DATASHARE",
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            # add or remove objects to the datashare
+            Sequence(
+                OneOf(
+                    "ADD",
+                    "REMOVE",
+                ),
+                OneOf(
+                    Sequence(
+                        "TABLE",
+                        Delimited(Ref("TableReferenceSegment")),
+                    ),
+                    Sequence(
+                        "SCHEMA",
+                        Delimited(Ref("SchemaReferenceSegment")),
+                    ),
+                    Sequence(
+                        "FUNCTION",
+                        Delimited(Ref("FunctionNameSegment")),
+                    ),
+                    Sequence(
+                        "ALL",
+                        OneOf("TABLES", "FUNCTIONS"),
+                        "IN",
+                        "SCHEMA",
+                        Delimited(Ref("SchemaReferenceSegment")),
+                    ),
+                ),
+            ),
+            # configure the properties of the datashare
+            Sequence(
+                "SET",
+                OneOf(
+                    Sequence(
+                        "PUBLICACCESSIBLE",
+                        Ref("EqualsSegment", optional=True),
+                        Ref("BooleanLiteralGrammar"),
+                    ),
+                    Sequence(
+                        "INCLUDENEW",
+                        Ref("EqualsSegment", optional=True),
+                        Ref("BooleanLiteralGrammar"),
+                        "FOR",
+                        "SCHEMA",
+                        Ref("SchemaReferenceSegment"),
+                    ),
+                ),
+            ),
+        ),
+    )
+
+
+@redshift_dialect.segment()
+class CreateDatashareStatementSegment(BaseSegment):
+    """A `CREATE DATASHARE` statement.
+
+    As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_DATASHARE.html
+    """
+
+    type = "create_datashare_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        "DATASHARE",
+        Ref("ObjectReferenceSegment"),
+        Sequence(
+            Ref.keyword("SET", optional=True),
+            "PUBLICACCESSIBLE",
+            Ref("EqualsSegment", optional=True),
+            OneOf(
+                "TRUE",
+                "FALSE",
+            ),
+            optional=True,
+        ),
+    )
+
+
+@redshift_dialect.segment()
+class DescDatashareStatementSegment(BaseSegment):
+    """A `DESC DATASHARE` statement.
+
+    As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_DESC_DATASHARE.html
+    """
+
+    type = "desc_datashare_statement"
+    match_grammar = Sequence(
+        "DESC",
+        "DATASHARE",
+        Ref("ObjectReferenceSegment"),
+        Sequence(
+            "OF",
+            Sequence(
+                "ACCOUNT",
+                Ref("QuotedLiteralSegment"),
+                optional=True,
+            ),
+            "NAMESPACE",
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
+    )
+
+
+@redshift_dialect.segment()
+class DropDatashareStatementSegment(BaseSegment):
+    """A `DROP DATASHARE` statement.
+
+    As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_DROP_DATASHARE.html
+    """
+
+    type = "drop_datashare_statement"
+    match_grammar = Sequence(
+        "DROP",
+        "DATASHARE",
+        Ref("ObjectReferenceSegment"),
+    )
+
+
+@redshift_dialect.segment()
+class ShowDatasharesStatementSegment(BaseSegment):
+    """A `SHOW DATASHARES` statement.
+
+    As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_SHOW_DATASHARES.html
+    """
+
+    type = "show_datashares_statement"
+    match_grammar = Sequence(
+        "SHOW",
+        "DATASHARES",
+        Sequence(
+            "LIKE",
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
+    )
+
+
 # Adding Redshift specific statements
 @redshift_dialect.segment(replace=True)
 class StatementSegment(BaseSegment):
@@ -1147,6 +1296,11 @@ class StatementSegment(BaseSegment):
             Ref("UnloadStatementSegment"),
             Ref("CopyStatementSegment"),
             Ref("ShowModelSegment"),
+            Ref("CreateDatashareStatementSegment"),
+            Ref("DescDatashareStatementSegment"),
+            Ref("DropDatashareStatementSegment"),
+            Ref("ShowDatasharesStatementSegment"),
+            Ref("AltereDatashareStatementSegment"),
         ],
     )
 
