@@ -73,7 +73,8 @@ class Rule_L026(BaseRule):
         ) and not context.functional.parent_stack.any(sp.is_type(*start_types)):
             dml_target_table: Optional[Tuple[str, ...]] = None
             if not context.segment.is_type("select_statement"):
-                # Extract first table reference.
+                # Extract first table reference. This will be the target
+                # table in a DELETE or UPDATE statement.
                 table_reference = next(
                     context.segment.recursive_crawl("table_reference"), None
                 )
@@ -81,7 +82,7 @@ class Rule_L026(BaseRule):
                     dml_target_table = self._table_ref_as_tuple(table_reference)
 
             # Verify table references in any SELECT statements found in or
-            # below context.segment.
+            # below context.segment in the parser tree.
             crawler = SelectCrawler(
                 context.segment, context.dialect, query_class=L026Query
             )
@@ -150,9 +151,10 @@ class Rule_L026(BaseRule):
         # - For most dialects, skip this if it's a schema+table reference -- the
         #   reference was specific, so we shouldn't ignore that by looking
         #   elsewhere.)
-        # - BigQuery references are ambiguous because it supports structures,
-        #   making some multi-level "." references impossible to interpret with
-        #   certainty. We may need to genericize this someday to handle other
+        # - Always do this in BigQuery. BigQuery table references are frequently
+        #   ambiguous because BigQuery SQL supports structures, making some
+        #   multi-level "." references impossible to interpret with certainty.
+        #   We may need to genericize this code someday to support other
         #   dialects. If so, this check should probably align somehow with
         #   whether the dialect overrides
         #   ObjectReferenceSegment.extract_possible_references().
