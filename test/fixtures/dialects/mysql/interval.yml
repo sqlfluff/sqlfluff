@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5521ee1a7aa4778686f77ce725c7f053dbabbfec9611367121e15ad970598c15
+_hash: 16fde14028919875d259e244f9620226a249cd1f78ee8a5eeaaa97160399107a
 file:
 - statement:
     select_statement:
@@ -61,7 +61,7 @@ file:
         select_clause_element:
           function:
             function_name:
-              function_name_identifier: DATE_ADD
+              function_name_identifier: ADDDATE
             bracketed:
             - start_bracket: (
             - expression:
@@ -89,7 +89,7 @@ file:
         select_clause_element:
           function:
             function_name:
-              function_name_identifier: DATE_ADD
+              function_name_identifier: DATE_SUB
             bracketed:
             - start_bracket: (
             - expression:
@@ -151,4 +151,75 @@ file:
                   - literal: '4'
                   date_part: DAY
             - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: ADDDATE
+            bracketed:
+            - start_bracket: (
+            - expression:
+                function:
+                  function_name:
+                    function_name_identifier: CURDATE
+                  bracketed:
+                    start_bracket: (
+                    end_bracket: )
+            - comma: ','
+            - expression:
+                interval_expression:
+                  keyword: INTERVAL
+                  expression:
+                    column_reference:
+                      identifier: col1
+                  date_part: DAY
+            - end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: tbl1
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: SUBDATE
+            bracketed:
+            - start_bracket: (
+            - expression:
+                function:
+                  function_name:
+                    function_name_identifier: CURDATE
+                  bracketed:
+                    start_bracket: (
+                    end_bracket: )
+            - comma: ','
+            - expression:
+                interval_expression:
+                  keyword: INTERVAL
+                  expression:
+                  - column_reference:
+                      identifier: col1
+                  - binary_operator: +
+                  - column_reference:
+                      identifier: col2
+                  date_part: DAY
+            - end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: tbl1
 - statement_terminator: ;

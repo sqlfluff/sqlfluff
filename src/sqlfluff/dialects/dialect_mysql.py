@@ -306,7 +306,10 @@ class TableConstraintSegment(BaseSegment):
 
 @mysql_dialect.segment(replace=True)
 class IntervalExpressionSegment(BaseSegment):
-    """An interval expression segment."""
+    """An interval expression segment.
+
+    https://dev.mysql.com/doc/refman/8.0/en/date-and-time-functions.html#function_adddate
+    """
 
     type = "interval_expression"
     match_grammar = Sequence(
