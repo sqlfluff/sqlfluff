@@ -2989,6 +2989,20 @@ class DropTriggerStatementSegment(BaseSegment):
     )
 
 
+@postgres_dialect.segment(replace=True)
+class AliasExpressionSegment(BaseSegment):
+    """A reference to an object with an `AS` clause.
+
+    The optional AS keyword allows both implicit and explicit aliasing.
+    """
+
+    type = "alias_expression"
+    match_grammar = Sequence(
+        Ref.keyword("AS", optional=True),
+        Ref("SingleIdentifierGrammar"),
+    )
+
+
 @postgres_dialect.segment()
 class AsAliasExpressionSegment(BaseSegment):
     """A reference to an object with an `AS` clause.
