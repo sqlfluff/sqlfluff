@@ -178,6 +178,7 @@ mysql_dialect.replace(
             name="quoted_literal",
             type="literal",
         ),
+        min_times=1,
     ),
 )
 

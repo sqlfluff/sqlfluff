@@ -20,5 +20,10 @@ SELECT 'foo'
 
 'bar';
 
+SELECT 'foo'
+
+
+     'bar';
+
 SELECT 'foo' -- some comment
 'bar';

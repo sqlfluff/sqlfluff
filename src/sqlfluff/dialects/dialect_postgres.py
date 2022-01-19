@@ -169,6 +169,19 @@ postgres_dialect.add(
         "dollar_quote", CodeSegment, name="dollar_quoted_literal", type="literal"
     ),
     SimpleGeometryGrammar=AnyNumberOf(Ref("NumericLiteralSegment")),
+    # N.B. this MultilineConcatenateDelimiterGrammar is only created
+    # to parse multiline-concatenated string literals
+    # and shouldn't be used in other contexts.
+    # In general let the parser handle newlines and whitespace.
+    MultilineConcatenateNewline=NamedParser(
+        "newline",
+        NewlineSegment,
+        name="newline",
+        type="newline",
+    ),
+    MultilineConcatenateDelimiterGrammar=AnyNumberOf(
+        Ref("MultilineConcatenateNewline"), min_times=1, allow_gaps=False
+    ),
 )
 
 postgres_dialect.replace(
@@ -214,12 +227,7 @@ postgres_dialect.replace(
                 name="quoted_literal",
                 type="literal",
             ),
-            delimiter=NamedParser(
-                "newline",
-                NewlineSegment,
-                name="newline",
-                type="newline",
-            ),
+            delimiter=Ref("MultilineConcatenateDelimiterGrammar"),
             allow_trailing=True,
         ),
         Delimited(
@@ -229,29 +237,17 @@ postgres_dialect.replace(
                 name="quoted_literal",
                 type="literal",
             ),
-            delimiter=NamedParser(
-                "newline",
-                NewlineSegment,
-                name="newline",
-                type="newline",
-            ),
+            delimiter=Ref("MultilineConcatenateDelimiterGrammar"),
             allow_trailing=True,
         ),
         Delimited(
-            AnyNumberOf(
-                NamedParser(
-                    "escaped_single_quote",
-                    CodeSegment,
-                    name="quoted_literal",
-                    type="literal",
-                )
+            NamedParser(
+                "escaped_single_quote",
+                CodeSegment,
+                name="quoted_literal",
+                type="literal",
             ),
-            delimiter=NamedParser(
-                "newline",
-                NewlineSegment,
-                name="newline",
-                type="newline",
-            ),
+            delimiter=Ref("MultilineConcatenateDelimiterGrammar"),
             allow_trailing=True,
         ),
     ),
