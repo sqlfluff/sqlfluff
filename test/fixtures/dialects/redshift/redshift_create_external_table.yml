@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 14bacb20a4ca5adb000d2218c010e553b4cf2fdf7d500b8b4c8705cf7d3c0f4c
+_hash: 36bd34e1f1f2b3bc5c1c0eddcc058a1f01320389deeef61ed468064008dc3765
 file:
 - statement:
     create_external_table_statement:
@@ -295,10 +295,11 @@ file:
     - keyword: row
     - keyword: format
     - keyword: delimited
-    - keyword: fields
-    - keyword: terminated
-    - keyword: by
-    - literal: "'\\t'"
+    - row_format_deimited_segment:
+      - keyword: fields
+      - keyword: terminated
+      - keyword: by
+      - literal: "'\\t'"
     - keyword: stored
     - keyword: as
     - keyword: textfile
@@ -422,14 +423,15 @@ file:
     - keyword: ROW
     - keyword: FORMAT
     - keyword: DELIMITED
-    - keyword: FIELDS
-    - keyword: TERMINATED
-    - keyword: BY
-    - literal: "','"
-    - keyword: LINES
-    - keyword: TERMINATED
-    - keyword: BY
-    - literal: "'\\n\\l'"
+    - row_format_deimited_segment:
+      - keyword: FIELDS
+      - keyword: TERMINATED
+      - keyword: BY
+      - literal: "','"
+      - keyword: LINES
+      - keyword: TERMINATED
+      - keyword: BY
+      - literal: "'\\n\\l'"
     - keyword: stored
     - keyword: as
     - keyword: textfile

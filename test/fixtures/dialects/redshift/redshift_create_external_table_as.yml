@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9d281738f57cfe29a29bd5611e6266a33528f4a71095a367680aa931ff2351fa
+_hash: 10a3c69ef88358f1bd04d72cdc8331fac3cb5404cc63ba066af6c8ba1a866656
 file:
 - statement:
     create_external_table_statement:
@@ -336,10 +336,11 @@ file:
     - keyword: ROW
     - keyword: FORMAT
     - keyword: DELIMITED
-    - keyword: LINES
-    - keyword: TERMINATED
-    - keyword: BY
-    - literal: "'\\007'"
+    - row_format_deimited_segment:
+      - keyword: LINES
+      - keyword: TERMINATED
+      - keyword: BY
+      - literal: "'\\007'"
     - keyword: STORED
     - keyword: AS
     - keyword: PARQUET
@@ -396,10 +397,11 @@ file:
     - keyword: ROW
     - keyword: FORMAT
     - keyword: DELIMITED
-    - keyword: FIELDS
-    - keyword: TERMINATED
-    - keyword: BY
-    - literal: "'\\007'"
+    - row_format_deimited_segment:
+      - keyword: FIELDS
+      - keyword: TERMINATED
+      - keyword: BY
+      - literal: "'\\007'"
     - keyword: STORED
     - keyword: AS
     - keyword: PARQUET
@@ -509,14 +511,15 @@ file:
     - keyword: ROW
     - keyword: FORMAT
     - keyword: DELIMITED
-    - keyword: FIELDS
-    - keyword: TERMINATED
-    - keyword: BY
-    - literal: "','"
-    - keyword: LINES
-    - keyword: TERMINATED
-    - keyword: BY
-    - literal: "'\\n\\l'"
+    - row_format_deimited_segment:
+      - keyword: FIELDS
+      - keyword: TERMINATED
+      - keyword: BY
+      - literal: "','"
+      - keyword: LINES
+      - keyword: TERMINATED
+      - keyword: BY
+      - literal: "'\\n\\l'"
     - keyword: STORED
     - keyword: AS
     - keyword: textfile

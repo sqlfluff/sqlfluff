@@ -677,21 +677,7 @@ class CreateExternalTableStatementSegment(BaseSegment):
             OneOf(
                 Sequence(
                     "DELIMITED",
-                    AnySetOf(
-                        Sequence(
-                            "FIELDS",
-                            "TERMINATED",
-                            "BY",
-                            Ref("QuotedLiteralSegment"),
-                        ),
-                        Sequence(
-                            "LINES",
-                            "TERMINATED",
-                            "BY",
-                            Ref("QuotedLiteralSegment"),
-                        ),
-                        optional=True,
-                    ),
+                    Ref("RowFormatDelimitedSegment"),
                 ),
                 Sequence(
                     "SERDE",
@@ -768,21 +754,7 @@ class CreateExternalTableAsStatementSegment(BaseSegment):
             "ROW",
             "FORMAT",
             "DELIMITED",
-            AnySetOf(
-                Sequence(
-                    "FIELDS",
-                    "TERMINATED",
-                    "BY",
-                    Ref("QuotedLiteralSegment"),
-                ),
-                Sequence(
-                    "LINES",
-                    "TERMINATED",
-                    "BY",
-                    Ref("QuotedLiteralSegment"),
-                ),
-                optional=False,
-            ),
+            Ref("RowFormatDelimitedSegment"),
             optional=True,
         ),
         "STORED",
@@ -1353,6 +1325,7 @@ class StatementSegment(BaseSegment):
             Ref("CreateExternalTableAsStatementSegment"),
             Ref("CreateExternalTableStatementSegment"),
             Ref("PartitionedBySegment"),
+            Ref("RowFormatDelimitedSegment"),
             Ref("DataFormatSegment"),
             Ref("CompressionTypeSegment"),
             Ref("UnloadStatementSegment"),
@@ -1391,6 +1364,32 @@ class PartitionedBySegment(BaseSegment):
                 ),
             ),
         ),
+    )
+
+
+@redshift_dialect.segment()
+class RowFormatDelimitedSegment(BaseSegment):
+    """Row Format Delimited Segment.
+
+    As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_EXTERNAL_TABLE.html
+    """
+
+    type = "row_format_deimited_segment"
+
+    match_grammar = AnySetOf(
+        Sequence(
+            "FIELDS",
+            "TERMINATED",
+            "BY",
+            Ref("QuotedLiteralSegment"),
+        ),
+        Sequence(
+            "LINES",
+            "TERMINATED",
+            "BY",
+            Ref("QuotedLiteralSegment"),
+        ),
+        optional=True,
     )
 
 
