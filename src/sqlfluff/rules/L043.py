@@ -134,9 +134,7 @@ class Rule_L043(BaseRule):
             when_clauses = children.select(sp.is_type("when_clause"))
             else_clauses = children.select(sp.is_type("else_clause"))
 
-            # Can't fix if either or both of these hold:
-            # - Multiple WHEN clauses
-            # - No ELSE statement
+            # Can't fix if multiple WHEN clauses.
             if len(when_clauses) > 1:
                 return None
 
