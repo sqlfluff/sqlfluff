@@ -388,8 +388,7 @@ class JinjaTemplater(PythonTemplater):
         """Slice the file to determine regions where we can fix."""
         # The JinjaTracer slicing algorithm is more robust, but it requires
         # us to create and render a second template (not raw_str) and is only
-        # enabled if the caller passes a make_template() function. (For now,
-        # the dbt templater does not.)
+        # enabled if the caller passes a make_template() function.
         make_template = kwargs.pop("make_template", None)
         if make_template is None:
             # make_template() was not provided. Use the base class
