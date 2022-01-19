@@ -7,6 +7,7 @@ We should monitor in future and see if it should be rebased off of ANSI
 from sqlfluff.core.parser import (
     OneOf,
     AnyNumberOf,
+    AnySetOf,
     Anything,
     Ref,
     Sequence,
@@ -651,7 +652,6 @@ class CreateExternalTableStatementSegment(BaseSegment):
     """A `CREATE EXTERNAL TABLE` statement.
 
     As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_EXTERNAL_TABLE.html
-    TODO: support ROW FORMAT SERDE and WITH SERDEPROPERTIES
     """
 
     type = "create_external_table_statement"
@@ -671,6 +671,49 @@ class CreateExternalTableStatementSegment(BaseSegment):
             ),
         ),
         Ref("PartitionedBySegment", optional=True),
+        Sequence(
+            "ROW",
+            "FORMAT",
+            OneOf(
+                Sequence(
+                    "DELIMITED",
+                    AnySetOf(
+                        Sequence(
+                            "FIELDS",
+                            "TERMINATED",
+                            "BY",
+                            Ref("QuotedLiteralSegment"),
+                        ),
+                        Sequence(
+                            "LINES",
+                            "TERMINATED",
+                            "BY",
+                            Ref("QuotedLiteralSegment"),
+                        ),
+                        optional=True,
+                    ),
+                ),
+                Sequence(
+                    "SERDE",
+                    Ref("QuotedLiteralSegment"),
+                    Sequence(
+                        "WITH",
+                        "SERDEPROPERTIES",
+                        Bracketed(
+                            Delimited(
+                                Sequence(
+                                    Ref("QuotedLiteralSegment"),
+                                    Ref("EqualsSegment"),
+                                    Ref("QuotedLiteralSegment"),
+                                ),
+                            ),
+                        ),
+                        optional=True,
+                    ),
+                ),
+            ),
+            optional=True,
+        ),
         "STORED",
         "AS",
         OneOf(
@@ -721,7 +764,27 @@ class CreateExternalTableAsStatementSegment(BaseSegment):
         "TABLE",
         Ref("TableReferenceSegment"),
         Ref("PartitionedBySegment", optional=True),
-        Ref("RowFormatDelimitedSegment", optional=True),
+        Sequence(
+            "ROW",
+            "FORMAT",
+            "DELIMITED",
+            AnySetOf(
+                Sequence(
+                    "FIELDS",
+                    "TERMINATED",
+                    "BY",
+                    Ref("QuotedLiteralSegment"),
+                ),
+                Sequence(
+                    "LINES",
+                    "TERMINATED",
+                    "BY",
+                    Ref("QuotedLiteralSegment"),
+                ),
+                optional=False,
+            ),
+            optional=True,
+        ),
         "STORED",
         "AS",
         OneOf(
@@ -1290,7 +1353,6 @@ class StatementSegment(BaseSegment):
             Ref("CreateExternalTableAsStatementSegment"),
             Ref("CreateExternalTableStatementSegment"),
             Ref("PartitionedBySegment"),
-            Ref("RowFormatDelimitedSegment"),
             Ref("DataFormatSegment"),
             Ref("CompressionTypeSegment"),
             Ref("UnloadStatementSegment"),
@@ -1329,26 +1391,6 @@ class PartitionedBySegment(BaseSegment):
                 ),
             ),
         ),
-    )
-
-
-@redshift_dialect.segment()
-class RowFormatDelimitedSegment(BaseSegment):
-    """Row Format Delimited Segment.
-
-    As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_EXTERNAL_TABLE.html
-    """
-
-    type = "row_format_deimited_segment"
-
-    match_grammar = Sequence(
-        "ROW",
-        "FORMAT",
-        "DELIMITED",
-        OneOf("FIELDS", "LINES"),
-        "TERMINATED",
-        "BY",
-        Ref("QuotedLiteralSegment"),
     )
 
 
