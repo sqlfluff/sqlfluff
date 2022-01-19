@@ -2995,7 +2995,7 @@ class AsAliasExpressionSegment(BaseSegment):
 
     This is used in `InsertStatementSegment` in Postgres
     since the `AS` is not optional in this context.
-    
+
     N.B. We keep as a separate segment since the `alias_expression`
     type is required for rules to interpret the alias.
     """
