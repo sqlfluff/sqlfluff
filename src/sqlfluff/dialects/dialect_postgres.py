@@ -2989,6 +2989,24 @@ class DropTriggerStatementSegment(BaseSegment):
     )
 
 
+@postgres_dialect.segment()
+class AsAliasExpressionSegment(BaseSegment):
+    """A reference to an object with an `AS` clause.
+
+    This is used in `InsertStatementSegment` in Postgres
+    since the `AS` is not optional in this context.
+
+    N.B. We keep as a separate segment since the `alias_expression`
+    type is required for rules to interpret the alias.
+    """
+
+    type = "alias_expression"
+    match_grammar = Sequence(
+        "AS",
+        Ref("SingleIdentifierGrammar"),
+    )
+
+
 @postgres_dialect.segment(replace=True)
 class InsertStatementSegment(BaseSegment):
     """An `INSERT` statement.
@@ -3004,6 +3022,7 @@ class InsertStatementSegment(BaseSegment):
         "INSERT",
         "INTO",
         Ref("TableReferenceSegment"),
+        Ref("AsAliasExpressionSegment", optional=True),
         Ref("BracketedColumnReferenceListGrammar", optional=True),
         Sequence("OVERRIDING", OneOf("SYSTEM", "USER"), "VALUE", optional=True),
         Ref("SelectableGrammar"),
