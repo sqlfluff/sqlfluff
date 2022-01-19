@@ -229,6 +229,20 @@ test_fail_unnecessary_case_10:
         foo,
         bar as test
     from baz;
+test_fail_unnecessary_case_11:
+  fail_str: |
+    select
+        foo,
+        case
+            when
+                bar is not null then bar
+        end as test
+    from baz;
+  fix_str: |
+    select
+        foo,
+        bar as test
+    from baz;
 
 test_fail_no_copy_code_out_of_template:
   # The rule wants to replace the case statement with coalesce(), but
