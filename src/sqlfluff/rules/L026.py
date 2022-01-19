@@ -1,6 +1,6 @@
 """Implementation of Rule L026."""
 from dataclasses import dataclass, field
-from typing import cast, List, Optional
+from typing import cast, List, Optional, Tuple
 
 from sqlfluff.core.dialects.base import Dialect
 from sqlfluff.core.rules.analysis.select_crawler import (
@@ -71,15 +71,14 @@ class Rule_L026(BaseRule):
         if context.segment.is_type(
             *start_types
         ) and not context.functional.parent_stack.any(sp.is_type(*start_types)):
-            dml_target_table: Optional[str] = None
+            dml_target_table: Optional[Tuple[str, ...]] = None
             if not context.segment.is_type("select_statement"):
                 # Extract first table reference.
                 table_reference = next(
                     context.segment.recursive_crawl("table_reference"), None
                 )
                 if table_reference:
-                    penultimate_ref = list(table_reference.iter_raw_references())[-1]
-                    dml_target_table = penultimate_ref.part
+                    dml_target_table = self._table_ref_as_tuple(table_reference)
 
             # Verify table references in any SELECT statements found in or
             # below context.segment.
@@ -92,10 +91,23 @@ class Rule_L026(BaseRule):
             )
         return violations or None
 
+    @classmethod
+    def _alias_info_as_tuples(cls, alias_info: AliasInfo) -> List[Tuple[str, ...]]:
+        result: List[Tuple[str, ...]] = []
+        if alias_info.aliased:
+            result.append((alias_info.ref_str,))
+        if alias_info.object_reference:
+            result.append(cls._table_ref_as_tuple(alias_info.object_reference))
+        return result
+
+    @staticmethod
+    def _table_ref_as_tuple(table_reference) -> Tuple[str, ...]:
+        return tuple(ref.part for ref in table_reference.iter_raw_references())
+
     def _analyze_table_references(
         self,
         query: L026Query,
-        dml_target_table: Optional[str],
+        dml_target_table: Optional[Tuple[str, ...]],
         dialect: Dialect,
         violations: List[LintResult],
     ):
@@ -111,7 +123,7 @@ class Rule_L026(BaseRule):
                 for r in select_info.reference_buffer:
                     # This function walks up the query's parent stack if necessary.
                     violation = self._resolve_reference(
-                        r, self._get_table_refs(r), dml_target_table, query
+                        r, self._get_table_refs(r, dialect), dml_target_table, query
                     )
                     if violation:
                         violations.append(violation)
@@ -123,7 +135,7 @@ class Rule_L026(BaseRule):
             )
 
     @staticmethod
-    def _get_table_refs(ref):
+    def _get_table_refs(ref, dialect):
         """Given ObjectReferenceSegment, determine possible table references."""
         tbl_refs = []
         # First, handle any schema.table references.
@@ -134,17 +146,31 @@ class Rule_L026(BaseRule):
             ]
         ):
             tbl_refs.append((tr, (sr.part, tr.part)))
-        # Next, handle any table references (without schema).
-        for tr in ref.extract_possible_references(level=ref.ObjectReferenceLevel.TABLE):
-            tbl_refs.append((tr, (tr.part,)))
+        # Maybe check for simple table references. Two cases:
+        # - For most dialects, skip this if it's a schema+table reference -- the
+        #   reference was specific, so we shouldn't ignore that by looking
+        #   elsewhere.)
+        # - BigQuery references are ambiguous because it supports structures,
+        #   making some multi-level "." references impossible to interpret with
+        #   certainty. We may need to genericize this someday to handle other
+        #   dialects. If so, this check should probably align somehow with
+        #   whether the dialect overrides
+        #   ObjectReferenceSegment.extract_possible_references().
+        if not tbl_refs or dialect.name in ["bigquery"]:
+            for tr in ref.extract_possible_references(
+                level=ref.ObjectReferenceLevel.TABLE
+            ):
+                tbl_refs.append((tr, (tr.part,)))
         return tbl_refs
 
     def _resolve_reference(
-        self, r, tbl_refs, dml_target_table: Optional[str], query: L026Query
+        self, r, tbl_refs, dml_target_table: Optional[Tuple[str, ...]], query: L026Query
     ):
         # Does this query define the referenced table?
         possible_references = [tbl_ref[1] for tbl_ref in tbl_refs]
-        targets = [(a.ref_str,) for a in query.aliases]
+        targets = []
+        for alias in query.aliases:
+            targets += self._alias_info_as_tuples(alias)
         if not object_ref_matches_table(possible_references, targets):
             # No. Check the parent query, if there is one.
             if query.parent:
@@ -154,7 +180,7 @@ class Rule_L026(BaseRule):
             # No parent query. If there's a DML statement at the root, check its
             # target table.
             elif not dml_target_table or not object_ref_matches_table(
-                possible_references, [(dml_target_table,)]
+                possible_references, [dml_target_table]
             ):
                 return LintResult(
                     # Return the first segment rather than the string

@@ -153,3 +153,16 @@ test_pass_two_part_reference_9:
     where exists(
         select customer.cust_id from customer
         where public.agent1.agent_code <> customer.agent_code)
+
+test_fail_two_part_reference_10:
+  fail_str: |
+    select *
+    from schema1.agent1
+    where schema2.agent1.agent_code <> 'abc'
+
+test_fail_two_part_reference_11:
+  fail_str: |
+    delete from schema1.agent1
+    where exists(
+        select customer.cust_id from customer
+        where schema2.agent1.agent_code <> customer.agent_code)
