@@ -1,0 +1,120 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 618e706f4dd9433d0395a420692d6c98b3d529caf19fbd299e78bdf363e7c10b
+file:
+- statement:
+    create_datashare_statement:
+    - keyword: ALTER
+    - keyword: DATASHARE
+    - object_reference:
+        identifier: salesshare
+    - keyword: SET
+    - keyword: PUBLICACCESSIBLE
+    - keyword: 'FALSE'
+- statement_terminator: ;
+- statement:
+    create_datashare_statement:
+    - keyword: ALTER
+    - keyword: DATASHARE
+    - object_reference:
+        identifier: salesshare
+    - keyword: SET
+    - keyword: INCLUDENEW
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - keyword: 'TRUE'
+    - keyword: FOR
+    - keyword: SCHEMA
+    - schema_reference:
+        identifier: public
+- statement_terminator: ;
+- statement:
+    create_datashare_statement:
+    - keyword: ALTER
+    - keyword: DATASHARE
+    - object_reference:
+        identifier: salesshare
+    - keyword: ADD
+    - keyword: TABLE
+    - table_reference:
+      - identifier: public
+      - dot: .
+      - identifier: tbl1
+- statement_terminator: ;
+- statement:
+    create_datashare_statement:
+    - keyword: ALTER
+    - keyword: DATASHARE
+    - object_reference:
+        identifier: salesshare
+    - keyword: ADD
+    - keyword: TABLE
+    - table_reference:
+      - identifier: public
+      - dot: .
+      - identifier: tbl1
+    - comma: ','
+    - table_reference:
+      - identifier: public
+      - dot: .
+      - identifier: tbl2
+- statement_terminator: ;
+- statement:
+    create_datashare_statement:
+    - keyword: ALTER
+    - keyword: DATASHARE
+    - object_reference:
+        identifier: salesshare
+    - keyword: ADD
+    - keyword: SCHEMA
+    - schema_reference:
+        identifier: public
+- statement_terminator: ;
+- statement:
+    create_datashare_statement:
+    - keyword: ALTER
+    - keyword: DATASHARE
+    - object_reference:
+        identifier: salesshare
+    - keyword: ADD
+    - keyword: FUNCTION
+    - function_name:
+        identifier: public
+        dot: .
+        function_name_identifier: fn1
+    - comma: ','
+    - function_name:
+        identifier: public
+        dot: .
+        function_name_identifier: fn2
+- statement_terminator: ;
+- statement:
+    create_datashare_statement:
+    - keyword: ALTER
+    - keyword: DATASHARE
+    - object_reference:
+        identifier: salesshare
+    - keyword: ADD
+    - keyword: ALL
+    - keyword: TABLES
+    - keyword: IN
+    - keyword: SCHEMA
+    - schema_reference:
+        identifier: public
+- statement_terminator: ;
+- statement:
+    create_datashare_statement:
+    - keyword: ALTER
+    - keyword: DATASHARE
+    - object_reference:
+        identifier: salesshare
+    - keyword: REMOVE
+    - keyword: TABLE
+    - table_reference:
+      - identifier: public
+      - dot: .
+      - identifier: tbl1
+- statement_terminator: ;
