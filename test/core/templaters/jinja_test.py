@@ -700,7 +700,7 @@ def test__templater_jinja_slice_file(
     # from the parametrized test cases.
     templated_file = make_template(raw_file).render()
     with caplog.at_level(logging.DEBUG, logger="sqlfluff.templater"):
-        _, resp, _ = JinjaTemplater.slice_file(
+        _, resp, _ = templater.slice_file(
             raw_file, templated_file, make_template=make_template
         )
     # Check contigious on the TEMPLATED VERSION
