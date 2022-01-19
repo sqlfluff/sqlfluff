@@ -332,6 +332,28 @@ class TableConstraintSegment(BaseSegment):
     )
 
 
+@mysql_dialect.segment(replace=True)
+class IntervalExpressionSegment(BaseSegment):
+    """An interval expression segment.
+
+    https://dev.mysql.com/doc/refman/8.0/en/date-and-time-functions.html#function_adddate
+    """
+
+    type = "interval_expression"
+    match_grammar = Sequence(
+        "INTERVAL",
+        OneOf(
+            # The Numeric Version
+            Sequence(
+                Ref("ExpressionSegment"),
+                OneOf(Ref("QuotedLiteralSegment"), Ref("DatetimeUnitSegment")),
+            ),
+            # The String version
+            Ref("QuotedLiteralSegment"),
+        ),
+    )
+
+
 mysql_dialect.add(
     DoubleForwardSlashSegment=StringParser(
         "//", SymbolSegment, name="doubleforwardslash", type="statement_terminator"
