@@ -234,8 +234,8 @@ class DbtTemplater(JinjaTemplater):
         )
         if not os.path.exists(dbt_project_dir):
             templater_logger.error(
-                f"dbt_project_dir: {dbt_project_dir} could not be accessed. Check it "
-                "exists."
+                f"dbt_project_dir: {dbt_project_dir} could not be accessed. "
+                "Check it exists."
             )
 
         return dbt_project_dir
@@ -376,8 +376,8 @@ class DbtTemplater(JinjaTemplater):
     def _find_node(self, fname, config=None):
         if not config:  # pragma: no cover
             raise ValueError(
-                "For the dbt templater, the `process()` method requires a config "
-                "object."
+                "For the dbt templater, the `process()` method "
+                "requires a config object."
             )
         if not fname:  # pragma: no cover
             raise ValueError(

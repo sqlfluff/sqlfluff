@@ -301,8 +301,8 @@ def test__templater_dbt_templating_absolute_path(
         (
             "compiler_error.sql",
             "dbt compilation error on file 'models/my_new_project/compiler_error.sql', "
-            "Unexpected end of template. Jinja was looking for the following tags: "
-            "'endfor'",
+            "Unexpected end of template. "
+            "Jinja was looking for the following tags: 'endfor'",
         ),
     ],
 )
@@ -392,8 +392,10 @@ def test__project_dir_does_not_exist_error(dbt_templater, caplog):  # noqa: F811
         with caplog.at_level(logging.ERROR, logger="sqlfluff.templater"):
             dbt_project_dir = dbt_templater._get_project_dir()
         assert (
-            f"dbt_project_dir: {dbt_project_dir} could not be accessed. Check it "
-            "exists." in caplog.text
+            (
+                f"dbt_project_dir: {dbt_project_dir} could not be accessed. "
+                "Check it exists."
+            ) in caplog.text
         )
     finally:
         logger.propagate = original_propagate_value

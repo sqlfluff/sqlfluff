@@ -288,8 +288,8 @@ def get_config(
     """Get a config object from kwargs."""
     if "dialect" in kwargs:
         try:
-            # We're just making sure it exists at this stage - it will be fetched
-            # properly in the linter
+            # We're just making sure it exists at this stage.
+            # It will be fetched properly in the linter.
             dialect_selector(kwargs["dialect"])
         except SQLFluffUserError as err:
             click.echo(
@@ -348,8 +348,8 @@ def get_linter_and_formatter(
 ) -> Tuple[Linter, CallbackFormatter]:
     """Get a linter object given a config."""
     try:
-        # We're just making sure it exists at this stage - it will be fetched properly
-        # in the linter
+        # We're just making sure it exists at this stage.
+        # It will be fetched properly in the linter.
         dialect_selector(cfg.get("dialect"))
     except KeyError:  # pragma: no cover
         click.echo(f"Error: Unknown dialect '{cfg.get('dialect')}'")
@@ -423,8 +423,10 @@ def dialects(**kwargs) -> None:
     "--annotation-level",
     default="notice",
     type=click.Choice(["notice", "warning", "failure"], case_sensitive=False),
-    help="When format is set to github-annotation, default annotation level "
-    "(default=notice).",
+    help=(
+        "When format is set to github-annotation, "
+        "default annotation level (default=notice)."
+    ),
 )
 @click.option(
     "--nofail",
