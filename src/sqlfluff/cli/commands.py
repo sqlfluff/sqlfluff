@@ -162,8 +162,7 @@ def common_options(f: Callable) -> Callable:
         "--nocolor",
         is_flag=True,
         default=None,
-        help="No color - if this is set then the output will be without ANSI color "
-        "codes.",
+        help="No color - output will be without ANSI color codes.",
     )(f)
 
     return f
