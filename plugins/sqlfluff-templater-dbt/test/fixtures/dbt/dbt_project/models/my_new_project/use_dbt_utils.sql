@@ -6,7 +6,6 @@
 FROM information_schema.schemata"
     )
 %}
-
 with
 
 orders as (
