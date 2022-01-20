@@ -115,7 +115,7 @@ def test__cli__command_dialect_legacy():
 def test__cli__command_extra_config_fail():
     """Check the script raises the right exception on a # noqa: D415
 
-    non-existant extra config path.
+    non-existent extra config path.
     """
     result = invoke_assert_code(
         ret_code=66,

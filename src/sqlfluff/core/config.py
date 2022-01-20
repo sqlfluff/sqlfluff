@@ -610,7 +610,7 @@ class FluffConfig:
             if templater_name == "dbt":  # pragma: no cover
                 config_logger.warning(
                     "Starting in sqlfluff version 0.7.0 the dbt templater is "
-                    "distributed as a seperate python package. Please pip install "
+                    "distributed as a separate python package. Please pip install "
                     "sqlfluff-templater-dbt to use it."
                 )
             raise SQLFluffUserError(

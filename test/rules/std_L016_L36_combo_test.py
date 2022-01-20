@@ -1,6 +1,6 @@
 """Tests the combination of L016 (no long lines) and L036 # noqa: D415
 
-(single selects should eb on SELECT line).
+(single selects should be on SELECT line).
 """
 
 import sqlfluff

@@ -118,7 +118,7 @@ class JinjaTemplater(PythonTemplater):
 
         libraries = JinjaTemplater.Libraries()
 
-        # If library_path hash __init__.py we parse it as a one module, else we parse it
+        # If library_path has __init__.py we parse it as one module, else we parse it
         # a set of modules
         is_library_module = os.path.exists(os.path.join(library_path, "__init__.py"))
         library_module_name = os.path.basename(library_path)

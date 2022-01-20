@@ -242,7 +242,7 @@ def core_options(f: Callable) -> Callable:
         "--encoding",
         default="autodetect",
         help=(
-            "Specifiy encoding to use when reading and writing files. Defaults to "
+            "Specify encoding to use when reading and writing files. Defaults to "
             "autodetect."
         ),
     )(f)
