@@ -108,6 +108,8 @@ class DatatypeSegment(BaseSegment):
             Sequence(OneOf("WITH", "WITHOUT"), "TIME", "ZONE", optional=True),
         ),
         OneOf("TIMETZ", "TIMESTAMPTZ"),
+        # INTERVAL is a data type *only* for conversion operations
+        "INTERVAL",
         # boolean types
         OneOf("BOOLEAN", "BOOL"),
         # hllsketch type
