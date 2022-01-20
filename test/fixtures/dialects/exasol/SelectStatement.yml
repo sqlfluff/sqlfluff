@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: db2441deb5cc2f6fcd962d60c912405664f860820b0a0a73ecc27e6755ab16e5
+_hash: 64d863b32f08816de682dfaffda156f7733aa44813ec51e32717a9989078e202
 file:
 - statement:
     select_statement:
@@ -952,9 +952,9 @@ file:
         keyword: SELECT
         select_clause_element:
           function:
-          - function_name:
+            function_name:
               function_name_identifier: JSON_EXTRACT
-          - bracketed:
+            bracketed:
             - start_bracket: (
             - expression:
                 column_reference:
@@ -966,27 +966,28 @@ file:
             - expression:
                 literal: "'$.error()'"
             - end_bracket: )
-          - keyword: EMITS
-          - bracketed:
-            - start_bracket: (
-            - column_datatype_definition:
-                identifier: id
-                data_type:
-                  keyword: VARCHAR
-                  bracketed:
-                    start_bracket: (
-                    literal: '2000'
-                    end_bracket: )
-            - comma: ','
-            - column_datatype_definition:
-                identifier: error_column
-                data_type:
-                  keyword: VARCHAR
-                  bracketed:
-                    start_bracket: (
-                    literal: '2000000'
-                    end_bracket: )
-            - end_bracket: )
+            emits_grammar:
+              keyword: EMITS
+              bracketed:
+              - start_bracket: (
+              - column_datatype_definition:
+                  identifier: id
+                  data_type:
+                    keyword: VARCHAR
+                    bracketed:
+                      start_bracket: (
+                      literal: '2000'
+                      end_bracket: )
+              - comma: ','
+              - column_datatype_definition:
+                  identifier: error_column
+                  data_type:
+                    keyword: VARCHAR
+                    bracketed:
+                      start_bracket: (
+                      literal: '2000000'
+                      end_bracket: )
+              - end_bracket: )
       from_clause:
         keyword: FROM
         from_expression:
