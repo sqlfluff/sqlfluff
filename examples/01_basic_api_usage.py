@@ -11,8 +11,12 @@ my_bad_query = "SeLEct  *, 1, blah as  fOO  from mySchema.myTable"
 lint_result = sqlfluff.lint(my_bad_query, dialect="bigquery")
 # lint_result =
 # [
-#     {"code": "L010", "line_no": 1, "line_pos": 1, "description": "Keywords must be "
-#     "consistently upper case."}
+#     {
+#         "code": "L010",
+#         "line_no": 1,
+#         "line_pos": 1,
+#         "description": "Keywords must be consistently upper case.",
+#     }
 #     ...
 # ]
 
