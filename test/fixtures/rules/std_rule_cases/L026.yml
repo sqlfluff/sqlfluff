@@ -110,3 +110,64 @@ test_pass_object_referenced_6:
                 table3
                 on table2.y_id = table3.y_id
     ) as cc
+
+test_pass_object_referenced_7:
+  pass_str: |
+    UPDATE my_table
+    SET row_sum = (
+        SELECT COUNT(*) AS row_sum
+        FROM
+            another_table
+        WHERE
+            another_table.id = my_table.id
+    )
+
+test_fail_object_referenced_7:
+  fail_str: |
+    UPDATE my_table
+    SET row_sum = (
+        SELECT COUNT(*) AS row_sum
+        FROM
+            another_table
+        WHERE
+            another_table.id = my_tableeee.id
+    )
+
+test_pass_object_referenced_8:
+  pass_str: |
+    DELETE FROM agent1
+    WHERE EXISTS(
+        SELECT customer.cust_id FROM customer
+        WHERE agent1.agent_code <> customer.agent_code);
+
+test_pass_two_part_reference_8:
+  pass_str: |
+    delete from public.agent1
+    where exists(
+        select customer.cust_id from customer
+        where agent1.agent_code <> customer.agent_code)
+
+test_pass_two_part_reference_9:
+  pass_str: |
+    delete from public.agent1
+    where exists(
+        select customer.cust_id from customer
+        where public.agent1.agent_code <> customer.agent_code)
+
+test_fail_two_part_reference_10:
+  fail_str: |
+    select *
+    from schema1.agent1
+    where schema2.agent1.agent_code <> 'abc'
+
+test_fail_two_part_reference_11:
+  fail_str: |
+    delete from schema1.agent1
+    where exists(
+        select customer.cust_id from customer
+        where schema2.agent1.agent_code <> customer.agent_code)
+
+test_pass_two_part_reference_11:
+  pass_str: |
+    select * from agent1
+    where public.agent1.agent_code <> '3'

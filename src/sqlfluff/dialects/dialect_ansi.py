@@ -734,6 +734,18 @@ class ObjectReferenceSegment(BaseSegment):
             return [refs[-level]]
         return []
 
+    def extract_possible_multipart_references(
+        self, levels: List[Union[ObjectReferenceLevel, int]]
+    ) -> List[Tuple[ObjectReferencePart, ...]]:
+        """Extract possible multipart references, e.g. schema.table."""
+        levels_tmp = [self._level_to_int(level) for level in levels]
+        min_level = min(levels_tmp)
+        max_level = max(levels_tmp)
+        refs = list(self.iter_raw_references())
+        if len(refs) >= max_level:
+            return [tuple(refs[-max_level : 1 - min_level])]
+        return []
+
     @staticmethod
     def _level_to_int(level: Union[ObjectReferenceLevel, int]) -> int:
         # If it's an ObjectReferenceLevel, get the value. Otherwise, assume it's
@@ -1156,7 +1168,6 @@ class FromExpressionElementSegment(BaseSegment):
             return AliasInfo(segment.raw, segment, True, self, alias_expression, ref)
 
         # If not return the object name (or None if there isn't one)
-        # ref = self.get_child("object_reference")
         if ref:
             # Return the last element of the reference.
             penultimate_ref: ObjectReferenceSegment.ObjectReferencePart = list(

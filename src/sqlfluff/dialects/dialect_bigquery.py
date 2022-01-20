@@ -740,6 +740,18 @@ class ColumnReferenceSegment(ObjectReferenceSegment):  # type: ignore
             return [refs[1], refs[2]]
         return super().extract_possible_references(level)  # pragma: no cover
 
+    def extract_possible_multipart_references(self, levels):
+        """Extract possible multipart references, e.g. schema.table."""
+        levels_tmp = [self._level_to_int(level) for level in levels]
+        min_level = min(levels_tmp)
+        max_level = max(levels_tmp)
+        refs = list(self.iter_raw_references())
+        if max_level == self.ObjectReferenceLevel.SCHEMA.value and len(refs) >= 3:
+            return [tuple(refs[0 : max_level - min_level + 1])]
+        # Note we aren't handling other possible cases. We'll add these as
+        # needed.
+        return super().extract_possible_multipart_references(levels)
+
 
 @bigquery_dialect.segment()
 class HyphenatedObjectReferenceSegment(ObjectReferenceSegment):  # type: ignore
