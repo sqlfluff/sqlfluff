@@ -138,16 +138,13 @@ class Rule_L026(BaseRule):
 
     @staticmethod
     def _should_ignore_reference(reference, selectable):
-        if selectable.dialect.name == "exasol":
-            ref_path = selectable.selectable.path_to(reference)
-            # Ignore references occurring in an "INTO" clause:
-            # - They are table references, not column references.
-            # - They are the target table, similar to an INSERT or UPDATE
-            #   statement, thus not expected to match a table in the FROM
-            #   clause.
-            if any(seg.is_type("into_table_clause") for seg in ref_path):
-                return True
-        return False
+        ref_path = selectable.selectable.path_to(reference)
+        # Ignore references occurring in an "INTO" clause:
+        # - They are table references, not column references.
+        # - They are the target table, similar to an INSERT or UPDATE
+        #   statement, thus not expected to match a table in the FROM
+        #   clause.
+        return any(seg.is_type("into_table_clause") for seg in ref_path)
 
     @staticmethod
     def _get_table_refs(ref, dialect):
