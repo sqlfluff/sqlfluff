@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: cc67717f46d49fe44107008a2851126a869ca47a11ced4c24292cdba9d6ce026
+_hash: 10a3c69ef88358f1bd04d72cdc8331fac3cb5404cc63ba066af6c8ba1a866656
 file:
 - statement:
     create_external_table_statement:
@@ -333,10 +333,10 @@ file:
         - data_type:
             keyword: integer
         - end_bracket: )
+    - keyword: ROW
+    - keyword: FORMAT
+    - keyword: DELIMITED
     - row_format_deimited_segment:
-      - keyword: ROW
-      - keyword: FORMAT
-      - keyword: DELIMITED
       - keyword: LINES
       - keyword: TERMINATED
       - keyword: BY
@@ -394,10 +394,10 @@ file:
         - data_type:
             keyword: integer
         - end_bracket: )
+    - keyword: ROW
+    - keyword: FORMAT
+    - keyword: DELIMITED
     - row_format_deimited_segment:
-      - keyword: ROW
-      - keyword: FORMAT
-      - keyword: DELIMITED
       - keyword: FIELDS
       - keyword: TERMINATED
       - keyword: BY
@@ -479,4 +479,76 @@ file:
                 - identifier: external_schema
                 - dot: .
                 - identifier: source_table
+- statement_terminator: ;
+- statement:
+    create_external_table_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - table_reference:
+      - identifier: spectrum
+      - dot: .
+      - identifier: partitioned_lineitem
+    - partitioned_by_segment:
+      - keyword: PARTITIONED
+      - keyword: BY
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            identifier: l_shipdate
+        - data_type:
+            keyword: date
+        - comma: ','
+        - column_reference:
+            identifier: l_shipmode
+        - data_type:
+            keyword: varchar
+            bracketed:
+              start_bracket: (
+              literal: '24'
+              end_bracket: )
+        - end_bracket: )
+    - keyword: ROW
+    - keyword: FORMAT
+    - keyword: DELIMITED
+    - row_format_deimited_segment:
+      - keyword: FIELDS
+      - keyword: TERMINATED
+      - keyword: BY
+      - literal: "','"
+      - keyword: LINES
+      - keyword: TERMINATED
+      - keyword: BY
+      - literal: "'\\n\\l'"
+    - keyword: STORED
+    - keyword: AS
+    - keyword: textfile
+    - keyword: LOCATION
+    - literal: "'S3://mybucket/cetas/partitioned_lineitem/'"
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              identifier: l_orderkey
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: l_shipmode
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: l_shipdate
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: l_partkey
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: local_table
 - statement_terminator: ;
