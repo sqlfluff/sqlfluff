@@ -3772,7 +3772,7 @@ class FileSegment(BaseFileSegment):
 class EmitsGrammar(BaseFileSegment):
     """EMITS Grammar for JSON_EXTRACT for example.
 
-    It's it's own clasee to give it a type to allow L013 to find it easily.
+    In it's own class to give it a type to allow L013 to find it easily.
     """
 
     type = "emits_grammar"
