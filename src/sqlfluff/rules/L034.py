@@ -67,7 +67,7 @@ class Rule_L034(BaseRule):
         # element to the corresponding index.
         self.seen_band_elements: List[List[BaseSegment]] = [
             [] for _ in select_element_order_preference
-        ] + [[]]
+        ] + [[]]  # type: ignore
 
         if context.segment.is_type("select_clause"):
             # Ignore select clauses which belong to:
