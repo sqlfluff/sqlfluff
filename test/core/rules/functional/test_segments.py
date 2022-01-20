@@ -158,6 +158,5 @@ def test_segments_recursive_crawl():
 
     functional_tree = segments.Segments(parsed.tree)
 
-    assert len(functional_tree.recursive_crawl("whitespace")) == 18
     assert len(functional_tree.recursive_crawl("common_table_expression")) == 1
     assert len(functional_tree.recursive_crawl("table_reference")) == 3
