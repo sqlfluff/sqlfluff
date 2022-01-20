@@ -2202,6 +2202,20 @@ class TableIndexClause(BaseSegment):
                 "COLUMNSTORE",
                 "INDEX",
             ),
+            Sequence(
+                "CLUSTERED",
+                "INDEX",
+                Bracketed(
+                    Delimited(
+                        Ref("ColumnReferenceSegment"),
+                        OneOf(
+                            "ASC",
+                            "DESC",
+                            optional=True,
+                        ),
+                    ),
+                ),
+            ),
         ),
     )
 
