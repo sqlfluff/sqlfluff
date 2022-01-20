@@ -547,11 +547,10 @@ class DbtTemplater(JinjaTemplater):
             [],
         )
 
-    @classmethod
-    def _slice_template(cls, in_str: str) -> List[RawFileSlice]:
+    def _slice_template(self, in_str: str) -> List[RawFileSlice]:
         # DbtTemplater uses the original heuristic-based template slicer.
         # TODO: Can it be updated to use TemplateTracer?
-        return slice_template(in_str, cls._get_jinja_env())
+        return slice_template(in_str, self._get_jinja_env())
 
 
 class SnapshotExtension(StandaloneTag):
