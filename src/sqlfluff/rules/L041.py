@@ -10,9 +10,7 @@ from sqlfluff.core.rules.functional import sp
 
 @document_fix_compatible
 class Rule_L041(BaseRule):
-    """``SELECT`` clause modifiers such as ``DISTINCT`` must be on the same # noqa: D415
-
-    line as ``SELECT``.
+    """``SELECT`` modifiers (e.g.``DISTINCT``) must be on the same line as ``SELECT``.
 
     | **Anti-pattern**
 

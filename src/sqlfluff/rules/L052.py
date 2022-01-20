@@ -50,9 +50,7 @@ class Rule_L052(BaseRule):
 
     @staticmethod
     def _handle_preceding_inline_comments(pre_semicolon_segments, anchor_segment):
-        """Adjust pre_semicolon_segments and anchor_segment to not move # noqa: D415
-
-        preceding inline comments.
+        """Adjust segments to not move preceding inline comments.
 
         We don't want to move inline comments that are on the same line
         as the preceding code segment as they could contain noqa instructions.

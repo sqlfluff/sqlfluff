@@ -8,9 +8,7 @@ from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
 @document_fix_compatible
 class Rule_L034(BaseRule):
-    """Use wildcards then simple targets before calculations and aggregates in # noqa: D415
-
-    select statements.
+    """Select wildcards then simple targets before calculations and aggregates.
 
     | **Anti-pattern**
 
@@ -69,9 +67,7 @@ class Rule_L034(BaseRule):
         # element to the corresponding index.
         self.seen_band_elements: List[List[BaseSegment]] = [
             [] for _ in select_element_order_preference
-        ] + [
-            []
-        ]  # type: ignore
+        ] + [[]]
 
         if context.segment.is_type("select_clause"):
             # Ignore select clauses which belong to:
