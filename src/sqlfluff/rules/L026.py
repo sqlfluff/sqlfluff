@@ -122,18 +122,32 @@ class Rule_L026(BaseRule):
                 # Try and resolve each reference to a value in query.aliases (or
                 # in an ancestor query).
                 for r in select_info.reference_buffer:
-                    # This function walks up the query's parent stack if necessary.
-                    violation = self._resolve_reference(
-                        r, self._get_table_refs(r, dialect), dml_target_table, query
-                    )
-                    if violation:
-                        violations.append(violation)
+                    if not self._should_ignore_reference(r, selectable):
+                        # This function walks up the query's parent stack if necessary.
+                        violation = self._resolve_reference(
+                            r, self._get_table_refs(r, dialect), dml_target_table, query
+                        )
+                        if violation:
+                            violations.append(violation)
 
         # Visit children.
         for child in query.children:
             self._analyze_table_references(
                 cast(L026Query, child), dml_target_table, dialect, violations
             )
+
+    @staticmethod
+    def _should_ignore_reference(reference, selectable):
+        if selectable.dialect.name == "exasol":
+            ref_path = selectable.selectable.path_to(reference)
+            # Ignore references occurring in an "INTO" clause:
+            # - They are table references, not column references.
+            # - They are the target table, similar to an INSERT or UPDATE
+            #   statement, thus not expected to match a table in the FROM
+            #   clause.
+            if any(seg.is_type("into_table_clause") for seg in ref_path):
+                return True
+        return False
 
     @staticmethod
     def _get_table_refs(ref, dialect):
