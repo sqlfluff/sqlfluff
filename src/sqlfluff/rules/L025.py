@@ -85,16 +85,18 @@ class Rule_L025(BaseRule):
     def _analyze_table_aliases(cls, query: L025Query, dialect: Dialect):
         # Get table aliases defined in query.
         for selectable in query.selectables:
-            select_info = get_select_statement_info(selectable.selectable, dialect)
+            select_info = selectable.select_info
             if select_info:
                 # Record the aliases.
                 query.aliases += select_info.table_aliases
 
-                # Look at each table reference; if its an alias reference,
+                # Look at each table reference; if it's an alias reference,
                 # resolve the alias: could be an alias defined in "query"
                 # itself or an "ancestor" query.
                 for r in select_info.reference_buffer:
-                    for tr in r.extract_possible_references(level=r.ObjectReferenceLevel.TABLE):  # type: ignore
+                    for tr in r.extract_possible_references(
+                        level=r.ObjectReferenceLevel.TABLE
+                    ):
                         # This function walks up the query's parent stack if necessary.
                         cls._resolve_and_mark_reference(query, tr.part)
 

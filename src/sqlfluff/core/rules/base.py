@@ -545,7 +545,7 @@ class BaseRule:
                     description=(
                         f"""Unexpected exception: {str(e)};
                         Could you open an issue at https://github.com/sqlfluff/sqlfluff/issues ?
-                        You can ignore this exception for now, by adding '--noqa: {self.code}' at the end
+                        You can ignore this exception for now, by adding '-- noqa: {self.code}' at the end
                         of line {exception_line}
                         """
                     ),
