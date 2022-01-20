@@ -194,10 +194,6 @@ exasol_dialect.add(
         Delimited(Ref("ColumnDatatypeSegment")),
         Ref("UDFParameterDotSyntaxSegment"),
     ),
-    EmitsGrammar=Sequence(
-        "EMITS",
-        Bracketed(Ref("UDFParameterGrammar")),
-    ),
     FunctionScriptTerminatorSegment=NamedParser(
         "function_script_terminator", CodeSegment, type="function_script_terminator"
     ),
@@ -3769,4 +3765,15 @@ class FileSegment(BaseFileSegment):
             allow_gaps=True,
             allow_trailing=True,
         ),
+    )
+
+
+@exasol_dialect.segment()
+class EmitsGrammar(BaseFileSegment):
+    """This overwrites the FileSegment from ANSI."""
+
+    type = "emits_grammar"
+    match_grammar = Sequence(
+        "EMITS",
+        Bracketed(Ref("UDFParameterGrammar")),
     )
