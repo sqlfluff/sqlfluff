@@ -150,6 +150,7 @@ def common_options(f: Callable) -> Callable:
         "-v",
         "--verbose",
         count=True,
+        default=None,
         help=(
             "Verbosity, how detailed should the output be. This is *stackable*, so "
             "`-vv` is more verbose than `-v`. For the most verbose option try `-vvvv` "
@@ -160,6 +161,7 @@ def common_options(f: Callable) -> Callable:
         "-n",
         "--nocolor",
         is_flag=True,
+        default=None,
         help="No color - if this is set then the output will be without ANSI color "
         "codes.",
     )(f)

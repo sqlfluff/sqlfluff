@@ -176,6 +176,10 @@ class ProtoSeg:
     def __init__(self, raw):
         self.raw = raw
 
+    def is_type(self, *seg_type):
+        """Is this segment (or its parent) of the given type."""
+        return False
+
 
 @pytest.mark.parametrize(
     "tab_space_size,segments,result",

@@ -33,7 +33,10 @@ mysql_dialect.patch_lexer_matchers(
             r"(-- |#)[^\n]*",
             CommentSegment,
             segment_kwargs={"trim_start": ("-- ", "#")},
-        )
+        ),
+        RegexLexer(
+            "single_quote", r"(?s)('')+?(?!')|('.*?(?<!')(?:'')*'(?!'))", CodeSegment
+        ),
     ]
 )
 
@@ -165,6 +168,18 @@ mysql_dialect.replace(
             Ref("NumericLiteralSegment"),
         ),
     ),
+    QuotedLiteralSegment=AnyNumberOf(
+        # MySQL allows whitespace-concatenated string literals (#1488).
+        # Since these string literals can have comments between them,
+        # we use grammar to handle this.
+        NamedParser(
+            "single_quote",
+            CodeSegment,
+            name="quoted_literal",
+            type="literal",
+        ),
+        min_times=1,
+    ),
 )
 
 mysql_dialect.add(
@@ -183,6 +198,20 @@ mysql_dialect.add(
         trim_chars=("@",),
     ),
 )
+
+
+@mysql_dialect.segment(replace=True)
+class AliasExpressionSegment(BaseSegment):
+    """A reference to an object with an `AS` clause.
+
+    The optional AS keyword allows both implicit and explicit aliasing.
+    """
+
+    type = "alias_expression"
+    match_grammar = Sequence(
+        Ref.keyword("AS", optional=True),
+        Ref("SingleIdentifierGrammar"),
+    )
 
 
 @mysql_dialect.segment(replace=True)
@@ -300,6 +329,28 @@ class TableConstraintSegment(BaseSegment):
                 # Later add support for [MATCH FULL/PARTIAL/SIMPLE] ?
                 # Later add support for [ ON DELETE/UPDATE action ] ?
             ),
+        ),
+    )
+
+
+@mysql_dialect.segment(replace=True)
+class IntervalExpressionSegment(BaseSegment):
+    """An interval expression segment.
+
+    https://dev.mysql.com/doc/refman/8.0/en/date-and-time-functions.html#function_adddate
+    """
+
+    type = "interval_expression"
+    match_grammar = Sequence(
+        "INTERVAL",
+        OneOf(
+            # The Numeric Version
+            Sequence(
+                Ref("ExpressionSegment"),
+                OneOf(Ref("QuotedLiteralSegment"), Ref("DatetimeUnitSegment")),
+            ),
+            # The String version
+            Ref("QuotedLiteralSegment"),
         ),
     )
 

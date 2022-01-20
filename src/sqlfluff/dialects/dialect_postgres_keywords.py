@@ -776,7 +776,7 @@ postgres_docs_keywords = [
     ("SYSTEM_TIME", "not-keyword"),
     ("SYSTEM_USER", "not-keyword"),
     ("T", "not-keyword"),
-    ("TABLE", "reserved"),
+    ("TABLE", "non-reserved"),
     ("TABLES", "non-reserved"),
     ("TABLESAMPLE", "reserved-(can-be-function-or-type)"),
     ("TABLESPACE", "non-reserved"),
@@ -940,11 +940,15 @@ postgres_nondocs_keywords = [
     ("RESPECT", "non-reserved"),
     ("RESTRICTED", "non-reserved"),
     ("SAFE", "non-reserved"),
+    ("SETTINGS", "non-reserved"),
     ("SKIP_LOCKED", "non-reserved"),
+    ("SUMMARY", "non-reserved"),
     ("TIMETZ", "non-reserved"),
     ("TIMESTAMPTZ", "non-reserved"),
+    ("TIMING", "non-reserved"),
     ("UNSAFE", "non-reserved"),
     ("USAGE", "reserved"),
+    ("WAL", "non-reserved"),
 ]
 
 postgres_postgis_datatype_keywords = [

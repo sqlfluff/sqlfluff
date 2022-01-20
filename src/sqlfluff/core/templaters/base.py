@@ -213,8 +213,14 @@ class TemplatedFile:
         ]
         return RawSliceBlockInfo(block_ids, literal_only_loops)
 
-    def raw_slices_spanning_source_slice(self, source_slice: slice):
+    def raw_slices_spanning_source_slice(
+        self, source_slice: slice
+    ) -> List[RawFileSlice]:
         """Return a list of the raw slices spanning a set of indices."""
+        # Special case: The source_slice is at the end of the file.
+        last_raw_slice = self.raw_sliced[-1]
+        if source_slice.start >= last_raw_slice.source_idx + len(last_raw_slice.raw):
+            return []
         # First find the start index
         raw_slice_idx = 0
         # Move the raw pointer forward to the start of this patch

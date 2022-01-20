@@ -291,6 +291,11 @@ class JinjaTracer:
                         trimmed_content = str_buff[
                             len(m_open.group(0)) : -len(m_close.group(0))
                         ]
+                    # :TRICKY: Syntactically, the Jinja {% include %} directive looks
+                    # like a block, but its behavior is basically syntactic sugar for
+                    # {{ open("somefile).read() }}. Thus, treat it as templated code.
+                    if block_type == "block" and trimmed_content.startswith("include "):
+                        block_type = "templated"
                     if block_type == "block":
                         if trimmed_content.startswith("end"):
                             block_type = "block_end"

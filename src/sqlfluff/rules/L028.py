@@ -2,11 +2,11 @@
 
 from sqlfluff.core.rules.base import LintResult, EvalResultType, RuleContext
 from sqlfluff.core.rules.doc_decorators import document_configuration
-from sqlfluff.rules.L025 import Rule_L025
+from sqlfluff.rules.L020 import Rule_L020
 
 
 @document_configuration
-class Rule_L028(Rule_L025):
+class Rule_L028(Rule_L020):
     """References should be consistent in statements with a single table.
 
     NB: This rule is disabled by default for BigQuery due to its use of
@@ -103,7 +103,7 @@ class Rule_L028(Rule_L025):
         return violation_buff or None
 
     def _eval(self, context: RuleContext) -> EvalResultType:
-        """Override Rule L025 for dialects that use structs, or SELECT aliases."""
+        """Override base class for dialects that use structs, or SELECT aliases."""
         # Config type hints
         self.force_enable: bool
 

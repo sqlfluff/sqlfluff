@@ -6,6 +6,7 @@ from typing import List, NamedTuple
 import pytest
 
 from sqlfluff.core.templaters import JinjaTemplater
+from sqlfluff.core.templaters.base import RawFileSlice
 from sqlfluff.core.templaters.jinja import JinjaTracer
 from sqlfluff.core import Linter, FluffConfig
 
@@ -339,6 +340,7 @@ def test__templater_jinja_slices(case: RawTemplatedTestCase):
     """Test that Jinja templater slices raw and templated file correctly."""
     t = JinjaTemplater()
     templated_file, _ = t.process(in_str=case.instr, fname="test", config=FluffConfig())
+    assert templated_file
     assert templated_file.source_str == case.instr
     assert templated_file.templated_str == case.templated_str
     # Build and check the list of source strings referenced by "sliced_file".
@@ -356,8 +358,8 @@ def test__templater_jinja_slices(case: RawTemplatedTestCase):
 
     # Build and check the list of source strings referenced by "raw_sliced".
     previous_rs = None
-    actual_rs_source_list = []
-    for rs in templated_file.raw_sliced + [None]:
+    actual_rs_source_list: List[RawFileSlice] = []
+    for rs in templated_file.raw_sliced + [None]:  # type: ignore
         if previous_rs:
             if rs:
                 actual_source = case.instr[previous_rs.source_idx : rs.source_idx]
@@ -563,14 +565,13 @@ def test__templater_jinja_slice_template(test, result):
 
 
 @pytest.mark.parametrize(
-    "raw_file,templated_file,override_context,result",
+    "raw_file,override_context,result",
     [
-        ("", "", None, []),
-        ("foo", "foo", None, [("literal", slice(0, 3, None), slice(0, 3, None))]),
+        ("", None, []),
+        ("foo", None, [("literal", slice(0, 3, None), slice(0, 3, None))]),
         # Example with no loops
         (
             "SELECT {{blah}}, boo {# comment #} from something",
-            "SELECT foobar, boo  from something",
             dict(blah="foobar"),
             [
                 ("literal", slice(0, 7, None), slice(0, 7, None)),
@@ -586,7 +587,6 @@ def test__templater_jinja_slice_template(test, result):
                 "SELECT {# A comment #} {{field}} {% for i in [1, 3, 7]%}, "
                 "fld_{{i}}_x{% endfor %} FROM my_schema.{{my_table}} "
             ),
-            "SELECT  foobar , fld_1_x, fld_3_x, fld_7_x FROM my_schema.barfoo ",
             dict(field="foobar", my_table="barfoo"),
             [
                 ("literal", slice(0, 7, None), slice(0, 7, None)),
@@ -618,7 +618,6 @@ def test__templater_jinja_slice_template(test, result):
                 "SELECT {# A comment #} {{field}} {% for i in [1, 3, 7]%}, "
                 "fld_{{i}}{% endfor %} FROM my_schema.{{my_table}} "
             ),
-            "SELECT  foobar , fld_1, fld_3, fld_7 FROM my_schema.barfoo ",
             dict(field="foobar", my_table="barfoo"),
             [
                 ("literal", slice(0, 7, None), slice(0, 7, None)),
@@ -645,7 +644,6 @@ def test__templater_jinja_slice_template(test, result):
         (
             "{{ config(materialized='view') }}\n\nSELECT 1 FROM {{ source('finance', "
             "'reconciled_cash_facts') }}\n\n",
-            "\n\nSELECT 1 FROM finance_reconciled_cash_facts\n\n",
             dict(
                 config=lambda *args, **kwargs: "",
                 source=lambda *args, **kwargs: "finance_reconciled_cash_facts",
@@ -663,11 +661,6 @@ def test__templater_jinja_slice_template(test, result):
             "{% for i in [1, 2, 3] %}\n        , "
             "c_{{i}}+42 AS the_meaning_of_li{{ 'f' * i }}\n    "
             "{% endfor %}\n"
-            "FROM my_table",
-            "SELECT\n    \n        , "
-            "c_1+42 AS the_meaning_of_lif\n    \n        , "
-            "c_2+42 AS the_meaning_of_liff\n    \n        , "
-            "c_3+42 AS the_meaning_of_lifff\n    \n"
             "FROM my_table",
             None,
             [
@@ -697,7 +690,6 @@ def test__templater_jinja_slice_template(test, result):
         # Test an example where a block is removed entirely.
         (
             "{% set thing %}FOO{% endset %} SELECT 1",
-            " SELECT 1",
             None,
             [
                 ("block_start", slice(0, 15, None), slice(0, 0, None)),
@@ -706,20 +698,46 @@ def test__templater_jinja_slice_template(test, result):
                 ("literal", slice(30, 39, None), slice(0, 9, None)),
             ],
         ),
+        (
+            # Tests Jinja "include" directive.
+            """{% include 'subdir/include_comment.sql' %}
+
+SELECT 1
+""",
+            None,
+            [
+                ("templated", slice(0, 42, None), slice(0, 18, None)),
+                ("literal", slice(42, 53, None), slice(18, 29, None)),
+            ],
+        ),
+        (
+            # Tests Jinja "from import" directive..
+            """{% from 'echo.sql' import echo %}
+
+SELECT {{ echo("foo") }}
+""",
+            None,
+            [
+                ("block_start", slice(0, 33, None), slice(0, 0, None)),
+                ("literal", slice(33, 42, None), slice(0, 9, None)),
+                ("templated", slice(42, 59, None), slice(9, 14, None)),
+                ("literal", slice(59, 60, None), slice(14, 15, None)),
+            ],
+        ),
     ],
 )
-def test__templater_jinja_slice_file(
-    raw_file, templated_file, override_context, result, caplog
-):
+def test__templater_jinja_slice_file(raw_file, override_context, result, caplog):
     """Test slice_file."""
     templater = JinjaTemplater(override_context=override_context)
-    env, live_context, make_template = templater.template_builder()
+    env, live_context, make_template = templater.template_builder(
+        config=FluffConfig.from_path(
+            "test/fixtures/templater/jinja_slice_template_macros"
+        )
+    )
 
-    # TODO: Now that we're generating "templated_file", eliminate this field
-    # from the parametrized test cases.
     templated_file = make_template(raw_file).render()
     with caplog.at_level(logging.DEBUG, logger="sqlfluff.templater"):
-        _, resp, _ = JinjaTemplater.slice_file(
+        _, resp, _ = templater.slice_file(
             raw_file, templated_file, make_template=make_template
         )
     # Check contigious on the TEMPLATED VERSION

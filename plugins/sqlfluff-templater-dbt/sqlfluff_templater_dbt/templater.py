@@ -54,6 +54,7 @@ class DbtConfigArgs:
     project_dir: Optional[str] = None
     profiles_dir: Optional[str] = None
     profile: Optional[str] = None
+    target: Optional[str] = None
     single_threaded: bool = False
 
 
@@ -96,6 +97,7 @@ class DbtTemplater(JinjaTemplater):
                     project_dir=self.project_dir,
                     profiles_dir=self.profiles_dir,
                     profile=self._get_profile(),
+                    target=self._get_target(),
                 ),
             )
         self.dbt_config = DbtRuntimeConfig.from_args(
@@ -103,6 +105,7 @@ class DbtTemplater(JinjaTemplater):
                 project_dir=self.project_dir,
                 profiles_dir=self.profiles_dir,
                 profile=self._get_profile(),
+                target=self._get_target(),
             )
         )
         register_adapter(self.dbt_config)
@@ -240,6 +243,12 @@ class DbtTemplater(JinjaTemplater):
         """Get a dbt profile name from the configuration."""
         return self.sqlfluff_config.get_section(
             (self.templater_selector, self.name, "profile")
+        )
+
+    def _get_target(self):
+        """Get a dbt target name from the configuration."""
+        return self.sqlfluff_config.get_section(
+            (self.templater_selector, self.name, "target")
         )
 
     def sequence_files(
@@ -543,11 +552,10 @@ class DbtTemplater(JinjaTemplater):
             [],
         )
 
-    @classmethod
-    def _slice_template(cls, in_str: str) -> List[RawFileSlice]:
+    def _slice_template(self, in_str: str) -> List[RawFileSlice]:
         # DbtTemplater uses the original heuristic-based template slicer.
         # TODO: Can it be updated to use TemplateTracer?
-        return slice_template(in_str, cls._get_jinja_env())
+        return slice_template(in_str, self._get_jinja_env())
 
 
 class SnapshotExtension(StandaloneTag):

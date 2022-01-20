@@ -124,7 +124,7 @@ def _has_value_table_function(table_expr, dialect):
         # We need the dialect to get the value table function names. If
         # we don't have it, assume the clause does not have a value table
         # function.
-        return False
+        return False  # pragma: no cover
 
     for function_name in table_expr.recursive_crawl("function_name"):
         # Other rules can increase whitespace in the function name, so use strip to
@@ -139,7 +139,7 @@ def _get_pivot_table_columns(segment, dialect):
     if not dialect:
         # We need the dialect to get the pivot table column names. If
         # we don't have it, assume the clause does not have a pivot table
-        return []
+        return []  # pragma: no cover
 
     fc = segment.get_child("from_pivot_expression")
     if not fc:

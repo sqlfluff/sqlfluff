@@ -331,10 +331,11 @@ class LintedFile(NamedTuple):
                 source_str=self.templated_file.source_str[source_slice],
             )
 
-            # Deal with the easy case of only literals
-            if set(local_type_list) == {"literal"}:
+            # Deal with the easy cases of 1) New code at end 2) only literals
+            if not local_type_list or set(local_type_list) == {"literal"}:
                 linter_logger.info(
-                    "      * Keeping patch on literal-only section: %s", enriched_patch
+                    "      * Keeping patch on new or literal-only section: %s",
+                    enriched_patch,
                 )
                 filtered_source_patches.append(enriched_patch)
                 dedupe_buffer.append(enriched_patch.dedupe_tuple())

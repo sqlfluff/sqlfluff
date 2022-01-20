@@ -18,7 +18,7 @@ from click.testing import CliRunner
 
 # We import the library directly here to get the version
 import sqlfluff
-from sqlfluff.cli.commands import lint, version, rules, fix, parse, dialects
+from sqlfluff.cli.commands import lint, version, rules, fix, parse, dialects, get_config
 
 
 def invoke_assert_code(
@@ -291,6 +291,14 @@ def test__cli__command_lint_stdin(command):
             [
                 "--config",
                 "test/fixtures/cli/extra_configs/.sqlfluff",
+                "test/fixtures/cli/extra_config_tsql.sql",
+            ],
+        ),
+        (
+            lint,
+            [
+                "--config",
+                "test/fixtures/cli/extra_configs/pyproject.toml",
                 "test/fixtures/cli/extra_config_tsql.sql",
             ],
         ),
@@ -932,6 +940,18 @@ def test_cli_disable_noqa_flag():
 
     # Linting error is raised even though it is inline ignored.
     assert r"L:   5 | P:  11 | L010 |" in raw_output
+
+
+def test_cli_get_default_config():
+    """`nocolor` and `verbose` values loaded from config if not specified via CLI."""
+    config = get_config(
+        "test/fixtures/config/toml/pyproject.toml",
+        True,
+        nocolor=None,
+        verbose=None,
+    )
+    assert config.get("nocolor") is True
+    assert config.get("verbose") == 2
 
 
 @patch(

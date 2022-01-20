@@ -63,7 +63,59 @@ spark3_dialect.patch_lexer_matchers(
         # https://spark.apache.org/docs/latest
         # /sql-ref-identifier.html#delimited-identifier
         RegexLexer("back_quote", r"`([^`]|``)*`", CodeSegment),
+        # Numeric literal matches integers, decimals, and exponential formats.
+        # https://spark.apache.org/docs/latest/sql-ref-literals.html#numeric-literal
+        # Pattern breakdown:
+        # (?>                                    Atomic grouping
+        #                           (https://www.regular-expressions.info/atomic.html).
+        #                                        3 distinct groups here:
+        #                                        1. Obvious fractional types
+        #                                           (can optionally be exponential).
+        #                                        2. Integer followed by exponential.
+        #                                           These must be fractional types.
+        #                                        3. Integer only.
+        #                                           These can either be integral or
+        #                                           fractional types.
+        #
+        #     (?>                                1.
+        #         \d+\.\d+                       e.g. 123.456
+        #         |\d+\.                         e.g. 123.
+        #         |\.\d+                         e.g. .123
+        #     )
+        #     ([eE][+-]?\d+)?                    Optional exponential.
+        #     ([dDfF]|BD|bd)?                    Fractional data types.
+        #     |\d+[eE][+-]?\d+([dDfF]|BD|bd)?    2. Integer + exponential with
+        #                                           fractional data types.
+        #     |\d+([dDfFlLsSyY]|BD|bd)?          3. Integer only with integral or
+        #                                           fractional data types.
+        # )
+        # (
+        #     (?<=\.)                            If matched character ends with .
+        #                                        (e.g. 123.) then don't worry about
+        #                                        word boundary check.
+        #     |(?=\b)                            Check that we are at word boundary to
+        #                                        avoid matching valid naked identifiers
+        #                                        (e.g. 123column).
+        # )
+        RegexLexer(
+            "numeric_literal",
+            (
+                r"(?>(?>\d+\.\d+|\d+\.|\.\d+)([eE][+-]?\d+)?([dDfF]|BD|bd)?"
+                r"|\d+[eE][+-]?\d+([dDfF]|BD|bd)?"
+                r"|\d+([dDfFlLsSyY]|BD|bd)?)"
+                r"((?<=\.)|(?=\b))"
+            ),
+            CodeSegment,
+        ),
     ]
+)
+
+spark3_dialect.insert_lexer_matchers(
+    [
+        RegexLexer("bytes_single_quote", r"X'([^'\\]|\\.)*'", CodeSegment),
+        RegexLexer("bytes_double_quote", r'X"([^"\\]|\\.)*"', CodeSegment),
+    ],
+    before="single_quote",
 )
 
 # Set the bare functions
@@ -134,17 +186,16 @@ spark3_dialect.replace(
         type="identifier",
         trim_chars=("`",),
     ),
+    QuotedLiteralSegment=hive_dialect.get_grammar("QuotedLiteralSegment"),
+    LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar").copy(
+        insert=[
+            Ref("BytesQuotedLiteralSegment"),
+        ]
+    ),
 )
 
 spark3_dialect.add(
     # Add Hive Segments TODO : Is there a way to retrieve this w/o redefining?
-    DoubleQuotedLiteralSegment=NamedParser(
-        "double_quote",
-        CodeSegment,
-        name="quoted_literal",
-        type="literal",
-        trim_chars=('"',),
-    ),
     JsonfileKeywordSegment=StringParser(
         "JSONFILE",
         KeywordSegment,
@@ -190,9 +241,6 @@ spark3_dialect.add(
     StoredAsGrammar=hive_dialect.get_grammar("StoredAsGrammar"),
     StoredByGrammar=hive_dialect.get_grammar("StoredByGrammar"),
     StorageFormatGrammar=hive_dialect.get_grammar("StorageFormatGrammar"),
-    SingleOrDoubleQuotedLiteralGrammar=hive_dialect.get_grammar(
-        "SingleOrDoubleQuotedLiteralGrammar"
-    ),
     TerminatedByGrammar=hive_dialect.get_grammar("TerminatedByGrammar"),
     # Add Spark Grammar
     BucketSpecGrammar=Sequence(
@@ -244,7 +292,7 @@ spark3_dialect.add(
     ResourceLocationGrammar=Sequence(
         "USING",
         Ref("ResourceFileGrammar"),
-        Ref("SingleOrDoubleQuotedLiteralGrammar"),
+        Ref("QuotedLiteralSegment"),
     ),
     SortSpecGrammar=Sequence(
         "SORTED",
@@ -263,10 +311,24 @@ spark3_dialect.add(
         "UNSET",
         "TBLPROPERTIES",
         Ref("IfExistsGrammar", optional=True),
-        Bracketed(Delimited(Ref("SingleOrDoubleQuotedLiteralGrammar"))),
+        Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
     ),
     TablePropertiesGrammar=Sequence(
         "TBLPROPERTIES", Ref("BracketedPropertyListGrammar")
+    ),
+    BytesQuotedLiteralSegment=OneOf(
+        NamedParser(
+            "bytes_single_quote",
+            CodeSegment,
+            name="bytes_quoted_literal",
+            type="literal",
+        ),
+        NamedParser(
+            "bytes_double_quote",
+            CodeSegment,
+            name="bytes_quoted_literal",
+            type="literal",
+        ),
     ),
 )
 
@@ -482,7 +544,7 @@ class AlterTableStatementSegment(BaseSegment):
                     ),
                     Sequence(
                         "SERDE",
-                        Ref("SingleOrDoubleQuotedLiteralGrammar"),
+                        Ref("QuotedLiteralSegment"),
                         Ref("SerdePropertiesGrammar", optional=True),
                     ),
                 ),
@@ -579,7 +641,7 @@ class CreateFunctionStatementSegment(BaseSegment):
         Ref("IfNotExistsGrammar", optional=True),
         Ref("FunctionNameIdentifierSegment"),
         "AS",
-        Ref("SingleOrDoubleQuotedLiteralGrammar"),
+        Ref("QuotedLiteralSegment"),
         Ref("ResourceLocationGrammar", optional=True),
     )
 
@@ -719,6 +781,38 @@ class MsckRepairTableStatementSegment(
     type = "msck_repair_table_statement"
 
 
+@spark3_dialect.segment(replace=True)
+class TruncateStatementSegment(BaseSegment):
+    """A `TRUNCATE TABLE` statement.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-ddl-truncate-table.html
+    """
+
+    type = "truncate_table_statement"
+
+    match_grammar = Sequence(
+        "TRUNCATE",
+        "TABLE",
+        Ref("TableReferenceSegment"),
+        Ref("PartitionSpecGrammar", optional=True),
+    )
+
+
+@spark3_dialect.segment()
+class UseDatabaseStatementSegment(BaseSegment):
+    """A `USE DATABASE` statement.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-ddl-usedb.html
+    """
+
+    type = "use_database_statement"
+
+    match_grammar = Sequence(
+        "USE",
+        Ref("DatabaseReferenceSegment"),
+    )
+
+
 # Auxiliary Statements
 @spark3_dialect.segment()
 class AddExecutablePackage(BaseSegment):
@@ -732,7 +826,54 @@ class AddExecutablePackage(BaseSegment):
     match_grammar = Sequence(
         "ADD",
         Ref("ResourceFileGrammar"),
-        Ref("SingleOrDoubleQuotedLiteralGrammar"),
+        Ref("QuotedLiteralSegment"),
+    )
+
+
+@spark3_dialect.segment()
+class RefreshStatementSegment(BaseSegment):
+    """A `REFRESH` statement for given data source path.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-aux-cache-refresh.html
+    """
+
+    type = "refresh_statement"
+
+    match_grammar = Sequence(
+        "REFRESH",
+        Ref("QuotedLiteralSegment"),
+    )
+
+
+@spark3_dialect.segment()
+class RefreshTableStatementSegment(BaseSegment):
+    """A `REFRESH TABLE` statement.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-aux-cache-refresh-table.html
+    """
+
+    type = "refresh_table_statement"
+
+    match_grammar = Sequence(
+        "REFRESH",
+        Ref.keyword("TABLE", optional=True),
+        Ref("TableReferenceSegment"),
+    )
+
+
+@spark3_dialect.segment()
+class RefreshFunctionStatementSegment(BaseSegment):
+    """A `REFRESH FUNCTION` statement.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-aux-cache-refresh-function.html
+    """
+
+    type = "refresh_function_statement"
+
+    match_grammar = Sequence(
+        "REFRESH",
+        "FUNCTION",
+        Ref("FunctionNameSegment"),
     )
 
 
@@ -752,8 +893,12 @@ class StatementSegment(BaseSegment):
             Ref("CreateHiveFormatTableStatementSegment"),
             Ref("DropFunctionStatementSegment"),
             Ref("MsckRepairTableStatementSegment"),
+            Ref("UseDatabaseStatementSegment"),
             # Auxiliary Statements
             Ref("AddExecutablePackage"),
+            Ref("RefreshStatementSegment"),
+            Ref("RefreshTableStatementSegment"),
+            Ref("RefreshFunctionStatementSegment"),
         ],
         remove=[
             Ref("TransactionStatementSegment"),

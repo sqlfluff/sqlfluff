@@ -118,3 +118,27 @@ SELECT
     , col2
 FROM t2
 ;
+
+CREATE TABLE t1 (col1, col2)
+AS (
+    SELECT
+        col1
+    FROM
+        tbl2
+);
+
+CREATE TABLE t1 (col1, col2)
+BACKUP NO
+DISTSTYLE ALL
+DISTKEY(col1)
+INTERLEAVED SORTKEY(col1, col2) 
+AS (
+    SELECT
+        col1
+    FROM
+        tbl2
+    UNION ALL SELECT
+        col2
+    FROM
+        tbl3
+);

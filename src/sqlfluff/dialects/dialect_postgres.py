@@ -19,6 +19,7 @@ from sqlfluff.core.parser import (
     CommentSegment,
     Dedent,
     SegmentGenerator,
+    NewlineSegment,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -181,6 +182,19 @@ postgres_dialect.add(
         "dollar_quote", CodeSegment, name="dollar_quoted_literal", type="literal"
     ),
     SimpleGeometryGrammar=AnyNumberOf(Ref("NumericLiteralSegment")),
+    # N.B. this MultilineConcatenateDelimiterGrammar is only created
+    # to parse multiline-concatenated string literals
+    # and shouldn't be used in other contexts.
+    # In general let the parser handle newlines and whitespace.
+    MultilineConcatenateNewline=NamedParser(
+        "newline",
+        NewlineSegment,
+        name="newline",
+        type="newline",
+    ),
+    MultilineConcatenateDelimiterGrammar=AnyNumberOf(
+        Ref("MultilineConcatenateNewline"), min_times=1, allow_gaps=False
+    ),
 )
 
 postgres_dialect.replace(
@@ -217,12 +231,38 @@ postgres_dialect.replace(
         type="function_name_identifier",
     ),
     QuotedLiteralSegment=OneOf(
-        NamedParser("single_quote", CodeSegment, name="quoted_literal", type="literal"),
-        NamedParser(
-            "unicode_single_quote", CodeSegment, name="quoted_literal", type="literal"
+        # Postgres allows newline-concatenated string literals (#1488).
+        # Since these string literals can have comments between them,
+        # we use grammar to handle this.
+        Delimited(
+            NamedParser(
+                "single_quote",
+                CodeSegment,
+                name="quoted_literal",
+                type="literal",
+            ),
+            delimiter=Ref("MultilineConcatenateDelimiterGrammar"),
+            allow_trailing=True,
         ),
-        NamedParser(
-            "escaped_single_quote", CodeSegment, name="quoted_literal", type="literal"
+        Delimited(
+            NamedParser(
+                "unicode_single_quote",
+                CodeSegment,
+                name="quoted_literal",
+                type="literal",
+            ),
+            delimiter=Ref("MultilineConcatenateDelimiterGrammar"),
+            allow_trailing=True,
+        ),
+        Delimited(
+            NamedParser(
+                "escaped_single_quote",
+                CodeSegment,
+                name="quoted_literal",
+                type="literal",
+            ),
+            delimiter=Ref("MultilineConcatenateDelimiterGrammar"),
+            allow_trailing=True,
         ),
     ),
     QuotedIdentifierSegment=OneOf(
@@ -967,16 +1007,18 @@ class CreateRoleStatementSegment(BaseSegment):
 
 
 @postgres_dialect.segment(replace=True)
-class ExplainStatementSegment(
-    ansi_dialect.get_segment("ExplainStatementSegment")  # type: ignore
-):
+class ExplainStatementSegment(BaseSegment):
     """An `Explain` statement.
 
     EXPLAIN [ ( option [, ...] ) ] statement
     EXPLAIN [ ANALYZE ] [ VERBOSE ] statement
 
-    https://www.postgresql.org/docs/9.1/sql-explain.html
+    https://www.postgresql.org/docs/14/sql-explain.html
     """
+
+    type = "explain_statement"
+
+    match_grammar = ansi_dialect.get_segment("ExplainStatementSegment").match_grammar
 
     parse_grammar = Sequence(
         "EXPLAIN",
@@ -1001,21 +1043,32 @@ class ExplainOptionSegment(BaseSegment):
     ANALYZE [ boolean ]
     VERBOSE [ boolean ]
     COSTS [ boolean ]
+    SETTINGS [ boolean ]
     BUFFERS [ boolean ]
+    WAL [ boolean ]
+    TIMING [ boolean ]
+    SUMMARY [ boolean ]
     FORMAT { TEXT | XML | JSON | YAML }
 
-    https://www.postgresql.org/docs/9.1/sql-explain.html
+    https://www.postgresql.org/docs/14/sql-explain.html
     """
 
     type = "explain_option"
 
-    flag_segment = Sequence(
-        OneOf("ANALYZE", "VERBOSE", "COSTS", "BUFFERS"),
-        OneOf(Ref("TrueSegment"), Ref("FalseSegment"), optional=True),
-    )
-
     match_grammar = OneOf(
-        flag_segment,
+        Sequence(
+            OneOf(
+                "ANALYZE",
+                "VERBOSE",
+                "COSTS",
+                "SETTINGS",
+                "BUFFERS",
+                "WAL",
+                "TIMING",
+                "SUMMARY",
+            ),
+            Ref("BooleanLiteralGrammar", optional=True),
+        ),
         Sequence(
             "FORMAT",
             OneOf("TEXT", "XML", "JSON", "YAML"),
@@ -2064,18 +2117,7 @@ class ColumnConstraintSegment(BaseSegment):
             ),
             "UNIQUE",
             Ref("PrimaryKeyGrammar"),
-            Sequence(  # REFERENCES reftable [ ( refcolumn) ]
-                "REFERENCES",
-                Ref("ColumnReferenceSegment"),
-                # Foreign columns making up FOREIGN KEY constraint
-                Ref("BracketedColumnReferenceListGrammar", optional=True),
-                Sequence(
-                    "ON",
-                    OneOf("DELETE", "UPDATE"),
-                    Ref("ReferentialActionSegment"),
-                    optional=True,
-                ),
-            ),
+            Ref("ReferenceDefinitionGrammar"),  # REFERENCES reftable [ ( refcolumn) ]
         ),
         OneOf("DEFERRABLE", Sequence("NOT", "DEFERRABLE"), optional=True),
         OneOf(
@@ -2182,17 +2224,9 @@ class TableConstraintSegment(BaseSegment):
                 "KEY",
                 # Local columns making up FOREIGN KEY constraint
                 Ref("BracketedColumnReferenceListGrammar"),
-                "REFERENCES",
-                Ref("ColumnReferenceSegment"),
-                # Foreign columns making up FOREIGN KEY constraint
-                Ref("BracketedColumnReferenceListGrammar", optional=True),
-                Sequence("MATCH", OneOf("FULL", "PARTIAL", "SIMPLE"), optional=True),
-                Sequence(
-                    "ON", "DELETE", Ref("ReferentialActionSegment"), optional=True
-                ),
-                Sequence(
-                    "ON", "UPDATE", Ref("ReferentialActionSegment"), optional=True
-                ),
+                Ref(
+                    "ReferenceDefinitionGrammar"
+                ),  # REFERENCES reftable [ ( refcolumn) ]
             ),
             OneOf("DEFERRABLE", Sequence("NOT", "DEFERRABLE"), optional=True),
             OneOf(
@@ -3045,6 +3079,38 @@ class DropTriggerStatementSegment(BaseSegment):
 
 
 @postgres_dialect.segment(replace=True)
+class AliasExpressionSegment(BaseSegment):
+    """A reference to an object with an `AS` clause.
+
+    The optional AS keyword allows both implicit and explicit aliasing.
+    """
+
+    type = "alias_expression"
+    match_grammar = Sequence(
+        Ref.keyword("AS", optional=True),
+        Ref("SingleIdentifierGrammar"),
+    )
+
+
+@postgres_dialect.segment()
+class AsAliasExpressionSegment(BaseSegment):
+    """A reference to an object with an `AS` clause.
+
+    This is used in `InsertStatementSegment` in Postgres
+    since the `AS` is not optional in this context.
+
+    N.B. We keep as a separate segment since the `alias_expression`
+    type is required for rules to interpret the alias.
+    """
+
+    type = "alias_expression"
+    match_grammar = Sequence(
+        "AS",
+        Ref("SingleIdentifierGrammar"),
+    )
+
+
+@postgres_dialect.segment(replace=True)
 class InsertStatementSegment(BaseSegment):
     """An `INSERT` statement.
 
@@ -3059,6 +3125,7 @@ class InsertStatementSegment(BaseSegment):
         "INSERT",
         "INTO",
         Ref("TableReferenceSegment"),
+        Ref("AsAliasExpressionSegment", optional=True),
         Ref("BracketedColumnReferenceListGrammar", optional=True),
         Sequence("OVERRIDING", OneOf("SYSTEM", "USER"), "VALUE", optional=True),
         Ref("SelectableGrammar"),
