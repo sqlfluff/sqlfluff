@@ -2190,6 +2190,7 @@ class TableIndexClause(BaseSegment):
     """`CREATE TABLE` table index clause.
 
     This is specific to Azure Synapse Analytics.
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-table-azure-sql-data-warehouse?view=aps-pdw-2016-au7#TableOptions
     """
 
     type = "table_index_clause"
@@ -2201,6 +2202,29 @@ class TableIndexClause(BaseSegment):
                 "CLUSTERED",
                 "COLUMNSTORE",
                 "INDEX",
+                Sequence(
+                    "ORDER",
+                    Bracketed(
+                        Delimited(
+                            Ref("ColumnReferenceSegment"),
+                        ),
+                    ),
+                    optional=True,
+                ),
+            ),
+            Sequence(
+                "CLUSTERED",
+                "INDEX",
+                Bracketed(
+                    Delimited(
+                        Ref("ColumnReferenceSegment"),
+                        OneOf(
+                            "ASC",
+                            "DESC",
+                            optional=True,
+                        ),
+                    ),
+                ),
             ),
         ),
     )
