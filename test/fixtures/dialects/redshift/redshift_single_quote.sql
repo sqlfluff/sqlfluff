@@ -12,8 +12,6 @@ SELECT '
 ''
 ';
 
-SELECT '\';
-
 SELECT 'foo'
 'bar';
 
