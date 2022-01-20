@@ -935,7 +935,6 @@ class StatementSegment(BaseSegment):
             Ref("CreateExtensionStatementSegment"),
             Ref("CreateModelStatementSegment"),
             Ref("DropModelStatementSegment"),
-            Ref("InsertStatementSegment"),
         ],
     )
 
