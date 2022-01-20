@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: dedbb68c319ea4973fa51b3f95854606bfb3f306b57d657788db9c6d03ec737b
+_hash: 2884b5261aca756449ade39d43428e9bf617350ab2ac84ff0f6fd144a7433ba3
 file:
 - statement:
     explain_statement:
@@ -15,16 +15,118 @@ file:
           literal: 'true'
       - comma: ','
       - explain_option:
-          keyword: costs
-          literal: 'false'
+          keyword: verbose
+          literal: 'true'
       - comma: ','
       - explain_option:
-          keyword: verbose
+          keyword: costs
+          literal: 'true'
+      - comma: ','
+      - explain_option:
+          keyword: settings
           literal: 'true'
       - comma: ','
       - explain_option:
           keyword: buffers
           literal: 'true'
+      - comma: ','
+      - explain_option:
+          keyword: wal
+          literal: 'true'
+      - comma: ','
+      - explain_option:
+          keyword: timing
+          literal: 'true'
+      - comma: ','
+      - explain_option:
+          keyword: summary
+          literal: 'true'
+      - comma: ','
+      - explain_option:
+        - keyword: format
+        - keyword: xml
+      - end_bracket: )
+      select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            literal: '1'
+- statement_terminator: ;
+- statement:
+    explain_statement:
+      keyword: explain
+      bracketed:
+      - start_bracket: (
+      - explain_option:
+          keyword: analyze
+          literal: 'false'
+      - comma: ','
+      - explain_option:
+          keyword: verbose
+          literal: 'false'
+      - comma: ','
+      - explain_option:
+          keyword: costs
+          literal: 'false'
+      - comma: ','
+      - explain_option:
+          keyword: settings
+          literal: 'false'
+      - comma: ','
+      - explain_option:
+          keyword: buffers
+          literal: 'false'
+      - comma: ','
+      - explain_option:
+          keyword: wal
+          literal: 'false'
+      - comma: ','
+      - explain_option:
+          keyword: timing
+          literal: 'false'
+      - comma: ','
+      - explain_option:
+          keyword: summary
+          literal: 'false'
+      - comma: ','
+      - explain_option:
+        - keyword: format
+        - keyword: xml
+      - end_bracket: )
+      select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            literal: '1'
+- statement_terminator: ;
+- statement:
+    explain_statement:
+      keyword: explain
+      bracketed:
+      - start_bracket: (
+      - explain_option:
+          keyword: analyze
+      - comma: ','
+      - explain_option:
+          keyword: verbose
+      - comma: ','
+      - explain_option:
+          keyword: costs
+      - comma: ','
+      - explain_option:
+          keyword: settings
+      - comma: ','
+      - explain_option:
+          keyword: buffers
+      - comma: ','
+      - explain_option:
+          keyword: wal
+      - comma: ','
+      - explain_option:
+          keyword: timing
+      - comma: ','
+      - explain_option:
+          keyword: summary
       - comma: ','
       - explain_option:
         - keyword: format

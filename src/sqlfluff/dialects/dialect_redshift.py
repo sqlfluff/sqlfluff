@@ -7,6 +7,8 @@ We should monitor in future and see if it should be rebased off of ANSI
 from sqlfluff.core.parser import (
     OneOf,
     AnyNumberOf,
+    AnySetOf,
+    Anything,
     Ref,
     Sequence,
     Bracketed,
@@ -44,9 +46,93 @@ redshift_dialect.sets("bare_functions").clear()
 redshift_dialect.sets("bare_functions").update(["current_date", "sysdate"])
 
 redshift_dialect.replace(WellKnownTextGeometrySegment=Nothing())
-# TODO: for the time use the ANSI definition and not the updated one from Postgres as not all
-#       data types are supported by Redshift
-redshift_dialect.replace(DatatypeSegment=ansi_dialect.get_segment("DatatypeSegment"))
+
+
+@redshift_dialect.segment(replace=True)
+class DatatypeSegment(BaseSegment):
+    """A data type segment.
+
+    Indicates a data type.
+
+    As specified by: https://docs.aws.amazon.com/redshift/latest/dg/c_Supported_data_types.html
+    """
+
+    type = "data_type"
+    match_grammar = OneOf(
+        # numeric types
+        "SMALLINT",
+        "INT2",
+        "INTEGER",
+        "INT",
+        "INT4",
+        "BIGINT",
+        "INT8",
+        "REAL",
+        "FLOAT4",
+        Sequence("DOUBLE", "PRECISION"),
+        "FLOAT8",
+        "FLOAT",
+        # numeric types [precision ["," scale])]
+        Sequence(
+            OneOf("DECIMAL", "NUMERIC"),
+            Bracketed(
+                Delimited(Ref("NumericLiteralSegment")),
+                optional=True,
+            ),
+        ),
+        # character types
+        OneOf(
+            Sequence(
+                OneOf(
+                    "CHAR",
+                    "CHARACTER",
+                    "NCHAR",
+                    "VARCHAR",
+                    Sequence("CHARACTER", "VARYING"),
+                    "NVARCHAR",
+                ),
+                Bracketed(
+                    OneOf(
+                        Ref("NumericLiteralSegment"),
+                        "MAX",
+                    ),
+                    optional=True,
+                ),
+            ),
+            "BPCHAR",
+            "TEXT",
+        ),
+        # datetime types
+        "DATE",
+        Sequence(
+            OneOf("TIME", "TIMESTAMP"),
+            Sequence(OneOf("WITH", "WITHOUT"), "TIME", "ZONE", optional=True),
+        ),
+        OneOf("TIMETZ", "TIMESTAMPTZ"),
+        # INTERVAL is a data type *only* for conversion operations
+        "INTERVAL",
+        # boolean types
+        OneOf("BOOLEAN", "BOOL"),
+        # hllsketch type
+        "HLLSKETCH",
+        # super type
+        "SUPER",
+        # spatial data
+        "GEOMETRY",
+        "GEOGRAPHY",
+        # binary type
+        Sequence(
+            OneOf(
+                "VARBYTE",
+                "VARBINARY",
+                Sequence("BINARY", "VARYING"),
+            ),
+            Bracketed(
+                Ref("NumericLiteralSegment"),
+                optional=True,
+            ),
+        ),
+    )
 
 
 @redshift_dialect.segment(replace=True)
@@ -402,7 +488,164 @@ class CreateTableAsStatementSegment(BaseSegment):
         Sequence("BACKUP", OneOf("YES", "NO"), optional=True),
         Ref("TableAttributeSegment", optional=True),
         "AS",
-        Ref("SelectableGrammar"),
+        OptionallyBracketed(Ref("SelectableGrammar")),
+    )
+
+
+@redshift_dialect.segment(replace=True)
+class CreateModelStatementSegment(BaseSegment):
+    """A `CREATE MODEL` statement.
+
+    As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_MODEL.html
+    NB: order of keywords matter
+    """
+
+    type = "create_model_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        "MODEL",
+        Ref("ObjectReferenceSegment"),
+        Sequence(
+            "FROM",
+            OneOf(
+                Ref("QuotedLiteralSegment"),
+                Bracketed(Ref("SelectableGrammar")),
+                Ref("ObjectReferenceSegment"),
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "TARGET",
+            Ref("ColumnReferenceSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "FUNCTION",
+            Ref("ObjectReferenceSegment"),
+            Bracketed(
+                Delimited(Ref("DatatypeSegment")),
+                optional=True,
+            ),
+        ),
+        Sequence(
+            "RETURNS",
+            Ref("DatatypeSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "SAGEMAKER",
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "IAM_ROLE",
+            OneOf(
+                "DEFAULT",
+                Ref("QuotedLiteralSegment"),
+            ),
+        ),
+        Sequence(
+            "AUTO",
+            OneOf(
+                "ON",
+                "OFF",
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "MODEL_TYPE",
+            OneOf(
+                "XGBOOST",
+                "MLP",
+                "KMEANS",
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "PROBLEM_TYPE",
+            OneOf(
+                "REGRESSION",
+                "BINARY_CLASSIFICATION",
+                "MULTICLASS_CLASSIFICATION",
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "OBJECTIVE",
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "PREPROCESSORS",
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "HYPERPARAMETERS",
+            "DEFAULT",
+            Sequence(
+                "EXCEPT",
+                Bracketed(
+                    Delimited(
+                        Anything(),
+                    ),
+                ),
+                optional=True,
+            ),
+            optional=True,
+        ),
+        Sequence(
+            "SETTINGS",
+            Bracketed(
+                Sequence(
+                    "S3_BUCKET",
+                    Ref("QuotedLiteralSegment"),
+                    Sequence(
+                        "KMS_KEY_ID",
+                        Ref("QuotedLiteralSegment"),
+                        optional=True,
+                    ),
+                    Sequence(
+                        "S3_GARBAGE_COLLECT",
+                        OneOf(
+                            "ON",
+                            "OFF",
+                        ),
+                        optional=True,
+                    ),
+                    Sequence(
+                        "MAX_CELLS",
+                        Ref("NumericLiteralSegment"),
+                        optional=True,
+                    ),
+                    Sequence(
+                        "MAX_RUNTIME",
+                        Ref("NumericLiteralSegment"),
+                        optional=True,
+                    ),
+                ),
+            ),
+            optional=True,
+        ),
+    )
+
+
+@redshift_dialect.segment()
+class ShowModelSegment(BaseSegment):
+    """A `SHOW MODEL` statement.
+
+    As specified in: https://docs.aws.amazon.com/redshift/latest/dg/r_SHOW_MODEL.html
+    """
+
+    type = "show_model_statement"
+
+    match_grammar = Sequence(
+        "SHOW",
+        "MODEL",
+        OneOf(
+            "ALL",
+            Ref("ObjectReferenceSegment"),
+        ),
     )
 
 
@@ -411,8 +654,6 @@ class CreateExternalTableStatementSegment(BaseSegment):
     """A `CREATE EXTERNAL TABLE` statement.
 
     As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_EXTERNAL_TABLE.html
-    TODO: support ROW FORMAT SERDE and WITH SERDEPROPERTIES
-    TODO: support TABLE PROPERTIES
     """
 
     type = "create_external_table_statement"
@@ -432,6 +673,35 @@ class CreateExternalTableStatementSegment(BaseSegment):
             ),
         ),
         Ref("PartitionedBySegment", optional=True),
+        Sequence(
+            "ROW",
+            "FORMAT",
+            OneOf(
+                Sequence(
+                    "DELIMITED",
+                    Ref("RowFormatDelimitedSegment"),
+                ),
+                Sequence(
+                    "SERDE",
+                    Ref("QuotedLiteralSegment"),
+                    Sequence(
+                        "WITH",
+                        "SERDEPROPERTIES",
+                        Bracketed(
+                            Delimited(
+                                Sequence(
+                                    Ref("QuotedLiteralSegment"),
+                                    Ref("EqualsSegment"),
+                                    Ref("QuotedLiteralSegment"),
+                                ),
+                            ),
+                        ),
+                        optional=True,
+                    ),
+                ),
+            ),
+            optional=True,
+        ),
         "STORED",
         "AS",
         OneOf(
@@ -450,6 +720,20 @@ class CreateExternalTableStatementSegment(BaseSegment):
         ),
         "LOCATION",
         Ref("QuotedLiteralSegment"),
+        Sequence(
+            "TABLE",
+            "PROPERTIES",
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        Ref("QuotedLiteralSegment"),
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                ),
+            ),
+            optional=True,
+        ),
     )
 
 
@@ -458,7 +742,6 @@ class CreateExternalTableAsStatementSegment(BaseSegment):
     """A `CREATE EXTERNAL TABLE AS` statement.
 
     As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_EXTERNAL_TABLE.html
-    TODO: support TABLE PROPERTIES
     """
 
     type = "create_external_table_statement"
@@ -469,7 +752,13 @@ class CreateExternalTableAsStatementSegment(BaseSegment):
         "TABLE",
         Ref("TableReferenceSegment"),
         Ref("PartitionedBySegment", optional=True),
-        Ref("RowFormatDelimitedSegment", optional=True),
+        Sequence(
+            "ROW",
+            "FORMAT",
+            "DELIMITED",
+            Ref("RowFormatDelimitedSegment"),
+            optional=True,
+        ),
         "STORED",
         "AS",
         OneOf(
@@ -478,6 +767,20 @@ class CreateExternalTableAsStatementSegment(BaseSegment):
         ),
         "LOCATION",
         Ref("QuotedLiteralSegment"),
+        Sequence(
+            "TABLE",
+            "PROPERTIES",
+            Bracketed(
+                Delimited(
+                    Sequence(
+                        Ref("QuotedLiteralSegment"),
+                        Ref("EqualsSegment"),
+                        Ref("QuotedLiteralSegment"),
+                    ),
+                ),
+            ),
+            optional=True,
+        ),
         "AS",
         OptionallyBracketed(Ref("SelectableGrammar")),
     )
@@ -854,6 +1157,155 @@ class CreateSchemaStatementSegment(BaseSegment):
     )
 
 
+@redshift_dialect.segment()
+class AltereDatashareStatementSegment(BaseSegment):
+    """An `ALTER DATASHARE` statement.
+
+    As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_ALTER_DATASHARE.html
+    """
+
+    type = "create_datashare_statement"
+    match_grammar = Sequence(
+        "ALTER",
+        "DATASHARE",
+        Ref("ObjectReferenceSegment"),
+        OneOf(
+            # add or remove objects to the datashare
+            Sequence(
+                OneOf(
+                    "ADD",
+                    "REMOVE",
+                ),
+                OneOf(
+                    Sequence(
+                        "TABLE",
+                        Delimited(Ref("TableReferenceSegment")),
+                    ),
+                    Sequence(
+                        "SCHEMA",
+                        Delimited(Ref("SchemaReferenceSegment")),
+                    ),
+                    Sequence(
+                        "FUNCTION",
+                        Delimited(Ref("FunctionNameSegment")),
+                    ),
+                    Sequence(
+                        "ALL",
+                        OneOf("TABLES", "FUNCTIONS"),
+                        "IN",
+                        "SCHEMA",
+                        Delimited(Ref("SchemaReferenceSegment")),
+                    ),
+                ),
+            ),
+            # configure the properties of the datashare
+            Sequence(
+                "SET",
+                OneOf(
+                    Sequence(
+                        "PUBLICACCESSIBLE",
+                        Ref("EqualsSegment", optional=True),
+                        Ref("BooleanLiteralGrammar"),
+                    ),
+                    Sequence(
+                        "INCLUDENEW",
+                        Ref("EqualsSegment", optional=True),
+                        Ref("BooleanLiteralGrammar"),
+                        "FOR",
+                        "SCHEMA",
+                        Ref("SchemaReferenceSegment"),
+                    ),
+                ),
+            ),
+        ),
+    )
+
+
+@redshift_dialect.segment()
+class CreateDatashareStatementSegment(BaseSegment):
+    """A `CREATE DATASHARE` statement.
+
+    As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_DATASHARE.html
+    """
+
+    type = "create_datashare_statement"
+    match_grammar = Sequence(
+        "CREATE",
+        "DATASHARE",
+        Ref("ObjectReferenceSegment"),
+        Sequence(
+            Ref.keyword("SET", optional=True),
+            "PUBLICACCESSIBLE",
+            Ref("EqualsSegment", optional=True),
+            OneOf(
+                "TRUE",
+                "FALSE",
+            ),
+            optional=True,
+        ),
+    )
+
+
+@redshift_dialect.segment()
+class DescDatashareStatementSegment(BaseSegment):
+    """A `DESC DATASHARE` statement.
+
+    As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_DESC_DATASHARE.html
+    """
+
+    type = "desc_datashare_statement"
+    match_grammar = Sequence(
+        "DESC",
+        "DATASHARE",
+        Ref("ObjectReferenceSegment"),
+        Sequence(
+            "OF",
+            Sequence(
+                "ACCOUNT",
+                Ref("QuotedLiteralSegment"),
+                optional=True,
+            ),
+            "NAMESPACE",
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
+    )
+
+
+@redshift_dialect.segment()
+class DropDatashareStatementSegment(BaseSegment):
+    """A `DROP DATASHARE` statement.
+
+    As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_DROP_DATASHARE.html
+    """
+
+    type = "drop_datashare_statement"
+    match_grammar = Sequence(
+        "DROP",
+        "DATASHARE",
+        Ref("ObjectReferenceSegment"),
+    )
+
+
+@redshift_dialect.segment()
+class ShowDatasharesStatementSegment(BaseSegment):
+    """A `SHOW DATASHARES` statement.
+
+    As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_SHOW_DATASHARES.html
+    """
+
+    type = "show_datashares_statement"
+    match_grammar = Sequence(
+        "SHOW",
+        "DATASHARES",
+        Sequence(
+            "LIKE",
+            Ref("QuotedLiteralSegment"),
+            optional=True,
+        ),
+    )
+
+
 # Adding Redshift specific statements
 @redshift_dialect.segment(replace=True)
 class StatementSegment(BaseSegment):
@@ -880,6 +1332,12 @@ class StatementSegment(BaseSegment):
             Ref("CompressionTypeSegment"),
             Ref("UnloadStatementSegment"),
             Ref("CopyStatementSegment"),
+            Ref("ShowModelSegment"),
+            Ref("CreateDatashareStatementSegment"),
+            Ref("DescDatashareStatementSegment"),
+            Ref("DropDatashareStatementSegment"),
+            Ref("ShowDatasharesStatementSegment"),
+            Ref("AltereDatashareStatementSegment"),
         ],
     )
 
@@ -920,14 +1378,20 @@ class RowFormatDelimitedSegment(BaseSegment):
 
     type = "row_format_deimited_segment"
 
-    match_grammar = Sequence(
-        "ROW",
-        "FORMAT",
-        "DELIMITED",
-        OneOf("FIELDS", "LINES"),
-        "TERMINATED",
-        "BY",
-        Ref("QuotedLiteralSegment"),
+    match_grammar = AnySetOf(
+        Sequence(
+            "FIELDS",
+            "TERMINATED",
+            "BY",
+            Ref("QuotedLiteralSegment"),
+        ),
+        Sequence(
+            "LINES",
+            "TERMINATED",
+            "BY",
+            Ref("QuotedLiteralSegment"),
+        ),
+        optional=True,
     )
 
 

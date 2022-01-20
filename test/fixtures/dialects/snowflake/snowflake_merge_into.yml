@@ -3,23 +3,25 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 79f01b47927613ccf9b08d80bdf3dfcb80be23a59c6d74eee845a345fd47cd9a
+_hash: d07738df29bf8bdf14d50d018e4d4109a741356e621c628c6161f181165ba097
 file:
 - statement:
-    alter_table_column_statement:
+    alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
       - identifier: xxxx
       - dot: .
       - identifier: example_table
-    - keyword: MODIFY
-    - keyword: COLUMN
-    - identifier: employeeCode
-    - keyword: SET
-    - keyword: MASKING
-    - keyword: POLICY
-    - function_name_identifier: example_MASKING_POLICY
+    - alter_table_table_column_action:
+      - keyword: MODIFY
+      - keyword: COLUMN
+      - column_reference:
+          identifier: employeeCode
+      - keyword: SET
+      - keyword: MASKING
+      - keyword: POLICY
+      - function_name_identifier: example_MASKING_POLICY
 - statement_terminator: ;
 - statement:
     merge_statement:

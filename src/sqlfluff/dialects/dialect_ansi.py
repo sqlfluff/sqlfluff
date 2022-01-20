@@ -19,6 +19,7 @@ from sqlfluff.core.dialects.base import Dialect
 from sqlfluff.core.dialects.common import AliasInfo, ColumnAliasInfo
 from sqlfluff.core.parser import (
     AnyNumberOf,
+    AnySetOf,
     Anything,
     BaseFileSegment,
     BaseSegment,
@@ -89,10 +90,26 @@ ansi_dialect.set_lexer_matchers(
         # See https://www.geeksforgeeks.org/postgresql-dollar-quoted-string-constants/
         RegexLexer("dollar_quote", r"\$(\w*)\$[^\1]*?\$\1\$", CodeSegment),
         # Numeric literal matches integers, decimals, and exponential formats,
-        # with a positve lookahead assertion to check it is not part of a naked identifier.
+        # Pattern breakdown:
+        # (?>                                    Atomic grouping
+        #                                        (https://www.regular-expressions.info/atomic.html).
+        #     \d+\.\d+                           e.g. 123.456
+        #     |\d+\.(?!\.)                       e.g. 123.
+        #                                        (N.B. negative lookahead assertion to ensure we
+        #                                        don't match range operators `..` in Exasol).
+        #     |\.\d+                             e.g. .456
+        #     |\d+                               e.g. 123
+        # )
+        # ([eE][+-]?\d+)?                        Optional exponential.
+        # (
+        #     (?<=\.)                            If matched character ends with . (e.g. 123.) then
+        #                                        don't worry about word boundary check.
+        #     |(?=\b)                            Check that we are at word boundary to avoid matching
+        #                                        valid naked identifiers (e.g. 123column).
+        # )
         RegexLexer(
             "numeric_literal",
-            r"(?>\d+(\.\d+)?|\.\d+)([eE][+-]?\d+)?(?=\b)",
+            r"(?>\d+\.\d+|\d+\.(?!\.)|\.\d+|\d+)([eE][+-]?\d+)?((?<=\.)|(?=\b))",
             CodeSegment,
         ),
         RegexLexer("like_operator", r"!?~~?\*?", CodeSegment),
@@ -499,7 +516,7 @@ ansi_dialect.add(
             ),
             optional=True,
         ),
-        AnyNumberOf(
+        AnySetOf(
             # ON DELETE clause, e.g. ON DELETE NO ACTION
             Sequence(
                 "ON",
@@ -715,6 +732,18 @@ class ObjectReferenceSegment(BaseSegment):
         refs = list(self.iter_raw_references())
         if len(refs) >= level:
             return [refs[-level]]
+        return []
+
+    def extract_possible_multipart_references(
+        self, levels: List[Union[ObjectReferenceLevel, int]]
+    ) -> List[Tuple[ObjectReferencePart, ...]]:
+        """Extract possible multipart references, e.g. schema.table."""
+        levels_tmp = [self._level_to_int(level) for level in levels]
+        min_level = min(levels_tmp)
+        max_level = max(levels_tmp)
+        refs = list(self.iter_raw_references())
+        if len(refs) >= max_level:
+            return [tuple(refs[-max_level : 1 - min_level])]
         return []
 
     @staticmethod
@@ -1139,7 +1168,6 @@ class FromExpressionElementSegment(BaseSegment):
             return AliasInfo(segment.raw, segment, True, self, alias_expression, ref)
 
         # If not return the object name (or None if there isn't one)
-        # ref = self.get_child("object_reference")
         if ref:
             # Return the last element of the reference.
             penultimate_ref: ObjectReferenceSegment.ObjectReferencePart = list(
@@ -2548,6 +2576,7 @@ class CreateViewStatementSegment(BaseSegment):
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),
         "VIEW",
+        Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
         # Optional list of column names
         Ref("BracketedColumnReferenceListGrammar", optional=True),
@@ -2976,7 +3005,7 @@ class CreateFunctionStatementSegment(BaseSegment):
 
     match_grammar = Sequence(
         "CREATE",
-        Sequence("OR", "REPLACE", optional=True),
+        Ref("OrReplaceGrammar", optional=True),
         Ref("TemporaryGrammar", optional=True),
         "FUNCTION",
         Anything(),
@@ -2984,10 +3013,10 @@ class CreateFunctionStatementSegment(BaseSegment):
 
     parse_grammar = Sequence(
         "CREATE",
-        Sequence("OR", "REPLACE", optional=True),
+        Ref("OrReplaceGrammar", optional=True),
         Ref("TemporaryGrammar", optional=True),
         "FUNCTION",
-        Sequence("IF", "NOT", "EXISTS", optional=True),
+        Ref("IfNotExistsGrammar", optional=True),
         Ref("FunctionNameSegment"),
         Ref("FunctionParameterListGrammar"),
         Sequence(  # Optional function return type
