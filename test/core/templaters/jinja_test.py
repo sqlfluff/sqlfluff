@@ -6,6 +6,7 @@ from typing import List, NamedTuple
 import pytest
 
 from sqlfluff.core.templaters import JinjaTemplater
+from sqlfluff.core.templaters.base import RawFileSlice
 from sqlfluff.core.templaters.jinja import JinjaTracer
 from sqlfluff.core import Linter, FluffConfig
 
@@ -330,6 +331,7 @@ def test__templater_jinja_slices(case: RawTemplatedTestCase):
     """Test that Jinja templater slices raw and templated file correctly."""
     t = JinjaTemplater()
     templated_file, _ = t.process(in_str=case.instr, fname="test", config=FluffConfig())
+    assert templated_file
     assert templated_file.source_str == case.instr
     assert templated_file.templated_str == case.templated_str
     # Build and check the list of source strings referenced by "sliced_file".
@@ -347,8 +349,8 @@ def test__templater_jinja_slices(case: RawTemplatedTestCase):
 
     # Build and check the list of source strings referenced by "raw_sliced".
     previous_rs = None
-    actual_rs_source_list = []
-    for rs in templated_file.raw_sliced + [None]:
+    actual_rs_source_list: List[RawFileSlice] = []
+    for rs in templated_file.raw_sliced + [None]:  # type: ignore
         if previous_rs:
             if rs:
                 actual_source = case.instr[previous_rs.source_idx : rs.source_idx]
@@ -527,12 +529,42 @@ select 1 from foobarfoobarfoobarfoobar_{{ "dev" }}
                 ("\n", "literal", 97),
             ],
         ),
+        (
+            # Tests Jinja "block assignment" syntax. Also tests the use of
+            # template substitution within the block: {{ "dev" }}.
+            """{% include 'include_comment.j2' %}
+
+SELECT 1
+""",
+            [
+                ("{% include 'include_comment.j2' %}", "templated", 0),
+                ("\n\nSELECT 1\n", "literal", 34),
+            ],
+        ),
+        (
+            # Tests Jinja "block assignment" syntax. Also tests the use of
+            # template substitution within the block: {{ "dev" }}.
+            """{% from 'echo.j2' import echo %}
+
+SELECT {{ echo("foo") }}
+""",
+            [
+                ("{% from 'echo.j2' import echo %}", "block_start", 0),
+                ("\n\nSELECT ", "literal", 32),
+                ('{{ echo("foo") }}', "templated", 41),
+                ("\n", "literal", 58),
+            ],
+        ),
     ],
 )
 def test__templater_jinja_slice_template(test, result):
     """Test _slice_template."""
     templater = JinjaTemplater()
-    env, live_context, make_template = templater.template_builder()
+    env, live_context, make_template = templater.template_builder(
+        config=FluffConfig.from_path(
+            "test/fixtures/templater/jinja_slice_template_macros"
+        )
+    )
     tracer = JinjaTracer(test, env, make_template)
     resp = list(tracer._slice_template())
     # check contiguous (unless there's a comment in it)
