@@ -51,10 +51,10 @@ applicants
 WHERE qualified = TRUE;
 
 -- Insert Using a Typed Date Literal for a Partition Column Value
-INSERT INTO students PARTITION (birthday = DATE'2019-01-02')
+INSERT INTO students PARTITION (birthday = DATE '2019-01-02')
 VALUES ('Amy Smith', '123 Park Ave, San Jose');
 
-INSERT OVERWRITE students PARTITION (birthday = DATE'2019-01-02')
+INSERT OVERWRITE students PARTITION (birthday = DATE '2019-01-02')
 VALUES ('Amy Smith', '123 Park Ave, San Jose');
 
 -- Insert with both a partition spec and a column list
