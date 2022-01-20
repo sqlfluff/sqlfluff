@@ -922,8 +922,6 @@ class StatementSegment(BaseSegment):
             Ref("DropFunctionStatementSegment"),
             Ref("MsckRepairTableStatementSegment"),
             Ref("UseDatabaseStatementSegment"),
-            # Data Manipulation Statements
-            Ref("InsertTableStatement"),
             # Auxiliary Statements
             Ref("AddExecutablePackage"),
             Ref("RefreshStatementSegment"),
