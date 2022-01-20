@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 01e107538dcee39b0cb064eca8352406b58deff5cfd0dd545efdab4a114bd13e
+_hash: 09c7f362cc6f0ee743b1731294a6a6fe7f570f01265f19d81b2c9e229d70f93e
 file:
 - base:
     insert_table_statement:
@@ -222,7 +222,13 @@ file:
         identifier: applicants
     - keyword: SELECT
     - column_reference:
-        identifier: applicants
+        identifier: name
+    - comma: ','
+    - column_reference:
+        identifier: address
+    - comma: ','
+    - column_reference:
+        identifier: id
     - where_clause:
         keyword: WHERE
         expression:
@@ -243,7 +249,13 @@ file:
         identifier: applicants
     - keyword: SELECT
     - column_reference:
-        identifier: applicants
+        identifier: name
+    - comma: ','
+    - column_reference:
+        identifier: address
+    - comma: ','
+    - column_reference:
+        identifier: id
     - where_clause:
         keyword: WHERE
         expression:

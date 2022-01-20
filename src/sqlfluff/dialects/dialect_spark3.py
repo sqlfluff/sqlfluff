@@ -823,15 +823,12 @@ class InsertStatementSegment(BaseSegment):
                 Ref("TableReferenceSegment"),
             ),
             Sequence(
-                # TODO is there a less brittle way to do this using an existing class(es)?
-                # TODO if not, how to best construct a new class for `SELECT` match?
                 "FROM",
                 Ref("TableReferenceSegment"),
                 "SELECT",
                 Delimited(
                     Ref("ColumnReferenceSegment"),
                 ),
-                Ref("TableReferenceSegment", optional=True),
                 Ref("WhereClauseSegment", optional=True),
                 Ref("GroupByClauseSegment", optional=True),
                 Ref("OrderByClauseSegment", optional=True),

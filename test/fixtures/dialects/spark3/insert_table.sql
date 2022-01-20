@@ -39,15 +39,13 @@ INSERT OVERWRITE students TABLE visiting_students;
 INSERT INTO students
 FROM applicants
 SELECT
---name, address, id
-applicants
+name, address, id
 WHERE qualified = TRUE;
 
 INSERT OVERWRITE students
 FROM applicants
 SELECT
---name, address, id
-applicants
+name, address, id
 WHERE qualified = TRUE;
 
 -- Insert Using a Typed Date Literal for a Partition Column Value
