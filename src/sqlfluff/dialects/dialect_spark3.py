@@ -855,11 +855,7 @@ class InsertOverwriteDirectorySegment(BaseSegment):
         Ref("QuotedLiteralSegment", optional=True),
         "USING",
         Ref("DataSourceFormatGrammar"),
-        Sequence(
-            "OPTIONS",
-            Ref("BracketedPropertyListGrammar"),
-            optional=True
-        ),
+        Sequence("OPTIONS", Ref("BracketedPropertyListGrammar"), optional=True),
         OneOf(
             AnyNumberOf(
                 Ref("ValuesClauseSegment"),
