@@ -1,6 +1,7 @@
 """Tests for the segments module."""
 import pytest
 
+from sqlfluff.core.linter.linter import Linter
 from sqlfluff.core.parser.segments.raw import RawSegment
 from sqlfluff.core.rules.functional import segments
 import sqlfluff.core.rules.functional.segment_predicates as sp
@@ -138,3 +139,25 @@ def test_segment_predicates_and():
         )
         == segments.Segments()
     )
+
+
+def test_segments_recursive_crawl():
+    """Test the "recursive_crawl()" function."""
+    sql = """
+    WITH cte AS (
+        SELECT * FROM tab_a
+    )
+    SELECT
+        cte.col_a,
+        tab_b.col_b
+    FROM cte
+    INNER JOIN tab_b;
+    """
+    linter = Linter()
+    parsed = linter.parse_string(sql)
+
+    functional_tree = segments.Segments(parsed.tree)
+
+    assert len(functional_tree.recursive_crawl("whitespace")) == 18
+    assert len(functional_tree.recursive_crawl("common_table_expression")) == 1
+    assert len(functional_tree.recursive_crawl("table_reference")) == 3
