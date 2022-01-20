@@ -52,7 +52,7 @@ class Rule_L013(BaseRule):
             if (
                 children.select(sp.is_type("function"))
                 .children()
-                .select(sp.is_type("emits_grammar"))
+                .select(sp.is_type("emits_segment"))
             ):
                 return None
 

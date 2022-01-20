@@ -289,7 +289,7 @@ exasol_dialect.replace(
         Ref("TrueSegment"), Ref("FalseSegment"), Ref("UnknownSegment")
     ),
     PostFunctionGrammar=OneOf(
-        Ref("EmitsGrammar"),  # e.g. JSON_EXTRACT()
+        Ref("EmitsSegment"),  # e.g. JSON_EXTRACT()
         Sequence(
             Sequence(OneOf("IGNORE", "RESPECT"), "NULLS", optional=True),
             Ref("OverClauseSegment"),
@@ -3619,7 +3619,7 @@ class CreateUDFScriptStatementSegment(BaseSegment):
                 optional=True,
             ),
         ),
-        OneOf(Sequence("RETURNS", Ref("DatatypeSegment")), Ref("EmitsGrammar")),
+        OneOf(Sequence("RETURNS", Ref("DatatypeSegment")), Ref("EmitsSegment")),
         "AS",
         Indent,
         Ref("ScriptContentSegment"),
@@ -3769,13 +3769,13 @@ class FileSegment(BaseFileSegment):
 
 
 @exasol_dialect.segment()
-class EmitsGrammar(BaseFileSegment):
-    """EMITS Grammar for JSON_EXTRACT for example.
+class EmitsSegment(BaseSegment):
+    """EMITS Segment for JSON_EXTRACT for example.
 
-    In it's own class to give it a type to allow L013 to find it easily.
+    In it's own segment to give it a type to allow L013 to find it easily.
     """
 
-    type = "emits_grammar"
+    type = "emits_segment"
     match_grammar = Sequence(
         "EMITS",
         Bracketed(Ref("UDFParameterGrammar")),
