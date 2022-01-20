@@ -3770,7 +3770,7 @@ class FileSegment(BaseFileSegment):
 
 @exasol_dialect.segment()
 class EmitsGrammar(BaseFileSegment):
-    """EMIT Grammer for JSON_EXTRACT for example.
+    """EMIT Grammar for JSON_EXTRACT for example.
 
     It's it's own clasee to give it a type to allow L013 to find it easily.
     """
