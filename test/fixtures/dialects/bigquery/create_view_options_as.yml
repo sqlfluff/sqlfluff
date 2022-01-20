@@ -1,0 +1,109 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 1754b70a713ea63239f1add91407c1d5deb45d2da31619612a36fb6f17142338
+file:
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - binary_operator: OR
+    - keyword: REPLACE
+    - keyword: VIEW
+    - table_reference:
+        identifier: foo
+    - keyword: AS
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: from
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    identifier: bar
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - binary_operator: OR
+    - keyword: REPLACE
+    - keyword: VIEW
+    - table_reference:
+        identifier: foo
+    - options_segment:
+        keyword: OPTIONS
+        bracketed:
+          start_bracket: (
+          parameter: description
+          comparison_operator:
+            raw_comparison_operator: '='
+          literal: "'copy of bar'"
+          end_bracket: )
+    - keyword: AS
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: from
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    identifier: bar
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - binary_operator: OR
+    - keyword: REPLACE
+    - keyword: VIEW
+    - keyword: IF
+    - keyword: NOT
+    - keyword: EXISTS
+    - table_reference:
+        identifier: foo
+    - options_segment:
+        keyword: OPTIONS
+        bracketed:
+          start_bracket: (
+          parameter: description
+          comparison_operator:
+            raw_comparison_operator: '='
+          literal: "'copy of bar'"
+          end_bracket: )
+    - keyword: AS
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: from
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    identifier: bar
+        end_bracket: )
+- statement_terminator: ;

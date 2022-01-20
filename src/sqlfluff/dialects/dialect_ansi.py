@@ -2565,6 +2565,7 @@ class CreateViewStatementSegment(BaseSegment):
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),
         "VIEW",
+        Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
         # Optional list of column names
         Ref("BracketedColumnReferenceListGrammar", optional=True),
@@ -3004,7 +3005,7 @@ class CreateFunctionStatementSegment(BaseSegment):
         Sequence("OR", "REPLACE", optional=True),
         Ref("TemporaryGrammar", optional=True),
         "FUNCTION",
-        Sequence("IF", "NOT", "EXISTS", optional=True),
+        Ref("IfNotExistsGrammar", optional=True),
         Ref("FunctionNameSegment"),
         Ref("FunctionParameterListGrammar"),
         Sequence(  # Optional function return type

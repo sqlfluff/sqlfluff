@@ -942,6 +942,29 @@ class CreateTableStatementSegment(BaseSegment):
     )
 
 
+@bigquery_dialect.segment(replace=True)
+class CreateViewStatementSegment(BaseSegment):
+    """A `CREATE VIEW` statement.
+
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#view_option_list
+    """
+
+    type = "create_view_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Ref("OrReplaceGrammar", optional=True),
+        "VIEW",
+        Ref("IfNotExistsGrammar", optional=True),
+        Ref("TableReferenceSegment"),
+        # Optional list of column names
+        Ref("BracketedColumnReferenceListGrammar", optional=True),
+        Ref("OptionsSegment", optional=True),
+        "AS",
+        Ref("SelectableGrammar"),
+    )
+
+
 @bigquery_dialect.segment()
 class ParameterizedSegment(BaseSegment):
     """BigQuery allows named and argument based parameters to help preven SQL Injection.
