@@ -477,8 +477,8 @@ class DbtTemplater(JinjaTemplater):
 
             if not compiled_sql:  # pragma: no cover
                 raise SQLTemplaterError(
-                    "dbt templater compilation failed silently, check your configuration "
-                    "by running `dbt compile` directly."
+                    "dbt templater compilation failed silently, check your "
+                    "configuration by running `dbt compile` directly."
                 )
 
             with open(fname) as source_dbt_model:
@@ -504,7 +504,8 @@ class DbtTemplater(JinjaTemplater):
             #       source SQL in the dbt model.
             # The solution is:
             #    1. Check for trailing newlines before compiling by looking at the
-            #       raw SQL in the source dbt file, store the count of trailing newlines.
+            #       raw SQL in the source dbt file, store the count of trailing
+            #       newlines.
             #    2. Append the count from #1 above to the node.raw_sql and
             #       compiled_sql objects, both of which have had the trailing
             #       newlines removed by the dbt-templater.
