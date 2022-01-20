@@ -2202,6 +2202,15 @@ class TableIndexClause(BaseSegment):
                 "CLUSTERED",
                 "COLUMNSTORE",
                 "INDEX",
+                Sequence(
+                    "ORDER",
+                    Bracketed(
+                        Delimited(
+                            Ref("ColumnReferenceSegment"),
+                        ),
+                    ),
+                    optional=True,
+                ),
             ),
             Sequence(
                 "CLUSTERED",
