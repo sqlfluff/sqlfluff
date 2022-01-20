@@ -795,8 +795,8 @@ class UseDatabaseStatementSegment(BaseSegment):
 
 
 # Data Manipulation Statements
-@spark3_dialect.segment()
-class InsertTableStatement(BaseSegment):
+@spark3_dialect.segment(replace=True)
+class InsertStatementSegment(BaseSegment):
     """A `INSERT [TABLE]` statement to insert or overwrite new rows into a table.
 
     https://spark.apache.org/docs/latest/sql-ref-syntax-dml-insert-into.html
