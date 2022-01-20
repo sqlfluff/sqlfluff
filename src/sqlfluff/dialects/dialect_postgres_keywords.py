@@ -938,11 +938,15 @@ postgres_nondocs_keywords = [
     ("RESPECT", "non-reserved"),
     ("RESTRICTED", "non-reserved"),
     ("SAFE", "non-reserved"),
+    ("SETTINGS", "non-reserved"),
     ("SKIP_LOCKED", "non-reserved"),
+    ("SUMMARY", "non-reserved"),
     ("TIMETZ", "non-reserved"),
     ("TIMESTAMPTZ", "non-reserved"),
+    ("TIMING", "non-reserved"),
     ("UNSAFE", "non-reserved"),
     ("USAGE", "reserved"),
+    ("WAL", "non-reserved"),
 ]
 
 postgres_postgis_datatype_keywords = [
