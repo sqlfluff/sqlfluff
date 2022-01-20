@@ -26,12 +26,10 @@ from sqlfluff.core.cached_property import cached_property
 from sqlfluff.core.errors import SQLTemplaterError, SQLTemplaterSkipFile
 
 from sqlfluff.core.templaters.base import (
-    RawFileSlice,
     TemplatedFile,
     TemplatedFileSlice,
 )
 
-from sqlfluff.core.templaters.slicers.heuristic import slice_template
 from sqlfluff.core.templaters.jinja import JinjaTemplater
 
 # Instantiate the templater logger
@@ -543,11 +541,6 @@ class DbtTemplater(JinjaTemplater):
             [],
         )
 
-    def _slice_template(self, in_str: str) -> List[RawFileSlice]:
-        # DbtTemplater uses the original heuristic-based template slicer.
-        # TODO: Can it be updated to use TemplateTracer?
-        return slice_template(in_str, self._get_jinja_env())
-
     @contextmanager
     def connection(self):
         """Context manager that manages a dbt connection, if needed."""
@@ -556,7 +549,7 @@ class DbtTemplater(JinjaTemplater):
         # https://github.com/dbt-labs/dbt-core/pull/4062.
         if DBT_VERSION_TUPLE >= (1, 0):
             adapter = get_adapter(self.dbt_config)
-            with adapter.connection_named("master"):  # node.name):
+            with adapter.connection_named("master"):
                 adapter.set_relations_cache(self.dbt_manifest)
                 yield
         else:
