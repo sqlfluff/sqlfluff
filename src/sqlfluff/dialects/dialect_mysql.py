@@ -33,7 +33,10 @@ mysql_dialect.patch_lexer_matchers(
             r"(-- |#)[^\n]*",
             CommentSegment,
             segment_kwargs={"trim_start": ("-- ", "#")},
-        )
+        ),
+        RegexLexer(
+            "single_quote", r"(?s)('')+?(?!')|('.*?(?<!')(?:'')*'(?!'))", CodeSegment
+        ),
     ]
 )
 
@@ -164,6 +167,18 @@ mysql_dialect.replace(
             Ref("QuotedLiteralSegment"),
             Ref("NumericLiteralSegment"),
         ),
+    ),
+    QuotedLiteralSegment=AnyNumberOf(
+        # MySQL allows whitespace-concatenated string literals (#1488).
+        # Since these string literals can have comments between them,
+        # we use grammar to handle this.
+        NamedParser(
+            "single_quote",
+            CodeSegment,
+            name="quoted_literal",
+            type="literal",
+        ),
+        min_times=1,
     ),
 )
 
