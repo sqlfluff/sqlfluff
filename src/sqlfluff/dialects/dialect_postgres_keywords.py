@@ -774,7 +774,7 @@ postgres_docs_keywords = [
     ("SYSTEM_TIME", "not-keyword"),
     ("SYSTEM_USER", "not-keyword"),
     ("T", "not-keyword"),
-    ("TABLE", "reserved"),
+    ("TABLE", "non-reserved"),
     ("TABLES", "non-reserved"),
     ("TABLESAMPLE", "reserved-(can-be-function-or-type)"),
     ("TABLESPACE", "non-reserved"),
