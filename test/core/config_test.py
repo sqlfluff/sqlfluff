@@ -76,10 +76,7 @@ def test__config__load_file_f():
 
 
 def test__config__load_nested():
-    """Test nested overwrite and order of precedence of config files # noqa: D415
-
-    in the same directory.
-    """
+    """Test nested overwrite and order of precedence of config files."""
     c = ConfigLoader()
     cfg = c.load_config_up_to_path(
         os.path.join(

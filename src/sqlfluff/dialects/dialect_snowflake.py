@@ -1537,9 +1537,7 @@ class WarehouseObjectParamsSegment(BaseSegment):
 
 @snowflake_dialect.segment()
 class ConstraintPropertiesSegment(BaseSegment):
-    """Constraint properties are specified in the CONSTRAINT clause for a # noqa: D415
-
-    CREATE TABLE or ALTER TABLE command.
+    """CONSTRAINT clause for CREATE TABLE or ALTER TABLE command.
 
     https://docs.snowflake.com/en/sql-reference/constraints-properties.html
     """

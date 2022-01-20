@@ -181,9 +181,7 @@ class Sequence(BaseGrammar):
 
 
 class Bracketed(Sequence):
-    """Match if this is a bracketed sequence, with content that # noqa: D415
-
-    matches one of the elements.
+    """Match if a bracketed sequence, with content that matches one of the elements.
 
     Note that the contents of the Bracketed Expression are treated as an expected
     sequence.
@@ -240,9 +238,7 @@ class Bracketed(Sequence):
     def match(
         self, segments: Tuple["BaseSegment", ...], parse_context: ParseContext
     ) -> MatchResult:
-        """Match if this is a bracketed sequence, with content that # noqa: D415
-
-        matches one of the elements.
+        """Match if a bracketed sequence, with content that matches one of the elements.
 
         1. work forwards to find the first bracket.
            If we find something other that whitespace, then fail out.

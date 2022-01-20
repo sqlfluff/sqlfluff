@@ -2130,9 +2130,9 @@ class ColumnConstraintSegment(BaseSegment):
 
 @postgres_dialect.segment()
 class PartitionBoundSpecSegment(BaseSegment):
-    """partition_bound_spec as per https://www.postgresql.org/docs/13 # noqa: D415
+    """Partition bound spec.
 
-    /sql-altertable.html.
+    As per https://www.postgresql.org/docs/13/sql-altertable.html.
     """
 
     match_grammar = OneOf(
@@ -2240,9 +2240,9 @@ class TableConstraintSegment(BaseSegment):
 
 @postgres_dialect.segment()
 class TableConstraintUsingIndexSegment(BaseSegment):
-    """table_constraint_using_index as specified in https://www.postgresql.org # noqa: D415
+    """table_constraint_using_index.
 
-    /docs/13/sql-altertable.html.
+    As specified in: https://www.postgresql.org/docs/13/sql-altertable.html.
     """
 
     match_grammar = Sequence(
@@ -2266,9 +2266,9 @@ class TableConstraintUsingIndexSegment(BaseSegment):
 
 @postgres_dialect.segment()
 class IndexParametersSegment(BaseSegment):
-    """index_parameters as specified in https://www.postgresql.org # noqa: D415
+    """index_parameters.
 
-    /docs/13/sql-altertable.html.
+    As specified in https://www.postgresql.org/docs/13/sql-altertable.html.
     """
 
     type = "index_parameters"
@@ -2316,9 +2316,9 @@ class ReferentialActionSegment(BaseSegment):
 
 @postgres_dialect.segment()
 class ExcludeElementSegment(BaseSegment):
-    """exclude_element segment as found in https://www.postgresql.org # noqa: D415
+    """Exclude element segment.
 
-    /docs/13/sql-altertable.html.
+    As found in https://www.postgresql.org/docs/13/sql-altertable.html.
     """
 
     match_grammar = Sequence(

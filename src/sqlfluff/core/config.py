@@ -622,10 +622,7 @@ class FluffConfig:
             )
 
     def make_child_from_path(self, path: str) -> "FluffConfig":
-        """Make a new child config at a path but pass on overrides # noqa: D415
-
-        and extra_config_path.
-        """
+        """Make a child config at a path but pass on overrides and extra_config_path."""
         return self.from_path(
             path,
             extra_config_path=self._extra_config_path,

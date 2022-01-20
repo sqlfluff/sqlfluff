@@ -113,10 +113,7 @@ def test__cli__command_dialect_legacy():
 
 
 def test__cli__command_extra_config_fail():
-    """Check the script raises the right exception on a # noqa: D415
-
-    non-existent extra config path.
-    """
+    """Check the script raises the right exception non-existent extra config path."""
     result = invoke_assert_code(
         ret_code=66,
         args=[
@@ -358,10 +355,7 @@ def test__cli__command_lint_parse_with_retcode(command, ret_code):
 
 
 def test__cli__command_lint_warning_explicit_file_ignored():
-    """Check ignoring file works when passed explicitly and ignore # noqa: D415
-
-    file is in the same directory.
-    """
+    """Check ignoring file works when file is in an ignore directory."""
     runner = CliRunner()
     result = runner.invoke(
         lint, ["test/fixtures/linter/sqlfluffignore/path_b/query_c.sql"]

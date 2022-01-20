@@ -311,10 +311,7 @@ class Linter:
     def remove_templated_errors(
         linting_errors: List[SQLBaseError],
     ) -> List[SQLBaseError]:
-        """Filter a list of lint errors, removing those which only # noqa: D415
-
-        occur in templated slices.
-        """
+        """Filter a list of lint errors, removing those from the templated slices."""
         # Filter out any linting errors in templated sections if relevant.
         result: List[SQLBaseError] = []
         for e in linting_errors:

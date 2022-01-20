@@ -261,10 +261,7 @@ def test_lint_path_parallel_wrapper_exception(patched_lint):
 def test__linter__linting_unexpected_error_handled_gracefully(
     patched_lint, patched_logger
 ):
-    """Test that an unexpected internal error is handled gracefully and # noqa: D415
-
-    returns the issue-surfacing file.
-    """
+    """Test that an unexpected internal error returns the issue-surfacing file."""
     patched_lint.side_effect = Exception("Something unexpected happened")
     lntr = Linter()
     lntr.lint_paths(("test/fixtures/linter/passing.sql",))
@@ -426,10 +423,7 @@ def test_parse_noqa(input, expected):
 
 
 def test_parse_noqa_no_dups():
-    """Test overlapping glob expansions don't return duplicate rules # noqa: D415
-
-    in NoQaDirective.
-    """
+    """Test overlapping glob expansions don't return duplicate rules in noqa."""
     result = Linter.parse_noqa(
         comment="noqa:L0*5,L01*", line_no=0, rule_codes=dummy_rule_codes
     )
@@ -796,10 +790,7 @@ def test_delayed_exception():
 
 
 def test__attempt_to_change_templater_warning(caplog):
-    """Test warning if user tries to change templater in .sqlfluff # noqa: D415
-
-    file in subdirectory.
-    """
+    """Test warning when changing templater in .sqlfluff file in subdirectory."""
     initial_config = FluffConfig(configs={"core": {"templater": "jinja"}})
     lntr = Linter(config=initial_config)
     updated_config = FluffConfig(configs={"core": {"templater": "python"}})

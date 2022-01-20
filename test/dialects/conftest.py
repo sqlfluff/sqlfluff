@@ -136,10 +136,7 @@ def dialect_specific_segment_parses():
 
 @pytest.fixture()
 def dialect_specific_segment_not_match():
-    """Fixture to check specific segments of a dialect which will # noqa: D415
-
-    not match to a segment.
-    """
+    """Check specific segments of a dialect which will not match to a segment."""
     return _dialect_specific_segment_not_match
 
 

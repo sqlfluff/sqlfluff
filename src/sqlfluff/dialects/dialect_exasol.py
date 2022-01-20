@@ -3042,10 +3042,7 @@ class PreferringPreferenceTermSegment(BaseSegment):
 
 @exasol_dialect.segment()
 class PreferringPlusPriorTermSegment(BaseSegment):
-    """The `PLUS` / `PRIOR TO` or `INVERSE` term within a preferring # noqa: D415
-
-    preference term expression.
-    """
+    """The preferring preference term expression."""
 
     type = "plus_prior_inverse"
     match_grammar = OneOf(

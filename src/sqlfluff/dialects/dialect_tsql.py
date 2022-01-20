@@ -632,9 +632,7 @@ class CreateIndexStatementSegment(BaseSegment):
 
 @tsql_dialect.segment()
 class OnPartitionOrFilegroupOptionSegment(BaseSegment):
-    """ON partition scheme or filegroup option in `CREATE INDEX` # noqa: D415
-
-    and 'CREATE TABLE' statements.
+    """ON partition scheme or filegroup option.
 
     https://docs.microsoft.com/en-us/sql/t-sql/statements
     /create-index-transact-sql?view=sql-server-ver15
@@ -1051,9 +1049,9 @@ class SequenceReferenceSegment(ObjectReferenceSegment):
 
 @tsql_dialect.segment()
 class PivotColumnReferenceSegment(ObjectReferenceSegment):
-    """A reference to a PIVOT column to differentiate it from a # noqa: D415
+    """A reference to a PIVOT column.
 
-    regular column reference.
+    Used to differentiate it from a regular column reference.
     """
 
     type = "pivot_column_reference"
@@ -1135,9 +1133,7 @@ class DeclareStatementSegment(BaseSegment):
 
 @tsql_dialect.segment()
 class GoStatementSegment(BaseSegment):
-    """GO signals the end of a batch of Transact-SQL statements # noqa: D415
-
-    to the SQL Server utilities.
+    """GO signals the end of a batch of Transact-SQL statements.
 
     GO statements are not part of the TSQL language. They are used to signal batch
     statements so that clients know in how batches of statements can be executed.

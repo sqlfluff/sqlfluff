@@ -200,9 +200,9 @@ def test__templater_dbt_slice_file_wrapped_test(
 def test__templater_dbt_templating_test_lex(
     project_dir, dbt_templater, fname  # noqa: F811
 ):
-    """A test to demonstrate the lexer works on both dbt models # noqa: D415
+    """Demonstrate the lexer works on both dbt models and dbt tests.
 
-    (with any # of trailing newlines) and dbt tests.
+    Handle any number of newlines.
     """
     source_fpath = os.path.join(project_dir, fname)
     with open(source_fpath, "r") as source_dbt_model:
@@ -381,10 +381,7 @@ def test__templater_dbt_handle_database_connection_failure(
 
 
 def test__project_dir_does_not_exist_error(dbt_templater, caplog):  # noqa: F811
-    """Test that an error is logged if the specified dbt # noqa: D415
-
-    project directory doesn't exist.
-    """
+    """Test an error is logged if the given dbt project directory doesn't exist."""
     dbt_templater.sqlfluff_config = FluffConfig(
         configs={"templater": {"dbt": {"project_dir": "./non_existing_directory"}}}
     )
