@@ -3770,7 +3770,10 @@ class FileSegment(BaseFileSegment):
 
 @exasol_dialect.segment()
 class EmitsGrammar(BaseFileSegment):
-    """This overwrites the FileSegment from ANSI."""
+    """EMIT Grammer for JSON_EXTRACT for example.
+
+    It's it's own clasee to give it a type to allow L013 to find it easily.
+    """
 
     type = "emits_grammar"
     match_grammar = Sequence(
