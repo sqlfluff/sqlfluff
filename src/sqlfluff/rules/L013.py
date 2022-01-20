@@ -48,7 +48,7 @@ class Rule_L013(BaseRule):
         if segment.all(sp.is_type("select_clause_element")) and not children.any(
             sp.is_type("alias_expression")
         ):
-            # Ignore if it's a function with an EMIT clause as EMIT is equivalent to AS
+            # Ignore if it's a function with an EMITS clause as EMITS is equivalent to AS
             if (
                 children.select(sp.is_type("function"))
                 .children()
