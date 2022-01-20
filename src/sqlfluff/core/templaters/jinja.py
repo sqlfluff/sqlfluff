@@ -200,10 +200,10 @@ class JinjaTemplater(PythonTemplater):
                 line_pos=pos,
             )
 
-    @staticmethod
-    def _get_jinja_env(macros_path: Optional[str] = None):
+    def _get_jinja_env(self, config=None):
         """Get a properly configured jinja environment."""
         # We explicitly want to preserve newlines.
+        macros_path = self._get_macros_path(config)
         return SandboxedEnvironment(
             keep_trailing_newline=True,
             # The do extension allows the "do" directive
@@ -212,9 +212,18 @@ class JinjaTemplater(PythonTemplater):
             loader=FileSystemLoader(macros_path) if macros_path else None,
         )
 
-    def get_context(self, fname=None, config=None) -> Dict:
+    def _get_macros_path(self, config):
+        macros_path = None
+        if config:
+            macros_path = config.get_section(
+                (self.templater_selector, self.name, "load_macros_from_path")
+            )
+        return macros_path
+
+    def get_context(self, fname=None, config=None, **kw) -> Dict:
         """Get the templating context from the config."""
         # Load the context
+        env = kw.pop("env")
         live_context = super().get_context(fname=fname, config=config)
         # Apply dbt builtin functions if we're allowed.
         if config:
@@ -231,15 +240,10 @@ class JinjaTemplater(PythonTemplater):
                     if name not in live_context:
                         live_context[name] = dbt_builtins[name]
 
-        env = self._get_jinja_env()
-
         # Load macros from path (if applicable)
         if config:
-            macros_path = config.get_section(
-                (self.templater_selector, self.name, "load_macros_from_path")
-            )
+            macros_path = self._get_macros_path(config)
             if macros_path:
-                env = self._get_jinja_env(macros_path)
                 live_context.update(
                     self._extract_macros_from_path(
                         macros_path, env=env, ctx=live_context
@@ -261,8 +265,8 @@ class JinjaTemplater(PythonTemplater):
     ) -> Tuple[Environment, dict, Callable[[str], Template]]:
         """Builds and returns objects needed to create and run templates."""
         # Load the context
-        live_context = self.get_context(fname=fname, config=config)
-        env = self._get_jinja_env()
+        env = self._get_jinja_env(config)
+        live_context = self.get_context(fname=fname, config=config, env=env)
 
         def make_template(in_str):
             """Used by JinjaTracer to instantiate templates.
@@ -378,15 +382,13 @@ class JinjaTemplater(PythonTemplater):
             )
             return None, violations
 
-    @classmethod
     def slice_file(
-        cls, raw_str: str, templated_str: str, config=None, **kwargs
+        self, raw_str: str, templated_str: str, config=None, **kwargs
     ) -> Tuple[List[RawFileSlice], List[TemplatedFileSlice], str]:
         """Slice the file to determine regions where we can fix."""
         # The JinjaTracer slicing algorithm is more robust, but it requires
         # us to create and render a second template (not raw_str) and is only
-        # enabled if the caller passes a make_template() function. (For now,
-        # the dbt templater does not.)
+        # enabled if the caller passes a make_template() function.
         make_template = kwargs.pop("make_template", None)
         if make_template is None:
             # make_template() was not provided. Use the base class
@@ -396,6 +398,6 @@ class JinjaTemplater(PythonTemplater):
         templater_logger.info("Slicing File Template")
         templater_logger.debug("    Raw String: %r", raw_str)
         templater_logger.debug("    Templated String: %r", templated_str)
-        tracer = JinjaTracer(raw_str, cls._get_jinja_env(), make_template)
+        tracer = JinjaTracer(raw_str, self._get_jinja_env(), make_template)
         trace = tracer.trace()
         return trace.raw_sliced, trace.sliced_file, trace.templated_str

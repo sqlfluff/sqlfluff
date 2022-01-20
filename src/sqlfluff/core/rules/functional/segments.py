@@ -73,6 +73,22 @@ class Segments(tuple):
             templated_file=self.templated_file
         )
 
+    @property
+    def raw_segments(self) -> "Segments":
+        """Get raw segments underlying the segments."""
+        raw_segments_list = []
+        for s in self:
+            raw_segments_list.extend(s.raw_segments)
+        return Segments(*raw_segments_list, templated_file=self.templated_file)
+
+    def recursive_crawl(self, *seg_type: str, recurse_into: bool = True) -> "Segments":
+        """Recursively crawl for segments of a given type."""
+        segments: List[BaseSegment] = []
+        for s in self:
+            for i in s.recursive_crawl(*seg_type, recurse_into):
+                segments.append(i)
+        return Segments(*segments, templated_file=self.templated_file)
+
     def children(
         self, predicate: Optional[Callable[[BaseSegment], bool]] = None
     ) -> "Segments":

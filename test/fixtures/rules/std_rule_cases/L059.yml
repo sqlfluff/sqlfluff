@@ -1,0 +1,49 @@
+rule: L059
+
+test_pass_column_reference:
+  pass_str: |
+    SELECT 123 AS foo;
+
+test_fail_column_reference:
+  fail_str: |
+    SELECT 123 AS "foo";
+  pass_str: |
+    SELECT 123 AS foo;
+
+test_pass_table_reference:
+  pass_str: |
+    SELECT foo
+    FROM bar;
+
+test_fail_table_reference:
+  fail_str: |
+    SELECT foo
+    FROM "bar";
+  fix_str: |
+    SELECT foo
+    FROM bar;
+
+test_pass_multiple_references:
+  pass_str: |
+    SELECT foo
+    FROM bar.baz;
+
+test_fail_multiple_references:
+  fail_str: |
+    SELECT foo
+    FROM "bar"."baz";
+  fix_str: |
+    SELECT foo
+    FROM bar.baz;
+
+test_pass_whitespace:
+  pass_str: |
+    SELECT 123 AS "I cannot be unquoted"
+
+test_pass_special_symbols:
+  pass_str: |
+    SELECT 123 AS "I-c@nn0t-be~un-quoted"
+
+test_pass_reserved_keyword:
+  pass_str: |
+    SELECT 123 AS "SELECT"

@@ -194,10 +194,6 @@ exasol_dialect.add(
         Delimited(Ref("ColumnDatatypeSegment")),
         Ref("UDFParameterDotSyntaxSegment"),
     ),
-    EmitsGrammar=Sequence(
-        "EMITS",
-        Bracketed(Ref("UDFParameterGrammar")),
-    ),
     FunctionScriptTerminatorSegment=NamedParser(
         "function_script_terminator", CodeSegment, type="function_script_terminator"
     ),
@@ -293,7 +289,7 @@ exasol_dialect.replace(
         Ref("TrueSegment"), Ref("FalseSegment"), Ref("UnknownSegment")
     ),
     PostFunctionGrammar=OneOf(
-        Ref("EmitsGrammar"),  # e.g. JSON_EXTRACT()
+        Ref("EmitsSegment"),  # e.g. JSON_EXTRACT()
         Sequence(
             Sequence(OneOf("IGNORE", "RESPECT"), "NULLS", optional=True),
             Ref("OverClauseSegment"),
@@ -3623,7 +3619,7 @@ class CreateUDFScriptStatementSegment(BaseSegment):
                 optional=True,
             ),
         ),
-        OneOf(Sequence("RETURNS", Ref("DatatypeSegment")), Ref("EmitsGrammar")),
+        OneOf(Sequence("RETURNS", Ref("DatatypeSegment")), Ref("EmitsSegment")),
         "AS",
         Indent,
         Ref("ScriptContentSegment"),
@@ -3769,4 +3765,18 @@ class FileSegment(BaseFileSegment):
             allow_gaps=True,
             allow_trailing=True,
         ),
+    )
+
+
+@exasol_dialect.segment()
+class EmitsSegment(BaseSegment):
+    """EMITS Segment for JSON_EXTRACT for example.
+
+    In it's own segment to give it a type to allow L013 to find it easily.
+    """
+
+    type = "emits_segment"
+    match_grammar = Sequence(
+        "EMITS",
+        Bracketed(Ref("UDFParameterGrammar")),
     )
