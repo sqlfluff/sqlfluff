@@ -293,7 +293,8 @@ class LintedFile(NamedTuple):
                 )
             except ValueError:
                 linter_logger.info(
-                    "      - Skipping. Source space Value Error. i.e. attempted insertion within templated section."
+                    "      - Skipping. Source space Value Error. i.e. attempted "
+                    "insertion within templated section."
                 )
                 # If we try and slice within a templated section, then we may fail
                 # in which case, we should skip this patch.
@@ -360,14 +361,15 @@ class LintedFile(NamedTuple):
                     "      - Skipping patch over more than two raw slices: %s",
                     enriched_patch,
                 )
-            # If it's an insertion (i.e. the string in the pre-fix template is '') then we
-            # won't be able to place it, so skip.
+            # If it's an insertion (i.e. the string in the pre-fix template is '') then
+            # we won't be able to place it, so skip.
             elif not enriched_patch.templated_str:  # pragma: no cover TODO?
                 linter_logger.info(
                     "      - Skipping insertion patch in templated section: %s",
                     enriched_patch,
                 )
-            # If the string from the templated version isn't in the source, then we can't fix it.
+            # If the string from the templated version isn't in the source, then we
+            # can't fix it.
             elif (
                 enriched_patch.templated_str not in enriched_patch.source_str
             ):  # pragma: no cover TODO?
@@ -382,7 +384,8 @@ class LintedFile(NamedTuple):
                 )
                 if len(positions) != 1:
                     linter_logger.debug(
-                        "        - Skipping edit patch on non-unique templated content: %s",
+                        "        - Skipping edit patch on non-unique templated "
+                        "content: %s",
                         enriched_patch,
                     )
                     continue
@@ -403,7 +406,8 @@ class LintedFile(NamedTuple):
                     source_str=enriched_patch.source_str,
                 )
                 linter_logger.debug(  # pragma: no cover
-                    "      * Keeping Tricky Case. Positions: %s, New Slice: %s, Patch: %s",
+                    "      * Keeping Tricky Case. Positions: %s, New Slice: %s, "
+                    "Patch: %s",
                     positions,
                     new_source_slice,
                     enriched_patch,

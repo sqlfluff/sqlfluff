@@ -103,8 +103,8 @@ class Sequence(BaseGrammar):
                         for e in self._elements[idx:]
                     ):
                         # then it's ok, and we can return what we've got so far.
-                        # No need to deal with anything left over because we're at the end,
-                        # unless it's a meta segment.
+                        # No need to deal with anything left over because we're at the
+                        # end, unless it's a meta segment.
 
                         # We'll add those meta segments after any existing ones. So
                         # the go on the meta_post_nc stack.
@@ -128,7 +128,8 @@ class Sequence(BaseGrammar):
                         # required elements.
                         return MatchResult.from_unmatched(segments)
                 else:
-                    # We've already dealt with potential whitespace above, so carry on to matching
+                    # We've already dealt with potential whitespace above, so carry on
+                    # to matching
                     with parse_context.deeper_match() as ctx:
                         elem_match = elem.match(mid_seg, parse_context=ctx)
 
@@ -144,8 +145,8 @@ class Sequence(BaseGrammar):
                         meta_pre_nc = ()
                         meta_post_nc = ()
                         unmatched_segments = elem_match.unmatched_segments + post_nc
-                        # Each time we do this, we do a sense check to make sure we haven't
-                        # dropped anything. (Because it's happened before!).
+                        # Each time we do this, we do a sense check to make sure we
+                        # haven't dropped anything. (Because it's happened before!).
                         if self.test_env:
                             check_still_complete(
                                 segments,
@@ -156,8 +157,8 @@ class Sequence(BaseGrammar):
                         break
                     else:
                         # If we can't match an element, we should ascertain whether it's
-                        # required. If so then fine, move on, but otherwise we should crash
-                        # out without a match. We have not matched the sequence.
+                        # required. If so then fine, move on, but otherwise we should
+                        # crash out without a match. We have not matched the sequence.
                         if elem.is_optional():
                             # This will crash us out of the while loop and move us
                             # onto the next matching element
@@ -180,9 +181,10 @@ class Sequence(BaseGrammar):
 
 
 class Bracketed(Sequence):
-    """Match if this is a bracketed sequence, with content that matches one of the elements.
+    """Match if a bracketed sequence, with content that matches one of the elements.
 
-    Note that the contents of the Bracketed Expression are treated as an expected sequence.
+    Note that the contents of the Bracketed Expression are treated as an expected
+    sequence.
 
     Changelog:
     - Post 0.3.2: Bracketed inherits from Sequence and anything within
@@ -192,8 +194,7 @@ class Bracketed(Sequence):
     - Post 0.1.0: Bracketed was separate from sequence, and the content
       of the expression were treated as options (like OneOf).
     - Pre 0.1.0: Bracketed inherited from Sequence and simply added
-      brackets to that sequence,
-
+      brackets to that sequence.
     """
 
     def __init__(self, *args, **kwargs):
@@ -237,16 +238,17 @@ class Bracketed(Sequence):
     def match(
         self, segments: Tuple["BaseSegment", ...], parse_context: ParseContext
     ) -> MatchResult:
-        """Match if this is a bracketed sequence, with content that matches one of the elements.
+        """Match if a bracketed sequence, with content that matches one of the elements.
 
         1. work forwards to find the first bracket.
            If we find something other that whitespace, then fail out.
-        2. Once we have the first bracket, we need to bracket count forward to find its partner.
+        2. Once we have the first bracket, we need to bracket count forward to find its
+           partner.
         3. Assuming we find its partner then we try and match what goes between them
            using the match method of Sequence.
            If we match, great. If not, then we return an empty match.
-           If we never find its partner then we return an empty match but should probably
-           log a parsing warning, or error?
+           If we never find its partner then we return an empty match but should
+           probably log a parsing warning, or error?
 
         """
         # Trim ends if allowed.
@@ -330,7 +332,8 @@ class Bracketed(Sequence):
             else:
                 return MatchResult.from_unmatched(segments)
 
-        # Match the content using super. Sequence will interpret the content of the elements.
+        # Match the content using super. Sequence will interpret the content of the
+        # elements.
         with parse_context.deeper_match() as ctx:
             content_match = super().match(content_segs, parse_context=ctx)
 

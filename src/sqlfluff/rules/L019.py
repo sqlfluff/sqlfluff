@@ -58,7 +58,8 @@ class Rule_L019(BaseRule):
     def _last_comment_seg(raw_stack):
         """Trace the raw stack back to the most recent comment segment.
 
-        A return value of `None` indicates no code segments preceding the current position.
+        A return value of `None` indicates no code segments preceding the current
+        position.
         """
         for segment in raw_stack[::-1]:
             if segment.is_comment:
@@ -69,7 +70,8 @@ class Rule_L019(BaseRule):
     def _last_code_seg(raw_stack: Tuple[RawSegment, ...]) -> Optional[RawSegment]:
         """Trace the raw stack back to the most recent code segment.
 
-        A return value of `None` indicates no code segments preceding the current position.
+        A return value of `None` indicates no code segments preceding the current
+        position.
         """
         for segment in raw_stack[::-1]:
             if segment.is_code or segment.is_type("newline"):

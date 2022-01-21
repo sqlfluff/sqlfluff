@@ -410,7 +410,8 @@ def test__templater_python_split_uniques_coalesce_rest(
             [("literal", slice(0, 3, None), slice(0, 3, None))],
         ),
         (
-            "SELECT {blah}, {foo:.2f} as foo, {bar}, '{{}}' as convertable from something",
+            "SELECT {blah}, {foo:.2f} as foo, {bar}, '{{}}' as convertable from "
+            "something",
             "SELECT nothing, 435.24 as foo, spam, '{}' as convertable from something",
             True,
             [

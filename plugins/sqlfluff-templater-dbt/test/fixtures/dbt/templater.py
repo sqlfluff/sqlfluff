@@ -11,8 +11,12 @@ DBT_FLUFF_CONFIG = {
     },
     "templater": {
         "dbt": {
-            "profiles_dir": "plugins/sqlfluff-templater-dbt/test/fixtures/dbt/profiles_yml",
-            "project_dir": "plugins/sqlfluff-templater-dbt/test/fixtures/dbt/dbt_project",
+            "profiles_dir": (
+                "plugins/sqlfluff-templater-dbt/test/fixtures/dbt/profiles_yml"
+            ),
+            "project_dir": (
+                "plugins/sqlfluff-templater-dbt/test/fixtures/dbt/dbt_project"
+            ),
         },
     },
 }

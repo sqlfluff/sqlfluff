@@ -203,7 +203,8 @@ class TdCollectStatisticsStatementSegment(BaseSegment):
     """A `COLLECT STATISTICS (Optimizer Form)` statement.
 
     # TODO: add expression
-    COLLECT [SUMMARY] (STATISTICS|STAT) [[COLUMN| [UNIQUE] INDEX] (expression (, expression ...)] ON TABLENAME
+    COLLECT [SUMMARY] (STATISTICS|STAT) [[COLUMN| [UNIQUE] INDEX]
+    (expression (, expression ...)] ON TABLENAME
     """
 
     type = "collect_statistics_statement"
@@ -221,7 +222,8 @@ class TdCollectStatisticsStatementSegment(BaseSegment):
         ),
         Delimited(
             OneOf(
-                # UNIQUE INDEX index_name ALL (column_name, ...) ORDER BY VALUES|HASH (column_name)
+                # UNIQUE INDEX index_name ALL (column_name, ...) ORDER BY VALUES|HASH
+                # (column_name)
                 Sequence(
                     Ref.keyword("UNIQUE", optional=True),
                     "INDEX",
@@ -274,7 +276,8 @@ class TdCommentStatementSegment(BaseSegment):
     """A `COMMENT` statement.
 
     COMMENT [ON] (object_kind_1|object_kind_2) name [[AS|IS] comment]
-    object_kind_1: (COLUMN|FUNCTION|GLOP SET|MACRO|MAP|METHOD|PROCEDURE|PROFILE|ROLE|TRIGGER|TYPE|VIEW)
+    object_kind_1: (COLUMN|FUNCTION|GLOP SET|MACRO|MAP|METHOD|PROCEDURE|PROFILE|ROLE|
+                    TRIGGER|TYPE|VIEW)
     object_kind_2: (DATABASE|FILE|TABLE|USER)
     """
 
@@ -455,7 +458,8 @@ class TdColumnConstraintSegment(BaseSegment):
 class TdCreateTableOptions(BaseSegment):
     """CreateTableOptions.
 
-    , NO FALLBACK, NO BEFORE JOURNAL, NO AFTER JOURNAL, CHECKSUM = DEFAULT, DEFAULT MERGEBLOCKRATIO
+    , NO FALLBACK, NO BEFORE JOURNAL, NO AFTER JOURNAL, CHECKSUM = DEFAULT
+    , DEFAULT MERGEBLOCKRATIO
     """
 
     type = "create_table_options_statement"
@@ -518,7 +522,8 @@ class TdTablePartitioningLevel(BaseSegment):
 
     column_partition := ([COLUMN|ROW] column_name (, column_name2, ...) NO AUTOCOMPRESS
 
-    partition_expression := CASE_N, RANGE_N, EXTRACT, expression and in case of multi-level in parenthesis
+    partition_expression := CASE_N, RANGE_N, EXTRACT, expression and in case of
+    multi-level in parenthesis
     """
 
     type = "td_partitioning_level"
@@ -784,7 +789,8 @@ class UnorderedSelectStatementSegment(BaseSegment):
 class SelectClauseModifierSegment(BaseSegment):
     """Things that come after SELECT but before the columns.
 
-    Adds NORMALIZE clause: https://docs.teradata.com/r/2_MC9vCtAJRlKle2Rpb0mA/UuxiA0mklFgv~33X5nyKMA
+    Adds NORMALIZE clause:
+    https://docs.teradata.com/r/2_MC9vCtAJRlKle2Rpb0mA/UuxiA0mklFgv~33X5nyKMA
     """
 
     type = "select_clause_modifier"

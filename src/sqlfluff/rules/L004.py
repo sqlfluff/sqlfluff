@@ -42,7 +42,8 @@ class Rule_L004(BaseRule):
 
     config_keywords = ["indent_unit", "tab_space_size"]
 
-    # TODO fix indents after text: https://github.com/sqlfluff/sqlfluff/pull/590#issuecomment-739484190
+    # TODO fix indents after text:
+    # https://github.com/sqlfluff/sqlfluff/pull/590#issuecomment-739484190
     def _eval(self, context: RuleContext) -> LintResult:
         """Incorrect indentation found in file."""
         # Config type hints
@@ -87,13 +88,16 @@ class Rule_L004(BaseRule):
             elif not (
                 len(context.raw_stack) == 0 or context.raw_stack[-1].is_type("newline")
             ):
-                # give a helpful message if the wrong indent has been found and is not at the start of a newline
+                # give a helpful message if the wrong indent has been found and is not
+                # at the start of a newline
                 description += (
                     " The indent occurs after other text, so a manual fix is needed."
                 )
             else:
-                # If we get here, the indent_unit is tabs, and the number of spaces is not a multiple of tab_space_size
-                description += " The number of spaces is not a multiple of tab_space_size, so a manual fix is needed."
+                # If we get here, the indent_unit is tabs, and the number of spaces is
+                # not a multiple of tab_space_size
+                description += " The number of spaces is not a multiple of "
+                "tab_space_size, so a manual fix is needed."
             return LintResult(
                 anchor=context.segment, fixes=fixes, description=description
             )

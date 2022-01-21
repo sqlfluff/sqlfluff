@@ -89,11 +89,11 @@ class Rule_L050(BaseRule):
             and not raw_stack.all(sp.is_meta())
             # Found leaf of parse tree.
             and not segment.all(sp.is_expandable())
-            # It is possible that a template segment (e.g. {{ config(materialized='view') }})
-            # renders to an empty string and as such is omitted from the parsed tree.
-            # We therefore should flag if a templated raw slice intersects with the
-            # source slices in the raw stack and skip this rule to avoid risking
-            # collisions with template objects.
+            # It is possible that a template segment (e.g.
+            # {{ config(materialized='view') }}) renders to an empty string and as such
+            # is omitted from the parsed tree. We therefore should flag if a templated
+            # raw slice intersects with the source slices in the raw stack and skip this
+            # rule to avoid risking collisions with template objects.
             and not raw_stack.raw_slices.any(rsp.is_slice_type("templated"))
         ):
             return LintResult(
