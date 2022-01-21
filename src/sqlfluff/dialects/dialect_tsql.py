@@ -139,6 +139,10 @@ tsql_dialect.add(
     QuotedLiteralSegmentWithN=NamedParser(
         "single_quote_with_n", CodeSegment, name="quoted_literal", type="literal"
     ),
+    TransactionGrammar=OneOf(
+        "TRANSACTION",
+        "TRANS",
+    ),
 )
 
 tsql_dialect.replace(
@@ -2356,24 +2360,26 @@ class TransactionStatementSegment(BaseSegment):
 
     type = "transaction_statement"
     match_grammar = OneOf(
-        # BEGIN | SAVE TRANSACTION
-        # COMMIT [ TRANSACTION | WORK ]
-        # ROLLBACK [ TRANSACTION | WORK ]
+        # [ BEGIN | SAVE ] [ TRANSACTION | TRANS ]
+        # COMMIT [ TRANSACTION | TRANS | WORK ]
+        # ROLLBACK [ TRANSACTION | TRANS | WORK ]
         # https://docs.microsoft.com/en-us/sql/t-sql/language-elements/begin-transaction-transact-sql?view=sql-server-ver15
         Sequence(
             "BEGIN",
             Sequence("DISTRIBUTED", optional=True),
-            "TRANSACTION",
+            Ref("TransactionGrammar"),
             Ref("SingleIdentifierGrammar", optional=True),
             Sequence("WITH", "MARK", Ref("QuotedIdentifierSegment"), optional=True),
             Ref("DelimiterSegment", optional=True),
         ),
         Sequence(
             OneOf("COMMIT", "ROLLBACK"),
-            OneOf("TRANSACTION", "WORK", optional=True),
+            OneOf(Ref("TransactionGrammar"), "WORK", optional=True),
             Ref("DelimiterSegment", optional=True),
         ),
-        Sequence("SAVE", "TRANSACTION", Ref("DelimiterSegment", optional=True)),
+        Sequence(
+            "SAVE", Ref("TransactionGrammar"), Ref("DelimiterSegment", optional=True)
+        ),
     )
 
 

@@ -395,13 +395,24 @@ def test__templater_jinja_error_syntax():
     assert any(v.rule_code() == "TMP" and v.line_no == 1 for v in vs)
 
 
-def test__templater_jinja_error_catatrophic():
+def test__templater_jinja_error_catastrophic():
     """Test error handling in the jinja templater."""
     t = JinjaTemplater(override_context=dict(blah=7))
     instr = JINJA_STRING
     outstr, vs = t.process(in_str=instr, fname="test", config=FluffConfig())
     assert not outstr
     assert len(vs) > 0
+
+
+def test__templater_jinja_error_macro_path_does_not_exist():
+    """Tests that an error is raised if macro path doesn't exist."""
+    with pytest.raises(ValueError) as e:
+        JinjaTemplater().template_builder(
+            config=FluffConfig.from_path(
+                "test/fixtures/templater/jinja_macro_path_does_not_exist"
+            )
+        )
+    assert str(e.value).startswith("Path does not exist")
 
 
 def test__templater_jinja_lint_empty():
@@ -713,15 +724,22 @@ SELECT 1
         (
             # Tests Jinja "from import" directive..
             """{% from 'echo.sql' import echo %}
+{% from 'echoecho.sql' import echoecho %}
 
-SELECT {{ echo("foo") }}
+SELECT
+    {{ echo("foo") }},
+    {{ echoecho("bar") }}
 """,
             None,
             [
                 ("block_start", slice(0, 33, None), slice(0, 0, None)),
-                ("literal", slice(33, 42, None), slice(0, 9, None)),
-                ("templated", slice(42, 59, None), slice(9, 14, None)),
-                ("literal", slice(59, 60, None), slice(14, 15, None)),
+                ("literal", slice(33, 34, None), slice(0, 1, None)),
+                ("block_start", slice(34, 75, None), slice(1, 1, None)),
+                ("literal", slice(75, 88, None), slice(1, 14, None)),
+                ("templated", slice(88, 105, None), slice(14, 19, None)),
+                ("literal", slice(105, 111, None), slice(19, 25, None)),
+                ("templated", slice(111, 132, None), slice(25, 34, None)),
+                ("literal", slice(132, 133, None), slice(34, 35, None)),
             ],
         ),
     ],
@@ -740,7 +758,7 @@ def test__templater_jinja_slice_file(raw_file, override_context, result, caplog)
         _, resp, _ = templater.slice_file(
             raw_file, templated_file, make_template=make_template
         )
-    # Check contigious on the TEMPLATED VERSION
+    # Check contiguous on the TEMPLATED VERSION
     print(resp)
     prev_slice = None
     for elem in resp:
