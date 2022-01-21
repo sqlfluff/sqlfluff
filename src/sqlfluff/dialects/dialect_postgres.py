@@ -989,14 +989,18 @@ class CreateRoleStatementSegment(BaseSegment):
 
 
 @postgres_dialect.segment(replace=True)
-class ExplainStatementSegment(ansi_dialect.get_segment("ExplainStatementSegment")):  # type: ignore
+class ExplainStatementSegment(BaseSegment):
     """An `Explain` statement.
 
     EXPLAIN [ ( option [, ...] ) ] statement
     EXPLAIN [ ANALYZE ] [ VERBOSE ] statement
 
-    https://www.postgresql.org/docs/9.1/sql-explain.html
+    https://www.postgresql.org/docs/14/sql-explain.html
     """
+
+    type = "explain_statement"
+
+    match_grammar = ansi_dialect.get_segment("ExplainStatementSegment").match_grammar
 
     parse_grammar = Sequence(
         "EXPLAIN",
@@ -1021,21 +1025,32 @@ class ExplainOptionSegment(BaseSegment):
     ANALYZE [ boolean ]
     VERBOSE [ boolean ]
     COSTS [ boolean ]
+    SETTINGS [ boolean ]
     BUFFERS [ boolean ]
+    WAL [ boolean ]
+    TIMING [ boolean ]
+    SUMMARY [ boolean ]
     FORMAT { TEXT | XML | JSON | YAML }
 
-    https://www.postgresql.org/docs/9.1/sql-explain.html
+    https://www.postgresql.org/docs/14/sql-explain.html
     """
 
     type = "explain_option"
 
-    flag_segment = Sequence(
-        OneOf("ANALYZE", "VERBOSE", "COSTS", "BUFFERS"),
-        OneOf(Ref("TrueSegment"), Ref("FalseSegment"), optional=True),
-    )
-
     match_grammar = OneOf(
-        flag_segment,
+        Sequence(
+            OneOf(
+                "ANALYZE",
+                "VERBOSE",
+                "COSTS",
+                "SETTINGS",
+                "BUFFERS",
+                "WAL",
+                "TIMING",
+                "SUMMARY",
+            ),
+            Ref("BooleanLiteralGrammar", optional=True),
+        ),
         Sequence(
             "FORMAT",
             OneOf("TEXT", "XML", "JSON", "YAML"),
