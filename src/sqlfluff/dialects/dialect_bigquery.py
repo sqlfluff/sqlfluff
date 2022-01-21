@@ -58,8 +58,7 @@ bigquery_dialect.patch_lexer_matchers(
         # indicate a raw/regex string or byte sequence, respectively.  Allow escaped
         # quote characters inside strings by allowing \" with an optional even multiple
         # of backslashes in front of it.
-        # https://cloud.google.com/bigquery/docs/reference/standard-sql
-        # /lexical#string_and_bytes_literals
+        # https://cloud.google.com/bigquery/docs/reference/standard-sql/lexical#string_and_bytes_literals
         # Triple quoted variant first, then single quoted
         RegexLexer(
             "single_quote",
@@ -215,8 +214,7 @@ bigquery_dialect.sets("datetime_units").update(
 )
 
 # In BigQuery, UNNEST() returns a "value table".
-# https://cloud.google.com/bigquery/docs/reference/standard-sql
-# /query-syntax#value_tables
+# https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax#value_tables
 bigquery_dialect.sets("value_table_functions").update(["unnest"])
 
 # Bracket pairs (a set of tuples). Note that BigQuery inherits the default
@@ -494,8 +492,7 @@ class WildcardExpressionSegment(BaseSegment):
     ).match_grammar.copy(
         insert=[
             # Optional EXCEPT or REPLACE clause
-            # https://cloud.google.com/bigquery/docs/reference/standard-sql
-            # /query-syntax#select_replace
+            # https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax#select_replace
             Ref("ExceptClauseSegment", optional=True),
             Ref("ReplaceClauseSegment", optional=True),
         ]
@@ -925,8 +922,7 @@ class CreateTableStatementSegment(BaseSegment):
     """A `CREATE TABLE` statement."""
 
     type = "create_table_statement"
-    # https://cloud.google.com/bigquery/docs/reference/standard-sql
-    # /data-definition-language#create_table_statement
+    # https://cloud.google.com/bigquery/docs/reference/standard-sql/data-definition-language#create_table_statement
     match_grammar = Sequence(
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),

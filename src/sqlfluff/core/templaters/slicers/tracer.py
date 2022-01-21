@@ -234,10 +234,9 @@ class JinjaTracer:
 
             if elem_type.endswith("_begin"):
                 # When a "begin" tag (whether block, comment, or data) uses
-                # whitespace stripping
-                # (https://jinja.palletsprojects.com/en/3.0.x/templates
-                # /#whitespace-control),
-                # the Jinja lex() function handles this by discarding adjacent
+                # whitespace stripping (
+                # https://jinja.palletsprojects.com/en/3.0.x/templates/#whitespace-control
+                # ), the Jinja lex() function handles this by discarding adjacent
                 # whitespace from in_str. For more insight, see the tokeniter()
                 # function in this file:
                 # https://github.com/pallets/jinja/blob/main/src/jinja2/lexer.py

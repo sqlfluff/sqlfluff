@@ -166,23 +166,21 @@ snowflake_dialect.add(
         type="identifier",
     ),
     S3Path=RegexParser(
-        # See https://docs.aws.amazon.com/AmazonS3/latest/userguide
-        # /bucketnamingrules.html
+        # https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucketnamingrules.html
         r"'s3://[a-z0-9][a-z0-9\.-]{1,61}[a-z0-9](?:/.+)?'",
         CodeSegment,
         name="s3_path",
         type="bucket_path",
     ),
     GCSPath=RegexParser(
-        # See https://cloud.google.com/storage/docs/naming-buckets
+        # https://cloud.google.com/storage/docs/naming-buckets
         r"'gcs://[a-z0-9][\w\.-]{1,61}[a-z0-9](?:/.+)?'",
         CodeSegment,
         name="gcs_path",
         type="bucket_path",
     ),
     AzureBlobStoragePath=RegexParser(
-        # See https://docs.microsoft.com/en-us/azure/azure-resource-manager/management
-        # /resource-name-rules#microsoftstorage
+        # See https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/resource-name-rules#microsoftstorage
         r"'azure://[a-z0-9][a-z0-9-]{1,61}[a-z0-9]\.blob\.core\.windows\.net/[a-z0-9]"
         r"[a-z0-9\.-]{1,61}[a-z0-9](?:/.+)?'",
         CodeSegment,
@@ -297,8 +295,7 @@ snowflake_dialect.sets("reserved_keywords").update(
 )
 
 # Add datetime units and their aliases from
-# https://docs.snowflake.com/en/sql-reference
-# /functions-date-time.html#label-supported-date-time-parts
+# https://docs.snowflake.com/en/sql-reference/functions-date-time.html#label-supported-date-time-parts
 snowflake_dialect.sets("datetime_units").clear()
 snowflake_dialect.sets("datetime_units").update(
     [
@@ -1584,8 +1581,7 @@ class ColumnConstraintSegment(BaseSegment):
             "DEFAULT",
             OneOf(
                 Ref("QuotedLiteralSegment"),
-                # https://docs.snowflake.com/en/sql-reference/functions
-                # /current_timestamp.html
+                # https://docs.snowflake.com/en/sql-reference/functions/current_timestamp.html
                 Sequence(
                     "CURRENT_TIMESTAMP",
                     Bracketed(
@@ -1984,8 +1980,8 @@ class CreateStatementSegment(BaseSegment):
         ),
         Ref("IfNotExistsGrammar", optional=True),
         Ref("ObjectReferenceSegment"),
-        # Next set are Pipe statements https://docs.snowflake.com/en/sql-reference/sql
-        # /create-pipe.html
+        # Next set are Pipe statements
+        # https://docs.snowflake.com/en/sql-reference/sql/create-pipe.html
         Sequence(
             Sequence(
                 "AUTO_INGEST",
@@ -2007,8 +2003,8 @@ class CreateStatementSegment(BaseSegment):
             ),
             optional=True,
         ),
-        # Next are WAREHOUSE options https://docs.snowflake.com/en/sql-reference/sql
-        # /create-warehouse.html
+        # Next are WAREHOUSE options
+        # https://docs.snowflake.com/en/sql-reference/sql/create-warehouse.html
         Sequence(
             Sequence("WITH", optional=True),
             AnyNumberOf(
@@ -3469,8 +3465,7 @@ class DescribeStatementSegment(BaseSegment):
                 "VIEW",
                 Ref("TableReferenceSegment"),
             ),
-            # https://docs.snowflake.com/en/sql-reference/sql
-            # /desc-materialized-view.html
+            # https://docs.snowflake.com/en/sql-reference/sql/desc-materialized-view.html
             Sequence(
                 "MATERIALIZED",
                 "VIEW",
@@ -3487,8 +3482,7 @@ class DescribeStatementSegment(BaseSegment):
                 "POLICY",
                 Ref("ObjectReferenceSegment"),
             ),
-            # https://docs.snowflake.com/en/sql-reference/sql
-            # /desc-row-access-policy.html
+            # https://docs.snowflake.com/en/sql-reference/sql/desc-row-access-policy.html
             Sequence(
                 "ROW",
                 "ACCESS",

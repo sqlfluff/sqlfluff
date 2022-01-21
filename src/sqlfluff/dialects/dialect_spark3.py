@@ -59,8 +59,7 @@ spark3_dialect.patch_lexer_matchers(
         # within a delimited identifier, ` is used to escape special characters,
         # including `
         # Ex: select `delimited `` with escaped` from `just delimited`
-        # https://spark.apache.org/docs/latest
-        # /sql-ref-identifier.html#delimited-identifier
+        # https://spark.apache.org/docs/latest/sql-ref-identifier.html#delimited-identifier
         RegexLexer("back_quote", r"`([^`]|``)*`", CodeSegment),
         # Numeric literal matches integers, decimals, and exponential formats.
         # https://spark.apache.org/docs/latest/sql-ref-literals.html#numeric-literal

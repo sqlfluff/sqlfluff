@@ -1140,8 +1140,7 @@ class FromExpressionElementSegment(BaseSegment):
     match_grammar = Sequence(
         Ref("PreTableFunctionKeywordsGrammar", optional=True),
         OptionallyBracketed(Ref("TableExpressionSegment")),
-        # https://cloud.google.com/bigquery/docs/reference/standard-sql
-        # /arrays#flattening_arrays
+        # https://cloud.google.com/bigquery/docs/reference/standard-sql/arrays#flattening_arrays
         Sequence("WITH", "OFFSET", optional=True),
         OneOf(
             Sequence(Ref("AliasExpressionSegment"), Ref("SamplingExpressionSegment")),
@@ -1549,8 +1548,8 @@ class CaseExpressionSegment(BaseSegment):
 
 
 ansi_dialect.add(
-    # Expression_A_Grammar https://www.cockroachlabs.com/docs/v20.2
-    # /sql-grammar.html#a_expr
+    # Expression_A_Grammar
+    # https://www.cockroachlabs.com/docs/v20.2/sql-grammar.html#a_expr
     Expression_A_Grammar=Sequence(
         OneOf(
             Ref("Expression_C_Grammar"),

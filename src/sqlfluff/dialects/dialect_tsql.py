@@ -449,8 +449,7 @@ class SelectClauseModifierSegment(BaseSegment):
         "DISTINCT",
         "ALL",
         Sequence(
-            # https://docs.microsoft.com/en-us/sql/t-sql/queries
-            # /top-transact-sql?view=sql-server-ver15
+            # https://docs.microsoft.com/en-us/sql/t-sql/queries/top-transact-sql?view=sql-server-ver15
             "TOP",
             OptionallyBracketed(Ref("ExpressionSegment")),
             Sequence("PERCENT", optional=True),
@@ -2265,8 +2264,7 @@ class AlterTableSwitchStatementSegment(BaseSegment):
     """An `ALTER TABLE SWITCH` statement."""
 
     type = "alter_table_switch_statement"
-    # https://docs.microsoft.com/en-us/sql/t-sql/statements
-    # /alter-table-transact-sql?view=sql-server-ver15
+    # https://docs.microsoft.com/en-us/sql/t-sql/statements/alter-table-transact-sql?view=sql-server-ver15
     # T-SQL's ALTER TABLE SWITCH grammar is different enough to core ALTER TABLE grammar
     # to merit its own definition
     match_grammar = Sequence(
@@ -2294,10 +2292,7 @@ class CreateTableAsSelectStatementSegment(BaseSegment):
     """
 
     type = "create_table_as_select_statement"
-    # https://docs.microsoft.com/en-us/sql/t-sql/statements
-    # /create-table-as-select-azure-sql-data-warehouse?toc=/azure/synapse-analytics
-    # /sql-data-warehouse/toc.json&bc=/azure/synapse-analytics/sql-data-warehouse
-    # /breadcrumb/toc.json&view=azure-sqldw-latest&preserve-view=true
+    # https://docs.microsoft.com/en-us/sql/t-sql/statements/create-table-as-select-azure-sql-data-warehouse?toc=/azure/synapse-analytics/sql-data-warehouse/toc.json&bc=/azure/synapse-analytics/sql-data-warehouse/breadcrumb/toc.json&view=azure-sqldw-latest&preserve-view=true
     match_grammar = Sequence(
         "CREATE",
         "TABLE",
@@ -2364,8 +2359,7 @@ class TransactionStatementSegment(BaseSegment):
         # BEGIN | SAVE TRANSACTION
         # COMMIT [ TRANSACTION | WORK ]
         # ROLLBACK [ TRANSACTION | WORK ]
-        # https://docs.microsoft.com/en-us/sql/t-sql/language-elements
-        # /begin-transaction-transact-sql?view=sql-server-ver15
+        # https://docs.microsoft.com/en-us/sql/t-sql/language-elements/begin-transaction-transact-sql?view=sql-server-ver15
         Sequence(
             "BEGIN",
             Sequence("DISTRIBUTED", optional=True),

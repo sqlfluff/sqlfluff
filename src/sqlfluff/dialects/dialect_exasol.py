@@ -91,8 +91,7 @@ exasol_dialect.patch_lexer_matchers(
         # In EXASOL, a double single/double quote resolves as a single/double quote in
         # the string. It's also used for escaping single quotes inside of STATEMENT
         # strings like in the IMPORT function
-        # https://docs.exasol.com/sql_references
-        # /basiclanguageelements.htm#Delimited_Identifiers
+        # https://docs.exasol.com/sql_references/basiclanguageelements.htm#Delimited_Identifiers
         # https://docs.exasol.com/sql_references/literals.htm
         RegexLexer("single_quote", r"'([^']|'')*'", CodeSegment),
         RegexLexer("double_quote", r'"([^"]|"")*"', CodeSegment),
