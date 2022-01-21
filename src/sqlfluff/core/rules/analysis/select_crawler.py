@@ -43,11 +43,14 @@ class Selectable:
                 self.selectable, self.dialect, early_exit=False
             )
         else:  # values_clause
-            # This is a bit dodgy, but useful. Here, we interpret a
-            # values_clause segment as if it were a SELECT. Someday, we may need
-            # to add a separate QueryType for this (depending on the needs of
-            # the rules that use it. For more info, see the "Examples" section
-            # of the Postgres docs page
+            # This is a bit dodgy, but a very useful abstraction. Here, we
+            # interpret a values_clause segment as if it were a SELECT. Someday,
+            # we may need to tweak this, e.g. perhaps add a separate QueryType
+            # for this (depending on the needs of the rules that use it.
+            #
+            # For more info on the syntax and behavior of VALUES and its
+            # similarity to a SELECT statement with literal values (no table
+            # source), see the "Examples" section of the Postgres docs page:
             # (https://www.postgresql.org/docs/8.2/sql-values.html).
             values = Segments(self.selectable)
             alias_expression = values.children().first(sp.is_type("alias_expression"))
@@ -152,8 +155,8 @@ class Query:
             recurse_into=recurse_into,
         ):
             if seg is segment:
-                # If we are starting with a select_statement, recursive_crawl()
-                # returns the statement itself. Skip that.
+                # If the starting segment itself matches the list of types we're
+                # searching for, recursive_crawl() will return it. Skip that.
                 continue
 
             if seg.is_type("table_reference"):
@@ -239,8 +242,8 @@ class SelectCrawler:
                 if path[-1].is_type(
                     "set_expression", "select_statement", "values_clause"
                 ):
-                    # Beginning a single "SELECT" or a set, e.g.
-                    # SELECT ... UNION ... SELECT.
+                    # Beginning a single "SELECT", a set, e.g.
+                    # SELECT ... UNION ... SELECT; or a VALUES clause.
                     if not in_with:
                         if path[-1].is_type("set_expression"):
                             # For a set_expression, create a query with no
@@ -252,16 +255,14 @@ class SelectCrawler:
                         else:
                             # It's a select_statement or values_clause.
                             selectable = Selectable(path[-1], dialect)
-                            # Determine if this is a standalone select_statement or
-                            # part of a set_expression.
+                            # Determine if this is part of a set_expression.
                             if len(path) >= 2 and path[-2].is_type("set_expression"):
-                                # It's part of a set_expression. Append this
-                                # select_statement to the set_expression.
+                                # It's part of a set_expression. Append to the
+                                # set_expression.
                                 query_stack[-1].selectables.append(selectable)
                             else:
-                                # It's a standalone select_statement, not part
-                                # of a set_expression. Create a Query containing
-                                # this select_statement.
+                                # It's standalone, i.e. not part of a
+                                # set_expression. Create a Query for it.
                                 query = self.query_class(
                                     QueryType.Simple, dialect, [selectable]
                                 )
@@ -273,14 +274,13 @@ class SelectCrawler:
                             # name.
                             query = self.query_class(QueryType.Simple, dialect)
                             if path[-1].is_type("select_statement", "values_clause"):
-                                # Processing a select_statement. Add it to the
-                                # Query object we just created.
+                                # Add to the Query object we just created.
                                 query.selectables.append(Selectable(path[-1], dialect))
                             else:
                                 # Processing a set_expression. Nothing
                                 # additional to do here; we'll add selectables
-                                # to the Query later when we encounter the child
-                                # select_statements.
+                                # to the Query later when we encounter those
+                                # child segments.
                                 pass
                             query_stack[-1].ctes[cte_name] = query
                             cte_name = None
@@ -325,12 +325,13 @@ class SelectCrawler:
 
         This includes:
         - SELECT
+        - VALUES clause
         - table reference
         - value table function call
-        - VALUES clause
 
-        If we find a SELECT, return info list. Otherwise, return table name
-        or function call string.
+        In the list returned, SELECT and VALUES are represented by a Query
+        object. The other possibilities are represented by a string (table name
+        or function call string).
         """
         return list(query.crawl_sources(segment, True))
 
