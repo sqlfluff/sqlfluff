@@ -173,7 +173,7 @@ test_snowflake_delete_cte:
     core:
       dialect: snowflake
 
-test_pass_exasol_values_clause_cte:
+test_pass_exasol_values_clause_cte_1:
   pass_str: |
     WITH txt AS (
         VALUES (1)
@@ -182,3 +182,32 @@ test_pass_exasol_values_clause_cte:
 
     SELECT *
     FROM txt
+  configs:
+    core:
+      dialect: exasol
+
+test_pass_exasol_values_clause_cte_2:
+  pass_str: |
+    WITH txt AS (
+        VALUES (1, 'foo')
+        AS t (id, name)
+    )
+
+    SELECT *
+    FROM txt
+  configs:
+    core:
+      dialect: exasol
+
+test_pass_snowflake_values_clause_cte:
+  pass_str: |
+    WITH txt AS (
+        VALUES (1)
+        AS t (id)
+    )
+
+    SELECT *
+    FROM txt
+  configs:
+    core:
+      dialect: snowflake
