@@ -146,3 +146,23 @@ test_snowflake_delete_cte:
   configs:
     core:
       dialect: snowflake
+
+test_pass_exasol_values_clause:
+  pass_str: |
+    SELECT *
+    FROM (
+        VALUES (1, 2), (3, 4)
+    )
+  configs:
+    core:
+      dialect: exasol
+
+test_fail_exasol_values_clause:
+  fail_str: |
+    SELECT *
+    FROM (
+        VALUES (1, 2), (3, 4)
+    ) AS t(c1, c2)
+  configs:
+    core:
+      dialect: exasol

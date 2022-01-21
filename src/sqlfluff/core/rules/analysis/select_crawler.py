@@ -55,7 +55,12 @@ class Selectable:
                 sp.is_name("naked_identifier", "quoted_identifier")
             )
             alias_info = AliasInfo(
-                name[0].raw, name[0], True, self.selectable, alias_expression[0], None
+                name[0].raw if name else "",
+                name[0] if name else None,
+                bool(name),
+                self.selectable,
+                alias_expression[0] if alias_expression else None,
+                None,
             )
 
             return SelectStatementColumnsAndTables(
@@ -143,6 +148,7 @@ class Query:
             "table_reference",
             "set_expression",
             "select_statement",
+            "values_clause",
             recurse_into=recurse_into,
         ):
             if seg is segment:
@@ -159,7 +165,9 @@ class Query:
                 # It's an external table.
                 yield seg.raw
             else:
-                assert seg.is_type("set_expression", "select_statement")
+                assert seg.is_type(
+                    "set_expression", "select_statement", "values_clause"
+                )
                 found_nested_select = True
                 crawler = SelectCrawler(seg, self.dialect, parent=self)
                 # We know this will pass because we specified parent=self above.
@@ -313,7 +321,13 @@ class SelectCrawler:
 
     @classmethod
     def get(cls, query: Query, segment: BaseSegment) -> List[Union[str, "Query"]]:
-        """Find SELECTs, table refs, or value table function calls in segment.
+        """Returns a list of query sources in segment.
+
+        This includes:
+        - SELECT
+        - table reference
+        - value table function call
+        - VALUES clause
 
         If we find a SELECT, return info list. Otherwise, return table name
         or function call string.
