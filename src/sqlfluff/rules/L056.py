@@ -71,7 +71,7 @@ class Rule_L056(BaseRule):
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         r"""Avoid Hungarian notation prefixes ``SP_`` and ``TBL_``."""
         # We only care about hungarian object references.
-        if not context.functional.segment.all(lambda s: self._is_hungarian_notation(s)):
+        if not self._is_hungarian_notation(context.segment):
             return None
 
         return LintResult(context.segment)
