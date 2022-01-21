@@ -144,7 +144,7 @@ def yaml_loader():
 
 
 @pytest.fixture(scope="module")
-def generate_test_segments()->Callable[[List[str]], List[RawSegment]]:
+def generate_test_segments() -> Callable[[List[str]], List[RawSegment]]:
     """Roughly generate test segments.
 
     This is a factory function so that it works as a fixture,
@@ -152,7 +152,7 @@ def generate_test_segments()->Callable[[List[str]], List[RawSegment]]:
     which is what you actually need.
     """
 
-    def generate_test_segments_func(elems:List[str])->List[RawSegment]:
+    def generate_test_segments_func(elems: List[str]) -> List[RawSegment]:
         """Roughly generate test segments.
 
         This function isn't totally robust, but good enough
