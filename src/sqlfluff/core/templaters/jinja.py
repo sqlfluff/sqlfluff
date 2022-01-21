@@ -69,8 +69,8 @@ class JinjaTemplater(PythonTemplater):
         """Take a path and extract macros from it."""
         for path_entry in path:
             # Does it exist? It should as this check was done on config load.
-            if not os.path.exists(path_entry):  # pragma: no cover
-                raise ValueError(f"Path does not exist: {path}")
+            if not os.path.exists(path_entry):
+                raise ValueError(f"Path does not exist: {path_entry}")
 
             macro_ctx = {}
             if os.path.isfile(path_entry):
@@ -220,7 +220,7 @@ class JinjaTemplater(PythonTemplater):
                 (self.templater_selector, self.name, "load_macros_from_path")
             )
             if macros_path:
-                result = [s.strip() for s in macros_path.split(",") if s.strip()]  # type: ignore
+                result = [s.strip() for s in macros_path.split(",") if s.strip()]
                 if result:
                     return result
         return None

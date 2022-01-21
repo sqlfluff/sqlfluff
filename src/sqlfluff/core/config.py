@@ -673,7 +673,7 @@ class FluffConfig:
 
         return section_dict.get(val, default)
 
-    def get_section(self, section: Union[str, Iterable[str]]) -> Union[dict, None]:
+    def get_section(self, section: Union[str, Iterable[str]]) -> Any:
         """Return a whole section of config as a dict.
 
         If the element found at the address is a value and not

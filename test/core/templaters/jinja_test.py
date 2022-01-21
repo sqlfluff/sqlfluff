@@ -386,13 +386,24 @@ def test__templater_jinja_error_syntax():
     assert any(v.rule_code() == "TMP" and v.line_no == 1 for v in vs)
 
 
-def test__templater_jinja_error_catatrophic():
+def test__templater_jinja_error_catastrophic():
     """Test error handling in the jinja templater."""
     t = JinjaTemplater(override_context=dict(blah=7))
     instr = JINJA_STRING
     outstr, vs = t.process(in_str=instr, fname="test", config=FluffConfig())
     assert not outstr
     assert len(vs) > 0
+
+
+def test__templater_jinja_error_macro_path_does_not_exist():
+    """Tests that an error is raised if macro path doesn't exist."""
+    with pytest.raises(ValueError) as e:
+        JinjaTemplater().template_builder(
+            config=FluffConfig.from_path(
+                "test/fixtures/templater/jinja_macro_path_does_not_exist"
+            )
+        )
+    assert str(e.value).startswith("Path does not exist")
 
 
 def test__templater_jinja_lint_empty():
