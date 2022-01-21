@@ -160,7 +160,7 @@ def test__rules__std_L003_make_indent_invalid_param():
 
 
 def test__rules__std_L003__get_element_template_info():
-    """Test Rule_L003._get_element_template_info with invalid templated_file parameter."""
+    """Test _get_element_template_info with invalid templated_file parameter."""
     mock_segment = Mock()
     mock_segment.return_value.is_type = True
     with pytest.raises(ValueError):

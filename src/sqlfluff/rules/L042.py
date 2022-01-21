@@ -84,6 +84,7 @@ class Rule_L042(BaseRule):
                 if seg:
                     return LintResult(
                         anchor=seg[0],
-                        description=f"{parent_type} clauses should not contain subqueries. Use CTEs instead",
+                        description=f"{parent_type} clauses should not contain "
+                        "subqueries. Use CTEs instead",
                     )
         return None

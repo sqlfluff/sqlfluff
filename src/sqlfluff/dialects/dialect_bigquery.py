@@ -55,9 +55,9 @@ bigquery_dialect.insert_lexer_matchers(
 bigquery_dialect.patch_lexer_matchers(
     [
         # Quoted literals can have r or b (case insensitive) prefixes, in any order, to
-        # indicate a raw/regex string or byte sequence, respectively.  Allow escaped quote
-        # characters inside strings by allowing \" with an optional even multiple of
-        # backslashes in front of it.
+        # indicate a raw/regex string or byte sequence, respectively.  Allow escaped
+        # quote characters inside strings by allowing \" with an optional even multiple
+        # of backslashes in front of it.
         # https://cloud.google.com/bigquery/docs/reference/standard-sql/lexical#string_and_bytes_literals
         # Triple quoted variant first, then single quoted
         RegexLexer(
@@ -176,7 +176,8 @@ bigquery_dialect.replace(
         insert=[Ref("TypelessStructSegment")],
         before=Ref("ExpressionSegment"),
     ),
-    # BigQuery allows underscore in parameter names, and also anything if quoted in backticks
+    # BigQuery allows underscore in parameter names, and also anything if quoted in
+    # backticks
     ParameterNameSegment=OneOf(
         RegexParser(
             r"[A-Z_][A-Z0-9_]*", CodeSegment, name="parameter", type="parameter"
@@ -1110,7 +1111,7 @@ class InsertStatementSegment(BaseSegment):
 class SamplingExpressionSegment(BaseSegment):
     """A sampling expression.
 
-    As per https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax#tablesample_operator
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax#tablesample_operator
     """
 
     type = "sample_expression"

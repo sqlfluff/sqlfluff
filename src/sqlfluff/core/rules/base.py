@@ -155,13 +155,14 @@ class LintFix:
             self.edit = copy.deepcopy(edit)
             # Check that any edits don't have a position marker set.
             # We should rely on realignment to make position markers.
-            # Strip position markers of anything enriched, otherwise things can get blurry
+            # Strip position markers of anything enriched, otherwise things can get
+            # blurry
             for seg in self.edit:
                 if seg.pos_marker:
                     # Developer warning.
                     rules_logger.debug(
-                        "Developer Note: Edit segment found with preset position marker. "
-                        "These should be unset and calculated later."
+                        "Developer Note: Edit segment found with preset position "
+                        "marker. These should be unset and calculated later."
                     )
                     seg.pos_marker = None  # type: ignore
             # Once stripped, we shouldn't replace any markers because
@@ -428,8 +429,8 @@ class BaseRule:
     def __init__(self, code, description, **kwargs):
         self.description = description
         self.code = code
-        # kwargs represents the config passed to the rule. Add all kwargs as class attributes
-        # so they can be accessed in rules which inherit from this class
+        # kwargs represents the config passed to the rule. Add all kwargs as class
+        # attributes so they can be accessed in rules which inherit from this class
         for key, value in kwargs.items():
             self.__dict__[key] = value
 
@@ -543,11 +544,12 @@ class BaseRule:
                     segment=segment,
                     fixes=[],
                     description=(
-                        f"""Unexpected exception: {str(e)};
-                        Could you open an issue at https://github.com/sqlfluff/sqlfluff/issues ?
-                        You can ignore this exception for now, by adding '-- noqa: {self.code}' at the end
-                        of line {exception_line}
-                        """
+                        f"Unexpected exception: {str(e)};\n"
+                        "Could you open an issue at "
+                        "https://github.com/sqlfluff/sqlfluff/issues ?\n"
+                        "You can ignore this exception for now, by adding "
+                        f"'-- noqa: {self.code}' at the end\n"
+                        f"of line {exception_line}\n"
                     ),
                 )
             )
@@ -649,9 +651,10 @@ class BaseRule:
             # We can't fail on a meta segment
             return False
         else:
-            # We know we are at a leaf of the tree but not necessarily at the end of the tree.
-            # Therefore we look backwards up the parent stack and ask if any of the parent segments
-            # have another non-meta child segment after the current one.
+            # We know we are at a leaf of the tree but not necessarily at the end of the
+            # tree. Therefore we look backwards up the parent stack and ask if any of
+            # the parent segments have another non-meta child segment after the current
+            # one.
             child_segment = context.segment
             for parent_segment in context.parent_stack[::-1]:
                 possible_children = [
@@ -875,7 +878,7 @@ class RuleSet:
 
         plugin_name, code = rule_name_match.groups()
         # If the docstring is multiline, then we extract just summary.
-        description = cls.__doc__.split("\n")[0]
+        description = cls.__doc__.replace("``", "'").split("\n")[0]
 
         if plugin_name:
             code = f"{plugin_name}_{code}"

@@ -101,9 +101,8 @@ class BaseGrammar(Matchable):
             ):
                 return init_func(elem)
         raise TypeError(
-            "Grammar element [{!r}] was found of unexpected type [{}] was found.".format(
-                elem, type(elem)
-            )  # pragma: no cover
+            "Grammar element [{!r}] was found of unexpected type [{}] was "
+            "found.".format(elem, type(elem))  # pragma: no cover
         )
 
     def __init__(
@@ -135,8 +134,8 @@ class BaseGrammar(Matchable):
                 chunk of code that might be parsed separately.
         """
         # We provide a common interface for any grammar that allows positional elements.
-        # If *any* for the elements are a string and not a grammar, then this is a shortcut
-        # to the Ref.keyword grammar by default.
+        # If *any* for the elements are a string and not a grammar, then this is a
+        # shortcut to the Ref.keyword grammar by default.
         if self.allow_keyword_string_refs:
             self._elements = []
             for elem in args:
@@ -230,7 +229,8 @@ class BaseGrammar(Matchable):
                     best_match_length = res_match.matched_length
             # We could stash segments here, but given we might have some successful
             # matches here, we shouldn't, because they'll be mutated in the wrong way.
-            # Eventually there might be a performance gain from doing that sensibly here.
+            # Eventually there might be a performance gain from doing that sensibly
+            # here.
 
         # If we get here, then there wasn't a complete match. If we
         # has a best_match, return that.
@@ -345,8 +345,8 @@ class BaseGrammar(Matchable):
                 # Here we do the actual transform to the new segment.
                 match = queued_matcher.match(segments[queued_buff_pos:], parse_context)
                 if not match:
-                    # We've had something match in simple matching, but then later excluded.
-                    # Log but then move on to the next item on the list.
+                    # We've had something match in simple matching, but then later
+                    # excluded. Log but then move on to the next item on the list.
                     parse_match_logging(
                         cls.__name__,
                         "_look_ahead_match",
@@ -513,17 +513,20 @@ class BaseGrammar(Matchable):
 
                     if match:
                         # NB: We can only consider this as a nested bracket if the start
-                        # and end tokens are not the same. If a matcher is both a start and
-                        # end token we cannot deepen the bracket stack. In general, quoted
-                        # strings are a typical example where the start and end tokens are
-                        # the same. Currently, though, quoted strings are handled elsewhere
-                        # in the parser, and there are no cases where *this* code has to
-                        # handle identical start and end brackets. For now, consider this
-                        # a small, speculative investment in a possible future requirement.
+                        # and end tokens are not the same. If a matcher is both a start
+                        # and end token we cannot deepen the bracket stack. In general,
+                        # quoted strings are a typical example where the start and end
+                        # tokens are the same. Currently, though, quoted strings are
+                        # handled elsewhere in the parser, and there are no cases where
+                        # *this* code has to handle identical start and end brackets.
+                        # For now, consider this a small, speculative investment in a
+                        # possible future requirement.
                         if matcher in start_brackets and matcher not in end_brackets:
-                            # Add any segments leading up to this to the previous bracket.
+                            # Add any segments leading up to this to the previous
+                            # bracket.
                             bracket_stack[-1].segments += pre
-                            # Add a bracket to the stack and add the matches from the segment.
+                            # Add a bracket to the stack and add the matches from the
+                            # segment.
                             bracket_stack.append(
                                 BracketInfo(
                                     bracket=match.matched_segments[0],
@@ -567,8 +570,8 @@ class BaseGrammar(Matchable):
                                     new_segments = bracket_stack[-1].segments
                                 # Remove the bracket set from the stack
                                 bracket_stack.pop()
-                                # If we're still in a bracket, add the new segments to that bracket
-                                # Otherwise add them to the buffer
+                                # If we're still in a bracket, add the new segments to
+                                # that bracket, otherwise add them to the buffer
                                 if bracket_stack:
                                     bracket_stack[-1].segments += new_segments
                                 else:
@@ -643,7 +646,8 @@ class BaseGrammar(Matchable):
                         else:  # pragma: no cover
                             # This shouldn't happen!?
                             raise NotImplementedError(
-                                "This shouldn't happen. Panic in _bracket_sensitive_look_ahead_match."
+                                "This shouldn't happen. Panic in "
+                                "_bracket_sensitive_look_ahead_match."
                             )
                     # Not in a bracket stack, but no match.
                     # From here we'll drop out to the happy unmatched exit.
@@ -653,16 +657,17 @@ class BaseGrammar(Matchable):
                 if bracket_stack:  # pragma: no cover
                     # No we haven't.
                     raise SQLParseError(
-                        f"Couldn't find closing bracket for opened brackets: `{bracket_stack}`.",
+                        "Couldn't find closing bracket for opened brackets: "
+                        f"`{bracket_stack}`.",
                         segment=bracket_stack[-1].bracket,
                     )
 
             # This is the happy unmatched path. This occurs when:
             # - We reached the end with no open brackets.
             # - No match while outside a bracket stack.
-            # - We found an unexpected end bracket before matching something interesting.
-            # We return with the mutated segments so we can
-            # reuse any bracket matching.
+            # - We found an unexpected end bracket before matching something
+            # interesting. We return with the mutated segments so we can reuse any
+            # bracket matching.
             return ((), MatchResult.from_unmatched(pre_seg_buff + seg_buff), None)
 
     def __str__(self):  # pragma: no cover TODO?
@@ -788,9 +793,8 @@ class Ref(BaseGrammar):
             return self._elements[0]
         else:  # pragma: no cover
             raise ValueError(
-                "Ref grammar can only deal with precisely one element for now. Instead found {!r}".format(
-                    self._elements
-                )
+                "Ref grammar can only deal with precisely one element for now. Instead "
+                "found {!r}".format(self._elements)
             )
 
     def _get_elem(self, dialect):

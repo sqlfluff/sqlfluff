@@ -112,8 +112,8 @@ class Rule_L037(BaseRule):
                     anchor=context.segment,
                     fixes=lint_fixes,
                     description=(
-                        "Ambiguous order by clause. Order by "
-                        "clauses should specify order direction for ALL columns or NO columns."
+                        "Ambiguous order by clause. Order by clauses should specify "
+                        "order direction for ALL columns or NO columns."
                     ),
                 )
             ]

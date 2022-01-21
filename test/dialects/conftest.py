@@ -108,7 +108,8 @@ def _dialect_specific_segment_not_match(dialect, segmentref, raw, caplog):
 def _validate_dialect_specific_statements(dialect, segment_cls, raw, stmt_count):
     """This validates one or multiple statements against specified segment class.
 
-    It even validates the number of parsed statements with the number of expected statements.
+    It even validates the number of parsed statements with the number of expected
+    statements.
     """
     lnt = Linter(dialect=dialect)
     parsed = lnt.parse_string(raw)
@@ -135,7 +136,7 @@ def dialect_specific_segment_parses():
 
 @pytest.fixture()
 def dialect_specific_segment_not_match():
-    """Fixture to check specific segments of a dialect which will not match to a segment."""
+    """Check specific segments of a dialect which will not match to a segment."""
     return _dialect_specific_segment_not_match
 
 
@@ -143,6 +144,7 @@ def dialect_specific_segment_not_match():
 def validate_dialect_specific_statements():
     """This validates one or multiple statements against specified segment class.
 
-    It even validates the number of parsed statements with the number of expected statements.
+    It even validates the number of parsed statements with the number of expected
+    statements.
     """
     return _validate_dialect_specific_statements

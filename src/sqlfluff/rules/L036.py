@@ -327,8 +327,8 @@ class Rule_L036(BaseRule):
                 fixes=fixes,
             )
 
-        # If we have a wildcard on the same line as the FROM keyword, but not the same line
-        # as the SELECT keyword, we need to move the FROM keyword to its own line.
+        # If we have a wildcard on the same line as the FROM keyword, but not the same
+        # line as the SELECT keyword, we need to move the FROM keyword to its own line.
         # i.e.
         # SELECT
         #   * FROM foo

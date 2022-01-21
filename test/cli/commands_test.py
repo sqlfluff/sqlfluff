@@ -73,8 +73,8 @@ def test__cli__command_directed():
     check_b = "Indentation"
     assert check_a in result.output
     assert check_b in result.output
-    # Finally check the WHOLE output to make sure that unexpected newlines are not added.
-    # The replace command just accounts for cross platform testing.
+    # Finally check the WHOLE output to make sure that unexpected newlines are not
+    # added. The replace command just accounts for cross platform testing.
     assert result.output.replace("\\", "/").startswith(expected_output)
 
 
@@ -113,7 +113,7 @@ def test__cli__command_dialect_legacy():
 
 
 def test__cli__command_extra_config_fail():
-    """Check the script raises the right exception on a non-existant extra config path."""
+    """Check the script raises the right exception non-existent extra config path."""
     result = invoke_assert_code(
         ret_code=66,
         args=[
@@ -126,8 +126,8 @@ def test__cli__command_extra_config_fail():
         ],
     )
     assert (
-        "Extra config 'test/fixtures/cli/extra_configs/.sqlfluffsdfdfdfsfd' does not exist."
-        in result.stdout
+        "Extra config 'test/fixtures/cli/extra_configs/.sqlfluffsdfdfdfsfd' does not "
+        "exist." in result.stdout
     )
 
 
@@ -309,7 +309,8 @@ def test__cli__command_lint_parse(command):
 @pytest.mark.parametrize(
     "command, ret_code",
     [
-        # Check the script doesn't raise an unexpected exception with badly formed files.
+        # Check the script doesn't raise an unexpected exception with badly formed
+        # files.
         (
             (
                 fix,
@@ -354,7 +355,7 @@ def test__cli__command_lint_parse_with_retcode(command, ret_code):
 
 
 def test__cli__command_lint_warning_explicit_file_ignored():
-    """Check ignoring file works when passed explicitly and ignore file is in the same directory."""
+    """Check ignoring file works when file is in an ignore directory."""
     runner = CliRunner()
     result = runner.invoke(
         lint, ["test/fixtures/linter/sqlfluffignore/path_b/query_c.sql"]
@@ -529,10 +530,13 @@ def test__cli__command__fix(rule, fname):
         # L031 fix aliases in joins
         (
             "SELECT u.id, c.first_name, c.last_name, COUNT(o.user_id) "
-            "FROM users as u JOIN customers as c on u.id = c.user_id JOIN orders as o on u.id = o.user_id;",
+            "FROM users as u JOIN customers as c on u.id = c.user_id JOIN orders as o "
+            "on u.id = o.user_id;",
             "L031",
-            "SELECT users.id, customers.first_name, customers.last_name, COUNT(orders.user_id) "
-            "FROM users JOIN customers on users.id = customers.user_id JOIN orders on users.id = orders.user_id;",
+            "SELECT users.id, customers.first_name, customers.last_name, "
+            "COUNT(orders.user_id) "
+            "FROM users JOIN customers on users.id = customers.user_id JOIN orders on "
+            "users.id = orders.user_id;",
         ),
     ],
 )
@@ -778,8 +782,8 @@ def test__cli__command_lint_serialize_github_annotation():
                 "test/fixtures/linter/identifier_capitalisation.sql"
             ),
             "line": 2,
-            "message": "L027: Unqualified reference 'foo' found in select with more than "
-            "one referenced table/view.",
+            "message": "L027: Unqualified reference 'foo' found in select with more "
+            "than one referenced table/view.",
             "start_column": 5,
             "end_column": 5,
             "title": "SQLFluff",
