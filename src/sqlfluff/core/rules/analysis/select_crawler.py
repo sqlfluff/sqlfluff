@@ -46,7 +46,9 @@ class Selectable:
             # This is a bit dodgy, but useful. Here, we interpret a
             # values_clause segment as if it were a SELECT. Someday, we may need
             # to add a separate QueryType for this (depending on the needs of
-            # the rules that use it.
+            # the rules that use it. For more info, see the "Examples" section
+            # of the Postgres docs page
+            # (https://www.postgresql.org/docs/8.2/sql-values.html).
             values = Segments(self.selectable)
             alias_expression = values.children().first(sp.is_type("alias_expression"))
             name = alias_expression.children().first(
