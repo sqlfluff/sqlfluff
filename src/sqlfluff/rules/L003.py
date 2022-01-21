@@ -61,7 +61,8 @@ class Rule_L003(BaseRule):
             base_unit = " " * tab_space_size
         else:
             raise ValueError(
-                f"Parameter indent_unit has unexpected value: `{indent_unit}`. Expected `tab` or `space`."
+                f"Parameter indent_unit has unexpected value: `{indent_unit}`. Expected"
+                " `tab` or `space`."
             )
         return base_unit * num
 
@@ -156,7 +157,9 @@ class Rule_L003(BaseRule):
                 # ended with an indent then we might be ok.
                 clean_indent = False
                 # Was there an indent after the last code element of the previous line?
-                for search_elem in reversed(result_buffer[line_no - 1]["line_buffer"]):  # type: ignore
+                for search_elem in reversed(
+                    result_buffer[line_no - 1]["line_buffer"]
+                ):  # type: ignore
                     if not search_elem.is_code and not search_elem.is_meta:
                         continue
                     elif search_elem.is_meta and search_elem.indent_val > 0:
@@ -353,7 +356,10 @@ class Rule_L003(BaseRule):
             if context.segment.is_type("whitespace"):
                 # it's whitespace, carry on
                 pass
-            elif context.segment.segments or (context.segment.is_meta and context.segment.indent_val != 0):  # type: ignore
+            elif context.segment.segments or (
+                context.segment.is_meta
+                and context.segment.indent_val != 0  # type: ignore
+            ):
                 # it's not a raw segment or placeholder. Carry on.
                 pass
             else:
@@ -452,7 +458,8 @@ class Rule_L003(BaseRule):
                     and last_code_line in memory["hanging_lines"]
                 )
             ) and (
-                # There MUST also be a non-zero indent. Otherwise we're just on the baseline.
+                # There MUST also be a non-zero indent. Otherwise we're just on the
+                # baseline.
                 this_line["indent_size"]
                 > 0
             ):
@@ -572,7 +579,8 @@ class Rule_L003(BaseRule):
 
             # Work out the difference in indent
             indent_diff = this_line["indent_balance"] - res[k]["indent_balance"]
-            # If we're comparing to a previous, more deeply indented line, then skip and keep looking.
+            # If we're comparing to a previous, more deeply indented line, then skip and
+            # keep looking.
             if indent_diff < 0:
                 continue
 
@@ -693,7 +701,8 @@ class Rule_L003(BaseRule):
                     # to where we need to be? NB: This should only be applied if this is
                     # a CLOSING bracket.
 
-                    # First work out if we have some closing brackets, and if so, how many.
+                    # First work out if we have some closing brackets, and if so, how
+                    # many.
                     b_idx = 0
                     b_num = 0
                     while True:
@@ -715,15 +724,14 @@ class Rule_L003(BaseRule):
                         # It does. This line is fine.
                         pass
                     else:
-                        # It doesn't. That means we *should* have an indent when compared to
-                        # this line and we DON'T.
+                        # It doesn't. That means we *should* have an indent when
+                        # compared to this line and we DON'T.
                         memory["problem_lines"].append(this_line_no)
                         return LintResult(
                             anchor=trigger_segment,
                             memory=memory,
-                            description="Indent expected and not found compared to line #{}".format(
-                                k
-                            ),
+                            description="Indent expected and not found compared to line"
+                            " #{}".format(k),
                             # Add in an extra bit of whitespace for the indent
                             fixes=[
                                 LintFix.create_before(

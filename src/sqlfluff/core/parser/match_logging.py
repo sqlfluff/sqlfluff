@@ -73,7 +73,8 @@ class ParseMatchLogObject(LateLoggingObject):
 
 def parse_match_logging(grammar, func, msg, parse_context, v_level=3, **kwargs):
     """Log in a particular consistent format for use while matching."""
-    # Make a late bound log object so we only do the string manipulation when we need to.
+    # Make a late bound log object so we only do the string manipulation when we need
+    # to.
     ParseMatchLogObject(
         parse_context, grammar, func, msg, v_level=v_level, **kwargs
     ).log()

@@ -10,7 +10,7 @@ from sqlfluff.core.rules.functional import sp
 
 @document_fix_compatible
 class Rule_L041(BaseRule):
-    """``SELECT`` clause modifiers such as ``DISTINCT`` must be on the same line as ``SELECT``.
+    """``SELECT`` modifiers (e.g.``DISTINCT``) must be on the same line as ``SELECT``.
 
     | **Anti-pattern**
 
@@ -98,7 +98,8 @@ class Rule_L041(BaseRule):
         fixes.extend((LintFix.delete(s) for s in leading_newline_segments))
         fixes.append(LintFix.delete(select_clause_modifier))
 
-        # If there is whitespace (on the same line) after the select clause modifier then also delete this.
+        # If there is whitespace (on the same line) after the select clause modifier
+        # then also delete this.
         trailing_whitespace_segments = child_segments.select(
             select_if=sp.is_whitespace(),
             loop_while=sp.or_(sp.is_type("whitespace"), sp.is_meta()),

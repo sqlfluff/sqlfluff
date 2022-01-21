@@ -105,7 +105,8 @@ def test__dialect__ansi__file_lex(raw, res, caplog):
         # Complex Functions
         (
             "ExpressionSegment",
-            "concat(left(uaid, 2), '|', right(concat('0000000', SPLIT_PART(uaid, '|', 4)), 10), '|', '00000000')",
+            "concat(left(uaid, 2), '|', right(concat('0000000', "
+            "SPLIT_PART(uaid, '|', 4)), 10), '|', '00000000')",
         ),
         # Notnull and Isnull
         ("ExpressionSegment", "c is null"),

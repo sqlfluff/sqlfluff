@@ -64,14 +64,17 @@ class Rule_L016(Rule_L003):
                 self.indent_impulse: int = indent_impulse or 0
 
             def __repr__(self):
-                return "<Section @ {pos}: {role} [{indent_balance}:{indent_impulse}]. {segments!r}>".format(
-                    role=self.role,
-                    indent_balance=self.indent_balance,
-                    indent_impulse=self.indent_impulse,
-                    segments="".join(elem.raw for elem in self.segments),
-                    pos=self.segments[0].get_start_point_marker()
-                    if self.segments
-                    else "",
+                return (
+                    "<Section @ {pos}: {role} [{indent_balance}:{indent_impulse}]. "
+                    "{segments!r}>".format(
+                        role=self.role,
+                        indent_balance=self.indent_balance,
+                        indent_impulse=self.indent_impulse,
+                        segments="".join(elem.raw for elem in self.segments),
+                        pos=self.segments[0].get_start_point_marker()
+                        if self.segments
+                        else "",
+                    )
                 )
 
             @property
@@ -527,7 +530,8 @@ class Rule_L016(Rule_L003):
                     # triggers an endless cycle of "fixes" that simply keeps
                     # adding blank lines.
                     self.logger.info(
-                        "Unfixable inline comment, too long even on a line by itself: %s",
+                        "Unfixable inline comment, too long even on a line by itself: "
+                        "%s",
                         this_line[-1],
                     )
                     if self.ignore_comment_lines:

@@ -120,7 +120,8 @@ class JinjaTemplater(PythonTemplater):
 
         libraries = JinjaTemplater.Libraries()
 
-        # If library_path hash __init__.py we parse it as a one module, else we parse it a set of modules
+        # If library_path has __init__.py we parse it as one module, else we parse it
+        # a set of modules
         is_library_module = os.path.exists(os.path.join(library_path, "__init__.py"))
         library_module_name = os.path.basename(library_path)
 
@@ -152,7 +153,8 @@ class JinjaTemplater(PythonTemplater):
                 setattr(libraries, module_name, module)
 
         if is_library_module:
-            # when library is module we have one more root module in hierarchy and we remove it
+            # when library is module we have one more root module in hierarchy and we
+            # remove it
             libraries = getattr(libraries, library_module_name)
 
         # remove magic methods from result
@@ -310,7 +312,8 @@ class JinjaTemplater(PythonTemplater):
         """
         if not config:  # pragma: no cover
             raise ValueError(
-                "For the jinja templater, the `process()` method requires a config object."
+                "For the jinja templater, the `process()` method requires a config "
+                "object."
             )
 
         env, live_context, make_template = self.template_builder(
@@ -380,8 +383,9 @@ class JinjaTemplater(PythonTemplater):
             violations.append(
                 SQLTemplaterError(
                     (
-                        "Unrecoverable failure in Jinja templating: {}. Have you configured "
-                        "your variables? https://docs.sqlfluff.com/en/latest/configuration.html"
+                        "Unrecoverable failure in Jinja templating: {}. Have you "
+                        "configured your variables? "
+                        "https://docs.sqlfluff.com/en/latest/configuration.html"
                     ).format(err)
                 )
             )

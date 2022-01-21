@@ -13,7 +13,8 @@ def get_rules_from_path(
     base_module="sqlfluff.rules",
 ):
     """Reads all of the Rule classes from a path into a list."""
-    # Create a rules dictionary for importing in sqlfluff/src/sqlfluff/core/rules/__init__.py
+    # Create a rules dictionary for importing in
+    # sqlfluff/src/sqlfluff/core/rules/__init__.py
     rules = []
 
     for module in sorted(glob(rules_path)):
@@ -28,9 +29,11 @@ def get_rules_from_path(
             rule_class = getattr(rule_module, rule_class_name)
         except AttributeError as e:
             raise AttributeError(
-                f"Rule classes must be named in the format of Rule_L*. [{rule_class_name}]"
+                "Rule classes must be named in the format of Rule_L*. "
+                f"[{rule_class_name}]"
             ) from e
-        # Add the rules to the rules dictionary for sqlfluff/src/sqlfluff/core/rules/__init__.py
+        # Add the rules to the rules dictionary for
+        # sqlfluff/src/sqlfluff/core/rules/__init__.py
         rules.append(rule_class)
 
     return rules
