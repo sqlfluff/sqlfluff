@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9604c223b4ca69bbf13fadfc3a01dd514276f7e1cf83d71699ee2dcdeccaa7b9
+_hash: 7d3bf6e107b885f4ea371574fcf0b0d3cc3232a45ad44c3bc9d2b75ad18d3c31
 file:
 - statement:
     values_clause:
@@ -70,22 +70,14 @@ file:
           bare_function: CURRENT_DATE
       - comma: ','
       - expression:
-          literal: '1'
-      - end_bracket: )
-    - comma: ','
-    - keyword: ROW
-    - bracketed:
-      - start_bracket: (
-      - expression:
+          literal: "'2020-06-04'"
+          binary_operator: +
           interval_expression:
-            keyword: INTERVAL
+            keyword: interval
             expression:
-              literal: '10'
-            date_part: MINUTE
-      - comma: ','
-      - expression:
-        - literal: '2'
-        - binary_operator: +
-        - literal: '1'
+              numeric_literal:
+                binary_operator: '-'
+                literal: '5'
+            date_part: day
       - end_bracket: )
 - statement_terminator: ;
