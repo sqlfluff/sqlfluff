@@ -10,7 +10,7 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 
 
-## [0.9.2] - 2022-01-24]
+## [0.9.2] - 2022-01-24
 
 ## Highlights
 
@@ -117,7 +117,7 @@ Major changes include:
 * [@fdw](https://github.com/fdw) made their first contribution in [#2399](https://github.com/sqlfluff/sqlfluff/pull/2399)
 
 
-## [0.9.1] - 2022-01-08]
+## [0.9.1] - 2022-01-08
 
 ## Highlights
 
