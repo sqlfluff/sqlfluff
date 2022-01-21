@@ -223,12 +223,14 @@ class ConfigLoader:
 
                 # Attempt to resolve paths
                 if name.lower() == "load_macros_from_path":
+                    # Comma-separated list of paths.
                     paths = _split_comma_separated_string(val)
                     v_temp = []
                     for path in paths:
                         v_temp.append(cls._resolve_path(fpath, path))
                     v = ",".join(v_temp)
                 elif name.lower().endswith(("_path", "_dir")):
+                    # One path
                     v = cls._resolve_path(fpath, val)
                 # Add the name to the end of the key
                 buff.append((key + (name,), v))
@@ -236,7 +238,7 @@ class ConfigLoader:
 
     @classmethod
     def _resolve_path(cls, fpath, val):
-        # Try to resolve the path.
+        """Try to resolve a path."""
         # Make the referenced path.
         ref_path = os.path.join(os.path.dirname(fpath), val)
         # Check if it exists, and if it does, replace the value with the path.
