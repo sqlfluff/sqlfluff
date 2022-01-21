@@ -859,7 +859,7 @@ class InsertStatementSegment(BaseSegment):
 
 @spark3_dialect.segment()
 class InsertOverwriteDirectorySegment(BaseSegment):
-    """An `INSERT OVERWRITE [LOCAL] DIRECTORY` statement to insert or overwrite new rows into a table.
+    """An `INSERT OVERWRITE [LOCAL] DIRECTORY` statement.
 
     https://spark.apache.org/docs/latest/sql-ref-syntax-dml-insert-overwrite-directory.html
     """
