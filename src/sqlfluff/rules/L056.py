@@ -1,19 +1,29 @@
 """Implementation of Rule L056."""
 from typing import Optional
+from sqlfluff.core.parser.segments.base import BaseSegment
 
 from sqlfluff.core.rules.base import BaseRule, LintResult, RuleContext
 
 
 class Rule_L056(BaseRule):
-    r"""``SP_`` prefix should not be used for user-defined stored procedures in T-SQL.
+    r"""Avoid Hungarian notation prefixes ``SP_`` and ``TBL_``.
 
     | **Anti-pattern**
-    | The ``SP_`` prefix is used to identify system procedures and
-    | can adversely affect performance of the user-defined stored procedure.
-    | It can also break system procedures if there is a naming conflict.
+    | Hungarian prefixes `SP_`` and ``TBL_`` encode redundant information in SQL.
 
     .. code-block:: sql
-       :force:
+        :force:
+
+        -- It's already evident that foo is a table without ``TBL`` prefix.
+
+        CREATE TABLE tbl_foo (
+            col INT
+        );
+
+        -- Additionally in T-SQL, the ``SP_`` prefix is used to
+        -- identify system procedures and can adversely affect
+        -- performance of the user-defined stored procedure.
+        -- It can also break system procedures if there is a naming conflict.
 
         CREATE PROCEDURE dbo.sp_pull_data
         AS
@@ -24,10 +34,16 @@ class Rule_L056(BaseRule):
         FROM table1
 
     | **Best practice**
-    | Use a different name for the stored procedure.
+    | Name tables without the ``TBL_`` prefix.
 
     .. code-block:: sql
-       :force:
+        :force:
+
+        CREATE TABLE foo (
+            col INT
+        );
+
+        -- Use a non-prefixed name for the stored procedure.
 
         CREATE PROCEDURE dbo.pull_data
         AS
@@ -36,43 +52,26 @@ class Rule_L056(BaseRule):
             DataDate,
             CaseOutput
         FROM table1
-
-        -- Alternatively prefix with ``USP_`` to
-        -- indicate a user-defined stored procedure.
-
-        CREATE PROCEDURE dbo.usp_pull_data
-        AS
-        SELECT
-            ID,
-            DataDate,
-            CaseOutput
-        FROM table1
     """
 
+    @staticmethod
+    def _is_hungarian_notation(seg: BaseSegment):
+        """Check if an identifier segment is hungarian notation."""
+        if seg.is_name("naked_identifier") and (
+            seg.raw_upper.startswith("SP_") or seg.raw_upper.startswith("TBL_")
+        ):
+            return True
+        elif seg.is_name("quoted_identifier") and (
+            seg.raw_upper[1:].startswith("SP_") or seg.raw_upper[1:].startswith("TBL_")
+        ):
+            return True
+        else:
+            return False
+
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
-        r"""``SP_`` prefix should not be used for user-defined stored procedures."""
-        # Rule only applies to T-SQL syntax.
-        if context.dialect.name != "tsql":
+        r"""Avoid Hungarian notation prefixes ``SP_`` and ``TBL_``."""
+        # We only care about hungarian object references.
+        if not context.functional.segment.all(lambda s: self._is_hungarian_notation(s)):
             return None
 
-        # We are only interested in CREATE PROCEDURE statements.
-        if context.segment.type != "create_procedure_statement":
-            return None
-
-        # Find the object reference for the stored procedure.
-        object_reference_segment = next(
-            (s for s in context.segment.segments if s.type == "object_reference")
-        )
-
-        # We only want to check the stored procedure name.
-        procedure_segment = object_reference_segment.segments[-1]
-
-        # If stored procedure name starts with 'SP\_' then raise lint error.
-        if procedure_segment.raw_upper.lstrip('["').startswith("SP_"):
-            "s".lstrip
-            return LintResult(
-                procedure_segment,
-                description="'SP_' prefix should not be used for user-defined stored procedures.",
-            )
-
-        return None
+        return LintResult(context.segment)
