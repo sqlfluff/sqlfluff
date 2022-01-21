@@ -8,7 +8,7 @@ from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
 @document_fix_compatible
 class Rule_L034(BaseRule):
-    """Use wildcards then simple targets before calculations and aggregates in select statements.
+    """Select wildcards then simple targets before calculations and aggregates.
 
     | **Anti-pattern**
 
@@ -62,9 +62,14 @@ class Rule_L034(BaseRule):
             ),
         )
 
-        # Track which bands have been seen, with additional empty list for the non-matching elements
-        # If we find a matching target element, we append the element to the corresponding index
-        self.seen_band_elements: List[List[BaseSegment]] = [[] for _ in select_element_order_preference] + [[]]  # type: ignore
+        # Track which bands have been seen, with additional empty list for the
+        # non-matching elements. If we find a matching target element, we append the
+        # element to the corresponding index.
+        self.seen_band_elements: List[List[BaseSegment]] = [
+            [] for _ in select_element_order_preference
+        ] + [
+            []
+        ]  # type: ignore
 
         if context.segment.is_type("select_clause"):
             # Ignore select clauses which belong to:
@@ -92,7 +97,8 @@ class Rule_L034(BaseRule):
 
             # Iterate through all the select targets to find any order violations
             for segment in select_target_elements:
-                # The band index of the current segment in select_element_order_preference
+                # The band index of the current segment in
+                # select_element_order_preference
                 self.current_element_band = None
 
                 # Compare the segment to the bands in select_element_order_preference
@@ -136,14 +142,16 @@ class Rule_L034(BaseRule):
                                 # If the segment doesn't match
                                 pass
 
-                # If the target doesn't exist in select_element_order_preference then it is 'complex' and must go last
+                # If the target doesn't exist in select_element_order_preference then it
+                # is 'complex' and must go last
                 if self.current_element_band is None:
                     self.seen_band_elements[-1].append(segment)
 
             if self.violation_exists:
                 # Create a list of all the edit fixes
-                # We have to do this at the end of iterating through all the select_target_elements to get the order correct
-                # This means we can't add a lint fix to each individual LintResult as we go
+                # We have to do this at the end of iterating through all the
+                # select_target_elements to get the order correct. This means we can't
+                # add a lint fix to each individual LintResult as we go
                 ordered_select_target_elements = [
                     segment for band in self.seen_band_elements for segment in band
                 ]
@@ -159,7 +167,7 @@ class Rule_L034(BaseRule):
                         initial_select_target_element,
                         [replace_select_target_element],
                     )
-                    for initial_select_target_element, replace_select_target_element in zip(
+                    for initial_select_target_element, replace_select_target_element in zip(  # noqa: E501
                         select_target_elements, ordered_select_target_elements
                     )
                     if initial_select_target_element

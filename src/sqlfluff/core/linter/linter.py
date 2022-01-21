@@ -166,7 +166,8 @@ class Linter:
             )
             if indent_balance != 0:
                 linter_logger.debug(
-                    "Indent balance test failed for %r. Template indents will not be linted for this file.",
+                    "Indent balance test failed for %r. Template indents will not be "
+                    "linted for this file.",
                     templated_file.fname,
                 )
                 # Don't enable the templating blocks.
@@ -211,13 +212,15 @@ class Linter:
         if parsed:
             linter_logger.info("\n###\n#\n# {}\n#\n###".format("Parsed Tree:"))
             linter_logger.info("\n" + parsed.stringify())
-            # We may succeed parsing, but still have unparsable segments. Extract them here.
+            # We may succeed parsing, but still have unparsable segments. Extract them
+            # here.
             for unparsable in parsed.iter_unparsables():
                 # No exception has been raised explicitly, but we still create one here
                 # so that we can use the common interface
                 violations.append(
                     SQLParseError(
-                        "Line {0[0]}, Position {0[1]}: Found unparsable section: {1!r}".format(
+                        "Line {0[0]}, Position {0[1]}: Found unparsable section: "
+                        "{1!r}".format(
                             unparsable.pos_marker.working_loc,
                             unparsable.raw
                             if len(unparsable.raw) < 40
@@ -277,7 +280,8 @@ class Linter:
                             )
                     rules: Optional[Tuple[str, ...]]
                     if rule_part != "all":
-                        # Rules can be globs therefore we compare to the rule_set to expand the globs.
+                        # Rules can be globs therefore we compare to the rule_set to
+                        # expand the globs.
                         unexpanded_rules = tuple(
                             r.strip() for r in rule_part.split(",")
                         )
@@ -307,7 +311,7 @@ class Linter:
     def remove_templated_errors(
         linting_errors: List[SQLBaseError],
     ) -> List[SQLBaseError]:
-        """Filter a list of lint errors, removing those which only occur in templated slices."""
+        """Filter a list of lint errors, removing those from the templated slices."""
         # Filter out any linting errors in templated sections if relevant.
         result: List[SQLBaseError] = []
         for e in linting_errors:
@@ -434,7 +438,8 @@ class Linter:
         # Keep a set of previous versions to catch infinite loops.
         previous_versions = {tree.raw}
 
-        # If we are fixing then we want to loop up to the runaway_limit, otherwise just once for linting.
+        # If we are fixing then we want to loop up to the runaway_limit, otherwise just
+        # once for linting.
         loop_limit = config.get("runaway_limit") if fix else 1
 
         # Dispatch the output for the lint header
@@ -504,7 +509,8 @@ class Linter:
                 # We did not change the file. Either the file is clean (no fixes), or
                 # any fixes which are present will take us back to a previous state.
                 linter_logger.info(
-                    f"Fix loop complete. Stability achieved after {loop}/{loop_limit} loops."
+                    f"Fix loop complete. Stability achieved after {loop}/{loop_limit} "
+                    "loops."
                 )
                 break
         if fix and loop + 1 == loop_limit:
@@ -619,10 +625,12 @@ class Linter:
         if not config.get("templater_obj") == self.templater:
             linter_logger.warning(
                 (
-                    f"Attempt to set templater to {config.get('templater_obj').name} failed. Using {self.templater.name} "
-                    "templater. Templater cannot be set in a .sqlfluff file in a subdirectory of the current working "
-                    "directory. It can be set in a .sqlfluff in the current working directory. See Nesting section of the "
-                    "docs for more details."
+                    f"Attempt to set templater to {config.get('templater_obj').name} "
+                    f"failed. Using {self.templater.name} templater. Templater cannot "
+                    "be set in a .sqlfluff file in a subdirectory of the current "
+                    "working directory. It can be set in a .sqlfluff in the current "
+                    "working directory. See Nesting section of the docs for more "
+                    "details."
                 )
             )
         try:
@@ -968,8 +976,8 @@ class Linter:
         for path in paths:
             progress_bar_paths.set_description(f"path {path}")
 
-            # Iterate through files recursively in the specified directory (if it's a directory)
-            # or read the file directly if it's not
+            # Iterate through files recursively in the specified directory (if it's a
+            # directory) or read the file directly if it's not
             result.add(
                 self.lint_path(
                     path,

@@ -84,7 +84,8 @@ class JinjaTracer:
             m_id = regex.match(r"^([0-9a-f]+)(_(\d+))?", p)
             if not m_id:
                 raise ValueError(  # pragma: no cover
-                    "Internal error. Trace template output does not match expected format."
+                    "Internal error. Trace template output does not match expected "
+                    "format."
                 )
             if m_id.group(3):
                 # E.g. "2e8577c1d045439ba8d3b9bf47561de3_83". The number after
@@ -233,9 +234,9 @@ class JinjaTracer:
 
             if elem_type.endswith("_begin"):
                 # When a "begin" tag (whether block, comment, or data) uses
-                # whitespace stripping
-                # (https://jinja.palletsprojects.com/en/3.0.x/templates/#whitespace-control),
-                # the Jinja lex() function handles this by discarding adjacent
+                # whitespace stripping (
+                # https://jinja.palletsprojects.com/en/3.0.x/templates/#whitespace-control
+                # ), the Jinja lex() function handles this by discarding adjacent
                 # whitespace from in_str. For more insight, see the tokeniter()
                 # function in this file:
                 # https://github.com/pallets/jinja/blob/main/src/jinja2/lexer.py
@@ -314,7 +315,10 @@ class JinjaTracer:
                             prefix = "set" if set_idx is not None else ""
                             open_ = m_open.group(1)
                             close_ = m_close.group(1)
-                            alternate_code = f"\0{prefix}{unique_alternate_id} {open_} {trimmed_content} {close_}"
+                            alternate_code = (
+                                f"\0{prefix}{unique_alternate_id} {open_} "
+                                f"{trimmed_content} {close_}"
+                            )
                 if block_type == "block_start" and trimmed_content.split()[0] == "set":
                     # Jinja supports two forms of {% set %}:
                     # - {% set variable = value %}

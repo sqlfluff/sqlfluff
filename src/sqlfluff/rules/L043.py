@@ -142,7 +142,8 @@ class Rule_L043(BaseRule):
             condition_expression = when_clauses.children(sp.is_type("expression"))[0]
             then_expression = when_clauses.children(sp.is_type("expression"))[1]
 
-            # Method 1: Check if THEN/ELSE expressions are both Boolean and can therefore be reduced.
+            # Method 1: Check if THEN/ELSE expressions are both Boolean and can
+            # therefore be reduced.
             if else_clauses:
                 else_expression = else_clauses.children(sp.is_type("expression"))[0]
                 upper_bools = ["TRUE", "FALSE"]
@@ -165,12 +166,14 @@ class Rule_L043(BaseRule):
                     return LintResult(
                         anchor=condition_expression,
                         fixes=fixes,
-                        description="Unnecessary CASE statement. Use COALESCE function instead.",
+                        description="Unnecessary CASE statement. "
+                        "Use COALESCE function instead.",
                     )
 
-            # Method 2: Check if the condition expression is comparing a column reference to NULL
-            # and whether that column reference is also in either the THEN/ELSE expression.
-            # We can only apply this method when there is only one condition in the condition expression.
+            # Method 2: Check if the condition expression is comparing a column
+            # reference to NULL and whether that column reference is also in either the
+            # THEN/ELSE expression. We can only apply this method when there is only
+            # one condition in the condition expression.
             condition_expression_segments_raw = {
                 segment.raw_upper for segment in condition_expression.segments
             }
@@ -187,13 +190,14 @@ class Rule_L043(BaseRule):
                     .get()
                 )
 
-                # Return None if none found (this condition does not apply to functions).
+                # Return None if none found (this condition does not apply to functions)
                 if not column_reference_segment:
                     return None
 
                 if else_clauses:
                     else_expression = else_clauses.children(sp.is_type("expression"))[0]
-                    # Check if we can reduce the CASE expression to a single coalesce function.
+                    # Check if we can reduce the CASE expression to a single coalesce
+                    # function.
                     if (
                         not is_not_prefix
                         and column_reference_segment.raw_upper
@@ -220,7 +224,8 @@ class Rule_L043(BaseRule):
                                 context,
                                 column_reference_segment,
                             ),
-                            description=f"Unnecessary CASE statement. Just use column '{column_reference_segment.raw}'.",
+                            description="Unnecessary CASE statement. "
+                            f"Just use column '{column_reference_segment.raw}'.",
                         )
 
                     return LintResult(
@@ -230,7 +235,8 @@ class Rule_L043(BaseRule):
                             coalesce_arg_1,
                             coalesce_arg_2,
                         ),
-                        description="Unnecessary CASE statement. Use COALESCE function instead.",
+                        description="Unnecessary CASE statement. "
+                        "Use COALESCE function instead.",
                     )
                 elif (
                     column_reference_segment.raw_segments_upper
@@ -245,7 +251,8 @@ class Rule_L043(BaseRule):
                             context,
                             column_reference_segment,
                         ),
-                        description=f"Unnecessary CASE statement. Just use column '{column_reference_segment.raw}'.",
+                        description="Unnecessary CASE statement. "
+                        f"Just use column '{column_reference_segment.raw}'.",
                     )
 
         return None

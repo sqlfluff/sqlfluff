@@ -109,7 +109,8 @@ snowflake_dialect.add(
         type="variable",
         trim_chars=("$"),
     ),
-    # We use a RegexParser instead of keywords as some (those with dashes) require quotes:
+    # We use a RegexParser instead of keywords as some (those with dashes) require
+    # quotes:
     WarehouseSize=RegexParser(
         r"'?XSMALL'?|'?SMALL'?|'?MEDIUM'?|'?LARGE'?|'?XLARGE'?|'?XXLARGE'?|'?X2LARGE'?|"
         r"'?XXXLARGE'?|'?X3LARGE'?|'?X4LARGE'?|'?X5LARGE|'?X6LARGE'?|"
@@ -165,22 +166,23 @@ snowflake_dialect.add(
         type="identifier",
     ),
     S3Path=RegexParser(
-        # See https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucketnamingrules.html
+        # https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucketnamingrules.html
         r"'s3://[a-z0-9][a-z0-9\.-]{1,61}[a-z0-9](?:/.+)?'",
         CodeSegment,
         name="s3_path",
         type="bucket_path",
     ),
     GCSPath=RegexParser(
-        # See https://cloud.google.com/storage/docs/naming-buckets
+        # https://cloud.google.com/storage/docs/naming-buckets
         r"'gcs://[a-z0-9][\w\.-]{1,61}[a-z0-9](?:/.+)?'",
         CodeSegment,
         name="gcs_path",
         type="bucket_path",
     ),
     AzureBlobStoragePath=RegexParser(
-        # See https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/resource-name-rules#microsoftstorage
-        r"'azure://[a-z0-9][a-z0-9-]{1,61}[a-z0-9]\.blob\.core\.windows\.net/[a-z0-9][a-z0-9\.-]{1,61}[a-z0-9](?:/.+)?'",
+        # https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/resource-name-rules#microsoftstorage
+        r"'azure://[a-z0-9][a-z0-9-]{1,61}[a-z0-9]\.blob\.core\.windows\.net/[a-z0-9]"
+        r"[a-z0-9\.-]{1,61}[a-z0-9](?:/.+)?'",
         CodeSegment,
         name="azure_blob_storage_path",
         type="bucket_path",
@@ -849,7 +851,9 @@ class QualifyClauseSegment(BaseSegment):
 
 
 @snowflake_dialect.segment(replace=True)
-class SelectStatementSegment(ansi_dialect.get_segment("SelectStatementSegment")):  # type: ignore
+class SelectStatementSegment(
+    ansi_dialect.get_segment("SelectStatementSegment")  # type: ignore
+):
     """A snowflake `SELECT` statement including optional Qualify.
 
     https://docs.snowflake.com/en/sql-reference/constructs/qualify.html
@@ -884,7 +888,8 @@ class SelectClauseModifierSegment(BaseSegment):
     type = "select_clause_modifier"
     match_grammar = Sequence(
         OneOf("DISTINCT", "ALL", optional=True),
-        # TOP N is unique to Snowflake, and we can optionally add DISTINCT/ALL in front of it.
+        # TOP N is unique to Snowflake, and we can optionally add DISTINCT/ALL in front
+        # of it.
         Sequence("TOP", Ref("NumericLiteralSegment"), optional=True),
     )
 
@@ -961,8 +966,8 @@ class AlterTableTableColumnActionSegment(BaseSegment):
     https://docs.snowflake.com/en/sql-reference/sql/alter-table.html
     https://docs.snowflake.com/en/sql-reference/sql/alter-table-column.html
 
-    If possible, please match the order of this sequence with what's defined in Snowflake's
-    tableColumnAction grammar.
+    If possible, please match the order of this sequence with what's defined in
+    Snowflake's tableColumnAction grammar.
     """
 
     type = "alter_table_table_column_action"
@@ -1114,7 +1119,8 @@ class AlterTableClusteringActionSegment(BaseSegment):
                 Delimited(Ref("ExpressionSegment")),
             ),
         ),
-        # N.B. RECLUSTER is deprecated: https://docs.snowflake.com/en/user-guide/tables-clustering-manual.html
+        # N.B. RECLUSTER is deprecated:
+        # https://docs.snowflake.com/en/user-guide/tables-clustering-manual.html
         Sequence(
             "RECLUSTER",
             Sequence(
@@ -1270,7 +1276,9 @@ class TagEqualsSegment(BaseSegment):
 
 
 @snowflake_dialect.segment(replace=True)
-class UnorderedSelectStatementSegment(ansi_dialect.get_segment("SelectStatementSegment")):  # type: ignore
+class UnorderedSelectStatementSegment(
+    ansi_dialect.get_segment("SelectStatementSegment")  # type: ignore
+):
     """A snowflake unordered `SELECT` statement including optional Qualify.
 
     https://docs.snowflake.com/en/sql-reference/constructs/qualify.html
@@ -1526,7 +1534,7 @@ class WarehouseObjectParamsSegment(BaseSegment):
 
 @snowflake_dialect.segment()
 class ConstraintPropertiesSegment(BaseSegment):
-    """Constraint properties are specified in the CONSTRAINT clause for a CREATE TABLE or ALTER TABLE command.
+    """CONSTRAINT clause for CREATE TABLE or ALTER TABLE command.
 
     https://docs.snowflake.com/en/sql-reference/constraints-properties.html
     """
@@ -1972,7 +1980,8 @@ class CreateStatementSegment(BaseSegment):
         ),
         Ref("IfNotExistsGrammar", optional=True),
         Ref("ObjectReferenceSegment"),
-        # Next set are Pipe statements https://docs.snowflake.com/en/sql-reference/sql/create-pipe.html
+        # Next set are Pipe statements
+        # https://docs.snowflake.com/en/sql-reference/sql/create-pipe.html
         Sequence(
             Sequence(
                 "AUTO_INGEST",
@@ -1994,7 +2003,8 @@ class CreateStatementSegment(BaseSegment):
             ),
             optional=True,
         ),
-        # Next are WAREHOUSE options https://docs.snowflake.com/en/sql-reference/sql/create-warehouse.html
+        # Next are WAREHOUSE options
+        # https://docs.snowflake.com/en/sql-reference/sql/create-warehouse.html
         Sequence(
             Sequence("WITH", optional=True),
             AnyNumberOf(
@@ -2901,8 +2911,9 @@ class AlterUserSegment(BaseSegment):
                 "INTEGRATION",
                 Ref("ObjectReferenceSegment"),
             ),
-            # Snowflake supports the SET command with space delimitted parameters, but it also supports
-            # using commas which is better supported by `Delimited`, so we will just use that.
+            # Snowflake supports the SET command with space delimitted parameters, but
+            # it also supports using commas which is better supported by `Delimited`, so
+            # we will just use that.
             Sequence(
                 "SET",
                 Delimited(
@@ -2952,7 +2963,9 @@ class CreateRoleStatementSegment(BaseSegment):
 
 
 @snowflake_dialect.segment(replace=True)
-class ExplainStatementSegment(ansi_dialect.get_segment("ExplainStatementSegment")):  # type: ignore
+class ExplainStatementSegment(
+    ansi_dialect.get_segment("ExplainStatementSegment")  # type: ignore
+):
     """An `Explain` statement.
 
     EXPLAIN [ USING { TABULAR | JSON | TEXT } ] <statement>
@@ -3311,7 +3324,9 @@ class MergeInsertClauseSegment(BaseSegment):
 
 
 @snowflake_dialect.segment(replace=True)
-class DeleteStatementSegment(ansi_dialect.get_segment("DeleteStatementSegment")):  # type: ignore
+class DeleteStatementSegment(
+    ansi_dialect.get_segment("DeleteStatementSegment")  # type: ignore
+):
     """Update `DELETE` statement to support `USING`."""
 
     parse_grammar = Sequence(
@@ -3342,7 +3357,9 @@ class DeleteUsingClauseSegment(BaseSegment):
 
 
 @snowflake_dialect.segment()
-class FromClauseTerminatingUsingWhereSegment(ansi_dialect.get_segment("FromClauseSegment")):  # type: ignore
+class FromClauseTerminatingUsingWhereSegment(
+    ansi_dialect.get_segment("FromClauseSegment")  # type: ignore
+):
     """Copy `FROM` terminator statement to support `USING` in specific circumstances."""
 
     match_grammar = StartsWith(

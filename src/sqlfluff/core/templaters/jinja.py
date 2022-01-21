@@ -16,6 +16,7 @@ from jinja2 import (
 from jinja2.environment import Template
 from jinja2.sandbox import SandboxedEnvironment
 
+from sqlfluff.core.config import FluffConfig
 from sqlfluff.core.errors import SQLTemplaterError
 from sqlfluff.core.templaters.base import (
     RawFileSlice,
@@ -64,31 +65,32 @@ class JinjaTemplater(PythonTemplater):
         return context
 
     @classmethod
-    def _extract_macros_from_path(cls, path, env, ctx):
+    def _extract_macros_from_path(cls, path: List[str], env: Environment, ctx: Dict):
         """Take a path and extract macros from it."""
-        # Does the path exist? It should as this check was done on config load.
-        if not os.path.exists(path):  # pragma: no cover
-            raise ValueError(f"Path does not exist: {path}")
+        for path_entry in path:
+            # Does it exist? It should as this check was done on config load.
+            if not os.path.exists(path_entry):
+                raise ValueError(f"Path does not exist: {path_entry}")
 
-        macro_ctx = {}
-        if os.path.isfile(path):
-            # It's a file. Extract macros from it.
-            with open(path) as opened_file:
-                template = opened_file.read()
-            # Update the context with macros from the file.
-            macro_ctx.update(
-                cls._extract_macros_from_template(template, env=env, ctx=ctx)
-            )
-        else:
-            # It's a directory. Iterate through files in it and extract from them.
-            for dirpath, _, files in os.walk(path):
-                for fname in files:
-                    if fname.endswith(".sql"):
-                        macro_ctx.update(
-                            cls._extract_macros_from_path(
-                                os.path.join(dirpath, fname), env=env, ctx=ctx
+            macro_ctx = {}
+            if os.path.isfile(path_entry):
+                # It's a file. Extract macros from it.
+                with open(path_entry) as opened_file:
+                    template = opened_file.read()
+                # Update the context with macros from the file.
+                macro_ctx.update(
+                    cls._extract_macros_from_template(template, env=env, ctx=ctx)
+                )
+            else:
+                # It's a directory. Iterate through files in it and extract from them.
+                for dirpath, _, files in os.walk(path_entry):
+                    for fname in files:
+                        if fname.endswith(".sql"):
+                            macro_ctx.update(
+                                cls._extract_macros_from_path(
+                                    [os.path.join(dirpath, fname)], env=env, ctx=ctx
+                                )
                             )
-                        )
         return macro_ctx
 
     def _extract_macros_from_config(self, config, env, ctx):
@@ -118,7 +120,8 @@ class JinjaTemplater(PythonTemplater):
 
         libraries = JinjaTemplater.Libraries()
 
-        # If library_path hash __init__.py we parse it as a one module, else we parse it a set of modules
+        # If library_path has __init__.py we parse it as one module, else we parse it
+        # a set of modules
         is_library_module = os.path.exists(os.path.join(library_path, "__init__.py"))
         library_module_name = os.path.basename(library_path)
 
@@ -150,7 +153,8 @@ class JinjaTemplater(PythonTemplater):
                 setattr(libraries, module_name, module)
 
         if is_library_module:
-            # when library is module we have one more root module in hierarchy and we remove it
+            # when library is module we have one more root module in hierarchy and we
+            # remove it
             libraries = getattr(libraries, library_module_name)
 
         # remove magic methods from result
@@ -212,13 +216,16 @@ class JinjaTemplater(PythonTemplater):
             loader=FileSystemLoader(macros_path) if macros_path else None,
         )
 
-    def _get_macros_path(self, config):
-        macros_path = None
+    def _get_macros_path(self, config: FluffConfig) -> Optional[List[str]]:
         if config:
             macros_path = config.get_section(
                 (self.templater_selector, self.name, "load_macros_from_path")
             )
-        return macros_path
+            if macros_path:
+                result = [s.strip() for s in macros_path.split(",") if s.strip()]
+                if result:
+                    return result
+        return None
 
     def get_context(self, fname=None, config=None, **kw) -> Dict:
         """Get the templating context from the config."""
@@ -305,7 +312,8 @@ class JinjaTemplater(PythonTemplater):
         """
         if not config:  # pragma: no cover
             raise ValueError(
-                "For the jinja templater, the `process()` method requires a config object."
+                "For the jinja templater, the `process()` method requires a config "
+                "object."
             )
 
         env, live_context, make_template = self.template_builder(
@@ -375,8 +383,9 @@ class JinjaTemplater(PythonTemplater):
             violations.append(
                 SQLTemplaterError(
                     (
-                        "Unrecoverable failure in Jinja templating: {}. Have you configured "
-                        "your variables? https://docs.sqlfluff.com/en/latest/configuration.html"
+                        "Unrecoverable failure in Jinja templating: {}. Have you "
+                        "configured your variables? "
+                        "https://docs.sqlfluff.com/en/latest/configuration.html"
                     ).format(err)
                 )
             )

@@ -54,7 +54,7 @@ class DatatypeSegment(BaseSegment):
 
     Indicates a data type.
 
-    As specified by: https://docs.aws.amazon.com/redshift/latest/dg/c_Supported_data_types.html
+    https://docs.aws.amazon.com/redshift/latest/dg/c_Supported_data_types.html
     """
 
     type = "data_type"
@@ -163,7 +163,8 @@ class ColumnEncodingSegment(BaseSegment):
 
     Indicates column compression encoding.
 
-    As specified by: https://docs.aws.amazon.com/redshift/latest/dg/c_Compression_encodings.html
+    As specified by:
+    https://docs.aws.amazon.com/redshift/latest/dg/c_Compression_encodings.html
     """
 
     type = "column_encoding_segment"
@@ -191,7 +192,7 @@ class CompressionTypeSegment(BaseSegment):
 
     Indicates file compression type.
 
-    As specified by: https://docs.aws.amazon.com/redshift/latest/dg/copy-parameters-file-compression.html
+    https://docs.aws.amazon.com/redshift/latest/dg/copy-parameters-file-compression.html # noqa
     """
 
     type = "compression_type_segment"
@@ -210,7 +211,7 @@ class DataFormatSegment(BaseSegment):
 
     Indicates data format available for COPY commands.
 
-    As specified by: https://docs.aws.amazon.com/redshift/latest/dg/c_Compression_encodings.html
+    https://docs.aws.amazon.com/redshift/latest/dg/c_Compression_encodings.html
     """
 
     type = "data_format_segment"
@@ -262,7 +263,7 @@ class AuthorizationSegment(BaseSegment):
 
     Specifies authorization to access data in another AWS resource.
 
-    As specified by: https://docs.aws.amazon.com/redshift/latest/dg/copy-parameters-authorization.html
+    https://docs.aws.amazon.com/redshift/latest/dg/copy-parameters-authorization.html
     """
 
     type = "authorization_segment"
@@ -312,7 +313,8 @@ class AuthorizationSegment(BaseSegment):
 class ColumnAttributeSegment(BaseSegment):
     """Redshift specific column attributes.
 
-    As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_TABLE_NEW.html
+    As specified in
+    https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_TABLE_NEW.html
     """
 
     type = "column_attribute_segment"
@@ -342,7 +344,8 @@ class ColumnAttributeSegment(BaseSegment):
 class ColumnConstraintSegment(BaseSegment):
     """Redshift specific column constraints.
 
-    As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_TABLE_NEW.html
+    As specified in
+    https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_TABLE_NEW.html
     """
 
     type = "column_constraint_segment"
@@ -362,7 +365,8 @@ class ColumnConstraintSegment(BaseSegment):
 class TableAttributeSegment(BaseSegment):
     """Redshift specific table attributes.
 
-    As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_TABLE_NEW.html
+    As specified in
+    https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_TABLE_NEW.html
     """
 
     type = "table_constraint_segment"
@@ -387,7 +391,8 @@ class TableAttributeSegment(BaseSegment):
 class TableConstraintSegment(BaseSegment):
     """Redshift specific table constraints.
 
-    As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_TABLE_NEW.html
+    As specified in
+    https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_TABLE_NEW.html
     """
 
     type = "table_constraint_segment"
@@ -414,7 +419,8 @@ class TableConstraintSegment(BaseSegment):
 class LikeOptionSegment(BaseSegment):
     """Like Option Segment.
 
-    As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_TABLE_NEW.html
+    As specified in
+    https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_TABLE_NEW.html
     """
 
     type = "like_option_segment"
@@ -426,7 +432,8 @@ class LikeOptionSegment(BaseSegment):
 class CreateTableStatementSegment(BaseSegment):
     """A `CREATE TABLE` statement.
 
-    As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_TABLE_NEW.html
+    As specified in
+    https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_TABLE_NEW.html
     """
 
     type = "create_table_statement"
@@ -466,7 +473,8 @@ class CreateTableStatementSegment(BaseSegment):
 class CreateTableAsStatementSegment(BaseSegment):
     """A `CREATE TABLE AS` statement.
 
-    As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_TABLE_AS.html
+    As specified in
+    https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_TABLE_AS.html
     """
 
     type = "create_table_as_statement"
@@ -496,7 +504,7 @@ class CreateTableAsStatementSegment(BaseSegment):
 class CreateModelStatementSegment(BaseSegment):
     """A `CREATE MODEL` statement.
 
-    As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_MODEL.html
+    https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_MODEL.html
     NB: order of keywords matter
     """
 
@@ -653,7 +661,7 @@ class ShowModelSegment(BaseSegment):
 class CreateExternalTableStatementSegment(BaseSegment):
     """A `CREATE EXTERNAL TABLE` statement.
 
-    As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_EXTERNAL_TABLE.html
+    https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_EXTERNAL_TABLE.html
     """
 
     type = "create_external_table_statement"
@@ -741,7 +749,7 @@ class CreateExternalTableStatementSegment(BaseSegment):
 class CreateExternalTableAsStatementSegment(BaseSegment):
     """A `CREATE EXTERNAL TABLE AS` statement.
 
-    As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_EXTERNAL_TABLE.html
+    https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_EXTERNAL_TABLE.html
     """
 
     type = "create_external_table_statement"
@@ -790,7 +798,7 @@ class CreateExternalTableAsStatementSegment(BaseSegment):
 class CreateLibraryStatementSegment(BaseSegment):
     """A `CREATE LIBRARY` statement.
 
-    As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_LIBRARY.html
+    https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_LIBRARY.html
     """
 
     type = "create_library_statement"
@@ -824,7 +832,7 @@ class CreateLibraryStatementSegment(BaseSegment):
 class UnloadStatementSegment(BaseSegment):
     """A `UNLOAD` statement.
 
-    As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_UNLOAD.html
+    https://docs.aws.amazon.com/redshift/latest/dg/r_UNLOAD.html
     """
 
     type = "unload_statement"
@@ -935,7 +943,7 @@ class UnloadStatementSegment(BaseSegment):
 class CopyStatementSegment(BaseSegment):
     """A `COPY` statement.
 
-    As specified in :
+    :
         - https://docs.aws.amazon.com/redshift/latest/dg/r_COPY.html
         - https://docs.aws.amazon.com/redshift/latest/dg/r_COPY-parameters.html
     """
@@ -1161,7 +1169,7 @@ class CreateSchemaStatementSegment(BaseSegment):
 class AltereDatashareStatementSegment(BaseSegment):
     """An `ALTER DATASHARE` statement.
 
-    As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_ALTER_DATASHARE.html
+    https://docs.aws.amazon.com/redshift/latest/dg/r_ALTER_DATASHARE.html
     """
 
     type = "create_datashare_statement"
@@ -1225,7 +1233,7 @@ class AltereDatashareStatementSegment(BaseSegment):
 class CreateDatashareStatementSegment(BaseSegment):
     """A `CREATE DATASHARE` statement.
 
-    As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_DATASHARE.html
+    https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_DATASHARE.html
     """
 
     type = "create_datashare_statement"
@@ -1250,7 +1258,7 @@ class CreateDatashareStatementSegment(BaseSegment):
 class DescDatashareStatementSegment(BaseSegment):
     """A `DESC DATASHARE` statement.
 
-    As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_DESC_DATASHARE.html
+    https://docs.aws.amazon.com/redshift/latest/dg/r_DESC_DATASHARE.html
     """
 
     type = "desc_datashare_statement"
@@ -1276,7 +1284,7 @@ class DescDatashareStatementSegment(BaseSegment):
 class DropDatashareStatementSegment(BaseSegment):
     """A `DROP DATASHARE` statement.
 
-    As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_DROP_DATASHARE.html
+    https://docs.aws.amazon.com/redshift/latest/dg/r_DROP_DATASHARE.html
     """
 
     type = "drop_datashare_statement"
@@ -1291,7 +1299,7 @@ class DropDatashareStatementSegment(BaseSegment):
 class ShowDatasharesStatementSegment(BaseSegment):
     """A `SHOW DATASHARES` statement.
 
-    As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_SHOW_DATASHARES.html
+    https://docs.aws.amazon.com/redshift/latest/dg/r_SHOW_DATASHARES.html
     """
 
     type = "show_datashares_statement"
@@ -1350,7 +1358,8 @@ class StatementSegment(BaseSegment):
 class PartitionedBySegment(BaseSegment):
     """Partitioned By Segment.
 
-    As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_EXTERNAL_TABLE.html
+    As specified in
+    https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_EXTERNAL_TABLE.html
     """
 
     type = "partitioned_by_segment"
@@ -1373,7 +1382,8 @@ class PartitionedBySegment(BaseSegment):
 class RowFormatDelimitedSegment(BaseSegment):
     """Row Format Delimited Segment.
 
-    As specified in https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_EXTERNAL_TABLE.html
+    As specified in
+    https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_EXTERNAL_TABLE.html
     """
 
     type = "row_format_deimited_segment"

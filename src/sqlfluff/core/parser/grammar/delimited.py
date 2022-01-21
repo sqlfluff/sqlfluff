@@ -92,10 +92,10 @@ class Delimited(OneOf):
         while True:
             progressbar_matching.update(n=1)
 
-            # Check to see whether we've exhausted the buffer, either by iterating through it,
-            # or by consuming all the non-code segments already.
-            # NB: If we're here then we've already tried matching the remaining segments against
-            # the content, so we must be in a trailing case.
+            # Check to see whether we've exhausted the buffer, either by iterating
+            # through it, or by consuming all the non-code segments already.
+            # NB: If we're here then we've already tried matching the remaining segments
+            # against the content, so we must be in a trailing case.
             if len(seg_buff) == 0:
                 # Append the remaining buffer in case we're in the not is_code case.
                 matched_segments += seg_buff
@@ -114,7 +114,8 @@ class Delimited(OneOf):
             matchers = [self.delimiter]
             if self.terminator:
                 matchers.append(self.terminator)
-            # If gaps aren't allowed, a gap (or non-code segment), acts like a terminator.
+            # If gaps aren't allowed, a gap (or non-code segment), acts like a
+            # terminator.
             if not self.allow_gaps:
                 matchers.append(NonCodeMatcher())
 
@@ -168,9 +169,10 @@ class Delimited(OneOf):
                     # No match - Not allowed
                     if not match:
                         if self.allow_trailing:
-                            # If we reach this point, the lookahead match has hit a delimiter
-                            # beyond the scope of this Delimited section. Trailing delimiters are allowed,
-                            # so return matched up to this section.
+                            # If we reach this point, the lookahead match has hit a
+                            # delimiter beyond the scope of this Delimited section.
+                            # Trailing delimiters are allowed, so return matched up to
+                            # this section.
                             return MatchResult(
                                 matched_segments.matched_segments,
                                 pre_non_code
@@ -182,9 +184,9 @@ class Delimited(OneOf):
                             return MatchResult.from_unmatched(mutated_segments)
 
                     if not match.is_complete():
-                        # If we reach this point, the lookahead match has hit a delimiter
-                        # beyond the scope of this Delimited section. We should return a
-                        # partial match, and the delimiter as unmatched.
+                        # If we reach this point, the lookahead match has hit a
+                        # delimiter beyond the scope of this Delimited section. We
+                        # should return a partial match, and the delimiter as unmatched.
                         return MatchResult(
                             matched_segments.matched_segments
                             + pre_non_code
@@ -205,7 +207,8 @@ class Delimited(OneOf):
                     if delimiter_matcher is self.delimiter:
                         # Then add the delimiter to the matched segments
                         matched_segments += delimiter_match.matched_segments
-                        # Break this for loop and move on, looking for the next delimiter
+                        # Break this for loop and move on, looking for the next
+                        # delimiter
                         seg_buff = delimiter_match.unmatched_segments
                         # Still got some buffer left. Carry on.
                         continue
@@ -213,8 +216,8 @@ class Delimited(OneOf):
                     elif delimiter_matcher is self.terminator or isinstance(
                         delimiter_matcher, NonCodeMatcher
                     ):
-                        # We just return straight away here. We don't add the terminator to
-                        # this match, it should go with the unmatched parts.
+                        # We just return straight away here. We don't add the terminator
+                        # to this match, it should go with the unmatched parts.
 
                         # First check we've had enough delimiters
                         if (
@@ -230,8 +233,8 @@ class Delimited(OneOf):
                     else:  # pragma: no cover
                         raise RuntimeError(
                             (
-                                "I don't know how I got here. Matched instead on {}, which "
-                                "doesn't appear to be delimiter or terminator"
+                                "I don't know how I got here. Matched instead on {}, "
+                                "which doesn't appear to be delimiter or terminator"
                             ).format(delimiter_matcher)
                         )
                 else:
@@ -276,7 +279,8 @@ class Delimited(OneOf):
                 if mat:
                     # We've got something at the end. Return!
                     if mat.unmatched_segments:
-                        # We have something unmatched and so we should let it also have the trailing elements
+                        # We have something unmatched and so we should let it also have
+                        # the trailing elements
                         return MatchResult(
                             matched_segments.matched_segments
                             + pre_non_code
@@ -284,8 +288,8 @@ class Delimited(OneOf):
                             mat.unmatched_segments + post_non_code,
                         )
                     else:
-                        # If there's nothing unmatched in the most recent match, then we can consume the trailing
-                        # non code segments
+                        # If there's nothing unmatched in the most recent match, then we
+                        # can consume the trailing non code segments
                         return MatchResult.from_matched(
                             matched_segments.matched_segments
                             + pre_non_code
@@ -293,8 +297,8 @@ class Delimited(OneOf):
                             + post_non_code,
                         )
                 else:
-                    # No match at the end, are we allowed to trail? If we are then return,
-                    # otherwise we fail because we can't match the last element.
+                    # No match at the end, are we allowed to trail? If we are then
+                    # return, otherwise we fail because we can't match the last element.
                     if self.allow_trailing:
                         return MatchResult(matched_segments.matched_segments, seg_buff)
                     else:

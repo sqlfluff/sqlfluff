@@ -54,7 +54,8 @@ class Rule_L022(BaseRule):
             )
             for idx, seg in enumerate(expanded_segments):
                 if seg.is_type("bracketed"):
-                    # Check if the preceding keyword is AS, otherwise it's a column name definition in the CTE.
+                    # Check if the preceding keyword is AS, otherwise it's a column name
+                    # definition in the CTE.
                     preceding_keyword = next(
                         (
                             s
@@ -126,7 +127,8 @@ class Rule_L022(BaseRule):
 
                 # Readout of findings
                 self.logger.info(
-                    "blank_lines: %s, comma_line_idx: %s. final_line_idx: %s, final_seg_idx: %s",
+                    "blank_lines: %s, comma_line_idx: %s. final_line_idx: %s, "
+                    "final_seg_idx: %s",
                     blank_lines,
                     comma_line_idx,
                     line_idx,
@@ -147,7 +149,8 @@ class Rule_L022(BaseRule):
                     # to correct the issue.
                     fix_type = "create_before"  # In most cases we just insert newlines.
                     if comma_style == "oneline":
-                        # Here we respect the target comma style to insert at the relevant point.
+                        # Here we respect the target comma style to insert at the
+                        # relevant point.
                         if self.comma_style == "trailing":
                             # Add a blank line after the comma
                             fix_point = forward_slice[comma_seg_idx + 1]
@@ -167,14 +170,15 @@ class Rule_L022(BaseRule):
                         if not comment_lines or line_idx - 1 not in comment_lines:
                             self.logger.info("Comment routines not applicable")
                             if comma_style in ("trailing", "final", "floating"):
-                                # Detected an existing trailing comma or it's a final CTE,
-                                # OR the comma isn't leading or trailing.
+                                # Detected an existing trailing comma or it's a final
+                                # CTE, OR the comma isn't leading or trailing.
                                 # If the preceding segment is whitespace, replace it
                                 if forward_slice[seg_idx - 1].is_type("whitespace"):
                                     fix_point = forward_slice[seg_idx - 1]
                                     fix_type = "replace"
                                 else:
-                                    # Otherwise add a single newline before the end content.
+                                    # Otherwise add a single newline before the end
+                                    # content.
                                     fix_point = forward_slice[seg_idx]
                             elif comma_style == "leading":
                                 # Detected an existing leading comma.

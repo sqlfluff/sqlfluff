@@ -22,8 +22,8 @@ class Rule_L033(BaseRule):
         SELECT a, b FROM table_1 UNION SELECT a, b FROM table_2
 
     | **Best practice**
-    | Specify ``DISTINCT`` or ``ALL`` after ``UNION``. (Note that ``DISTINCT`` is the default
-    | behavior.
+    | Specify ``DISTINCT`` or ``ALL`` after ``UNION``. (Note that ``DISTINCT`` is the
+    | default behavior.
 
     .. code-block:: sql
 

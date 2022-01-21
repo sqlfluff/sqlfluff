@@ -69,7 +69,8 @@ class Rule_L007(BaseRule):
                 if context.segment.is_type("binary_operator", "comparison_operator"):
                     # If it's an operator, then check if in "before" mode
                     if self.operator_new_lines == "before":  # type: ignore
-                        # If we're in "before" mode, then check if newline since last code
+                        # If we're in "before" mode, then check if newline since last
+                        # code
                         for s in memory["since_code"]:
                             if s.name == "newline":
                                 # Had a newline - so mark this operator as a fail
