@@ -392,10 +392,8 @@ def test__project_dir_does_not_exist_error(dbt_templater, caplog):  # noqa: F811
         with caplog.at_level(logging.ERROR, logger="sqlfluff.templater"):
             dbt_project_dir = dbt_templater._get_project_dir()
         assert (
-            (
-                f"dbt_project_dir: {dbt_project_dir} could not be accessed. "
-                "Check it exists."
-            ) in caplog.text
-        )
+            f"dbt_project_dir: {dbt_project_dir} could not be accessed. "
+            "Check it exists."
+        ) in caplog.text
     finally:
         logger.propagate = original_propagate_value
