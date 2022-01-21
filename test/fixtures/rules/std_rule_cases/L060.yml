@@ -1,0 +1,22 @@
+rule: L060
+
+test_pass_coalesce:
+  pass_str: |
+    SELECT coalesce(foo, 0) AS bar,
+    FROM baz;
+
+test_fail_ifnull:
+  fail_str: |
+    SELECT ifnull(foo, 0) AS bar,
+    FROM baz;
+  pass_str: |
+    SELECT coalesce(foo, 0) AS bar,
+    FROM baz;
+
+test_fail_nvl:
+  fail_str: |
+    SELECT nvl(foo, 0) AS bar,
+    FROM baz;
+  pass_str: |
+    SELECT coalesce(foo, 0) AS bar,
+    FROM baz;
