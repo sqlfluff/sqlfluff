@@ -175,7 +175,7 @@ class PythonTemplater(RawTemplater):
         except (SyntaxError, ValueError):
             return s
 
-    def get_context(self, fname=None, config=None) -> Dict:
+    def get_context(self, fname=None, config=None, **kw) -> Dict:
         """Get the templating context from the config."""
         # TODO: The config loading should be done outside the templater code. Here
         # is a silly place.
@@ -243,16 +243,15 @@ class PythonTemplater(RawTemplater):
             [],
         )
 
-    @classmethod
     def slice_file(
-        cls, raw_str: str, templated_str: str, config=None, **kwargs
+        self, raw_str: str, templated_str: str, config=None, **kwargs
     ) -> Tuple[List[RawFileSlice], List[TemplatedFileSlice], str]:
         """Slice the file to determine regions where we can fix."""
         templater_logger.info("Slicing File Template")
         templater_logger.debug("    Raw String: %r", raw_str)
         templater_logger.debug("    Templated String: %r", templated_str)
         # Slice the raw file
-        raw_sliced = list(cls._slice_template(raw_str))
+        raw_sliced = list(self._slice_template(raw_str))
         templater_logger.debug("    Raw Sliced:")
         for idx, raw_slice in enumerate(raw_sliced):
             templater_logger.debug("        %s: %r", idx, raw_slice)
@@ -266,8 +265,8 @@ class PythonTemplater(RawTemplater):
         for loop_idx in range(2):
             templater_logger.debug("    # Slice Loop %s", loop_idx)
             # Calculate occurrences
-            raw_occurrences = cls._substring_occurrences(raw_str, literals)
-            templated_occurrences = cls._substring_occurrences(templated_str, literals)
+            raw_occurrences = self._substring_occurrences(raw_str, literals)
+            templated_occurrences = self._substring_occurrences(templated_str, literals)
             templater_logger.debug(
                 "    Occurrences: Raw: %s, Templated: %s",
                 raw_occurrences,
@@ -275,7 +274,7 @@ class PythonTemplater(RawTemplater):
             )
             # Split on invariants
             split_sliced = list(
-                cls._split_invariants(
+                self._split_invariants(
                     raw_sliced,
                     literals,
                     raw_occurrences,
@@ -288,7 +287,7 @@ class PythonTemplater(RawTemplater):
                 templater_logger.debug("        %s: %r", idx, split_slice)
             # Deal with uniques and coalesce the rest
             sliced_file = list(
-                cls._split_uniques_coalesce_rest(
+                self._split_uniques_coalesce_rest(
                     split_sliced, raw_occurrences, templated_occurrences, templated_str
                 )
             )
@@ -302,7 +301,7 @@ class PythonTemplater(RawTemplater):
                     "unwrap_wrapped_queries", section="templater", default=True
                 )
             )
-            sliced_file, new_templated_str = cls._check_for_wrapped(
+            sliced_file, new_templated_str = self._check_for_wrapped(
                 sliced_file, templated_str, unwrap_wrapped=unwrap_wrapped
             )
             if new_templated_str == templated_str:
