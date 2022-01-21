@@ -180,7 +180,7 @@ snowflake_dialect.add(
         type="bucket_path",
     ),
     AzureBlobStoragePath=RegexParser(
-        # See https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/resource-name-rules#microsoftstorage
+        # https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/resource-name-rules#microsoftstorage
         r"'azure://[a-z0-9][a-z0-9-]{1,61}[a-z0-9]\.blob\.core\.windows\.net/[a-z0-9]"
         r"[a-z0-9\.-]{1,61}[a-z0-9](?:/.+)?'",
         CodeSegment,
