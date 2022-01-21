@@ -596,8 +596,7 @@ class FunctionParameterListGrammar(BaseSegment):
 class TypelessStructSegment(BaseSegment):
     """Expression to construct a STRUCT with implicit types.
 
-    https://cloud.google.com/bigquery/docs/reference/standard-sql
-    /data-types#typeless_struct_syntax
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-types#typeless_struct_syntax
     """
 
     type = "typeless_struct"
@@ -618,8 +617,7 @@ class TypelessStructSegment(BaseSegment):
 class TupleSegment(BaseSegment):
     """Expression to construct a TUPLE.
 
-    https://cloud.google.com/bigquery/docs/reference/standard-sql
-    /data-types#tuple_syntax
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/data-types#tuple_syntax
     """
 
     type = "tuple"
@@ -630,8 +628,7 @@ class TupleSegment(BaseSegment):
 class NamedArgumentSegment(BaseSegment):
     """Named argument to a function.
 
-    https://cloud.google.com/bigquery/docs/reference/standard-sql
-    /geography_functions#st_geogfromgeojson
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/geography_functions#st_geogfromgeojson
     """
 
     type = "named_argument"
@@ -653,8 +650,7 @@ class LiteralCoercionSegment(BaseSegment):
     - TIME
     - TIMESTAMP
 
-    https://cloud.google.com/bigquery/docs/reference/standard-sql
-    /conversion_rules#literal_coercion
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/conversion_rules#literal_coercion
 
     """
 
@@ -1001,8 +997,7 @@ class ParameterizedSegment(BaseSegment):
 class FromPivotExpressionSegment(BaseSegment):
     """A PIVOT expression.
 
-    https://cloud.google.com/bigquery/docs/reference/standard-sql
-    /query-syntax#pivot_operator
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax#pivot_operator
     """
 
     type = "from_pivot_expression"
@@ -1033,8 +1028,7 @@ class FromPivotExpressionSegment(BaseSegment):
 class FromUnpivotExpressionSegment(BaseSegment):
     """An UNPIVOT expression.
 
-    https://cloud.google.com/bigquery/docs/reference/standard-sql
-    /query-syntax#unpivot_operator
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax#unpivot_operator
     """
 
     type = "from_unpivot_expression"
@@ -1121,8 +1115,7 @@ class InsertStatementSegment(BaseSegment):
 class SamplingExpressionSegment(BaseSegment):
     """A sampling expression.
 
-    As per https://cloud.google.com/bigquery/docs/reference/standard-sql
-    /query-syntax#tablesample_operator
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax#tablesample_operator
     """
 
     type = "sample_expression"

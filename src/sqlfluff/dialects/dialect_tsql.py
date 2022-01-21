@@ -569,8 +569,7 @@ class SelectStatementSegment(BaseSegment):
 class IntoTableSegment(BaseSegment):
     """`INTO` clause within `SELECT`.
 
-    https://docs.microsoft.com/en-us/sql/t-sql/queries
-    /select-into-clause-transact-sql?view=sql-server-ver15
+    https://docs.microsoft.com/en-us/sql/t-sql/queries/select-into-clause-transact-sql?view=sql-server-ver15
     """
 
     type = "into_table_clause"
@@ -599,10 +598,8 @@ class WhereClauseSegment(BaseSegment):
 class CreateIndexStatementSegment(BaseSegment):
     """A `CREATE INDEX` or `CREATE STATISTICS` statement.
 
-    https://docs.microsoft.com/en-us/sql/t-sql/statements
-    /create-index-transact-sql?view=sql-server-ver15
-    https://docs.microsoft.com/en-us/sql/t-sql/statements
-    /create-statistics-transact-sql?view=sql-server-ver15
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-index-transact-sql?view=sql-server-ver15
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-statistics-transact-sql?view=sql-server-ver15
     """
 
     type = "create_index_statement"
@@ -634,10 +631,8 @@ class CreateIndexStatementSegment(BaseSegment):
 class OnPartitionOrFilegroupOptionSegment(BaseSegment):
     """ON partition scheme or filegroup option.
 
-    https://docs.microsoft.com/en-us/sql/t-sql/statements
-    /create-index-transact-sql?view=sql-server-ver15
-    https://docs.microsoft.com/en-us/sql/t-sql/statements
-    /create-table-transact-sql?view=sql-server-ver15
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-index-transact-sql?view=sql-server-ver15
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-table-transact-sql?view=sql-server-ver15
     """
 
     type = "on_partition_or_filegroup_statement"
@@ -652,10 +647,8 @@ class OnPartitionOrFilegroupOptionSegment(BaseSegment):
 class FilestreamOnOptionSegment(BaseSegment):
     """FILESTREAM_ON index option in `CREATE INDEX` and 'CREATE TABLE' statements.
 
-    https://docs.microsoft.com/en-us/sql/t-sql/statements
-    /create-index-transact-sql?view=sql-server-ver15
-    https://docs.microsoft.com/en-us/sql/t-sql/statements
-    /create-table-transact-sql?view=sql-server-ver15
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-index-transact-sql?view=sql-server-ver15
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-table-transact-sql?view=sql-server-ver15
     """
 
     type = "filestream_on_option_statement"
@@ -676,8 +669,7 @@ class FilestreamOnOptionSegment(BaseSegment):
 class TextimageOnOptionSegment(BaseSegment):
     """TEXTIMAGE ON option in `CREATE TABLE` statement.
 
-    https://docs.microsoft.com/en-us/sql/t-sql/statements
-    /create-table-transact-sql?view=sql-server-ver15
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-table-transact-sql?view=sql-server-ver15
     """
 
     type = "textimage_on_option_statement"
@@ -694,8 +686,7 @@ class TextimageOnOptionSegment(BaseSegment):
 class ReferencesConstraintGrammar(BaseSegment):
     """REFERENCES constraint option in `CREATE TABLE` statement.
 
-    https://docs.microsoft.com/en-us/sql/t-sql/statements
-    /create-table-transact-sql?view=sql-server-ver15
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-table-transact-sql?view=sql-server-ver15
     """
 
     type = "references_constraint_grammar"
@@ -735,8 +726,7 @@ class ReferencesConstraintGrammar(BaseSegment):
 class CheckConstraintGrammar(BaseSegment):
     """CHECK constraint option in `CREATE TABLE` statement.
 
-    https://docs.microsoft.com/en-us/sql/t-sql/statements
-    /create-table-transact-sql?view=sql-server-ver15
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-table-transact-sql?view=sql-server-ver15
     """
 
     type = "check_constraint_grammar"
@@ -753,8 +743,7 @@ class CheckConstraintGrammar(BaseSegment):
 class RelationalIndexOptionsSegment(BaseSegment):
     """A relational index options in `CREATE INDEX` statement.
 
-    https://docs.microsoft.com/en-us/sql/t-sql/statements
-    /create-index-transact-sql?view=sql-server-ver15
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-index-transact-sql?view=sql-server-ver15
     """
 
     type = "relational_index_options"
@@ -851,8 +840,7 @@ class RelationalIndexOptionsSegment(BaseSegment):
 class MaxDurationSegment(BaseSegment):
     """A `MAX DURATION` clause.
 
-    https://docs.microsoft.com/en-us/sql/t-sql/statements
-    /create-index-transact-sql?view=sql-server-ver15
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-index-transact-sql?view=sql-server-ver15
     """
 
     type = "max_duration"
@@ -904,8 +892,7 @@ class DropStatisticsStatementSegment(BaseSegment):
 class UpdateStatisticsStatementSegment(BaseSegment):
     """An `UPDATE STATISTICS` statement.
 
-    https://docs.microsoft.com/en-us/sql/t-sql/statements
-    /update-statistics-transact-sql?view=sql-server-ver15
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/update-statistics-transact-sql?view=sql-server-ver15
     """
 
     type = "update_statistics_statement"
@@ -1061,8 +1048,7 @@ class PivotColumnReferenceSegment(ObjectReferenceSegment):
 class PivotUnpivotStatementSegment(BaseSegment):
     """Declaration of a variable.
 
-    https://docs.microsoft.com/en-us/sql/t-sql/queries
-    /from-using-pivot-and-unpivot?view=sql-server-ver15
+    https://docs.microsoft.com/en-us/sql/t-sql/queries/from-using-pivot-and-unpivot?view=sql-server-ver15
     """
 
     type = "from_pivot_expression"
@@ -1102,8 +1088,7 @@ class PivotUnpivotStatementSegment(BaseSegment):
 class DeclareStatementSegment(BaseSegment):
     """Declaration of a variable.
 
-    https://docs.microsoft.com/en-us/sql/t-sql/language-elements
-    /declare-local-variable-transact-sql?view=sql-server-ver15
+    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/declare-local-variable-transact-sql?view=sql-server-ver15
     """
 
     type = "declare_segment"
@@ -1387,12 +1372,10 @@ class CreateFunctionStatementSegment(BaseSegment):
     Updated to include AS after declaration of RETURNS. Might be integrated in ANSI
     though.
 
-    postgres: https://www.postgresql.org/docs/9.1/sql-createfunction.html
-    snowflake: https://docs.snowflake.com/en/sql-reference/sql/create-function.html
-    bigquery: https://cloud.google.com/bigquery/docs/reference/standard-sql
-    /user-defined-functions
-    tsql/mssql : https://docs.microsoft.com/en-us/sql/t-sql/statements
-    /create-function-transact-sql?view=sql-server-ver15
+    https://www.postgresql.org/docs/9.1/sql-createfunction.html
+    https://docs.snowflake.com/en/sql-reference/sql/create-function.html
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/user-defined-functions
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-function-transact-sql?view=sql-server-ver15
     """
 
     type = "create_function_statement"
@@ -1454,8 +1437,7 @@ class FunctionOptionSegment(BaseSegment):
 class DropFunctionStatementSegment(BaseSegment):
     """A `DROP FUNCTION` statement.
 
-    As per specification https://docs.microsoft.com/en-us/sql/t-sql/statements
-    /drop-function-transact-sql?view=sql-server-ver15
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/drop-function-transact-sql?view=sql-server-ver15
     """
 
     type = "drop_function_statement"
@@ -2406,8 +2388,7 @@ class BeginEndSegment(BaseSegment):
     """A `BEGIN/END` block.
 
     Encloses multiple statements into a single statement object.
-    https://docs.microsoft.com/en-us/sql/t-sql/language-elements
-    /begin-end-transact-sql?view=sql-server-ver15
+    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/begin-end-transact-sql?view=sql-server-ver15
     """
 
     type = "begin_end_block"
@@ -2429,8 +2410,7 @@ class BeginEndSegment(BaseSegment):
 class TryCatchSegment(BaseSegment):
     """A `TRY/CATCH` block pair.
 
-    https://docs.microsoft.com/en-us/sql/t-sql/language-elements
-    /try-catch-transact-sql?view=sql-server-ver15
+    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/try-catch-transact-sql?view=sql-server-ver15
     """
 
     type = "try_catch"
@@ -2512,8 +2492,7 @@ class FileSegment(BaseFileSegment):
 class DeleteStatementSegment(BaseSegment):
     """A `DELETE` statement.
 
-    https://docs.microsoft.com/en-us/sql/t-sql/statements
-    /delete-transact-sql?view=sql-server-ver15
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/delete-transact-sql?view=sql-server-ver15
     Overriding ANSI to remove StartsWith logic which assumes statements have been
     delimited and to allow for Azure Synapse Analytics-specific DELETE statements
     """
@@ -2662,8 +2641,7 @@ class OrderByClauseSegment(BaseSegment):
 class RenameStatementSegment(BaseSegment):
     """`RENAME` statement.
 
-    https://docs.microsoft.com/en-us/sql/t-sql/statements
-    /rename-transact-sql?view=aps-pdw-2016-au7
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/rename-transact-sql?view=aps-pdw-2016-au7
     Azure Synapse Analytics-specific.
     """
 
@@ -2812,8 +2790,7 @@ class PrintStatementSegment(BaseSegment):
 class OptionClauseSegment(BaseSegment):
     """Query Hint clause.
 
-    https://docs.microsoft.com/en-us/sql/t-sql/queries
-    /hints-transact-sql-query?view=sql-server-ver15
+    https://docs.microsoft.com/en-us/sql/t-sql/queries/hints-transact-sql-query?view=sql-server-ver15
     """
 
     type = "option_clause"
@@ -2833,8 +2810,7 @@ class OptionClauseSegment(BaseSegment):
 class QueryHintSegment(BaseSegment):
     """Query Hint segment.
 
-    https://docs.microsoft.com/en-us/sql/t-sql/queries
-    /hints-transact-sql-query?view=sql-server-ver15
+    https://docs.microsoft.com/en-us/sql/t-sql/queries/hints-transact-sql-query?view=sql-server-ver15
     """
 
     type = "query_hint_segment"
@@ -2935,8 +2911,7 @@ class QueryHintSegment(BaseSegment):
 class PostTableExpressionGrammar(BaseSegment):
     """Table Hint clause.  Overloading the PostTableExpressionGrammar to implement.
 
-    https://docs.microsoft.com/en-us/sql/t-sql/queries
-    /hints-transact-sql-table?view=sql-server-ver15
+    https://docs.microsoft.com/en-us/sql/t-sql/queries/hints-transact-sql-table?view=sql-server-ver15
     """
 
     match_grammar = Sequence(
@@ -2955,8 +2930,7 @@ class PostTableExpressionGrammar(BaseSegment):
 class TableHintSegment(BaseSegment):
     """Table Hint segment.
 
-    https://docs.microsoft.com/en-us/sql/t-sql/queries
-    /hints-transact-sql-table?view=sql-server-ver15
+    https://docs.microsoft.com/en-us/sql/t-sql/queries/hints-transact-sql-table?view=sql-server-ver15
     """
 
     type = "query_hint_segment"
@@ -3066,8 +3040,7 @@ class ExecuteScriptSegment(BaseSegment):
     """`EXECUTE` statement.
 
     Matching segment name and type from exasol.
-    https://docs.microsoft.com/en-us/sql/t-sql/language-elements
-    /execute-transact-sql?view=sql-server-ver15
+    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/execute-transact-sql?view=sql-server-ver15
     """
 
     type = "execute_script_statement"
@@ -3107,8 +3080,7 @@ class CreateSchemaStatementSegment(BaseSegment):
     """A `CREATE SCHEMA` statement.
 
     Overriding ANSI to allow for AUTHORIZATION clause
-    https://docs.microsoft.com/en-us/sql/t-sql/statements
-    /create-schema-transact-sql?view=sql-server-ver15
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-schema-transact-sql?view=sql-server-ver15
 
     Not yet implemented: proper schema_element parsing.
     Once we have an AccessStatementSegment that works for TSQL, this definition should
@@ -3136,8 +3108,7 @@ class CreateSchemaStatementSegment(BaseSegment):
 class MergeStatementSegment(BaseSegment):
     """`MERGE` statement.
 
-    https://docs.microsoft.com/en-us/sql/t-sql/statements
-    /merge-transact-sql?view=sql-server-ver15
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/merge-transact-sql?view=sql-server-ver15
     """
 
     type = "merge_statement"
@@ -3304,8 +3275,7 @@ class MergeInsertClauseSegment(BaseSegment):
 class OutputClauseSegment(BaseSegment):
     """OUTPUT Clause used within DELETE, INSERT, UPDATE, MERGE.
 
-    https://docs.microsoft.com/en-us/sql/t-sql/queries
-    /output-clause-transact-sql?view=sql-server-ver15
+    https://docs.microsoft.com/en-us/sql/t-sql/queries/output-clause-transact-sql?view=sql-server-ver15
     """
 
     type = "output_clause"
@@ -3345,8 +3315,7 @@ class OutputClauseSegment(BaseSegment):
 class ThrowStatementSegment(BaseSegment):
     """A THROW statement.
 
-    https://docs.microsoft.com/en-us/sql/t-sql/language-elements
-    /throw-transact-sql?view=sql-server-ver15
+    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/throw-transact-sql?view=sql-server-ver15
     """
 
     type = "throw_statement"

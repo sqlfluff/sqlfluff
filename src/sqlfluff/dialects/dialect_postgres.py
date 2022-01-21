@@ -699,8 +699,7 @@ class AlterFunctionStatementSegment(BaseSegment):
 class AlterFunctionActionSegment(BaseSegment):
     """Alter Function Action Segment.
 
-    Matches the definition of action in https://www.postgresql.org/docs/14
-    /sql-alterfunction.html
+    https://www.postgresql.org/docs/14/sql-alterfunction.html
     """
 
     type = "alter_function_action_segment"
@@ -789,8 +788,7 @@ class WellKnownTextGeometrySegment(BaseSegment):
 class FunctionDefinitionGrammar(BaseSegment):
     """This is the body of a `CREATE FUNCTION AS` statement.
 
-    Options supported as defined in https://www.postgresql.org/docs/13
-    /sql-createfunction.html
+    https://www.postgresql.org/docs/13/sql-createfunction.html
     """
 
     match_grammar = Sequence(
@@ -1387,8 +1385,7 @@ class AlterTableStatementSegment(BaseSegment):
 class AlterTableActionSegment(BaseSegment):
     """Alter Table Action Segment.
 
-    Matches the definition of action in https://www.postgresql.org/docs/13
-    /sql-altertable.html
+    https://www.postgresql.org/docs/13/sql-altertable.html
     """
 
     type = "alter_table_action_segment"
@@ -1700,8 +1697,7 @@ class AlterMaterializedViewStatementSegment(BaseSegment):
 class AlterMaterializedViewActionSegment(BaseSegment):
     """Alter Materialized View Action Segment.
 
-    Matches the definition of action in https://www.postgresql.org/docs/14
-    /sql-altermaterializedview.html
+    https://www.postgresql.org/docs/14/sql-altermaterializedview.html
     """
 
     type = "alter_materialized_view_action_segment"
@@ -2075,8 +2071,7 @@ class LikeOptionSegment(BaseSegment):
 class ColumnConstraintSegment(BaseSegment):
     """A column option; each CREATE TABLE column can have 0 or more.
 
-    This matches the definition in https://www.postgresql.org/docs/13
-    /sql-altertable.html
+    https://www.postgresql.org/docs/13/sql-altertable.html
     """
 
     type = "column_constraint_segment"
@@ -2299,8 +2294,7 @@ class IndexParametersSegment(BaseSegment):
 class ReferentialActionSegment(BaseSegment):
     """Foreign Key constraints.
 
-    As found in https://www.postgresql.org/docs/13
-    /infoschema-referential-constraints.html
+    https://www.postgresql.org/docs/13/infoschema-referential-constraints.html
     """
 
     type = "referential_action"

@@ -567,8 +567,7 @@ class MsckRepairTableStatementSegment(BaseSegment):
     metastore and file system. Essentially, it is a dry run of the `MSCK REPAIR TABLE`
     command.
 
-    https://cwiki.apache.org/confluence/display/Hive
-    /LanguageManual+DDL#LanguageManualDDL-RecoverPartitions(MSCKREPAIRTABLE)
+    https://cwiki.apache.org/confluence/display/Hive/LanguageManual+DDL#LanguageManualDDL-RecoverPartitions(MSCKREPAIRTABLE)
     """
 
     type = "msck_repair_table_statement"

@@ -6,10 +6,9 @@ keywords than the Default Mode, and still shares
 some syntax with hive.
 
 Based on:
-- https://spark.apache.org/docs/latest/sql-ref.html
-- https://spark.apache.org/docs/latest/sql-ref-ansi-compliance.html
-- https://github.com/apache/spark/blob/master/sql/catalyst/src/main/antlr4/org/apache
-  /spark/sql/catalyst/parser/SqlBase.g4
+https://spark.apache.org/docs/latest/sql-ref.html
+https://spark.apache.org/docs/latest/sql-ref-ansi-compliance.html
+https://github.com/apache/spark/blob/master/sql/catalyst/src/main/antlr4/org/apache/spark/sql/catalyst/parser/SqlBase.g4
 """
 
 from sqlfluff.core.parser import (

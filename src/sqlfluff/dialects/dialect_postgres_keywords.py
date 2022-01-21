@@ -1,7 +1,7 @@
 """Keywords in the Postgres Dialect.
 
-Most of the keywords come from https://www.postgresql.org/docs/13
-/sql-keywords-appendix.html
+Most of the keywords come from
+https://www.postgresql.org/docs/13/sql-keywords-appendix.html
 Here, "not-keyword" refers to a word not being a keyword, and will be removed from any
 default keyword definition, these keywords are, or have been, an ANSI keyword.
 

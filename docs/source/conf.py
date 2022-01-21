@@ -91,7 +91,6 @@ html_theme_options = {
     # GitHub star button
     "github_type": "star",
     # Use `"true"` instead of `True` for counting GitHub star, see https://ghbtns.com
-    # for details
     "github_count": "true",
     # Codecov button
     "codecov_button": True,

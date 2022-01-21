@@ -324,8 +324,7 @@ class JinjaTracer:
                     # Jinja supports two forms of {% set %}:
                     # - {% set variable = value %}
                     # - {% set variable %}value{% endset %}
-                    # https://jinja.palletsprojects.com/en/2.10.x/templates
-                    # /#block-assignments
+                    # https://jinja.palletsprojects.com/en/2.10.x/templates/#block-assignments
                     # When the second format is used, set the variable 'is_set'
                     # to a non-None value. This info is used elsewhere, as
                     # literals inside a {% set %} block require special handling
