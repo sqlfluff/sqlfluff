@@ -878,7 +878,7 @@ class RuleSet:
 
         plugin_name, code = rule_name_match.groups()
         # If the docstring is multiline, then we extract just summary.
-        description = cls.__doc__.split("\n")[0]
+        description = cls.__doc__.replace("``", "'").split("\n")[0]
 
         if plugin_name:
             code = f"{plugin_name}_{code}"

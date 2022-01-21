@@ -857,6 +857,34 @@ class InsertStatementSegment(BaseSegment):
     )
 
 
+@spark3_dialect.segment()
+class InsertOverwriteDirectorySegment(BaseSegment):
+    """An `INSERT OVERWRITE [LOCAL] DIRECTORY` statement to insert or overwrite new rows into a table.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-dml-insert-overwrite-directory.html
+    """
+
+    type = "insert_overwrite_directory_statement"
+
+    match_grammar = Sequence(
+        "INSERT",
+        "OVERWRITE",
+        Ref.keyword("LOCAL", optional=True),
+        "DIRECTORY",
+        Ref("QuotedLiteralSegment", optional=True),
+        "USING",
+        Ref("DataSourceFormatGrammar"),
+        Sequence("OPTIONS", Ref("BracketedPropertyListGrammar"), optional=True),
+        OneOf(
+            AnyNumberOf(
+                Ref("ValuesClauseSegment"),
+                min_times=1,
+            ),
+            Ref("SelectableGrammar"),
+        ),
+    )
+
+
 # Auxiliary Statements
 @spark3_dialect.segment()
 class AddExecutablePackage(BaseSegment):
@@ -943,6 +971,8 @@ class StatementSegment(BaseSegment):
             Ref("RefreshStatementSegment"),
             Ref("RefreshTableStatementSegment"),
             Ref("RefreshFunctionStatementSegment"),
+            # Data Manipulation Statements
+            Ref("InsertOverwriteDirectorySegment"),
         ],
         remove=[
             Ref("TransactionStatementSegment"),
