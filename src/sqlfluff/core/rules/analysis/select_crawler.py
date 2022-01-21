@@ -7,7 +7,11 @@ from sqlfluff.core.cached_property import cached_property
 from sqlfluff.core.dialects.common import AliasInfo
 from sqlfluff.core.dialects.base import Dialect
 from sqlfluff.core.parser import BaseSegment
-from sqlfluff.core.rules.analysis.select import get_select_statement_info
+from sqlfluff.core.rules.analysis.select import (
+    get_select_statement_info,
+    SelectStatementColumnsAndTables,
+)
+from sqlfluff.core.rules.functional import Segments, sp
 
 
 class QueryType(Enum):
@@ -34,9 +38,33 @@ class Selectable:
     @cached_property
     def select_info(self):
         """Returns SelectStatementColumnsAndTables on the SELECT."""
-        return get_select_statement_info(
-            self.selectable, self.dialect, early_exit=False
-        )
+        if self.selectable.is_type("select_statement"):
+            return get_select_statement_info(
+                self.selectable, self.dialect, early_exit=False
+            )
+        else:  # values_clause
+            # This is a bit dodgy, but useful. Here, we interpret a
+            # values_clause segment as if it were a SELECT. Someday, we may need
+            # to add a separate QueryType for this (depending on the needs of
+            # the rules that use it.
+            values = Segments(self.selectable)
+            alias_expression = values.children().first(sp.is_type("alias_expression"))
+            name = alias_expression.children().first(
+                sp.is_name("naked_identifier", "quoted_identifier")
+            )
+            alias_info = AliasInfo(
+                name[0].raw, name[0], True, self.selectable, alias_expression[0], None
+            )
+
+            return SelectStatementColumnsAndTables(
+                select_statement=self.selectable,
+                table_aliases=[alias_info],
+                standalone_aliases=[],
+                reference_buffer=[],
+                select_targets=[],
+                col_aliases=[],
+                using_cols=[],
+            )
 
     def get_wildcard_info(self) -> List[WildcardInfo]:
         """Find wildcard (*) targets in the SELECT."""
@@ -198,7 +226,9 @@ class SelectCrawler:
             )
             if event == "start":
                 # "start" means we're starting to process a new segment.
-                if path[-1].is_type("set_expression", "select_statement"):
+                if path[-1].is_type(
+                    "set_expression", "select_statement", "values_clause"
+                ):
                     # Beginning a single "SELECT" or a set, e.g.
                     # SELECT ... UNION ... SELECT.
                     if not in_with:
@@ -210,7 +240,7 @@ class SelectCrawler:
                             query = self.query_class(QueryType.Simple, dialect)
                             append_query(query)
                         else:
-                            # It's a select_statement.
+                            # It's a select_statement or values_clause.
                             selectable = Selectable(path[-1], dialect)
                             # Determine if this is a standalone select_statement or
                             # part of a set_expression.
@@ -232,7 +262,7 @@ class SelectCrawler:
                             # If we have a CTE name, this is the Query for that
                             # name.
                             query = self.query_class(QueryType.Simple, dialect)
-                            if path[-1].is_type("select_statement"):
+                            if path[-1].is_type("select_statement", "values_clause"):
                                 # Processing a select_statement. Add it to the
                                 # Query object we just created.
                                 query.selectables.append(Selectable(path[-1], dialect))

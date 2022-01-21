@@ -514,3 +514,13 @@ test_snowflake_delete_cte:
   configs:
     core:
       dialect: snowflake
+
+test_pass_exasol_values_clause_cte:
+  pass_str: |
+    WITH txt AS (
+        VALUES (1)
+        AS t (id)
+    )
+
+    SELECT *
+    FROM txt
