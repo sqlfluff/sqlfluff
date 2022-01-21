@@ -214,7 +214,8 @@ tsql_dialect.replace(
             optional=True,
         ),
     ),
-    # Overriding SelectClauseSegmentGrammar to remove Delimited logic which assumes statements have been delimited
+    # Overriding SelectClauseSegmentGrammar to remove Delimited logic which assumes
+    # statements have been delimited
     SelectClauseSegmentGrammar=Sequence(
         "SELECT",
         Ref("SelectClauseModifierSegment", optional=True),
@@ -269,9 +270,8 @@ tsql_dialect.replace(
                 Delimited(Ref("FunctionContentsExpressionGrammar")),
             ),
         ),
-        Ref(
-            "OrderByClauseSegment"
-        ),  # used by string_agg (postgres), group_concat (exasol), listagg (snowflake)...
+        Ref("OrderByClauseSegment"),
+        # used by string_agg (postgres), group_concat (exasol),listagg (snowflake)...
         # like a function call: POSITION ( 'QL' IN 'SQL')
         Sequence(
             OneOf(
@@ -426,7 +426,8 @@ class NotEqualToSegment(BaseSegment):
 class SelectClauseElementSegment(BaseSegment):
     """An element in the targets of a select statement.
 
-    Overriding ANSI to remove GreedyUntil logic which assumes statements have been delimited
+    Overriding ANSI to remove GreedyUntil logic which assumes statements have been
+    delimited
     """
 
     type = "select_clause_element"
@@ -465,7 +466,8 @@ class SelectClauseModifierSegment(BaseSegment):
 class SelectClauseSegment(BaseSegment):
     """A group of elements in a select target statement.
 
-    Overriding ANSI to remove StartsWith logic which assumes statements have been delimited
+    Overriding ANSI to remove StartsWith logic which assumes statements have been
+    delimited
     """
 
     type = "select_clause"
@@ -503,7 +505,8 @@ class UnorderedSelectStatementSegment(BaseSegment):
 class InsertStatementSegment(BaseSegment):
     """An `INSERT` statement.
 
-    Overriding ANSI definition to remove StartsWith logic that doesn't handle optional delimitation well.
+    Overriding ANSI definition to remove StartsWith logic that doesn't handle optional
+    delimitation well.
     """
 
     type = "insert_statement"
@@ -629,7 +632,7 @@ class CreateIndexStatementSegment(BaseSegment):
 
 @tsql_dialect.segment()
 class OnPartitionOrFilegroupOptionSegment(BaseSegment):
-    """ON partition scheme or filegroup option in `CREATE INDEX` and 'CREATE TABLE' statements.
+    """ON partition scheme or filegroup option.
 
     https://docs.microsoft.com/en-us/sql/t-sql/statements/create-index-transact-sql?view=sql-server-ver15
     https://docs.microsoft.com/en-us/sql/t-sql/statements/create-table-transact-sql?view=sql-server-ver15
@@ -1036,7 +1039,10 @@ class SequenceReferenceSegment(ObjectReferenceSegment):
 
 @tsql_dialect.segment()
 class PivotColumnReferenceSegment(ObjectReferenceSegment):
-    """A reference to a PIVOT column to differentiate it from a regular column reference."""
+    """A reference to a PIVOT column.
+
+    Used to differentiate it from a regular column reference.
+    """
 
     type = "pivot_column_reference"
 
@@ -1115,10 +1121,10 @@ class DeclareStatementSegment(BaseSegment):
 
 @tsql_dialect.segment()
 class GoStatementSegment(BaseSegment):
-    """GO signals the end of a batch of Transact-SQL statements to the SQL Server utilities.
+    """GO signals the end of a batch of Transact-SQL statements.
 
-    GO statements are not part of the TSQL language. They are used to signal batch statements
-    so that clients know in how batches of statements can be executed.
+    GO statements are not part of the TSQL language. They are used to signal batch
+    statements so that clients know in how batches of statements can be executed.
     """
 
     type = "go_statement"
@@ -1326,21 +1332,24 @@ class ColumnConstraintSegment(BaseSegment):
                 "INDEX",
                 Ref("ObjectReferenceSegment"),  # index name
                 OneOf("CLUSTERED", "NONCLUSTERED", optional=True),
-                # other optional blocks (RelationalIndexOptionsSegment, OnIndexOptionSegment,
-                # FilestreamOnOptionSegment) are mentioned above
+                # other optional blocks (RelationalIndexOptionsSegment,
+                # OnIndexOptionSegment,FilestreamOnOptionSegment) are mentioned above
             ),
             # computed_column_definition
             Sequence("AS", Ref("ExpressionSegment")),
             Sequence("PERSISTED", Sequence("NOT", "NULL", optional=True))
-            # other optional blocks (RelationalIndexOptionsSegment, OnIndexOptionSegment,
-            # ReferencesConstraintGrammar, CheckConstraintGrammar) are mentioned above
+            # other optional blocks (RelationalIndexOptionsSegment,
+            # OnIndexOptionSegment, ReferencesConstraintGrammar, CheckConstraintGrammar)
+            # are mentioned above
         ),
     )
 
 
 @tsql_dialect.segment(replace=True)
 class FunctionParameterListGrammar(BaseSegment):
-    """The parameters for a function ie. `(@city_name NVARCHAR(30), @postal_code NVARCHAR(15))`.
+    """The parameters for a function ie.
+
+    `(@city_name NVARCHAR(30), @postal_code NVARCHAR(15))`.
 
     Overriding ANSI (1) to optionally bracket and (2) remove Delimited
     """
@@ -1363,12 +1372,13 @@ class CreateFunctionStatementSegment(BaseSegment):
     This version in the TSQL dialect should be a "common subset" of the
     structure of the code for those dialects.
 
-    Updated to include AS after declaration of RETURNS. Might be integrated in ANSI though.
+    Updated to include AS after declaration of RETURNS. Might be integrated in ANSI
+    though.
 
-    postgres: https://www.postgresql.org/docs/9.1/sql-createfunction.html
-    snowflake: https://docs.snowflake.com/en/sql-reference/sql/create-function.html
-    bigquery: https://cloud.google.com/bigquery/docs/reference/standard-sql/user-defined-functions
-    tsql/mssql : https://docs.microsoft.com/en-us/sql/t-sql/statements/create-function-transact-sql?view=sql-server-ver15
+    https://www.postgresql.org/docs/9.1/sql-createfunction.html
+    https://docs.snowflake.com/en/sql-reference/sql/create-function.html
+    https://cloud.google.com/bigquery/docs/reference/standard-sql/user-defined-functions
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/create-function-transact-sql?view=sql-server-ver15
     """
 
     type = "create_function_statement"
@@ -1430,7 +1440,7 @@ class FunctionOptionSegment(BaseSegment):
 class DropFunctionStatementSegment(BaseSegment):
     """A `DROP FUNCTION` statement.
 
-    As per specification https://docs.microsoft.com/en-us/sql/t-sql/statements/drop-function-transact-sql?view=sql-server-ver15
+    https://docs.microsoft.com/en-us/sql/t-sql/statements/drop-function-transact-sql?view=sql-server-ver15
     """
 
     type = "drop_function_statement"
@@ -2259,7 +2269,8 @@ class AlterTableSwitchStatementSegment(BaseSegment):
 
     type = "alter_table_switch_statement"
     # https://docs.microsoft.com/en-us/sql/t-sql/statements/alter-table-transact-sql?view=sql-server-ver15
-    # T-SQL's ALTER TABLE SWITCH grammar is different enough to core ALTER TABLE grammar to merit its own definition
+    # T-SQL's ALTER TABLE SWITCH grammar is different enough to core ALTER TABLE grammar
+    # to merit its own definition
     match_grammar = Sequence(
         "ALTER",
         "TABLE",
@@ -2482,8 +2493,8 @@ class DeleteStatementSegment(BaseSegment):
     """A `DELETE` statement.
 
     https://docs.microsoft.com/en-us/sql/t-sql/statements/delete-transact-sql?view=sql-server-ver15
-    Overriding ANSI to remove StartsWith logic which assumes statements have been delimited
-    and to allow for Azure Synapse Analytics-specific DELETE statements
+    Overriding ANSI to remove StartsWith logic which assumes statements have been
+    delimited and to allow for Azure Synapse Analytics-specific DELETE statements
     """
 
     type = "delete_statement"
@@ -2512,7 +2523,8 @@ class FromClauseSegment(BaseSegment):
     FROM a JOIN b, c JOIN d
     ```
 
-    Overriding ANSI to remove Delimited logic which assumes statements have been delimited
+    Overriding ANSI to remove Delimited logic which assumes statements have been
+    delimited
     """
 
     type = "from_clause"
@@ -2537,7 +2549,8 @@ class FromClauseSegment(BaseSegment):
 class GroupByClauseSegment(BaseSegment):
     """A `GROUP BY` clause like in `SELECT`.
 
-    Overriding ANSI to remove Delimited logic which assumes statements have been delimited
+    Overriding ANSI to remove Delimited logic which assumes statements have been
+    delimited
     """
 
     type = "groupby_clause"
@@ -2586,7 +2599,8 @@ class HavingClauseSegment(BaseSegment):
 class OrderByClauseSegment(BaseSegment):
     """A `ORDER BY` clause like in `SELECT`.
 
-    Overriding ANSI to remove StartsWith logic which assumes statements have been delimited
+    Overriding ANSI to remove StartsWith logic which assumes statements have been
+    delimited
     """
 
     type = "orderby_clause"
@@ -3069,7 +3083,8 @@ class CreateSchemaStatementSegment(BaseSegment):
     https://docs.microsoft.com/en-us/sql/t-sql/statements/create-schema-transact-sql?view=sql-server-ver15
 
     Not yet implemented: proper schema_element parsing.
-    Once we have an AccessStatementSegment that works for TSQL, this definition should be tweaked to include schema elements.
+    Once we have an AccessStatementSegment that works for TSQL, this definition should
+    be tweaked to include schema elements.
     """
 
     type = "create_schema_statement"

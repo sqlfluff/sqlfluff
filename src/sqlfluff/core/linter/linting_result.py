@@ -144,9 +144,9 @@ class LintingResult:
     def as_records(self) -> List[dict]:
         """Return the result as a list of dictionaries.
 
-        Each record contains a key specifying the filepath, and a list of violations. This
-        method is useful for serialization as all objects will be builtin python types
-        (ints, strs).
+        Each record contains a key specifying the filepath, and a list of violations.
+        This method is useful for serialization as all objects will be builtin python
+        types (ints, strs).
         """
         return [
             {
@@ -177,6 +177,7 @@ class LintingResult:
         """A convenience method for when there is only one file and we want the tree."""
         if len(self.paths) > 1:
             raise ValueError(
-                ".tree() cannot be called when a LintingResult contains more than one path."
+                ".tree() cannot be called when a LintingResult contains more than one "
+                "path."
             )
         return self.paths[0].tree

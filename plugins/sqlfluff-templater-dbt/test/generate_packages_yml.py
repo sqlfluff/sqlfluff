@@ -13,7 +13,7 @@ except ImportError:
 
 
 def main(project_dir):
-    """Load Jinja template file packages.yml.jinja2, expand it, write to packages.yml."""
+    """Load Jinja template file expand it write to packages.yml."""
     env = SandboxedEnvironment()
     with open(os.path.join(project_dir, "packages.yml.jinja2")) as f:
         template_str = f.read()

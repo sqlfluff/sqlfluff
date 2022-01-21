@@ -265,7 +265,9 @@ def test__templater_setup():
     t = PlaceholderTemplater(override_context=dict(name="'john'"))
     with pytest.raises(
         ValueError,
-        match=r"No param_regex nor param_style was provided to the placeholder templater",
+        match=(
+            "No param_regex nor param_style was provided to the placeholder templater"
+        ),
     ):
         t.process(in_str="SELECT 2+2", fname="test")
 

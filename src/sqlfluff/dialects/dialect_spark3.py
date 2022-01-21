@@ -6,9 +6,9 @@ keywords than the Default Mode, and still shares
 some syntax with hive.
 
 Based on:
-- https://spark.apache.org/docs/latest/sql-ref.html
-- https://spark.apache.org/docs/latest/sql-ref-ansi-compliance.html
-- https://github.com/apache/spark/blob/master/sql/catalyst/src/main/antlr4/org/apache/spark/sql/catalyst/parser/SqlBase.g4
+https://spark.apache.org/docs/latest/sql-ref.html
+https://spark.apache.org/docs/latest/sql-ref-ansi-compliance.html
+https://github.com/apache/spark/blob/master/sql/catalyst/src/main/antlr4/org/apache/spark/sql/catalyst/parser/SqlBase.g4
 """
 
 from sqlfluff.core.parser import (
@@ -56,7 +56,8 @@ spark3_dialect.patch_lexer_matchers(
         # https://spark.apache.org/docs/latest/api/sql/index.html#_10
         RegexLexer("equals", r"=|==|<=>", CodeSegment),
         # identifiers are delimited with `
-        # within a delimited identifier, ` is used to escape special characters, including `
+        # within a delimited identifier, ` is used to escape special characters,
+        # including `
         # Ex: select `delimited `` with escaped` from `just delimited`
         # https://spark.apache.org/docs/latest/sql-ref-identifier.html#delimited-identifier
         RegexLexer("back_quote", r"`([^`]|``)*`", CodeSegment),
@@ -64,11 +65,15 @@ spark3_dialect.patch_lexer_matchers(
         # https://spark.apache.org/docs/latest/sql-ref-literals.html#numeric-literal
         # Pattern breakdown:
         # (?>                                    Atomic grouping
-        #                                        (https://www.regular-expressions.info/atomic.html).
+        #                           (https://www.regular-expressions.info/atomic.html).
         #                                        3 distinct groups here:
-        #                                        1. Obvious fractional types (can optionally be exponential).
-        #                                        2. Integer followed by exponential. These must be fractional types.
-        #                                        3. Integer only. These can either be integral or fractional types.
+        #                                        1. Obvious fractional types
+        #                                           (can optionally be exponential).
+        #                                        2. Integer followed by exponential.
+        #                                           These must be fractional types.
+        #                                        3. Integer only.
+        #                                           These can either be integral or
+        #                                           fractional types.
         #
         #     (?>                                1.
         #         \d+\.\d+                       e.g. 123.456
@@ -77,14 +82,18 @@ spark3_dialect.patch_lexer_matchers(
         #     )
         #     ([eE][+-]?\d+)?                    Optional exponential.
         #     ([dDfF]|BD|bd)?                    Fractional data types.
-        #     |\d+[eE][+-]?\d+([dDfF]|BD|bd)?    2. Integer + exponential with fractional data types.
-        #     |\d+([dDfFlLsSyY]|BD|bd)?          3. Integer only with integral or fractional data types.
+        #     |\d+[eE][+-]?\d+([dDfF]|BD|bd)?    2. Integer + exponential with
+        #                                           fractional data types.
+        #     |\d+([dDfFlLsSyY]|BD|bd)?          3. Integer only with integral or
+        #                                           fractional data types.
         # )
         # (
-        #     (?<=\.)                            If matched character ends with . (e.g. 123.) then
-        #                                        don't worry about word boundary check.
-        #     |(?=\b)                            Check that we are at word boundary to avoid matching
-        #                                        valid naked identifiers (e.g. 123column).
+        #     (?<=\.)                            If matched character ends with .
+        #                                        (e.g. 123.) then don't worry about
+        #                                        word boundary check.
+        #     |(?=\b)                            Check that we are at word boundary to
+        #                                        avoid matching valid naked identifiers
+        #                                        (e.g. 123column).
         # )
         RegexLexer(
             "numeric_literal",
@@ -324,14 +333,18 @@ spark3_dialect.add(
 
 # Hive Segments
 @spark3_dialect.segment()
-class RowFormatClauseSegment(hive_dialect.get_segment("RowFormatClauseSegment")):  # type: ignore
+class RowFormatClauseSegment(
+    hive_dialect.get_segment("RowFormatClauseSegment")  # type: ignore
+):
     """`ROW FORMAT` clause in a CREATE HIVEFORMAT TABLE statement."""
 
     type = "row_format_clause"
 
 
 @spark3_dialect.segment()
-class SkewedByClauseSegment(hive_dialect.get_segment("SkewedByClauseSegment")):  # type: ignore
+class SkewedByClauseSegment(
+    hive_dialect.get_segment("SkewedByClauseSegment")  # type: ignore
+):
     """`SKEWED BY` clause in a CREATE HIVEFORMAT TABLE statement."""
 
     type = "skewed_by_clause"
@@ -686,7 +699,9 @@ class CreateTableStatementSegment(BaseSegment):
 
 
 @spark3_dialect.segment()
-class CreateHiveFormatTableStatementSegment(hive_dialect.get_segment("CreateTableStatementSegment")):  # type: ignore
+class CreateHiveFormatTableStatementSegment(
+    hive_dialect.get_segment("CreateTableStatementSegment")  # type: ignore
+):
     """A `CREATE TABLE` statement using Hive format.
 
     https://spark.apache.org/docs/latest/sql-ref-syntax-ddl-create-table-hiveformat.html
@@ -750,7 +765,9 @@ class DropFunctionStatementSegment(BaseSegment):
 
 
 @spark3_dialect.segment()
-class MsckRepairTableStatementSegment(hive_dialect.get_segment("MsckRepairTableStatementSegment")):  # type: ignore
+class MsckRepairTableStatementSegment(
+    hive_dialect.get_segment("MsckRepairTableStatementSegment")  # type: ignore
+):
     """A `REPAIR TABLE` statement using Hive MSCK (Metastore Check) format.
 
     This class inherits from Hive since Spark leverages Hive format for this command and
@@ -840,7 +857,7 @@ class InsertStatementSegment(BaseSegment):
 
 @spark3_dialect.segment()
 class InsertOverwriteDirectorySegment(BaseSegment):
-    """An `INSERT OVERWRITE [LOCAL] DIRECTORY` statement to insert or overwrite new rows into a table.
+    """An `INSERT OVERWRITE [LOCAL] DIRECTORY` statement.
 
     https://spark.apache.org/docs/latest/sql-ref-syntax-dml-insert-overwrite-directory.html
     """
@@ -978,7 +995,8 @@ class JoinClauseSegment(BaseSegment):
     match_grammar = Sequence(
         # NB These qualifiers are optional
         # TODO: Allow nested joins like:
-        # ....FROM S1.T1 t1 LEFT JOIN ( S2.T2 t2 JOIN S3.T3 t3 ON t2.col1=t3.col1) ON tab1.col1 = tab2.col1
+        # ....FROM S1.T1 t1 LEFT JOIN ( S2.T2 t2 JOIN S3.T3 t3 ON t2.col1=t3.col1) ON
+        # tab1.col1 = tab2.col1
         OneOf(
             "CROSS",
             "INNER",

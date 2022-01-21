@@ -51,7 +51,7 @@ class AnyNumberOf(BaseGrammar):
 
     @staticmethod
     def _first_non_whitespace(segments) -> Optional[str]:
-        """Return the raw upper representation of the first valid non-whitespace segment in the iterable."""
+        """Return the upper first non-whitespace segment in the iterable."""
         for segment in segments:
             if segment.raw_segments_upper:
                 return segment.raw_segments_upper

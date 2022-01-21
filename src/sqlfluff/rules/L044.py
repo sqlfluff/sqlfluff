@@ -90,7 +90,8 @@ class Rule_L044(BaseRule):
                 if wildcard.tables:
                     for wildcard_table in wildcard.tables:
                         self.logger.debug(
-                            f"Wildcard: {wildcard.segment.raw} has target {wildcard_table}"
+                            f"Wildcard: {wildcard.segment.raw} has target "
+                            "{wildcard_table}"
                         )
                         # Is it an alias?
                         alias_info = selectable.find_alias(wildcard_table)
@@ -108,7 +109,8 @@ class Rule_L044(BaseRule):
                                 # Not CTE, not table alias. Presumably an
                                 # external table. Warn.
                                 self.logger.debug(
-                                    f"Query target {wildcard_table} is external. Generating warning."
+                                    f"Query target {wildcard_table} is external. "
+                                    "Generating warning."
                                 )
                                 raise RuleFailure(selectable.selectable)
                 else:
@@ -122,7 +124,8 @@ class Rule_L044(BaseRule):
                             self._analyze_result_columns(o)
                             return
                     self.logger.debug(
-                        f'Query target "{query.selectables[0].selectable.raw}" has no targets. Generating warning.'
+                        f'Query target "{query.selectables[0].selectable.raw}" has no '
+                        "targets. Generating warning."
                     )
                     raise RuleFailure(query.selectables[0].selectable)
 

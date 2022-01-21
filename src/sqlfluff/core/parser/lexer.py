@@ -234,7 +234,8 @@ class RegexLexer(StringLexer):
                 return LexedElement(match_str, self)
             else:
                 lexer_logger.warning(
-                    f"Zero length Lex item returned from {self.name!r}. Report this as a bug."
+                    f"Zero length Lex item returned from {self.name!r}. Report this as "
+                    "a bug."
                 )
         return None
 
@@ -247,7 +248,8 @@ class RegexLexer(StringLexer):
                 return match.span()
             else:  # pragma: no cover
                 lexer_logger.warning(
-                    f"Zero length Lex item returned from {self.name!r}. Report this as a bug."
+                    f"Zero length Lex item returned from {self.name!r}. Report this as "
+                    "a bug."
                 )
         return None
 
@@ -437,7 +439,8 @@ class Lexer:
                                 # Generate a string documenting the gap.
                                 if chars_skipped >= 10:
                                     gap_placeholder_parts.append(
-                                        f"... [{chars_skipped} unused template characters] ..."
+                                        f"... [{chars_skipped} unused template "
+                                        "characters] ..."
                                     )
                                 else:
                                     gap_placeholder_parts.append("...")
@@ -464,7 +467,8 @@ class Lexer:
                 trail_indent = so_slices[-1].slice_type in ("block_start", "block_mid")
                 add_indents = self.config.get("template_blocks_indent", "indentation")
                 lexer_logger.debug(
-                    "    Block Slices: %s. Block Balance: %s. Lead: %s, Trail: %s, Add: %s",
+                    "    Block Slices: %s. Block Balance: %s. Lead: %s, Trail: %s, "
+                    "Add: %s",
                     block_slices,
                     block_balance,
                     lead_dedent,
@@ -593,6 +597,7 @@ class Lexer:
             ):  # pragma: no cover
                 raise ValueError(
                     "Template and lexed elements do not match. This should never "
-                    f"happen {element.raw!r} != {template.templated_str[template_slice]!r}"
+                    f"happen {element.raw!r} != "
+                    f"{template.templated_str[template_slice]!r}"
                 )
         return templated_buff

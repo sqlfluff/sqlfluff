@@ -56,7 +56,8 @@ def test__parser__parse_expand(seg_list):
         # Remind ourselves that this should be tuple containing a BasicSegment
         assert isinstance(segments[0], BasicSegment)
 
-        # Now expand those segments, using the base class version (not that it should matter)
+        # Now expand those segments, using the base class version (not that it should
+        # matter)
         res = BasicSegment.expand(segments, parse_context=ctx)
         # Check we get an iterable containing a BasicSegment
         assert isinstance(res[0], BasicSegment)

@@ -100,7 +100,8 @@ class PlaceholderTemplater(RawTemplater):
             live_context["__bind_param_regex"] = KNOWN_STYLES[param_style]
         else:
             raise ValueError(
-                "No param_regex nor param_style was provided to the placeholder templater!"
+                "No param_regex nor param_style was provided to the placeholder "
+                "templater!"
             )
 
         return live_context
@@ -149,9 +150,8 @@ class PlaceholderTemplater(RawTemplater):
             except KeyError as err:
                 # TODO: Add a url here so people can get more help.
                 raise SQLTemplaterError(
-                    "Failure in placeholder templating: {}. Have you configured your variables?".format(
-                        err
-                    )
+                    "Failure in placeholder templating: {}. Have you configured your "
+                    "variables?".format(err)
                 )
             # add the literal to the slices
             template_slices.append(

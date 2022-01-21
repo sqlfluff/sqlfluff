@@ -22,7 +22,8 @@ from sqlfluff.testing.rules import assert_rule_raises_violations_in_file
             [(3, 1), (4, 1), (5, 1)],
         ),
         # Check we get comma (with leading space/newline) whitespace errors
-        # NB The newline before the comma, should report on the comma, not the newline for clarity.
+        # NB The newline before the comma, should report on the comma, not the newline
+        # for clarity.
         ("L005", "whitespace_errors.sql", [(2, 9)]),
         ("L019", "whitespace_errors.sql", [(4, 1)]),
         # Check we get comma (with incorrect trailing space) whitespace errors,
