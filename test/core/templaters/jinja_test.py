@@ -11,7 +11,10 @@ from sqlfluff.core.templaters.jinja import JinjaTracer
 from sqlfluff.core import Linter, FluffConfig
 
 
-JINJA_STRING = "SELECT * FROM {% for c in blah %}{{c}}{% if not loop.last %}, {% endif %}{% endfor %} WHERE {{condition}}\n\n"
+JINJA_STRING = (
+    "SELECT * FROM {% for c in blah %}{{c}}{% if not loop.last %}, "
+    "{% endif %}{% endfor %} WHERE {{condition}}\n\n"
+)
 
 
 @pytest.mark.parametrize(
@@ -33,7 +36,10 @@ SELECT
     {% endfor %}
 FROM events
             """,
-            "\n\n\nSELECT\n    event_id\n    \n    , campaign\n    \n    , click_item\n    \nFROM events\n            ",
+            (
+                "\n\n\nSELECT\n    event_id\n    \n    , campaign\n    \n    , "
+                "click_item\n    \nFROM events\n            "
+            ),
         ),
     ],
     ids=["simple", "unboundlocal_bugfix"],
@@ -260,7 +266,10 @@ FROM
 {% if not loop.last -%} UNION ALL {%- endif %}
 {% endfor %}
 """,
-            templated_str="\n\n\nSELECT\n  brand\nFROM\n  table1\nUNION ALL\n\nSELECT\n  brand\nFROM\n  table2\n\n\n",
+            templated_str=(
+                "\n\n\nSELECT\n  brand\nFROM\n  table1\nUNION ALL\n\nSELECT\n  "
+                "brand\nFROM\n  table2\n\n\n"
+            ),
             expected_templated_sliced__source_list=[
                 "{% set products = [\n  'table1',\n  'table2',\n  ] %}",
                 "\n\n",
@@ -496,7 +505,10 @@ def test__templater_full(subpath, code_only, include_meta, yaml_loader, caplog):
             ],
         ),
         (
-            "SELECT {# A comment #} {{field}} {% for i in [1, 3]%}, fld_{{i}}{% endfor %} FROM my_schema.{{my_table}} ",
+            (
+                "SELECT {# A comment #} {{field}} {% for i in [1, 3]%}, "
+                "fld_{{i}}{% endfor %} FROM my_schema.{{my_table}} "
+            ),
             [
                 ("SELECT ", "literal", 0),
                 ("{# A comment #}", "comment", 7),
@@ -582,7 +594,10 @@ def test__templater_jinja_slice_template(test, result):
         ),
         # Example with loops
         (
-            "SELECT {# A comment #} {{field}} {% for i in [1, 3, 7]%}, fld_{{i}}_x{% endfor %} FROM my_schema.{{my_table}} ",
+            (
+                "SELECT {# A comment #} {{field}} {% for i in [1, 3, 7]%}, "
+                "fld_{{i}}_x{% endfor %} FROM my_schema.{{my_table}} "
+            ),
             dict(field="foobar", my_table="barfoo"),
             [
                 ("literal", slice(0, 7, None), slice(0, 7, None)),
@@ -610,7 +625,10 @@ def test__templater_jinja_slice_template(test, result):
         ),
         # Example with loops (and utilising the end slice code)
         (
-            "SELECT {# A comment #} {{field}} {% for i in [1, 3, 7]%}, fld_{{i}}{% endfor %} FROM my_schema.{{my_table}} ",
+            (
+                "SELECT {# A comment #} {{field}} {% for i in [1, 3, 7]%}, "
+                "fld_{{i}}{% endfor %} FROM my_schema.{{my_table}} "
+            ),
             dict(field="foobar", my_table="barfoo"),
             [
                 ("literal", slice(0, 7, None), slice(0, 7, None)),
@@ -635,7 +653,8 @@ def test__templater_jinja_slice_template(test, result):
         ),
         # Test a trailing split, and some variables which don't refer anything.
         (
-            "{{ config(materialized='view') }}\n\nSELECT 1 FROM {{ source('finance', 'reconciled_cash_facts') }}\n\n",
+            "{{ config(materialized='view') }}\n\nSELECT 1 FROM {{ source('finance', "
+            "'reconciled_cash_facts') }}\n\n",
             dict(
                 config=lambda *args, **kwargs: "",
                 source=lambda *args, **kwargs: "finance_reconciled_cash_facts",

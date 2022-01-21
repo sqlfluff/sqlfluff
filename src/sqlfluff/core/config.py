@@ -74,9 +74,8 @@ def nested_combine(*dicts: dict) -> dict:
                     r[k] = nested_combine(r[k], d[k])
                 else:  # pragma: no cover
                     raise ValueError(
-                        "Key {!r} is a dict in one config but not another! PANIC: {!r}".format(
-                            k, d[k]
-                        )
+                        "Key {!r} is a dict in one config but not another! PANIC: "
+                        "{!r}".format(k, d[k])
                     )
             else:
                 r[k] = d[k]
@@ -627,17 +626,17 @@ class FluffConfig:
         except KeyError:
             if templater_name == "dbt":  # pragma: no cover
                 config_logger.warning(
-                    "Starting in sqlfluff version 0.7.0 the dbt templater is distributed as a "
-                    "seperate python package. Please pip install sqlfluff-templater-dbt to use it."
+                    "Starting in sqlfluff version 0.7.0 the dbt templater is "
+                    "distributed as a separate python package. Please pip install "
+                    "sqlfluff-templater-dbt to use it."
                 )
             raise SQLFluffUserError(
-                "Requested templater {!r} which is not currently available. Try one of {}".format(
-                    templater_name, ", ".join(templater_lookup.keys())
-                )
+                "Requested templater {!r} which is not currently available. Try one of "
+                "{}".format(templater_name, ", ".join(templater_lookup.keys()))
             )
 
     def make_child_from_path(self, path: str) -> "FluffConfig":
-        """Make a new child config at a path but pass on overrides and extra_config_path."""
+        """Make a child config at a path but pass on overrides and extra_config_path."""
         return self.from_path(
             path,
             extra_config_path=self._extra_config_path,

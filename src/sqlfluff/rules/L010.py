@@ -101,7 +101,8 @@ class Rule_L010(BaseRule):
         if cap_policy == "consistent":
             possible_cases = [c for c in cap_policy_opts if c not in refuted_cases]
             self.logger.debug(
-                f"Possible cases after segment '{context.segment.raw}': {possible_cases}"
+                f"Possible cases after segment '{context.segment.raw}': "
+                "{possible_cases}"
             )
             if possible_cases:
                 # Save the latest possible case and skip
@@ -154,8 +155,8 @@ class Rule_L010(BaseRule):
         if fixed_raw == context.segment.raw:
             # No need to fix
             self.logger.debug(
-                f"Capitalisation of segment '{context.segment.raw}' already OK with policy "
-                f"'{concrete_policy}', returning with memory {memory}"
+                f"Capitalisation of segment '{context.segment.raw}' already OK with "
+                f"policy '{concrete_policy}', returning with memory {memory}"
             )
             return LintResult(memory=memory)
         else:
@@ -171,8 +172,8 @@ class Rule_L010(BaseRule):
 
             # Return the fixed segment
             self.logger.debug(
-                f"INCONSISTENT Capitalisation of segment '{context.segment.raw}', fixing to "
-                f"'{fixed_raw}' and returning with memory {memory}"
+                f"INCONSISTENT Capitalisation of segment '{context.segment.raw}', "
+                f"fixing to '{fixed_raw}' and returning with memory {memory}"
             )
 
             return LintResult(

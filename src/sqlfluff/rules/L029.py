@@ -38,7 +38,8 @@ class Rule_L029(BaseRule):
             (
                 context.segment.name == "naked_identifier"
                 and identifiers_policy_applicable(
-                    self.unquoted_identifiers_policy, context.parent_stack  # type: ignore
+                    self.unquoted_identifiers_policy,  # type: ignore
+                    context.parent_stack,
                 )
                 and (
                     context.segment.raw.upper()

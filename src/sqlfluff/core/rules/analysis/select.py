@@ -127,7 +127,8 @@ def _has_value_table_function(table_expr, dialect):
         return False  # pragma: no cover
 
     for function_name in table_expr.recursive_crawl("function_name"):
-        # Other rules can increase whitespace in the function name, so use strip to remove
+        # Other rules can increase whitespace in the function name, so use strip to
+        # remove
         # See: https://github.com/sqlfluff/sqlfluff/issues/1304
         if function_name.raw.lower().strip() in dialect.sets("value_table_functions"):
             return True

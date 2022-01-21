@@ -89,7 +89,8 @@ class Rule_L057(BaseRule):
                     identifier = identifier[:-1]
                 identifier = identifier.replace(".", "")
 
-            # Strip spaces if allowed (note a separate config as only valid for quoted identifiers)
+            # Strip spaces if allowed (note a separate config as only valid for quoted
+            # identifiers)
             if self.allow_space_in_identifier:
                 identifier = identifier.replace(" ", "")
 

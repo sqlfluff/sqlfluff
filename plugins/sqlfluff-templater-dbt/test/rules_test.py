@@ -22,7 +22,7 @@ from test.fixtures.dbt.templater import (  # noqa
     ],
 )
 def test__rules__std_file_dbt(rule, path, violations, project_dir):  # noqa
-    """Test the linter finds the given errors in (and only in) the right places (DBT)."""
+    """Test linter finds the given errors in (and only in) the right places (DBT)."""
     assert_rule_raises_violations_in_file(
         rule=rule,
         fpath=os.path.join(project_dir, path),
