@@ -2013,11 +2013,8 @@ class ValuesClauseSegment(BaseSegment):
                 Ref.keyword("ROW", optional=True),
                 Bracketed(
                     Delimited(
-                        Ref("LiteralGrammar"),
-                        Ref("IntervalExpressionSegment"),
-                        Ref("FunctionSegment"),
-                        Ref("BareFunctionSegment"),
                         "DEFAULT",  # not in `FROM` clause, rule?
+                        Ref("ExpressionSegment"),
                         ephemeral_name="ValuesClauseElements",
                     )
                 ),

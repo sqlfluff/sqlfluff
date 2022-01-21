@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2f182354018fbc163075c52c8c3160f30e9d509b1915c5f7edffc7bc587b8339
+_hash: 9604c223b4ca69bbf13fadfc3a01dd514276f7e1cf83d71699ee2dcdeccaa7b9
 file:
 - statement:
     values_clause:
@@ -11,17 +11,21 @@ file:
     - keyword: ROW
     - bracketed:
       - start_bracket: (
-      - literal: "'a'"
+      - expression:
+          literal: "'a'"
       - comma: ','
-      - literal: '1'
+      - expression:
+          literal: '1'
       - end_bracket: )
     - comma: ','
     - keyword: ROW
     - bracketed:
       - start_bracket: (
-      - literal: "'b'"
+      - expression:
+          literal: "'b'"
       - comma: ','
-      - literal: '2'
+      - expression:
+          literal: '2'
       - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -30,26 +34,58 @@ file:
     - keyword: ROW
     - bracketed:
       - start_bracket: (
-      - literal: "'a'"
+      - expression:
+          literal: "'a'"
       - comma: ','
-      - literal: '1'
+      - expression:
+          literal: '1'
       - end_bracket: )
     - comma: ','
     - keyword: ROW
     - bracketed:
-        start_bracket: (
-        function:
-          function_name:
-            function_name_identifier: upper
-          bracketed:
-            start_bracket: (
+      - start_bracket: (
+      - expression:
+          function:
+            function_name:
+              function_name_identifier: upper
+            bracketed:
+              start_bracket: (
+              expression:
+                literal: "'b'"
+              end_bracket: )
+      - comma: ','
+      - expression:
+        - literal: '2'
+        - binary_operator: +
+        - literal: '1'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    values_clause:
+    - keyword: VALUES
+    - keyword: ROW
+    - bracketed:
+      - start_bracket: (
+      - expression:
+          bare_function: CURRENT_DATE
+      - comma: ','
+      - expression:
+          literal: '1'
+      - end_bracket: )
+    - comma: ','
+    - keyword: ROW
+    - bracketed:
+      - start_bracket: (
+      - expression:
+          interval_expression:
+            keyword: INTERVAL
             expression:
-              literal: "'b'"
-            end_bracket: )
-        comma: ','
-        literal: '2'
-        unparsable:
-        - raw: +
-        - raw: '1'
-        end_bracket: )
+              literal: '10'
+            date_part: MINUTE
+      - comma: ','
+      - expression:
+        - literal: '2'
+        - binary_operator: +
+        - literal: '1'
+      - end_bracket: )
 - statement_terminator: ;
