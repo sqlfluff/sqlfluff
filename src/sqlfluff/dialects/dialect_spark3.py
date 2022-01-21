@@ -895,6 +895,6 @@ class ValuesClauseSegment(BaseSegment):
 
     parse_grammar = Sequence(
         Ref.keyword("VALUES"),
-        DelimitedValues,
+        Ref("DelimitedValues"),
         Ref("AliasExpressionSegment", optional=True),
     )
