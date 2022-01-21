@@ -31,13 +31,12 @@ class Rule_L061(BaseRule):
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Use ``!=`` instead of ``<>`` for ``not equal to`` comparison."""
-
         # Only care about not_equal_to segments.
         if context.segment.name != "not_equal_to":
             return None
 
         # Only care about ``<>``
-        if not "<>" in context.segment.raw:
+        if "<>" not in context.segment.raw:
             return None
 
         # Provide a fix and replace ``<>`` with ``!=``
