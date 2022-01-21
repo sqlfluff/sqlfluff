@@ -127,6 +127,10 @@ def dict_diff(left: dict, right: dict, ignore: Optional[List[str]] = None) -> di
     return buff
 
 
+def _split_comma_separated_string(raw_str: str) -> List[str]:
+    return [s.strip() for s in raw_str.split(",") if s.strip()]
+
+
 class ConfigLoader:
     """The class for loading config files.
 
@@ -174,8 +178,8 @@ class ConfigLoader:
 
         return cls._walk_toml(tool)
 
-    @staticmethod
-    def _get_config_elems_from_file(fpath: str) -> List[Tuple[tuple, Any]]:
+    @classmethod
+    def _get_config_elems_from_file(cls, fpath: str) -> List[Tuple[tuple, Any]]:
         """Load a config from a file and return a list of tuples.
 
         The return value is a list of tuples, were each tuple has two elements,
@@ -218,16 +222,27 @@ class ConfigLoader:
                 v = coerce_value(val)
 
                 # Attempt to resolve paths
-                if name.lower().endswith(("_path", "_dir")):
-                    # Try to resolve the path.
-                    # Make the referenced path.
-                    ref_path = os.path.join(os.path.dirname(fpath), val)
-                    # Check if it exists, and if it does, replace the value with the path.
-                    if os.path.exists(ref_path):
-                        v = ref_path
+                if name.lower() == "load_macros_from_path":
+                    paths = _split_comma_separated_string(val)
+                    v_temp = []
+                    for path in paths:
+                        v_temp.append(cls._resolve_path(fpath, path))
+                    v = ",".join(v_temp)
+                elif name.lower().endswith(("_path", "_dir")):
+                    v = cls._resolve_path(fpath, val)
                 # Add the name to the end of the key
                 buff.append((key + (name,), v))
         return buff
+
+    @classmethod
+    def _resolve_path(cls, fpath, val):
+        # Try to resolve the path.
+        # Make the referenced path.
+        ref_path = os.path.join(os.path.dirname(fpath), val)
+        # Check if it exists, and if it does, replace the value with the path.
+        if os.path.exists(ref_path):
+            return ref_path
+        return val
 
     @staticmethod
     def _incorporate_vals(ctx: dict, vals: List[Tuple[Tuple[str, ...], Any]]) -> dict:
@@ -463,20 +478,20 @@ class FluffConfig:
         )
         # Deal with potential ignore parameters
         if self._configs["core"].get("ignore", None):
-            self._configs["core"]["ignore"] = self._split_comma_separated_string(
+            self._configs["core"]["ignore"] = _split_comma_separated_string(
                 self._configs["core"]["ignore"]
             )
         else:
             self._configs["core"]["ignore"] = []
         # Allowlists and denylists
         if self._configs["core"].get("rules", None):
-            self._configs["core"][
-                "rule_allowlist"
-            ] = self._split_comma_separated_string(self._configs["core"]["rules"])
+            self._configs["core"]["rule_allowlist"] = _split_comma_separated_string(
+                self._configs["core"]["rules"]
+            )
         else:
             self._configs["core"]["rule_allowlist"] = None
         if self._configs["core"].get("exclude_rules", None):
-            self._configs["core"]["rule_denylist"] = self._split_comma_separated_string(
+            self._configs["core"]["rule_denylist"] = _split_comma_separated_string(
                 self._configs["core"]["exclude_rules"]
             )
         else:
@@ -757,10 +772,6 @@ class FluffConfig:
             if raw_line.startswith("-- sqlfluff"):
                 # Found a in-file config command
                 self.process_inline_config(raw_line)
-
-    @staticmethod
-    def _split_comma_separated_string(raw_str: str) -> List[str]:
-        return [s.strip() for s in raw_str.split(",") if s.strip()]
 
 
 class ProgressBarConfiguration:
