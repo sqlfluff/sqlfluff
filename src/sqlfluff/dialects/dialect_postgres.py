@@ -19,6 +19,7 @@ from sqlfluff.core.parser import (
     CommentSegment,
     Dedent,
     SegmentGenerator,
+    NewlineSegment,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -168,6 +169,19 @@ postgres_dialect.add(
         "dollar_quote", CodeSegment, name="dollar_quoted_literal", type="literal"
     ),
     SimpleGeometryGrammar=AnyNumberOf(Ref("NumericLiteralSegment")),
+    # N.B. this MultilineConcatenateDelimiterGrammar is only created
+    # to parse multiline-concatenated string literals
+    # and shouldn't be used in other contexts.
+    # In general let the parser handle newlines and whitespace.
+    MultilineConcatenateNewline=NamedParser(
+        "newline",
+        NewlineSegment,
+        name="newline",
+        type="newline",
+    ),
+    MultilineConcatenateDelimiterGrammar=AnyNumberOf(
+        Ref("MultilineConcatenateNewline"), min_times=1, allow_gaps=False
+    ),
 )
 
 postgres_dialect.replace(
@@ -203,12 +217,38 @@ postgres_dialect.replace(
         type="function_name_identifier",
     ),
     QuotedLiteralSegment=OneOf(
-        NamedParser("single_quote", CodeSegment, name="quoted_literal", type="literal"),
-        NamedParser(
-            "unicode_single_quote", CodeSegment, name="quoted_literal", type="literal"
+        # Postgres allows newline-concatenated string literals (#1488).
+        # Since these string literals can have comments between them,
+        # we use grammar to handle this.
+        Delimited(
+            NamedParser(
+                "single_quote",
+                CodeSegment,
+                name="quoted_literal",
+                type="literal",
+            ),
+            delimiter=Ref("MultilineConcatenateDelimiterGrammar"),
+            allow_trailing=True,
         ),
-        NamedParser(
-            "escaped_single_quote", CodeSegment, name="quoted_literal", type="literal"
+        Delimited(
+            NamedParser(
+                "unicode_single_quote",
+                CodeSegment,
+                name="quoted_literal",
+                type="literal",
+            ),
+            delimiter=Ref("MultilineConcatenateDelimiterGrammar"),
+            allow_trailing=True,
+        ),
+        Delimited(
+            NamedParser(
+                "escaped_single_quote",
+                CodeSegment,
+                name="quoted_literal",
+                type="literal",
+            ),
+            delimiter=Ref("MultilineConcatenateDelimiterGrammar"),
+            allow_trailing=True,
         ),
     ),
     QuotedIdentifierSegment=OneOf(
@@ -949,14 +989,18 @@ class CreateRoleStatementSegment(BaseSegment):
 
 
 @postgres_dialect.segment(replace=True)
-class ExplainStatementSegment(ansi_dialect.get_segment("ExplainStatementSegment")):  # type: ignore
+class ExplainStatementSegment(BaseSegment):
     """An `Explain` statement.
 
     EXPLAIN [ ( option [, ...] ) ] statement
     EXPLAIN [ ANALYZE ] [ VERBOSE ] statement
 
-    https://www.postgresql.org/docs/9.1/sql-explain.html
+    https://www.postgresql.org/docs/14/sql-explain.html
     """
+
+    type = "explain_statement"
+
+    match_grammar = ansi_dialect.get_segment("ExplainStatementSegment").match_grammar
 
     parse_grammar = Sequence(
         "EXPLAIN",
@@ -981,21 +1025,32 @@ class ExplainOptionSegment(BaseSegment):
     ANALYZE [ boolean ]
     VERBOSE [ boolean ]
     COSTS [ boolean ]
+    SETTINGS [ boolean ]
     BUFFERS [ boolean ]
+    WAL [ boolean ]
+    TIMING [ boolean ]
+    SUMMARY [ boolean ]
     FORMAT { TEXT | XML | JSON | YAML }
 
-    https://www.postgresql.org/docs/9.1/sql-explain.html
+    https://www.postgresql.org/docs/14/sql-explain.html
     """
 
     type = "explain_option"
 
-    flag_segment = Sequence(
-        OneOf("ANALYZE", "VERBOSE", "COSTS", "BUFFERS"),
-        OneOf(Ref("TrueSegment"), Ref("FalseSegment"), optional=True),
-    )
-
     match_grammar = OneOf(
-        flag_segment,
+        Sequence(
+            OneOf(
+                "ANALYZE",
+                "VERBOSE",
+                "COSTS",
+                "SETTINGS",
+                "BUFFERS",
+                "WAL",
+                "TIMING",
+                "SUMMARY",
+            ),
+            Ref("BooleanLiteralGrammar", optional=True),
+        ),
         Sequence(
             "FORMAT",
             OneOf("TEXT", "XML", "JSON", "YAML"),
