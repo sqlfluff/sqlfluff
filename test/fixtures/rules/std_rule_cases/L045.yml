@@ -211,3 +211,16 @@ test_pass_snowflake_values_clause_cte:
   configs:
     core:
       dialect: snowflake
+
+test_pass_postgres_values_clause_cte:
+  pass_str: |
+    WITH txt AS (
+        VALUES (1)
+        AS t (id)
+    )
+
+    SELECT *
+    FROM txt
+  configs:
+    core:
+      dialect: postgres
