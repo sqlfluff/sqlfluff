@@ -891,7 +891,7 @@ class ValuesClauseSegment(BaseSegment):
     """
 
     type = "values_clause"
-    match_grammar = StartsWith(Ref.keyword("VALUES"))
+    match_grammar = StartsWith("VALUES")
 
     parse_grammar = Sequence(
         Ref.keyword("VALUES"),
