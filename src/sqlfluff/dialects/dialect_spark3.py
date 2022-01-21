@@ -840,7 +840,7 @@ class InsertStatementSegment(BaseSegment):
 
 @spark3_dialect.segment()
 class InsertOverwriteDirectorySegment(BaseSegment):
-    """An `INSERT OVERWRITE [LOCAL] DIRECTORY` statement to insert or overwrite new rows into a table.
+    """An `INSERT OVERWRITE [LOCAL] DIRECTORY` statement to insert or overwrite new rows into a directory path.
 
     https://spark.apache.org/docs/latest/sql-ref-syntax-dml-insert-overwrite-directory.html
     """
@@ -856,6 +856,35 @@ class InsertOverwriteDirectorySegment(BaseSegment):
         "USING",
         Ref("DataSourceFormatGrammar"),
         Sequence("OPTIONS", Ref("BracketedPropertyListGrammar"), optional=True),
+        OneOf(
+            AnyNumberOf(
+                Ref("ValuesClauseSegment"),
+                min_times=1,
+            ),
+            Ref("SelectableGrammar"),
+        ),
+    )
+
+
+@spark3_dialect.segment()
+class InsertOverwriteDirectoryHiveFmtSegment(BaseSegment):
+    """An `INSERT OVERWRITE [LOCAL] DIRECTORY` statement to insert or overwrite new rows into a directory path.
+
+     This statement uses Hive format.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-dml-insert-overwrite-directory-hive.html
+    """
+
+    type = "insert_overwrite_directory_hive_fmt_statement"
+
+    match_grammar = Sequence(
+        "INSERT",
+        "OVERWRITE",
+        Ref.keyword("LOCAL", optional=True),
+        "DIRECTORY",
+        Ref("QuotedLiteralSegment"),
+        Ref("RowFormatClauseSegment", optional=True),
+        Ref("StoredAsGrammar", optional=True),
         OneOf(
             AnyNumberOf(
                 Ref("ValuesClauseSegment"),
@@ -954,6 +983,7 @@ class StatementSegment(BaseSegment):
             Ref("RefreshFunctionStatementSegment"),
             # Data Manipulation Statements
             Ref("InsertOverwriteDirectorySegment"),
+            Ref("InsertOverwriteDirectoryHiveFmtSegment"),
         ],
         remove=[
             Ref("TransactionStatementSegment"),
