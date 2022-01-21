@@ -402,34 +402,44 @@ this introduces the idea of config *blocks* which could be selectively
 overwritten by other configuration files downstream as required.
 
 In addition to macros specified in the config file, macros can also be
-loaded from a file or folder. The path to this macros folder must be
-specified in the config file to function as below:
+loaded from files or folders. This is specified in the config file:
 
 .. code-block:: cfg
 
     [sqlfluff:templater:jinja]
     load_macros_from_path = my_macros
 
-In this case, SQLFluff will load macros from any :code:`.sql` file found at the
-path specified on this variable. The path is interpreted *relative to the
-config file*, and therefore if the config file above was found at
-:code:`/home/my_project/.sqlfluff` then SQLFluff will look for macros in the
-folder :code:`/home/my_project/my_macros/`. Alternatively the path can also
-be a :code:`.sql` itself. Any macros defined in the config will always take
-precedence over a macro defined in the path.
+`load_macros_from_path` is a comma-separated list of files or folders. SQLFluff
+will load macros from any :code:`.sql` file found in the specified locations.
+Locations are *relative to the config file*. For example, if the config file
+above was found at :code:`/home/my_project/.sqlfluff` then SQLFluff will look
+for macros in the folder :code:`/home/my_project/my_macros/` (but not
+subfolders). Alternatively, the path can also be a :code:`.sql` itself. Any
+macros defined in the config will always take precedence over a macro defined
+in the path.
 
+**Note:** The `load_macros_from_path` also defines the search path for Jinja
+[include](https://jinja.palletsprojects.com/en/3.0.x/templates/#include) or
+[import](https://jinja.palletsprojects.com/en/3.0.x/templates/#import).
+Unlike with macros (as noted above), subdirectories are supported. For example,
+if `load_macros_from_path` is set to `my_macros`, and there is a file
+`my_macros/subdir/my_file.sql`, you can do:
+
+.. code-block:: jinja
+
+   {% include 'subdir/include_comment.sql' %}
 
 .. note::
 
     Throughout the templating process **whitespace** will still be treated
     rigorously, and this includes **newlines**. In particular you may choose
-    to provide your *dummy* macros in your configuration with different to
-    the actual macros you may be using in production.
+    to provide *dummy* macros in your configuration different from the actual
+    macros used in production.
 
-    **REMEMBER:** The purpose of providing the option of macros is to *enable*
-    the parsing of templated sql without it being a blocker. It shouldn't
-    be a requirement that the *templating* is accurate - only so far as that
-    is required to enable the *parsing* and *linting* to be helpful.
+    **REMEMBER:** The reason SQLFluff supports macros is to *enable* it to parse
+    templated sql without it being a blocker. It shouldn't be a requirement that
+    the *templating* is accurate - it only needs to work well enough that
+    *parsing* and *linting* are helpful.
 
 Builtin Macro Blocks
 ^^^^^^^^^^^^^^^^^^^^
@@ -440,8 +450,8 @@ repositories of sql files which could potentially benefit from some linting.
 
 .. note::
     *SQLFluff* has now a tighter integration with dbt through the "dbt" templater.
-    It is the recommended templater for dbt projects and removes the need for the
-    overwrites described in this section.
+    It is the recommended templater for dbt projects. If used, it eliminates the
+    need for the overrides described in this section.
 
     To use the dbt templater, go to `dbt Project Configuration`_.
 
@@ -482,7 +492,7 @@ config option:
     library_path = sqlfluff_libs
 
 This will pull in any python modules from that directory and allow sqlfluff
-to use them for templated. In the above example, you might define a file at
+to use them in templates. In the above example, you might define a file at
 `sqlfluff_libs/dbt_utils.py` as:
 
 .. code-block:: python
@@ -527,9 +537,9 @@ dbt Project Configuration
 
 .. note::
     From sqlfluff version 0.7.0 onwards, the dbt templater has been moved
-    to a separate plugin and python package. You may find that projects
-    already using the templater may initially fail after an upgrade to
-    0.7.0+. See install instructions below to install the dbt templater.
+    to a separate plugin and python package. Projects that were already using
+    the dbt templater may initially fail after an upgrade to 0.7.0+. See the
+    installation instructions below to install the dbt templater.
 
     dbt templating is still a relatively new feature added in 0.4.0 and
     is still in very active development! If you encounter an issue, please
