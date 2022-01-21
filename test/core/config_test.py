@@ -3,6 +3,7 @@
 import os
 import sys
 
+from sqlfluff.core import config
 from sqlfluff.core.config import ConfigLoader, nested_combine, dict_diff
 from sqlfluff.core import Linter, FluffConfig
 from sqlfluff.core.templaters import (
@@ -207,7 +208,7 @@ def test__config__load_user_appdir_config(
 )
 def test__config__split_comma_separated_string(raw_str, expected):
     """Tests that comma separated string config is handled correctly."""
-    assert FluffConfig._split_comma_separated_string(raw_str) == expected
+    assert config._split_comma_separated_string(raw_str) == expected
 
 
 def test__config__templater_selection():

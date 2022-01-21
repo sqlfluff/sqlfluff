@@ -1,0 +1,2 @@
+[sqlfluff:templater:jinja]
+load_macros_from_path=nonexistent_macro_directory
