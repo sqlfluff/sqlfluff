@@ -1994,15 +1994,25 @@ class ValuesClauseSegment(BaseSegment):
     match_grammar = Sequence(
         OneOf("VALUE", "VALUES"),
         Delimited(
-            Bracketed(
-                Delimited(
-                    Ref("LiteralGrammar"),
-                    Ref("IntervalExpressionSegment"),
-                    Ref("FunctionSegment"),
-                    Ref("BareFunctionSegment"),
-                    "DEFAULT",  # not in `FROM` clause, rule?
-                    ephemeral_name="ValuesClauseElements",
-                )
+            Sequence(
+                # MySQL uses `ROW` in it's value statement.
+                # Currently SQLFluff doesn't differentiate between
+                # Values statement:
+                # https://dev.mysql.com/doc/refman/8.0/en/values.html
+                # and Values() function (used in INSERT statements):
+                # https://dev.mysql.com/doc/refman/8.0/en/miscellaneous-functions.html#function_values
+                # TODO: split these out in future.
+                Ref.keyword("ROW", optional=True),
+                Bracketed(
+                    Delimited(
+                        Ref("LiteralGrammar"),
+                        Ref("IntervalExpressionSegment"),
+                        Ref("FunctionSegment"),
+                        Ref("BareFunctionSegment"),
+                        "DEFAULT",  # not in `FROM` clause, rule?
+                        ephemeral_name="ValuesClauseElements",
+                    )
+                ),
             ),
         ),
         Ref("AliasExpressionSegment", optional=True),
