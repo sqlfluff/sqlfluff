@@ -242,9 +242,7 @@ class ConfigLoader:
         # Make the referenced path.
         ref_path = os.path.join(os.path.dirname(fpath), val)
         # Check if it exists, and if it does, replace the value with the path.
-        if os.path.exists(ref_path):
-            return ref_path
-        return val
+        return ref_path if os.path.exists(ref_path) else val
 
     @staticmethod
     def _incorporate_vals(ctx: dict, vals: List[Tuple[Tuple[str, ...], Any]]) -> dict:
