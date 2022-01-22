@@ -26,6 +26,11 @@ Major changes include:
 * Many dialect improvements
 
 ## What's Changed
+* Add Redshift ANALYZE COMPRESSION support [#2412](https://github.com/sqlfluff/sqlfluff/pull/2412) [@rpr-ableton](https://github.com/rpr-ableton)
+* ANSI Values statement fixes [#2404](https://github.com/sqlfluff/sqlfluff/pull/2404) [@jpy-git](https://github.com/jpy-git)
+* Exasol: Overhaul drop statements [#2407](https://github.com/sqlfluff/sqlfluff/pull/2407) [@sti0](https://github.com/sti0)
+* L044, L045: Handle Exasol VALUES clause [#2400](https://github.com/sqlfluff/sqlfluff/pull/2400) [@barrywhart](https://github.com/barrywhart)
+* L060: Use COALESCE instead of IFNULL or NVL. [#2405](https://github.com/sqlfluff/sqlfluff/pull/2405) [@jpy-git](https://github.com/jpy-git)
 * Postgres: Fix Values alias regression [#2401](https://github.com/sqlfluff/sqlfluff/pull/2401) [@jpy-git](https://github.com/jpy-git)
 * Align line length in Python code to 88 characters [#2264](https://github.com/sqlfluff/sqlfluff/pull/2264) [@chwiese](https://github.com/chwiese)
 * Jinja templater: Allow "load_macros_from_path" to be a comma-separated list of paths [#2387](https://github.com/sqlfluff/sqlfluff/pull/2387) [@barrywhart](https://github.com/barrywhart)
