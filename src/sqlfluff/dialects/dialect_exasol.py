@@ -547,7 +547,7 @@ class GroupByClauseSegment(BaseSegment):
                 Ref("ExpressionSegment"),
                 Ref("CubeRollupClauseSegment"),
                 Ref("GroupingSetsClauseSegment"),
-                Bracketed(),  # Allows empty parentheses,
+                Bracketed(),  # Allows empty parentheses
             ),
             terminator=OneOf(
                 Sequence("ORDER", "BY"),
