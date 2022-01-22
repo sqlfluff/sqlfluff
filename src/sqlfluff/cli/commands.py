@@ -44,6 +44,7 @@ from sqlfluff.core import (
     Linter,
     FluffConfig,
     SQLLintError,
+    SQLParseError,
     SQLTemplaterError,
     SQLFluffUserError,
     dialect_selector,
@@ -747,19 +748,22 @@ def fix(
         click.echo("==== no fixable linting violations found ====")
         _completion_message(config)
 
-    if result.num_violations(types=SQLLintError, fixable=False) > 0:
-        click.echo(
-            f"  [{result.num_violations(types=SQLLintError, fixable=False)} unfixable "
-            "linting violations found]"
-        )
-        exit_code = 1
-
-    if result.num_violations(types=SQLTemplaterError) > 0:
-        click.echo(
-            f"  [{result.num_violations(types=SQLTemplaterError)} templating errors "
-            "found]"
-        )
-        exit_code = 1
+    fatal_error_types = [
+        (
+            dict(types=SQLLintError, fixable=False),
+            "  [{} unfixable linting violations found]",
+        ),
+        (
+            dict(types=SQLTemplaterError),
+            "  [{} templating errors found]",
+        ),
+        (dict(types=SQLParseError), "  [{} parsing errors found]"),
+    ]
+    for num_violations_kwargs, message_format in fatal_error_types:
+        num_violations = result.num_violations(**num_violations_kwargs)  # type: ignore
+        if num_violations > 0:
+            click.echo(message_format.format(num_violations))
+            exit_code = 1
 
     if bench:
         click.echo("==== overall timings ====")
