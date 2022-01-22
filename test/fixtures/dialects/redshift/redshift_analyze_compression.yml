@@ -1,0 +1,61 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: c8968d393894aa39405b26a073f8111e548a3ea67c519c90bf543de528bcbc28
+file:
+- statement:
+    analyze_statement:
+      keyword: analyze
+      table_reference:
+        identifier: compression
+- statement_terminator: ;
+- statement:
+    analyze_compression_statement:
+    - keyword: analyze
+    - keyword: compression
+    - table_reference:
+        identifier: listing
+- statement_terminator: ;
+- statement:
+    analyze_compression_statement:
+    - keyword: analyse
+    - keyword: compression
+    - table_reference:
+        identifier: sales
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          identifier: qtysold
+      - comma: ','
+      - column_reference:
+          identifier: commission
+      - comma: ','
+      - column_reference:
+          identifier: saletime
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    analyze_compression_statement:
+    - keyword: analyse
+    - keyword: compression
+    - table_reference:
+        identifier: sales
+    - keyword: comprows
+    - literal: '10000'
+- statement_terminator: ;
+- statement:
+    analyze_statement:
+      keyword: analyze
+      table_reference:
+        identifier: venue
+      bracketed:
+      - start_bracket: (
+      - column_reference:
+          identifier: venueid
+      - comma: ','
+      - column_reference:
+          identifier: venuename
+      - end_bracket: )
+- statement_terminator: ;
