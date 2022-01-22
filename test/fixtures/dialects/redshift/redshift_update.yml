@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ef70ad0ad9915c30b398928a5f8b653ed837f9de569ab706de89ec6c4b0941f6
+_hash: 664aaf793028ed10ec35a5bde147b9d1f79e1f07231615410b90a14b6d2435fc
 file:
-  statement:
+- statement:
     update_statement:
       keyword: update
       table_reference:
@@ -19,4 +19,22 @@ file:
             raw_comparison_operator: '='
         - column_reference:
             identifier: col2
-  statement_terminator: ;
+- statement_terminator: ;
+- statement:
+    update_statement:
+      keyword: update
+      table_reference:
+        identifier: tbl1
+      alias_expression:
+        keyword: as
+        identifier: set
+      set_clause_list:
+        keyword: set
+        set_clause:
+        - column_reference:
+            identifier: col1
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+            identifier: col2
+- statement_terminator: ;
