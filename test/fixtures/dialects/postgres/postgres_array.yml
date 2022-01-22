@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 47a61a4c68d5d045d5257a1180e1c8b09c0f84b29d6240517c75892b00949a99
+_hash: 18ee8537fe6f25a7faea2f7cfa8adda8bfafbfb52745a1a926f5d4d4f7be63d9
 file:
 - statement:
     select_statement:
@@ -174,40 +174,43 @@ file:
         keyword: VALUES
         bracketed:
         - start_bracket: (
-        - literal: "'Bill'"
+        - expression:
+            literal: "'Bill'"
         - comma: ','
-        - keyword: ARRAY
-        - array_contents_grammar:
-            simple_array_contents_grammar:
+        - expression:
+            keyword: ARRAY
+            array_contents_grammar:
+              simple_array_contents_grammar:
+              - start_square_bracket: '['
+              - literal: '10000'
+              - comma: ','
+              - literal: '10000'
+              - comma: ','
+              - literal: '10000'
+              - comma: ','
+              - literal: '10000'
+              - end_square_bracket: ']'
+        - comma: ','
+        - expression:
+            keyword: ARRAY
+            array_contents_grammar:
             - start_square_bracket: '['
-            - literal: '10000'
+            - array_contents_grammar:
+                simple_array_contents_grammar:
+                - start_square_bracket: '['
+                - literal: "'meeting'"
+                - comma: ','
+                - literal: "'lunch'"
+                - end_square_bracket: ']'
             - comma: ','
-            - literal: '10000'
-            - comma: ','
-            - literal: '10000'
-            - comma: ','
-            - literal: '10000'
+            - array_contents_grammar:
+                simple_array_contents_grammar:
+                - start_square_bracket: '['
+                - literal: "'training'"
+                - comma: ','
+                - literal: "'presentation'"
+                - end_square_bracket: ']'
             - end_square_bracket: ']'
-        - comma: ','
-        - keyword: ARRAY
-        - array_contents_grammar:
-          - start_square_bracket: '['
-          - array_contents_grammar:
-              simple_array_contents_grammar:
-              - start_square_bracket: '['
-              - literal: "'meeting'"
-              - comma: ','
-              - literal: "'lunch'"
-              - end_square_bracket: ']'
-          - comma: ','
-          - array_contents_grammar:
-              simple_array_contents_grammar:
-              - start_square_bracket: '['
-              - literal: "'training'"
-              - comma: ','
-              - literal: "'presentation'"
-              - end_square_bracket: ']'
-          - end_square_bracket: ']'
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -220,40 +223,43 @@ file:
         keyword: VALUES
         bracketed:
         - start_bracket: (
-        - literal: "'Carol'"
+        - expression:
+            literal: "'Carol'"
         - comma: ','
-        - keyword: ARRAY
-        - array_contents_grammar:
-            simple_array_contents_grammar:
+        - expression:
+            keyword: ARRAY
+            array_contents_grammar:
+              simple_array_contents_grammar:
+              - start_square_bracket: '['
+              - literal: '20000'
+              - comma: ','
+              - literal: '25000'
+              - comma: ','
+              - literal: '25000'
+              - comma: ','
+              - literal: '25000'
+              - end_square_bracket: ']'
+        - comma: ','
+        - expression:
+            keyword: ARRAY
+            array_contents_grammar:
             - start_square_bracket: '['
-            - literal: '20000'
+            - array_contents_grammar:
+                simple_array_contents_grammar:
+                - start_square_bracket: '['
+                - literal: "'breakfast'"
+                - comma: ','
+                - literal: "'consulting'"
+                - end_square_bracket: ']'
             - comma: ','
-            - literal: '25000'
-            - comma: ','
-            - literal: '25000'
-            - comma: ','
-            - literal: '25000'
+            - array_contents_grammar:
+                simple_array_contents_grammar:
+                - start_square_bracket: '['
+                - literal: "'meeting'"
+                - comma: ','
+                - literal: "'lunch'"
+                - end_square_bracket: ']'
             - end_square_bracket: ']'
-        - comma: ','
-        - keyword: ARRAY
-        - array_contents_grammar:
-          - start_square_bracket: '['
-          - array_contents_grammar:
-              simple_array_contents_grammar:
-              - start_square_bracket: '['
-              - literal: "'breakfast'"
-              - comma: ','
-              - literal: "'consulting'"
-              - end_square_bracket: ']'
-          - comma: ','
-          - array_contents_grammar:
-              simple_array_contents_grammar:
-              - start_square_bracket: '['
-              - literal: "'meeting'"
-              - comma: ','
-              - literal: "'lunch'"
-              - end_square_bracket: ']'
-          - end_square_bracket: ']'
         - end_bracket: )
 - statement_terminator: ;
 - statement:

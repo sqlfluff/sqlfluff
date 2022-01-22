@@ -1374,6 +1374,35 @@ class ShowDatasharesStatementSegment(BaseSegment):
     )
 
 
+@redshift_dialect.segment()
+class AnalyzeCompressionStatementSegment(BaseSegment):
+    """An `ANALYZE COMPRESSION` statement.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_ANALYZE_COMPRESSION.html
+    """
+
+    type = "analyze_compression_statement"
+    match_grammar = Sequence(
+        OneOf("ANALYZE", "ANALYSE"),
+        "COMPRESSION",
+        Sequence(
+            Ref("TableReferenceSegment"),
+            Bracketed(
+                Delimited(
+                    Ref("ColumnReferenceSegment"),
+                ),
+                optional=True,
+            ),
+            Sequence(
+                "COMPROWS",
+                Ref("NumericLiteralSegment"),
+                optional=True,
+            ),
+            optional=True,
+        ),
+    )
+
+
 # Adding Redshift specific statements
 @redshift_dialect.segment(replace=True)
 class StatementSegment(BaseSegment):
@@ -1409,6 +1438,7 @@ class StatementSegment(BaseSegment):
             Ref("DeclareStatementSegment"),
             Ref("FetchStatementSegment"),
             Ref("CloseStatementSegment"),
+            Ref("AnalyzeCompressionStatementSegment"),
         ],
     )
 

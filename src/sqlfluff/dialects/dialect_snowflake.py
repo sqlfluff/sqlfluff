@@ -505,10 +505,8 @@ class ValuesClauseSegment(BaseSegment):
         Delimited(
             Bracketed(
                 Delimited(
-                    Ref("LiteralGrammar"),
-                    Ref("IntervalExpressionSegment"),
-                    Ref("FunctionSegment"),
                     "DEFAULT",  # not in `FROM` clause, rule?
+                    Ref("ExpressionSegment"),
                     ephemeral_name="ValuesClauseElements",
                 )
             ),
