@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c8968d393894aa39405b26a073f8111e548a3ea67c519c90bf543de528bcbc28
+_hash: f6dc68193013b7dd098367b1f6e13e717a00ad2938ab8dfa7045bba3e5039ce1
 file:
 - statement:
     analyze_statement:
@@ -44,18 +44,4 @@ file:
         identifier: sales
     - keyword: comprows
     - literal: '10000'
-- statement_terminator: ;
-- statement:
-    analyze_statement:
-      keyword: analyze
-      table_reference:
-        identifier: venue
-      bracketed:
-      - start_bracket: (
-      - column_reference:
-          identifier: venueid
-      - comma: ','
-      - column_reference:
-          identifier: venuename
-      - end_bracket: )
 - statement_terminator: ;
