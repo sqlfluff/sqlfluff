@@ -1,0 +1,97 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 98e9fee6938661da30d00e8f20bf5d469ecf54f81e7f581ee251c2cba37335f9
+file:
+- statement:
+    declare_statement:
+    - keyword: declare
+    - object_reference:
+        identifier: curs1
+    - keyword: cursor
+    - keyword: for
+    - select_statement:
+        select_clause:
+        - keyword: select
+        - select_clause_element:
+            column_reference:
+              identifier: col1
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: col2
+        from_clause:
+          keyword: from
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: tbl1
+- statement_terminator: ;
+- statement:
+    declare_statement:
+    - keyword: declare
+    - object_reference:
+        identifier: lollapalooza
+    - keyword: cursor
+    - keyword: for
+    - select_statement:
+        select_clause:
+        - keyword: select
+        - select_clause_element:
+            column_reference:
+              identifier: eventname
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: starttime
+        - comma: ','
+        - select_clause_element:
+            expression:
+            - column_reference:
+                identifier: pricepaid
+            - binary_operator: /
+            - column_reference:
+                identifier: qtysold
+            alias_expression:
+              keyword: as
+              identifier: costperticket
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: qtysold
+        from_clause:
+        - keyword: from
+        - from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: sales
+        - comma: ','
+        - from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: event
+        where_clause:
+          keyword: where
+          expression:
+          - column_reference:
+            - identifier: sales
+            - dot: .
+            - identifier: eventid
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - column_reference:
+            - identifier: event
+            - dot: .
+            - identifier: eventid
+          - binary_operator: and
+          - column_reference:
+              identifier: eventname
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - literal: "'lollapalooza'"
+- statement_terminator: ;

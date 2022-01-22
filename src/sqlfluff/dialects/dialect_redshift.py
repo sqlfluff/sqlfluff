@@ -1166,6 +1166,66 @@ class CreateSchemaStatementSegment(BaseSegment):
 
 
 @redshift_dialect.segment()
+class DeclareStatementSegment(BaseSegment):
+    """A `DECLARE` statement.
+
+    As specified in
+    https://docs.aws.amazon.com/redshift/latest/dg/declare.html
+    """
+
+    type = "declare_statement"
+    match_grammar = Sequence(
+        "DECLARE",
+        Ref("ObjectReferenceSegment"),
+        "CURSOR",
+        "FOR",
+        Ref("SelectableGrammar"),
+    )
+
+
+@redshift_dialect.segment()
+class FetchStatementSegment(BaseSegment):
+    """A `FETCH` statement.
+
+    As specified in
+    https://docs.aws.amazon.com/redshift/latest/dg/fetch.html
+    """
+
+    type = "fetch_statement"
+    match_grammar = Sequence(
+        "fetch",
+        OneOf(
+            "NEXT",
+            "ALL",
+            Sequence(
+                "FORWARD",
+                OneOf(
+                    "ALL",
+                    Ref("NumericLiteralSegment"),
+                ),
+            ),
+        ),
+        "FROM",
+        Ref("ObjectReferenceSegment"),
+    )
+
+
+@redshift_dialect.segment()
+class CloseStatementSegment(BaseSegment):
+    """A `CLOSE` statement.
+
+    As specified in
+    https://docs.aws.amazon.com/redshift/latest/dg/close.html
+    """
+
+    type = "close_statement"
+    match_grammar = Sequence(
+        "CLOSE",
+        Ref("ObjectReferenceSegment"),
+    )
+
+
+@redshift_dialect.segment()
 class AltereDatashareStatementSegment(BaseSegment):
     """An `ALTER DATASHARE` statement.
 
@@ -1375,6 +1435,9 @@ class StatementSegment(BaseSegment):
             Ref("DropDatashareStatementSegment"),
             Ref("ShowDatasharesStatementSegment"),
             Ref("AltereDatashareStatementSegment"),
+            Ref("DeclareStatementSegment"),
+            Ref("FetchStatementSegment"),
+            Ref("CloseStatementSegment"),
             Ref("AnalyzeCompressionStatementSegment"),
         ],
     )
