@@ -1060,21 +1060,6 @@ class JoinClauseSegment(BaseSegment):
 
 
 @spark3_dialect.segment(replace=True)
-class TableExpressionSegment(BaseSegment):
-    """The main table expression e.g. within a FROM clause."""
-
-    type = "table_expression"
-    match_grammar = OneOf(
-        Ref("ValuesClauseSegment"),
-        Ref("BareFunctionSegment"),
-        Ref("FunctionSegment"),
-        Ref("TableReferenceSegment"),
-        # Nested Selects
-        Bracketed(Ref("SelectableGrammar")),
-    )
-
-
-@spark3_dialect.segment(replace=True)
 class AliasExpressionSegment(BaseSegment):
     """A reference to an object with an `AS` clause.
 
@@ -1105,6 +1090,8 @@ class AliasExpressionSegment(BaseSegment):
     )
 
 
+#
+#
 @spark3_dialect.segment()
 class DelimitedValues(BaseSegment):
     """A ``VALUES`` clause can be a sequence either of scalar values or tuple values.
