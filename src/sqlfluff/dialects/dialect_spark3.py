@@ -1172,7 +1172,7 @@ class ValuesClauseSegment(BaseSegment):
     match_grammar = StartsWith("VALUES")
 
     parse_grammar = Sequence(
-        Ref.keyword("VALUES"),
+        "VALUES",
         Ref("DelimitedValues"),
         Ref("AliasExpressionSegment", optional=True),
     )
