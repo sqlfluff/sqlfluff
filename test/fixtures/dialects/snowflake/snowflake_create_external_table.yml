@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8b1825c6ca4bec6d65b0619be18b57228c5245a2e1e7f2ba0e4547a67ff15e61
+_hash: b86d44d8bf634ff0cfeb708325bb13a4312c57e630591cd280dc65fb33a3be72
 file:
 - statement:
     create_external_table_statement:
@@ -68,4 +68,442 @@ file:
     - comparison_operator:
         raw_comparison_operator: '='
     - literal: "'.*[.]parquet.*'"
+- statement_terminator: ;
+- statement:
+    create_external_table_statement:
+    - keyword: CREATE
+    - keyword: EXTERNAL
+    - keyword: TABLE
+    - table_reference:
+      - identifier: EXTERNAL_TABLES
+      - dot: .
+      - identifier: TRIPS
+    - bracketed:
+      - start_bracket: (
+      - identifier: tripduration
+      - data_type:
+          data_type_identifier: integer
+      - keyword: as
+      - expression:
+          function:
+            function_name:
+              function_name_identifier: try_cast
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  identifier: VALUE
+                snowflake_semi_structured_expression:
+                  colon: ':'
+                  semi_structured_element: c1
+                cast_expression:
+                  casting_operator: '::'
+                  data_type:
+                    data_type_identifier: varchar
+              keyword: as
+              data_type:
+                data_type_identifier: integer
+              end_bracket: )
+      - comma: ','
+      - identifier: starttime
+      - data_type:
+          keyword: timestamp
+      - keyword: as
+      - expression:
+          function:
+            function_name:
+              function_name_identifier: try_cast
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  identifier: VALUE
+                snowflake_semi_structured_expression:
+                  colon: ':'
+                  semi_structured_element: c2
+                cast_expression:
+                  casting_operator: '::'
+                  data_type:
+                    data_type_identifier: varchar
+              keyword: as
+              data_type:
+                keyword: timestamp
+              end_bracket: )
+      - comma: ','
+      - identifier: stoptime
+      - data_type:
+          keyword: timestamp
+      - keyword: as
+      - expression:
+          function:
+            function_name:
+              function_name_identifier: try_cast
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  identifier: VALUE
+                snowflake_semi_structured_expression:
+                  colon: ':'
+                  semi_structured_element: c3
+                cast_expression:
+                  casting_operator: '::'
+                  data_type:
+                    data_type_identifier: varchar
+              keyword: as
+              data_type:
+                keyword: timestamp
+              end_bracket: )
+      - comma: ','
+      - identifier: start_station_id
+      - data_type:
+          data_type_identifier: integer
+      - keyword: as
+      - expression:
+          function:
+            function_name:
+              function_name_identifier: try_cast
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  identifier: VALUE
+                snowflake_semi_structured_expression:
+                  colon: ':'
+                  semi_structured_element: c4
+                cast_expression:
+                  casting_operator: '::'
+                  data_type:
+                    data_type_identifier: varchar
+              keyword: as
+              data_type:
+                data_type_identifier: integer
+              end_bracket: )
+      - comma: ','
+      - identifier: start_station_name
+      - data_type:
+          data_type_identifier: varchar
+      - keyword: as
+      - bracketed:
+          start_bracket: (
+          expression:
+            column_reference:
+              identifier: VALUE
+            snowflake_semi_structured_expression:
+              colon: ':'
+              semi_structured_element: c5
+            cast_expression:
+              casting_operator: '::'
+              data_type:
+                data_type_identifier: varchar
+          end_bracket: )
+      - comma: ','
+      - identifier: start_station_latitude
+      - data_type:
+          data_type_identifier: float
+      - keyword: as
+      - expression:
+          function:
+            function_name:
+              function_name_identifier: try_cast
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  identifier: VALUE
+                snowflake_semi_structured_expression:
+                  colon: ':'
+                  semi_structured_element: c6
+                cast_expression:
+                  casting_operator: '::'
+                  data_type:
+                    data_type_identifier: varchar
+              keyword: as
+              data_type:
+                data_type_identifier: float
+              end_bracket: )
+      - comma: ','
+      - identifier: start_station_longitude
+      - data_type:
+          data_type_identifier: float
+      - keyword: as
+      - expression:
+          function:
+            function_name:
+              function_name_identifier: try_cast
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  identifier: VALUE
+                snowflake_semi_structured_expression:
+                  colon: ':'
+                  semi_structured_element: c7
+                cast_expression:
+                  casting_operator: '::'
+                  data_type:
+                    data_type_identifier: varchar
+              keyword: as
+              data_type:
+                data_type_identifier: float
+              end_bracket: )
+      - comma: ','
+      - identifier: end_station_id
+      - data_type:
+          data_type_identifier: integer
+      - keyword: as
+      - expression:
+          function:
+            function_name:
+              function_name_identifier: try_cast
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  identifier: VALUE
+                snowflake_semi_structured_expression:
+                  colon: ':'
+                  semi_structured_element: c8
+                cast_expression:
+                  casting_operator: '::'
+                  data_type:
+                    data_type_identifier: varchar
+              keyword: as
+              data_type:
+                data_type_identifier: integer
+              end_bracket: )
+      - comma: ','
+      - identifier: end_station_name
+      - data_type:
+          data_type_identifier: varchar
+      - keyword: as
+      - bracketed:
+          start_bracket: (
+          expression:
+            column_reference:
+              identifier: VALUE
+            snowflake_semi_structured_expression:
+              colon: ':'
+              semi_structured_element: c9
+            cast_expression:
+              casting_operator: '::'
+              data_type:
+                data_type_identifier: varchar
+          end_bracket: )
+      - comma: ','
+      - identifier: end_station_latitude
+      - data_type:
+          data_type_identifier: float
+      - keyword: as
+      - expression:
+          function:
+            function_name:
+              function_name_identifier: try_cast
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  identifier: VALUE
+                snowflake_semi_structured_expression:
+                  colon: ':'
+                  semi_structured_element: c10
+                cast_expression:
+                  casting_operator: '::'
+                  data_type:
+                    data_type_identifier: varchar
+              keyword: as
+              data_type:
+                data_type_identifier: float
+              end_bracket: )
+      - comma: ','
+      - identifier: end_station_longitude
+      - data_type:
+          data_type_identifier: float
+      - keyword: as
+      - expression:
+          function:
+            function_name:
+              function_name_identifier: try_cast
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  identifier: VALUE
+                snowflake_semi_structured_expression:
+                  colon: ':'
+                  semi_structured_element: c11
+                cast_expression:
+                  casting_operator: '::'
+                  data_type:
+                    data_type_identifier: varchar
+              keyword: as
+              data_type:
+                data_type_identifier: float
+              end_bracket: )
+      - comma: ','
+      - identifier: bikeid
+      - data_type:
+          data_type_identifier: integer
+      - keyword: as
+      - expression:
+          function:
+            function_name:
+              function_name_identifier: try_cast
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  identifier: VALUE
+                snowflake_semi_structured_expression:
+                  colon: ':'
+                  semi_structured_element: c12
+                cast_expression:
+                  casting_operator: '::'
+                  data_type:
+                    data_type_identifier: varchar
+              keyword: as
+              data_type:
+                data_type_identifier: integer
+              end_bracket: )
+      - comma: ','
+      - identifier: membership_type
+      - data_type:
+          data_type_identifier: varchar
+      - keyword: as
+      - bracketed:
+          start_bracket: (
+          expression:
+            column_reference:
+              identifier: VALUE
+            snowflake_semi_structured_expression:
+              colon: ':'
+              semi_structured_element: c13
+            cast_expression:
+              casting_operator: '::'
+              data_type:
+                data_type_identifier: varchar
+          end_bracket: )
+      - comma: ','
+      - identifier: usertype
+      - data_type:
+          data_type_identifier: varchar
+      - keyword: as
+      - bracketed:
+          start_bracket: (
+          expression:
+            column_reference:
+              identifier: VALUE
+            snowflake_semi_structured_expression:
+              colon: ':'
+              semi_structured_element: c14
+            cast_expression:
+              casting_operator: '::'
+              data_type:
+                data_type_identifier: varchar
+          end_bracket: )
+      - comma: ','
+      - identifier: birth_year
+      - data_type:
+          data_type_identifier: integer
+      - keyword: as
+      - expression:
+          function:
+            function_name:
+              function_name_identifier: try_cast
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  identifier: VALUE
+                snowflake_semi_structured_expression:
+                  colon: ':'
+                  semi_structured_element: c15
+                cast_expression:
+                  casting_operator: '::'
+                  data_type:
+                    data_type_identifier: varchar
+              keyword: as
+              data_type:
+                data_type_identifier: integer
+              end_bracket: )
+      - comma: ','
+      - identifier: gender
+      - data_type:
+          data_type_identifier: integer
+      - keyword: as
+      - expression:
+          function:
+            function_name:
+              function_name_identifier: try_cast
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  identifier: VALUE
+                snowflake_semi_structured_expression:
+                  colon: ':'
+                  semi_structured_element: c16
+                cast_expression:
+                  casting_operator: '::'
+                  data_type:
+                    data_type_identifier: varchar
+              keyword: as
+              data_type:
+                data_type_identifier: integer
+              end_bracket: )
+      - comma: ','
+      - identifier: year
+      - data_type:
+          data_type_identifier: integer
+      - keyword: as
+      - bracketed:
+          start_bracket: (
+          expression:
+            function:
+              function_name:
+                function_name_identifier: substr
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    identifier: metadata$filename
+              - comma: ','
+              - expression:
+                  literal: '22'
+              - comma: ','
+              - expression:
+                  literal: '4'
+              - end_bracket: )
+            cast_expression:
+              casting_operator: '::'
+              data_type:
+                data_type_identifier: integer
+          end_bracket: )
+      - end_bracket: )
+    - keyword: PARTITION
+    - keyword: BY
+    - bracketed:
+        start_bracket: (
+        identifier: year
+        end_bracket: )
+    - keyword: LOCATION
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - identifier: '@external_tables.citibike_trips'
+    - keyword: FILE_FORMAT
+    - comparison_operator:
+        raw_comparison_operator: '='
+    - file_format_segment:
+        bracketed:
+          start_bracket: (
+          keyword: TYPE
+          comparison_operator:
+            raw_comparison_operator: '='
+          file_type: "'CSV'"
+          format_type_options_segment:
+            identifier: FIELD_OPTIONALLY_ENCLOSED_BY
+            comparison_operator:
+              raw_comparison_operator: '='
+            literal: "'\"'"
+          end_bracket: )
 - statement_terminator: ;
