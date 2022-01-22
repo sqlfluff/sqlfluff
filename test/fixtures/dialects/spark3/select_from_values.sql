@@ -2,6 +2,7 @@ select * from values 1;
 select * from values (1);
 select * from values (1,2);
 select * from (values 1,2,3);
+select * from (values (1),(2),(3));
 select * from (values (1,2), (3,4));
 select * from values 1, values 2;
 select * from (values (1,2), (3,4)), (values (1,2), (3,4));
