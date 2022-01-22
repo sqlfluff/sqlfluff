@@ -1,0 +1,105 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 83852fc6c49ca773d2533d7590085feb46a556c64badd8a6259f89bf9851c281
+file:
+  statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            identifier: item
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: purchases
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: category
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: LAST_VALUE
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  identifier: item
+              end_bracket: )
+            over_clause:
+              keyword: OVER
+              bracketed:
+                start_bracket: (
+                window_specification:
+                  identifier: d
+                end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: most_popular
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: Produce
+      named_window:
+      - keyword: WINDOW
+      - named_window_expression:
+          identifier: a
+          keyword: AS
+          bracketed:
+            start_bracket: (
+            window_specification:
+              partitionby_clause:
+              - keyword: PARTITION
+              - keyword: BY
+              - expression:
+                  column_reference:
+                    identifier: category
+            end_bracket: )
+      - comma: ','
+      - named_window_expression:
+          identifier: b
+          keyword: AS
+          bracketed:
+            start_bracket: (
+            window_specification:
+              identifier: a
+              orderby_clause:
+              - keyword: ORDER
+              - keyword: BY
+              - column_reference:
+                  identifier: purchases
+            end_bracket: )
+      - comma: ','
+      - named_window_expression:
+          identifier: c
+          keyword: AS
+          bracketed:
+            start_bracket: (
+            window_specification:
+              identifier: b
+              frame_clause:
+              - keyword: ROWS
+              - keyword: BETWEEN
+              - literal: '2'
+              - keyword: PRECEDING
+              - binary_operator: AND
+              - literal: '2'
+              - keyword: FOLLOWING
+            end_bracket: )
+      - comma: ','
+      - named_window_expression:
+          identifier: d
+          keyword: AS
+          bracketed:
+            start_bracket: (
+            window_specification:
+              identifier: c
+            end_bracket: )
