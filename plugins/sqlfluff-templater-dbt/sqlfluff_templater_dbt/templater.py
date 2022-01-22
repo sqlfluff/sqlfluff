@@ -26,12 +26,10 @@ from sqlfluff.core.cached_property import cached_property
 from sqlfluff.core.errors import SQLTemplaterError, SQLTemplaterSkipFile
 
 from sqlfluff.core.templaters.base import (
-    RawFileSlice,
     TemplatedFile,
     TemplatedFileSlice,
 )
 
-from sqlfluff.core.templaters.slicers.heuristic import slice_template
 from sqlfluff.core.templaters.jinja import JinjaTemplater
 
 # Instantiate the templater logger
@@ -548,11 +546,6 @@ class DbtTemplater(JinjaTemplater):
             # No violations returned in this way.
             [],
         )
-
-        def _slice_template(self, in_str: str) -> List[RawFileSlice]:
-            # DbtTemplater uses the original heuristic-based template slicer.
-            # TODO: Can it be updated to use TemplateTracer?
-            return slice_template(in_str, self._get_jinja_env())
 
     @contextmanager
     def connection(self):
