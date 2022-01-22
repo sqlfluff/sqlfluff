@@ -10,7 +10,7 @@ from sqlfluff.core.rules.functional import sp
 
 @document_fix_compatible
 class Rule_L061(BaseRule):
-    """Use ``!=`` instead of ``<>`` for ``not equal to`` comparison.
+    """Use ``!=`` instead of ``<>`` for "not equal to" comparisons.
 
     | **Anti-pattern**
     | ``<>`` means ``not equal`` but doesn't sound like this when
