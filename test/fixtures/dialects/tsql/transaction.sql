@@ -3,10 +3,10 @@ DELETE FROM HumanResources.JobCandidate
     WHERE JobCandidateID = 13;  
 COMMIT;  
 
-BEGIN TRANS;
+BEGIN TRAN;
 DELETE FROM HumanResources.JobCandidate
   WHERE JobCandidateID = 13;
 ROLLBACK TRANS;
 
-BEGIN TRANS;
+BEGIN TRAN;
 SAVE TRANSACTION;
