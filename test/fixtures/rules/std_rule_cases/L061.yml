@@ -15,3 +15,23 @@ test_fail_not_equal_to_multi:
     SELECT * FROM X WHERE 1 <> 2 AND 2 <> 1 AND 3 != 1
   fix_str: |
     SELECT * FROM X WHERE 1 != 2 AND 2 != 1 AND 3 != 1
+
+test_pass_not_equal_to_tsql:
+  pass_str: |
+    SELECT * FROM X WHERE 1 !   = 2
+  configs:
+    core:
+      dialect: tsql
+
+test_fail_not_equal_to_tsql:
+  fail_str: |
+    SELECT * FROM X WHERE 1  <
+      -- some comment
+    > 2
+  fix_str: |
+    SELECT * FROM X WHERE 1  !
+      -- some comment
+    = 2
+  configs:
+    core:
+      dialect: tsql

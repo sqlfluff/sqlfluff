@@ -5,6 +5,7 @@ from typing import Optional
 from sqlfluff.core.parser.segments.raw import CodeSegment
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
+from sqlfluff.core.rules.functional import sp
 
 
 @document_fix_compatible
@@ -35,20 +36,29 @@ class Rule_L061(BaseRule):
         if context.segment.name != "not_equal_to":
             return None
 
+        # Get the comparison operator children
+        raw_comparison_operators = context.functional.segment.children().select(
+            select_if=sp.is_type("raw_comparison_operator")
+        )
+
         # Only care about ``<>``
-        if "<>" not in context.segment.raw:
+        if not [r.raw for r in raw_comparison_operators] == ["<", ">"]:
             return None
 
         # Provide a fix and replace ``<>`` with ``!=``
-        fix = LintFix.replace(
-            context.segment,
-            [
-                CodeSegment(
-                    raw="!=",
-                    name="not_equal_to",
-                    type="comparison_operator",
-                )
-            ],
-        )
+        fixes = [
+            LintFix.replace(
+                raw_comparison_operators[0],
+                [CodeSegment(raw="!", name="raw_not", type="raw_comparison_operator")],
+            ),
+            LintFix.replace(
+                raw_comparison_operators[1],
+                [
+                    CodeSegment(
+                        raw="=", name="raw_equals", type="raw_comparison_operator"
+                    )
+                ],
+            ),
+        ]
 
-        return LintResult(context.segment, [fix])
+        return LintResult(context.segment, fixes)
