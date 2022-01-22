@@ -39,7 +39,7 @@ def fresh_spark3_dialect() -> Dialect:
             ("values ( 1 , 2 ) , ( 3 , 4 )", "FromExpressionElementSegment"),
             ("values ( 1 , 2 ) , ( 3 , 4 )", "FromExpressionSegment"),
             ("from ( values 1 , 2 )", "FromClauseSegment"),
-            ("from ( values ( 1 ) , ( 2 ) , ( 3 ) )", "FromClauseSegment"),
+            ("from ( values (1) , (2) , (3) )", "FromClauseSegment"),
             ("from ( values ( 1 , 2 ) , ( 3 , 4 ) )", "FromClauseSegment"),
             ("select * from values ( 1 , 2 ) , ( 3 , 4 ) ;", "SelectStatementSegment"),
         ]
@@ -81,10 +81,10 @@ def test__dialect__spark3__grammars(
         ("from values 1 , 2", "parse", "FromClauseSegment"),
         ("from values ( 1 , 2 ) , ( 3 , 4 )", "parse", "FromClauseSegment"),
         ("from values 1 , 2 , values 3 , 4", "parse", "FromClauseSegment"),
-        ("from values ( 1 ) , ( 2 ) , ( 3 )", "FromClauseSegment"),
+        ("from values (1) , (2)", "parse", "FromClauseSegment"),
         ("values 1 , 2 , values 3 , 4", "parse", "FromClauseSegment"),
         # A VALUES clause can include LIMIT, ORDER BY specifiers just like a SELECT.
-        # These are not yet implemented.
+        # These are not yet implemented, see https://github.com/sqlfluff/sqlfluff/issues/2427
         ("values 1 , 2 , 3 limit 1", "parse", "ValuesClauseSegment"),
         ("values 3 , 2 , 1 order by 2", "parse", "ValuesClauseSegment"),
     ],
