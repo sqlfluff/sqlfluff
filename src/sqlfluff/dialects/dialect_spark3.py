@@ -1079,7 +1079,8 @@ class AliasExpressionSegment(BaseSegment):
     """A reference to an object with an `AS` clause.
 
     The optional AS keyword allows both implicit and explicit aliasing.
-    Note also that it's possible to specify just column aliases without aliasing the table as well:
+    Note also that it's possible to specify just column aliases without aliasing the
+    table as well:
     .. code-block:: sql
 
         SELECT * FROM VALUES (1,2) as t (a, b);
@@ -1107,10 +1108,9 @@ class AliasExpressionSegment(BaseSegment):
 class DelimitedValues(BaseSegment):
     """A ``VALUES`` clause can be a sequence either of scalar values or tuple values.
 
-    We make no attempt to ensure that all records have the same number of columns besides the distinction between
-    all scalar or all tuple, so for instance ``VALUES (1,2), (3,4,5)`` will parse but is not legal SQL.
-
-
+    We make no attempt to ensure that all records have the same number of columns
+    besides the distinction between all scalar or all tuple, so for instance
+    ``VALUES (1,2), (3,4,5)`` will parse but is not legal SQL.
     """
 
     type = "delimited_values"
@@ -1151,10 +1151,12 @@ class TupleValue(BaseSegment):
 class ValuesClauseSegment(BaseSegment):
     """A ``VALUES`` clause, as typically used with ``INSERT`` or ``SELECT``.
 
-    The Spark SQL reference does not mention ``VALUES``` clauses except in the context of ``INSERT`` statements.
-    However, they appear to behave the same as in `postgres <https://www.postgresql.org/docs/13/sql-values.html>`.
+    The Spark SQL reference does not mention ``VALUES``` clauses except in the context
+    of ``INSERT`` statements. However, they appear to behave much the same as in
+    `postgres <https://www.postgresql.org/docs/13/sql-values.html>`.
 
-    In short, they can appear anywhere a ``SELECT`` can, and also as bare ``VALUES`` statements. Here are some examples:
+    In short, they can appear anywhere a ``SELECT`` can, and also as bare ``VALUES``
+    statements. Here are some examples:
     .. code-block:: sql
 
         VALUES 1,2 LIMIT 1;
