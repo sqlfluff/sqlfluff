@@ -5,7 +5,7 @@ from bisect import bisect_left
 from collections import defaultdict
 from typing import Dict, Iterator, List, Tuple, Optional, NamedTuple, Iterable
 
-from cached_property import cached_property
+from sqlfluff.core.cached_property import cached_property
 
 # Instantiate the templater logger
 templater_logger = logging.getLogger("sqlfluff.templater")
@@ -213,8 +213,14 @@ class TemplatedFile:
         ]
         return RawSliceBlockInfo(block_ids, literal_only_loops)
 
-    def raw_slices_spanning_source_slice(self, source_slice: slice):
+    def raw_slices_spanning_source_slice(
+        self, source_slice: slice
+    ) -> List[RawFileSlice]:
         """Return a list of the raw slices spanning a set of indices."""
+        # Special case: The source_slice is at the end of the file.
+        last_raw_slice = self.raw_sliced[-1]
+        if source_slice.start >= last_raw_slice.source_idx + len(last_raw_slice.raw):
+            return []
         # First find the start index
         raw_slice_idx = 0
         # Move the raw pointer forward to the start of this patch
@@ -401,10 +407,10 @@ class RawTemplater:
         """Placeholder init function.
 
         Here we should load any initial config found in the root directory. The init
-        function shouldn't take any arguments at this stage as we assume that it will load
-        its own config. Maybe at this stage we might allow override parameters to be passed
-        to the linter at runtime from the cli - that would be the only time we would pass
-        arguments in here.
+        function shouldn't take any arguments at this stage as we assume that it will
+        load its own config. Maybe at this stage we might allow override parameters to
+        be passed to the linter at runtime from the cli - that would be the only time we
+        would pass arguments in here.
         """
 
     def sequence_files(

@@ -4,6 +4,7 @@ from typing import Optional
 from sqlfluff.core.rules.analysis.select_crawler import Query, SelectCrawler
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules.base import BaseRule, LintResult, RuleContext
+from sqlfluff.core.rules.functional import sp
 
 
 class RuleFailure(Exception):
@@ -22,6 +23,7 @@ class Rule_L044(BaseRule):
     | This should generally be avoided because it can cause slow performance,
     | cause important schema changes to go undetected, or break production code.
     | For example:
+    |
     | * If a query does `SELECT t.*` and is expected to return columns `a`, `b`,
     |   and `c`, the actual columns returned will be wrong/different if columns
     |   are added to or deleted from the input table.
@@ -88,7 +90,8 @@ class Rule_L044(BaseRule):
                 if wildcard.tables:
                     for wildcard_table in wildcard.tables:
                         self.logger.debug(
-                            f"Wildcard: {wildcard.segment.raw} has target {wildcard_table}"
+                            f"Wildcard: {wildcard.segment.raw} has target "
+                            "{wildcard_table}"
                         )
                         # Is it an alias?
                         alias_info = selectable.find_alias(wildcard_table)
@@ -106,7 +109,8 @@ class Rule_L044(BaseRule):
                                 # Not CTE, not table alias. Presumably an
                                 # external table. Warn.
                                 self.logger.debug(
-                                    f"Query target {wildcard_table} is external. Generating warning."
+                                    f"Query target {wildcard_table} is external. "
+                                    "Generating warning."
                                 )
                                 raise RuleFailure(selectable.selectable)
                 else:
@@ -119,11 +123,18 @@ class Rule_L044(BaseRule):
                         if isinstance(o, Query):
                             self._analyze_result_columns(o)
                             return
-                    assert False, "Should be unreachable"  # pragma: no cover
+                    self.logger.debug(
+                        f'Query target "{query.selectables[0].selectable.raw}" has no '
+                        "targets. Generating warning."
+                    )
+                    raise RuleFailure(query.selectables[0].selectable)
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Outermost query should produce known number of columns."""
-        if context.segment.is_type("statement"):
+        start_types = ["select_statement", "set_expression", "with_compound_statement"]
+        if context.segment.is_type(
+            *start_types
+        ) and not context.functional.parent_stack.any(sp.is_type(*start_types)):
             crawler = SelectCrawler(context.segment, context.dialect)
 
             # Begin analysis at the outer query.

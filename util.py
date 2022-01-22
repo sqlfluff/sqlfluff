@@ -14,7 +14,7 @@ import click
 import time
 import subprocess
 import sys
-import oyaml as yaml
+import yaml
 import requests
 
 
@@ -36,7 +36,8 @@ def clean_tests(path):
         shutil.rmtree(path)
         click.echo(f"Removed {path!r}...")
     # OSError is for python 27
-    # in py36 its FileNotFoundError (but that inherits from IOError, which exists in py27)
+    # in py36 its FileNotFoundError (but that inherits from IOError, which exists in
+    # py27)
     except OSError:
         click.echo(f"Directory {path!r} does not exist. Skipping...")
 
@@ -66,7 +67,8 @@ def benchmark(cmd, runs, from_file):
     # Try and detect a CI environment
     if "CI" in os.environ:
         click.echo("CI detected!")
-        # available_vars = [var for var in os.environ.keys()]  # if var.startswith('CIRCLE')
+        # available_vars = [var for var in os.environ.keys()]
+        # if var.startswith('CIRCLE')
         # click.echo("Available keys: {0!r}".format(available_vars))
         commit_hash = os.environ.get("GITHUB_SHA", None)
         post_results = True
@@ -102,8 +104,10 @@ def benchmark(cmd, runs, from_file):
             click.echo(f"Posting results: {results}")
             api_key = os.environ["SQLFLUFF_BENCHMARK_API_KEY"]
             resp = requests.post(
-                "https://f32cvv8yh3.execute-api.eu-west-1.amazonaws.com/result/gh/{repo}/{commit}".format(
-                    # TODO: update the stats collector eventually to allow the new repo path
+                "https://f32cvv8yh3.execute-api.eu-west-1.amazonaws.com/result/gh"
+                "/{repo}/{commit}".format(
+                    # TODO: update the stats collector eventually to allow the new repo
+                    # path
                     repo="alanmcruickshank/sqlfluff",
                     commit=commit_hash,
                 ),

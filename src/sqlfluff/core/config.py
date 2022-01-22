@@ -74,9 +74,8 @@ def nested_combine(*dicts: dict) -> dict:
                     r[k] = nested_combine(r[k], d[k])
                 else:  # pragma: no cover
                     raise ValueError(
-                        "Key {!r} is a dict in one config but not another! PANIC: {!r}".format(
-                            k, d[k]
-                        )
+                        "Key {!r} is a dict in one config but not another! PANIC: "
+                        "{!r}".format(k, d[k])
                     )
             else:
                 r[k] = d[k]
@@ -127,6 +126,10 @@ def dict_diff(left: dict, right: dict, ignore: Optional[List[str]] = None) -> di
     return buff
 
 
+def _split_comma_separated_string(raw_str: str) -> List[str]:
+    return [s.strip() for s in raw_str.split(",") if s.strip()]
+
+
 class ConfigLoader:
     """The class for loading config files.
 
@@ -174,8 +177,8 @@ class ConfigLoader:
 
         return cls._walk_toml(tool)
 
-    @staticmethod
-    def _get_config_elems_from_file(fpath: str) -> List[Tuple[tuple, Any]]:
+    @classmethod
+    def _get_config_elems_from_file(cls, fpath: str) -> List[Tuple[tuple, Any]]:
         """Load a config from a file and return a list of tuples.
 
         The return value is a list of tuples, were each tuple has two elements,
@@ -218,16 +221,27 @@ class ConfigLoader:
                 v = coerce_value(val)
 
                 # Attempt to resolve paths
-                if name.lower().endswith(("_path", "_dir")):
-                    # Try to resolve the path.
-                    # Make the referenced path.
-                    ref_path = os.path.join(os.path.dirname(fpath), val)
-                    # Check if it exists, and if it does, replace the value with the path.
-                    if os.path.exists(ref_path):
-                        v = ref_path
+                if name.lower() == "load_macros_from_path":
+                    # Comma-separated list of paths.
+                    paths = _split_comma_separated_string(val)
+                    v_temp = []
+                    for path in paths:
+                        v_temp.append(cls._resolve_path(fpath, path))
+                    v = ",".join(v_temp)
+                elif name.lower().endswith(("_path", "_dir")):
+                    # One path
+                    v = cls._resolve_path(fpath, val)
                 # Add the name to the end of the key
                 buff.append((key + (name,), v))
         return buff
+
+    @classmethod
+    def _resolve_path(cls, fpath, val):
+        """Try to resolve a path."""
+        # Make the referenced path.
+        ref_path = os.path.join(os.path.dirname(fpath), val)
+        # Check if it exists, and if it does, replace the value with the path.
+        return ref_path if os.path.exists(ref_path) else val
 
     @staticmethod
     def _incorporate_vals(ctx: dict, vals: List[Tuple[Tuple[str, ...], Any]]) -> dict:
@@ -310,7 +324,10 @@ class ConfigLoader:
             return self._config_cache[str(extra_config_path)]
 
         configs: dict = {}
-        elems = self._get_config_elems_from_file(extra_config_path)
+        if extra_config_path.endswith("pyproject.toml"):
+            elems = self._get_config_elems_from_toml(extra_config_path)
+        else:
+            elems = self._get_config_elems_from_file(extra_config_path)
         configs = self._incorporate_vals(configs, elems)
 
         # Store in the cache
@@ -460,20 +477,20 @@ class FluffConfig:
         )
         # Deal with potential ignore parameters
         if self._configs["core"].get("ignore", None):
-            self._configs["core"]["ignore"] = self._split_comma_separated_string(
+            self._configs["core"]["ignore"] = _split_comma_separated_string(
                 self._configs["core"]["ignore"]
             )
         else:
             self._configs["core"]["ignore"] = []
         # Allowlists and denylists
         if self._configs["core"].get("rules", None):
-            self._configs["core"][
-                "rule_allowlist"
-            ] = self._split_comma_separated_string(self._configs["core"]["rules"])
+            self._configs["core"]["rule_allowlist"] = _split_comma_separated_string(
+                self._configs["core"]["rules"]
+            )
         else:
             self._configs["core"]["rule_allowlist"] = None
         if self._configs["core"].get("exclude_rules", None):
-            self._configs["core"]["rule_denylist"] = self._split_comma_separated_string(
+            self._configs["core"]["rule_denylist"] = _split_comma_separated_string(
                 self._configs["core"]["exclude_rules"]
             )
         else:
@@ -609,17 +626,17 @@ class FluffConfig:
         except KeyError:
             if templater_name == "dbt":  # pragma: no cover
                 config_logger.warning(
-                    "Starting in sqlfluff version 0.7.0 the dbt templater is distributed as a "
-                    "seperate python package. Please pip install sqlfluff-templater-dbt to use it."
+                    "Starting in sqlfluff version 0.7.0 the dbt templater is "
+                    "distributed as a separate python package. Please pip install "
+                    "sqlfluff-templater-dbt to use it."
                 )
             raise SQLFluffUserError(
-                "Requested templater {!r} which is not currently available. Try one of {}".format(
-                    templater_name, ", ".join(templater_lookup.keys())
-                )
+                "Requested templater {!r} which is not currently available. Try one of "
+                "{}".format(templater_name, ", ".join(templater_lookup.keys()))
             )
 
     def make_child_from_path(self, path: str) -> "FluffConfig":
-        """Make a new child config at a path but pass on overrides and extra_config_path."""
+        """Make a child config at a path but pass on overrides and extra_config_path."""
         return self.from_path(
             path,
             extra_config_path=self._extra_config_path,
@@ -655,7 +672,7 @@ class FluffConfig:
 
         return section_dict.get(val, default)
 
-    def get_section(self, section: Union[str, Iterable[str]]) -> Union[dict, None]:
+    def get_section(self, section: Union[str, Iterable[str]]) -> Any:
         """Return a whole section of config as a dict.
 
         If the element found at the address is a value and not
@@ -754,10 +771,6 @@ class FluffConfig:
             if raw_line.startswith("-- sqlfluff"):
                 # Found a in-file config command
                 self.process_inline_config(raw_line)
-
-    @staticmethod
-    def _split_comma_separated_string(raw_str: str) -> List[str]:
-        return [s.strip() for s in raw_str.split(",") if s.strip()]
 
 
 class ProgressBarConfiguration:

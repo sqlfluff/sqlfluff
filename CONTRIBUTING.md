@@ -168,6 +168,16 @@ tox -e py38 -- test/cli
 tox -e py38 -- test/cli/commands_test.py
 ```
 
+You can also manually test your updated code against a SQL file via:
+```shell
+sqlfluff parse test.sql
+```
+(ensure your virtual environment is activated first).
+
+#### dbt templater tests
+
+The dbt templater tests require a locally running Postgres instance. See the required connection parameters in `plugins/sqlfluff-templater-dbt/test/fixtures/dbt/profiles.yml`. We recommend using https://postgresapp.com/.
+
 To run the dbt-related tests you will have to explicitly include these tests:
 
 ```shell
@@ -175,6 +185,26 @@ tox -e cov-init,dbt018-py38,cov-report-dbt -- plugins/sqlfluff-templater-dbt
 ```
 
 For more information on adding and running test cases see the [Parser Test README](test/fixtures/dialects/README.md) and the [Rules Test README](test/fixtures/rules/std_rule_cases/README.md).
+
+#### Running dbt templater tests in Docker Compose
+
+NOTE: If you prefer, you can develop and debug the dbt templater using a
+Docker Compose environment. It's a simple two-container configuration:
+* `app`: Hosts the SQLFluff development environment. The host's source
+  directory is mounted into the container, so you can iterate on code
+  changes without having to constantly rebuild and restart the container.
+* `postgres`: Hosts a transient Postgres database instance.
+
+Steps to use the Docker Compose environment:
+* Install Docker on your machine.
+* Run `plugins/sqlfluff-templater-dbt/docker/startup` to create the containers.
+* Run `plugins/sqlfluff-templater-dbt/docker/shell` to start a bash session in the `app` container.
+* Manually edit the `host` value in `plugins/sqlfluff-templater-dbt/test/fixtures/dbt/profiles_yml/profiles.yml`, changing it to `postgres`. (This will likely be automated somehow in the future.)
+
+Inside the container, run:
+```
+py.test -v plugins/sqlfluff-templater-dbt/test/
+```
 
 ### Pre-Commit Config
 
@@ -193,22 +223,26 @@ whenever a new release is published to GitHub.
 
 #### Release checklist:
 
+The [release page](https://github.com/sqlfluff/sqlfluff/releases) shows maintainers all merges since last release. Once we have a long enough list, we should prepare a release, following below checklist:
+
 - [ ] Change the version in `setup.cfg` and `plugins/sqlfluff-templator-dbt/setup.cfg`
 - [ ] Update the stable_version in the `[sqlfluff_docs]` section of `setup.cfg`
-- [ ] Copy the draft releases from https://github.com/sqlfluff/sqlfluff/releases to [CHANGELOG.md](CHANGELOG.md)
-- [ ] Add markdown links to PRs and contributors
-- [ ] Check each issue title is clear, and if not edit issue title (which will automatically update Release notes on next PR merged, as the Draft one is recreated in full each time). Also edit locally in [CHANGELOG.md](CHANGELOG.md)
-- [ ] Categorise them into "Enhancements" and "Bug Fixes". Enhancements should go above Bug Fixes (lead with the positive!)
-- [ ] Add a comment at the top to highlight the main things in this release
-- [ ] If this is a non-patch release then update the `Notable changes` section in `index.rst` with a brief summary of the new features added.
+- [ ] Copy the draft releases from https://github.com/sqlfluff/sqlfluff/releases to [CHANGELOG.md](CHANGELOG.md). These draft release notes have been created by a GitHub Action on each PR merge.
+- [ ] If you pretend to create a new draft in GitHub and hit "Auto Generate Release Notes", then it will basically recreate these notes (though in a slightly different format), but also add a nice "First contributors" section, so can copy that "First contributors" section too and then abandon that new draft ([an issues](https://github.com/release-drafter/release-drafter/issues/1001) has been raised to ask for this in Release Drafter GitHub Action).
+- [ ] Add markdown links to PRs as annoyingly GitHub doesn't do this automatically when displaying Markdown files, like it does for comments. You can use regex in most code editors to replace `\(#([0-9]*)\) @([^ ]*)$` to `[#$1](https://github.com/sqlfluff/sqlfluff/pull/$1) [@$2](https://github.com/$2)`, or if using the GitHub generated release notes then can replace `by @([^ ]*) in https://github.com/sqlfluff/sqlfluff/pull/([0-9]*)$` to `[#$2](https://github.com/sqlfluff/sqlfluff/pull/$2) [@$1](https://github.com/$1)`.
+- [ ] For the new contributors section, you can replace `\* @([^ ]*) made their first contribution in https://github.com/sqlfluff/sqlfluff/pull/([0-9]*)$` with `* [@$1](https://github.com/$1) made their first contribution in [#$2](https://github.com/sqlfluff/sqlfluff/pull/$2)` to do this automatically).
+- [ ] Check each issue title is clear, and if not edit issue title (which will automatically update Release notes on next PR merged, as the Draft one is recreated in full each time). We also don't use [conventional commit PR titles](https://www.conventionalcommits.org/en/v1.0.0/) (e.g. `feat`) so make them more English readible. Make same edits locally in [CHANGELOG.md](CHANGELOG.md).
+- [ ] Categorise them into "Enhancements" and "Bug Fixes". Enhancements should go above Bug Fixes (lead with the positive!).
+- [ ] Add a comment at the top to highlight the main things in this release.
+- [ ] If this is a non-patch release then update the `Notable changes` section in `index.rst` with a brief summary of the new features added that made this a non-patch release.
 - [ ] View the CHANGELOG in this branch on GitHub to ensure you didn't miss any link conversions or other markup errors.
-- [ ] Open draft PR with those change a few days in advance to give contributors notice. Tag those with open PRs in the PR to give them time to merge their work before the new release
-- [ ] Comment in #contributing slack channel about release candidate
-- [ ] Update the draft PR as more changes get merged
-- [ ] Get another contributor to approve the PR
-- [ ] Merge the PR when looks like we've got all we’re gonna get for this release
-- [ ] Go to the [releases page](https://github.com/sqlfluff/sqlfluff/releases), edit the release to be same as [CHANGELOG.md](CHANGELOG.md) (remember to remove your release PR which doesn’t need to go in this). Add version tag and a title and click “Publish release”
-- [ ] Announce the release in the #general channel, with shout outs to those who contributed many, or big items
+- [ ] Open draft PR with those change a few days in advance to give contributors notice. Tag those with open PRs in the PR in GitHub to give them time to merge their work before the new release
+- [ ] Comment in #contributing slack channel about release candidate.
+- [ ] Update the draft PR as more changes get merged.
+- [ ] Get another contributor to approve the PR.
+- [ ] Merge the PR when looks like we've got all we’re gonna get for this release.
+- [ ] Go to the [releases page](https://github.com/sqlfluff/sqlfluff/releases), edit the release to be same as [CHANGELOG.md](CHANGELOG.md) (remember to remove your release PR which doesn’t need to go in this). Add version tag and a title and click “Publish release”.
+- [ ] Announce the release in the #general channel, with shout outs to those who contributed many, or big items.
 - [ ] Announce the release on Twitter (@tunetheweb can do this or let him know your Twitter handle if you want access to Tweet on SQLFluff’s behalf).
 
 :warning: **Before creating a new release, ensure that

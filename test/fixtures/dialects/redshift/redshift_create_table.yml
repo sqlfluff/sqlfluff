@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bdbdf005345ad298038f661cfa2dceb8ad5844d47095f47f7e45b54fb8887b8d
+_hash: ef248c8a9dd155928672bfed3010a1dc3d4e9479f4acc1f8c1283a46aff03c05
 file:
 - statement:
     create_table_statement:
@@ -16,7 +16,7 @@ file:
       - column_reference:
           identifier: col1
       - data_type:
-          data_type_identifier: INTEGER
+          keyword: INTEGER
       - column_constraint_segment:
         - keyword: PRIMARY
         - keyword: KEY
@@ -24,11 +24,10 @@ file:
       - column_reference:
           identifier: col2
       - data_type:
-          data_type_identifier: VARCHAR
+          keyword: VARCHAR
           bracketed:
             start_bracket: (
-            expression:
-              literal: '5'
+            literal: '5'
             end_bracket: )
       - column_constraint_segment:
         - keyword: NOT
@@ -59,7 +58,7 @@ file:
       - column_reference:
           identifier: col1
       - data_type:
-          data_type_identifier: INTEGER
+          keyword: INTEGER
       - column_constraint_segment:
         - keyword: PRIMARY
         - keyword: KEY
@@ -67,11 +66,10 @@ file:
       - column_reference:
           identifier: col2
       - data_type:
-          data_type_identifier: VARCHAR
+          keyword: VARCHAR
           bracketed:
             start_bracket: (
-            expression:
-              literal: '5'
+            literal: '5'
             end_bracket: )
       - column_attribute_segment:
         - keyword: GENERATED
@@ -111,7 +109,7 @@ file:
       - column_reference:
           identifier: col1
       - data_type:
-          data_type_identifier: INTEGER
+          keyword: INTEGER
       - column_constraint_segment:
         - keyword: PRIMARY
         - keyword: KEY
@@ -119,51 +117,46 @@ file:
       - column_reference:
           identifier: col2
       - data_type:
-          data_type_identifier: VARCHAR
+          keyword: VARCHAR
           bracketed:
             start_bracket: (
-            expression:
-              literal: '5'
+            literal: '5'
             end_bracket: )
       - comma: ','
       - column_reference:
           identifier: col3
       - data_type:
-          data_type_identifier: VARCHAR
+          keyword: VARCHAR
           bracketed:
             start_bracket: (
-            expression:
-              literal: '5'
+            literal: '5'
             end_bracket: )
       - comma: ','
       - column_reference:
           identifier: col4
       - data_type:
-          data_type_identifier: VARCHAR
+          keyword: VARCHAR
           bracketed:
             start_bracket: (
-            expression:
-              literal: '5'
+            literal: '5'
             end_bracket: )
       - comma: ','
       - column_reference:
           identifier: col5
       - data_type:
-          data_type_identifier: VARCHAR
+          keyword: VARCHAR
           bracketed:
             start_bracket: (
-            expression:
-              literal: '5'
+            literal: '5'
             end_bracket: )
       - comma: ','
       - column_reference:
           identifier: col6
       - data_type:
-          data_type_identifier: VARCHAR
+          keyword: VARCHAR
           bracketed:
             start_bracket: (
-            expression:
-              literal: '5'
+            literal: '5'
             end_bracket: )
       - end_bracket: )
     - table_constraint_segment:
@@ -198,7 +191,7 @@ file:
       - column_reference:
           identifier: col1
       - data_type:
-          data_type_identifier: INTEGER
+          keyword: INTEGER
       - column_constraint_segment:
         - keyword: PRIMARY
         - keyword: KEY
@@ -206,11 +199,10 @@ file:
       - column_reference:
           identifier: col2
       - data_type:
-          data_type_identifier: VARCHAR
+          keyword: VARCHAR
           bracketed:
             start_bracket: (
-            expression:
-              literal: '5'
+            literal: '5'
             end_bracket: )
       - column_constraint_segment:
           keyword: REFERENCES
@@ -250,7 +242,7 @@ file:
       - column_reference:
           identifier: col1
       - data_type:
-          data_type_identifier: INTEGER
+          keyword: INTEGER
       - column_constraint_segment:
         - keyword: PRIMARY
         - keyword: KEY
@@ -258,11 +250,10 @@ file:
       - column_reference:
           identifier: col2
       - data_type:
-          data_type_identifier: VARCHAR
+          keyword: VARCHAR
           bracketed:
             start_bracket: (
-            expression:
-              literal: '5'
+            literal: '5'
             end_bracket: )
       - end_bracket: )
     - table_constraint_segment:
@@ -291,7 +282,7 @@ file:
       - column_reference:
           identifier: col1
       - data_type:
-          data_type_identifier: INTEGER
+          keyword: INTEGER
       - column_constraint_segment:
         - keyword: PRIMARY
         - keyword: KEY
@@ -299,11 +290,10 @@ file:
       - column_reference:
           identifier: col2
       - data_type:
-          data_type_identifier: VARCHAR
+          keyword: VARCHAR
           bracketed:
             start_bracket: (
-            expression:
-              literal: '5'
+            literal: '5'
             end_bracket: )
       - end_bracket: )
     - table_constraint_segment:
@@ -332,7 +322,7 @@ file:
       - column_reference:
           identifier: col1
       - data_type:
-          data_type_identifier: INTEGER
+          keyword: INTEGER
       - column_constraint_segment:
         - keyword: PRIMARY
         - keyword: KEY
@@ -340,11 +330,10 @@ file:
       - column_reference:
           identifier: col2
       - data_type:
-          data_type_identifier: VARCHAR
+          keyword: VARCHAR
           bracketed:
             start_bracket: (
-            expression:
-              literal: '5'
+            literal: '5'
             end_bracket: )
       - end_bracket: )
     - table_constraint_segment:
@@ -374,18 +363,17 @@ file:
       - column_reference:
           identifier: col1
       - data_type:
-          data_type_identifier: INTEGER
+          keyword: INTEGER
       - column_constraint_segment:
           keyword: UNIQUE
       - comma: ','
       - column_reference:
           identifier: col2
       - data_type:
-          data_type_identifier: VARCHAR
+          keyword: VARCHAR
           bracketed:
             start_bracket: (
-            expression:
-              literal: '5'
+            literal: '5'
             end_bracket: )
       - end_bracket: )
     - keyword: BACKUP
@@ -403,7 +391,7 @@ file:
       - column_reference:
           identifier: col1
       - data_type:
-          data_type_identifier: INTEGER
+          keyword: INTEGER
       - column_constraint_segment:
         - keyword: PRIMARY
         - keyword: KEY
@@ -411,11 +399,10 @@ file:
       - column_reference:
           identifier: col2
       - data_type:
-          data_type_identifier: VARCHAR
+          keyword: VARCHAR
           bracketed:
             start_bracket: (
-            expression:
-              literal: '5'
+            literal: '5'
             end_bracket: )
       - end_bracket: )
     - keyword: BACKUP
@@ -448,7 +435,7 @@ file:
       - column_reference:
           identifier: col1
       - data_type:
-          data_type_identifier: INTEGER
+          keyword: INTEGER
       - column_attribute_segment:
           keyword: ENCODE
           column_encoding_segment:
@@ -460,11 +447,10 @@ file:
       - column_reference:
           identifier: col2
       - data_type:
-          data_type_identifier: VARCHAR
+          keyword: VARCHAR
           bracketed:
             start_bracket: (
-            expression:
-              literal: '5'
+            literal: '5'
             end_bracket: )
       - column_attribute_segment:
           keyword: ENCODE
@@ -496,7 +482,7 @@ file:
       - column_reference:
           identifier: col1
       - data_type:
-          data_type_identifier: INTEGER
+          keyword: INTEGER
       - column_attribute_segment:
           keyword: ENCODE
           column_encoding_segment:
@@ -508,11 +494,10 @@ file:
       - column_reference:
           identifier: col2
       - data_type:
-          data_type_identifier: VARCHAR
+          keyword: VARCHAR
           bracketed:
             start_bracket: (
-            expression:
-              literal: '5'
+            literal: '5'
             end_bracket: )
       - column_attribute_segment:
           keyword: ENCODE
@@ -522,11 +507,10 @@ file:
       - column_reference:
           identifier: col3
       - data_type:
-          data_type_identifier: VARCHAR
+          keyword: VARCHAR
           bracketed:
             start_bracket: (
-            expression:
-              literal: '5'
+            literal: '5'
             end_bracket: )
       - column_attribute_segment:
         - keyword: COLLATE
@@ -535,11 +519,10 @@ file:
       - column_reference:
           identifier: col3
       - data_type:
-          data_type_identifier: VARCHAR
+          keyword: VARCHAR
           bracketed:
             start_bracket: (
-            expression:
-              literal: '5'
+            literal: '5'
             end_bracket: )
       - column_attribute_segment:
         - keyword: COLLATE
@@ -557,7 +540,7 @@ file:
       - column_reference:
           identifier: col1
       - data_type:
-          data_type_identifier: INT
+          keyword: INT
       - column_constraint_segment:
         - keyword: NOT
         - keyword: 'NULL'
@@ -566,17 +549,15 @@ file:
       - column_reference:
           identifier: col2
       - data_type:
-          datetime_type_identifier:
-            keyword: DATE
+          keyword: DATE
       - comma: ','
       - column_reference:
           identifier: col3
       - data_type:
-          data_type_identifier: VARCHAR
+          keyword: VARCHAR
           bracketed:
             start_bracket: (
-            expression:
-              literal: '60'
+            literal: '60'
             end_bracket: )
       - comma: ','
       - table_constraint_segment:
@@ -616,7 +597,7 @@ file:
       - column_reference:
           identifier: col1
       - data_type:
-          data_type_identifier: INT
+          keyword: INT
       - column_constraint_segment:
         - keyword: NOT
         - keyword: 'NULL'
@@ -625,17 +606,15 @@ file:
       - column_reference:
           identifier: col2
       - data_type:
-          datetime_type_identifier:
-            keyword: DATE
+          keyword: DATE
       - comma: ','
       - column_reference:
           identifier: col3
       - data_type:
-          data_type_identifier: VARCHAR
+          keyword: VARCHAR
           bracketed:
             start_bracket: (
-            expression:
-              literal: '60'
+            literal: '60'
             end_bracket: )
       - comma: ','
       - table_constraint_segment:
@@ -680,7 +659,7 @@ file:
       - column_reference:
           identifier: col1
       - data_type:
-          data_type_identifier: INT
+          keyword: INT
       - column_constraint_segment:
         - keyword: NOT
         - keyword: 'NULL'
@@ -689,17 +668,15 @@ file:
       - column_reference:
           identifier: col2
       - data_type:
-          datetime_type_identifier:
-            keyword: DATE
+          keyword: DATE
       - comma: ','
       - column_reference:
           identifier: col3
       - data_type:
-          data_type_identifier: VARCHAR
+          keyword: VARCHAR
           bracketed:
             start_bracket: (
-            expression:
-              literal: '60'
+            literal: '60'
             end_bracket: )
       - comma: ','
       - table_constraint_segment:

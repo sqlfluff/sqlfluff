@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1173336585abb253db3451c169c9dc7df0dcb7d246ff12397181e4d458c5a511
+_hash: 8d3279c2f918ad4ac8f1e5a4efd6765df4868143dd45a4b0a3743b315b2fda43
 file:
   batch:
     statement:
@@ -14,111 +14,172 @@ file:
             expression:
               case_expression:
               - keyword: CASE
-              - keyword: WHEN
-              - expression:
-                - literal: '1'
-                - comparison_operator: '='
-                - literal: '1'
-              - keyword: THEN
-              - expression:
-                  literal: "'True'"
-              - keyword: WHEN
-              - expression:
-                - literal: '1'
-                - comparison_operator: '>'
-                - literal: '1'
-              - keyword: THEN
-              - expression:
-                  literal: "'False'"
-              - keyword: WHEN
-              - expression:
-                - literal: '1'
-                - comparison_operator: <
-                - literal: '1'
-              - keyword: THEN
-              - expression:
-                  literal: "'False'"
-              - keyword: WHEN
-              - expression:
-                - literal: '1'
-                - comparison_operator: '>='
-                - literal: '1'
-              - keyword: THEN
-              - expression:
-                  literal: "'True'"
-              - keyword: WHEN
-              - expression:
-                - literal: '1'
-                - comparison_operator: '>'
-                - comparison_operator: '='
-                - literal: '1'
-              - keyword: THEN
-              - expression:
-                  literal: "'True'"
-              - keyword: WHEN
-              - expression:
-                - literal: '1'
-                - comparison_operator: <=
-                - literal: '1'
-              - keyword: THEN
-              - expression:
-                  literal: "'True'"
-              - keyword: WHEN
-              - expression:
-                - literal: '1'
-                - comparison_operator: <
-                - comparison_operator: '='
-                - literal: '1'
-              - keyword: THEN
-              - expression:
-                  literal: "'True'"
-              - keyword: WHEN
-              - expression:
-                - literal: '1'
-                - comparison_operator: <>
-                - literal: '1'
-              - keyword: THEN
-              - expression:
-                  literal: "'False'"
-              - keyword: WHEN
-              - expression:
-                - literal: '1'
-                - comparison_operator: '!'
-                - comparison_operator: <
-                - literal: '1'
-              - keyword: THEN
-              - expression:
-                  literal: "'Why is this a thing?'"
-              - keyword: WHEN
-              - expression:
-                - literal: '1'
-                - comparison_operator: '!'
-                - comparison_operator: <
-                - literal: '1'
-              - keyword: THEN
-              - expression:
-                  literal: "'Or this sort of thing?'"
-              - keyword: WHEN
-              - expression:
-                - literal: '1'
-                - comparison_operator: '!'
-                - comparison_operator: '='
-                - literal: '1'
-              - keyword: THEN
-              - expression:
-                  literal: "'False'"
-              - keyword: WHEN
-              - expression:
-                - literal: '1'
-                - comparison_operator: '!'
-                - comparison_operator: '>'
-                - literal: '1'
-              - keyword: THEN
-              - expression:
-                  literal: "'NULL Handling, Probably'"
-              - keyword: ELSE
-              - expression:
-                  literal: "'Silly Tests'"
+              - when_clause:
+                - keyword: WHEN
+                - expression:
+                  - literal: '1'
+                  - comparison_operator:
+                      raw_comparison_operator: '='
+                  - literal: '1'
+                - keyword: THEN
+                - expression:
+                    literal: "'True'"
+              - when_clause:
+                - keyword: WHEN
+                - expression:
+                  - literal: '1'
+                  - comparison_operator:
+                      raw_comparison_operator: '>'
+                  - literal: '1'
+                - keyword: THEN
+                - expression:
+                    literal: "'False'"
+              - when_clause:
+                - keyword: WHEN
+                - expression:
+                  - literal: '1'
+                  - comparison_operator:
+                      raw_comparison_operator: <
+                  - literal: '1'
+                - keyword: THEN
+                - expression:
+                    literal: "'False'"
+              - when_clause:
+                - keyword: WHEN
+                - expression:
+                  - literal: '1'
+                  - comparison_operator:
+                    - raw_comparison_operator: '>'
+                    - raw_comparison_operator: '='
+                  - literal: '1'
+                - keyword: THEN
+                - expression:
+                    literal: "'True'"
+              - when_clause:
+                - keyword: WHEN
+                - expression:
+                  - literal: '1'
+                  - comparison_operator:
+                    - raw_comparison_operator: '>'
+                    - raw_comparison_operator: '='
+                  - literal: '1'
+                - keyword: THEN
+                - expression:
+                    literal: "'True'"
+              - when_clause:
+                - keyword: WHEN
+                - expression:
+                  - literal: '1'
+                  - comparison_operator:
+                    - raw_comparison_operator: <
+                    - raw_comparison_operator: '='
+                  - literal: '1'
+                - keyword: THEN
+                - expression:
+                    literal: "'True'"
+              - when_clause:
+                - keyword: WHEN
+                - expression:
+                  - literal: '1'
+                  - comparison_operator:
+                    - raw_comparison_operator: <
+                    - raw_comparison_operator: '='
+                  - literal: '1'
+                - keyword: THEN
+                - expression:
+                    literal: "'True'"
+              - when_clause:
+                - keyword: WHEN
+                - expression:
+                  - literal: '1'
+                  - comparison_operator:
+                    - raw_comparison_operator: <
+                    - raw_comparison_operator: '>'
+                  - literal: '1'
+                - keyword: THEN
+                - expression:
+                    literal: "'False'"
+              - when_clause:
+                - keyword: WHEN
+                - expression:
+                  - literal: '1'
+                  - comparison_operator:
+                    - raw_comparison_operator: <
+                    - raw_comparison_operator: '>'
+                  - literal: '1'
+                - keyword: THEN
+                - expression:
+                    literal: "'False'"
+              - when_clause:
+                - keyword: WHEN
+                - expression:
+                  - literal: '1'
+                  - comparison_operator:
+                    - raw_comparison_operator: '!'
+                    - raw_comparison_operator: <
+                  - literal: '1'
+                - keyword: THEN
+                - expression:
+                    literal: "'Why is this a thing?'"
+              - when_clause:
+                - keyword: WHEN
+                - expression:
+                  - literal: '1'
+                  - comparison_operator:
+                    - raw_comparison_operator: '!'
+                    - raw_comparison_operator: <
+                  - literal: '1'
+                - keyword: THEN
+                - expression:
+                    literal: "'Or this sort of thing?'"
+              - when_clause:
+                - keyword: WHEN
+                - expression:
+                  - literal: '1'
+                  - comparison_operator:
+                    - raw_comparison_operator: '!'
+                    - raw_comparison_operator: '='
+                  - literal: '1'
+                - keyword: THEN
+                - expression:
+                    literal: "'False'"
+              - when_clause:
+                - keyword: WHEN
+                - expression:
+                  - literal: '1'
+                  - comparison_operator:
+                    - raw_comparison_operator: '!'
+                    - raw_comparison_operator: '='
+                  - literal: '1'
+                - keyword: THEN
+                - expression:
+                    literal: "'False'"
+              - when_clause:
+                - keyword: WHEN
+                - expression:
+                  - literal: '1'
+                  - comparison_operator:
+                    - raw_comparison_operator: '!'
+                    - raw_comparison_operator: '>'
+                  - literal: '1'
+                - keyword: THEN
+                - expression:
+                    literal: "'NULL Handling, Probably'"
+              - when_clause:
+                - keyword: WHEN
+                - expression:
+                  - literal: '1'
+                  - comparison_operator:
+                    - raw_comparison_operator: '!'
+                    - raw_comparison_operator: '>'
+                  - literal: '1'
+                - keyword: THEN
+                - expression:
+                    literal: "'NULL Handling, Probably'"
+              - else_clause:
+                  keyword: ELSE
+                  expression:
+                    literal: "'Silly Tests'"
               - keyword: END
         - comma: ','
         - select_clause_element:
@@ -309,6 +370,54 @@ file:
               identifier: XACT_ABORT
         - comma: ','
         - select_clause_element:
+            column_reference:
+              identifier: Rows
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: NaN
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: Rlike
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: Ilike
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: Separator
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: Auto_Increment
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: Unsigned
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: Describe
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: Comment
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: Ml
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: Modify
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: Minus
+        - comma: ','
+        - select_clause_element:
             function:
             - function_name:
                 keyword: ROW_NUMBER
@@ -318,7 +427,7 @@ file:
             - keyword: OVER
             - bracketed:
                 start_bracket: (
-                partition_by_clause:
+                partitionby_clause:
                 - keyword: PARTITION
                 - keyword: BY
                 - column_reference:
@@ -347,7 +456,7 @@ file:
             - keyword: OVER
             - bracketed:
                 start_bracket: (
-                partition_by_clause:
+                partitionby_clause:
                 - keyword: PARTITION
                 - keyword: BY
                 - column_reference:
@@ -373,7 +482,7 @@ file:
             - keyword: OVER
             - bracketed:
                 start_bracket: (
-                partition_by_clause:
+                partitionby_clause:
                 - keyword: PARTITION
                 - keyword: BY
                 - column_reference:
@@ -400,7 +509,7 @@ file:
             - keyword: OVER
             - bracketed:
                 start_bracket: (
-                partition_by_clause:
+                partitionby_clause:
                 - keyword: PARTITION
                 - keyword: BY
                 - column_reference:
@@ -436,18 +545,122 @@ file:
                     partitionby_clause:
                     - keyword: partition
                     - keyword: by
+                    - column_reference:
+                      - identifier: t
+                      - dot: .
+                      - identifier: col2
+                    - comma: ','
+                    - column_reference:
+                      - identifier: t
+                      - dot: .
+                      - identifier: col3
+                  end_bracket: )
+        - comma: ','
+        - select_clause_element:
+            function:
+            - function_name:
+                keyword: ROW_NUMBER
+            - bracketed:
+                start_bracket: (
+                end_bracket: )
+            - keyword: OVER
+            - bracketed:
+                start_bracket: (
+                partitionby_clause:
+                - keyword: PARTITION
+                - keyword: BY
+                - bracketed:
+                    start_bracket: (
+                    select_statement:
+                      select_clause:
+                        keyword: SELECT
+                        select_clause_element:
+                          column_reference:
+                            identifier: mediaty
+                      from_clause:
+                        keyword: FROM
+                        from_expression:
+                          from_expression_element:
+                            table_expression:
+                              table_reference:
+                              - identifier: dbo
+                              - dot: .
+                              - identifier: MediaTypes
+                            alias_expression:
+                              identifier: ms
+                      where_clause:
+                        keyword: WHERE
+                        expression:
+                        - column_reference:
+                          - identifier: ms
+                          - dot: .
+                          - identifier: MediaTypeID
+                        - comparison_operator:
+                            raw_comparison_operator: '='
+                        - column_reference:
+                          - identifier: f
+                          - dot: .
+                          - identifier: mediatypeid
+                    end_bracket: )
+                orderby_clause:
+                - keyword: ORDER
+                - keyword: BY
+                - column_reference:
+                    identifier: AdjustedPriorityScore
+                - keyword: DESC
+                end_bracket: )
+            alias_expression:
+              keyword: AS
+              identifier: Subselect_Partition
+        - comma: ','
+        - select_clause_element:
+            function:
+            - function_name:
+                keyword: ROW_NUMBER
+            - bracketed:
+                start_bracket: (
+                end_bracket: )
+            - keyword: OVER
+            - bracketed:
+                start_bracket: (
+                partitionby_clause:
+                - keyword: PARTITION
+                - keyword: BY
+                - function:
+                    function_name:
+                      function_name_identifier: COALESCE
+                    bracketed:
+                    - start_bracket: (
                     - expression:
                         column_reference:
-                        - identifier: t
-                        - dot: .
-                        - identifier: col2
+                          identifier: NPI1
                     - comma: ','
                     - expression:
                         column_reference:
-                        - identifier: t
-                        - dot: .
-                        - identifier: col3
-                  end_bracket: )
+                          identifier: NPI2
+                    - end_bracket: )
+                orderby_clause:
+                - keyword: ORDER
+                - keyword: BY
+                - expression:
+                    function:
+                      function_name:
+                        function_name_identifier: COALESCE
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          column_reference:
+                            identifier: SystemEffectiveDTS1
+                      - comma: ','
+                      - expression:
+                          column_reference:
+                            identifier: SystemEffectiveDTS2
+                      - end_bracket: )
+                - keyword: DESC
+                end_bracket: )
+            alias_expression:
+              keyword: AS
+              identifier: Coalesce_Partition
         from_clause:
           keyword: FROM
           from_expression:

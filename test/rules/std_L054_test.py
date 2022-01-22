@@ -29,7 +29,7 @@ def test__rules__std_L054_raised() -> None:
     assert len(results_l054) == 2
     assert (
         results_l054[0]["description"]
-        == "Inconsistent column references in GROUP BY/ORDER BY clauses."
+        == "Inconsistent column references in 'GROUP BY/ORDER BY' clauses."
     )
 
 

@@ -66,3 +66,14 @@ test_set_clause:
   pass_str: |
     UPDATE table1 SET col = NULL
     WHERE col = ""
+
+test_exec_clause:
+  pass_str: |
+    exec something
+      @param1 = 'blah',
+      @param2 = 'blah',
+      @param3 = null,
+      @param4 = 'blah';
+  configs:
+    core:
+      dialect: tsql

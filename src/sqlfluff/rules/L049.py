@@ -12,7 +12,7 @@ class Rule_L049(Rule_L006):
     """Comparisons with NULL should use "IS" or "IS NOT".
 
     | **Anti-pattern**
-    | In this example, the "=" operator is used to check for NULL values'.
+    | In this example, the ``=`` operator is used to check for ``NULL`` values.
 
     .. code-block:: sql
 
@@ -23,7 +23,7 @@ class Rule_L049(Rule_L006):
 
 
     | **Best practice**
-    | Use "IS" or "IS NOT" to check for NULL values.
+    | Use ``IS`` or ``IS NOT`` to check for ``NULL`` values.
 
     .. code-block:: sql
 
@@ -42,7 +42,13 @@ class Rule_L049(Rule_L006):
             return LintResult()
 
         # Allow assignments in SET clauses
-        if context.parent_stack and context.parent_stack[-1].is_type("set_clause_list"):
+        if context.parent_stack and context.parent_stack[-1].is_type(
+            "set_clause_list", "execute_script_statement"
+        ):
+            return LintResult()
+
+        # Allow assignments in EXEC clauses
+        if context.segment.is_type("set_clause_list", "execute_script_statement"):
             return LintResult()
 
         # Iterate through children of this segment looking for equals or "not

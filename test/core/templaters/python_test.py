@@ -410,7 +410,8 @@ def test__templater_python_split_uniques_coalesce_rest(
             [("literal", slice(0, 3, None), slice(0, 3, None))],
         ),
         (
-            "SELECT {blah}, {foo:.2f} as foo, {bar}, '{{}}' as convertable from something",
+            "SELECT {blah}, {foo:.2f} as foo, {bar}, '{{}}' as convertable from "
+            "something",
             "SELECT nothing, 435.24 as foo, spam, '{}' as convertable from something",
             True,
             [
@@ -455,7 +456,7 @@ def test__templater_python_split_uniques_coalesce_rest(
 )
 def test__templater_python_slice_file(raw_file, templated_file, unwrap_wrapped, result):
     """Test slice_file."""
-    _, resp, _ = PythonTemplater.slice_file(
+    _, resp, _ = PythonTemplater().slice_file(
         raw_file,
         templated_file,
         config=FluffConfig(

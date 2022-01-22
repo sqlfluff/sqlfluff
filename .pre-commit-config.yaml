@@ -1,40 +1,49 @@
 repos:
--   repo: https://github.com/pre-commit/pre-commit-hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.0.1
     hooks:
-    -   id: end-of-file-fixer
+      - id: end-of-file-fixer
         exclude: (.*\.sql$|test/fixtures/linter/sqlfluffignore/path_c)
-    -   id: trailing-whitespace
+      - id: trailing-whitespace
         exclude: (.*\.sql$|test/fixtures/linter/sqlfluffignore/path_c)
--   repo: https://github.com/psf/black
+  - repo: https://github.com/psf/black
     rev: 21.12b0
     hooks:
-    -   id: black
--   repo: https://github.com/pre-commit/mirrors-mypy
+      - id: black
+  - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v0.920
     hooks:
-    -   id: mypy
+      - id: mypy
         args: [--ignore-missing-imports]
         additional_dependencies: [
-            types-toml,
-            types-pkg_resources,
-            types-chardet,
+          types-toml,
+          types-pkg_resources,
+          types-chardet,
+          types-appdirs,
+          types-colorama,
+          types-pyyaml,
+          types-regex,
         ]
         files: ^src/sqlfluff/.*
--   repo: https://github.com/pycqa/flake8
+  - repo: https://github.com/pycqa/flake8
     rev: 4.0.1
     hooks:
-    -   id: flake8
+      - id: flake8
         additional_dependencies: [
-            flake8-black,
-            flake8-docstrings,
+          flake8-black,
+          flake8-docstrings,
         ]
--   repo: https://github.com/pycqa/doc8
+  - repo: https://github.com/pycqa/doc8
     rev: 0.10.1
     hooks:
-    -   id: doc8
+      - id: doc8
         args: [
-            --file-encoding,
-            utf8,
+          --file-encoding,
+          utf8,
         ]
         files: docs/source/.*\.rst$
+  - repo: https://github.com/adrienverge/yamllint.git
+    rev: v1.26.3
+    hooks:
+      - id: yamllint
+        args: [-c=.yamllint]

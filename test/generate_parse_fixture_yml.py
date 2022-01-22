@@ -2,7 +2,7 @@
 import multiprocessing
 import os
 
-import oyaml as yaml
+import yaml
 
 from conftest import compute_parse_tree_hash, get_parse_fixtures, parse_example_file
 
@@ -23,15 +23,18 @@ def generate_parse_fixture(example):
                 + list(tree.as_record(code_only=True, show_raw=True).items())
             )
             print(
-                "# YML test files are auto-generated from SQL files and should not be edited by",
-                '# hand. To help enforce this, the "hash" field in the file must match a hash',
+                "# YML test files are auto-generated from SQL files and should not be "
+                "edited by",
+                '# hand. To help enforce this, the "hash" field in the file must match '
+                "a hash",
                 "# computed by SQLFluff when running the tests. Please run",
-                "# `python test/generate_parse_fixture_yml.py`  to generate them after adding or",
+                "# `python test/generate_parse_fixture_yml.py`  to generate them after "
+                "adding or",
                 "# altering SQL files.",
                 file=f,
                 sep="\n",
             )
-            yaml.dump(r, f, default_flow_style=False)
+            yaml.dump(r, f, default_flow_style=False, sort_keys=False)
         else:
             f.write("")
 

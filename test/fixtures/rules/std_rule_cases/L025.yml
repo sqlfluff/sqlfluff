@@ -76,3 +76,93 @@ test_pass_tsql_object_reference_override:
   configs:
     core:
       dialect: tsql
+
+test_pass_subselect_uses_alias_1:
+  pass_str: |
+    SELECT
+        col1,
+        (
+            SELECT count(*)
+            FROM base
+            WHERE a.col2 = base.col2
+        )
+    FROM
+        without_dup AS a
+
+test_pass_subselect_uses_alias_2:
+  pass_str: |
+    select
+      COL_A
+      , COL_B
+    from INSERTS INS
+    where COL_B != (select max(COL_B) from INSERTS X where INS.COL_A = X.COL_A)
+
+test_pass_subselect_uses_alias_3:
+  pass_str: |
+    SELECT col_1
+    FROM table_a AS a
+    WHERE NOT EXISTS (SELECT TRUE FROM table_b AS b WHERE a.col_4 = b.col_1)
+
+test_ansi_function_not_table_parameter:
+  fail_str: |
+    SELECT TO_JSON_STRING(t)
+    FROM my_table AS t
+  fix_str: |
+    SELECT TO_JSON_STRING(t)
+    FROM my_table
+
+test_bigquery_function_takes_tablealias_parameter:
+  pass_str: |
+    SELECT TO_JSON_STRING(t)
+    FROM my_table AS t
+  configs:
+    core:
+      dialect: bigquery
+
+test_bigquery_function_takes_tablealias_column_parameter:
+  pass_str: |
+    SELECT TO_JSON_STRING(t.c)
+    FROM my_table AS t
+  configs:
+    core:
+      dialect: bigquery
+
+test_bigquery_function_takes_tablealias_column_struct_parameter:
+  pass_str: |
+    SELECT TO_JSON_STRING(t.c.structure)
+    FROM my_table AS t
+  configs:
+    core:
+      dialect: bigquery
+
+test_snowflake_delete_cte:
+  fail_str: |
+    DELETE FROM MYTABLE1
+        USING (
+            WITH MYCTE AS (SELECT COLUMN2 FROM MYTABLE3 AS MT3)
+            SELECT COLUMN3 FROM MYTABLE3
+        ) X
+    WHERE COLUMN1 = X.COLUMN3
+  configs:
+    core:
+      dialect: snowflake
+
+test_pass_exasol_values_clause:
+  pass_str: |
+    SELECT *
+    FROM (
+        VALUES (1, 2), (3, 4)
+    )
+  configs:
+    core:
+      dialect: exasol
+
+test_fail_exasol_values_clause:
+  fail_str: |
+    SELECT *
+    FROM (
+        VALUES (1, 2), (3, 4)
+    ) AS t(c1, c2)
+  configs:
+    core:
+      dialect: exasol

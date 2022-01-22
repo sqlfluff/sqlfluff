@@ -23,3 +23,10 @@ test_fail_column_exp_without_alias_allow_scalar_false:
 
 test_pass_column_exp_with_alias:
   pass_str: SELECT upper(foo) as foo_up, bar from blah
+
+test_pass_function_emits:
+  # Don't expect alias if allow_scalar = True (default)
+  pass_str: SELECT json_extract(json_str, '$.AFIELD', '$.BFIELD') emits (cola char(1), colb char(1)) FROM table1
+  configs:
+    core:
+      dialect: exasol

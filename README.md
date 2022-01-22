@@ -24,6 +24,7 @@ Although SQL is reasonably consistent in its implementations, there are several 
 - [Exasol](https://www.exasol.com/)
 - [Hive](https://hive.apache.org/)
 - [MySQL](https://www.mysql.com/)
+- [Oracle](https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/index.html)
 - [PostgreSQL](https://www.postgresql.org/) (aka Postgres)
 - [Redshift](https://docs.aws.amazon.com/redshift/index.html)
 - [Snowflake](https://www.snowflake.com/)

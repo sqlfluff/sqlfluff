@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 207220496dc0af0254ddebfdca35ea6e961feb092d80b417c0d5da7c140fe5ec
+_hash: 6adb7600d5b9ffa6024356d9a9e8621f41f676fdcdf839d5173d554247eda590
 file:
 - statement:
     create_function_statement:
@@ -15,14 +15,14 @@ file:
         bracketed:
         - start_bracket: (
         - data_type:
-            data_type_identifier: integer
+            keyword: integer
         - comma: ','
         - data_type:
-            data_type_identifier: integer
+            keyword: integer
         - end_bracket: )
     - keyword: RETURNS
     - data_type:
-        data_type_identifier: integer
+        keyword: integer
     - base:
       - keyword: AS
       - literal: "'select $1 + $2;'"
@@ -42,11 +42,11 @@ file:
           start_bracket: (
           parameter: i
           data_type:
-            data_type_identifier: integer
+            keyword: integer
           end_bracket: )
     - keyword: RETURNS
     - data_type:
-        data_type_identifier: integer
+        keyword: integer
     - base:
       - keyword: AS
       - literal: "'\n    BEGIN\n        RETURN i + 1;\n    END;\n'"
@@ -67,11 +67,11 @@ file:
           start_bracket: (
           parameter: i
           data_type:
-            data_type_identifier: integer
+            keyword: integer
           end_bracket: )
     - keyword: RETURNS
     - data_type:
-        data_type_identifier: integer
+        keyword: integer
     - base:
       - keyword: AS
       - literal: "'\n    BEGIN\n        RETURN i + 1;\n    END;\n'"
@@ -93,7 +93,8 @@ file:
       - literal: '5'
       - keyword: SET
       - parameter: test_param
-      - comparison_operator: '='
+      - comparison_operator:
+          raw_comparison_operator: '='
       - literal: '3'
 - statement_terminator: ;
 - statement:
@@ -109,11 +110,11 @@ file:
           start_bracket: (
           parameter: i
           data_type:
-            data_type_identifier: integer
+            keyword: integer
           end_bracket: )
     - keyword: RETURNS
     - data_type:
-        data_type_identifier: integer
+        keyword: integer
     - base:
       - keyword: AS
       - literal: "'C:\\\\my_file.c'"
@@ -139,7 +140,8 @@ file:
       - literal: '5'
       - keyword: SET
       - parameter: test_param
-      - comparison_operator: '='
+      - comparison_operator:
+          raw_comparison_operator: '='
       - literal: '3'
       - keyword: WITH
       - bracketed:
@@ -160,11 +162,11 @@ file:
           start_bracket: (
           parameter: i
           data_type:
-            data_type_identifier: integer
+            keyword: integer
           end_bracket: )
     - keyword: RETURNS
     - data_type:
-        data_type_identifier: integer
+        keyword: integer
     - base:
       - keyword: PARALLEL
       - keyword: UNSAFE
@@ -185,14 +187,14 @@ file:
         bracketed:
         - start_bracket: (
         - data_type:
-            data_type_identifier: integer
+            keyword: integer
         - comma: ','
         - data_type:
-            data_type_identifier: integer
+            keyword: integer
         - end_bracket: )
     - keyword: RETURNS
     - data_type:
-        data_type_identifier: integer
+        keyword: integer
     - base:
       - keyword: AS
       - literal: "'select $1 + $2;'"
@@ -218,11 +220,11 @@ file:
           start_bracket: (
           parameter: i
           data_type:
-            data_type_identifier: integer
+            keyword: integer
           end_bracket: )
     - keyword: RETURNS
     - data_type:
-        data_type_identifier: integer
+        keyword: integer
     - base:
       - keyword: AS
       - literal: "$$\n        BEGIN\n                RETURN i + 1;\n        END;\n\
@@ -241,17 +243,17 @@ file:
         - start_bracket: (
         - keyword: in
         - data_type:
-            data_type_identifier: int
+            keyword: int
         - comma: ','
         - keyword: out
         - parameter: f1
         - data_type:
-            data_type_identifier: int
+            keyword: int
         - comma: ','
         - keyword: out
         - parameter: f2
         - data_type:
-            data_type_identifier: text
+            keyword: text
         - end_bracket: )
     - base:
       - keyword: AS
@@ -307,7 +309,7 @@ file:
         bracketed:
           start_bracket: (
           data_type:
-            data_type_identifier: int
+            keyword: int
           end_bracket: )
     - keyword: RETURNS
     - data_type:
@@ -350,7 +352,7 @@ file:
         bracketed:
           start_bracket: (
           data_type:
-            data_type_identifier: int
+            keyword: int
           end_bracket: )
     - keyword: RETURNS
     - keyword: TABLE
@@ -358,11 +360,11 @@ file:
       - start_bracket: (
       - parameter: f1
       - data_type:
-          data_type_identifier: int
+          keyword: int
       - comma: ','
       - parameter: f2
       - data_type:
-          data_type_identifier: text
+          keyword: text
       - end_bracket: )
     - base:
       - keyword: AS
@@ -403,15 +405,15 @@ file:
         - start_bracket: (
         - parameter: uname
         - data_type:
-            data_type_identifier: TEXT
+            keyword: TEXT
         - comma: ','
         - parameter: pass
         - data_type:
-            data_type_identifier: TEXT
+            keyword: TEXT
         - end_bracket: )
     - keyword: RETURNS
     - data_type:
-        data_type_identifier: BOOLEAN
+        keyword: BOOLEAN
     - base:
       - keyword: AS
       - literal: "$$\nDECLARE passed BOOLEAN;\nBEGIN\n        SELECT  (pwd = $2) INTO\
@@ -423,7 +425,8 @@ file:
       - keyword: DEFINER
       - keyword: SET
       - parameter: search_path
-      - comparison_operator: '='
+      - comparison_operator:
+          raw_comparison_operator: '='
       - parameter: admin
       - comma: ','
       - parameter: pg_temp
@@ -443,15 +446,15 @@ file:
         - start_bracket: (
         - parameter: uname
         - data_type:
-            data_type_identifier: TEXT
+            keyword: TEXT
         - comma: ','
         - parameter: pass
         - data_type:
-            data_type_identifier: TEXT
+            keyword: TEXT
         - end_bracket: )
     - keyword: RETURNS
     - data_type:
-        data_type_identifier: BOOLEAN
+        keyword: BOOLEAN
     - base:
       - keyword: AS
       - literal: "$$\nDECLARE passed BOOLEAN;\nBEGIN\n        SELECT  (pwd = $2) INTO\
@@ -475,11 +478,11 @@ file:
         - start_bracket: (
         - parameter: uname
         - data_type:
-            data_type_identifier: TEXT
+            keyword: TEXT
         - comma: ','
         - parameter: pass
         - data_type:
-            data_type_identifier: TEXT
+            keyword: TEXT
         - end_bracket: )
     - keyword: FROM
     - object_reference:
@@ -498,11 +501,11 @@ file:
         - start_bracket: (
         - parameter: uname
         - data_type:
-            data_type_identifier: TEXT
+            keyword: TEXT
         - comma: ','
         - parameter: pass
         - data_type:
-            data_type_identifier: TEXT
+            keyword: TEXT
         - end_bracket: )
     - keyword: TO
     - object_reference:
@@ -529,7 +532,7 @@ file:
     - keyword: RETURNS
     - keyword: SETOF
     - data_type:
-        data_type_identifier: text
+        keyword: text
     - base:
       - keyword: LANGUAGE
       - parameter: sql
@@ -553,15 +556,15 @@ file:
         - start_bracket: (
         - parameter: _a
         - data_type:
-            data_type_identifier: TEXT
+            keyword: TEXT
         - comma: ','
         - parameter: _$b
         - data_type:
-            data_type_identifier: INT
+            keyword: INT
         - end_bracket: )
     - keyword: RETURNS
     - data_type:
-        data_type_identifier: FLOAT
+        keyword: FLOAT
     - base:
       - keyword: AS
       - literal: "$$\n  RETURN 0.0\n$$"
@@ -570,4 +573,52 @@ file:
       - keyword: STABLE
       - keyword: PARALLEL
       - keyword: SAFE
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: _add
+    - base:
+        bracketed:
+        - start_bracket: (
+        - data_type:
+            keyword: integer
+        - comma: ','
+        - data_type:
+            keyword: integer
+        - end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        keyword: integer
+    - base:
+      - keyword: AS
+      - literal: "'select $1 + $2;'"
+      - keyword: LANGUAGE
+      - parameter: SQL
+- statement_terminator: ;
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_name:
+        function_name_identifier: _$add
+    - base:
+        bracketed:
+        - start_bracket: (
+        - data_type:
+            keyword: integer
+        - comma: ','
+        - data_type:
+            keyword: integer
+        - end_bracket: )
+    - keyword: RETURNS
+    - data_type:
+        keyword: integer
+    - base:
+      - keyword: AS
+      - literal: "'select $1 + $2;'"
+      - keyword: LANGUAGE
+      - parameter: SQL
 - statement_terminator: ;

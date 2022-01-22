@@ -1,14 +1,17 @@
 """Tools for more complex analysis of SELECT statements."""
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Dict, Generator, List, NamedTuple, Optional, Union
+from typing import Dict, Generator, List, NamedTuple, Optional, Type, Union
 
-from cached_property import cached_property
-
+from sqlfluff.core.cached_property import cached_property
 from sqlfluff.core.dialects.common import AliasInfo
 from sqlfluff.core.dialects.base import Dialect
 from sqlfluff.core.parser import BaseSegment
-from sqlfluff.core.rules.analysis.select import get_select_statement_info
+from sqlfluff.core.rules.analysis.select import (
+    get_select_statement_info,
+    SelectStatementColumnsAndTables,
+)
+from sqlfluff.core.rules.functional import Segments, sp
 
 
 class QueryType(Enum):
@@ -35,9 +38,43 @@ class Selectable:
     @cached_property
     def select_info(self):
         """Returns SelectStatementColumnsAndTables on the SELECT."""
-        return get_select_statement_info(
-            self.selectable, self.dialect, early_exit=False
-        )
+        if self.selectable.is_type("select_statement"):
+            return get_select_statement_info(
+                self.selectable, self.dialect, early_exit=False
+            )
+        else:  # values_clause
+            # This is a bit dodgy, but a very useful abstraction. Here, we
+            # interpret a values_clause segment as if it were a SELECT. Someday,
+            # we may need to tweak this, e.g. perhaps add a separate QueryType
+            # for this (depending on the needs of the rules that use it.
+            #
+            # For more info on the syntax and behavior of VALUES and its
+            # similarity to a SELECT statement with literal values (no table
+            # source), see the "Examples" section of the Postgres docs page:
+            # (https://www.postgresql.org/docs/8.2/sql-values.html).
+            values = Segments(self.selectable)
+            alias_expression = values.children().first(sp.is_type("alias_expression"))
+            name = alias_expression.children().first(
+                sp.is_name("naked_identifier", "quoted_identifier")
+            )
+            alias_info = AliasInfo(
+                name[0].raw if name else "",
+                name[0] if name else None,
+                bool(name),
+                self.selectable,
+                alias_expression[0] if alias_expression else None,
+                None,
+            )
+
+            return SelectStatementColumnsAndTables(
+                select_statement=self.selectable,
+                table_aliases=[alias_info],
+                standalone_aliases=[],
+                reference_buffer=[],
+                select_targets=[],
+                col_aliases=[],
+                using_cols=[],
+            )
 
     def get_wildcard_info(self) -> List[WildcardInfo]:
         """Find wildcard (*) targets in the SELECT."""
@@ -86,6 +123,8 @@ class Query:
     ctes: Dict[str, "Query"] = field(default_factory=dict)
     # Parent scope. This query can "see" CTEs defined by parents.
     parent: Optional["Query"] = field(default=None)
+    # Children (could be CTE, subselect, or other).
+    children: List["Query"] = field(default_factory=list)
 
     def lookup_cte(self, name: str, pop: bool = True) -> Optional["Query"]:
         """Look up a CTE by name, in the current or any parent scope."""
@@ -112,11 +151,12 @@ class Query:
             "table_reference",
             "set_expression",
             "select_statement",
+            "values_clause",
             recurse_into=recurse_into,
         ):
             if seg is segment:
-                # If we are starting with a select_statement, recursive_crawl()
-                # returns the statement itself. Skip that.
+                # If the starting segment itself matches the list of types we're
+                # searching for, recursive_crawl() will return it. Skip that.
                 continue
 
             if seg.is_type("table_reference"):
@@ -128,7 +168,9 @@ class Query:
                 # It's an external table.
                 yield seg.raw
             else:
-                assert seg.is_type("set_expression", "select_statement")
+                assert seg.is_type(
+                    "set_expression", "select_statement", "values_clause"
+                )
                 found_nested_select = True
                 crawler = SelectCrawler(seg, self.dialect, parent=self)
                 # We know this will pass because we specified parent=self above.
@@ -147,9 +189,16 @@ class SelectCrawler:
     """Class for dependency analysis among parts of a query."""
 
     def __init__(
-        self, segment: BaseSegment, dialect: Dialect, parent: Optional[Query] = None
+        self,
+        segment: BaseSegment,
+        dialect: Dialect,
+        parent: Optional[Query] = None,
+        query_class: Type = Query,
     ):
         self.dialect: Dialect = dialect
+        # "query_class" allows users of the class to customize/extend the
+        # Query class, so they can manage additional, custom info.
+        self.query_class = query_class
         self.query_tree: Optional[Query] = None
 
         # Stack of segments currently being processed
@@ -162,6 +211,7 @@ class SelectCrawler:
             """Bookkeeping when a new Query is created."""
             if query_stack:
                 query.parent = query_stack[-1]
+                query.parent.children.append(query)
             query_stack.append(query)
             if len(query_stack) == 1 and self.query_tree is None:
                 self.query_tree = query_stack[0]
@@ -189,47 +239,48 @@ class SelectCrawler:
             )
             if event == "start":
                 # "start" means we're starting to process a new segment.
-                if path[-1].is_type("set_expression", "select_statement"):
-                    # Beginning a single "SELECT" or a set, e.g.
-                    # SELECT ... UNION ... SELECT.
+                if path[-1].is_type(
+                    "set_expression", "select_statement", "values_clause"
+                ):
+                    # Beginning a single "SELECT", a set, e.g.
+                    # SELECT ... UNION ... SELECT; or a VALUES clause.
                     if not in_with:
                         if path[-1].is_type("set_expression"):
                             # For a set_expression, create a query with no
                             # selectables. A set_expression always has child
                             # select_statement segments, and those will be
                             # added to this Query later.
-                            query = Query(QueryType.Simple, dialect)
+                            query = self.query_class(QueryType.Simple, dialect)
                             append_query(query)
                         else:
-                            # It's a select_statement.
+                            # It's a select_statement or values_clause.
                             selectable = Selectable(path[-1], dialect)
-                            # Determine if this is a standalone select_statement or
-                            # part of a set_expression.
+                            # Determine if this is part of a set_expression.
                             if len(path) >= 2 and path[-2].is_type("set_expression"):
-                                # It's part of a set_expression. Append this
-                                # select_statement to the set_expression.
+                                # It's part of a set_expression. Append to the
+                                # set_expression.
                                 query_stack[-1].selectables.append(selectable)
                             else:
-                                # It's a standalone select_statement, not part
-                                # of a set_expression. Create a Query containing
-                                # this select_statement.
-                                query = Query(QueryType.Simple, dialect, [selectable])
+                                # It's standalone, i.e. not part of a
+                                # set_expression. Create a Query for it.
+                                query = self.query_class(
+                                    QueryType.Simple, dialect, [selectable]
+                                )
                                 append_query(query)
                     else:
                         # We're processing a "with" statement.
                         if cte_name:
                             # If we have a CTE name, this is the Query for that
                             # name.
-                            query = Query(QueryType.Simple, dialect)
-                            if path[-1].is_type("select_statement"):
-                                # Processing a select_statement. Add it to the
-                                # Query object we just created.
+                            query = self.query_class(QueryType.Simple, dialect)
+                            if path[-1].is_type("select_statement", "values_clause"):
+                                # Add to the Query object we just created.
                                 query.selectables.append(Selectable(path[-1], dialect))
                             else:
                                 # Processing a set_expression. Nothing
                                 # additional to do here; we'll add selectables
-                                # to the Query later when we encounter the child
-                                # select_statements.
+                                # to the Query later when we encounter those
+                                # child segments.
                                 pass
                             query_stack[-1].ctes[cte_name] = query
                             cte_name = None
@@ -257,7 +308,7 @@ class SelectCrawler:
                                     pass
                 elif path[-1].is_type("with_compound_statement"):
                     # Beginning a "with" statement, i.e. a block of CTEs.
-                    query = Query(QueryType.WithCompound, dialect)
+                    query = self.query_class(QueryType.WithCompound, dialect)
                     if cte_name:
                         query_stack[-1].ctes[cte_name] = query
                         cte_name = None
@@ -270,10 +321,17 @@ class SelectCrawler:
 
     @classmethod
     def get(cls, query: Query, segment: BaseSegment) -> List[Union[str, "Query"]]:
-        """Find SELECTs, table refs, or value table function calls in segment.
+        """Returns a list of query sources in segment.
 
-        If we find a SELECT, return info list. Otherwise, return table name
-        or function call string.
+        This includes:
+        - SELECT
+        - VALUES clause
+        - table reference
+        - value table function call
+
+        In the list returned, SELECT and VALUES are represented by a Query
+        object. The other possibilities are represented by a string (table name
+        or function call string).
         """
         return list(query.crawl_sources(segment, True))
 

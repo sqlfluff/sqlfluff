@@ -1,6 +1,6 @@
 """Automated tests for fixing violations.
 
-Any files in the /tests/fixtures/linter/autofix directoy will be picked up
+Any files in the test/fixtures/linter/autofix directory will be picked up
 and automatically tested against the appropriate dialect.
 """
 

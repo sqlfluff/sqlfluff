@@ -2,13 +2,18 @@
 from typing import Optional
 
 from sqlfluff.core.rules.base import BaseRule, LintResult, RuleContext
+from sqlfluff.core.rules.doc_decorators import (
+    document_configuration,
+)
 
 
+@document_configuration
 class Rule_L054(BaseRule):
-    """Inconsistent column references in GROUP BY/ORDER BY clauses.
+    """Inconsistent column references in ``GROUP BY/ORDER BY`` clauses.
 
     | **Anti-pattern**
-    | A mix of implicit and explicit column references are used in a GROUP BY clause.
+    | A mix of implicit and explicit column references are used in a ``GROUP BY``
+    | clause.
 
     .. code-block:: sql
        :force:
@@ -32,7 +37,7 @@ class Rule_L054(BaseRule):
             1, bar;
 
     | **Best practice**
-    | Reference all GROUP BY/ORDER BY columns either by name or by position.
+    | Reference all ``GROUP BY/ORDER BY`` columns either by name or by position.
 
     .. code-block:: sql
        :force:
@@ -83,8 +88,10 @@ class Rule_L054(BaseRule):
         if not context.segment.is_type("groupby_clause", "orderby_clause"):
             return None
 
-        # Look at child segments and map column references to either the implict or explicit category.
-        # N.B. segment names are used as the numeric literal type is 'raw', so best to be specific with the name.
+        # Look at child segments and map column references to either the implict or
+        # explicit category.
+        # N.B. segment names are used as the numeric literal type is 'raw', so best to
+        # be specific with the name.
         column_reference_category_map = {
             "ColumnReferenceSegment": "explicit",
             "ExpressionSegment": "explicit",
@@ -104,7 +111,8 @@ class Rule_L054(BaseRule):
             # If consistent naming then raise lint error if either:
 
             if len(column_reference_category_set) > 1:
-                # 1. Both implicit and explicit column references are found in the same clause.
+                # 1. Both implicit and explicit column references are found in the same
+                # clause.
                 return LintResult(
                     anchor=context.segment,
                     memory=context.memory,

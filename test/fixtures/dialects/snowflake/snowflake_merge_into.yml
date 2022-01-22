@@ -3,23 +3,25 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 53cda743206c1d61e4b75156462e406c766683af682000023ef0ac28614d3924
+_hash: d07738df29bf8bdf14d50d018e4d4109a741356e621c628c6161f181165ba097
 file:
 - statement:
-    alter_table_column_statement:
+    alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
     - table_reference:
       - identifier: xxxx
       - dot: .
       - identifier: example_table
-    - keyword: MODIFY
-    - keyword: COLUMN
-    - identifier: employeeCode
-    - keyword: SET
-    - keyword: MASKING
-    - keyword: POLICY
-    - function_name_identifier: example_MASKING_POLICY
+    - alter_table_table_column_action:
+      - keyword: MODIFY
+      - keyword: COLUMN
+      - column_reference:
+          identifier: employeeCode
+      - keyword: SET
+      - keyword: MASKING
+      - keyword: POLICY
+      - function_name_identifier: example_MASKING_POLICY
 - statement_terminator: ;
 - statement:
     merge_statement:
@@ -37,7 +39,8 @@ file:
           - identifier: target_table
           - dot: .
           - identifier: id
-        - comparison_operator: '='
+        - comparison_operator:
+            raw_comparison_operator: '='
         - column_reference:
           - identifier: source_table
           - dot: .
@@ -55,7 +58,8 @@ file:
               - identifier: target_table
               - dot: .
               - identifier: description
-            - comparison_operator: '='
+            - comparison_operator:
+                raw_comparison_operator: '='
             - column_reference:
               - identifier: source_table
               - dot: .
@@ -77,7 +81,8 @@ file:
           - identifier: t1
           - dot: .
           - identifier: t1key
-        - comparison_operator: '='
+        - comparison_operator:
+            raw_comparison_operator: '='
         - column_reference:
           - identifier: t2
           - dot: .
@@ -91,7 +96,8 @@ file:
           - identifier: t2
           - dot: .
           - identifier: marked
-          comparison_operator: '='
+          comparison_operator:
+            raw_comparison_operator: '='
           literal: '1'
       - keyword: then
       - merge_delete_clause:

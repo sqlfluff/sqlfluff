@@ -43,15 +43,14 @@ def document_configuration(cls, ruleset="std"):
                 info_dict = config_info[keyword]
             except KeyError:  # pragma: no cover
                 raise KeyError(
-                    "Config value {!r} for rule {} is not configured in `config_info`.".format(
-                        keyword, cls.__name__
-                    )
+                    "Config value {!r} for rule {} is not configured in "
+                    "`config_info`.".format(keyword, cls.__name__)
                 )
-            config_doc += "\n    |     `{}`: {}.".format(
+            config_doc += "\n    |     `{}`: {}".format(
                 keyword, info_dict["definition"]
             )
             if "validation" in info_dict:
-                config_doc += " Must be one of {}.".format(info_dict["validation"])
+                config_doc += " Must be one of ``{}``.".format(info_dict["validation"])
             config_doc += "\n    |"
     except AttributeError:
         rules_logger.info(f"No config_keywords defined for {cls.__name__}")

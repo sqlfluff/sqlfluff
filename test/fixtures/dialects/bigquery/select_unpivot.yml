@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7e657292b3a7d84936b41ac263313c771c046037bf645a34de6ee4066d8777a6
+_hash: fdc7ab971cacb279e76dcef54e785fa12b5e13fca5f445c5e1ad9d0f51a2c48d
 file:
 - statement:
     with_compound_statement:
@@ -100,6 +100,80 @@ file:
           from_unpivot_expression:
             keyword: UNPIVOT
             bracketed:
+            - start_bracket: (
+            - identifier: sales
+            - keyword: FOR
+            - identifier: quarter
+            - keyword: IN
+            - bracketed:
+              - start_bracket: (
+              - identifier: Q1
+              - comma: ','
+              - identifier: Q2
+              - comma: ','
+              - identifier: Q3
+              - comma: ','
+              - identifier: Q4
+              - end_bracket: )
+            - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: Produce
+          from_unpivot_expression:
+          - keyword: UNPIVOT
+          - keyword: INCLUDE
+          - keyword: NULLS
+          - bracketed:
+            - start_bracket: (
+            - identifier: sales
+            - keyword: FOR
+            - identifier: quarter
+            - keyword: IN
+            - bracketed:
+              - start_bracket: (
+              - identifier: Q1
+              - comma: ','
+              - identifier: Q2
+              - comma: ','
+              - identifier: Q3
+              - comma: ','
+              - identifier: Q4
+              - end_bracket: )
+            - end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: Produce
+          from_unpivot_expression:
+          - keyword: UNPIVOT
+          - keyword: EXCLUDE
+          - keyword: NULLS
+          - bracketed:
             - start_bracket: (
             - identifier: sales
             - keyword: FOR

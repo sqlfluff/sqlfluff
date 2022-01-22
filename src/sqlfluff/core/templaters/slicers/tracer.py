@@ -5,7 +5,6 @@ This is a newer slicing algorithm that handles cases heuristic.py does not.
 
 import logging
 import regex
-import uuid
 from itertools import chain
 from typing import Callable, cast, Dict, List, NamedTuple, Optional
 
@@ -54,6 +53,7 @@ class JinjaTracer:
         self.env = env
         self.make_template: Callable[[str], Template] = make_template
         self.program_counter: int = 0
+        self.slice_id: int = 0
         self.raw_slice_info: Dict[RawFileSlice, RawSliceInfo] = {}
         self.raw_sliced: List[RawFileSlice] = self._slice_template()
         self.sliced_file: List[TemplatedFileSlice] = []
@@ -70,13 +70,22 @@ class JinjaTracer:
         trace_template = self.make_template(trace_template_str)
         trace_template_output = trace_template.render()
         # Split output by section. Each section has two possible formats.
-        for p in trace_template_output.split("\0"):
-            if not p:
-                continue
+        trace_entries = list(regex.finditer(r"\0", trace_template_output))
+        for match_idx, match in enumerate(trace_entries):
+            pos1 = match.span()[0]
+            try:
+                pos2 = trace_entries[match_idx + 1].span()[0]
+            except IndexError:
+                pos2 = len(trace_template_output)
+            p = trace_template_output[pos1 + 1 : pos2]
+            is_set = p[:3] == "set"
+            if is_set:
+                p = p[3:]
             m_id = regex.match(r"^([0-9a-f]+)(_(\d+))?", p)
             if not m_id:
                 raise ValueError(  # pragma: no cover
-                    "Internal error. Trace template output does not match expected format."
+                    "Internal error. Trace template output does not match expected "
+                    "format."
                 )
             if m_id.group(3):
                 # E.g. "2e8577c1d045439ba8d3b9bf47561de3_83". The number after
@@ -84,21 +93,27 @@ class JinjaTracer:
                 # in raw_str.
                 value = [m_id.group(1), int(m_id.group(3)), True]
             else:
-                # E.g. "adc15d2a41d14ead97411bce3fb55e32 a < 10". The characters
-                # after the UUID are executable code from raw_str.
+                # E.g. "00000000000000000000000000000002 a < 10". The characters
+                # after the slice ID are executable code from raw_str.
                 value = [m_id.group(0), p[len(m_id.group(0)) + 1 :], False]
             alt_id, content_info, literal = value
             target_slice_idx = self.find_slice_index(alt_id)
-            if literal:
-                self.move_to_slice(target_slice_idx, content_info)
+            slice_length = content_info if literal else len(str(content_info))
+            if not is_set:
+                self.move_to_slice(target_slice_idx, slice_length)
             else:
-                self.move_to_slice(target_slice_idx, len(str(content_info)))
+                # If we find output from a {% set %} directive, record a trace
+                # without reading or updating the program counter.
+                self.record_trace(slice_length, target_slice_idx)
         return JinjaTrace(
             self.make_template(self.raw_str).render(), self.raw_sliced, self.sliced_file
         )
 
     def find_slice_index(self, slice_identifier) -> int:
-        """Given a slice identifier (UUID string), return its index."""
+        """Given a slice identifier, return its index.
+
+        A slice identifier is a string like 00000000000000000000000000000002.
+        """
         raw_slices_search_result = [
             idx
             for idx, rs in enumerate(self.raw_sliced)
@@ -139,16 +154,18 @@ class JinjaTracer:
                 candidates.sort(key=lambda c: abs(target_slice_idx - c))
                 self.program_counter = candidates[0]
 
-    def record_trace(self, target_slice_length):
-        """Add the current location to the trace."""
-        slice_type = self.raw_sliced[self.program_counter].slice_type
+    def record_trace(self, target_slice_length, slice_idx=None):
+        """Add the specified (default: current) location to the trace."""
+        if slice_idx is None:
+            slice_idx = self.program_counter
+        slice_type = self.raw_sliced[slice_idx].slice_type
         self.sliced_file.append(
             TemplatedFileSlice(
                 slice_type,
                 slice(
-                    self.raw_sliced[self.program_counter].source_idx,
-                    self.raw_sliced[self.program_counter + 1].source_idx
-                    if self.program_counter + 1 < len(self.raw_sliced)
+                    self.raw_sliced[slice_idx].source_idx,
+                    self.raw_sliced[slice_idx + 1].source_idx
+                    if slice_idx + 1 < len(self.raw_sliced)
                     else len(self.raw_str),
                 ),
                 slice(self.source_idx, self.source_idx + target_slice_length),
@@ -156,6 +173,12 @@ class JinjaTracer:
         )
         if slice_type in ("literal", "templated"):
             self.source_idx += target_slice_length
+
+    def next_slice_id(self) -> str:
+        """Returns a new, unique slice ID."""
+        result = "{0:#0{1}x}".format(self.slice_id, 34)[2:]
+        self.slice_id += 1
+        return result
 
     def _slice_template(self) -> List[RawFileSlice]:
         """Slice template in jinja.
@@ -187,16 +210,14 @@ class JinjaTracer:
         unique_alternate_id: Optional[str]
         alternate_code: Optional[str]
         for _, elem_type, raw in self.env.lex(self.raw_str):
-            # Replace literal text with a unique ID, except for "set"
-            # statements, which don't emit output and thus don't need this
-            # treatment.
+            # Replace literal text with a unique ID.
             if elem_type == "data":
                 if set_idx is None:
-                    unique_alternate_id = uuid.uuid4().hex
-                    alternate_code = f"{unique_alternate_id}_{len(raw)}\0"
+                    unique_alternate_id = self.next_slice_id()
+                    alternate_code = f"\0{unique_alternate_id}_{len(raw)}"
                 else:
-                    unique_alternate_id = None
-                    alternate_code = None
+                    unique_alternate_id = self.next_slice_id()
+                    alternate_code = f"\0set{unique_alternate_id}_{len(raw)}"
                 result.append(
                     RawFileSlice(
                         raw,
@@ -213,9 +234,9 @@ class JinjaTracer:
 
             if elem_type.endswith("_begin"):
                 # When a "begin" tag (whether block, comment, or data) uses
-                # whitespace stripping
-                # (https://jinja.palletsprojects.com/en/3.0.x/templates/#whitespace-control),
-                # the Jinja lex() function handles this by discarding adjacent
+                # whitespace stripping (
+                # https://jinja.palletsprojects.com/en/3.0.x/templates/#whitespace-control
+                # ), the Jinja lex() function handles this by discarding adjacent
                 # whitespace from in_str. For more insight, see the tokeniter()
                 # function in this file:
                 # https://github.com/pallets/jinja/blob/main/src/jinja2/lexer.py
@@ -269,6 +290,11 @@ class JinjaTracer:
                         trimmed_content = str_buff[
                             len(m_open.group(0)) : -len(m_close.group(0))
                         ]
+                    # :TRICKY: Syntactically, the Jinja {% include %} directive looks
+                    # like a block, but its behavior is basically syntactic sugar for
+                    # {{ open("somefile).read() }}. Thus, treat it as templated code.
+                    if block_type == "block" and trimmed_content.startswith("include "):
+                        block_type = "templated"
                     if block_type == "block":
                         if trimmed_content.startswith("end"):
                             block_type = "block_end"
@@ -281,27 +307,34 @@ class JinjaTracer:
                                 block_subtype = "loop"
                     else:
                         # For "templated", evaluate the content in case of side
-                        # effects, but return a UUID.
+                        # effects, but return a unique slice ID.
                         if trimmed_content:
                             assert m_open and m_close
-                            unique_id = uuid.uuid4().hex
+                            unique_id = self.next_slice_id()
                             unique_alternate_id = unique_id
-                            alternate_code = f"{unique_alternate_id} {m_open.group(1)} {trimmed_content} {m_close.group(1)}\0"
+                            prefix = "set" if set_idx is not None else ""
+                            open_ = m_open.group(1)
+                            close_ = m_close.group(1)
+                            alternate_code = (
+                                f"\0{prefix}{unique_alternate_id} {open_} "
+                                f"{trimmed_content} {close_}"
+                            )
                 if block_type == "block_start" and trimmed_content.split()[0] == "set":
                     # Jinja supports two forms of {% set %}:
                     # - {% set variable = value %}
                     # - {% set variable %}value{% endset %}
                     # https://jinja.palletsprojects.com/en/2.10.x/templates/#block-assignments
-                    # When the second format is used, leave the value "as is".
-                    # It won't be rendered directly to the template output
-                    # anyway, so substituting our special UUID values would just
-                    # confuse things.
+                    # When the second format is used, set the variable 'is_set'
+                    # to a non-None value. This info is used elsewhere, as
+                    # literals inside a {% set %} block require special handling
+                    # during the trace.
                     trimmed_content_parts = trimmed_content.split(maxsplit=2)
                     if len(trimmed_content_parts) <= 2 or not trimmed_content_parts[
                         2
                     ].startswith("="):
                         set_idx = len(result)
                 elif block_type == "block_end" and set_idx is not None:
+                    # Exiting a {% set %} block. Clear the indicator variable.
                     set_idx = None
                 m = regex.search(r"\s+$", raw, regex.MULTILINE | regex.DOTALL)
                 if raw.startswith("-") and m:

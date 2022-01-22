@@ -1,8 +1,12 @@
+-- get_query_results_as_dict() verifies SQLFluff can successfully use dbt_utils
+-- functions that require a database connection.
+-- https://github.com/sqlfluff/sqlfluff/issues/2297
+
 with
 
 orders as (
     select *
-    from "jaffle_shop"."jaffle_shop"."orders"
+    from "postgres"."jaffle_shop"."orders"
 )
 
 select

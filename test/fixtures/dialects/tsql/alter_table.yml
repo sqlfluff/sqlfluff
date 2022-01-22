@@ -1,0 +1,294 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 93bc364addedc027120bcb4e2cdaef9c6acf6d7108664231a7af4369a44196ec
+file:
+- batch:
+    statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - identifier: dbo
+        - dot: .
+        - identifier: doc_exa
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            identifier: column_a
+            data_type:
+              identifier: INT
+          end_bracket: )
+      - statement_terminator: ;
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - identifier: dbo
+        - dot: .
+        - identifier: doc_exa
+      - keyword: ADD
+      - column_definition:
+          identifier: column_b
+          data_type:
+            identifier: VARCHAR
+            bracketed:
+              start_bracket: (
+              expression:
+                literal: '20'
+              end_bracket: )
+          column_constraint_segment:
+            keyword: 'NULL'
+    statement_terminator: ;
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - identifier: dbo
+        - dot: .
+        - identifier: doc_exc
+      - bracketed:
+          start_bracket: (
+          column_definition:
+            identifier: column_a
+            data_type:
+              identifier: INT
+          end_bracket: )
+      - statement_terminator: ;
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - identifier: dbo
+        - dot: .
+        - identifier: doc_exc
+      - keyword: ADD
+      - column_definition:
+        - identifier: column_b
+        - data_type:
+            identifier: VARCHAR
+            bracketed:
+              start_bracket: (
+              expression:
+                literal: '20'
+              end_bracket: )
+        - column_constraint_segment:
+            keyword: 'NULL'
+        - column_constraint_segment:
+          - keyword: CONSTRAINT
+          - object_reference:
+              identifier: exb_unique
+          - keyword: UNIQUE
+    statement_terminator: ;
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
+      execute_script_statement:
+        keyword: EXEC
+        object_reference:
+          identifier: sp_help
+        identifier: doc_exc
+        statement_terminator: ;
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
+      drop_table_statement:
+      - keyword: DROP
+      - keyword: TABLE
+      - table_reference:
+        - identifier: dbo
+        - dot: .
+        - identifier: doc_exc
+      - statement_terminator: ;
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
+      create_table_statement:
+      - keyword: CREATE
+      - keyword: TABLE
+      - table_reference:
+        - identifier: dbo
+        - dot: .
+        - identifier: doc_exz
+      - bracketed:
+        - start_bracket: (
+        - column_definition:
+            identifier: column_a
+            data_type:
+              identifier: INT
+        - comma: ','
+        - column_definition:
+            identifier: column_b
+            data_type:
+              identifier: INT
+        - end_bracket: )
+      - statement_terminator: ;
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
+      insert_statement:
+      - keyword: INSERT
+      - keyword: INTO
+      - table_reference:
+        - identifier: dbo
+        - dot: .
+        - identifier: doc_exz
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            identifier: column_a
+          end_bracket: )
+      - values_clause:
+          keyword: VALUES
+          bracketed:
+            start_bracket: (
+            expression:
+              literal: '7'
+            end_bracket: )
+    statement_terminator: ;
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - identifier: dbo
+        - dot: .
+        - identifier: doc_exz
+      - keyword: ADD
+      - column_constraint_segment:
+        - keyword: CONSTRAINT
+        - object_reference:
+            identifier: col_b_def
+        - keyword: DEFAULT
+        - literal: '50'
+      - keyword: FOR
+      - column_reference:
+          identifier: column_b
+    statement_terminator: ;
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
+      insert_statement:
+      - keyword: INSERT
+      - keyword: INTO
+      - table_reference:
+        - identifier: dbo
+        - dot: .
+        - identifier: doc_exz
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            identifier: column_a
+          end_bracket: )
+      - values_clause:
+          keyword: VALUES
+          bracketed:
+            start_bracket: (
+            expression:
+              literal: '10'
+            end_bracket: )
+    statement_terminator: ;
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - identifier: dbo
+                - dot: .
+                - identifier: doc_exz
+          statement_terminator: ;
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
+      drop_table_statement:
+      - keyword: DROP
+      - keyword: TABLE
+      - table_reference:
+        - identifier: dbo
+        - dot: .
+        - identifier: doc_exz
+      - statement_terminator: ;
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - identifier: Production
+        - dot: .
+        - identifier: TransactionHistoryArchive
+      - keyword: ADD
+      - table_constraint_segment:
+        - keyword: CONSTRAINT
+        - object_reference:
+            identifier: PK_TransactionHistoryArchive_TransactionID
+        - keyword: PRIMARY
+        - keyword: KEY
+        - keyword: CLUSTERED
+        - bracketed_index_column_list_grammar:
+            bracketed:
+              start_bracket: (
+              index_column_definition:
+                identifier: TransactionID
+              end_bracket: )
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
+      alter_table_statement:
+      - keyword: ALTER
+      - keyword: TABLE
+      - table_reference:
+        - identifier: Production
+        - dot: .
+        - identifier: TransactionHistoryArchive
+      - keyword: ALTER
+      - keyword: COLUMN
+      - column_definition:
+          identifier: rec_number
+          data_type:
+            identifier: VARCHAR
+            bracketed:
+              start_bracket: (
+              expression:
+                literal: '36'
+              end_bracket: )
+- go_statement:
+    keyword: GO

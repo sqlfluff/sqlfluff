@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 563d01a9d3f4d84492323c33e29057117a47da895863eb69e48beccd4bc53a5e
+_hash: c840d33ae97d17da0e547f7786feda1663430529850f5bb0e0bc62617bf02e9c
 file:
 - statement:
     insert_statement:
@@ -26,9 +26,11 @@ file:
         keyword: VALUES
         bracketed:
         - start_bracket: (
-        - literal: '1'
+        - expression:
+            literal: '1'
         - comma: ','
-        - literal: "'val'"
+        - expression:
+            literal: "'val'"
         - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -46,6 +48,35 @@ file:
         keyword: VALUES
         bracketed:
           start_bracket: (
-          bare_function: current_timestamp
+          expression:
+            bare_function: current_timestamp
           end_bracket: )
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        identifier: distributors
+    - alias_expression:
+        keyword: AS
+        identifier: d
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          identifier: did
+      - comma: ','
+      - column_reference:
+          identifier: dname
+      - end_bracket: )
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+        - start_bracket: (
+        - expression:
+            literal: '8'
+        - comma: ','
+        - expression:
+            literal: "'Anvil Distribution'"
+        - end_bracket: )
 - statement_terminator: ;

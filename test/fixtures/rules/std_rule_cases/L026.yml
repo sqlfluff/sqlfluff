@@ -9,7 +9,7 @@ test_pass_object_referenced_1:
       dialect: bigquery
     rules:
       L026:
-        force_enable: True
+        force_enable: true
 
 test_fail_object_not_referenced_1:
   desc: Name foo is not referenced in FROM clause. It would need to be at the end of identifier in ticks or an alias.
@@ -20,7 +20,7 @@ test_fail_object_not_referenced_1:
       dialect: bigquery
     rules:
       L026:
-        force_enable: True
+        force_enable: true
 
 test_fail_object_not_referenced_2:
   # References in WHERE clause
@@ -48,7 +48,7 @@ test_pass_object_referenced_4:
       dialect: bigquery
     rules:
       L026:
-        force_enable: True
+        force_enable: true
 
 test_pass_object_referenced_5a:
   # Test ambiguous column reference caused by use of BigQuery structure fields.
@@ -56,7 +56,7 @@ test_pass_object_referenced_5a:
   # disabled for bigquery
   # https://github.com/sqlfluff/sqlfluff/issues/1503
   pass_str: |
-    SELECT column.field
+    SELECT col1.field, col
     FROM `example_dataset2.example_table2`
   configs:
     core:
@@ -65,21 +65,35 @@ test_pass_object_referenced_5a:
 test_pass_object_referenced_5b:
   # Same test as above but default (ANSI) should trigger
   fail_str: |
-    SELECT column.field
+    SELECT col1.field
     FROM table1
 
 test_pass_object_referenced_5c:
   # Same test as above but for BigQuery but force is
   # enabled so should fail
   fail_str: |
-    SELECT column.field
+    SELECT col1.field
     FROM `example_dataset2.example_table2`
   configs:
     core:
       dialect: bigquery
     rules:
       L026:
-        force_enable: True
+        force_enable: true
+
+test_pass_object_referenced_5d:
+  # Test for extra dialect (hive) compatibility
+  pass_str: SELECT col1.field, col2 FROM example_table
+  configs:
+    core:
+      dialect: hive
+
+test_pass_object_referenced_5e:
+  # Test for extra dialect (redshift) compatibility
+  pass_str: SELECT col1.field, col2 FROM example_table
+  configs:
+    core:
+      dialect: redshift
 
 test_pass_object_referenced_6:
   # Test references in subqueries (see issue #1939)
@@ -96,3 +110,73 @@ test_pass_object_referenced_6:
                 table3
                 on table2.y_id = table3.y_id
     ) as cc
+
+test_pass_object_referenced_7:
+  pass_str: |
+    UPDATE my_table
+    SET row_sum = (
+        SELECT COUNT(*) AS row_sum
+        FROM
+            another_table
+        WHERE
+            another_table.id = my_table.id
+    )
+
+test_fail_object_referenced_7:
+  fail_str: |
+    UPDATE my_table
+    SET row_sum = (
+        SELECT COUNT(*) AS row_sum
+        FROM
+            another_table
+        WHERE
+            another_table.id = my_tableeee.id
+    )
+
+test_pass_object_referenced_8:
+  pass_str: |
+    DELETE FROM agent1
+    WHERE EXISTS(
+        SELECT customer.cust_id FROM customer
+        WHERE agent1.agent_code <> customer.agent_code);
+
+test_pass_two_part_reference_8:
+  pass_str: |
+    delete from public.agent1
+    where exists(
+        select customer.cust_id from customer
+        where agent1.agent_code <> customer.agent_code)
+
+test_pass_two_part_reference_9:
+  pass_str: |
+    delete from public.agent1
+    where exists(
+        select customer.cust_id from customer
+        where public.agent1.agent_code <> customer.agent_code)
+
+test_fail_two_part_reference_10:
+  fail_str: |
+    select *
+    from schema1.agent1
+    where schema2.agent1.agent_code <> 'abc'
+
+test_fail_two_part_reference_11:
+  fail_str: |
+    delete from schema1.agent1
+    where exists(
+        select customer.cust_id from customer
+        where schema2.agent1.agent_code <> customer.agent_code)
+
+test_pass_two_part_reference_11:
+  pass_str: |
+    select * from agent1
+    where public.agent1.agent_code <> '3'
+
+test_pass_exasol_select_into:
+  pass_str: |
+    select *
+    into table schm.tab
+    from schm.tab2
+  configs:
+    core:
+      dialect: exasol

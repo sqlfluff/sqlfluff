@@ -6,9 +6,9 @@ keywords than the Default Mode, and still shares
 some syntax with hive.
 
 Based on:
-- https://spark.apache.org/docs/latest/sql-ref.html
-- https://spark.apache.org/docs/latest/sql-ref-ansi-compliance.html
-- https://github.com/apache/spark/blob/master/sql/catalyst/src/main/antlr4/org/apache/spark/sql/catalyst/parser/SqlBase.g4
+https://spark.apache.org/docs/latest/sql-ref.html
+https://spark.apache.org/docs/latest/sql-ref-ansi-compliance.html
+https://github.com/apache/spark/blob/master/sql/catalyst/src/main/antlr4/org/apache/spark/sql/catalyst/parser/SqlBase.g4
 """
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -56,11 +56,64 @@ spark3_dialect.patch_lexer_matchers(
         # https://spark.apache.org/docs/latest/api/sql/index.html#_10
         RegexLexer("equals", r"=|==|<=>", CodeSegment),
         # identifiers are delimited with `
-        # within a delimited identifier, ` is used to escape special characters, including `
+        # within a delimited identifier, ` is used to escape special characters,
+        # including `
         # Ex: select `delimited `` with escaped` from `just delimited`
         # https://spark.apache.org/docs/latest/sql-ref-identifier.html#delimited-identifier
         RegexLexer("back_quote", r"`([^`]|``)*`", CodeSegment),
+        # Numeric literal matches integers, decimals, and exponential formats.
+        # https://spark.apache.org/docs/latest/sql-ref-literals.html#numeric-literal
+        # Pattern breakdown:
+        # (?>                                    Atomic grouping
+        #                           (https://www.regular-expressions.info/atomic.html).
+        #                                        3 distinct groups here:
+        #                                        1. Obvious fractional types
+        #                                           (can optionally be exponential).
+        #                                        2. Integer followed by exponential.
+        #                                           These must be fractional types.
+        #                                        3. Integer only.
+        #                                           These can either be integral or
+        #                                           fractional types.
+        #
+        #     (?>                                1.
+        #         \d+\.\d+                       e.g. 123.456
+        #         |\d+\.                         e.g. 123.
+        #         |\.\d+                         e.g. .123
+        #     )
+        #     ([eE][+-]?\d+)?                    Optional exponential.
+        #     ([dDfF]|BD|bd)?                    Fractional data types.
+        #     |\d+[eE][+-]?\d+([dDfF]|BD|bd)?    2. Integer + exponential with
+        #                                           fractional data types.
+        #     |\d+([dDfFlLsSyY]|BD|bd)?          3. Integer only with integral or
+        #                                           fractional data types.
+        # )
+        # (
+        #     (?<=\.)                            If matched character ends with .
+        #                                        (e.g. 123.) then don't worry about
+        #                                        word boundary check.
+        #     |(?=\b)                            Check that we are at word boundary to
+        #                                        avoid matching valid naked identifiers
+        #                                        (e.g. 123column).
+        # )
+        RegexLexer(
+            "numeric_literal",
+            (
+                r"(?>(?>\d+\.\d+|\d+\.|\.\d+)([eE][+-]?\d+)?([dDfF]|BD|bd)?"
+                r"|\d+[eE][+-]?\d+([dDfF]|BD|bd)?"
+                r"|\d+([dDfFlLsSyY]|BD|bd)?)"
+                r"((?<=\.)|(?=\b))"
+            ),
+            CodeSegment,
+        ),
     ]
+)
+
+spark3_dialect.insert_lexer_matchers(
+    [
+        RegexLexer("bytes_single_quote", r"X'([^'\\]|\\.)*'", CodeSegment),
+        RegexLexer("bytes_double_quote", r'X"([^"\\]|\\.)*"', CodeSegment),
+    ],
+    before="single_quote",
 )
 
 # Set the bare functions
@@ -117,8 +170,7 @@ spark3_dialect.replace(
         Ref("LessThanSegment"),
         Ref("GreaterThanOrEqualToSegment"),
         Ref("LessThanOrEqualToSegment"),
-        Ref("NotEqualToSegment_a"),
-        Ref("NotEqualToSegment_b"),
+        Ref("NotEqualToSegment"),
         Ref("LikeOperatorSegment"),
     ),
     TemporaryGrammar=Sequence(
@@ -132,17 +184,16 @@ spark3_dialect.replace(
         type="identifier",
         trim_chars=("`",),
     ),
+    QuotedLiteralSegment=hive_dialect.get_grammar("QuotedLiteralSegment"),
+    LiteralGrammar=ansi_dialect.get_grammar("LiteralGrammar").copy(
+        insert=[
+            Ref("BytesQuotedLiteralSegment"),
+        ]
+    ),
 )
 
 spark3_dialect.add(
     # Add Hive Segments TODO : Is there a way to retrieve this w/o redefining?
-    DoubleQuotedLiteralSegment=NamedParser(
-        "double_quote",
-        CodeSegment,
-        name="quoted_literal",
-        type="literal",
-        trim_chars=('"',),
-    ),
     JsonfileKeywordSegment=StringParser(
         "JSONFILE",
         KeywordSegment,
@@ -188,9 +239,6 @@ spark3_dialect.add(
     StoredAsGrammar=hive_dialect.get_grammar("StoredAsGrammar"),
     StoredByGrammar=hive_dialect.get_grammar("StoredByGrammar"),
     StorageFormatGrammar=hive_dialect.get_grammar("StorageFormatGrammar"),
-    SingleOrDoubleQuotedLiteralGrammar=hive_dialect.get_grammar(
-        "SingleOrDoubleQuotedLiteralGrammar"
-    ),
     TerminatedByGrammar=hive_dialect.get_grammar("TerminatedByGrammar"),
     # Add Spark Grammar
     BucketSpecGrammar=Sequence(
@@ -242,7 +290,7 @@ spark3_dialect.add(
     ResourceLocationGrammar=Sequence(
         "USING",
         Ref("ResourceFileGrammar"),
-        Ref("SingleOrDoubleQuotedLiteralGrammar"),
+        Ref("QuotedLiteralSegment"),
     ),
     SortSpecGrammar=Sequence(
         "SORTED",
@@ -261,24 +309,42 @@ spark3_dialect.add(
         "UNSET",
         "TBLPROPERTIES",
         Ref("IfExistsGrammar", optional=True),
-        Bracketed(Delimited(Ref("SingleOrDoubleQuotedLiteralGrammar"))),
+        Bracketed(Delimited(Ref("QuotedLiteralSegment"))),
     ),
     TablePropertiesGrammar=Sequence(
         "TBLPROPERTIES", Ref("BracketedPropertyListGrammar")
+    ),
+    BytesQuotedLiteralSegment=OneOf(
+        NamedParser(
+            "bytes_single_quote",
+            CodeSegment,
+            name="bytes_quoted_literal",
+            type="literal",
+        ),
+        NamedParser(
+            "bytes_double_quote",
+            CodeSegment,
+            name="bytes_quoted_literal",
+            type="literal",
+        ),
     ),
 )
 
 
 # Hive Segments
 @spark3_dialect.segment()
-class RowFormatClauseSegment(hive_dialect.get_segment("RowFormatClauseSegment")):  # type: ignore
+class RowFormatClauseSegment(
+    hive_dialect.get_segment("RowFormatClauseSegment")  # type: ignore
+):
     """`ROW FORMAT` clause in a CREATE HIVEFORMAT TABLE statement."""
 
     type = "row_format_clause"
 
 
 @spark3_dialect.segment()
-class SkewedByClauseSegment(hive_dialect.get_segment("SkewedByClauseSegment")):  # type: ignore
+class SkewedByClauseSegment(
+    hive_dialect.get_segment("SkewedByClauseSegment")  # type: ignore
+):
     """`SKEWED BY` clause in a CREATE HIVEFORMAT TABLE statement."""
 
     type = "skewed_by_clause"
@@ -459,6 +525,8 @@ class AlterTableStatementSegment(BaseSegment):
                 Ref("PartitionSpecGrammar"),
                 Sequence("PURGE", optional=True),
             ),
+            # ALTER TABLE - REPAIR PARTITION
+            Sequence("RECOVER", "PARTITIONS"),
             # ALTER TABLE - SET PROPERTIES
             Sequence("SET", Ref("TablePropertiesGrammar")),
             # ALTER TABLE - UNSET PROPERTIES
@@ -474,7 +542,7 @@ class AlterTableStatementSegment(BaseSegment):
                     ),
                     Sequence(
                         "SERDE",
-                        Ref("SingleOrDoubleQuotedLiteralGrammar"),
+                        Ref("QuotedLiteralSegment"),
                         Ref("SerdePropertiesGrammar", optional=True),
                     ),
                 ),
@@ -571,16 +639,17 @@ class CreateFunctionStatementSegment(BaseSegment):
         Ref("IfNotExistsGrammar", optional=True),
         Ref("FunctionNameIdentifierSegment"),
         "AS",
-        Ref("SingleOrDoubleQuotedLiteralGrammar"),
-        Ref("ResourceLocationGrammar"),
+        Ref("QuotedLiteralSegment"),
+        Ref("ResourceLocationGrammar", optional=True),
     )
 
 
 @spark3_dialect.segment(replace=True)
 class CreateTableStatementSegment(BaseSegment):
-    """A `CREATE TABLE` statement using a Data Source.
+    """A `CREATE TABLE` statement using a Data Source or Like.
 
     http://spark.apache.org/docs/latest/sql-ref-syntax-ddl-create-table-datasource.html
+    https://spark.apache.org/docs/latest/sql-ref-syntax-ddl-create-table-like.html
     """
 
     type = "create_table_statement"
@@ -590,25 +659,36 @@ class CreateTableStatementSegment(BaseSegment):
         "TABLE",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
-        # Columns and comment syntax:
-        Sequence(
-            Bracketed(
-                Delimited(
-                    Sequence(
-                        Ref("ColumnDefinitionSegment"),
-                        Ref("CommentGrammar", optional=True),
+        OneOf(
+            # Columns and comment syntax:
+            Sequence(
+                Bracketed(
+                    Delimited(
+                        Sequence(
+                            Ref("ColumnDefinitionSegment"),
+                            Ref("CommentGrammar", optional=True),
+                        ),
                     ),
                 ),
+            ),
+            # Like Syntax
+            Sequence(
+                "LIKE",
+                Ref("TableReferenceSegment"),
             ),
             optional=True,
         ),
         Sequence("USING", Ref("DataSourceFormatGrammar"), optional=True),
+        Ref("RowFormatClauseSegment", optional=True),
+        Ref("StoredAsGrammar", optional=True),
         Sequence("OPTIONS", Ref("BracketedPropertyListGrammar"), optional=True),
         Ref("PartitionSpecGrammar", optional=True),
         Ref("BucketSpecGrammar", optional=True),
-        Ref("LocationGrammar", optional=True),
-        Ref("CommentGrammar", optional=True),
-        Ref("TablePropertiesGrammar", optional=True),
+        AnyNumberOf(
+            Ref("LocationGrammar", optional=True),
+            Ref("CommentGrammar", optional=True),
+            Ref("TablePropertiesGrammar", optional=True),
+        ),
         # Create AS syntax:
         Sequence(
             "AS",
@@ -616,6 +696,18 @@ class CreateTableStatementSegment(BaseSegment):
             optional=True,
         ),
     )
+
+
+@spark3_dialect.segment()
+class CreateHiveFormatTableStatementSegment(
+    hive_dialect.get_segment("CreateTableStatementSegment")  # type: ignore
+):
+    """A `CREATE TABLE` statement using Hive format.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-ddl-create-table-hiveformat.html
+    """
+
+    type = "create_table_statement"
 
 
 @spark3_dialect.segment(replace=True)
@@ -655,13 +747,140 @@ class CreateViewStatementSegment(BaseSegment):
 
 
 @spark3_dialect.segment()
-class CreateHiveFormatTableStatementSegment(hive_dialect.get_segment("CreateTableStatementSegment")):  # type: ignore
-    """A `CREATE TABLE` statement using Hive format.
+class DropFunctionStatementSegment(BaseSegment):
+    """A `DROP FUNCTION` STATEMENT.
 
-    https://spark.apache.org/docs/latest/sql-ref-syntax-ddl-create-table-hiveformat.html
+    https://spark.apache.org/docs/latest/sql-ref-syntax-ddl-drop-function.html
     """
 
-    type = "create_table_statement"
+    type = "drop_function_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        Ref("TemporaryGrammar", optional=True),
+        "FUNCTION",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("FunctionNameSegment"),
+    )
+
+
+@spark3_dialect.segment()
+class MsckRepairTableStatementSegment(
+    hive_dialect.get_segment("MsckRepairTableStatementSegment")  # type: ignore
+):
+    """A `REPAIR TABLE` statement using Hive MSCK (Metastore Check) format.
+
+    This class inherits from Hive since Spark leverages Hive format for this command and
+    is dependent on the Hive metastore.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-ddl-repair-table.html
+    """
+
+    type = "msck_repair_table_statement"
+
+
+@spark3_dialect.segment(replace=True)
+class TruncateStatementSegment(BaseSegment):
+    """A `TRUNCATE TABLE` statement.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-ddl-truncate-table.html
+    """
+
+    type = "truncate_table_statement"
+
+    match_grammar = Sequence(
+        "TRUNCATE",
+        "TABLE",
+        Ref("TableReferenceSegment"),
+        Ref("PartitionSpecGrammar", optional=True),
+    )
+
+
+@spark3_dialect.segment()
+class UseDatabaseStatementSegment(BaseSegment):
+    """A `USE DATABASE` statement.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-ddl-usedb.html
+    """
+
+    type = "use_database_statement"
+
+    match_grammar = Sequence(
+        "USE",
+        Ref("DatabaseReferenceSegment"),
+    )
+
+
+# Data Manipulation Statements
+@spark3_dialect.segment(replace=True)
+class InsertStatementSegment(BaseSegment):
+    """A `INSERT [TABLE]` statement to insert or overwrite new rows into a table.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-dml-insert-into.html
+    https://spark.apache.org/docs/latest/sql-ref-syntax-dml-insert-overwrite-table.html
+    """
+
+    type = "insert_table_statement"
+
+    match_grammar = Sequence(
+        "INSERT",
+        OneOf("INTO", "OVERWRITE"),
+        Ref.keyword("TABLE", optional=True),
+        Ref("TableReferenceSegment"),
+        Ref("PartitionSpecGrammar", optional=True),
+        Ref("BracketedColumnReferenceListGrammar", optional=True),
+        OneOf(
+            AnyNumberOf(
+                Ref("ValuesClauseSegment"),
+                min_times=1,
+            ),
+            Ref("SelectableGrammar"),
+            Sequence(
+                Ref.keyword("TABLE", optional=True),
+                Ref("TableReferenceSegment"),
+            ),
+            Sequence(
+                "FROM",
+                Ref("TableReferenceSegment"),
+                "SELECT",
+                Delimited(
+                    Ref("ColumnReferenceSegment"),
+                ),
+                Ref("WhereClauseSegment", optional=True),
+                Ref("GroupByClauseSegment", optional=True),
+                Ref("OrderByClauseSegment", optional=True),
+                Ref("LimitClauseSegment", optional=True),
+            ),
+        ),
+    )
+
+
+@spark3_dialect.segment()
+class InsertOverwriteDirectorySegment(BaseSegment):
+    """An `INSERT OVERWRITE [LOCAL] DIRECTORY` statement.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-dml-insert-overwrite-directory.html
+    """
+
+    type = "insert_overwrite_directory_statement"
+
+    match_grammar = Sequence(
+        "INSERT",
+        "OVERWRITE",
+        Ref.keyword("LOCAL", optional=True),
+        "DIRECTORY",
+        Ref("QuotedLiteralSegment", optional=True),
+        "USING",
+        Ref("DataSourceFormatGrammar"),
+        Sequence("OPTIONS", Ref("BracketedPropertyListGrammar"), optional=True),
+        OneOf(
+            AnyNumberOf(
+                Ref("ValuesClauseSegment"),
+                min_times=1,
+            ),
+            Ref("SelectableGrammar"),
+        ),
+    )
 
 
 # Auxiliary Statements
@@ -677,7 +896,54 @@ class AddExecutablePackage(BaseSegment):
     match_grammar = Sequence(
         "ADD",
         Ref("ResourceFileGrammar"),
-        Ref("SingleOrDoubleQuotedLiteralGrammar"),
+        Ref("QuotedLiteralSegment"),
+    )
+
+
+@spark3_dialect.segment()
+class RefreshStatementSegment(BaseSegment):
+    """A `REFRESH` statement for given data source path.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-aux-cache-refresh.html
+    """
+
+    type = "refresh_statement"
+
+    match_grammar = Sequence(
+        "REFRESH",
+        Ref("QuotedLiteralSegment"),
+    )
+
+
+@spark3_dialect.segment()
+class RefreshTableStatementSegment(BaseSegment):
+    """A `REFRESH TABLE` statement.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-aux-cache-refresh-table.html
+    """
+
+    type = "refresh_table_statement"
+
+    match_grammar = Sequence(
+        "REFRESH",
+        Ref.keyword("TABLE", optional=True),
+        Ref("TableReferenceSegment"),
+    )
+
+
+@spark3_dialect.segment()
+class RefreshFunctionStatementSegment(BaseSegment):
+    """A `REFRESH FUNCTION` statement.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-aux-cache-refresh-function.html
+    """
+
+    type = "refresh_function_statement"
+
+    match_grammar = Sequence(
+        "REFRESH",
+        "FUNCTION",
+        Ref("FunctionNameSegment"),
     )
 
 
@@ -695,14 +961,21 @@ class StatementSegment(BaseSegment):
             Ref("AlterTableStatementSegment"),
             Ref("AlterViewStatementSegment"),
             Ref("CreateHiveFormatTableStatementSegment"),
+            Ref("DropFunctionStatementSegment"),
+            Ref("MsckRepairTableStatementSegment"),
+            Ref("UseDatabaseStatementSegment"),
             # Auxiliary Statements
             Ref("AddExecutablePackage"),
+            Ref("RefreshStatementSegment"),
+            Ref("RefreshTableStatementSegment"),
+            Ref("RefreshFunctionStatementSegment"),
+            # Data Manipulation Statements
+            Ref("InsertOverwriteDirectorySegment"),
         ],
         remove=[
             Ref("TransactionStatementSegment"),
             Ref("CreateSchemaStatementSegment"),
             Ref("SetSchemaStatementSegment"),
-            Ref("DropSchemaStatementSegment"),
             Ref("CreateExtensionStatementSegment"),
             Ref("CreateModelStatementSegment"),
             Ref("DropModelStatementSegment"),
@@ -722,7 +995,8 @@ class JoinClauseSegment(BaseSegment):
     match_grammar = Sequence(
         # NB These qualifiers are optional
         # TODO: Allow nested joins like:
-        # ....FROM S1.T1 t1 LEFT JOIN ( S2.T2 t2 JOIN S3.T3 t3 ON t2.col1=t3.col1) ON tab1.col1 = tab2.col1
+        # ....FROM S1.T1 t1 LEFT JOIN ( S2.T2 t2 JOIN S3.T3 t3 ON t2.col1=t3.col1) ON
+        # tab1.col1 = tab2.col1
         OneOf(
             "CROSS",
             "INNER",

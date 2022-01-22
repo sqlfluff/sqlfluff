@@ -164,7 +164,8 @@ class Rule_L006(BaseRule):
                             ),
                             fixes=[
                                 LintFix.create_before(
-                                    # NB the anchor here is always in the parent and not anchor
+                                    # NB the anchor here is always in the parent and not
+                                    # anchor
                                     anchor_segment=sub_seg,
                                     edit_segments=[WhitespaceSegment(raw=" ")],
                                 )
@@ -190,7 +191,8 @@ class Rule_L006(BaseRule):
                             ),
                             fixes=[
                                 LintFix.create_before(
-                                    # NB the anchor here is always in the parent and not anchor
+                                    # NB the anchor here is always in the parent and not
+                                    # anchor
                                     anchor_segment=next_seg,
                                     edit_segments=[WhitespaceSegment(raw=" ")],
                                 )

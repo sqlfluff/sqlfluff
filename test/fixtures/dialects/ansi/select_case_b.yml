@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0e3d7b35b205bebd2ea8520eb98a6377ca944634adff99654782add64908279c
+_hash: 39282710aa3d234f37fd1aae05309112fdcb206cec16332a40f6dd9002812663
 file:
   statement:
     select_statement:
@@ -16,21 +16,24 @@ file:
             - expression:
                 column_reference:
                   identifier: some_var
-            - keyword: WHEN
-            - expression:
-                literal: "'hello'"
-            - keyword: THEN
-            - expression:
-                literal: '3'
-            - keyword: WHEN
-            - expression:
-                literal: "'hi'"
-            - keyword: THEN
-            - expression:
-                literal: '12'
-            - keyword: ELSE
-            - expression:
-                literal: '0'
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  literal: "'hello'"
+              - keyword: THEN
+              - expression:
+                  literal: '3'
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                  literal: "'hi'"
+              - keyword: THEN
+              - expression:
+                  literal: '12'
+            - else_clause:
+                keyword: ELSE
+                expression:
+                  literal: '0'
             - keyword: END
           alias_expression:
             keyword: as

@@ -1,5 +1,6 @@
 """Contains the CLI."""
 
+from itertools import chain
 import sys
 import json
 import logging
@@ -13,7 +14,7 @@ from typing import (
     List,
 )
 
-import oyaml as yaml
+import yaml
 
 import click
 
@@ -24,6 +25,7 @@ from io import StringIO
 # To enable colour cross platform
 import colorama
 from tqdm import tqdm
+from sqlfluff.cli.autocomplete import dialect_shell_complete
 
 from sqlfluff.cli.formatters import (
     format_rules,
@@ -52,6 +54,7 @@ from sqlfluff.core.config import progress_bar_configuration
 
 from sqlfluff.core.enums import FormatType, Color
 from sqlfluff.core.linter import ParsedString
+from sqlfluff.core.plugin.host import get_plugin_manager
 
 
 class RedWarningsFilter(logging.Filter):
@@ -147,16 +150,19 @@ def common_options(f: Callable) -> Callable:
         "-v",
         "--verbose",
         count=True,
+        default=None,
         help=(
-            "Verbosity, how detailed should the output be. This is *stackable*, so `-vv`"
-            " is more verbose than `-v`. For the most verbose option try `-vvvv` or `-vvvvv`."
+            "Verbosity, how detailed should the output be. This is *stackable*, so "
+            "`-vv` is more verbose than `-v`. For the most verbose option try `-vvvv` "
+            "or `-vvvvv`."
         ),
     )(f)
     f = click.option(
         "-n",
         "--nocolor",
         is_flag=True,
-        help="No color - if this is set then the output will be without ANSI color codes.",
+        default=None,
+        help="No color - output will be without ANSI color codes.",
     )(f)
 
     return f
@@ -169,10 +175,23 @@ def core_options(f: Callable) -> Callable:
     `parse`, `lint` and `fix`.
     """
     f = click.option(
-        "--dialect", default=None, help="The dialect of SQL to lint (default=ansi)"
+        "--dialect",
+        default=None,
+        help="The dialect of SQL to lint (default=ansi)",
+        shell_complete=dialect_shell_complete,
     )(f)
     f = click.option(
-        "--templater", default=None, help="The templater to use (default=jinja)"
+        "--templater",
+        default=None,
+        help="The templater to use (default=jinja)",
+        type=click.Choice(
+            [
+                templater.name
+                for templater in chain.from_iterable(
+                    get_plugin_manager().hook.get_templaters()
+                )
+            ]
+        ),
     )(f)
     f = click.option(
         "--rules",
@@ -204,10 +223,11 @@ def core_options(f: Callable) -> Callable:
         default=None,
         help=(
             "Include additional config file. By default the config is generated "
-            "from the standard configuration files described in the documentation. This "
-            "argument allows you to specify an additional configuration file that overrides "
-            "the standard configuration files. N.B. cfg format is required."
+            "from the standard configuration files described in the documentation. "
+            "This argument allows you to specify an additional configuration file that "
+            "overrides the standard configuration files. N.B. cfg format is required."
         ),
+        type=click.Path(),
     )(f)
     f = click.option(
         "--ignore-local-config",
@@ -223,7 +243,8 @@ def core_options(f: Callable) -> Callable:
         "--encoding",
         default="autodetect",
         help=(
-            "Specifiy encoding to use when reading and writing files. Defaults to autodetect."
+            "Specify encoding to use when reading and writing files. Defaults to "
+            "autodetect."
         ),
     )(f)
     f = click.option(
@@ -233,7 +254,8 @@ def core_options(f: Callable) -> Callable:
             "Ignore particular families of errors so that they don't cause a failed "
             "run. For example `--ignore parsing` would mean that any parsing errors "
             "are ignored and don't influence the success or fail of a run. Multiple "
-            "options are possible if comma separated e.g. `--ignore parsing,templating`."
+            "options are possible if comma separated e.g. "
+            "`--ignore parsing,templating`."
         ),
     )(f)
     f = click.option(
@@ -265,7 +287,8 @@ def get_config(
     """Get a config object from kwargs."""
     if "dialect" in kwargs:
         try:
-            # We're just making sure it exists at this stage - it will be fetched properly in the linter
+            # We're just making sure it exists at this stage.
+            # It will be fetched properly in the linter.
             dialect_selector(kwargs["dialect"])
         except SQLFluffUserError as err:
             click.echo(
@@ -324,7 +347,8 @@ def get_linter_and_formatter(
 ) -> Tuple[Linter, CallbackFormatter]:
     """Get a linter object given a config."""
     try:
-        # We're just making sure it exists at this stage - it will be fetched properly in the linter
+        # We're just making sure it exists at this stage.
+        # It will be fetched properly in the linter.
         dialect_selector(cfg.get("dialect"))
     except KeyError:  # pragma: no cover
         click.echo(f"Error: Unknown dialect '{cfg.get('dialect')}'")
@@ -398,7 +422,10 @@ def dialects(**kwargs) -> None:
     "--annotation-level",
     default="notice",
     type=click.Choice(["notice", "warning", "failure"], case_sensitive=False),
-    help="When format is set to github-annotation, default annotation level (default=notice).",
+    help=(
+        "When format is set to github-annotation, "
+        "default annotation level (default=notice)."
+    ),
 )
 @click.option(
     "--nofail",
@@ -425,7 +452,7 @@ def dialects(**kwargs) -> None:
     is_flag=True,
     help="Disables progress bars.",
 )
-@click.argument("paths", nargs=-1)
+@click.argument("paths", nargs=-1, type=click.Path(allow_dash=True))
 def lint(
     paths: Tuple[str],
     processes: int,
@@ -486,7 +513,8 @@ def lint(
         except OSError:
             click.echo(
                 colorize(
-                    f"The path(s) '{paths}' could not be accessed. Check it/they exist(s).",
+                    f"The path(s) '{paths}' could not be accessed. Check it/they "
+                    "exist(s).",
                     Color.red,
                 )
             )
@@ -498,7 +526,7 @@ def lint(
     if format == FormatType.json.value:
         click.echo(json.dumps(result.as_records()))
     elif format == FormatType.yaml.value:
-        click.echo(yaml.dump(result.as_records()))
+        click.echo(yaml.dump(result.as_records(), sort_keys=False))
     elif format == FormatType.github_annotation.value:
         github_result = []
         for record in result.as_records():
@@ -581,7 +609,7 @@ def do_fixes(lnt, result, formatter=None, **kwargs):
     is_flag=True,
     help="Disables progress bars.",
 )
-@click.argument("paths", nargs=-1)
+@click.argument("paths", nargs=-1, type=click.Path(allow_dash=True))
 def fix(
     force: bool,
     paths: Tuple[str],
@@ -675,7 +703,8 @@ def fix(
     if result.num_violations(types=SQLLintError, fixable=True) > 0:
         click.echo("==== fixing violations ====")
         click.echo(
-            f"{result.num_violations(types=SQLLintError, fixable=True)} fixable linting violations found"
+            f"{result.num_violations(types=SQLLintError, fixable=True)} fixable "
+            "linting violations found"
         )
         if force:
             click.echo(f"{colorize('FORCE MODE', Color.red)}: Attempting fixes...")
@@ -720,13 +749,15 @@ def fix(
 
     if result.num_violations(types=SQLLintError, fixable=False) > 0:
         click.echo(
-            f"  [{result.num_violations(types=SQLLintError, fixable=False)} unfixable linting violations found]"
+            f"  [{result.num_violations(types=SQLLintError, fixable=False)} unfixable "
+            "linting violations found]"
         )
         exit_code = 1
 
     if result.num_violations(types=SQLTemplaterError) > 0:
         click.echo(
-            f"  [{result.num_violations(types=SQLTemplaterError)} templating errors found]"
+            f"  [{result.num_violations(types=SQLTemplaterError)} templating errors "
+            "found]"
         )
         exit_code = 1
 
@@ -743,7 +774,8 @@ def fix(
 
 def _completion_message(config: FluffConfig) -> None:
     click.echo(
-        f"All Finished{'' if (config.get('nocolor') or not sys.stdout.isatty()) else ' 📜 🎉'}!"
+        "All Finished"
+        f"{'' if (config.get('nocolor') or not sys.stdout.isatty()) else ' 📜 🎉'}!"
     )
 
 
@@ -758,7 +790,7 @@ def quoted_presenter(dumper, data):
 @cli.command()
 @common_options
 @core_options
-@click.argument("path", nargs=1)
+@click.argument("path", nargs=1, type=click.Path(allow_dash=True))
 @click.option(
     "--recurse", default=0, help="The depth to recursively parse to (0 for unlimited)"
 )
@@ -887,9 +919,10 @@ def parse(
             ]
 
             if format == FormatType.yaml.value:
-                # For yaml dumping always dump double quoted strings if they contain tabs or newlines.
+                # For yaml dumping always dump double quoted strings if they contain
+                # tabs or newlines.
                 yaml.add_representer(str, quoted_presenter)
-                click.echo(yaml.dump(parsed_strings_dict))
+                click.echo(yaml.dump(parsed_strings_dict, sort_keys=False))
             elif format == FormatType.json.value:
                 click.echo(json.dumps(parsed_strings_dict))
 

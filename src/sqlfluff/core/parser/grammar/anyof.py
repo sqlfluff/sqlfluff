@@ -22,6 +22,7 @@ class AnyNumberOf(BaseGrammar):
     def __init__(self, *args, **kwargs):
         self.max_times = kwargs.pop("max_times", None)
         self.min_times = kwargs.pop("min_times", 0)
+        self.max_times_per_element = kwargs.pop("max_times_per_element", None)
         # Any patterns to _prevent_ a match.
         self.exclude = kwargs.pop("exclude", None)
         super().__init__(*args, **kwargs)
@@ -50,7 +51,7 @@ class AnyNumberOf(BaseGrammar):
 
     @staticmethod
     def _first_non_whitespace(segments) -> Optional[str]:
-        """Return the raw upper representation of the first valid non-whitespace segment in the iterable."""
+        """Return the upper first non-whitespace segment in the iterable."""
         for segment in segments:
             if segment.raw_segments_upper:
                 return segment.raw_segments_upper
@@ -121,7 +122,7 @@ class AnyNumberOf(BaseGrammar):
 
     def _match_once(
         self, segments: Tuple[BaseSegment, ...], parse_context: ParseContext
-    ) -> MatchResult:
+    ) -> Tuple[MatchResult, Optional["MatchableType"]]:
         """Match the forward segments against the available elements once.
 
         This serves as the main body of OneOf, but also a building block
@@ -141,14 +142,14 @@ class AnyNumberOf(BaseGrammar):
             return MatchResult.from_unmatched(segments)
 
         with parse_context.deeper_match() as ctx:
-            match, _ = self._longest_trimmed_match(
+            match, matched_option = self._longest_trimmed_match(
                 segments,
                 available_options,
                 parse_context=ctx,
                 trim_noncode=False,
             )
 
-        return match
+        return match, matched_option
 
     @match_wrapper()
     @allow_ephemeral
@@ -171,6 +172,13 @@ class AnyNumberOf(BaseGrammar):
         matched_segments: MatchResult = MatchResult.from_empty()
         unmatched_segments: Tuple[BaseSegment, ...] = segments
         n_matches = 0
+
+        # Keep track of the number of times each option has been matched.
+        available_options, _ = self._prune_options(
+            segments, parse_context=parse_context
+        )
+        available_option_counter = {str(o): 0 for o in available_options}
+
         while True:
             if self.max_times and n_matches >= self.max_times:
                 # We've matched as many times as we can
@@ -197,7 +205,23 @@ class AnyNumberOf(BaseGrammar):
             else:
                 pre_seg = ()  # empty tuple
 
-            match = self._match_once(unmatched_segments, parse_context=parse_context)
+            match, matched_option = self._match_once(
+                unmatched_segments, parse_context=parse_context
+            )
+
+            # Increment counter for matched option.
+            if matched_option and (str(matched_option) in available_option_counter):
+                available_option_counter[str(matched_option)] += 1
+                # Check if we have matched an option too many times.
+                if (
+                    self.max_times_per_element
+                    and available_option_counter[str(matched_option)]
+                    > self.max_times_per_element
+                ):
+                    return MatchResult(
+                        matched_segments.matched_segments, unmatched_segments
+                    )
+
             if match:
                 matched_segments += pre_seg + match.matched_segments
                 unmatched_segments = match.unmatched_segments
@@ -240,3 +264,10 @@ class OptionallyBracketed(OneOf):
             args[0] if len(args) == 1 else Sequence(*args),
             **kwargs,
         )
+
+
+class AnySetOf(AnyNumberOf):
+    """Match any number of the elements but each element can only be matched once."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, max_times_per_element=1, **kwargs)

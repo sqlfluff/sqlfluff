@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 556f1efa028708f87fae0e0e65fda6e3c882bdb5b03a4bbdf26d52bc407fc9d7
+_hash: cda7bcb144cf44a1405c04d7a59dbdbb0e72538bb0a5a39228fe4ea66b67a2dc
 file:
   batch:
   - statement:
@@ -20,7 +20,8 @@ file:
             start_bracket: (
             table_distribution_clause:
             - keyword: DISTRIBUTION
-            - comparison_operator: '='
+            - comparison_operator:
+                raw_comparison_operator: '='
             - keyword: HASH
             - bracketed:
                 start_bracket: (
@@ -126,13 +127,14 @@ file:
                       - identifier: e
                       - dot: .
                       - identifier: '[ID]'
-                    - comparison_operator: '='
+                    - comparison_operator:
+                        raw_comparison_operator: '='
                     - column_reference:
                       - identifier: f
                       - dot: .
                       - identifier: '[ID]'
   - statement:
-      drop_statement:
+      drop_table_statement:
       - keyword: DROP
       - keyword: TABLE
       - table_reference:
@@ -153,7 +155,8 @@ file:
             start_bracket: (
             table_distribution_clause:
             - keyword: DISTRIBUTION
-            - comparison_operator: '='
+            - comparison_operator:
+                raw_comparison_operator: '='
             - keyword: HASH
             - bracketed:
                 start_bracket: (
@@ -243,14 +246,15 @@ file:
                     - identifier: e
                     - dot: .
                     - identifier: '[ID]'
-                  - comparison_operator: '='
+                  - comparison_operator:
+                      raw_comparison_operator: '='
                   - column_reference:
                     - identifier: f
                     - dot: .
                     - identifier: '[ID]'
             statement_terminator: ;
   - statement:
-      drop_statement:
+      drop_table_statement:
       - keyword: DROP
       - keyword: TABLE
       - table_reference:
@@ -272,7 +276,8 @@ file:
             start_bracket: (
             table_distribution_clause:
             - keyword: DISTRIBUTION
-            - comparison_operator: '='
+            - comparison_operator:
+                raw_comparison_operator: '='
             - keyword: HASH
             - bracketed:
                 start_bracket: (
@@ -364,7 +369,8 @@ file:
                       - identifier: e
                       - dot: .
                       - identifier: '[ID]'
-                    - comparison_operator: '='
+                    - comparison_operator:
+                        raw_comparison_operator: '='
                     - column_reference:
                       - identifier: f
                       - dot: .
@@ -376,6 +382,7 @@ file:
             start_bracket: (
             query_hint_segment:
               keyword: LABEL
-              comparison_operator: '='
+              comparison_operator:
+                raw_comparison_operator: '='
               literal: "'Test_Label'"
             end_bracket: )

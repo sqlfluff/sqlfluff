@@ -55,16 +55,6 @@ hive_dialect.sets("datetime_units").update(
 )
 
 hive_dialect.add(
-    DoubleQuotedLiteralSegment=NamedParser(
-        "double_quote",
-        CodeSegment,
-        name="quoted_literal",
-        type="literal",
-        trim_chars=('"',),
-    ),
-    SingleOrDoubleQuotedLiteralGrammar=OneOf(
-        Ref("QuotedLiteralSegment"), Ref("DoubleQuotedLiteralSegment")
-    ),
     StartAngleBracketSegment=StringParser(
         "<", SymbolSegment, name="start_angle_bracket", type="start_angle_bracket"
     ),
@@ -83,11 +73,11 @@ hive_dialect.add(
     TextfileKeywordSegment=StringParser(
         "TEXTFILE", KeywordSegment, name="text_file", type="file_format"
     ),
-    LocationGrammar=Sequence("LOCATION", Ref("SingleOrDoubleQuotedLiteralGrammar")),
+    LocationGrammar=Sequence("LOCATION", Ref("QuotedLiteralSegment")),
     PropertyGrammar=Sequence(
-        Ref("SingleOrDoubleQuotedLiteralGrammar"),
+        Ref("QuotedLiteralSegment"),
         Ref("EqualsSegment"),
-        Ref("SingleOrDoubleQuotedLiteralGrammar"),
+        Ref("QuotedLiteralSegment"),
     ),
     BracketedPropertyListGrammar=Bracketed(Delimited(Ref("PropertyGrammar"))),
     TablePropertiesGrammar=Sequence(
@@ -107,16 +97,16 @@ hive_dialect.add(
         "JSONFILE",
         Sequence(
             "INPUTFORMAT",
-            Ref("SingleOrDoubleQuotedLiteralGrammar"),
+            Ref("QuotedLiteralSegment"),
             "OUTPUTFORMAT",
-            Ref("SingleOrDoubleQuotedLiteralGrammar"),
+            Ref("QuotedLiteralSegment"),
         ),
     ),
     StoredAsGrammar=Sequence("STORED", "AS", Ref("FileFormatGrammar")),
     StoredByGrammar=Sequence(
         "STORED",
         "BY",
-        Ref("SingleOrDoubleQuotedLiteralGrammar"),
+        Ref("QuotedLiteralSegment"),
         Ref("SerdePropertiesGrammar", optional=True),
     ),
     StorageFormatGrammar=OneOf(
@@ -126,7 +116,7 @@ hive_dialect.add(
         ),
         Ref("StoredByGrammar"),
     ),
-    CommentGrammar=Sequence("COMMENT", Ref("SingleOrDoubleQuotedLiteralGrammar")),
+    CommentGrammar=Sequence("COMMENT", Ref("QuotedLiteralSegment")),
     PartitionSpecGrammar=Sequence(
         "PARTITION",
         Bracketed(
@@ -144,6 +134,10 @@ hive_dialect.add(
 # https://cwiki.apache.org/confluence/display/hive/languagemanual+joins
 hive_dialect.replace(
     JoinKeywords=Sequence(Sequence("SEMI", optional=True), "JOIN"),
+    QuotedLiteralSegment=OneOf(
+        NamedParser("single_quote", CodeSegment, name="quoted_literal", type="literal"),
+        NamedParser("double_quote", CodeSegment, name="quoted_literal", type="literal"),
+    ),
 )
 
 
@@ -159,9 +153,7 @@ class CreateDatabaseStatementSegment(BaseSegment):
         Ref("DatabaseReferenceSegment"),
         Ref("CommentGrammar", optional=True),
         Ref("LocationGrammar", optional=True),
-        Sequence(
-            "MANAGEDLOCATION", Ref("SingleOrDoubleQuotedLiteralGrammar"), optional=True
-        ),
+        Sequence("MANAGEDLOCATION", Ref("QuotedLiteralSegment"), optional=True),
         Sequence(
             "WITH", "DBPROPERTIES", Ref("BracketedPropertyListGrammar"), optional=True
         ),
@@ -211,7 +203,8 @@ class CreateTableStatementSegment(BaseSegment):
                     optional=True,
                 ),
                 Ref("CommentGrammar", optional=True),
-                # `STORED AS` can be called before or after the additional table properties below
+                # `STORED AS` can be called before or after the additional table
+                # properties below
                 Ref("StoredAsGrammar", optional=True),
                 Sequence(
                     "PARTITIONED",
@@ -410,7 +403,7 @@ class RowFormatClauseSegment(BaseSegment):
             ),
             Sequence(
                 "SERDE",
-                Ref("SingleOrDoubleQuotedLiteralGrammar"),
+                Ref("QuotedLiteralSegment"),
                 Ref("SerdePropertiesGrammar", optional=True),
             ),
         ),
@@ -432,42 +425,15 @@ class AlterDatabaseStatementSegment(BaseSegment):
             Sequence(
                 "OWNER",
                 OneOf("USER", "ROLE"),
-                Ref("SingleOrDoubleQuotedLiteralGrammar"),
+                Ref("QuotedLiteralSegment"),
             ),
             Ref("LocationGrammar"),
-            Sequence("MANAGEDLOCATION", Ref("SingleOrDoubleQuotedLiteralGrammar")),
+            Sequence("MANAGEDLOCATION", Ref("QuotedLiteralSegment")),
         ),
     )
 
 
 @hive_dialect.segment(replace=True)
-class DropStatementSegment(BaseSegment):
-    """A `DROP` statement."""
-
-    type = "drop_statement"
-    match_grammar = StartsWith("DROP")
-    parse_grammar = OneOf(
-        Ref("DropDatabaseStatementSegment"),
-        Ref("DropTableStatementSegment"),
-        # TODO: add other drops
-    )
-
-
-@hive_dialect.segment()
-class DropDatabaseStatementSegment(BaseSegment):
-    """A `DROP DATEBASE/SCHEMA` statement."""
-
-    type = "drop_table_statement"
-    match_grammar = Sequence(
-        "DROP",
-        OneOf("DATABASE", "SCHEMA"),
-        Ref("IfExistsGrammar", optional=True),
-        Ref("DatabaseReferenceSegment"),
-        OneOf("RESTRICT", "CASCADE", optional=True),
-    )
-
-
-@hive_dialect.segment()
 class DropTableStatementSegment(BaseSegment):
     """A `DROP TABLE` statement."""
 
@@ -497,27 +463,19 @@ class TruncateStatementSegment(BaseSegment):
 
 
 @hive_dialect.segment(replace=True)
-class UseStatementSegment(BaseSegment):
-    """An `USE` statement."""
-
-    type = "use_statement"
-    match_grammar = Sequence(
-        "USE",
-        Ref("DatabaseReferenceSegment"),
-    )
-
-
-@hive_dialect.segment(replace=True)
 class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: ignore
     """Overriding StatementSegment to allow for additional segment parsing."""
 
     parse_grammar = ansi_dialect.get_segment("StatementSegment").parse_grammar.copy(
-        insert=[Ref("AlterDatabaseStatementSegment")],
+        insert=[
+            Ref("AlterDatabaseStatementSegment"),
+            Ref("MsckRepairTableStatementSegment"),
+            Ref("MsckTableStatementSegment"),
+        ],
         remove=[
             Ref("TransactionStatementSegment"),
             Ref("CreateSchemaStatementSegment"),
             Ref("SetSchemaStatementSegment"),
-            Ref("DropSchemaStatementSegment"),
             Ref("CreateExtensionStatementSegment"),
             Ref("CreateModelStatementSegment"),
             Ref("DropModelStatementSegment"),
@@ -551,7 +509,7 @@ class InsertStatementSegment(BaseSegment):
                     Sequence(
                         Sequence("LOCAL", optional=True),
                         "DIRECTORY",
-                        Ref("SingleOrDoubleQuotedLiteralGrammar"),
+                        Ref("QuotedLiteralSegment"),
                         Ref("RowFormatClauseSegment", optional=True),
                         Ref("StoredAsGrammar", optional=True),
                         Ref("SelectableGrammar"),
@@ -593,5 +551,71 @@ class IntervalExpressionSegment(BaseSegment):
                 Ref("DatetimeUnitSegment"),
                 Sequence("TO", Ref("DatetimeUnitSegment"), optional=True),
             ),
+        ),
+    )
+
+
+@hive_dialect.segment()
+class MsckRepairTableStatementSegment(BaseSegment):
+    """An `MSCK REPAIR TABLE`statement.
+
+    Updates the Hive metastore to be aware of any changes to partitions on the
+    underlying file store.
+
+    The `MSCK TABLE` command, and corresponding class in Hive dialect
+    MsckTableStatementSegment, is used to determine mismatches between the Hive
+    metastore and file system. Essentially, it is a dry run of the `MSCK REPAIR TABLE`
+    command.
+
+    https://cwiki.apache.org/confluence/display/Hive/LanguageManual+DDL#LanguageManualDDL-RecoverPartitions(MSCKREPAIRTABLE)
+    """
+
+    type = "msck_repair_table_statement"
+
+    match_grammar = Sequence(
+        "MSCK",
+        "REPAIR",
+        "TABLE",
+        Ref("TableReferenceSegment"),
+        Sequence(
+            OneOf(
+                "ADD",
+                "DROP",
+                "SYNC",
+            ),
+            "PARTITIONS",
+            optional=True,
+        ),
+    )
+
+
+@hive_dialect.segment()
+class MsckTableStatementSegment(BaseSegment):
+    """An `MSCK TABLE`statement.
+
+    Checks for difference between partition metadata in the Hive metastore and
+    underlying file system.
+
+    Commonly used prior to `MSCK REPAIR TABLE` command, corresponding with class
+    `MsckRepairTableStatementSegment` in Hive dialect, to asses size of updates for
+    one-time or irregularly sized file system updates.
+
+    https://cwiki.apache.org/confluence/display/Hive/LanguageManual+DDL#LanguageManualDDL-RecoverPartitions(MSCKREPAIRTABLE)
+    """
+
+    type = "msck_table_statement"
+
+    match_grammar = Sequence(
+        "MSCK",
+        "TABLE",
+        Ref("TableReferenceSegment"),
+        Sequence(
+            OneOf(
+                "ADD",
+                "DROP",
+                "SYNC",
+            ),
+            "PARTITIONS",
+            optional=True,
         ),
     )

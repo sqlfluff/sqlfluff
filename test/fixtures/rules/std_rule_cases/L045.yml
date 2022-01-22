@@ -160,3 +160,41 @@ test_pass_cte_defined_and_used_7:
     )
 
     select * from final
+
+test_snowflake_delete_cte:
+  fail_str: |
+    DELETE FROM MYTABLE1
+        USING (
+            WITH MYCTE AS (SELECT COLUMN2 FROM MYTABLE3)
+            SELECT COLUMN3 FROM MYTABLE3
+        ) X
+    WHERE COLUMN1 = X.COLUMN3
+  configs:
+    core:
+      dialect: snowflake
+
+test_pass_exasol_values_clause_cte_1:
+  pass_str: |
+    WITH txt AS (
+        VALUES (1)
+        AS t (id)
+    )
+
+    SELECT *
+    FROM txt
+  configs:
+    core:
+      dialect: exasol
+
+test_pass_exasol_values_clause_cte_2:
+  pass_str: |
+    WITH txt AS (
+        VALUES (1, 'foo')
+        AS t (id, name)
+    )
+
+    SELECT *
+    FROM txt
+  configs:
+    core:
+      dialect: exasol

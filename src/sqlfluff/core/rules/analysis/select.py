@@ -2,7 +2,7 @@
 from typing import List, NamedTuple, Optional
 
 from sqlfluff.core.dialects.base import Dialect
-from sqlfluff.core.dialects.common import AliasInfo
+from sqlfluff.core.dialects.common import AliasInfo, ColumnAliasInfo
 from sqlfluff.core.parser.segments.base import BaseSegment
 
 
@@ -14,7 +14,7 @@ class SelectStatementColumnsAndTables(NamedTuple):
     standalone_aliases: List[str]
     reference_buffer: List[BaseSegment]
     select_targets: List[BaseSegment]
-    col_aliases: List[str]
+    col_aliases: List[ColumnAliasInfo]
     using_cols: List[str]
 
 
@@ -47,11 +47,7 @@ def get_select_statement_info(
     )
 
     # Get all column aliases
-    col_aliases = []
-    for col_seg in list(sc.recursive_crawl("alias_expression")):
-        for seg in col_seg.segments:
-            if seg.is_type("identifier"):
-                col_aliases.append(seg.raw)
+    col_aliases = [s.get_alias() for s in select_targets if s.get_alias() is not None]
 
     # Get any columns referred to in a using clause, and extract anything
     # from ON clauses.
@@ -128,10 +124,11 @@ def _has_value_table_function(table_expr, dialect):
         # We need the dialect to get the value table function names. If
         # we don't have it, assume the clause does not have a value table
         # function.
-        return False
+        return False  # pragma: no cover
 
     for function_name in table_expr.recursive_crawl("function_name"):
-        # Other rules can increase whitespace in the function name, so use strip to remove
+        # Other rules can increase whitespace in the function name, so use strip to
+        # remove
         # See: https://github.com/sqlfluff/sqlfluff/issues/1304
         if function_name.raw.lower().strip() in dialect.sets("value_table_functions"):
             return True
@@ -142,7 +139,7 @@ def _get_pivot_table_columns(segment, dialect):
     if not dialect:
         # We need the dialect to get the pivot table column names. If
         # we don't have it, assume the clause does not have a pivot table
-        return []
+        return []  # pragma: no cover
 
     fc = segment.get_child("from_pivot_expression")
     if not fc:

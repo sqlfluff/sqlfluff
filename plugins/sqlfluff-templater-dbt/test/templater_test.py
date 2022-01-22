@@ -2,10 +2,11 @@
 
 import glob
 import os
-import pytest
 import logging
 from pathlib import Path
+from unittest import mock
 
+import pytest
 
 from sqlfluff.core import FluffConfig, Lexer, Linter
 from sqlfluff.core.errors import SQLTemplaterSkipFile
@@ -15,6 +16,7 @@ from test.fixtures.dbt.templater import (  # noqa: F401
     dbt_templater,
     project_dir,
 )
+from sqlfluff_templater_dbt.templater import DbtFailedToConnectException
 
 
 def test__templater_dbt_missing(dbt_templater, project_dir):  # noqa: F811
@@ -37,13 +39,23 @@ def test__templater_dbt_missing(dbt_templater, project_dir):  # noqa: F811
 def test__templater_dbt_profiles_dir_expanded(dbt_templater):  # noqa: F811
     """Check that the profiles_dir is expanded."""
     dbt_templater.sqlfluff_config = FluffConfig(
-        configs={"templater": {"dbt": {"profiles_dir": "~/.dbt"}}}
+        configs={
+            "templater": {
+                "dbt": {
+                    "profiles_dir": "~/.dbt",
+                    "profile": "default",
+                    "target": "dev",
+                }
+            }
+        }
     )
     profiles_dir = dbt_templater._get_profiles_dir()
     # Normalise paths to control for OS variance
     assert os.path.normpath(profiles_dir) == os.path.normpath(
         os.path.expanduser("~/.dbt")
     )
+    assert dbt_templater._get_profile() == "default"
+    assert dbt_templater._get_target() == "dev"
 
 
 @pytest.mark.parametrize(
@@ -188,7 +200,10 @@ def test__templater_dbt_slice_file_wrapped_test(
 def test__templater_dbt_templating_test_lex(
     project_dir, dbt_templater, fname  # noqa: F811
 ):
-    """A test to demonstrate the lexer works on both dbt models (with any # of trailing newlines) and dbt tests."""
+    """Demonstrate the lexer works on both dbt models and dbt tests.
+
+    Handle any number of newlines.
+    """
     source_fpath = os.path.join(project_dir, fname)
     with open(source_fpath, "r") as source_dbt_model:
         source_dbt_sql = source_dbt_model.read()
@@ -286,7 +301,8 @@ def test__templater_dbt_templating_absolute_path(
         (
             "compiler_error.sql",
             "dbt compilation error on file 'models/my_new_project/compiler_error.sql', "
-            "Unexpected end of template. Jinja was looking for the following tags: 'endfor'",
+            "Unexpected end of template. "
+            "Jinja was looking for the following tags: 'endfor'",
         ),
     ],
 )
@@ -317,18 +333,31 @@ def test__templater_dbt_handle_exceptions(
     assert violations[0].desc().replace("\\", "/").startswith(exception_msg)
 
 
+@pytest.mark.skipif(
+    DBT_VERSION_TUPLE < (1, 0), reason="mocks a function that's only used in dbt >= 1.0"
+)
+@mock.patch("dbt.adapters.postgres.impl.PostgresAdapter.set_relations_cache")
 def test__templater_dbt_handle_database_connection_failure(
-    project_dir, dbt_templater  # noqa: F811
+    set_relations_cache, project_dir, dbt_templater  # noqa: F811
 ):
     """Test the result of a failed database connection."""
     from dbt.adapters.factory import get_adapter
 
-    src_fpath = "plugins/sqlfluff-templater-dbt/test/fixtures/dbt/error_models/exception_connect_database.sql"
+    set_relations_cache.side_effect = DbtFailedToConnectException("dummy error")
+
+    src_fpath = (
+        "plugins/sqlfluff-templater-dbt/test/fixtures/dbt/error_models"
+        "/exception_connect_database.sql"
+    )
     target_fpath = os.path.abspath(
         os.path.join(
             project_dir, "models/my_new_project/exception_connect_database.sql"
         )
     )
+    dbt_fluff_config_fail = DBT_FLUFF_CONFIG.copy()
+    dbt_fluff_config_fail["templater"]["dbt"][
+        "profiles_dir"
+    ] = "plugins/sqlfluff-templater-dbt/test/fixtures/dbt/profiles_yml_fail"
     # We move the file that throws an error in and out of the project directory
     # as dbt throws an error if a node fails to parse while computing the DAG
     os.rename(src_fpath, target_fpath)
@@ -338,30 +367,21 @@ def test__templater_dbt_handle_database_connection_failure(
             fname=target_fpath,
             config=FluffConfig(configs=DBT_FLUFF_CONFIG),
         )
-    except Exception as e:
-        if DBT_VERSION_TUPLE >= (1, 0):
-            # In dbt 1.0.0, connection failures raise an exception
-            assert str(e).startswith(
-                "Runtime Error\n  connection never acquired for thread"
-            )
-        else:
-            raise (e)
     finally:
         get_adapter(dbt_templater.dbt_config).connections.release()
         os.rename(target_fpath, src_fpath)
-    if DBT_VERSION_TUPLE < (1, 0):
-        assert violations
-        # NB: Replace slashes to deal with different plaform paths being returned.
-        assert (
-            violations[0]
-            .desc()
-            .replace("\\", "/")
-            .startswith("dbt tried to connect to the database")
-        )
+    assert violations
+    # NB: Replace slashes to deal with different plaform paths being returned.
+    assert (
+        violations[0]
+        .desc()
+        .replace("\\", "/")
+        .startswith("dbt tried to connect to the database")
+    )
 
 
 def test__project_dir_does_not_exist_error(dbt_templater, caplog):  # noqa: F811
-    """Test that an error is logged if the specified dbt project directory doesn't exist."""
+    """Test an error is logged if the given dbt project directory doesn't exist."""
     dbt_templater.sqlfluff_config = FluffConfig(
         configs={"templater": {"dbt": {"project_dir": "./non_existing_directory"}}}
     )
@@ -372,8 +392,8 @@ def test__project_dir_does_not_exist_error(dbt_templater, caplog):  # noqa: F811
         with caplog.at_level(logging.ERROR, logger="sqlfluff.templater"):
             dbt_project_dir = dbt_templater._get_project_dir()
         assert (
-            f"dbt_project_dir: {dbt_project_dir} could not be accessed. Check it exists."
-            in caplog.text
-        )
+            f"dbt_project_dir: {dbt_project_dir} could not be accessed. "
+            "Check it exists."
+        ) in caplog.text
     finally:
         logger.propagate = original_propagate_value

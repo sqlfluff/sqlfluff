@@ -1,18 +1,18 @@
 """Defines the templaters."""
 
 from collections import deque
+from contextlib import contextmanager
 import os
 import os.path
 import logging
 from typing import List, Optional, Iterator, Tuple, Any, Dict, Deque
 
 from dataclasses import dataclass
-from cached_property import cached_property
 from functools import partial
 
 from dbt.version import get_installed_version
 from dbt.config.runtime import RuntimeConfig as DbtRuntimeConfig
-from dbt.adapters.factory import register_adapter
+from dbt.adapters.factory import register_adapter, get_adapter
 from dbt.compilation import Compiler as DbtCompiler
 from dbt.exceptions import (
     CompilationException as DbtCompilationException,
@@ -22,15 +22,14 @@ from dbt import flags
 from jinja2 import Environment
 from jinja2_simple_tags import StandaloneTag
 
+from sqlfluff.core.cached_property import cached_property
 from sqlfluff.core.errors import SQLTemplaterError, SQLTemplaterSkipFile
 
 from sqlfluff.core.templaters.base import (
-    RawFileSlice,
     TemplatedFile,
     TemplatedFileSlice,
 )
 
-from sqlfluff.core.templaters.slicers.heuristic import slice_template
 from sqlfluff.core.templaters.jinja import JinjaTemplater
 
 # Instantiate the templater logger
@@ -54,6 +53,8 @@ class DbtConfigArgs:
     project_dir: Optional[str] = None
     profiles_dir: Optional[str] = None
     profile: Optional[str] = None
+    target: Optional[str] = None
+    single_threaded: bool = False
 
 
 class DbtTemplater(JinjaTemplater):
@@ -95,6 +96,7 @@ class DbtTemplater(JinjaTemplater):
                     project_dir=self.project_dir,
                     profiles_dir=self.profiles_dir,
                     profile=self._get_profile(),
+                    target=self._get_target(),
                 ),
             )
         self.dbt_config = DbtRuntimeConfig.from_args(
@@ -102,6 +104,7 @@ class DbtTemplater(JinjaTemplater):
                 project_dir=self.project_dir,
                 profiles_dir=self.profiles_dir,
                 profile=self._get_profile(),
+                target=self._get_target(),
             )
         )
         register_adapter(self.dbt_config)
@@ -208,7 +211,8 @@ class DbtTemplater(JinjaTemplater):
 
         if not os.path.exists(dbt_profiles_dir):
             templater_logger.error(
-                f"dbt_profiles_dir: {dbt_profiles_dir} could not be accessed. Check it exists."
+                f"dbt_profiles_dir: {dbt_profiles_dir} could not be accessed. "
+                "Check it exists."
             )
 
         return dbt_profiles_dir
@@ -228,7 +232,8 @@ class DbtTemplater(JinjaTemplater):
         )
         if not os.path.exists(dbt_project_dir):
             templater_logger.error(
-                f"dbt_project_dir: {dbt_project_dir} could not be accessed. Check it exists."
+                f"dbt_project_dir: {dbt_project_dir} could not be accessed. "
+                "Check it exists."
             )
 
         return dbt_project_dir
@@ -237,6 +242,12 @@ class DbtTemplater(JinjaTemplater):
         """Get a dbt profile name from the configuration."""
         return self.sqlfluff_config.get_section(
             (self.templater_selector, self.name, "profile")
+        )
+
+    def _get_target(self):
+        """Get a dbt target name from the configuration."""
+        return self.sqlfluff_config.get_section(
+            (self.templater_selector, self.name, "target")
         )
 
     def sequence_files(
@@ -337,7 +348,8 @@ class DbtTemplater(JinjaTemplater):
             if e.node:
                 return None, [
                     SQLTemplaterError(
-                        f"dbt compilation error on file '{e.node.original_file_path}', {e.msg}",
+                        f"dbt compilation error on file '{e.node.original_file_path}', "
+                        f"{e.msg}",
                         # It's fatal if we're over the limit
                         fatal=self._sequential_fails > self.sequential_fail_limit,
                     )
@@ -347,9 +359,10 @@ class DbtTemplater(JinjaTemplater):
         except DbtFailedToConnectException as e:
             return None, [
                 SQLTemplaterError(
-                    "dbt tried to connect to the database and failed: "
-                    "you could use 'execute' https://docs.getdbt.com/reference/dbt-jinja-functions/execute/ "
-                    f"to skip the database calls. Error: {e.msg}",
+                    "dbt tried to connect to the database and failed: you could use "
+                    "'execute' to skip the database calls. See"
+                    "https://docs.getdbt.com/reference/dbt-jinja-functions/execute/ "
+                    f"Error: {e.msg}",
                     fatal=True,
                 )
             ]
@@ -362,7 +375,8 @@ class DbtTemplater(JinjaTemplater):
     def _find_node(self, fname, config=None):
         if not config:  # pragma: no cover
             raise ValueError(
-                "For the dbt templater, the `process()` method requires a config object."
+                "For the dbt templater, the `process()` method "
+                "requires a config object."
             )
         if not fname:  # pragma: no cover
             raise ValueError(
@@ -446,62 +460,65 @@ class DbtTemplater(JinjaTemplater):
 
         node = self._find_node(fname, config)
 
-        node = self.dbt_compiler.compile_node(
-            node=node,
-            manifest=self.dbt_manifest,
-        )
-
-        Environment.from_string = old_from_string
-
-        if hasattr(node, "injected_sql"):
-            # If injected SQL is present, it contains a better picture
-            # of what will actually hit the database (e.g. with tests).
-            # However it's not always present.
-            compiled_sql = node.injected_sql
-        else:
-            compiled_sql = node.compiled_sql
-
-        if not compiled_sql:  # pragma: no cover
-            raise SQLTemplaterError(
-                "dbt templater compilation failed silently, check your configuration "
-                "by running `dbt compile` directly."
+        with self.connection():
+            node = self.dbt_compiler.compile_node(
+                node=node,
+                manifest=self.dbt_manifest,
             )
 
-        with open(fname) as source_dbt_model:
-            source_dbt_sql = source_dbt_model.read()
+            Environment.from_string = old_from_string
 
-        n_trailing_newlines = len(source_dbt_sql) - len(source_dbt_sql.rstrip("\n"))
+            if hasattr(node, "injected_sql"):
+                # If injected SQL is present, it contains a better picture
+                # of what will actually hit the database (e.g. with tests).
+                # However it's not always present.
+                compiled_sql = node.injected_sql
+            else:
+                compiled_sql = node.compiled_sql
 
-        templater_logger.debug(
-            "    Trailing newline count in source dbt model: %r", n_trailing_newlines
-        )
-        templater_logger.debug("    Raw SQL before compile: %r", source_dbt_sql)
-        templater_logger.debug("    Node raw SQL: %r", node.raw_sql)
-        templater_logger.debug("    Node compiled SQL: %r", compiled_sql)
+            if not compiled_sql:  # pragma: no cover
+                raise SQLTemplaterError(
+                    "dbt templater compilation failed silently, check your "
+                    "configuration by running `dbt compile` directly."
+                )
 
-        # When using dbt-templater, trailing newlines are ALWAYS REMOVED during
-        # compiling. Unless fixed (like below), this will cause:
-        #    1. L009 linting errors when running "sqlfluff lint foo_bar.sql"
-        #       since the linter will use the compiled code with the newlines
-        #       removed.
-        #    2. "No newline at end of file" warnings in Git/GitHub since
-        #       sqlfluff uses the compiled SQL to write fixes back to the
-        #       source SQL in the dbt model.
-        # The solution is:
-        #    1. Check for trailing newlines before compiling by looking at the
-        #       raw SQL in the source dbt file, store the count of trailing newlines.
-        #    2. Append the count from #1 above to the node.raw_sql and
-        #       compiled_sql objects, both of which have had the trailing
-        #       newlines removed by the dbt-templater.
-        node.raw_sql = node.raw_sql + "\n" * n_trailing_newlines
-        compiled_sql = compiled_sql + "\n" * n_trailing_newlines
+            with open(fname) as source_dbt_model:
+                source_dbt_sql = source_dbt_model.read()
 
-        raw_sliced, sliced_file, templated_sql = self.slice_file(
-            source_dbt_sql,
-            compiled_sql,
-            config=config,
-            make_template=make_template,
-        )
+            n_trailing_newlines = len(source_dbt_sql) - len(source_dbt_sql.rstrip("\n"))
+
+            templater_logger.debug(
+                "    Trailing newline count in source dbt model: %r",
+                n_trailing_newlines,
+            )
+            templater_logger.debug("    Raw SQL before compile: %r", source_dbt_sql)
+            templater_logger.debug("    Node raw SQL: %r", node.raw_sql)
+            templater_logger.debug("    Node compiled SQL: %r", compiled_sql)
+
+            # When using dbt-templater, trailing newlines are ALWAYS REMOVED during
+            # compiling. Unless fixed (like below), this will cause:
+            #    1. L009 linting errors when running "sqlfluff lint foo_bar.sql"
+            #       since the linter will use the compiled code with the newlines
+            #       removed.
+            #    2. "No newline at end of file" warnings in Git/GitHub since
+            #       sqlfluff uses the compiled SQL to write fixes back to the
+            #       source SQL in the dbt model.
+            # The solution is:
+            #    1. Check for trailing newlines before compiling by looking at the
+            #       raw SQL in the source dbt file, store the count of trailing
+            #       newlines.
+            #    2. Append the count from #1 above to the node.raw_sql and
+            #       compiled_sql objects, both of which have had the trailing
+            #       newlines removed by the dbt-templater.
+            node.raw_sql = node.raw_sql + "\n" * n_trailing_newlines
+            compiled_sql = compiled_sql + "\n" * n_trailing_newlines
+
+            raw_sliced, sliced_file, templated_sql = self.slice_file(
+                source_dbt_sql,
+                compiled_sql,
+                config=config,
+                make_template=make_template,
+            )
         if make_template and n_trailing_newlines:
             # Update templated_sql as we updated the other strings above. Update
             # sliced_file to reflect the mapping of the added character(s) back
@@ -530,17 +547,26 @@ class DbtTemplater(JinjaTemplater):
             [],
         )
 
-    @classmethod
-    def _slice_template(cls, in_str: str) -> List[RawFileSlice]:
-        # DbtTemplater uses the original heuristic-based template slicer.
-        # TODO: Can it be updated to use TemplateTracer?
-        return slice_template(in_str, cls._get_jinja_env())
+    @contextmanager
+    def connection(self):
+        """Context manager that manages a dbt connection, if needed."""
+        # We have to register the connection in dbt >= 1.0.0 ourselves
+        # In previous versions, we relied on the functionality removed in
+        # https://github.com/dbt-labs/dbt-core/pull/4062.
+        if DBT_VERSION_TUPLE >= (1, 0):
+            adapter = get_adapter(self.dbt_config)
+            with adapter.connection_named("master"):
+                adapter.set_relations_cache(self.dbt_manifest)
+                yield
+        else:
+            yield
 
 
 class SnapshotExtension(StandaloneTag):
     """Dummy "snapshot" tags so raw dbt templates will parse.
 
-    Context: dbt snapshots (https://docs.getdbt.com/docs/building-a-dbt-project/snapshots/#example)
+    Context: dbt snapshots
+    (https://docs.getdbt.com/docs/building-a-dbt-project/snapshots/#example)
     use custom Jinja "snapshot" and "endsnapshot" tags. However, dbt does not
     actually register those tags with Jinja. Instead, it finds and removes these
     tags during a preprocessing step. However, DbtTemplater needs those tags to

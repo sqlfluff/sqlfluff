@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 455fbc87378f6996811989411cf92023c4ad93fa6e5518965a4e7c6831baae14
+_hash: 58b28c183be9e0c849a3cfcb288fd9c284186f343a5cf8b9c2d936b09a72f0f5
 file:
   batch:
   - statement:
@@ -28,10 +28,52 @@ file:
           expression:
             column_reference:
               identifier: JobCandidateID
-            comparison_operator: '='
+            comparison_operator:
+              raw_comparison_operator: '='
             literal: '13'
         statement_terminator: ;
   - statement:
       transaction_statement:
         keyword: COMMIT
         statement_terminator: ;
+  - statement:
+      transaction_statement:
+      - keyword: BEGIN
+      - keyword: TRAN
+      - statement_terminator: ;
+  - statement:
+      delete_statement:
+        keyword: DELETE
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - identifier: HumanResources
+                - dot: .
+                - identifier: JobCandidate
+        where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+              identifier: JobCandidateID
+            comparison_operator:
+              raw_comparison_operator: '='
+            literal: '13'
+        statement_terminator: ;
+  - statement:
+      transaction_statement:
+      - keyword: ROLLBACK
+      - keyword: TRAN
+      - statement_terminator: ;
+  - statement:
+      transaction_statement:
+      - keyword: BEGIN
+      - keyword: TRAN
+      - statement_terminator: ;
+  - statement:
+      transaction_statement:
+      - keyword: SAVE
+      - keyword: TRANSACTION
+      - statement_terminator: ;

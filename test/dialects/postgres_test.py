@@ -52,7 +52,8 @@ def test_dialect_postgres_specific_segment_parses(
     "raw",
     [
         "SELECT t1.field, EXTRACT(EPOCH FROM t1.sometime) AS myepoch FROM t1",
-        "SELECT t1.field, EXTRACT(EPOCH FROM t1.sometime - t1.othertime) AS myepoch FROM t1",
+        "SELECT t1.field, EXTRACT(EPOCH FROM t1.sometime - t1.othertime) AS myepoch "
+        "FROM t1",
     ],
 )
 def test_epoch_datetime_unit(raw: str) -> None:

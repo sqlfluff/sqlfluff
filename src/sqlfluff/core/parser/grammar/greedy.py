@@ -43,7 +43,9 @@ class GreedyUntil(BaseGrammar):
             segments,
             parse_context,
             matchers=self._elements,
-            enforce_whitespace_preceding_terminator=self.enforce_whitespace_preceding_terminator,
+            enforce_whitespace_preceding_terminator=(
+                self.enforce_whitespace_preceding_terminator
+            ),
             include_terminator=False,
         )
 
@@ -204,7 +206,9 @@ class StartsWith(GreedyUntil):
             match.unmatched_segments,
             parse_context,
             matchers=[self.terminator],
-            enforce_whitespace_preceding_terminator=self.enforce_whitespace_preceding_terminator,
+            enforce_whitespace_preceding_terminator=(
+                self.enforce_whitespace_preceding_terminator
+            ),
             include_terminator=self.include_terminator,
         )
 

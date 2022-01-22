@@ -10,7 +10,7 @@ from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 
 @document_fix_compatible
 class Rule_L023(BaseRule):
-    """Single whitespace expected after AS in WITH clause.
+    """Single whitespace expected after ``AS`` in ``WITH`` clause.
 
     | **Anti-pattern**
 
@@ -25,7 +25,7 @@ class Rule_L023(BaseRule):
 
     | **Best practice**
     | The • character represents a space.
-    | Add a space after AS, to avoid confusing
+    | Add a space after ``AS``, to avoid confusing
     | it for a function.
 
     .. code-block:: sql
@@ -45,7 +45,7 @@ class Rule_L023(BaseRule):
     expand_children: Optional[List[str]] = ["common_table_expression"]
 
     def _eval(self, context: RuleContext) -> Optional[List[LintResult]]:
-        """Single whitespace expected in mother segment between pre and post segments."""
+        """Single whitespace expected in mother middle segment."""
         error_buffer: List[LintResult] = []
         if context.segment.is_type(self.expected_mother_segment_type):
             last_code = None

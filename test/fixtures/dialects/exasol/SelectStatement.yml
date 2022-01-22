@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f1da09d766adcb8b0440010fe51cd8ec89da33e7abba1cef0f78d7d93775309a
+_hash: 10212e48be4f10127632451e354d6137d235f9ec9eed510b15de50cbdf73c2ca
 file:
 - statement:
     select_statement:
@@ -79,14 +79,16 @@ file:
         - keyword: PRIOR
         - column_reference:
             identifier: employee_id
-        - comparison_operator: '='
+        - comparison_operator:
+            raw_comparison_operator: '='
         - column_reference:
             identifier: manager_id
       - binary_operator: AND
       - expression:
         - column_reference:
             identifier: dept_no
-        - comparison_operator: '='
+        - comparison_operator:
+            raw_comparison_operator: '='
         - column_reference:
             identifier: dno
       - keyword: START
@@ -94,7 +96,8 @@ file:
       - expression:
           column_reference:
             identifier: last_name
-          comparison_operator: '='
+          comparison_operator:
+            raw_comparison_operator: '='
           literal: "'Clark'"
       orderby_clause:
       - keyword: ORDER
@@ -234,7 +237,8 @@ file:
                 - identifier: customers
                 - dot: .
                 - identifier: c_id
-              - comparison_operator: '='
+              - comparison_operator:
+                  raw_comparison_operator: '='
               - column_reference:
                 - identifier: sales
                 - dot: .
@@ -433,36 +437,45 @@ file:
           - keyword: VALUES
           - bracketed:
             - start_bracket: (
-            - literal: "'a'"
+            - expression:
+                literal: "'a'"
             - comma: ','
-            - literal: "'b'"
+            - expression:
+                literal: "'b'"
             - comma: ','
-            - literal: "'c'"
+            - expression:
+                literal: "'c'"
             - end_bracket: )
           - comma: ','
           - bracketed:
             - start_bracket: (
-            - literal: "'d'"
+            - expression:
+                literal: "'d'"
             - comma: ','
-            - literal: "'e'"
+            - expression:
+                literal: "'e'"
             - comma: ','
-            - literal: "'f'"
+            - expression:
+                literal: "'f'"
             - end_bracket: )
           - comma: ','
           - bracketed:
             - start_bracket: (
-            - function:
-                function_name:
-                  function_name_identifier: f1
-                bracketed:
-                  start_bracket: (
-                  expression:
-                    literal: "'a'"
-                  end_bracket: )
+            - expression:
+                function:
+                  function_name:
+                    function_name_identifier: f1
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      literal: "'a'"
+                    end_bracket: )
             - comma: ','
-            - literal: "'b'"
+            - expression:
+                literal: "'b'"
             - comma: ','
-            - literal: "'d'"
+            - expression:
+                literal: "'d'"
             - end_bracket: )
           - alias_expression:
               keyword: AS
@@ -617,9 +630,8 @@ file:
         from_expression:
           from_expression_element:
             table_expression:
-              function:
-                function_name:
-                  function_name_identifier: values
+              values_clause:
+                keyword: values
                 bracketed:
                 - start_bracket: (
                 - expression:
@@ -724,11 +736,14 @@ file:
               table_expression:
                 values_clause:
                 - keyword: VALUES
-                - literal: '1'
+                - expression:
+                    literal: '1'
                 - comma: ','
-                - literal: '2'
+                - expression:
+                    literal: '2'
                 - comma: ','
-                - literal: '3'
+                - expression:
+                    literal: '3'
               end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -748,11 +763,14 @@ file:
               table_expression:
                 values_clause:
                 - keyword: VALUES
-                - literal: '1'
+                - expression:
+                    literal: '1'
                 - comma: ','
-                - literal: '2'
+                - expression:
+                    literal: '2'
                 - comma: ','
-                - literal: '3'
+                - expression:
+                    literal: '3'
               end_bracket: )
             alias_expression:
               keyword: AS
@@ -948,9 +966,9 @@ file:
         keyword: SELECT
         select_clause_element:
           function:
-          - function_name:
+            function_name:
               function_name_identifier: JSON_EXTRACT
-          - bracketed:
+            bracketed:
             - start_bracket: (
             - expression:
                 column_reference:
@@ -962,27 +980,28 @@ file:
             - expression:
                 literal: "'$.error()'"
             - end_bracket: )
-          - keyword: EMITS
-          - bracketed:
-            - start_bracket: (
-            - column_datatype_definition:
-                identifier: id
-                data_type:
-                  keyword: VARCHAR
-                  bracketed:
-                    start_bracket: (
-                    literal: '2000'
-                    end_bracket: )
-            - comma: ','
-            - column_datatype_definition:
-                identifier: error_column
-                data_type:
-                  keyword: VARCHAR
-                  bracketed:
-                    start_bracket: (
-                    literal: '2000000'
-                    end_bracket: )
-            - end_bracket: )
+            emits_segment:
+              keyword: EMITS
+              bracketed:
+              - start_bracket: (
+              - column_datatype_definition:
+                  identifier: id
+                  data_type:
+                    keyword: VARCHAR
+                    bracketed:
+                      start_bracket: (
+                      literal: '2000'
+                      end_bracket: )
+              - comma: ','
+              - column_datatype_definition:
+                  identifier: error_column
+                  data_type:
+                    keyword: VARCHAR
+                    bracketed:
+                      start_bracket: (
+                      literal: '2000000'
+                      end_bracket: )
+              - end_bracket: )
       from_clause:
         keyword: FROM
         from_expression:

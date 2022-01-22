@@ -6,6 +6,7 @@ from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
 )
+import sqlfluff.core.rules.functional.segment_predicates as sp
 
 
 @document_configuration
@@ -17,21 +18,21 @@ class Rule_L047(BaseRule):
         If both `prefer_count_1` and `prefer_count_0` are set to true
         then `prefer_count_1` has precedence.
 
-    COUNT(*), COUNT(1), and even COUNT(0) are equivalent syntaxes in many SQL
-    engines due to optimizers interpreting these instructions as
+    ``COUNT(*)``, ``COUNT(1)``, and even ``COUNT(0)`` are equivalent syntaxes
+    in many SQL engines due to optimizers interpreting these instructions as
     "count number of rows in result".
 
-    The ANSI-92_ spec mentions the COUNT(*) syntax specifically as
+    The ANSI-92_ spec mentions the ``COUNT(*)`` syntax specifically as
     having a special meaning:
 
         If COUNT(*) is specified, then
         the result is the cardinality of T.
 
-    So by default, SQLFluff enforces the consistent use of COUNT(*).
+    So by default, SQLFluff enforces the consistent use of ``COUNT(*)``.
 
-    If the SQL engine you work with, or your team, prefers COUNT(1) or COUNT(0)
-    over COUNT(*) you can configure this rule to consistently enforce your
-    preference.
+    If the SQL engine you work with, or your team, prefers ``COUNT(1)`` or
+    ``COUNT(0)`` over ``COUNT(*)``, you can configure this rule to consistently
+    enforce your preference.
 
     .. _ANSI-92: http://msdn.microsoft.com/en-us/library/ms175997.aspx
 
@@ -68,22 +69,18 @@ class Rule_L047(BaseRule):
             and context.segment.get_child("function_name").raw_upper == "COUNT"
         ):
             # Get bracketed content
-            bracketed = context.segment.get_child("bracketed")
-
-            if not bracketed:  # pragma: no cover
-                return None
-
-            f_content = [
-                seg
-                for seg in bracketed.segments
-                if not seg.is_meta
-                and not seg.is_type(
-                    "start_bracket",
-                    "end_bracket",
-                    "whitespace",
-                    "newline",
+            f_content = context.functional.segment.children(
+                sp.is_type("bracketed")
+            ).children(
+                sp.and_(
+                    sp.not_(sp.is_meta()),
+                    sp.not_(
+                        sp.is_type(
+                            "start_bracket", "end_bracket", "whitespace", "newline"
+                        )
+                    ),
                 )
-            ]
+            )
             if len(f_content) != 1:  # pragma: no cover
                 return None
 

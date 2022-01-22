@@ -1,11 +1,11 @@
 """Implementation of Rule L009."""
-from typing import List, Optional
+from typing import Optional
 
 from sqlfluff.core.parser import NewlineSegment
-from sqlfluff.core.parser.segments.base import BaseSegment
 
 from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix, RuleContext
 from sqlfluff.core.rules.doc_decorators import document_fix_compatible
+from sqlfluff.core.rules.functional import Segments, sp, tsp
 
 
 @document_fix_compatible
@@ -13,7 +13,8 @@ class Rule_L009(BaseRule):
     """Files must end with a single trailing newline.
 
     | **Anti-pattern**
-    | The content in file does not end with a single trailing newline, the $ represents end of file.
+    | The content in file does not end with a single trailing newline, the $ represents
+    | end of file.
 
     .. code-block:: sql
        :force:
@@ -22,7 +23,8 @@ class Rule_L009(BaseRule):
             a
         FROM foo$
 
-        -- Ending on an indented line means there is no newline at the end of the file, the • represents space.
+        -- Ending on an indented line means there is no newline at the end of the file,
+        -- the • represents space.
 
         SELECT
         ••••a
@@ -74,6 +76,8 @@ class Rule_L009(BaseRule):
 
     """
 
+    targets_templated = True
+
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Files must end with a single trailing newline.
 
@@ -85,44 +89,46 @@ class Rule_L009(BaseRule):
         if not self.is_final_segment(context):
             return None
 
-        # Include current segment for complete stack.
-        complete_stack: List[BaseSegment] = list(context.raw_stack)
-        complete_stack.append(context.segment)
+        # Include current segment for complete stack and reverse.
+        parent_stack: Segments = context.functional.parent_stack
+        complete_stack: Segments = (
+            context.functional.raw_stack + context.functional.segment
+        )
+        reversed_complete_stack = complete_stack.reversed()
 
-        # Iterate backwards over complete stack to find
-        # last non-newline/whitespace/Dedent segment
-        # and the newline segments following it.
-        anchor_segment = context.segment
-        eof_newline_segments = []
-        for segment in complete_stack[::-1]:
-            if segment.is_type("newline"):
-                eof_newline_segments.append(segment)
-            elif segment.name not in ("whitespace", "Dedent"):
-                break
-            anchor_segment = segment
+        # Find the trailing newline segments.
+        trailing_newlines = reversed_complete_stack.select(
+            select_if=sp.is_type("newline"),
+            loop_while=sp.or_(sp.is_whitespace(), sp.is_type("dedent")),
+        )
+        trailing_literal_newlines = trailing_newlines.select(
+            loop_while=lambda seg: sp.templated_slices(seg, context.templated_file).all(
+                tsp.is_slice_type("literal")
+            )
+        )
 
-        if len(eof_newline_segments) == 1:
-            # No need for fix if single new line exists.
-            return None
-        elif len(eof_newline_segments) == 0:
+        if not trailing_literal_newlines:
             # We make an edit to create this segment after the child of the FileSegment.
-            if len(context.parent_stack) == 1:
-                edit_segment = context.segment
+            if len(parent_stack) == 1:
+                fix_anchor_segment = context.segment
             else:
-                edit_segment = context.parent_stack[1]
+                fix_anchor_segment = parent_stack[1]
 
             return LintResult(
-                anchor=anchor_segment,
+                anchor=context.segment,
                 fixes=[
                     LintFix.create_after(
-                        edit_segment,
+                        fix_anchor_segment,
                         [NewlineSegment()],
                     )
                 ],
             )
-        else:
-            # There are excess newlines so delete all bar one.
+        elif len(trailing_literal_newlines) > 1:
+            # Delete extra newlines.
             return LintResult(
-                anchor=anchor_segment,
-                fixes=[LintFix.delete(d) for d in eof_newline_segments[1:]],
+                anchor=context.segment,
+                fixes=[LintFix.delete(d) for d in trailing_literal_newlines[1:]],
             )
+        else:
+            # Single newline, no need for fix.
+            return None

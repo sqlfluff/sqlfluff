@@ -160,7 +160,7 @@ def test__rules__std_L003_make_indent_invalid_param():
 
 
 def test__rules__std_L003__get_element_template_info():
-    """Test Rule_L003._get_element_template_info with invalid templated_file parameter."""
+    """Test _get_element_template_info with invalid templated_file parameter."""
     mock_segment = Mock()
     mock_segment.return_value.is_type = True
     with pytest.raises(ValueError):
@@ -172,6 +172,10 @@ class ProtoSeg:
 
     def __init__(self, raw):
         self.raw = raw
+
+    def is_type(self, *seg_type):
+        """Is this segment (or its parent) of the given type."""
+        return False
 
 
 @pytest.mark.parametrize(

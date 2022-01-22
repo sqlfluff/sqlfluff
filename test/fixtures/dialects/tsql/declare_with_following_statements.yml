@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 79b6581e027a1d34417ebe0f432fbf5a2256b48f36ae9a72aca984387e664c19
+_hash: 3d6b0be21f77edc5e4ad35275af45c638fc67054a629f4a48c085c89012dda99
 file:
   batch:
     create_procedure_statement:
@@ -32,7 +32,8 @@ file:
                 parameter: '@DateNow'
                 data_type:
                   identifier: DATE
-                comparison_operator: '='
+                comparison_operator:
+                  raw_comparison_operator: '='
                 expression:
                   function:
                     function_name:
@@ -47,7 +48,8 @@ file:
               - parameter: '@DateStart'
               - data_type:
                   identifier: DATETIME2
-              - comparison_operator: '='
+              - comparison_operator:
+                  raw_comparison_operator: '='
               - expression:
                   function:
                     function_name:
@@ -59,7 +61,8 @@ file:
               - parameter: '@DateEnd'
               - data_type:
                   identifier: DATETIME2
-              - comparison_operator: '='
+              - comparison_operator:
+                  raw_comparison_operator: '='
               - expression:
                   function:
                     function_name:
@@ -73,7 +76,8 @@ file:
                 parameter: '@EOMONTH'
                 data_type:
                   identifier: DATE
-                comparison_operator: '='
+                comparison_operator:
+                  raw_comparison_operator: '='
                 expression:
                   bracketed:
                     start_bracket: (
@@ -84,7 +88,8 @@ file:
               set_segment:
                 keyword: SET
                 parameter: '@EOMONTH'
-                comparison_operator: '='
+                comparison_operator:
+                  raw_comparison_operator: '='
                 expression:
                   bracketed:
                     start_bracket: (
@@ -95,7 +100,8 @@ file:
               set_segment:
                 keyword: SET
                 parameter: '@EOMONTH'
-                comparison_operator: '='
+                comparison_operator:
+                  raw_comparison_operator: '='
                 expression:
                   bracketed:
                     start_bracket: (
@@ -105,21 +111,22 @@ file:
                 statement_terminator: ;
           - statement:
               if_then_statement:
-                keyword: IF
-                expression:
-                - function:
-                    function_name:
-                      function_name_identifier: OBJECT_ID
-                    bracketed:
-                      start_bracket: (
-                      expression:
-                        literal: "'tempdb..#UP'"
-                      end_bracket: )
-                - keyword: IS
-                - keyword: NOT
-                - keyword: 'NULL'
+                if_clause:
+                  keyword: IF
+                  expression:
+                  - function:
+                      function_name:
+                        function_name_identifier: OBJECT_ID
+                      bracketed:
+                        start_bracket: (
+                        expression:
+                          literal: "'tempdb..#UP'"
+                        end_bracket: )
+                  - keyword: IS
+                  - keyword: NOT
+                  - keyword: 'NULL'
                 statement:
-                  drop_statement:
+                  drop_table_statement:
                   - keyword: DROP
                   - keyword: TABLE
                   - table_reference:

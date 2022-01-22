@@ -1,0 +1,616 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 2e9303a86427e8060e11290357e4c1e7fbe8701cdeb593dfb9d24221daccf764
+file:
+- statement:
+    create_table_as_statement:
+    - keyword: CREATE
+    - keyword: TEMP
+    - keyword: TABLE
+    - object_reference:
+        identifier: t1
+    - keyword: AS
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              column_reference:
+                identifier: something
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    identifier: t2
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_as_statement:
+    - keyword: CREATE
+    - keyword: TEMP
+    - keyword: TABLE
+    - object_reference:
+        identifier: t1
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              identifier: something
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: t2
+- statement_terminator: ;
+- statement:
+    create_table_as_statement:
+    - keyword: CREATE
+    - keyword: TEMPORARY
+    - keyword: TABLE
+    - object_reference:
+        identifier: t1
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              identifier: something
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: t2
+- statement_terminator: ;
+- statement:
+    create_table_as_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - object_reference:
+        identifier: t1
+    - keyword: AS
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              column_reference:
+                identifier: something
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    identifier: t2
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_as_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - object_reference:
+        identifier: t1
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              identifier: something
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: t2
+- statement_terminator: ;
+- statement:
+    create_table_as_statement:
+    - keyword: CREATE
+    - keyword: LOCAL
+    - keyword: TEMP
+    - keyword: TABLE
+    - object_reference:
+        identifier: t1
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              identifier: something
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: t2
+- statement_terminator: ;
+- statement:
+    create_table_as_statement:
+    - keyword: CREATE
+    - keyword: TEMP
+    - keyword: TABLE
+    - object_reference:
+        identifier: t1
+    - table_constraint_segment:
+        keyword: SORTKEY
+        bracketed:
+          start_bracket: (
+          column_reference:
+            identifier: col1
+          end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              identifier: col1
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: t2
+- statement_terminator: ;
+- statement:
+    create_table_as_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - object_reference:
+        identifier: t1
+    - table_constraint_segment:
+        keyword: SORTKEY
+        bracketed:
+          start_bracket: (
+          column_reference:
+            identifier: col1
+          end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              identifier: col1
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: t2
+- statement_terminator: ;
+- statement:
+    create_table_as_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - object_reference:
+        identifier: t1
+    - table_constraint_segment:
+        keyword: DISTKEY
+        bracketed:
+          start_bracket: (
+          column_reference:
+            identifier: col1
+          end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              identifier: col1
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: t2
+- statement_terminator: ;
+- statement:
+    create_table_as_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - object_reference:
+        identifier: t1
+    - table_constraint_segment:
+      - keyword: DISTKEY
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            identifier: col1
+          end_bracket: )
+      - keyword: SORTKEY
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            identifier: col1
+          end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              identifier: col1
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: t2
+- statement_terminator: ;
+- statement:
+    create_table_as_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - object_reference:
+        identifier: t1
+    - table_constraint_segment:
+      - keyword: DISTSTYLE
+      - keyword: EVEN
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              identifier: col1
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: t2
+- statement_terminator: ;
+- statement:
+    create_table_as_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - object_reference:
+        identifier: t1
+    - table_constraint_segment:
+      - keyword: DISTSTYLE
+      - keyword: ALL
+      - keyword: DISTKEY
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            identifier: col1
+          end_bracket: )
+      - keyword: SORTKEY
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            identifier: col1
+          end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            column_reference:
+              identifier: col1
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: t2
+- statement_terminator: ;
+- statement:
+    create_table_as_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - object_reference:
+        identifier: t1
+    - table_constraint_segment:
+      - keyword: DISTSTYLE
+      - keyword: ALL
+      - keyword: DISTKEY
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            identifier: col1
+          end_bracket: )
+      - keyword: COMPOUND
+      - keyword: SORTKEY
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            identifier: col1
+        - comma: ','
+        - column_reference:
+            identifier: col2
+        - end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              identifier: col1
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: col2
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: t2
+- statement_terminator: ;
+- statement:
+    create_table_as_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - object_reference:
+        identifier: t1
+    - table_constraint_segment:
+      - keyword: DISTSTYLE
+      - keyword: ALL
+      - keyword: DISTKEY
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            identifier: col1
+          end_bracket: )
+      - keyword: INTERLEAVED
+      - keyword: SORTKEY
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            identifier: col1
+        - comma: ','
+        - column_reference:
+            identifier: col2
+        - end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              identifier: col1
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: col2
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: t2
+- statement_terminator: ;
+- statement:
+    create_table_as_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - object_reference:
+        identifier: t1
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          identifier: col1
+      - comma: ','
+      - column_reference:
+          identifier: col2
+      - end_bracket: )
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              identifier: col1
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: col2
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: t2
+- statement_terminator: ;
+- statement:
+    create_table_as_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - object_reference:
+        identifier: t1
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          identifier: col1
+      - comma: ','
+      - column_reference:
+          identifier: col2
+      - end_bracket: )
+    - keyword: BACKUP
+    - keyword: 'YES'
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              identifier: col1
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: col2
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: t2
+- statement_terminator: ;
+- statement:
+    create_table_as_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - object_reference:
+        identifier: t1
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          identifier: col1
+      - comma: ','
+      - column_reference:
+          identifier: col2
+      - end_bracket: )
+    - keyword: BACKUP
+    - keyword: 'NO'
+    - keyword: AS
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              identifier: col1
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: col2
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: t2
+- statement_terminator: ;
+- statement:
+    create_table_as_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - object_reference:
+        identifier: t1
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          identifier: col1
+      - comma: ','
+      - column_reference:
+          identifier: col2
+      - end_bracket: )
+    - keyword: AS
+    - bracketed:
+        start_bracket: (
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              column_reference:
+                identifier: col1
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    identifier: tbl2
+        end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_as_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - object_reference:
+        identifier: t1
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          identifier: col1
+      - comma: ','
+      - column_reference:
+          identifier: col2
+      - end_bracket: )
+    - keyword: BACKUP
+    - keyword: 'NO'
+    - table_constraint_segment:
+      - keyword: DISTSTYLE
+      - keyword: ALL
+      - keyword: DISTKEY
+      - bracketed:
+          start_bracket: (
+          column_reference:
+            identifier: col1
+          end_bracket: )
+      - keyword: INTERLEAVED
+      - keyword: SORTKEY
+      - bracketed:
+        - start_bracket: (
+        - column_reference:
+            identifier: col1
+        - comma: ','
+        - column_reference:
+            identifier: col2
+        - end_bracket: )
+    - keyword: AS
+    - bracketed:
+        start_bracket: (
+        set_expression:
+        - select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                column_reference:
+                  identifier: col1
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      identifier: tbl2
+        - set_operator:
+          - keyword: UNION
+          - keyword: ALL
+        - select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                column_reference:
+                  identifier: col2
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      identifier: tbl3
+        end_bracket: )
+- statement_terminator: ;

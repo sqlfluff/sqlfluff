@@ -175,7 +175,7 @@ class PythonTemplater(RawTemplater):
         except (SyntaxError, ValueError):
             return s
 
-    def get_context(self, fname=None, config=None) -> Dict:
+    def get_context(self, fname=None, config=None, **kw) -> Dict:
         """Get the templating context from the config."""
         # TODO: The config loading should be done outside the templater code. Here
         # is a silly place.
@@ -225,9 +225,8 @@ class PythonTemplater(RawTemplater):
         except KeyError as err:
             # TODO: Add a url here so people can get more help.
             raise SQLTemplaterError(
-                "Failure in Python templating: {}. Have you configured your variables?".format(
-                    err
-                )
+                "Failure in Python templating: {}. Have you configured your "
+                "variables?".format(err)
             )
         raw_sliced, sliced_file, new_str = self.slice_file(
             in_str, new_str, config=config
@@ -243,16 +242,15 @@ class PythonTemplater(RawTemplater):
             [],
         )
 
-    @classmethod
     def slice_file(
-        cls, raw_str: str, templated_str: str, config=None, **kwargs
+        self, raw_str: str, templated_str: str, config=None, **kwargs
     ) -> Tuple[List[RawFileSlice], List[TemplatedFileSlice], str]:
         """Slice the file to determine regions where we can fix."""
         templater_logger.info("Slicing File Template")
         templater_logger.debug("    Raw String: %r", raw_str)
         templater_logger.debug("    Templated String: %r", templated_str)
         # Slice the raw file
-        raw_sliced = list(cls._slice_template(raw_str))
+        raw_sliced = list(self._slice_template(raw_str))
         templater_logger.debug("    Raw Sliced:")
         for idx, raw_slice in enumerate(raw_sliced):
             templater_logger.debug("        %s: %r", idx, raw_slice)
@@ -266,8 +264,8 @@ class PythonTemplater(RawTemplater):
         for loop_idx in range(2):
             templater_logger.debug("    # Slice Loop %s", loop_idx)
             # Calculate occurrences
-            raw_occurrences = cls._substring_occurrences(raw_str, literals)
-            templated_occurrences = cls._substring_occurrences(templated_str, literals)
+            raw_occurrences = self._substring_occurrences(raw_str, literals)
+            templated_occurrences = self._substring_occurrences(templated_str, literals)
             templater_logger.debug(
                 "    Occurrences: Raw: %s, Templated: %s",
                 raw_occurrences,
@@ -275,7 +273,7 @@ class PythonTemplater(RawTemplater):
             )
             # Split on invariants
             split_sliced = list(
-                cls._split_invariants(
+                self._split_invariants(
                     raw_sliced,
                     literals,
                     raw_occurrences,
@@ -288,7 +286,7 @@ class PythonTemplater(RawTemplater):
                 templater_logger.debug("        %s: %r", idx, split_slice)
             # Deal with uniques and coalesce the rest
             sliced_file = list(
-                cls._split_uniques_coalesce_rest(
+                self._split_uniques_coalesce_rest(
                     split_sliced, raw_occurrences, templated_occurrences, templated_str
                 )
             )
@@ -302,7 +300,7 @@ class PythonTemplater(RawTemplater):
                     "unwrap_wrapped_queries", section="templater", default=True
                 )
             )
-            sliced_file, new_templated_str = cls._check_for_wrapped(
+            sliced_file, new_templated_str = self._check_for_wrapped(
                 sliced_file, templated_str, unwrap_wrapped=unwrap_wrapped
             )
             if new_templated_str == templated_str:
@@ -332,10 +330,10 @@ class PythonTemplater(RawTemplater):
         last_slice = slices[-1]
 
         if unwrap_wrapped:
-            # If we're unwrapping, there is no need to edit the slices, but we do need to trim
-            # the templated string. We should expect that the template will need to be re-sliced
-            # but we should assume that the function calling this one will deal with that
-            # eventuality.
+            # If we're unwrapping, there is no need to edit the slices, but we do need
+            # to trim the templated string. We should expect that the template will need
+            # to be re-sliced but we should assume that the function calling this one
+            # will deal with that eventuality.
             return (
                 slices,
                 templated_str[
@@ -347,9 +345,10 @@ class PythonTemplater(RawTemplater):
             first_slice.source_slice.start == 0
             and first_slice.templated_slice.start != 0
         ):
-            # This means that there is text at the start of the templated file which doesn't exist
-            # in the raw file. Handle this by adding a templated slice (though it's not really templated)
-            # between 0 and 0 in the raw, and 0 and the current first slice start index in the templated.
+            # This means that there is text at the start of the templated file which
+            # doesn't exist in the raw file. Handle this by adding a templated slice
+            # (though it's not really templated) between 0 and 0 in the raw, and 0 and
+            # the current first slice start index in the templated.
             slices.insert(
                 0,
                 TemplatedFileSlice(
@@ -359,9 +358,10 @@ class PythonTemplater(RawTemplater):
                 ),
             )
         if last_slice.templated_slice.stop != len(templated_str):
-            #  This means that there is text at the end of the templated file which doesn't exist
-            #  in the raw file. Handle this by adding a templated slice beginning and ending at the
-            #  end of the raw, and the current last slice stop and file end in the templated.
+            # This means that there is text at the end of the templated file which
+            # doesn't exist in the raw file. Handle this by adding a templated slice
+            # beginning and ending at the end of the raw, and the current last slice
+            # stop and file end in the templated.
             slices.append(
                 TemplatedFileSlice(
                     "templated",
@@ -477,7 +477,8 @@ class PythonTemplater(RawTemplater):
                 if tinv != linv:
                     src_dir = source_pos > raw_occurrences[tinv]
                     tmp_dir = templ_pos > templated_occurrences[tinv]
-                    # If it's not in the same direction in the source and template remove it.
+                    # If it's not in the same direction in the source and template
+                    # remove it.
                     if src_dir != tmp_dir:  # pragma: no cover
                         templater_logger.debug(
                             "          Invariant found out of order: %r", tinv
@@ -673,7 +674,8 @@ class PythonTemplater(RawTemplater):
             two_way_uniques = [
                 key for key in one_way_uniques if len(templ_occs[key]) == 1
             ]
-            # if we don't have anything to anchor on, then just return (coalescing types)
+            # if we don't have anything to anchor on, then just return (coalescing
+            # types)
             if not raw_occs or not templ_occs or not one_way_uniques:
                 templater_logger.debug(
                     "        No Anchors or Uniques. Yielding Whole: %s", coalesced
@@ -745,7 +747,8 @@ class PythonTemplater(RawTemplater):
                                 templated_str,
                             )
 
-                        # Handle any potential partial slice if we're part way through this one.
+                        # Handle any potential partial slice if we're part way through
+                        # this one.
                         if pos > 0:
                             yield TemplatedFileSlice(
                                 raw_slice.slice_type,
@@ -794,7 +797,8 @@ class PythonTemplater(RawTemplater):
                     )
                     templater_logger.warning(
                         "        Python templater safety value unexpectedly triggered. "
-                        "Please report your raw and compiled query on github for debugging."
+                        "Please report your raw and compiled query on github for "
+                        "debugging."
                     )
                     # NOTE: If a bug is reported here, this will incorrectly
                     # classify more of the query as "templated" than it should.
@@ -832,7 +836,8 @@ class PythonTemplater(RawTemplater):
             # We're very unlikely to get here (impossible?) with just python
             # formatting, but this class is also the base for the jinja templater
             # (and others?) so it may be used there.
-            # One way uniques give us landmarks to try and estimate what to do with them.
+            # One way uniques give us landmarks to try and estimate what to do with
+            # them.
             owu_templ_tuples = cls._sorted_occurrence_tuples(  # pragma: no cover
                 {key: templ_occs[key] for key in one_way_uniques}
             )
@@ -872,7 +877,8 @@ class PythonTemplater(RawTemplater):
                     continue
 
                 templater_logger.debug(
-                    "        Handling OWU: %r @%s (raw @%s) [this_owu_idx: %s, last_owu_dx: %s]",
+                    "        Handling OWU: %r @%s (raw @%s) [this_owu_idx: %s, "
+                    "last_owu_dx: %s]",
                     raw,
                     template_idx,
                     raw_idx,
@@ -980,10 +986,12 @@ class PythonTemplater(RawTemplater):
                         # The ending point of this slice, is already decided.
                         end_point = elem_sub_buffer[-1].end_source_idx()
 
-                        # If start_idx is None, we're in luck. We don't need to include the beginning.
+                        # If start_idx is None, we're in luck. We don't need to include
+                        # the beginning.
                         if include_start:
                             start_point = elem_sub_buffer[0].source_idx
-                        # Otherwise we know it's looped round, we need to include the whole slice.
+                        # Otherwise we know it's looped round, we need to include the
+                        # whole slice.
                         else:  # pragma: no cover
                             start_point = elem_sub_buffer[cur_idx].source_idx
 

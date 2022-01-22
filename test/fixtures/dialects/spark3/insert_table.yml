@@ -1,0 +1,410 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 17f5b63617f7f87f600a46a413d7a87889b39ab9ab724cd209d033cce7109830
+file:
+- base:
+    insert_table_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - keyword: TABLE
+    - table_reference:
+        identifier: students
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+        - start_bracket: (
+        - expression:
+            literal: "'Amy Smith'"
+        - comma: ','
+        - expression:
+            literal: "'123 Park Ave, San Jose'"
+        - comma: ','
+        - expression:
+            literal: '111111'
+        - end_bracket: )
+- statement_terminator: ;
+- base:
+    insert_table_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        identifier: students
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+        - start_bracket: (
+        - expression:
+            literal: "'Amy Smith'"
+        - comma: ','
+        - expression:
+            literal: "'123 Park Ave, San Jose'"
+        - comma: ','
+        - expression:
+            literal: '111111'
+        - end_bracket: )
+- statement_terminator: ;
+- base:
+    insert_table_statement:
+    - keyword: INSERT
+    - keyword: OVERWRITE
+    - table_reference:
+        identifier: students
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+        - start_bracket: (
+        - expression:
+            literal: "'Amy Smith'"
+        - comma: ','
+        - expression:
+            literal: "'123 Park Ave, San Jose'"
+        - comma: ','
+        - expression:
+            literal: '111111'
+        - end_bracket: )
+- statement_terminator: ;
+- base:
+    insert_table_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        identifier: students
+    - values_clause:
+      - keyword: VALUES
+      - bracketed:
+        - start_bracket: (
+        - expression:
+            literal: "'Bob Brown'"
+        - comma: ','
+        - expression:
+            literal: "'456 Taylor St, Cupertino'"
+        - comma: ','
+        - expression:
+            literal: '222222'
+        - end_bracket: )
+      - comma: ','
+      - bracketed:
+        - start_bracket: (
+        - expression:
+            literal: "'Cathy Johnson'"
+        - comma: ','
+        - expression:
+            literal: "'789 Race Ave, Palo Alto'"
+        - comma: ','
+        - expression:
+            literal: '333333'
+        - end_bracket: )
+- statement_terminator: ;
+- base:
+    insert_table_statement:
+    - keyword: INSERT
+    - keyword: OVERWRITE
+    - table_reference:
+        identifier: students
+    - values_clause:
+      - keyword: VALUES
+      - bracketed:
+        - start_bracket: (
+        - expression:
+            literal: "'Bob Brown'"
+        - comma: ','
+        - expression:
+            literal: "'456 Taylor St, Cupertino'"
+        - comma: ','
+        - expression:
+            literal: '222222'
+        - end_bracket: )
+      - comma: ','
+      - bracketed:
+        - start_bracket: (
+        - expression:
+            literal: "'Cathy Johnson'"
+        - comma: ','
+        - expression:
+            literal: "'789 Race Ave, Palo Alto'"
+        - comma: ','
+        - expression:
+            literal: '333333'
+        - end_bracket: )
+- statement_terminator: ;
+- base:
+    insert_table_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        identifier: students
+    - keyword: PARTITION
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          identifier: student_id
+        comparison_operator:
+          raw_comparison_operator: '='
+        literal: '444444'
+        end_bracket: )
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              identifier: name
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: address
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: persons
+        where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+              identifier: name
+            comparison_operator:
+              raw_comparison_operator: '='
+            literal: '"Dora Williams"'
+- statement_terminator: ;
+- base:
+    insert_table_statement:
+    - keyword: INSERT
+    - keyword: OVERWRITE
+    - table_reference:
+        identifier: students
+    - keyword: PARTITION
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          identifier: student_id
+        comparison_operator:
+          raw_comparison_operator: '='
+        literal: '444444'
+        end_bracket: )
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              identifier: name
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: address
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: persons
+        where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+              identifier: name
+            comparison_operator:
+              raw_comparison_operator: '='
+            literal: '"Dora Williams"'
+- statement_terminator: ;
+- base:
+    insert_table_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        identifier: students
+    - keyword: TABLE
+    - table_reference:
+        identifier: visiting_students
+- statement_terminator: ;
+- base:
+    insert_table_statement:
+    - keyword: INSERT
+    - keyword: OVERWRITE
+    - table_reference:
+        identifier: students
+    - keyword: TABLE
+    - table_reference:
+        identifier: visiting_students
+- statement_terminator: ;
+- base:
+    insert_table_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        identifier: students
+    - keyword: FROM
+    - table_reference:
+        identifier: applicants
+    - keyword: SELECT
+    - column_reference:
+        identifier: name
+    - comma: ','
+    - column_reference:
+        identifier: address
+    - comma: ','
+    - column_reference:
+        identifier: id
+    - where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            identifier: qualified
+          comparison_operator:
+            raw_comparison_operator: '='
+          literal: 'TRUE'
+- statement_terminator: ;
+- base:
+    insert_table_statement:
+    - keyword: INSERT
+    - keyword: OVERWRITE
+    - table_reference:
+        identifier: students
+    - keyword: FROM
+    - table_reference:
+        identifier: applicants
+    - keyword: SELECT
+    - column_reference:
+        identifier: name
+    - comma: ','
+    - column_reference:
+        identifier: address
+    - comma: ','
+    - column_reference:
+        identifier: id
+    - where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            identifier: qualified
+          comparison_operator:
+            raw_comparison_operator: '='
+          literal: 'TRUE'
+- statement_terminator: ;
+- base:
+    insert_table_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        identifier: students
+    - keyword: PARTITION
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          identifier: birthday
+        comparison_operator:
+          raw_comparison_operator: '='
+        keyword: DATE
+        literal: "'2019-01-02'"
+        end_bracket: )
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+        - start_bracket: (
+        - expression:
+            literal: "'Amy Smith'"
+        - comma: ','
+        - expression:
+            literal: "'123 Park Ave, San Jose'"
+        - end_bracket: )
+- statement_terminator: ;
+- base:
+    insert_table_statement:
+    - keyword: INSERT
+    - keyword: OVERWRITE
+    - table_reference:
+        identifier: students
+    - keyword: PARTITION
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          identifier: birthday
+        comparison_operator:
+          raw_comparison_operator: '='
+        keyword: DATE
+        literal: "'2019-01-02'"
+        end_bracket: )
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+        - start_bracket: (
+        - expression:
+            literal: "'Amy Smith'"
+        - comma: ','
+        - expression:
+            literal: "'123 Park Ave, San Jose'"
+        - end_bracket: )
+- statement_terminator: ;
+- base:
+    insert_table_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        identifier: students
+    - keyword: PARTITION
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          identifier: student_id
+        comparison_operator:
+          raw_comparison_operator: '='
+        literal: '11215017'
+        end_bracket: )
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          identifier: address
+      - comma: ','
+      - column_reference:
+          identifier: name
+      - end_bracket: )
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+        - start_bracket: (
+        - expression:
+            literal: "'Hangzhou, China'"
+        - comma: ','
+        - expression:
+            literal: "'Kent Yao Jr.'"
+        - end_bracket: )
+- statement_terminator: ;
+- base:
+    insert_table_statement:
+    - keyword: INSERT
+    - keyword: OVERWRITE
+    - table_reference:
+        identifier: students
+    - keyword: PARTITION
+    - bracketed:
+        start_bracket: (
+        column_reference:
+          identifier: student_id
+        comparison_operator:
+          raw_comparison_operator: '='
+        literal: '11215017'
+        end_bracket: )
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          identifier: address
+      - comma: ','
+      - column_reference:
+          identifier: name
+      - end_bracket: )
+    - values_clause:
+        keyword: VALUES
+        bracketed:
+        - start_bracket: (
+        - expression:
+            literal: "'Hangzhou, China'"
+        - comma: ','
+        - expression:
+            literal: "'Kent Yao Jr.'"
+        - end_bracket: )
+- statement_terminator: ;

@@ -49,6 +49,6 @@ __all__ = (
 # objects cannot be pickled. The tblib package addresses this limitation; we
 # simply need to install it before creating the worker pool. See these links for
 # additional context:
-# * https://pypi.org/project/tblib/
-# * https://stackoverflow.com/questions/6126007/python-getting-a-traceback-from-a-multiprocessing-process
+# https://pypi.org/project/tblib/
+# https://stackoverflow.com/questions/6126007/python-getting-a-traceback-from-a-multiprocessing-process
 tblib.pickling_support.install()

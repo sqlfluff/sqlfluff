@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e30ac870b37caef9be67bf46f101a591c2c3bef1c0d6ed6822107fc4121c9a96
+_hash: 1be53192fbb96166328a0d4a26d908d45548942fd42c9faa3ad932395b352ea5
 file:
 - statement:
     with_compound_statement:
@@ -49,37 +49,47 @@ file:
                       - comma: ','
                       - bracketed:
                         - start_bracket: (
-                        - literal: "'unripe banana'"
+                        - expression:
+                            literal: "'unripe banana'"
                         - comma: ','
-                        - literal: "'green'"
+                        - expression:
+                            literal: "'green'"
                         - end_bracket: )
                       - comma: ','
                       - bracketed:
                         - start_bracket: (
-                        - literal: "'kiwi'"
+                        - expression:
+                            literal: "'kiwi'"
                         - comma: ','
-                        - literal: "'green'"
+                        - expression:
+                            literal: "'green'"
                         - end_bracket: )
                       - comma: ','
                       - bracketed:
                         - start_bracket: (
-                        - literal: "'blueberry'"
+                        - expression:
+                            literal: "'blueberry'"
                         - comma: ','
-                        - literal: "'blue'"
+                        - expression:
+                            literal: "'blue'"
                         - end_bracket: )
                       - comma: ','
                       - bracketed:
                         - start_bracket: (
-                        - literal: "'strawberry'"
+                        - expression:
+                            literal: "'strawberry'"
                         - comma: ','
-                        - literal: "'red'"
+                        - expression:
+                            literal: "'red'"
                         - end_bracket: )
                       - comma: ','
                       - bracketed:
                         - start_bracket: (
-                        - literal: "'grape'"
+                        - expression:
+                            literal: "'grape'"
                         - comma: ','
-                        - literal: "'red'"
+                        - expression:
+                            literal: "'red'"
                         - end_bracket: )
                       end_bracket: )
           end_bracket: )
@@ -202,7 +212,8 @@ file:
         expression:
           column_reference:
             identifier: o_totalprice
-          comparison_operator: '>'
+          comparison_operator:
+            raw_comparison_operator: '>'
           literal: '450000'
 - statement_terminator: ;
 - statement:
@@ -244,7 +255,8 @@ file:
         expression:
           column_reference:
             identifier: o_totalprice
-          comparison_operator: '>'
+          comparison_operator:
+            raw_comparison_operator: '>'
           literal: '450000'
       orderby_clause:
       - keyword: order
@@ -295,7 +307,8 @@ file:
         expression:
           column_reference:
             identifier: o_totalprice
-          comparison_operator: '>'
+          comparison_operator:
+            raw_comparison_operator: '>'
           literal: '450000'
       groupby_clause:
       - keyword: group
@@ -338,7 +351,8 @@ file:
         expression:
           column_reference:
             identifier: o_totalprice
-          comparison_operator: '>'
+          comparison_operator:
+            raw_comparison_operator: '>'
           literal: '450000'
 - statement_terminator: ;
 - statement:
@@ -371,7 +385,8 @@ file:
         expression:
           column_reference:
             identifier: o_totalprice
-          comparison_operator: '>'
+          comparison_operator:
+            raw_comparison_operator: '>'
           literal: '450000'
 - statement_terminator: ;
 - statement:
@@ -419,7 +434,8 @@ file:
         expression:
           column_reference:
             identifier: o_totalprice
-          comparison_operator: '>'
+          comparison_operator:
+            raw_comparison_operator: '>'
           literal: '450000'
       groupby_clause:
       - keyword: group

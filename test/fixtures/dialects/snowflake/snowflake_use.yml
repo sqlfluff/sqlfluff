@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ac5358b10e8c24fcb3d4d780a0a7926c3d2499f6cf85759aa9610a217e5a2dba
+_hash: 304ece91d8540fd10a09ebec75402ff76d951690615eac803dee97975aa9c73f
 file:
 - statement:
     use_statement:
@@ -23,14 +23,14 @@ file:
     use_statement:
     - keyword: use
     - keyword: database
-    - object_reference:
+    - database_reference:
         identifier: my_database
 - statement_terminator: ;
 - statement:
     use_statement:
     - keyword: use
     - keyword: schema
-    - object_reference:
+    - schema_reference:
         identifier: my_schema
 - statement_terminator: ;
 - statement:
@@ -51,20 +51,20 @@ file:
     use_statement:
     - keyword: USE
     - keyword: DATABASE
-    - object_reference:
+    - database_reference:
         identifier: '"MY_DATABASE"'
 - statement_terminator: ;
 - statement:
     use_statement:
       keyword: USE
-      object_reference:
+      database_reference:
         identifier: '"MY_DATABASE"'
 - statement_terminator: ;
 - statement:
     use_statement:
     - keyword: USE
     - keyword: SCHEMA
-    - object_reference:
+    - schema_reference:
       - identifier: '"MY_DATABASE"'
       - dot: .
       - identifier: '"MY_SCHEMA"'
@@ -73,14 +73,28 @@ file:
     use_statement:
     - keyword: USE
     - keyword: SCHEMA
-    - object_reference:
+    - schema_reference:
         identifier: '"MY_SCHEMA"'
 - statement_terminator: ;
 - statement:
     use_statement:
       keyword: USE
-      object_reference:
+      database_reference:
       - identifier: '"MY_DATABASE"'
       - dot: .
       - identifier: '"MY_SCHEMA"'
+- statement_terminator: ;
+- statement:
+    use_statement:
+    - keyword: USE
+    - keyword: SECONDARY
+    - keyword: ROLES
+    - keyword: ALL
+- statement_terminator: ;
+- statement:
+    use_statement:
+    - keyword: USE
+    - keyword: SECONDARY
+    - keyword: ROLES
+    - keyword: NONE
 - statement_terminator: ;

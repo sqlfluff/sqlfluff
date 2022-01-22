@@ -64,6 +64,10 @@ ALTER TABLE ONLY distributors DROP CONSTRAINT zipchk;
 
 ALTER TABLE distributors ADD CONSTRAINT distfk FOREIGN KEY (address) REFERENCES addresses (address);
 
+ALTER TABLE distributors ADD CONSTRAINT distfk FOREIGN KEY (address) REFERENCES addresses (address) MATCH FULL;
+
+ALTER TABLE distributors ADD CONSTRAINT distfk FOREIGN KEY (address) REFERENCES addresses (address) ON DELETE RESTRICT ON UPDATE CASCADE;
+
 ALTER TABLE distributors ADD CONSTRAINT distfk FOREIGN KEY (address) REFERENCES addresses (address) NOT VALID;
 
 ALTER TABLE distributors VALIDATE CONSTRAINT distfk;

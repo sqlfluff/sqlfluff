@@ -9,12 +9,12 @@ Here we define:
 """
 
 from io import StringIO
-from cached_property import cached_property
 from typing import Any, Callable, Optional, List, Tuple, NamedTuple, Iterator
 import logging
 
 from tqdm import tqdm
 
+from sqlfluff.core.cached_property import cached_property
 from sqlfluff.core.config import progress_bar_configuration
 from sqlfluff.core.string_helpers import (
     frame_msg,
@@ -56,13 +56,13 @@ class BaseSegment:
     subclasses rather than directly here.
 
     For clarity, the `BaseSegment` is mostly centered around a segment which contains
-    other subsegments. For segments which don't have *children*, refer to the `RawSegment`
-    class (which still inherits from this one).
+    other subsegments. For segments which don't have *children*, refer to the
+    `RawSegment` class (which still inherits from this one).
 
     Segments are used both as instances to hold chunks of text, but also as classes
-    themselves where they function a lot like grammars, and return instances of themselves
-    when they match. The many classmethods in this class are usually to serve their
-    purpose as a matcher.
+    themselves where they function a lot like grammars, and return instances of
+    themselves when they match. The many classmethods in this class are usually to serve
+    their purpose as a matcher.
     """
 
     # `type` should be the *category* of this kind of segment
@@ -95,9 +95,8 @@ class BaseSegment:
 
         if len(segments) == 0:  # pragma: no cover
             raise RuntimeError(
-                "Setting {} with a zero length segment set. This shouldn't happen.".format(
-                    self.__class__
-                )
+                "Setting {} with a zero length segment set. This shouldn't "
+                "happen.".format(self.__class__)
             )
 
         if hasattr(segments, "matched_segments"):  # pragma: no cover TODO?
@@ -155,7 +154,11 @@ class BaseSegment:
 
     def __hash__(self):
         return hash(
-            (self.__class__.__name__, self.raw, self.pos_marker.source_position())
+            (
+                self.__class__.__name__,
+                self.raw,
+                self.pos_marker.source_position() if self.pos_marker else None,
+            )
         )
 
     def __repr__(self):
@@ -302,15 +305,15 @@ class BaseSegment:
                     continue
             except Exception as err:  # pragma: no cover
                 parse_context.logger.error(
-                    "%s has no attribute `is_expandable`. This segment appears poorly constructed.",
+                    "%s has no attribute `is_expandable`. This segment appears poorly "
+                    "constructed.",
                     stmt,
                 )
                 raise err
             if not hasattr(stmt, "parse"):  # pragma: no cover
                 raise ValueError(
-                    "{} has no method `parse`. This segment appears poorly constructed.".format(
-                        stmt
-                    )
+                    "{} has no method `parse`. This segment appears poorly "
+                    "constructed.".format(stmt)
                 )
             parse_depth_msg = "Parse Depth {}. Expanding: {}: {!r}".format(
                 parse_context.parse_depth,
@@ -511,7 +514,8 @@ class BaseSegment:
             with parse_context.deeper_match() as ctx:
                 m = cls.match_grammar.match(segments=segments, parse_context=ctx)
 
-            # Calling unify here, allows the MatchResult class to do all the type checking.
+            # Calling unify here, allows the MatchResult class to do all the type
+            # checking.
             if not isinstance(m, MatchResult):  # pragma: no cover
                 raise TypeError(
                     "[PD:{} MD:{}] {}.match. Result is {}, not a MatchResult!".format(
@@ -574,6 +578,14 @@ class BaseSegment:
         """Is this segment (or its parent) of the given type."""
         return self.class_is_type(*seg_type)
 
+    def get_name(self):
+        """Returns the name of this segment as a string."""
+        return self.name
+
+    def is_name(self, *seg_name):
+        """Is this segment of the given name."""
+        return any(s == self.name for s in seg_name)
+
     def invalidate_caches(self):
         """Invalidate the cached properties.
 
@@ -631,7 +643,8 @@ class BaseSegment:
                     )
         else:
             for seg in self.segments:
-                # If we're in code_only, only show the code segments, otherwise always true
+                # If we're in code_only, only show the code segments, otherwise always
+                # true
                 if not code_only or seg.is_code:
                     buff.write(
                         seg.stringify(
@@ -815,8 +828,8 @@ class BaseSegment:
 
         A large chunk of the logic around this can be found in the `expand` method.
 
-        Use the parse setting in the context for testing, mostly to check how deep to go.
-        True/False for yes or no, an integer allows a certain number of levels.
+        Use the parse setting in the context for testing, mostly to check how deep to
+        go. True/False for yes or no, an integer allows a certain number of levels.
 
         Optionally, this method allows a custom parse grammar to be
         provided which will override any existing parse grammar
@@ -826,7 +839,8 @@ class BaseSegment:
         if parse_context:
             parse_context.denylist.clear()
 
-        # the parse_depth and recurse kwargs control how deep we will recurse for testing.
+        # the parse_depth and recurse kwargs control how deep we will recurse for
+        # testing.
         if not self.segments:  # pragma: no cover TODO?
             # This means we're a root segment, just return an unmutated self
             return self
@@ -887,8 +901,8 @@ class BaseSegment:
                     self.segments = pre_nc + m.matched_segments + post_nc
                 else:
                     # Incomplete match.
-                    # For now this means the parsing has failed. Lets add the unmatched bit at the
-                    # end as something unparsable.
+                    # For now this means the parsing has failed. Lets add the unmatched
+                    # bit at the end as something unparsable.
                     # TODO: Do something more intelligent here.
                     self.segments = (
                         pre_nc
@@ -901,11 +915,13 @@ class BaseSegment:
                         )
                     )
             elif self.allow_empty and not segments:
-                # Very edge case, but some segments are allowed to be empty other than non-code
+                # Very edge case, but some segments are allowed to be empty other than
+                # non-code
                 self.segments = pre_nc + post_nc
             else:
                 # If there's no match at this stage, then it's unparsable. That's
-                # a problem at this stage so wrap it in an unparsable segment and carry on.
+                # a problem at this stage so wrap it in an unparsable segment and carry
+                # on.
                 self.segments = (
                     pre_nc
                     + (
@@ -922,8 +938,11 @@ class BaseSegment:
                 self.__class__.__name__, parse_context.recurse
             )
         )
-        parse_depth_msg = "###\n#\n# Beginning Parse Depth {}: {}\n#\n###\nInitial Structure:\n{}".format(
-            parse_context.parse_depth + 1, self.__class__.__name__, self.stringify()
+        parse_depth_msg = (
+            "###\n#\n# Beginning Parse Depth {}: {}\n#\n###\nInitial Structure:\n"
+            "{}".format(
+                parse_context.parse_depth + 1, self.__class__.__name__, self.stringify()
+            )
         )
         if parse_context.may_recurse():
             parse_context.logger.debug(parse_depth_msg)
@@ -979,10 +998,12 @@ class BaseSegment:
                                 "create_after",
                             ):
                                 if f.edit_type == "create_after":
-                                    # in the case of a creation after, also add this segment before the edit.
+                                    # in the case of a creation after, also add this
+                                    # segment before the edit.
                                     seg_buffer.append(seg)
 
-                                # We're doing a replacement (it could be a single segment or an iterable)
+                                # We're doing a replacement (it could be a single
+                                # segment or an iterable)
                                 if isinstance(f.edit, BaseSegment):
                                     seg_buffer.append(f.edit)  # pragma: no cover TODO?
                                 else:
@@ -990,7 +1011,8 @@ class BaseSegment:
                                         seg_buffer.append(s)
 
                                 if f.edit_type == "create_before":
-                                    # in the case of a creation before, also add this segment on the end
+                                    # in the case of a creation before, also add this
+                                    # segment on the end
                                     seg_buffer.append(seg)
 
                             else:  # pragma: no cover
@@ -999,11 +1021,13 @@ class BaseSegment:
                                         f.edit_type, f
                                     )
                                 )
-                            # We've applied a fix here. Move on, this also consumes the fix
+                            # We've applied a fix here. Move on, this also consumes the
+                            # fix
                             # TODO: Maybe deal with overlapping fixes later.
                             break
                         else:
-                            # We've not used the fix so we should keep it in the list for later.
+                            # We've not used the fix so we should keep it in the list
+                            # for later.
                             unused_fixes.append(f)
                     else:
                         seg_buffer.append(seg)
@@ -1079,7 +1103,8 @@ class BaseSegment:
             for seg_idx, segment in enumerate(self.segments):
 
                 # First check for insertions.
-                # We know it's an insertion if it has length but not in the templated file.
+                # We know it's an insertion if it has length but not in the templated
+                # file.
                 if segment.raw and segment.pos_marker.is_point():
                     # Add it to the insertion buffer if it has length:
                     if segment.raw:
@@ -1091,13 +1116,15 @@ class BaseSegment:
                         )
                     continue
 
-                # If we get here, then we know it's an original.
-                # Check for deletions at the point before this segment (vs the TEMPLATED).
+                # If we get here, then we know it's an original. Check for deletions at
+                # the point before this segment (vs the TEMPLATED).
                 start_diff = segment.pos_marker.templated_slice.start - templated_idx
 
-                # Check to see whether there's a discontinuity before the current segment
+                # Check to see whether there's a discontinuity before the current
+                # segment
                 if start_diff > 0 or insert_buff:
-                    # If we have an insert buffer, then it's an edit, otherwise a deletion.
+                    # If we have an insert buffer, then it's an edit, otherwise a
+                    # deletion.
                     yield FixPatch(
                         slice(
                             segment.pos_marker.templated_slice.start

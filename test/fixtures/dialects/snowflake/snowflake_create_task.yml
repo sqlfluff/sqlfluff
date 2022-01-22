@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3268f1a30f1f80b907141692283aa593ed92af99a112c8de24b4d3c27ff09c09
+_hash: c0547cbe3217ed0bd46d8c7d11acce26d1a2adbfeabcb968657f9ec370317014
 file:
 - statement:
     create_task_statement:
@@ -12,13 +12,16 @@ file:
     - object_reference:
         identifier: t1
     - keyword: SCHEDULE
-    - comparison_operator: '='
+    - comparison_operator:
+        raw_comparison_operator: '='
     - literal: "'USING CRON 0 9-17 * * SUN America/Los_Angeles'"
     - parameter: TIMESTAMP_INPUT_FORMAT
-    - comparison_operator: '='
+    - comparison_operator:
+        raw_comparison_operator: '='
     - literal: "'YYYY-MM-DD HH24'"
     - keyword: USER_TASK_MANAGED_INITIAL_WAREHOUSE_SIZE
-    - comparison_operator: '='
+    - comparison_operator:
+        raw_comparison_operator: '='
     - warehouse_size: "'XSMALL'"
     - keyword: AS
     - statement:
@@ -36,7 +39,8 @@ file:
             keyword: VALUES
             bracketed:
               start_bracket: (
-              literal: '1'
+              expression:
+                literal: '1'
               end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -46,14 +50,17 @@ file:
     - object_reference:
         identifier: mytask_hour
     - keyword: WAREHOUSE
-    - comparison_operator: '='
+    - comparison_operator:
+        raw_comparison_operator: '='
     - object_reference:
         identifier: mywh
     - keyword: SCHEDULE
-    - comparison_operator: '='
+    - comparison_operator:
+        raw_comparison_operator: '='
     - literal: "'USING CRON 0 9-17 * * SUN America/Los_Angeles'"
     - parameter: TIMESTAMP_INPUT_FORMAT
-    - comparison_operator: '='
+    - comparison_operator:
+        raw_comparison_operator: '='
     - literal: "'YYYY-MM-DD HH24'"
     - keyword: AS
     - statement:
@@ -71,11 +78,14 @@ file:
             keyword: VALUES
             bracketed:
             - start_bracket: (
-            - literal: '1'
+            - expression:
+                literal: '1'
             - comma: ','
-            - literal: '2'
+            - expression:
+                literal: '2'
             - comma: ','
-            - literal: '3'
+            - expression:
+                literal: '3'
             - end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -90,24 +100,30 @@ file:
     - object_reference:
         identifier: t1
     - keyword: SCHEDULE
-    - comparison_operator: '='
+    - comparison_operator:
+        raw_comparison_operator: '='
     - literal: "'USING CRON 0 9-17 * * SUN America/Los_Angeles'"
     - keyword: ALLOW_OVERLAPPING_EXECUTION
-    - comparison_operator: '='
+    - comparison_operator:
+        raw_comparison_operator: '='
     - literal: 'TRUE'
     - parameter: TIMESTAMP_INPUT_FORMAT
-    - comparison_operator: '='
+    - comparison_operator:
+        raw_comparison_operator: '='
     - literal: "'YYYY-MM-DD HH24'"
     - parameter: USER_TASK_TIMEOUT_MS
-    - comparison_operator: '='
+    - comparison_operator:
+        raw_comparison_operator: '='
     - literal: '25'
     - keyword: USER_TASK_MANAGED_INITIAL_WAREHOUSE_SIZE
-    - comparison_operator: '='
+    - comparison_operator:
+        raw_comparison_operator: '='
     - warehouse_size: "'XSMALL'"
     - keyword: COPY
     - keyword: GRANTS
     - parameter: COMMENT
-    - comparison_operator: '='
+    - comparison_operator:
+        raw_comparison_operator: '='
     - literal: "'Hello world'"
     - keyword: AFTER
     - object_reference:
@@ -128,7 +144,8 @@ file:
             keyword: VALUES
             bracketed:
               start_bracket: (
-              literal: '1'
+              expression:
+                literal: '1'
               end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -153,7 +170,8 @@ file:
             keyword: VALUES
             bracketed:
               start_bracket: (
-              literal: '1'
+              expression:
+                literal: '1'
               end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -165,11 +183,13 @@ file:
     - object_reference:
         identifier: insert_session
     - keyword: WAREHOUSE
-    - comparison_operator: '='
+    - comparison_operator:
+        raw_comparison_operator: '='
     - object_reference:
         identifier: eng_wh
     - keyword: SCHEDULE
-    - comparison_operator: '='
+    - comparison_operator:
+        raw_comparison_operator: '='
     - literal: "'USING CRON 45 6 * * * UTC'"
     - keyword: AS
     - statement:
@@ -250,7 +270,8 @@ file:
     - object_reference:
         identifier: update_session
     - keyword: WAREHOUSE
-    - comparison_operator: '='
+    - comparison_operator:
+        raw_comparison_operator: '='
     - object_reference:
         identifier: eng_wh
     - keyword: AFTER
@@ -269,7 +290,8 @@ file:
           - set_clause:
             - column_reference:
                 identifier: lag_datetime
-            - comparison_operator: '='
+            - comparison_operator:
+                raw_comparison_operator: '='
             - column_reference:
               - identifier: v
               - dot: .
@@ -278,7 +300,8 @@ file:
           - set_clause:
             - column_reference:
                 identifier: row_number
-            - comparison_operator: '='
+            - comparison_operator:
+                raw_comparison_operator: '='
             - column_reference:
               - identifier: v
               - dot: .
@@ -376,7 +399,8 @@ file:
               - identifier: s_session
               - dot: .
               - identifier: event_id
-            - comparison_operator: '='
+            - comparison_operator:
+                raw_comparison_operator: '='
             - column_reference:
               - identifier: v
               - dot: .
@@ -393,7 +417,8 @@ file:
       - dot: .
       - identifier: truncate_session
     - keyword: WAREHOUSE
-    - comparison_operator: '='
+    - comparison_operator:
+        raw_comparison_operator: '='
     - object_reference:
         identifier: eng_wh
     - keyword: AFTER
@@ -423,11 +448,13 @@ file:
     - object_reference:
         identifier: insert__agg
     - keyword: WAREHOUSE
-    - comparison_operator: '='
+    - comparison_operator:
+        raw_comparison_operator: '='
     - object_reference:
         identifier: eng_wh
     - keyword: SCHEDULE
-    - comparison_operator: '='
+    - comparison_operator:
+        raw_comparison_operator: '='
     - literal: "'USING CRON 15 7 2 * * UTC'"
     - keyword: AS
     - statement:

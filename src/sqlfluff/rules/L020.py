@@ -3,7 +3,7 @@
 import itertools
 from typing import List, Optional
 
-from sqlfluff.core.dialects.common import AliasInfo
+from sqlfluff.core.dialects.common import AliasInfo, ColumnAliasInfo
 from sqlfluff.core.parser import BaseSegment
 from sqlfluff.core.rules.base import BaseRule, LintResult, RuleContext, EvalResultType
 from sqlfluff.core.rules.analysis.select import get_select_statement_info
@@ -13,7 +13,7 @@ class Rule_L020(BaseRule):
     """Table aliases should be unique within each clause.
 
     | **Anti-pattern**
-    | In this example, the alias 't' is reused for two different ables:
+    | In this example, the alias 't' is reused for two different tables:
 
     .. code-block:: sql
 
@@ -22,7 +22,8 @@ class Rule_L020(BaseRule):
             t.b
         FROM foo AS t, bar AS t
 
-        -- this can also happen when using schemas where the implicit alias is the table name:
+        -- this can also happen when using schemas where the implicit alias is the table
+        -- name:
 
         SELECT
             a,
@@ -41,7 +42,8 @@ class Rule_L020(BaseRule):
             b.b
         FROM foo AS f, bar AS b
 
-        -- Also use explicit alias's when referencing two tables with same name from two different schemas
+        -- Also use explicit alias's when referencing two tables with same name from two
+        -- different schemas
 
         SELECT
             f1.a,
@@ -57,7 +59,7 @@ class Rule_L020(BaseRule):
         table_aliases: List[AliasInfo],
         standalone_aliases: List[str],
         references: List[BaseSegment],
-        col_aliases: List[str],
+        col_aliases: List[ColumnAliasInfo],
         using_cols: List[str],
         parent_select: Optional[BaseSegment],
     ) -> Optional[List[LintResult]]:

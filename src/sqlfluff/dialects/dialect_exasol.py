@@ -83,13 +83,14 @@ exasol_dialect.insert_lexer_matchers(
         RegexLexer("atsign_literal", r"@[a-zA-Z_][\w]*", CodeSegment),
         RegexLexer("dollar_literal", r"[$][a-zA-Z0-9_.]*", CodeSegment),
     ],
-    before="not_equal",
+    before="like_operator",
 )
 
 exasol_dialect.patch_lexer_matchers(
     [
-        # In EXASOL, a double single/double quote resolves as a single/double quote in the string.
-        # It's also used for escaping single quotes inside of STATEMENT strings like in the IMPORT function
+        # In EXASOL, a double single/double quote resolves as a single/double quote in
+        # the string. It's also used for escaping single quotes inside of STATEMENT
+        # strings like in the IMPORT function
         # https://docs.exasol.com/sql_references/basiclanguageelements.htm#Delimited_Identifiers
         # https://docs.exasol.com/sql_references/literals.htm
         RegexLexer("single_quote", r"'([^']|'')*'", CodeSegment),
@@ -194,10 +195,6 @@ exasol_dialect.add(
         Delimited(Ref("ColumnDatatypeSegment")),
         Ref("UDFParameterDotSyntaxSegment"),
     ),
-    EmitsGrammar=Sequence(
-        "EMITS",
-        Bracketed(Ref("UDFParameterGrammar")),
-    ),
     FunctionScriptTerminatorSegment=NamedParser(
         "function_script_terminator", CodeSegment, type="function_script_terminator"
     ),
@@ -293,7 +290,7 @@ exasol_dialect.replace(
         Ref("TrueSegment"), Ref("FalseSegment"), Ref("UnknownSegment")
     ),
     PostFunctionGrammar=OneOf(
-        Ref("EmitsGrammar"),  # e.g. JSON_EXTRACT()
+        Ref("EmitsSegment"),  # e.g. JSON_EXTRACT()
         Sequence(
             Sequence(OneOf("IGNORE", "RESPECT"), "NULLS", optional=True),
             Ref("OverClauseSegment"),
@@ -437,18 +434,14 @@ class ValuesClauseSegment(BaseSegment):
             OneOf(
                 Bracketed(
                     Delimited(
-                        Ref("LiteralGrammar"),
-                        Ref("IntervalExpressionSegment"),
-                        Ref("BareFunctionSegment"),
-                        Ref("FunctionSegment"),
+                        "DEFAULT",  # not in `FROM` clause, rule?
+                        Ref("ExpressionSegment"),
                         ephemeral_name="ValuesClauseElements",
                     )
                 ),
                 Delimited(
-                    # e.g. SELECT * FROM (VALUES 1,2,3);
-                    Ref("LiteralGrammar"),
-                    Ref("BareFunctionSegment"),
-                    Ref("FunctionSegment"),
+                    "DEFAULT",  # not in `FROM` clause, rule?
+                    Ref("ExpressionSegment"),
                 ),
             ),
         ),
@@ -676,108 +669,6 @@ class LimitClauseSegment(BaseSegment):
 
 
 ############################
-# DROP
-############################
-
-
-@exasol_dialect.segment(replace=True)
-class DropStatementSegment(BaseSegment):
-    """A `DROP` statement without any options."""
-
-    type = "drop_statement"
-    is_ddl = False
-    is_dml = False
-    is_dql = False
-    is_dcl = True
-    match_grammar = StartsWith("DROP")
-    parse_grammar = OneOf(
-        Ref("DropWithouOptionsStatementSegment"),
-        Ref("DropCascadeStatementSegment"),
-        Ref("DropCascadeRestrictStatementSegment"),
-        Ref("DropSchemaStatementSegment"),
-        Ref("DropTableStatementSegment"),
-    )
-
-
-@exasol_dialect.segment()
-class DropWithouOptionsStatementSegment(BaseSegment):
-    """A `DROP` statement without any options."""
-
-    type = "drop_wo_options"
-    is_ddl = False
-    is_dml = False
-    is_dql = False
-    is_dcl = True
-    match_grammar = Sequence(
-        "DROP",
-        OneOf(
-            "CONNECTION",
-            Sequence(
-                Ref.keyword("ADAPTER", optional=True),
-                "SCRIPT",
-            ),
-            Sequence("CONSUMER", "GROUP"),
-        ),
-        Ref("IfExistsGrammar", optional=True),
-        Ref("ObjectReferenceSegment"),
-    )
-
-
-@exasol_dialect.segment()
-class DropCascadeStatementSegment(BaseSegment):
-    """A `DROP` statement with CASCADE option.
-
-    https://docs.exasol.com/sql/drop_role.htm
-    https://docs.exasol.com/sql/drop_user.htm
-    """
-
-    type = "drop_cascade"
-
-    is_ddl = False
-    is_dml = False
-    is_dql = False
-    is_dcl = True
-
-    match_grammar = Sequence(
-        "DROP",
-        OneOf(
-            "USER",
-            "ROLE",
-        ),
-        Ref("IfExistsGrammar", optional=True),
-        Ref("ObjectReferenceSegment"),
-        Ref.keyword("CASCADE", optional=True),
-    )
-
-
-@exasol_dialect.segment()
-class DropCascadeRestrictStatementSegment(BaseSegment):
-    """A `DROP` statement with CASCADE and RESTRICT option.
-
-    https://docs.exasol.com/sql/drop_view.htm
-    https://docs.exasol.com/sql/drop_function.htm
-    """
-
-    type = "drop_cascade_restrict"
-
-    is_ddl = True
-    is_dml = False
-    is_dql = False
-    is_dcl = False
-
-    match_grammar = Sequence(
-        "DROP",
-        OneOf(
-            "VIEW",
-            "FUNCTION",
-        ),
-        Ref("IfExistsGrammar", optional=True),
-        Ref("ObjectReferenceSegment"),
-        OneOf("RESTRICT", "CASCADE", optional=True),
-    )
-
-
-############################
 # SCHEMA
 ############################
 
@@ -910,12 +801,12 @@ class AlterVirtualSchemaStatementSegment(BaseSegment):
 
 @exasol_dialect.segment(replace=True)
 class DropSchemaStatementSegment(BaseSegment):
-    """A `DROP` statement for EXASOL schema.
+    """A `DROP SCHEMA` statement for EXASOL schema.
 
     https://docs.exasol.com/sql/drop_schema.htm
     """
 
-    type = "drop_schema"
+    type = "drop_schema_statement"
 
     is_ddl = True
     is_dml = False
@@ -929,7 +820,7 @@ class DropSchemaStatementSegment(BaseSegment):
         "SCHEMA",
         Ref("IfExistsGrammar", optional=True),
         Ref("SchemaReferenceSegment"),
-        OneOf("RESTRICT", Ref.keyword("CASCADE", optional=True), optional=True),
+        Ref("DropBehaviorGrammar", optional=True),
     )
 
 
@@ -937,7 +828,9 @@ class DropSchemaStatementSegment(BaseSegment):
 # VIEW
 ############################
 @exasol_dialect.segment()
-class ViewReferenceSegment(ansi_dialect.get_segment("ObjectReferenceSegment")):  # type: ignore
+class ViewReferenceSegment(
+    ansi_dialect.get_segment("ObjectReferenceSegment")  # type: ignore
+):
     """A reference to an schema."""
 
     type = "view_reference"
@@ -987,6 +880,29 @@ class CreateViewStatementSegment(BaseSegment):
         Ref("CommentIsGrammar", optional=True),
         # TODO: (...) COMMENT IS '...' works, without brackets doesn't work
         # COMMENT is matched as an identifier...
+    )
+
+
+@exasol_dialect.segment(replace=True)
+class DropViewStatementSegment(BaseSegment):
+    """A `DROP VIEW` statement with CASCADE and RESTRICT option.
+
+    https://docs.exasol.com/sql/drop_view.htm
+    """
+
+    type = "drop_view_statement"
+
+    is_ddl = True
+    is_dml = False
+    is_dql = False
+    is_dcl = False
+
+    match_grammar = Sequence(
+        "DROP",
+        "VIEW",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ViewReferenceSegment"),
+        Ref("DropBehaviorGrammar", optional=True),
     )
 
 
@@ -1228,8 +1144,8 @@ class TableInlineConstraintSegment(BaseSegment):
                 max_times=1,
                 min_times=0,
                 # exclude UNRESERVED_KEYWORDS which could used as NakedIdentifier
-                # to make e.g. `id NUMBER CONSTRAINT PRIMARY KEY` work (which is equal to just
-                # `id NUMBER PRIMARY KEY`)
+                # to make e.g. `id NUMBER CONSTRAINT PRIMARY KEY` work (which is equal
+                # to just `id NUMBER PRIMARY KEY`)
                 exclude=OneOf("NOT", "NULL", "PRIMARY", "FOREIGN"),
             ),
             optional=True,
@@ -1263,8 +1179,8 @@ class TableOutOfLineConstraintSegment(BaseSegment):
                 max_times=1,
                 min_times=0,
                 # exclude UNRESERVED_KEYWORDS which could used as NakedIdentifier
-                # to make e.g. `id NUMBER, CONSTRAINT PRIMARY KEY(id)` work (which is equal to just
-                # `id NUMBER, PRIMARY KEY(id)`)
+                # to make e.g. `id NUMBER, CONSTRAINT PRIMARY KEY(id)` work (which is
+                # equal to just `id NUMBER, PRIMARY KEY(id)`)
                 exclude=OneOf("NOT", "NULL", "PRIMARY", "FOREIGN"),
             ),
             optional=True,
@@ -1555,21 +1471,28 @@ class AlterTableDistributePartitionSegment(BaseSegment):
     )
 
 
-@exasol_dialect.segment()
+@exasol_dialect.segment(replace=True)
 class DropTableStatementSegment(BaseSegment):
     """A `DROP` table statement.
 
     https://docs.exasol.com/sql/drop_table.htm
     """
 
-    type = "drop_table"
+    type = "drop_table_statement"
+
+    is_ddl = True
+    is_dml = False
+    is_dql = False
+    is_dcl = False
+
     match_grammar = StartsWith(Sequence("DROP", "TABLE"))
+
     parse_grammar = Sequence(
         "DROP",
         "TABLE",
         Ref("IfExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
-        OneOf("RESTRICT", Ref.keyword("CASCADE", optional=True), optional=True),
+        Ref("DropBehaviorGrammar", optional=True),
         Sequence("CASCADE", "CONSTRAINTS", optional=True),
     )
 
@@ -2537,6 +2460,29 @@ class UserLDAPAuthSegment(BaseSegment):
     )
 
 
+@exasol_dialect.segment(replace=True)
+class DropUserStatementSegment(BaseSegment):
+    """A `DROP USER` statement with CASCADE option.
+
+    https://docs.exasol.com/sql/drop_user.htm
+    """
+
+    type = "drop_user_statement"
+
+    is_ddl = False
+    is_dml = False
+    is_dql = False
+    is_dcl = True
+
+    match_grammar = Sequence(
+        "DROP",
+        "USER",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("NakedIdentifierSegment"),
+        Ref.keyword("CASCADE", optional=True),
+    )
+
+
 ############################
 # CONSUMER GROUP
 ############################
@@ -2587,6 +2533,20 @@ class ConsumerGroupParameterSegment(BaseSegment):
         ),
         Ref("EqualsSegment"),
         OneOf(Ref("QuotedLiteralSegment"), Ref("NumericLiteralSegment")),
+    )
+
+
+@exasol_dialect.segment()
+class DropConsumerGroupSegment(BaseSegment):
+    """A `DROP CONSUMER GROUP` statement.
+
+    https://docs.exasol.com/sql/consumer_group.htm
+    """
+
+    type = "drop_consumer_group_statement"
+
+    match_grammar = Sequence(
+        "DROP", Sequence("CONSUMER", "GROUP"), Ref("NakedIdentifierSegment")
     )
 
 
@@ -2644,6 +2604,29 @@ class AlterRoleSegment(BaseSegment):
             Ref("EqualsSegment"),
             OneOf(Ref("NakedIdentifierSegment"), "NULL"),
         ),
+    )
+
+
+@exasol_dialect.segment()
+class DropRoleStatementSegment(BaseSegment):
+    """A `DROP ROLE` statement with CASCADE option.
+
+    https://docs.exasol.com/sql/drop_role.htm
+    """
+
+    type = "drop_role_statement"
+
+    is_ddl = False
+    is_dml = False
+    is_dql = False
+    is_dcl = True
+
+    match_grammar = Sequence(
+        "DROP",
+        "ROLE",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("NakedIdentifierSegment"),
+        Ref.keyword("CASCADE", optional=True),
     )
 
 
@@ -2722,6 +2705,28 @@ class ConnectionDefinition(BaseSegment):
             Ref("QuotedLiteralSegment"),
             optional=True,
         ),
+    )
+
+
+@exasol_dialect.segment()
+class DropConnectionStatementSegment(BaseSegment):
+    """A `DROP CONNECTION` statement.
+
+    https://docs.exasol.com/sql/drop_connection.htm
+    """
+
+    type = "drop_connection_statement"
+
+    is_ddl = False
+    is_dml = False
+    is_dql = False
+    is_dcl = True
+
+    match_grammar = Sequence(
+        "DROP",
+        "CONNECTION",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("NakedIdentifierSegment"),
     )
 
 
@@ -3015,7 +3020,7 @@ class PreferringPreferenceTermSegment(BaseSegment):
 
 @exasol_dialect.segment()
 class PreferringPlusPriorTermSegment(BaseSegment):
-    """The `PLUS` / `PRIOR TO` or `INVERSE` term within a preferring preference term expression."""
+    """The preferring preference term expression."""
 
     type = "plus_prior_inverse"
     match_grammar = OneOf(
@@ -3240,7 +3245,9 @@ class ExplainVirtualSegment(BaseSegment):
 
 
 @exasol_dialect.segment()
-class FunctionReferenceSegment(exasol_dialect.get_segment("ObjectReferenceSegment")):  # type: ignore
+class FunctionReferenceSegment(
+    exasol_dialect.get_segment("ObjectReferenceSegment")  # type: ignore
+):
     """A reference to a function."""
 
     type = "function_reference"
@@ -3446,7 +3453,9 @@ class FunctionSegment(BaseSegment):
                     Ref("FunctionNameSegment"),
                     max_times=1,
                     min_times=1,
-                    exclude=Ref("DatePartFunctionNameSegment"),
+                    exclude=OneOf(
+                        Ref("ValuesClauseSegment"),
+                    ),
                 ),
                 Bracketed(
                     Ref(
@@ -3482,11 +3491,36 @@ class DatePartFunctionNameSegment(BaseSegment):
     )
 
 
+@exasol_dialect.segment()
+class DropFunctionStatementSegment(BaseSegment):
+    """A `DROP FUNCTION` statement with CASCADE and RESTRICT option.
+
+    https://docs.exasol.com/sql/drop_function.htm
+    """
+
+    type = "drop_function_statement"
+
+    is_ddl = True
+    is_dml = False
+    is_dql = False
+    is_dcl = False
+
+    match_grammar = Sequence(
+        "DROP",
+        "FUNCTION",
+        Ref("IfExistsGrammar", optional=True),
+        Ref("FunctionNameSegment"),
+        Ref("DropBehaviorGrammar", optional=True),
+    )
+
+
 ############################
 # SCRIPT
 ############################
 @exasol_dialect.segment()
-class ScriptReferenceSegment(exasol_dialect.get_segment("ObjectReferenceSegment")):  # type: ignore
+class ScriptReferenceSegment(
+    exasol_dialect.get_segment("ObjectReferenceSegment")  # type: ignore
+):
     """A reference to a script."""
 
     type = "script_reference"
@@ -3596,7 +3630,7 @@ class CreateUDFScriptStatementSegment(BaseSegment):
                 optional=True,
             ),
         ),
-        OneOf(Sequence("RETURNS", Ref("DatatypeSegment")), Ref("EmitsGrammar")),
+        OneOf(Sequence("RETURNS", Ref("DatatypeSegment")), Ref("EmitsSegment")),
         "AS",
         Indent,
         Ref("ScriptContentSegment"),
@@ -3638,6 +3672,31 @@ class CreateAdapterScriptStatementSegment(BaseSegment):
         Indent,
         Ref("ScriptContentSegment"),
         Dedent,
+    )
+
+
+@exasol_dialect.segment()
+class DropScriptStatementSegment(BaseSegment):
+    """A `DROP SCRIPT` statement.
+
+    https://docs.exasol.com/sql/drop_script.htm
+    """
+
+    type = "drop_script_statement"
+
+    is_ddl = True
+    is_dml = False
+    is_dql = False
+    is_dcl = False
+
+    match_grammar = Sequence(
+        "DROP",
+        Sequence(
+            Ref.keyword("ADAPTER", optional=True),
+            "SCRIPT",
+        ),
+        Ref("IfExistsGrammar", optional=True),
+        Ref("ScriptReferenceSegment"),
     )
 
 
@@ -3684,7 +3743,11 @@ class StatementSegment(BaseSegment):
         Ref("CreateTableStatementSegment"),
         Ref("CreateViewStatementSegment"),
         Ref("CreateVirtualSchemaStatementSegment"),
-        Ref("DropStatementSegment"),
+        Ref("DropViewStatementSegment"),
+        Ref("DropFunctionStatementSegment"),
+        Ref("DropScriptStatementSegment"),
+        Ref("DropSchemaStatementSegment"),
+        Ref("DropTableStatementSegment"),
         Ref("RenameStatementSegment"),
         # Access Control Language (DCL)
         Ref("AccessStatementSegment"),
@@ -3693,9 +3756,13 @@ class StatementSegment(BaseSegment):
         Ref("CreateConnectionSegment"),
         Ref("CreateRoleSegment"),
         Ref("CreateUserSegment"),
+        Ref("DropRoleStatementSegment"),
+        Ref("DropUserStatementSegment"),
+        Ref("DropConnectionStatementSegment"),
         # System
         Ref("CreateConsumerGroupSegment"),
         Ref("AlterConsumerGroupSegment"),
+        Ref("DropConsumerGroupSegment"),
         Ref("AlterRoleSegment"),
         Ref("AlterSessionSegment"),
         Ref("AlterSystemSegment"),
@@ -3736,4 +3803,18 @@ class FileSegment(BaseFileSegment):
             allow_gaps=True,
             allow_trailing=True,
         ),
+    )
+
+
+@exasol_dialect.segment()
+class EmitsSegment(BaseSegment):
+    """EMITS Segment for JSON_EXTRACT for example.
+
+    In it's own segment to give it a type to allow L013 to find it easily.
+    """
+
+    type = "emits_segment"
+    match_grammar = Sequence(
+        "EMITS",
+        Bracketed(Ref("UDFParameterGrammar")),
     )

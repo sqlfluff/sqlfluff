@@ -102,3 +102,7 @@ FROM Sales.SalesOrderHeader AS h
 WHERE h.TotalDue > 100  
 AND (d.OrderQty > 5 OR d.LineTotal < 1000.00); 
 GO
+
+SELECT ID
+FROM dbo.tableX WITH(NOLOCK)
+GO
