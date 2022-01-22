@@ -1097,8 +1097,10 @@ class AliasExpressionSegment(BaseSegment):
                 # maybe table alias
                 Ref("SingleIdentifierGrammar", optional=True),
                 # maybe column aliases
-                Bracketed(Ref("SingleIdentifierListSegment"), optional=True),
+                Bracketed(Ref("SingleIdentifierListSegment")),
             ),
+            # maybe table alias
+            Ref("SingleIdentifierGrammar"),
             Ref("QuotedLiteralSegment"),
         ),
     )
