@@ -1101,7 +1101,6 @@ class AliasExpressionSegment(BaseSegment):
             ),
             # maybe table alias
             Ref("SingleIdentifierGrammar"),
-            Ref("QuotedLiteralSegment"),
         ),
     )
 
