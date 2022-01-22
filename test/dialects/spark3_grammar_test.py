@@ -30,6 +30,7 @@ def fresh_spark3_dialect() -> Dialect:
             ("from ( values 1 , 2 )", "FromClauseSegment"),
             ("1 , 2 , 3", "DelimitedValues"),
             ("values 1 , 2 , 3", "ValuesClauseSegment"),
+            ("values ( 1 ) , ( 2 ) , ( 3 )", "ValuesClauseSegment"),
             ("values ( 1 , 2 , 3 )", "ValuesClauseSegment"),
             ("values ( 1 , 2 ) , ( 3 , 4 )", "ValuesClauseSegment"),
             ("values ( 1 , 2 )", "TableExpressionSegment"),
@@ -37,8 +38,9 @@ def fresh_spark3_dialect() -> Dialect:
             ("values ( 1 , 2 )", "FromExpressionElementSegment"),
             ("values ( 1 , 2 ) , ( 3 , 4 )", "FromExpressionElementSegment"),
             ("values ( 1 , 2 ) , ( 3 , 4 )", "FromExpressionSegment"),
-            ("from (values 1 , 2)", "FromClauseSegment"),
-            ("from (values ( 1 , 2 ) , ( 3 , 4 ))", "FromClauseSegment"),
+            ("from ( values 1 , 2 )", "FromClauseSegment"),
+            ("from ( values ( 1 ) , ( 2 ) , ( 3 ) )", "FromClauseSegment"),
+            ("from ( values ( 1 , 2 ) , ( 3 , 4 ) )", "FromClauseSegment"),
             ("select * from values ( 1 , 2 ) , ( 3 , 4 ) ;", "SelectStatementSegment"),
         ]
         for b in ["match", "parse"]
@@ -79,6 +81,7 @@ def test__dialect__spark3__grammars(
         ("from values 1 , 2", "parse", "FromClauseSegment"),
         ("from values ( 1 , 2 ) , ( 3 , 4 )", "parse", "FromClauseSegment"),
         ("from values 1 , 2 , values 3 , 4", "parse", "FromClauseSegment"),
+        ("from values ( 1 ) , ( 2 ) , ( 3 )", "FromClauseSegment"),
         ("values 1 , 2 , values 3 , 4", "parse", "FromClauseSegment"),
         # A VALUES clause can include LIMIT, ORDER BY specifiers just like a SELECT.
         # These are not yet implemented.
