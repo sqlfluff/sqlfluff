@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0638deaec4a7cbdc213f7f4ac6cf6aac8d1fe2b012c2e2bab17fd6b6c631f70c
+_hash: 51333ca11b7c9d9f7ad7becaff467964abf34f2b2bffbc0ec4fab278adf8d958
 file:
 - statement:
     create_table_statement:
@@ -447,4 +447,79 @@ file:
                 identifier: id
               end_bracket: )
       - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - identifier: SCHEM
+      - dot: .
+      - identifier: TAB
+    - bracketed:
+      - start_bracket: (
+      - table_content_definition:
+          column_definition:
+            column_datatype_definition:
+              identifier: ID
+              data_type:
+                keyword: DECIMAL
+                bracketed:
+                - start_bracket: (
+                - literal: '18'
+                - comma: ','
+                - literal: '0'
+                - end_bracket: )
+      - comma: ','
+      - table_content_definition:
+          column_definition:
+            column_datatype_definition:
+              identifier: C1
+              data_type:
+                keyword: CHAR
+                bracketed:
+                  start_bracket: (
+                  literal: '1'
+                  end_bracket: )
+      - comma: ','
+      - table_content_definition:
+          table_constraint_definition:
+          - keyword: CONSTRAINT
+          - identifier: '"ADMIN"'
+          - keyword: PRIMARY
+          - keyword: KEY
+          - bracketed:
+              start_bracket: (
+              column_reference:
+                identifier: id
+              end_bracket: )
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - identifier: SCHEM
+      - dot: .
+      - identifier: TAB
+    - bracketed:
+        start_bracket: (
+        table_content_definition:
+          column_definition:
+            column_datatype_definition:
+              identifier: C1
+              data_type:
+                keyword: CHAR
+                bracketed:
+                  start_bracket: (
+                  literal: '1'
+                  end_bracket: )
+            column_option:
+              table_constraint_definition:
+              - keyword: CONSTRAINT
+              - identifier: '"ADMIN"'
+              - keyword: PRIMARY
+              - keyword: KEY
+        end_bracket: )
 - statement_terminator: ;
