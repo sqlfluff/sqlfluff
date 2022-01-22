@@ -434,18 +434,14 @@ class ValuesClauseSegment(BaseSegment):
             OneOf(
                 Bracketed(
                     Delimited(
-                        Ref("LiteralGrammar"),
-                        Ref("IntervalExpressionSegment"),
-                        Ref("BareFunctionSegment"),
-                        Ref("FunctionSegment"),
+                        "DEFAULT",  # not in `FROM` clause, rule?
+                        Ref("ExpressionSegment"),
                         ephemeral_name="ValuesClauseElements",
                     )
                 ),
                 Delimited(
-                    # e.g. SELECT * FROM (VALUES 1,2,3);
-                    Ref("LiteralGrammar"),
-                    Ref("BareFunctionSegment"),
-                    Ref("FunctionSegment"),
+                    "DEFAULT",  # not in `FROM` clause, rule?
+                    Ref("ExpressionSegment"),
                 ),
             ),
         ),
@@ -3457,7 +3453,9 @@ class FunctionSegment(BaseSegment):
                     Ref("FunctionNameSegment"),
                     max_times=1,
                     min_times=1,
-                    exclude=Ref("DatePartFunctionNameSegment"),
+                    exclude=OneOf(
+                        Ref("ValuesClauseSegment"),
+                    ),
                 ),
                 Bracketed(
                     Ref(

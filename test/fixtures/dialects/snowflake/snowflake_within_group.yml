@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 4d558eb10d9fa2f0c84f99656e2b8b42a0e68644f61ca1d246ae43ed0c03c9d1
+_hash: 1be53192fbb96166328a0d4a26d908d45548942fd42c9faa3ad932395b352ea5
 file:
 - statement:
     with_compound_statement:
@@ -49,37 +49,47 @@ file:
                       - comma: ','
                       - bracketed:
                         - start_bracket: (
-                        - literal: "'unripe banana'"
+                        - expression:
+                            literal: "'unripe banana'"
                         - comma: ','
-                        - literal: "'green'"
+                        - expression:
+                            literal: "'green'"
                         - end_bracket: )
                       - comma: ','
                       - bracketed:
                         - start_bracket: (
-                        - literal: "'kiwi'"
+                        - expression:
+                            literal: "'kiwi'"
                         - comma: ','
-                        - literal: "'green'"
+                        - expression:
+                            literal: "'green'"
                         - end_bracket: )
                       - comma: ','
                       - bracketed:
                         - start_bracket: (
-                        - literal: "'blueberry'"
+                        - expression:
+                            literal: "'blueberry'"
                         - comma: ','
-                        - literal: "'blue'"
+                        - expression:
+                            literal: "'blue'"
                         - end_bracket: )
                       - comma: ','
                       - bracketed:
                         - start_bracket: (
-                        - literal: "'strawberry'"
+                        - expression:
+                            literal: "'strawberry'"
                         - comma: ','
-                        - literal: "'red'"
+                        - expression:
+                            literal: "'red'"
                         - end_bracket: )
                       - comma: ','
                       - bracketed:
                         - start_bracket: (
-                        - literal: "'grape'"
+                        - expression:
+                            literal: "'grape'"
                         - comma: ','
-                        - literal: "'red'"
+                        - expression:
+                            literal: "'red'"
                         - end_bracket: )
                       end_bracket: )
           end_bracket: )

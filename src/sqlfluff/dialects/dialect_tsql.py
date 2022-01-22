@@ -1885,7 +1885,14 @@ class FunctionSegment(BaseSegment):
         ),
         Sequence(
             OneOf(
-                Ref("FunctionNameSegment"),
+                AnyNumberOf(
+                    Ref("FunctionNameSegment"),
+                    max_times=1,
+                    min_times=1,
+                    exclude=OneOf(
+                        Ref("ValuesClauseSegment"),
+                    ),
+                ),
                 exclude=OneOf(
                     # List of special functions handled differently
                     Ref("CastFunctionNameSegment"),

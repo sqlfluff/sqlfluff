@@ -1,0 +1,83 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 7d3bf6e107b885f4ea371574fcf0b0d3cc3232a45ad44c3bc9d2b75ad18d3c31
+file:
+- statement:
+    values_clause:
+    - keyword: VALUES
+    - keyword: ROW
+    - bracketed:
+      - start_bracket: (
+      - expression:
+          literal: "'a'"
+      - comma: ','
+      - expression:
+          literal: '1'
+      - end_bracket: )
+    - comma: ','
+    - keyword: ROW
+    - bracketed:
+      - start_bracket: (
+      - expression:
+          literal: "'b'"
+      - comma: ','
+      - expression:
+          literal: '2'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    values_clause:
+    - keyword: VALUES
+    - keyword: ROW
+    - bracketed:
+      - start_bracket: (
+      - expression:
+          literal: "'a'"
+      - comma: ','
+      - expression:
+          literal: '1'
+      - end_bracket: )
+    - comma: ','
+    - keyword: ROW
+    - bracketed:
+      - start_bracket: (
+      - expression:
+          function:
+            function_name:
+              function_name_identifier: upper
+            bracketed:
+              start_bracket: (
+              expression:
+                literal: "'b'"
+              end_bracket: )
+      - comma: ','
+      - expression:
+        - literal: '2'
+        - binary_operator: +
+        - literal: '1'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    values_clause:
+    - keyword: VALUES
+    - keyword: ROW
+    - bracketed:
+      - start_bracket: (
+      - expression:
+          bare_function: CURRENT_DATE
+      - comma: ','
+      - expression:
+          literal: "'2020-06-04'"
+          binary_operator: +
+          interval_expression:
+            keyword: interval
+            expression:
+              numeric_literal:
+                binary_operator: '-'
+                literal: '5'
+            date_part: day
+      - end_bracket: )
+- statement_terminator: ;
