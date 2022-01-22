@@ -1067,7 +1067,10 @@ class FunctionSegment(BaseSegment):
                     Ref("FunctionNameSegment"),
                     max_times=1,
                     min_times=1,
-                    exclude=Ref("DatePartFunctionNameSegment"),
+                    exclude=OneOf(
+                        Ref("DatePartFunctionNameSegment"),
+                        Ref("ValuesClauseSegment"),
+                    ),
                 ),
                 Bracketed(
                     Ref(
@@ -1215,12 +1218,12 @@ class TableExpressionSegment(BaseSegment):
 
     type = "table_expression"
     match_grammar = OneOf(
+        Ref("ValuesClauseSegment"),
         Ref("BareFunctionSegment"),
         Ref("FunctionSegment"),
         Ref("TableReferenceSegment"),
         # Nested Selects
         Bracketed(Ref("SelectableGrammar")),
-        # Values clause?
     )
 
 

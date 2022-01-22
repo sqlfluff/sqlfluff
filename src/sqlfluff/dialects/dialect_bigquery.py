@@ -392,7 +392,14 @@ class FunctionSegment(BaseSegment):
     type = "function"
     match_grammar = Sequence(
         Sequence(
-            Ref("FunctionNameSegment"),
+            AnyNumberOf(
+                Ref("FunctionNameSegment"),
+                max_times=1,
+                min_times=1,
+                exclude=OneOf(
+                    Ref("ValuesClauseSegment"),
+                ),
+            ),
             Bracketed(
                 Ref(
                     "FunctionContentsGrammar",
