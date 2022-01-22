@@ -21,7 +21,8 @@ Major changes include:
 * Initial Oracle support (note: SQL but PL/SQL)
 * Fix more dbt 1.0.0 connection issue
 * Improved configureation documentation
-* New rule (L059) for unnecessary quoted identifiers
+* New rule (L059) to flag unnecessary quoted identifiers
+* New rule (L060) to prefer `COALESCE` instead of `IFNULL` or `NVL`
 * Many rule fixes
 * Many dialect improvements
 
