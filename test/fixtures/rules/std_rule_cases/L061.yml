@@ -9,6 +9,14 @@ test_fail_not_equal_to:
     SELECT * FROM X WHERE 1 <> 2
   fix_str: |
     SELECT * FROM X WHERE 1 != 2
+    
+test_less_than_passes:
+  pass_str: |
+    SELECT * FROM X WHERE 1 < 2
+    
+test_non_comparison_passes:
+  pass_str: |
+    SELECT col1 AS "alias_<>" FROM X
 
 test_fail_not_equal_to_multi:
   fail_str: |

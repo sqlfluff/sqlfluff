@@ -20,8 +20,8 @@ class Rule_L061(BaseRule):
         SELECT * FROM X WHERE 1 <> 2;
 
     | **Best practice**
-    | Use ``!=`` instead because it's sounds more natural and
-    | is more common in other programming languages.
+    | Use ``!=`` instead because it's sounds more natural and is more common in other 
+    | programming languages.
 
     .. code-block:: sql
 
@@ -41,10 +41,13 @@ class Rule_L061(BaseRule):
         )
 
         # Only care about ``<>``
-        if not [r.raw for r in raw_comparison_operators] == ["<", ">"]:
+        if [r.raw for r in raw_comparison_operators] != ["<", ">"]:
             return None
 
         # Provide a fix and replace ``<>`` with ``!=``
+        # As each symbol is a separate symbol this is done in two steps:
+        # 1. Replace < with !
+        # 2. Replace > with =
         fixes = [
             LintFix.replace(
                 raw_comparison_operators[0],
