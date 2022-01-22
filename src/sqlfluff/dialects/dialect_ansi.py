@@ -2926,7 +2926,7 @@ class UpdateStatementSegment(BaseSegment):
         "UPDATE",
         Ref("TableReferenceSegment"),
         # SET is not a resevered word in all dialects (e.g. RedShift)
-        # So specifically exclude as an allowed alias to avoid parsing errors
+        # So specifically exclude as an allowed implict alias to avoid parsing errors
         OneOf(Ref("AliasExpressionSegment"), exclude=Ref.keyword("SET"), optional=True),
         Ref("SetClauseListSegment"),
         Ref("FromClauseSegment", optional=True),
