@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 09c7f362cc6f0ee743b1731294a6a6fe7f570f01265f19d81b2c9e229d70f93e
+_hash: 17f5b63617f7f87f600a46a413d7a87889b39ab9ab724cd209d033cce7109830
 file:
 - base:
     insert_table_statement:
@@ -16,11 +16,14 @@ file:
         keyword: VALUES
         bracketed:
         - start_bracket: (
-        - literal: "'Amy Smith'"
+        - expression:
+            literal: "'Amy Smith'"
         - comma: ','
-        - literal: "'123 Park Ave, San Jose'"
+        - expression:
+            literal: "'123 Park Ave, San Jose'"
         - comma: ','
-        - literal: '111111'
+        - expression:
+            literal: '111111'
         - end_bracket: )
 - statement_terminator: ;
 - base:
@@ -33,11 +36,14 @@ file:
         keyword: VALUES
         bracketed:
         - start_bracket: (
-        - literal: "'Amy Smith'"
+        - expression:
+            literal: "'Amy Smith'"
         - comma: ','
-        - literal: "'123 Park Ave, San Jose'"
+        - expression:
+            literal: "'123 Park Ave, San Jose'"
         - comma: ','
-        - literal: '111111'
+        - expression:
+            literal: '111111'
         - end_bracket: )
 - statement_terminator: ;
 - base:
@@ -50,11 +56,14 @@ file:
         keyword: VALUES
         bracketed:
         - start_bracket: (
-        - literal: "'Amy Smith'"
+        - expression:
+            literal: "'Amy Smith'"
         - comma: ','
-        - literal: "'123 Park Ave, San Jose'"
+        - expression:
+            literal: "'123 Park Ave, San Jose'"
         - comma: ','
-        - literal: '111111'
+        - expression:
+            literal: '111111'
         - end_bracket: )
 - statement_terminator: ;
 - base:
@@ -67,20 +76,26 @@ file:
       - keyword: VALUES
       - bracketed:
         - start_bracket: (
-        - literal: "'Bob Brown'"
+        - expression:
+            literal: "'Bob Brown'"
         - comma: ','
-        - literal: "'456 Taylor St, Cupertino'"
+        - expression:
+            literal: "'456 Taylor St, Cupertino'"
         - comma: ','
-        - literal: '222222'
+        - expression:
+            literal: '222222'
         - end_bracket: )
       - comma: ','
       - bracketed:
         - start_bracket: (
-        - literal: "'Cathy Johnson'"
+        - expression:
+            literal: "'Cathy Johnson'"
         - comma: ','
-        - literal: "'789 Race Ave, Palo Alto'"
+        - expression:
+            literal: "'789 Race Ave, Palo Alto'"
         - comma: ','
-        - literal: '333333'
+        - expression:
+            literal: '333333'
         - end_bracket: )
 - statement_terminator: ;
 - base:
@@ -93,20 +108,26 @@ file:
       - keyword: VALUES
       - bracketed:
         - start_bracket: (
-        - literal: "'Bob Brown'"
+        - expression:
+            literal: "'Bob Brown'"
         - comma: ','
-        - literal: "'456 Taylor St, Cupertino'"
+        - expression:
+            literal: "'456 Taylor St, Cupertino'"
         - comma: ','
-        - literal: '222222'
+        - expression:
+            literal: '222222'
         - end_bracket: )
       - comma: ','
       - bracketed:
         - start_bracket: (
-        - literal: "'Cathy Johnson'"
+        - expression:
+            literal: "'Cathy Johnson'"
         - comma: ','
-        - literal: "'789 Race Ave, Palo Alto'"
+        - expression:
+            literal: "'789 Race Ave, Palo Alto'"
         - comma: ','
-        - literal: '333333'
+        - expression:
+            literal: '333333'
         - end_bracket: )
 - statement_terminator: ;
 - base:
@@ -285,9 +306,11 @@ file:
         keyword: VALUES
         bracketed:
         - start_bracket: (
-        - literal: "'Amy Smith'"
+        - expression:
+            literal: "'Amy Smith'"
         - comma: ','
-        - literal: "'123 Park Ave, San Jose'"
+        - expression:
+            literal: "'123 Park Ave, San Jose'"
         - end_bracket: )
 - statement_terminator: ;
 - base:
@@ -310,9 +333,11 @@ file:
         keyword: VALUES
         bracketed:
         - start_bracket: (
-        - literal: "'Amy Smith'"
+        - expression:
+            literal: "'Amy Smith'"
         - comma: ','
-        - literal: "'123 Park Ave, San Jose'"
+        - expression:
+            literal: "'123 Park Ave, San Jose'"
         - end_bracket: )
 - statement_terminator: ;
 - base:
@@ -342,9 +367,11 @@ file:
         keyword: VALUES
         bracketed:
         - start_bracket: (
-        - literal: "'Hangzhou, China'"
+        - expression:
+            literal: "'Hangzhou, China'"
         - comma: ','
-        - literal: "'Kent Yao Jr.'"
+        - expression:
+            literal: "'Kent Yao Jr.'"
         - end_bracket: )
 - statement_terminator: ;
 - base:
@@ -374,8 +401,10 @@ file:
         keyword: VALUES
         bracketed:
         - start_bracket: (
-        - literal: "'Hangzhou, China'"
+        - expression:
+            literal: "'Hangzhou, China'"
         - comma: ','
-        - literal: "'Kent Yao Jr.'"
+        - expression:
+            literal: "'Kent Yao Jr.'"
         - end_bracket: )
 - statement_terminator: ;

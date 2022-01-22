@@ -1067,7 +1067,10 @@ class FunctionSegment(BaseSegment):
                     Ref("FunctionNameSegment"),
                     max_times=1,
                     min_times=1,
-                    exclude=Ref("DatePartFunctionNameSegment"),
+                    exclude=OneOf(
+                        Ref("DatePartFunctionNameSegment"),
+                        Ref("ValuesClauseSegment"),
+                    ),
                 ),
                 Bracketed(
                     Ref(
@@ -1215,12 +1218,12 @@ class TableExpressionSegment(BaseSegment):
 
     type = "table_expression"
     match_grammar = OneOf(
+        Ref("ValuesClauseSegment"),
         Ref("BareFunctionSegment"),
         Ref("FunctionSegment"),
         Ref("TableReferenceSegment"),
         # Nested Selects
         Bracketed(Ref("SelectableGrammar")),
-        # Values clause?
     )
 
 
@@ -2002,15 +2005,22 @@ class ValuesClauseSegment(BaseSegment):
     match_grammar = Sequence(
         OneOf("VALUE", "VALUES"),
         Delimited(
-            Bracketed(
-                Delimited(
-                    Ref("LiteralGrammar"),
-                    Ref("IntervalExpressionSegment"),
-                    Ref("FunctionSegment"),
-                    Ref("BareFunctionSegment"),
-                    "DEFAULT",  # not in `FROM` clause, rule?
-                    ephemeral_name="ValuesClauseElements",
-                )
+            Sequence(
+                # MySQL uses `ROW` in it's value statement.
+                # Currently SQLFluff doesn't differentiate between
+                # Values statement:
+                # https://dev.mysql.com/doc/refman/8.0/en/values.html
+                # and Values() function (used in INSERT statements):
+                # https://dev.mysql.com/doc/refman/8.0/en/miscellaneous-functions.html#function_values
+                # TODO: split these out in future.
+                Ref.keyword("ROW", optional=True),
+                Bracketed(
+                    Delimited(
+                        "DEFAULT",  # not in `FROM` clause, rule?
+                        Ref("ExpressionSegment"),
+                        ephemeral_name="ValuesClauseElements",
+                    )
+                ),
             ),
         ),
         Ref("AliasExpressionSegment", optional=True),
@@ -2914,7 +2924,10 @@ class UpdateStatementSegment(BaseSegment):
     match_grammar = StartsWith("UPDATE")
     parse_grammar = Sequence(
         "UPDATE",
-        OneOf(Ref("TableReferenceSegment"), Ref("AliasedTableReferenceGrammar")),
+        Ref("TableReferenceSegment"),
+        # SET is not a resevered word in all dialects (e.g. RedShift)
+        # So specifically exclude as an allowed implict alias to avoid parsing errors
+        OneOf(Ref("AliasExpressionSegment"), exclude=Ref.keyword("SET"), optional=True),
         Ref("SetClauseListSegment"),
         Ref("FromClauseSegment", optional=True),
         Ref("WhereClauseSegment", optional=True),
