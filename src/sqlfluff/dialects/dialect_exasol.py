@@ -60,6 +60,9 @@ exasol_dialect.insert_lexer_matchers(
     [
         RegexLexer("lua_nested_quotes", r"\[={1,3}\[.*\]={1,3}\]", CodeSegment),
         RegexLexer("lua_multiline_quotes", r"\[{2}([^[\\]|\\.)*\]{2}", CodeSegment),
+        # This matches escaped identifier e.g. [day]. There can be reserved keywords
+        # within the square brackets.
+        RegexLexer("escaped_identifier", r"\[\w+\]", CodeSegment),
         RegexLexer("udf_param_dot_syntax", r"\.{3}", CodeSegment),
         RegexLexer("range_operator", r"\.{2}", CodeSegment),
         StringLexer("hash", "#", CodeSegment),
@@ -162,13 +165,8 @@ exasol_dialect.add(
         enforce_whitespace_preceding_terminator=True,
     ),
     TableConstraintEnableDisableGrammar=OneOf("ENABLE", "DISABLE"),
-    EscapedIdentifierSegment=RegexParser(
-        # This matches escaped identifier e.g. [day]. There can be reserved keywords
-        # within the square brackets.
-        r"\[[A-Z]\]",
-        CodeSegment,
-        name="escaped_identifier",
-        type="identifier",
+    EscapedIdentifierSegment=NamedParser(
+        "escaped_identifier", SymbolSegment, type="identifier"
     ),
     SessionParameterSegment=SegmentGenerator(
         lambda dialect: RegexParser(
