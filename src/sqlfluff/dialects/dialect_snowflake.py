@@ -1,6 +1,6 @@
 """The Snowflake dialect.
 
-Inherits from Postgres.
+Inherits from ANSI.
 
 Based on https://docs.snowflake.com/en/sql-reference-commands.html
 """
@@ -2162,26 +2162,31 @@ class CreateExternalTableSegment(BaseSegment):
         Sequence("IF", "NOT", "EXISTS", optional=True),
         Ref("TableReferenceSegment"),
         # Columns:
-        Sequence(
-            Bracketed(
-                Delimited(
-                    OneOf(
-                        Ref("TableConstraintSegment"),
-                        Ref("ColumnDefinitionSegment"),
-                        Ref("SingleIdentifierGrammar"),
+        Bracketed(
+            Delimited(
+                Sequence(
+                    Ref("SingleIdentifierGrammar"),
+                    Ref("DatatypeSegment"),
+                    "AS",
+                    OptionallyBracketed(
+                        Sequence(
+                            Ref("ExpressionSegment"),
+                            Ref("TableConstraintSegment", optional=True),
+                        )
                     ),
-                ),
+                )
             ),
             optional=True,
         ),
+        # The use of AnyNumberOf is not strictly correct here, because LOCATION and
+        # FILE_FORMAT are required parameters. They can however be in arbitrary order
+        # with the other parameters.
         AnyNumberOf(
+            Sequence("INTEGRATION", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")),
             Sequence(
                 "PARTITION",
                 "BY",
-                Delimited(
-                    Ref("SingleIdentifierGrammar"),
-                ),
-                optional=True,
+                Bracketed(Delimited(Ref("SingleIdentifierGrammar"))),
             ),
             Sequence(
                 Sequence("WITH", optional=True),
@@ -2193,36 +2198,30 @@ class CreateExternalTableSegment(BaseSegment):
                 "REFRESH_ON_CREATE",
                 Ref("EqualsSegment"),
                 Ref("BooleanLiteralGrammar"),
-                optional=True,
             ),
             Sequence(
                 "AUTO_REFRESH",
                 Ref("EqualsSegment"),
                 Ref("BooleanLiteralGrammar"),
-                optional=True,
             ),
             Sequence(
                 "PATTERN",
                 Ref("EqualsSegment"),
                 Ref("QuotedLiteralSegment"),
-                optional=True,
             ),
             Sequence(
                 "FILE_FORMAT",
                 Ref("EqualsSegment"),
                 Ref("FileFormatSegment"),
-                optional=True,
             ),
             Sequence(
                 "AWS_SNS_TOPIC",
                 Ref("EqualsSegment"),
                 Ref("QuotedLiteralSegment"),
-                optional=True,
             ),
             Sequence(
                 "COPY",
                 "GRANTS",
-                optional=True,
             ),
             Sequence(
                 Sequence("WITH", optional=True),
@@ -2230,10 +2229,9 @@ class CreateExternalTableSegment(BaseSegment):
                 "ACCESS",
                 "POLICY",
                 Ref("NakedIdentifierSegment"),
-                optional=True,
             ),
-            Ref("TagBracketedEqualsSegment", optional=True),
-            Ref("CreateStatementCommentSegment", optional=True),
+            Ref("TagBracketedEqualsSegment"),
+            Ref("CreateStatementCommentSegment"),
         ),
     )
 
