@@ -3,39 +3,23 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 46bc1dcfac39a868f0d36fd3ce271baa0a78624374272525b68383aff927cbf2
+_hash: daccf17a16f6bde76f300a4ee366d9824b09c56816521a05587f96b6efeca24d
 file:
 - statement:
-    drop_wo_options:
-    - keyword: DROP
-    - keyword: CONNECTION
-    - object_reference:
-        identifier: my_connection
-- statement_terminator: ;
-- statement:
-    drop_wo_options:
-    - keyword: DROP
-    - keyword: CONNECTION
-    - keyword: IF
-    - keyword: EXISTS
-    - object_reference:
-        identifier: my_connection
-- statement_terminator: ;
-- statement:
-    drop_wo_options:
+    drop_script_statement:
     - keyword: DROP
     - keyword: SCRIPT
-    - object_reference:
+    - script_reference:
         identifier: my_script
 - statement_terminator: ;
 - statement:
-    drop_wo_options:
+    drop_script_statement:
     - keyword: DROP
     - keyword: ADAPTER
     - keyword: SCRIPT
     - keyword: IF
     - keyword: EXISTS
-    - object_reference:
+    - script_reference:
       - identifier: my_schema
       - dot: .
       - identifier: ADAPTER_SCRIPT

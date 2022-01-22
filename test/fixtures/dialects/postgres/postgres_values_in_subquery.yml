@@ -1,0 +1,136 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: cfb0b25673569ea5fca5640575508daa191b21b282d81cbad46654f4f2a3b362
+file:
+- statement:
+    with_compound_statement:
+      keyword: WITH
+      common_table_expression:
+      - identifier: t
+      - bracketed:
+          start_bracket: (
+          identifier_list:
+          - identifier: col_1
+          - comma: ','
+          - identifier: col_2
+          end_bracket: )
+      - keyword: AS
+      - bracketed:
+          start_bracket: (
+          values_clause:
+            keyword: VALUES
+            bracketed:
+            - start_bracket: (
+            - expression:
+                literal: "'08RIX0'"
+            - comma: ','
+            - expression:
+                literal: '0.435'
+                cast_expression:
+                  casting_operator: '::'
+                  data_type:
+                    keyword: NUMERIC
+                    bracketed:
+                    - start_bracket: (
+                    - literal: '4'
+                    - comma: ','
+                    - literal: '3'
+                    - end_bracket: )
+            - end_bracket: )
+          end_bracket: )
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: t
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            bracketed:
+              start_bracket: (
+              table_expression:
+                values_clause:
+                  keyword: VALUES
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      literal: '1'
+                    end_bracket: )
+              end_bracket: )
+            alias_expression:
+              keyword: AS
+              identifier: t
+              bracketed:
+                start_bracket: (
+                identifier_list:
+                  identifier: c1
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            bracketed:
+              start_bracket: (
+              table_expression:
+                values_clause:
+                - keyword: VALUES
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      literal: '1'
+                  - comma: ','
+                  - expression:
+                      literal: '2'
+                  - end_bracket: )
+                - comma: ','
+                - bracketed:
+                  - start_bracket: (
+                  - expression:
+                      literal: '3'
+                  - comma: ','
+                  - expression:
+                      literal: '4'
+                  - end_bracket: )
+              end_bracket: )
+            alias_expression:
+              keyword: AS
+              identifier: t
+              bracketed:
+                start_bracket: (
+                identifier_list:
+                - identifier: c1
+                - comma: ','
+                - identifier: c2
+                end_bracket: )
+- statement_terminator: ;
