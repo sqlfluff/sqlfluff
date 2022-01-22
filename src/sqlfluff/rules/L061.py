@@ -13,8 +13,7 @@ class Rule_L061(BaseRule):
     """Use ``!=`` instead of ``<>`` for "not equal to" comparisons.
 
     | **Anti-pattern**
-    | ``<>`` means ``not equal`` but doesn't sound like this when
-    | we say it loud.
+    | ``<>`` means ``not equal`` but doesn't sound like this when we say it out loud.
 
     .. code-block:: sql
 
