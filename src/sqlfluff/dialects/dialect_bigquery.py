@@ -274,20 +274,6 @@ class UnorderedSelectStatementSegment(BaseSegment):
 
 
 @bigquery_dialect.segment(replace=True)
-class ArrayLiteralSegment(BaseSegment):
-    """Override array literal segment to add Typeless Struct."""
-
-    type = "array_literal"
-    match_grammar = Bracketed(
-        Delimited(
-            Ref("ExpressionSegment"),
-            optional=True,
-        ),
-        bracket_type="square",
-    )
-
-
-@bigquery_dialect.segment(replace=True)
 class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: ignore
     """Overriding StatementSegment to allow for additional segment parsing."""
 
