@@ -748,22 +748,24 @@ def fix(
         click.echo("==== no fixable linting violations found ====")
         _completion_message(config)
 
-    fatal_error_types = [
+    error_types = [
         (
             dict(types=SQLLintError, fixable=False),
             "  [{} unfixable linting violations found]",
+            1,
         ),
         (
             dict(types=SQLTemplaterError),
             "  [{} templating errors found]",
+            1,
         ),
-        (dict(types=SQLParseError), "  [{} parsing errors found]"),
+        (dict(types=SQLParseError), "  [{} parsing errors found]", 0),
     ]
-    for num_violations_kwargs, message_format in fatal_error_types:
+    for num_violations_kwargs, message_format, error_level in error_types:
         num_violations = result.num_violations(**num_violations_kwargs)  # type: ignore
         if num_violations > 0:
             click.echo(message_format.format(num_violations))
-            exit_code = 1
+            exit_code = max(exit_code, error_level)
 
     if bench:
         click.echo("==== overall timings ====")
