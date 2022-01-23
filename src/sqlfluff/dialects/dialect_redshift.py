@@ -1403,6 +1403,40 @@ class AnalyzeCompressionStatementSegment(BaseSegment):
     )
 
 
+@redshift_dialect.segment()
+class VacuumStatementSegment(BaseSegment):
+    """A `VACUUM` statement.
+
+    https://docs.aws.amazon.com/redshift/latest/dg/r_VACUUM_command.html
+    """
+
+    type = "vacuum_statement"
+    match_grammar = Sequence(
+        "VACUUM",
+        OneOf(
+            "FULL",
+            "REINDEX",
+            "RECLUSTER",
+            Sequence(
+                OneOf(
+                    "SORT",
+                    "DELETE",
+                ),
+                "ONLY",
+            ),
+            optional=True,
+        ),
+        Ref("TableReferenceSegment", optional=True),
+        Sequence(
+            "TO",
+            Ref("NumericLiteralSegment"),
+            "PERCENT",
+            optional=True,
+        ),
+        Ref.keyword("BOOST", optional=True),
+    )
+
+
 # Adding Redshift specific statements
 @redshift_dialect.segment(replace=True)
 class StatementSegment(BaseSegment):
@@ -1439,6 +1473,7 @@ class StatementSegment(BaseSegment):
             Ref("FetchStatementSegment"),
             Ref("CloseStatementSegment"),
             Ref("AnalyzeCompressionStatementSegment"),
+            Ref("VacuumStatementSegment"),
         ],
     )
 
