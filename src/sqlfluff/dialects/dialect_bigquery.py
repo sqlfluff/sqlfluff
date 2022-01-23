@@ -143,7 +143,6 @@ bigquery_dialect.add(
             Ref("BareFunctionSegment"),
             Ref("FunctionSegment"),
             Ref("ArrayLiteralSegment"),
-            Ref("TypelessStructSegment"),
             Ref("TupleSegment"),
             Ref("BaseExpressionElementGrammar"),
         ),
@@ -167,14 +166,6 @@ bigquery_dialect.replace(
             bracket_type="angle",
             bracket_pairs_set="angle_bracket_pairs",
         ),
-    ),
-    # BigQuery also supports the special "Struct" construct.
-    BaseExpressionElementGrammar=ansi_dialect.get_grammar(
-        "BaseExpressionElementGrammar"
-    ).copy(insert=[Ref("TypelessStructSegment")]),
-    FunctionContentsGrammar=ansi_dialect.get_grammar("FunctionContentsGrammar").copy(
-        insert=[Ref("TypelessStructSegment")],
-        before=Ref("ExpressionSegment"),
     ),
     # BigQuery allows underscore in parameter names, and also anything if quoted in
     # backticks
@@ -289,10 +280,7 @@ class ArrayLiteralSegment(BaseSegment):
     type = "array_literal"
     match_grammar = Bracketed(
         Delimited(
-            OneOf(
-                Ref("ExpressionSegment"),
-                Ref("TypelessStructSegment"),
-            ),
+            Ref("ExpressionSegment"),
             optional=True,
         ),
         bracket_type="square",
@@ -596,7 +584,7 @@ class FunctionParameterListGrammar(BaseSegment):
     )
 
 
-@bigquery_dialect.segment()
+@bigquery_dialect.segment(replace=True)
 class TypelessStructSegment(BaseSegment):
     """Expression to construct a STRUCT with implicit types.
 

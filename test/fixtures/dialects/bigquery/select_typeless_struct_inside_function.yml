@@ -3,30 +3,32 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b0a15006dcb0e8923a1437a02e82b14d9eb3753c6c9be8d835a2c00652a14e22
+_hash: 9c3f1a9ff8303f1c1714ef240d1d9d1b793ff895f8575dca49322892e7325e13
 file:
 - statement:
     select_statement:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          typeless_struct:
-            keyword: STRUCT
-            bracketed:
-              start_bracket: (
-              typeless_struct:
-                keyword: STRUCT
-                bracketed:
-                  start_bracket: (
-                  literal: '1'
-                  alias_expression:
-                    keyword: AS
-                    identifier: b
-                  end_bracket: )
-              alias_expression:
-                keyword: AS
-                identifier: a
-              end_bracket: )
+          expression:
+            typeless_struct:
+              keyword: STRUCT
+              bracketed:
+                start_bracket: (
+                expression:
+                  typeless_struct:
+                    keyword: STRUCT
+                    bracketed:
+                      start_bracket: (
+                      literal: '1'
+                      alias_expression:
+                        keyword: AS
+                        identifier: b
+                      end_bracket: )
+                alias_expression:
+                  keyword: AS
+                  identifier: a
+                end_bracket: )
           alias_expression:
             keyword: AS
             identifier: foo
@@ -41,22 +43,23 @@ file:
               function_name_identifier: ARRAY_AGG
             bracketed:
               start_bracket: (
-              typeless_struct:
-                keyword: STRUCT
-                bracketed:
-                - start_bracket: (
-                - column_reference:
-                    identifier: a
-                - alias_expression:
-                    keyword: AS
-                    identifier: a
-                - comma: ','
-                - column_reference:
-                    identifier: b
-                - alias_expression:
-                    keyword: AS
-                    identifier: b
-                - end_bracket: )
+              expression:
+                typeless_struct:
+                  keyword: STRUCT
+                  bracketed:
+                  - start_bracket: (
+                  - column_reference:
+                      identifier: a
+                  - alias_expression:
+                      keyword: AS
+                      identifier: a
+                  - comma: ','
+                  - column_reference:
+                      identifier: b
+                  - alias_expression:
+                      keyword: AS
+                      identifier: b
+                  - end_bracket: )
               end_bracket: )
       from_clause:
         keyword: FROM
