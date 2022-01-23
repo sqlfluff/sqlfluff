@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c5f604e49363bf7868b7870f1d0a2d67ca32f762d3ca7d484a8df60f543bb622
+_hash: 4c2e8dfd8255e6169365429cf93d169a1bf5f98fd9ea175b73f2fdc72d05c06a
 file:
 - statement:
     alter_virtual_schema_statement:
@@ -27,4 +27,26 @@ file:
     - schema_reference:
         identifier: s2
     - keyword: REFRESH
+- statement_terminator: ;
+- statement:
+    alter_virtual_schema_statement:
+    - keyword: ALTER
+    - keyword: VIRTUAL
+    - keyword: SCHEMA
+    - schema_reference:
+        identifier: s1
+    - keyword: CHANGE
+    - keyword: OWNER
+    - identifier: '"role1"'
+- statement_terminator: ;
+- statement:
+    alter_virtual_schema_statement:
+    - keyword: ALTER
+    - keyword: VIRTUAL
+    - keyword: SCHEMA
+    - schema_reference:
+        identifier: s1
+    - keyword: CHANGE
+    - keyword: OWNER
+    - identifier: role1
 - statement_terminator: ;

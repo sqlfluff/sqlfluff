@@ -37,7 +37,7 @@ class Rule_L056(BaseRule):
             CaseOutput
         FROM table1
 
-        -- Alternatively prefix with ``USP_`` to
+        -- Alternatively prefix with USP_ to
         -- indicate a user-defined stored procedure.
 
         CREATE PROCEDURE dbo.usp_pull_data

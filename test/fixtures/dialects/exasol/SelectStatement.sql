@@ -90,3 +90,18 @@ SELECT  JSON_EXTRACT(json_str, '$."@id"', '$.error()')
 FROM t;
 ----
 SELECT 10 / 2;
+----
+select count(*) as a, local.a*10 from x;
+----
+SELECT ABS(x) AS x FROM t WHERE local.x>10;
+----
+SELECT c1 as cx, count(*) as cc FROM x GROUP BY local.cx;
+----
+SELECT c1 as cx FROM x ORDER BY local.cx;
+----
+SELECT c1, count(*) as c FROM x GROUP BY 1 HAVING local.c > 1;
+----
+SELECT S_ID, C_ID, PRICE, ROW_NUMBER() OVER (PARTITION BY C_ID ORDER BY PRICE DESC) NUM FROM SALES QUALIFY local.NUM = 1;
+SELECT [day] FROM T;
+----
+SELECT "day" FROM T;

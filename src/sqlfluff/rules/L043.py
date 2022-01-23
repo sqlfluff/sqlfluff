@@ -30,7 +30,7 @@ class Rule_L043(BaseRule):
             end as is_fab
         from fancy_table
 
-        -- This rule can also simplify ``CASE`` statements
+        -- This rule can also simplify CASE statements
         -- that aim to fill NULL values.
 
         select
@@ -60,13 +60,13 @@ class Rule_L043(BaseRule):
             coalesce(fab > 0, false) as is_fab
         from fancy_table
 
-        -- To fill ``NULL`` values.
+        -- To fill NULL values.
 
         select
             coalesce(fab, 0) as fab_clean
         from fancy_table
 
-        -- ``NULL`` filling ``NULL``.
+        -- NULL filling NULL.
 
         select fab as fab_clean
         from fancy_table

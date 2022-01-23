@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d0fb08b44bdc26671c4623b437ea020ec9e3e7abf73641ee4de7e143084c3c2c
+_hash: a15381d99e414e6ff362f6af8dcf168819558d4a43be0c961d2a4a0f91d2ec96
 file:
 - statement:
     access_statement:
@@ -108,11 +108,40 @@ file:
 - statement:
     access_statement:
       keyword: GRANT
+      grant_revoke_impersonation:
+      - keyword: IMPERSONATION
+      - keyword: 'ON'
+      - identifier: '"user2"'
+      - keyword: TO
+      - identifier: user1
+- statement_terminator: ;
+- statement:
+    access_statement:
+      keyword: GRANT
+      grant_revoke_impersonation:
+      - keyword: IMPERSONATION
+      - keyword: 'ON'
+      - identifier: user2
+      - keyword: TO
+      - identifier: '"user1"'
+- statement_terminator: ;
+- statement:
+    access_statement:
+      keyword: GRANT
       grant_revoke_connection:
       - keyword: CONNECTION
       - identifier: my_connection
       - keyword: TO
       - identifier: user1
+- statement_terminator: ;
+- statement:
+    access_statement:
+      keyword: GRANT
+      grant_revoke_connection:
+      - keyword: CONNECTION
+      - identifier: my_connection
+      - keyword: TO
+      - identifier: '"ADMIN"'
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -127,6 +156,20 @@ file:
       - identifier: script1
       - keyword: TO
       - identifier: user1
+- statement_terminator: ;
+- statement:
+    access_statement:
+      keyword: GRANT
+      grant_revoke_connection_restricted:
+      - keyword: ACCESS
+      - keyword: 'ON'
+      - keyword: CONNECTION
+      - identifier: '"my_connection"'
+      - keyword: FOR
+      - keyword: SCRIPT
+      - identifier: '"script1"'
+      - keyword: TO
+      - identifier: '"user1"'
 - statement_terminator: ;
 - statement:
     access_statement:
@@ -202,4 +245,13 @@ file:
       - identifier: my_connection
       - keyword: FROM
       - identifier: user1
+- statement_terminator: ;
+- statement:
+    access_statement:
+      keyword: REVOKE
+      grant_revoke_connection:
+      - keyword: CONNECTION
+      - identifier: my_connection
+      - keyword: FROM
+      - identifier: '"ADMIN"'
 - statement_terminator: ;
