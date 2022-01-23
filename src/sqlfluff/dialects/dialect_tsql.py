@@ -1358,9 +1358,11 @@ class FunctionParameterListGrammar(BaseSegment):
     # Function parameter list
     match_grammar = OptionallyBracketed(
         Ref("FunctionParameterGrammar"),
+        Sequence(Ref("EqualsSegment"), Ref("ExpressionSegment"), optional=True),
         AnyNumberOf(
             Ref("CommaSegment"),
             Ref("FunctionParameterGrammar"),
+            Sequence(Ref("EqualsSegment"), Ref("ExpressionSegment"), optional=True),
         ),
     )
 
@@ -1461,7 +1463,7 @@ class ReturnStatementSegment(BaseSegment):
     type = "return_segment"
     match_grammar = Sequence(
         "RETURN",
-        Ref("ExpressionSegment"),
+        Ref("ExpressionSegment", optional=True),
         Ref("DelimiterSegment", optional=True),
     )
 
