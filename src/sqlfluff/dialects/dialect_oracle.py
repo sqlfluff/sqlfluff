@@ -26,7 +26,7 @@ oracle_dialect.insert_lexer_matchers(
         [
             RegexLexer(
                 "prompt_command",
-                r"PROMPT([^(\r\n)]|)+((?=\n)|(?=\r\n))?",
+                r"PROMPT([^(\r\n)])*((?=\n)|(?=\r\n))?",
                 CommentSegment,
                 )
         ],
