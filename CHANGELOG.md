@@ -28,6 +28,13 @@ Major changes include:
 * Many dialect improvements
 
 ## What's Changed
+* Make BigQuery typeless STRUCTs Expressions [#2435](https://github.com/sqlfluff/sqlfluff/pull/2435) [@tunetheweb](https://github.com/tunetheweb)
+* T-SQL support default params and no RETURN value [#2434](https://github.com/sqlfluff/sqlfluff/pull/2434) [@tunetheweb](https://github.com/tunetheweb)
+* "sqlfluff fix" should report any parse errors found [#2423](https://github.com/sqlfluff/sqlfluff/pull/2423) [@barrywhart](https://github.com/barrywhart)
+* Redshift VACUUM support [#2433](https://github.com/sqlfluff/sqlfluff/pull/2433) [@rpr-ableton](https://github.com/rpr-ableton)
+* Add Oracle PROMPT statement [#2413](https://github.com/sqlfluff/sqlfluff/pull/2413) [@r0fls](https://github.com/r0fls)
+* Spark3: Support for `INSERT OVERWRITE DIRECTORY` with Hive Format [#2389](https://github.com/sqlfluff/sqlfluff/pull/2389) [@R7L208](https://github.com/R7L208)
+* Exasol: Fix escaped identifiers [#2431](https://github.com/sqlfluff/sqlfluff/pull/2431) [@sti0](https://github.com/sti0)
 * Exasol: Fix `LOCAL.ALIAS` Syntax [#2430](https://github.com/sqlfluff/sqlfluff/pull/2430) [@sti0](https://github.com/sti0)
 * Exasol: Allow quoted identifier for various statements. [#2428](https://github.com/sqlfluff/sqlfluff/pull/2428) [@sti0](https://github.com/sti0)
 * Misc grammar improvements for Snowflake [#2421](https://github.com/sqlfluff/sqlfluff/pull/2421) [@chwiese](https://github.com/chwiese)
@@ -94,7 +101,7 @@ Major changes include:
 * Snowflake: Added `AlterTableStatement` specific for Snowflake [#2267](https://github.com/sqlfluff/sqlfluff/pull/2267) [@wong-codaio](https://github.com/wong-codaio)
 * Full REFERENCES grammar for CREATE TABLE statement [#2315](https://github.com/sqlfluff/sqlfluff/pull/2315) [@jpy-git](https://github.com/jpy-git)
 * Fix Spark numeric literals [#2317](https://github.com/sqlfluff/sqlfluff/pull/2317) [@jpy-git](https://github.com/jpy-git)
-* Change type of Snowflake stage paths to fix issues with L044 and update pip install Github Action to fix issues with non-standard characters in stage paths [#2320](https://github.com/sqlfluff/sqlfluff/pull/2320) [@chwiese](https://github.com/chwiese)
+* Change type of Snowflake stage paths to fix issues with L044 [#2320](https://github.com/sqlfluff/sqlfluff/pull/2320) [@chwiese](https://github.com/chwiese)
 * Add Bytes Quoted Literals to Spark dialect [#2312](https://github.com/sqlfluff/sqlfluff/pull/2312) [@jpy-git](https://github.com/jpy-git)
 * Fix L044 assertion failure with delete stmt & cte [#2321](https://github.com/sqlfluff/sqlfluff/pull/2321) [@barrywhart](https://github.com/barrywhart)
 * L003 should consider only *literal* leading whitespace (ignore templated) [#2304](https://github.com/sqlfluff/sqlfluff/pull/2304) [@barrywhart](https://github.com/barrywhart)
