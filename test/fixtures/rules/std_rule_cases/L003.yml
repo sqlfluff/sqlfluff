@@ -623,3 +623,13 @@ test_fail_ignore_templated_whitespace_3:
   configs:
     core:
       ignore_templated_areas: False
+
+test_pass_tsql_declare_indent:
+  pass_str: |
+    DECLARE @prv_qtr_1st_dt DATETIME,
+            @last_qtr INT,
+            @last_qtr_first_mn INT,
+            @last_qtr_yr INT;
+  configs:
+    core:
+      dialect: tsql

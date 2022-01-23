@@ -1102,6 +1102,7 @@ class DeclareStatementSegment(BaseSegment):
     type = "declare_segment"
     match_grammar = Sequence(
         "DECLARE",
+        Indent,
         Ref("ParameterNameSegment"),
         Sequence("AS", optional=True),
         Ref("DatatypeSegment"),
@@ -1120,6 +1121,7 @@ class DeclareStatementSegment(BaseSegment):
                 optional=True,
             ),
         ),
+        Dedent,
         Ref("DelimiterSegment", optional=True),
     )
 
