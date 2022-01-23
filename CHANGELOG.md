@@ -18,9 +18,9 @@ We are pleased to include over 95 fixes in this release, and welcome seven new c
 
 Major changes include:
 
-* Initial Oracle support (note: SQL but PL/SQL)
-* Fix more dbt 1.0.0 connection issue
-* Improved configureation documentation
+* Initial Oracle support (note: SQL, but not PL/SQL)
+* Fix more dbt 1.0.0 connection issues
+* Improved configuration documentation
 * New rule (L059) to flag unnecessary quoted identifiers
 * New rule (L060) to prefer `COALESCE` instead of `IFNULL` or `NVL`
 * New rule (L061) to prefer `!=` over `<>`
