@@ -188,6 +188,11 @@ tsql_dialect.replace(
     ParameterNameSegment=RegexParser(
         r"[@][A-Za-z0-9_]+", CodeSegment, name="parameter", type="parameter"
     ),
+    FunctionParameterGrammar=Sequence(
+        Ref("ParameterNameSegment", optional=True),
+        Ref("DatatypeSegment"),
+        Sequence(Ref("EqualsSegment"), Ref("ExpressionSegment"), optional=True),
+    ),
     FunctionNameIdentifierSegment=RegexParser(
         r"[A-Z][A-Z0-9_]*|\[[A-Z][A-Z0-9_]*\]",
         CodeSegment,
@@ -1358,11 +1363,9 @@ class FunctionParameterListGrammar(BaseSegment):
     # Function parameter list
     match_grammar = OptionallyBracketed(
         Ref("FunctionParameterGrammar"),
-        Sequence(Ref("EqualsSegment"), Ref("ExpressionSegment"), optional=True),
         AnyNumberOf(
             Ref("CommaSegment"),
             Ref("FunctionParameterGrammar"),
-            Sequence(Ref("EqualsSegment"), Ref("ExpressionSegment"), optional=True),
         ),
     )
 
