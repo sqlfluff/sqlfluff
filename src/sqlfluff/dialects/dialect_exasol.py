@@ -60,6 +60,9 @@ exasol_dialect.insert_lexer_matchers(
     [
         RegexLexer("lua_nested_quotes", r"\[={1,3}\[.*\]={1,3}\]", CodeSegment),
         RegexLexer("lua_multiline_quotes", r"\[{2}([^[\\]|\\.)*\]{2}", CodeSegment),
+        # This matches escaped identifier e.g. [day]. There can be reserved keywords
+        # within the square brackets.
+        RegexLexer("escaped_identifier", r"\[\w+\]", CodeSegment),
         RegexLexer("udf_param_dot_syntax", r"\.{3}", CodeSegment),
         RegexLexer("range_operator", r"\.{2}", CodeSegment),
         StringLexer("hash", "#", CodeSegment),
@@ -104,11 +107,7 @@ exasol_dialect.patch_lexer_matchers(
     ]
 )
 
-# Access column aliases by using the LOCAL keyword
 exasol_dialect.add(
-    LocalIdentifierSegment=StringParser(
-        "LOCAL", KeywordSegment, name="local_identifier", type="identifier"
-    ),
     UDFParameterDotSyntaxSegment=NamedParser(
         "udf_param_dot_syntax", SymbolSegment, type="identifier"
     ),
@@ -166,13 +165,8 @@ exasol_dialect.add(
         enforce_whitespace_preceding_terminator=True,
     ),
     TableConstraintEnableDisableGrammar=OneOf("ENABLE", "DISABLE"),
-    EscapedIdentifierSegment=RegexParser(
-        # This matches escaped identifier e.g. [day]. There can be reserved keywords
-        # within the square brackets.
-        r"\[[A-Z]\]",
-        CodeSegment,
-        name="escaped_identifier",
-        type="identifier",
+    EscapedIdentifierSegment=NamedParser(
+        "escaped_identifier", SymbolSegment, type="identifier"
     ),
     SessionParameterSegment=SegmentGenerator(
         lambda dialect: RegexParser(
@@ -211,7 +205,6 @@ exasol_dialect.add(
 
 exasol_dialect.replace(
     SingleIdentifierGrammar=OneOf(
-        Ref("LocalIdentifierSegment"),
         Ref("NakedIdentifierSegment"),
         Ref("QuotedIdentifierSegment"),
         Ref("EscapedIdentifierSegment"),
@@ -668,6 +661,23 @@ class LimitClauseSegment(BaseSegment):
     )
 
 
+@exasol_dialect.segment(replace=True)
+class LocalAliasSegment(BaseSegment):
+    """The `LOCAL.ALIAS` syntax allows to use a alias name of a column within clauses.
+
+    E.g.
+    `SELECT ABS(x) AS x FROM t WHERE local.x>10`
+
+    This is supported by: `SELECT`, `WHERE`, `GROUP BY`, `ORDER BY`, `HAVING`, `QUALIFY`
+
+    Note: it's not necessary to use `LOCAL` within `ÒRDER BY` and `QUALIFY` because the
+    alias could be accessed directly (...but we can).
+    """
+
+    type = "local_alias_segment"
+    match_grammar = Sequence("LOCAL", Ref("DotSegment"), Ref("SingleIdentifierGrammar"))
+
+
 ############################
 # SCHEMA
 ############################
@@ -751,7 +761,7 @@ class AlterSchemaStatementSegment(BaseSegment):
                 Ref("EqualsSegment"),
                 AnyNumberOf(Ref("NumericLiteralSegment"), Ref("StarSegment")),
             ),
-            Sequence("CHANGE", "OWNER", Ref("SchemaReferenceSegment")),
+            Sequence("CHANGE", "OWNER", Ref("SingleIdentifierGrammar")),
         ),
     )
 
@@ -794,7 +804,7 @@ class AlterVirtualSchemaStatementSegment(BaseSegment):
                     optional=True,
                 ),
             ),
-            Sequence("CHANGE", "OWNER", Ref("NakedIdentifierSegment")),
+            Sequence("CHANGE", "OWNER", Ref("SingleIdentifierGrammar")),
         ),
     )
 
@@ -1140,7 +1150,7 @@ class TableInlineConstraintSegment(BaseSegment):
         Sequence(
             "CONSTRAINT",
             AnyNumberOf(
-                Ref("NakedIdentifierSegment"),
+                Ref("SingleIdentifierGrammar"),
                 max_times=1,
                 min_times=0,
                 # exclude UNRESERVED_KEYWORDS which could used as NakedIdentifier
@@ -1175,7 +1185,7 @@ class TableOutOfLineConstraintSegment(BaseSegment):
         Sequence(
             "CONSTRAINT",
             AnyNumberOf(
-                Ref("NakedIdentifierSegment"),
+                Ref("SingleIdentifierGrammar"),
                 max_times=1,
                 min_times=0,
                 # exclude UNRESERVED_KEYWORDS which could used as NakedIdentifier
@@ -2355,7 +2365,7 @@ class CreateUserSegment(BaseSegment):
     parse_grammar = Sequence(
         "CREATE",
         "USER",
-        Ref("NakedIdentifierSegment"),
+        Ref("SingleIdentifierGrammar"),
         "IDENTIFIED",
         OneOf(
             Ref("UserPasswordAuthSegment"),
@@ -2385,7 +2395,7 @@ class AlterUserSegment(BaseSegment):
     parse_grammar = Sequence(
         "ALTER",
         "USER",
-        Ref("NakedIdentifierSegment"),
+        Ref("SingleIdentifierGrammar"),
         OneOf(
             Sequence(
                 "IDENTIFIED",
@@ -2413,7 +2423,7 @@ class AlterUserSegment(BaseSegment):
                 "SET",
                 "CONSUMER_GROUP",
                 Ref("EqualsSegment"),
-                OneOf(Ref("NakedIdentifierSegment"), "NULL"),
+                OneOf(Ref("SingleIdentifierGrammar"), "NULL"),
             ),
         ),
     )
@@ -2478,7 +2488,7 @@ class DropUserStatementSegment(BaseSegment):
         "DROP",
         "USER",
         Ref("IfExistsGrammar", optional=True),
-        Ref("NakedIdentifierSegment"),
+        Ref("SingleIdentifierGrammar"),
         Ref.keyword("CASCADE", optional=True),
     )
 
@@ -2497,7 +2507,7 @@ class CreateConsumerGroupSegment(BaseSegment):
         "CREATE",
         "CONSUMER",
         "GROUP",
-        Ref("NakedIdentifierSegment"),
+        Ref("SingleIdentifierGrammar"),
         "WITH",
         Delimited(Ref("ConsumerGroupParameterSegment")),
     )
@@ -2512,7 +2522,7 @@ class AlterConsumerGroupSegment(BaseSegment):
         "ALTER",
         "CONSUMER",
         "GROUP",
-        Ref("NakedIdentifierSegment"),
+        Ref("SingleIdentifierGrammar"),
         "SET",
         Delimited(Ref("ConsumerGroupParameterSegment")),
     )
@@ -2546,7 +2556,7 @@ class DropConsumerGroupSegment(BaseSegment):
     type = "drop_consumer_group_statement"
 
     match_grammar = Sequence(
-        "DROP", Sequence("CONSUMER", "GROUP"), Ref("NakedIdentifierSegment")
+        "DROP", Sequence("CONSUMER", "GROUP"), Ref("SingleIdentifierGrammar")
     )
 
 
@@ -2573,7 +2583,7 @@ class CreateRoleSegment(BaseSegment):
     parse_grammar = Sequence(
         "CREATE",
         "ROLE",
-        Ref("NakedIdentifierSegment"),
+        Ref("SingleIdentifierGrammar"),
     )
 
 
@@ -2597,12 +2607,12 @@ class AlterRoleSegment(BaseSegment):
     parse_grammar = Sequence(
         "ALTER",
         "ROLE",
-        Ref("NakedIdentifierSegment"),
+        Ref("SingleIdentifierGrammar"),
         "SET",
         Sequence(
             "CONSUMER_GROUP",
             Ref("EqualsSegment"),
-            OneOf(Ref("NakedIdentifierSegment"), "NULL"),
+            OneOf(Ref("SingleIdentifierGrammar"), "NULL"),
         ),
     )
 
@@ -2625,7 +2635,7 @@ class DropRoleStatementSegment(BaseSegment):
         "DROP",
         "ROLE",
         Ref("IfExistsGrammar", optional=True),
-        Ref("NakedIdentifierSegment"),
+        Ref("SingleIdentifierGrammar"),
         Ref.keyword("CASCADE", optional=True),
     )
 
@@ -2726,7 +2736,7 @@ class DropConnectionStatementSegment(BaseSegment):
         "DROP",
         "CONNECTION",
         Ref("IfExistsGrammar", optional=True),
-        Ref("NakedIdentifierSegment"),
+        Ref("SingleIdentifierGrammar"),
     )
 
 
@@ -2811,11 +2821,11 @@ class GrantRevokeObjectPrivilegesSegment(BaseSegment):
         OneOf(
             Sequence(  # Grant only
                 "TO",
-                Delimited(Ref("NakedIdentifierSegment")),
+                Delimited(Ref("SingleIdentifierGrammar")),
             ),
             Sequence(  # Revoke only
                 "FROM",
-                Delimited(Ref("NakedIdentifierSegment")),
+                Delimited(Ref("SingleIdentifierGrammar")),
                 Sequence("CASCADE", "CONSTRAINTS", optional=True),
             ),
         ),
@@ -2830,10 +2840,10 @@ class GrantRevokeRolesSegment(BaseSegment):
     match_grammar = Sequence(
         OneOf(
             Sequence("ALL", "ROLES"),  # Revoke only
-            Delimited(Ref("NakedIdentifierSegment"), terminator=OneOf("TO", "FROM")),
+            Delimited(Ref("SingleIdentifierGrammar"), terminator=OneOf("TO", "FROM")),
         ),
         OneOf("TO", "FROM"),
-        Delimited(Ref("NakedIdentifierSegment")),
+        Delimited(Ref("SingleIdentifierGrammar")),
         Sequence("WITH", "ADMIN", "OPTION", optional=True),  # Grant only
     )
 
@@ -2847,11 +2857,11 @@ class GrantRevokeImpersonationSegment(BaseSegment):
         "IMPERSONATION",
         "ON",
         Delimited(
-            Ref("NakedIdentifierSegment"),
+            Ref("SingleIdentifierGrammar"),
             terminator=OneOf("TO", "FROM"),
         ),
         OneOf("TO", "FROM"),
-        Delimited(Ref("NakedIdentifierSegment")),
+        Delimited(Ref("SingleIdentifierGrammar")),
     )
 
 
@@ -2863,11 +2873,11 @@ class GrantRevokeConnectionSegment(BaseSegment):
     match_grammar = Sequence(
         "CONNECTION",
         Delimited(
-            Ref("NakedIdentifierSegment"),
+            Ref("SingleIdentifierGrammar"),
             terminator=OneOf("TO", "FROM"),
         ),
         OneOf("TO", "FROM"),
-        Delimited(Ref("NakedIdentifierSegment")),
+        Delimited(Ref("SingleIdentifierGrammar")),
         Sequence("WITH", "ADMIN", "OPTION", optional=True),
     )
 
@@ -2881,14 +2891,14 @@ class GrantRevokeConnectionRestrictedSegment(BaseSegment):
         "ACCESS",
         "ON",
         "CONNECTION",
-        Ref("NakedIdentifierSegment"),
+        Ref("SingleIdentifierGrammar"),
         Sequence(
             "FOR",
             OneOf("SCRIPT", "SCHEMA", optional=True),
-            Ref("NakedIdentifierSegment"),
+            Ref("SingleIdentifierGrammar"),
         ),
         OneOf("TO", "FROM"),
-        Delimited(Ref("NakedIdentifierSegment")),
+        Delimited(Ref("SingleIdentifierGrammar")),
     )
 
 

@@ -141,7 +141,7 @@ tsql_dialect.add(
     ),
     TransactionGrammar=OneOf(
         "TRANSACTION",
-        "TRANS",
+        "TRAN",
     ),
 )
 
@@ -2367,9 +2367,9 @@ class TransactionStatementSegment(BaseSegment):
 
     type = "transaction_statement"
     match_grammar = OneOf(
-        # [ BEGIN | SAVE ] [ TRANSACTION | TRANS ]
-        # COMMIT [ TRANSACTION | TRANS | WORK ]
-        # ROLLBACK [ TRANSACTION | TRANS | WORK ]
+        # [ BEGIN | SAVE ] [ TRANSACTION | TRAN ]
+        # COMMIT [ TRANSACTION | TRAN | WORK ]
+        # ROLLBACK [ TRANSACTION | TRAN | WORK ]
         # https://docs.microsoft.com/en-us/sql/t-sql/language-elements/begin-transaction-transact-sql?view=sql-server-ver15
         Sequence(
             "BEGIN",

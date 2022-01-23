@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: efd1bc53b26d75da02e208b7912aa8dac244595979605fd3a001c85793a58359
+_hash: 1ccc0eb64a9687e21bd68fe245257739641e84fa689f895366990b988e46c244
 file:
 - statement:
     create_consumer_group_statement:
@@ -85,4 +85,23 @@ file:
         comparison_operator:
           raw_comparison_operator: '='
         literal: "'5G'"
+- statement_terminator: ;
+- statement:
+    create_consumer_group_statement:
+    - keyword: CREATE
+    - keyword: CONSUMER
+    - keyword: GROUP
+    - identifier: '"ADMIN"'
+    - keyword: WITH
+    - consumer_group_parameter:
+        keyword: PRECEDENCE
+        comparison_operator:
+          raw_comparison_operator: '='
+        literal: "'1000'"
+    - comma: ','
+    - consumer_group_parameter:
+        keyword: CPU_WEIGHT
+        comparison_operator:
+          raw_comparison_operator: '='
+        literal: "'900'"
 - statement_terminator: ;

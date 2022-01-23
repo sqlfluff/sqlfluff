@@ -163,7 +163,7 @@ RESERVED_KEYWORDS = [
     "TOP",
     "TRAN",
     "TRANSACTION",
-    "TRANS",
+    "TRAN",
     "TRIGGER",
     "TRUNCATE",
     "TRY_CONVERT",
