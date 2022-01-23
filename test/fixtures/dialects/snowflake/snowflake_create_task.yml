@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c0547cbe3217ed0bd46d8c7d11acce26d1a2adbfeabcb968657f9ec370317014
+_hash: e595e0e7b018b17388c84bca8946e8adb1a1b1e954836a237ab92cc38f64fb9e
 file:
 - statement:
     create_task_statement:
@@ -111,7 +111,7 @@ file:
     - comparison_operator:
         raw_comparison_operator: '='
     - literal: "'YYYY-MM-DD HH24'"
-    - parameter: USER_TASK_TIMEOUT_MS
+    - keyword: USER_TASK_TIMEOUT_MS
     - comparison_operator:
         raw_comparison_operator: '='
     - literal: '25'

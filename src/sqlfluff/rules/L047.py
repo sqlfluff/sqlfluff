@@ -31,7 +31,7 @@ class Rule_L047(BaseRule):
     So by default, SQLFluff enforces the consistent use of ``COUNT(*)``.
 
     If the SQL engine you work with, or your team, prefers ``COUNT(1)`` or
-    ``COUNT(0)``cover ``COUNT(*)``, you can configure this rule to consistently
+    ``COUNT(0)`` over ``COUNT(*)``, you can configure this rule to consistently
     enforce your preference.
 
     .. _ANSI-92: http://msdn.microsoft.com/en-us/library/ms175997.aspx

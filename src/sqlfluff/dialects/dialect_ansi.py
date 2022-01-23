@@ -1706,6 +1706,7 @@ ansi_dialect.add(
                     Ref("DateTimeLiteralGrammar"),
                 ),
             ),
+            Ref("LocalAliasSegment"),
         ),
         Ref("Accessor_Grammar", optional=True),
         allow_gaps=True,
@@ -2924,7 +2925,10 @@ class UpdateStatementSegment(BaseSegment):
     match_grammar = StartsWith("UPDATE")
     parse_grammar = Sequence(
         "UPDATE",
-        OneOf(Ref("TableReferenceSegment"), Ref("AliasedTableReferenceGrammar")),
+        Ref("TableReferenceSegment"),
+        # SET is not a resevered word in all dialects (e.g. RedShift)
+        # So specifically exclude as an allowed implict alias to avoid parsing errors
+        OneOf(Ref("AliasExpressionSegment"), exclude=Ref.keyword("SET"), optional=True),
         Ref("SetClauseListSegment"),
         Ref("FromClauseSegment", optional=True),
         Ref("WhereClauseSegment", optional=True),
@@ -3530,3 +3534,14 @@ class SamplingExpressionSegment(BaseSegment):
             optional=True,
         ),
     )
+
+
+@ansi_dialect.segment()
+class LocalAliasSegment(BaseSegment):
+    """The `LOCAL.ALIAS` syntax allows to use a alias name of a column within clauses.
+
+    A hookpoint for other dialects e.g. Exasol.
+    """
+
+    type = "local_alias_segment"
+    match_grammar = Nothing()

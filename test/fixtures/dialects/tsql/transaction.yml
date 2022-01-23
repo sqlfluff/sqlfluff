@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3919bfedcabdc1566ca430dfbf7efdc1599c9ca3453cb853a4a19cb05f74d37a
+_hash: 58b28c183be9e0c849a3cfcb288fd9c284186f343a5cf8b9c2d936b09a72f0f5
 file:
   batch:
   - statement:
@@ -39,7 +39,7 @@ file:
   - statement:
       transaction_statement:
       - keyword: BEGIN
-      - keyword: TRANS
+      - keyword: TRAN
       - statement_terminator: ;
   - statement:
       delete_statement:
@@ -65,12 +65,12 @@ file:
   - statement:
       transaction_statement:
       - keyword: ROLLBACK
-      - keyword: TRANS
+      - keyword: TRAN
       - statement_terminator: ;
   - statement:
       transaction_statement:
       - keyword: BEGIN
-      - keyword: TRANS
+      - keyword: TRAN
       - statement_terminator: ;
   - statement:
       transaction_statement:
