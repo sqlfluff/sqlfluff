@@ -1,6 +1,6 @@
 """The Snowflake dialect.
 
-Inherits from Postgres.
+Inherits from ANSI.
 
 Based on https://docs.snowflake.com/en/sql-reference-commands.html
 """
@@ -8,6 +8,7 @@ Based on https://docs.snowflake.com/en/sql-reference-commands.html
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
+    AnySetOf,
     Anything,
     BaseSegment,
     Bracketed,
@@ -252,7 +253,7 @@ snowflake_dialect.replace(
         ),
     ),
     JoinLikeClauseGrammar=Sequence(
-        AnyNumberOf(
+        AnySetOf(
             Ref("FromAtExpressionSegment"),
             Ref("FromBeforeExpressionSegment"),
             Ref("FromPivotExpressionSegment"),
@@ -639,23 +640,6 @@ class WithinGroupClauseSegment(BaseSegment):
         "WITHIN",
         "GROUP",
         Bracketed(Ref("OrderByClauseSegment", optional=True)),
-    )
-
-
-@snowflake_dialect.segment()
-class CreateStatementCommentSegment(BaseSegment):
-    """A comment in a create view/table statement.
-
-    e.g. comment = 'a new view/table'
-    Please note that, for column comment, the syntax in Snowflake is
-    `COMMENT 'text'` (Without the `=`).
-    """
-
-    type = "snowflake_comment"
-    match_grammar = Sequence(
-        Ref.keyword("COMMENT"),
-        Ref("EqualsSegment"),
-        Ref("LiteralGrammar"),
     )
 
 
@@ -1446,7 +1430,7 @@ class WarehouseObjectPropertiesSegment(BaseSegment):
 
     type = "warehouse_object_properties"
 
-    match_grammar = AnyNumberOf(
+    match_grammar = AnySetOf(
         Sequence(
             "WAREHOUSE_SIZE",
             Ref("EqualsSegment"),
@@ -1511,7 +1495,7 @@ class WarehouseObjectParamsSegment(BaseSegment):
 
     type = "warehouse_object_properties"
 
-    match_grammar = AnyNumberOf(
+    match_grammar = AnySetOf(
         Sequence(
             "MAX_CONCURRENCY_LEVEL",
             Ref("EqualsSegment"),
@@ -1557,7 +1541,7 @@ class ConstraintPropertiesSegment(BaseSegment):
                 Bracketed(Ref("ColumnReferenceSegment")),
             ),
         ),
-        AnyNumberOf(
+        AnySetOf(
             OneOf(Sequence("NOT", optional=True), "ENFORCED"),
             OneOf(Sequence("NOT", optional=True), "DEFERRABLE"),
             OneOf("INITIALLY", OneOf("DEFERRED", "IMMEDIATE")),
@@ -1573,7 +1557,7 @@ class ColumnConstraintSegment(BaseSegment):
     """
 
     type = "column_constraint_segment"
-    match_grammar = AnyNumberOf(
+    match_grammar = AnySetOf(
         Sequence("COLLATE", Ref("QuotedLiteralSegment")),
         Sequence(
             "DEFAULT",
@@ -1639,7 +1623,7 @@ class CopyOptionsSegment(BaseSegment):
     """
 
     type = "copy_options"
-    match_grammar = AnyNumberOf(
+    match_grammar = AnySetOf(
         Sequence("ON_ERROR", Ref("EqualsSegment"), Ref("CopyOptionOnErrorSegment")),
         Sequence("SIZE_LIMIT", Ref("EqualsSegment"), Ref("LiteralNumericSegment")),
         Sequence("PURGE", Ref("EqualsSegment"), Ref("BooleanLiteralGrammar")),
@@ -1734,7 +1718,7 @@ class SchemaObjectParamsSegment(BaseSegment):
 
     type = "schema_object_properties"
 
-    match_grammar = AnyNumberOf(
+    match_grammar = AnySetOf(
         Sequence(
             "DATA_RETENTION_TIME_IN_DAYS",
             Ref("EqualsSegment"),
@@ -1900,6 +1884,11 @@ class CreateTaskSegment(BaseSegment):
                 Ref("EqualsSegment"),
                 Ref("BooleanLiteralGrammar"),
             ),
+            Sequence(
+                "USER_TASK_TIMEOUT_MS",
+                Ref("EqualsSegment"),
+                Ref("NumericLiteralSegment"),
+            ),
             Delimited(
                 Sequence(
                     Ref("ParameterNameSegment"),
@@ -1912,15 +1901,10 @@ class CreateTaskSegment(BaseSegment):
                 ),
             ),
             Sequence(
-                "USER_TASK_TIMEOUT_MS",
-                Ref("EqualsSegment"),
-                Ref("NumericLiteralSegment"),
-            ),
-            Sequence(
                 "COPY",
                 "GRANTS",
             ),
-            Ref("CreateStatementCommentSegment"),
+            Ref("CommentEqualsClauseSegment"),
         ),
         Sequence(
             "AFTER",
@@ -2012,7 +1996,7 @@ class CreateStatementSegment(BaseSegment):
             Ref("TagBracketedEqualsSegment", optional=True),
             optional=True,
         ),
-        Ref("CreateStatementCommentSegment", optional=True),
+        Ref("CommentEqualsClauseSegment", optional=True),
         Ref.keyword("AS", optional=True),
         OneOf(
             Ref("SelectStatementSegment"),
@@ -2048,14 +2032,14 @@ class CreateViewStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),
-        AnyNumberOf(
+        AnySetOf(
             "SECURE",
             "RECURSIVE",
         ),
         "VIEW",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("TableReferenceSegment"),
-        AnyNumberOf(
+        AnySetOf(
             Bracketed(
                 Delimited(
                     Sequence(
@@ -2077,7 +2061,7 @@ class CreateViewStatementSegment(BaseSegment):
             ),
             Ref("TagBracketedEqualsSegment"),
             Sequence("COPY", "GRANTS"),
-            Ref("CreateStatementCommentSegment"),
+            Ref("CommentEqualsClauseSegment"),
             # @TODO: Support column-level masking policy & tagging.
         ),
         "AS",
@@ -2162,26 +2146,31 @@ class CreateExternalTableSegment(BaseSegment):
         Sequence("IF", "NOT", "EXISTS", optional=True),
         Ref("TableReferenceSegment"),
         # Columns:
-        Sequence(
-            Bracketed(
-                Delimited(
-                    OneOf(
-                        Ref("TableConstraintSegment"),
-                        Ref("ColumnDefinitionSegment"),
-                        Ref("SingleIdentifierGrammar"),
+        Bracketed(
+            Delimited(
+                Sequence(
+                    Ref("SingleIdentifierGrammar"),
+                    Ref("DatatypeSegment"),
+                    "AS",
+                    OptionallyBracketed(
+                        Sequence(
+                            Ref("ExpressionSegment"),
+                            Ref("TableConstraintSegment", optional=True),
+                        )
                     ),
-                ),
+                )
             ),
             optional=True,
         ),
-        AnyNumberOf(
+        # The use of AnySetOf is not strictly correct here, because LOCATION and
+        # FILE_FORMAT are required parameters. They can however be in arbitrary order
+        # with the other parameters.
+        AnySetOf(
+            Sequence("INTEGRATION", Ref("EqualsSegment"), Ref("QuotedLiteralSegment")),
             Sequence(
                 "PARTITION",
                 "BY",
-                Delimited(
-                    Ref("SingleIdentifierGrammar"),
-                ),
-                optional=True,
+                Bracketed(Delimited(Ref("SingleIdentifierGrammar"))),
             ),
             Sequence(
                 Sequence("WITH", optional=True),
@@ -2193,36 +2182,30 @@ class CreateExternalTableSegment(BaseSegment):
                 "REFRESH_ON_CREATE",
                 Ref("EqualsSegment"),
                 Ref("BooleanLiteralGrammar"),
-                optional=True,
             ),
             Sequence(
                 "AUTO_REFRESH",
                 Ref("EqualsSegment"),
                 Ref("BooleanLiteralGrammar"),
-                optional=True,
             ),
             Sequence(
                 "PATTERN",
                 Ref("EqualsSegment"),
                 Ref("QuotedLiteralSegment"),
-                optional=True,
             ),
             Sequence(
                 "FILE_FORMAT",
                 Ref("EqualsSegment"),
                 Ref("FileFormatSegment"),
-                optional=True,
             ),
             Sequence(
                 "AWS_SNS_TOPIC",
                 Ref("EqualsSegment"),
                 Ref("QuotedLiteralSegment"),
-                optional=True,
             ),
             Sequence(
                 "COPY",
                 "GRANTS",
-                optional=True,
             ),
             Sequence(
                 Sequence("WITH", optional=True),
@@ -2230,10 +2213,9 @@ class CreateExternalTableSegment(BaseSegment):
                 "ACCESS",
                 "POLICY",
                 Ref("NakedIdentifierSegment"),
-                optional=True,
             ),
-            Ref("TagBracketedEqualsSegment", optional=True),
-            Ref("CreateStatementCommentSegment", optional=True),
+            Ref("TagBracketedEqualsSegment"),
+            Ref("CommentEqualsClauseSegment"),
         ),
     )
 
@@ -2276,7 +2258,7 @@ class CopyIntoTableStatementSegment(BaseSegment):
             ),
             optional=True,
         ),
-        AnyNumberOf(
+        AnySetOf(
             Sequence(
                 "FILES",
                 Ref("EqualsSegment"),
@@ -3116,7 +3098,7 @@ class AlterTaskSpecialSetClauseSegment(BaseSegment):
 
     match_grammar = Sequence(
         "SET",
-        AnyNumberOf(
+        AnySetOf(
             Sequence(
                 "WAREHOUSE",
                 Ref("EqualsSegment"),
