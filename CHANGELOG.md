@@ -14,7 +14,7 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ## Highlights
 
-We are please to include over 80 fixes in this release, and welcome seven new contributors.
+We are pleased to include over 95 fixes in this release, and welcome seven new contributors.
 
 Major changes include:
 
@@ -23,10 +23,21 @@ Major changes include:
 * Improved configureation documentation
 * New rule (L059) to flag unnecessary quoted identifiers
 * New rule (L060) to prefer `COALESCE` instead of `IFNULL` or `NVL`
+* New rule (L061) to prefer `!=` over `<>`
 * Many rule fixes
 * Many dialect improvements
 
 ## What's Changed
+* Exasol: Fix `LOCAL.ALIAS` Syntax [#2430](https://github.com/sqlfluff/sqlfluff/pull/2430) [@sti0](https://github.com/sti0)
+* Exasol: Allow quoted identifier for various statements. [#2428](https://github.com/sqlfluff/sqlfluff/pull/2428) [@sti0](https://github.com/sti0)
+* Misc grammar improvements for Snowflake [#2421](https://github.com/sqlfluff/sqlfluff/pull/2421) [@chwiese](https://github.com/chwiese)
+* New rule L061 to use != over <> [#2409](https://github.com/sqlfluff/sqlfluff/pull/2409) [@sti0](https://github.com/sti0)
+* Correct TRANS to TRAN [#2425](https://github.com/sqlfluff/sqlfluff/pull/2425) [@fdw](https://github.com/fdw)
+* Remove the "heuristic" slicer, as it was replaced by JinjaTracer [#2422](https://github.com/sqlfluff/sqlfluff/pull/2422) [@barrywhart](https://github.com/barrywhart)
+* L060: More specific description [#2419](https://github.com/sqlfluff/sqlfluff/pull/2419) [@jpy-git](https://github.com/jpy-git)
+* Fix code formatting in Rule docs [#2418](https://github.com/sqlfluff/sqlfluff/pull/2418) [@tunetheweb](https://github.com/tunetheweb)
+* Allow UPDATE SET statements in RedShift [#2417](https://github.com/sqlfluff/sqlfluff/pull/2417) [@tunetheweb](https://github.com/tunetheweb)
+* Add Redshift cursor DECLARE, FETCH & CLOSE support [#2414](https://github.com/sqlfluff/sqlfluff/pull/2414) [@rpr-ableton](https://github.com/rpr-ableton)
 * Add Redshift ANALYZE COMPRESSION support [#2412](https://github.com/sqlfluff/sqlfluff/pull/2412) [@rpr-ableton](https://github.com/rpr-ableton)
 * ANSI Values statement fixes [#2404](https://github.com/sqlfluff/sqlfluff/pull/2404) [@jpy-git](https://github.com/jpy-git)
 * Exasol: Overhaul drop statements [#2407](https://github.com/sqlfluff/sqlfluff/pull/2407) [@sti0](https://github.com/sti0)
