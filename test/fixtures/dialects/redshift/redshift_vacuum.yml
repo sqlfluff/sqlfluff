@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6d6cffc6b081f896a668c293f813efce94f85a11f514e3dfdcd74d76fdeecc72
+_hash: 509a271feaca53d1b5f2b46a41e5eb3237da4c462bd1c6e8c541ea27955558a2
 file:
 - statement:
     vacuum_statement:
@@ -23,6 +23,13 @@ file:
     - keyword: to
     - literal: '100'
     - keyword: percent
+- statement_terminator: ;
+- statement:
+    vacuum_statement:
+    - keyword: vacuum
+    - keyword: recluster
+    - table_reference:
+        identifier: sales
 - statement_terminator: ;
 - statement:
     vacuum_statement:
@@ -62,4 +69,14 @@ file:
     - keyword: to
     - literal: '75'
     - keyword: percent
+- statement_terminator: ;
+- statement:
+    vacuum_statement:
+    - keyword: vacuum
+    - table_reference:
+        identifier: listing
+    - keyword: to
+    - literal: '75'
+    - keyword: percent
+    - keyword: BOOST
 - statement_terminator: ;
