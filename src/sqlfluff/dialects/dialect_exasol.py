@@ -104,11 +104,7 @@ exasol_dialect.patch_lexer_matchers(
     ]
 )
 
-# Access column aliases by using the LOCAL keyword
 exasol_dialect.add(
-    LocalIdentifierSegment=StringParser(
-        "LOCAL", KeywordSegment, name="local_identifier", type="identifier"
-    ),
     UDFParameterDotSyntaxSegment=NamedParser(
         "udf_param_dot_syntax", SymbolSegment, type="identifier"
     ),
@@ -211,7 +207,6 @@ exasol_dialect.add(
 
 exasol_dialect.replace(
     SingleIdentifierGrammar=OneOf(
-        Ref("LocalIdentifierSegment"),
         Ref("NakedIdentifierSegment"),
         Ref("QuotedIdentifierSegment"),
         Ref("EscapedIdentifierSegment"),
@@ -666,6 +661,23 @@ class LimitClauseSegment(BaseSegment):
             ),
         ),
     )
+
+
+@exasol_dialect.segment(replace=True)
+class LocalAliasSegment(BaseSegment):
+    """The `LOCAL.ALIAS` syntax allows to use a alias name of a column within clauses.
+
+    E.g.
+    `SELECT ABS(x) AS x FROM t WHERE local.x>10`
+
+    This is supported by: `SELECT`, `WHERE`, `GROUP BY`, `ORDER BY`, `HAVING`, `QUALIFY`
+
+    Note: it's not necessary to use `LOCAL` within `ÒRDER BY` and `QUALIFY` because the
+    alias could be accessed directly (...but we can).
+    """
+
+    type = "local_alias_segment"
+    match_grammar = Sequence("LOCAL", Ref("DotSegment"), Ref("SingleIdentifierGrammar"))
 
 
 ############################

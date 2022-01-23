@@ -1706,6 +1706,7 @@ ansi_dialect.add(
                     Ref("DateTimeLiteralGrammar"),
                 ),
             ),
+            Ref("LocalAliasSegment"),
         ),
         Ref("Accessor_Grammar", optional=True),
         allow_gaps=True,
@@ -3533,3 +3534,14 @@ class SamplingExpressionSegment(BaseSegment):
             optional=True,
         ),
     )
+
+
+@ansi_dialect.segment()
+class LocalAliasSegment(BaseSegment):
+    """The `LOCAL.ALIAS` syntax allows to use a alias name of a column within clauses.
+
+    A hookpoint for other dialects e.g. Exasol.
+    """
+
+    type = "local_alias_segment"
+    match_grammar = Nothing()

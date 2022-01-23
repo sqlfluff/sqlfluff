@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 10212e48be4f10127632451e354d6137d235f9ec9eed510b15de50cbdf73c2ca
+_hash: 689a2eba84bc996fcc6fe1a33850143e5d15a923b93b5da140d84b91f884d0fd
 file:
 - statement:
     select_statement:
@@ -1019,4 +1019,237 @@ file:
           - literal: '10'
           - binary_operator: /
           - literal: '2'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: select
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: count
+            bracketed:
+              start_bracket: (
+              star: '*'
+              end_bracket: )
+          alias_expression:
+            keyword: as
+            identifier: a
+      - comma: ','
+      - select_clause_element:
+          expression:
+            local_alias_segment:
+              keyword: local
+              dot: .
+              identifier: a
+            binary_operator: '*'
+            literal: '10'
+      from_clause:
+        keyword: from
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: x
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: ABS
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  identifier: x
+              end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: x
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t
+      where_clause:
+        keyword: WHERE
+        expression:
+          local_alias_segment:
+            keyword: local
+            dot: .
+            identifier: x
+          comparison_operator:
+            raw_comparison_operator: '>'
+          literal: '10'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            identifier: c1
+          alias_expression:
+            keyword: as
+            identifier: cx
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: count
+            bracketed:
+              start_bracket: (
+              star: '*'
+              end_bracket: )
+          alias_expression:
+            keyword: as
+            identifier: cc
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: x
+      groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - expression:
+          local_alias_segment:
+            keyword: local
+            dot: .
+            identifier: cx
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+            identifier: c1
+          alias_expression:
+            keyword: as
+            identifier: cx
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: x
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - expression:
+          local_alias_segment:
+            keyword: local
+            dot: .
+            identifier: cx
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            identifier: c1
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: count
+            bracketed:
+              start_bracket: (
+              star: '*'
+              end_bracket: )
+          alias_expression:
+            keyword: as
+            identifier: c
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: x
+      groupby_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - literal: '1'
+      having_clause:
+        keyword: HAVING
+        expression:
+          local_alias_segment:
+            keyword: local
+            dot: .
+            identifier: c
+          comparison_operator:
+            raw_comparison_operator: '>'
+          literal: '1'
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            identifier: S_ID
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: C_ID
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: PRICE
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: ROW_NUMBER
+            bracketed:
+              start_bracket: (
+              end_bracket: )
+            over_clause:
+              keyword: OVER
+              bracketed:
+                start_bracket: (
+                window_specification:
+                  partitionby_clause:
+                  - keyword: PARTITION
+                  - keyword: BY
+                  - expression:
+                      column_reference:
+                        identifier: C_ID
+                  orderby_clause:
+                  - keyword: ORDER
+                  - keyword: BY
+                  - column_reference:
+                      identifier: PRICE
+                  - keyword: DESC
+                end_bracket: )
+          alias_expression:
+            identifier: NUM
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: SALES
+      qualify_clause:
+        keyword: QUALIFY
+        expression:
+          local_alias_segment:
+            keyword: local
+            dot: .
+            identifier: NUM
+          comparison_operator:
+            raw_comparison_operator: '='
+          literal: '1'
 - statement_terminator: ;
