@@ -3061,6 +3061,7 @@ class ExecuteScriptSegment(BaseSegment):
     match_grammar = Sequence(
         OneOf("EXEC", "EXECUTE"),
         Ref("ObjectReferenceSegment"),
+        Indent,
         Sequence(
             Sequence(Ref("ParameterNameSegment"), Ref("EqualsSegment"), optional=True),
             OneOf(
@@ -3085,6 +3086,7 @@ class ExecuteScriptSegment(BaseSegment):
             ),
             optional=True,
         ),
+        Dedent,
         Ref("DelimiterSegment", optional=True),
     )
 
