@@ -20,6 +20,7 @@ from sqlfluff.core.parser import (
     Delimited,
     RegexParser,
     Anything,
+    AnySetOf,
 )
 from sqlfluff.core.dialects import load_raw_dialect
 
@@ -43,8 +44,13 @@ mysql_dialect.patch_lexer_matchers(
 # Reserve USE, FORCE & IGNORE
 mysql_dialect.sets("unreserved_keywords").difference_update(
     [
+        "BTREE",
         "FORCE",
+        "HASH",
         "IGNORE",
+        "INVISIBLE",
+        "KEY_BLOCK_SIZE",
+        "PARSER",
         "USE",
         "SQL_BUFFER_RESULT",
         "SQL_NO_CACHE",
@@ -66,6 +72,7 @@ mysql_dialect.sets("unreserved_keywords").difference_update(
         "COLUMN_NAME",
         "CURSOR_NAME",
         "STACKED",
+        "VISIBLE",
     ]
 )
 mysql_dialect.sets("unreserved_keywords").update(
@@ -644,7 +651,7 @@ class AlterTableStatementSegment(BaseSegment):
                     Ref("EqualsSegment", optional=True),
                     OneOf(Ref("LiteralGrammar"), Ref("NakedIdentifierSegment")),
                 ),
-                # Add things
+                # Add column
                 Sequence(
                     OneOf("ADD", "MODIFY"),
                     Ref.keyword("COLUMN", optional=True),
@@ -656,6 +663,26 @@ class AlterTableStatementSegment(BaseSegment):
                         # Bracketed Version of the same
                         Ref("BracketedColumnReferenceListGrammar"),
                         optional=True,
+                    ),
+                ),
+                # Add index
+                Sequence(
+                    "ADD",
+                    Ref.keyword("UNIQUE", optional=True),
+                    OneOf("INDEX", "KEY", optional=True),
+                    Ref("IndexReferenceSegment"),
+                    Sequence("USING", OneOf("BTREE", "HASH"), optional=True),
+                    Ref("BracketedColumnReferenceListGrammar"),
+                    AnySetOf(
+                        Sequence(
+                            "KEY_BLOCK_SIZE",
+                            Ref("EqualsSegment"),
+                            Ref("NumericLiteralSegment"),
+                        ),
+                        Sequence("USING", OneOf("BTREE", "HASH")),
+                        Sequence("WITH", "PARSER", Ref("ObjectReferenceSegment")),
+                        Ref("CommentClauseSegment"),
+                        OneOf("VISIBLE", "INVISIBLE"),
                     ),
                 ),
                 # Change column
@@ -677,14 +704,35 @@ class AlterTableStatementSegment(BaseSegment):
                 # Drop column
                 Sequence(
                     "DROP",
-                    Ref.keyword("COLUMN", optional=True),
-                    Ref("ColumnReferenceSegment"),
+                    OneOf(
+                        Sequence(
+                            Ref.keyword("COLUMN", optional=True),
+                            Ref("ColumnReferenceSegment"),
+                        ),
+                        Sequence(
+                            OneOf("INDEX", "KEY", optional=True),
+                            Ref("IndexReferenceSegment"),
+                        ),
+                    ),
                 ),
                 # Rename
                 Sequence(
                     "RENAME",
-                    OneOf("AS", "TO", optional=True),
-                    Ref("TableReferenceSegment"),
+                    OneOf(
+                        # Rename table
+                        Sequence(
+                            OneOf("AS", "TO", optional=True),
+                            Ref("TableReferenceSegment"),
+                        ),
+                        # Rename index
+                        Sequence(
+                            "RENAME",
+                            OneOf("INDEX", "KEY"),
+                            Ref("IndexReferenceSegment"),
+                            "TO",
+                            Ref("IndexReferenceSegment"),
+                        ),
+                    ),
                 ),
             ),
         ),
