@@ -28,6 +28,7 @@ Major changes include:
 * Many dialect improvements
 
 ## What's Changed
+* Support CREATE UNIQUE INDEX [#2440](https://github.com/sqlfluff/sqlfluff/pull/2440) [@tunetheweb](https://github.com/tunetheweb)
 * Make BigQuery typeless STRUCTs Expressions [#2435](https://github.com/sqlfluff/sqlfluff/pull/2435) [@tunetheweb](https://github.com/tunetheweb)
 * T-SQL support default params and no RETURN value [#2434](https://github.com/sqlfluff/sqlfluff/pull/2434) [@tunetheweb](https://github.com/tunetheweb)
 * "sqlfluff fix" should report any parse errors found [#2423](https://github.com/sqlfluff/sqlfluff/pull/2423) [@barrywhart](https://github.com/barrywhart)
