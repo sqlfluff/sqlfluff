@@ -521,7 +521,7 @@ class InsertStatementSegment(BaseSegment):
         "INTO",
         Ref("TableReferenceSegment"),
         Ref("BracketedColumnReferenceListGrammar", optional=True),
-        Ref("SelectableGrammar"),
+        OneOf(Ref("SelectableGrammar"), Ref("ExecuteScriptSegment")),
     )
 
 
@@ -1520,7 +1520,7 @@ class SetStatementSegment(BaseSegment):
             "CONCAT_NULL_YIELDS_NULL",
             "CURSOR_CLOSE_ON_COMMIT",
             "FIPS_FLAGGER",
-            "IDENTITY_INSERT",
+            Sequence("IDENTITY_INSERT", Ref("TableReferenceSegment")),
             "LANGUAGE",
             "OFFSETS",
             "QUOTED_IDENTIFIER",
