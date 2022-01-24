@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f80089c290c96358a39fc8dd656705c5d03266df307c6f640edd4c6b958e8814
+_hash: 08fe084946e86770098c2b5adf805b7527af2d066f2bc830cc15272d94565b9c
 file:
   batch:
     statement:
@@ -59,8 +59,7 @@ file:
                             identifier: wk
                       - comma: ','
                       - expression:
-                          column_reference:
-                            parameter: '@DATE'
+                          parameter: '@DATE'
                       - end_bracket: )
                   - binary_operator: +
                   - literal: '1'
@@ -91,8 +90,7 @@ file:
                                         identifier: yy
                                   - comma: ','
                                   - expression:
-                                      column_reference:
-                                        parameter: '@DATE'
+                                      parameter: '@DATE'
                                   - end_bracket: )
                               keyword: as
                               data_type:
@@ -115,8 +113,7 @@ file:
                       bracketed:
                         start_bracket: (
                         expression:
-                          column_reference:
-                            parameter: '@ISOweek'
+                          parameter: '@ISOweek'
                           comparison_operator:
                             raw_comparison_operator: '='
                           literal: '0'
@@ -152,8 +149,7 @@ file:
                                             identifier: yy
                                       - comma: ','
                                       - expression:
-                                          column_reference:
-                                            parameter: '@DATE'
+                                          parameter: '@DATE'
                                       - end_bracket: )
                                     binary_operator: '-'
                                     literal: '1'
@@ -187,8 +183,7 @@ file:
                                             identifier: DAY
                                       - comma: ','
                                       - expression:
-                                          column_reference:
-                                            parameter: '@DATE'
+                                          parameter: '@DATE'
                                       - end_bracket: )
                                   keyword: AS
                                   data_type:
@@ -224,8 +219,7 @@ file:
                                       identifier: mm
                                 - comma: ','
                                 - expression:
-                                    column_reference:
-                                      parameter: '@DATE'
+                                    parameter: '@DATE'
                                 - end_bracket: )
                               comparison_operator:
                                 raw_comparison_operator: '='
@@ -248,8 +242,7 @@ file:
                                           identifier: dd
                                     - comma: ','
                                     - expression:
-                                        column_reference:
-                                          parameter: '@DATE'
+                                        parameter: '@DATE'
                                     - end_bracket: )
                                 - binary_operator: '-'
                                 - function:
@@ -262,8 +255,7 @@ file:
                                           identifier: dw
                                     - comma: ','
                                     - expression:
-                                        column_reference:
-                                          parameter: '@DATE'
+                                        parameter: '@DATE'
                                     - end_bracket: )
                                 end_bracket: )
                               comparison_operator:
@@ -288,8 +280,7 @@ file:
                     bracketed:
                       start_bracket: (
                       expression:
-                        column_reference:
-                          parameter: '@ISOweek'
+                        parameter: '@ISOweek'
                       end_bracket: )
                   statement_terminator: ;
             - keyword: END
