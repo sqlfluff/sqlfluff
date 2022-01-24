@@ -53,7 +53,7 @@ class Rule_L029(BaseRule):
         if len(context.segment.raw) == 1:
             return LintResult(memory=context.memory)
 
-        # Get the Quoted policy configuration.
+        # Get the ignore list configuration and cache it
         try:
             ignore_words_list = self.ignore_words_list
         except AttributeError:
@@ -61,7 +61,7 @@ class Rule_L029(BaseRule):
             # So we can cache them for next time for speed.
             ignore_words_list = self._init_ignore_string()
 
-        # Skip if not an element of the specified type/name
+        # Skip if in ignore list
         if ignore_words_list and context.segment.raw.lower() in ignore_words_list:
             return LintResult(memory=context.memory)
 

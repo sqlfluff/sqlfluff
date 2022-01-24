@@ -77,9 +77,8 @@ class Rule_L010(BaseRule):
                 ignore_words_list,
             ) = self._init_capitalisation_policy()
 
-        # Skip if not an element of the specified type/name
+        # Skip if in ignore list
         if ignore_words_list and context.segment.raw.lower() in ignore_words_list:
-            print("BARRY ignorering:%s:" % context.segment.raw)
             return LintResult(memory=context.memory)
 
         memory = context.memory
