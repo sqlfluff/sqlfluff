@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: fb4a460bb4da693f0dd677ce6f279e4924d06548890eec5c0c6272c67888c05b
+_hash: 5475748f04d0eccbed56043af7e7ee3a1b0b15f0cc9077c60e2258b05bc21851
 file:
   statement:
     create_table_statement:
@@ -26,7 +26,7 @@ file:
           identifier: col2
           data_type:
             primitive_type:
-              keyword: BIGINT
+              keyword: INTEGER
           column_constraint_segment:
           - keyword: NOT
           - keyword: 'NULL'
@@ -35,17 +35,26 @@ file:
           identifier: col3
           data_type:
             primitive_type:
-              keyword: STRING
+              keyword: BIGINT
+          column_constraint_segment:
+          - keyword: NOT
+          - keyword: 'NULL'
       - comma: ','
       - column_definition:
           identifier: col4
           data_type:
             primitive_type:
               keyword: STRING
+      - comma: ','
+      - column_definition:
+          identifier: col5
+          data_type:
+            primitive_type:
+              keyword: STRING
           column_constraint_segment:
             comment_clause:
               keyword: COMMENT
-              literal: "'Column 4'"
+              literal: "'Column 5'"
       - end_bracket: )
     - keyword: COMMENT
     - literal: "'This is a test table'"

@@ -1,0 +1,51 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 498c0695df855b4b06eecc03607c0c5d533c72eaade92933a861ff453cc7d180
+file:
+- statement:
+    create_procedure_statement:
+    - keyword: CREATE
+    - binary_operator: OR
+    - keyword: REPLACE
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: create_account
+    - base:
+        bracketed:
+          start_bracket: (
+          parameter: _account_uuid
+          data_type:
+            keyword: UUID
+          end_bracket: )
+    - base:
+      - keyword: AS
+      - literal: "$$\nBEGIN\n    RETURN;\nEND;\n$$"
+      - keyword: LANGUAGE
+      - parameter: plpgsql
+- statement_terminator: ;
+- statement:
+    create_procedure_statement:
+    - keyword: CREATE
+    - keyword: PROCEDURE
+    - function_name:
+        function_name_identifier: insert_data
+    - base:
+        bracketed:
+        - start_bracket: (
+        - parameter: a
+        - data_type:
+            keyword: integer
+        - comma: ','
+        - parameter: b
+        - data_type:
+            keyword: integer
+        - end_bracket: )
+    - base:
+      - keyword: LANGUAGE
+      - parameter: SQL
+      - keyword: AS
+      - literal: "$$\nINSERT INTO tbl VALUES (a);\nINSERT INTO tbl VALUES (b);\n$$"
+- statement_terminator: ;
