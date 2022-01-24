@@ -14,7 +14,7 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ## Highlights
 
-We are pleased to include over 95 fixes in this release, and welcome seven new contributors.
+We are pleased to include 108 improvements and fixes in this release, and welcome 7 new contributors to the code.
 
 Major changes include:
 
