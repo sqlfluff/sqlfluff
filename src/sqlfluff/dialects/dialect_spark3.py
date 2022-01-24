@@ -910,6 +910,28 @@ class InsertOverwriteDirectoryHiveFmtSegment(BaseSegment):
     )
 
 
+@spark3_dialect.segment()
+class LoadDataSegment(BaseSegment):
+    """A `LOAD DATA` statement.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-dml-load.html
+    """
+
+    type = "load_data_statement"
+
+    match_grammar = Sequence(
+        "LOAD",
+        "DATA",
+        Ref.keyword("LOCAL", optional=True),
+        "INPATH",
+        Ref("QuotedLiteralSegment"),
+        Ref.keyword("OVERWRITE", optional=True),
+        "INTO",
+        "TABLE",
+        Ref("TableReferenceSegment"),
+        Ref("PartitionSpecGrammar", optional=True),
+    )
+
 # Auxiliary Statements
 @spark3_dialect.segment()
 class AddExecutablePackage(BaseSegment):
@@ -999,6 +1021,7 @@ class StatementSegment(BaseSegment):
             # Data Manipulation Statements
             Ref("InsertOverwriteDirectorySegment"),
             Ref("InsertOverwriteDirectoryHiveFmtSegment"),
+            Ref("LoadDataSegment"),
         ],
         remove=[
             Ref("TransactionStatementSegment"),
