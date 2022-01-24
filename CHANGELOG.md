@@ -9,7 +9,147 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfluff/sqlfluff/releases) and will be copied in here on each release (please remember to update the issues and contributors to links!). There is no need to manually edit this file going forward.
 -->
 
-## [0.9.1] - 2022-01-08]
+
+## [0.9.2] - 2022-01-24
+
+## Highlights
+
+We are pleased to include 110 improvements and fixes in this release, and welcome 7 new contributors to the code.
+
+Major changes include:
+
+* Initial Oracle support (note: SQL, but not PL/SQL)
+* Fix more dbt 1.0.0 connection issues
+* Improved configuration documentation
+* New rule (L059) to flag unnecessary quoted identifiers
+* New rule (L060) to prefer `COALESCE` instead of `IFNULL` or `NVL`
+* New rule (L061) to prefer `!=` over `<>`
+* Many rule fixes
+* Many dialect improvements
+
+## What's Changed
+* Add Postgres DROP PROCEDURE support [#2446](https://github.com/sqlfluff/sqlfluff/pull/2446) [@rpr-ableton](https://github.com/rpr-ableton)
+* MySQL Alter table ADD/DROP/RENAME INDEX support [#2443](https://github.com/sqlfluff/sqlfluff/pull/2443) [@tunetheweb](https://github.com/tunetheweb)
+* Add basic CREATE PROCEDURE support to Postgres [#2441](https://github.com/sqlfluff/sqlfluff/pull/2441) [@tunetheweb](https://github.com/tunetheweb)
+* Indent T-SQL DECLARE and EXEC statements [#2439](https://github.com/sqlfluff/sqlfluff/pull/2439) [@tunetheweb](https://github.com/tunetheweb)
+* Hive alternative types: INTEGER, DEC, NUMERIC [#2438](https://github.com/sqlfluff/sqlfluff/pull/2438) [@tunetheweb](https://github.com/tunetheweb)
+* Implement Snowflake Dateparts [#2437](https://github.com/sqlfluff/sqlfluff/pull/2437) [@tunetheweb](https://github.com/tunetheweb)
+* Fix rule L028 for T-SQL for params [#2442](https://github.com/sqlfluff/sqlfluff/pull/2442) [@tunetheweb](https://github.com/tunetheweb)
+* Support CREATE UNIQUE INDEX [#2440](https://github.com/sqlfluff/sqlfluff/pull/2440) [@tunetheweb](https://github.com/tunetheweb)
+* Make BigQuery typeless STRUCTs Expressions [#2435](https://github.com/sqlfluff/sqlfluff/pull/2435) [@tunetheweb](https://github.com/tunetheweb)
+* T-SQL support default params and no RETURN value [#2434](https://github.com/sqlfluff/sqlfluff/pull/2434) [@tunetheweb](https://github.com/tunetheweb)
+* "sqlfluff fix" should report any parse errors found [#2423](https://github.com/sqlfluff/sqlfluff/pull/2423) [@barrywhart](https://github.com/barrywhart)
+* Redshift VACUUM support [#2433](https://github.com/sqlfluff/sqlfluff/pull/2433) [@rpr-ableton](https://github.com/rpr-ableton)
+* Add Oracle PROMPT statement [#2413](https://github.com/sqlfluff/sqlfluff/pull/2413) [@r0fls](https://github.com/r0fls)
+* Spark3: Support for `INSERT OVERWRITE DIRECTORY` with Hive Format [#2389](https://github.com/sqlfluff/sqlfluff/pull/2389) [@R7L208](https://github.com/R7L208)
+* Exasol: Fix escaped identifiers [#2431](https://github.com/sqlfluff/sqlfluff/pull/2431) [@sti0](https://github.com/sti0)
+* Exasol: Fix `LOCAL.ALIAS` Syntax [#2430](https://github.com/sqlfluff/sqlfluff/pull/2430) [@sti0](https://github.com/sti0)
+* Exasol: Allow quoted identifier for various statements. [#2428](https://github.com/sqlfluff/sqlfluff/pull/2428) [@sti0](https://github.com/sti0)
+* Misc grammar improvements for Snowflake [#2421](https://github.com/sqlfluff/sqlfluff/pull/2421) [@chwiese](https://github.com/chwiese)
+* New rule L061 to use != over <> [#2409](https://github.com/sqlfluff/sqlfluff/pull/2409) [@sti0](https://github.com/sti0)
+* Correct TRANS to TRAN [#2425](https://github.com/sqlfluff/sqlfluff/pull/2425) [@fdw](https://github.com/fdw)
+* Remove the "heuristic" slicer, as it was replaced by JinjaTracer [#2422](https://github.com/sqlfluff/sqlfluff/pull/2422) [@barrywhart](https://github.com/barrywhart)
+* L060: More specific description [#2419](https://github.com/sqlfluff/sqlfluff/pull/2419) [@jpy-git](https://github.com/jpy-git)
+* Fix code formatting in Rule docs [#2418](https://github.com/sqlfluff/sqlfluff/pull/2418) [@tunetheweb](https://github.com/tunetheweb)
+* Allow UPDATE SET statements in RedShift [#2417](https://github.com/sqlfluff/sqlfluff/pull/2417) [@tunetheweb](https://github.com/tunetheweb)
+* Add Redshift cursor DECLARE, FETCH & CLOSE support [#2414](https://github.com/sqlfluff/sqlfluff/pull/2414) [@rpr-ableton](https://github.com/rpr-ableton)
+* Add Redshift ANALYZE COMPRESSION support [#2412](https://github.com/sqlfluff/sqlfluff/pull/2412) [@rpr-ableton](https://github.com/rpr-ableton)
+* ANSI Values statement fixes [#2404](https://github.com/sqlfluff/sqlfluff/pull/2404) [@jpy-git](https://github.com/jpy-git)
+* Exasol: Overhaul drop statements [#2407](https://github.com/sqlfluff/sqlfluff/pull/2407) [@sti0](https://github.com/sti0)
+* L044, L045: Handle Exasol VALUES clause [#2400](https://github.com/sqlfluff/sqlfluff/pull/2400) [@barrywhart](https://github.com/barrywhart)
+* L060: Use COALESCE instead of IFNULL or NVL. [#2405](https://github.com/sqlfluff/sqlfluff/pull/2405) [@jpy-git](https://github.com/jpy-git)
+* Postgres: Fix Values alias regression [#2401](https://github.com/sqlfluff/sqlfluff/pull/2401) [@jpy-git](https://github.com/jpy-git)
+* Align line length in Python code to 88 characters [#2264](https://github.com/sqlfluff/sqlfluff/pull/2264) [@chwiese](https://github.com/chwiese)
+* Jinja templater: Allow "load_macros_from_path" to be a comma-separated list of paths [#2387](https://github.com/sqlfluff/sqlfluff/pull/2387) [@barrywhart](https://github.com/barrywhart)
+* Add "TRANS" keyword for TSQL [#2399](https://github.com/sqlfluff/sqlfluff/pull/2399) [@fdw](https://github.com/fdw)
+* Docstrings: Replace double backtics with single quote for lint results. [#2386](https://github.com/sqlfluff/sqlfluff/pull/2386) [@jpy-git](https://github.com/jpy-git)
+* Spark3: Support for `INSERT OVERWRITE DIRECTORY` statements [#2385](https://github.com/sqlfluff/sqlfluff/pull/2385) [@R7L208](https://github.com/R7L208)
+* Fix unnecessary white underline in doc site [#2383](https://github.com/sqlfluff/sqlfluff/pull/2383) [@tunetheweb](https://github.com/tunetheweb)
+* Rolls back some code cleanup that caused coverage report to show gaps [#2384](https://github.com/sqlfluff/sqlfluff/pull/2384) [@barrywhart](https://github.com/barrywhart)
+* Fix "connection already closed" issue with dbt 1.0 and dbt_utils [#2382](https://github.com/sqlfluff/sqlfluff/pull/2382) [@barrywhart](https://github.com/barrywhart)
+* Spark3: Support for `INSERT [TABLE]` data manipulation statements [#2290](https://github.com/sqlfluff/sqlfluff/pull/2290) [@R7L208](https://github.com/R7L208)
+* Comment out line in bug report template [#2378](https://github.com/sqlfluff/sqlfluff/pull/2378) [@jpy-git](https://github.com/jpy-git)
+* Postgres: EXPLAIN statement updates [#2374](https://github.com/sqlfluff/sqlfluff/pull/2374) [@jpy-git](https://github.com/jpy-git)
+* Make TABLE a non-reserved word in Postgres [#2377](https://github.com/sqlfluff/sqlfluff/pull/2377) [@tunetheweb](https://github.com/tunetheweb)
+* Snowflake COLUMN is not a reserved word [#2376](https://github.com/sqlfluff/sqlfluff/pull/2376) [@tunetheweb](https://github.com/tunetheweb)
+* TSQL: Complete ASA Table Index Clause functionality [#2373](https://github.com/sqlfluff/sqlfluff/pull/2373) [@jpers36](https://github.com/jpers36)
+* Add support for Jinja import and include [#2355](https://github.com/sqlfluff/sqlfluff/pull/2355) [@barrywhart](https://github.com/barrywhart)
+* Add Redshift INTERVAL datatype support [#2366](https://github.com/sqlfluff/sqlfluff/pull/2366) [@rpr-ableton](https://github.com/rpr-ableton)
+* Whitespace concatenated string literals for MySQL, Postgres and Redshift [#2356](https://github.com/sqlfluff/sqlfluff/pull/2356) [@jpy-git](https://github.com/jpy-git)
+* Fix L026 false positive on "SELECT INTO" statement [#2371](https://github.com/sqlfluff/sqlfluff/pull/2371) [@barrywhart](https://github.com/barrywhart)
+* Exclude EMIT clauses from rule L013 [#2364](https://github.com/sqlfluff/sqlfluff/pull/2364) [@tunetheweb](https://github.com/tunetheweb)
+* Functional API: Segments.recursive_crawl [#2369](https://github.com/sqlfluff/sqlfluff/pull/2369) [@jpy-git](https://github.com/jpy-git)
+* Complete Redshift CREATE EXTERNAL TABLE support [#2354](https://github.com/sqlfluff/sqlfluff/pull/2354) [@rpr-ableton](https://github.com/rpr-ableton)
+* L041: Fix duplicate DISTINCT corruption [#2365](https://github.com/sqlfluff/sqlfluff/pull/2365) [@jpy-git](https://github.com/jpy-git)
+* Bigquery Create View with Options [#2359](https://github.com/sqlfluff/sqlfluff/pull/2359) [@tunetheweb](https://github.com/tunetheweb)
+* L026: Handle DML statements and multiple levels of nesting [#2336](https://github.com/sqlfluff/sqlfluff/pull/2336) [@barrywhart](https://github.com/barrywhart)
+* Postgres & MySQL: cleanup AliasExpressionSegment [#2353](https://github.com/sqlfluff/sqlfluff/pull/2353) [@jpy-git](https://github.com/jpy-git)
+* Redefine MySQL Interval segment [#2351](https://github.com/sqlfluff/sqlfluff/pull/2351) [@rpr-ableton](https://github.com/rpr-ableton)
+* Postgres: INSERT INTO table alias [#2349](https://github.com/sqlfluff/sqlfluff/pull/2349) [@jpy-git](https://github.com/jpy-git)
+* L043: Remove redundant CASE statement replacing NULLS with NULLS [#2346](https://github.com/sqlfluff/sqlfluff/pull/2346) [@jpy-git](https://github.com/jpy-git)
+* Add RedShift DATASHARE support [#2350](https://github.com/sqlfluff/sqlfluff/pull/2350) [@rpr-ableton](https://github.com/rpr-ableton)
+* Various documentation updates [#2347](https://github.com/sqlfluff/sqlfluff/pull/2347) [@tunetheweb](https://github.com/tunetheweb)
+* Snowflake ALTER TABLE: Drop multiple columns [#2348](https://github.com/sqlfluff/sqlfluff/pull/2348) [@jpy-git](https://github.com/jpy-git)
+* Configuration doc: add rule configuration section [#2291](https://github.com/sqlfluff/sqlfluff/pull/2291) [@juhoautio](https://github.com/juhoautio)
+* Redshift: create model, show model & data types  [#2338](https://github.com/sqlfluff/sqlfluff/pull/2338) [@rpr-ableton](https://github.com/rpr-ableton)
+* L059: Unnecessary quoted identifier [#2341](https://github.com/sqlfluff/sqlfluff/pull/2341) [@jpy-git](https://github.com/jpy-git)
+* L043: Use simple replace to apply fixes [#2343](https://github.com/sqlfluff/sqlfluff/pull/2343) [@jpy-git](https://github.com/jpy-git)
+* TSQL: Add functionality to PARTITION BY clause [#2335](https://github.com/sqlfluff/sqlfluff/pull/2335) [@jpers36](https://github.com/jpers36)
+* L039 casting operator postgres fix [#2334](https://github.com/sqlfluff/sqlfluff/pull/2334) [@jpy-git](https://github.com/jpy-git)
+* `AnySetOf` grammar [#2326](https://github.com/sqlfluff/sqlfluff/pull/2326) [@jpy-git](https://github.com/jpy-git)
+* Redshift: update CREATE TABLE AS match_grammar [#2333](https://github.com/sqlfluff/sqlfluff/pull/2333) [@rpr-ableton](https://github.com/rpr-ableton)
+* Redshift CREATE EXTERNAL TABLE: TABLE PROPERTIES [#2330](https://github.com/sqlfluff/sqlfluff/pull/2330) [@jpy-git](https://github.com/jpy-git)
+* Snowflake: Flush out `ALTER TABLE`'s `tableColumnAction` grammar [#2332](https://github.com/sqlfluff/sqlfluff/pull/2332) [@wong-codaio](https://github.com/wong-codaio)
+* Snowflake ALTER TABLE: Add clusteringAction [#2329](https://github.com/sqlfluff/sqlfluff/pull/2329) [@jpy-git](https://github.com/jpy-git)
+* Snowflake ALTER TABLE: Add searchOptimizationAction [#2328](https://github.com/sqlfluff/sqlfluff/pull/2328) [@jpy-git](https://github.com/jpy-git)
+* Fix numeric literal grammar for Postgres/MySQL/Exasol [#2324](https://github.com/sqlfluff/sqlfluff/pull/2324) [@jpy-git](https://github.com/jpy-git)
+* L039: Remove spaces between comparison operators (T-SQL) [#2325](https://github.com/sqlfluff/sqlfluff/pull/2325) [@jpy-git](https://github.com/jpy-git)
+* Enable setting a target of a dbt profile [#2236](https://github.com/sqlfluff/sqlfluff/pull/2236) [@yu-iskw](https://github.com/yu-iskw)
+* Snowflake: Add support for column rename [#2327](https://github.com/sqlfluff/sqlfluff/pull/2327) [@wong-codaio](https://github.com/wong-codaio)
+* Snowflake: Added `AlterTableStatement` specific for Snowflake [#2267](https://github.com/sqlfluff/sqlfluff/pull/2267) [@wong-codaio](https://github.com/wong-codaio)
+* Full REFERENCES grammar for CREATE TABLE statement [#2315](https://github.com/sqlfluff/sqlfluff/pull/2315) [@jpy-git](https://github.com/jpy-git)
+* Fix Spark numeric literals [#2317](https://github.com/sqlfluff/sqlfluff/pull/2317) [@jpy-git](https://github.com/jpy-git)
+* Change type of Snowflake stage paths to fix issues with L044 [#2320](https://github.com/sqlfluff/sqlfluff/pull/2320) [@chwiese](https://github.com/chwiese)
+* Add Bytes Quoted Literals to Spark dialect [#2312](https://github.com/sqlfluff/sqlfluff/pull/2312) [@jpy-git](https://github.com/jpy-git)
+* Fix L044 assertion failure with delete stmt & cte [#2321](https://github.com/sqlfluff/sqlfluff/pull/2321) [@barrywhart](https://github.com/barrywhart)
+* L003 should consider only *literal* leading whitespace (ignore templated) [#2304](https://github.com/sqlfluff/sqlfluff/pull/2304) [@barrywhart](https://github.com/barrywhart)
+* Redshift: update reserved keywords [#2318](https://github.com/sqlfluff/sqlfluff/pull/2318) [@rpr-ableton](https://github.com/rpr-ableton)
+* docs: Document how to run SQLFluff with local changes to test them [#2316](https://github.com/sqlfluff/sqlfluff/pull/2316) [@kayman-mk](https://github.com/kayman-mk)
+* Update redshift unreserved keywords [#2310](https://github.com/sqlfluff/sqlfluff/pull/2310) [@jpy-git](https://github.com/jpy-git)
+* Fix spark and hive quoted literals [#2311](https://github.com/sqlfluff/sqlfluff/pull/2311) [@jpy-git](https://github.com/jpy-git)
+* Oracle Dialect [#2293](https://github.com/sqlfluff/sqlfluff/pull/2293) [@r0fls](https://github.com/r0fls)
+* Redshift dialect: add COPY and UNLOAD statements [#2307](https://github.com/sqlfluff/sqlfluff/pull/2307) [@rpr-ableton](https://github.com/rpr-ableton)
+* L052: Fix case where no preceding segments and mulitline [#2279](https://github.com/sqlfluff/sqlfluff/pull/2279) [@jpy-git](https://github.com/jpy-git)
+* Update rule L049 to handle EXEC assignments [#2308](https://github.com/sqlfluff/sqlfluff/pull/2308) [@tunetheweb](https://github.com/tunetheweb)
+* Remove DATE, DATETIME and TIME from BigQuery DatePart [#2283](https://github.com/sqlfluff/sqlfluff/pull/2283) [@tunetheweb](https://github.com/tunetheweb)
+* Fix #1292: nocolor and verbose can work in config files [#2300](https://github.com/sqlfluff/sqlfluff/pull/2300) [@cympfh](https://github.com/cympfh)
+* Allow pyproject.toml as extra_config_path [#2305](https://github.com/sqlfluff/sqlfluff/pull/2305) [@jpy-git](https://github.com/jpy-git)
+* L009: Handle adding newline after trailing templated code [#2298](https://github.com/sqlfluff/sqlfluff/pull/2298) [@barrywhart](https://github.com/barrywhart)
+* added missing "t" in doc for Rule_L020 [#2294](https://github.com/sqlfluff/sqlfluff/pull/2294) [@Xilorole](https://github.com/Xilorole)
+* docs: Document configuration keyword for rule L054 [#2288](https://github.com/sqlfluff/sqlfluff/pull/2288) [@tomasfarias](https://github.com/tomasfarias)
+* Update L009 to operate in raw, not templated space [#2285](https://github.com/sqlfluff/sqlfluff/pull/2285) [@barrywhart](https://github.com/barrywhart)
+* Redshift CREATE LIBRARY statements [#2277](https://github.com/sqlfluff/sqlfluff/pull/2277) [@rpr-ableton](https://github.com/rpr-ableton)
+* L025 with 'bigquery' dialect: Correctly interpret calling functions with a table as a parameter [#2278](https://github.com/sqlfluff/sqlfluff/pull/2278) [@barrywhart](https://github.com/barrywhart)
+* Spark3: Coverage for `REFRESH` auxiliary statements [#2282](https://github.com/sqlfluff/sqlfluff/pull/2282) [@R7L208](https://github.com/R7L208)
+* Spark3: Coverage for `USE DATABASE` statement. [#2276](https://github.com/sqlfluff/sqlfluff/pull/2276) [@R7L208](https://github.com/R7L208)
+* Fix link for editing 'In The Wild' page with new base branch, `main` [#2280](https://github.com/sqlfluff/sqlfluff/pull/2280) [@barnett](https://github.com/barnett)
+* Optionally allow additional configurable characters in L057 [#2274](https://github.com/sqlfluff/sqlfluff/pull/2274) [@tunetheweb](https://github.com/tunetheweb)
+* L025 should look at subqueries [#2273](https://github.com/sqlfluff/sqlfluff/pull/2273) [@barrywhart](https://github.com/barrywhart)
+* Add coverage for `TRUNCATE` statement in Spark3 dialect [#2272](https://github.com/sqlfluff/sqlfluff/pull/2272) [@R7L208](https://github.com/R7L208)
+* Upgrade `click` version to 8.0+ to support `click.shell_completion` [#2271](https://github.com/sqlfluff/sqlfluff/pull/2271) [@wong-codaio](https://github.com/wong-codaio)
+* Improve release checklist to make releases easier [#2263](https://github.com/sqlfluff/sqlfluff/pull/2263) [@tunetheweb](https://github.com/tunetheweb)
+
+## New Contributors
+* [@barnett](https://github.com/barnett) made their first contribution in [#2280](https://github.com/sqlfluff/sqlfluff/pull/2280)
+* [@tomasfarias](https://github.com/tomasfarias) made their first contribution in [#2288](https://github.com/sqlfluff/sqlfluff/pull/2288)
+* [@Xilorole](https://github.com/Xilorole) made their first contribution in [#2294](https://github.com/sqlfluff/sqlfluff/pull/2294)
+* [@cympfh](https://github.com/cympfh) made their first contribution in [#2300](https://github.com/sqlfluff/sqlfluff/pull/2300)
+* [@r0fls](https://github.com/r0fls) made their first contribution in [#2293](https://github.com/sqlfluff/sqlfluff/pull/2293)
+* [@yu-iskw](https://github.com/yu-iskw) made their first contribution in [#2236](https://github.com/sqlfluff/sqlfluff/pull/2236)
+* [@fdw](https://github.com/fdw) made their first contribution in [#2399](https://github.com/sqlfluff/sqlfluff/pull/2399)
+
+
+## [0.9.1] - 2022-01-08
 
 ## Highlights
 
