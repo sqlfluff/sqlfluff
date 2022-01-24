@@ -2537,6 +2537,7 @@ class CreateIndexStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),
+        Ref.keyword("UNIQUE", optional=True),
         "INDEX",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("IndexReferenceSegment"),
