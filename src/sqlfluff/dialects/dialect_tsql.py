@@ -1107,6 +1107,7 @@ class DeclareStatementSegment(BaseSegment):
     type = "declare_segment"
     match_grammar = Sequence(
         "DECLARE",
+        Indent,
         Ref("ParameterNameSegment"),
         Sequence("AS", optional=True),
         Ref("DatatypeSegment"),
@@ -1125,6 +1126,7 @@ class DeclareStatementSegment(BaseSegment):
                 optional=True,
             ),
         ),
+        Dedent,
         Ref("DelimiterSegment", optional=True),
     )
 
@@ -3064,6 +3066,7 @@ class ExecuteScriptSegment(BaseSegment):
     match_grammar = Sequence(
         OneOf("EXEC", "EXECUTE"),
         Ref("ObjectReferenceSegment"),
+        Indent,
         Sequence(
             Sequence(Ref("ParameterNameSegment"), Ref("EqualsSegment"), optional=True),
             OneOf(
@@ -3088,6 +3091,7 @@ class ExecuteScriptSegment(BaseSegment):
             ),
             optional=True,
         ),
+        Dedent,
         Ref("DelimiterSegment", optional=True),
     )
 
