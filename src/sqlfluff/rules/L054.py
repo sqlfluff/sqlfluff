@@ -1,5 +1,5 @@
 """Implementation of Rule L054."""
-from typing import Optional
+from typing import Optional, List
 
 from sqlfluff.core.rules.base import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import (
@@ -78,6 +78,7 @@ class Rule_L054(BaseRule):
     """
 
     config_keywords = ["group_by_and_order_by_style"]
+    _ignore_types: List[str] = ["window_specification"]
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Inconsistent column references in GROUP BY/ORDER BY clauses."""
@@ -87,6 +88,11 @@ class Rule_L054(BaseRule):
         # We only care about GROUP BY/ORDER BY clauses.
         if not context.segment.is_type("groupby_clause", "orderby_clause"):
             return None
+
+        # Ignore Windowing clauses
+        for parent in context.parent_stack:
+            if parent.type in self._ignore_types:
+                return LintResult()
 
         # Look at child segments and map column references to either the implict or
         # explicit category.
