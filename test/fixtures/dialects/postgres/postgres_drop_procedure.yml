@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c36ed5001f0d4f15643f604b33cf9fdfd1caa9004357f7fe487b9c21ffd33ecd
+_hash: b00221d5457567ff2b2311c96ce3cdffc9afd70fac0ceaffc8ccf313e18190a1
 file:
 - statement:
     drop_procedure_statement:
@@ -87,4 +87,32 @@ file:
           data_type:
             keyword: varchar
           end_bracket: )
+- statement_terminator: ;
+- statement:
+    drop_procedure_statement:
+    - keyword: drop
+    - keyword: procedure
+    - function_name:
+        function_name_identifier: insert_actor
+    - base:
+        bracketed:
+        - start_bracket: (
+        - data_type:
+            keyword: varchar
+        - comma: ','
+        - data_type:
+            keyword: varchar
+        - end_bracket: )
+    - comma: ','
+    - function_name:
+        function_name_identifier: insert_actor2
+    - base:
+        bracketed:
+        - start_bracket: (
+        - data_type:
+            keyword: varchar
+        - comma: ','
+        - data_type:
+            keyword: varchar
+        - end_bracket: )
 - statement_terminator: ;
