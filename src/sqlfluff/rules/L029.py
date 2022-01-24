@@ -100,7 +100,7 @@ class Rule_L029(BaseRule):
         # Use str() in case bools are passed which might otherwise be read as bool
         ignore_words_config = str(getattr(self, "ignore_words"))
         if ignore_words_config and ignore_words_config != "None":
-            self.ignore_words_list = self._split_comma_separated_string(
+            self.ignore_words_list = self.split_comma_separated_string(
                 ignore_words_config.lower()
             )
         else:

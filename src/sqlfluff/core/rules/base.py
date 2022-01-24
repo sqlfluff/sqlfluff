@@ -774,7 +774,8 @@ class BaseRule:
                 return
 
     @staticmethod
-    def _split_comma_separated_string(raw_str: str) -> List[str]:
+    def split_comma_separated_string(raw_str: str) -> List[str]:
+        """Converts comma separated string to List, stripping whitespace."""
         return [s.strip() for s in raw_str.split(",") if s.strip()]
 
 
