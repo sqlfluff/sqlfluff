@@ -767,12 +767,12 @@ class CreateProcedureStatementSegment(BaseSegment):
 
 @postgres_dialect.segment()
 class DropProcedureStatementSegment(BaseSegment):
-    """Drop Procedure Statement.
+    """A `DROP PROCEDURE` statement.
 
-    As Specified in https://www.postgresql.org/docs/11/sql-dropprocedure.html
+    https://www.postgresql.org/docs/11/sql-dropprocedure.html
     """
 
-    type = "drop_procedure"
+    type = "drop_procedure_statement"
 
     match_grammar = Sequence(
         "DROP",

@@ -3,10 +3,10 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0e14dd4a0f1865bde044d70462c75bf652509d580d6fe9b0d8ca53f66fdc6c17
+_hash: c36ed5001f0d4f15643f604b33cf9fdfd1caa9004357f7fe487b9c21ffd33ecd
 file:
 - statement:
-    drop_procedure:
+    drop_procedure_statement:
     - keyword: DROP
     - keyword: PROCEDURE
     - function_name:
@@ -17,14 +17,14 @@ file:
           end_bracket: )
 - statement_terminator: ;
 - statement:
-    drop_procedure:
+    drop_procedure_statement:
     - keyword: drop
     - keyword: procedure
     - function_name:
         function_name_identifier: insert_actor
 - statement_terminator: ;
 - statement:
-    drop_procedure:
+    drop_procedure_statement:
     - keyword: drop
     - keyword: procedure
     - function_name:
@@ -37,7 +37,7 @@ file:
           end_bracket: )
 - statement_terminator: ;
 - statement:
-    drop_procedure:
+    drop_procedure_statement:
     - keyword: drop
     - keyword: procedure
     - function_name:
@@ -53,7 +53,7 @@ file:
         - end_bracket: )
 - statement_terminator: ;
 - statement:
-    drop_procedure:
+    drop_procedure_statement:
     - keyword: drop
     - keyword: procedure
     - function_name:
@@ -63,7 +63,7 @@ file:
         function_name_identifier: update_actor
 - statement_terminator: ;
 - statement:
-    drop_procedure:
+    drop_procedure_statement:
     - keyword: drop
     - keyword: procedure
     - function_name:
@@ -74,7 +74,7 @@ file:
     - keyword: CASCADE
 - statement_terminator: ;
 - statement:
-    drop_procedure:
+    drop_procedure_statement:
     - keyword: drop
     - keyword: procedure
     - function_name:
