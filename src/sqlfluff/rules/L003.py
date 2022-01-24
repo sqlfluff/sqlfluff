@@ -116,6 +116,7 @@ class Rule_L003(BaseRule):
         """Take the raw stack, split into lines and evaluate some stats."""
         indent_balance = 0
         line_no = 1
+        templated_line = False
         in_indent = True
         indent_buffer: List[BaseSegment] = []
         line_buffer: List[BaseSegment] = []
@@ -135,6 +136,7 @@ class Rule_L003(BaseRule):
             if elem.is_type("newline"):
                 result_buffer[line_no] = {
                     "line_no": line_no,
+                    "templated_line": templated_line,
                     # Using slicing to copy line_buffer here to be py2 compliant
                     "line_buffer": line_buffer[:],
                     "indent_buffer": indent_buffer,
@@ -147,6 +149,16 @@ class Rule_L003(BaseRule):
                     "clean_indent": clean_indent,
                 }
                 line_no += 1
+                # Set the "templated_line" flag for the *next* line if the
+                # newline that ended the *current* line was in templated space.
+                # Reason: We want to ignore indentation of lines that are not
+                # present in the raw (pre-templated) code.
+                templated_line = bool(
+                    templated_file
+                    and Segments(elem, templated_file=templated_file).raw_slices.any(
+                        rsp.is_slice_type("templated")
+                    )
+                )
                 indent_buffer = []
                 line_buffer = []
                 indent_size = 0
@@ -208,6 +220,7 @@ class Rule_L003(BaseRule):
         if line_buffer:
             result_buffer[line_no] = {
                 "line_no": line_no,
+                "templated_line": templated_line,
                 "line_buffer": line_buffer,
                 "indent_buffer": indent_buffer,
                 "indent_size": indent_size,
@@ -432,6 +445,12 @@ class Rule_L003(BaseRule):
             # Comment line, deal with it later.
             memory["comment_lines"].append(this_line_no)
             self.logger.debug("    Comment Line. #%s", this_line_no)
+            return LintResult(memory=memory)
+
+        # Is this a templated line? If so, ignore it because it doesn't exist
+        # in the raw (pre-templated) code.
+        if this_line["templated_line"]:
+            self.logger.debug("    Templated Line. #%s", this_line_no)
             return LintResult(memory=memory)
 
         # Is it a hanging indent?
