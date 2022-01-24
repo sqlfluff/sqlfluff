@@ -87,9 +87,10 @@ class Rule_L026(BaseRule):
                 context.segment, context.dialect, query_class=L026Query
             )
             query: L026Query = cast(L026Query, crawler.query_tree)
-            self._analyze_table_references(
-                query, dml_target_table, context.dialect, violations
-            )
+            if query:
+                self._analyze_table_references(
+                    query, dml_target_table, context.dialect, violations
+                )
         return violations or None
 
     @classmethod
