@@ -932,6 +932,7 @@ class LoadDataSegment(BaseSegment):
         Ref("PartitionSpecGrammar", optional=True),
     )
 
+
 # Auxiliary Statements
 @spark3_dialect.segment()
 class AddExecutablePackage(BaseSegment):
