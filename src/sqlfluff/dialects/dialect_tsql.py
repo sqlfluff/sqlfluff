@@ -184,6 +184,7 @@ tsql_dialect.replace(
         # can otherwise be easily mistaken for an identifier.
         Ref("NullLiteralSegment"),
         Ref("DateTimeLiteralGrammar"),
+        Ref("ParameterNameSegment"),
     ),
     ParameterNameSegment=RegexParser(
         r"[@][A-Za-z0-9_]+", CodeSegment, name="parameter", type="parameter"
@@ -966,6 +967,10 @@ class ObjectReferenceSegment(BaseSegment):
     extract_possible_references = ansi_dialect.get_segment(
         "ObjectReferenceSegment"
     ).extract_possible_references
+
+    extract_possible_multipart_references = ansi_dialect.get_segment(
+        "ObjectReferenceSegment"
+    ).extract_possible_multipart_references
 
     _level_to_int = staticmethod(
         ansi_dialect.get_segment("ObjectReferenceSegment")._level_to_int
