@@ -14,7 +14,7 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 ## Highlights
 
-We are pleased to include 108 improvements and fixes in this release, and welcome 7 new contributors to the code.
+We are pleased to include 110 improvements and fixes in this release, and welcome 7 new contributors to the code.
 
 Major changes include:
 
@@ -28,6 +28,8 @@ Major changes include:
 * Many dialect improvements
 
 ## What's Changed
+* Add Postgres DROP PROCEDURE support [#2446](https://github.com/sqlfluff/sqlfluff/pull/2446) [@rpr-ableton](https://github.com/rpr-ableton)
+* MySQL Alter table ADD/DROP/RENAME INDEX support [#2443](https://github.com/sqlfluff/sqlfluff/pull/2443) [@tunetheweb](https://github.com/tunetheweb)
 * Add basic CREATE PROCEDURE support to Postgres [#2441](https://github.com/sqlfluff/sqlfluff/pull/2441) [@tunetheweb](https://github.com/tunetheweb)
 * Indent T-SQL DECLARE and EXEC statements [#2439](https://github.com/sqlfluff/sqlfluff/pull/2439) [@tunetheweb](https://github.com/tunetheweb)
 * Hive alternative types: INTEGER, DEC, NUMERIC [#2438](https://github.com/sqlfluff/sqlfluff/pull/2438) [@tunetheweb](https://github.com/tunetheweb)
