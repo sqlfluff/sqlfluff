@@ -5,6 +5,7 @@ from sqlfluff.core.rules.base import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
 )
+import sqlfluff.core.rules.functional.segment_predicates as sp
 
 
 @document_configuration
@@ -92,9 +93,8 @@ class Rule_L054(BaseRule):
             return None
 
         # Ignore Windowing clauses
-        for parent in context.parent_stack:
-            if parent.type in self._ignore_types:
-                return LintResult()
+        if context.functional.parent_stack.select(sp.is_type(*self._ignore_types)):
+            return LintResult(memory=context.memory)
 
         # Look at child segments and map column references to either the implict or
         # explicit category.
