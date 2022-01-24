@@ -1,5 +1,5 @@
 """Implementation of Rule L029."""
-from typing import Optional
+from typing import Optional, List
 
 from sqlfluff.core.rules.base import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import document_configuration
@@ -30,10 +30,26 @@ class Rule_L029(BaseRule):
 
     """
 
-    config_keywords = ["unquoted_identifiers_policy", "quoted_identifiers_policy"]
+    config_keywords = [
+        "unquoted_identifiers_policy",
+        "quoted_identifiers_policy",
+        "ignore_words",
+    ]
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Keywords should not be used as identifiers."""
+        # Get the Quoted policy configuration.
+        try:
+            ignore_words_list = self.ignore_words_list
+        except AttributeError:
+            # First-time only, read the settings from configuration. This is
+            # very slow.
+            ignore_words_list = self._init_ignore_string()
+
+        # Skip if not an element of the specified type/name
+        if ignore_words_list and context.segment.raw.lower() in ignore_words_list:
+            return LintResult(memory=context.memory)
+
         if (
             (
                 context.segment.name == "naked_identifier"
@@ -63,3 +79,21 @@ class Rule_L029(BaseRule):
             return LintResult(anchor=context.segment)
         else:
             return None
+
+    @staticmethod
+    def _split_comma_separated_string(raw_str: str) -> List[str]:
+        return [s.strip() for s in raw_str.split(",") if s.strip()]
+
+    def _init_ignore_string(self):
+        """Called first time rule is evaluated to fetch & cache the ignore_words."""
+        # Use str() in case bools are passed which might otherwise be read as bool
+        ignore_words_config = str(getattr(self, "ignore_words"))
+        if ignore_words_config and ignore_words_config != "None":
+            self.ignore_words_list = self._split_comma_separated_string(
+                ignore_words_config.lower()
+            )
+        else:
+            self.ignore_words_list = []
+
+        ignore_words_list = self.ignore_words_list
+        return ignore_words_list

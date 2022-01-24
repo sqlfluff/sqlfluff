@@ -47,3 +47,10 @@ test_fail_fully_qualified_function_mixed_functions:
 test_fail_fully_qualified_function_mixed_case:
   fail_str: SELECT project1.FoO(value1) AS value2
   fix_str: SELECT project1.FOO(value1) AS value2
+
+test_pass_ignore_word:
+  pass_str: SELECT MAX(id), min(id) FROM TABLE1
+  configs:
+    rules:
+      L028:
+        ignore_words: min

@@ -174,3 +174,13 @@ test_pass_tsql_parameter:
   configs:
     core:
       dialect: tsql
+
+
+test_pass_ignore_word:
+  pass_str: SELECT d.col1 FROM table1 d
+  configs:
+    core:
+      dialect: Snowflake
+    rules:
+      L028:
+        ignore_words: d
