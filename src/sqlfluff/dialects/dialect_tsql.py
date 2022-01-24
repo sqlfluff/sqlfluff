@@ -521,7 +521,7 @@ class InsertStatementSegment(BaseSegment):
         "INTO",
         Ref("TableReferenceSegment"),
         Ref("BracketedColumnReferenceListGrammar", optional=True),
-        Ref("SelectableGrammar"),
+        OneOf(Ref("SelectableGrammar"), Ref("ExecuteScriptSegment")),
     )
 
 
