@@ -1,5 +1,5 @@
 """Implementation of Rule L029."""
-from typing import Optional, List
+from typing import Optional, Tuple, List
 
 from sqlfluff.core.rules.base import BaseRule, LintResult, RuleContext
 from sqlfluff.core.rules.doc_decorators import document_configuration
@@ -30,6 +30,12 @@ class Rule_L029(BaseRule):
 
     """
 
+    # Binary operators behave like keywords too.
+    _target_elems: List[Tuple[str, str]] = [
+        ("name", "naked_identifier"),
+        ("name", "quoted_identifier"),
+    ]
+
     config_keywords = [
         "unquoted_identifiers_policy",
         "quoted_identifiers_policy",
@@ -38,12 +44,21 @@ class Rule_L029(BaseRule):
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Keywords should not be used as identifiers."""
+        # Skip if not an element of the specified type/name
+        if not self.matches_target_tuples(context.segment, self._target_elems):
+            return LintResult(memory=context.memory)
+
+        # Skip 1 letter identifiers. These can be datepart keywords
+        # (e.g. "d" for Snowflake) but most people expect to be able to use them.
+        if len(context.segment.raw) == 1:
+            return LintResult(memory=context.memory)
+
         # Get the Quoted policy configuration.
         try:
             ignore_words_list = self.ignore_words_list
         except AttributeError:
-            # First-time only, read the settings from configuration. This is
-            # very slow.
+            # First-time only, read the settings from configuration.
+            # So we can cache them for next time for speed.
             ignore_words_list = self._init_ignore_string()
 
         # Skip if not an element of the specified type/name
