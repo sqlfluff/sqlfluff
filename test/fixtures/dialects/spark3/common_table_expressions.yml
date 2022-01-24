@@ -1,0 +1,337 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 8cdecb88c8fcbbd731095683c83501deb36e39584984bc33dfe134993348fb24
+file:
+- base:
+    with_compound_statement:
+      keyword: WITH
+      common_table_expression:
+      - identifier: t
+      - bracketed:
+          start_bracket: (
+          identifier_list:
+          - identifier: x
+          - comma: ','
+          - identifier: y
+          end_bracket: )
+      - keyword: AS
+      - bracketed:
+          start_bracket: (
+          select_statement:
+            select_clause:
+            - keyword: SELECT
+            - select_clause_element:
+                literal: '1'
+            - comma: ','
+            - select_clause_element:
+                literal: '2'
+          end_bracket: )
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: t
+        where_clause:
+          keyword: WHERE
+          expression:
+          - column_reference:
+              identifier: x
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - literal: '1'
+          - binary_operator: AND
+          - column_reference:
+              identifier: y
+          - comparison_operator:
+              raw_comparison_operator: '='
+          - literal: '2'
+- statement_terminator: ;
+- base:
+    with_compound_statement:
+      keyword: WITH
+      common_table_expression:
+        identifier: t
+        keyword: AS
+        bracketed:
+          start_bracket: (
+          with_compound_statement:
+            keyword: WITH
+            common_table_expression:
+              identifier: t2
+              keyword: AS
+              bracketed:
+                start_bracket: (
+                select_statement:
+                  select_clause:
+                    keyword: SELECT
+                    select_clause_element:
+                      literal: '1'
+                end_bracket: )
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  wildcard_expression:
+                    wildcard_identifier:
+                      star: '*'
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        identifier: t2
+          end_bracket: )
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: t
+- statement_terminator: ;
+- base:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: max
+            bracketed:
+              start_bracket: (
+              expression:
+                column_reference:
+                  identifier: c
+              end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              bracketed:
+                start_bracket: (
+                with_compound_statement:
+                  keyword: WITH
+                  common_table_expression:
+                  - identifier: t
+                  - bracketed:
+                      start_bracket: (
+                      identifier_list:
+                        identifier: c
+                      end_bracket: )
+                  - keyword: AS
+                  - bracketed:
+                      start_bracket: (
+                      select_statement:
+                        select_clause:
+                          keyword: SELECT
+                          select_clause_element:
+                            literal: '1'
+                      end_bracket: )
+                  select_statement:
+                    select_clause:
+                      keyword: SELECT
+                      select_clause_element:
+                        wildcard_expression:
+                          wildcard_identifier:
+                            star: '*'
+                    from_clause:
+                      keyword: FROM
+                      from_expression:
+                        from_expression_element:
+                          table_expression:
+                            table_reference:
+                              identifier: t
+                end_bracket: )
+- statement_terminator: ;
+- base:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            bracketed:
+              start_bracket: (
+              with_compound_statement:
+                keyword: WITH
+                common_table_expression:
+                  identifier: t
+                  keyword: AS
+                  bracketed:
+                    start_bracket: (
+                    select_statement:
+                      select_clause:
+                        keyword: SELECT
+                        select_clause_element:
+                          literal: '1'
+                    end_bracket: )
+                select_statement:
+                  select_clause:
+                    keyword: SELECT
+                    select_clause_element:
+                      wildcard_expression:
+                        wildcard_identifier:
+                          star: '*'
+                  from_clause:
+                    keyword: FROM
+                    from_expression:
+                      from_expression_element:
+                        table_expression:
+                          table_reference:
+                            identifier: t
+              end_bracket: )
+- statement_terminator: ;
+- base:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: VIEW
+    - table_reference:
+        identifier: v
+    - keyword: AS
+    - with_compound_statement:
+        keyword: WITH
+        common_table_expression:
+        - identifier: t
+        - bracketed:
+            start_bracket: (
+            identifier_list:
+            - identifier: a
+            - comma: ','
+            - identifier: b
+            - comma: ','
+            - identifier: c
+            - comma: ','
+            - identifier: d
+            end_bracket: )
+        - keyword: AS
+        - bracketed:
+            start_bracket: (
+            select_statement:
+              select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                  literal: '1'
+              - comma: ','
+              - select_clause_element:
+                  literal: '2'
+              - comma: ','
+              - select_clause_element:
+                  literal: '3'
+              - comma: ','
+              - select_clause_element:
+                  literal: '4'
+            end_bracket: )
+        select_statement:
+          select_clause:
+            keyword: SELECT
+            select_clause_element:
+              wildcard_expression:
+                wildcard_identifier:
+                  star: '*'
+          from_clause:
+            keyword: FROM
+            from_expression:
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    identifier: t
+- statement_terminator: ;
+- base:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          wildcard_expression:
+            wildcard_identifier:
+              star: '*'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: v
+- statement_terminator: ;
+- base:
+    with_compound_statement:
+    - keyword: WITH
+    - common_table_expression:
+        identifier: t
+        keyword: AS
+        bracketed:
+          start_bracket: (
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                literal: '1'
+          end_bracket: )
+    - comma: ','
+    - common_table_expression:
+        identifier: t2
+        keyword: AS
+        bracketed:
+          start_bracket: (
+          with_compound_statement:
+            keyword: WITH
+            common_table_expression:
+              identifier: t
+              keyword: AS
+              bracketed:
+                start_bracket: (
+                select_statement:
+                  select_clause:
+                    keyword: SELECT
+                    select_clause_element:
+                      literal: '2'
+                end_bracket: )
+            select_statement:
+              select_clause:
+                keyword: SELECT
+                select_clause_element:
+                  wildcard_expression:
+                    wildcard_identifier:
+                      star: '*'
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        identifier: t
+          end_bracket: )
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: t2
+- statement_terminator: ;
