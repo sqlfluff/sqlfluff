@@ -116,11 +116,11 @@ test_fail_keyword_as_quoted_identifier_column_alias_config:
       dialect: tsql
 
 test_pass_ignore_word1:
-  fail_str: CREATE TABLE artist(create TEXT)
+  pass_str: CREATE TABLE artist(create TEXT)
   configs:
     rules:
       L029:
-        ignore_word: create
+        ignore_words: create
 
 
 test_pass_ignore_word2:
@@ -128,7 +128,7 @@ test_pass_ignore_word2:
   configs:
     rules:
       L029:
-        ignore_word: date
+        ignore_words: date
 
 
 test_pass_one_character_identifier:
