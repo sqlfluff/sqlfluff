@@ -200,10 +200,6 @@ class Rule_L010(BaseRule):
         """
         return LintFix.replace(segment, [segment.edit(fixed_raw)])
 
-    @staticmethod
-    def _split_comma_separated_string(raw_str: str) -> List[str]:
-        return [s.strip() for s in raw_str.split(",") if s.strip()]
-
     def _init_capitalisation_policy(self):
         """Called first time rule is evaluated to fetch & cache the policy."""
         cap_policy_name = next(

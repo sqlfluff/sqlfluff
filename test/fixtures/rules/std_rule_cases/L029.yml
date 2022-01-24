@@ -135,4 +135,4 @@ test_pass_one_character_identifier:
   pass_str: SELECT d.col1 FROM table1 d
   configs:
     core:
-      dialect: Snowflake
+      dialect: snowflake

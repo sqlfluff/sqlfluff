@@ -95,10 +95,6 @@ class Rule_L029(BaseRule):
         else:
             return None
 
-    @staticmethod
-    def _split_comma_separated_string(raw_str: str) -> List[str]:
-        return [s.strip() for s in raw_str.split(",") if s.strip()]
-
     def _init_ignore_string(self):
         """Called first time rule is evaluated to fetch & cache the ignore_words."""
         # Use str() in case bools are passed which might otherwise be read as bool

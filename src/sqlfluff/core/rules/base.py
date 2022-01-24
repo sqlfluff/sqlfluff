@@ -773,6 +773,10 @@ class BaseRule:
                 lint_result.fixes = []
                 return
 
+    @staticmethod
+    def _split_comma_separated_string(raw_str: str) -> List[str]:
+        return [s.strip() for s in raw_str.split(",") if s.strip()]
+
 
 class RuleSet:
     """Class to define a ruleset.
