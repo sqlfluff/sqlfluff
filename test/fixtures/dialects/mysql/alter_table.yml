@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 334ab689c5b966ac68643b7eaea3e499a10b695e5428c3a92753ea7a4f7705e5
+_hash: 9e9395f7aa513ba5903857030b41754b1bc28ae320c58b4b5c95e0e18629960a
 file:
 - statement:
     alter_table_statement:
@@ -164,3 +164,63 @@ file:
     - column_reference:
         identifier: '`age`'
 - statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - identifier: '`foo`'
+      - dot: .
+      - identifier: '`bar`'
+    - keyword: ADD
+    - keyword: UNIQUE
+    - index_reference:
+        identifier: '`index_name`'
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          identifier: '`col_1`'
+      - comma: ','
+      - column_reference:
+          identifier: '`col_2`'
+      - comma: ','
+      - column_reference:
+          identifier: '`col_3`'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - identifier: '`foo`'
+      - dot: .
+      - identifier: '`bar`'
+    - keyword: ADD
+    - keyword: INDEX
+    - index_reference:
+        identifier: '`index_name`'
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          identifier: '`col_1`'
+      - comma: ','
+      - column_reference:
+          identifier: '`col_2`'
+      - comma: ','
+      - column_reference:
+          identifier: '`col_3`'
+      - end_bracket: )
+- statement_terminator: ;
+- statement:
+    alter_table_statement:
+    - keyword: ALTER
+    - keyword: TABLE
+    - table_reference:
+      - identifier: '`foo`'
+      - dot: .
+      - identifier: '`bar`'
+    - keyword: DROP
+    - keyword: INDEX
+    - index_reference:
+        identifier: '`index_name`'
