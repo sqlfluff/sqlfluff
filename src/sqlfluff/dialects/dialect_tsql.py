@@ -184,9 +184,15 @@ tsql_dialect.replace(
         # can otherwise be easily mistaken for an identifier.
         Ref("NullLiteralSegment"),
         Ref("DateTimeLiteralGrammar"),
+        Ref("ParameterNameSegment"),
     ),
     ParameterNameSegment=RegexParser(
         r"[@][A-Za-z0-9_]+", CodeSegment, name="parameter", type="parameter"
+    ),
+    FunctionParameterGrammar=Sequence(
+        Ref("ParameterNameSegment", optional=True),
+        Ref("DatatypeSegment"),
+        Sequence(Ref("EqualsSegment"), Ref("ExpressionSegment"), optional=True),
     ),
     FunctionNameIdentifierSegment=RegexParser(
         r"[A-Z][A-Z0-9_]*|\[[A-Z][A-Z0-9_]*\]",
@@ -962,6 +968,10 @@ class ObjectReferenceSegment(BaseSegment):
         "ObjectReferenceSegment"
     ).extract_possible_references
 
+    extract_possible_multipart_references = ansi_dialect.get_segment(
+        "ObjectReferenceSegment"
+    ).extract_possible_multipart_references
+
     _level_to_int = staticmethod(
         ansi_dialect.get_segment("ObjectReferenceSegment")._level_to_int
     )
@@ -1461,7 +1471,7 @@ class ReturnStatementSegment(BaseSegment):
     type = "return_segment"
     match_grammar = Sequence(
         "RETURN",
-        Ref("ExpressionSegment"),
+        Ref("ExpressionSegment", optional=True),
         Ref("DelimiterSegment", optional=True),
     )
 

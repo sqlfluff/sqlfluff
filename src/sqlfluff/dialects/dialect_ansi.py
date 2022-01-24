@@ -1692,6 +1692,7 @@ ansi_dialect.add(
             Ref("SelectStatementSegment"),
             Ref("LiteralGrammar"),
             Ref("IntervalExpressionSegment"),
+            Ref("TypelessStructSegment"),
             Ref("ColumnReferenceSegment"),
             Sequence(
                 Ref("SimpleArrayTypeGrammar", optional=True), Ref("ArrayLiteralSegment")
@@ -2367,6 +2368,17 @@ class TableEndClauseSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
+class TypelessStructSegment(BaseSegment):
+    """Expression to construct a STRUCT with implicit types.
+
+    (Yes in BigQuery for example)
+    """
+
+    type = "typeless_struct"
+    match_grammar = Nothing()
+
+
+@ansi_dialect.segment()
 class CreateTableStatementSegment(BaseSegment):
     """A `CREATE TABLE` statement."""
 
@@ -2525,6 +2537,7 @@ class CreateIndexStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),
+        Ref.keyword("UNIQUE", optional=True),
         "INDEX",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("IndexReferenceSegment"),

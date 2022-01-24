@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 20ea3ed015513907c7b58b9f037cae3464decb55739f78fe5570bf4f4cbff70d
+_hash: b072399d5f83df444e0434bdf9c0b46373debdfb3916e86cc0cb4c1f5118157d
 file:
 - statement:
     declare_segment:
@@ -126,28 +126,30 @@ file:
           data_type_identifier: string
       - end_angle_bracket: '>'
     - keyword: default
-    - typeless_struct:
-        keyword: struct
-        bracketed:
-        - start_bracket: (
-        - literal: "'one'"
-        - comma: ','
-        - literal: "'two'"
-        - end_bracket: )
+    - expression:
+        typeless_struct:
+          keyword: struct
+          bracketed:
+          - start_bracket: (
+          - literal: "'one'"
+          - comma: ','
+          - literal: "'two'"
+          - end_bracket: )
 - statement_terminator: ;
 - statement:
     declare_segment:
     - keyword: declare
     - identifier: str3
     - keyword: default
-    - typeless_struct:
-        keyword: struct
-        bracketed:
-        - start_bracket: (
-        - literal: "'one'"
-        - comma: ','
-        - literal: "'two'"
-        - end_bracket: )
+    - expression:
+        typeless_struct:
+          keyword: struct
+          bracketed:
+          - start_bracket: (
+          - literal: "'one'"
+          - comma: ','
+          - literal: "'two'"
+          - end_bracket: )
 - statement_terminator: ;
 - statement:
     declare_segment:
