@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: f8400c792174f1e994e2c188f0f0e85d337eb1b2d4623ee5776be6b9b9f95f53
+_hash: a9f655124a52309b72ba14cebe45b8fb218bfd7acfdd36995ca42d32f0c93e09
 file:
 - batch:
     statement:
@@ -122,15 +122,13 @@ file:
                   identifier: City
               - comparison_operator:
                   raw_comparison_operator: '='
-              - column_reference:
-                  parameter: '@city_name'
+              - parameter: '@city_name'
               - binary_operator: AND
               - column_reference:
                   identifier: PostalCode
               - comparison_operator:
                   raw_comparison_operator: '='
-              - column_reference:
-                  parameter: '@postal_code'
+              - parameter: '@postal_code'
             option_clause:
               keyword: OPTION
               bracketed:
