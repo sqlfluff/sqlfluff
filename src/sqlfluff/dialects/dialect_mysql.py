@@ -310,7 +310,7 @@ class TableConstraintSegment(BaseSegment):
         Sequence(  # [ CONSTRAINT <Constraint name> ]
             "CONSTRAINT", Ref("ObjectReferenceSegment"), optional=True
         ),
-        OneOf(
+        Delimited(
             Sequence(  # UNIQUE [INDEX | KEY] [index_name] ( column_name [, ... ] )
                 "UNIQUE",
                 OneOf("INDEX", "KEY", optional=True),
@@ -335,6 +335,20 @@ class TableConstraintSegment(BaseSegment):
                 Ref("BracketedColumnReferenceListGrammar"),
                 # Later add support for [MATCH FULL/PARTIAL/SIMPLE] ?
                 # Later add support for [ ON DELETE/UPDATE action ] ?
+                AnyNumberOf(
+                    Sequence(
+                        "ON",
+                        OneOf("DELETE", "UPDATE"),
+                        OneOf(
+                            "RESTRICT",
+                            "CASCADE",
+                            Sequence("SET", "NULL"),
+                            Sequence("NO", "ACTION"),
+                            Sequence("SET", "DEFAULT"),
+                        ),
+                        optional=True,
+                    ),
+                ),
             ),
         ),
     )
