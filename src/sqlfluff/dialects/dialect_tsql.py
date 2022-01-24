@@ -1520,10 +1520,7 @@ class SetStatementSegment(BaseSegment):
             "CONCAT_NULL_YIELDS_NULL",
             "CURSOR_CLOSE_ON_COMMIT",
             "FIPS_FLAGGER",
-            Sequence(
-                "IDENTITY_INSERT",
-                Ref("TableReferenceSegment")
-            ),
+            Sequence("IDENTITY_INSERT", Ref("TableReferenceSegment")),
             "LANGUAGE",
             "OFFSETS",
             "QUOTED_IDENTIFIER",
