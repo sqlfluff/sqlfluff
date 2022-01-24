@@ -274,6 +274,7 @@ class PrimitiveTypeSegment(BaseSegment):
         "TINYINT",
         "SMALLINT",
         "INT",
+        "INTEGER",
         "BIGINT",
         "BOOLEAN",
         "FLOAT",
@@ -282,7 +283,7 @@ class PrimitiveTypeSegment(BaseSegment):
         "BINARY",
         "TIMESTAMP",
         Sequence(
-            "DECIMAL",
+            OneOf("DECIMAL", "DEC", "NUMERIC"),
             Bracketed(
                 Ref("NumericLiteralSegment"),
                 Ref("CommaSegment"),
