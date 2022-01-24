@@ -52,5 +52,5 @@ test_pass_ignore_word:
   pass_str: SELECT MAX(id), min(id) FROM TABLE1
   configs:
     rules:
-      L028:
+      L030:
         ignore_words: min
