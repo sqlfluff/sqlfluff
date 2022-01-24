@@ -11,6 +11,8 @@ from sqlfluff.core.rules.doc_decorators import (
 class Rule_L054(BaseRule):
     """Inconsistent column references in ``GROUP BY/ORDER BY`` clauses.
 
+    Note: ORDER BY clauses from WINDOW clauses are ignored by this rule.
+
     | **Anti-pattern**
     | A mix of implicit and explicit column references are used in a ``GROUP BY``
     | clause.
