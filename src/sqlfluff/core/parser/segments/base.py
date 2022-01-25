@@ -221,7 +221,7 @@ class BaseSegment:
         return any(seg.is_code for seg in self.segments)
 
     @cached_property
-    def is_comment(self) -> bool:
+    def is_comment(self) -> bool:  # pragma: no cover TODO?
         """Return True if this is entirely made of comments."""
         return all(seg.is_comment for seg in self.segments)
 
