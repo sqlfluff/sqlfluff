@@ -68,7 +68,11 @@ class Rule_L014(Rule_L010):
     """
 
     _target_elems: List[Tuple[str, str]] = [("name", "naked_identifier")]
-    config_keywords = ["extended_capitalisation_policy", "unquoted_identifiers_policy"]
+    config_keywords = [
+        "extended_capitalisation_policy",
+        "unquoted_identifiers_policy",
+        "ignore_words",
+    ]
     _description_elem = "Unquoted identifiers"
 
     def _eval(self, context: RuleContext) -> LintResult:
