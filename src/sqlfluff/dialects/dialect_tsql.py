@@ -143,6 +143,9 @@ tsql_dialect.add(
         "TRANSACTION",
         "TRAN",
     ),
+    SystemVariableSegment=RegexParser(
+        r"@@[A-Za-z0-9_]+", CodeSegment, name="system_variable", type="system_variable"
+    ),
 )
 
 tsql_dialect.replace(
@@ -185,9 +188,10 @@ tsql_dialect.replace(
         Ref("NullLiteralSegment"),
         Ref("DateTimeLiteralGrammar"),
         Ref("ParameterNameSegment"),
+        Ref("SystemVariableSegment"),
     ),
     ParameterNameSegment=RegexParser(
-        r"[@][A-Za-z0-9_]+", CodeSegment, name="parameter", type="parameter"
+        r"@[A-Za-z0-9_]+", CodeSegment, name="parameter", type="parameter"
     ),
     FunctionParameterGrammar=Sequence(
         Ref("ParameterNameSegment", optional=True),
