@@ -7,7 +7,7 @@ flake8-black
 doc8
 Pygments
 # testing
-coverage
+coverage=6.2
 hypothesis
 pytest
 pytest-cov
