@@ -574,3 +574,10 @@ test_pass_cte_no_select_final_statement:
         sometable.baz = mycte.bar
     FROM
         mycte;
+
+test_tsql_select_system_as_identifier:
+  pass_str: |
+    SELECT @@IDENTITY AS 'Identity'
+  configs:
+    core:
+      dialect: tsql
