@@ -144,7 +144,7 @@ class Rule_L003(BaseRule):
                 # newline that ended the *current* line was in templated space.
                 # Reason: We want to ignore indentation of lines that are not
                 # present in the raw (pre-templated) code.
-                templated_line = bool(templated_file and elem.templated)
+                templated_line = elem.templated
                 indent_buffer = []
                 line_buffer = []
                 indent_size = 0
