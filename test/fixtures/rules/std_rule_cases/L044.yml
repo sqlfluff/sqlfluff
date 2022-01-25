@@ -551,6 +551,15 @@ test_pass_exasol_values_clause:
     core:
       dialect: exasol
 
+test_exasol_invalid_foreign_key_from:
+  pass_str: |
+    SELECT *
+    WITH INVALID FOREIGN KEY (nr)
+      FROM T1 REFERENCING T2 (id)
+  configs:
+    core:
+      dialect: exasol
+
 test_pass_cte_no_select_final_statement:
   pass_str:
     WITH mycte AS (
