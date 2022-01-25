@@ -5,7 +5,7 @@ for DIALECT in "${DIALECTS[@]}"
 do
     echo "Testing $DIALECT SQL files lint without critical errors..."
     OUTPUT=$(sqlfluff lint ${DIALECT})
-    echo "${OUTPUT}" | grep -i -q critical
+    echo "${OUTPUT}" | grep -i -q critically
     # exit error, if match
     if  [ $? -eq 0 ]; then
         echo "Critical errors found:"
