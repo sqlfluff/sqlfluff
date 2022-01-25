@@ -1014,26 +1014,6 @@ class FunctionNameSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
-class DatePartClause(BaseSegment):
-    """DatePart clause for use within DATEADD() or related functions."""
-
-    type = "date_part_clause"
-
-    match_grammar = OneOf(
-        "DAY",
-        "DAYOFYEAR",
-        "HOUR",
-        "MINUTE",
-        "MONTH",
-        "QUARTER",
-        "SECOND",
-        "WEEK",
-        "WEEKDAY",
-        "YEAR",
-    )
-
-
-@ansi_dialect.segment()
 class FunctionSegment(BaseSegment):
     """A scalar or aggregate function.
 
@@ -1050,7 +1030,7 @@ class FunctionSegment(BaseSegment):
                 Ref("DatePartFunctionNameSegment"),
                 Bracketed(
                     Delimited(
-                        Ref("DatePartClause"),
+                        Ref("DatetimeUnitSegment"),
                         Ref(
                             "FunctionContentsGrammar",
                             # The brackets might be empty for some functions...

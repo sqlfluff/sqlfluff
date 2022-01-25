@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e48360e9455943f9553de4ccb1cca95247c0ec496dcf1d72294520e0f130fa8d
+_hash: 0132c9967315b48174b809cccd11d1880bc4810179b3096a4be7780bf6dc878b
 file:
   batch:
     statement:
@@ -20,8 +20,7 @@ file:
                 keyword: DATEDIFF
               bracketed:
               - start_bracket: (
-              - date_part_clause:
-                  keyword: day
+              - date_part: day
               - comma: ','
               - expression:
                   column_reference:
@@ -71,8 +70,7 @@ file:
                 keyword: DATEDIFF
               bracketed:
               - start_bracket: (
-              - date_part_clause:
-                  keyword: year
+              - date_part: year
               - comma: ','
               - expression:
                   literal: "'2005-12-31 23:59:59.9999999'"
@@ -87,8 +85,7 @@ file:
                 keyword: DATEDIFF
               bracketed:
               - start_bracket: (
-              - date_part_clause:
-                  keyword: quarter
+              - date_part: quarter
               - comma: ','
               - expression:
                   literal: "'2005-12-31 23:59:59.9999999'"
@@ -103,8 +100,7 @@ file:
                 keyword: DATEDIFF
               bracketed:
               - start_bracket: (
-              - date_part_clause:
-                  keyword: month
+              - date_part: month
               - comma: ','
               - expression:
                   literal: "'2005-12-31 23:59:59.9999999'"
@@ -119,8 +115,7 @@ file:
                 keyword: DATEDIFF
               bracketed:
               - start_bracket: (
-              - date_part_clause:
-                  keyword: dayofyear
+              - date_part: dayofyear
               - comma: ','
               - expression:
                   literal: "'2005-12-31 23:59:59.9999999'"
@@ -135,8 +130,7 @@ file:
                 keyword: DATEDIFF
               bracketed:
               - start_bracket: (
-              - date_part_clause:
-                  keyword: day
+              - date_part: day
               - comma: ','
               - expression:
                   literal: "'2005-12-31 23:59:59.9999999'"
@@ -151,8 +145,7 @@ file:
                 keyword: DATEDIFF
               bracketed:
               - start_bracket: (
-              - date_part_clause:
-                  keyword: week
+              - date_part: week
               - comma: ','
               - expression:
                   literal: "'2005-12-31 23:59:59.9999999'"
@@ -167,8 +160,7 @@ file:
                 keyword: DATEDIFF
               bracketed:
               - start_bracket: (
-              - date_part_clause:
-                  keyword: hour
+              - date_part: hour
               - comma: ','
               - expression:
                   literal: "'2005-12-31 23:59:59.9999999'"
@@ -183,8 +175,7 @@ file:
                 keyword: DATEDIFF
               bracketed:
               - start_bracket: (
-              - date_part_clause:
-                  keyword: minute
+              - date_part: minute
               - comma: ','
               - expression:
                   literal: "'2005-12-31 23:59:59.9999999'"
@@ -199,8 +190,7 @@ file:
                 keyword: DATEDIFF
               bracketed:
               - start_bracket: (
-              - date_part_clause:
-                  keyword: second
+              - date_part: second
               - comma: ','
               - expression:
                   literal: "'2005-12-31 23:59:59.9999999'"
@@ -215,8 +205,7 @@ file:
                 keyword: DATEDIFF
               bracketed:
               - start_bracket: (
-              - date_part_clause:
-                  keyword: millisecond
+              - date_part: millisecond
               - comma: ','
               - expression:
                   literal: "'2005-12-31 23:59:59.9999999'"
@@ -231,8 +220,7 @@ file:
                 keyword: DATEDIFF
               bracketed:
               - start_bracket: (
-              - date_part_clause:
-                  keyword: microsecond
+              - date_part: microsecond
               - comma: ','
               - expression:
                   literal: "'2005-12-31 23:59:59.9999999'"
@@ -247,8 +235,7 @@ file:
                 keyword: DATEDIFF_BIG
               bracketed:
               - start_bracket: (
-              - date_part_clause:
-                  keyword: microsecond
+              - date_part: microsecond
               - comma: ','
               - expression:
                   literal: "'2005-12-31 23:59:59.9999999'"
@@ -263,8 +250,7 @@ file:
                 keyword: DATEADD
               bracketed:
               - start_bracket: (
-              - date_part_clause:
-                  keyword: year
+              - date_part: year
               - comma: ','
               - expression:
                   literal: '2147483647'
@@ -279,8 +265,7 @@ file:
                 keyword: DATEADD
               bracketed:
               - start_bracket: (
-              - date_part_clause:
-                  keyword: year
+              - date_part: year
               - comma: ','
               - expression:
                   numeric_literal:
@@ -297,8 +282,7 @@ file:
                 keyword: DATENAME
               bracketed:
                 start_bracket: (
-                date_part_clause:
-                  keyword: year
+                date_part: year
                 comma: ','
                 expression:
                   literal: "'12:10:30.123'"
@@ -310,8 +294,7 @@ file:
                 keyword: DATENAME
               bracketed:
                 start_bracket: (
-                date_part_clause:
-                  keyword: month
+                date_part: month
                 comma: ','
                 expression:
                   literal: "'12:10:30.123'"
@@ -323,8 +306,7 @@ file:
                 keyword: DATENAME
               bracketed:
                 start_bracket: (
-                date_part_clause:
-                  keyword: day
+                date_part: day
                 comma: ','
                 expression:
                   literal: "'12:10:30.123'"
@@ -336,8 +318,7 @@ file:
                 keyword: DATENAME
               bracketed:
                 start_bracket: (
-                date_part_clause:
-                  keyword: dayofyear
+                date_part: dayofyear
                 comma: ','
                 expression:
                   literal: "'12:10:30.123'"
@@ -349,8 +330,7 @@ file:
                 keyword: DATENAME
               bracketed:
                 start_bracket: (
-                date_part_clause:
-                  keyword: weekday
+                date_part: weekday
                 comma: ','
                 expression:
                   literal: "'12:10:30.123'"

@@ -42,6 +42,49 @@ tsql_dialect.sets("unreserved_keywords").clear()
 tsql_dialect.sets("reserved_keywords").update(RESERVED_KEYWORDS)
 tsql_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
 
+
+# Set the datetime units
+tsql_dialect.sets("datetime_units").clear()
+tsql_dialect.sets("datetime_units").update(
+    [
+        "D",
+        "DAY",
+        "DAYOFYEAR",
+        "DD",
+        "DW",
+        "DY",
+        "HH",
+        "HOUR",
+        "M",
+        "MCS",
+        "MI",
+        "MICROSECOND",
+        "MILLISECOND",
+        "MINUTE",
+        "MM",
+        "MONTH",
+        "MS",
+        "N",
+        "NANOSECOND",
+        "NS",
+        "Q",
+        "QQ",
+        "QUARTER",
+        "S",
+        "SECOND",
+        "SS",
+        "W",
+        "WEEK",
+        "WEEKDAY",
+        "WK",
+        "WW",
+        "YEAR",
+        "Y",
+        "YY",
+        "YYYY",
+    ]
+)
+
 tsql_dialect.insert_lexer_matchers(
     [
         RegexLexer(
@@ -1838,7 +1881,7 @@ class FunctionSegment(BaseSegment):
             Ref("DatePartFunctionNameSegment"),
             Bracketed(
                 Delimited(
-                    Ref("DatePartClause"),
+                    Ref("DatetimeUnitSegment"),
                     Ref(
                         "FunctionContentsGrammar",
                         # The brackets might be empty for some functions...
@@ -2325,51 +2368,6 @@ class CreateTableAsSelectStatementSegment(BaseSegment):
         OptionallyBracketed(Ref("SelectableGrammar")),
         Ref("OptionClauseSegment", optional=True),
         Ref("DelimiterSegment", optional=True),
-    )
-
-
-@tsql_dialect.segment(replace=True)
-class DatePartClause(BaseSegment):
-    """DatePart clause for use within DATEADD() or related functions."""
-
-    type = "date_part_clause"
-
-    match_grammar = OneOf(
-        "D",
-        "DAY",
-        "DAYOFYEAR",
-        "DD",
-        "DW",
-        "DY",
-        "HH",
-        "HOUR",
-        "M",
-        "MCS",
-        "MI",
-        "MICROSECOND",
-        "MILLISECOND",
-        "MINUTE",
-        "MM",
-        "MONTH",
-        "MS",
-        "N",
-        "NANOSECOND",
-        "NS",
-        "Q",
-        "QQ",
-        "QUARTER",
-        "S",
-        "SECOND",
-        "SS",
-        "W",
-        "WEEK",
-        "WEEKDAY",
-        "WK",
-        "WW",
-        "YEAR",
-        "Y",
-        "YY",
-        "YYYY",
     )
 
 
