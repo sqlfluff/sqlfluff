@@ -264,7 +264,7 @@ class BaseSegment:
         """Returns True if the segment includes any templated code.
 
         This is a simple, very efficient check that doesn't require looking up
-        the RawFileSlice.
+        the RawFileSlices for the segment.
 
         NOTE: A segment returning a True result may still have some literal
         code as well (i.e. a mixture of literal and templated).
