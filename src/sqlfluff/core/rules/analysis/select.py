@@ -30,6 +30,8 @@ def get_select_statement_info(
     # Iterate through all the references, both in the select clause, but also
     # potential others.
     sc = segment.get_child("select_clause")
+    if not sc:
+        return None
     reference_buffer = list(sc.recursive_crawl("object_reference"))
     for potential_clause in (
         "where_clause",
