@@ -408,10 +408,15 @@ class Rule_L003(BaseRule):
             trigger_segment = memory["trigger"]
             if trigger_segment:
                 # Not empty. Process it.
+                this_line = res[max(res.keys())]
                 result = self._process_current_line(res, memory, context)
                 if context.segment.is_type("newline"):
                     memory["trigger"] = None
-                return result
+                # If it's a templated line, ignore the result (i.e. any lint
+                # errors it found) because these lines don't exist in the raw
+                # (pre-templated) code.
+                if not this_line["templated_line"]:
+                    return result
         return LintResult(memory=memory)
 
     def _process_current_line(
@@ -445,12 +450,6 @@ class Rule_L003(BaseRule):
             # Comment line, deal with it later.
             memory["comment_lines"].append(this_line_no)
             self.logger.debug("    Comment Line. #%s", this_line_no)
-            return LintResult(memory=memory)
-
-        # Is this a templated line? If so, ignore it because it doesn't exist
-        # in the raw (pre-templated) code.
-        if this_line["templated_line"]:
-            self.logger.debug("    Templated Line. #%s", this_line_no)
             return LintResult(memory=memory)
 
         # Is it a hanging indent?

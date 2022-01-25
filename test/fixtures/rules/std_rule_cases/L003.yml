@@ -625,9 +625,9 @@ test_fail_ignore_templated_whitespace_3:
       ignore_templated_areas: False
 
 test_pass_ignore_templated_whitespace_4:
-  # Note the newline after c2. This causses "AS other_id" to be on a
-  # different line in templated space, but not raw space. L003 should ignore
-  # lines like this.
+  # Note the newline after c2. This causes "AS other_id" to be on a different
+  # line in templated space, but not raw space. L003 should ignore lines like
+  # this.
   pass_str: |
     SELECT
         c1,
