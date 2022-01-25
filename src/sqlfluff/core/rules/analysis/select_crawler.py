@@ -78,9 +78,7 @@ class Selectable:
 
     def get_wildcard_info(self) -> List[WildcardInfo]:
         """Find wildcard (*) targets in the SELECT."""
-        buff: List[WildcardInfo] = []
-        if not self.select_info:
-            return buff
+        buff = []
         for seg in self.select_info.select_targets:
             if seg.get_child("wildcard_expression"):
                 if "." in seg.raw:
