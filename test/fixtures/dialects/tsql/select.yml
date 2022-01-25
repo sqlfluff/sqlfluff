@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8d3279c2f918ad4ac8f1e5a4efd6765df4868143dd45a4b0a3743b315b2fda43
+_hash: 891936699e00b65d702870fed2c94d1afc603061a9544349c5692eb7a76334b7
 file:
   batch:
     statement:
@@ -213,13 +213,13 @@ file:
         - select_clause_element:
             literal: "'TSQL'"
             alias_expression:
-              literal: "'s escaping quotes test'"
+              identifier: "'s escaping quotes test'"
         - comma: ','
         - select_clause_element:
             literal: "'TSQL'"
             alias_expression:
               keyword: AS
-              literal: "'s escaping quotes test'"
+              identifier: "'s escaping quotes test'"
         - comma: ','
         - select_clause_element:
             literal: "''"
