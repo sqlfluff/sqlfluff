@@ -1281,8 +1281,13 @@ class SelectClauseElementSegment(BaseSegment):
             return None
 
         alias_identifier_segment = next(
-            s for s in alias_expression_segment.segments if s.is_type("identifier")
+            (s for s in alias_expression_segment.segments if s.is_type("identifier")),
+            None,
         )
+
+        if alias_identifier_segment is None:
+            # Return None if no alias identifier expression is found.
+            return None
 
         # Get segment being aliased.
         aliased_segment = next(

@@ -193,3 +193,10 @@ test_exasol_invalid_foreign_key_from:
   configs:
     core:
       dialect: exasol
+
+test_tsql_select_literal_instead_of_identifier:
+  pass_str: |
+    SELECT @@IDENTITY AS 'Identity';"
+  configs:
+    core:
+      dialect: exast-sqlol
