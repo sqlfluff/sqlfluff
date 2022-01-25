@@ -291,7 +291,7 @@ class LintedFile(NamedTuple):
                 source_slice = self.templated_file.templated_slice_to_source_slice(
                     patch.templated_slice,
                 )
-            except ValueError:
+            except ValueError:  # pragma: no cover
                 linter_logger.info(
                     "      - Skipping. Source space Value Error. i.e. attempted "
                     "insertion within templated section."

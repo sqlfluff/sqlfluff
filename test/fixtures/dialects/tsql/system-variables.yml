@@ -1,0 +1,102 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: de9b89e38e081013ff006b0c83b27797e5a97792fc1800bfd5872300bd246a4d
+file:
+- batch:
+  - statement:
+      update_statement:
+        keyword: UPDATE
+        table_reference:
+        - identifier: HumanResources
+        - dot: .
+        - identifier: Employee
+        set_clause_list:
+          keyword: SET
+          set_clause:
+            column_reference:
+              identifier: JobTitle
+            comparison_operator:
+              raw_comparison_operator: '='
+            expression:
+              literal: "N'Executive'"
+        where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+              identifier: NationalIDNumber
+            comparison_operator:
+              raw_comparison_operator: '='
+            literal: '123456789'
+  - statement:
+      if_then_statement:
+        if_clause:
+          keyword: IF
+          expression:
+            system_variable: '@@ROWCOUNT'
+            comparison_operator:
+              raw_comparison_operator: '='
+            literal: '0'
+        statement:
+          print_statement:
+            keyword: PRINT
+            expression:
+              literal: "'Warning: No rows were updated'"
+            statement_terminator: ;
+  - statement:
+      if_then_statement:
+        if_clause:
+          keyword: IF
+          expression:
+            system_variable: '@@ERROR'
+            comparison_operator:
+              raw_comparison_operator: '='
+            literal: '547'
+        statement:
+          begin_end_block:
+          - keyword: BEGIN
+          - statement:
+              print_statement:
+                keyword: PRINT
+                expression:
+                  literal: "N'A check constraint violation occurred.'"
+                statement_terminator: ;
+          - keyword: END
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            system_variable: '@@IDENTITY'
+            alias_expression:
+              keyword: AS
+              literal: "'Identity'"
+        statement_terminator: ;
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
+      print_statement:
+        keyword: PRINT
+        expression:
+          system_variable: '@@TRANCOUNT'
+- go_statement:
+    keyword: GO
+- batch:
+    statement:
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            system_variable: '@@PACK_RECEIVED'
+            alias_expression:
+              keyword: AS
+              literal: "'Packets Received'"
+        statement_terminator: ;
+- go_statement:
+    keyword: GO
