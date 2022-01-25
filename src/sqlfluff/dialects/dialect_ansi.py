@@ -1291,7 +1291,7 @@ class SelectClauseElementSegment(BaseSegment):
         if alias_identifier_segment is None:
             # Return None if no alias identifier expression is found.
             # Happened in the past due to bad syntax
-            return None
+            return None  # pragma: no cover
 
         # Get segment being aliased.
         aliased_segment = next(
