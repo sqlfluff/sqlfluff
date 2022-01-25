@@ -42,7 +42,6 @@ tsql_dialect.sets("unreserved_keywords").clear()
 tsql_dialect.sets("reserved_keywords").update(RESERVED_KEYWORDS)
 tsql_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
 
-
 # Set the datetime units
 tsql_dialect.sets("datetime_units").clear()
 tsql_dialect.sets("datetime_units").update(
