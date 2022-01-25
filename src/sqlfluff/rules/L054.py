@@ -93,7 +93,7 @@ class Rule_L054(BaseRule):
             return None
 
         # Ignore Windowing clauses
-        if context.functional.parent_stack.select(sp.is_type(*self._ignore_types)):
+        if context.functional.parent_stack.any(sp.is_type(*self._ignore_types)):
             return LintResult(memory=context.memory)
 
         # Look at child segments and map column references to either the implict or
