@@ -79,6 +79,8 @@ class Selectable:
     def get_wildcard_info(self) -> List[WildcardInfo]:
         """Find wildcard (*) targets in the SELECT."""
         buff: List[WildcardInfo] = []
+        # Some select-like statements don't have select_info
+        # (e.g. test_exasol_invalid_foreign_key_from)
         if not self.select_info:
             return buff
         for seg in self.select_info.select_targets:
