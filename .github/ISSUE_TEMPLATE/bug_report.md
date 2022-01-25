@@ -19,6 +19,6 @@ labels: bug
 If you are using dbt then please additionally include the dbt version. -->
 
 ## Configuration
-```
+<!--
 Include your SQLFluff configuration here
-```
+-->
