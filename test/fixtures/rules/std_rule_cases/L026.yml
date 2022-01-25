@@ -199,4 +199,4 @@ test_tsql_select_literal_instead_of_identifier:
     SELECT @@IDENTITY AS 'Identity';"
   configs:
     core:
-      dialect: exast-sqlol
+      dialect: tsql
