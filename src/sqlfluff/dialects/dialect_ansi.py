@@ -1017,7 +1017,7 @@ class FunctionNameSegment(BaseSegment):
 class DatePartClause(BaseSegment):
     """DatePart clause for use within DATEADD() or related functions."""
 
-    type = "date_part"
+    type = "date_part_clause"
 
     match_grammar = OneOf(
         "DAY",

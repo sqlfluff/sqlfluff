@@ -3759,7 +3759,7 @@ class DatePartClause(BaseSegment):
     https://docs.snowflake.com/en/sql-reference/data-types-datetime.html#supported-date-and-time-parts-for-intervals
     """
 
-    type = "date_part"
+    type = "date_part_clause"
 
     match_grammar = OneOf(
         "YEAR",

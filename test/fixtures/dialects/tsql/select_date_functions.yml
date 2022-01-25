@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bcaa47623a370156fcde8a3ab393a378bb4481d0ffb4b5681113e56001a0942b
+_hash: e48360e9455943f9553de4ccb1cca95247c0ec496dcf1d72294520e0f130fa8d
 file:
   batch:
     statement:
@@ -20,7 +20,7 @@ file:
                 keyword: DATEDIFF
               bracketed:
               - start_bracket: (
-              - date_part:
+              - date_part_clause:
                   keyword: day
               - comma: ','
               - expression:
@@ -71,7 +71,7 @@ file:
                 keyword: DATEDIFF
               bracketed:
               - start_bracket: (
-              - date_part:
+              - date_part_clause:
                   keyword: year
               - comma: ','
               - expression:
@@ -87,7 +87,7 @@ file:
                 keyword: DATEDIFF
               bracketed:
               - start_bracket: (
-              - date_part:
+              - date_part_clause:
                   keyword: quarter
               - comma: ','
               - expression:
@@ -103,7 +103,7 @@ file:
                 keyword: DATEDIFF
               bracketed:
               - start_bracket: (
-              - date_part:
+              - date_part_clause:
                   keyword: month
               - comma: ','
               - expression:
@@ -119,7 +119,7 @@ file:
                 keyword: DATEDIFF
               bracketed:
               - start_bracket: (
-              - date_part:
+              - date_part_clause:
                   keyword: dayofyear
               - comma: ','
               - expression:
@@ -135,7 +135,7 @@ file:
                 keyword: DATEDIFF
               bracketed:
               - start_bracket: (
-              - date_part:
+              - date_part_clause:
                   keyword: day
               - comma: ','
               - expression:
@@ -151,7 +151,7 @@ file:
                 keyword: DATEDIFF
               bracketed:
               - start_bracket: (
-              - date_part:
+              - date_part_clause:
                   keyword: week
               - comma: ','
               - expression:
@@ -167,7 +167,7 @@ file:
                 keyword: DATEDIFF
               bracketed:
               - start_bracket: (
-              - date_part:
+              - date_part_clause:
                   keyword: hour
               - comma: ','
               - expression:
@@ -183,7 +183,7 @@ file:
                 keyword: DATEDIFF
               bracketed:
               - start_bracket: (
-              - date_part:
+              - date_part_clause:
                   keyword: minute
               - comma: ','
               - expression:
@@ -199,7 +199,7 @@ file:
                 keyword: DATEDIFF
               bracketed:
               - start_bracket: (
-              - date_part:
+              - date_part_clause:
                   keyword: second
               - comma: ','
               - expression:
@@ -215,7 +215,7 @@ file:
                 keyword: DATEDIFF
               bracketed:
               - start_bracket: (
-              - date_part:
+              - date_part_clause:
                   keyword: millisecond
               - comma: ','
               - expression:
@@ -231,7 +231,7 @@ file:
                 keyword: DATEDIFF
               bracketed:
               - start_bracket: (
-              - date_part:
+              - date_part_clause:
                   keyword: microsecond
               - comma: ','
               - expression:
@@ -247,7 +247,7 @@ file:
                 keyword: DATEDIFF_BIG
               bracketed:
               - start_bracket: (
-              - date_part:
+              - date_part_clause:
                   keyword: microsecond
               - comma: ','
               - expression:
@@ -263,7 +263,7 @@ file:
                 keyword: DATEADD
               bracketed:
               - start_bracket: (
-              - date_part:
+              - date_part_clause:
                   keyword: year
               - comma: ','
               - expression:
@@ -279,7 +279,7 @@ file:
                 keyword: DATEADD
               bracketed:
               - start_bracket: (
-              - date_part:
+              - date_part_clause:
                   keyword: year
               - comma: ','
               - expression:
@@ -297,7 +297,7 @@ file:
                 keyword: DATENAME
               bracketed:
                 start_bracket: (
-                date_part:
+                date_part_clause:
                   keyword: year
                 comma: ','
                 expression:
@@ -310,7 +310,7 @@ file:
                 keyword: DATENAME
               bracketed:
                 start_bracket: (
-                date_part:
+                date_part_clause:
                   keyword: month
                 comma: ','
                 expression:
@@ -323,7 +323,7 @@ file:
                 keyword: DATENAME
               bracketed:
                 start_bracket: (
-                date_part:
+                date_part_clause:
                   keyword: day
                 comma: ','
                 expression:
@@ -336,7 +336,7 @@ file:
                 keyword: DATENAME
               bracketed:
                 start_bracket: (
-                date_part:
+                date_part_clause:
                   keyword: dayofyear
                 comma: ','
                 expression:
@@ -349,7 +349,7 @@ file:
                 keyword: DATENAME
               bracketed:
                 start_bracket: (
-                date_part:
+                date_part_clause:
                   keyword: weekday
                 comma: ','
                 expression:
