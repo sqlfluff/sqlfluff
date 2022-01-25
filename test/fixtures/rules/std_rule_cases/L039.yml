@@ -66,3 +66,12 @@ test_casting_operator_pass:
   configs:
     core:
       dialect: postgres
+
+test_fix_tsql_spaced_chars:
+  fail_str: |
+    SELECT col1 FROM table1 WHERE 1 > = 1
+  fix_str: |
+    SELECT col1 FROM table1 WHERE 1 >= 1
+  configs:
+    core:
+      dialect: tsql
