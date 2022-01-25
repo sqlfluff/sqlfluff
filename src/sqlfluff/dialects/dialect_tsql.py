@@ -1373,10 +1373,13 @@ class FunctionParameterListGrammar(BaseSegment):
     type = "function_parameter_list"
     # Function parameter list
     match_grammar = OptionallyBracketed(
-        Ref("FunctionParameterGrammar"),
-        AnyNumberOf(
-            Ref("CommaSegment"),
+        Sequence(
             Ref("FunctionParameterGrammar"),
+            AnyNumberOf(
+                Ref("CommaSegment"),
+                Ref("FunctionParameterGrammar"),
+            ),
+            optional=True,
         ),
     )
 
