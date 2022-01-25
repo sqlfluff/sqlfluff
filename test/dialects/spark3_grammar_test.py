@@ -56,16 +56,20 @@ def test__dialect__spark3__grammars(
 ):
     """Test that some grammars match or parse as expected.
 
-    When the fixtured tests fail to parse some particular query, it can be difficult to tell where things went wrong.
-    For instance, "values (1, 2)" is a ``ValuesClauseSegment`` but also a ``TableExpressionSegment``. If this fails to be
-    recognized, is it because `ValuesClauseSegment` is wrong, or because a ``ValuesClauseSegment`` is not recognized as
-    a ``TableExpressionSegment``?
+    When the fixtured tests fail to parse some particular query, it can be difficult to
+    tell where things went wrong.
 
-    It can also happen that the ``match_grammar`` is fine but the ``parse_grammar`` is wrong, if it exists. In this test
-    we can also specify which of those we want to test.
+    For instance, "values (1, 2)" is a ``ValuesClauseSegment`` but also a
+    ``TableExpressionSegment``. If this fails to be recognized, is it because
+    `ValuesClauseSegment` is wrong, or because a ``ValuesClauseSegment`` is not
+    recognized as a ``TableExpressionSegment``?
 
-    This test can help us diagnose that, since we pick both the sequence of segments _and_ the grammar we think it
-    should match or parse.
+    It can also happen that the ``match_grammar`` is fine but the ``parse_grammar`` is
+    wrong, if it exists. In this test we can also specify which of those we want to
+    test.
+
+    This test can help us diagnose that, since we pick both the sequence of segments
+    _and_ the grammar we think it should match or parse.
     """
     _assert_spark3_matches_or_parses_segment(
         caplog, fragment, fresh_spark3_dialect, match_or_parse, segment_class
@@ -76,15 +80,17 @@ def test__dialect__spark3__grammars(
 @pytest.mark.parametrize(
     ["fragment", "match_or_parse", "segment_class"],
     [
-        # These fail essentially because Delimited(Element) does not take the largest possible Element, instead
-        # splitting on the first comma it reaches.
+        # These fail essentially because Delimited(Element) does not take the largest
+        # possible Element, instead splitting on the first comma it reaches, see
+        # https://github.com/sqlfluff/sqlfluff/issues/2427
         ("from values 1 , 2", "parse", "FromClauseSegment"),
         ("from values ( 1 , 2 ) , ( 3 , 4 )", "parse", "FromClauseSegment"),
         ("from values 1 , 2 , values 3 , 4", "parse", "FromClauseSegment"),
         ("from values (1) , (2)", "parse", "FromClauseSegment"),
         ("values 1 , 2 , values 3 , 4", "parse", "FromClauseSegment"),
         # A VALUES clause can include LIMIT, ORDER BY specifiers just like a SELECT.
-        # These are not yet implemented, see https://github.com/sqlfluff/sqlfluff/issues/2427
+        # These are not yet implemented,
+        # see https://github.com/sqlfluff/sqlfluff/issues/2475
         ("values 1 , 2 , 3 limit 1", "parse", "ValuesClauseSegment"),
         ("values 3 , 2 , 1 order by 2", "parse", "ValuesClauseSegment"),
     ],
@@ -99,9 +105,10 @@ def test__dialect__spark3__known_grammar_failures(
 ):
     """Test that some fragments that we know are legal fail to match as expected.
 
-    There are times when we choose not to fully implement some grammars in order to make incremental progress on
-    a dialect. The exact failing cases and the reasons for them can be subtle, so this test makes sure we don't lose
-    the debugging work that identified the failing cases.
+    There are times when we choose not to fully implement some grammars in order to make
+    incremental progress on a dialect. The exact failing cases and the reasons for them
+    can be subtle, so this test makes sure we don't lose the debugging work that
+    identified the failing cases.
 
     """
     _assert_spark3_matches_or_parses_segment(
