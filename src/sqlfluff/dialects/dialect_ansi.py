@@ -335,6 +335,9 @@ ansi_dialect.add(
     QuotedLiteralSegment=NamedParser(
         "single_quote", CodeSegment, name="quoted_literal", type="literal"
     ),
+    SingleQuotedIdentifierSegment=NamedParser(
+        "single_quote", CodeSegment, name="quoted_identifier", type="identifier"
+    ),
     NumericLiteralSegment=NamedParser(
         "numeric_literal", CodeSegment, name="numeric_literal", type="literal"
     ),
@@ -871,7 +874,7 @@ class AliasExpressionSegment(BaseSegment):
                 # Column alias in VALUES clause
                 Bracketed(Ref("SingleIdentifierListSegment"), optional=True),
             ),
-            Ref("QuotedLiteralSegment"),
+            Ref("SingleQuotedIdentifierSegment"),
         ),
     )
 
@@ -1287,6 +1290,7 @@ class SelectClauseElementSegment(BaseSegment):
 
         if alias_identifier_segment is None:
             # Return None if no alias identifier expression is found.
+            # Happened in the past due to bad syntax
             return None
 
         # Get segment being aliased.
