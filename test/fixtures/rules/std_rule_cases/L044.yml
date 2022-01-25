@@ -559,3 +559,18 @@ test_exasol_invalid_foreign_key_from:
   configs:
     core:
       dialect: exasol
+
+test_pass_cte_no_select_final_statement:
+  pass_str:
+    WITH mycte AS (
+      SELECT
+          foo,
+          bar
+      FROM mytable1
+    )
+
+    UPDATE sometable
+    SET
+        sometable.baz = mycte.bar
+    FROM
+        mycte;
