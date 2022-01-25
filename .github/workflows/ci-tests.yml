@@ -25,7 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        jobs: [ 'linting', 'ruleslinting', 'doclinting', 'docbuild', 'yamllint' ]
+        jobs: [ 'linting', 'doclinting', 'docbuild', 'yamllint' ]
     name: ${{ matrix.jobs }} tests
     steps:
     - uses: actions/checkout@v2
@@ -39,6 +39,22 @@ jobs:
     - name: Run the tests
       run: |
         tox -e ${{ matrix.jobs }}
+  ruleslinting:
+    runs-on: ubuntu-latest
+    name: Rules critical errors tests
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.10'
+    - name: Install dependencies
+      run: |
+        pip install tox
+        pip install .
+    - name: Run the tests
+      run: |
+        tox -e ruleslinting
   python-version-tests:
     runs-on: ubuntu-latest
     strategy:
