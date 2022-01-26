@@ -23,6 +23,7 @@ from sqlfluff.core.parser import (
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
+from sqlfluff.core.parser.grammar.anyof import AnySetOf
 from sqlfluff.dialects.dialect_postgres_keywords import (
     postgres_keywords,
     get_keywords,
@@ -3428,6 +3429,10 @@ class CopyStatementSegment(BaseSegment):
 
     type = "copy_statement"
 
+    _target_subset = OneOf(
+        Ref("QuotedLiteralSegment"), Sequence("PROGRAM", Ref("QuotedLiteralSegment"))
+    )
+
     _table_definition = Sequence(
         Ref("TableReferenceSegment"),
         Bracketed(Delimited(Ref("ColumnReferenceSegment")), optional=True),
@@ -3437,7 +3442,7 @@ class CopyStatementSegment(BaseSegment):
         Ref.keyword("WITH", optional=True),
         Bracketed(
             Delimited(
-                AnyNumberOf(
+                AnySetOf(
                     Sequence("FORMAT", Ref("SingleIdentifierGrammar")),
                     Sequence("FREEZE", Ref("BooleanLiteralGrammar", optional=True)),
                     Sequence("DELIMITER", Ref("QuotedLiteralSegment")),
@@ -3461,7 +3466,6 @@ class CopyStatementSegment(BaseSegment):
                         Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
                     ),
                     Sequence("ENCODING", Ref("QuotedLiteralSegment")),
-                    min_times=1,
                 )
             )
         ),
@@ -3475,8 +3479,7 @@ class CopyStatementSegment(BaseSegment):
                 _table_definition,
                 "FROM",
                 OneOf(
-                    Ref("QuotedLiteralSegment"),
-                    Sequence("PROGRAM", Ref("QuotedLiteralSegment")),
+                    _target_subset,
                     Sequence("STDIN"),
                 ),
                 _option,
@@ -3488,8 +3491,7 @@ class CopyStatementSegment(BaseSegment):
                 ),
                 "TO",
                 OneOf(
-                    Ref("QuotedLiteralSegment"),
-                    Sequence("PROGRAM", Ref("QuotedLiteralSegment")),
+                    _target_subset,
                     Sequence("STDOUT"),
                 ),
                 _option,

@@ -28,3 +28,5 @@ COPY my_table(col1, col2,col3, col4) FROM '/tmp/dump.csv' WITH (FORMAT csv, ESCA
 COPY my_table FROM STDIN WITH (FORMAT csv, HEADER, DELIMITER '#', ENCODING 'UTF8');
 COPY my_table FROM STDIN WITH (FORMAT csv, ESCAPE '\', FORCE_NULL (col1, col2), FREEZE true);
 COPY my_table FROM STDIN WITH (FORMAT csv, HEADER, DELIMITER '#', NULL 'null', QUOTE '"', FORCE_QUOTE *);
+COPY my_table FROM STDIN WITH (FORMAT csv, HEADER, DELIMITER '#', NULL 'null', QUOTE '"', FORCE_QUOTE *) WHERE col1 = 'some_value';
+
