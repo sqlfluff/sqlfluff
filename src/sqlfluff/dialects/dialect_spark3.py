@@ -29,6 +29,7 @@ from sqlfluff.core.parser import (
     StringParser,
     SymbolSegment,
     Anything,
+    StartsWith,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -173,6 +174,20 @@ spark3_dialect.replace(
         Ref("NotEqualToSegment"),
         Ref("LikeOperatorSegment"),
     ),
+    FromClauseTerminatorGrammar=OneOf(
+        "WHERE",
+        "LIMIT",
+        Sequence("GROUP", "BY"),
+        Sequence("ORDER", "BY"),
+        Sequence("CLUSTER", "BY"),
+        # TODO Add PIVOT, LATERAL VIEW, SORT BY and DISTRIBUTE BY clauses
+        "HAVING",
+        "QUALIFY",
+        "WINDOW",
+        Ref("SetOperatorSegment"),
+        Ref("WithNoSchemaBindingClauseSegment"),
+        Ref("WithDataClauseSegment"),
+    ),
     TemporaryGrammar=Sequence(
         Sequence("GLOBAL", optional=True),
         OneOf("TEMP", "TEMPORARY"),
@@ -242,13 +257,13 @@ spark3_dialect.add(
     TerminatedByGrammar=hive_dialect.get_grammar("TerminatedByGrammar"),
     # Add Spark Grammar
     BucketSpecGrammar=Sequence(
-        Ref("ClusterSpecGrammar"),
+        Ref("ClusteredBySpecGrammar"),
         Ref("SortSpecGrammar", optional=True),
         "INTO",
         Ref("NumericLiteralSegment"),
         "BUCKETS",
     ),
-    ClusterSpecGrammar=Sequence(
+    ClusteredBySpecGrammar=Sequence(
         "CLUSTERED",
         "BY",
         Ref("BracketedColumnReferenceListGrammar"),
@@ -933,6 +948,92 @@ class LoadDataSegment(BaseSegment):
     )
 
 
+# Data Retrieval Statements
+@spark3_dialect.segment()
+class ClusterByClauseSegment(BaseSegment):
+    """A `CLUSTER BY` clause from `SELECT` statement.
+
+    Equivalent to `DISTRIBUTE BY` and `SORT BY` in tandem.
+    This clause is mutually exclusive with SORT BY, ORDER BY and DISTRIBUTE BY.
+    https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-clusterby.html
+    """
+
+    type = "cluster_by_clause"
+
+    match_grammar = StartsWith(
+        Sequence("CLUSTER", "BY"),
+        terminator=OneOf(
+            "LIMIT",
+            "HAVING",
+            # For window functions
+            "WINDOW",
+            Ref("FrameClauseUnitGrammar"),
+            "SEPARATOR",
+        ),
+    )
+
+    parse_grammar = Sequence(
+        "CLUSTER",
+        "BY",
+        Indent,
+        Delimited(
+            Sequence(
+                OneOf(
+                    Ref("ColumnReferenceSegment"),
+                    # Can `CLUSTER BY 1`
+                    Ref("NumericLiteralSegment"),
+                    # Can cluster by an expression
+                    Ref("ExpressionSegment"),
+                ),
+            ),
+            terminator=OneOf(
+                Ref.keyword("WINDOW"),
+                Ref.keyword("LIMIT"),
+                Ref("FrameClauseUnitGrammar"),
+            ),
+        ),
+        Dedent,
+    )
+
+
+@spark3_dialect.segment(replace=True)
+class UnorderedSelectStatementSegment(BaseSegment):
+    """Enhance unordered `SELECT` statement to include Spark Clauses."""
+
+    type = "select_statement"
+
+    match_grammar = ansi_dialect.get_segment(
+        "UnorderedSelectStatementSegment"
+    ).match_grammar.copy()
+
+    parse_grammar = ansi_dialect.get_segment(
+        "UnorderedSelectStatementSegment"
+    ).parse_grammar.copy(
+        # TODO Insert: PIVOT and LATERAL VIEW clauses
+        remove=[Ref("OverlapsClauseSegment", optional=True)]
+    )
+
+
+@spark3_dialect.segment(replace=True)
+class SelectStatementSegment(BaseSegment):
+    """Enhance `SELECT` statement to include Spark Clauses."""
+
+    type = "select_statement"
+
+    match_grammar = ansi_dialect.get_segment(
+        "SelectStatementSegment"
+    ).match_grammar.copy()
+
+    parse_grammar = ansi_dialect.get_segment(
+        "SelectStatementSegment"
+    ).parse_grammar.copy(
+        # TODO New Rule: Warn of mutual exclusion of these clauses and ORDER BY
+        # TODO Insert: SORT BY and DISTRIBUTE BY clauses
+        insert=[Ref("ClusterByClauseSegment", optional=True)],
+        before=Ref("LimitClauseSegment"),
+    )
+
+
 # Auxiliary Statements
 @spark3_dialect.segment()
 class AddExecutablePackage(BaseSegment):
@@ -1023,6 +1124,8 @@ class StatementSegment(BaseSegment):
             Ref("InsertOverwriteDirectorySegment"),
             Ref("InsertOverwriteDirectoryHiveFmtSegment"),
             Ref("LoadDataSegment"),
+            # Data Retrieval Statements
+            Ref("ClusterByClauseSegment"),
         ],
         remove=[
             Ref("TransactionStatementSegment"),
