@@ -1,0 +1,52 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: c286f099e756eed487721ebfff75b87861ead8c85234152cde5923f82f686c70
+file:
+  batch:
+  - statement:
+      raiserror_statement:
+        keyword: RAISERROR
+        bracketed:
+        - start_bracket: (
+        - literal: '15600'
+        - comma: ','
+        - numeric_literal:
+            binary_operator: '-'
+            literal: '1'
+        - comma: ','
+        - numeric_literal:
+            binary_operator: '-'
+            literal: '1'
+        - comma: ','
+        - literal: "'mysp_CreateCustomer'"
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      raiserror_statement:
+        keyword: RAISERROR
+        bracketed:
+        - start_bracket: (
+        - literal: "'This is message %s %d.'"
+        - comma: ','
+        - literal: '10'
+        - comma: ','
+        - literal: '1'
+        - comma: ','
+        - literal: "'number'"
+        - end_bracket: )
+  - statement_terminator: ;
+  - statement:
+      raiserror_statement:
+        keyword: RAISERROR
+        bracketed:
+        - start_bracket: (
+        - literal: "'Error raised in TRY block.'"
+        - comma: ','
+        - literal: '16'
+        - comma: ','
+        - literal: '1'
+        - end_bracket: )
+  - statement_terminator: ;
