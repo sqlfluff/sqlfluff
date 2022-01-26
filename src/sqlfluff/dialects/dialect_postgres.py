@@ -3486,7 +3486,7 @@ class CopyStatementSegment(BaseSegment):
                 OneOf(
                     _table_definition, Bracketed(Ref("UnorderedSelectStatementSegment"))
                 ),
-                Ref.keyword("TO"),
+                "TO",
                 OneOf(
                     Ref("QuotedLiteralSegment"),
                     Sequence("PROGRAM", Ref("QuotedLiteralSegment")),
