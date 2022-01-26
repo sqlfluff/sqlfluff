@@ -402,6 +402,7 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref("TryCatchSegment"),
             Ref("MergeStatementSegment"),
             Ref("ThrowStatementSegment"),
+            Ref("RaiserrorStatementSegment"),
             Ref("ReturnStatementSegment"),
         ],
         remove=[
@@ -3363,6 +3364,31 @@ class ThrowStatementSegment(BaseSegment):
                 Ref("ParameterNameSegment"),
             ),
             optional=True,
+        ),
+    )
+
+
+@tsql_dialect.segment()
+class RaiserrorStatementSegment(BaseSegment):
+    """RAISERROR statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/raiserror-transact-sql?view=sql-server-ver15
+    """
+
+    type = "raiserror_statement"
+    match_grammar = Sequence(
+        "RAISERROR",
+        Bracketed(
+            Delimited(
+                OneOf(Ref("NumericLiteralSegment"), Ref("QuotedLiteralSegment")),
+                OneOf(
+                    Ref("NumericLiteralSegment"), Ref("QualifiedNumericLiteralSegment")
+                ),
+                OneOf(
+                    Ref("NumericLiteralSegment"), Ref("QualifiedNumericLiteralSegment")
+                ),
+                Ref("QuotedLiteralSegment", optional=True),
+            ),
         ),
     )
 
