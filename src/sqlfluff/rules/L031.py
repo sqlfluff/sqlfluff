@@ -196,6 +196,8 @@ class Rule_L031(BaseRule):
                     ids_refs.append(used_alias_ref)
 
             # Fixes for deleting ` as sth` and for editing references to aliased tables
+            # Note unparsable errors have cause the delete to fail (see #2484)
+            # so check there is a d before doing deletes.
             fixes = [
                 *[
                     LintFix.delete(d)
