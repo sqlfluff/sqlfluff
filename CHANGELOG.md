@@ -20,6 +20,10 @@ Major changes include:
 * Fix some issues in 0.9.2 preventing some queries linting
 
 ## What's Changed
+* Prevent L031 throwing exception on unparsable code [#2486](https://github.com/sqlfluff/sqlfluff/pull/2486) [@tunetheweb](https://github.com/tunetheweb)
+* Add linting of fixtures SQL for critical rules errors to tox [#2473](https://github.com/sqlfluff/sqlfluff/pull/2473) [@tunetheweb](https://github.com/tunetheweb)
+* Fix L039 for T-SQL comparison operator using space [#2485](https://github.com/sqlfluff/sqlfluff/pull/2485) [@tunetheweb](https://github.com/tunetheweb)
+* Fix bug in get_alias causing rule Critical errors for T-SQL [#2479](https://github.com/sqlfluff/sqlfluff/pull/2479) [@tunetheweb](https://github.com/tunetheweb)
 * Tweak GitHub templates [#2471](https://github.com/sqlfluff/sqlfluff/pull/2471) [@tunetheweb](https://github.com/tunetheweb)
 * Small speed improvement to L054 [#2476](https://github.com/sqlfluff/sqlfluff/pull/2476) [@tunetheweb](https://github.com/tunetheweb)
 * L003: Revisit recent change to improve speed [#2474](https://github.com/sqlfluff/sqlfluff/pull/2474) [@barrywhart](https://github.com/barrywhart)
