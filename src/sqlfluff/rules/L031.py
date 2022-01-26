@@ -200,6 +200,7 @@ class Rule_L031(BaseRule):
                 *[
                     LintFix.delete(d)
                     for d in [alias_info.alias_exp_ref, alias_info.whitespace_ref]
+                    if d
                 ],
                 *[
                     LintFix.replace(
