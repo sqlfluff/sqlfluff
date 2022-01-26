@@ -3480,7 +3480,7 @@ class CopyStatementSegment(BaseSegment):
                     Sequence("STDIN"),
                 ),
                 _option,
-                Sequence(Ref.keyword("WHERE"), Ref("ExpressionSegment"), optional=True),
+                Sequence("WHERE", Ref("ExpressionSegment"), optional=True),
             ),
             Sequence(
                 OneOf(
