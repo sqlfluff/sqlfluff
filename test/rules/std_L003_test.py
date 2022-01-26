@@ -119,6 +119,7 @@ def test__rules__std_L003_process_raw_stack(generate_test_segments, test_elems, 
         v.keys()
         == {
             "line_no",
+            "templated_line",
             "line_buffer",
             "indent_buffer",
             "indent_size",
@@ -128,13 +129,16 @@ def test__rules__std_L003_process_raw_stack(generate_test_segments, test_elems, 
         }
         for v in res.values()
     )
-    # For testing purposes, we won't be checking the buffer fields. They're just
-    # too hard to create in the test cases and aren't critical in determining
-    # what course of action to take. Most of the logic uses the values which we
-    # *are* still testing.
     for k in res:
+        # For testing purposes, we won't be checking the buffer fields. They're
+        # just too hard to create in the test cases and aren't critical in
+        # determining what course of action to take. Most of the logic uses the
+        # values which we *are* still testing.
         del res[k]["line_buffer"]
         del res[k]["indent_buffer"]
+        # We also don't check the "templated_file" flag. These tests don't
+        # exercise that code.
+        del res[k]["templated_line"]
     assert res == result
 
 

@@ -284,7 +284,7 @@ class TemplatedFile:
                         ts_start_subsliced_file[0][1].start + offset,
                     )
                 else:
-                    raise ValueError(
+                    raise ValueError(  # pragma: no cover
                         "Attempting a single length slice within a templated section!"
                     )
 

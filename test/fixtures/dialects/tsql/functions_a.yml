@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7850580cd7d2591084073d32501f05bb668e2bdb333250f21a3bce62db9b9124
+_hash: 08d70822633fac346a01d06416a990061c8ec012a2b9ceaadf6347e1b6858c43
 file:
 - batch:
     statement:
@@ -84,8 +84,7 @@ file:
                 keyword: DATEADD
               bracketed:
               - start_bracket: (
-              - date_part:
-                  keyword: month
+              - date_part: month
               - comma: ','
               - expression:
                   numeric_literal:
@@ -160,8 +159,7 @@ file:
                       select_clause:
                         keyword: SELECT
                         select_clause_element:
-                          column_reference:
-                            parameter: '@admit'
+                          parameter: '@admit'
                       from_clause:
                         keyword: FROM
                         from_expression:

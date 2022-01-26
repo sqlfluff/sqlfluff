@@ -42,6 +42,48 @@ tsql_dialect.sets("unreserved_keywords").clear()
 tsql_dialect.sets("reserved_keywords").update(RESERVED_KEYWORDS)
 tsql_dialect.sets("unreserved_keywords").update(UNRESERVED_KEYWORDS)
 
+# Set the datetime units
+tsql_dialect.sets("datetime_units").clear()
+tsql_dialect.sets("datetime_units").update(
+    [
+        "D",
+        "DAY",
+        "DAYOFYEAR",
+        "DD",
+        "DW",
+        "DY",
+        "HH",
+        "HOUR",
+        "M",
+        "MCS",
+        "MI",
+        "MICROSECOND",
+        "MILLISECOND",
+        "MINUTE",
+        "MM",
+        "MONTH",
+        "MS",
+        "N",
+        "NANOSECOND",
+        "NS",
+        "Q",
+        "QQ",
+        "QUARTER",
+        "S",
+        "SECOND",
+        "SS",
+        "W",
+        "WEEK",
+        "WEEKDAY",
+        "WK",
+        "WW",
+        "YEAR",
+        "Y",
+        "YY",
+        "YYYY",
+    ]
+)
+
 tsql_dialect.insert_lexer_matchers(
     [
         RegexLexer(
@@ -143,6 +185,9 @@ tsql_dialect.add(
         "TRANSACTION",
         "TRAN",
     ),
+    SystemVariableSegment=RegexParser(
+        r"@@[A-Za-z0-9_]+", CodeSegment, name="system_variable", type="system_variable"
+    ),
 )
 
 tsql_dialect.replace(
@@ -184,9 +229,16 @@ tsql_dialect.replace(
         # can otherwise be easily mistaken for an identifier.
         Ref("NullLiteralSegment"),
         Ref("DateTimeLiteralGrammar"),
+        Ref("ParameterNameSegment"),
+        Ref("SystemVariableSegment"),
     ),
     ParameterNameSegment=RegexParser(
-        r"[@][A-Za-z0-9_]+", CodeSegment, name="parameter", type="parameter"
+        r"@[A-Za-z0-9_]+", CodeSegment, name="parameter", type="parameter"
+    ),
+    FunctionParameterGrammar=Sequence(
+        Ref("ParameterNameSegment", optional=True),
+        Ref("DatatypeSegment"),
+        Sequence(Ref("EqualsSegment"), Ref("ExpressionSegment"), optional=True),
     ),
     FunctionNameIdentifierSegment=RegexParser(
         r"[A-Z][A-Z0-9_]*|\[[A-Z][A-Z0-9_]*\]",
@@ -515,7 +567,7 @@ class InsertStatementSegment(BaseSegment):
         "INTO",
         Ref("TableReferenceSegment"),
         Ref("BracketedColumnReferenceListGrammar", optional=True),
-        Ref("SelectableGrammar"),
+        OneOf(Ref("SelectableGrammar"), Ref("ExecuteScriptSegment")),
     )
 
 
@@ -962,6 +1014,10 @@ class ObjectReferenceSegment(BaseSegment):
         "ObjectReferenceSegment"
     ).extract_possible_references
 
+    extract_possible_multipart_references = ansi_dialect.get_segment(
+        "ObjectReferenceSegment"
+    ).extract_possible_multipart_references
+
     _level_to_int = staticmethod(
         ansi_dialect.get_segment("ObjectReferenceSegment")._level_to_int
     )
@@ -1097,6 +1153,7 @@ class DeclareStatementSegment(BaseSegment):
     type = "declare_segment"
     match_grammar = Sequence(
         "DECLARE",
+        Indent,
         Ref("ParameterNameSegment"),
         Sequence("AS", optional=True),
         Ref("DatatypeSegment"),
@@ -1115,6 +1172,7 @@ class DeclareStatementSegment(BaseSegment):
                 optional=True,
             ),
         ),
+        Dedent,
         Ref("DelimiterSegment", optional=True),
     )
 
@@ -1461,7 +1519,7 @@ class ReturnStatementSegment(BaseSegment):
     type = "return_segment"
     match_grammar = Sequence(
         "RETURN",
-        Ref("ExpressionSegment"),
+        Ref("ExpressionSegment", optional=True),
         Ref("DelimiterSegment", optional=True),
     )
 
@@ -1508,7 +1566,7 @@ class SetStatementSegment(BaseSegment):
             "CONCAT_NULL_YIELDS_NULL",
             "CURSOR_CLOSE_ON_COMMIT",
             "FIPS_FLAGGER",
-            "IDENTITY_INSERT",
+            Sequence("IDENTITY_INSERT", Ref("TableReferenceSegment")),
             "LANGUAGE",
             "OFFSETS",
             "QUOTED_IDENTIFIER",
@@ -1826,7 +1884,7 @@ class FunctionSegment(BaseSegment):
             Ref("DatePartFunctionNameSegment"),
             Bracketed(
                 Delimited(
-                    Ref("DatePartClause"),
+                    Ref("DatetimeUnitSegment"),
                     Ref(
                         "FunctionContentsGrammar",
                         # The brackets might be empty for some functions...
@@ -2313,51 +2371,6 @@ class CreateTableAsSelectStatementSegment(BaseSegment):
         OptionallyBracketed(Ref("SelectableGrammar")),
         Ref("OptionClauseSegment", optional=True),
         Ref("DelimiterSegment", optional=True),
-    )
-
-
-@tsql_dialect.segment(replace=True)
-class DatePartClause(BaseSegment):
-    """DatePart clause for use within DATEADD() or related functions."""
-
-    type = "date_part"
-
-    match_grammar = OneOf(
-        "D",
-        "DAY",
-        "DAYOFYEAR",
-        "DD",
-        "DW",
-        "DY",
-        "HH",
-        "HOUR",
-        "M",
-        "MCS",
-        "MI",
-        "MICROSECOND",
-        "MILLISECOND",
-        "MINUTE",
-        "MM",
-        "MONTH",
-        "MS",
-        "N",
-        "NANOSECOND",
-        "NS",
-        "Q",
-        "QQ",
-        "QUARTER",
-        "S",
-        "SECOND",
-        "SS",
-        "W",
-        "WEEK",
-        "WEEKDAY",
-        "WK",
-        "WW",
-        "YEAR",
-        "Y",
-        "YY",
-        "YYYY",
     )
 
 
@@ -3054,6 +3067,7 @@ class ExecuteScriptSegment(BaseSegment):
     match_grammar = Sequence(
         OneOf("EXEC", "EXECUTE"),
         Ref("ObjectReferenceSegment"),
+        Indent,
         Sequence(
             Sequence(Ref("ParameterNameSegment"), Ref("EqualsSegment"), optional=True),
             OneOf(
@@ -3078,6 +3092,7 @@ class ExecuteScriptSegment(BaseSegment):
             ),
             optional=True,
         ),
+        Dedent,
         Ref("DelimiterSegment", optional=True),
     )
 

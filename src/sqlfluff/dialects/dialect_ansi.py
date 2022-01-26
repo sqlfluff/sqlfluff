@@ -335,6 +335,9 @@ ansi_dialect.add(
     QuotedLiteralSegment=NamedParser(
         "single_quote", CodeSegment, name="quoted_literal", type="literal"
     ),
+    SingleQuotedIdentifierSegment=NamedParser(
+        "single_quote", CodeSegment, name="quoted_identifier", type="identifier"
+    ),
     NumericLiteralSegment=NamedParser(
         "numeric_literal", CodeSegment, name="numeric_literal", type="literal"
     ),
@@ -871,7 +874,7 @@ class AliasExpressionSegment(BaseSegment):
                 # Column alias in VALUES clause
                 Bracketed(Ref("SingleIdentifierListSegment"), optional=True),
             ),
-            Ref("QuotedLiteralSegment"),
+            Ref("SingleQuotedIdentifierSegment"),
         ),
     )
 
@@ -1014,26 +1017,6 @@ class FunctionNameSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
-class DatePartClause(BaseSegment):
-    """DatePart clause for use within DATEADD() or related functions."""
-
-    type = "date_part"
-
-    match_grammar = OneOf(
-        "DAY",
-        "DAYOFYEAR",
-        "HOUR",
-        "MINUTE",
-        "MONTH",
-        "QUARTER",
-        "SECOND",
-        "WEEK",
-        "WEEKDAY",
-        "YEAR",
-    )
-
-
-@ansi_dialect.segment()
 class FunctionSegment(BaseSegment):
     """A scalar or aggregate function.
 
@@ -1050,7 +1033,7 @@ class FunctionSegment(BaseSegment):
                 Ref("DatePartFunctionNameSegment"),
                 Bracketed(
                     Delimited(
-                        Ref("DatePartClause"),
+                        Ref("DatetimeUnitSegment"),
                         Ref(
                             "FunctionContentsGrammar",
                             # The brackets might be empty for some functions...
@@ -1301,8 +1284,14 @@ class SelectClauseElementSegment(BaseSegment):
             return None
 
         alias_identifier_segment = next(
-            s for s in alias_expression_segment.segments if s.is_type("identifier")
+            (s for s in alias_expression_segment.segments if s.is_type("identifier")),
+            None,
         )
+
+        if alias_identifier_segment is None:
+            # Return None if no alias identifier expression is found.
+            # Happened in the past due to bad syntax
+            return None  # pragma: no cover
 
         # Get segment being aliased.
         aliased_segment = next(
@@ -1692,6 +1681,7 @@ ansi_dialect.add(
             Ref("SelectStatementSegment"),
             Ref("LiteralGrammar"),
             Ref("IntervalExpressionSegment"),
+            Ref("TypelessStructSegment"),
             Ref("ColumnReferenceSegment"),
             Sequence(
                 Ref("SimpleArrayTypeGrammar", optional=True), Ref("ArrayLiteralSegment")
@@ -1706,6 +1696,7 @@ ansi_dialect.add(
                     Ref("DateTimeLiteralGrammar"),
                 ),
             ),
+            Ref("LocalAliasSegment"),
         ),
         Ref("Accessor_Grammar", optional=True),
         allow_gaps=True,
@@ -2366,6 +2357,17 @@ class TableEndClauseSegment(BaseSegment):
 
 
 @ansi_dialect.segment()
+class TypelessStructSegment(BaseSegment):
+    """Expression to construct a STRUCT with implicit types.
+
+    (Yes in BigQuery for example)
+    """
+
+    type = "typeless_struct"
+    match_grammar = Nothing()
+
+
+@ansi_dialect.segment()
 class CreateTableStatementSegment(BaseSegment):
     """A `CREATE TABLE` statement."""
 
@@ -2524,6 +2526,7 @@ class CreateIndexStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "CREATE",
         Ref("OrReplaceGrammar", optional=True),
+        Ref.keyword("UNIQUE", optional=True),
         "INDEX",
         Ref("IfNotExistsGrammar", optional=True),
         Ref("IndexReferenceSegment"),
@@ -3533,3 +3536,14 @@ class SamplingExpressionSegment(BaseSegment):
             optional=True,
         ),
     )
+
+
+@ansi_dialect.segment()
+class LocalAliasSegment(BaseSegment):
+    """The `LOCAL.ALIAS` syntax allows to use a alias name of a column within clauses.
+
+    A hookpoint for other dialects e.g. Exasol.
+    """
+
+    type = "local_alias_segment"
+    match_grammar = Nothing()

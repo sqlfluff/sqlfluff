@@ -5,7 +5,9 @@ This inherits from the ansi dialect.
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     BaseSegment,
+    CommentSegment,
     Ref,
+    RegexLexer,
     Sequence,
     StartsWith,
     OneOf,
@@ -16,7 +18,19 @@ oracle_dialect = ansi_dialect.copy_as("oracle")
 
 oracle_dialect.sets("unreserved_keywords").difference_update(["COMMENT"])
 oracle_dialect.sets("reserved_keywords").update(
-    ["COMMENT", "ON", "UPDATE", "INDEXTYPE"]
+    ["COMMENT", "ON", "UPDATE", "INDEXTYPE", "PROMPT"]
+)
+
+
+oracle_dialect.insert_lexer_matchers(
+    [
+        RegexLexer(
+            "prompt_command",
+            r"PROMPT([^(\r\n)])*((?=\n)|(?=\r\n))?",
+            CommentSegment,
+        )
+    ],
+    before="code",
 )
 
 

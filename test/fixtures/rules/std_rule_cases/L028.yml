@@ -159,3 +159,18 @@ test_select_alias_in_where_clause_3:
         t.col1 + 1 as alias_col1
     from table1 as t
     where alias_col1 > 5
+
+
+test_pass_tsql_parameter:
+  # This should pass for certain dialects
+  pass_str: |
+    DECLARE @id_date int;
+    SET @id_date = 20211108;
+
+    SELECT sometable.some_column
+    FROM sometable
+    WHERE 1 = 1
+        AND sometable.column_with_date = @id_date
+  configs:
+    core:
+      dialect: tsql

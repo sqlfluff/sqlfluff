@@ -1,0 +1,144 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: d18b56661a362690604607261cbcd116d9f54176c020072c50f6940605e2c21e
+file:
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: IF
+            bracketed:
+            - start_bracket: (
+            - expression:
+                literal: 'TRUE'
+            - comma: ','
+            - expression:
+                typeless_struct:
+                  keyword: STRUCT
+                  bracketed:
+                  - start_bracket: (
+                  - literal: "'hello'"
+                  - alias_expression:
+                      keyword: AS
+                      identifier: greeting
+                  - comma: ','
+                  - literal: "'world'"
+                  - alias_expression:
+                      keyword: AS
+                      identifier: subject
+                  - end_bracket: )
+            - comma: ','
+            - expression:
+                typeless_struct:
+                  keyword: STRUCT
+                  bracketed:
+                  - start_bracket: (
+                  - literal: "'hi'"
+                  - alias_expression:
+                      keyword: AS
+                      identifier: greeting
+                  - comma: ','
+                  - literal: "'there'"
+                  - alias_expression:
+                      keyword: AS
+                      identifier: subject
+                  - end_bracket: )
+            - end_bracket: )
+          alias_expression:
+            keyword: AS
+            identifier: salute
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              bracketed:
+                start_bracket: (
+                select_statement:
+                  select_clause:
+                    keyword: SELECT
+                    select_clause_element:
+                      literal: '1'
+                end_bracket: )
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            case_expression:
+            - keyword: CASE
+            - when_clause:
+              - keyword: WHEN
+              - expression:
+                - column_reference:
+                  - identifier: a
+                  - dot: .
+                  - identifier: xxx
+                - comparison_operator:
+                  - raw_comparison_operator: '!'
+                  - raw_comparison_operator: '='
+                - column_reference:
+                  - identifier: b
+                  - dot: .
+                  - identifier: xxx
+              - keyword: THEN
+              - expression:
+                  typeless_struct:
+                    keyword: STRUCT
+                    bracketed:
+                    - start_bracket: (
+                    - column_reference:
+                      - identifier: a
+                      - dot: .
+                      - identifier: xxx
+                    - alias_expression:
+                        keyword: AS
+                        identifier: M
+                    - comma: ','
+                    - column_reference:
+                      - identifier: b
+                      - dot: .
+                      - identifier: xxx
+                    - alias_expression:
+                        keyword: AS
+                        identifier: N
+                    - end_bracket: )
+            - keyword: END
+          alias_expression:
+            keyword: AS
+            identifier: xxx
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: A
+          join_clause:
+            keyword: JOIN
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: B
+            join_on_condition:
+              keyword: 'ON'
+              expression:
+              - column_reference:
+                - identifier: B
+                - dot: .
+                - identifier: id
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - identifier: A
+                - dot: .
+                - identifier: id
+- statement_terminator: ;

@@ -744,6 +744,55 @@ class AlterFunctionActionSegment(BaseSegment):
 
 
 @postgres_dialect.segment()
+class CreateProcedureStatementSegment(BaseSegment):
+    """A `CREATE PROCEDURE` statement.
+
+    https://www.postgresql.org/docs/14/sql-createprocedure.html
+
+    TODO: Just a basic statement for now, without full syntax.
+    based on CreateFunctionStatementSegment without a return type.
+    """
+
+    type = "create_procedure_statement"
+
+    match_grammar = Sequence(
+        "CREATE",
+        Sequence("OR", "REPLACE", optional=True),
+        "PROCEDURE",
+        Ref("FunctionNameSegment"),
+        Ref("FunctionParameterListGrammar"),
+        Ref("FunctionDefinitionGrammar"),
+    )
+
+
+@postgres_dialect.segment()
+class DropProcedureStatementSegment(BaseSegment):
+    """A `DROP PROCEDURE` statement.
+
+    https://www.postgresql.org/docs/11/sql-dropprocedure.html
+    """
+
+    type = "drop_procedure_statement"
+
+    match_grammar = Sequence(
+        "DROP",
+        "PROCEDURE",
+        Ref("IfExistsGrammar", optional=True),
+        Delimited(
+            Sequence(
+                Ref("FunctionNameSegment"),
+                Ref("FunctionParameterListGrammar", optional=True),
+            ),
+        ),
+        OneOf(
+            "CASCADE",
+            "RESTRICT",
+            optional=True,
+        ),
+    )
+
+
+@postgres_dialect.segment()
 class WellKnownTextGeometrySegment(BaseSegment):
     """A Data Type Segment to identify Well Known Text Geometric Data Types.
 
@@ -2904,6 +2953,8 @@ class StatementSegment(BaseSegment):
             Ref("LoadStatementSegment"),
             Ref("ResetStatementSegment"),
             Ref("DiscardStatementSegment"),
+            Ref("CreateProcedureStatementSegment"),
+            Ref("DropProcedureStatementSegment"),
         ],
     )
 
