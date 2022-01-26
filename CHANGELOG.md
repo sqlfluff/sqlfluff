@@ -10,6 +10,39 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 
 
+## [0.9.3] - 2022-01-26
+
+## Highlights
+
+Major changes include:
+
+* Add `ignore_words` option for rules L010, L014, L029, L030, L040
+* Fix some issues in 0.9.2 preventing some queries linting
+
+## What's Changed
+* Prevent L031 throwing exception on unparsable code [#2486](https://github.com/sqlfluff/sqlfluff/pull/2486) [@tunetheweb](https://github.com/tunetheweb)
+* Add linting of fixtures SQL for critical rules errors to tox [#2473](https://github.com/sqlfluff/sqlfluff/pull/2473) [@tunetheweb](https://github.com/tunetheweb)
+* Fix L039 for T-SQL comparison operator using space [#2485](https://github.com/sqlfluff/sqlfluff/pull/2485) [@tunetheweb](https://github.com/tunetheweb)
+* Fix bug in get_alias causing rule Critical errors for T-SQL [#2479](https://github.com/sqlfluff/sqlfluff/pull/2479) [@tunetheweb](https://github.com/tunetheweb)
+* Tweak GitHub templates [#2471](https://github.com/sqlfluff/sqlfluff/pull/2471) [@tunetheweb](https://github.com/tunetheweb)
+* Small speed improvement to L054 [#2476](https://github.com/sqlfluff/sqlfluff/pull/2476) [@tunetheweb](https://github.com/tunetheweb)
+* L003: Revisit recent change to improve speed [#2474](https://github.com/sqlfluff/sqlfluff/pull/2474) [@barrywhart](https://github.com/barrywhart)
+* Fix select_crawler issue with some Exasol statements [#2470](https://github.com/sqlfluff/sqlfluff/pull/2470) [@tunetheweb](https://github.com/tunetheweb)
+* Cleanup date logic by removing DatePartClause and using DatetimeUnitSegment instead [#2464](https://github.com/sqlfluff/sqlfluff/pull/2464) [@tunetheweb](https://github.com/tunetheweb)
+* Fix L044 exception when final statement has no SELECT [#2468](https://github.com/sqlfluff/sqlfluff/pull/2468) [@tunetheweb](https://github.com/tunetheweb)
+* Support T-SQL system variables (e.g. @@rowcount) [#2463](https://github.com/sqlfluff/sqlfluff/pull/2463) [@tunetheweb](https://github.com/tunetheweb)
+* Add base rule to developing rules page [#2462](https://github.com/sqlfluff/sqlfluff/pull/2462) [@tunetheweb](https://github.com/tunetheweb)
+* L003: Ignore indentation of lines that only exist in templated space [#2460](https://github.com/sqlfluff/sqlfluff/pull/2460) [@barrywhart](https://github.com/barrywhart)
+* Ignore words for various rules [#2459](https://github.com/sqlfluff/sqlfluff/pull/2459) [@tunetheweb](https://github.com/tunetheweb)
+* Support Foreign Key options for MySQL [#2461](https://github.com/sqlfluff/sqlfluff/pull/2461) [@tunetheweb](https://github.com/tunetheweb)
+* Exclude WINDOW clauses from L054 [#2455](https://github.com/sqlfluff/sqlfluff/pull/2455) [@tunetheweb](https://github.com/tunetheweb)
+* Fix bug with L026 for simple deletes [#2458](https://github.com/sqlfluff/sqlfluff/pull/2458) [@tunetheweb](https://github.com/tunetheweb)
+* Spark3: test cases for Common Table Expressions [#2454](https://github.com/sqlfluff/sqlfluff/pull/2454) [@R7L208](https://github.com/R7L208)
+* Fix T-SQL's IDENTITY_INSERT syntax [#2452](https://github.com/sqlfluff/sqlfluff/pull/2452) [@fdw](https://github.com/fdw)
+* T-SQL: Support stored procedures in insert statements [#2451](https://github.com/sqlfluff/sqlfluff/pull/2451) [@fdw](https://github.com/fdw)
+* Spark3: Support for `LOAD DATA` statements [#2450](https://github.com/sqlfluff/sqlfluff/pull/2450) [@R7L208](https://github.com/R7L208)
+
+
 ## [0.9.2] - 2022-01-24
 
 ## Highlights
