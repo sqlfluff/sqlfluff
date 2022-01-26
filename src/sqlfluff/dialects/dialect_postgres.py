@@ -3473,7 +3473,7 @@ class CopyStatementSegment(BaseSegment):
         OneOf(
             Sequence(
                 _table_definition,
-                Ref.keyword("FROM"),
+                "FROM",
                 OneOf(
                     Ref("QuotedLiteralSegment"),
                     Sequence("PROGRAM", Ref("QuotedLiteralSegment")),
