@@ -1,6 +1,6 @@
 -- Issue #2480
 COPY (Select my_col From my_table) TO '/tmp/dump.csv' WITH (FORMAT csv, HEADER, DELIMITER '#', ENCODING 'UTF8');
-COPY (Select * From my_table) TO '/tmp/dump.csv' WITH (FORMAT csv, HEADER, DELIMITER '#', NULL '•', QUOTE '"');
+COPY (Select * From my_table) TO '/tmp/dump.csv' WITH (FORMAT csv, HEADER, DELIMITER '#', NULL 'null', QUOTE '"');
 COPY (Select * From my_table) TO '/tmp/dump.csv' WITH (FORMAT csv, ESCAPE '\', FREEZE true);
 COPY (Select * From my_table) TO '/tmp/dump.csv' WITH (FORMAT csv, ESCAPE '\', FORCE_QUOTE (col1, col2));
 COPY (Select * From my_table) TO '/tmp/dump.csv' WITH (FORMAT csv, ESCAPE '\', FORCE_QUOTE *);
