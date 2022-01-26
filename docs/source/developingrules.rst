@@ -9,6 +9,15 @@ a particular rule or set of rules. The intent is that the definition of
 each specific rule should be really streamlined and only contain the logic
 for the rule itself, with all the other mechanics abstracted away.
 
+Base Rules
+----------
+
+`base_rules` Module
+^^^^^^^^^^^^^^^^^^^
+
+.. automodule:: sqlfluff.core.rules.base
+   :members:
+
 Functional API
 --------------
 These newer modules provide a higher-level API for rules working with segments

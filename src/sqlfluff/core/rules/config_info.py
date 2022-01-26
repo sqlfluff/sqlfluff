@@ -81,6 +81,9 @@ STANDARD_CONFIG_INFO_DICT = {
             " be ignored when linting line lengths?"
         ),
     },
+    "ignore_words": {
+        "definition": ("Comma separated list of words to ignore from rule"),
+    },
     "forbid_subquery_in": {
         "validation": ["join", "from", "both"],
         "definition": "Which clauses should be linted for subqueries?",

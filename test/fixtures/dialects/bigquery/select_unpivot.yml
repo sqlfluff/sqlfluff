@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: fdc7ab971cacb279e76dcef54e785fa12b5e13fca5f445c5e1ad9d0f51a2c48d
+_hash: f43c57b981290560b354c3394492a10b3a4f30ac1b076f21ea8fe9c533a3925e
 file:
 - statement:
     with_compound_statement:
@@ -229,7 +229,7 @@ file:
                 - end_bracket: )
               - alias_expression:
                   keyword: AS
-                  literal: "'semester_1'"
+                  identifier: "'semester_1'"
               - comma: ','
               - bracketed:
                 - start_bracket: (
@@ -239,7 +239,7 @@ file:
                 - end_bracket: )
               - alias_expression:
                   keyword: AS
-                  literal: "'semester_2'"
+                  identifier: "'semester_2'"
               - end_bracket: )
             - end_bracket: )
 - statement_terminator: ;

@@ -47,7 +47,7 @@ class Rule_L010(BaseRule):
         ("type", "date_part"),
         ("type", "data_type_identifier"),
     ]
-    config_keywords = ["capitalisation_policy"]
+    config_keywords = ["capitalisation_policy", "ignore_words"]
     # Human readable target elem for description
     _description_elem = "Keywords"
 
@@ -67,10 +67,19 @@ class Rule_L010(BaseRule):
         try:
             cap_policy = self.cap_policy
             cap_policy_opts = self.cap_policy_opts
+            ignore_words_list = self.ignore_words_list
         except AttributeError:
             # First-time only, read the settings from configuration. This is
             # very slow.
-            cap_policy, cap_policy_opts = self._init_capitalisation_policy()
+            (
+                cap_policy,
+                cap_policy_opts,
+                ignore_words_list,
+            ) = self._init_capitalisation_policy()
+
+        # Skip if in ignore list
+        if ignore_words_list and context.segment.raw.lower() in ignore_words_list:
+            return LintResult(memory=context.memory)
 
         memory = context.memory
         refuted_cases = memory.get("refuted_cases", set())
@@ -202,10 +211,19 @@ class Rule_L010(BaseRule):
             for opt in get_config_info()[cap_policy_name]["validation"]
             if opt != "consistent"
         ]
+        # Use str() as L040 uses bools which might otherwise be read as bool
+        ignore_words_config = str(getattr(self, "ignore_words"))
+        if ignore_words_config and ignore_words_config != "None":
+            self.ignore_words_list = self.split_comma_separated_string(
+                ignore_words_config.lower()
+            )
+        else:
+            self.ignore_words_list = []
         self.logger.debug(
             f"Selected '{cap_policy_name}': '{self.cap_policy}' from options "
             f"{self.cap_policy_opts}"
         )
         cap_policy = self.cap_policy
         cap_policy_opts = self.cap_policy_opts
-        return cap_policy, cap_policy_opts
+        ignore_words_list = self.ignore_words_list
+        return cap_policy, cap_policy_opts, ignore_words_list

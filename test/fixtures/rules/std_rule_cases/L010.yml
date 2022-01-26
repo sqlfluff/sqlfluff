@@ -155,3 +155,19 @@ test_pass_bigquery_date:
     rules:
       L010:
         capitalisation_policy: upper
+
+test_pass_ignore_word:
+  pass_str: SeleCT 1
+  configs:
+    rules:
+      L010:
+        capitalisation_policy: upper
+        ignore_words: select
+
+test_pass_ignore_words:
+  pass_str: SeleCT 1
+  configs:
+    rules:
+      L010:
+        capitalisation_policy: upper
+        ignore_words: select,from

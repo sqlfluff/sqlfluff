@@ -209,3 +209,11 @@ test_policy_unquoted_identifiers_aliases_2:
     rules:
       L014:
         unquoted_identifiers_policy: column_aliases
+
+test_pass_ignore_word:
+  pass_str: SELECT A, b
+  configs:
+    rules:
+      L014:
+        capitalisation_policy: upper
+        ignore_words: b

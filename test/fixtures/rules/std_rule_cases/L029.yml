@@ -114,3 +114,25 @@ test_fail_keyword_as_quoted_identifier_column_alias_config:
         quoted_identifiers_policy: column_aliases
     core:
       dialect: tsql
+
+test_pass_ignore_word1:
+  pass_str: CREATE TABLE artist(create TEXT)
+  configs:
+    rules:
+      L029:
+        ignore_words: create
+
+
+test_pass_ignore_word2:
+  pass_str: SELECT col1 AS date FROM table1
+  configs:
+    rules:
+      L029:
+        ignore_words: date
+
+
+test_pass_one_character_identifier:
+  pass_str: SELECT d.col1 FROM table1 d
+  configs:
+    core:
+      dialect: snowflake

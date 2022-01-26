@@ -467,3 +467,28 @@ test_fail_consistent_exasol:
     rules:
       L054:
         group_by_and_order_by_style: consistent
+
+test_pass_window:
+  pass_str: |
+    SELECT
+        field_1
+        , field_2
+        , SUM(field_3) as field_3_total
+        , SUM(field_3) OVER (ORDER BY field_1) AS field_3_window_sum
+    FROM table1
+    GROUP BY 1, 2
+    ORDER BY 1, 2
+
+test_pass_window_snowflake:
+  pass_str: |
+    SELECT
+        field_1
+        , field_2
+        , SUM(field_3) as field_3_total
+        , SUM(field_3) OVER (ORDER BY field_1) AS field_3_window_sum
+    FROM table1
+    GROUP BY 1, 2
+    ORDER BY 1, 2
+  configs:
+    core:
+      dialect: snowflake
