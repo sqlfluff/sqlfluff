@@ -939,7 +939,7 @@ class UnloadStatementSegment(BaseSegment):
     )
 
 
-@redshift_dialect.segment()
+@redshift_dialect.segment(replace=True)
 class CopyStatementSegment(BaseSegment):
     """A `COPY` statement.
 
