@@ -3449,7 +3449,7 @@ class CopyStatementSegment(BaseSegment):
                         "FORCE_QUOTE",
                         OneOf(
                             Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
-                            Sequence("*"),
+                            Ref("StarSegment"),
                         ),
                     ),
                     Sequence(
