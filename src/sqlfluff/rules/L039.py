@@ -94,7 +94,7 @@ class Rule_L039(BaseRule):
                 if delete_fixes:
                     violations.append(
                         LintResult(
-                            anchor=child_seg,
+                            anchor=delete_fixes[0].anchor,
                             fixes=delete_fixes,
                         )
                     )
