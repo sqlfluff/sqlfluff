@@ -1415,12 +1415,15 @@ class FunctionParameterListGrammar(BaseSegment):
 
     type = "function_parameter_list"
     # Function parameter list
-    match_grammar = OptionallyBracketed(
-        Ref("FunctionParameterGrammar"),
-        AnyNumberOf(
-            Ref("CommaSegment"),
+    match_grammar = Bracketed(
+        Sequence(
             Ref("FunctionParameterGrammar"),
-        ),
+            AnyNumberOf(
+                Ref("CommaSegment"),
+                Ref("FunctionParameterGrammar"),
+            ),
+            optional=True,
+        )
     )
 
 
@@ -1623,6 +1626,27 @@ class SetStatementSegment(BaseSegment):
 
 
 @tsql_dialect.segment()
+class ProcedureParameterListGrammar(BaseSegment):
+    """The parameters for a procedure ie.
+
+    `@city_name NVARCHAR(30), @postal_code NVARCHAR(15)`.
+    """
+
+    type = "procedure_parameter_list"
+    # Function parameter list
+    match_grammar = OptionallyBracketed(
+        Sequence(
+            Ref("FunctionParameterGrammar"),
+            AnyNumberOf(
+                Ref("CommaSegment"),
+                Ref("FunctionParameterGrammar"),
+            ),
+            optional=True,
+        ),
+    )
+
+
+@tsql_dialect.segment()
 class CreateProcedureStatementSegment(BaseSegment):
     """A `CREATE OR ALTER PROCEDURE` statement.
 
@@ -1636,7 +1660,7 @@ class CreateProcedureStatementSegment(BaseSegment):
         Sequence("OR", "ALTER", optional=True),
         OneOf("PROCEDURE", "PROC"),
         Ref("ObjectReferenceSegment"),
-        Ref("FunctionParameterListGrammar", optional=True),
+        Ref("ProcedureParameterListGrammar", optional=True),
         "AS",
         Ref("ProcedureDefinitionGrammar"),
     )
