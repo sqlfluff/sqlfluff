@@ -150,7 +150,6 @@ mysql_dialect.replace(
             Ref("ForClauseSegment"),
             Ref("SetOperatorSegment"),
             Ref("WithNoSchemaBindingClauseSegment"),
-            Ref("UpsertClauseListSegment"),
         ]
     ),
     BaseExpressionElementGrammar=ansi_dialect.get_grammar(
