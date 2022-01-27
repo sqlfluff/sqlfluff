@@ -1028,7 +1028,8 @@ class SelectStatementSegment(BaseSegment):
     parse_grammar = ansi_dialect.get_segment(
         "SelectStatementSegment"
     ).parse_grammar.copy(
-        # TODO New Rule: Warn of mutual exclusion of DISTRIBUTE, SORT, CLUSTER and ORDER BY if multiple specified
+        # TODO New Rule: Warn of mutual exclusion of following clauses
+        #  DISTRIBUTE, SORT, CLUSTER and ORDER BY if multiple specified
         # TODO Insert: SORT BY and DISTRIBUTE BY clauses
         insert=[Ref("ClusterByClauseSegment", optional=True)],
         before=Ref("LimitClauseSegment"),
