@@ -8,3 +8,27 @@ SELECT
 FROM person
 CLUSTER BY
     age;
+
+SELECT
+    age,
+    name
+FROM person
+CLUSTER BY
+    1;
+
+SELECT
+    age,
+    name
+FROM person
+CLUSTER BY
+    name,
+    age;
+
+SELECT
+    age,
+    name
+FROM person
+-- Cluster by first letter of last name
+CLUSTER BY
+    -- SUBSTRING_INDEX(name, ' ', -1) -> return last name
+    LEFT(SUBSTRING_INDEX(name, ' ', -1), 1);

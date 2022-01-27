@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b529cb7d19cd32d291ac40eade7ded2f574a565a1a4656bc37d78c1ea12ed380
+_hash: bc0662c867945a82da0aef3390d9228fb49063e9c9e9a28b6d88179d94125425
 file:
-  base:
+- base:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -28,4 +28,104 @@ file:
       - keyword: BY
       - column_reference:
           identifier: age
-  statement_terminator: ;
+- statement_terminator: ;
+- base:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            identifier: age
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: name
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: person
+      cluster_by_clause:
+      - keyword: CLUSTER
+      - keyword: BY
+      - literal: '1'
+- statement_terminator: ;
+- base:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            identifier: age
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: name
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: person
+      cluster_by_clause:
+      - keyword: CLUSTER
+      - keyword: BY
+      - column_reference:
+          identifier: name
+      - comma: ','
+      - column_reference:
+          identifier: age
+- statement_terminator: ;
+- base:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            identifier: age
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: name
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: person
+      cluster_by_clause:
+      - keyword: CLUSTER
+      - keyword: BY
+      - expression:
+          function:
+            function_name:
+              function_name_identifier: LEFT
+            bracketed:
+            - start_bracket: (
+            - expression:
+                function:
+                  function_name:
+                    function_name_identifier: SUBSTRING_INDEX
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      column_reference:
+                        identifier: name
+                  - comma: ','
+                  - expression:
+                      literal: "' '"
+                  - comma: ','
+                  - expression:
+                      numeric_literal:
+                        binary_operator: '-'
+                        literal: '1'
+                  - end_bracket: )
+            - comma: ','
+            - expression:
+                literal: '1'
+            - end_bracket: )
+- statement_terminator: ;

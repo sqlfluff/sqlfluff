@@ -987,8 +987,8 @@ class ClusterByClauseSegment(BaseSegment):
                 ),
             ),
             terminator=OneOf(
-                Ref.keyword("WINDOW"),
-                Ref.keyword("LIMIT"),
+                "WINDOW",
+                "LIMIT",
                 Ref("FrameClauseUnitGrammar"),
             ),
         ),
@@ -998,7 +998,7 @@ class ClusterByClauseSegment(BaseSegment):
 
 @spark3_dialect.segment(replace=True)
 class UnorderedSelectStatementSegment(BaseSegment):
-    """Enhance unordered `SELECT` statement to include Spark Clauses."""
+    """Enhance unordered `SELECT` statement for valid SparkSQL clauses."""
 
     type = "select_statement"
 
@@ -1010,13 +1010,14 @@ class UnorderedSelectStatementSegment(BaseSegment):
         "UnorderedSelectStatementSegment"
     ).parse_grammar.copy(
         # TODO Insert: PIVOT and LATERAL VIEW clauses
+        # Removing non-valid clauses that exist in ANSI dialect
         remove=[Ref("OverlapsClauseSegment", optional=True)]
     )
 
 
 @spark3_dialect.segment(replace=True)
 class SelectStatementSegment(BaseSegment):
-    """Enhance `SELECT` statement to include Spark Clauses."""
+    """Enhance `SELECT` statement for valid SparkSQL clauses."""
 
     type = "select_statement"
 
@@ -1027,7 +1028,7 @@ class SelectStatementSegment(BaseSegment):
     parse_grammar = ansi_dialect.get_segment(
         "SelectStatementSegment"
     ).parse_grammar.copy(
-        # TODO New Rule: Warn of mutual exclusion of these clauses and ORDER BY
+        # TODO New Rule: Warn of mutual exclusion of DISTRIBUTE, SORT, CLUSTER and ORDER BY if multiple specified
         # TODO Insert: SORT BY and DISTRIBUTE BY clauses
         insert=[Ref("ClusterByClauseSegment", optional=True)],
         before=Ref("LimitClauseSegment"),
