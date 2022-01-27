@@ -558,6 +558,7 @@ class DbtTemplater(JinjaTemplater):
             if not self.connection_acquired:
                 adapter = get_adapter(self.dbt_config)
                 adapter.acquire_connection("master")
+                adapter.set_relations_cache(self.dbt_manifest)
                 self.connection_acquired = True
             yield
             # :TRICKY: Once connected, we never disconnect. Making multiple
