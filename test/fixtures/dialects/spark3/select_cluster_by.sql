@@ -28,7 +28,5 @@ SELECT
     age,
     name
 FROM person
--- Cluster by first letter of last name
 CLUSTER BY
-    -- SUBSTRING_INDEX(name, ' ', -1) -> return last name
     LEFT(SUBSTRING_INDEX(name, ' ', -1), 1);
