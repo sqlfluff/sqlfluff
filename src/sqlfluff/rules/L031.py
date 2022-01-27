@@ -158,7 +158,8 @@ class Rule_L031(BaseRule):
         # interested in the NUMBER of different aliases used.)
         table_aliases = defaultdict(set)
         for ai in to_check:
-            table_aliases[ai.table_ref.raw].add(ai.alias_identifier_ref.raw)
+            if ai and ai.table_ref and ai.alias_identifier_ref:
+                table_aliases[ai.table_ref.raw].add(ai.alias_identifier_ref.raw)
 
         # For each aliased table, check whether to keep or remove it.
         for alias_info in to_check:
@@ -177,11 +178,14 @@ class Rule_L031(BaseRule):
             ids_refs = []
 
             # Find all references to alias in select clause
-            alias_name = alias_info.alias_identifier_ref.raw
-            for alias_with_column in select_clause.recursive_crawl("object_reference"):
-                used_alias_ref = alias_with_column.get_child("identifier")
-                if used_alias_ref and used_alias_ref.raw == alias_name:
-                    ids_refs.append(used_alias_ref)
+            if alias_info.alias_identifier_ref:
+                alias_name = alias_info.alias_identifier_ref.raw
+                for alias_with_column in select_clause.recursive_crawl(
+                    "object_reference"
+                ):
+                    used_alias_ref = alias_with_column.get_child("identifier")
+                    if used_alias_ref and used_alias_ref.raw == alias_name:
+                        ids_refs.append(used_alias_ref)
 
             # Find all references to alias in column references
             for exp_ref in column_reference_segments:
@@ -211,6 +215,7 @@ class Rule_L031(BaseRule):
                         source=[alias_info.table_ref],
                     )
                     for alias in [alias_info.alias_identifier_ref, *ids_refs]
+                    if alias
                 ],
             ]
 
