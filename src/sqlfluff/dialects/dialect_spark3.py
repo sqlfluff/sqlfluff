@@ -180,6 +180,7 @@ spark3_dialect.replace(
         Sequence("GROUP", "BY"),
         Sequence("ORDER", "BY"),
         Sequence("CLUSTER", "BY"),
+        Sequence("DISTRIBUTE", "BY"),
         # TODO Add PIVOT, LATERAL VIEW, SORT BY and DISTRIBUTE BY clauses
         "HAVING",
         "QUALIFY",
@@ -996,6 +997,52 @@ class ClusterByClauseSegment(BaseSegment):
     )
 
 
+@spark3_dialect.segment()
+class DistributeByClauseSegment(BaseSegment):
+    """A `DISTRIBUTE BY` clause from `SELECT` statement.
+
+    This clause is mutually exclusive with SORT BY, ORDER BY and DISTRIBUTE BY.
+    https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-distribute-by.html
+    """
+
+    type = "distribute_by_clause"
+
+    match_grammar = StartsWith(
+        Sequence("DISTRIBUTE", "BY"),
+        terminator=OneOf(
+            "LIMIT",
+            "HAVING",
+            # For window functions
+            "WINDOW",
+            Ref("FrameClauseUnitGrammar"),
+            "SEPARATOR",
+        ),
+    )
+
+    parse_grammar = Sequence(
+        "DISTRIBUTE",
+        "BY",
+        Indent,
+        Delimited(
+            Sequence(
+                OneOf(
+                    Ref("ColumnReferenceSegment"),
+                    # Can `DISTRIBUTE BY 1`
+                    Ref("NumericLiteralSegment"),
+                    # Can distribute by an expression
+                    Ref("ExpressionSegment"),
+                ),
+            ),
+            terminator=OneOf(
+                "WINDOW",
+                "LIMIT",
+                Ref("FrameClauseUnitGrammar"),
+            ),
+        ),
+        Dedent,
+    )
+
+
 @spark3_dialect.segment(replace=True)
 class UnorderedSelectStatementSegment(BaseSegment):
     """Enhance unordered `SELECT` statement for valid SparkSQL clauses."""
@@ -1030,8 +1077,11 @@ class SelectStatementSegment(BaseSegment):
     ).parse_grammar.copy(
         # TODO New Rule: Warn of mutual exclusion of following clauses
         #  DISTRIBUTE, SORT, CLUSTER and ORDER BY if multiple specified
-        # TODO Insert: SORT BY and DISTRIBUTE BY clauses
-        insert=[Ref("ClusterByClauseSegment", optional=True)],
+        # TODO Insert: SORT BY clauses
+        insert=[
+            Ref("ClusterByClauseSegment", optional=True),
+            Ref("DistributeByClauseSegment", optional=True),
+        ],
         before=Ref("LimitClauseSegment"),
     )
 
@@ -1128,6 +1178,7 @@ class StatementSegment(BaseSegment):
             Ref("LoadDataSegment"),
             # Data Retrieval Statements
             Ref("ClusterByClauseSegment"),
+            Ref("DistributeByClauseSegment"),
         ],
         remove=[
             Ref("TransactionStatementSegment"),
