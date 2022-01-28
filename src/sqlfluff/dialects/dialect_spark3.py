@@ -1067,7 +1067,8 @@ class GroupByClauseSegment(BaseSegment):
             terminator=OneOf("ORDER", "LIMIT", "HAVING", "WINDOW"),
         ),
         # TODO: New Rule
-        #  Warn if CubeRollupClauseSegment and WithCubeRollupClauseSegment used in same query
+        #  Warn if CubeRollupClauseSegment and
+        #  WithCubeRollupClauseSegment used in same query
         Ref("WithCubeRollupClauseSegment", optional=True),
         Dedent,
     )
@@ -1084,8 +1085,8 @@ class WithCubeRollupClauseSegment(BaseSegment):
 
     match_grammar = StartsWith(
         Sequence(
-        "WITH",
-        OneOf("CUBE", "ROLLUP"),
+            "WITH",
+            OneOf("CUBE", "ROLLUP"),
         ),
         terminator=OneOf(
             "HAVING",
