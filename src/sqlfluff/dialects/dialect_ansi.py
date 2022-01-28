@@ -511,6 +511,7 @@ ansi_dialect.add(
                 Ref.keyword("OUTER", optional=True),
                 optional=True,
             ),
+            optional=True,
         ),
     ),
     ReferentialActionGrammar=OneOf(
@@ -1427,7 +1428,7 @@ class JoinClauseSegment(BaseSegment):
         ),
         # Note NATURAL joins do not support Join conditions
         Sequence(
-            Ref(""),
+            Ref("NaturalJoinKeywords"),
             Ref("JoinKeywords"),
             Indent,
             Ref("FromExpressionElementSegment"),
