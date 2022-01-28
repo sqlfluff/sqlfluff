@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: fa356067b70fb3f5610d7af26940652b16589d937bc0683332ceb174ff3d51be
+_hash: 0c548c15ee4145b180187a65376ac03eca89bffe027d51901a8a60da3819345c
 file:
 - base:
     select_statement:
@@ -23,11 +23,11 @@ file:
             table_expression:
               table_reference:
                 identifier: person
-            alias_expression:
-              identifier: DISTRIBUTE
-        unparsable:
-        - raw: BY
-        - raw: age
+      distribute_by_clause:
+      - keyword: DISTRIBUTE
+      - keyword: BY
+      - column_reference:
+          identifier: age
 - statement_terminator: ;
 - base:
     select_statement:
@@ -47,11 +47,10 @@ file:
             table_expression:
               table_reference:
                 identifier: person
-            alias_expression:
-              identifier: DISTRIBUTE
-        unparsable:
-        - raw: BY
-        - raw: '1'
+      distribute_by_clause:
+      - keyword: DISTRIBUTE
+      - keyword: BY
+      - literal: '1'
 - statement_terminator: ;
 - base:
     select_statement:
@@ -71,13 +70,14 @@ file:
             table_expression:
               table_reference:
                 identifier: person
-            alias_expression:
-              identifier: DISTRIBUTE
-        unparsable:
-        - raw: BY
-        - raw: name
-        - comma: ','
-        - raw: age
+      distribute_by_clause:
+      - keyword: DISTRIBUTE
+      - keyword: BY
+      - column_reference:
+          identifier: name
+      - comma: ','
+      - column_reference:
+          identifier: age
 - statement_terminator: ;
 - base:
     select_statement:
@@ -97,24 +97,35 @@ file:
             table_expression:
               table_reference:
                 identifier: person
-            alias_expression:
-              identifier: DISTRIBUTE
-        unparsable:
-        - raw: BY
-        - raw: LEFT
-        - bracketed:
-          - start_bracket: (
-          - raw: SUBSTRING_INDEX
-          - bracketed:
+      distribute_by_clause:
+      - keyword: DISTRIBUTE
+      - keyword: BY
+      - expression:
+          function:
+            function_name:
+              function_name_identifier: LEFT
+            bracketed:
             - start_bracket: (
-            - raw: name
+            - expression:
+                function:
+                  function_name:
+                    function_name_identifier: SUBSTRING_INDEX
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      column_reference:
+                        identifier: name
+                  - comma: ','
+                  - expression:
+                      literal: "' '"
+                  - comma: ','
+                  - expression:
+                      numeric_literal:
+                        binary_operator: '-'
+                        literal: '1'
+                  - end_bracket: )
             - comma: ','
-            - raw: "' '"
-            - comma: ','
-            - raw: '-'
-            - raw: '1'
+            - expression:
+                literal: '1'
             - end_bracket: )
-          - comma: ','
-          - raw: '1'
-          - end_bracket: )
 - statement_terminator: ;
