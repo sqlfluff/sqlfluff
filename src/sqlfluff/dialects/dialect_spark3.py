@@ -1133,20 +1133,7 @@ class WithCubeRollupClauseSegment(BaseSegment):
 
     type = "with_cube_rollup_clause"
 
-    match_grammar = StartsWith(
-        Sequence(
-            "WITH",
-            OneOf("CUBE", "ROLLUP"),
-        ),
-        terminator=OneOf(
-            "HAVING",
-            Sequence("ORDER", "BY"),
-            "LIMIT",
-            Ref("SetOperatorSegment"),
-        ),
-    )
-
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "WITH",
         OneOf("CUBE", "ROLLUP"),
     )
