@@ -20,6 +20,7 @@ PARTITION
 ORDER
 ROWS
 SET
+NATURAL
 """
 
 ansi_unreserved_keywords = """ABORT
