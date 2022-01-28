@@ -1,0 +1,120 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: fa356067b70fb3f5610d7af26940652b16589d937bc0683332ceb174ff3d51be
+file:
+- base:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            identifier: age
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: name
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: person
+            alias_expression:
+              identifier: DISTRIBUTE
+        unparsable:
+        - raw: BY
+        - raw: age
+- statement_terminator: ;
+- base:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            identifier: age
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: name
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: person
+            alias_expression:
+              identifier: DISTRIBUTE
+        unparsable:
+        - raw: BY
+        - raw: '1'
+- statement_terminator: ;
+- base:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            identifier: age
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: name
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: person
+            alias_expression:
+              identifier: DISTRIBUTE
+        unparsable:
+        - raw: BY
+        - raw: name
+        - comma: ','
+        - raw: age
+- statement_terminator: ;
+- base:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            identifier: age
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: name
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: person
+            alias_expression:
+              identifier: DISTRIBUTE
+        unparsable:
+        - raw: BY
+        - raw: LEFT
+        - bracketed:
+          - start_bracket: (
+          - raw: SUBSTRING_INDEX
+          - bracketed:
+            - start_bracket: (
+            - raw: name
+            - comma: ','
+            - raw: "' '"
+            - comma: ','
+            - raw: '-'
+            - raw: '1'
+            - end_bracket: )
+          - comma: ','
+          - raw: '1'
+          - end_bracket: )
+- statement_terminator: ;
