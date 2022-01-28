@@ -499,12 +499,12 @@ ansi_dialect.add(
     FrameClauseUnitGrammar=OneOf("ROWS", "RANGE"),
     # It's as a sequence to allow to parametrize that in Postgres dialect with LATERAL
     JoinKeywords=Sequence("JOIN"),
-    # This is not supported in all dialects (e.g. not in Bigquery or T-SQL)
-    # So override with Nothing() for those.
-    # Note also that NATURAL joins do not support CROSS joins
+    # NATURAL joins are not supported in all dialects (e.g. not in Bigquery
+    # or T-SQL). So define here to allow override with Nothing() for those.
     NaturalJoinKeywords=Sequence(
         "NATURAL",
         OneOf(
+            # Note that NATURAL joins do not support CROSS joins
             "INNER",
             Sequence(
                 OneOf("LEFT", "RIGHT", "FULL"),
