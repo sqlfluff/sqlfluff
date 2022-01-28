@@ -499,6 +499,9 @@ ansi_dialect.add(
     FrameClauseUnitGrammar=OneOf("ROWS", "RANGE"),
     # It's as a sequence to allow to parametrize that in Postgres dialect with LATERAL
     JoinKeywords=Sequence("JOIN"),
+    # This is not supported in all dialects (e.g. not in Bigquery or T-SQL)
+    # So override with Nothing() for those.
+    # Note also that NATURAL joins do not support CROSS joins
     NaturalJoinKeywords=Sequence(
         "NATURAL",
         OneOf(
@@ -1373,13 +1376,6 @@ class JoinClauseSegment(BaseSegment):
         # ....FROM S1.T1 t1 LEFT JOIN ( S2.T2 t2 JOIN S3.T3 t3 ON t2.col1=t3.col1) ON
         # tab1.col1 = tab2.col1
         Sequence(
-            Ref("NaturalJoinKeywords"),
-            Ref("JoinKeywords"),
-            Indent,
-            Ref("FromExpressionElementSegment"),
-            Dedent,
-        ),
-        Sequence(
             OneOf(
                 "CROSS",
                 "INNER",
@@ -1427,6 +1423,14 @@ class JoinClauseSegment(BaseSegment):
                 ),
                 Conditional(Indent, indented_using_on=False),
             ),
+            Dedent,
+        ),
+        # Note NATURAL joins do not support Join conditions
+        Sequence(
+            Ref(""),
+            Ref("JoinKeywords"),
+            Indent,
+            Ref("FromExpressionElementSegment"),
             Dedent,
         ),
     )
