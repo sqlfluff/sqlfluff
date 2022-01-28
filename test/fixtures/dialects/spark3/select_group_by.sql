@@ -1,13 +1,13 @@
 -- Sum of quantity per dealership. Group by `id`.
 SELECT
     id,
-    sum(quantity)
+    sum(quantity) AS sum_quantity
 FROM dealer GROUP BY id ORDER BY id;
 
 -- Use column position in GROUP by clause.
 SELECT
     id,
-    sum(quantity)
+    sum(quantity) AS sum_quantity
 FROM dealer GROUP BY 1 ORDER BY 1;
 
 -- Multiple aggregations.
@@ -15,14 +15,14 @@ FROM dealer GROUP BY 1 ORDER BY 1;
 -- 2. Max quantity per dealership.
 SELECT
     id,
-    sum(quantity) AS sum,
-    max(quantity) AS max
+    sum(quantity) AS sum_quantity,
+    max(quantity) AS max_quantity
 FROM dealer GROUP BY id ORDER BY id;
 
 -- Count the number of distinct dealer cities per car_model.
 SELECT
     car_model,
-    count(DISTINCT city) AS count
+    count(DISTINCT city) AS count_distinct_city
 FROM dealer GROUP BY car_model;
 
 -- Sum of only 'Honda Civic' and 'Honda CRV' quantities per dealership.
@@ -42,9 +42,9 @@ GROUP BY id ORDER BY id;
 SELECT
     city,
     car_model,
-    sum(quantity) AS sum
+    sum(quantity) AS sum_quantity
 FROM dealer
-GROUP BY grouping SETS ((city, car_model), (city), (car_model), ())
+GROUP BY GROUPING SETS ((city, car_model), (city), (car_model), ())
 ORDER BY city;
 
 -- Group by processing with `ROLLUP` clause.
@@ -52,17 +52,18 @@ ORDER BY city;
 SELECT
     city,
     car_model,
-    sum(quantity) AS sum
+    sum(quantity) AS sum_quantity
 FROM dealer
 GROUP BY city, car_model WITH ROLLUP
 ORDER BY city, car_model;
 
 -- Group by processing with `CUBE` clause.
--- Equivalent GROUP BY GROUPING SETS ((city, car_model), (city), (car_model), ())
+-- Equivalent GROUP BY:
+-- GROUPING SETS ((city, car_model), (city), (car_model), ())
 SELECT
     city,
     car_model,
-    sum(quantity) AS sum
+    sum(quantity) AS sum_quantity
 FROM dealer
 GROUP BY city, car_model WITH CUBE
 ORDER BY city, car_model;
@@ -71,10 +72,25 @@ ORDER BY city, car_model;
 -- Implicit GROUP BY
 SELECT first(age) FROM person;
 
--- Get the first row in column `age` ignore nulls,last row in column `id` and sum of column `id`.
 -- Implicit GROUP BY
 SELECT
-    first(age IGNORE NULLS),
-    last(id),
-    sum(id)
+    first(age IGNORE NULLS) AS first_age,
+    last(id) AS last_id,
+    sum(id) AS sum_id
 FROM person;
+
+-- CUBE within GROUP BY clause
+SELECT
+    name,
+    age,
+    count(*) AS record_count
+FROM people
+GROUP BY cube(name, age);
+
+-- ROLLUP within GROUP BY clause
+SELECT
+    name,
+    age,
+    count(*) AS record_count
+FROM people
+GROUP BY rollup(name, age);
