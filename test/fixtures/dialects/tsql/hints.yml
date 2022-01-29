@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: a9f655124a52309b72ba14cebe45b8fb218bfd7acfdd36995ca42d32f0c93e09
+_hash: c6976fb5117776ea0122563b8d98741bb6c062204c4d4d9707672ac626c7ec33
 file:
 - batch:
     statement:
@@ -78,7 +78,7 @@ file:
       - identifier: dbo
       - dot: .
       - identifier: RetrievePersonAddress
-    - function_parameter_list:
+    - procedure_parameter_list:
       - parameter: '@city_name'
       - data_type:
           identifier: NVARCHAR

@@ -21,3 +21,15 @@ test_fail_templated_plus_raw_newlines:
 test_fail_templated_plus_raw_newlines_extra_newline:
   fail_str: "{{ '\n\n' }}\n\n"
   fix_str: "{{ '\n\n' }}\n"
+
+test_pass_templated_macro_newlines:
+  # Tricky because the rendered code ends with two newlines:
+  # - Literal newline inserted by the macro
+  # - Literal newline at the end of the file
+  # The slicing algorithm should treat the first newline as "templated" because
+  # it was inserted when *expanding* the templated macro call.
+  pass_str: |
+    {% macro get_keyed_nulls(columns) %}
+      {{ columns }}
+    {% endmacro %}
+    SELECT {{ get_keyed_nulls("other_id") }}

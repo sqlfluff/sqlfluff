@@ -23,6 +23,7 @@ from sqlfluff.core.parser import (
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
+from sqlfluff.core.parser.grammar.anyof import AnySetOf
 from sqlfluff.dialects.dialect_postgres_keywords import (
     postgres_keywords,
     get_keywords,
@@ -2955,6 +2956,7 @@ class StatementSegment(BaseSegment):
             Ref("DiscardStatementSegment"),
             Ref("CreateProcedureStatementSegment"),
             Ref("DropProcedureStatementSegment"),
+            Ref("CopyStatementSegment"),
         ],
     )
 
@@ -3432,5 +3434,85 @@ class TruncateStatementSegment(BaseSegment):
         Ref(
             "DropBehaviorGrammar",
             optional=True,
+        ),
+    )
+
+
+@postgres_dialect.segment()
+class CopyStatementSegment(BaseSegment):
+    """A `COPY` statement.
+
+    As Specified in https://www.postgresql.org/docs/14/sql-copy.html
+    """
+
+    type = "copy_statement"
+
+    _target_subset = OneOf(
+        Ref("QuotedLiteralSegment"), Sequence("PROGRAM", Ref("QuotedLiteralSegment"))
+    )
+
+    _table_definition = Sequence(
+        Ref("TableReferenceSegment"),
+        Bracketed(Delimited(Ref("ColumnReferenceSegment")), optional=True),
+    )
+
+    _option = match_grammar = Sequence(
+        Ref.keyword("WITH", optional=True),
+        Bracketed(
+            Delimited(
+                AnySetOf(
+                    Sequence("FORMAT", Ref("SingleIdentifierGrammar")),
+                    Sequence("FREEZE", Ref("BooleanLiteralGrammar", optional=True)),
+                    Sequence("DELIMITER", Ref("QuotedLiteralSegment")),
+                    Sequence("NULL", Ref("QuotedLiteralSegment")),
+                    Sequence("HEADER", Ref("BooleanLiteralGrammar", optional=True)),
+                    Sequence("QUOTE", Ref("QuotedLiteralSegment")),
+                    Sequence("ESCAPE", Ref("QuotedLiteralSegment")),
+                    Sequence(
+                        "FORCE_QUOTE",
+                        OneOf(
+                            Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+                            Ref("StarSegment"),
+                        ),
+                    ),
+                    Sequence(
+                        "FORCE_NOT_NULL",
+                        Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+                    ),
+                    Sequence(
+                        "FORCE_NULL",
+                        Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+                    ),
+                    Sequence("ENCODING", Ref("QuotedLiteralSegment")),
+                )
+            )
+        ),
+        optional=True,
+    )
+
+    match_grammar = Sequence(
+        "COPY",
+        OneOf(
+            Sequence(
+                _table_definition,
+                "FROM",
+                OneOf(
+                    _target_subset,
+                    Sequence("STDIN"),
+                ),
+                _option,
+                Sequence("WHERE", Ref("ExpressionSegment"), optional=True),
+            ),
+            Sequence(
+                OneOf(
+                    _table_definition, Bracketed(Ref("UnorderedSelectStatementSegment"))
+                ),
+                "TO",
+                OneOf(
+                    _target_subset,
+                    Sequence("STDOUT"),
+                ),
+                _option,
+            ),
         ),
     )
