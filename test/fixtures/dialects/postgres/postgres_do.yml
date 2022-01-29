@@ -1,0 +1,15 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 0112009521aa61097b73104e5c4e8d9ee9c9331ac131c5dc5e538e762746b812
+file:
+  statement:
+    do_statement:
+      keyword: DO
+      literal: "$$DECLARE r record;\n#BEGIN\n#    FOR r IN SELECT table_schema, table_name\
+        \ FROM information_schema.tables\n             WHERE table_type = 'VIEW' AND\
+        \ table_schema = 'public'\n    LOOP\n        EXECUTE 'GRANT ALL ON ' || quote_ident(r.table_schema)\
+        \ || '.' || quote_ident(r.table_name) || ' TO webuser';\n    END LOOP;\nEND$$"
+  statement_terminator: ;

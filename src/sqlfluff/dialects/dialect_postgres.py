@@ -2957,6 +2957,7 @@ class StatementSegment(BaseSegment):
             Ref("CreateProcedureStatementSegment"),
             Ref("DropProcedureStatementSegment"),
             Ref("CopyStatementSegment"),
+            Ref("DoStatementSegment")
         ],
     )
 
@@ -3523,18 +3524,24 @@ class DoStatementSegment(BaseSegment):
 
     _lang_first_clause = Sequence(
         Ref("LanguageClauseSegment", optional=True),
-        Ref("DollarQuotedLiteralSegment")
+        OneOf(
+            Ref("QuotedLiteralSegment"),
+            Ref("DollarQuotedLiteralSegment"),
+        ),
     )
 
     _lang_last_clause = Sequence(
-        Ref("DollarQuotedLiteralSegment"),
-        Ref("LanguageClauseSegment", optional=True)
+        OneOf(
+            Ref("QuotedLiteralSegment"),
+            Ref("DollarQuotedLiteralSegment"),
+        ),
+        Ref("LanguageClauseSegment", optional=True),
     )
 
     match_grammar = Sequence(
         "DO",
         OneOf(
             _lang_first_clause,
-            _lang_last_clause
+            _lang_last_clause,
         )
     )
