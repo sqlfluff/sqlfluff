@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 6adb7600d5b9ffa6024356d9a9e8621f41f676fdcdf839d5173d554247eda590
+_hash: 38740d06578e7fc57aef6895215bbef34bca3af6a3cdde9cf9bda621f611f3ae
 file:
 - statement:
     create_function_statement:
@@ -24,10 +24,11 @@ file:
     - data_type:
         keyword: integer
     - base:
-      - keyword: AS
-      - literal: "'select $1 + $2;'"
-      - keyword: LANGUAGE
-      - parameter: SQL
+        keyword: AS
+        literal: "'select $1 + $2;'"
+        language_clause:
+          keyword: LANGUAGE
+          parameter: SQL
 - statement_terminator: ;
 - statement:
     create_function_statement:
@@ -50,8 +51,9 @@ file:
     - base:
       - keyword: AS
       - literal: "'\n    BEGIN\n        RETURN i + 1;\n    END;\n'"
-      - keyword: LANGUAGE
-      - parameter: plpgsql
+      - language_clause:
+          keyword: LANGUAGE
+          parameter: plpgsql
       - keyword: VOLATILE
 - statement_terminator: ;
 - statement:
@@ -75,8 +77,9 @@ file:
     - base:
       - keyword: AS
       - literal: "'\n    BEGIN\n        RETURN i + 1;\n    END;\n'"
-      - keyword: LANGUAGE
-      - parameter: plpgsql
+      - language_clause:
+          keyword: LANGUAGE
+          parameter: plpgsql
       - keyword: WINDOW
       - keyword: IMMUTABLE
       - keyword: STABLE
@@ -120,8 +123,9 @@ file:
       - literal: "'C:\\\\my_file.c'"
       - comma: ','
       - literal: "'symlink_c'"
-      - keyword: LANGUAGE
-      - parameter: plpgsql
+      - language_clause:
+          keyword: LANGUAGE
+          parameter: plpgsql
       - keyword: WINDOW
       - keyword: IMMUTABLE
       - keyword: STABLE
@@ -172,8 +176,9 @@ file:
       - keyword: UNSAFE
       - keyword: AS
       - literal: "$$\n    BEGIN\n        RETURN i + 1;\n    END;\n$$"
-      - keyword: LANGUAGE
-      - parameter: plpgsql
+      - language_clause:
+          keyword: LANGUAGE
+          parameter: plpgsql
       - keyword: SUPPORT
       - parameter: my_function
 - statement_terminator: ;
@@ -198,8 +203,9 @@ file:
     - base:
       - keyword: AS
       - literal: "'select $1 + $2;'"
-      - keyword: LANGUAGE
-      - parameter: SQL
+      - language_clause:
+          keyword: LANGUAGE
+          parameter: SQL
       - keyword: IMMUTABLE
       - keyword: RETURNS
       - keyword: 'NULL'
@@ -226,11 +232,12 @@ file:
     - data_type:
         keyword: integer
     - base:
-      - keyword: AS
-      - literal: "$$\n        BEGIN\n                RETURN i + 1;\n        END;\n\
+        keyword: AS
+        literal: "$$\n        BEGIN\n                RETURN i + 1;\n        END;\n\
           $$"
-      - keyword: LANGUAGE
-      - parameter: plpgsql
+        language_clause:
+          keyword: LANGUAGE
+          parameter: plpgsql
 - statement_terminator: ;
 - statement:
     create_function_statement:
@@ -256,10 +263,11 @@ file:
             keyword: text
         - end_bracket: )
     - base:
-      - keyword: AS
-      - literal: "$$ SELECT $1, CAST($1 AS text) || ' is text' $$"
-      - keyword: LANGUAGE
-      - parameter: SQL
+        keyword: AS
+        literal: "$$ SELECT $1, CAST($1 AS text) || ' is text' $$"
+        language_clause:
+          keyword: LANGUAGE
+          parameter: SQL
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -315,10 +323,11 @@ file:
     - data_type:
         data_type_identifier: dup_result
     - base:
-      - keyword: AS
-      - literal: "$$ SELECT $1, CAST($1 AS text) || ' is text' $$"
-      - keyword: LANGUAGE
-      - parameter: SQL
+        keyword: AS
+        literal: "$$ SELECT $1, CAST($1 AS text) || ' is text' $$"
+        language_clause:
+          keyword: LANGUAGE
+          parameter: SQL
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -367,10 +376,11 @@ file:
           keyword: text
       - end_bracket: )
     - base:
-      - keyword: AS
-      - literal: "$$ SELECT $1, CAST($1 AS text) || ' is text' $$"
-      - keyword: LANGUAGE
-      - parameter: SQL
+        keyword: AS
+        literal: "$$ SELECT $1, CAST($1 AS text) || ' is text' $$"
+        language_clause:
+          keyword: LANGUAGE
+          parameter: SQL
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -419,8 +429,9 @@ file:
       - literal: "$$\nDECLARE passed BOOLEAN;\nBEGIN\n        SELECT  (pwd = $2) INTO\
           \ passed\n        FROM    pwds\n        WHERE   username = $1;\n\n     \
           \   RETURN passed;\nEND;\n$$"
-      - keyword: LANGUAGE
-      - parameter: plpgsql
+      - language_clause:
+          keyword: LANGUAGE
+          parameter: plpgsql
       - keyword: SECURITY
       - keyword: DEFINER
       - keyword: SET
@@ -460,8 +471,9 @@ file:
       - literal: "$$\nDECLARE passed BOOLEAN;\nBEGIN\n        SELECT  (pwd = $2) INTO\
           \ passed\n        FROM    pwds\n        WHERE   username = $1;\n\n     \
           \   RETURN passed;\nEND;\n$$"
-      - keyword: LANGUAGE
-      - parameter: plpgsql
+      - language_clause:
+          keyword: LANGUAGE
+          parameter: plpgsql
       - keyword: SECURITY
       - keyword: DEFINER
 - statement_terminator: ;
@@ -534,8 +546,9 @@ file:
     - data_type:
         keyword: text
     - base:
-      - keyword: LANGUAGE
-      - parameter: sql
+      - language_clause:
+          keyword: LANGUAGE
+          parameter: sql
       - keyword: STABLE
       - keyword: STRICT
       - keyword: AS
@@ -568,8 +581,9 @@ file:
     - base:
       - keyword: AS
       - literal: "$$\n  RETURN 0.0\n$$"
-      - keyword: LANGUAGE
-      - parameter: plpgsql
+      - language_clause:
+          keyword: LANGUAGE
+          parameter: plpgsql
       - keyword: STABLE
       - keyword: PARALLEL
       - keyword: SAFE
@@ -593,10 +607,11 @@ file:
     - data_type:
         keyword: integer
     - base:
-      - keyword: AS
-      - literal: "'select $1 + $2;'"
-      - keyword: LANGUAGE
-      - parameter: SQL
+        keyword: AS
+        literal: "'select $1 + $2;'"
+        language_clause:
+          keyword: LANGUAGE
+          parameter: SQL
 - statement_terminator: ;
 - statement:
     create_function_statement:
@@ -617,8 +632,9 @@ file:
     - data_type:
         keyword: integer
     - base:
-      - keyword: AS
-      - literal: "'select $1 + $2;'"
-      - keyword: LANGUAGE
-      - parameter: SQL
+        keyword: AS
+        literal: "'select $1 + $2;'"
+        language_clause:
+          keyword: LANGUAGE
+          parameter: SQL
 - statement_terminator: ;
