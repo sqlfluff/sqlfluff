@@ -3498,3 +3498,43 @@ class CopyStatementSegment(BaseSegment):
             ),
         ),
     )
+
+@postgres_dialect.segment()
+class LanguageClauseSegment(BaseSegment):
+    """A clause for specifying the language used for executing anonymous code
+    blocks.
+    """
+
+    type = "language_clause"
+
+    match_grammar = Sequence(
+        "LANGUAGE",
+        Ref("ParameterNameSegment")
+    )
+
+@postgres_dialect.segment()
+class DoStatementSegment(BaseSegment):
+    """A `DO` statement for executing anonymous code blocks.
+
+    As specified in https://www.postgresql.org/docs/14/sql-do.html
+    """
+
+    type = "do_statement"
+
+    _lang_first_clause = Sequence(
+        Ref("LanguageClauseSegment", optional=True),
+        Ref("DollarQuotedLiteralSegment")
+    )
+
+    _lang_last_clause = Sequence(
+        Ref("DollarQuotedLiteralSegment"),
+        Ref("LanguageClauseSegment", optional=True)
+    )
+
+    match_grammar = Sequence(
+        "DO",
+        OneOf(
+            _lang_first_clause,
+            _lang_last_clause
+        )
+    )
