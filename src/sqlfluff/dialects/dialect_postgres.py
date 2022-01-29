@@ -843,7 +843,7 @@ class FunctionDefinitionGrammar(BaseSegment):
 
     match_grammar = Sequence(
         AnyNumberOf(
-            Sequence("LANGUAGE", Ref("ParameterNameSegment")),
+            Ref("LanguageClauseSegment"),
             Sequence("TRANSFORM", "FOR", "TYPE", Ref("ParameterNameSegment")),
             Ref.keyword("WINDOW"),
             OneOf("IMMUTABLE", "STABLE", "VOLATILE"),
