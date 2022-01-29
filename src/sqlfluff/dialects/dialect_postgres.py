@@ -2969,58 +2969,6 @@ class StatementSegment(BaseSegment):
 
 
 @postgres_dialect.segment(replace=True)
-class FunctionSegment(BaseSegment):
-    """A scalar or aggregate function.
-
-    Maybe in the future we should distinguish between
-    aggregate functions and other functions. For now
-    we treat them the same because they look the same
-    for our purposes.
-    """
-
-    type = "function"
-    match_grammar = OneOf(
-        Sequence(
-            Sequence(
-                Ref("DatePartFunctionNameSegment"),
-                Bracketed(
-                    Delimited(
-                        Ref("DatetimeUnitSegment"),
-                        Ref(
-                            "FunctionContentsGrammar",
-                            # The brackets might be empty for some functions...
-                            optional=True,
-                            ephemeral_name="FunctionContentsGrammar",
-                        ),
-                    )
-                ),
-            )
-        ),
-        Sequence(
-            Sequence(
-                AnyNumberOf(
-                    Ref("FunctionNameSegment"),
-                    max_times=1,
-                    min_times=1,
-                    exclude=OneOf(
-                        Ref("ValuesClauseSegment"),
-                    ),
-                ),
-                Bracketed(
-                    Ref(
-                        "FunctionContentsGrammar",
-                        # The brackets might be empty for some functions...
-                        optional=True,
-                        ephemeral_name="FunctionContentsGrammar",
-                    )
-                ),
-            ),
-            Ref("PostFunctionGrammar", optional=True),
-        ),
-    )
-
-
-@postgres_dialect.segment(replace=True)
 class CreateTriggerStatementSegment(BaseSegment):
     """Create Trigger Statement.
 

@@ -2,7 +2,8 @@
 # code linting and formatting
 flake8
 flake8-docstrings
-flake8-black
+# Black 22.1 has a fatal bug when used with flake8-black, so skip it for now.
+#flake8-black
 # documentation checks
 doc8
 Pygments

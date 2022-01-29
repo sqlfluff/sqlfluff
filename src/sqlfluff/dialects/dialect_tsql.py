@@ -1912,6 +1912,9 @@ class FunctionSegment(BaseSegment):
     type = "function"
     match_grammar = OneOf(
         Sequence(
+            # Treat fucnctions which take date parts separately
+            # So those functions parse date parts as DatetimeUnitSegment
+            # rather than identifiers.
             Ref("DatePartFunctionNameSegment"),
             Bracketed(
                 Delimited(

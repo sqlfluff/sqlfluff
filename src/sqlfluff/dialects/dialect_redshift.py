@@ -137,17 +137,6 @@ class DatatypeSegment(BaseSegment):
     )
 
 
-@redshift_dialect.segment(replace=True)
-class FunctionSegment(BaseSegment):
-    """A scalar or aggregate function.
-
-    Revert back to the ANSI definition to support ignore nulls
-    """
-
-    type = "function"
-    match_grammar = ansi_dialect.get_segment("FunctionSegment").match_grammar.copy()
-
-
 @redshift_dialect.segment()
 class ColumnEncodingSegment(BaseSegment):
     """ColumnEncoding segment.

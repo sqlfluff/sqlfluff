@@ -331,7 +331,6 @@ ansi_dialect.add(
             type="date_part",
         )
     ),
-    # Ansi Intervals
     DatePartFunctionName=SegmentGenerator(
         lambda dialect: RegexParser(
             r"^(" + r"|".join(dialect.sets("date_part_function_name")) + r")$",
@@ -1055,6 +1054,9 @@ class FunctionSegment(BaseSegment):
     type = "function"
     match_grammar = OneOf(
         Sequence(
+            # Treat fucnctions which take date parts separately
+            # So those functions parse date parts as DatetimeUnitSegment
+            # rather than identifiers.
             Sequence(
                 Ref("DatePartFunctionNameSegment"),
                 Bracketed(
@@ -1068,7 +1070,7 @@ class FunctionSegment(BaseSegment):
                         ),
                     )
                 ),
-            )
+            ),
         ),
         Sequence(
             Sequence(
