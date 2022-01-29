@@ -184,6 +184,7 @@ bigquery_dialect.replace(
         ),
         Ref("TableAliasExpressionSegment", optional=True),
     ),
+    NaturalJoinKeywords=Nothing(),
 )
 
 

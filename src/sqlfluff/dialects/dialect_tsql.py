@@ -341,6 +341,7 @@ tsql_dialect.replace(
         Sequence(OneOf("IGNORE", "RESPECT"), "NULLS"),
     ),
     JoinKeywords=OneOf("JOIN", "APPLY", Sequence("OUTER", "APPLY")),
+    NaturalJoinKeywords=Nothing(),
     # Replace Expression_D_Grammar to remove casting syntax invalid in TSQL
     Expression_D_Grammar=Sequence(
         OneOf(
