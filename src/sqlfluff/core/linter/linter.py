@@ -431,18 +431,15 @@ class Linter:
         ignore_buff: List[NoQaDirective] = []
         violations: List[SQLBaseError] = []
         for idx, line in enumerate(source.split("\n")):
-            if not line:
-                continue
-            match = inline_comment_regex.search(line)
-            if not match:
-                continue
-            ignore_entry = cls.parse_noqa(
-                line[match[0] : match[1]], idx + 1, rule_codes
-            )
-            if isinstance(ignore_entry, SQLParseError):
-                violations.append(ignore_entry)
-            elif ignore_entry:
-                ignore_buff.append(ignore_entry)
+            match = inline_comment_regex.search(line) if line else None
+            if match:
+                ignore_entry = cls.parse_noqa(
+                    line[match[0] : match[1]], idx + 1, rule_codes
+                )
+                if isinstance(ignore_entry, SQLParseError):
+                    violations.append(ignore_entry)
+                elif ignore_entry:
+                    ignore_buff.append(ignore_entry)
         if ignore_buff:
             linter_logger.info("Parsed noqa directives from file: %r", ignore_buff)
         return ignore_buff, violations
