@@ -42,6 +42,7 @@ class RenderedFile(NamedTuple):
     time_dict: Dict[str, float]
     fname: str
     encoding: str
+    source_str: str
 
 
 class ParsedString(NamedTuple):

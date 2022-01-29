@@ -649,7 +649,13 @@ class Linter:
         time_dict = {"templating": time.monotonic() - t0}
 
         return RenderedFile(
-            templated_file, templater_violations, config, time_dict, fname, encoding
+            templated_file,
+            templater_violations,
+            config,
+            time_dict,
+            fname,
+            encoding,
+            in_str,
         )
 
     def render_file(self, fname: str, root_config: FluffConfig) -> RenderedFile:
