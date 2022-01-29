@@ -26,7 +26,7 @@ from sqlfluff.core.errors import (
     SQLParseError,
     SQLTemplaterSkipFile,
 )
-from sqlfluff.core.parser import Lexer, Parser
+from sqlfluff.core.parser import Lexer, Parser, RegexLexer
 from sqlfluff.core.file_helpers import get_encoding
 from sqlfluff.core.templaters import TemplatedFile
 from sqlfluff.core.rules import get_ruleset
@@ -401,7 +401,7 @@ class Linter:
         return result
 
     @classmethod
-    def extract_ignore_mask(
+    def extract_ignore_mask_tree(
         cls,
         tree: BaseSegment,
         rule_codes: List[str],
@@ -416,6 +416,31 @@ class Linter:
                     violations.append(ignore_entry)
                 elif ignore_entry:
                     ignore_buff.append(ignore_entry)
+        if ignore_buff:
+            linter_logger.info("Parsed noqa directives from file: %r", ignore_buff)
+        return ignore_buff, violations
+
+    @classmethod
+    def extract_ignore_mask_source(
+        cls,
+        source: str,
+        inline_comment_regex: RegexLexer,
+        rule_codes: List[str],
+    ) -> Tuple[List[NoQaDirective], List[SQLBaseError]]:
+        """Look for inline ignore comments and return NoQaDirectives."""
+        ignore_buff: List[NoQaDirective] = []
+        violations: List[SQLBaseError] = []
+        for idx, line in enumerate(source.split("\n")):
+            if not line:
+                continue
+            match = inline_comment_regex.search(line)
+            if not match:
+                continue
+            ignore_entry = cls.parse_noqa(line[match[0] : match[1]], 1, rule_codes)
+            if isinstance(ignore_entry, SQLParseError):
+                violations.append(ignore_entry)
+            elif ignore_entry:
+                ignore_buff.append(ignore_entry)
         if ignore_buff:
             linter_logger.info("Parsed noqa directives from file: %r", ignore_buff)
         return ignore_buff, violations
@@ -450,7 +475,7 @@ class Linter:
         # Look for comment segments which might indicate lines to ignore.
         if not config.get("disable_noqa"):
             rule_codes = [r.code for r in rule_set]
-            ignore_buff, ivs = cls.extract_ignore_mask(tree, rule_codes)
+            ignore_buff, ivs = cls.extract_ignore_mask_tree(tree, rule_codes)
             all_linting_errors += ivs
         else:
             ignore_buff = []
@@ -557,6 +582,19 @@ class Linter:
             # If no parsed tree, set to None
             tree = None
             ignore_buff = []
+            if not parsed.config.get("disable_noqa"):
+                # Even if templating and/or parsing fail, we still want to respect
+                # "noqa" comments.
+                ignore_buff, ignore_violations = cls.extract_ignore_mask_source(
+                    parsed.source_str,
+                    [
+                        lm
+                        for lm in parsed.config.get("dialect_obj").lexer_matchers
+                        if lm.name == "inline_comment"
+                    ][0],
+                    [r.code for r in rule_set],
+                )
+                violations += ignore_violations
 
         # We process the ignore config here if appropriate
         for violation in violations:
