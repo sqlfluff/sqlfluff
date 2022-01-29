@@ -436,7 +436,9 @@ class Linter:
             match = inline_comment_regex.search(line)
             if not match:
                 continue
-            ignore_entry = cls.parse_noqa(line[match[0] : match[1]], 1, rule_codes)
+            ignore_entry = cls.parse_noqa(
+                line[match[0] : match[1]], idx + 1, rule_codes
+            )
             if isinstance(ignore_entry, SQLParseError):
                 violations.append(ignore_entry)
             elif ignore_entry:
@@ -595,6 +597,11 @@ class Linter:
                     [r.code for r in rule_set],
                 )
                 violations += ignore_violations
+
+                # Filter violations based on the above.
+                violations = LintedFile.ignore_masked_violations(
+                    violations, ignore_buff
+                )
 
         # We process the ignore config here if appropriate
         for violation in violations:
