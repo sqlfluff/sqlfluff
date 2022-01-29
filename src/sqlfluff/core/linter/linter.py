@@ -343,7 +343,7 @@ class Linter:
         cls,
         rendered: RenderedFile,
         recurse: bool = True,
-    ):
+    ) -> ParsedString:
         """Parse a rendered file."""
         t0 = time.monotonic()
         violations = cast(List[SQLBaseError], rendered.templater_violations)
@@ -382,6 +382,7 @@ class Linter:
             rendered.templated_file,
             rendered.config,
             rendered.fname,
+            rendered.source_str,
         )
 
     @classmethod

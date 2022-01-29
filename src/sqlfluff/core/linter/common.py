@@ -66,6 +66,7 @@ class ParsedString(NamedTuple):
     templated_file: TemplatedFile
     config: FluffConfig
     fname: str
+    source_str: str
 
 
 class EnrichedFixPatch(NamedTuple):
