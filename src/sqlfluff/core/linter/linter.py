@@ -441,7 +441,7 @@ class Linter:
                     line[match[0] : match[1]], idx + 1, rule_codes
                 )
                 if isinstance(ignore_entry, SQLParseError):
-                    violations.append(ignore_entry)
+                    violations.append(ignore_entry)  # pragma: no cover
                 elif ignore_entry:
                     ignore_buff.append(ignore_entry)
         if ignore_buff:
