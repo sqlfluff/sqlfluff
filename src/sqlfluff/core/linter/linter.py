@@ -427,7 +427,11 @@ class Linter:
         inline_comment_regex: RegexLexer,
         rule_codes: List[str],
     ) -> Tuple[List[NoQaDirective], List[SQLBaseError]]:
-        """Look for inline ignore comments and return NoQaDirectives."""
+        """Look for inline ignore comments and return NoQaDirectives.
+
+        Very similar to extract_ignore_mask_tree(), but can be run on raw source
+        (i.e. does not require the code to have parsed successfully).
+        """
         ignore_buff: List[NoQaDirective] = []
         violations: List[SQLBaseError] = []
         for idx, line in enumerate(source.split("\n")):
@@ -582,8 +586,10 @@ class Linter:
             tree = None
             ignore_buff = []
             if not parsed.config.get("disable_noqa"):
-                # Even if templating and/or parsing fail, we still want to respect
-                # "noqa" comments.
+                # Templating and/or parsing have failed. Look for "noqa"
+                # comments (the normal path for identifying these comments
+                # requires access to the parse tree, and because of the failure,
+                # we don't have a parse tree).
                 ignore_buff, ignore_violations = cls.extract_ignore_mask_source(
                     parsed.source_str,
                     [
