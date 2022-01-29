@@ -1,7 +1,7 @@
 # Install with -U to keep all requirements up-to-date
 # code linting and formatting
-# Black 22.1 has a fatal bug
-black<22.1
+# Black 22.1 has a fatal bug, so use the latest previous for now
+black==21.12b0
 flake8
 flake8-docstrings
 flake8-black
