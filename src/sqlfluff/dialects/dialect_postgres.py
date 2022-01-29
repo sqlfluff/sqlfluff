@@ -2972,26 +2972,44 @@ class FunctionSegment(BaseSegment):
     """
 
     type = "function"
-    match_grammar = Sequence(
+    match_grammar = OneOf(
         Sequence(
-            AnyNumberOf(
-                Ref("FunctionNameSegment"),
-                max_times=1,
-                min_times=1,
-                exclude=OneOf(
-                    Ref("ValuesClauseSegment"),
+            Sequence(
+                Ref("DatePartFunctionNameSegment"),
+                Bracketed(
+                    Delimited(
+                        Ref("DatetimeUnitSegment"),
+                        Ref(
+                            "FunctionContentsGrammar",
+                            # The brackets might be empty for some functions...
+                            optional=True,
+                            ephemeral_name="FunctionContentsGrammar",
+                        ),
+                    )
+                ),
+            )
+        ),
+        Sequence(
+            Sequence(
+                AnyNumberOf(
+                    Ref("FunctionNameSegment"),
+                    max_times=1,
+                    min_times=1,
+                    exclude=OneOf(
+                        Ref("ValuesClauseSegment"),
+                    ),
+                ),
+                Bracketed(
+                    Ref(
+                        "FunctionContentsGrammar",
+                        # The brackets might be empty for some functions...
+                        optional=True,
+                        ephemeral_name="FunctionContentsGrammar",
+                    )
                 ),
             ),
-            Bracketed(
-                Ref(
-                    "FunctionContentsGrammar",
-                    # The brackets might be empty for some functions...
-                    optional=True,
-                    ephemeral_name="FunctionContentsGrammar",
-                )
-            ),
+            Ref("PostFunctionGrammar", optional=True),
         ),
-        Ref("PostFunctionGrammar", optional=True),
     )
 
 

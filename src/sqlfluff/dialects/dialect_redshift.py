@@ -45,6 +45,8 @@ redshift_dialect.sets("reserved_keywords").update(
 redshift_dialect.sets("bare_functions").clear()
 redshift_dialect.sets("bare_functions").update(["current_date", "sysdate"])
 
+redshift_dialect.sets("date_part_function_name").update(["DATEDIFF"])
+
 redshift_dialect.replace(WellKnownTextGeometrySegment=Nothing())
 
 
@@ -133,17 +135,6 @@ class DatatypeSegment(BaseSegment):
             ),
         ),
     )
-
-
-@redshift_dialect.segment(replace=True)
-class DatePartFunctionNameSegment(BaseSegment):
-    """DATEADD function name segment.
-
-    Override to support DATEDIFF as well
-    """
-
-    type = "function_name"
-    match_grammar = OneOf("DATEADD", "DATEDIFF")
 
 
 @redshift_dialect.segment(replace=True)

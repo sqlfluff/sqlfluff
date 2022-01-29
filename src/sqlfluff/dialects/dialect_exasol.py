@@ -56,6 +56,19 @@ exasol_dialect.sets("session_parameters").update(SESSION_PARAMETERS)
 exasol_dialect.sets("system_parameters").clear()
 exasol_dialect.sets("system_parameters").update(SYSTEM_PARAMETERS)
 
+exasol_dialect.sets("date_part_function_name").clear()
+exasol_dialect.sets("date_part_function_name").update(
+    [
+        "ADD_DAYS",
+        "ADD_HOURS",
+        "ADD_MINUTES",
+        "ADD_MONTHS",
+        "ADD_SECONDS",
+        "ADD_WEEKS",
+        "ADD_YEARS",
+    ]
+)
+
 exasol_dialect.insert_lexer_matchers(
     [
         RegexLexer("lua_nested_quotes", r"\[={1,3}\[.*\]={1,3}\]", CodeSegment),
@@ -3478,26 +3491,6 @@ class FunctionSegment(BaseSegment):
             ),
             Ref("PostFunctionGrammar", optional=True),
         ),
-    )
-
-
-@exasol_dialect.segment(replace=True)
-class DatePartFunctionNameSegment(BaseSegment):
-    """DATEADD function name segment.
-
-    Need to be able to specify this as type function_name
-    so that linting rules identify it properly
-    """
-
-    type = "function_name"
-    match_grammar = OneOf(
-        "ADD_DAYS",
-        "ADD_HOURS",
-        "ADD_MINUTES",
-        "ADD_MONTHS",
-        "ADD_SECONDS",
-        "ADD_WEEKS",
-        "ADD_YEARS",
     )
 
 
