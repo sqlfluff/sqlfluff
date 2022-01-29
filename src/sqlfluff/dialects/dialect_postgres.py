@@ -1072,12 +1072,14 @@ class ExplainStatementSegment(BaseSegment):
         "EXPLAIN",
         OneOf(
             Sequence(
-                Ref.keyword("ANALYZE", optional=True),
+                OneOf(
+                    "ANALYZE",
+                    "ANALYSE",
+                    optional=True,
+                ),
                 Ref.keyword("VERBOSE", optional=True),
             ),
-            Bracketed(
-                Delimited(Ref("ExplainOptionSegment"), delimiter=Ref("CommaSegment"))
-            ),
+            Bracketed(Delimited(Ref("ExplainOptionSegment"))),
             optional=True,
         ),
         ansi_dialect.get_segment("ExplainStatementSegment").explainable_stmt,
@@ -1107,6 +1109,7 @@ class ExplainOptionSegment(BaseSegment):
         Sequence(
             OneOf(
                 "ANALYZE",
+                "ANALYSE",
                 "VERBOSE",
                 "COSTS",
                 "SETTINGS",
