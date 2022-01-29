@@ -148,3 +148,7 @@ def test_get_keywords() -> None:
     expected_result_2 = ["C", "E"]
 
     assert sorted(get_keywords(kw_list, "non-reserved")) == sorted(expected_result_2)
+
+    expected_result_3 = ["B"]
+
+    assert sorted(get_keywords(kw_list, "reserved")) == sorted(expected_result_3)
