@@ -595,11 +595,6 @@ class Linter:
                 )
                 violations += ignore_violations
 
-                # Filter violations based on the above.
-                violations = LintedFile.ignore_masked_violations(
-                    violations, ignore_buff
-                )
-
         # We process the ignore config here if appropriate
         for violation in violations:
             violation.ignore_if_in(parsed.config.get("ignore"))
