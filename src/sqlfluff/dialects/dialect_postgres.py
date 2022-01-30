@@ -2957,7 +2957,7 @@ class StatementSegment(BaseSegment):
             Ref("CreateProcedureStatementSegment"),
             Ref("DropProcedureStatementSegment"),
             Ref("CopyStatementSegment"),
-            Ref("DoStatementSegment")
+            Ref("DoStatementSegment"),
         ],
     )
 
@@ -3500,18 +3500,15 @@ class CopyStatementSegment(BaseSegment):
         ),
     )
 
+
 @postgres_dialect.segment()
 class LanguageClauseSegment(BaseSegment):
-    """A clause for specifying the language used for executing anonymous code
-    blocks.
-    """
+    """Clause specifying language used for executing anonymous code blocks."""
 
     type = "language_clause"
 
-    match_grammar = Sequence(
-        "LANGUAGE",
-        Ref("ParameterNameSegment")
-    )
+    match_grammar = Sequence("LANGUAGE", Ref("ParameterNameSegment"))
+
 
 @postgres_dialect.segment()
 class DoStatementSegment(BaseSegment):
@@ -3539,5 +3536,5 @@ class DoStatementSegment(BaseSegment):
                 ),
                 Ref("LanguageClauseSegment", optional=True),
             ),
-        )
+        ),
     )
