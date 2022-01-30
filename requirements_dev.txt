@@ -2,7 +2,9 @@
 # code linting and formatting
 flake8
 flake8-docstrings
-flake8-black>=0.2.4
+# Black 22.1 has a fatal bug when used with flake8-black, so freeze it for now.
+black<=21.12b0
+flake8-black
 # documentation checks
 doc8
 Pygments
