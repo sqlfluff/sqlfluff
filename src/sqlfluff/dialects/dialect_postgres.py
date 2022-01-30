@@ -175,6 +175,11 @@ postgres_dialect.sets("datetime_units").update(
     ]
 )
 
+# Postgres doesn't have a dateadd function
+# Also according to https://www.postgresql.org/docs/14/functions-datetime.html
+# It quotes dateparts. So don't need this.
+postgres_dialect.sets("date_part_function_name").clear()
+
 postgres_dialect.add(
     JsonOperatorSegment=NamedParser(
         "json_operator", SymbolSegment, name="json_operator", type="binary_operator"
@@ -2964,40 +2969,6 @@ class StatementSegment(BaseSegment):
     )
 
     match_grammar = ansi_dialect.get_segment("StatementSegment").match_grammar.copy()
-
-
-@postgres_dialect.segment(replace=True)
-class FunctionSegment(BaseSegment):
-    """A scalar or aggregate function.
-
-    Maybe in the future we should distinguish between
-    aggregate functions and other functions. For now
-    we treat them the same because they look the same
-    for our purposes.
-    """
-
-    type = "function"
-    match_grammar = Sequence(
-        Sequence(
-            AnyNumberOf(
-                Ref("FunctionNameSegment"),
-                max_times=1,
-                min_times=1,
-                exclude=OneOf(
-                    Ref("ValuesClauseSegment"),
-                ),
-            ),
-            Bracketed(
-                Ref(
-                    "FunctionContentsGrammar",
-                    # The brackets might be empty for some functions...
-                    optional=True,
-                    ephemeral_name="FunctionContentsGrammar",
-                )
-            ),
-        ),
-        Ref("PostFunctionGrammar", optional=True),
-    )
 
 
 @postgres_dialect.segment(replace=True)

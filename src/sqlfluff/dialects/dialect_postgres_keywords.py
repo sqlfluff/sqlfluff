@@ -220,7 +220,6 @@ postgres_docs_keywords = [
     ("DATABASE", "non-reserved"),
     ("DATALINK", "not-keyword"),
     ("DATE", "not-keyword"),
-    ("DATEADD", "not-keyword"),
     ("DATERANGE", "non-reserved-(cannot-be-function-or-type)"),
     ("DATETIME_INTERVAL_CODE", "not-keyword"),
     ("DATETIME_INTERVAL_PRECISION", "not-keyword"),
