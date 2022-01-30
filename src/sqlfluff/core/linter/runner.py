@@ -11,6 +11,7 @@ import bdb
 import functools
 import logging
 import multiprocessing.dummy
+import multiprocessing.pool
 import signal
 import sys
 import traceback
@@ -183,7 +184,7 @@ class ParallelRunner(BaseRunner):
 class MultiProcessRunner(ParallelRunner):
     """Runner that does parallel processing using multiple processes."""
 
-    POOL_TYPE = multiprocessing.Pool
+    POOL_TYPE = multiprocessing.pool.Pool
     MAP_FUNCTION_NAME = "imap_unordered"
 
     @classmethod

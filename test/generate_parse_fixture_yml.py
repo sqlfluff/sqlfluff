@@ -1,5 +1,5 @@
 """Utility to generate yml files for all the parsing examples."""
-import multiprocessing
+import multiprocessing.pool
 import os
 
 import yaml
@@ -42,7 +42,7 @@ def generate_parse_fixture(example):
 def main():
     """Find all example SQL files, parse and create YAML files."""
     parse_success_examples, _ = get_parse_fixtures()
-    with multiprocessing.Pool(
+    with multiprocessing.pool.Pool(
         multiprocessing.cpu_count(), context=multiprocessing.get_context("spawn")
     ) as pool:
         for _ in pool.imap_unordered(generate_parse_fixture, parse_success_examples):
