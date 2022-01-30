@@ -197,6 +197,12 @@ class MultiProcessRunner(ParallelRunner):
         # https://stackoverflow.com/questions/11312525/catch-ctrlc-sigint-and-exit-multiprocesses-gracefully-in-python
         signal.signal(signal.SIGINT, signal.SIG_IGN)
 
+    @classmethod
+    def _create_pool(cls, *args, **kwargs):
+        return cls.POOL_TYPE(
+            context=multiprocessing.get_context("spawn"), *args, **kwargs
+        )
+
 
 class MultiThreadRunner(ParallelRunner):
     """Runner that does parallel processing using multiple threads.
