@@ -16,6 +16,7 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 
 Major changes include:
 
+* dbt performance improvements
 * Fix `click` dependency error.
 * Better datepart versus identifier parsing.
 * Fix some Jinja errors.
