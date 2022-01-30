@@ -13,7 +13,7 @@ flake8-black>=0.2.4
 doc8
 Pygments
 # testing
-git+https://github.com/nedbat/coveragepy@master
+git+https://github.com/nedbat/coveragepy@nedbat/fix-1310
 hypothesis
 pytest
 pytest-cov
