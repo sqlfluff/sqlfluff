@@ -3522,26 +3522,22 @@ class DoStatementSegment(BaseSegment):
 
     type = "do_statement"
 
-    _lang_first_clause = Sequence(
-        Ref("LanguageClauseSegment", optional=True),
-        OneOf(
-            Ref("QuotedLiteralSegment"),
-            Ref("DollarQuotedLiteralSegment"),
-        ),
-    )
-
-    _lang_last_clause = Sequence(
-        OneOf(
-            Ref("QuotedLiteralSegment"),
-            Ref("DollarQuotedLiteralSegment"),
-        ),
-        Ref("LanguageClauseSegment", optional=True),
-    )
-
     match_grammar = Sequence(
         "DO",
         OneOf(
-            _lang_first_clause,
-            _lang_last_clause,
+            Sequence(
+                Ref("LanguageClauseSegment", optional=True),
+                OneOf(
+                    Ref("QuotedLiteralSegment"),
+                    Ref("DollarQuotedLiteralSegment"),
+                ),
+            ),
+            Sequence(
+                OneOf(
+                    Ref("QuotedLiteralSegment"),
+                    Ref("DollarQuotedLiteralSegment"),
+                ),
+                Ref("LanguageClauseSegment", optional=True),
+            ),
         )
     )
