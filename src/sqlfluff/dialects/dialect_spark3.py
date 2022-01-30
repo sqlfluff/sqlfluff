@@ -173,6 +173,21 @@ spark3_dialect.replace(
         Ref("NotEqualToSegment"),
         Ref("LikeOperatorSegment"),
     ),
+    FromClauseTerminatorGrammar=OneOf(
+        "WHERE",
+        "LIMIT",
+        Sequence("GROUP", "BY"),
+        Sequence("ORDER", "BY"),
+        Sequence("CLUSTER", "BY"),
+        Sequence("DISTRIBUTE", "BY"),
+        # TODO Add PIVOT, LATERAL VIEW, SORT BY and DISTRIBUTE BY clauses
+        "HAVING",
+        "QUALIFY",
+        "WINDOW",
+        Ref("SetOperatorSegment"),
+        Ref("WithNoSchemaBindingClauseSegment"),
+        Ref("WithDataClauseSegment"),
+    ),
     TemporaryGrammar=Sequence(
         Sequence("GLOBAL", optional=True),
         OneOf("TEMP", "TEMPORARY"),
@@ -242,13 +257,13 @@ spark3_dialect.add(
     TerminatedByGrammar=hive_dialect.get_grammar("TerminatedByGrammar"),
     # Add Spark Grammar
     BucketSpecGrammar=Sequence(
-        Ref("ClusterSpecGrammar"),
+        Ref("ClusteredBySpecGrammar"),
         Ref("SortSpecGrammar", optional=True),
         "INTO",
         Ref("NumericLiteralSegment"),
         "BUCKETS",
     ),
-    ClusterSpecGrammar=Sequence(
+    ClusteredBySpecGrammar=Sequence(
         "CLUSTERED",
         "BY",
         Ref("BracketedColumnReferenceListGrammar"),
@@ -933,6 +948,143 @@ class LoadDataSegment(BaseSegment):
     )
 
 
+# Data Retrieval Statements
+@spark3_dialect.segment()
+class ClusterByClauseSegment(BaseSegment):
+    """A `CLUSTER BY` clause from `SELECT` statement.
+
+    Equivalent to `DISTRIBUTE BY` and `SORT BY` in tandem.
+    This clause is mutually exclusive with SORT BY, ORDER BY and DISTRIBUTE BY.
+    https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-clusterby.html
+    """
+
+    type = "cluster_by_clause"
+
+    match_grammar = StartsWith(
+        Sequence("CLUSTER", "BY"),
+        terminator=OneOf(
+            "LIMIT",
+            "HAVING",
+            # For window functions
+            "WINDOW",
+            Ref("FrameClauseUnitGrammar"),
+            "SEPARATOR",
+        ),
+    )
+
+    parse_grammar = Sequence(
+        "CLUSTER",
+        "BY",
+        Indent,
+        Delimited(
+            Sequence(
+                OneOf(
+                    Ref("ColumnReferenceSegment"),
+                    # Can `CLUSTER BY 1`
+                    Ref("NumericLiteralSegment"),
+                    # Can cluster by an expression
+                    Ref("ExpressionSegment"),
+                ),
+            ),
+            terminator=OneOf(
+                "WINDOW",
+                "LIMIT",
+                Ref("FrameClauseUnitGrammar"),
+            ),
+        ),
+        Dedent,
+    )
+
+
+@spark3_dialect.segment()
+class DistributeByClauseSegment(BaseSegment):
+    """A `DISTRIBUTE BY` clause from `SELECT` statement.
+
+    This clause is mutually exclusive with SORT BY, ORDER BY and DISTRIBUTE BY.
+    https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-distribute-by.html
+    """
+
+    type = "distribute_by_clause"
+
+    match_grammar = StartsWith(
+        Sequence("DISTRIBUTE", "BY"),
+        terminator=OneOf(
+            "LIMIT",
+            "HAVING",
+            # For window functions
+            "WINDOW",
+            Ref("FrameClauseUnitGrammar"),
+            "SEPARATOR",
+        ),
+    )
+
+    parse_grammar = Sequence(
+        "DISTRIBUTE",
+        "BY",
+        Indent,
+        Delimited(
+            Sequence(
+                OneOf(
+                    Ref("ColumnReferenceSegment"),
+                    # Can `DISTRIBUTE BY 1`
+                    Ref("NumericLiteralSegment"),
+                    # Can distribute by an expression
+                    Ref("ExpressionSegment"),
+                ),
+            ),
+            terminator=OneOf(
+                "WINDOW",
+                "LIMIT",
+                Ref("FrameClauseUnitGrammar"),
+            ),
+        ),
+        Dedent,
+    )
+
+
+@spark3_dialect.segment(replace=True)
+class UnorderedSelectStatementSegment(BaseSegment):
+    """Enhance unordered `SELECT` statement for valid SparkSQL clauses."""
+
+    type = "select_statement"
+
+    match_grammar = ansi_dialect.get_segment(
+        "UnorderedSelectStatementSegment"
+    ).match_grammar.copy()
+
+    parse_grammar = ansi_dialect.get_segment(
+        "UnorderedSelectStatementSegment"
+    ).parse_grammar.copy(
+        # TODO Insert: PIVOT and LATERAL VIEW clauses
+        # Removing non-valid clauses that exist in ANSI dialect
+        remove=[Ref("OverlapsClauseSegment", optional=True)]
+    )
+
+
+@spark3_dialect.segment(replace=True)
+class SelectStatementSegment(BaseSegment):
+    """Enhance `SELECT` statement for valid SparkSQL clauses."""
+
+    type = "select_statement"
+
+    match_grammar = ansi_dialect.get_segment(
+        "SelectStatementSegment"
+    ).match_grammar.copy()
+
+    parse_grammar = ansi_dialect.get_segment(
+        "SelectStatementSegment"
+    ).parse_grammar.copy(
+        # TODO New Rule: Warn of mutual exclusion of following clauses
+        #  DISTRIBUTE, SORT, CLUSTER and ORDER BY if multiple specified
+        # TODO Insert: SORT BY clauses
+        insert=[
+            Ref("ClusterByClauseSegment", optional=True),
+            Ref("DistributeByClauseSegment", optional=True),
+        ],
+        before=Ref("LimitClauseSegment"),
+    )
+
+
 # Auxiliary Statements
 @spark3_dialect.segment()
 class AddExecutablePackage(BaseSegment):
@@ -1023,6 +1175,9 @@ class StatementSegment(BaseSegment):
             Ref("InsertOverwriteDirectorySegment"),
             Ref("InsertOverwriteDirectoryHiveFmtSegment"),
             Ref("LoadDataSegment"),
+            # Data Retrieval Statements
+            Ref("ClusterByClauseSegment"),
+            Ref("DistributeByClauseSegment"),
         ],
         remove=[
             Ref("TransactionStatementSegment"),

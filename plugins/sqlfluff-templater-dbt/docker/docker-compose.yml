@@ -9,6 +9,7 @@ services:
     volumes:
       # Host source code directory
       - ../../../:/app/
+      - ../test/fixtures/dbt/profiles_yml:/root/.dbt
     depends_on:
       - postgres
     entrypoint: /bin/bash

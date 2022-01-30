@@ -708,18 +708,42 @@ def test_linter_noqa_with_templating():
     assert not result.get_violations()
 
 
+def test_linter_noqa_template_errors():
+    """Similar to test_linter_noqa, but uses templating (Jinja)."""
+    lntr = Linter(
+        config=FluffConfig(
+            overrides={
+                "templater": "jinja",
+            }
+        )
+    )
+    sql = """select * --noqa: TMP
+from raw
+where
+    balance_date >= {{ execution_date - macros.timedelta() }}  --noqa: TMP
+"""
+    result = lntr.lint_string(sql)
+    assert not result.get_violations()
+
+
 def test_linter_noqa_prs():
     """Test "noqa" feature to ignore PRS at the higher "Linter" level."""
     lntr = Linter(
         config=FluffConfig(
             overrides={
+                "dialect": "bigquery",
                 "exclude_rules": "L050",
             }
         )
     )
     sql = """
-    SELECT col_a AS a
-    FROM foo;, -- noqa: PRS
+    CREATE TABLE IF NOT EXISTS
+    Test.events (userID STRING,
+    eventName STRING,
+    eventID INTEGER,
+    device STRUCT < mobileBrandName STRING, -- noqa: PRS
+    mobileModelName STRING>);
+    Insert into Test.events VALUES ("1","abc",123,STRUCT("htc","10"));
         """
     result = lntr.lint_string(sql)
     violations = result.get_violations()

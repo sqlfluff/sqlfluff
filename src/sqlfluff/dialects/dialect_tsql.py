@@ -341,6 +341,7 @@ tsql_dialect.replace(
         Sequence(OneOf("IGNORE", "RESPECT"), "NULLS"),
     ),
     JoinKeywords=OneOf("JOIN", "APPLY", Sequence("OUTER", "APPLY")),
+    NaturalJoinKeywords=Nothing(),
     # Replace Expression_D_Grammar to remove casting syntax invalid in TSQL
     Expression_D_Grammar=Sequence(
         OneOf(
@@ -402,6 +403,7 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref("TryCatchSegment"),
             Ref("MergeStatementSegment"),
             Ref("ThrowStatementSegment"),
+            Ref("RaiserrorStatementSegment"),
             Ref("ReturnStatementSegment"),
         ],
         remove=[
@@ -1414,12 +1416,15 @@ class FunctionParameterListGrammar(BaseSegment):
 
     type = "function_parameter_list"
     # Function parameter list
-    match_grammar = OptionallyBracketed(
-        Ref("FunctionParameterGrammar"),
-        AnyNumberOf(
-            Ref("CommaSegment"),
+    match_grammar = Bracketed(
+        Sequence(
             Ref("FunctionParameterGrammar"),
-        ),
+            AnyNumberOf(
+                Ref("CommaSegment"),
+                Ref("FunctionParameterGrammar"),
+            ),
+            optional=True,
+        )
     )
 
 
@@ -1622,6 +1627,27 @@ class SetStatementSegment(BaseSegment):
 
 
 @tsql_dialect.segment()
+class ProcedureParameterListGrammar(BaseSegment):
+    """The parameters for a procedure ie.
+
+    `@city_name NVARCHAR(30), @postal_code NVARCHAR(15)`.
+    """
+
+    type = "procedure_parameter_list"
+    # Function parameter list
+    match_grammar = OptionallyBracketed(
+        Sequence(
+            Ref("FunctionParameterGrammar"),
+            AnyNumberOf(
+                Ref("CommaSegment"),
+                Ref("FunctionParameterGrammar"),
+            ),
+            optional=True,
+        ),
+    )
+
+
+@tsql_dialect.segment()
 class CreateProcedureStatementSegment(BaseSegment):
     """A `CREATE OR ALTER PROCEDURE` statement.
 
@@ -1635,7 +1661,7 @@ class CreateProcedureStatementSegment(BaseSegment):
         Sequence("OR", "ALTER", optional=True),
         OneOf("PROCEDURE", "PROC"),
         Ref("ObjectReferenceSegment"),
-        Ref("FunctionParameterListGrammar", optional=True),
+        Ref("ProcedureParameterListGrammar", optional=True),
         "AS",
         Ref("ProcedureDefinitionGrammar"),
     )
@@ -3363,6 +3389,31 @@ class ThrowStatementSegment(BaseSegment):
                 Ref("ParameterNameSegment"),
             ),
             optional=True,
+        ),
+    )
+
+
+@tsql_dialect.segment()
+class RaiserrorStatementSegment(BaseSegment):
+    """RAISERROR statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/raiserror-transact-sql?view=sql-server-ver15
+    """
+
+    type = "raiserror_statement"
+    match_grammar = Sequence(
+        "RAISERROR",
+        Bracketed(
+            Delimited(
+                OneOf(Ref("NumericLiteralSegment"), Ref("QuotedLiteralSegment")),
+                OneOf(
+                    Ref("NumericLiteralSegment"), Ref("QualifiedNumericLiteralSegment")
+                ),
+                OneOf(
+                    Ref("NumericLiteralSegment"), Ref("QualifiedNumericLiteralSegment")
+                ),
+                Ref("QuotedLiteralSegment", optional=True),
+            ),
         ),
     )
 

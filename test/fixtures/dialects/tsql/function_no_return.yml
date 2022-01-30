@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b443a44cc8209ec2259d4dbd58a0c43d424542fa31daa22ca3517c469db8f02d
+_hash: 128c32cc75b35a57e536fa589a860292ab6b1591356a327f5cdd0c64de478e01
 file:
   batch:
     create_procedure_statement:
@@ -11,7 +11,7 @@ file:
     - keyword: PROCEDURE
     - object_reference:
         identifier: findjobs
-    - function_parameter_list:
+    - procedure_parameter_list:
         parameter: '@nm'
         data_type:
           identifier: sysname
