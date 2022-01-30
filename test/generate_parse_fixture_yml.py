@@ -42,6 +42,9 @@ def generate_parse_fixture(example):
 def main():
     """Find all example SQL files, parse and create YAML files."""
     parse_success_examples, _ = get_parse_fixtures()
+    # Use the slower but safer "spawn" start method for processes. This
+    # avoids potential issues with the default "fork" method on Unix.
+    # https://python.readthedocs.io/en/stable/library/multiprocessing.html#contexts-and-start-methods
     with multiprocessing.pool.Pool(
         multiprocessing.cpu_count(), context=multiprocessing.get_context("spawn")
     ) as pool:

@@ -200,6 +200,9 @@ class MultiProcessRunner(ParallelRunner):
 
     @classmethod
     def _create_pool(cls, *args, **kwargs):
+        # Use the slower but safer "spawn" start method for processes. This
+        # avoids potential issues with the default "fork" method on Unix.
+        # https://python.readthedocs.io/en/stable/library/multiprocessing.html#contexts-and-start-methods
         return cls.POOL_TYPE(
             context=multiprocessing.get_context("spawn"), *args, **kwargs
         )
