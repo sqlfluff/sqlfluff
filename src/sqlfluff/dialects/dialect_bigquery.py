@@ -207,20 +207,14 @@ bigquery_dialect.sets("datetime_units").update(
 bigquery_dialect.sets("date_part_function_name").clear()
 bigquery_dialect.sets("date_part_function_name").update(
     [
-        "DATE_ADD",
-        "DATE_SUB",
         "DATE_DIFF",
         "DATE_TRUNC",
-        "DATETIME_ADD",
-        "DATETIME_SUB",
         "DATETIME_DIFF",
         "DATETIME_TRUNC",
-        "TIME_ADD",
-        "TIME_SUB",
+        "EXTRACT",
+        "LAST_DAY",
         "TIME_DIFF",
         "TIME_TRUNC",
-        "TIMESTAMP_ADD",
-        "TIMESTAMP_SUB",
         "TIMESTAMP_DIFF",
         "TIMESTAMP_TRUNC",
     ]
@@ -397,7 +391,6 @@ class FunctionSegment(BaseSegment):
                 Bracketed(
                     Delimited(
                         Ref("DatetimeUnitSegment"),
-                        # Ref("IntervalExpressionSegment"),
                         Ref(
                             "FunctionContentsGrammar",
                             ephemeral_name="FunctionContentsGrammar",
