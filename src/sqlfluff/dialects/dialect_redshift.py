@@ -268,7 +268,7 @@ class AuthorizationSegment(BaseSegment):
 
     type = "authorization_segment"
 
-    match_grammar = AnyNumberOf(
+    match_grammar = AnySetOf(
         OneOf(
             Sequence(
                 "IAM_ROLE",
@@ -319,7 +319,7 @@ class ColumnAttributeSegment(BaseSegment):
 
     type = "column_attribute_segment"
 
-    match_grammar = AnyNumberOf(
+    match_grammar = AnySetOf(
         Sequence("DEFAULT", Ref("ExpressionSegment")),
         Sequence(
             "IDENTITY",
@@ -350,7 +350,7 @@ class ColumnConstraintSegment(BaseSegment):
 
     type = "column_constraint_segment"
 
-    match_grammar = AnyNumberOf(
+    match_grammar = AnySetOf(
         OneOf(Sequence("NOT", "NULL"), "NULL"),
         OneOf("UNIQUE", Sequence("PRIMARY", "KEY")),
         Sequence(
@@ -371,7 +371,7 @@ class TableAttributeSegment(BaseSegment):
 
     type = "table_constraint_segment"
 
-    match_grammar = AnyNumberOf(
+    match_grammar = AnySetOf(
         Sequence("DISTSTYLE", OneOf("AUTO", "EVEN", "KEY", "ALL"), optional=True),
         Sequence("DISTKEY", Bracketed(Ref("ColumnReferenceSegment")), optional=True),
         OneOf(
@@ -397,7 +397,7 @@ class TableConstraintSegment(BaseSegment):
 
     type = "table_constraint_segment"
 
-    match_grammar = AnyNumberOf(
+    match_grammar = AnySetOf(
         Sequence("UNIQUE", Bracketed(Delimited(Ref("ColumnReferenceSegment")))),
         Sequence(
             "PRIMARY",
@@ -816,7 +816,7 @@ class CreateLibraryStatementSegment(BaseSegment):
         "PLPYTHONU",
         "FROM",
         Ref("QuotedLiteralSegment"),
-        AnyNumberOf(
+        AnySetOf(
             Ref("AuthorizationSegment", optional=False),
             Sequence(
                 "REGION",
@@ -842,7 +842,7 @@ class UnloadStatementSegment(BaseSegment):
         Bracketed(Ref("QuotedLiteralSegment")),
         "TO",
         Ref("QuotedLiteralSegment"),
-        AnyNumberOf(
+        AnySetOf(
             Ref("AuthorizationSegment", optional=False),
             Sequence(
                 "REGION",
@@ -912,7 +912,7 @@ class UnloadStatementSegment(BaseSegment):
                 Ref("QuotedLiteralSegment"),
                 optional=True,
             ),
-            AnyNumberOf(
+            AnySetOf(
                 OneOf(
                     "MAXFILESIZE",
                     "ROWGROUPSIZE",
@@ -956,7 +956,7 @@ class CopyStatementSegment(BaseSegment):
         Ref("BracketedColumnReferenceListGrammar", optional=True),
         "FROM",
         Ref("QuotedLiteralSegment"),
-        AnyNumberOf(
+        AnySetOf(
             Ref("AuthorizationSegment", optional=False),
             Sequence(
                 "REGION",
@@ -1549,7 +1549,7 @@ class CreateUserSegment(BaseSegment):
         Ref.keyword("WITH", optional=True),
         "PASSWORD",
         OneOf(Ref("QuotedLiteralSegment"), "DISABLE"),
-        AnyNumberOf(
+        AnySetOf(
             OneOf(
                 "CREATEDB",
                 "NOCREATEDB",
@@ -1623,7 +1623,7 @@ class AlterUserSegment(BaseSegment):
         "USER",
         Ref("ObjectReferenceSegment"),
         Ref.keyword("WITH", optional=True),
-        AnyNumberOf(
+        AnySetOf(
             OneOf(
                 "CREATEDB",
                 "NOCREATEDB",
