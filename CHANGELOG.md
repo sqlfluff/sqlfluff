@@ -41,6 +41,8 @@ Major changes include:
 * Enforce parentheses for function definitions in T-SQL [#2489](https://github.com/sqlfluff/sqlfluff/pull/2489) [@fdw](https://github.com/fdw)
 * Add guards to prevent rule crashes [#2488](https://github.com/sqlfluff/sqlfluff/pull/2488) [@barrywhart](https://github.com/barrywhart)
 
+## New Contributors
+* [@PLBMR](https://github.com/PLBMR) made their first contribution in [#2511](https://github.com/sqlfluff/sqlfluff/pull/2511)
 
 ## [0.9.3] - 2022-01-26
 
