@@ -84,6 +84,11 @@ tsql_dialect.sets("datetime_units").update(
     ]
 )
 
+tsql_dialect.sets("date_part_function_name").clear()
+tsql_dialect.sets("date_part_function_name").update(
+    ["DATEADD", "DATEDIFF", "DATEDIFF_BIG", "DATENAME"]
+)
+
 tsql_dialect.insert_lexer_matchers(
     [
         RegexLexer(
@@ -1907,6 +1912,9 @@ class FunctionSegment(BaseSegment):
     type = "function"
     match_grammar = OneOf(
         Sequence(
+            # Treat functions which take date parts separately
+            # So those functions parse date parts as DatetimeUnitSegment
+            # rather than identifiers.
             Ref("DatePartFunctionNameSegment"),
             Bracketed(
                 Delimited(
@@ -2807,17 +2815,6 @@ class SetClauseSegment(BaseSegment):
         Ref("EqualsSegment"),
         Ref("ExpressionSegment"),
     )
-
-
-@tsql_dialect.segment(replace=True)
-class DatePartFunctionNameSegment(BaseSegment):
-    """DATEADD function name segment.
-
-    Override to support DATEDIFF as well
-    """
-
-    type = "function_name"
-    match_grammar = OneOf("DATEADD", "DATEDIFF", "DATEDIFF_BIG", "DATENAME")
 
 
 @tsql_dialect.segment()
