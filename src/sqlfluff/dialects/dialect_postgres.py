@@ -848,7 +848,7 @@ class FunctionDefinitionGrammar(BaseSegment):
 
     match_grammar = Sequence(
         AnyNumberOf(
-            Sequence("LANGUAGE", Ref("ParameterNameSegment")),
+            Ref("LanguageClauseSegment"),
             Sequence("TRANSFORM", "FOR", "TYPE", Ref("ParameterNameSegment")),
             Ref.keyword("WINDOW"),
             OneOf("IMMUTABLE", "STABLE", "VOLATILE"),
@@ -2965,6 +2965,7 @@ class StatementSegment(BaseSegment):
             Ref("CreateProcedureStatementSegment"),
             Ref("DropProcedureStatementSegment"),
             Ref("CopyStatementSegment"),
+            Ref("DoStatementSegment"),
         ],
     )
 
@@ -3469,6 +3470,45 @@ class CopyStatementSegment(BaseSegment):
                     Sequence("STDOUT"),
                 ),
                 _option,
+            ),
+        ),
+    )
+
+
+@postgres_dialect.segment()
+class LanguageClauseSegment(BaseSegment):
+    """Clause specifying language used for executing anonymous code blocks."""
+
+    type = "language_clause"
+
+    match_grammar = Sequence("LANGUAGE", Ref("ParameterNameSegment"))
+
+
+@postgres_dialect.segment()
+class DoStatementSegment(BaseSegment):
+    """A `DO` statement for executing anonymous code blocks.
+
+    As specified in https://www.postgresql.org/docs/14/sql-do.html
+    """
+
+    type = "do_statement"
+
+    match_grammar = Sequence(
+        "DO",
+        OneOf(
+            Sequence(
+                Ref("LanguageClauseSegment", optional=True),
+                OneOf(
+                    Ref("QuotedLiteralSegment"),
+                    Ref("DollarQuotedLiteralSegment"),
+                ),
+            ),
+            Sequence(
+                OneOf(
+                    Ref("QuotedLiteralSegment"),
+                    Ref("DollarQuotedLiteralSegment"),
+                ),
+                Ref("LanguageClauseSegment", optional=True),
             ),
         ),
     )
