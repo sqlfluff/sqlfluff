@@ -22,6 +22,7 @@ Major changes include:
 * Various grammar fixes and improvements
 
 ## What's Changed
+* Spark3: test cases for HAVING clause in SELECT statement [#2518](https://github.com/sqlfluff/sqlfluff/pull/2517) [@R7L208](https://github.com/R7L208)
 * Update click version requirement in setup.cfg to match that in requirements.txt [#2518](https://github.com/sqlfluff/sqlfluff/pull/2518) [@barrywhart](https://github.com/barrywhart)
 * Postgres: Implement DO Statements + Refactored Language Clause [#2511](https://github.com/sqlfluff/sqlfluff/pull/2511) [@PLBMR](https://github.com/PLBMR)
 * Spark3: Support for Grouping Sets, `CUBE` and `ROLLUP` in `GROUP BY` clause of `SELECT` statement [#2505](https://github.com/sqlfluff/sqlfluff/pull/2505) [@R7L208](https://github.com/R7L208)
