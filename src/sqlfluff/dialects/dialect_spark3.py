@@ -29,6 +29,7 @@ from sqlfluff.core.parser import (
     StringParser,
     SymbolSegment,
     Anything,
+    StartsWith,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -173,6 +174,20 @@ spark3_dialect.replace(
         Ref("NotEqualToSegment"),
         Ref("LikeOperatorSegment"),
     ),
+    FromClauseTerminatorGrammar=OneOf(
+        "WHERE",
+        "LIMIT",
+        Sequence("GROUP", "BY"),
+        Sequence("ORDER", "BY"),
+        Sequence("CLUSTER", "BY"),
+        Sequence("DISTRIBUTE", "BY"),
+        # TODO Add PIVOT, LATERAL VIEW, SORT BY and DISTRIBUTE BY clauses
+        "HAVING",
+        "WINDOW",
+        Ref("SetOperatorSegment"),
+        Ref("WithNoSchemaBindingClauseSegment"),
+        Ref("WithDataClauseSegment"),
+    ),
     TemporaryGrammar=Sequence(
         Sequence("GLOBAL", optional=True),
         OneOf("TEMP", "TEMPORARY"),
@@ -242,13 +257,13 @@ spark3_dialect.add(
     TerminatedByGrammar=hive_dialect.get_grammar("TerminatedByGrammar"),
     # Add Spark Grammar
     BucketSpecGrammar=Sequence(
-        Ref("ClusterSpecGrammar"),
+        Ref("ClusteredBySpecGrammar"),
         Ref("SortSpecGrammar", optional=True),
         "INTO",
         Ref("NumericLiteralSegment"),
         "BUCKETS",
     ),
-    ClusterSpecGrammar=Sequence(
+    ClusteredBySpecGrammar=Sequence(
         "CLUSTERED",
         "BY",
         Ref("BracketedColumnReferenceListGrammar"),
@@ -933,6 +948,267 @@ class LoadDataSegment(BaseSegment):
     )
 
 
+# Data Retrieval Statements
+@spark3_dialect.segment()
+class ClusterByClauseSegment(BaseSegment):
+    """A `CLUSTER BY` clause from `SELECT` statement.
+
+    Equivalent to `DISTRIBUTE BY` and `SORT BY` in tandem.
+    This clause is mutually exclusive with SORT BY, ORDER BY and DISTRIBUTE BY.
+    https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-clusterby.html
+    """
+
+    type = "cluster_by_clause"
+
+    match_grammar = StartsWith(
+        Sequence("CLUSTER", "BY"),
+        terminator=OneOf(
+            "LIMIT",
+            "HAVING",
+            # For window functions
+            "WINDOW",
+            Ref("FrameClauseUnitGrammar"),
+            "SEPARATOR",
+        ),
+    )
+
+    parse_grammar = Sequence(
+        "CLUSTER",
+        "BY",
+        Indent,
+        Delimited(
+            Sequence(
+                OneOf(
+                    Ref("ColumnReferenceSegment"),
+                    # Can `CLUSTER BY 1`
+                    Ref("NumericLiteralSegment"),
+                    # Can cluster by an expression
+                    Ref("ExpressionSegment"),
+                ),
+            ),
+            terminator=OneOf(
+                "WINDOW",
+                "LIMIT",
+                Ref("FrameClauseUnitGrammar"),
+            ),
+        ),
+        Dedent,
+    )
+
+
+@spark3_dialect.segment()
+class DistributeByClauseSegment(BaseSegment):
+    """A `DISTRIBUTE BY` clause from `SELECT` statement.
+
+    This clause is mutually exclusive with SORT BY, ORDER BY and DISTRIBUTE BY.
+    https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-distribute-by.html
+    """
+
+    type = "distribute_by_clause"
+
+    match_grammar = StartsWith(
+        Sequence("DISTRIBUTE", "BY"),
+        terminator=OneOf(
+            "LIMIT",
+            "HAVING",
+            # For window functions
+            "WINDOW",
+            Ref("FrameClauseUnitGrammar"),
+            "SEPARATOR",
+        ),
+    )
+
+    parse_grammar = Sequence(
+        "DISTRIBUTE",
+        "BY",
+        Indent,
+        Delimited(
+            Sequence(
+                OneOf(
+                    Ref("ColumnReferenceSegment"),
+                    # Can `DISTRIBUTE BY 1`
+                    Ref("NumericLiteralSegment"),
+                    # Can distribute by an expression
+                    Ref("ExpressionSegment"),
+                ),
+            ),
+            terminator=OneOf(
+                "WINDOW",
+                "LIMIT",
+                Ref("FrameClauseUnitGrammar"),
+            ),
+        ),
+        Dedent,
+    )
+
+
+@spark3_dialect.segment(replace=True)
+class UnorderedSelectStatementSegment(BaseSegment):
+    """Enhance unordered `SELECT` statement for valid SparkSQL clauses."""
+
+    type = "select_statement"
+
+    match_grammar = ansi_dialect.get_segment(
+        "UnorderedSelectStatementSegment"
+    ).match_grammar.copy()
+
+    parse_grammar = ansi_dialect.get_segment(
+        "UnorderedSelectStatementSegment"
+    ).parse_grammar.copy(
+        # TODO Insert: PIVOT and LATERAL VIEW clauses
+        # Removing non-valid clauses that exist in ANSI dialect
+        remove=[Ref("OverlapsClauseSegment", optional=True)]
+    )
+
+
+@spark3_dialect.segment(replace=True)
+class SelectStatementSegment(BaseSegment):
+    """Enhance `SELECT` statement for valid SparkSQL clauses."""
+
+    type = "select_statement"
+
+    match_grammar = ansi_dialect.get_segment(
+        "SelectStatementSegment"
+    ).match_grammar.copy()
+
+    parse_grammar = ansi_dialect.get_segment(
+        "SelectStatementSegment"
+    ).parse_grammar.copy(
+        # TODO New Rule: Warn of mutual exclusion of following clauses
+        #  DISTRIBUTE, SORT, CLUSTER and ORDER BY if multiple specified
+        # TODO Insert: SORT BY clauses
+        insert=[
+            Ref("ClusterByClauseSegment", optional=True),
+            Ref("DistributeByClauseSegment", optional=True),
+        ],
+        before=Ref("LimitClauseSegment"),
+    )
+
+
+@spark3_dialect.segment(replace=True)
+class GroupByClauseSegment(BaseSegment):
+    """Enhance `GROUP BY` clause like in `SELECT` for 'CUBE' and 'ROLLUP`.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-groupby.html
+    """
+
+    type = "group_by_clause"
+
+    match_grammar = StartsWith(
+        Sequence("GROUP", "BY"),
+        terminator=OneOf("ORDER", "LIMIT", "HAVING", "WINDOW"),
+        enforce_whitespace_preceding_terminator=True,
+    )
+
+    parse_grammar = Sequence(
+        "GROUP",
+        "BY",
+        Indent,
+        Delimited(
+            OneOf(
+                Ref("ColumnReferenceSegment"),
+                # Can `GROUP BY 1`
+                Ref("NumericLiteralSegment"),
+                # Can `GROUP BY coalesce(col, 1)`
+                Ref("ExpressionSegment"),
+                Ref("CubeRollupClauseSegment"),
+                Ref("GroupingSetsClauseSegment"),
+            ),
+            terminator=OneOf("ORDER", "LIMIT", "HAVING", "WINDOW"),
+        ),
+        # TODO: New Rule
+        #  Warn if CubeRollupClauseSegment and
+        #  WithCubeRollupClauseSegment used in same query
+        Ref("WithCubeRollupClauseSegment", optional=True),
+        Dedent,
+    )
+
+
+@spark3_dialect.segment()
+class WithCubeRollupClauseSegment(BaseSegment):
+    """A `[WITH CUBE | WITH ROLLUP]` clause after the `GROUP BY` clause.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-groupby.html
+    """
+
+    type = "with_cube_rollup_clause"
+
+    match_grammar = Sequence(
+        "WITH",
+        OneOf("CUBE", "ROLLUP"),
+    )
+
+
+@spark3_dialect.segment()
+class CubeRollupClauseSegment(BaseSegment):
+    """`[CUBE | ROLLUP]` clause within the `GROUP BY` clause.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-groupby.html
+    """
+
+    type = "cube_rollup_clause"
+
+    match_grammar = StartsWith(
+        OneOf("CUBE", "ROLLUP"),
+        terminator=OneOf(
+            "HAVING",
+            Sequence("ORDER", "BY"),
+            "LIMIT",
+            Ref("SetOperatorSegment"),
+        ),
+    )
+
+    parse_grammar = Sequence(
+        OneOf("CUBE", "ROLLUP"),
+        Bracketed(
+            Ref("GroupingExpressionList"),
+        ),
+    )
+
+
+@spark3_dialect.segment()
+class GroupingSetsClauseSegment(BaseSegment):
+    """`GROUPING SETS` clause within the `GROUP BY` clause."""
+
+    type = "grouping_sets_clause"
+
+    match_grammar = StartsWith(
+        Sequence("GROUPING", "SETS"),
+        terminator=OneOf(
+            "HAVING",
+            Sequence("ORDER", "BY"),
+            "LIMIT",
+            Ref("SetOperatorSegment"),
+        ),
+    )
+
+    parse_grammar = Sequence(
+        "GROUPING",
+        "SETS",
+        Bracketed(
+            Delimited(
+                Ref("CubeRollupClauseSegment"),
+                Ref("GroupingExpressionList"),
+                Bracketed(),  # Allows empty parentheses
+            )
+        ),
+    )
+
+
+@spark3_dialect.segment()
+class GroupingExpressionList(BaseSegment):
+    """Grouping expression list within `CUBE` / `ROLLUP` `GROUPING SETS`."""
+
+    type = "grouping_expression_list"
+
+    match_grammar = Delimited(
+        OneOf(
+            Bracketed(Delimited(Ref("ExpressionSegment"))),
+            Ref("ExpressionSegment"),
+        )
+    )
+
+
 # Auxiliary Statements
 @spark3_dialect.segment()
 class AddExecutablePackage(BaseSegment):
@@ -1023,6 +1299,9 @@ class StatementSegment(BaseSegment):
             Ref("InsertOverwriteDirectorySegment"),
             Ref("InsertOverwriteDirectoryHiveFmtSegment"),
             Ref("LoadDataSegment"),
+            # Data Retrieval Statements
+            Ref("ClusterByClauseSegment"),
+            Ref("DistributeByClauseSegment"),
         ],
         remove=[
             Ref("TransactionStatementSegment"),

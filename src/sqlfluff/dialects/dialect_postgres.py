@@ -23,6 +23,7 @@ from sqlfluff.core.parser import (
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
+from sqlfluff.core.parser.grammar.anyof import AnySetOf
 from sqlfluff.dialects.dialect_postgres_keywords import (
     postgres_keywords,
     get_keywords,
@@ -173,6 +174,11 @@ postgres_dialect.sets("datetime_units").update(
         "TIMEZONE_MINUTE",
     ]
 )
+
+# Postgres doesn't have a dateadd function
+# Also according to https://www.postgresql.org/docs/14/functions-datetime.html
+# It quotes dateparts. So don't need this.
+postgres_dialect.sets("date_part_function_name").clear()
 
 postgres_dialect.add(
     JsonOperatorSegment=NamedParser(
@@ -842,7 +848,7 @@ class FunctionDefinitionGrammar(BaseSegment):
 
     match_grammar = Sequence(
         AnyNumberOf(
-            Sequence("LANGUAGE", Ref("ParameterNameSegment")),
+            Ref("LanguageClauseSegment"),
             Sequence("TRANSFORM", "FOR", "TYPE", Ref("ParameterNameSegment")),
             Ref.keyword("WINDOW"),
             OneOf("IMMUTABLE", "STABLE", "VOLATILE"),
@@ -1071,12 +1077,14 @@ class ExplainStatementSegment(BaseSegment):
         "EXPLAIN",
         OneOf(
             Sequence(
-                Ref.keyword("ANALYZE", optional=True),
+                OneOf(
+                    "ANALYZE",
+                    "ANALYSE",
+                    optional=True,
+                ),
                 Ref.keyword("VERBOSE", optional=True),
             ),
-            Bracketed(
-                Delimited(Ref("ExplainOptionSegment"), delimiter=Ref("CommaSegment"))
-            ),
+            Bracketed(Delimited(Ref("ExplainOptionSegment"))),
             optional=True,
         ),
         ansi_dialect.get_segment("ExplainStatementSegment").explainable_stmt,
@@ -1106,6 +1114,7 @@ class ExplainOptionSegment(BaseSegment):
         Sequence(
             OneOf(
                 "ANALYZE",
+                "ANALYSE",
                 "VERBOSE",
                 "COSTS",
                 "SETTINGS",
@@ -2955,44 +2964,12 @@ class StatementSegment(BaseSegment):
             Ref("DiscardStatementSegment"),
             Ref("CreateProcedureStatementSegment"),
             Ref("DropProcedureStatementSegment"),
+            Ref("CopyStatementSegment"),
+            Ref("DoStatementSegment"),
         ],
     )
 
     match_grammar = ansi_dialect.get_segment("StatementSegment").match_grammar.copy()
-
-
-@postgres_dialect.segment(replace=True)
-class FunctionSegment(BaseSegment):
-    """A scalar or aggregate function.
-
-    Maybe in the future we should distinguish between
-    aggregate functions and other functions. For now
-    we treat them the same because they look the same
-    for our purposes.
-    """
-
-    type = "function"
-    match_grammar = Sequence(
-        Sequence(
-            AnyNumberOf(
-                Ref("FunctionNameSegment"),
-                max_times=1,
-                min_times=1,
-                exclude=OneOf(
-                    Ref("ValuesClauseSegment"),
-                ),
-            ),
-            Bracketed(
-                Ref(
-                    "FunctionContentsGrammar",
-                    # The brackets might be empty for some functions...
-                    optional=True,
-                    ephemeral_name="FunctionContentsGrammar",
-                )
-            ),
-        ),
-        Ref("PostFunctionGrammar", optional=True),
-    )
 
 
 @postgres_dialect.segment(replace=True)
@@ -3414,5 +3391,124 @@ class TruncateStatementSegment(BaseSegment):
         Ref(
             "DropBehaviorGrammar",
             optional=True,
+        ),
+    )
+
+
+@postgres_dialect.segment()
+class CopyStatementSegment(BaseSegment):
+    """A `COPY` statement.
+
+    As Specified in https://www.postgresql.org/docs/14/sql-copy.html
+    """
+
+    type = "copy_statement"
+
+    _target_subset = OneOf(
+        Ref("QuotedLiteralSegment"), Sequence("PROGRAM", Ref("QuotedLiteralSegment"))
+    )
+
+    _table_definition = Sequence(
+        Ref("TableReferenceSegment"),
+        Bracketed(Delimited(Ref("ColumnReferenceSegment")), optional=True),
+    )
+
+    _option = match_grammar = Sequence(
+        Ref.keyword("WITH", optional=True),
+        Bracketed(
+            Delimited(
+                AnySetOf(
+                    Sequence("FORMAT", Ref("SingleIdentifierGrammar")),
+                    Sequence("FREEZE", Ref("BooleanLiteralGrammar", optional=True)),
+                    Sequence("DELIMITER", Ref("QuotedLiteralSegment")),
+                    Sequence("NULL", Ref("QuotedLiteralSegment")),
+                    Sequence("HEADER", Ref("BooleanLiteralGrammar", optional=True)),
+                    Sequence("QUOTE", Ref("QuotedLiteralSegment")),
+                    Sequence("ESCAPE", Ref("QuotedLiteralSegment")),
+                    Sequence(
+                        "FORCE_QUOTE",
+                        OneOf(
+                            Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+                            Ref("StarSegment"),
+                        ),
+                    ),
+                    Sequence(
+                        "FORCE_NOT_NULL",
+                        Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+                    ),
+                    Sequence(
+                        "FORCE_NULL",
+                        Bracketed(Delimited(Ref("ColumnReferenceSegment"))),
+                    ),
+                    Sequence("ENCODING", Ref("QuotedLiteralSegment")),
+                )
+            )
+        ),
+        optional=True,
+    )
+
+    match_grammar = Sequence(
+        "COPY",
+        OneOf(
+            Sequence(
+                _table_definition,
+                "FROM",
+                OneOf(
+                    _target_subset,
+                    Sequence("STDIN"),
+                ),
+                _option,
+                Sequence("WHERE", Ref("ExpressionSegment"), optional=True),
+            ),
+            Sequence(
+                OneOf(
+                    _table_definition, Bracketed(Ref("UnorderedSelectStatementSegment"))
+                ),
+                "TO",
+                OneOf(
+                    _target_subset,
+                    Sequence("STDOUT"),
+                ),
+                _option,
+            ),
+        ),
+    )
+
+
+@postgres_dialect.segment()
+class LanguageClauseSegment(BaseSegment):
+    """Clause specifying language used for executing anonymous code blocks."""
+
+    type = "language_clause"
+
+    match_grammar = Sequence("LANGUAGE", Ref("ParameterNameSegment"))
+
+
+@postgres_dialect.segment()
+class DoStatementSegment(BaseSegment):
+    """A `DO` statement for executing anonymous code blocks.
+
+    As specified in https://www.postgresql.org/docs/14/sql-do.html
+    """
+
+    type = "do_statement"
+
+    match_grammar = Sequence(
+        "DO",
+        OneOf(
+            Sequence(
+                Ref("LanguageClauseSegment", optional=True),
+                OneOf(
+                    Ref("QuotedLiteralSegment"),
+                    Ref("DollarQuotedLiteralSegment"),
+                ),
+            ),
+            Sequence(
+                OneOf(
+                    Ref("QuotedLiteralSegment"),
+                    Ref("DollarQuotedLiteralSegment"),
+                ),
+                Ref("LanguageClauseSegment", optional=True),
+            ),
         ),
     )

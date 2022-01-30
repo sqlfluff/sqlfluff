@@ -45,6 +45,8 @@ redshift_dialect.sets("reserved_keywords").update(
 redshift_dialect.sets("bare_functions").clear()
 redshift_dialect.sets("bare_functions").update(["current_date", "sysdate"])
 
+redshift_dialect.sets("date_part_function_name").update(["DATEADD", "DATEDIFF"])
+
 redshift_dialect.replace(WellKnownTextGeometrySegment=Nothing())
 
 
@@ -133,28 +135,6 @@ class DatatypeSegment(BaseSegment):
             ),
         ),
     )
-
-
-@redshift_dialect.segment(replace=True)
-class DatePartFunctionNameSegment(BaseSegment):
-    """DATEADD function name segment.
-
-    Override to support DATEDIFF as well
-    """
-
-    type = "function_name"
-    match_grammar = OneOf("DATEADD", "DATEDIFF")
-
-
-@redshift_dialect.segment(replace=True)
-class FunctionSegment(BaseSegment):
-    """A scalar or aggregate function.
-
-    Revert back to the ANSI definition to support ignore nulls
-    """
-
-    type = "function"
-    match_grammar = ansi_dialect.get_segment("FunctionSegment").match_grammar.copy()
 
 
 @redshift_dialect.segment()
@@ -939,7 +919,7 @@ class UnloadStatementSegment(BaseSegment):
     )
 
 
-@redshift_dialect.segment()
+@redshift_dialect.segment(replace=True)
 class CopyStatementSegment(BaseSegment):
     """A `COPY` statement.
 

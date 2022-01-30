@@ -84,6 +84,11 @@ tsql_dialect.sets("datetime_units").update(
     ]
 )
 
+tsql_dialect.sets("date_part_function_name").clear()
+tsql_dialect.sets("date_part_function_name").update(
+    ["DATEADD", "DATEDIFF", "DATEDIFF_BIG", "DATENAME"]
+)
+
 tsql_dialect.insert_lexer_matchers(
     [
         RegexLexer(
@@ -341,6 +346,7 @@ tsql_dialect.replace(
         Sequence(OneOf("IGNORE", "RESPECT"), "NULLS"),
     ),
     JoinKeywords=OneOf("JOIN", "APPLY", Sequence("OUTER", "APPLY")),
+    NaturalJoinKeywords=Nothing(),
     # Replace Expression_D_Grammar to remove casting syntax invalid in TSQL
     Expression_D_Grammar=Sequence(
         OneOf(
@@ -402,6 +408,7 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref("TryCatchSegment"),
             Ref("MergeStatementSegment"),
             Ref("ThrowStatementSegment"),
+            Ref("RaiserrorStatementSegment"),
             Ref("ReturnStatementSegment"),
         ],
         remove=[
@@ -1414,12 +1421,15 @@ class FunctionParameterListGrammar(BaseSegment):
 
     type = "function_parameter_list"
     # Function parameter list
-    match_grammar = OptionallyBracketed(
-        Ref("FunctionParameterGrammar"),
-        AnyNumberOf(
-            Ref("CommaSegment"),
+    match_grammar = Bracketed(
+        Sequence(
             Ref("FunctionParameterGrammar"),
-        ),
+            AnyNumberOf(
+                Ref("CommaSegment"),
+                Ref("FunctionParameterGrammar"),
+            ),
+            optional=True,
+        )
     )
 
 
@@ -1622,6 +1632,27 @@ class SetStatementSegment(BaseSegment):
 
 
 @tsql_dialect.segment()
+class ProcedureParameterListGrammar(BaseSegment):
+    """The parameters for a procedure ie.
+
+    `@city_name NVARCHAR(30), @postal_code NVARCHAR(15)`.
+    """
+
+    type = "procedure_parameter_list"
+    # Function parameter list
+    match_grammar = OptionallyBracketed(
+        Sequence(
+            Ref("FunctionParameterGrammar"),
+            AnyNumberOf(
+                Ref("CommaSegment"),
+                Ref("FunctionParameterGrammar"),
+            ),
+            optional=True,
+        ),
+    )
+
+
+@tsql_dialect.segment()
 class CreateProcedureStatementSegment(BaseSegment):
     """A `CREATE OR ALTER PROCEDURE` statement.
 
@@ -1635,7 +1666,7 @@ class CreateProcedureStatementSegment(BaseSegment):
         Sequence("OR", "ALTER", optional=True),
         OneOf("PROCEDURE", "PROC"),
         Ref("ObjectReferenceSegment"),
-        Ref("FunctionParameterListGrammar", optional=True),
+        Ref("ProcedureParameterListGrammar", optional=True),
         "AS",
         Ref("ProcedureDefinitionGrammar"),
     )
@@ -1881,6 +1912,9 @@ class FunctionSegment(BaseSegment):
     type = "function"
     match_grammar = OneOf(
         Sequence(
+            # Treat functions which take date parts separately
+            # So those functions parse date parts as DatetimeUnitSegment
+            # rather than identifiers.
             Ref("DatePartFunctionNameSegment"),
             Bracketed(
                 Delimited(
@@ -2783,17 +2817,6 @@ class SetClauseSegment(BaseSegment):
     )
 
 
-@tsql_dialect.segment(replace=True)
-class DatePartFunctionNameSegment(BaseSegment):
-    """DATEADD function name segment.
-
-    Override to support DATEDIFF as well
-    """
-
-    type = "function_name"
-    match_grammar = OneOf("DATEADD", "DATEDIFF", "DATEDIFF_BIG", "DATENAME")
-
-
 @tsql_dialect.segment()
 class PrintStatementSegment(BaseSegment):
     """PRINT statement segment."""
@@ -3363,6 +3386,31 @@ class ThrowStatementSegment(BaseSegment):
                 Ref("ParameterNameSegment"),
             ),
             optional=True,
+        ),
+    )
+
+
+@tsql_dialect.segment()
+class RaiserrorStatementSegment(BaseSegment):
+    """RAISERROR statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/raiserror-transact-sql?view=sql-server-ver15
+    """
+
+    type = "raiserror_statement"
+    match_grammar = Sequence(
+        "RAISERROR",
+        Bracketed(
+            Delimited(
+                OneOf(Ref("NumericLiteralSegment"), Ref("QuotedLiteralSegment")),
+                OneOf(
+                    Ref("NumericLiteralSegment"), Ref("QualifiedNumericLiteralSegment")
+                ),
+                OneOf(
+                    Ref("NumericLiteralSegment"), Ref("QualifiedNumericLiteralSegment")
+                ),
+                Ref("QuotedLiteralSegment", optional=True),
+            ),
         ),
     )
 

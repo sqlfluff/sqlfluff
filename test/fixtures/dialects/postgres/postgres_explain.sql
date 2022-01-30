@@ -1,5 +1,6 @@
 explain (
     analyze true,
+    analyse true,
     verbose true,
     costs true,
     settings true,
@@ -12,6 +13,7 @@ explain (
 
 explain (
     analyze false,
+    analyse false,
     verbose false,
     costs false,
     settings false,
@@ -24,6 +26,7 @@ explain (
 
 explain (
     analyze,
+    analyse,
     verbose,
     costs,
     settings,
@@ -36,7 +39,11 @@ explain (
 
 explain analyze verbose select 1;
 
+explain analyse verbose select 1;
+
 explain analyze select 1;
+
+explain analyse select 1;
 
 explain (format text) select 1;
 

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2884b5261aca756449ade39d43428e9bf617350ab2ac84ff0f6fd144a7433ba3
+_hash: 21a0a9b32e3159ef2304940cabc52cb7355f81f0a0bb0c77f6efd091d114f8f3
 file:
 - statement:
     explain_statement:
@@ -15,6 +15,10 @@ file:
           literal: 'true'
       - comma: ','
       - explain_option:
+          keyword: analyse
+          literal: 'true'
+      - comma: ','
+      - explain_option:
           keyword: verbose
           literal: 'true'
       - comma: ','
@@ -62,6 +66,10 @@ file:
           literal: 'false'
       - comma: ','
       - explain_option:
+          keyword: analyse
+          literal: 'false'
+      - comma: ','
+      - explain_option:
           keyword: verbose
           literal: 'false'
       - comma: ','
@@ -106,6 +114,9 @@ file:
       - start_bracket: (
       - explain_option:
           keyword: analyze
+      - comma: ','
+      - explain_option:
+          keyword: analyse
       - comma: ','
       - explain_option:
           keyword: verbose
@@ -152,7 +163,28 @@ file:
 - statement:
     explain_statement:
     - keyword: explain
+    - keyword: analyse
+    - keyword: verbose
+    - select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            literal: '1'
+- statement_terminator: ;
+- statement:
+    explain_statement:
+    - keyword: explain
     - keyword: analyze
+    - select_statement:
+        select_clause:
+          keyword: select
+          select_clause_element:
+            literal: '1'
+- statement_terminator: ;
+- statement:
+    explain_statement:
+    - keyword: explain
+    - keyword: analyse
     - select_statement:
         select_clause:
           keyword: select
