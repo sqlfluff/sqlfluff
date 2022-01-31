@@ -660,3 +660,11 @@ test_pass_tsql_set_indent:
   configs:
     core:
       dialect: tsql
+
+test_pass_tsql_set_indent_multiple_params:
+  pass_str: |
+    SET @param1 = 1,
+        @param2 = 2
+  configs:
+    core:
+      dialect: tsql
