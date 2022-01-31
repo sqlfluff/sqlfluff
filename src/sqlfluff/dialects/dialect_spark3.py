@@ -1295,8 +1295,6 @@ class AliasExpressionSegment(BaseSegment):
     )
 
 
-#
-#
 @spark3_dialect.segment()
 class DelimitedValues(BaseSegment):
     """A ``VALUES`` clause can be a sequence either of scalar values or tuple values.
