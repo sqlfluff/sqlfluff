@@ -47,8 +47,7 @@ SELECT /*+ REBALANCE(c) */
 FROM t;
 
 -- multiple partitioning hints
-SELECT
-    /*+ REPARTITION(100), COALESCE(500), REPARTITION_BY_RANGE(3, c) */
+SELECT /*+ REPARTITION(100), COALESCE(500), REPARTITION_BY_RANGE(3, c) */
     a,
     b,
     c
@@ -100,15 +99,13 @@ SELECT /*+ SHUFFLE_HASH(t1) */
 FROM t1 INNER JOIN t2 ON t1.key = t2.key;
 
 -- Join Hints for shuffle-and-replicate nested loop join
-SELECT
-    /*+ SHUFFLE_REPLICATE_NL(t1) */
+SELECT /*+ SHUFFLE_REPLICATE_NL(t1) */
     t1.a,
     t1.b,
     t2.c
 FROM t1 INNER JOIN t2 ON t1.key = t2.key;
 
-SELECT
-    /*+ BROADCAST(t1), MERGE(t1, t2) */
+SELECT /*+ BROADCAST(t1), MERGE(t1, t2) */
     t1.a,
     t1.b,
     t2.c

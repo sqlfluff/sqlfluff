@@ -286,19 +286,11 @@ spark3_dialect.add(
     ),
     # Adding Hint related segments so they are not treated as generic comments
     # https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-hints.html
-    StartHintCommentSegment=StringParser(
-        "/*+", KeywordSegment, name="start_hint_comment"
+    StartHintSegment=StringParser(
+        "/*+", KeywordSegment, name="start_hint"
     ),
-    EndHintCommentSegment=StringParser("*/", KeywordSegment, name="end_hint_comment"),
-    HintCommentGrammar=Sequence(
-        Sequence(
-            Ref("StartHintCommentSegment"),
-            Delimited(
-                Ref("FunctionSegment"),
-                min_delimiters=1,
-                terminator=Ref("EndHintCommentSegment"),
-            ),
-        ),
+    EndHintSegment=StringParser(
+        "*/", KeywordSegment, name="end_hint"
     ),
     PartitionSpecGrammar=Sequence(
         OneOf("PARTITION", Sequence("PARTITIONED", "BY")),
@@ -361,6 +353,24 @@ spark3_dialect.add(
     ),
 )
 
+
+# Adding Hint related grammar before comment `block_comment` and
+# `single_quote` so they are applied before comment lexer so
+# hints are treated as such instead of comments when parsing.
+# https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-hints.html
+spark3_dialect.insert_lexer_matchers(
+    [
+        RegexLexer("start_hint", r"\/\*\+", CodeSegment),
+    ],
+    before="block_comment",
+)
+
+spark3_dialect.insert_lexer_matchers(
+    [
+        RegexLexer("end_hint", r"\*\/", CodeSegment),
+    ],
+    before="single_quote",
+)
 
 # Hive Segments
 @spark3_dialect.segment()
@@ -1057,6 +1067,54 @@ class DistributeByClauseSegment(BaseSegment):
         Dedent,
     )
 
+@spark3_dialect.segment()
+class HintFunctionSegment(BaseSegment):
+    """A Function within a SparkSQL Hint.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-hints.html
+    """
+
+    type = "hint_function"
+    match_grammar = Sequence(
+        Sequence(
+            Ref("FunctionNameSegment"),
+            Bracketed(
+                Ref(
+                    "FunctionContentsGrammar",
+                    # Brackets may be empty
+                    optional=True,
+                    ephemeral_name="FunctionContentsGrammar",
+                ),
+                # May be Bare Function unique to Hints, i.e. REBALANCE
+                optional=True,
+            ),
+        ),
+    )
+
+
+@spark3_dialect.segment()
+class SelectHintSegment(BaseSegment):
+    """Spark Select Hints.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-hints.html
+    """
+
+    type = "select_hint"
+
+    match_grammar = Sequence(
+        Sequence(
+            Ref("StartHintSegment"),
+            Delimited(
+                AnyNumberOf(
+                    Ref("HintFunctionSegment"),
+                    # At least function should be supplied
+                    min_times=1,
+                ),
+                terminator=Ref("EndHintSegment"),
+            ),
+            Ref("EndHintSegment"),
+        ),
+    )
 
 @spark3_dialect.segment(replace=True)
 class SelectClauseModifierSegment(BaseSegment):
@@ -1069,22 +1127,22 @@ class SelectClauseModifierSegment(BaseSegment):
     type = "select_clause_modifier"
     match_grammar = Sequence(
         # TODO New Rule warning of Join Hints priority if multiple specified
-        # When different join strategy hints are specified on
-        #   both sides of a join, Spark prioritizes the BROADCAST
-        #   hint over the MERGE hint over the SHUFFLE_HASH hint
-        #   over the SHUFFLE_REPLICATE_NL hint.
+        #   When different join strategy hints are specified on
+        #     both sides of a join, Spark prioritizes the BROADCAST
+        #     hint over the MERGE hint over the SHUFFLE_HASH hint
+        #     over the SHUFFLE_REPLICATE_NL hint.
         #
-        # Spark will issue Warning in the following example:
+        #   Spark will issue Warning in the following example:
         #
-        # SELECT
-        # /*+ BROADCAST(t1), MERGE(t1, t2) */
-        #     t1.a,
-        #     t1.b,
-        #     t2.c
-        # FROM t1 INNER JOIN t2 ON t1.key = t2.key;
+        #   SELECT
+        #   /*+ BROADCAST(t1), MERGE(t1, t2) */
+        #       t1.a,
+        #       t1.b,
+        #       t2.c
+        #   FROM t1 INNER JOIN t2 ON t1.key = t2.key;
         #
-        # Hints should be listed in order of priority in Select
-        Ref("HintCommentGrammar", optional=True),
+        #   Hints should be listed in order of priority in Select
+        Ref("SelectHintSegment", optional=True),
         OneOf("DISTINCT", "ALL", optional=True),
     )
 
