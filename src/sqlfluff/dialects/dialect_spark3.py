@@ -182,7 +182,6 @@ spark3_dialect.replace(
         Sequence("DISTRIBUTE", "BY"),
         # TODO Add PIVOT, LATERAL VIEW, SORT BY and DISTRIBUTE BY clauses
         "HAVING",
-        "QUALIFY",
         "WINDOW",
         Ref("SetOperatorSegment"),
         Ref("WithNoSchemaBindingClauseSegment"),
@@ -1082,6 +1081,130 @@ class SelectStatementSegment(BaseSegment):
             Ref("DistributeByClauseSegment", optional=True),
         ],
         before=Ref("LimitClauseSegment"),
+    )
+
+
+@spark3_dialect.segment(replace=True)
+class GroupByClauseSegment(BaseSegment):
+    """Enhance `GROUP BY` clause like in `SELECT` for 'CUBE' and 'ROLLUP`.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-groupby.html
+    """
+
+    type = "group_by_clause"
+
+    match_grammar = StartsWith(
+        Sequence("GROUP", "BY"),
+        terminator=OneOf("ORDER", "LIMIT", "HAVING", "WINDOW"),
+        enforce_whitespace_preceding_terminator=True,
+    )
+
+    parse_grammar = Sequence(
+        "GROUP",
+        "BY",
+        Indent,
+        Delimited(
+            OneOf(
+                Ref("ColumnReferenceSegment"),
+                # Can `GROUP BY 1`
+                Ref("NumericLiteralSegment"),
+                # Can `GROUP BY coalesce(col, 1)`
+                Ref("ExpressionSegment"),
+                Ref("CubeRollupClauseSegment"),
+                Ref("GroupingSetsClauseSegment"),
+            ),
+            terminator=OneOf("ORDER", "LIMIT", "HAVING", "WINDOW"),
+        ),
+        # TODO: New Rule
+        #  Warn if CubeRollupClauseSegment and
+        #  WithCubeRollupClauseSegment used in same query
+        Ref("WithCubeRollupClauseSegment", optional=True),
+        Dedent,
+    )
+
+
+@spark3_dialect.segment()
+class WithCubeRollupClauseSegment(BaseSegment):
+    """A `[WITH CUBE | WITH ROLLUP]` clause after the `GROUP BY` clause.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-groupby.html
+    """
+
+    type = "with_cube_rollup_clause"
+
+    match_grammar = Sequence(
+        "WITH",
+        OneOf("CUBE", "ROLLUP"),
+    )
+
+
+@spark3_dialect.segment()
+class CubeRollupClauseSegment(BaseSegment):
+    """`[CUBE | ROLLUP]` clause within the `GROUP BY` clause.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-groupby.html
+    """
+
+    type = "cube_rollup_clause"
+
+    match_grammar = StartsWith(
+        OneOf("CUBE", "ROLLUP"),
+        terminator=OneOf(
+            "HAVING",
+            Sequence("ORDER", "BY"),
+            "LIMIT",
+            Ref("SetOperatorSegment"),
+        ),
+    )
+
+    parse_grammar = Sequence(
+        OneOf("CUBE", "ROLLUP"),
+        Bracketed(
+            Ref("GroupingExpressionList"),
+        ),
+    )
+
+
+@spark3_dialect.segment()
+class GroupingSetsClauseSegment(BaseSegment):
+    """`GROUPING SETS` clause within the `GROUP BY` clause."""
+
+    type = "grouping_sets_clause"
+
+    match_grammar = StartsWith(
+        Sequence("GROUPING", "SETS"),
+        terminator=OneOf(
+            "HAVING",
+            Sequence("ORDER", "BY"),
+            "LIMIT",
+            Ref("SetOperatorSegment"),
+        ),
+    )
+
+    parse_grammar = Sequence(
+        "GROUPING",
+        "SETS",
+        Bracketed(
+            Delimited(
+                Ref("CubeRollupClauseSegment"),
+                Ref("GroupingExpressionList"),
+                Bracketed(),  # Allows empty parentheses
+            )
+        ),
+    )
+
+
+@spark3_dialect.segment()
+class GroupingExpressionList(BaseSegment):
+    """Grouping expression list within `CUBE` / `ROLLUP` `GROUPING SETS`."""
+
+    type = "grouping_expression_list"
+
+    match_grammar = Delimited(
+        OneOf(
+            Bracketed(Delimited(Ref("ExpressionSegment"))),
+            Ref("ExpressionSegment"),
+        )
     )
 
 

@@ -152,7 +152,6 @@ bigquery_dialect.add(
 
 bigquery_dialect.replace(
     FunctionContentsExpressionGrammar=OneOf(
-        Ref("DatetimeUnitSegment"),
         Sequence(
             Ref("ExpressionSegment"),
             Sequence(OneOf("IGNORE", "RESPECT"), "NULLS", optional=True),
@@ -204,6 +203,23 @@ bigquery_dialect.sets("reserved_keywords").update(
 bigquery_dialect.sets("datetime_units").update(
     ["MICROSECOND", "DAYOFWEEK", "ISOWEEK", "ISOYEAR"]
 )
+
+bigquery_dialect.sets("date_part_function_name").clear()
+bigquery_dialect.sets("date_part_function_name").update(
+    [
+        "DATE_DIFF",
+        "DATE_TRUNC",
+        "DATETIME_DIFF",
+        "DATETIME_TRUNC",
+        "EXTRACT",
+        "LAST_DAY",
+        "TIME_DIFF",
+        "TIME_TRUNC",
+        "TIMESTAMP_DIFF",
+        "TIMESTAMP_TRUNC",
+    ]
+)
+
 
 # In BigQuery, UNNEST() returns a "value table".
 # https://cloud.google.com/bigquery/docs/reference/standard-sql/query-syntax#value_tables
@@ -365,23 +381,43 @@ class FunctionSegment(BaseSegment):
     """
 
     type = "function"
-    match_grammar = Sequence(
+    match_grammar = OneOf(
         Sequence(
-            AnyNumberOf(
-                Ref("FunctionNameSegment"),
-                max_times=1,
-                min_times=1,
-                exclude=OneOf(
-                    Ref("ValuesClauseSegment"),
+            # Treat functions which take date parts separately
+            # So those functions parse date parts as DatetimeUnitSegment
+            # rather than identifiers.
+            Sequence(
+                Ref("DatePartFunctionNameSegment"),
+                Bracketed(
+                    Delimited(
+                        Ref("DatetimeUnitSegment"),
+                        Ref(
+                            "FunctionContentsGrammar",
+                            ephemeral_name="FunctionContentsGrammar",
+                        ),
+                    ),
                 ),
             ),
-            Bracketed(
-                Ref(
-                    "FunctionContentsGrammar",
-                    # The brackets might be empty for some functions...
-                    optional=True,
-                    ephemeral_name="FunctionContentsGrammar",
-                )
+        ),
+        Sequence(
+            Sequence(
+                AnyNumberOf(
+                    Ref("FunctionNameSegment"),
+                    max_times=1,
+                    min_times=1,
+                    exclude=OneOf(
+                        Ref("DatePartFunctionNameSegment"),
+                        Ref("ValuesClauseSegment"),
+                    ),
+                ),
+                Bracketed(
+                    Ref(
+                        "FunctionContentsGrammar",
+                        # The brackets might be empty for some functions...
+                        optional=True,
+                        ephemeral_name="FunctionContentsGrammar",
+                    )
+                ),
             ),
             # Functions returning ARRYS in BigQuery can have optional
             # OFFSET or ORDINAL clauses
@@ -415,8 +451,8 @@ class FunctionSegment(BaseSegment):
                 ),
                 optional=True,
             ),
+            Ref("PostFunctionGrammar", optional=True),
         ),
-        Ref("PostFunctionGrammar", optional=True),
     )
 
 
