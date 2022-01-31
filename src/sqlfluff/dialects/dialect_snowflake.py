@@ -1267,15 +1267,9 @@ class UnorderedSelectStatementSegment(
     """
 
     type = "select_statement"
-    match_grammar = StartsWith(
-        # NB: In bigquery, the select clause may include an EXCEPT, which
-        # will also match the set operator, but by starting with the whole
-        # select clause rather than just the SELECT keyword, we normally
-        # mitigate that here. But this isn't BigQuery! So we can be more
-        # efficient and just just the keyword.
-        "SELECT",
-        terminator=Ref("SetOperatorSegment"),
-    )
+    match_grammar = ansi_dialect.get_segment(
+        "UnorderedSelectStatementSegment"
+    ).match_grammar.copy()
 
     parse_grammar = ansi_dialect.get_segment(
         "UnorderedSelectStatementSegment"
