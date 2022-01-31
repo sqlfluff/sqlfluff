@@ -184,9 +184,6 @@ postgres_dialect.add(
     JsonOperatorSegment=NamedParser(
         "json_operator", SymbolSegment, name="json_operator", type="binary_operator"
     ),
-    DollarQuotedLiteralSegment=NamedParser(
-        "dollar_quote", CodeSegment, name="dollar_quoted_literal", type="literal"
-    ),
     SimpleGeometryGrammar=AnyNumberOf(Ref("NumericLiteralSegment")),
     # N.B. this MultilineConcatenateDelimiterGrammar is only created
     # to parse multiline-concatenated string literals
@@ -287,6 +284,23 @@ postgres_dialect.replace(
                 Ref("MultilineConcatenateDelimiterGrammar"),
                 NamedParser(
                     "escaped_single_quote",
+                    CodeSegment,
+                    name="quoted_literal",
+                    type="literal",
+                ),
+            ),
+        ),
+        Delimited(
+            NamedParser(
+                "dollar_quote",
+                CodeSegment,
+                name="quoted_literal",
+                type="literal",
+            ),
+            AnyNumberOf(
+                Ref("MultilineConcatenateDelimiterGrammar"),
+                NamedParser(
+                    "dollar_quote",
                     CodeSegment,
                     name="quoted_literal",
                     type="literal",
@@ -911,7 +925,6 @@ class FunctionDefinitionGrammar(BaseSegment):
                 "AS",
                 OneOf(
                     Ref("QuotedLiteralSegment"),
-                    Ref("DollarQuotedLiteralSegment"),
                     Sequence(
                         Ref("QuotedLiteralSegment"),
                         Ref("CommaSegment"),
@@ -3521,16 +3534,10 @@ class DoStatementSegment(BaseSegment):
         OneOf(
             Sequence(
                 Ref("LanguageClauseSegment", optional=True),
-                OneOf(
-                    Ref("QuotedLiteralSegment"),
-                    Ref("DollarQuotedLiteralSegment"),
-                ),
+                Ref("QuotedLiteralSegment"),
             ),
             Sequence(
-                OneOf(
-                    Ref("QuotedLiteralSegment"),
-                    Ref("DollarQuotedLiteralSegment"),
-                ),
+                Ref("QuotedLiteralSegment"),
                 Ref("LanguageClauseSegment", optional=True),
             ),
         ),
