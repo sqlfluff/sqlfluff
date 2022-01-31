@@ -1567,6 +1567,7 @@ class SetStatementSegment(BaseSegment):
     type = "set_segment"
     match_grammar = Sequence(
         "SET",
+        Indent,
         OneOf(
             Ref("ParameterNameSegment"),
             "DATEFIRST",
@@ -1627,6 +1628,7 @@ class SetStatementSegment(BaseSegment):
                 Ref("ExpressionSegment"),
             ),
         ),
+        Dedent,
         Ref("DelimiterSegment", optional=True),
     )
 
