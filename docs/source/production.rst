@@ -130,7 +130,8 @@ When trying to use the `dbt templater`_, uncomment the
 ``additional_dependencies`` to install the extras.
 This is equivalent to running ``pip install <dbt-adapter> sqlfluff-templater-dbt``.
 
-You're able to specify the verion of ``dbt-adapter`` used in `pre-commit`_ E.g. ``additional_dependencies : ['dbt-bigquery==1.0.0', 'sqlfluff-templater-dbt']``
+You can specify the verion of ``dbt-adapter`` used in `pre-commit`_
+E.g. ``additional_dependencies : ['dbt-bigquery==1.0.0', 'sqlfluff-templater-dbt']``
 
 See the list of available `dbt-adapters`_.
 
