@@ -1276,22 +1276,20 @@ class AliasExpressionSegment(BaseSegment):
     .. code-block:: sql
 
         SELECT * FROM VALUES (1,2) as t (a, b);
-        SELECT * FROM VALUES (1,2) as t;
         SELECT * FROM VALUES (1,2) as (a, b);
-
+        SELECT * FROM VALUES (1,2) as t;
     """
 
     type = "alias_expression"
     match_grammar = Sequence(
         Ref.keyword("AS", optional=True),
         OneOf(
+            # maybe table alias and column aliases
             Sequence(
-                # maybe table alias
                 Ref("SingleIdentifierGrammar", optional=True),
-                # maybe column aliases
                 Bracketed(Ref("SingleIdentifierListSegment")),
             ),
-            # maybe table alias
+            # just a table alias
             Ref("SingleIdentifierGrammar"),
         ),
     )
