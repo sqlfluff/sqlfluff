@@ -8,8 +8,8 @@ import logging
 from typing import List, Optional, Iterator, Tuple, Any, Dict, Deque
 
 from dataclasses import dataclass
-from functools import partial
 
+from dbt.flags import PROFILES_DIR
 from dbt.version import get_installed_version
 from dbt.config.runtime import RuntimeConfig as DbtRuntimeConfig
 from dbt.adapters.factory import register_adapter, get_adapter
@@ -39,11 +39,6 @@ templater_logger = logging.getLogger("sqlfluff.templater")
 DBT_VERSION = get_installed_version()
 DBT_VERSION_STRING = DBT_VERSION.to_version_string()
 DBT_VERSION_TUPLE = (int(DBT_VERSION.major), int(DBT_VERSION.minor))
-
-if DBT_VERSION_TUPLE >= (1, 0):
-    from dbt.flags import PROFILES_DIR
-else:
-    from dbt.config.profile import PROFILES_DIR
 
 
 @dataclass
@@ -90,16 +85,15 @@ class DbtTemplater(JinjaTemplater):
     @cached_property
     def dbt_config(self):
         """Loads the dbt config."""
-        if self.dbt_version_tuple >= (1, 0):
-            flags.set_from_args(
-                "",
-                DbtConfigArgs(
-                    project_dir=self.project_dir,
-                    profiles_dir=self.profiles_dir,
-                    profile=self._get_profile(),
-                    target=self._get_target(),
-                ),
-            )
+        flags.set_from_args(
+            "",
+            DbtConfigArgs(
+                project_dir=self.project_dir,
+                profiles_dir=self.profiles_dir,
+                profile=self._get_profile(),
+                target=self._get_target(),
+            ),
+        )
         self.dbt_config = DbtRuntimeConfig.from_args(
             DbtConfigArgs(
                 project_dir=self.project_dir,
@@ -131,32 +125,12 @@ class DbtTemplater(JinjaTemplater):
 
         do_not_track()
 
-        if self.dbt_version_tuple <= (0, 19):
+        # dbt 0.20.* and onward
+        from dbt.parser.manifest import ManifestLoader
 
-            if self.dbt_version_tuple == (0, 17):  # pragma: no cover TODO?
-                # dbt version 0.17.*
-                from dbt.parser.manifest import (
-                    load_internal_manifest as load_macro_manifest,
-                )
-            else:
-                # dbt version 0.18.* & # 0.19.*
-                from dbt.parser.manifest import load_macro_manifest
-
-                load_macro_manifest = partial(load_macro_manifest, macro_hook=identity)
-
-            from dbt.parser.manifest import load_manifest
-
-            dbt_macros_manifest = load_macro_manifest(self.dbt_config)
-            self.dbt_manifest = load_manifest(
-                self.dbt_config, dbt_macros_manifest, macro_hook=identity
-            )
-        else:
-            # dbt 0.20.* and onward
-            from dbt.parser.manifest import ManifestLoader
-
-            projects = self.dbt_config.load_dependencies()
-            loader = ManifestLoader(self.dbt_config, projects, macro_hook=identity)
-            self.dbt_manifest = loader.load()
+        projects = self.dbt_config.load_dependencies()
+        loader = ManifestLoader(self.dbt_config, projects, macro_hook=identity)
+        self.dbt_manifest = loader.load()
 
         return self.dbt_manifest
 
@@ -168,22 +142,17 @@ class DbtTemplater(JinjaTemplater):
                 "dbt templater", "Compiling dbt project..."
             )
 
-        if self.dbt_version_tuple == (0, 17):  # pragma: no cover TODO?
-            from dbt.graph.selector import PathSelector
+        from dbt.graph.selector_methods import (
+            MethodManager as DbtSelectorMethodManager,
+            MethodName as DbtMethodName,
+        )
 
-            self.dbt_selector_method = PathSelector(self.dbt_manifest)
-        else:
-            from dbt.graph.selector_methods import (
-                MethodManager as DbtSelectorMethodManager,
-                MethodName as DbtMethodName,
-            )
-
-            selector_methods_manager = DbtSelectorMethodManager(
-                self.dbt_manifest, previous_state=None
-            )
-            self.dbt_selector_method = selector_methods_manager.get_method(
-                DbtMethodName.Path, method_arguments=[]
-            )
+        selector_methods_manager = DbtSelectorMethodManager(
+            self.dbt_manifest, previous_state=None
+        )
+        self.dbt_selector_method = selector_methods_manager.get_method(
+            DbtMethodName.Path, method_arguments=[]
+        )
 
         if self.formatter:  # pragma: no cover TODO?
             self.formatter.dispatch_compilation_header(
@@ -395,19 +364,13 @@ class DbtTemplater(JinjaTemplater):
         results = [self.dbt_manifest.expect(uid) for uid in selected]
 
         if not results:
-            model_name = os.path.splitext(os.path.basename(fname))[0]
-            if DBT_VERSION_TUPLE >= (1, 0):
-                disabled_model = None
-                for key, disabled_model_nodes in self.dbt_manifest.disabled.items():
-                    for disabled_model_node in disabled_model_nodes:
-                        if os.path.abspath(
-                            disabled_model_node.original_file_path
-                        ) == os.path.abspath(fname):
-                            disabled_model = disabled_model_node
-            else:
-                disabled_model = self.dbt_manifest.find_disabled_by_name(
-                    name=model_name
-                )
+            disabled_model = None
+            for key, disabled_model_nodes in self.dbt_manifest.disabled.items():
+                for disabled_model_node in disabled_model_nodes:
+                    if os.path.abspath(
+                        disabled_model_node.original_file_path
+                    ) == os.path.abspath(fname):
+                        disabled_model = disabled_model_node
             if disabled_model and os.path.abspath(
                 disabled_model.original_file_path
             ) == os.path.abspath(fname):
@@ -554,18 +517,15 @@ class DbtTemplater(JinjaTemplater):
         # We have to register the connection in dbt >= 1.0.0 ourselves
         # In previous versions, we relied on the functionality removed in
         # https://github.com/dbt-labs/dbt-core/pull/4062.
-        if DBT_VERSION_TUPLE >= (1, 0):
-            if not self.connection_acquired:
-                adapter = get_adapter(self.dbt_config)
-                adapter.acquire_connection("master")
-                adapter.set_relations_cache(self.dbt_manifest)
-                self.connection_acquired = True
-            yield
-            # :TRICKY: Once connected, we never disconnect. Making multiple
-            # connections during linting has proven to cause major performance
-            # issues.
-        else:
-            yield
+        if not self.connection_acquired:
+            adapter = get_adapter(self.dbt_config)
+            adapter.acquire_connection("master")
+            adapter.set_relations_cache(self.dbt_manifest)
+            self.connection_acquired = True
+        yield
+        # :TRICKY: Once connected, we never disconnect. Making multiple
+        # connections during linting has proven to cause major performance
+        # issues.
 
 
 class SnapshotExtension(StandaloneTag):

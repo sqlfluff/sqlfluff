@@ -2,9 +2,6 @@
 # code linting and formatting
 flake8
 flake8-docstrings
-# Black 22.1 has a fatal bug when used with flake8-black and dbt, so cap it for now
-# to the last known stable version (ironically labelled beta until this settles.
-# See https://github.com/sqlfluff/sqlfluff/pull/2513
 black>=22.1.0
 flake8-black>=0.2.4
 # documentation checks
