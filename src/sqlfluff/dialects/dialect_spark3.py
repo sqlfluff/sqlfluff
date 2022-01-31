@@ -1278,6 +1278,11 @@ class AliasExpressionSegment(BaseSegment):
         SELECT * FROM VALUES (1,2) as t (a, b);
         SELECT * FROM VALUES (1,2) as (a, b);
         SELECT * FROM VALUES (1,2) as t;
+
+    Note that in Spark SQL, identifiers are quoted using backticks (`my_table`) rather
+    than double quotes ("my_table"). Quoted identifiers are allowed in aliases, but
+    unlike ANSI which allows single quoted identifiers ('my_table') in aliases, this is
+    not allowed in Spark and so the definition of this segment must depart from ANSI.
     """
 
     type = "alias_expression"
