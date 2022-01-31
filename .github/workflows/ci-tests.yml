@@ -78,7 +78,7 @@ jobs:
         echo 'EOF' >> $GITHUB_ENV
     - name: Run the tests
       run: |
-        tox -e ${{ env.TOXENV }} -- -n 2 test
+        tox -e ${{ env.TOXENV }} -- -n 2 test/core/linter_test.py
     - name: Upload Coverage Report
       uses: codecov/codecov-action@v1
       with:
