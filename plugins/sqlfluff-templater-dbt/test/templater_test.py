@@ -333,9 +333,6 @@ def test__templater_dbt_handle_exceptions(
     assert violations[0].desc().replace("\\", "/").startswith(exception_msg)
 
 
-@pytest.mark.skipif(
-    DBT_VERSION_TUPLE < (1, 0), reason="mocks a function that's only used in dbt >= 1.0"
-)
 @mock.patch("dbt.adapters.postgres.impl.PostgresAdapter.set_relations_cache")
 def test__templater_dbt_handle_database_connection_failure(
     set_relations_cache, project_dir, dbt_templater  # noqa: F811
