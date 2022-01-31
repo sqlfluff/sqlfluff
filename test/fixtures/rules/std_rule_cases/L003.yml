@@ -555,8 +555,8 @@ test_tsql_function:
         --Special cases Jan 1-3 may belong to the previous year
         IF (@ISOweek = 0)
             SET @ISOweek = dbo.ISOWEEK(CAST(DATEPART(yy, @DATE) - 1
-                    AS char(4)
-                    ) + '12' + CAST(24 + DATEPART(day, @DATE) AS char(2))) + 1;
+                        AS char(4)
+                ) + '12' + CAST(24 + DATEPART(day, @DATE) AS char(2))) + 1;
         --Special case Dec 29-31 may belong to the next year
         IF ((DATEPART(mm, @DATE) = 12)
             AND ((DATEPART(dd, @DATE) - DATEPART(dw, @DATE)) >= 28))
