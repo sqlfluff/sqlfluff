@@ -240,15 +240,24 @@ postgres_dialect.replace(
         # Postgres allows newline-concatenated string literals (#1488).
         # Since these string literals can have comments between them,
         # we use grammar to handle this.
-        Delimited(
+        # Note we CANNOT use Delimited as it's greedy and swallows the
+        # last Newline - see #2495
+        Sequence(
             NamedParser(
                 "single_quote",
                 CodeSegment,
                 name="quoted_literal",
                 type="literal",
             ),
-            delimiter=Ref("MultilineConcatenateDelimiterGrammar"),
-            allow_trailing=True,
+            AnyNumberOf(
+                Ref("MultilineConcatenateDelimiterGrammar"),
+                NamedParser(
+                    "single_quote",
+                    CodeSegment,
+                    name="quoted_literal",
+                    type="literal",
+                ),
+            ),
         ),
         Delimited(
             NamedParser(
@@ -257,8 +266,15 @@ postgres_dialect.replace(
                 name="quoted_literal",
                 type="literal",
             ),
-            delimiter=Ref("MultilineConcatenateDelimiterGrammar"),
-            allow_trailing=True,
+            AnyNumberOf(
+                Ref("MultilineConcatenateDelimiterGrammar"),
+                NamedParser(
+                    "unicode_single_quote",
+                    CodeSegment,
+                    name="quoted_literal",
+                    type="literal",
+                ),
+            ),
         ),
         Delimited(
             NamedParser(
@@ -267,8 +283,15 @@ postgres_dialect.replace(
                 name="quoted_literal",
                 type="literal",
             ),
-            delimiter=Ref("MultilineConcatenateDelimiterGrammar"),
-            allow_trailing=True,
+            AnyNumberOf(
+                Ref("MultilineConcatenateDelimiterGrammar"),
+                NamedParser(
+                    "escaped_single_quote",
+                    CodeSegment,
+                    name="quoted_literal",
+                    type="literal",
+                ),
+            ),
         ),
     ),
     QuotedIdentifierSegment=OneOf(
