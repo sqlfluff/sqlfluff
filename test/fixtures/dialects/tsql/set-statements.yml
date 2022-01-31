@@ -1,0 +1,44 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 67e94a5f21aac962753572c04bf3e8abf738677222847eae66fe44e0af1fa746
+file:
+  unparsable:
+  - raw: SET
+  - raw: '@param1'
+  - raw: '='
+  - raw: '1'
+  - comma: ','
+  - raw: SET
+  - raw: '@param1'
+  - raw: '='
+  - raw: '1'
+  - comma: ','
+  - raw: '@param2'
+  - raw: '='
+  - raw: '2'
+  - raw: ;
+  - raw: SET
+  - raw: '@param1'
+  - raw: '='
+  - raw: '"test, test"'
+  - comma: ','
+  - raw: '@param2'
+  - raw: '='
+  - raw: '2'
+  - raw: ;
+  - raw: SET
+  - raw: '@param1'
+  - raw: '='
+  - raw: (
+  - raw: '"test"'
+  - comma: ','
+  - raw: '"test"'
+  - raw: )
+  - comma: ','
+  - raw: '@param2'
+  - raw: '='
+  - raw: '2'
+  - raw: ;
