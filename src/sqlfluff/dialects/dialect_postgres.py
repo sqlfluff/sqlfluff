@@ -184,9 +184,6 @@ postgres_dialect.add(
     JsonOperatorSegment=NamedParser(
         "json_operator", SymbolSegment, name="json_operator", type="binary_operator"
     ),
-    DollarQuotedLiteralSegment=NamedParser(
-        "dollar_quote", CodeSegment, name="dollar_quoted_literal", type="literal"
-    ),
     SimpleGeometryGrammar=AnyNumberOf(Ref("NumericLiteralSegment")),
     # N.B. this MultilineConcatenateDelimiterGrammar is only created
     # to parse multiline-concatenated string literals
@@ -240,15 +237,24 @@ postgres_dialect.replace(
         # Postgres allows newline-concatenated string literals (#1488).
         # Since these string literals can have comments between them,
         # we use grammar to handle this.
-        Delimited(
+        # Note we CANNOT use Delimited as it's greedy and swallows the
+        # last Newline - see #2495
+        Sequence(
             NamedParser(
                 "single_quote",
                 CodeSegment,
                 name="quoted_literal",
                 type="literal",
             ),
-            delimiter=Ref("MultilineConcatenateDelimiterGrammar"),
-            allow_trailing=True,
+            AnyNumberOf(
+                Ref("MultilineConcatenateDelimiterGrammar"),
+                NamedParser(
+                    "single_quote",
+                    CodeSegment,
+                    name="quoted_literal",
+                    type="literal",
+                ),
+            ),
         ),
         Delimited(
             NamedParser(
@@ -257,8 +263,15 @@ postgres_dialect.replace(
                 name="quoted_literal",
                 type="literal",
             ),
-            delimiter=Ref("MultilineConcatenateDelimiterGrammar"),
-            allow_trailing=True,
+            AnyNumberOf(
+                Ref("MultilineConcatenateDelimiterGrammar"),
+                NamedParser(
+                    "unicode_single_quote",
+                    CodeSegment,
+                    name="quoted_literal",
+                    type="literal",
+                ),
+            ),
         ),
         Delimited(
             NamedParser(
@@ -267,8 +280,32 @@ postgres_dialect.replace(
                 name="quoted_literal",
                 type="literal",
             ),
-            delimiter=Ref("MultilineConcatenateDelimiterGrammar"),
-            allow_trailing=True,
+            AnyNumberOf(
+                Ref("MultilineConcatenateDelimiterGrammar"),
+                NamedParser(
+                    "escaped_single_quote",
+                    CodeSegment,
+                    name="quoted_literal",
+                    type="literal",
+                ),
+            ),
+        ),
+        Delimited(
+            NamedParser(
+                "dollar_quote",
+                CodeSegment,
+                name="quoted_literal",
+                type="literal",
+            ),
+            AnyNumberOf(
+                Ref("MultilineConcatenateDelimiterGrammar"),
+                NamedParser(
+                    "dollar_quote",
+                    CodeSegment,
+                    name="quoted_literal",
+                    type="literal",
+                ),
+            ),
         ),
     ),
     QuotedIdentifierSegment=OneOf(
@@ -888,7 +925,6 @@ class FunctionDefinitionGrammar(BaseSegment):
                 "AS",
                 OneOf(
                     Ref("QuotedLiteralSegment"),
-                    Ref("DollarQuotedLiteralSegment"),
                     Sequence(
                         Ref("QuotedLiteralSegment"),
                         Ref("CommaSegment"),
@@ -3498,17 +3534,59 @@ class DoStatementSegment(BaseSegment):
         OneOf(
             Sequence(
                 Ref("LanguageClauseSegment", optional=True),
-                OneOf(
-                    Ref("QuotedLiteralSegment"),
-                    Ref("DollarQuotedLiteralSegment"),
-                ),
+                Ref("QuotedLiteralSegment"),
             ),
             Sequence(
-                OneOf(
-                    Ref("QuotedLiteralSegment"),
-                    Ref("DollarQuotedLiteralSegment"),
-                ),
+                Ref("QuotedLiteralSegment"),
                 Ref("LanguageClauseSegment", optional=True),
             ),
+        ),
+    )
+
+
+@postgres_dialect.segment(replace=True)
+class CTEDefinitionSegment(BaseSegment):
+    """A CTE Definition from a WITH statement.
+
+    https://www.postgresql.org/docs/14/queries-with.html
+
+    TODO: Data-Modifying Statements (INSERT, UPDATE, DELETE) in WITH
+    """
+
+    type = "common_table_expression"
+    match_grammar = Sequence(
+        Ref("SingleIdentifierGrammar"),
+        Bracketed(
+            Ref("SingleIdentifierListSegment"),
+            optional=True,
+        ),
+        "AS",
+        Sequence("NOT", "MATERIALIZED", optional=True),
+        Bracketed(
+            # Ephemeral here to subdivide the query.
+            Ref("SelectableGrammar", ephemeral_name="SelectableGrammar")
+        ),
+        OneOf(
+            Sequence(
+                "SEARCH",
+                OneOf(
+                    "BREADTH",
+                    "DEPTH",
+                ),
+                "FIRST",
+                "BY",
+                Ref("ColumnReferenceSegment"),
+                "SET",
+                Ref("ColumnReferenceSegment"),
+            ),
+            Sequence(
+                "CYCLE",
+                Ref("ColumnReferenceSegment"),
+                "SET",
+                Ref("ColumnReferenceSegment"),
+                "USING",
+                Ref("ColumnReferenceSegment"),
+            ),
+            optional=True,
         ),
     )
