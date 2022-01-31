@@ -1358,9 +1358,8 @@ class ValuesClauseSegment(BaseSegment):
     """
 
     type = "values_clause"
-    match_grammar = StartsWith("VALUES")
 
-    parse_grammar = Sequence(
+    match_grammar = Sequence(
         "VALUES",
         Ref("DelimitedValues"),
         Ref("AliasExpressionSegment", optional=True),
