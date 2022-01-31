@@ -1,0 +1,116 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: f7d81e94715ec8a4ab036c88a9b7e9bbeaba7b10688c71de0b6443f6d4a966e2
+file:
+- base:
+    values_clause:
+      keyword: values
+      delimited_values:
+        tuple_value:
+          bracketed:
+          - start_bracket: (
+          - scalar_value:
+              literal: '1'
+          - comma: ','
+          - scalar_value:
+              literal: '2'
+          - end_bracket: )
+- statement_terminator: ;
+- base:
+    values_clause:
+      keyword: values
+      delimited_values:
+      - tuple_value:
+          bracketed:
+          - start_bracket: (
+          - scalar_value:
+              literal: '1'
+          - comma: ','
+          - scalar_value:
+              literal: '2'
+          - end_bracket: )
+      - comma: ','
+      - tuple_value:
+          bracketed:
+          - start_bracket: (
+          - scalar_value:
+              literal: '3'
+          - comma: ','
+          - scalar_value:
+              literal: '4'
+          - end_bracket: )
+- statement_terminator: ;
+- base:
+    values_clause:
+      keyword: values
+      delimited_values:
+      - tuple_value:
+          bracketed:
+          - start_bracket: (
+          - scalar_value:
+              literal: '1'
+          - comma: ','
+          - scalar_value:
+              literal: '2'
+          - end_bracket: )
+      - comma: ','
+      - tuple_value:
+          bracketed:
+          - start_bracket: (
+          - scalar_value:
+              literal: '3'
+          - comma: ','
+          - scalar_value:
+              literal: '4'
+          - end_bracket: )
+      - comma: ','
+      - tuple_value:
+          bracketed:
+          - start_bracket: (
+          - scalar_value:
+              function:
+                function_name:
+                  function_name_identifier: greatest
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    literal: '5'
+                - comma: ','
+                - expression:
+                    literal: '6'
+                - end_bracket: )
+          - comma: ','
+          - scalar_value:
+              function:
+                function_name:
+                  function_name_identifier: least
+                bracketed:
+                - start_bracket: (
+                - expression:
+                    literal: '7'
+                - comma: ','
+                - expression:
+                    literal: '8'
+                - end_bracket: )
+          - end_bracket: )
+- statement_terminator: ;
+- base:
+    values_clause:
+      keyword: values
+      delimited_values:
+      - scalar_value:
+          literal: '1'
+      - comma: ','
+      - scalar_value:
+          literal: '2'
+- statement_terminator: ;
+- base:
+    values_clause:
+      keyword: values
+      delimited_values:
+        scalar_value:
+          literal: '1'
+- statement_terminator: ;
