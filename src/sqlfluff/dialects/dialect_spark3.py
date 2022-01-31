@@ -1468,13 +1468,13 @@ class TupleValue(BaseSegment):
 
 @spark3_dialect.segment(replace=True)
 class ValuesClauseSegment(BaseSegment):
-    """A ``VALUES`` clause, as typically used with ``INSERT`` or ``SELECT``.
+    """A `VALUES` clause, as typically used with `INSERT` or `SELECT`.
 
-    The Spark SQL reference does not mention ``VALUES``` clauses except in the context
-    of ``INSERT`` statements. However, they appear to behave much the same as in
+    The Spark SQL reference does not mention `VALUES` clauses except in the context
+    of `INSERT` statements. However, they appear to behave much the same as in
     `postgres <https://www.postgresql.org/docs/13/sql-values.html>`.
 
-    In short, they can appear anywhere a ``SELECT`` can, and also as bare ``VALUES``
+    In short, they can appear anywhere a `SELECT` can, and also as bare `VALUES`
     statements. Here are some examples:
     .. code-block:: sql
 
