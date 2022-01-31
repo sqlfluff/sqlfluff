@@ -130,6 +130,10 @@ When trying to use the `dbt templater`_, uncomment the
 ``additional_dependencies`` to install the extras.
 This is equivalent to running ``pip install <dbt-adapter> sqlfluff-templater-dbt``.
 
+You're able to specify the verion of ``dbt-adapter`` used in `pre-commit`_ E.g. ``additional_dependencies : ['dbt-bigquery==1.0.0', 'sqlfluff-templater-dbt']``
+
+See the list of available `dbt-adapters`_.
+
 Note that you can pass the same arguments available
 through the CLI using ``args:``.
 
@@ -147,3 +151,4 @@ For more information and examples on using SQLFluff in GitHub Actions, see the
 .. _`dbt templater`: `dbt-project-configuration`
 .. _`GitHub Actions`: https://github.com/features/actions
 .. _`GitHub pull requests`: https://docs.github.com/en/github/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests
+.. _`dbt-adapters`: https://docs.getdbt.com/docs/available-adapters
