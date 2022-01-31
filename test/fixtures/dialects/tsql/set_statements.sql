@@ -1,5 +1,6 @@
 -- Single params
-SET @param1 = 1,
+SET @param1 = 1
+;
 
 -- Multiple params
 SET @param1 = 1,

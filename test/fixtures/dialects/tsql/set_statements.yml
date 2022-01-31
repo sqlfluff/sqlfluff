@@ -1,0 +1,70 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: b3f8500897fc675eb043f00c047ef37c420ca8da76b8ecd9097120379f70d569
+file:
+  batch:
+  - statement:
+      set_segment:
+        keyword: SET
+        parameter: '@param1'
+        comparison_operator:
+          raw_comparison_operator: '='
+        expression:
+          literal: '1'
+        statement_terminator: ;
+  - statement:
+      set_segment:
+      - keyword: SET
+      - parameter: '@param1'
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - expression:
+          literal: '1'
+      - comma: ','
+      - parameter: '@param2'
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - expression:
+          literal: '2'
+      - statement_terminator: ;
+  - statement:
+      set_segment:
+      - keyword: SET
+      - parameter: '@param1'
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - expression:
+          column_reference:
+            identifier: '"test, test"'
+      - comma: ','
+      - parameter: '@param2'
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - expression:
+          literal: '2'
+      - statement_terminator: ;
+  - statement:
+      set_segment:
+      - keyword: SET
+      - parameter: '@param1'
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - expression:
+          bracketed:
+          - start_bracket: (
+          - column_reference:
+              identifier: '"test"'
+          - comma: ','
+          - column_reference:
+              identifier: '"test"'
+          - end_bracket: )
+      - comma: ','
+      - parameter: '@param2'
+      - comparison_operator:
+          raw_comparison_operator: '='
+      - expression:
+          literal: '2'
+      - statement_terminator: ;
