@@ -3,12 +3,24 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0f2fed451086f62f70b4ad2e126165c4a40171e994120fc4f695d9bb0e5e358c
+_hash: 97393086273199c0cfc2285275d96a4cf6f24c382858270ad0a98da6fafac864
 file:
 - base:
     select_statement:
       select_clause:
       - keyword: SELECT
+      - select_clause_modifier:
+          select_hint:
+          - keyword: /*+
+          - hint_function:
+              function_name:
+                function_name_identifier: COALESCE
+              bracketed:
+                start_bracket: (
+                expression:
+                  literal: '3'
+                end_bracket: )
+          - keyword: '*/'
       - select_clause_element:
           column_reference:
             identifier: a
@@ -32,6 +44,18 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
+      - select_clause_modifier:
+          select_hint:
+          - keyword: /*+
+          - hint_function:
+              function_name:
+                function_name_identifier: REPARTITION
+              bracketed:
+                start_bracket: (
+                expression:
+                  literal: '3'
+                end_bracket: )
+          - keyword: '*/'
       - select_clause_element:
           column_reference:
             identifier: a
@@ -55,6 +79,19 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
+      - select_clause_modifier:
+          select_hint:
+          - keyword: /*+
+          - hint_function:
+              function_name:
+                function_name_identifier: REPARTITION
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    identifier: c
+                end_bracket: )
+          - keyword: '*/'
       - select_clause_element:
           column_reference:
             identifier: a
@@ -78,6 +115,22 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
+      - select_clause_modifier:
+          select_hint:
+          - keyword: /*+
+          - hint_function:
+              function_name:
+                function_name_identifier: REPARTITION
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  literal: '3'
+              - comma: ','
+              - expression:
+                  column_reference:
+                    identifier: c
+              - end_bracket: )
+          - keyword: '*/'
       - select_clause_element:
           column_reference:
             identifier: a
@@ -101,6 +154,19 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
+      - select_clause_modifier:
+          select_hint:
+          - keyword: /*+
+          - hint_function:
+              function_name:
+                function_name_identifier: REPARTITION_BY_RANGE
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    identifier: c
+                end_bracket: )
+          - keyword: '*/'
       - select_clause_element:
           column_reference:
             identifier: a
@@ -124,6 +190,22 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
+      - select_clause_modifier:
+          select_hint:
+          - keyword: /*+
+          - hint_function:
+              function_name:
+                function_name_identifier: REPARTITION_BY_RANGE
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  literal: '3'
+              - comma: ','
+              - expression:
+                  column_reference:
+                    identifier: c
+              - end_bracket: )
+          - keyword: '*/'
       - select_clause_element:
           column_reference:
             identifier: a
@@ -147,6 +229,13 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
+      - select_clause_modifier:
+          select_hint:
+          - keyword: /*+
+          - hint_function:
+              function_name:
+                function_name_identifier: REBALANCE
+          - keyword: '*/'
       - select_clause_element:
           column_reference:
             identifier: a
@@ -170,6 +259,19 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
+      - select_clause_modifier:
+          select_hint:
+          - keyword: /*+
+          - hint_function:
+              function_name:
+                function_name_identifier: REBALANCE
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    identifier: c
+                end_bracket: )
+          - keyword: '*/'
       - select_clause_element:
           column_reference:
             identifier: a
@@ -193,6 +295,40 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
+      - select_clause_modifier:
+          select_hint:
+          - keyword: /*+
+          - hint_function:
+              function_name:
+                function_name_identifier: REPARTITION
+              bracketed:
+                start_bracket: (
+                expression:
+                  literal: '100'
+                end_bracket: )
+          - comma: ','
+          - hint_function:
+              function_name:
+                function_name_identifier: COALESCE
+              bracketed:
+                start_bracket: (
+                expression:
+                  literal: '500'
+                end_bracket: )
+          - comma: ','
+          - hint_function:
+              function_name:
+                function_name_identifier: REPARTITION_BY_RANGE
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  literal: '3'
+              - comma: ','
+              - expression:
+                  column_reference:
+                    identifier: c
+              - end_bracket: )
+          - keyword: '*/'
       - select_clause_element:
           column_reference:
             identifier: a
@@ -216,6 +352,19 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
+      - select_clause_modifier:
+          select_hint:
+          - keyword: /*+
+          - hint_function:
+              function_name:
+                function_name_identifier: BROADCAST
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    identifier: t1
+                end_bracket: )
+          - keyword: '*/'
       - select_clause_element:
           column_reference:
           - identifier: t1
@@ -265,6 +414,19 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
+      - select_clause_modifier:
+          select_hint:
+          - keyword: /*+
+          - hint_function:
+              function_name:
+                function_name_identifier: BROADCASTJOIN
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    identifier: t1
+                end_bracket: )
+          - keyword: '*/'
       - select_clause_element:
           column_reference:
           - identifier: t1
@@ -314,6 +476,19 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
+      - select_clause_modifier:
+          select_hint:
+          - keyword: /*+
+          - hint_function:
+              function_name:
+                function_name_identifier: MAPJOIN
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    identifier: t2
+                end_bracket: )
+          - keyword: '*/'
       - select_clause_element:
           column_reference:
           - identifier: t1
@@ -363,6 +538,19 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
+      - select_clause_modifier:
+          select_hint:
+          - keyword: /*+
+          - hint_function:
+              function_name:
+                function_name_identifier: SHUFFLE_MERGE
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    identifier: t1
+                end_bracket: )
+          - keyword: '*/'
       - select_clause_element:
           column_reference:
           - identifier: t1
@@ -412,6 +600,19 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
+      - select_clause_modifier:
+          select_hint:
+          - keyword: /*+
+          - hint_function:
+              function_name:
+                function_name_identifier: MERGEJOIN
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    identifier: t2
+                end_bracket: )
+          - keyword: '*/'
       - select_clause_element:
           column_reference:
           - identifier: t1
@@ -461,6 +662,19 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
+      - select_clause_modifier:
+          select_hint:
+          - keyword: /*+
+          - hint_function:
+              function_name:
+                function_name_identifier: MERGE
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    identifier: t1
+                end_bracket: )
+          - keyword: '*/'
       - select_clause_element:
           column_reference:
           - identifier: t1
@@ -510,6 +724,19 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
+      - select_clause_modifier:
+          select_hint:
+          - keyword: /*+
+          - hint_function:
+              function_name:
+                function_name_identifier: SHUFFLE_HASH
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    identifier: t1
+                end_bracket: )
+          - keyword: '*/'
       - select_clause_element:
           column_reference:
           - identifier: t1
@@ -559,6 +786,19 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
+      - select_clause_modifier:
+          select_hint:
+          - keyword: /*+
+          - hint_function:
+              function_name:
+                function_name_identifier: SHUFFLE_REPLICATE_NL
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    identifier: t1
+                end_bracket: )
+          - keyword: '*/'
       - select_clause_element:
           column_reference:
           - identifier: t1
@@ -608,6 +848,33 @@ file:
     select_statement:
       select_clause:
       - keyword: SELECT
+      - select_clause_modifier:
+          select_hint:
+          - keyword: /*+
+          - hint_function:
+              function_name:
+                function_name_identifier: BROADCAST
+              bracketed:
+                start_bracket: (
+                expression:
+                  column_reference:
+                    identifier: t1
+                end_bracket: )
+          - comma: ','
+          - hint_function:
+              function_name:
+                function_name_identifier: MERGE
+              bracketed:
+              - start_bracket: (
+              - expression:
+                  column_reference:
+                    identifier: t1
+              - comma: ','
+              - expression:
+                  column_reference:
+                    identifier: t2
+              - end_bracket: )
+          - keyword: '*/'
       - select_clause_element:
           column_reference:
           - identifier: t1

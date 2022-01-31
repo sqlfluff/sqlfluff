@@ -286,12 +286,8 @@ spark3_dialect.add(
     ),
     # Adding Hint related segments so they are not treated as generic comments
     # https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-hints.html
-    StartHintSegment=StringParser(
-        "/*+", KeywordSegment, name="start_hint"
-    ),
-    EndHintSegment=StringParser(
-        "*/", KeywordSegment, name="end_hint"
-    ),
+    StartHintSegment=StringParser("/*+", KeywordSegment, name="start_hint"),
+    EndHintSegment=StringParser("*/", KeywordSegment, name="end_hint"),
     PartitionSpecGrammar=Sequence(
         OneOf("PARTITION", Sequence("PARTITIONED", "BY")),
         Bracketed(
@@ -1067,6 +1063,7 @@ class DistributeByClauseSegment(BaseSegment):
         Dedent,
     )
 
+
 @spark3_dialect.segment()
 class HintFunctionSegment(BaseSegment):
     """A Function within a SparkSQL Hint.
@@ -1115,6 +1112,7 @@ class SelectHintSegment(BaseSegment):
             Ref("EndHintSegment"),
         ),
     )
+
 
 @spark3_dialect.segment(replace=True)
 class SelectClauseModifierSegment(BaseSegment):
