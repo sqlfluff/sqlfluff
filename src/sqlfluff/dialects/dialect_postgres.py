@@ -3512,3 +3512,51 @@ class DoStatementSegment(BaseSegment):
             ),
         ),
     )
+
+
+@postgres_dialect.segment(replace=True)
+class CTEDefinitionSegment(BaseSegment):
+    """A CTE Definition from a WITH statement.
+
+    https://www.postgresql.org/docs/14/queries-with.html
+
+    TODO: Data-Modifying Statements (INSERT, UPDATE, DELETE) in WITH
+    """
+
+    type = "common_table_expression"
+    match_grammar = Sequence(
+        Ref("SingleIdentifierGrammar"),
+        Bracketed(
+            Ref("SingleIdentifierListSegment"),
+            optional=True,
+        ),
+        "AS",
+        Sequence("NOT", "MATERIALIZED", optional=True),
+        Bracketed(
+            # Ephemeral here to subdivide the query.
+            Ref("SelectableGrammar", ephemeral_name="SelectableGrammar")
+        ),
+        OneOf(
+            Sequence(
+                "SEARCH",
+                OneOf(
+                    "BREADTH",
+                    "DEPTH",
+                ),
+                "FIRST",
+                "BY",
+                Ref("ColumnReferenceSegment"),
+                "SET",
+                Ref("ColumnReferenceSegment"),
+            ),
+            Sequence(
+                "CYCLE",
+                Ref("ColumnReferenceSegment"),
+                "SET",
+                Ref("ColumnReferenceSegment"),
+                "USING",
+                Ref("ColumnReferenceSegment"),
+            ),
+            optional=True,
+        ),
+    )

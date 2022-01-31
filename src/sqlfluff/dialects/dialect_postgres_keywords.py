@@ -914,11 +914,13 @@ postgres_docs_keywords = [
 
 postgres_nondocs_keywords = [
     ("ALLOW_CONNECTIONS", "non-reserved"),
+    ("BREADTH", "non-reserved"),
     ("BUFFERS", "non-reserved"),
     ("CONNECT", "reserved"),
     ("COSTS", "non-reserved"),
     ("CURRENT_USER", "non-reserved"),
     ("DATE", "non-reserved"),
+    ("DEPTH", "non-reserved"),
     ("DESCRIBE", "non-reserved"),
     ("EXTENDED", "non-reserved"),
     ("FILE", "non-reserved"),
