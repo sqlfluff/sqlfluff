@@ -25,8 +25,8 @@ class Rule_L062(BaseRule):
       the few exceptions that still need to be in the code base.
 
     | **Anti-pattern**
-    | If the block_word_list is set to ``deprecated_table,bool`` then the following
-    | will flag:
+    | If the ``blocked_words`` config is set to ``deprecated_table,bool`` then the
+    | following will flag:
 
     .. code-block:: sql
 
@@ -44,16 +44,24 @@ class Rule_L062(BaseRule):
     """
 
     config_keywords = [
-        "block_word_list",
+        "blocked_words",
     ]
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         # Config type hints
-        self.block_word_list: Optional[str]
+        self.blocked_words: Optional[str]
 
         # Exit early if no block list set
-        if not self.block_word_list:
+        if not self.blocked_words:
             return None
+
+        # Get the ignore list configuration and cache it
+        try:
+            blocked_words_list = self.blocked_words_list
+        except AttributeError:
+            # First-time only, read the settings from configuration.
+            # So we can cache them for next time for speed.
+            blocked_words_list = self._init_blocked_words()
 
         # Only look at child elements
         # Note: we do not need to ignore comments or meta types
@@ -61,12 +69,24 @@ class Rule_L062(BaseRule):
         if context.segment.segments:
             return None
 
-        if str(context.segment.raw_upper) in (
-            self.split_comma_separated_string(self.block_word_list.upper())
-        ):
+        if str(context.segment.raw_upper) in blocked_words_list:
             return LintResult(
                 anchor=context.segment,
                 description=f"Use of blocked word '{context.segment.raw}'.",
             )
 
         return None
+
+    def _init_blocked_words(self):
+        """Called first time rule is evaluated to fetch & cache the blocked_words."""
+        # Use str() in case bools are passed which might otherwise be read as bool
+        blocked_words_config = str(getattr(self, "blocked_words"))
+        if blocked_words_config and blocked_words_config != "None":
+            self.blocked_words_list = self.split_comma_separated_string(
+                blocked_words_config.upper()
+            )
+        else:
+            self.blocked_words_list = []
+
+        blocked_words_list = self.blocked_words_list
+        return blocked_words_list

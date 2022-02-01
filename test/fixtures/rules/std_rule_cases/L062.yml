@@ -10,7 +10,7 @@ test_fail_deny_word:
   configs:
     rules:
       L062:
-        block_word_list: deprecated_table
+        blocked_words: deprecated_table
 
 test_fail_deny_word_case_difference1:
   fail_str: |
@@ -18,7 +18,7 @@ test_fail_deny_word_case_difference1:
   configs:
     rules:
       L062:
-        block_word_list: Deprecated_Table
+        blocked_words: Deprecated_Table
 
 test_fail_deny_word_case_difference2:
   fail_str: |
@@ -26,7 +26,7 @@ test_fail_deny_word_case_difference2:
   configs:
     rules:
       L062:
-        block_word_list: deprecated_table
+        blocked_words: deprecated_table
 
 test_fail_multiple_deny_words1:
   fail_str: |
@@ -34,7 +34,7 @@ test_fail_multiple_deny_words1:
   configs:
     rules:
       L062:
-        block_word_list: deprecated_table,myoldFunction
+        blocked_words: deprecated_table,myoldFunction
 
 test_fail_multiple_deny_words2:
   fail_str: |
@@ -42,7 +42,7 @@ test_fail_multiple_deny_words2:
   configs:
     rules:
       L062:
-        block_word_list: deprecated_table,myoldFunction
+        blocked_words: deprecated_table,myoldFunction
 
 test_pass_not_complete_match:
   pass_str: |
@@ -50,7 +50,7 @@ test_pass_not_complete_match:
   configs:
     rules:
       L062:
-        block_word_list: deprecated_table
+        blocked_words: deprecated_table
 
 test_pass_is_comment:
   pass_str: |
@@ -59,7 +59,7 @@ test_pass_is_comment:
   configs:
     rules:
       L062:
-        block_word_list: deprecated_table
+        blocked_words: deprecated_table
 
 test_pass_in_comment:
   pass_str: |
@@ -68,7 +68,7 @@ test_pass_in_comment:
   configs:
     rules:
       L062:
-        block_word_list: deprecated_table
+        blocked_words: deprecated_table
 
 test_fail_bool:
   fail_str: |
@@ -78,7 +78,7 @@ test_fail_bool:
       dialect: exasol
     rules:
       L062:
-        block_word_list: bool
+        blocked_words: bool
 
 test_pass_bool:
   pass_str: |
@@ -88,4 +88,4 @@ test_pass_bool:
       dialect: exasol
     rules:
       L062:
-        block_word_list: bool
+        blocked_words: bool
