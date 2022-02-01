@@ -82,7 +82,7 @@ STANDARD_CONFIG_INFO_DICT = {
         ),
     },
     "ignore_words": {
-        "definition": ("Comma separated list of words to ignore from rule"),
+        "definition": ("Comma-separated list of words to ignore from rule"),
     },
     "forbid_subquery_in": {
         "validation": ["join", "from", "both"],
@@ -139,7 +139,8 @@ STANDARD_CONFIG_INFO_DICT = {
     },
     "blocked_words": {
         "definition": (
-            "Optional list of blocked words which should not be used in statements."
+            "Optional comma-separated list of blocked words which should not be used "
+            "in statements."
         ),
     },
 }
