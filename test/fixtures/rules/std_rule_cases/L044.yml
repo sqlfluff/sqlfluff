@@ -581,3 +581,39 @@ test_tsql_select_system_as_identifier:
   configs:
     core:
       dialect: tsql
+
+test_pass_spark3_values_clause_cte_1:
+  pass_str: |
+    WITH txt AS (
+        VALUES (1)
+        AS t (id)
+    )
+
+    SELECT *
+    FROM txt
+  configs:
+    core:
+      dialect: spark3
+
+test_pass_spark3_values_clause_cte_2:
+  pass_str: |
+    WITH txt AS (
+        VALUES (1, 'foo')
+        AS t (id, name)
+    )
+
+    SELECT *
+    FROM txt
+  configs:
+    core:
+      dialect: spark3
+
+test_pass_spark3_values_clause:
+  pass_str:
+    SELECT *
+    FROM (
+        VALUES (1, 2), (3, 4)
+    ) AS t(c1, c2)
+  configs:
+    core:
+      dialect: spark3

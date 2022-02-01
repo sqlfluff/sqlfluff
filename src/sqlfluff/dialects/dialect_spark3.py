@@ -11,6 +11,7 @@ https://spark.apache.org/docs/latest/sql-ref-ansi-compliance.html
 https://github.com/apache/spark/blob/master/sql/catalyst/src/main/antlr4/org/apache/spark/sql/catalyst/parser/SqlBase.g4
 """
 
+from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
     BaseSegment,
@@ -31,8 +32,6 @@ from sqlfluff.core.parser import (
     Anything,
     StartsWith,
 )
-
-from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser.segments.raw import CodeSegment, KeywordSegment
 from sqlfluff.dialects.dialect_spark3_keywords import (
     RESERVED_KEYWORDS,
@@ -1497,3 +1496,108 @@ class JoinClauseSegment(BaseSegment):
     get_eventual_alias = ansi_dialect.get_segment(
         "JoinClauseSegment"
     ).get_eventual_alias
+
+
+@spark3_dialect.segment(replace=True)
+class AliasExpressionSegment(BaseSegment):
+    """A reference to an object with an `AS` clause.
+
+    The optional AS keyword allows both implicit and explicit aliasing.
+    Note also that it's possible to specify just column aliases without aliasing the
+    table as well:
+    .. code-block:: sql
+
+        SELECT * FROM VALUES (1,2) as t (a, b);
+        SELECT * FROM VALUES (1,2) as (a, b);
+        SELECT * FROM VALUES (1,2) as t;
+
+    Note that in Spark SQL, identifiers are quoted using backticks (`my_table`) rather
+    than double quotes ("my_table"). Quoted identifiers are allowed in aliases, but
+    unlike ANSI which allows single quoted identifiers ('my_table') in aliases, this is
+    not allowed in Spark and so the definition of this segment must depart from ANSI.
+    """
+
+    type = "alias_expression"
+    match_grammar = Sequence(
+        Ref.keyword("AS", optional=True),
+        OneOf(
+            # maybe table alias and column aliases
+            Sequence(
+                Ref("SingleIdentifierGrammar", optional=True),
+                Bracketed(Ref("SingleIdentifierListSegment")),
+            ),
+            # just a table alias
+            Ref("SingleIdentifierGrammar"),
+        ),
+    )
+
+
+@spark3_dialect.segment()
+class DelimitedValues(BaseSegment):
+    """A ``VALUES`` clause can be a sequence either of scalar values or tuple values.
+
+    We make no attempt to ensure that all records have the same number of columns
+    besides the distinction between all scalar or all tuple, so for instance
+    ``VALUES (1,2), (3,4,5)`` will parse but is not legal SQL.
+    """
+
+    type = "delimited_values"
+    match_grammar = OneOf(Delimited(Ref("ScalarValue")), Delimited(Ref("TupleValue")))
+
+
+@spark3_dialect.segment()
+class ScalarValue(BaseSegment):
+    """An element of a ``VALUES`` clause that has a single column.
+
+    Ex: ``VALUES 1,2,3``
+    """
+
+    type = "scalar_value"
+    match_grammar = OneOf(
+        Ref("LiteralGrammar"),
+        Ref("BareFunctionSegment"),
+        Ref("FunctionSegment"),
+    )
+
+
+@spark3_dialect.segment()
+class TupleValue(BaseSegment):
+    """An element of a ``VALUES`` clause that has multiple columns.
+
+    Ex: ``VALUES (1,2), (3,4)``
+    """
+
+    type = "tuple_value"
+    match_grammar = Bracketed(
+        Delimited(
+            Ref("ScalarValue"),
+        )
+    )
+
+
+@spark3_dialect.segment(replace=True)
+class ValuesClauseSegment(BaseSegment):
+    """A `VALUES` clause, as typically used with `INSERT` or `SELECT`.
+
+    The Spark SQL reference does not mention `VALUES` clauses except in the context
+    of `INSERT` statements. However, they appear to behave much the same as in
+    `postgres <https://www.postgresql.org/docs/13/sql-values.html>`.
+
+    In short, they can appear anywhere a `SELECT` can, and also as bare `VALUES`
+    statements. Here are some examples:
+    .. code-block:: sql
+
+        VALUES 1,2 LIMIT 1;
+        SELECT * FROM VALUES (1,2) as t (a,b);
+        SELECT * FROM (VALUES (1,2) as t (a,b));
+        WITH a AS (VALUES 1,2) SELECT * FROM a;
+
+    """
+
+    type = "values_clause"
+
+    match_grammar = Sequence(
+        "VALUES",
+        Ref("DelimitedValues"),
+        Ref("AliasExpressionSegment", optional=True),
+    )
