@@ -139,7 +139,7 @@ STANDARD_CONFIG_INFO_DICT = {
     },
     "force_quote_identifier": {
         "validation": [True, False],
-        "definition": ("If True, forces every identifier to be quoted. Defaults to False."),
+        "definition": ("If ``True``, forces every identifier to be quoted. Defaults to ``False``."),
     },
     "preferred_quote_identifier": {
         "definition": (
