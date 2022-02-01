@@ -3,6 +3,7 @@
 import glob
 import os
 import logging
+import shutil
 from pathlib import Path
 from unittest import mock
 
@@ -79,6 +80,31 @@ def test__templater_dbt_templating_result(
     project_dir, dbt_templater, fname  # noqa: F811
 ):
     """Test that input sql file gets templated into output sql file."""
+    templated_file, _ = dbt_templater.process(
+        in_str="",
+        fname=os.path.join(project_dir, "models/my_new_project/", fname),
+        config=FluffConfig(configs=DBT_FLUFF_CONFIG),
+    )
+    template_output_folder_path = Path(
+        "plugins/sqlfluff-templater-dbt/test/fixtures/dbt/templated_output/"
+    )
+    fixture_path = _get_fixture_path(template_output_folder_path, fname)
+    assert str(templated_file) == fixture_path.read_text()
+
+
+def test_dbt_profiles_dir_env_var_uppercase(
+    project_dir, dbt_templater, tmpdir, monkeypatch  # noqa: F811
+):
+    """Tests specifying the dbt profile dir with env var.
+
+    Based on test__templater_dbt_templating_result().
+    """
+    fname = "use_dbt_utils.sql"
+    profiles_dir = tmpdir.mkdir("SUBDIR")  # Use uppercase to test issue 2253
+    monkeypatch.setenv("DBT_PROFILES_DIR", str(profiles_dir))
+    shutil.copy(
+        os.path.join(project_dir, "../profiles_yml/profiles.yml"), str(profiles_dir)
+    )
     templated_file, _ = dbt_templater.process(
         in_str="",
         fname=os.path.join(project_dir, "models/my_new_project/", fname),
