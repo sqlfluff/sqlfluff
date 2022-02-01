@@ -34,7 +34,7 @@ class Rule_L059(BaseRule):
 
     | **Best practice**
     | If ``force_quote_identifier = False`` and ``preferred_quote_identifier = '"'`` (or unspecified, as these are the default)
-    | Use unquoted identifiers where possible, and use '"' whevener necessary.
+    | Use unquoted identifiers where possible, and use '"' whenever necessary.
 
     .. code-block:: sql
 
