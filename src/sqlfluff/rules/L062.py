@@ -69,7 +69,7 @@ class Rule_L062(BaseRule):
         if context.segment.segments:
             return None
 
-        if str(context.segment.raw_upper) in blocked_words_list:
+        if context.segment.raw_upper in blocked_words_list:
             return LintResult(
                 anchor=context.segment,
                 description=f"Use of blocked word '{context.segment.raw}'.",
