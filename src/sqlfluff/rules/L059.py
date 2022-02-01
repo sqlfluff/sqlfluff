@@ -28,7 +28,9 @@ class Rule_L059(BaseRule):
 
     .. code-block:: sql
 
-        SELECT 123 as "foo", 'sum'
+        SELECT 123 as "foo"
+        
+        SELECT 123 as foo, 'sum'
 
     | **Best practice**
     | If ``force_quote_identifier = False`` and ``preferred_quote_identifier = '"'`` (or unspecified, as these are the default)
