@@ -11,7 +11,7 @@ class Rule_L062(BaseRule):
     """Block a list of configurable phrases from being used.
 
     This generic rule can be useful to prevent certain keywords, functions, or objects
-    from being used. Only whole words can be blocked, not phrases.
+    from being used. Only whole words can be blocked, not phrases, nor parts of words.
 
     This block list is case insensitive.
 
@@ -25,11 +25,21 @@ class Rule_L062(BaseRule):
       the few exceptions that still need to be in the code base.
 
     | **Anti-pattern**
-    | If the deny_phrases includes ``deprecated_table`` then the following will flag
+    | If the block_word_list is set to ``deprecated_table,bool`` then the following
+    | will flag:
 
     .. code-block:: sql
 
-        SELECT * FROM deprecated_table WHERE 1 <> 2;
+        SELECT * FROM deprecated_table WHERE 1 = 1;
+        CREATE TABLE myschema.t1 (a BOOL);
+
+    | **Best practice**
+    | Do not used any blocked words
+
+    .. code-block:: sql
+
+        SELECT * FROM another_table WHERE 1 = 1;
+        CREATE TABLE myschema.t1 (a BOOLEAN);
 
     """
 
