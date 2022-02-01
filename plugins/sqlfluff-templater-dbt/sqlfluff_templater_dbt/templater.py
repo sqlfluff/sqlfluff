@@ -41,6 +41,11 @@ DBT_VERSION = get_installed_version()
 DBT_VERSION_STRING = DBT_VERSION.to_version_string()
 DBT_VERSION_TUPLE = (int(DBT_VERSION.major), int(DBT_VERSION.minor))
 
+if DBT_VERSION_TUPLE >= (1, 0):
+    from dbt.flags import PROFILES_DIR  # noqa: F811
+else:
+    from dbt.config.profile import PROFILES_DIR
+
 
 @dataclass
 class DbtConfigArgs:
@@ -86,21 +91,22 @@ class DbtTemplater(JinjaTemplater):
     @cached_property
     def dbt_config(self):
         """Loads the dbt config."""
-        # Here, we read flags.PROFILE_DIR directly, prior to calling
-        # set_from_args(). Apparently, set_from_args() sets PROFILES_DIR
-        # to a lowercase version of the value, and the profile wouldn't be
-        # found if the directory name contained uppercase letters. This fix
-        # was suggested and described here:
-        # https://github.com/sqlfluff/sqlfluff/issues/2253#issuecomment-1018722979
-        user_config = read_user_config(flags.PROFILES_DIR)
-        flags.set_from_args(
-            DbtConfigArgs(
-                project_dir=self.project_dir,
-                profiles_dir=self.profiles_dir,
-                profile=self._get_profile(),
-            ),
-            user_config,
-        )
+        if self.dbt_version_tuple >= (1, 0):
+            # Here, we read flags.PROFILE_DIR directly, prior to calling
+            # set_from_args(). Apparently, set_from_args() sets PROFILES_DIR
+            # to a lowercase version of the value, and the profile wouldn't be
+            # found if the directory name contained uppercase letters. This fix
+            # was suggested and described here:
+            # https://github.com/sqlfluff/sqlfluff/issues/2253#issuecomment-1018722979
+            user_config = read_user_config(flags.PROFILES_DIR)
+            flags.set_from_args(
+                DbtConfigArgs(
+                    project_dir=self.project_dir,
+                    profiles_dir=self.profiles_dir,
+                    profile=self._get_profile(),
+                ),
+                user_config,
+            )
         self.dbt_config = DbtRuntimeConfig.from_args(
             DbtConfigArgs(
                 project_dir=self.project_dir,
@@ -371,13 +377,19 @@ class DbtTemplater(JinjaTemplater):
         results = [self.dbt_manifest.expect(uid) for uid in selected]
 
         if not results:
-            disabled_model = None
-            for key, disabled_model_nodes in self.dbt_manifest.disabled.items():
-                for disabled_model_node in disabled_model_nodes:
-                    if os.path.abspath(
-                        disabled_model_node.original_file_path
-                    ) == os.path.abspath(fname):
-                        disabled_model = disabled_model_node
+            model_name = os.path.splitext(os.path.basename(fname))[0]
+            if DBT_VERSION_TUPLE >= (1, 0):
+                disabled_model = None
+                for key, disabled_model_nodes in self.dbt_manifest.disabled.items():
+                    for disabled_model_node in disabled_model_nodes:
+                        if os.path.abspath(
+                            disabled_model_node.original_file_path
+                        ) == os.path.abspath(fname):
+                            disabled_model = disabled_model_node
+            else:
+                disabled_model = self.dbt_manifest.find_disabled_by_name(
+                    name=model_name
+                )
             if disabled_model and os.path.abspath(
                 disabled_model.original_file_path
             ) == os.path.abspath(fname):
@@ -521,18 +533,18 @@ class DbtTemplater(JinjaTemplater):
     @contextmanager
     def connection(self):
         """Context manager that manages a dbt connection, if needed."""
-        # We have to register the connection in dbt >= 1.0.0 ourselves
-        # In previous versions, we relied on the functionality removed in
-        # https://github.com/dbt-labs/dbt-core/pull/4062.
-        if not self.connection_acquired:
-            adapter = get_adapter(self.dbt_config)
-            adapter.acquire_connection("master")
-            adapter.set_relations_cache(self.dbt_manifest)
-            self.connection_acquired = True
-        yield
-        # :TRICKY: Once connected, we never disconnect. Making multiple
-        # connections during linting has proven to cause major performance
-        # issues.
+        if DBT_VERSION_TUPLE >= (1, 0):
+            if not self.connection_acquired:
+                adapter = get_adapter(self.dbt_config)
+                adapter.acquire_connection("master")
+                adapter.set_relations_cache(self.dbt_manifest)
+                self.connection_acquired = True
+            yield
+            # :TRICKY: Once connected, we never disconnect. Making multiple
+            # connections during linting has proven to cause major performance
+            # issues.
+        else:
+            yield
 
 
 class SnapshotExtension(StandaloneTag):
