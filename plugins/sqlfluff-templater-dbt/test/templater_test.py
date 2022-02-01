@@ -3,6 +3,7 @@
 import glob
 import os
 import logging
+import shutil
 from pathlib import Path
 from unittest import mock
 
@@ -79,6 +80,22 @@ def test__templater_dbt_templating_result(
     project_dir, dbt_templater, fname  # noqa: F811
 ):
     """Test that input sql file gets templated into output sql file."""
+    _run_templater_and_verify_result(dbt_templater, project_dir, fname)
+
+
+def test_dbt_profiles_dir_env_var_uppercase(
+    project_dir, dbt_templater, tmpdir, monkeypatch  # noqa: F811
+):
+    """Tests specifying the dbt profile dir with env var."""
+    profiles_dir = tmpdir.mkdir("SUBDIR")  # Use uppercase to test issue 2253
+    monkeypatch.setenv("DBT_PROFILES_DIR", str(profiles_dir))
+    shutil.copy(
+        os.path.join(project_dir, "../profiles_yml/profiles.yml"), str(profiles_dir)
+    )
+    _run_templater_and_verify_result(dbt_templater, project_dir, "use_dbt_utils.sql")
+
+
+def _run_templater_and_verify_result(dbt_templater, project_dir, fname):  # noqa: F811
     templated_file, _ = dbt_templater.process(
         in_str="",
         fname=os.path.join(project_dir, "models/my_new_project/", fname),
