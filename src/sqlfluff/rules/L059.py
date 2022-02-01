@@ -28,22 +28,22 @@ class Rule_L059(BaseRule):
 
     .. code-block:: sql
 
-        SELECT 123 as "foo"
+        SELECT 123 as "foo", 'sum'
 
     | **Best practice**
     | If ``force_quote_identifier = False`` and ``preferred_quote_identifier = '"'`` (or unspecified, as these are the default)
-    | Use unquoted identifiers where possible.
+    | Use unquoted identifiers where possible, and use '"' whevener necessary.
 
     .. code-block:: sql
 
-        SELECT 123 as foo
+        SELECT 123 as foo, "sum"
 
     | If ``force_quote_identifier = True`` and ``preferred_quote_identifier = "`"``
     | Use preferred quote identifiers any time.
     
     .. code-block:: sql
 
-        SELECT 123 as `foo`
+        SELECT 123 as `foo`, `sum`
 
     """
 
@@ -58,12 +58,66 @@ class Rule_L059(BaseRule):
         self.force_quote_identifier: bool
         self.preferred_quote_identifier: str
         
-        # TODO: take care of default values for config
+        quote = self.preferred_quote_identifier
         
-        # We only care about quoted identifiers.
-        if context.segment.name != "quoted_identifier":
+        # If the configuration says to not force the identifier quoting, then
+        # simply care about the quoted identifiers.
+        context_policy = ("quoted_identifier")
+        if self.force_quote_identifier == True:
+            context_policy = ("naked_identifier", "quoted_identifier")
+        
+        # We only care about quoted identifiers and possibly naked identifiers if 
+        # the configuration setting is forcing identifiers to be quoted.
+        if context.segment.name not in context_policy:
             return None
-
+        
+        # Manage simplest case of quoted identifiers must be forced first.
+        if self.force_quote_identifier == True:
+            if context.segment.name == "naked_identifier":
+                identifier_contents = context.segment.raw
+            else:
+                identifier_contents = context.segment.raw[1:-1]
+                
+            # If the identifier_contents contains any occurrence of the preferred quote,
+            # ignore this rule for now.
+            if quote in identifier_contents:
+                # TODO: if different levels of criticity can be set, this case should
+                #       trigger an `info` level.
+                return None
+            
+            expected = f"{quote}{identifier_contents}{quote}"
+            
+            # For naked identifiers, make the rule fails directly.
+            if context.segment.name == "naked_identifier":
+                return LintResult(
+                    context.segment,
+                    fixes=[
+                        LintFix.replace(
+                            context.segment,
+                            [CodeSegment(raw=expected, name="quoted_identifier", type="identifier")],
+                        )
+                    ],
+                    description=f"Missing quoted identifier {expected}.",
+                )
+        
+            # For quoted identifiers, ensure the quote is the expected one.
+            if expected != context.segment.raw:
+                return LintResult(
+                    context.segment,
+                    fixes=[
+                        LintFix.replace(
+                            context.segment,
+                            [CodeSegment(raw=expected, name="quoted_identifier", type="identifier")],
+                        )
+                    ],
+                    description=f"Wrong quoted identifier. Expected {expected}, got {context.segment.raw}.",
+                )
+            
+            # If configuration is set to forced quoted identifiers, we managed all failure cases.
+            return None
+            
+        # Now we only deal with NOT forced quoted identifiers configuration (force_quote_identifier=False).
+            
         # Extract contents of outer quotes.
         quoted_identifier_contents = context.segment.raw[1:-1]
 
@@ -104,4 +158,26 @@ class Rule_L059(BaseRule):
                 description=f"Unnecessary quoted identifier {context.segment.raw}.",
             )
 
+        # If this is a reserved keyword, or it is not a valid naked identifier,
+        # ensure the quote used is the preferred one.
+        expected = f"{quote}{quoted_identifier_contents}{quote}"
+        if expected != context.segment.raw:
+            # If the identifier contents contains any occurrence of the preferred quote,
+            # ignore this rule for now.
+            if quote in quoted_identifier_contents:
+                # TODO: if different levels of criticity can be set, this case should
+                #       trigger an `info` level.
+                return None
+            
+            return LintResult(
+                context.segment,
+                fixes=[
+                    LintFix.replace(
+                        context.segment,
+                        [CodeSegment(raw=expected, name="quoted_identifier", type="identifier")],
+                    )
+                ],
+                description=f"Wrong necessary quoted identifier. Expected {expected}, got {context.segment.raw}.",
+            )
+        
         return None
