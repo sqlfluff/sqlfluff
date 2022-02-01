@@ -533,6 +533,9 @@ class DbtTemplater(JinjaTemplater):
     @contextmanager
     def connection(self):
         """Context manager that manages a dbt connection, if needed."""
+        # We have to register the connection in dbt >= 1.0.0 ourselves
+        # In previous versions, we relied on the functionality removed in
+        # https://github.com/dbt-labs/dbt-core/pull/4062.
         if DBT_VERSION_TUPLE >= (1, 0):
             if not self.connection_acquired:
                 adapter = get_adapter(self.dbt_config)
