@@ -1,5 +1,9 @@
 rule: L062
 
+test_pass_default:
+  pass_str: |
+    SELECT col1 FROM deprecated_table
+
 test_fail_deny_word:
   fail_str: |
     SELECT col1 FROM deprecated_table

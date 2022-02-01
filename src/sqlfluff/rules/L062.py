@@ -39,7 +39,11 @@ class Rule_L062(BaseRule):
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         # Config type hints
-        self.block_word_list: str
+        self.block_word_list: Optional[str]
+
+        # Exit early if no block list set
+        if not self.block_word_list:
+            return None
 
         # Only look at child elements
         # Note: we do not need to ignore comments or meta types
