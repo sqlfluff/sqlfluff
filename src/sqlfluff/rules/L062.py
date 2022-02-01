@@ -80,7 +80,7 @@ class Rule_L062(BaseRule):
     def _init_blocked_words(self):
         """Called first time rule is evaluated to fetch & cache the blocked_words."""
         # Use str() in case bools are passed which might otherwise be read as bool
-        blocked_words_config = str(getattr(self, "blocked_words"))
+        blocked_words_config = getattr(self, "blocked_words")
         if blocked_words_config and blocked_words_config != "None":
             self.blocked_words_list = self.split_comma_separated_string(
                 blocked_words_config.upper()
@@ -88,5 +88,4 @@ class Rule_L062(BaseRule):
         else:
             self.blocked_words_list = []
 
-        blocked_words_list = self.blocked_words_list
-        return blocked_words_list
+        return self.blocked_words_list
