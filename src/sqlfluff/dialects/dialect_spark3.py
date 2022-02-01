@@ -368,6 +368,7 @@ spark3_dialect.insert_lexer_matchers(
     before="single_quote",
 )
 
+
 # Hive Segments
 @spark3_dialect.segment()
 class RowFormatClauseSegment(
@@ -1072,19 +1073,19 @@ class HintFunctionSegment(BaseSegment):
     """
 
     type = "hint_function"
+
     match_grammar = Sequence(
-        Sequence(
-            Ref("FunctionNameSegment"),
-            Bracketed(
-                Ref(
-                    "FunctionContentsGrammar",
-                    # Brackets may be empty
-                    optional=True,
-                    ephemeral_name="FunctionContentsGrammar",
+        Ref("FunctionNameSegment"),
+        Bracketed(
+            Delimited(
+                AnyNumberOf(
+                    Ref("SingleIdentifierGrammar"),
+                    Ref("NumericLiteralSegment"),
+                    min_times=1,
                 ),
-                # May be Bare Function unique to Hints, i.e. REBALANCE
-                optional=True,
             ),
+            # May be Bare Function unique to Hints, i.e. REBALANCE
+            optional=True,
         ),
     )
 

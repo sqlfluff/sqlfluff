@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 97393086273199c0cfc2285275d96a4cf6f24c382858270ad0a98da6fafac864
+_hash: e13795a3c538e2db8ac00a38dbe255173ddb7aa305bc4b0603b45508a00de084
 file:
 - base:
     select_statement:
@@ -17,8 +17,7 @@ file:
                 function_name_identifier: COALESCE
               bracketed:
                 start_bracket: (
-                expression:
-                  literal: '3'
+                literal: '3'
                 end_bracket: )
           - keyword: '*/'
       - select_clause_element:
@@ -52,8 +51,7 @@ file:
                 function_name_identifier: REPARTITION
               bracketed:
                 start_bracket: (
-                expression:
-                  literal: '3'
+                literal: '3'
                 end_bracket: )
           - keyword: '*/'
       - select_clause_element:
@@ -87,9 +85,7 @@ file:
                 function_name_identifier: REPARTITION
               bracketed:
                 start_bracket: (
-                expression:
-                  column_reference:
-                    identifier: c
+                identifier: c
                 end_bracket: )
           - keyword: '*/'
       - select_clause_element:
@@ -122,14 +118,11 @@ file:
               function_name:
                 function_name_identifier: REPARTITION
               bracketed:
-              - start_bracket: (
-              - expression:
-                  literal: '3'
-              - comma: ','
-              - expression:
-                  column_reference:
-                    identifier: c
-              - end_bracket: )
+                start_bracket: (
+                literal: '3'
+                comma: ','
+                identifier: c
+                end_bracket: )
           - keyword: '*/'
       - select_clause_element:
           column_reference:
@@ -162,9 +155,7 @@ file:
                 function_name_identifier: REPARTITION_BY_RANGE
               bracketed:
                 start_bracket: (
-                expression:
-                  column_reference:
-                    identifier: c
+                identifier: c
                 end_bracket: )
           - keyword: '*/'
       - select_clause_element:
@@ -197,14 +188,11 @@ file:
               function_name:
                 function_name_identifier: REPARTITION_BY_RANGE
               bracketed:
-              - start_bracket: (
-              - expression:
-                  literal: '3'
-              - comma: ','
-              - expression:
-                  column_reference:
-                    identifier: c
-              - end_bracket: )
+                start_bracket: (
+                literal: '3'
+                comma: ','
+                identifier: c
+                end_bracket: )
           - keyword: '*/'
       - select_clause_element:
           column_reference:
@@ -267,9 +255,7 @@ file:
                 function_name_identifier: REBALANCE
               bracketed:
                 start_bracket: (
-                expression:
-                  column_reference:
-                    identifier: c
+                identifier: c
                 end_bracket: )
           - keyword: '*/'
       - select_clause_element:
@@ -303,8 +289,7 @@ file:
                 function_name_identifier: REPARTITION
               bracketed:
                 start_bracket: (
-                expression:
-                  literal: '100'
+                literal: '100'
                 end_bracket: )
           - comma: ','
           - hint_function:
@@ -312,22 +297,18 @@ file:
                 function_name_identifier: COALESCE
               bracketed:
                 start_bracket: (
-                expression:
-                  literal: '500'
+                literal: '500'
                 end_bracket: )
           - comma: ','
           - hint_function:
               function_name:
                 function_name_identifier: REPARTITION_BY_RANGE
               bracketed:
-              - start_bracket: (
-              - expression:
-                  literal: '3'
-              - comma: ','
-              - expression:
-                  column_reference:
-                    identifier: c
-              - end_bracket: )
+                start_bracket: (
+                literal: '3'
+                comma: ','
+                identifier: c
+                end_bracket: )
           - keyword: '*/'
       - select_clause_element:
           column_reference:
@@ -360,9 +341,7 @@ file:
                 function_name_identifier: BROADCAST
               bracketed:
                 start_bracket: (
-                expression:
-                  column_reference:
-                    identifier: t1
+                identifier: t1
                 end_bracket: )
           - keyword: '*/'
       - select_clause_element:
@@ -422,9 +401,7 @@ file:
                 function_name_identifier: BROADCASTJOIN
               bracketed:
                 start_bracket: (
-                expression:
-                  column_reference:
-                    identifier: t1
+                identifier: t1
                 end_bracket: )
           - keyword: '*/'
       - select_clause_element:
@@ -484,9 +461,7 @@ file:
                 function_name_identifier: MAPJOIN
               bracketed:
                 start_bracket: (
-                expression:
-                  column_reference:
-                    identifier: t2
+                identifier: t2
                 end_bracket: )
           - keyword: '*/'
       - select_clause_element:
@@ -546,9 +521,7 @@ file:
                 function_name_identifier: SHUFFLE_MERGE
               bracketed:
                 start_bracket: (
-                expression:
-                  column_reference:
-                    identifier: t1
+                identifier: t1
                 end_bracket: )
           - keyword: '*/'
       - select_clause_element:
@@ -608,9 +581,7 @@ file:
                 function_name_identifier: MERGEJOIN
               bracketed:
                 start_bracket: (
-                expression:
-                  column_reference:
-                    identifier: t2
+                identifier: t2
                 end_bracket: )
           - keyword: '*/'
       - select_clause_element:
@@ -670,9 +641,7 @@ file:
                 function_name_identifier: MERGE
               bracketed:
                 start_bracket: (
-                expression:
-                  column_reference:
-                    identifier: t1
+                identifier: t1
                 end_bracket: )
           - keyword: '*/'
       - select_clause_element:
@@ -732,9 +701,7 @@ file:
                 function_name_identifier: SHUFFLE_HASH
               bracketed:
                 start_bracket: (
-                expression:
-                  column_reference:
-                    identifier: t1
+                identifier: t1
                 end_bracket: )
           - keyword: '*/'
       - select_clause_element:
@@ -794,9 +761,7 @@ file:
                 function_name_identifier: SHUFFLE_REPLICATE_NL
               bracketed:
                 start_bracket: (
-                expression:
-                  column_reference:
-                    identifier: t1
+                identifier: t1
                 end_bracket: )
           - keyword: '*/'
       - select_clause_element:
@@ -856,9 +821,7 @@ file:
                 function_name_identifier: BROADCAST
               bracketed:
                 start_bracket: (
-                expression:
-                  column_reference:
-                    identifier: t1
+                identifier: t1
                 end_bracket: )
           - comma: ','
           - hint_function:
@@ -866,13 +829,9 @@ file:
                 function_name_identifier: MERGE
               bracketed:
               - start_bracket: (
-              - expression:
-                  column_reference:
-                    identifier: t1
+              - identifier: t1
               - comma: ','
-              - expression:
-                  column_reference:
-                    identifier: t2
+              - identifier: t2
               - end_bracket: )
           - keyword: '*/'
       - select_clause_element:
