@@ -6,12 +6,21 @@ import regex
 
 from sqlfluff.core.parser.segments.raw import CodeSegment
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
-from sqlfluff.core.rules.doc_decorators import document_fix_compatible
+from sqlfluff.core.rules.doc_decorators import (
+    document_configuration,
+    document_fix_compatible,
+)
 
-
+@document_configuration
 @document_fix_compatible
 class Rule_L059(BaseRule):
     """Unnecessary quoted identifier.
+    
+    This rule will fail if the quotes used to quote an identifier are unnecessary, 
+    or wrong considering the configuration.
+    
+    By default, the quotes are optional, but required to double-quotes when identifier 
+    is named as a keyword, or contains special characters.
 
     | **Anti-pattern**
     | In this example, a valid unquoted identifier,
@@ -22,16 +31,35 @@ class Rule_L059(BaseRule):
         SELECT 123 as "foo"
 
     | **Best practice**
+    | If ``force_quote_identifier = False`` and ``preferred_quote_identifier = '"'`` (or unspecified, as these are the default)
     | Use unquoted identifiers where possible.
 
     .. code-block:: sql
 
         SELECT 123 as foo
 
+    | If ``force_quote_identifier = True`` and ``preferred_quote_identifier = "`"``
+    | Use preferred quote identifiers any time.
+    
+    .. code-block:: sql
+
+        SELECT 123 as `foo`
+
     """
 
+    config_keywords = [
+        "force_quote_identifier",
+        "preferred_quote_identifier"
+    ]
+    
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Unnecessary quoted identifier."""
+        # Config type hints
+        self.force_quote_identifier: bool
+        self.preferred_quote_identifier: str
+        
+        # TODO: take care of default values for config
+        
         # We only care about quoted identifiers.
         if context.segment.name != "quoted_identifier":
             return None
