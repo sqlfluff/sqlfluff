@@ -283,6 +283,10 @@ spark3_dialect.add(
         "DELTA",  # https://github.com/delta-io/delta
         "XML",  # https://github.com/databricks/spark-xml
     ),
+    # Adding Hint related segments so they are not treated as generic comments
+    # https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-hints.html
+    StartHintSegment=StringParser("/*+", KeywordSegment, name="start_hint"),
+    EndHintSegment=StringParser("*/", KeywordSegment, name="end_hint"),
     PartitionSpecGrammar=Sequence(
         OneOf("PARTITION", Sequence("PARTITIONED", "BY")),
         Bracketed(
@@ -342,6 +346,25 @@ spark3_dialect.add(
             type="literal",
         ),
     ),
+)
+
+
+# Adding Hint related grammar before comment `block_comment` and
+# `single_quote` so they are applied before comment lexer so
+# hints are treated as such instead of comments when parsing.
+# https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-hints.html
+spark3_dialect.insert_lexer_matchers(
+    [
+        RegexLexer("start_hint", r"\/\*\+", CodeSegment),
+    ],
+    before="block_comment",
+)
+
+spark3_dialect.insert_lexer_matchers(
+    [
+        RegexLexer("end_hint", r"\*\/", CodeSegment),
+    ],
+    before="single_quote",
 )
 
 
@@ -1041,9 +1064,95 @@ class DistributeByClauseSegment(BaseSegment):
     )
 
 
+@spark3_dialect.segment()
+class HintFunctionSegment(BaseSegment):
+    """A Function within a SparkSQL Hint.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-hints.html
+    """
+
+    type = "hint_function"
+
+    match_grammar = Sequence(
+        Ref("FunctionNameSegment"),
+        Bracketed(
+            Delimited(
+                AnyNumberOf(
+                    Ref("SingleIdentifierGrammar"),
+                    Ref("NumericLiteralSegment"),
+                    min_times=1,
+                ),
+            ),
+            # May be Bare Function unique to Hints, i.e. REBALANCE
+            optional=True,
+        ),
+    )
+
+
+@spark3_dialect.segment()
+class SelectHintSegment(BaseSegment):
+    """Spark Select Hints.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-hints.html
+    """
+
+    type = "select_hint"
+
+    match_grammar = Sequence(
+        Sequence(
+            Ref("StartHintSegment"),
+            Delimited(
+                AnyNumberOf(
+                    Ref("HintFunctionSegment"),
+                    # At least function should be supplied
+                    min_times=1,
+                ),
+                terminator=Ref("EndHintSegment"),
+            ),
+            Ref("EndHintSegment"),
+        ),
+    )
+
+
+@spark3_dialect.segment(replace=True)
+class SelectClauseModifierSegment(BaseSegment):
+    """Things that come after SELECT but before the columns.
+
+    Enhance `SelectClauseModifierSegment` from Ansi to allow SparkSQL Hints
+    https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-hints.html
+    """
+
+    type = "select_clause_modifier"
+    match_grammar = Sequence(
+        # TODO New Rule warning of Join Hints priority if multiple specified
+        #   When different join strategy hints are specified on
+        #     both sides of a join, Spark prioritizes the BROADCAST
+        #     hint over the MERGE hint over the SHUFFLE_HASH hint
+        #     over the SHUFFLE_REPLICATE_NL hint.
+        #
+        #   Spark will issue Warning in the following example:
+        #
+        #   SELECT
+        #   /*+ BROADCAST(t1), MERGE(t1, t2) */
+        #       t1.a,
+        #       t1.b,
+        #       t2.c
+        #   FROM t1 INNER JOIN t2 ON t1.key = t2.key;
+        #
+        #   Hints should be listed in order of priority in Select
+        Ref("SelectHintSegment", optional=True),
+        OneOf("DISTINCT", "ALL", optional=True),
+    )
+
+
 @spark3_dialect.segment(replace=True)
 class UnorderedSelectStatementSegment(BaseSegment):
-    """Enhance unordered `SELECT` statement for valid SparkSQL clauses."""
+    """Enhance unordered `SELECT` statement for valid SparkSQL clauses.
+
+    This is designed for use in the context of set operations,
+    for other use cases, we should use the main
+    SelectStatementSegment.
+    """
 
     type = "select_statement"
 
