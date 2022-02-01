@@ -73,7 +73,7 @@ class Rule_L059(BaseRule):
         if context.segment.name not in context_policy:
             return None
         
-        # Manage simplest case of quoted identifiers must be forced first.
+        # Manage cases of quoted identifiers must be forced first.
         if self.force_quote_identifier == True:
             if context.segment.name == "naked_identifier":
                 identifier_contents = context.segment.raw
