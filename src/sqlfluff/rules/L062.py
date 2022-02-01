@@ -8,7 +8,7 @@ from sqlfluff.core.rules.doc_decorators import document_configuration
 
 @document_configuration
 class Rule_L062(BaseRule):
-    """Block a list of configurable phrases from being used.
+    """Block a list of configurable words from being used.
 
     This generic rule can be useful to prevent certain keywords, functions, or objects
     from being used. Only whole words can be blocked, not phrases, nor parts of words.
