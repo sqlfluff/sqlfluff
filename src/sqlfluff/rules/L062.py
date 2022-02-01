@@ -18,11 +18,11 @@ class Rule_L062(BaseRule):
     Example use cases:
 
     * We prefer ``BOOL`` over ``BOOLEAN`` and there is no existing rule to enforce
-      this. We can add ``BOOLEAN`` to the deny list until such a rule is written to
-      cause a linting error.
+      this. Until such a rule is written, we can add ``BOOLEAN`` to the deny list
+      to cause a linting error to flag this.
     * We have deprecated a schema/table/function and want to prevent it being used
       in future. We can add that to the denylist and then add a ``-- noqa: L062`` for
-      the few exceptions that still need to be in the code base.
+      the few exceptions that still need to be in the code base for now.
 
     | **Anti-pattern**
     | If the ``blocked_words`` config is set to ``deprecated_table,bool`` then the
@@ -34,7 +34,7 @@ class Rule_L062(BaseRule):
         CREATE TABLE myschema.t1 (a BOOL);
 
     | **Best practice**
-    | Do not used any blocked words
+    | Do not used any blocked words:
 
     .. code-block:: sql
 
@@ -79,14 +79,13 @@ class Rule_L062(BaseRule):
 
     def _init_blocked_words(self):
         """Called first time rule is evaluated to fetch & cache the blocked_words."""
-        # Use str() in case bools are passed which might otherwise be read as bool
         blocked_words_config = getattr(self, "blocked_words")
         if blocked_words_config:
             self.blocked_words_list = self.split_comma_separated_string(
                 blocked_words_config.upper()
             )
         else:  # pragma: no cover
-            # Shouldn't get here as we exit error if not block list
+            # Shouldn't get here as we exit early if no block list
             self.blocked_words_list = []
 
         return self.blocked_words_list
