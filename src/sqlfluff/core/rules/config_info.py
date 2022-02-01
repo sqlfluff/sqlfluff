@@ -144,7 +144,7 @@ STANDARD_CONFIG_INFO_DICT = {
     "preferred_quote_identifier": {
         "definition": (
             "Expected character used to quote identifiers when necessary, "
-            "or when ``force_quote_identifier`` is evaluated to True"
+            "or when ``force_quote_identifier`` is evaluated to ``True``"
         ),
     },
 }
