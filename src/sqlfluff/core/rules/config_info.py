@@ -137,6 +137,11 @@ STANDARD_CONFIG_INFO_DICT = {
             "in addition to alphanumerics (A-Z, a-z, 0-9) and underscores."
         ),
     },
+    "block_word_list": {
+        "definition": (
+            "Optional list of blocked words which should not be used in statements."
+        ),
+    },
 }
 
 
