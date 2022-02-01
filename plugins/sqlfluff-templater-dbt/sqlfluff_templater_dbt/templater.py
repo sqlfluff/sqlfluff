@@ -9,7 +9,6 @@ from typing import List, Optional, Iterator, Tuple, Any, Dict, Deque
 
 from dataclasses import dataclass
 
-from dbt.flags import PROFILES_DIR
 from dbt.version import get_installed_version
 from dbt.config import read_user_config
 from dbt.config.runtime import RuntimeConfig as DbtRuntimeConfig
@@ -42,7 +41,7 @@ DBT_VERSION_STRING = DBT_VERSION.to_version_string()
 DBT_VERSION_TUPLE = (int(DBT_VERSION.major), int(DBT_VERSION.minor))
 
 if DBT_VERSION_TUPLE >= (1, 0):
-    from dbt.flags import PROFILES_DIR  # noqa: F811
+    from dbt.flags import PROFILES_DIR
 else:
     from dbt.config.profile import PROFILES_DIR
 
