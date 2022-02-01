@@ -81,11 +81,12 @@ class Rule_L062(BaseRule):
         """Called first time rule is evaluated to fetch & cache the blocked_words."""
         # Use str() in case bools are passed which might otherwise be read as bool
         blocked_words_config = getattr(self, "blocked_words")
-        if blocked_words_config and blocked_words_config != "None":
+        if blocked_words_config:
             self.blocked_words_list = self.split_comma_separated_string(
                 blocked_words_config.upper()
             )
-        else:
+        else:  # pragma: no cover
+            # Shouldn't get here as we exit error if not block list
             self.blocked_words_list = []
 
         return self.blocked_words_list
