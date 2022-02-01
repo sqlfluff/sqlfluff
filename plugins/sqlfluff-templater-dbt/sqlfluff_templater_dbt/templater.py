@@ -11,6 +11,7 @@ from dataclasses import dataclass
 from functools import partial
 
 from dbt.version import get_installed_version
+from dbt.config import read_user_config
 from dbt.config.runtime import RuntimeConfig as DbtRuntimeConfig
 from dbt.adapters.factory import register_adapter, get_adapter
 from dbt.compilation import Compiler as DbtCompiler
@@ -91,14 +92,20 @@ class DbtTemplater(JinjaTemplater):
     def dbt_config(self):
         """Loads the dbt config."""
         if self.dbt_version_tuple >= (1, 0):
+            # Here, we read flags.PROFILE_DIR directly, prior to calling
+            # set_from_args(). Apparently, set_from_args() sets PROFILES_DIR
+            # to a lowercase version of the value, and the profile wouldn't be
+            # found if the directory name contained uppercase letters. This fix
+            # was suggested and described here:
+            # https://github.com/sqlfluff/sqlfluff/issues/2253#issuecomment-1018722979
+            user_config = read_user_config(flags.PROFILES_DIR)
             flags.set_from_args(
-                "",
                 DbtConfigArgs(
                     project_dir=self.project_dir,
                     profiles_dir=self.profiles_dir,
                     profile=self._get_profile(),
-                    target=self._get_target(),
                 ),
+                user_config,
             )
         self.dbt_config = DbtRuntimeConfig.from_args(
             DbtConfigArgs(
