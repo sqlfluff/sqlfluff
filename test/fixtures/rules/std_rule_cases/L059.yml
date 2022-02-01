@@ -26,7 +26,9 @@ rule: L059
 # Pass      True    Backtick        test_pass_table_reference_backtick_forced
 # Fail      True    Backtick        test_fail_table_reference_backtick_forced
 # Pass      True    Backtick        test_pass_multiple_references_backtick_forced
+# Pass      True    Backtick        test_pass_multiple_references_backtick_forced_bigquery
 # Fail      True    Backtick        test_fail_multiple_references_backtick_forced
+# Fail      True    Backtick        test_fail_multiple_references_backtick_forced_bigquery
 # Pass      True    Backtick        test_pass_whitespace_backtick_forced
 # Pass      True    Backtick        test_pass_special_symbols_backtick_forced
 # Pass      True    Backtick        test_pass_reserved_keyword_backtick_forced
@@ -225,6 +227,18 @@ test_pass_multiple_references_backtick_forced:
         force_quote_identifier: True
         preferred_quote_identifier: "`"
 
+test_pass_multiple_references_backtick_forced_bigquery:
+  pass_str: |
+    SELECT `foo`
+    FROM `bar`.`baz`;
+  configs:
+    core:
+      dialect: bigquery
+    rules:
+      L059:
+        force_quote_identifier: True
+        preferred_quote_identifier: "`"
+
 test_fail_multiple_references_backtick_forced:
   fail_str: |
     SELECT `foo`
@@ -233,6 +247,21 @@ test_fail_multiple_references_backtick_forced:
     SELECT `foo`
     FROM `bar`.`baz`;
   configs:
+    rules:
+      L059:
+        force_quote_identifier: True
+        preferred_quote_identifier: "`"
+
+test_fail_multiple_references_backtick_forced_bigquery:
+  fail_str: |
+    SELECT `foo`
+    FROM bar.baz;
+  fix_str: |
+    SELECT `foo`
+    FROM `bar`.`baz`;
+  configs:
+    core:
+      dialect: bigquery
     rules:
       L059:
         force_quote_identifier: True
