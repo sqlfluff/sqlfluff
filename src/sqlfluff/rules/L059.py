@@ -122,6 +122,13 @@ class Rule_L059(BaseRule):
             
         # Extract contents of outer quotes.
         quoted_identifier_contents = context.segment.raw[1:-1]
+        
+        # If the identifier contents contains any occurrence of the preferred quote,
+        # ignore this rule for now.
+        if quote in quoted_identifier_contents:
+            # TODO: if different levels of criticity can be set, this case should
+            #       trigger an `info` level.
+            return None
 
         # Retrieve NakedIdentifierSegment RegexParser for the dialect.
         naked_identifier_parser = context.dialect._library["NakedIdentifierSegment"]
@@ -164,13 +171,6 @@ class Rule_L059(BaseRule):
         # ensure the quote used is the preferred one.
         expected = f"{quote}{quoted_identifier_contents}{quote}"
         if expected != context.segment.raw:
-            # If the identifier contents contains any occurrence of the preferred quote,
-            # ignore this rule for now.
-            if quote in quoted_identifier_contents:
-                # TODO: if different levels of criticity can be set, this case should
-                #       trigger an `info` level.
-                return None
-            
             return LintResult(
                 context.segment,
                 fixes=[
