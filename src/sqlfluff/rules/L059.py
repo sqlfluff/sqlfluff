@@ -38,9 +38,9 @@ class Rule_L059(BaseRule):
 
         SELECT 123 as foo
 
-    When ``force_quote_identifier = True``, the quotes are always necessary, no
+    When ``prefer_quoted_identifiers = True``, the quotes are always necessary, no
     matter if the identifier is valid, a reserved keyword, or contains special
-    characters.
+    characters. Note due to different quotes this mode is not `sqlfluff fix` compatible.
 
     | **Anti-pattern**
     | In this example, a valid unquoted identifier,
