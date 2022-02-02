@@ -14,8 +14,6 @@ from sqlfluff.rules.L010 import Rule_L010
 class Rule_L030(Rule_L010):
     """Inconsistent capitalisation of function names.
 
-    The functionality for this rule is inherited from :obj:`Rule_L010`.
-
     **Anti-pattern**
 
     In this example, the two ``SUM`` functions don't have the same capitalisation.

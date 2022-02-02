@@ -14,8 +14,6 @@ from sqlfluff.rules.L010 import Rule_L010
 class Rule_L040(Rule_L010):
     """Inconsistent capitalisation of boolean/null literal.
 
-    The functionality for this rule is inherited from :obj:`Rule_L010`.
-
     **Anti-pattern**
 
     In this example, ``null`` and ``false`` are in lower-case whereas ``TRUE`` is in
@@ -32,7 +30,8 @@ class Rule_L040(Rule_L010):
 
     **Best practice**
 
-    Ensure all literal ``null``/``true``/``false`` literals are consistently upper or lower case
+    Ensure all literal ``null``/``true``/``false`` literals are consistently
+    upper or lower case
 
     .. code-block:: sql
 

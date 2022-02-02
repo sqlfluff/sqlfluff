@@ -12,7 +12,8 @@ class Rule_L051(BaseRule):
 
     **Anti-pattern**
 
-    A join is specified without specifying the **kind** of join, i.e. the standalone keyword ``JOIN``.
+    A join is specified without specifying the **kind** of join, i.e. the standalone
+    keyword ``JOIN``.
 
     .. code-block:: sql
        :force:

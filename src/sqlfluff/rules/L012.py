@@ -11,10 +11,6 @@ class Rule_L012(Rule_L011):
     Aliasing of columns to follow preference
     (explicit using an ``AS`` clause is default).
 
-    .. note::
-       This rule inherits its functionality from :obj:`Rule_L011` but is
-       separate so that they can be enabled and disabled separately.
-
     **Anti-pattern**
 
     In this example, the alias for column ``a`` is implicit.
