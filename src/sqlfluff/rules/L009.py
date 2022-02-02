@@ -14,7 +14,7 @@ class Rule_L009(BaseRule):
 
     **Anti-pattern**
 
-    The content in file does not end with a single trailing newline, the ``$``
+    The content in file does not end with a single trailing newline. The ``$``
     represents end of file.
 
     .. code-block:: sql
