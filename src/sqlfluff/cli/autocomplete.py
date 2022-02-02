@@ -7,7 +7,7 @@ from sqlfluff import list_dialects
 shell_completion_enabled = True
 try:
     completion = __import__("click.shell_completion", fromlist=["click"])
-except ImportError:
+except ImportError:  # pragma: no cover
     shell_completion_enabled = False
 
 

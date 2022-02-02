@@ -184,7 +184,7 @@ def core_options(f: Callable) -> Callable:
             help="The dialect of SQL to lint (default=ansi)",
             shell_complete=dialect_shell_complete,
         )(f)
-    else:
+    else:  # pragma: no cover
         f = click.option(
             "--dialect",
             default=None,
