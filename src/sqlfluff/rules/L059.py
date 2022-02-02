@@ -15,8 +15,8 @@ class Rule_L059(BaseRule):
 
     **Anti-pattern**
 
-    In this example, a valid unquoted identifier,
-    that is also not a reserved keyword, is needlessly quoted.
+    In this example, an identifier is unnecessarily quoted. The quotes are unnecessary because
+    it is not a reserved keyword.
 
     .. code-block:: sql
 
