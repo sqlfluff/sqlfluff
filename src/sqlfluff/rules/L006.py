@@ -21,7 +21,7 @@ class Rule_L006(BaseRule):
 
     **Anti-pattern**
 
-    In this example, there is a space missing space between the operator and ``b``.
+    In this example, there is a space missing between the operator and ``b``.
 
     .. code-block:: sql
 

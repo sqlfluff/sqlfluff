@@ -29,7 +29,7 @@ class Rule_L060(BaseRule):
     ``COALESCE`` is universally supported,
     whereas Redshift doesn't support ``IFNULL``
     and BigQuery doesn't support ``NVL``.
-    Additionally ``COALESCE`` is more flexible
+    Additionally, ``COALESCE`` is more flexible
     and accepts an arbitrary number of arguments.
 
     .. code-block:: sql

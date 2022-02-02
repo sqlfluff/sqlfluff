@@ -12,7 +12,7 @@ class Rule_L027(Rule_L020):
 
     **Anti-pattern**
 
-    In this example, the reference ``vee`` has not been declared
+    In this example, the reference ``vee`` has not been declared,
     and the variables ``a`` and ``b`` are potentially ambiguous.
 
     .. code-block:: sql

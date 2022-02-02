@@ -24,7 +24,7 @@ class Rule_L015(BaseRule):
 
     **Best practice**
 
-    Remove parenthesis to be clear that the ``DISTINCT`` applies to
+    Remove parentheses to be clear that the ``DISTINCT`` applies to
     both columns.
 
     .. code-block:: sql

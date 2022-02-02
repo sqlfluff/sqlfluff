@@ -27,7 +27,7 @@ class Rule_L010(BaseRule):
 
     **Best practice**
 
-    Make all keywords either in upper-case or in lower-case
+    Make all keywords either in upper-case or in lower-case.
 
     .. code-block:: sql
 

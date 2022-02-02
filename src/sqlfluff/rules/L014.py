@@ -51,7 +51,7 @@ class Rule_L014(Rule_L010):
 
     **Best practice**
 
-    Ensure all unquoted identifiers are either in upper-case or in lower-case
+    Ensure all unquoted identifiers are either in upper-case or in lower-case.
 
     .. code-block:: sql
 

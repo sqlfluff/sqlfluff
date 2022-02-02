@@ -21,7 +21,7 @@ class Rule_L004(BaseRule):
 
     **Anti-pattern**
 
-    Using tabs instead of spaces when indent_unit config set to spaces (default).
+    Using tabs instead of spaces when ``indent_unit`` config set to ``space`` (default).
 
     .. code-block:: sql
        :force:

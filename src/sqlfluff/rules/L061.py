@@ -22,7 +22,7 @@ class Rule_L061(BaseRule):
 
     **Best practice**
 
-    Use ``!=`` instead because it's sounds more natural and is more common in other
+    Use ``!=`` instead because its sounds more natural and is more common in other
     programming languages.
 
     .. code-block:: sql

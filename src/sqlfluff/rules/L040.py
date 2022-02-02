@@ -32,7 +32,7 @@ class Rule_L040(Rule_L010):
 
     **Best practice**
 
-    Ensure all literal ``null``/``true``/``false`` literals cases are used consistently
+    Ensure all literal ``null``/``true``/``false`` literals are consistently upper or lower case
 
     .. code-block:: sql
 

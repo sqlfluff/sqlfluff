@@ -12,7 +12,7 @@ class Rule_L058(BaseRule):
 
     **Anti-pattern**
 
-    In this example, the outer ``CASE``'s ``ELSE`` is an unnecessary other ``CASE``.
+    In this example, the outer ``CASE``'s ``ELSE`` is an unnecessary, nested ``CASE``.
 
     .. code-block:: sql
 

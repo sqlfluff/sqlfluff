@@ -18,7 +18,7 @@ class Rule_L022(BaseRule):
     **Anti-pattern**
 
     There is no blank line after the CTE closing bracket. In queries with many
-    CTEs this hinders readability.
+    CTEs, this hinders readability.
 
     .. code-block:: sql
 

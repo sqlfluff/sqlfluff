@@ -56,7 +56,7 @@ class Rule_L036(BaseRule):
             b
         from foo
 
-        -- Single select target on the same line as the SELECT
+        -- Single select target on the same line as the ``SELECT``
         -- keyword.
 
         SELECT a

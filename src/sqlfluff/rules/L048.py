@@ -14,7 +14,7 @@ class Rule_L048(Rule_L006):
 
     **Anti-pattern**
 
-    In this example, there is a space missing space between the string
+    In this example, there is a space missing between the string
     ``'foo'`` and the keyword ``AS``.
 
     .. code-block:: sql

@@ -19,7 +19,7 @@ class Rule_L011(BaseRule):
     """Implicit/explicit aliasing of table.
 
     Aliasing of table to follow preference
-    (explicit using an ``AS`` clause is default).
+    (requiring an explicit ``AS`` is the default).
 
     **Anti-pattern**
 

@@ -35,7 +35,7 @@ class Rule_L020(BaseRule):
 
     **Best practice**
 
-    Make all tables have a unique alias
+    Make all tables have a unique alias.
 
     .. code-block:: sql
 
@@ -44,8 +44,8 @@ class Rule_L020(BaseRule):
             b.b
         FROM foo AS f, bar AS b
 
-        -- Also use explicit alias's when referencing two tables
-        -- with same name from two different schemas
+        -- Also use explicit aliases when referencing two tables
+        -- with the same name from two different schemas.
 
         SELECT
             f1.a,

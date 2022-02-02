@@ -13,7 +13,7 @@ class Rule_L050(BaseRule):
 
     **Anti-pattern**
 
-    The content in file begins with newlines or whitespace. The ``^``
+    The file begins with newlines or whitespace. The ``^``
     represents the beginning of the file.
 
     .. code-block:: sql
