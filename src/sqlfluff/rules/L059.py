@@ -79,12 +79,11 @@ class Rule_L059(BaseRule):
         if context.segment.name not in context_policy:
             return None
 
-        # Manage cases of quoted identifiers must be forced first.
+        # Manage cases of identifiers must be quoted first.
         # Naked identifiers are _de facto_ making this rule fail as configuration forces
         # them to be quoted.
-        # In this case, it cannot be fixed as quote to use is dialect and DBMS
-        # configuration dependent.
-        if self.force_quote_identifier:
+        # In this case, it cannot be fixed as which quote to use is dialect dependent
+        if self.prefer_quoted_identifiers:
             return LintResult(
                 context.segment,
                 description=f"Missing quoted identifier {identifier_contents}.",
