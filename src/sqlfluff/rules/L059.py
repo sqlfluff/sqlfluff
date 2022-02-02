@@ -32,6 +32,7 @@ class Rule_L059(BaseRule):
         SELECT 123 as "foo"
 
     | **Best practice**
+    | Use unquoted identifiers where possible.
 
     .. code-block:: sql
 
@@ -50,6 +51,7 @@ class Rule_L059(BaseRule):
         SELECT 123 as foo
 
     | **Best practice**
+    | Use quoted identifiers.
 
     .. code-block:: sql
 
