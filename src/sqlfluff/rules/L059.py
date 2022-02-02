@@ -66,9 +66,10 @@ class Rule_L059(BaseRule):
 
         # If the configuration says to not force the identifier quoting, then
         # simply care about the quoted identifiers.
-        context_policy = ("quoted_identifier")
         if self.force_quote_identifier:
             context_policy = ("naked_identifier", "quoted_identifier")
+        else:
+            context_policy = ("quoted_identifier")
 
         # We only care about quoted identifiers and possibly naked identifiers if
         # the configuration setting is forcing identifiers to be quoted.
