@@ -66,9 +66,9 @@ class Rule_L059(BaseRule):
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Unnecessary quoted identifier."""
         # Config type hints
-        self.force_quote_identifier: bool
+        self.prefer_quoted_identifiers: bool
 
-        if self.force_quote_identifier:
+        if self.prefer_quoted_identifiers:
             context_policy = "naked_identifier"
             identifier_contents = context.segment.raw
         else:
