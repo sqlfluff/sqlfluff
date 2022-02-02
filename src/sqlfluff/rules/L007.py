@@ -12,8 +12,8 @@ class Rule_L007(BaseRule):
 
     **Anti-pattern**
 
-    If ``operator_new_lines = after`` (or unspecified, as this is the default).
-    In this example, the operator ``+`` should not be at the end of the second line.
+    In this example, if ``operator_new_lines = after`` (or unspecified, as is the default),
+    then the operator ``+`` should not be at the end of the second line.
 
     .. code-block:: sql
 
