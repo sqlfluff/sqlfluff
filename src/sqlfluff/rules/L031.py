@@ -26,6 +26,13 @@ class Rule_L031(BaseRule):
     to avoid the need for alias.
 
     .. note::
+       This rule was taken from the `dbt Style Guide
+       <https://github.com/dbt-labs/corp/blob/master/dbt_style_guide.md>`_
+       which notes that:
+
+        Avoid table aliases in join conditions (especially initialisms) - it's
+        harder to understand what the table called "c" is compared to "customers".
+
        This rule is controversial and for many larger databases avoiding alias is
        neither realistic nor desirable. In this case this rule should be disabled.
 

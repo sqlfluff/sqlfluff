@@ -12,8 +12,8 @@ class Rule_L032(BaseRule):
        <https://github.com/dbt-labs/corp/blob/master/dbt_style_guide.md>`_
        which notes that:
 
-        "Certain warehouses have inconsistencies in ``USING``
-        results (specifically Snowflake)."
+        Certain warehouses have inconsistencies in ``USING``
+        results (specifically Snowflake).
 
        Other users may prefer to disable this rule.
 
