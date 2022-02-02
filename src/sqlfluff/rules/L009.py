@@ -51,7 +51,7 @@ class Rule_L009(BaseRule):
 
     **Best practice**
 
-    Add trailing newline to the end, the ``$`` character represents end of file.
+    Add trailing newline to the end. The ``$`` character represents end of file.
 
     .. code-block:: sql
        :force:
