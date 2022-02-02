@@ -144,12 +144,6 @@ STANDARD_CONFIG_INFO_DICT = {
             "Defaults to ``False``."
         ),
     },
-    "preferred_quote_identifier": {
-        "definition": (
-            "Expected character used to quote identifiers when necessary, "
-            "or when ``force_quote_identifier`` is evaluated to ``True``"
-        ),
-    },
     "blocked_words": {
         "definition": (
             "Optional comma-separated list of blocked words which should not be used "
