@@ -20,7 +20,7 @@ class Rule_L052(BaseRule):
 
     **Anti-pattern**
 
-    A statement is not immediately terminated with a semi-colon, the • represents
+    A statement is not immediately terminated with a semi-colon. The ``•`` represents
     space.
 
     .. code-block:: sql
