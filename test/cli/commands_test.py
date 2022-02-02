@@ -5,6 +5,7 @@ import tempfile
 import os
 import shutil
 import json
+import textwrap
 from unittest.mock import MagicMock, patch
 
 import yaml
@@ -507,6 +508,60 @@ def test__cli__command__fix(rule, fname):
     """Test the round trip of detecting, fixing and then not detecting the rule."""
     with open(fname) as test_file:
         generic_roundtrip_test(test_file, rule)
+
+
+@pytest.mark.parametrize(
+    "sql,fix_args,fixed,exit_code",
+    [
+        (
+            """
+            SELECT my_col
+            FROM my_schema.my_table
+            where processdate ! 3
+            """,
+            ["--force", "--fixed-suffix", "FIXED", "--rules", "L010"],
+            None,
+            1,
+        ),
+        (
+            """
+            SELECT my_col
+            FROM my_schema.my_table
+            where processdate ! 3  -- noqa: PRS
+            """,
+            ["--force", "--fixed-suffix", "FIXED", "--rules", "L010"],
+            None,
+            0,
+        ),
+    ],
+    ids=[
+        "parse_error_not_suppressed",
+        "parse_error_suppressed",
+    ],
+)
+def test__cli__fix_error_handling_behavior(sql, fix_args, fixed, exit_code, tmp_path):
+    """Tests how "fix" behaves wrt parse errors, exit code, etc."""
+    filepath = tmp_path / "testing.sql"
+    filepath.write_text(textwrap.dedent(sql))
+    invoke_assert_code(
+        exit_code,
+        [
+            fix,
+            [
+                fix_args
+                + [
+                    "-f",
+                ]
+            ],
+        ],
+        None,
+        str(filepath),
+    )
+    fixed_path = tmp_path / "testingFIXED.sql"
+    if fixed:
+        assert textwrap.dedent(fixed) == fixed_path.read_text()
+    else:
+        assert not fixed_path.is_file()
 
 
 # Test case disabled because there isn't a good example of where to test this.
