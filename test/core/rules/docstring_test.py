@@ -43,13 +43,13 @@ def test_keyword_anti_before_best():
 
 
 def test_config_decorator():
-    """Test docstring anti pattern before best pattern."""
+    """Test rules with config_keywords have the @document_configuration decorator."""
     for plugin_rules in get_plugin_manager().hook.get_rules():
         for rule in plugin_rules:
             if hasattr(rule, "config_keywords"):
                 assert is_configurable(rule), (
-                    f"Rule {rule.__name__} has config but is not decorated to display "
-                    "the config."
+                    f"Rule {rule.__name__} has config but is not decorated with "
+                    "@document_configuration to display that config."
                 )
 
 
