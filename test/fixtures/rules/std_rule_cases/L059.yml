@@ -1,38 +1,5 @@
 rule: L059
 
-# Configuration test matrix
-# Pass/Fail Forced  Test
-# -- Identifiers must be unquoted (default configuration)
-# Pass      False   test_pass_column_reference
-# Fail      False   test_fail_column_reference
-# Pass      False   test_pass_table_reference
-# Fail      False   test_fail_table_reference
-# Pass      False   test_pass_multiple_references
-# Fail      False   test_fail_multiple_references
-# Pass      False   test_pass_whitespace
-# Pass      False   test_pass_special_symbols
-# Pass      False   test_pass_reserved_keyword
-# -- Identifiers must be quoted and preferred quote is double-quotes (SQL-92 ANSI, ...)
-# Pass      True    test_pass_column_reference_prefer_quoted_ansi
-# Fail      True    test_fail_column_reference_prefer_quoted_ansi
-# Pass      True    test_pass_table_reference_prefer_quoted_ansi
-# Fail      True    test_fail_table_reference_prefer_quoted_ansi
-# Pass      True    test_pass_multiple_references_prefer_quoted_ansi
-# Fail      True    test_fail_multiple_references_prefer_quoted_ansi
-# Pass      True    test_pass_whitespace_prefer_quoted_ansi
-# Pass      True    test_pass_special_symbols_prefer_quoted_ansi
-# Pass      True    test_pass_reserved_keyword_prefer_quoted_ansi
-# -- Identifiers must be quoted and preferred quote is backtick (BigQuery, MySql, ...)
-# Pass      True    test_pass_column_reference_prefer_quoted_backticks
-# Fail      True    test_fail_column_reference_prefer_quoted_backticks
-# Pass      True    test_pass_table_reference_prefer_quoted_backticks
-# Fail      True    test_fail_table_reference_prefer_quoted_backticks
-# Pass      True    test_pass_multiple_references_prefer_quoted_backticks
-# Fail      True    test_fail_multiple_references_prefer_quoted_backticks
-# Pass      True    test_pass_whitespace_prefer_quoted_backticks
-# Pass      True    test_pass_special_symbols_prefer_quoted_backticks
-# Pass      True    test_pass_reserved_keyword_prefer_quoted_backticks
-
 test_pass_column_reference:
   pass_str: |
     SELECT 123 AS foo;
