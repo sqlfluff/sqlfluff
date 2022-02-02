@@ -7,7 +7,7 @@ import sqlfluff.core.rules.functional.segment_predicates as sp
 
 @document_fix_compatible
 class Rule_L017(BaseRule):
-    """Function name not immediately followed by bracket.
+    """Function name not immediately followed by parenthesis.
 
     **Anti-pattern**
 
