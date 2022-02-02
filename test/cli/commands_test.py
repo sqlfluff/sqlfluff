@@ -543,20 +543,20 @@ def test__cli__fix_error_handling_behavior(sql, fix_args, fixed, exit_code, tmp_
     """Tests how "fix" behaves wrt parse errors, exit code, etc."""
     filepath = tmp_path / "testing.sql"
     filepath.write_text(textwrap.dedent(sql))
-    invoke_assert_code(
-        exit_code,
-        [
-            fix,
-            [
+    oldcwd = os.getcwd()
+    try:
+        os.chdir(str(tmp_path))
+        try:
+            fix(
                 fix_args
                 + [
                     "-f",
                 ]
-            ],
-        ],
-        None,
-        str(filepath),
-    )
+            )
+        except SystemExit as e:
+            assert exit_code == e.code
+    finally:
+        os.chdir(oldcwd)
     fixed_path = tmp_path / "testingFIXED.sql"
     if fixed:
         assert textwrap.dedent(fixed) == fixed_path.read_text()

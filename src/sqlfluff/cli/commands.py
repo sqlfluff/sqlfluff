@@ -699,6 +699,12 @@ def fix(
         )
         sys.exit(1)
 
+    num_parse_errors = result.num_violations(types=SQLParseError, filter_ignore=False)
+    if num_parse_errors > 0:
+        click.echo("  [{} parsing errors found]".format(num_parse_errors))
+        num_filtered_parse_errors = result.num_violations(types=SQLParseError)
+        sys.exit(1 if num_filtered_parse_errors else 0)
+
     # NB: We filter to linting violations here, because they're
     # the only ones which can be potentially fixed.
     if result.num_violations(types=SQLLintError, fixable=True) > 0:
@@ -759,7 +765,6 @@ def fix(
             "  [{} templating errors found]",
             1,
         ),
-        (dict(types=SQLParseError), "  [{} parsing errors found]", 0),
     ]
     for num_violations_kwargs, message_format, error_level in error_types:
         num_violations = result.num_violations(**num_violations_kwargs)  # type: ignore
