@@ -49,8 +49,8 @@ class Rule_L059(BaseRule):
 
     **Anti-pattern**
 
-    In this example, a valid unquoted identifier,
-    that is also not a reserved keyword, is required to be quoted.
+    In this example, a valid unquoted identifier, that is also not a reserved keyword,
+    is required to be quoted.
 
     .. code-block:: sql
 
