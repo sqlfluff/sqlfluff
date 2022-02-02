@@ -13,7 +13,7 @@ def document_fix_compatible(cls):
     return cls
 
 
-def is_fix_compatible(cls) -> bool:  # pragma: no cover TODO?
+def is_fix_compatible(cls) -> bool:
     """Return whether the rule is documented as fixable."""
     return FIX_COMPATIBLE in cls.__doc__
 
