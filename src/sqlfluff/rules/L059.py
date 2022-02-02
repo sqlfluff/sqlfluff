@@ -69,10 +69,10 @@ class Rule_L059(BaseRule):
         self.force_quote_identifier: bool
 
         if self.force_quote_identifier:
-            context_policy = ("naked_identifier")
+            context_policy = "naked_identifier"
             identifier_contents = context.segment.raw
         else:
-            context_policy = ("quoted_identifier")
+            context_policy = "quoted_identifier"
             identifier_contents = context.segment.raw[1:-1]
 
         # Ignore the segments that are not of the same type as the defined policy above.
