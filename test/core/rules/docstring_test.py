@@ -48,8 +48,8 @@ def test_config_decorator():
         for rule in plugin_rules:
             if hasattr(rule, "config_keywords"):
                 assert is_configurable(rule), (
-                    "Rule %s has config but is not decorated to display the config."
-                    % rule.__name__
+                    f"Rule {rule.__name__} has config but is not decorated to display "
+                    "the config."
                 )
 
 
