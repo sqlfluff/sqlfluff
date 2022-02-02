@@ -12,16 +12,18 @@ from sqlfluff.core.rules.functional import sp
 class Rule_L061(BaseRule):
     """Use ``!=`` instead of ``<>`` for "not equal to" comparisons.
 
-    | **Anti-pattern**
-    | ``<>`` means ``not equal`` but doesn't sound like this when we say it out loud.
+    **Anti-pattern**
+
+    ``<>`` means ``not equal`` but doesn't sound like this when we say it out loud.
 
     .. code-block:: sql
 
         SELECT * FROM X WHERE 1 <> 2;
 
-    | **Best practice**
-    | Use ``!=`` instead because it's sounds more natural and is more common in other
-    | programming languages.
+    **Best practice**
+
+    Use ``!=`` instead because it's sounds more natural and is more common in other
+    programming languages.
 
     .. code-block:: sql
 

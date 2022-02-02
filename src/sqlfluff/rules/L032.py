@@ -7,7 +7,7 @@ from sqlfluff.core.rules.base import BaseRule, LintResult, RuleContext
 class Rule_L032(BaseRule):
     """Prefer specifying join keys instead of using ``USING``.
 
-    | **Anti-pattern**
+    **Anti-pattern**
 
     .. code-block:: sql
 
@@ -18,8 +18,9 @@ class Rule_L032(BaseRule):
             table_a
         INNER JOIN table_b USING (id)
 
-    | **Best practice**
-    |  Specify the keys directly
+    **Best practice**
+
+    Specify the keys directly
 
     .. code-block:: sql
 

@@ -12,18 +12,20 @@ import sqlfluff.core.rules.functional.segment_predicates as sp
 class Rule_L015(BaseRule):
     """``DISTINCT`` used with parentheses.
 
-    | **Anti-pattern**
-    | In this example, parenthesis are not needed and confuse
-    | ``DISTINCT`` with a function. The parenthesis can also be misleading
-    | in which columns they apply to.
+    **Anti-pattern**
+
+    In this example, parenthesis are not needed and confuse
+    ``DISTINCT`` with a function. The parenthesis can also be misleading
+    in which columns they apply to.
 
     .. code-block:: sql
 
         SELECT DISTINCT(a), b FROM foo
 
-    | **Best practice**
-    | Remove parenthesis to be clear that the ``DISTINCT`` applies to
-    | both columns.
+    **Best practice**
+
+    Remove parenthesis to be clear that the ``DISTINCT`` applies to
+    both columns.
 
     .. code-block:: sql
 

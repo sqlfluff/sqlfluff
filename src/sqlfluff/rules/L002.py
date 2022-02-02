@@ -16,9 +16,10 @@ class Rule_L002(BaseRule):
     This rule will fail if a single section of whitespace
     contains both tabs and spaces.
 
-    | **Anti-pattern**
-    | The • character represents a space and the → character represents a tab.
-    | In this example, the second line contains two spaces and one tab.
+    **Anti-pattern**
+
+    The ``•`` character represents a space and the ``→`` character represents a tab.
+    In this example, the second line contains two spaces and one tab.
 
     .. code-block:: sql
        :force:
@@ -27,8 +28,9 @@ class Rule_L002(BaseRule):
         ••→a
         FROM foo
 
-    | **Best practice**
-    | Change the line to use spaces only.
+    **Best practice**
+
+    Change the line to use spaces only.
 
     .. code-block:: sql
        :force:

@@ -10,7 +10,7 @@ import sqlfluff.core.rules.functional.segment_predicates as sp
 class Rule_L035(BaseRule):
     """Do not specify ``else null`` in a case when statement (redundant).
 
-    | **Anti-pattern**
+    **Anti-pattern**
 
     .. code-block:: sql
 
@@ -22,8 +22,9 @@ class Rule_L035(BaseRule):
             end
         from x
 
-    | **Best practice**
-    |  Omit ``else null``
+    **Best practice**
+
+    Omit ``else null``
 
     .. code-block:: sql
 

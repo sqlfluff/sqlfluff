@@ -16,9 +16,10 @@ class Rule_L040(Rule_L010):
 
     The functionality for this rule is inherited from :obj:`Rule_L010`.
 
-    | **Anti-pattern**
-    | In this example, 'null' and 'false' are in lower-case whereas 'TRUE' is in
-    | upper-case.
+    **Anti-pattern**
+
+    In this example, ``null`` and ``false`` are in lower-case whereas ``TRUE`` is in
+    upper-case.
 
     .. code-block:: sql
 
@@ -29,8 +30,9 @@ class Rule_L040(Rule_L010):
             false
         from foo
 
-    | **Best practice**
-    | Ensure all literal null/true/false literals cases are used consistently
+    **Best practice**
+
+    Ensure all literal ``null``/``true``/``false`` literals cases are used consistently
 
     .. code-block:: sql
 

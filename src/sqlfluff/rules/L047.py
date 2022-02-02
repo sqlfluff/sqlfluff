@@ -15,8 +15,8 @@ class Rule_L047(BaseRule):
     """Use consistent syntax to express "count number of rows".
 
     Note:
-        If both `prefer_count_1` and `prefer_count_0` are set to true
-        then `prefer_count_1` has precedence.
+        If both ``prefer_count_1`` and ``prefer_count_0`` are set to true
+        then ``prefer_count_1`` has precedence.
 
     ``COUNT(*)``, ``COUNT(1)``, and even ``COUNT(0)`` are equivalent syntaxes
     in many SQL engines due to optimizers interpreting these instructions as
@@ -36,7 +36,7 @@ class Rule_L047(BaseRule):
 
     .. _ANSI-92: http://msdn.microsoft.com/en-us/library/ms175997.aspx
 
-    | **Anti-pattern**
+    **Anti-pattern**
 
     .. code-block:: sql
 
@@ -44,9 +44,10 @@ class Rule_L047(BaseRule):
             count(1)
         from table_a
 
-    | **Best practice**
-    | Use ``count(*)`` unless specified otherwise by config ``prefer_count_1``,
-    | or ``prefer_count_0`` as preferred.
+    **Best practice**
+
+    Use ``count(*)`` unless specified otherwise by config ``prefer_count_1``,
+    or ``prefer_count_0`` as preferred.
 
     .. code-block:: sql
 

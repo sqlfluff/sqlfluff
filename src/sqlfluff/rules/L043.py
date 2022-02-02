@@ -17,8 +17,9 @@ from sqlfluff.core.rules.functional import Segments, sp
 class Rule_L043(BaseRule):
     """Unnecessary ``CASE`` statement.
 
-    | **Anti-pattern**
-    | ``CASE`` statement returns booleans.
+    **Anti-pattern**
+
+    ``CASE`` statement returns booleans.
 
     .. code-block:: sql
         :force:
@@ -50,8 +51,9 @@ class Rule_L043(BaseRule):
             end as fab_clean
         from fancy_table
 
-    | **Best practice**
-    | Reduce to ``WHEN`` condition within ``COALESCE`` function.
+    **Best practice**
+
+    Reduce to ``WHEN`` condition within ``COALESCE`` function.
 
     .. code-block:: sql
         :force:

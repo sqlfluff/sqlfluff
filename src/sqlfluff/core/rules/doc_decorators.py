@@ -4,7 +4,7 @@ from sqlfluff.core.rules.config_info import get_config_info
 from sqlfluff.core.rules.base import rules_logger  # noqa
 
 
-FIX_COMPATIBLE = "    ``sqlfluff fix`` compatible."
+FIX_COMPATIBLE = "    This rule is ``sqlfluff fix`` compatible."
 
 
 def document_fix_compatible(cls):
@@ -36,7 +36,7 @@ def document_configuration(cls, ruleset="std"):
             )
         )
 
-    config_doc = "\n    | **Configuration**"
+    config_doc = "\n    **Configuration**\n"
     try:
         for keyword in sorted(cls.config_keywords):
             try:
@@ -46,12 +46,15 @@ def document_configuration(cls, ruleset="std"):
                     "Config value {!r} for rule {} is not configured in "
                     "`config_info`.".format(keyword, cls.__name__)
                 )
-            config_doc += "\n    |     `{}`: {}".format(
-                keyword, info_dict["definition"]
-            )
+            config_doc += "\n    * ``{}``: {}".format(keyword, info_dict["definition"])
+            if (
+                config_doc[-1] != "."
+                and config_doc[-1] != "?"
+                and config_doc[-1] != "\n"
+            ):
+                config_doc += "."
             if "validation" in info_dict:
                 config_doc += " Must be one of ``{}``.".format(info_dict["validation"])
-            config_doc += "\n    |"
     except AttributeError:
         rules_logger.info(f"No config_keywords defined for {cls.__name__}")
         return cls
@@ -64,3 +67,8 @@ def document_configuration(cls, ruleset="std"):
 
     cls.__doc__ = cls.__doc__.replace(end_of_class_description, "\n" + config_doc, 1)
     return cls
+
+
+def is_configurable(cls) -> bool:  # pragma: no cover TODO?
+    """Return whether the rule is documented as fixable."""
+    return "**Configuration**" in cls.__doc__

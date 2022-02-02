@@ -12,7 +12,7 @@ from sqlfluff.core.rules.functional import sp
 class Rule_L041(BaseRule):
     """``SELECT`` modifiers (e.g. ``DISTINCT``) must be on the same line as ``SELECT``.
 
-    | **Anti-pattern**
+    **Anti-pattern**
 
     .. code-block:: sql
 
@@ -22,7 +22,7 @@ class Rule_L041(BaseRule):
         from x
 
 
-    | **Best practice**
+    **Best practice**
 
     .. code-block:: sql
 

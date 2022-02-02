@@ -9,8 +9,9 @@ import sqlfluff.core.rules.functional.segment_predicates as sp
 class Rule_L017(BaseRule):
     """Function name not immediately followed by bracket.
 
-    | **Anti-pattern**
-    | In this example, there is a space between the function and the parenthesis.
+    **Anti-pattern**
+
+    In this example, there is a space between the function and the parenthesis.
 
     .. code-block:: sql
 
@@ -18,8 +19,9 @@ class Rule_L017(BaseRule):
             sum (a)
         FROM foo
 
-    | **Best practice**
-    | Remove the space between the function and the parenthesis.
+    **Best practice**
+
+    Remove the space between the function and the parenthesis.
 
     .. code-block:: sql
 

@@ -3,9 +3,10 @@ import pytest
 
 from sqlfluff import lint
 from sqlfluff.core.plugin.host import get_plugin_manager
+from sqlfluff.core.rules.doc_decorators import is_configurable
 
-KEYWORD_ANTI = "\n    | **Anti-pattern**"
-KEYWORD_BEST = "\n    | **Best practice**"
+KEYWORD_ANTI = "    **Anti-pattern**"
+KEYWORD_BEST = "    **Best practice**"
 KEYWORD_CODE_BLOCK = "\n    .. code-block:: sql\n"
 
 
@@ -22,10 +23,10 @@ def test_content_count(content, min_count):
     for plugin_rules in get_plugin_manager().hook.get_rules():
         for rule in plugin_rules:
             if rule._check_docstring is True:
-                assert (
-                    rule.__doc__.count(content) >= min_count
-                ), f"{rule.__name__} content {content} does not occur at less "
-                f"{min_count} times"
+                assert rule.__doc__.count(content) >= min_count, (
+                    f"{rule.__name__} content {content} does not occur at least "
+                    f"{min_count} times"
+                )
 
 
 def test_keyword_anti_before_best():
@@ -35,8 +36,21 @@ def test_keyword_anti_before_best():
             if rule._check_docstring is True:
                 assert rule.__doc__.index(KEYWORD_ANTI) < rule.__doc__.index(
                     KEYWORD_BEST
-                ), f"{rule.__name__} keyword {KEYWORD_BEST} appears before "
-                f"{KEYWORD_ANTI}"
+                ), (
+                    f"{rule.__name__} keyword {KEYWORD_BEST} appears before "
+                    f"{KEYWORD_ANTI}"
+                )
+
+
+def test_config_decorator():
+    """Test docstring anti pattern before best pattern."""
+    for plugin_rules in get_plugin_manager().hook.get_rules():
+        for rule in plugin_rules:
+            if hasattr(rule, "config_keywords"):
+                assert is_configurable(rule), (
+                    "Rule %s has config but is not decorated to display the config."
+                    % rule.__name__
+                )
 
 
 def test_backtick_replace():

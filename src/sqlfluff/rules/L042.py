@@ -14,10 +14,11 @@ class Rule_L042(BaseRule):
     clauses but not within ``JOIN`` clauses. If you prefer a stricter lint
     then this is configurable.
 
-    NB: Some dialects don't allow CTEs, and for those dialects
-    this rule makes no sense and should be disabled.
+    .. note::
+       Some dialects don't allow CTEs, and for those dialects
+       this rule makes no sense and should be disabled.
 
-    | **Anti-pattern**
+    **Anti-pattern**
 
     .. code-block:: sql
 
@@ -29,7 +30,7 @@ class Rule_L042(BaseRule):
         ) using(x)
 
 
-    | **Best practice**
+    **Best practice**
 
     .. code-block:: sql
 

@@ -11,8 +11,9 @@ from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 class Rule_L060(BaseRule):
     """Use ``COALESCE`` instead of ``IFNULL`` or ``NVL``.
 
-    | **Anti-pattern**
-    | ``IFNULL`` or ``NVL`` are used to fill ``NULL`` values.
+    **Anti-pattern**
+
+    ``IFNULL`` or ``NVL`` are used to fill ``NULL`` values.
 
     .. code-block:: sql
 
@@ -22,13 +23,14 @@ class Rule_L060(BaseRule):
         SELECT nvl(foo, 0) AS bar,
         FROM baz;
 
-    | **Best practice**
-    | Use ``COALESCE`` instead.
-    | ``COALESCE`` is universally supported,
-    | whereas Redshift doesn't support ``IFNULL``
-    | and BigQuery doesn't support ``NVL``.
-    | Additionally ``COALESCE`` is more flexible
-    | and accepts an arbitrary number of arguments.
+    **Best practice**
+
+    Use ``COALESCE`` instead.
+    ``COALESCE`` is universally supported,
+    whereas Redshift doesn't support ``IFNULL``
+    and BigQuery doesn't support ``NVL``.
+    Additionally ``COALESCE`` is more flexible
+    and accepts an arbitrary number of arguments.
 
     .. code-block:: sql
 

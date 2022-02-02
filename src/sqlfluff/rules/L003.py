@@ -17,13 +17,14 @@ from sqlfluff.core.templaters import TemplatedFile
 class Rule_L003(BaseRule):
     """Indentation not consistent with previous lines.
 
-    Note:
-        This rule used to be _"Indentation length is not a multiple
-        of `tab_space_size`"_, but was changed to be much smarter.
+    .. note::
+       This rule used to be `"Indentation length is not a multiple
+       of tab_space_size"`, but was changed to be much smarter.
 
-    | **Anti-pattern**
-    | The • character represents a space.
-    | In this example, the third line contains five spaces instead of four.
+    **Anti-pattern**
+
+    The ``•`` character represents a space.
+    In this example, the third line contains five spaces instead of four.
 
     .. code-block:: sql
        :force:
@@ -34,8 +35,9 @@ class Rule_L003(BaseRule):
         FROM foo
 
 
-    | **Best practice**
-    | Change the indentation to use a multiple of four spaces.
+    **Best practice**
+
+    Change the indentation to use a multiple of four spaces.
 
     .. code-block:: sql
        :force:

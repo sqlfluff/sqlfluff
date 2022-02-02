@@ -15,8 +15,9 @@ from sqlfluff.core.rules.doc_decorators import (
 class Rule_L010(BaseRule):
     """Inconsistent capitalisation of keywords.
 
-    | **Anti-pattern**
-    | In this example, 'select 'is in lower-case whereas 'FROM' is in upper-case.
+    **Anti-pattern**
+
+    In this example, ``select`` is in lower-case whereas ``FROM`` is in upper-case.
 
     .. code-block:: sql
 
@@ -24,8 +25,9 @@ class Rule_L010(BaseRule):
             a
         FROM foo
 
-    | **Best practice**
-    | Make all keywords either in upper-case or in lower-case
+    **Best practice**
+
+    Make all keywords either in upper-case or in lower-case
 
     .. code-block:: sql
 

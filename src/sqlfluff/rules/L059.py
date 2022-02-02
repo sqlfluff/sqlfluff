@@ -13,16 +13,18 @@ from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 class Rule_L059(BaseRule):
     """Unnecessary quoted identifier.
 
-    | **Anti-pattern**
-    | In this example, a valid unquoted identifier,
-    | that is also not a reserved keyword, is needlessly quoted.
+    **Anti-pattern**
+
+    In this example, a valid unquoted identifier,
+    that is also not a reserved keyword, is needlessly quoted.
 
     .. code-block:: sql
 
         SELECT 123 as "foo"
 
-    | **Best practice**
-    | Use unquoted identifiers where possible.
+    **Best practice**
+
+    Use unquoted identifiers where possible.
 
     .. code-block:: sql
 

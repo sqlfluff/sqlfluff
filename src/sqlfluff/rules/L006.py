@@ -19,8 +19,9 @@ from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 class Rule_L006(BaseRule):
     """Operators should be surrounded by a single whitespace.
 
-    | **Anti-pattern**
-    | In this example, there is a space missing space between the operator and 'b'.
+    **Anti-pattern**
+
+    In this example, there is a space missing space between the operator and ``b``.
 
     .. code-block:: sql
 
@@ -29,8 +30,9 @@ class Rule_L006(BaseRule):
         FROM foo
 
 
-    | **Best practice**
-    | Keep a single space.
+    **Best practice**
+
+    Keep a single space.
 
     .. code-block:: sql
 

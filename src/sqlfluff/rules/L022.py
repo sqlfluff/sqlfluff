@@ -4,16 +4,21 @@ from typing import Optional, List
 from sqlfluff.core.parser import NewlineSegment
 
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
-from sqlfluff.core.rules.doc_decorators import document_fix_compatible
+from sqlfluff.core.rules.doc_decorators import (
+    document_fix_compatible,
+    document_configuration,
+)
 
 
 @document_fix_compatible
+@document_configuration
 class Rule_L022(BaseRule):
     """Blank line expected but not found after CTE closing bracket.
 
-    | **Anti-pattern**
-    | There is no blank line after the CTE closing bracket. In queries with many
-    | CTEs this hinders readability.
+    **Anti-pattern**
+
+    There is no blank line after the CTE closing bracket. In queries with many
+    CTEs this hinders readability.
 
     .. code-block:: sql
 
@@ -22,8 +27,9 @@ class Rule_L022(BaseRule):
         )
         SELECT a FROM plop
 
-    | **Best practice**
-    | Add a blank line.
+    **Best practice**
+
+    Add a blank line.
 
     .. code-block:: sql
 

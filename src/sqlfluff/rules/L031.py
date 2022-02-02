@@ -22,9 +22,10 @@ class TableAliasInfo(NamedTuple):
 class Rule_L031(BaseRule):
     """Avoid table aliases in from clauses and join conditions.
 
-    | **Anti-pattern**
-    | In this example, alias ``o`` is used for the orders table, and ``c`` is used for
-    | 'customers' table.
+    **Anti-pattern**
+
+    In this example, alias ``o`` is used for the orders table, and ``c`` is used for
+    ``customers`` table.
 
     .. code-block:: sql
 
@@ -35,8 +36,9 @@ class Rule_L031(BaseRule):
         JOIN customers as c on o.id = c.user_id
 
 
-    | **Best practice**
-    |  Avoid aliases.
+    **Best practice**
+
+    Avoid aliases.
 
     .. code-block:: sql
 

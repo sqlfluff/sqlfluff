@@ -18,9 +18,10 @@ import sqlfluff.core.rules.functional.segment_predicates as sp
 class Rule_L052(BaseRule):
     """Statements must end with a semi-colon.
 
-    | **Anti-pattern**
-    | A statement is not immediately terminated with a semi-colon, the • represents
-    | space.
+    **Anti-pattern**
+
+    A statement is not immediately terminated with a semi-colon, the • represents
+    space.
 
     .. code-block:: sql
        :force:
@@ -35,8 +36,9 @@ class Rule_L052(BaseRule):
             b
         FROM bar••;
 
-    | **Best practice**
-    | Immediately terminate the statement with a semi-colon.
+    **Best practice**
+
+    Immediately terminate the statement with a semi-colon.
 
     .. code-block:: sql
        :force:
