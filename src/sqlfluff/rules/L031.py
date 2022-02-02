@@ -22,9 +22,6 @@ class TableAliasInfo(NamedTuple):
 class Rule_L031(BaseRule):
     """Avoid table aliases in from clauses and join conditions.
 
-    Best practice are that table names are short enough, but also descriptive enough
-    to avoid the need for alias.
-
     .. note::
        This rule was taken from the `dbt Style Guide
        <https://github.com/dbt-labs/corp/blob/master/dbt_style_guide.md>`_
