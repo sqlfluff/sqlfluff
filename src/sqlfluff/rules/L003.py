@@ -17,10 +17,6 @@ from sqlfluff.core.templaters import TemplatedFile
 class Rule_L003(BaseRule):
     """Indentation not consistent with previous lines.
 
-    .. note::
-       This rule used to be `"Indentation length is not a multiple
-       of tab_space_size"`, but was changed to be much smarter.
-
     **Anti-pattern**
 
     The ``•`` character represents a space.
