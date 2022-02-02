@@ -90,7 +90,7 @@ class Rule_L059(BaseRule):
             )
 
         # Now we only deal with NOT forced quoted identifiers configuration
-        # (meaning force_quote_identifier=False).
+        # (meaning prefer_quoted_identifiers=False).
 
         # Extract contents of outer quotes.
         quoted_identifier_contents = context.segment.raw[1:-1]
