@@ -12,6 +12,8 @@ from sqlfluff.core.rules.analysis.select import get_select_statement_info
 class Rule_L020(BaseRule):
     """Table aliases should be unique within each clause.
 
+    Reusing table aliases is very likely a coding error.
+
     **Anti-pattern**
 
     In this example, the alias ``t`` is reused for two different tables:

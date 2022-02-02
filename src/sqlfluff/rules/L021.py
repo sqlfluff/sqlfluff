@@ -6,7 +6,10 @@ import sqlfluff.core.rules.functional.segment_predicates as sp
 
 
 class Rule_L021(BaseRule):
-    """Ambiguous use of ``DISTINCT`` in select statement with ``GROUP BY``.
+    """Ambiguous use of ``DISTINCT`` in a ``SELECT`` statement with ``GROUP BY``.
+
+    When using ``GROUP BY`` a `DISTINCT`` clause should not be necessary as every
+    non-distinct ``SELECT`` clause must be included in the ``GROUP BY`` clause.
 
     **Anti-pattern**
 

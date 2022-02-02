@@ -22,6 +22,13 @@ class TableAliasInfo(NamedTuple):
 class Rule_L031(BaseRule):
     """Avoid table aliases in from clauses and join conditions.
 
+    Best practice are that table names are short enough, but also descriptive enough
+    to avoid the need for alias.
+
+    .. note::
+       This rule is controversial and for many larger databases avoiding alias is
+       neither realistic nor desirable. In this case this rule should be disabled.
+
     **Anti-pattern**
 
     In this example, alias ``o`` is used for the orders table, and ``c`` is used for
@@ -51,12 +58,12 @@ class Rule_L031(BaseRule):
         -- Self-join will not raise issue
 
         SELECT
-            table.a,
+            table1.a,
             table_alias.b,
         FROM
-            table
-            LEFT JOIN table AS table_alias ON
-                table.foreign_key = table_alias.foreign_key
+            table1
+            LEFT JOIN table1 AS table_alias ON
+                table1.foreign_key = table_alias.foreign_key
 
     """
 
