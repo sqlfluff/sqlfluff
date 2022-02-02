@@ -137,6 +137,13 @@ STANDARD_CONFIG_INFO_DICT = {
             "in addition to alphanumerics (A-Z, a-z, 0-9) and underscores."
         ),
     },
+    "prefer_quoted_identifiers": {
+        "validation": [True, False],
+        "definition": (
+            "If ``True``, requires every identifier to be quoted. "
+            "Defaults to ``False``."
+        ),
+    },
     "blocked_words": {
         "definition": (
             "Optional comma-separated list of blocked words which should not be used "
