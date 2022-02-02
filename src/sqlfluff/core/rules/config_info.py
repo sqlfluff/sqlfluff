@@ -137,10 +137,10 @@ STANDARD_CONFIG_INFO_DICT = {
             "in addition to alphanumerics (A-Z, a-z, 0-9) and underscores."
         ),
     },
-    "force_quote_identifier": {
+    "prefer_quoted_identifiers": {
         "validation": [True, False],
         "definition": (
-            "If ``True``, forces every identifier to be quoted. "
+            "If ``True``, requires every identifier to be quoted. "
             "Defaults to ``False``."
         ),
     },
