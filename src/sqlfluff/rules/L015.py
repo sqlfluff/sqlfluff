@@ -14,9 +14,9 @@ class Rule_L015(BaseRule):
 
     **Anti-pattern**
 
-    In this example, parenthesis are not needed and confuse
-    ``DISTINCT`` with a function. The parenthesis can also be misleading
-    in which columns they apply to.
+    In this example, parentheses are not needed and confuse
+    ``DISTINCT`` with a function. The parentheses can also be misleading
+    about which columns are affected by the ``DISTINCT`` (all the columns!).
 
     .. code-block:: sql
 
