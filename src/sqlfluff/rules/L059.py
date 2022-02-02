@@ -17,11 +17,11 @@ from sqlfluff.core.rules.doc_decorators import (
 class Rule_L059(BaseRule):
     """Unnecessary quoted identifier.
 
-    This rule will fail if the quotes used to quote an identifier are unnecessary,
-    or wrong considering the configuration.
+    This rule will fail if the quotes used to quote an identifier are (un)necessary
+    depending on the ``force_quote_identifier`` configuration.
 
-    By default, the quotes are optional, but required to double-quotes when identifier
-    is named as a keyword, or contains special characters.
+    When ``force_quote_identifier = False`` (default behavior), the quotes are 
+    unnecessary, except for reserved keywords and special charcters in identifiers.
 
     | **Anti-pattern**
     | In this example, a valid unquoted identifier,
@@ -31,122 +31,70 @@ class Rule_L059(BaseRule):
 
         SELECT 123 as "foo"
 
-        SELECT 123 as foo, 'sum'
+    | **Best practice**
+
+    .. code-block:: sql
+
+        SELECT 123 as foo
+
+    When ``force_quote_identifier = True``, the quotes are always necessary, no
+    matter if the identifier is valid, a reserved keyword, or contains special
+    characters.
+
+    | **Anti-pattern**
+    | In this example, a valid unquoted identifier,
+    | that is also not a reserved keyword, is required to be quoted.
+
+    .. code-block:: sql
+
+        SELECT 123 as foo
 
     | **Best practice**
-    | If ``force_quote_identifier = False`` and ``preferred_quote_identifier = '"'``
-    | (or unspecified, as these are the default), use unquoted identifiers 
-    | where possible, and use '"' whenever necessary.
 
     .. code-block:: sql
 
-        SELECT 123 as foo, "sum"
-
-    | If ``force_quote_identifier = True`` and ``preferred_quote_identifier = "`"``,
-    | use preferred quote identifiers any time.
-
-    .. code-block:: sql
-
-        SELECT 123 as `foo`, `sum`
+        SELECT 123 as "foo" -- For ANSI, ...
+        -- or
+        SELECT 123 as `foo` -- For BigQuery, MySql, ...
 
     """
 
     config_keywords = [
-        "force_quote_identifier",
-        "preferred_quote_identifier"
+        "force_quote_identifier"
     ]
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Unnecessary quoted identifier."""
         # Config type hints
         self.force_quote_identifier: bool
-        self.preferred_quote_identifier: str
 
-        quote = self.preferred_quote_identifier
-
-        # If the configuration says to not force the identifier quoting, then
-        # simply care about the quoted identifiers.
         if self.force_quote_identifier:
-            context_policy = ("naked_identifier", "quoted_identifier")
+            context_policy = ("naked_identifier")
+            identifier_contents = context.segment.raw
         else:
             context_policy = ("quoted_identifier")
+            identifier_contents = context.segment.raw[1:-1]
 
-        # We only care about quoted identifiers and possibly naked identifiers if
-        # the configuration setting is forcing identifiers to be quoted.
+        # Ignore the segments that are not of the same type as the defined policy above.
         if context.segment.name not in context_policy:
             return None
 
-        # Manage cases of quoted identifiers must be forced first.
+        # Manage cases of quoted identifiers must be forced first. 
+        # Naked identifiers are _de facto_ making this rule fail as configuration forces
+        # them to be quoted.
+        # In this case, it cannot be fixed as quote to use is dialect and DBMS
+        # configuration dependent.
         if self.force_quote_identifier:
-            if context.segment.name == "naked_identifier":
-                identifier_contents = context.segment.raw
-            else:
-                identifier_contents = context.segment.raw[1:-1]
-
-            # If the identifier_contents contains any occurrence of the preferred quote,
-            # ignore this rule for now.
-            if quote in identifier_contents:
-                # TODO: if different levels of criticity can be set, this case should
-                #       trigger an `info` level.
-                return None
-
-            expected = f"{quote}{identifier_contents}{quote}"
-
-            # For naked identifiers, make the rule fails directly.
-            if context.segment.name == "naked_identifier":
-                return LintResult(
-                    context.segment,
-                    fixes=[
-                        LintFix.replace(
-                            context.segment,
-                            [
-                                CodeSegment(
-                                    raw=expected, 
-                                    name="quoted_identifier", 
-                                    type="identifier"
-                                )
-                            ],
-                        )
-                    ],
-                    description=f"Missing quoted identifier {expected}.",
-                )
-
-            # For quoted identifiers, ensure the quote is the expected one.
-            if expected != context.segment.raw:
-                desc=f"Wrong quoted identifier. Expected {expected}, got {context.segment.raw}."
-                return LintResult(
-                    context.segment,
-                    fixes=[
-                        LintFix.replace(
-                            context.segment,
-                            [
-                                CodeSegment(
-                                    raw=expected, 
-                                    name="quoted_identifier", 
-                                    type="identifier"
-                                )
-                            ],
-                        )
-                    ],
-                    description=desc,
-                )
-
-            # If configuration is set to forced quoted identifiers, 
-            # we managed all failure cases.
-            return None
+            return LintResult(
+                context.segment,
+                description=f"Missing quoted identifier {identifier_contents}.",
+            )
 
         # Now we only deal with NOT forced quoted identifiers configuration 
         # (meaning force_quote_identifier=False).
 
         # Extract contents of outer quotes.
         quoted_identifier_contents = context.segment.raw[1:-1]
-
-        # If the identifier contents contains any occurrence of the preferred quote,
-        # ignore this rule for now.
-        if quote in quoted_identifier_contents:
-            # TODO: if different levels of criticity can be set, this case should
-            #       trigger an `info` level.
-            return None
 
         # Retrieve NakedIdentifierSegment RegexParser for the dialect.
         naked_identifier_parser = context.dialect._library["NakedIdentifierSegment"]
@@ -183,27 +131,6 @@ class Rule_L059(BaseRule):
                     )
                 ],
                 description=f"Unnecessary quoted identifier {context.segment.raw}.",
-            )
-
-        # If this is a reserved keyword, or it is not a valid naked identifier,
-        # ensure the quote used is the preferred one.
-        expected = f"{quote}{quoted_identifier_contents}{quote}"
-        if expected != context.segment.raw:
-            return LintResult(
-                context.segment,
-                fixes=[
-                    LintFix.replace(
-                        context.segment,
-                        [
-                            CodeSegment(
-                                raw=expected, 
-                                name="quoted_identifier", 
-                                type="identifier"
-                            )
-                        ],
-                    )
-                ],
-                description=f"Wrong necessary quoted identifier. Expected {expected}, got {context.segment.raw}.",
             )
 
         return None
