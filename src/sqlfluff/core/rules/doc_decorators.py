@@ -69,6 +69,6 @@ def document_configuration(cls, ruleset="std"):
     return cls
 
 
-def is_configurable(cls) -> bool:  # pragma: no cover TODO?
+def is_configurable(cls) -> bool:
     """Return whether the rule is documented as fixable."""
     return "**Configuration**" in cls.__doc__
