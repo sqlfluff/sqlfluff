@@ -45,7 +45,9 @@ class Rule_L059(BaseRule):
     characters.
 
     .. note::
-       Note due to different quotes this mode is not ``sqlfluff fix`` compatible.
+       Note due to different quotes being used by different dialects supported by
+       `SQLFluff`, and those quotes meaning different things in different contexts,
+       this mode is not ``sqlfluff fix`` compatible.
 
     **Anti-pattern**
 

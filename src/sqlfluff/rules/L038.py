@@ -20,7 +20,7 @@ class Rule_L038(BaseRule):
        For many database backends this is allowed. For some users
        this may be something they wish to enforce (in line with
        Python best practice). Many database backends regard this
-       as a syntax error, and as such the SQLFluff default is to
+       as a syntax error, and as such the `SQLFluff` default is to
        forbid trailing commas in the select clause.
 
     **Anti-pattern**

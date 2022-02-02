@@ -28,7 +28,7 @@ class Rule_L047(BaseRule):
         If COUNT(*) is specified, then
         the result is the cardinality of T.
 
-    So by default, SQLFluff enforces the consistent use of ``COUNT(*)``.
+    So by default, `SQLFluff` enforces the consistent use of ``COUNT(*)``.
 
     If the SQL engine you work with, or your team, prefers ``COUNT(1)`` or
     ``COUNT(0)`` over ``COUNT(*)``, you can configure this rule to consistently

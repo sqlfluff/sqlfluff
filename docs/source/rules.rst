@@ -44,7 +44,7 @@ ignore templating (``TMP``) & parsing (``PRS``) errors.
 
 .. note::
    It should be noted that ignoring ``TMP`` and ``PRS`` errors can lead to
-   incorrect ``sqlfluff lint`` and ``sqfluff fix`` results as SQLFluff can
+   incorrect ``sqlfluff lint`` and ``sqfluff fix`` results as `SQLFluff` can
    misinterpret the SQL being analysed.
 
 Should the need arise, not specifying specific rules to ignore will ignore

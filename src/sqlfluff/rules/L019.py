@@ -29,7 +29,7 @@ class Rule_L019(BaseRule):
 
     **Best practice**
 
-    By default, SQLFluff prefers trailing commas. However it
+    By default, `SQLFluff` prefers trailing commas. However it
     is configurable for leading commas. The chosen style must be used
     consistently throughout your SQL.
 
