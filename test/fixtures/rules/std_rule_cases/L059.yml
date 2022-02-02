@@ -12,26 +12,26 @@ rule: L059
 # Pass      False   test_pass_whitespace
 # Pass      False   test_pass_special_symbols
 # Pass      False   test_pass_reserved_keyword
-# -- Identifiers must be quoted and expected quote is double-quotes (SQL-92 ANSI, ...)
-# Pass      True    test_pass_column_reference_forced_ansi
-# Fail      True    test_fail_column_reference_forced_ansi
-# Pass      True    test_pass_table_reference_forced_ansi
-# Fail      True    test_fail_table_reference_forced_ansi
-# Pass      True    test_pass_multiple_references_forced_ansi
-# Fail      True    test_fail_multiple_references_forced_ansi
-# Pass      True    test_pass_whitespace_forced_ansi
-# Pass      True    test_pass_special_symbols_forced_ansi
-# Pass      True    test_pass_reserved_keyword_forced_ansi
-# -- Identifiers must be quoted and expected quote is backtick (BigQuery, MySql, ...)
-# Pass      True    test_pass_column_reference_forced_backticks
-# Fail      True    test_fail_column_reference_forced_backticks
-# Pass      True    test_pass_table_reference_forced_backticks
-# Fail      True    test_fail_table_reference_forced_backticks
-# Pass      True    test_pass_multiple_references_forced_backticks
-# Fail      True    test_fail_multiple_references_forced_backticks
-# Pass      True    test_pass_whitespace_forced_backticks
-# Pass      True    test_pass_special_symbols_forced_backticks
-# Pass      True    test_pass_reserved_keyword_forced_backticks
+# -- Identifiers must be quoted and preferred quote is double-quotes (SQL-92 ANSI, ...)
+# Pass      True    test_pass_column_reference_prefer_quoted_ansi
+# Fail      True    test_fail_column_reference_prefer_quoted_ansi
+# Pass      True    test_pass_table_reference_prefer_quoted_ansi
+# Fail      True    test_fail_table_reference_prefer_quoted_ansi
+# Pass      True    test_pass_multiple_references_prefer_quoted_ansi
+# Fail      True    test_fail_multiple_references_prefer_quoted_ansi
+# Pass      True    test_pass_whitespace_prefer_quoted_ansi
+# Pass      True    test_pass_special_symbols_prefer_quoted_ansi
+# Pass      True    test_pass_reserved_keyword_prefer_quoted_ansi
+# -- Identifiers must be quoted and preferred quote is backtick (BigQuery, MySql, ...)
+# Pass      True    test_pass_column_reference_prefer_quoted_backticks
+# Fail      True    test_fail_column_reference_prefer_quoted_backticks
+# Pass      True    test_pass_table_reference_prefer_quoted_backticks
+# Fail      True    test_fail_table_reference_prefer_quoted_backticks
+# Pass      True    test_pass_multiple_references_prefer_quoted_backticks
+# Fail      True    test_fail_multiple_references_prefer_quoted_backticks
+# Pass      True    test_pass_whitespace_prefer_quoted_backticks
+# Pass      True    test_pass_special_symbols_prefer_quoted_backticks
+# Pass      True    test_pass_reserved_keyword_prefer_quoted_backticks
 
 test_pass_column_reference:
   pass_str: |
@@ -81,15 +81,15 @@ test_pass_reserved_keyword:
   pass_str: |
     SELECT 123 AS "SELECT"
 
-test_pass_column_reference_forced_ansi:
+test_pass_column_reference_prefer_quoted_ansi:
   pass_str: |
     SELECT 123 AS "foo";
   configs:
     rules:
       L059:
-        force_quote_identifier: True
+        prefer_quoted_identifiers: True
 
-test_fail_column_reference_forced_ansi:
+test_fail_column_reference_prefer_quoted_ansi:
   fail_str: |
     SELECT 123 AS foo;
   pass_str: |
@@ -97,18 +97,18 @@ test_fail_column_reference_forced_ansi:
   configs:
     rules:
       L059:
-        force_quote_identifier: True
+        prefer_quoted_identifiers: True
 
-test_pass_table_reference_forced_ansi:
+test_pass_table_reference_prefer_quoted_ansi:
   pass_str: |
     SELECT "foo"
     FROM "bar";
   configs:
     rules:
       L059:
-        force_quote_identifier: True
+        prefer_quoted_identifiers: True
 
-test_fail_table_reference_forced_ansi:
+test_fail_table_reference_prefer_quoted_ansi:
   fail_str: |
     SELECT "foo"
     FROM bar;
@@ -118,18 +118,18 @@ test_fail_table_reference_forced_ansi:
   configs:
     rules:
       L059:
-        force_quote_identifier: True
+        prefer_quoted_identifiers: True
 
-test_pass_multiple_references_forced_ansi:
+test_pass_multiple_references_prefer_quoted_ansi:
   pass_str: |
     SELECT "foo"
     FROM "bar"."baz";
   configs:
     rules:
       L059:
-        force_quote_identifier: True
+        prefer_quoted_identifiers: True
 
-test_fail_multiple_references_forced_ansi:
+test_fail_multiple_references_prefer_quoted_ansi:
   fail_str: |
     SELECT "foo"
     FROM bar.baz;
@@ -139,33 +139,33 @@ test_fail_multiple_references_forced_ansi:
   configs:
     rules:
       L059:
-        force_quote_identifier: True
+        prefer_quoted_identifiers: True
 
-test_pass_whitespace_forced_ansi:
+test_pass_whitespace_prefer_quoted_ansi:
   pass_str: |
     SELECT 123 AS "I cannot be unquoted"
   configs:
     rules:
       L059:
-        force_quote_identifier: True
+        prefer_quoted_identifiers: True
 
-test_pass_special_symbols_forced_ansi:
+test_pass_special_symbols_prefer_quoted_ansi:
   pass_str: |
     SELECT 123 AS "I-c@nn0t-be~un-quoted"
   configs:
     rules:
       L059:
-        force_quote_identifier: True
+        prefer_quoted_identifiers: True
 
-test_pass_reserved_keyword_forced_ansi:
+test_pass_reserved_keyword_prefer_quoted_ansi:
   pass_str: |
     SELECT 123 AS "SELECT"
   configs:
     rules:
       L059:
-        force_quote_identifier: True
+        prefer_quoted_identifiers: True
 
-test_pass_column_reference_forced_backticks:
+test_pass_column_reference_prefer_quoted_backticks:
   pass_str: |
     SELECT 123 AS `foo`;
   configs:
@@ -173,9 +173,9 @@ test_pass_column_reference_forced_backticks:
       dialect: bigquery
     rules:
       L059:
-        force_quote_identifier: True
+        prefer_quoted_identifiers: True
 
-test_fail_column_reference_forced_backticks:
+test_fail_column_reference_prefer_quoted_backticks:
   fail_str: |
     SELECT 123 AS foo;
   pass_str: |
@@ -185,9 +185,9 @@ test_fail_column_reference_forced_backticks:
       dialect: bigquery
     rules:
       L059:
-        force_quote_identifier: True
+        prefer_quoted_identifiers: True
 
-test_pass_table_reference_forced_backticks:
+test_pass_table_reference_prefer_quoted_backticks:
   pass_str: |
     SELECT `foo`
     FROM `bar`;
@@ -196,9 +196,9 @@ test_pass_table_reference_forced_backticks:
       dialect: bigquery
     rules:
       L059:
-        force_quote_identifier: True
+        prefer_quoted_identifiers: True
 
-test_fail_table_reference_forced_backticks:
+test_fail_table_reference_prefer_quoted_backticks:
   fail_str: |
     SELECT `foo`
     FROM bar;
@@ -210,9 +210,9 @@ test_fail_table_reference_forced_backticks:
       dialect: bigquery
     rules:
       L059:
-        force_quote_identifier: True
+        prefer_quoted_identifiers: True
 
-test_pass_multiple_references_forced_backticks:
+test_pass_multiple_references_prefer_quoted_backticks:
   pass_str: |
     SELECT `foo`
     FROM `bar`.`baz`;
@@ -221,9 +221,9 @@ test_pass_multiple_references_forced_backticks:
       dialect: bigquery
     rules:
       L059:
-        force_quote_identifier: True
+        prefer_quoted_identifiers: True
 
-test_fail_multiple_references_forced_backticks:
+test_fail_multiple_references_prefer_quoted_backticks:
   fail_str: |
     SELECT `foo`
     FROM bar.baz;
@@ -235,9 +235,9 @@ test_fail_multiple_references_forced_backticks:
       dialect: bigquery
     rules:
       L059:
-        force_quote_identifier: True
+        prefer_quoted_identifiers: True
 
-test_pass_whitespace_forced_backticks:
+test_pass_whitespace_prefer_quoted_backticks:
   pass_str: |
     SELECT 123 AS `I cannot be unquoted`
   configs:
@@ -245,9 +245,9 @@ test_pass_whitespace_forced_backticks:
       dialect: bigquery
     rules:
       L059:
-        force_quote_identifier: True
+        prefer_quoted_identifiers: True
 
-test_pass_special_symbols_forced_backticks:
+test_pass_special_symbols_prefer_quoted_backticks:
   pass_str: |
     SELECT 123 AS `I-c@nn0t-be~un-quoted`
   configs:
@@ -255,9 +255,9 @@ test_pass_special_symbols_forced_backticks:
       dialect: bigquery
     rules:
       L059:
-        force_quote_identifier: True
+        prefer_quoted_identifiers: True
 
-test_pass_reserved_keyword_forced_backticks:
+test_pass_reserved_keyword_prefer_quoted_backticks:
   pass_str: |
     SELECT 123 AS `SELECT`
   configs:
@@ -265,4 +265,4 @@ test_pass_reserved_keyword_forced_backticks:
       dialect: bigquery
     rules:
       L059:
-        force_quote_identifier: True
+        prefer_quoted_identifiers: True
