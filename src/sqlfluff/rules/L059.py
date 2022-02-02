@@ -20,8 +20,8 @@ class Rule_L059(BaseRule):
     This rule will fail if the quotes used to quote an identifier are (un)necessary
     depending on the ``force_quote_identifier`` configuration.
 
-    When ``force_quote_identifier = False`` (default behavior), the quotes are
-    unnecessary, except for reserved keywords and special charcters in identifiers.
+    When ``prefer_quoted_identifiers = False`` (default behaviour), the quotes are
+    unnecessary, except for reserved keywords and special characters in identifiers.
 
     | **Anti-pattern**
     | In this example, a valid unquoted identifier,
