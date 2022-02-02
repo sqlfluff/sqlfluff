@@ -25,7 +25,7 @@ from io import StringIO
 # To enable colour cross platform
 import colorama
 from tqdm import tqdm
-from sqlfluff.cli.autocomplete import dialect_shell_complete
+from sqlfluff.cli.autocomplete import shell_completion_enabled, dialect_shell_complete
 
 from sqlfluff.cli.formatters import (
     format_rules,
@@ -175,12 +175,21 @@ def core_options(f: Callable) -> Callable:
     These are applied to the main (but not all) cli commands like
     `parse`, `lint` and `fix`.
     """
-    f = click.option(
-        "--dialect",
-        default=None,
-        help="The dialect of SQL to lint (default=ansi)",
-        shell_complete=dialect_shell_complete,
-    )(f)
+    # Only enable dialect completion if on version of click
+    # that supports it
+    if shell_completion_enabled:
+        f = click.option(
+            "--dialect",
+            default=None,
+            help="The dialect of SQL to lint (default=ansi)",
+            shell_complete=dialect_shell_complete,
+        )(f)
+    else:
+        f = click.option(
+            "--dialect",
+            default=None,
+            help="The dialect of SQL to lint (default=ansi)",
+        )(f)
     f = click.option(
         "--templater",
         default=None,
