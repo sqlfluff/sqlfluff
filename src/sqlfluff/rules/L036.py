@@ -27,6 +27,10 @@ class SelectTargetsInfo(NamedTuple):
 class Rule_L036(BaseRule):
     """Select targets should be on a new line unless there is only one select target.
 
+    .. note::
+       A wildcard is (``SELECT *``) is not considered a single select target so
+       always requires a new line.
+
     **Anti-pattern**
 
     Multiple select targets on the same line.
