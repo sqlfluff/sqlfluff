@@ -20,7 +20,7 @@ class Rule_L059(BaseRule):
     This rule will fail if the quotes used to quote an identifier are (un)necessary
     depending on the ``force_quote_identifier`` configuration.
 
-    When ``force_quote_identifier = False`` (default behavior), the quotes are 
+    When ``force_quote_identifier = False`` (default behavior), the quotes are
     unnecessary, except for reserved keywords and special charcters in identifiers.
 
     | **Anti-pattern**
@@ -81,7 +81,7 @@ class Rule_L059(BaseRule):
         if context.segment.name not in context_policy:
             return None
 
-        # Manage cases of quoted identifiers must be forced first. 
+        # Manage cases of quoted identifiers must be forced first.
         # Naked identifiers are _de facto_ making this rule fail as configuration forces
         # them to be quoted.
         # In this case, it cannot be fixed as quote to use is dialect and DBMS
@@ -92,7 +92,7 @@ class Rule_L059(BaseRule):
                 description=f"Missing quoted identifier {identifier_contents}.",
             )
 
-        # Now we only deal with NOT forced quoted identifiers configuration 
+        # Now we only deal with NOT forced quoted identifiers configuration
         # (meaning force_quote_identifier=False).
 
         # Extract contents of outer quotes.
