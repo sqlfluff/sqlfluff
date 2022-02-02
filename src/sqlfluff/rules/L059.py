@@ -61,7 +61,7 @@ class Rule_L059(BaseRule):
 
     """
 
-    config_keywords = ["force_quote_identifier"]
+    config_keywords = ["prefer_quoted_identifiers"]
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Unnecessary quoted identifier."""
