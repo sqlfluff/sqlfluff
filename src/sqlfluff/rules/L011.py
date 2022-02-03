@@ -7,18 +7,23 @@ from sqlfluff.core.parser import (
 )
 
 from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix, RuleContext
-from sqlfluff.core.rules.doc_decorators import document_fix_compatible
+from sqlfluff.core.rules.doc_decorators import (
+    document_fix_compatible,
+    document_configuration,
+)
 
 
 @document_fix_compatible
+@document_configuration
 class Rule_L011(BaseRule):
     """Implicit/explicit aliasing of table.
 
     Aliasing of table to follow preference
-    (explicit using an `AS` clause is default).
+    (requiring an explicit ``AS`` is the default).
 
-    | **Anti-pattern**
-    | In this example, the alias 'voo' is implicit.
+    **Anti-pattern**
+
+    In this example, the alias ``voo`` is implicit.
 
     .. code-block:: sql
 
@@ -26,8 +31,9 @@ class Rule_L011(BaseRule):
             voo.a
         FROM foo voo
 
-    | **Best practice**
-    | Add `AS` to make it explicit.
+    **Best practice**
+
+    Add ``AS`` to make it explicit.
 
     .. code-block:: sql
 

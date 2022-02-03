@@ -8,8 +8,9 @@ from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 class Rule_L001(BaseRule):
     """Unnecessary trailing whitespace.
 
-    | **Anti-pattern**
-    | The • character represents a space.
+    **Anti-pattern**
+
+    The ``•`` character represents a space.
 
     .. code-block:: sql
        :force:
@@ -18,8 +19,9 @@ class Rule_L001(BaseRule):
             a
         FROM foo••
 
-    | **Best practice**
-    | Remove trailing spaces.
+    **Best practice**
+
+    Remove trailing spaces.
 
     .. code-block:: sql
 

@@ -64,7 +64,7 @@ STANDARD_CONFIG_INFO_DICT = {
         "validation": ["consistent", "upper", "lower", "pascal", "capitalise"],
         "definition": (
             "The capitalisation policy to enforce, extended with PascalCase. "
-            "This is separate from capitalisation_policy as it should not be "
+            "This is separate from ``capitalisation_policy`` as it should not be "
             "applied to keywords."
         ),
     },
@@ -117,7 +117,7 @@ STANDARD_CONFIG_INFO_DICT = {
         "definition": (
             "Should final semi-colons be required? "
             "(N.B. forcing trailing semi-colons is not recommended for dbt users "
-            "as it can cause issues when wrapping the query within other SQL queries)"
+            "as it can cause issues when wrapping the query within other SQL queries)."
         ),
     },
     "group_by_and_order_by_style": {
@@ -146,7 +146,7 @@ STANDARD_CONFIG_INFO_DICT = {
     },
     "blocked_words": {
         "definition": (
-            "Optional comma-separated list of blocked words which should not be used "
+            "Optional, comma-separated list of blocked words which should not be used "
             "in statements."
         ),
     },

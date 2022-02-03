@@ -23,16 +23,18 @@ class Rule_L059(BaseRule):
     When ``prefer_quoted_identifiers = False`` (default behaviour), the quotes are
     unnecessary, except for reserved keywords and special characters in identifiers.
 
-    | **Anti-pattern**
-    | In this example, a valid unquoted identifier,
-    | that is also not a reserved keyword, is needlessly quoted.
+    **Anti-pattern**
+
+    In this example, a valid unquoted identifier,
+    that is also not a reserved keyword, is needlessly quoted.
 
     .. code-block:: sql
 
         SELECT 123 as "foo"
 
-    | **Best practice**
-    | Use unquoted identifiers where possible.
+    **Best practice**
+
+    Use unquoted identifiers where possible.
 
     .. code-block:: sql
 
@@ -40,18 +42,24 @@ class Rule_L059(BaseRule):
 
     When ``prefer_quoted_identifiers = True``, the quotes are always necessary, no
     matter if the identifier is valid, a reserved keyword, or contains special
-    characters. Note due to different quotes this mode is not `sqlfluff fix` compatible.
+    characters.
 
-    | **Anti-pattern**
-    | In this example, a valid unquoted identifier,
-    | that is also not a reserved keyword, is required to be quoted.
+    .. note::
+       Note due to different quotes being used by different dialects supported by
+       `SQLFluff`, and those quotes meaning different things in different contexts,
+       this mode is not ``sqlfluff fix`` compatible.
+
+    **Anti-pattern**
+
+    In this example, a valid unquoted identifier, that is also not a reserved keyword,
+    is required to be quoted.
 
     .. code-block:: sql
 
         SELECT 123 as foo
 
-    | **Best practice**
-    | Use quoted identifiers.
+    **Best practice**
+    Use quoted identifiers.
 
     .. code-block:: sql
 

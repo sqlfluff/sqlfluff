@@ -27,8 +27,13 @@ class SelectTargetsInfo(NamedTuple):
 class Rule_L036(BaseRule):
     """Select targets should be on a new line unless there is only one select target.
 
-    | **Anti-pattern**
-    | Multiple select targets on the same line.
+    .. note::
+       A wildcard is (``SELECT *``) is not considered a single select target so
+       always requires a new line.
+
+    **Anti-pattern**
+
+    Multiple select targets on the same line.
 
     .. code-block:: sql
         :force:
@@ -43,8 +48,9 @@ class Rule_L036(BaseRule):
         FROM foo
 
 
-    | **Best practice**
-    | Multiple select targets each on their own line.
+    **Best practice**
+
+    Multiple select targets each on their own line.
 
     .. code-block:: sql
         :force:
@@ -54,7 +60,8 @@ class Rule_L036(BaseRule):
             b
         from foo
 
-        -- Single select target on the same line as the SELECT keyword.
+        -- Single select target on the same line as the ``SELECT``
+        -- keyword.
 
         SELECT a
         FROM foo

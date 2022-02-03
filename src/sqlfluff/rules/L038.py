@@ -16,26 +16,29 @@ from sqlfluff.core.rules.doc_decorators import (
 class Rule_L038(BaseRule):
     """Trailing commas within select clause.
 
-    For some database backends this is allowed. For some users
-    this may be something they wish to enforce (in line with
-    python best practice). Many database backends regard this
-    as a syntax error, and as such the sqlfluff default is to
-    forbid trailing commas in the select clause.
+    .. note::
+       For many database backends this is allowed. For some users
+       this may be something they wish to enforce (in line with
+       Python best practice). Many database backends regard this
+       as a syntax error, and as such the `SQLFluff` default is to
+       forbid trailing commas in the select clause.
 
-    | **Anti-pattern**
+    **Anti-pattern**
 
     .. code-block:: sql
 
         SELECT
-            a, b,
+            a,
+            b,
         FROM foo
 
-    | **Best practice**
+    **Best practice**
 
     .. code-block:: sql
 
         SELECT
-            a, b
+            a,
+            b
         FROM foo
     """
 

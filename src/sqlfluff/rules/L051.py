@@ -10,8 +10,10 @@ from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 class Rule_L051(BaseRule):
     """``INNER JOIN`` must be fully qualified.
 
-    | **Anti-pattern**
-    | Lone ``JOIN`` is used.
+    **Anti-pattern**
+
+    A join is specified without specifying the **kind** of join, i.e. the standalone
+    keyword ``JOIN``.
 
     .. code-block:: sql
        :force:
@@ -21,8 +23,9 @@ class Rule_L051(BaseRule):
         FROM bar
         JOIN baz;
 
-    | **Best practice**
-    | Use ``INNER JOIN`` rather than ``JOIN``.
+    **Best practice**
+
+    Use ``INNER JOIN`` rather than ``JOIN``.
 
     .. code-block:: sql
        :force:
