@@ -528,6 +528,18 @@ def test__cli__command__fix(rule, fname):
         ),
         (
             # - One lint error: "where" is lower case
+            # - Not fixable because of templater error, hence error exit
+            """
+            SELECT my_col
+            FROM my_schema.my_table
+            where processdate {{ condition }}
+            """,
+            ["--force", "--fixed-suffix", "FIXED", "--rules", "L010"],
+            None,
+            1,
+        ),
+        (
+            # - One lint error: "where" is lower case
             # - Not fixable because of parse error (even though "noqa"), hence
             #   error exit
             """
@@ -619,6 +631,7 @@ def test__cli__command__fix(rule, fname):
     ],
     ids=[
         "1_lint_error_1_unsuppressed_parse_error",
+        "1_lint_error_1_unsuppressed_templating_error",
         "1_lint_error_1_suppressed_parse_error",
         "0_lint_errors_1_unsuppressed_parse_error",
         "0_lint_errors_1_suppressed_parse_error",

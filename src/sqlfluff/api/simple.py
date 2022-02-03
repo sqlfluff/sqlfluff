@@ -126,10 +126,10 @@ def fix(
     fix_even_unparsable = cfg.get("fix_even_unparsable")
     should_fix = True
     if not fix_even_unparsable:
-        # If fix_even_unparsable wasn't set, check for parse errors. Okay to fix
-        # if there are no parse errors.
-        _, num_filtered_parse_errors = result.check_parse_errors()
-        if num_filtered_parse_errors == 0:
+        # If fix_even_unparsable wasn't set, check for templating or parse
+        # errors. Okay to fix if there aren't any.
+        _, num_filtered_errors = result.check_templating_or_parse_errors()
+        if num_filtered_errors == 0:
             should_fix = True
     if should_fix:
         sql = result.paths[0].files[0].fix_string()[0]

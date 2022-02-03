@@ -575,22 +575,26 @@ def lint(
         sys.exit(0)
 
 
-def _check_parse_errors(lint_result: LintingResult) -> int:
+def _check_templating_or_parse_errors(lint_result: LintingResult) -> int:
     """Look for parse errors in LintingResult, determine what to do.
 
-    Returns 1 if there are any files with parse errors after filtering, else 0.
-    (Intended as a process exit code.)
+    Returns 1 if there are any files with templating or parse errors after
+    filtering, else 0. (Intended as a process exit code.)
     """
-    total_parse_errors, num_filtered_parse_errors = lint_result.check_parse_errors()
-    if total_parse_errors:
+    total_errors, num_filtered_errors = lint_result.check_templating_or_parse_errors()
+    if total_errors:
         click.echo(
-            colorize(f"  [{total_parse_errors} parsing errors found]", Color.red)
+            colorize(f"  [{total_errors} templating/parsing errors found]", Color.red)
         )
-        if 0 < num_filtered_parse_errors < total_parse_errors:
+        if 0 < num_filtered_errors < total_errors:
             click.echo(
-                f'  [{num_filtered_parse_errors} remaining after "ignore"]'
+                colorize(
+                    f"  [{num_filtered_errors} templating/parsing errors "
+                    f'remaining after "ignore"]',
+                    Color.red,
+                )
             )  # pragma: no cover
-    return 1 if num_filtered_parse_errors else 0
+    return 1 if num_filtered_errors else 0
 
 
 def do_fixes(lnt, result, formatter=None, **kwargs):
@@ -640,7 +644,7 @@ def do_fixes(lnt, result, formatter=None, **kwargs):
 @click.option(
     "--FIX-EVEN-UNPARSABLE",
     is_flag=True,
-    help="Enables fixing of files that have parse errors.",
+    help="Enables fixing of files that have templating or parse errors.",
 )
 @click.argument("paths", nargs=-1, type=click.Path(allow_dash=True))
 def fix(
@@ -687,7 +691,7 @@ def fix(
         templater_error = result.num_violations(types=SQLTemplaterError) > 0
         unfixable_error = result.num_violations(types=SQLLintError, fixable=False) > 0
         if not fix_even_unparsable:
-            exit_code = _check_parse_errors(result)
+            exit_code = _check_templating_or_parse_errors(result)
 
         if result.num_violations(types=SQLLintError, fixable=True) > 0:
             stdout = result.paths[0].files[0].fix_string()[0]
@@ -735,7 +739,7 @@ def fix(
         sys.exit(1)
 
     if not fix_even_unparsable:
-        exit_code = _check_parse_errors(result)
+        exit_code = _check_templating_or_parse_errors(result)
 
     # NB: We filter to linting violations here, because they're
     # the only ones which can be potentially fixed.
@@ -792,14 +796,9 @@ def fix(
             "  [{} unfixable linting violations found]",
             1,
         ),
-        (
-            dict(types=SQLTemplaterError),
-            "  [{} templating errors found]",
-            1,
-        ),
     ]
     for num_violations_kwargs, message_format, error_level in error_types:
-        num_violations = result.num_violations(**num_violations_kwargs)  # type: ignore
+        num_violations = result.num_violations(**num_violations_kwargs)
         if num_violations > 0:
             click.echo(message_format.format(num_violations))
             exit_code = max(exit_code, error_level)

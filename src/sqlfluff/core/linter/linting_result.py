@@ -16,6 +16,7 @@ from sqlfluff.core.errors import (
     CheckTuple,
     SQLLintError,
     SQLParseError,
+    SQLTemplaterError,
 )
 
 from sqlfluff.core.timing import TimingSummary
@@ -185,36 +186,33 @@ class LintingResult:
             )
         return self.paths[0].tree
 
-    def check_parse_errors(self) -> Tuple[int, int]:
-        """Look for parse errors, maybe mark some errors "unfixable".
+    def check_templating_or_parse_errors(self) -> Tuple[int, int]:
+        """Treat tiles with templating or parse error as unfixable.
 
         NOTE! THIS FUNCTION HAS SIDE EFFECTS: IT DISCARDS LINT FIXES.
 
         Scan all LintedFiles:
-        - Files with no parse errors: No action
-        - Files with parse errors (before filtering): Removes fixes from
-          SQLLintError violations, i.e. marks them "unfixable"
+        - Files with none of these errors: No action
+        - Files with these errors (before filtering): Removes fixes from
+          SQLLintError objects, i.e. marks them "unfixable"
 
-        Returns the total number of parse errors before and after "ignore/noqa"
+        Returns the total number of these errors before and after "ignore/noqa"
         filters are applied.
         """
-        total_parse_errors = self.num_violations(
-            types=SQLParseError, filter_ignore=False
-        )
-        num_filtered_parse_errors = 0
-        if total_parse_errors:
+        types = (SQLParseError, SQLTemplaterError)
+        total_errors = self.num_violations(types=types, filter_ignore=False)
+        num_filtered_errors = 0
+        if total_errors:
             for linted_dir in self.paths:
                 for linted_file in linted_dir.files:
-                    num_parse_errors = linted_file.num_violations(
-                        types=SQLParseError, filter_ignore=False
+                    num_errors = linted_file.num_violations(
+                        types=types, filter_ignore=False
                     )
-                    if num_parse_errors:
-                        # File has parse errors. Discard all the fixes: they are
-                        # potentially unsafe.
+                    if num_errors:
+                        # File has errors errors. Discard all the fixes: they
+                        # are potentially unsafe.
                         for violation in linted_file.violations:
                             if isinstance(violation, SQLLintError):
                                 violation.fixes = []
-                        num_filtered_parse_errors += linted_file.num_violations(
-                            types=SQLParseError
-                        )
-        return total_parse_errors, num_filtered_parse_errors
+                        num_filtered_errors += linted_file.num_violations(types=types)
+        return total_errors, num_filtered_errors
