@@ -644,7 +644,14 @@ def do_fixes(lnt, result, formatter=None, **kwargs):
 @click.option(
     "--FIX-EVEN-UNPARSABLE",
     is_flag=True,
-    help="Enables fixing of files that have templating or parse errors.",
+    help=(
+        "Enables fixing of files that have templating or parse errors. "
+        "Note that the similar-sounding '--ignore' or 'noqa' features merely "
+        "prevent errors from being *displayed*. For safety reasons, the 'fix'"
+        "command will not make any fixes in files that had templating or parse "
+        "errors unless this option is enabled on the command line or in the "
+        "``.sqlfluff`` config file."
+    ),
 )
 @click.argument("paths", nargs=-1, type=click.Path(allow_dash=True))
 def fix(
