@@ -127,7 +127,7 @@ def fix(
     should_fix = True
     if not fix_even_unparsable:
         # If fix_even_unparsable wasn't set, check for templating or parse
-        # errors. Okay to fix if there aren't any.
+        # errors and suppress fixing if there were any.
         _, num_filtered_errors = result.check_templating_or_parse_errors()
         if num_filtered_errors > 0:
             should_fix = False

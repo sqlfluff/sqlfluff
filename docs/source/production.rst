@@ -108,7 +108,8 @@ SQLFluff comes with two `pre-commit`_ hooks:
 
 .. warning::
    For safety reasons, ``sqlfluff-fix`` by default will not make any fixes in
-   files that had templating or parse errors.
+   files that had templating or parse errors, even if those errors were ignored
+   using ``noqa`` or `--ignore``.
 
    Although it is not advised, you *can* tell SQLFluff to try and fix
    these files by overriding the ``fix_even_unparsable`` setting
