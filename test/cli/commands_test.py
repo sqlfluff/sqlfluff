@@ -661,9 +661,12 @@ def test__cli__fix_error_handling_behavior(sql, fix_args, fixed, exit_code, tmpd
         assert exit_code == e.value.code
     for idx, this_fixed in enumerate(fixed):
         fixed_path = tmp_path / f"testing{idx+1}FIXED.sql"
-        if this_fixed:
+        if this_fixed is not None:
             assert textwrap.dedent(this_fixed) == fixed_path.read_text()
         else:
+            # A None value indicates "sqlfluff fix" should have skipped any
+            # fixes for this file. To confirm this, we verify that the output
+            # file WAS NOT EVEN CREATED.
             assert not fixed_path.is_file()
 
 
