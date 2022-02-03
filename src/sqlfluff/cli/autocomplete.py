@@ -4,9 +4,10 @@ from sqlfluff import list_dialects
 
 # Older versions of click don't have shell completion
 # so handle for now, as version 8 still fairly recent
+# See: https://github.com/sqlfluff/sqlfluff/issues/2543
 shell_completion_enabled = True
 try:
-    completion = __import__("click.shell_completion", fromlist=["click"])
+    from click import shell_completion as completion
 except ImportError:  # pragma: no cover
     shell_completion_enabled = False
 
