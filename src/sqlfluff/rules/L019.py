@@ -15,8 +15,9 @@ from sqlfluff.core.rules.doc_decorators import (
 class Rule_L019(BaseRule):
     """Leading/Trailing comma enforcement.
 
-    | **Anti-pattern**
-    | There is a mixture of leading and trailing commas.
+    **Anti-pattern**
+
+    There is a mixture of leading and trailing commas.
 
     .. code-block:: sql
 
@@ -26,10 +27,11 @@ class Rule_L019(BaseRule):
             c
         FROM foo
 
-    | **Best practice**
-    | By default sqlfluff prefers trailing commas, however it
-    | is configurable for leading commas. Whichever option you chose
-    | it does expect you to be consistent.
+    **Best practice**
+
+    By default, `SQLFluff` prefers trailing commas. However it
+    is configurable for leading commas. The chosen style must be used
+    consistently throughout your SQL.
 
     .. code-block:: sql
 
@@ -47,8 +49,6 @@ class Rule_L019(BaseRule):
             , b
             , c
         FROM foo
-
-
     """
 
     _works_on_unparsable = False

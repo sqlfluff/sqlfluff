@@ -1,17 +1,19 @@
 """Implementation of Rule L007."""
 from sqlfluff.core.rules.base import BaseRule, LintResult, RuleContext
+from sqlfluff.core.rules.doc_decorators import document_configuration
 
 after_description = "Operators near newlines should be after, not before the newline"
 before_description = "Operators near newlines should be before, not after the newline"
 
 
+@document_configuration
 class Rule_L007(BaseRule):
     """Operators should follow a standard for being before/after newlines.
 
-    | **Anti-pattern**
-    | The • character represents a space.
-    | If ``operator_new_lines = after`` (or unspecified, as this is the default)
-    | In this example, the operator '+' should not be at the end of the second line.
+    **Anti-pattern**
+
+    In this example, if ``operator_new_lines = after`` (or unspecified, as is the
+    default), then the operator ``+`` should not be at the end of the second line.
 
     .. code-block:: sql
 
@@ -21,9 +23,10 @@ class Rule_L007(BaseRule):
         FROM foo
 
 
-    | **Best practice**
-    | If ``operator_new_lines = after`` (or unspecified, as this is the default)
-    | Place the operator after the newline.
+    **Best practice**
+
+    If ``operator_new_lines = after`` (or unspecified, as this is the default),
+    place the operator after the newline.
 
     .. code-block:: sql
 
@@ -32,8 +35,7 @@ class Rule_L007(BaseRule):
             + b
         FROM foo
 
-    | If ``operator_new_lines = before``
-    | Place the operator before the newline.
+    If ``operator_new_lines = before``, place the operator before the newline.
 
     .. code-block:: sql
 

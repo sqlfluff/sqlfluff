@@ -14,9 +14,9 @@ from sqlfluff.core.parser.segments.base import BaseSegment
 class Rule_L008(BaseRule):
     """Commas should be followed by a single whitespace unless followed by a comment.
 
-    | **Anti-pattern**
-    | The • character represents a space.
-    | In this example, there is no space between the comma and 'zoo'.
+    **Anti-pattern**
+
+    In this example, there is no space between the comma and ``'zoo'``.
 
     .. code-block:: sql
 
@@ -25,8 +25,9 @@ class Rule_L008(BaseRule):
         FROM foo
         WHERE a IN ('plop','zoo')
 
-    | **Best practice**
-    | Keep a single space after the comma.
+    **Best practice**
+
+    Keep a single space after the comma. The ``•`` character represents a space.
 
     .. code-block:: sql
        :force:
