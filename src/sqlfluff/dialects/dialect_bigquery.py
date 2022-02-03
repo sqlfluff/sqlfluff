@@ -537,7 +537,6 @@ class ReplaceClauseSegment(BaseSegment):
     type = "select_replace_clause"
     match_grammar = Sequence(
         "REPLACE",
-        # Multiple replace in brackets
         Bracketed(
             Delimited(
                 # Not *really* a select target element. It behaves exactly
