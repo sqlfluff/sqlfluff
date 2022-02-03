@@ -11,12 +11,13 @@ class Rule_L029(BaseRule):
     """Keywords should not be used as identifiers.
 
     Although `unreserved` keywords `can` be used as identifiers,
+    and `reserved words` can be used as quoted identifiers,
     best practice is to avoid where possible, to avoid any
     misunderstandings as to what the alias represents.
 
     .. note::
-       Note that `reserved` keywords cannot and will cause parsing errors and so
-       are not covered by this rule.
+       Note that `reserved` keywords cannot be used as unquoted identifiers
+       and will cause parsing errors and so are not covered by this rule.
 
     **Anti-pattern**
 
