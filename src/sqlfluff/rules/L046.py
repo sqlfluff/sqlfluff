@@ -7,18 +7,20 @@ from sqlfluff.core.rules.base import BaseRule, LintResult, RuleContext
 class Rule_L046(BaseRule):
     """Jinja tags should have a single whitespace on either side.
 
-    | **Anti-pattern**
-    | Jinja tags with either no whitespace or very long whitespace
-    | are hard to read.
+    **Anti-pattern**
+
+    Jinja tags with either no whitespace or very long whitespace
+    are hard to read.
 
     .. code-block:: sql
        :force:
 
         SELECT {{    a     }} from {{ref('foo')}}
 
-    | **Best practice**
-    | A single whitespace surrounding Jinja tags, alternatively
-    | longer gaps containing newlines are acceptable.
+    **Best practice**
+
+    A single whitespace surrounding Jinja tags, alternatively
+    longer gaps containing newlines are acceptable.
 
     .. code-block:: sql
        :force:

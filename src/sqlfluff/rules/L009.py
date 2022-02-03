@@ -12,9 +12,10 @@ from sqlfluff.core.rules.functional import Segments, sp, tsp
 class Rule_L009(BaseRule):
     """Files must end with a single trailing newline.
 
-    | **Anti-pattern**
-    | The content in file does not end with a single trailing newline, the $ represents
-    | end of file.
+    **Anti-pattern**
+
+    The content in file does not end with a single trailing newline. The ``$``
+    represents end of file.
 
     .. code-block:: sql
        :force:
@@ -23,8 +24,8 @@ class Rule_L009(BaseRule):
             a
         FROM foo$
 
-        -- Ending on an indented line means there is no newline at the end of the file,
-        -- the • represents space.
+        -- Ending on an indented line means there is no newline
+        -- at the end of the file, the • represents space.
 
         SELECT
         ••••a
@@ -32,7 +33,8 @@ class Rule_L009(BaseRule):
         ••••foo
         ••••$
 
-        -- Ending on a semi-colon means the last line is not a newline.
+        -- Ending on a semi-colon means the last line is not a
+        -- newline.
 
         SELECT
             a
@@ -47,8 +49,9 @@ class Rule_L009(BaseRule):
 
         $
 
-    | **Best practice**
-    | Add trailing newline to the end, the $ character represents end of file.
+    **Best practice**
+
+    Add trailing newline to the end. The ``$`` character represents end of file.
 
     .. code-block:: sql
        :force:
@@ -58,7 +61,8 @@ class Rule_L009(BaseRule):
         FROM foo
         $
 
-        -- Ensuring the last line is not indented so is just a newline.
+        -- Ensuring the last line is not indented so is just a
+        -- newline.
 
         SELECT
         ••••a
@@ -66,7 +70,8 @@ class Rule_L009(BaseRule):
         ••••foo
         $
 
-        -- Even when ending on a semi-colon, ensure there is a newline after
+        -- Even when ending on a semi-colon, ensure there is a
+        -- newline after.
 
         SELECT
             a

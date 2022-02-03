@@ -10,7 +10,7 @@ from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 class Rule_L034(BaseRule):
     """Select wildcards then simple targets before calculations and aggregates.
 
-    | **Anti-pattern**
+    **Anti-pattern**
 
     .. code-block:: sql
 
@@ -22,8 +22,9 @@ class Rule_L034(BaseRule):
         from x
 
 
-    | **Best practice**
-    |  Order "select" targets in ascending complexity
+    **Best practice**
+
+    Order ``select`` targets in ascending complexity
 
     .. code-block:: sql
 

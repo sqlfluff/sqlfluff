@@ -7,10 +7,11 @@ from sqlfluff.core.rules.base import BaseRule, LintResult, RuleContext
 class Rule_L056(BaseRule):
     r"""``SP_`` prefix should not be used for user-defined stored procedures in T-SQL.
 
-    | **Anti-pattern**
-    | The ``SP_`` prefix is used to identify system procedures and
-    | can adversely affect performance of the user-defined stored procedure.
-    | It can also break system procedures if there is a naming conflict.
+    **Anti-pattern**
+
+    The ``SP_`` prefix is used to identify system procedures and can adversely
+    affect performance of the user-defined stored procedure. It can also break
+    system procedures if there is a naming conflict.
 
     .. code-block:: sql
        :force:
@@ -23,8 +24,9 @@ class Rule_L056(BaseRule):
             CaseOutput
         FROM table1
 
-    | **Best practice**
-    | Use a different name for the stored procedure.
+    **Best practice**
+
+    Use a different name for the stored procedure.
 
     .. code-block:: sql
        :force:
