@@ -20,7 +20,7 @@ class OrderByColumnInfo(NamedTuple):
 class Rule_L037(BaseRule):
     """Ambiguous ordering directions for columns in order by clause.
 
-    | **Anti-pattern**
+    **Anti-pattern**
 
     .. code-block:: sql
 
@@ -29,9 +29,10 @@ class Rule_L037(BaseRule):
         FROM foo
         ORDER BY a, b DESC
 
-    | **Best practice**
-    | If any columns in the ORDER BY clause specify ASC or DESC, they should all
-      do so.
+    **Best practice**
+
+    If any columns in the ``ORDER BY`` clause specify ``ASC`` or ``DESC``, they should
+    all do so.
 
     .. code-block:: sql
 

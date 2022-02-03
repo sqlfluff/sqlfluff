@@ -8,9 +8,10 @@ from sqlfluff.core.rules.analysis.select_crawler import Query, SelectCrawler
 class Rule_L045(BaseRule):
     """Query defines a CTE (common-table expression) but does not use it.
 
-    | **Anti-pattern**
-    | Defining a CTE that is not used by the query is harmless, but it means
-    | the code is unnecessary and could be removed.
+    **Anti-pattern**
+
+    Defining a CTE that is not used by the query is harmless, but it means
+    the code is unnecessary and could be removed.
 
     .. code-block:: sql
 
@@ -26,8 +27,9 @@ class Rule_L045(BaseRule):
         SELECT *
         FROM cte1
 
-    | **Best practice**
-    | Remove unused CTEs.
+    **Best practice**
+
+    Remove unused CTEs.
 
     .. code-block:: sql
 
