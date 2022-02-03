@@ -44,7 +44,6 @@ from sqlfluff.core import (
     Linter,
     FluffConfig,
     SQLLintError,
-    SQLParseError,
     SQLTemplaterError,
     SQLFluffUserError,
     dialect_selector,
@@ -568,34 +567,12 @@ def lint(
 
 
 def _check_parse_errors(lint_result: LintingResult, fix_even_unparsable: bool) -> bool:
-    """Look for parse errors in LintResult, determine what to do.
-
-    Scan all LintedFiles in the LintResult:
-    - Files with no parse errors: No action
-    - Files with parse errors (before filtering):
-      - fix_even_unparsable==True: No action
-      - fix_even_unparsable==False: Set all violations as fixable=False
+    """Look for parse errors in LintingResult, determine what to do.
 
     Returns True if the "fix" operation should continue, False if it should
     stop now.
     """
-    total_parse_errors = lint_result.num_violations(
-        types=SQLParseError, filter_ignore=False
-    )
-    num_filtered_parse_errors = 0
-    for linted_dir in lint_result.paths:
-        for linted_file in linted_dir.files:
-            num_parse_errors = linted_file.num_violations(
-                types=SQLParseError, filter_ignore=False
-            )
-            if num_parse_errors and not fix_even_unparsable:
-                for violation in linted_file.violations:
-                    if isinstance(violation, SQLLintError):
-                        violation.fixes = []
-            if num_parse_errors:
-                num_filtered_parse_errors += linted_file.num_violations(
-                    types=SQLParseError
-                )
+    total_parse_errors, num_filtered_parse_errors = lint_result.check_parse_errors()
     if total_parse_errors and not fix_even_unparsable:
         click.echo(
             colorize(f"  [{total_parse_errors} parsing errors found]", Color.red)
@@ -698,9 +675,10 @@ def fix(
         result = lnt.lint_string_wrapped(stdin, fname="stdin", fix=True)
         templater_error = result.num_violations(types=SQLTemplaterError) > 0
         unfixable_error = result.num_violations(types=SQLLintError, fixable=False) > 0
-        should_continue = _check_parse_errors(result, bool(fix_even_unparsable))
-        if not should_continue:
-            sys.exit(1)  # pragma: no cover
+        if not fix_even_unparsable:
+            should_continue = _check_parse_errors(result, bool(fix_even_unparsable))
+            if not should_continue:
+                sys.exit(1)  # pragma: no cover
 
         if result.num_violations(types=SQLLintError, fixable=True) > 0:
             stdout = result.paths[0].files[0].fix_string()[0]
@@ -747,9 +725,10 @@ def fix(
         )
         sys.exit(1)
 
-    should_continue = _check_parse_errors(result, bool(fix_even_unparsable))
-    if not should_continue:
-        sys.exit(1)
+    if not fix_even_unparsable:
+        should_continue = _check_parse_errors(result, bool(fix_even_unparsable))
+        if not should_continue:
+            sys.exit(1)
 
     # NB: We filter to linting violations here, because they're
     # the only ones which can be potentially fixed.

@@ -7,12 +7,15 @@ from typing import (
     List,
     Optional,
     overload,
+    Tuple,
 )
 from typing_extensions import Literal
 
 
 from sqlfluff.core.errors import (
     CheckTuple,
+    SQLLintError,
+    SQLParseError,
 )
 
 from sqlfluff.core.timing import TimingSummary
@@ -181,3 +184,34 @@ class LintingResult:
                 "path."
             )
         return self.paths[0].tree
+
+    def check_parse_errors(self) -> Tuple[int, int]:
+        """Look for parse errors, maybe mark some errors "unfixable".
+
+        NOTE! THIS FUNCTION HAS SIDE EFFECTS: IT DISCARDS LINT FIXES.
+
+        Scan all LintedFiles:
+        - Files with no parse errors: No action
+        - Files with parse errors (before filtering): Removes fixes from
+          SQLLintError violations, i.e. marks them "unfixable"
+
+        Returns the total number of parse errors before and
+        """
+        total_parse_errors = self.num_violations(
+            types=SQLParseError, filter_ignore=False
+        )
+        num_filtered_parse_errors = 0
+        if total_parse_errors:
+            for linted_dir in self.paths:
+                for linted_file in linted_dir.files:
+                    num_parse_errors = linted_file.num_violations(
+                        types=SQLParseError, filter_ignore=False
+                    )
+                    if num_parse_errors:
+                        for violation in linted_file.violations:
+                            if isinstance(violation, SQLLintError):
+                                violation.fixes = []
+                        num_filtered_parse_errors += linted_file.num_violations(
+                            types=SQLParseError
+                        )
+        return total_parse_errors, num_filtered_parse_errors

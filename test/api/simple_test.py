@@ -177,6 +177,16 @@ def test__api__fix_string_specific_exclude():
     assert result == "SELECT *, 1, blah AS foo FROM mytable\n"
 
 
+def test__api__fix_string_unparsable():
+    """Test behavior with parse errors."""
+    bad_query = """SELECT my_col
+FROM my_schema.my_table
+where processdate ! 3"""
+    result = sqlfluff.fix(bad_query, rules=["L010"])
+    # Check actual result
+    assert result == bad_query
+
+
 def test__api__parse_string():
     """Basic checking of parse functionality."""
     parsed = sqlfluff.parse(my_bad_query)

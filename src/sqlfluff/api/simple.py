@@ -123,8 +123,15 @@ def fix(
     linter = Linter(config=cfg)
 
     result = linter.lint_string_wrapped(sql, fix=True)
-    fixed_string = result.paths[0].files[0].fix_string()[0]
-    return fixed_string
+    fix_even_unparsable = cfg.get("fix_even_unparsable")
+    should_fix = fix_even_unparsable
+    if not should_fix:
+        _, num_filtered_parse_errors = result.check_parse_errors()
+        if not num_filtered_parse_errors:
+            should_fix = True
+    if should_fix:
+        sql = result.paths[0].files[0].fix_string()[0]
+    return sql
 
 
 def parse(
