@@ -663,7 +663,6 @@ def fix(
     fixed_suffix: str = "",
     logger: Optional[logging.Logger] = None,
     disable_progress_bar: Optional[bool] = False,
-    fix_even_unparsable: Optional[bool] = False,
     extra_config_path: Optional[str] = None,
     ignore_local_config: bool = False,
     **kwargs,
@@ -679,6 +678,7 @@ def fix(
     fixing_stdin = ("-",) == paths
 
     config = get_config(extra_config_path, ignore_local_config, **kwargs)
+    fix_even_unparsable = config.get("fix_even_unparsable")
     lnt, formatter = get_linter_and_formatter(config, silent=fixing_stdin)
 
     verbose = config.get("verbose")
