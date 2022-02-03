@@ -129,8 +129,8 @@ def fix(
         # If fix_even_unparsable wasn't set, check for templating or parse
         # errors. Okay to fix if there aren't any.
         _, num_filtered_errors = result.check_templating_or_parse_errors()
-        if num_filtered_errors == 0:
-            should_fix = True
+        if num_filtered_errors > 0:
+            should_fix = False
     if should_fix:
         sql = result.paths[0].files[0].fix_string()[0]
     return sql
