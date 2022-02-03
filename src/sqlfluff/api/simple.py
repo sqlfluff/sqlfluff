@@ -129,7 +129,7 @@ def fix(
         # If fix_even_unparsable wasn't set, check for parse errors. Okay to fix
         # if there are no parse errors.
         _, num_filtered_parse_errors = result.check_parse_errors()
-        if not num_filtered_parse_errors:
+        if num_filtered_parse_errors == 0:
             should_fix = True
     if should_fix:
         sql = result.paths[0].files[0].fix_string()[0]
