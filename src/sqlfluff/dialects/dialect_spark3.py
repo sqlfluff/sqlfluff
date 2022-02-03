@@ -1645,12 +1645,13 @@ class TableExpressionSegment(BaseSegment):
         Ref("BareFunctionSegment"),
         Ref("FunctionSegment"),
         Ref("TableReferenceSegment"),
+        Ref("FileReferenceSegment"),
         # Nested Selects
         Bracketed(Ref("SelectableGrammar")),
     )
 
 
-@ansi_dialect.segment()
+@spark3_dialect.segment()
 class FileReferenceSegment(BaseSegment):
     """A reference to an table, CTE, subquery or alias."""
 
