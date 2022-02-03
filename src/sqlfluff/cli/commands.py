@@ -44,7 +44,6 @@ from sqlfluff.core import (
     Linter,
     FluffConfig,
     SQLLintError,
-    SQLTemplaterError,
     SQLFluffUserError,
     dialect_selector,
     dialect_readout,
@@ -688,7 +687,6 @@ def fix(
         stdin = sys.stdin.read()
 
         result = lnt.lint_string_wrapped(stdin, fname="stdin", fix=True)
-        templater_error = result.num_violations(types=SQLTemplaterError) > 0
         unfixable_error = result.num_violations(types=SQLLintError, fixable=False) > 0
         if not fix_even_unparsable:
             exit_code = _check_templating_or_parse_errors(result)
@@ -698,26 +696,11 @@ def fix(
         else:
             stdout = stdin
 
-        if templater_error:
-            click.echo(
-                colorize(
-                    "Fix aborted due to unparseable template variables.",
-                    Color.red,
-                ),
-                err=True,
-            )
-            click.echo(
-                colorize(
-                    "Use '--ignore templating' to attempt to fix anyway.",
-                    Color.red,
-                ),
-                err=True,
-            )
         if unfixable_error:
             click.echo(colorize("Unfixable violations detected.", Color.red), err=True)
 
         click.echo(stdout, nl=False)
-        sys.exit(1 if templater_error or unfixable_error else exit_code)
+        sys.exit(1 if unfixable_error else exit_code)
 
     # Lint the paths (not with the fix argument at this stage), outputting as we go.
     click.echo("==== finding fixable violations ====")
