@@ -106,6 +106,19 @@ SQLFluff comes with two `pre-commit`_ hooks:
 * sqlfluff-lint: returns linting errors.
 * sqlfluff-fix: attempts to fix rule violations.
 
+.. note::
+   For safety reasons, ``sqlfluff-fix`` by default will not make any fixes in
+   files that had parse errors.
+
+   Although it is not advised, you _can_ tell SQLFluff to try and fix
+   unparseable files by overriding the ``fix_even_unparsable`` setting
+   (``.sqlfluff`` or ``sqlfluff fix`` command line).
+
+   *Overriding this behavior may break your SQL. If you do, be sure to review
+   any fixes applied to files with parse errors to verify they are sensible and
+   correct.*
+
+
 You should create a file named `.pre-commit-config.yaml`
 at the root of your git project, which should look
 like this:
