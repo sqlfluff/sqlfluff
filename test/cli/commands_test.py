@@ -562,12 +562,37 @@ def test__cli__command__fix(rule, fname):
             None,
             0,
         ),
+        (
+            # - One lint error: "where" is lower case
+            # - Parse error not suppressed
+            # - "--FIX-EVEN-UNPARSABLE", hence fix anyway & success exit
+            """
+            SELECT my_col
+            FROM my_schema.my_table
+            where processdate ! 3
+            """,
+            [
+                "--force",
+                "--fixed-suffix",
+                "FIXED",
+                "--rules",
+                "L010",
+                "--FIX-EVEN-UNPARSABLE",
+            ],
+            """
+            SELECT my_col
+            FROM my_schema.my_table
+            WHERE processdate ! 3
+            """,
+            0,
+        ),
     ],
     ids=[
         "1_lint_error_1_unsuppressed_parse_error",
         "1_lint_error_1_suppressed_parse_error",
         "0_lint_errors_1_unsuppressed_parse_error",
         "0_lint_errors_1_suppressed_parse_error",
+        "1_lint_error_1_unsuppressed_parse_error_FIX_EVEN_UNPARSABLE",
     ],
 )
 def test__cli__fix_error_handling_behavior(sql, fix_args, fixed, exit_code, tmp_path):
