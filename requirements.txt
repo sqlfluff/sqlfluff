@@ -5,7 +5,7 @@ appdirs
 backports.cached-property; python_version < '3.8'
 # To get the encoding of files.
 chardet
-click>=8.0
+click
 colorama>=0.3
 # Used for diffcover plugin
 diff-cover>=2.5.0
