@@ -223,23 +223,16 @@ spark3_dialect.add(
         "RCFILE", KeywordSegment, name="rc_file", type="file_format"
     ),
     SequencefileKeywordSegment=StringParser(
-        "SEQUENCEFILE",
-        KeywordSegment,
-        name="sequence_file",
-        type="file_format"
+        "SEQUENCEFILE", KeywordSegment, name="sequence_file", type="file_format"
     ),
     TextfileKeywordSegment=StringParser(
         "TEXTFILE", KeywordSegment, name="text_file", type="file_format"
     ),
     StartAngleBracketSegment=StringParser(
-        "<", SymbolSegment,
-        name="start_angle_bracket",
-        type="start_angle_bracket"
+        "<", SymbolSegment, name="start_angle_bracket", type="start_angle_bracket"
     ),
     EndAngleBracketSegment=StringParser(
-        ">", SymbolSegment,
-        name="end_angle_bracket",
-        type="end_angle_bracket"
+        ">", SymbolSegment, name="end_angle_bracket", type="end_angle_bracket"
     ),
     # Add Spark Segments
     EqualsSegment_a=StringParser(
@@ -251,12 +244,8 @@ spark3_dialect.add(
     FileKeywordSegment=StringParser(
         "FILE", KeywordSegment, name="file", type="file_type"
     ),
-    JarKeywordSegment=StringParser(
-        "JAR", KeywordSegment, name="jar", type="file_type"
-    ),
-    WhlKeywordSegment=StringParser(
-        "WHL", KeywordSegment, name="whl", type="file_type"
-    ),
+    JarKeywordSegment=StringParser("JAR", KeywordSegment, name="jar", type="file_type"),
+    WhlKeywordSegment=StringParser("WHL", KeywordSegment, name="whl", type="file_type"),
     # Add relevant Hive Grammar
     BracketedPropertyListGrammar=hive_dialect.get_grammar(
         "BracketedPropertyListGrammar"
