@@ -716,7 +716,7 @@ project would be:
     # Comments start with a hash.
 
     # Ignore anything in the "temp" path
-    /path/
+    /temp/
 
     # Ignore anything called "testing.sql"
     testing.sql
