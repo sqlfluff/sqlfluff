@@ -195,7 +195,8 @@ class LintingResult:
         - Files with parse errors (before filtering): Removes fixes from
           SQLLintError violations, i.e. marks them "unfixable"
 
-        Returns the total number of parse errors before and
+        Returns the total number of parse errors before and after "ignore/noqa"
+        filters are applied.
         """
         total_parse_errors = self.num_violations(
             types=SQLParseError, filter_ignore=False

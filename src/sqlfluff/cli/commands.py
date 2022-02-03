@@ -678,7 +678,7 @@ def fix(
         if not fix_even_unparsable:
             should_continue = _check_parse_errors(result, bool(fix_even_unparsable))
             if not should_continue:
-                sys.exit(1)  # pragma: no cover
+                exit_code = 1  # pragma: no cover
 
         if result.num_violations(types=SQLLintError, fixable=True) > 0:
             stdout = result.paths[0].files[0].fix_string()[0]
@@ -704,7 +704,7 @@ def fix(
             click.echo(colorize("Unfixable violations detected.", Color.red), err=True)
 
         click.echo(stdout, nl=False)
-        sys.exit(1 if templater_error or unfixable_error else 0)
+        sys.exit(1 if templater_error or unfixable_error else exit_code)
 
     # Lint the paths (not with the fix argument at this stage), outputting as we go.
     click.echo("==== finding fixable violations ====")
@@ -728,7 +728,7 @@ def fix(
     if not fix_even_unparsable:
         should_continue = _check_parse_errors(result, bool(fix_even_unparsable))
         if not should_continue:
-            sys.exit(1)
+            exit_code = 1
 
     # NB: We filter to linting violations here, because they're
     # the only ones which can be potentially fixed.
