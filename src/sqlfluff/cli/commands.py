@@ -45,6 +45,7 @@ from sqlfluff.core import (
     FluffConfig,
     SQLLintError,
     SQLFluffUserError,
+    SQLTemplaterError,
     dialect_selector,
     dialect_readout,
     TimingSummary,
@@ -260,11 +261,11 @@ def core_options(f: Callable) -> Callable:
         "--ignore",
         default=None,
         help=(
-            "Ignore particular families of errors so that they don't cause a failed "
-            "run. For example `--ignore parsing` would mean that any parsing errors "
-            "are ignored and don't influence the success or fail of a run. Multiple "
-            "options are possible if comma separated e.g. "
-            "`--ignore parsing,templating`."
+            "Ignore particular families of errors. For example, `--ignore "
+            "parsing` ignores any parsing errors. Multiple options are "
+            "possible if comma separated e.g. `--ignore parsing,templating`. "
+            "`--ignore` behaves somewhat like `noqa` comments, except it "
+            "applies globally."
         ),
     )(f)
     f = click.option(
@@ -687,6 +688,7 @@ def fix(
         stdin = sys.stdin.read()
 
         result = lnt.lint_string_wrapped(stdin, fname="stdin", fix=True)
+        templater_error = result.num_violations(types=SQLTemplaterError) > 0
         unfixable_error = result.num_violations(types=SQLLintError, fixable=False) > 0
         if not fix_even_unparsable:
             exit_code = _check_templating_or_parse_errors(result)
@@ -695,6 +697,23 @@ def fix(
             stdout = result.paths[0].files[0].fix_string()[0]
         else:
             stdout = stdin
+
+        if templater_error:
+            click.echo(
+                colorize(
+                    "Fix aborted due to unparseable template variables.",
+                    Color.red,
+                ),
+                err=True,
+            )
+            click.echo(
+                colorize(
+                    "Use '--ignore templating' and '--fix-even-unparsable' to "
+                    "attempt to fix anyway.",
+                    Color.red,
+                ),
+                err=True,
+            )
 
         if unfixable_error:
             click.echo(colorize("Unfixable violations detected.", Color.red), err=True)
