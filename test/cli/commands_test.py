@@ -586,6 +586,35 @@ def test__cli__command__fix(rule, fname):
             """,
             0,
         ),
+        (
+            # Two files:
+            # File #1:
+            #   - One lint error: "where" is lower case
+            #   - Not fixable because of parse error
+            # File #2:
+            #   - One lint error: "where" is lower case
+            #   - No parse error, thus fixable
+            # Should fix the second file but not the first, and exit with an
+            # error.
+            [
+                """
+                SELECT my_col
+                FROM my_schema.my_table
+                where processdate ! 3
+                """,
+                """SELECT my_col
+                FROM my_schema.my_table
+                where processdate != 3""",
+            ],
+            ["--force", "--fixed-suffix", "FIXED", "--rules", "L010"],
+            [
+                None,
+                """SELECT my_col
+                FROM my_schema.my_table
+                WHERE processdate != 3""",
+            ],
+            1,
+        ),
     ],
     ids=[
         "1_lint_error_1_unsuppressed_parse_error",
@@ -593,12 +622,19 @@ def test__cli__command__fix(rule, fname):
         "0_lint_errors_1_unsuppressed_parse_error",
         "0_lint_errors_1_suppressed_parse_error",
         "1_lint_error_1_unsuppressed_parse_error_FIX_EVEN_UNPARSABLE",
+        "2_files_with_lint_errors_1_unsuppressed_parse_error",
     ],
 )
 def test__cli__fix_error_handling_behavior(sql, fix_args, fixed, exit_code, tmp_path):
     """Tests how "fix" behaves wrt parse errors, exit code, etc."""
-    filepath = tmp_path / "testing.sql"
-    filepath.write_text(textwrap.dedent(sql))
+    if not isinstance(sql, list):
+        sql = [sql]
+    if not isinstance(fixed, list):
+        fixed = [fixed]
+    assert len(sql) == len(fixed)
+    for idx, this_sql in enumerate(sql):
+        filepath = tmp_path / f"testing{idx+1}.sql"
+        filepath.write_text(textwrap.dedent(this_sql))
     oldcwd = os.getcwd()
     try:
         os.chdir(str(tmp_path))
@@ -613,11 +649,12 @@ def test__cli__fix_error_handling_behavior(sql, fix_args, fixed, exit_code, tmp_
             assert exit_code == e.code
     finally:
         os.chdir(oldcwd)
-    fixed_path = tmp_path / "testingFIXED.sql"
-    if fixed:
-        assert textwrap.dedent(fixed) == fixed_path.read_text()
-    else:
-        assert not fixed_path.is_file()
+    for idx, this_fixed in enumerate(fixed):
+        fixed_path = tmp_path / f"testing{idx+1}FIXED.sql"
+        if this_fixed:
+            assert textwrap.dedent(this_fixed) == fixed_path.read_text()
+        else:
+            assert not fixed_path.is_file()
 
 
 # Test case disabled because there isn't a good example of where to test this.
