@@ -114,9 +114,9 @@ SQLFluff comes with two `pre-commit`_ hooks:
    unparseable files by overriding the ``fix_even_unparsable`` setting
    (``.sqlfluff`` or ``sqlfluff fix`` command line).
 
-   *Overriding this behavior may break your SQL. If you do, be sure to review
-   any fixes applied to files with parse errors to verify they are sensible and
-   correct.*
+   *Overriding this behavior may break your SQL. If you use this override,
+   always be sure to review any fixes applied to files with parse errors to
+   verify they are okay.*
 
 
 You should create a file named `.pre-commit-config.yaml`
