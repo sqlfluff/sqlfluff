@@ -10,6 +10,42 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 
 
+## [0.9.4] - 2022-01-30
+
+## Highlights
+
+Major changes include:
+
+* dbt performance improvements
+* Fix `click` dependency error.
+* Better datepart versus identifier parsing.
+* Fix some Jinja errors.
+* Various grammar fixes and improvements
+
+## What's Changed
+* Spark3: test cases for HAVING clause in SELECT statement [#2518](https://github.com/sqlfluff/sqlfluff/pull/2517) [@R7L208](https://github.com/R7L208)
+* Update click version requirement in setup.cfg to match that in requirements.txt [#2518](https://github.com/sqlfluff/sqlfluff/pull/2518) [@barrywhart](https://github.com/barrywhart)
+* Postgres: Implement DO Statements + Refactored Language Clause [#2511](https://github.com/sqlfluff/sqlfluff/pull/2511) [@PLBMR](https://github.com/PLBMR)
+* Spark3: Support for Grouping Sets, `CUBE` and `ROLLUP` in `GROUP BY` clause of `SELECT` statement [#2505](https://github.com/sqlfluff/sqlfluff/pull/2505) [@R7L208](https://github.com/R7L208)
+* Refactor date part functions [#2510](https://github.com/sqlfluff/sqlfluff/pull/2510) [@tunetheweb](https://github.com/tunetheweb)
+* Postgres: EXPLAIN ANALYSE allows British spelling [#2507](https://github.com/sqlfluff/sqlfluff/pull/2507) [@jpy-git](https://github.com/jpy-git)
+* "noqa": Add support for ignoring template (TMP) and parse (PRS) errors [#2509](https://github.com/sqlfluff/sqlfluff/pull/2509) [@barrywhart](https://github.com/barrywhart)
+* Freeze Black due to incompatibility between 22.1 and flake8-black [#2513](https://github.com/sqlfluff/sqlfluff/pull/2513) [@tunetheweb](https://github.com/tunetheweb)
+* Support NATURAL JOINS [#2506](https://github.com/sqlfluff/sqlfluff/pull/2506) [@tunetheweb](https://github.com/tunetheweb)
+* dbt Docker environment: Mount the test profiles.yml at ~/.dbt [#2502](https://github.com/sqlfluff/sqlfluff/pull/2502) [@barrywhart](https://github.com/barrywhart)
+* Add dbt_artifacts package to in the wild docs [#2504](https://github.com/sqlfluff/sqlfluff/pull/2504) [@NiallRees](https://github.com/NiallRees)
+* Spark3: Support `DISTRIBUTE BY` clause in `SELECT` statement [#2503](https://github.com/sqlfluff/sqlfluff/pull/2503) [@R7L208](https://github.com/R7L208)
+* dbt templater: For performance reasons, cache the database connection across models [#2498](https://github.com/sqlfluff/sqlfluff/pull/2498) [@barrywhart](https://github.com/barrywhart)
+* Bug fix: Defining and using Jinja macro in the same file causes runtime error [#2499](https://github.com/sqlfluff/sqlfluff/pull/2499) [@barrywhart](https://github.com/barrywhart)
+* Spark3: Support `CLUSTER BY` clause in `SELECT` statement [#2491](https://github.com/sqlfluff/sqlfluff/pull/2491) [@R7L208](https://github.com/R7L208)
+* Grammar: Adds support for COPY statement for Postgres dialect [#2481](https://github.com/sqlfluff/sqlfluff/pull/2481) [@derickl](https://github.com/derickl)
+* Add raiserror for T-SQL [#2490](https://github.com/sqlfluff/sqlfluff/pull/2490) [@fdw](https://github.com/fdw)
+* Enforce parentheses for function definitions in T-SQL [#2489](https://github.com/sqlfluff/sqlfluff/pull/2489) [@fdw](https://github.com/fdw)
+* Add guards to prevent rule crashes [#2488](https://github.com/sqlfluff/sqlfluff/pull/2488) [@barrywhart](https://github.com/barrywhart)
+
+## New Contributors
+* [@PLBMR](https://github.com/PLBMR) made their first contribution in [#2511](https://github.com/sqlfluff/sqlfluff/pull/2511)
+
 ## [0.9.3] - 2022-01-26
 
 ## Highlights

@@ -6,12 +6,22 @@ import regex
 
 from sqlfluff.core.parser.segments.raw import CodeSegment
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
-from sqlfluff.core.rules.doc_decorators import document_fix_compatible
+from sqlfluff.core.rules.doc_decorators import (
+    document_configuration,
+    document_fix_compatible,
+)
 
 
+@document_configuration
 @document_fix_compatible
 class Rule_L059(BaseRule):
     """Unnecessary quoted identifier.
+
+    This rule will fail if the quotes used to quote an identifier are (un)necessary
+    depending on the ``force_quote_identifier`` configuration.
+
+    When ``prefer_quoted_identifiers = False`` (default behaviour), the quotes are
+    unnecessary, except for reserved keywords and special characters in identifiers.
 
     | **Anti-pattern**
     | In this example, a valid unquoted identifier,
@@ -28,13 +38,59 @@ class Rule_L059(BaseRule):
 
         SELECT 123 as foo
 
+    When ``prefer_quoted_identifiers = True``, the quotes are always necessary, no
+    matter if the identifier is valid, a reserved keyword, or contains special
+    characters. Note due to different quotes this mode is not `sqlfluff fix` compatible.
+
+    | **Anti-pattern**
+    | In this example, a valid unquoted identifier,
+    | that is also not a reserved keyword, is required to be quoted.
+
+    .. code-block:: sql
+
+        SELECT 123 as foo
+
+    | **Best practice**
+    | Use quoted identifiers.
+
+    .. code-block:: sql
+
+        SELECT 123 as "foo" -- For ANSI, ...
+        -- or
+        SELECT 123 as `foo` -- For BigQuery, MySql, ...
+
     """
+
+    config_keywords = ["prefer_quoted_identifiers"]
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Unnecessary quoted identifier."""
-        # We only care about quoted identifiers.
-        if context.segment.name != "quoted_identifier":
+        # Config type hints
+        self.prefer_quoted_identifiers: bool
+
+        if self.prefer_quoted_identifiers:
+            context_policy = "naked_identifier"
+            identifier_contents = context.segment.raw
+        else:
+            context_policy = "quoted_identifier"
+            identifier_contents = context.segment.raw[1:-1]
+
+        # Ignore the segments that are not of the same type as the defined policy above.
+        if context.segment.name not in context_policy:
             return None
+
+        # Manage cases of identifiers must be quoted first.
+        # Naked identifiers are _de facto_ making this rule fail as configuration forces
+        # them to be quoted.
+        # In this case, it cannot be fixed as which quote to use is dialect dependent
+        if self.prefer_quoted_identifiers:
+            return LintResult(
+                context.segment,
+                description=f"Missing quoted identifier {identifier_contents}.",
+            )
+
+        # Now we only deal with NOT forced quoted identifiers configuration
+        # (meaning prefer_quoted_identifiers=False).
 
         # Extract contents of outer quotes.
         quoted_identifier_contents = context.segment.raw[1:-1]

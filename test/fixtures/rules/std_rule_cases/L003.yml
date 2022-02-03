@@ -551,12 +551,12 @@ test_tsql_function:
     BEGIN
         DECLARE @ISOweek int;
         SET @ISOweek = DATEPART(wk, @DATE) + 1
-        - DATEPART(wk, CAST(DATEPART(yy, @DATE) AS char(4)) + '0104');
+            - DATEPART(wk, CAST(DATEPART(yy, @DATE) AS char(4)) + '0104');
         --Special cases Jan 1-3 may belong to the previous year
         IF (@ISOweek = 0)
             SET @ISOweek = dbo.ISOWEEK(CAST(DATEPART(yy, @DATE) - 1
                 AS char(4)
-            ) + '12' + CAST(24 + DATEPART(day, @DATE) AS char(2))) + 1;
+                ) + '12' + CAST(24 + DATEPART(day, @DATE) AS char(2))) + 1;
         --Special case Dec 29-31 may belong to the next year
         IF ((DATEPART(mm, @DATE) = 12)
             AND ((DATEPART(dd, @DATE) - DATEPART(dw, @DATE)) >= 28))
@@ -634,12 +634,37 @@ test_pass_ignore_templated_whitespace_4:
         {{ "      c2\n" }} AS other_id
     FROM my_table
 
+test_pass_tsql_update_indent:
+  pass_str: |
+    update Extracts.itt_parm_base
+        set DateF = convert(varchar, @from_date, 112),
+            DateT = convert(varchar, @to_date, 112)
+  configs:
+    core:
+      dialect: tsql
+
 test_pass_tsql_declare_indent:
   pass_str: |
     DECLARE @prv_qtr_1st_dt DATETIME,
             @last_qtr INT,
             @last_qtr_first_mn INT,
             @last_qtr_yr INT;
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_tsql_set_indent:
+  pass_str: |
+    SET @prv_qtr_1st_dt = CAST(@last_qtr_yr AS VARCHAR(4)) + '-' +
+        CAST(@last_qtr_first_mn AS VARCHAR(2)) + '-01'
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_tsql_set_indent_multiple_params:
+  pass_str: |
+    SET @param1 = 1,
+        @param2 = 2
   configs:
     core:
       dialect: tsql
