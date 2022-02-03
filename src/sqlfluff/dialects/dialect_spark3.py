@@ -1644,8 +1644,8 @@ class TableExpressionSegment(BaseSegment):
         Ref("ValuesClauseSegment"),
         Ref("BareFunctionSegment"),
         Ref("FunctionSegment"),
-        Ref("TableReferenceSegment"),
         Ref("FileReferenceSegment"),
+        Ref("TableReferenceSegment"),
         # Nested Selects
         Bracketed(Ref("SelectableGrammar")),
     )
