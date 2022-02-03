@@ -1,10 +1,11 @@
 """The Test file for CLI (General)."""
 
 import configparser
-import tempfile
-import os
-import shutil
 import json
+import os
+import pathlib
+import shutil
+import tempfile
 import textwrap
 from unittest.mock import MagicMock, patch
 
@@ -625,30 +626,26 @@ def test__cli__command__fix(rule, fname):
         "2_files_with_lint_errors_1_unsuppressed_parse_error",
     ],
 )
-def test__cli__fix_error_handling_behavior(sql, fix_args, fixed, exit_code, tmp_path):
+def test__cli__fix_error_handling_behavior(sql, fix_args, fixed, exit_code, tmpdir):
     """Tests how "fix" behaves wrt parse errors, exit code, etc."""
     if not isinstance(sql, list):
         sql = [sql]
     if not isinstance(fixed, list):
         fixed = [fixed]
     assert len(sql) == len(fixed)
+    tmp_path = pathlib.Path(str(tmpdir))
     for idx, this_sql in enumerate(sql):
         filepath = tmp_path / f"testing{idx+1}.sql"
         filepath.write_text(textwrap.dedent(this_sql))
-    oldcwd = os.getcwd()
-    try:
-        os.chdir(str(tmp_path))
-        try:
+    with tmpdir.as_cwd():
+        with pytest.raises(SystemExit) as e:
             fix(
                 fix_args
                 + [
                     "-f",
                 ]
             )
-        except SystemExit as e:
-            assert exit_code == e.code
-    finally:
-        os.chdir(oldcwd)
+        assert exit_code == e.value.code
     for idx, this_fixed in enumerate(fixed):
         fixed_path = tmp_path / f"testing{idx+1}FIXED.sql"
         if this_fixed:

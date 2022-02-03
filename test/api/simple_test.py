@@ -183,7 +183,7 @@ def test__api__fix_string_unparsable():
 FROM my_schema.my_table
 where processdate ! 3"""
     result = sqlfluff.fix(bad_query, rules=["L010"])
-    # Check actual result
+    # Check fix result: should be unchanged because of the parse error.
     assert result == bad_query
 
 

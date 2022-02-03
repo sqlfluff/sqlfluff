@@ -209,6 +209,8 @@ class LintingResult:
                         types=SQLParseError, filter_ignore=False
                     )
                     if num_parse_errors:
+                        # File has parse errors. Discard all the fixes: they are
+                        # potentially unsafe.
                         for violation in linted_file.violations:
                             if isinstance(violation, SQLLintError):
                                 violation.fixes = []

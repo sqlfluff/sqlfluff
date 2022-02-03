@@ -566,11 +566,11 @@ def lint(
         sys.exit(0)
 
 
-def _check_parse_errors(lint_result: LintingResult, fix_even_unparsable: bool) -> bool:
+def _check_parse_errors(lint_result: LintingResult, fix_even_unparsable: bool) -> int:
     """Look for parse errors in LintingResult, determine what to do.
 
-    Returns True if the "fix" operation should continue, False if it should
-    stop now.
+    Returns 1 if there are any files with parse errors after filtering, else 0.
+    (Intended as a process exit code.)
     """
     total_parse_errors, num_filtered_parse_errors = lint_result.check_parse_errors()
     if total_parse_errors and not fix_even_unparsable:
@@ -579,7 +579,7 @@ def _check_parse_errors(lint_result: LintingResult, fix_even_unparsable: bool) -
         )
         if 0 < num_filtered_parse_errors < total_parse_errors:
             click.echo(f'  [{num_filtered_parse_errors} remaining after "ignore"]')
-    return False if num_filtered_parse_errors and not fix_even_unparsable else True
+    return 1 if num_filtered_parse_errors and not fix_even_unparsable else 0
 
 
 def do_fixes(lnt, result, formatter=None, **kwargs):
@@ -676,9 +676,7 @@ def fix(
         templater_error = result.num_violations(types=SQLTemplaterError) > 0
         unfixable_error = result.num_violations(types=SQLLintError, fixable=False) > 0
         if not fix_even_unparsable:
-            should_continue = _check_parse_errors(result, bool(fix_even_unparsable))
-            if not should_continue:
-                exit_code = 1  # pragma: no cover
+            exit_code = _check_parse_errors(result, fix_even_unparsable)
 
         if result.num_violations(types=SQLLintError, fixable=True) > 0:
             stdout = result.paths[0].files[0].fix_string()[0]
@@ -726,9 +724,7 @@ def fix(
         sys.exit(1)
 
     if not fix_even_unparsable:
-        should_continue = _check_parse_errors(result, bool(fix_even_unparsable))
-        if not should_continue:
-            exit_code = 1
+        exit_code = _check_parse_errors(result, bool(fix_even_unparsable))
 
     # NB: We filter to linting violations here, because they're
     # the only ones which can be potentially fixed.
