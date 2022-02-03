@@ -106,7 +106,7 @@ SQLFluff comes with two `pre-commit`_ hooks:
 * sqlfluff-lint: returns linting errors.
 * sqlfluff-fix: attempts to fix rule violations.
 
-.. note::
+.. warning::
    For safety reasons, ``sqlfluff-fix`` by default will not make any fixes in
    files that had templating or parse errors.
 
