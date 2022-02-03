@@ -124,8 +124,8 @@ def fix(
 
     result = linter.lint_string_wrapped(sql, fix=True)
     fix_even_unparsable = cfg.get("fix_even_unparsable")
-    should_fix = fix_even_unparsable
-    if not should_fix:
+    should_fix = True
+    if not fix_even_unparsable:
         # If fix_even_unparsable wasn't set, check for parse errors. Okay to fix
         # if there are no parse errors.
         _, num_filtered_parse_errors = result.check_parse_errors()
