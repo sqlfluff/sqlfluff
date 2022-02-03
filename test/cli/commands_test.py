@@ -514,6 +514,8 @@ def test__cli__command__fix(rule, fname):
     "sql,fix_args,fixed,exit_code",
     [
         (
+            # - One lint error: "where" is lower case
+            # - Not fixable because of parse error, hence error exit
             """
             SELECT my_col
             FROM my_schema.my_table
@@ -524,6 +526,9 @@ def test__cli__command__fix(rule, fname):
             1,
         ),
         (
+            # - One lint error: "where" is lower case
+            # - Not fixable because of parse error (even though "noqa"), hence
+            #   error exit
             """
             SELECT my_col
             FROM my_schema.my_table
@@ -531,12 +536,38 @@ def test__cli__command__fix(rule, fname):
             """,
             ["--force", "--fixed-suffix", "FIXED", "--rules", "L010"],
             None,
+            1,
+        ),
+        (
+            # - No lint errors
+            # - Parse error not suppressed, hence error exit
+            """
+            SELECT my_col
+            FROM my_schema.my_table
+            WHERE processdate ! 3
+            """,
+            ["--force", "--fixed-suffix", "FIXED", "--rules", "L010"],
+            None,
+            1,
+        ),
+        (
+            # - No lint errors
+            # - Parse error suppressed, hence success exit
+            """
+            SELECT my_col
+            FROM my_schema.my_table
+            WHERE processdate ! 3  --noqa: PRS
+            """,
+            ["--force", "--fixed-suffix", "FIXED", "--rules", "L010"],
+            None,
             0,
         ),
     ],
     ids=[
-        "parse_error_not_suppressed",
-        "parse_error_suppressed",
+        "1_lint_error_1_unsuppressed_parse_error",
+        "1_lint_error_1_suppressed_parse_error",
+        "0_lint_errors_1_unsuppressed_parse_error",
+        "0_lint_errors_1_suppressed_parse_error",
     ],
 )
 def test__cli__fix_error_handling_behavior(sql, fix_args, fixed, exit_code, tmp_path):
