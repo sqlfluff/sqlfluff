@@ -118,7 +118,6 @@ SQLFluff comes with two `pre-commit`_ hooks:
    always be sure to review any fixes applied to files with parse errors to
    verify they are okay.*
 
-
 You should create a file named `.pre-commit-config.yaml`
 at the root of your git project, which should look
 like this:
