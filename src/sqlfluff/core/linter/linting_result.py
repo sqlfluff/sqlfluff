@@ -185,18 +185,16 @@ class LintingResult:
             )
         return self.paths[0].tree
 
-    def check_templating_or_parse_errors(self) -> Tuple[int, int]:
-        """Treat tiles with templating or parse error as unfixable.
-
-        NOTE! THIS FUNCTION HAS SIDE EFFECTS: IT DISCARDS LINT FIXES.
+    def mark_failed_files_unfixable(self) -> Tuple[int, int]:
+        """Discard lint fixes for files with templating or parse errors.
 
         Scan all LintedFiles:
         - Files with none of these errors: No action
         - Files with these errors (before filtering): Removes fixes from
           SQLLintError objects, i.e. marks them "unfixable"
 
-        Returns the total number of these errors before and after "ignore/noqa"
-        filters are applied.
+        Also returns the total number of these errors before and after
+        "ignore/noqa" filters are applied.
         """
         types = (SQLParseError, SQLTemplaterError)
         total_errors = self.num_violations(types=types, filter_ignore=False)

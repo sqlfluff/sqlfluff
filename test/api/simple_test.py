@@ -187,6 +187,21 @@ where processdate ! 3"""
     assert result == bad_query
 
 
+def test__api__fix_string_unparsable_fix_even_unparsable():
+    """Test behavior with parse errors."""
+    bad_query = """SELECT my_col
+FROM my_schema.my_table
+where processdate ! 3"""
+    result = sqlfluff.fix(bad_query, rules=["L010"], fix_even_unparsable=True)
+    # Check fix result: should be fixed because we overrode fix_even_unparsable.
+    assert (
+        result
+        == """SELECT my_col
+FROM my_schema.my_table
+WHERE processdate ! 3"""
+    )
+
+
 def test__api__parse_string():
     """Basic checking of parse functionality."""
     parsed = sqlfluff.parse(my_bad_query)
