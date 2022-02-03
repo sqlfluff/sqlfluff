@@ -644,7 +644,6 @@ You might have arguments that you pass through every time, e.g rules you
     [sqlfluff]
     verbose = 1
     exclude_rules = L022,L027
-    fix_even_unparsable = True
 
 Note that while the :code:`exclude_rules` config looks similar to the
 above example, the :code:`verbose` config has an integer value. This is

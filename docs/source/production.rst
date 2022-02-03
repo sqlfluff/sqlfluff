@@ -110,7 +110,7 @@ SQLFluff comes with two `pre-commit`_ hooks:
    For safety reasons, ``sqlfluff-fix`` by default will not make any fixes in
    files that had parse errors.
 
-   Although it is not advised, you _can_ tell SQLFluff to try and fix
+   Although it is not advised, you *can* tell SQLFluff to try and fix
    unparseable files by overriding the ``fix_even_unparsable`` setting
    in ``.sqlfluff`` config file or using the ``sqlfluff fix --FIX-EVEN-UNPARSABLE``
    command line option.
