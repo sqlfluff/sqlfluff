@@ -1653,7 +1653,10 @@ class TableExpressionSegment(BaseSegment):
 
 @spark3_dialect.segment()
 class FileReferenceSegment(BaseSegment):
-    """A reference to an table, CTE, subquery or alias."""
+    """A reference to a file for direct query.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-file.html
+    """
 
     type = "file_reference"
 
