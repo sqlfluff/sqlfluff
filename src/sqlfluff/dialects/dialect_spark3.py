@@ -1663,5 +1663,5 @@ class FileReferenceSegment(BaseSegment):
     match_grammar = Sequence(
         Ref("DataSourcesV2FileTypeGrammar"),
         Ref("DotSegment"),
-        Ref("QuotedIdentifierSegment"),
+        Ref("QuotedLiteralSegment"),
     )

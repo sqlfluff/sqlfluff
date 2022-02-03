@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 09ec825990c2d64c9450de28fcd3140c99a431ebda1d8eb68fd31f5b500078ac
+_hash: 72432be0024d6d35c89fc8f63024ab78271ac1187b19925a0fae2de3c90eae26
 file:
 - base:
     select_statement:
@@ -25,10 +25,10 @@ file:
         from_expression:
           from_expression_element:
             table_expression:
-              file_reference:
-                keyword: PARQUET
-                dot: .
-                identifier: '`examples/src/main/resources/users.parquet`'
+              table_reference:
+              - identifier: parquet
+              - dot: .
+              - identifier: '`examples/src/main/resources/users.parquet`'
 - statement_terminator: ;
 - base:
     select_statement:
@@ -50,10 +50,10 @@ file:
         from_expression:
           from_expression_element:
             table_expression:
-              file_reference:
-                keyword: PARQUET
-                dot: .
-                identifier: '`examples/src/main/resources/users`'
+              table_reference:
+              - identifier: parquet
+              - dot: .
+              - identifier: '`examples/src/main/resources/users`'
 - statement_terminator: ;
 - base:
     select_statement:
@@ -75,10 +75,10 @@ file:
         from_expression:
           from_expression_element:
             table_expression:
-              file_reference:
-                keyword: ORC
-                dot: .
-                identifier: '`examples/src/main/resources/users.orc`'
+              table_reference:
+              - identifier: orc
+              - dot: .
+              - identifier: '`examples/src/main/resources/users.orc`'
 - statement_terminator: ;
 - base:
     select_statement:
@@ -100,10 +100,10 @@ file:
         from_expression:
           from_expression_element:
             table_expression:
-              file_reference:
-                keyword: JSON
-                dot: .
-                identifier: '`examples/src/main/resources/people.json`'
+              table_reference:
+              - identifier: json
+              - dot: .
+              - identifier: '`examples/src/main/resources/people.json`'
 - statement_terminator: ;
 - base:
     select_statement:
@@ -125,10 +125,10 @@ file:
         from_expression:
           from_expression_element:
             table_expression:
-              file_reference:
-                keyword: JSON
-                dot: .
-                identifier: '`examples/src/main/resources/people`'
+              table_reference:
+              - identifier: json
+              - dot: .
+              - identifier: '`examples/src/main/resources/people`'
 - statement_terminator: ;
 - base:
     select_statement:
@@ -150,10 +150,10 @@ file:
         from_expression:
           from_expression_element:
             table_expression:
-              file_reference:
-                keyword: TEXT
-                dot: .
-                identifier: '`examples/src/main/resources/people.txt`'
+              table_reference:
+              - identifier: text
+              - dot: .
+              - identifier: '`examples/src/main/resources/people.txt`'
 - statement_terminator: ;
 - base:
     select_statement:
@@ -175,10 +175,10 @@ file:
         from_expression:
           from_expression_element:
             table_expression:
-              file_reference:
-                keyword: TEXT
-                dot: .
-                identifier: '`examples/src/main/resources/people.json`'
+              table_reference:
+              - identifier: text
+              - dot: .
+              - identifier: '`examples/src/main/resources/people.json`'
 - statement_terminator: ;
 - base:
     select_statement:
@@ -200,10 +200,10 @@ file:
         from_expression:
           from_expression_element:
             table_expression:
-              file_reference:
-                file_format: BINARYFILE
-                dot: .
-                identifier: '`/events/events-kafka.json`'
+              table_reference:
+              - identifier: binaryfile
+              - dot: .
+              - identifier: '`/events/events-kafka.json`'
 - statement_terminator: ;
 - base:
     select_statement:
@@ -225,10 +225,10 @@ file:
         from_expression:
           from_expression_element:
             table_expression:
-              file_reference:
-                file_format: BINARYFILE
-                dot: .
-                identifier: '`/events/events-kafka`'
+              table_reference:
+              - identifier: binaryfile
+              - dot: .
+              - identifier: '`/events/events-kafka`'
 - statement_terminator: ;
 - base:
     select_statement:
@@ -250,10 +250,10 @@ file:
         from_expression:
           from_expression_element:
             table_expression:
-              file_reference:
-                keyword: CSV
-                dot: .
-                identifier: '`/sales/sales.csv`'
+              table_reference:
+              - identifier: csv
+              - dot: .
+              - identifier: '`/sales/sales.csv`'
 - statement_terminator: ;
 - base:
     select_statement:
@@ -275,8 +275,8 @@ file:
         from_expression:
           from_expression_element:
             table_expression:
-              file_reference:
-                keyword: DELTA
-                dot: .
-                identifier: '`/mnt/datalake/table`'
+              table_reference:
+              - identifier: delta
+              - dot: .
+              - identifier: '`/mnt/datalake/table`'
 - statement_terminator: ;
