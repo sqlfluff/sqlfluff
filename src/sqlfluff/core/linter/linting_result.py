@@ -14,7 +14,6 @@ from typing_extensions import Literal
 
 from sqlfluff.core.errors import (
     CheckTuple,
-    SQLLintError,
     SQLParseError,
     SQLTemplaterError,
 )
@@ -209,10 +208,10 @@ class LintingResult:
                         types=types, filter_ignore=False
                     )
                     if num_errors:
-                        # File has errors errors. Discard all the fixes: they
-                        # are potentially unsafe.
+                        # File has errors. Discard all the fixes: they are
+                        # potentially unsafe.
                         for violation in linted_file.violations:
-                            if isinstance(violation, SQLLintError):
-                                violation.fixes = []
+                            if hasattr(violation, "fixes"):
+                                violation.fixes = []  # type: ignore
                         num_filtered_errors += linted_file.num_violations(types=types)
         return total_errors, num_filtered_errors

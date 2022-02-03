@@ -261,11 +261,12 @@ def core_options(f: Callable) -> Callable:
         "--ignore",
         default=None,
         help=(
-            "Ignore particular families of errors. For example, `--ignore "
-            "parsing` ignores any parsing errors. Multiple options are "
-            "possible if comma separated e.g. `--ignore parsing,templating`. "
-            "`--ignore` behaves somewhat like `noqa` comments, except it "
-            "applies globally."
+            "Ignore particular families of errors so that they don't cause a failed "
+            "run. For example `--ignore parsing` would mean that any parsing errors "
+            "are ignored and don't influence the success or fail of a run. "
+            "`--ignore` behaves somewhat like `noqa` comments, except it it "
+            "applies globally. Multiple options are possible if comma separated "
+            "e.g. `--ignore parsing,templating`."
         ),
     )(f)
     f = click.option(
@@ -726,7 +727,7 @@ def fix(
             click.echo(colorize("Unfixable violations detected.", Color.red), err=True)
 
         click.echo(stdout, nl=False)
-        sys.exit(1 if unfixable_error else exit_code)
+        sys.exit(1 if templater_error or unfixable_error else 0)
 
     # Lint the paths (not with the fix argument at this stage), outputting as we go.
     click.echo("==== finding fixable violations ====")
