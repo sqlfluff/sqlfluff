@@ -1108,6 +1108,26 @@ def test_cli_get_default_config():
     assert config.get("nocolor") is True
     assert config.get("verbose") == 2
 
+def test_cli_existing_redshift_bug():
+    """Documents existing errors with linting super data types in Redshift.
+
+    Original Issue: https://github.com/sqlfluff/sqlfluff/issues/1672 ."""
+    result = invoke_assert_code(
+        ret_code=65,
+        args=[
+            lint,
+            [
+                "--dialect=redshift",
+                "-v",
+                "test/fixtures/linter/redshift_super_select.sql",
+            ],
+        ],
+    )
+    raw_output = repr(result.output)
+    # Query should completely pass, but the following rules are raised
+    assert "L:   3 | P:   5 | L027" in raw_output
+    assert "L:   4 | P:  36 | L025" in raw_output
+
 
 @patch(
     "sqlfluff.core.linter.linter.progress_bar_configuration", disable_progress_bar=False
