@@ -89,6 +89,30 @@ class Rule_L057(BaseRule):
                     identifier = identifier[:-1]
                 identifier = identifier.replace(".", "")
 
+            # Spark3 file references for direct file query
+            # are quoted in back ticks to allow for dots and regex patterns
+            # https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-file.html
+            #
+            # Path Glob Filters (done inline for SQL direct file query)
+            # https://spark.apache.org/docs/latest/sql-data-sources-generic-options.html#path-global-filter  # noqa: E501
+            #
+            # Paths also allow for "/" and "."
+
+            # Strip out special characters before testing the identifier
+            spark3_allowed_identifiers = [
+                ".", "/", "\\", "*", "?", "[", "]",
+                "^", "-", "{", "}", ",", " "
+            ]
+
+            if (
+                context.dialect.name in ["spark3"]
+                and context.parent_stack
+                and context.parent_stack[-1].name == "FileReferenceSegment"
+            ):
+                for allowed in spark3_allowed_identifiers:
+                    if allowed in identifier:
+                        identifier = identifier.replace(allowed, "")
+
             # Strip spaces if allowed (note a separate config as only valid for quoted
             # identifiers)
             if self.allow_space_in_identifier:
