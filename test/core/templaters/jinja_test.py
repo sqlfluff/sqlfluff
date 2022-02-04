@@ -552,26 +552,6 @@ select 1 from foobarfoobarfoobarfoobar_{{ "dev" }}
                 ("\n", "literal", 97),
             ],
         ),
-        (
-            # Tests issue 2541, a bug where the {%- endfor %} was causing
-            # IndexError: list index out of range.
-            """{% for x in ['A', 'B'] %}
-    {% if x != 'A' %}
-    SELECT 'E'
-    {% endif %}
-{%- endfor %}
-""",
-            [
-                ("{% for x in ['A', 'B'] %}", "block_start", 0),
-                ("\n    ", "literal", 25),
-                ("{% if x != 'A' %}", "block_start", 30),
-                ("\n    SELECT 'E'\n    ", "literal", 47),
-                ("{% endif %}", "block_end", 67),
-                ("\n", "literal", 78),
-                ("{%- endfor %}", "block_end", 79),
-                ("\n", "literal", 92),
-            ],
-        ),
     ],
 )
 def test__templater_jinja_slice_template(test, result):
@@ -760,6 +740,33 @@ SELECT
                 ("literal", slice(105, 111, None), slice(19, 25, None)),
                 ("templated", slice(111, 132, None), slice(25, 34, None)),
                 ("literal", slice(132, 133, None), slice(34, 35, None)),
+            ],
+        ),
+        (
+            # Tests issue 2541, a bug where the {%- endfor %} was causing
+            # IndexError: list index out of range.
+            """{% for x in ['A', 'B'] %}
+    {% if x != 'A' %}
+    SELECT 'E'
+    {% endif %}
+{%- endfor %}
+""",
+            None,
+            [
+                ("block_start", slice(0, 25, None), slice(0, 0, None)),
+                ("literal", slice(25, 30, None), slice(0, 5, None)),
+                ("block_start", slice(30, 47, None), slice(5, 5, None)),
+                ("literal", slice(47, 67, None), slice(5, 5, None)),
+                ("block_end", slice(67, 78, None), slice(5, 5, None)),
+                ("literal", slice(78, 79, None), slice(5, 5, None)),
+                ("block_end", slice(79, 92, None), slice(5, 5, None)),
+                ("literal", slice(25, 30, None), slice(5, 10, None)),
+                ("block_start", slice(30, 47, None), slice(10, 10, None)),
+                ("literal", slice(47, 67, None), slice(10, 30, None)),
+                ("block_end", slice(67, 78, None), slice(30, 30, None)),
+                ("literal", slice(78, 79, None), slice(30, 30, None)),
+                ("block_end", slice(79, 92, None), slice(30, 30, None)),
+                ("literal", slice(92, 93, None), slice(30, 31, None)),
             ],
         ),
     ],
