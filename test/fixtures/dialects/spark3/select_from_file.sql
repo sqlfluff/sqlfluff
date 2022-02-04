@@ -40,6 +40,64 @@ SELECT
     c
 FROM text.`examples/src/main/resources/people.txt`;
 
+-- Tests for Inline Path Glob Filter
+-- https://spark.apache.org/docs/latest/sql-data-sources-generic-options.html#path-global-filter
+-- Inline Path Filter using Asterisk (*)
+SELECT
+    a,
+    b,
+    c
+FROM text.`//root/*.txt`
+
+-- Inline Path Filter using Question mark (?)
+SELECT
+    a,
+    b,
+    c
+FROM text.`//root/200?.txt`
+
+-- Inline Path Filter using Character Class ([ab])
+SELECT
+    a,
+    b,
+    c
+FROM text.`//root/200[23].txt`
+
+-- Inline Path Filter using Negated Character Class ([^ab])
+SELECT
+    a,
+    b,
+    c
+FROM text.`//root/200[^23].txt`
+
+-- Inline Path Filter using Character Range ([a-b])
+SELECT
+    a,
+    b,
+    c
+FROM text.`//root/200[2-5].txt`
+
+-- Inline Path Filter using Negated Character Range ([^a-b])
+SELECT
+    a,
+    b,
+    c
+FROM text.`//root/200[^2-5].txt`
+
+-- Inline Path Filter using Negated Character Range ([^a-b])
+SELECT
+    a,
+    b,
+    c
+FROM text.`//root/200[^2-5].txt`
+
+-- Inline Path Filter using Alternation ({a,b})
+SELECT
+    a,
+    b,
+    c
+FROM text.`//root/20{04, 05}.txt`
+
 -- JSON treated as Text File
 SELECT
     a,
