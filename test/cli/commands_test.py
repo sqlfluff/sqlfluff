@@ -1108,10 +1108,12 @@ def test_cli_get_default_config():
     assert config.get("nocolor") is True
     assert config.get("verbose") == 2
 
+
 def test_cli_existing_redshift_bug():
     """Documents existing errors with linting super data types in Redshift.
 
-    Original Issue: https://github.com/sqlfluff/sqlfluff/issues/1672 ."""
+    Original Issue: https://github.com/sqlfluff/sqlfluff/issues/1672 .
+    """
     result = invoke_assert_code(
         ret_code=65,
         args=[
