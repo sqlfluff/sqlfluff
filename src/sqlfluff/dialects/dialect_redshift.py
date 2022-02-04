@@ -50,7 +50,12 @@ redshift_dialect.replace(WellKnownTextGeometrySegment=Nothing())
 
 @redshift_dialect.segment(replace=True)
 class ColumnReferenceSegment(ObjectReferenceSegment):
-    """A reference to column, field or alias."""
+    """A reference to column, field or alias.
+
+    Adjusted to support column references for Redshift's SUPER data type
+    (https://docs.aws.amazon.com/redshift/latest/dg/super-overview.html), which
+    uses a subset of the PartiQL language (https://partiql.org/) to reference
+    columns."""
 
     type = "column_reference"
     match_grammar: Matchable = Delimited(
