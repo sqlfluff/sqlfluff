@@ -264,7 +264,7 @@ def core_options(f: Callable) -> Callable:
             "Ignore particular families of errors so that they don't cause a failed "
             "run. For example `--ignore parsing` would mean that any parsing errors "
             "are ignored and don't influence the success or fail of a run. "
-            "`--ignore` behaves somewhat like `noqa` comments, except it it "
+            "`--ignore` behaves somewhat like `noqa` comments, except it "
             "applies globally. Multiple options are possible if comma separated "
             "e.g. `--ignore parsing,templating`."
         ),
