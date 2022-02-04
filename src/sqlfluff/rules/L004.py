@@ -12,13 +12,16 @@ from sqlfluff.core.rules.doc_decorators import (
 class Rule_L004(BaseRule):
     """Incorrect indentation type.
 
-    Note 1: spaces are only fixed to tabs if the number of spaces in the
-    indent is an integer multiple of the tab_space_size config.
-    Note 2: fixes are only applied to indents at the start of a line. Indents
-    after other text on the same line are not fixed.
+    .. note::
+       Note 1: spaces are only fixed to tabs if the number of spaces in the
+       indent is an integer multiple of the ``tab_space_size`` config.
 
-    | **Anti-pattern**
-    | Using tabs instead of spaces when indent_unit config set to spaces (default).
+       Note 2: fixes are only applied to indents at the start of a line. Indents
+       after other text on the same line are not fixed.
+
+    **Anti-pattern**
+
+    Using tabs instead of spaces when ``indent_unit`` config set to ``space`` (default).
 
     .. code-block:: sql
        :force:
@@ -28,8 +31,9 @@ class Rule_L004(BaseRule):
         →   b
         from foo
 
-    | **Best practice**
-    | Change the line to use spaces only.
+    **Best practice**
+
+    Change the line to use spaces only.
 
     .. code-block:: sql
        :force:

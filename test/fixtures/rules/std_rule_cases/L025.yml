@@ -166,3 +166,23 @@ test_fail_exasol_values_clause:
   configs:
     core:
       dialect: exasol
+
+test_pass_spark3_values_clause:
+  pass_str: |
+    SELECT *
+    FROM (
+        VALUES (1, 2), (3, 4)
+    )
+  configs:
+    core:
+      dialect: spark3
+
+test_fail_spark3_values_clause:
+  fail_str: |
+    SELECT *
+    FROM (
+        VALUES (1, 2), (3, 4)
+    ) AS t(c1, c2)
+  configs:
+    core:
+      dialect: spark3

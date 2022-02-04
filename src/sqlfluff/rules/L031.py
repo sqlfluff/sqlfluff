@@ -22,9 +22,21 @@ class TableAliasInfo(NamedTuple):
 class Rule_L031(BaseRule):
     """Avoid table aliases in from clauses and join conditions.
 
-    | **Anti-pattern**
-    | In this example, alias ``o`` is used for the orders table, and ``c`` is used for
-    | 'customers' table.
+    .. note::
+       This rule was taken from the `dbt Style Guide
+       <https://github.com/dbt-labs/corp/blob/master/dbt_style_guide.md>`_
+       which notes that:
+
+        Avoid table aliases in join conditions (especially initialisms) - it's
+        harder to understand what the table called "c" is compared to "customers".
+
+       This rule is controversial and for many larger databases avoiding alias is
+       neither realistic nor desirable. In this case this rule should be disabled.
+
+    **Anti-pattern**
+
+    In this example, alias ``o`` is used for the orders table, and ``c`` is used for
+    ``customers`` table.
 
     .. code-block:: sql
 
@@ -35,8 +47,9 @@ class Rule_L031(BaseRule):
         JOIN customers as c on o.id = c.user_id
 
 
-    | **Best practice**
-    |  Avoid aliases.
+    **Best practice**
+
+    Avoid aliases.
 
     .. code-block:: sql
 
@@ -49,12 +62,12 @@ class Rule_L031(BaseRule):
         -- Self-join will not raise issue
 
         SELECT
-            table.a,
+            table1.a,
             table_alias.b,
         FROM
-            table
-            LEFT JOIN table AS table_alias ON
-                table.foreign_key = table_alias.foreign_key
+            table1
+            LEFT JOIN table1 AS table_alias ON
+                table1.foreign_key = table_alias.foreign_key
 
     """
 

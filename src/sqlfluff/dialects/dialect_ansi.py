@@ -164,6 +164,8 @@ ansi_dialect.sets("datetime_units").update(
     ]
 )
 
+ansi_dialect.sets("date_part_function_name").update(["DATEADD"])
+
 # Set Keywords
 ansi_dialect.sets("unreserved_keywords").update(
     [n.strip().upper() for n in ansi_unreserved_keywords.split("\n")]
@@ -327,6 +329,14 @@ ansi_dialect.add(
             CodeSegment,
             name="date_part",
             type="date_part",
+        )
+    ),
+    DatePartFunctionName=SegmentGenerator(
+        lambda dialect: RegexParser(
+            r"^(" + r"|".join(dialect.sets("date_part_function_name")) + r")$",
+            CodeSegment,
+            name="function_name_identifier",
+            type="function_name_identifier",
         )
     ),
     QuotedIdentifierSegment=NamedParser(
@@ -1044,6 +1054,9 @@ class FunctionSegment(BaseSegment):
     type = "function"
     match_grammar = OneOf(
         Sequence(
+            # Treat functions which take date parts separately
+            # So those functions parse date parts as DatetimeUnitSegment
+            # rather than identifiers.
             Sequence(
                 Ref("DatePartFunctionNameSegment"),
                 Bracketed(
@@ -1057,7 +1070,7 @@ class FunctionSegment(BaseSegment):
                         ),
                     )
                 ),
-            )
+            ),
         ),
         Sequence(
             Sequence(
@@ -3464,7 +3477,7 @@ class DatePartFunctionNameSegment(BaseSegment):
     """
 
     type = "function_name"
-    match_grammar = Sequence("DATEADD")
+    match_grammar = Ref("DatePartFunctionName")
 
 
 @ansi_dialect.segment()

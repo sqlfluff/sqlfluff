@@ -8,9 +8,9 @@ import logging
 from typing import List, Optional, Iterator, Tuple, Any, Dict, Deque
 
 from dataclasses import dataclass
-from functools import partial
 
 from dbt.version import get_installed_version
+from dbt.config import read_user_config
 from dbt.config.runtime import RuntimeConfig as DbtRuntimeConfig
 from dbt.adapters.factory import register_adapter, get_adapter
 from dbt.compilation import Compiler as DbtCompiler
@@ -91,14 +91,20 @@ class DbtTemplater(JinjaTemplater):
     def dbt_config(self):
         """Loads the dbt config."""
         if self.dbt_version_tuple >= (1, 0):
+            # Here, we read flags.PROFILE_DIR directly, prior to calling
+            # set_from_args(). Apparently, set_from_args() sets PROFILES_DIR
+            # to a lowercase version of the value, and the profile wouldn't be
+            # found if the directory name contained uppercase letters. This fix
+            # was suggested and described here:
+            # https://github.com/sqlfluff/sqlfluff/issues/2253#issuecomment-1018722979
+            user_config = read_user_config(flags.PROFILES_DIR)
             flags.set_from_args(
-                "",
                 DbtConfigArgs(
                     project_dir=self.project_dir,
                     profiles_dir=self.profiles_dir,
                     profile=self._get_profile(),
-                    target=self._get_target(),
                 ),
+                user_config,
             )
         self.dbt_config = DbtRuntimeConfig.from_args(
             DbtConfigArgs(
@@ -131,32 +137,12 @@ class DbtTemplater(JinjaTemplater):
 
         do_not_track()
 
-        if self.dbt_version_tuple <= (0, 19):
+        # dbt 0.20.* and onward
+        from dbt.parser.manifest import ManifestLoader
 
-            if self.dbt_version_tuple == (0, 17):  # pragma: no cover TODO?
-                # dbt version 0.17.*
-                from dbt.parser.manifest import (
-                    load_internal_manifest as load_macro_manifest,
-                )
-            else:
-                # dbt version 0.18.* & # 0.19.*
-                from dbt.parser.manifest import load_macro_manifest
-
-                load_macro_manifest = partial(load_macro_manifest, macro_hook=identity)
-
-            from dbt.parser.manifest import load_manifest
-
-            dbt_macros_manifest = load_macro_manifest(self.dbt_config)
-            self.dbt_manifest = load_manifest(
-                self.dbt_config, dbt_macros_manifest, macro_hook=identity
-            )
-        else:
-            # dbt 0.20.* and onward
-            from dbt.parser.manifest import ManifestLoader
-
-            projects = self.dbt_config.load_dependencies()
-            loader = ManifestLoader(self.dbt_config, projects, macro_hook=identity)
-            self.dbt_manifest = loader.load()
+        projects = self.dbt_config.load_dependencies()
+        loader = ManifestLoader(self.dbt_config, projects, macro_hook=identity)
+        self.dbt_manifest = loader.load()
 
         return self.dbt_manifest
 
@@ -168,22 +154,17 @@ class DbtTemplater(JinjaTemplater):
                 "dbt templater", "Compiling dbt project..."
             )
 
-        if self.dbt_version_tuple == (0, 17):  # pragma: no cover TODO?
-            from dbt.graph.selector import PathSelector
+        from dbt.graph.selector_methods import (
+            MethodManager as DbtSelectorMethodManager,
+            MethodName as DbtMethodName,
+        )
 
-            self.dbt_selector_method = PathSelector(self.dbt_manifest)
-        else:
-            from dbt.graph.selector_methods import (
-                MethodManager as DbtSelectorMethodManager,
-                MethodName as DbtMethodName,
-            )
-
-            selector_methods_manager = DbtSelectorMethodManager(
-                self.dbt_manifest, previous_state=None
-            )
-            self.dbt_selector_method = selector_methods_manager.get_method(
-                DbtMethodName.Path, method_arguments=[]
-            )
+        selector_methods_manager = DbtSelectorMethodManager(
+            self.dbt_manifest, previous_state=None
+        )
+        self.dbt_selector_method = selector_methods_manager.get_method(
+            DbtMethodName.Path, method_arguments=[]
+        )
 
         if self.formatter:  # pragma: no cover TODO?
             self.formatter.dispatch_compilation_header(

@@ -7,7 +7,17 @@ from sqlfluff.core.rules.base import BaseRule, LintResult, RuleContext
 class Rule_L032(BaseRule):
     """Prefer specifying join keys instead of using ``USING``.
 
-    | **Anti-pattern**
+    .. note::
+       This rule was taken from the `dbt Style Guide
+       <https://github.com/dbt-labs/corp/blob/master/dbt_style_guide.md>`_
+       which notes that:
+
+        Certain warehouses have inconsistencies in ``USING``
+        results (specifically Snowflake).
+
+       Other users may prefer to disable this rule.
+
+    **Anti-pattern**
 
     .. code-block:: sql
 
@@ -18,8 +28,9 @@ class Rule_L032(BaseRule):
             table_a
         INNER JOIN table_b USING (id)
 
-    | **Best practice**
-    |  Specify the keys directly
+    **Best practice**
+
+    Specify the keys directly
 
     .. code-block:: sql
 

@@ -7,11 +7,13 @@ from sqlfluff.rules.L020 import Rule_L020
 class Rule_L027(Rule_L020):
     """References should be qualified if select has more than one referenced table/view.
 
-    NB: Except if they're present in a ``USING`` clause.
+    .. note::
+       Except if they're present in a ``USING`` clause.
 
-    | **Anti-pattern**
-    | In this example, the reference ``vee`` has not been declared
-    | and the variables ``a`` and ``b`` are potentially ambiguous.
+    **Anti-pattern**
+
+    In this example, the reference ``vee`` has not been declared,
+    and the variables ``a`` and ``b`` are potentially ambiguous.
 
     .. code-block:: sql
 
@@ -19,8 +21,9 @@ class Rule_L027(Rule_L020):
         FROM foo
         LEFT JOIN vee ON vee.a = foo.a
 
-    | **Best practice**
-    |  Add the references.
+    **Best practice**
+
+    Add the references.
 
     .. code-block:: sql
 

@@ -25,7 +25,7 @@ from io import StringIO
 # To enable colour cross platform
 import colorama
 from tqdm import tqdm
-from sqlfluff.cli.autocomplete import dialect_shell_complete
+from sqlfluff.cli.autocomplete import shell_completion_enabled, dialect_shell_complete
 
 from sqlfluff.cli.formatters import (
     format_rules,
@@ -44,7 +44,6 @@ from sqlfluff.core import (
     Linter,
     FluffConfig,
     SQLLintError,
-    SQLParseError,
     SQLTemplaterError,
     SQLFluffUserError,
     dialect_selector,
@@ -56,6 +55,7 @@ from sqlfluff.core.config import progress_bar_configuration
 from sqlfluff.core.enums import FormatType, Color
 from sqlfluff.core.linter import ParsedString
 from sqlfluff.core.plugin.host import get_plugin_manager
+from sqlfluff.core.linter import LintingResult
 
 
 class RedWarningsFilter(logging.Filter):
@@ -175,12 +175,21 @@ def core_options(f: Callable) -> Callable:
     These are applied to the main (but not all) cli commands like
     `parse`, `lint` and `fix`.
     """
-    f = click.option(
-        "--dialect",
-        default=None,
-        help="The dialect of SQL to lint (default=ansi)",
-        shell_complete=dialect_shell_complete,
-    )(f)
+    # Only enable dialect completion if on version of click
+    # that supports it
+    if shell_completion_enabled:
+        f = click.option(
+            "--dialect",
+            default=None,
+            help="The dialect of SQL to lint (default=ansi)",
+            shell_complete=dialect_shell_complete,
+        )(f)
+    else:  # pragma: no cover
+        f = click.option(
+            "--dialect",
+            default=None,
+            help="The dialect of SQL to lint (default=ansi)",
+        )(f)
     f = click.option(
         "--templater",
         default=None,
@@ -254,9 +263,10 @@ def core_options(f: Callable) -> Callable:
         help=(
             "Ignore particular families of errors so that they don't cause a failed "
             "run. For example `--ignore parsing` would mean that any parsing errors "
-            "are ignored and don't influence the success or fail of a run. Multiple "
-            "options are possible if comma separated e.g. "
-            "`--ignore parsing,templating`."
+            "are ignored and don't influence the success or fail of a run. "
+            "`--ignore` behaves somewhat like `noqa` comments, except it "
+            "applies globally. Multiple options are possible if comma separated: "
+            "e.g. `--ignore parsing,templating`."
         ),
     )(f)
     f = click.option(
@@ -566,6 +576,30 @@ def lint(
         sys.exit(0)
 
 
+def _handle_files_with_tmp_or_prs_errors(lint_result: LintingResult) -> int:
+    """Discard lint fixes for files with templating or parse errors.
+
+    Returns 1 if there are any files with templating or parse errors after
+    filtering, else 0. (Intended as a process exit code.)
+    """
+    total_errors, num_filtered_errors = lint_result.count_tmp_prs_errors()
+    lint_result.discard_fixes_for_lint_errors_in_files_with_tmp_or_prs_errors()
+    if total_errors:
+        click.echo(
+            colorize(f"  [{total_errors} templating/parsing errors found]", Color.red)
+        )
+        if num_filtered_errors < total_errors:
+            color = Color.red if num_filtered_errors else Color.green
+            click.echo(
+                colorize(
+                    f"  [{num_filtered_errors} templating/parsing errors "
+                    f'remaining after "ignore"]',
+                    color,
+                )
+            )
+    return 1 if num_filtered_errors else 0
+
+
 def do_fixes(lnt, result, formatter=None, **kwargs):
     """Actually do the fixes."""
     click.echo("Persisting Changes...")
@@ -610,6 +644,18 @@ def do_fixes(lnt, result, formatter=None, **kwargs):
     is_flag=True,
     help="Disables progress bars.",
 )
+@click.option(
+    "--FIX-EVEN-UNPARSABLE",
+    is_flag=True,
+    help=(
+        "Enables fixing of files that have templating or parse errors. "
+        "Note that the similar-sounding '--ignore' or 'noqa' features merely "
+        "prevent errors from being *displayed*. For safety reasons, the 'fix'"
+        "command will not make any fixes in files that have templating or parse "
+        "errors unless '--FIX-EVEN-UNPARSABLE' is enabled on the command line"
+        "or in the .sqlfluff config file."
+    ),
+)
 @click.argument("paths", nargs=-1, type=click.Path(allow_dash=True))
 def fix(
     force: bool,
@@ -634,6 +680,7 @@ def fix(
     fixing_stdin = ("-",) == paths
 
     config = get_config(extra_config_path, ignore_local_config, **kwargs)
+    fix_even_unparsable = config.get("fix_even_unparsable")
     lnt, formatter = get_linter_and_formatter(config, silent=fixing_stdin)
 
     verbose = config.get("verbose")
@@ -653,6 +700,8 @@ def fix(
         result = lnt.lint_string_wrapped(stdin, fname="stdin", fix=True)
         templater_error = result.num_violations(types=SQLTemplaterError) > 0
         unfixable_error = result.num_violations(types=SQLLintError, fixable=False) > 0
+        if not fix_even_unparsable:
+            exit_code = _handle_files_with_tmp_or_prs_errors(result)
 
         if result.num_violations(types=SQLLintError, fixable=True) > 0:
             stdout = result.paths[0].files[0].fix_string()[0]
@@ -669,16 +718,17 @@ def fix(
             )
             click.echo(
                 colorize(
-                    "Use '--ignore templating' to attempt to fix anyway.",
+                    "Use --fix-even-unparsable' to attempt to fix the SQL anyway.",
                     Color.red,
                 ),
                 err=True,
             )
+
         if unfixable_error:
             click.echo(colorize("Unfixable violations detected.", Color.red), err=True)
 
         click.echo(stdout, nl=False)
-        sys.exit(1 if templater_error or unfixable_error else 0)
+        sys.exit(1 if templater_error or unfixable_error else exit_code)
 
     # Lint the paths (not with the fix argument at this stage), outputting as we go.
     click.echo("==== finding fixable violations ====")
@@ -698,6 +748,9 @@ def fix(
             err=True,
         )
         sys.exit(1)
+
+    if not fix_even_unparsable:
+        exit_code = _handle_files_with_tmp_or_prs_errors(result)
 
     # NB: We filter to linting violations here, because they're
     # the only ones which can be potentially fixed.
@@ -754,15 +807,9 @@ def fix(
             "  [{} unfixable linting violations found]",
             1,
         ),
-        (
-            dict(types=SQLTemplaterError),
-            "  [{} templating errors found]",
-            1,
-        ),
-        (dict(types=SQLParseError), "  [{} parsing errors found]", 0),
     ]
     for num_violations_kwargs, message_format, error_level in error_types:
-        num_violations = result.num_violations(**num_violations_kwargs)  # type: ignore
+        num_violations = result.num_violations(**num_violations_kwargs)
         if num_violations > 0:
             click.echo(message_format.format(num_violations))
             exit_code = max(exit_code, error_level)

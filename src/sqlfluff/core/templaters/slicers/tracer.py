@@ -5,7 +5,6 @@ This is a newer slicing algorithm that handles cases heuristic.py does not.
 
 import logging
 import regex
-from itertools import chain
 from typing import Callable, cast, Dict, List, NamedTuple, Optional
 
 from jinja2 import Environment
@@ -142,21 +141,20 @@ class JinjaTracer:
                 # Reached the target slice. Go to next location and stop.
                 self.program_counter += 1
                 break
-            elif not self.raw_slice_info[current_raw_slice].next_slice_indices:
-                # No choice available. Go to next location.
-                self.program_counter += 1
             else:
-                # We have choices. Which to choose?
-                candidates = []
-                for next_slice_idx in chain(
-                    self.raw_slice_info[current_raw_slice].next_slice_indices,
-                    [self.program_counter + 1],
-                ):
-                    if next_slice_idx > target_slice_idx:
-                        # Takes us past the target. No good.
-                        continue
-                    candidates.append(next_slice_idx)
-                # Choose the path that lands us closest to the target.
+                # Choose the next step.
+
+                # We could simply go to the next slice (sequential execution).
+                candidates = [self.program_counter + 1]
+                # If we have other options, consider those.
+                for next_slice_idx in self.raw_slice_info[
+                    current_raw_slice
+                ].next_slice_indices:
+                    # It's a valid possibility if it does not take us past the
+                    # target.
+                    if next_slice_idx <= target_slice_idx:
+                        candidates.append(next_slice_idx)
+                # Choose the candidate that takes us closest to the target.
                 candidates.sort(key=lambda c: abs(target_slice_idx - c))
                 self.program_counter = candidates[0]
 

@@ -1,0 +1,881 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: e13795a3c538e2db8ac00a38dbe255173ddb7aa305bc4b0603b45508a00de084
+file:
+- base:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_modifier:
+          select_hint:
+          - keyword: /*+
+          - hint_function:
+              function_name:
+                function_name_identifier: COALESCE
+              bracketed:
+                start_bracket: (
+                literal: '3'
+                end_bracket: )
+          - keyword: '*/'
+      - select_clause_element:
+          column_reference:
+            identifier: a
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: b
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: c
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t
+- statement_terminator: ;
+- base:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_modifier:
+          select_hint:
+          - keyword: /*+
+          - hint_function:
+              function_name:
+                function_name_identifier: REPARTITION
+              bracketed:
+                start_bracket: (
+                literal: '3'
+                end_bracket: )
+          - keyword: '*/'
+      - select_clause_element:
+          column_reference:
+            identifier: a
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: b
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: c
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t
+- statement_terminator: ;
+- base:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_modifier:
+          select_hint:
+          - keyword: /*+
+          - hint_function:
+              function_name:
+                function_name_identifier: REPARTITION
+              bracketed:
+                start_bracket: (
+                identifier: c
+                end_bracket: )
+          - keyword: '*/'
+      - select_clause_element:
+          column_reference:
+            identifier: a
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: b
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: c
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t
+- statement_terminator: ;
+- base:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_modifier:
+          select_hint:
+          - keyword: /*+
+          - hint_function:
+              function_name:
+                function_name_identifier: REPARTITION
+              bracketed:
+                start_bracket: (
+                literal: '3'
+                comma: ','
+                identifier: c
+                end_bracket: )
+          - keyword: '*/'
+      - select_clause_element:
+          column_reference:
+            identifier: a
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: b
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: c
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t
+- statement_terminator: ;
+- base:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_modifier:
+          select_hint:
+          - keyword: /*+
+          - hint_function:
+              function_name:
+                function_name_identifier: REPARTITION_BY_RANGE
+              bracketed:
+                start_bracket: (
+                identifier: c
+                end_bracket: )
+          - keyword: '*/'
+      - select_clause_element:
+          column_reference:
+            identifier: a
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: b
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: c
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t
+- statement_terminator: ;
+- base:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_modifier:
+          select_hint:
+          - keyword: /*+
+          - hint_function:
+              function_name:
+                function_name_identifier: REPARTITION_BY_RANGE
+              bracketed:
+                start_bracket: (
+                literal: '3'
+                comma: ','
+                identifier: c
+                end_bracket: )
+          - keyword: '*/'
+      - select_clause_element:
+          column_reference:
+            identifier: a
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: b
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: c
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t
+- statement_terminator: ;
+- base:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_modifier:
+          select_hint:
+          - keyword: /*+
+          - hint_function:
+              function_name:
+                function_name_identifier: REBALANCE
+          - keyword: '*/'
+      - select_clause_element:
+          column_reference:
+            identifier: a
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: b
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: c
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t
+- statement_terminator: ;
+- base:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_modifier:
+          select_hint:
+          - keyword: /*+
+          - hint_function:
+              function_name:
+                function_name_identifier: REBALANCE
+              bracketed:
+                start_bracket: (
+                identifier: c
+                end_bracket: )
+          - keyword: '*/'
+      - select_clause_element:
+          column_reference:
+            identifier: a
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: b
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: c
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t
+- statement_terminator: ;
+- base:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_modifier:
+          select_hint:
+          - keyword: /*+
+          - hint_function:
+              function_name:
+                function_name_identifier: REPARTITION
+              bracketed:
+                start_bracket: (
+                literal: '100'
+                end_bracket: )
+          - comma: ','
+          - hint_function:
+              function_name:
+                function_name_identifier: COALESCE
+              bracketed:
+                start_bracket: (
+                literal: '500'
+                end_bracket: )
+          - comma: ','
+          - hint_function:
+              function_name:
+                function_name_identifier: REPARTITION_BY_RANGE
+              bracketed:
+                start_bracket: (
+                literal: '3'
+                comma: ','
+                identifier: c
+                end_bracket: )
+          - keyword: '*/'
+      - select_clause_element:
+          column_reference:
+            identifier: a
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: b
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: c
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t
+- statement_terminator: ;
+- base:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_modifier:
+          select_hint:
+          - keyword: /*+
+          - hint_function:
+              function_name:
+                function_name_identifier: BROADCAST
+              bracketed:
+                start_bracket: (
+                identifier: t1
+                end_bracket: )
+          - keyword: '*/'
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: a
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: b
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - identifier: t2
+          - dot: .
+          - identifier: c
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+          join_clause:
+          - keyword: INNER
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: t2
+          - join_on_condition:
+              keyword: 'ON'
+              expression:
+              - column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: key
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - identifier: t2
+                - dot: .
+                - identifier: key
+- statement_terminator: ;
+- base:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_modifier:
+          select_hint:
+          - keyword: /*+
+          - hint_function:
+              function_name:
+                function_name_identifier: BROADCASTJOIN
+              bracketed:
+                start_bracket: (
+                identifier: t1
+                end_bracket: )
+          - keyword: '*/'
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: a
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: b
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - identifier: t2
+          - dot: .
+          - identifier: c
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+          join_clause:
+          - keyword: LEFT
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: t2
+          - join_on_condition:
+              keyword: 'ON'
+              expression:
+              - column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: key
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - identifier: t2
+                - dot: .
+                - identifier: key
+- statement_terminator: ;
+- base:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_modifier:
+          select_hint:
+          - keyword: /*+
+          - hint_function:
+              function_name:
+                function_name_identifier: MAPJOIN
+              bracketed:
+                start_bracket: (
+                identifier: t2
+                end_bracket: )
+          - keyword: '*/'
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: a
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: b
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - identifier: t2
+          - dot: .
+          - identifier: c
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+          join_clause:
+          - keyword: LEFT
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: t2
+          - join_on_condition:
+              keyword: 'ON'
+              expression:
+              - column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: key
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - identifier: t2
+                - dot: .
+                - identifier: key
+- statement_terminator: ;
+- base:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_modifier:
+          select_hint:
+          - keyword: /*+
+          - hint_function:
+              function_name:
+                function_name_identifier: SHUFFLE_MERGE
+              bracketed:
+                start_bracket: (
+                identifier: t1
+                end_bracket: )
+          - keyword: '*/'
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: a
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: b
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - identifier: t2
+          - dot: .
+          - identifier: c
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+          join_clause:
+          - keyword: INNER
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: t2
+          - join_on_condition:
+              keyword: 'ON'
+              expression:
+              - column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: key
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - identifier: t2
+                - dot: .
+                - identifier: key
+- statement_terminator: ;
+- base:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_modifier:
+          select_hint:
+          - keyword: /*+
+          - hint_function:
+              function_name:
+                function_name_identifier: MERGEJOIN
+              bracketed:
+                start_bracket: (
+                identifier: t2
+                end_bracket: )
+          - keyword: '*/'
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: a
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: b
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - identifier: t2
+          - dot: .
+          - identifier: c
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+          join_clause:
+          - keyword: INNER
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: t2
+          - join_on_condition:
+              keyword: 'ON'
+              expression:
+              - column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: key
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - identifier: t2
+                - dot: .
+                - identifier: key
+- statement_terminator: ;
+- base:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_modifier:
+          select_hint:
+          - keyword: /*+
+          - hint_function:
+              function_name:
+                function_name_identifier: MERGE
+              bracketed:
+                start_bracket: (
+                identifier: t1
+                end_bracket: )
+          - keyword: '*/'
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: a
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: b
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - identifier: t2
+          - dot: .
+          - identifier: c
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+          join_clause:
+          - keyword: INNER
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: t2
+          - join_on_condition:
+              keyword: 'ON'
+              expression:
+              - column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: key
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - identifier: t2
+                - dot: .
+                - identifier: key
+- statement_terminator: ;
+- base:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_modifier:
+          select_hint:
+          - keyword: /*+
+          - hint_function:
+              function_name:
+                function_name_identifier: SHUFFLE_HASH
+              bracketed:
+                start_bracket: (
+                identifier: t1
+                end_bracket: )
+          - keyword: '*/'
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: a
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: b
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - identifier: t2
+          - dot: .
+          - identifier: c
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+          join_clause:
+          - keyword: INNER
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: t2
+          - join_on_condition:
+              keyword: 'ON'
+              expression:
+              - column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: key
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - identifier: t2
+                - dot: .
+                - identifier: key
+- statement_terminator: ;
+- base:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_modifier:
+          select_hint:
+          - keyword: /*+
+          - hint_function:
+              function_name:
+                function_name_identifier: SHUFFLE_REPLICATE_NL
+              bracketed:
+                start_bracket: (
+                identifier: t1
+                end_bracket: )
+          - keyword: '*/'
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: a
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: b
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - identifier: t2
+          - dot: .
+          - identifier: c
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+          join_clause:
+          - keyword: INNER
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: t2
+          - join_on_condition:
+              keyword: 'ON'
+              expression:
+              - column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: key
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - identifier: t2
+                - dot: .
+                - identifier: key
+- statement_terminator: ;
+- base:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_modifier:
+          select_hint:
+          - keyword: /*+
+          - hint_function:
+              function_name:
+                function_name_identifier: BROADCAST
+              bracketed:
+                start_bracket: (
+                identifier: t1
+                end_bracket: )
+          - comma: ','
+          - hint_function:
+              function_name:
+                function_name_identifier: MERGE
+              bracketed:
+              - start_bracket: (
+              - identifier: t1
+              - comma: ','
+              - identifier: t2
+              - end_bracket: )
+          - keyword: '*/'
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: a
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: b
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - identifier: t2
+          - dot: .
+          - identifier: c
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: t1
+          join_clause:
+          - keyword: INNER
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: t2
+          - join_on_condition:
+              keyword: 'ON'
+              expression:
+              - column_reference:
+                - identifier: t1
+                - dot: .
+                - identifier: key
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - identifier: t2
+                - dot: .
+                - identifier: key
+- statement_terminator: ;

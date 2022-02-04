@@ -9,12 +9,14 @@ from sqlfluff.rules.L020 import Rule_L020
 class Rule_L028(Rule_L020):
     """References should be consistent in statements with a single table.
 
-    NB: This rule is disabled by default for BigQuery due to its use of
-    structs which trigger false positives. It can be enabled with the
-    ``force_enable = True`` flag.
+    .. note::
+       This rule is disabled by default for BigQuery due to its use of
+       structs which trigger false positives. It can be enabled with the
+       ``force_enable = True`` flag.
 
-    | **Anti-pattern**
-    | In this example, only the field ``b`` is referenced.
+    **Anti-pattern**
+
+    In this example, only the field ``b`` is referenced.
 
     .. code-block:: sql
 
@@ -23,8 +25,9 @@ class Rule_L028(Rule_L020):
             foo.b
         FROM foo
 
-    | **Best practice**
-    |  Add or remove references to all fields.
+    **Best practice**
+
+    Add or remove references to all fields.
 
     .. code-block:: sql
 

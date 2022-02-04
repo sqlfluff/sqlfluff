@@ -1,10 +1,12 @@
 """The Test file for CLI (General)."""
 
 import configparser
-import tempfile
-import os
-import shutil
 import json
+import os
+import pathlib
+import shutil
+import tempfile
+import textwrap
 from unittest.mock import MagicMock, patch
 
 import yaml
@@ -507,6 +509,165 @@ def test__cli__command__fix(rule, fname):
     """Test the round trip of detecting, fixing and then not detecting the rule."""
     with open(fname) as test_file:
         generic_roundtrip_test(test_file, rule)
+
+
+@pytest.mark.parametrize(
+    "sql,fix_args,fixed,exit_code",
+    [
+        (
+            # - One lint error: "where" is lower case
+            # - Not fixable because of parse error, hence error exit
+            """
+            SELECT my_col
+            FROM my_schema.my_table
+            where processdate ! 3
+            """,
+            ["--force", "--fixed-suffix", "FIXED", "--rules", "L010"],
+            None,
+            1,
+        ),
+        (
+            # - One lint error: "where" is lower case
+            # - Not fixable because of templater error, hence error exit
+            """
+            SELECT my_col
+            FROM my_schema.my_table
+            where processdate {{ condition }}
+            """,
+            ["--force", "--fixed-suffix", "FIXED", "--rules", "L010"],
+            None,
+            1,
+        ),
+        (
+            # - One lint error: "where" is lower case
+            # - Not fixable because of parse error (even though "noqa"), hence
+            #   error exit
+            """
+            SELECT my_col
+            FROM my_schema.my_table
+            where processdate ! 3  -- noqa: PRS
+            """,
+            ["--force", "--fixed-suffix", "FIXED", "--rules", "L010"],
+            None,
+            1,
+        ),
+        (
+            # - No lint errors
+            # - Parse error not suppressed, hence error exit
+            """
+            SELECT my_col
+            FROM my_schema.my_table
+            WHERE processdate ! 3
+            """,
+            ["--force", "--fixed-suffix", "FIXED", "--rules", "L010"],
+            None,
+            1,
+        ),
+        (
+            # - No lint errors
+            # - Parse error suppressed, hence success exit
+            """
+            SELECT my_col
+            FROM my_schema.my_table
+            WHERE processdate ! 3  --noqa: PRS
+            """,
+            ["--force", "--fixed-suffix", "FIXED", "--rules", "L010"],
+            None,
+            0,
+        ),
+        (
+            # - One lint error: "where" is lower case
+            # - Parse error not suppressed
+            # - "--FIX-EVEN-UNPARSABLE", hence fix anyway & success exit
+            """
+            SELECT my_col
+            FROM my_schema.my_table
+            where processdate ! 3
+            """,
+            [
+                "--force",
+                "--fixed-suffix",
+                "FIXED",
+                "--rules",
+                "L010",
+                "--FIX-EVEN-UNPARSABLE",
+            ],
+            """
+            SELECT my_col
+            FROM my_schema.my_table
+            WHERE processdate ! 3
+            """,
+            0,
+        ),
+        (
+            # Two files:
+            # File #1:
+            #   - One lint error: "where" is lower case
+            #   - Not fixable because of parse error
+            # File #2:
+            #   - One lint error: "where" is lower case
+            #   - No parse error, thus fixable
+            # Should fix the second file but not the first, and exit with an
+            # error.
+            [
+                """
+                SELECT my_col
+                FROM my_schema.my_table
+                where processdate ! 3
+                """,
+                """SELECT my_col
+                FROM my_schema.my_table
+                where processdate != 3""",
+            ],
+            ["--force", "--fixed-suffix", "FIXED", "--rules", "L010"],
+            [
+                None,
+                """SELECT my_col
+                FROM my_schema.my_table
+                WHERE processdate != 3""",
+            ],
+            1,
+        ),
+    ],
+    ids=[
+        "1_lint_error_1_unsuppressed_parse_error",
+        "1_lint_error_1_unsuppressed_templating_error",
+        "1_lint_error_1_suppressed_parse_error",
+        "0_lint_errors_1_unsuppressed_parse_error",
+        "0_lint_errors_1_suppressed_parse_error",
+        "1_lint_error_1_unsuppressed_parse_error_FIX_EVEN_UNPARSABLE",
+        "2_files_with_lint_errors_1_unsuppressed_parse_error",
+    ],
+)
+def test__cli__fix_error_handling_behavior(sql, fix_args, fixed, exit_code, tmpdir):
+    """Tests how "fix" behaves wrt parse errors, exit code, etc."""
+    if not isinstance(sql, list):
+        sql = [sql]
+    if not isinstance(fixed, list):
+        fixed = [fixed]
+    assert len(sql) == len(fixed)
+    tmp_path = pathlib.Path(str(tmpdir))
+    for idx, this_sql in enumerate(sql):
+        filepath = tmp_path / f"testing{idx+1}.sql"
+        filepath.write_text(textwrap.dedent(this_sql))
+    with tmpdir.as_cwd():
+        with pytest.raises(SystemExit) as e:
+            fix(
+                fix_args
+                + [
+                    "-f",
+                ]
+            )
+        assert exit_code == e.value.code
+    for idx, this_fixed in enumerate(fixed):
+        fixed_path = tmp_path / f"testing{idx+1}FIXED.sql"
+        if this_fixed is not None:
+            assert textwrap.dedent(this_fixed) == fixed_path.read_text()
+        else:
+            # A None value indicates "sqlfluff fix" should have skipped any
+            # fixes for this file. To confirm this, we verify that the output
+            # file WAS NOT EVEN CREATED.
+            assert not fixed_path.is_file()
 
 
 # Test case disabled because there isn't a good example of where to test this.

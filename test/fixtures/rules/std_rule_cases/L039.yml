@@ -75,3 +75,19 @@ test_fix_tsql_spaced_chars:
   configs:
     core:
       dialect: tsql
+
+# Check CASE Statment parses with newlines properly
+# See https://github.com/sqlfluff/sqlfluff/issues/2495
+test_pass_postgres_case_statement:
+  pass_str: |
+    SELECT
+        a,
+        CASE
+            WHEN 1 THEN 'one'
+            WHEN 2 THEN 'two'
+            ELSE 'other'
+        END AS b
+    FROM test;
+  configs:
+    core:
+      dialect: postgres

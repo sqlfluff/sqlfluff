@@ -10,8 +10,9 @@ import sqlfluff.core.rules.functional.segment_predicates as sp
 class Rule_L013(BaseRule):
     """Column expression without alias. Use explicit `AS` clause.
 
-    | **Anti-pattern**
-    | In this example, there is no alias for both sums.
+    **Anti-pattern**
+
+    In this example, there is no alias for both sums.
 
     .. code-block:: sql
 
@@ -20,8 +21,9 @@ class Rule_L013(BaseRule):
             sum(b)
         FROM foo
 
-    | **Best practice**
-    | Add aliases.
+    **Best practice**
+
+    Add aliases.
 
     .. code-block:: sql
 

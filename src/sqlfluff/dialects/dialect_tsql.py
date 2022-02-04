@@ -84,6 +84,11 @@ tsql_dialect.sets("datetime_units").update(
     ]
 )
 
+tsql_dialect.sets("date_part_function_name").clear()
+tsql_dialect.sets("date_part_function_name").update(
+    ["DATEADD", "DATEDIFF", "DATEDIFF_BIG", "DATENAME"]
+)
+
 tsql_dialect.insert_lexer_matchers(
     [
         RegexLexer(
@@ -1562,66 +1567,72 @@ class SetStatementSegment(BaseSegment):
     type = "set_segment"
     match_grammar = Sequence(
         "SET",
-        OneOf(
-            Ref("ParameterNameSegment"),
-            "DATEFIRST",
-            "DATEFORMAT",
-            "DEADLOCK_PRIORITY",
-            "LOCK_TIMEOUT",
-            "CONCAT_NULL_YIELDS_NULL",
-            "CURSOR_CLOSE_ON_COMMIT",
-            "FIPS_FLAGGER",
-            Sequence("IDENTITY_INSERT", Ref("TableReferenceSegment")),
-            "LANGUAGE",
-            "OFFSETS",
-            "QUOTED_IDENTIFIER",
-            "ARITHABORT",
-            "ARITHIGNORE",
-            "FMTONLY",
-            "NOCOUNT",
-            "NOEXEC",
-            "NUMERIC_ROUNDABORT",
-            "PARSEONLY",
-            "QUERY_GOVERNOR_COST_LIMIT",
-            "RESULT_SET_CACHING",  # Azure Synapse Analytics specific
-            "ROWCOUNT",
-            "TEXTSIZE",
-            "ANSI_DEFAULTS",
-            "ANSI_NULL_DFLT_OFF",
-            "ANSI_NULL_DFLT_ON",
-            "ANSI_NULLS",
-            "ANSI_PADDING",
-            "ANSI_WARNINGS",
-            "FORCEPLAN",
-            "SHOWPLAN_ALL",
-            "SHOWPLAN_TEXT",
-            "SHOWPLAN_XML",
+        Indent,
+        Delimited(
             Sequence(
-                "STATISTICS",
                 OneOf(
-                    "IO",
-                    "PROFILE",
-                    "TIME",
-                    "XML",
+                    Ref("ParameterNameSegment"),
+                    "DATEFIRST",
+                    "DATEFORMAT",
+                    "DEADLOCK_PRIORITY",
+                    "LOCK_TIMEOUT",
+                    "CONCAT_NULL_YIELDS_NULL",
+                    "CURSOR_CLOSE_ON_COMMIT",
+                    "FIPS_FLAGGER",
+                    Sequence("IDENTITY_INSERT", Ref("TableReferenceSegment")),
+                    "LANGUAGE",
+                    "OFFSETS",
+                    "QUOTED_IDENTIFIER",
+                    "ARITHABORT",
+                    "ARITHIGNORE",
+                    "FMTONLY",
+                    "NOCOUNT",
+                    "NOEXEC",
+                    "NUMERIC_ROUNDABORT",
+                    "PARSEONLY",
+                    "QUERY_GOVERNOR_COST_LIMIT",
+                    "RESULT_SET_CACHING",  # Azure Synapse Analytics specific
+                    "ROWCOUNT",
+                    "TEXTSIZE",
+                    "ANSI_DEFAULTS",
+                    "ANSI_NULL_DFLT_OFF",
+                    "ANSI_NULL_DFLT_ON",
+                    "ANSI_NULLS",
+                    "ANSI_PADDING",
+                    "ANSI_WARNINGS",
+                    "FORCEPLAN",
+                    "SHOWPLAN_ALL",
+                    "SHOWPLAN_TEXT",
+                    "SHOWPLAN_XML",
+                    Sequence(
+                        "STATISTICS",
+                        OneOf(
+                            "IO",
+                            "PROFILE",
+                            "TIME",
+                            "XML",
+                        ),
+                    ),
+                    "IMPLICIT_TRANSACTIONS",
+                    "REMOTE_PROC_TRANSACTIONS",
+                    Sequence(
+                        "TRANSACTION",
+                        "ISOLATION",
+                        "LEVEL",
+                    ),
+                    "XACT_ABORT",
+                ),
+                OneOf(
+                    "ON",
+                    "OFF",
+                    Sequence(
+                        Ref("EqualsSegment"),
+                        Ref("ExpressionSegment"),
+                    ),
                 ),
             ),
-            "IMPLICIT_TRANSACTIONS",
-            "REMOTE_PROC_TRANSACTIONS",
-            Sequence(
-                "TRANSACTION",
-                "ISOLATION",
-                "LEVEL",
-            ),
-            "XACT_ABORT",
         ),
-        OneOf(
-            "ON",
-            "OFF",
-            Sequence(
-                Ref("EqualsSegment"),
-                Ref("ExpressionSegment"),
-            ),
-        ),
+        Dedent,
         Ref("DelimiterSegment", optional=True),
     )
 
@@ -1907,6 +1918,9 @@ class FunctionSegment(BaseSegment):
     type = "function"
     match_grammar = OneOf(
         Sequence(
+            # Treat functions which take date parts separately
+            # So those functions parse date parts as DatetimeUnitSegment
+            # rather than identifiers.
             Ref("DatePartFunctionNameSegment"),
             Bracketed(
                 Delimited(
@@ -2764,9 +2778,11 @@ class UpdateStatementSegment(BaseSegment):
     type = "update_statement"
     match_grammar = Sequence(
         "UPDATE",
+        Indent,
         OneOf(Ref("TableReferenceSegment"), Ref("AliasedTableReferenceGrammar")),
         Ref("PostTableExpressionGrammar", optional=True),
         Ref("SetClauseListSegment"),
+        Dedent,
         Ref("FromClauseSegment", optional=True),
         Ref("WhereClauseSegment", optional=True),
         Ref("DelimiterSegment", optional=True),
@@ -2807,17 +2823,6 @@ class SetClauseSegment(BaseSegment):
         Ref("EqualsSegment"),
         Ref("ExpressionSegment"),
     )
-
-
-@tsql_dialect.segment(replace=True)
-class DatePartFunctionNameSegment(BaseSegment):
-    """DATEADD function name segment.
-
-    Override to support DATEDIFF as well
-    """
-
-    type = "function_name"
-    match_grammar = OneOf("DATEADD", "DATEDIFF", "DATEDIFF_BIG", "DATENAME")
 
 
 @tsql_dialect.segment()
