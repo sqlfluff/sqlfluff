@@ -265,7 +265,7 @@ def core_options(f: Callable) -> Callable:
             "run. For example `--ignore parsing` would mean that any parsing errors "
             "are ignored and don't influence the success or fail of a run. "
             "`--ignore` behaves somewhat like `noqa` comments, except it "
-            "applies globally. Multiple options are possible if comma separated "
+            "applies globally. Multiple options are possible if comma separated: "
             "e.g. `--ignore parsing,templating`."
         ),
     )(f)
