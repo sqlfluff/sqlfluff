@@ -97,6 +97,7 @@ def fix(
     rules: Optional[List[str]] = None,
     exclude_rules: Optional[List[str]] = None,
     config_path: Optional[str] = None,
+    fix_even_unparsable: Optional[bool] = None,
 ) -> str:
     """Fix a SQL string.
 
@@ -123,8 +124,18 @@ def fix(
     linter = Linter(config=cfg)
 
     result = linter.lint_string_wrapped(sql, fix=True)
-    fixed_string = result.paths[0].files[0].fix_string()[0]
-    return fixed_string
+    if fix_even_unparsable is None:
+        fix_even_unparsable = cfg.get("fix_even_unparsable")
+    should_fix = True
+    if not fix_even_unparsable:
+        # If fix_even_unparsable wasn't set, check for templating or parse
+        # errors and suppress fixing if there were any.
+        _, num_filtered_errors = result.count_tmp_prs_errors()
+        if num_filtered_errors > 0:
+            should_fix = False
+    if should_fix:
+        sql = result.paths[0].files[0].fix_string()[0]
+    return sql
 
 
 def parse(
