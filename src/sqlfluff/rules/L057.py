@@ -95,7 +95,7 @@ class Rule_L057(BaseRule):
             # https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-file.html
             #
             # Path Glob Filters (done inline for SQL direct file query)
-            # https://spark.apache.org/docs/latest/sql-data-sources-generic-options.html#path-global-filter  # noqa: E501
+            # https://spark.apache.org/docs/latest/sql-data-sources-generic-options.html#path-global-filter
             #
 
             if (
