@@ -200,7 +200,7 @@ class LintingResult:
                 )
         return total_errors, num_filtered_errors
 
-    def mark_failed_files_unfixable(self) -> None:
+    def discard_fixes_for_lint_errors_in_files_with_tmp_or_prs_errors(self) -> None:
         """Discard lint fixes for files with templating or parse errors."""
         total_errors = self.num_violations(
             types=self.TMP_PRS_ERROR_TYPES, filter_ignore=False

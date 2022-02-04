@@ -576,14 +576,14 @@ def lint(
         sys.exit(0)
 
 
-def _mark_failed_files_unfixable(lint_result: LintingResult) -> int:
+def _handle_files_with_tmp_or_prs_errors(lint_result: LintingResult) -> int:
     """Discard lint fixes for files with templating or parse errors.
 
     Returns 1 if there are any files with templating or parse errors after
     filtering, else 0. (Intended as a process exit code.)
     """
     total_errors, num_filtered_errors = lint_result.count_tmp_prs_errors()
-    lint_result.mark_failed_files_unfixable()
+    lint_result.discard_fixes_for_lint_errors_in_files_with_tmp_or_prs_errors()
     if total_errors:
         click.echo(
             colorize(f"  [{total_errors} templating/parsing errors found]", Color.red)
@@ -701,7 +701,7 @@ def fix(
         templater_error = result.num_violations(types=SQLTemplaterError) > 0
         unfixable_error = result.num_violations(types=SQLLintError, fixable=False) > 0
         if not fix_even_unparsable:
-            exit_code = _mark_failed_files_unfixable(result)
+            exit_code = _handle_files_with_tmp_or_prs_errors(result)
 
         if result.num_violations(types=SQLLintError, fixable=True) > 0:
             stdout = result.paths[0].files[0].fix_string()[0]
@@ -752,7 +752,7 @@ def fix(
         sys.exit(1)
 
     if not fix_even_unparsable:
-        exit_code = _mark_failed_files_unfixable(result)
+        exit_code = _handle_files_with_tmp_or_prs_errors(result)
 
     # NB: We filter to linting violations here, because they're
     # the only ones which can be potentially fixed.
