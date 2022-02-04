@@ -207,7 +207,12 @@ spark3_dialect.replace(
 )
 
 spark3_dialect.add(
-    # Add Hive Segments TODO : Is there a way to retrieve this w/o redefining?
+    BinaryfileKeywordSegment=StringParser(
+        "BINARYFILE",
+        KeywordSegment,
+        name="binary_file",
+        type="file_format",
+    ),
     JsonfileKeywordSegment=StringParser(
         "JSONFILE",
         KeywordSegment,
@@ -246,7 +251,6 @@ spark3_dialect.add(
         "BracketedPropertyListGrammar"
     ),
     CommentGrammar=hive_dialect.get_grammar("CommentGrammar"),
-    FileFormatGrammar=hive_dialect.get_grammar("FileFormatGrammar"),
     LocationGrammar=hive_dialect.get_grammar("LocationGrammar"),
     PropertyGrammar=hive_dialect.get_grammar("PropertyGrammar"),
     SerdePropertiesGrammar=hive_dialect.get_grammar("SerdePropertiesGrammar"),
@@ -270,7 +274,11 @@ spark3_dialect.add(
     DatabasePropertiesGrammar=Sequence(
         "DBPROPERTIES", Ref("BracketedPropertyListGrammar")
     ),
-    DataSourceFormatGrammar=OneOf(
+    DataSourcesV2FileTypeGrammar=OneOf(
+        # https://github.com/apache/spark/tree/master/sql/core/src/main/scala/org/apache/spark/sql/execution/datasources/v2  # noqa: E501
+        # Separated here because these allow for additional
+        # commands such as Select From File
+        # https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-file.html
         # Spark Core Data Sources
         # https://spark.apache.org/docs/latest/sql-data-sources.html
         "AVRO",
@@ -278,10 +286,31 @@ spark3_dialect.add(
         "JSON",
         "PARQUET",
         "ORC",
-        "JDBC",
-        # Community Contributed Data Sources
+        # Separated here because these allow for additional commands
+        # Similar to DataSourcesV2
         "DELTA",  # https://github.com/delta-io/delta
-        "XML",  # https://github.com/databricks/spark-xml
+        "CSV",
+        "TEXT",
+        "BINARYFILE",
+    ),
+    FileFormatGrammar=OneOf(
+        Ref("DataSourcesV2FileTypeGrammar"),
+        "SEQUENCEFILE",
+        "TEXTFILE",
+        "RCFILE",
+        "JSONFILE",
+        Sequence(
+            "INPUTFORMAT",
+            Ref("QuotedLiteralSegment"),
+            "OUTPUTFORMAT",
+            Ref("QuotedLiteralSegment"),
+        ),
+    ),
+    DataSourceFormatGrammar=OneOf(
+        Ref("FileFormatGrammar"),
+        # NB: JDBC is part of DataSourceV2 but not included
+        # there since there are no significant syntax changes
+        "JDBC",
     ),
     # Adding Hint related segments so they are not treated as generic comments
     # https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-hints.html
@@ -1600,4 +1629,41 @@ class ValuesClauseSegment(BaseSegment):
         "VALUES",
         Ref("DelimitedValues"),
         Ref("AliasExpressionSegment", optional=True),
+    )
+
+
+@spark3_dialect.segment(replace=True)
+class TableExpressionSegment(BaseSegment):
+    """The main table expression e.g. within a FROM clause.
+
+    Enhance to allow for additional clauses allowed in Spark.
+    """
+
+    type = "table_expression"
+    match_grammar = OneOf(
+        Ref("ValuesClauseSegment"),
+        Ref("BareFunctionSegment"),
+        Ref("FunctionSegment"),
+        Ref("FileReferenceSegment"),
+        Ref("TableReferenceSegment"),
+        # Nested Selects
+        Bracketed(Ref("SelectableGrammar")),
+    )
+
+
+@spark3_dialect.segment()
+class FileReferenceSegment(BaseSegment):
+    """A reference to a file for direct query.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-file.html
+    """
+
+    type = "file_reference"
+
+    match_grammar = Sequence(
+        Ref("DataSourcesV2FileTypeGrammar"),
+        Ref("DotSegment"),
+        # NB: Using `QuotedLiteralSegment` here causes `FileReferenceSegment`
+        # to match as a `TableReferenceSegment`
+        Ref("QuotedIdentifierSegment"),
     )
