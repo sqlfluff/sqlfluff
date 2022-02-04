@@ -41,7 +41,7 @@ SELECT
 FROM text.`examples/src/main/resources/people.txt`;
 
 -- Tests for Inline Path Glob Filter
--- https://spark.apache.org/docs/latest/sql-data-sources-generic-options.html#path-global-filter
+-- https://spark.apache.org/docs/latest/sql-data-sources-generic-options.html#path-global-filter  --noqa: L016
 -- Inline Path Filter using Asterisk (*)
 SELECT
     a,
