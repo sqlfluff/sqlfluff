@@ -309,7 +309,7 @@ spark3_dialect.add(
     DataSourceFormatGrammar=OneOf(
         Ref("FileFormatGrammar"),
         # NB: JDBC is part of DataSourceV2 but not included
-        # there since there are no no significant syntax changes
+        # there since there are no significant syntax changes
         "JDBC",
     ),
     # Adding Hint related segments so they are not treated as generic comments
