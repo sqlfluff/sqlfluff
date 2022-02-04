@@ -649,7 +649,7 @@ def do_fixes(lnt, result, formatter=None, **kwargs):
         "Enables fixing of files that have templating or parse errors. "
         "Note that the similar-sounding '--ignore' or 'noqa' features merely "
         "prevent errors from being *displayed*. For safety reasons, the 'fix'"
-        "command will not make any fixes in files that had templating or parse "
+        "command will not make any fixes in files that have templating or parse "
         "errors unless '--FIX-EVEN-UNPARSABLE' is enabled on the command line"
         "or in the .sqlfluff config file."
     ),
