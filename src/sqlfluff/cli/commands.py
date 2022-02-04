@@ -582,7 +582,8 @@ def _mark_failed_files_unfixable(lint_result: LintingResult) -> int:
     Returns 1 if there are any files with templating or parse errors after
     filtering, else 0. (Intended as a process exit code.)
     """
-    total_errors, num_filtered_errors = lint_result.mark_failed_files_unfixable()
+    total_errors, num_filtered_errors = lint_result.count_tmp_prs_errors()
+    lint_result.mark_failed_files_unfixable()
     if total_errors:
         click.echo(
             colorize(f"  [{total_errors} templating/parsing errors found]", Color.red)
@@ -716,8 +717,9 @@ def fix(
             )
             click.echo(
                 colorize(
-                    "Use '--ignore templating' and '--fix-even-unparsable' to "
-                    "attempt to fix anyway.",
+                    "Use --fix-even-unparsable' to attempt to fix the SQL anyway, "
+                    " and use '--ignore templating' to avoid outputting templating "
+                    " errors as well.",
                     Color.red,
                 ),
                 err=True,
@@ -727,7 +729,7 @@ def fix(
             click.echo(colorize("Unfixable violations detected.", Color.red), err=True)
 
         click.echo(stdout, nl=False)
-        sys.exit(1 if templater_error or unfixable_error else 0)
+        sys.exit(1 if templater_error or unfixable_error else exit_code)
 
     # Lint the paths (not with the fix argument at this stage), outputting as we go.
     click.echo("==== finding fixable violations ====")

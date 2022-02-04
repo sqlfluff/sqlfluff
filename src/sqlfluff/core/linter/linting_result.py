@@ -185,25 +185,31 @@ class LintingResult:
             )
         return self.paths[0].tree
 
-    def mark_failed_files_unfixable(self) -> Tuple[int, int]:
-        """Discard lint fixes for files with templating or parse errors.
+    TMP_PRS_ERROR_TYPES = (SQLTemplaterError, SQLParseError)
 
-        Scan all LintedFiles:
-        - Files with none of these errors: No action
-        - Files with these errors (before filtering): Removes fixes from
-          SQLLintError objects, i.e. marks them "unfixable"
-
-        Also returns the total number of these errors before and after
-        "ignore/noqa" filters are applied.
-        """
-        types = (SQLParseError, SQLTemplaterError)
-        total_errors = self.num_violations(types=types, filter_ignore=False)
+    def count_tmp_prs_errors(self) -> Tuple[int, int]:
+        """Count templating or parse errors before and after filtering."""
+        total_errors = self.num_violations(
+            types=self.TMP_PRS_ERROR_TYPES, filter_ignore=False
+        )
         num_filtered_errors = 0
+        for linted_dir in self.paths:
+            for linted_file in linted_dir.files:
+                num_filtered_errors += linted_file.num_violations(
+                    types=self.TMP_PRS_ERROR_TYPES
+                )
+        return total_errors, num_filtered_errors
+
+    def mark_failed_files_unfixable(self) -> None:
+        """Discard lint fixes for files with templating or parse errors."""
+        total_errors = self.num_violations(
+            types=self.TMP_PRS_ERROR_TYPES, filter_ignore=False
+        )
         if total_errors:
             for linted_dir in self.paths:
                 for linted_file in linted_dir.files:
                     num_errors = linted_file.num_violations(
-                        types=types, filter_ignore=False
+                        types=self.TMP_PRS_ERROR_TYPES, filter_ignore=False
                     )
                     if num_errors:
                         # File has errors. Discard all the fixes: they are
@@ -211,5 +217,3 @@ class LintingResult:
                         for violation in linted_file.violations:
                             if hasattr(violation, "fixes"):
                                 violation.fixes = []  # type: ignore
-                        num_filtered_errors += linted_file.num_violations(types=types)
-        return total_errors, num_filtered_errors
