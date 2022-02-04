@@ -131,7 +131,6 @@ def fix(
         # If fix_even_unparsable wasn't set, check for templating or parse
         # errors and suppress fixing if there were any.
         _, num_filtered_errors = result.count_tmp_prs_errors()
-        result.discard_fixes_for_lint_errors_in_files_with_tmp_or_prs_errors()
         if num_filtered_errors > 0:
             should_fix = False
     if should_fix:
