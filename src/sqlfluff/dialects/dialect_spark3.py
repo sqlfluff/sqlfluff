@@ -275,7 +275,7 @@ spark3_dialect.add(
         "DBPROPERTIES", Ref("BracketedPropertyListGrammar")
     ),
     DataSourcesV2FileTypeGrammar=OneOf(
-        # https://github.com/apache/spark/tree/master/sql/core/src/main/scala/org/apache/spark/sql/execution/datasources/v2 # noqa: E501
+        # https://github.com/apache/spark/tree/master/sql/core/src/main/scala/org/apache/spark/sql/execution/datasources/v2  # noqa: E501
         # Separated here because these allow for additional
         # commands such as Select From File
         # https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-file.html
