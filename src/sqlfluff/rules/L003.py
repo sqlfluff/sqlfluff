@@ -882,11 +882,15 @@ class Rule_L003(BaseRule):
         if not cls._single_placeholder_line(current_line):
             return False
         for idx in range(1, len(current_line)):
-            if segment_info(idx - 1) in (
-                ("placeholder", "block_start"),
-                ("placeholder", "compound"),
-                ("placeholder", "block_mid"),
-            ) and segment_info(idx) == ("indent", None):
+            if (
+                segment_info(idx - 1)
+                in (
+                    ("placeholder", "block_start"),
+                    ("placeholder", "compound"),
+                    ("placeholder", "block_mid"),
+                )
+                and segment_info(idx) == ("indent", None)
+            ):
                 return True
         return False
 

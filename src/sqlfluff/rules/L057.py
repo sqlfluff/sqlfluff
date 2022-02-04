@@ -100,8 +100,19 @@ class Rule_L057(BaseRule):
 
             # Strip out special characters before testing the identifier
             spark3_allowed_identifiers = [
-                ".", "/", "\\", "*", "?", "[", "]",
-                "^", "-", "{", "}", ",", " "
+                ".",
+                "/",
+                "\\",
+                "*",
+                "?",
+                "[",
+                "]",
+                "^",
+                "-",
+                "{",
+                "}",
+                ",",
+                " ",
             ]
 
             if (
