@@ -427,7 +427,7 @@ class JinjaTracer:
 
     @classmethod
     def _remove_block_whitespace_control(cls, in_str: str) -> Optional[str]:
-        """Removes whitespace control from a Jinja fragment.
+        """Removes whitespace control from a Jinja block start or end.
 
         Use of Jinja whitespace stripping (e.g. `{%-` or `-%}`) causes the
         template to produce less output. This makes JinjaTracer's job harder,
