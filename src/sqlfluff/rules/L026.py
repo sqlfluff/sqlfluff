@@ -30,12 +30,14 @@ class L026Query(SelectCrawlerQuery):
 class Rule_L026(BaseRule):
     """References cannot reference objects not present in ``FROM`` clause.
 
-    NB: This rule is disabled by default for BigQuery due to its use of
-    structs which trigger false positives. It can be enabled with the
-    ``force_enable = True`` flag.
+    .. note::
+       This rule is disabled by default for BigQuery due to its use of
+       structs which trigger false positives. It can be enabled with the
+       ``force_enable = True`` flag.
 
-    | **Anti-pattern**
-    | In this example, the reference ``vee`` has not been declared.
+    **Anti-pattern**
+
+    In this example, the reference ``vee`` has not been declared.
 
     .. code-block:: sql
 
@@ -43,8 +45,9 @@ class Rule_L026(BaseRule):
             vee.a
         FROM foo
 
-    | **Best practice**
-    |  Remove the reference.
+    **Best practice**
+
+    Remove the reference.
 
     .. code-block:: sql
 

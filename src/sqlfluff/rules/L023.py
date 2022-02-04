@@ -12,7 +12,7 @@ from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 class Rule_L023(BaseRule):
     """Single whitespace expected after ``AS`` in ``WITH`` clause.
 
-    | **Anti-pattern**
+    **Anti-pattern**
 
     .. code-block:: sql
 
@@ -23,10 +23,10 @@ class Rule_L023(BaseRule):
         SELECT a FROM plop
 
 
-    | **Best practice**
-    | The • character represents a space.
-    | Add a space after ``AS``, to avoid confusing
-    | it for a function.
+    **Best practice**
+
+    Add a space after ``AS``, to avoid confusing it for a function.
+    The ``•`` character represents a space.
 
     .. code-block:: sql
        :force:

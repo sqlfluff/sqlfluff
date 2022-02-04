@@ -15,7 +15,7 @@ class Rule_L062(BaseRule):
 
     This block list is case insensitive.
 
-    Example use cases:
+    **Example use cases**
 
     * We prefer ``BOOL`` over ``BOOLEAN`` and there is no existing rule to enforce
       this. Until such a rule is written, we can add ``BOOLEAN`` to the deny list
@@ -24,17 +24,19 @@ class Rule_L062(BaseRule):
       in future. We can add that to the denylist and then add a ``-- noqa: L062`` for
       the few exceptions that still need to be in the code base for now.
 
-    | **Anti-pattern**
-    | If the ``blocked_words`` config is set to ``deprecated_table,bool`` then the
-    | following will flag:
+    **Anti-pattern**
+
+    If the ``blocked_words`` config is set to ``deprecated_table,bool`` then the
+    following will flag:
 
     .. code-block:: sql
 
         SELECT * FROM deprecated_table WHERE 1 = 1;
         CREATE TABLE myschema.t1 (a BOOL);
 
-    | **Best practice**
-    | Do not used any blocked words:
+    **Best practice**
+
+    Do not used any blocked words:
 
     .. code-block:: sql
 

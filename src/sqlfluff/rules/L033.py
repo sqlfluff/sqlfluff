@@ -10,24 +10,31 @@ from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
 class Rule_L033(BaseRule):
     """``UNION [DISTINCT|ALL]`` is preferred over just ``UNION``.
 
-    NB: This rule is only enabled for dialects that support ``UNION DISTINCT``
-    (``ansi``, ``bigquery``, ``hive``, and ``mysql``).
+    .. note::
+       This rule is only enabled for dialects that support ``UNION DISTINCT``
+       (``ansi``, ``bigquery``, ``hive``, and ``mysql``).
 
-    | **Anti-pattern**
-    | In this example, ``UNION DISTINCT`` should be preferred over ``UNION``, because
-    | explicit is better than implicit.
+    **Anti-pattern**
 
-    .. code-block:: sql
-
-        SELECT a, b FROM table_1 UNION SELECT a, b FROM table_2
-
-    | **Best practice**
-    | Specify ``DISTINCT`` or ``ALL`` after ``UNION``. (Note that ``DISTINCT`` is the
-    | default behavior.
+    In this example, ``UNION DISTINCT`` should be preferred over ``UNION``, because
+    explicit is better than implicit.
 
     .. code-block:: sql
 
-        SELECT a, b FROM table_1 UNION DISTINCT SELECT a, b FROM table_2
+        SELECT a, b FROM table_1
+        UNION
+        SELECT a, b FROM table_2
+
+    **Best practice**
+
+    Specify ``DISTINCT`` or ``ALL`` after ``UNION`` (note that ``DISTINCT`` is the
+    default behavior).
+
+    .. code-block:: sql
+
+        SELECT a, b FROM table_1
+        UNION DISTINCT
+        SELECT a, b FROM table_2
 
     """
 

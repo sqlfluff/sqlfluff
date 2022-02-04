@@ -45,8 +45,9 @@ def get_configs_info() -> dict:
 class Rule_Example_L001(BaseRule):
     """ORDER BY on these columns is forbidden!
 
-    | **Anti-pattern**
-    | Using ORDER BY one some forbidden columns.
+    **Anti-pattern**
+
+    Using ``ORDER BY`` one some forbidden columns.
 
     .. code-block:: sql
 
@@ -56,8 +57,9 @@ class Rule_Example_L001(BaseRule):
             bar,
             baz
 
-    | **Best practice**
-    | Do not order by these columns.
+    **Best practice**
+
+    Do not order by these columns.
 
     .. code-block:: sql
 

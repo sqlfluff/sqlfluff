@@ -13,8 +13,9 @@ from sqlfluff.rules.L014 import identifiers_policy_applicable
 class Rule_L057(BaseRule):
     """Do not use special characters in identifiers.
 
-    | **Anti-pattern**
-    | Using special characters within identifiers when creating or aliasing objects.
+    **Anti-pattern**
+
+    Using special characters within identifiers when creating or aliasing objects.
 
     .. code-block:: sql
 
@@ -26,8 +27,9 @@ class Rule_L057(BaseRule):
             Number# INT
         )
 
-    | **Best practice**
-    | Identifiers should include only alphanumerics and underscores.
+    **Best practice**
+
+    Identifiers should include only alphanumerics and underscores.
 
     .. code-block:: sql
 

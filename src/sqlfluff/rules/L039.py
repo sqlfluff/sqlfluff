@@ -12,7 +12,7 @@ from sqlfluff.core.rules.functional import sp
 class Rule_L039(BaseRule):
     """Unnecessary whitespace found.
 
-    | **Anti-pattern**
+    **Anti-pattern**
 
     .. code-block:: sql
 
@@ -20,9 +20,10 @@ class Rule_L039(BaseRule):
             a,        b
         FROM foo
 
-    | **Best practice**
-    | Unless an indent or preceding a comment, whitespace should
-    | be a single space.
+    **Best practice**
+
+    Unless an indent or preceding a comment, whitespace should
+    be a single space.
 
     .. code-block:: sql
 

@@ -9,8 +9,9 @@ from sqlfluff.core.rules.doc_decorators import document_fix_compatible
 class Rule_L053(BaseRule):
     """Top-level statements should not be wrapped in brackets.
 
-    | **Anti-pattern**
-    | A top-level statement is wrapped in brackets.
+    **Anti-pattern**
+
+    A top-level statement is wrapped in brackets.
 
     .. code-block:: sql
        :force:
@@ -25,8 +26,9 @@ class Rule_L053(BaseRule):
             foo
         FROM (SELECT * FROM bar))
 
-    | **Best practice**
-    | Don't wrap top-level statements in brackets.
+    **Best practice**
+
+    Don't wrap top-level statements in brackets.
 
     .. code-block:: sql
        :force:

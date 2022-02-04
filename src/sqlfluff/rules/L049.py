@@ -11,8 +11,9 @@ from sqlfluff.rules.L006 import Rule_L006
 class Rule_L049(Rule_L006):
     """Comparisons with NULL should use "IS" or "IS NOT".
 
-    | **Anti-pattern**
-    | In this example, the ``=`` operator is used to check for ``NULL`` values.
+    **Anti-pattern**
+
+    In this example, the ``=`` operator is used to check for ``NULL`` values.
 
     .. code-block:: sql
 
@@ -22,8 +23,9 @@ class Rule_L049(Rule_L006):
         WHERE a = NULL
 
 
-    | **Best practice**
-    | Use ``IS`` or ``IS NOT`` to check for ``NULL`` values.
+    **Best practice**
+
+    Use ``IS`` or ``IS NOT`` to check for ``NULL`` values.
 
     .. code-block:: sql
 
