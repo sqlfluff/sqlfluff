@@ -16,15 +16,14 @@ from sqlfluff.core.parser import (
     Delimited,
     Nothing,
     OptionallyBracketed,
+    Matchable,
 )
-
 from sqlfluff.core.dialects import load_raw_dialect
-
 from sqlfluff.dialects.dialect_redshift_keywords import (
     redshift_reserved_keywords,
     redshift_unreserved_keywords,
 )
-
+from sqlfluff.dialects.dialect_ansi import ObjectReferenceSegment
 
 postgres_dialect = load_raw_dialect("postgres")
 ansi_dialect = load_raw_dialect("ansi")
@@ -49,6 +48,32 @@ redshift_dialect.sets("date_part_function_name").update(["DATEADD", "DATEDIFF"])
 
 redshift_dialect.replace(WellKnownTextGeometrySegment=Nothing())
 
+@redshift_dialect.segment(replace=True)
+class ColumnReferenceSegment(ObjectReferenceSegment):
+    """A reference to column, field or alias."""
+
+    type = "column_reference"
+    match_grammar: Matchable = Delimited(
+        Sequence(
+            Ref("SingleIdentifierGrammar"),
+            AnyNumberOf(Ref("ArrayAccessorSegment"), optional=True),
+        ),
+        delimiter=OneOf(
+            Ref("DotSegment"), Sequence(Ref("DotSegment"), Ref("DotSegment"))
+        ),
+        terminator=OneOf(
+            "ON",
+            "AS",
+            "USING",
+            Ref("CommaSegment"),
+            Ref("CastOperatorSegment"),
+            Ref("BinaryOperatorGrammar"),
+            Ref("ColonSegment"),
+            Ref("DelimiterSegment"),
+            Ref("JoinLikeClauseGrammar"),
+        ),
+        allow_gaps=False,
+    )
 
 @redshift_dialect.segment(replace=True)
 class DatatypeSegment(BaseSegment):
