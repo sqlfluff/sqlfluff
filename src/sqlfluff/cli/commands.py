@@ -718,9 +718,7 @@ def fix(
             )
             click.echo(
                 colorize(
-                    "Use --fix-even-unparsable' to attempt to fix the SQL anyway, "
-                    " and use '--ignore templating' to avoid outputting templating "
-                    " errors as well.",
+                    "Use --fix-even-unparsable' to attempt to fix the SQL anyway.",
                     Color.red,
                 ),
                 err=True,
