@@ -588,14 +588,15 @@ def _mark_failed_files_unfixable(lint_result: LintingResult) -> int:
         click.echo(
             colorize(f"  [{total_errors} templating/parsing errors found]", Color.red)
         )
-        if 0 < num_filtered_errors < total_errors:
+        if num_filtered_errors < total_errors:
+            color = Color.red if num_filtered_errors else Color.green
             click.echo(
                 colorize(
                     f"  [{num_filtered_errors} templating/parsing errors "
                     f'remaining after "ignore"]',
-                    Color.red,
+                    color,
                 )
-            )  # pragma: no cover
+            )
     return 1 if num_filtered_errors else 0
 
 
