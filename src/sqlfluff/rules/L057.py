@@ -90,30 +90,13 @@ class Rule_L057(BaseRule):
                 identifier = identifier.replace(".", "")
 
             # Spark3 file references for direct file query
-            # are quoted in back ticks to allow for dots and regex patterns
+            # are quoted in back ticks to allow for identfiers common
+            # in file paths and regex patterns for path globbing
             # https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-file.html
             #
             # Path Glob Filters (done inline for SQL direct file query)
             # https://spark.apache.org/docs/latest/sql-data-sources-generic-options.html#path-global-filter  # noqa: E501
             #
-            # Paths also allow for "/" and "."
-
-            # Strip out special characters before testing the identifier
-            spark3_allowed_identifiers = [
-                ".",
-                "/",
-                "\\",
-                "*",
-                "?",
-                "[",
-                "]",
-                "^",
-                "-",
-                "{",
-                "}",
-                ",",
-                " ",
-            ]
 
             if (
                 context.dialect.name in ["spark3"]
