@@ -1,6 +1,7 @@
 """Tests for simple use cases of the public api."""
 
 import json
+import pathlib
 
 import pytest
 
@@ -254,6 +255,41 @@ def test__api__config_path():
 
     # Compare JSON from parse to expected result.
     assert parsed == expected_parsed
+
+
+@pytest.mark.parametrize(
+    "exclude_sqlfluff,kwargs,expected",
+    [
+        (
+            # No override from API, so uses .sqlfluff value
+            "L027,L029",
+            {},
+            set(),
+        ),
+        (
+            # API overrides, so it uses that
+            "L027,L029",
+            dict(exclude_rules=["L027"]),
+            {"L029"},
+        ),
+    ],
+)
+def test__api__config_override(exclude_sqlfluff, kwargs, expected, tmpdir):
+    """Test that parameters to lint() override .sqlfluff correctly (or not)."""
+    tmp_path = pathlib.Path(str(tmpdir))
+    config_path = tmp_path / ".sqlfluff"
+    with tmpdir.as_cwd():
+        config_path.write_text(
+            """[sqlfluff]
+exclude_rules = {}""".format(
+                exclude_sqlfluff
+            )
+        )
+        sql = "SELECT TRIM(name) AS name FROM some_table"
+        lint_results = sqlfluff.lint(sql, config_path=str(config_path), **kwargs)
+        assert expected == {"L027", "L029"}.intersection(
+            {lr["code"] for lr in lint_results}
+        )
 
 
 def test__api__invalid_dialect():
