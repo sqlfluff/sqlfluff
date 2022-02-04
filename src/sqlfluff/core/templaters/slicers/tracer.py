@@ -150,7 +150,7 @@ class JinjaTracer:
                 for next_slice_idx in self.raw_slice_info[
                     current_raw_slice
                 ].next_slice_indices:
-                    # It's a valid possibility iff it does not take us past the
+                    # It's a valid possibility if it does not take us past the
                     # target.
                     if next_slice_idx <= target_slice_idx:
                         candidates.append(next_slice_idx)
