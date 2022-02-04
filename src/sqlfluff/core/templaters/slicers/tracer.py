@@ -354,6 +354,10 @@ class JinjaTracer:
                     # returns, it has simply grouped them differently than we
                     # want.
                     trailing_chars = len(m.group(0))
+                    if block_type.startswith("block_"):
+                        alternate_code = self._remove_block_whitespace_control(
+                            str_buff[:-trailing_chars]
+                        )
                     result.append(
                         RawFileSlice(
                             str_buff[:-trailing_chars],
@@ -377,6 +381,8 @@ class JinjaTracer:
                     self.raw_slice_info[result[-1]] = RawSliceInfo("", "", [])
                     idx += trailing_chars
                 else:
+                    if block_type.startswith("block_"):
+                        alternate_code = self._remove_block_whitespace_control(str_buff)
                     result.append(
                         RawFileSlice(
                             str_buff,
@@ -418,3 +424,17 @@ class JinjaTracer:
                     stack.pop()
                 str_buff = ""
         return result
+
+    @classmethod
+    def _remove_block_whitespace_control(cls, in_str: str) -> Optional[str]:
+        """Removes whitespace control from a Jinja block start or end.
+
+        Use of Jinja whitespace stripping (e.g. `{%-` or `-%}`) causes the
+        template to produce less output. This makes JinjaTracer's job harder,
+        because it uses the "bread crumb trail" of output to deduce the
+        execution path through the template. This change has no impact on the
+        actual Jinja output, which uses the original, unmodified code.
+        """
+        result = regex.sub(r"^{%-", "{%", in_str)
+        result = regex.sub(r"-%}$", "%}", result)
+        return result if result != in_str else None
