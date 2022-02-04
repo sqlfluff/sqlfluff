@@ -84,13 +84,6 @@ SELECT
     c
 FROM TEXT.`//root/200[^2-5].txt`;
 
--- Inline Path Filter using Negated Character Range ([^a-b])
-SELECT
-    a,
-    b,
-    c
-FROM TEXT.`//root/200[^2-5].txt`;
-
 -- Inline Path Filter using Alternation ({a,b})
 SELECT
     a,
