@@ -120,9 +120,7 @@ class Rule_L057(BaseRule):
                 and context.parent_stack
                 and context.parent_stack[-1].name == "FileReferenceSegment"
             ):
-                for allowed in spark3_allowed_identifiers:
-                    if allowed in identifier:
-                        identifier = identifier.replace(allowed, "")
+                return None
 
             # Strip spaces if allowed (note a separate config as only valid for quoted
             # identifiers)
