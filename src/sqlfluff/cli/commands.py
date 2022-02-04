@@ -264,8 +264,8 @@ def core_options(f: Callable) -> Callable:
             "Ignore particular families of errors so that they don't cause a failed "
             "run. For example `--ignore parsing` would mean that any parsing errors "
             "are ignored and don't influence the success or fail of a run. "
-            "`--ignore` behaves somewhat like `noqa` comments, except it it "
-            "applies globally. Multiple options are possible if comma separated "
+            "`--ignore` behaves somewhat like `noqa` comments, except it "
+            "applies globally. Multiple options are possible if comma separated: "
             "e.g. `--ignore parsing,templating`."
         ),
     )(f)
@@ -651,7 +651,7 @@ def do_fixes(lnt, result, formatter=None, **kwargs):
         "Enables fixing of files that have templating or parse errors. "
         "Note that the similar-sounding '--ignore' or 'noqa' features merely "
         "prevent errors from being *displayed*. For safety reasons, the 'fix'"
-        "command will not make any fixes in files that had templating or parse "
+        "command will not make any fixes in files that have templating or parse "
         "errors unless '--FIX-EVEN-UNPARSABLE' is enabled on the command line"
         "or in the .sqlfluff config file."
     ),
