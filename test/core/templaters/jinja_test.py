@@ -552,6 +552,26 @@ select 1 from foobarfoobarfoobarfoobar_{{ "dev" }}
                 ("\n", "literal", 97),
             ],
         ),
+        (
+            # Tests issue 2541, a bug where the {%- endfor %} was causing
+            # IndexError: list index out of range.
+            """{% for x in ['A', 'B'] %}
+    {% if x != 'A' %}
+    SELECT 'E'
+    {% endif %}
+{%- endfor %}
+""",
+            [
+                ("{% for x in ['A', 'B'] %}", "block_start", 0),
+                ("\n    ", "literal", 25),
+                ("{% if x != 'A' %}", "block_start", 30),
+                ("\n    SELECT 'E'\n    ", "literal", 47),
+                ("{% endif %}", "block_end", 67),
+                ("\n", "literal", 78),
+                ("{%- endfor %}", "block_end", 79),
+                ("\n", "literal", 92),
+            ],
+        ),
     ],
 )
 def test__templater_jinja_slice_template(test, result):
