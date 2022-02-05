@@ -260,7 +260,7 @@ class BaseSegment:
         # return [seg.raw_upper for seg in self.raw_segments]
 
     @cached_property
-    def templated(self) -> bool:
+    def is_templated(self) -> bool:
         """Returns True if the segment includes any templated code.
 
         This is a simple, very efficient check that doesn't require looking up
