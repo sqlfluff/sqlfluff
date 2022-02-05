@@ -23,7 +23,6 @@ from sqlfluff.dialects.dialect_redshift_keywords import (
     redshift_reserved_keywords,
     redshift_unreserved_keywords,
 )
-from sqlfluff.dialects.dialect_ansi import ObjectReferenceSegment
 
 postgres_dialect = load_raw_dialect("postgres")
 ansi_dialect = load_raw_dialect("ansi")
@@ -50,7 +49,7 @@ redshift_dialect.replace(WellKnownTextGeometrySegment=Nothing())
 
 
 @redshift_dialect.segment(replace=True)
-class ColumnReferenceSegment(ObjectReferenceSegment):
+class ColumnReferenceSegment(redshift_dialect.get_segment("ObjectReferenceSegment")):
     """A reference to column, field or alias.
 
     Adjusted to support column references for Redshift's SUPER data type
