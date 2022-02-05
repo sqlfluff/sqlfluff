@@ -3,7 +3,6 @@
 This is based on postgres dialect, since it was initially based off of Postgres 8.
 We should monitor in future and see if it should be rebased off of ANSI
 """
-
 from sqlfluff.core.parser import (
     OneOf,
     AnyNumberOf,
@@ -50,8 +49,11 @@ redshift_dialect.replace(WellKnownTextGeometrySegment=Nothing())
 ObjectReferenceSegment = redshift_dialect.get_segment("ObjectReferenceSegment")
 
 
+# need to ignore type due to mypy rules on type variables
+# see https://mypy.readthedocs.io/en/stable/common_issues.html#variables-vs-type-aliases
+# for details
 @redshift_dialect.segment(replace=True)
-class ColumnReferenceSegment(ObjectReferenceSegment):
+class ColumnReferenceSegment(ObjectReferenceSegment):  # type: ignore
     """A reference to column, field or alias.
 
     Adjusted to support column references for Redshift's SUPER data type
