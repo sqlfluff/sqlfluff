@@ -72,7 +72,7 @@ class Rule_L003(BaseRule):
 
         # If it's whitespace, it might be a mixture of literal and templated
         # whitespace. Check for this.
-        if elem.is_type("whitespace") and elem.templated:
+        if elem.is_type("whitespace") and elem.is_templated:
             # Templated case: Find the leading *literal* whitespace.
             templated_file = elem.pos_marker.templated_file
             # Extract the leading literal whitespace, slice by slice.
@@ -142,7 +142,7 @@ class Rule_L003(BaseRule):
                 # newline that ended the *current* line was in templated space.
                 # Reason: We want to ignore indentation of lines that are not
                 # present in the raw (pre-templated) code.
-                templated_line = elem.templated
+                templated_line = elem.is_templated
                 indent_buffer = []
                 line_buffer = []
                 indent_size = 0
