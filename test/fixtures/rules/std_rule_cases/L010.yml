@@ -171,3 +171,9 @@ test_pass_ignore_words:
       L010:
         capitalisation_policy: upper
         ignore_words: select,from
+
+test_pass_ignore_templated_code:
+  pass_str: |
+    {{ "select" }} a
+    FROM foo
+    WHERE 1
