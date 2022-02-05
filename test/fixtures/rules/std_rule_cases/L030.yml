@@ -54,3 +54,9 @@ test_pass_ignore_word:
     rules:
       L030:
         ignore_words: min
+
+test_pass_ignore_templated_code:
+  pass_str: |
+    SELECT
+        {{ "greatest(a, b)" }},
+        GREATEST(i, j)

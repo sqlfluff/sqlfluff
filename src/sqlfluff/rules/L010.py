@@ -83,6 +83,10 @@ class Rule_L010(BaseRule):
         if ignore_words_list and context.segment.raw.lower() in ignore_words_list:
             return LintResult(memory=context.memory)
 
+        # Skip if templated.
+        if context.segment.is_templated:
+            return LintResult(memory=context.memory)
+
         memory = context.memory
         refuted_cases = memory.get("refuted_cases", set())
 

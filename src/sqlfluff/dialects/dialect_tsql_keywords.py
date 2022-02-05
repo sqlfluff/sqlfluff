@@ -241,6 +241,7 @@ UNRESERVED_KEYWORDS = [
     "FILTER",
     "FIPS_FLAGGER",
     "FMTONLY",
+    "FOLLOWING",
     "FORCE",
     "FORCEPLAN",
     "FORCESCAN",
@@ -315,6 +316,7 @@ UNRESERVED_KEYWORDS = [
     "PERCENTILE_CONT",
     "PERCENTILE_DISC",
     "PERSISTED",
+    "PRECEDING",
     "PRECISION",  # listed as reserved but functionally unreserved
     "PRIOR",
     "PROFILE",
@@ -383,6 +385,7 @@ UNRESERVED_KEYWORDS = [
     "TRY",
     "TYPE",
     "UPDLOCK",
+    "UNBOUNDED",
     "UNKNOWN",
     "USER_DB",  # Azure Synapse Analytics specific, deprecated
     "USING",

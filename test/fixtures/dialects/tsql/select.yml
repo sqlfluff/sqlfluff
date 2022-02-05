@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 891936699e00b65d702870fed2c94d1afc603061a9544349c5692eb7a76334b7
+_hash: 9146fbba160c1289afce1ae81d8f95b6c93c91c2ce97d7979dc5e2dc19e6678f
 file:
   batch:
     statement:
@@ -661,6 +661,105 @@ file:
             alias_expression:
               keyword: AS
               identifier: Coalesce_Partition
+        - comma: ','
+        - select_clause_element:
+            expression:
+              column_reference:
+                identifier: '[preceding]'
+              comparison_operator:
+                raw_comparison_operator: '='
+              function:
+                function_name:
+                  function_name_identifier: count
+                bracketed:
+                  start_bracket: (
+                  star: '*'
+                  end_bracket: )
+                over_clause:
+                  keyword: over
+                  bracketed:
+                    start_bracket: (
+                    window_specification:
+                      orderby_clause:
+                      - keyword: order
+                      - keyword: by
+                      - column_reference:
+                          identifier: object_id
+                      frame_clause:
+                      - keyword: ROWS
+                      - keyword: BETWEEN
+                      - keyword: UNBOUNDED
+                      - keyword: PRECEDING
+                      - binary_operator: AND
+                      - keyword: CURRENT
+                      - keyword: ROW
+                    end_bracket: )
+        - comma: ','
+        - select_clause_element:
+            expression:
+              column_reference:
+                identifier: '[central]'
+              comparison_operator:
+                raw_comparison_operator: '='
+              function:
+                function_name:
+                  function_name_identifier: count
+                bracketed:
+                  start_bracket: (
+                  star: '*'
+                  end_bracket: )
+                over_clause:
+                  keyword: over
+                  bracketed:
+                    start_bracket: (
+                    window_specification:
+                      orderby_clause:
+                      - keyword: order
+                      - keyword: by
+                      - column_reference:
+                          identifier: object_id
+                      frame_clause:
+                      - keyword: ROWS
+                      - keyword: BETWEEN
+                      - literal: '2'
+                      - keyword: PRECEDING
+                      - binary_operator: AND
+                      - literal: '2'
+                      - keyword: FOLLOWING
+                    end_bracket: )
+        - comma: ','
+        - select_clause_element:
+            expression:
+              column_reference:
+                identifier: '[following]'
+              comparison_operator:
+                raw_comparison_operator: '='
+              function:
+                function_name:
+                  function_name_identifier: count
+                bracketed:
+                  start_bracket: (
+                  star: '*'
+                  end_bracket: )
+                over_clause:
+                  keyword: over
+                  bracketed:
+                    start_bracket: (
+                    window_specification:
+                      orderby_clause:
+                      - keyword: order
+                      - keyword: by
+                      - column_reference:
+                          identifier: object_id
+                      frame_clause:
+                      - keyword: ROWS
+                      - keyword: BETWEEN
+                      - keyword: CURRENT
+                      - keyword: ROW
+                      - binary_operator: AND
+                      - keyword: UNBOUNDED
+                      - keyword: FOLLOWING
+                    end_bracket: )
         from_clause:
           keyword: FROM
           from_expression:
