@@ -47,9 +47,11 @@ redshift_dialect.sets("date_part_function_name").update(["DATEADD", "DATEDIFF"])
 
 redshift_dialect.replace(WellKnownTextGeometrySegment=Nothing())
 
+ObjectReferenceSegment = redshift_dialect.get_segment("ObjectReferenceSegment")
+
 
 @redshift_dialect.segment(replace=True)
-class ColumnReferenceSegment(redshift_dialect.get_segment("ObjectReferenceSegment")):
+class ColumnReferenceSegment(ObjectReferenceSegment):
     """A reference to column, field or alias.
 
     Adjusted to support column references for Redshift's SUPER data type
