@@ -256,6 +256,31 @@ def test__api__config_path():
     assert parsed == expected_parsed
 
 
+@pytest.mark.parametrize(
+    "kwargs,expected",
+    [
+        (
+            # No override from API, so uses .sqlfluff value
+            {},
+            set(),
+        ),
+        (
+            # API overrides, so it uses that
+            dict(exclude_rules=["L027"]),
+            {"L029"},
+        ),
+    ],
+)
+def test__api__config_override(kwargs, expected, tmpdir):
+    """Test that parameters to lint() override .sqlfluff correctly (or not)."""
+    config_path = "test/fixtures/api/config_override/.sqlfluff"
+    sql = "SELECT TRIM(name) AS name FROM some_table"
+    lint_results = sqlfluff.lint(sql, config_path=config_path, **kwargs)
+    assert expected == {"L027", "L029"}.intersection(
+        {lr["code"] for lr in lint_results}
+    )
+
+
 def test__api__invalid_dialect():
     """Test that SQLFluffUserError is raised for a bad dialect."""
     # Load test SQL file.
