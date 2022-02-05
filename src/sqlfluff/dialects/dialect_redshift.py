@@ -63,7 +63,7 @@ class ColumnReferenceSegment(ObjectReferenceSegment):
     match_grammar: Matchable = Delimited(
         Sequence(
             Ref("SingleIdentifierGrammar"),
-            AnyNumberOf(Ref("ArrayAccessorSegment"), optional=True),
+            AnyNumberOf(Ref("ArrayAccessorSegment")),
         ),
         delimiter=OneOf(
             Ref("DotSegment"), Sequence(Ref("DotSegment"), Ref("DotSegment"))
