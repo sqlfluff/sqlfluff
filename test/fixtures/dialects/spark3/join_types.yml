@@ -3,16 +3,335 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 83f28f7a56ceff71a79e121c3faf9c393f876056e2bf4c543a6a2e8106effea1
+_hash: 9a2e721002ae4122b656e681b3a722c2442e247df37d047664906d5d60bb4635
 file:
 - base:
     select_statement:
       select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: employee
+          - dot: .
+          - identifier: id
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - identifier: employee
+          - dot: .
+          - identifier: name
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - identifier: employee
+          - dot: .
+          - identifier: deptno
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - identifier: department
+          - dot: .
+          - identifier: deptname
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: employee
+          join_clause:
+          - keyword: INNER
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: department
+          - join_on_condition:
+              keyword: 'ON'
+              expression:
+              - column_reference:
+                - identifier: employee
+                - dot: .
+                - identifier: deptno
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - identifier: department
+                - dot: .
+                - identifier: deptno
+- statement_terminator: ;
+- base:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: employee
+          - dot: .
+          - identifier: id
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - identifier: employee
+          - dot: .
+          - identifier: name
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - identifier: employee
+          - dot: .
+          - identifier: deptno
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - identifier: department
+          - dot: .
+          - identifier: deptname
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: employee
+          join_clause:
+          - keyword: LEFT
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: department
+          - join_on_condition:
+              keyword: 'ON'
+              expression:
+              - column_reference:
+                - identifier: employee
+                - dot: .
+                - identifier: deptno
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - identifier: department
+                - dot: .
+                - identifier: deptno
+- statement_terminator: ;
+- base:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: employee
+          - dot: .
+          - identifier: id
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - identifier: employee
+          - dot: .
+          - identifier: name
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - identifier: employee
+          - dot: .
+          - identifier: deptno
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - identifier: department
+          - dot: .
+          - identifier: deptname
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: employee
+          join_clause:
+          - keyword: RIGHT
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: department
+          - join_on_condition:
+              keyword: 'ON'
+              expression:
+              - column_reference:
+                - identifier: employee
+                - dot: .
+                - identifier: deptno
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - identifier: department
+                - dot: .
+                - identifier: deptno
+- statement_terminator: ;
+- base:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: employee
+          - dot: .
+          - identifier: id
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - identifier: employee
+          - dot: .
+          - identifier: name
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - identifier: employee
+          - dot: .
+          - identifier: deptno
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - identifier: department
+          - dot: .
+          - identifier: deptname
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: employee
+          join_clause:
+          - keyword: FULL
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: department
+          - join_on_condition:
+              keyword: 'ON'
+              expression:
+              - column_reference:
+                - identifier: employee
+                - dot: .
+                - identifier: deptno
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - identifier: department
+                - dot: .
+                - identifier: deptno
+- statement_terminator: ;
+- base:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: employee
+          - dot: .
+          - identifier: id
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - identifier: employee
+          - dot: .
+          - identifier: name
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - identifier: employee
+          - dot: .
+          - identifier: deptno
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - identifier: department
+          - dot: .
+          - identifier: deptname
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: employee
+          join_clause:
+          - keyword: FULL
+          - keyword: OUTER
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: department
+          - join_on_condition:
+              keyword: 'ON'
+              expression:
+              - column_reference:
+                - identifier: employee
+                - dot: .
+                - identifier: deptno
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - identifier: department
+                - dot: .
+                - identifier: deptno
+- statement_terminator: ;
+- base:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: employee
+          - dot: .
+          - identifier: id
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - identifier: employee
+          - dot: .
+          - identifier: name
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - identifier: employee
+          - dot: .
+          - identifier: deptno
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - identifier: department
+          - dot: .
+          - identifier: deptname
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: employee
+          join_clause:
+          - keyword: CROSS
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: department
+- statement_terminator: ;
+- base:
+    select_statement:
+      select_clause:
         keyword: SELECT
         select_clause_element:
-          wildcard_expression:
-            wildcard_identifier:
-              star: '*'
+          column_reference:
+          - identifier: employee
+          - dot: .
+          - identifier: id
       from_clause:
         keyword: FROM
         from_expression:
@@ -21,7 +340,8 @@ file:
               table_reference:
                 identifier: employee
             alias_expression:
-              identifier: SEMI
+              unparsable:
+                identifier: SEMI
           join_clause:
             keyword: JOIN
             from_expression_element:
@@ -47,46 +367,10 @@ file:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          wildcard_expression:
-            wildcard_identifier:
-              star: '*'
-      from_clause:
-        keyword: FROM
-        from_expression:
-          from_expression_element:
-            table_expression:
-              table_reference:
-                identifier: employee
-            alias_expression:
-              identifier: ANTI
-          join_clause:
-            keyword: JOIN
-            from_expression_element:
-              table_expression:
-                table_reference:
-                  identifier: department
-            join_on_condition:
-              keyword: 'ON'
-              expression:
-              - column_reference:
-                - identifier: employee
-                - dot: .
-                - identifier: deptno
-              - comparison_operator:
-                  raw_comparison_operator: '='
-              - column_reference:
-                - identifier: department
-                - dot: .
-                - identifier: deptno
-- statement_terminator: ;
-- base:
-    select_statement:
-      select_clause:
-        keyword: SELECT
-        select_clause_element:
-          wildcard_expression:
-            wildcard_identifier:
-              star: '*'
+          column_reference:
+          - identifier: employee
+          - dot: .
+          - identifier: id
       from_clause:
         keyword: FROM
         from_expression:
@@ -121,9 +405,49 @@ file:
       select_clause:
         keyword: SELECT
         select_clause_element:
-          wildcard_expression:
-            wildcard_identifier:
-              star: '*'
+          column_reference:
+          - identifier: employee
+          - dot: .
+          - identifier: id
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: employee
+            alias_expression:
+              unparsable:
+                identifier: ANTI
+          join_clause:
+            keyword: JOIN
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: department
+            join_on_condition:
+              keyword: 'ON'
+              expression:
+              - column_reference:
+                - identifier: employee
+                - dot: .
+                - identifier: deptno
+              - comparison_operator:
+                  raw_comparison_operator: '='
+              - column_reference:
+                - identifier: department
+                - dot: .
+                - identifier: deptno
+- statement_terminator: ;
+- base:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+          - identifier: employee
+          - dot: .
+          - identifier: id
       from_clause:
         keyword: FROM
         from_expression:
@@ -152,4 +476,365 @@ file:
                 - identifier: department
                 - dot: .
                 - identifier: deptno
+- statement_terminator: ;
+- base:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: employee
+          - dot: .
+          - identifier: id
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - identifier: employee
+          - dot: .
+          - identifier: name
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - identifier: employee
+          - dot: .
+          - identifier: deptno
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - identifier: department
+          - dot: .
+          - identifier: deptname
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: employee
+          join_clause:
+          - keyword: NATURAL
+          - keyword: INNER
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: department
+- statement_terminator: ;
+- base:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: employee
+          - dot: .
+          - identifier: id
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - identifier: employee
+          - dot: .
+          - identifier: name
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - identifier: employee
+          - dot: .
+          - identifier: deptno
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - identifier: department
+          - dot: .
+          - identifier: deptname
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: employee
+          join_clause:
+          - keyword: NATURAL
+          - keyword: LEFT
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: department
+- statement_terminator: ;
+- base:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: employee
+          - dot: .
+          - identifier: id
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - identifier: employee
+          - dot: .
+          - identifier: name
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - identifier: employee
+          - dot: .
+          - identifier: deptno
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - identifier: department
+          - dot: .
+          - identifier: deptname
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: employee
+          join_clause:
+          - keyword: NATURAL
+          - keyword: RIGHT
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: department
+- statement_terminator: ;
+- base:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: employee
+          - dot: .
+          - identifier: id
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - identifier: employee
+          - dot: .
+          - identifier: name
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - identifier: employee
+          - dot: .
+          - identifier: deptno
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - identifier: department
+          - dot: .
+          - identifier: deptname
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: employee
+          join_clause:
+          - keyword: NATURAL
+          - keyword: FULL
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: department
+- statement_terminator: ;
+- base:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: employee
+          - dot: .
+          - identifier: id
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - identifier: employee
+          - dot: .
+          - identifier: name
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - identifier: employee
+          - dot: .
+          - identifier: deptno
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - identifier: department
+          - dot: .
+          - identifier: deptname
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: employee
+          join_clause:
+          - keyword: NATURAL
+          - keyword: FULL
+          - keyword: OUTER
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: department
+- statement_terminator: ;
+- base:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+          - identifier: employee
+          - dot: .
+          - identifier: id
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - identifier: employee
+          - dot: .
+          - identifier: name
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - identifier: employee
+          - dot: .
+          - identifier: deptno
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+          - identifier: department
+          - dot: .
+          - identifier: deptname
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: employee
+          join_clause:
+          - keyword: NATURAL
+          - keyword: CROSS
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: department
+- statement_terminator: ;
+- base:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+          - identifier: employee
+          - dot: .
+          - identifier: id
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: employee
+          join_clause:
+          - keyword: NATURAL
+          - keyword: SEMI
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: department
+- statement_terminator: ;
+- base:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+          - identifier: employee
+          - dot: .
+          - identifier: id
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: employee
+          join_clause:
+          - keyword: NATURAL
+          - keyword: LEFT
+          - keyword: SEMI
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: department
+- statement_terminator: ;
+- base:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+          - identifier: employee
+          - dot: .
+          - identifier: id
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: employee
+          join_clause:
+          - keyword: NATURAL
+          - keyword: ANTI
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: department
+- statement_terminator: ;
+- base:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          column_reference:
+          - identifier: employee
+          - dot: .
+          - identifier: id
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: employee
+          join_clause:
+          - keyword: NATURAL
+          - keyword: LEFT
+          - keyword: ANTI
+          - keyword: JOIN
+          - from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: department
 - statement_terminator: ;
