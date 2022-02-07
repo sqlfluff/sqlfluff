@@ -425,10 +425,6 @@ class ConfigLoader:
         if not given_path.is_dir():
             given_path = given_path.parent
 
-        print(working_path)
-        print(given_path)
-        # paths = ('test\\fixtures\\linter\\sqlfluffignore',
-        # 'D:\\a\\sqlfluff\\sqlfluff\\test\\fixtures\\linter\\sqlfluffignore\\path_a')
         common_path = Path(os.path.commonpath([working_path, given_path]))
 
         # we have a sub path! We can load nested paths
