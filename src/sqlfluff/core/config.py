@@ -417,14 +417,18 @@ class ConfigLoader:
         The lowest priority is the user appdir, then home dir, then increasingly
         the configs closest to the file being directly linted.
         """
-        given_path = Path(path).resolve()
-        working_path = Path(working_path).resolve()
+        given_path = Path(path).absolute()
+        working_path = Path(working_path).absolute()
 
         # If we've been passed a file and not a directory,
         # then go straight to the directory.
         if not given_path.is_dir():
             given_path = given_path.parent
 
+        print(working_path)
+        print(given_path)
+        # paths = ('test\\fixtures\\linter\\sqlfluffignore',
+        # 'D:\\a\\sqlfluff\\sqlfluff\\test\\fixtures\\linter\\sqlfluffignore\\path_a')
         common_path = Path(os.path.commonpath([working_path, given_path]))
 
         # we have a sub path! We can load nested paths
