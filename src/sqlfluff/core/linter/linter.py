@@ -843,12 +843,18 @@ class Linter:
         # matched, but we warn the users when that happens
         is_exact_file = os.path.isfile(path)
 
-        # When the exact file to lint is passed, we
-        # fill path_walk with an input that follows
-        # the structure of `os.walk`:
-        #   (root, directories, files)
-        dirpath = os.path.dirname(path)
-        files = [os.path.basename(path)]
+        path_walk: WalkableType
+        if is_exact_file:
+            # When the exact file to lint is passed, we
+            # fill path_walk with an input that follows
+            # the structure of `os.walk`:
+            #   (root, directories, files)
+            dirpath = os.path.dirname(path)
+            files = [os.path.basename(path)]
+            path_walk = [(dirpath, None, files)]
+        else:
+            path_walk = list(os.walk(path))
+
         ignore_file_paths = ConfigLoader.find_ignore_config_files(
             path=path, working_path=working_path, ignore_file_name=ignore_file_name
         )
@@ -864,7 +870,7 @@ class Linter:
             )
             for ignore_file_path in ignore_file_paths
         ]
-        path_walk: WalkableType = [(dirpath, None, files)] + path_walk_ignore_file
+        path_walk += path_walk_ignore_file
 
         # If it's a directory then expand the path!
         buffer = []
