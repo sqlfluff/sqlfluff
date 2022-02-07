@@ -84,7 +84,7 @@ class Rule_L054(BaseRule):
     """
 
     config_keywords = ["group_by_and_order_by_style"]
-    _ignore_types: List[str] = ["window_specification"]
+    _ignore_types: List[str] = ["withingroup_clause", "window_specification"]
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Inconsistent column references in GROUP BY/ORDER BY clauses."""
