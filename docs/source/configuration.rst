@@ -706,6 +706,7 @@ line option or the ``ignore`` setting in ``.sqlfluffignore``. Types of errors
 that can be ignored include:
 
 * ``lexing``
+* ``linting``
 * ``parsing``
 * ``templating``
 
