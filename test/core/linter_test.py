@@ -1,9 +1,11 @@
 """The Test file for the linter class."""
 
-import pytest
+import os
 import logging
 from typing import List
 from unittest.mock import patch
+
+import pytest
 
 from sqlfluff.core import Linter, FluffConfig
 from sqlfluff.core.linter import runner
@@ -89,6 +91,23 @@ def test__linter__path_from_paths__explicit_ignore():
         working_path="test/fixtures/linter/sqlfluffignore/",
     )
     assert len(paths) == 0
+
+
+def test__linter__path_from_paths__sqlfluffignore_current_directory():
+    """Test that .sqlfluffignore in the current directory is read when dir given."""
+    oldcwd = os.getcwd()
+    try:
+        os.chdir("test/fixtures/linter/sqlfluffignore")
+        lntr = Linter()
+        paths = lntr.paths_from_path(
+            "path_a/",
+            ignore_non_existent_files=True,
+            ignore_files=True,
+            working_path="test/fixtures/linter/sqlfluffignore/",
+        )
+        assert len(paths) == 0
+    finally:
+        os.chdir(oldcwd)
 
 
 def test__linter__path_from_paths__dot():
