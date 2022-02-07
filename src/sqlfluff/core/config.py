@@ -395,7 +395,7 @@ class ConfigLoader:
 
     @classmethod
     def find_ignore_config_files(
-        cls, path, working_path=os.getcwd(), ignore_file_name=".sqlfluffignore"
+        cls, path, working_path=Path().absolute(), ignore_file_name=".sqlfluffignore"
     ):
         """Finds sqlfluff ignore files from both the path and its parent paths."""
         return set(
