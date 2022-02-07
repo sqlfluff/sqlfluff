@@ -843,31 +843,28 @@ class Linter:
         # matched, but we warn the users when that happens
         is_exact_file = os.path.isfile(path)
 
-        if is_exact_file:
-            # When the exact file to lint is passed, we
-            # fill path_walk with an input that follows
-            # the structure of `os.walk`:
-            #   (root, directories, files)
-            dirpath = os.path.dirname(path)
-            files = [os.path.basename(path)]
-            ignore_file_paths = ConfigLoader.find_ignore_config_files(
-                path=path, working_path=working_path, ignore_file_name=ignore_file_name
+        # When the exact file to lint is passed, we
+        # fill path_walk with an input that follows
+        # the structure of `os.walk`:
+        #   (root, directories, files)
+        dirpath = os.path.dirname(path)
+        files = [os.path.basename(path)]
+        ignore_file_paths = ConfigLoader.find_ignore_config_files(
+            path=path, working_path=working_path, ignore_file_name=ignore_file_name
+        )
+        # Add paths that could contain "ignore files"
+        # to the path_walk list
+        path_walk_ignore_file = [
+            (
+                os.path.dirname(ignore_file_path),
+                None,
+                # Only one possible file, since we only
+                # have one "ignore file name"
+                [os.path.basename(ignore_file_path)],
             )
-            # Add paths that could contain "ignore files"
-            # to the path_walk list
-            path_walk_ignore_file = [
-                (
-                    os.path.dirname(ignore_file_path),
-                    None,
-                    # Only one possible file, since we only
-                    # have one "ignore file name"
-                    [os.path.basename(ignore_file_path)],
-                )
-                for ignore_file_path in ignore_file_paths
-            ]
-            path_walk: WalkableType = [(dirpath, None, files)] + path_walk_ignore_file
-        else:
-            path_walk = os.walk(path)
+            for ignore_file_path in ignore_file_paths
+        ]
+        path_walk: WalkableType = [(dirpath, None, files)] + path_walk_ignore_file
 
         # If it's a directory then expand the path!
         buffer = []
