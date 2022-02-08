@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: fbf9ce69c6e7cd7fa5988125fc8f2b8bfd4d46c80f18b32b78d8b505d0146876
+_hash: d9c1438fcd5287a7fcff24bad6c9ca205c63f7bc69da80d9f20425c5d244d4c4
 file:
 - base:
     select_statement:
@@ -339,15 +339,14 @@ file:
             table_expression:
               table_reference:
                 identifier: employee
-            alias_expression:
-              identifier: SEMI
           join_clause:
-            keyword: JOIN
-            from_expression_element:
+          - keyword: SEMI
+          - keyword: JOIN
+          - from_expression_element:
               table_expression:
                 table_reference:
                   identifier: department
-            join_on_condition:
+          - join_on_condition:
               keyword: 'ON'
               expression:
               - column_reference:
@@ -415,15 +414,14 @@ file:
             table_expression:
               table_reference:
                 identifier: employee
-            alias_expression:
-              identifier: ANTI
           join_clause:
-            keyword: JOIN
-            from_expression_element:
+          - keyword: ANTI
+          - keyword: JOIN
+          - from_expression_element:
               table_expression:
                 table_reference:
                   identifier: department
-            join_on_condition:
+          - join_on_condition:
               keyword: 'ON'
               expression:
               - column_reference:

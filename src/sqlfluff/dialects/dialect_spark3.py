@@ -1489,10 +1489,7 @@ class JoinClauseSegment(BaseSegment):
                 Ref("JoinTypeKeywords", optional=True),
                 Ref("JoinKeywords"),
             ),
-            Sequence(
-                Ref("NaturalJoinKeywords"),
-                Ref("JoinKeywords")
-            ),
+            Sequence(Ref("NaturalJoinKeywords"), Ref("JoinKeywords")),
         ),
         Ref("FromExpressionElementSegment"),
     )
@@ -1520,10 +1517,10 @@ class JoinClauseSegment(BaseSegment):
                         Bracketed(
                             # NB: We don't use BracketedColumnReferenceListGrammar
                             # here because we're just using SingleIdentifierGrammar,
-                            # rather than ObjectReferenceSegment or ColumnReferenceSegment.
-                            # This is a) so that we don't lint it as a reference and
-                            # b) because the column will probably be returned anyway
-                            # during parsing.
+                            # rather than ObjectReferenceSegment or
+                            # ColumnReferenceSegment. This is a) so that we don't
+                            # lint it as a reference and b) because the column will
+                            # probably be returned anyway during parsing.
                             Delimited(
                                 Ref("SingleIdentifierGrammar"),
                                 ephemeral_name="UsingClauseContents",
@@ -1575,25 +1572,6 @@ class AliasExpressionSegment(BaseSegment):
 
     type = "alias_expression"
 
-    parse_grammar = StartsWith(
-        Sequence(
-            Ref.keyword("AS", optional=True),
-            OneOf(
-                # maybe table alias and column aliases
-                Sequence(
-                    Ref("SingleIdentifierGrammar", optional=True),
-                    Bracketed(Ref("SingleIdentifierListSegment")),
-                ),
-                # just a table alias
-                Ref("SingleIdentifierGrammar"),
-            ),
-        ),
-        terminator=OneOf(
-            Ref("JoinTypeKeywords"),
-            Ref("FromClauseTerminatorGrammar"),
-        )
-    )
-
     match_grammar = Sequence(
         Ref.keyword("AS", optional=True),
         OneOf(
@@ -1604,6 +1582,7 @@ class AliasExpressionSegment(BaseSegment):
             ),
             # just a table alias
             Ref("SingleIdentifierGrammar"),
+            exclude=Ref("JoinTypeKeywords"),
         ),
     )
 

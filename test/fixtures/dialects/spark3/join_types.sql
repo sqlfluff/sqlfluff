@@ -67,7 +67,7 @@ LEFT SEMI JOIN department
     ON employee.deptno = department.deptno;
 
 -- anti join
-SELECT  employee.id
+SELECT employee.id
 FROM employee
 ANTI JOIN department
     ON employee.deptno = department.deptno;
