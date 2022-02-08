@@ -1521,4 +1521,54 @@ file:
           comparison_operator:
             raw_comparison_operator: '='
           literal: "'ABC'"
+    set_expression:
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              identifier: a
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: b
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: c
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: x
+    - set_operator:
+        keyword: union
+    - select_statement:
+        select_clause:
+        - keyword: SELECT
+        - select_clause_element:
+            column_reference:
+              identifier: a
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: b
+        - comma: ','
+        - select_clause_element:
+            column_reference:
+              identifier: c
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: y
+    - orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          identifier: a
 - statement_terminator: ;
