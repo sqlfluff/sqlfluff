@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9a2e721002ae4122b656e681b3a722c2442e247df37d047664906d5d60bb4635
+_hash: fbf9ce69c6e7cd7fa5988125fc8f2b8bfd4d46c80f18b32b78d8b505d0146876
 file:
 - base:
     select_statement:
@@ -340,8 +340,7 @@ file:
               table_reference:
                 identifier: employee
             alias_expression:
-              unparsable:
-                identifier: SEMI
+              identifier: SEMI
           join_clause:
             keyword: JOIN
             from_expression_element:
@@ -417,8 +416,7 @@ file:
               table_reference:
                 identifier: employee
             alias_expression:
-              unparsable:
-                identifier: ANTI
+              identifier: ANTI
           join_clause:
             keyword: JOIN
             from_expression_element:

@@ -1576,15 +1576,17 @@ class AliasExpressionSegment(BaseSegment):
     type = "alias_expression"
 
     parse_grammar = StartsWith(
-        Ref.keyword("AS", optional=True),
-        OneOf(
-            # maybe table alias and column aliases
-            Sequence(
-                Ref("SingleIdentifierGrammar", optional=True),
-                Bracketed(Ref("SingleIdentifierListSegment")),
+        Sequence(
+            Ref.keyword("AS", optional=True),
+            OneOf(
+                # maybe table alias and column aliases
+                Sequence(
+                    Ref("SingleIdentifierGrammar", optional=True),
+                    Bracketed(Ref("SingleIdentifierListSegment")),
+                ),
+                # just a table alias
+                Ref("SingleIdentifierGrammar"),
             ),
-            # just a table alias
-            Ref("SingleIdentifierGrammar"),
         ),
         terminator=OneOf(
             Ref("JoinTypeKeywords"),

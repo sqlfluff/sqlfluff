@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 9583a48c04a862b3530a5873f1b59387c896b842d725c0736f165153cd18c9f7
+_hash: 2f773b804324b2de42e9bf6cc9fd39f72fefd2d88b5ba8b9707007457b296b85
 file:
 - base:
     select_statement:
@@ -124,15 +124,14 @@ file:
               table_reference:
                 identifier: u
             alias_expression:
-              unparsable:
-                identifier: t
-                bracketed:
-                  start_bracket: (
-                  identifier_list:
-                  - identifier: a
-                  - comma: ','
-                  - identifier: b
-                  end_bracket: )
+              identifier: t
+              bracketed:
+                start_bracket: (
+                identifier_list:
+                - identifier: a
+                - comma: ','
+                - identifier: b
+                end_bracket: )
 - statement_terminator: ;
 - base:
     select_statement:
@@ -150,15 +149,14 @@ file:
               table_reference:
                 identifier: u
             alias_expression:
-              unparsable:
-                identifier: t
-                bracketed:
-                  start_bracket: (
-                  identifier_list:
-                  - identifier: a
-                  - comma: ','
-                  - identifier: b
-                  end_bracket: )
+              identifier: t
+              bracketed:
+                start_bracket: (
+                identifier_list:
+                - identifier: a
+                - comma: ','
+                - identifier: b
+                end_bracket: )
 - statement_terminator: ;
 - base:
     select_statement:
@@ -176,15 +174,14 @@ file:
               table_reference:
                 identifier: u
             alias_expression:
-              unparsable:
-                identifier: t
-                bracketed:
-                  start_bracket: (
-                  identifier_list:
-                  - identifier: a
-                  - comma: ','
-                  - identifier: b
-                  end_bracket: )
+              identifier: t
+              bracketed:
+                start_bracket: (
+                identifier_list:
+                - identifier: a
+                - comma: ','
+                - identifier: b
+                end_bracket: )
 - statement_terminator: ;
 - base:
     select_statement:

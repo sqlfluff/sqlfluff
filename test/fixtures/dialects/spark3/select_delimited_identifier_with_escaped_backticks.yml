@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: af64ac62bcf2afe4310c5a8a6666ca5ff20d19fdf3936106319dd08d21edf17b
+_hash: ac41862a8168d7b798fa081ccae6c0bfaab4d6204dbbc7ebec7e9affa1335ec1
 file:
 - base:
     select_statement:
@@ -20,8 +20,7 @@ file:
               table_reference:
                 identifier: '`some``table`'
             alias_expression:
-              unparsable:
-                identifier: '`some``alias`'
+              identifier: '`some``alias`'
 - statement_terminator: ;
 - base:
     select_statement:
@@ -49,8 +48,7 @@ file:
           column_reference:
             identifier: '```delimited`'
           alias_expression:
-            unparsable:
-              identifier: '`alias`'
+            identifier: '`alias`'
       from_clause:
         keyword: FROM
         from_expression:
@@ -59,8 +57,7 @@ file:
               table_reference:
                 identifier: '`some``table`'
             alias_expression:
-              unparsable:
-                identifier: '`some````alias`'
+              identifier: '`some````alias`'
 - statement_terminator: ;
 - base:
     select_statement:
@@ -70,8 +67,7 @@ file:
           column_reference:
             identifier: '`delimited```'
           alias_expression:
-            unparsable:
-              identifier: '`alias`'
+            identifier: '`alias`'
       from_clause:
         keyword: FROM
         from_expression:
@@ -80,8 +76,7 @@ file:
               table_reference:
                 identifier: '`some``table`'
             alias_expression:
-              unparsable:
-                identifier: '```some````alias```'
+              identifier: '```some````alias```'
 - statement_terminator: ;
 - base:
     select_statement:
@@ -91,8 +86,7 @@ file:
           column_reference:
             identifier: '`delimited ``identifier`'
           alias_expression:
-            unparsable:
-              identifier: '`alias`'
+            identifier: '`alias`'
       from_clause:
         keyword: FROM
         from_expression:
@@ -101,8 +95,7 @@ file:
               table_reference:
                 identifier: '`some``table`'
             alias_expression:
-              unparsable:
-                identifier: '`some``alias`'
+              identifier: '`some``alias`'
 - statement_terminator: ;
 - base:
     select_statement:
