@@ -3028,6 +3028,7 @@ class PreferringPreferenceTermSegment(BaseSegment):
                     Ref("BareFunctionSegment"),
                     Ref("FunctionSegment"),
                     Ref("ColumnReferenceSegment"),
+                    Ref("LocalAliasSegment"),
                 ),
             ),
             OneOf(
@@ -3035,6 +3036,7 @@ class PreferringPreferenceTermSegment(BaseSegment):
                 Ref("BareFunctionSegment"),
                 Ref("FunctionSegment"),
                 Ref("ColumnReferenceSegment"),
+                Ref("LocalAliasSegment"),
             ),
         ),
         Ref("PreferringPlusPriorTermSegment", optional=True),
