@@ -960,47 +960,53 @@ class AlterTableTableColumnActionSegment(BaseSegment):
             Sequence(
                 "ADD",
                 "COLUMN",
-                Ref("ColumnReferenceSegment"),
-                Ref("DatatypeSegment"),
-                OneOf(
-                    # Default
-                    Sequence(
-                        "DEFAULT",
-                        Ref("ExpressionSegment"),
-                    ),
-                    # Auto-increment/identity column
-                    Sequence(
-                        OneOf(
-                            "AUTOINCREMENT",
-                            "IDENTITY",
-                        ),
-                        OneOf(
-                            # ( <start_num>, <step_num> )
-                            Bracketed(
-                                Ref("NumericLiteralSegment"),
-                                Ref("CommaSegment"),
-                                Ref("NumericLiteralSegment"),
-                            ),
-                            # START <num> INCREMENT <num>
-                            Sequence(
-                                "START",
-                                Ref("NumericLiteralSegment"),
-                                "INCREMENT",
-                                Ref("NumericLiteralSegment"),
-                            ),
-                            optional=True,
-                        ),
-                    ),
-                    optional=True,
-                ),
-                # @TODO: Add support for `inlineConstraint`
                 Sequence(
-                    Ref.keyword("WITH", optional=True),
-                    "MASKING",
-                    "POLICY",
-                    Ref("ObjectReferenceSegment"),
-                    # @TODO: Add support for delimited col/expression list
-                    optional=True,
+                    Delimited(
+                        Sequence( 
+                            Ref("ColumnReferenceSegment"),
+                            Ref("DatatypeSegment"),
+                            OneOf(
+                                # Default
+                                Sequence(
+                                    "DEFAULT",
+                                    Ref("ExpressionSegment"),
+                                ),
+                                # Auto-increment/identity column
+                                Sequence(
+                                    OneOf(
+                                        "AUTOINCREMENT",
+                                        "IDENTITY",
+                                    ),
+                                    OneOf(
+                                        # ( <start_num>, <step_num> )
+                                        Bracketed(
+                                            Ref("NumericLiteralSegment"),
+                                            Ref("CommaSegment"),
+                                            Ref("NumericLiteralSegment"),
+                                        ),
+                                        # START <num> INCREMENT <num>
+                                        Sequence(
+                                            "START",
+                                            Ref("NumericLiteralSegment"),
+                                            "INCREMENT",
+                                            Ref("NumericLiteralSegment"),
+                                        ),
+                                        optional=True,
+                                    ),
+                                ),
+                                optional=True,
+                            ),
+                            # @TODO: Add support for `inlineConstraint`
+                            Sequence(
+                                Ref.keyword("WITH", optional=True),
+                                "MASKING",
+                                "POLICY",
+                                Ref("ObjectReferenceSegment"),
+                                # @TODO: Add support for delimited col/expression list
+                                optional=True,
+                            ),
+                        ),
+                    ),
                 ),
             ),
             # Rename column
