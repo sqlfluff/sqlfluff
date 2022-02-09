@@ -1,0 +1,525 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 4fcb1def53935791b03b14a72b849f173d23f90aee81a99e047d0f67e4dae82c
+file:
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        identifier: t1
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          identifier: a
+      - comma: ','
+      - column_reference:
+          identifier: b
+      - comma: ','
+      - column_reference:
+          identifier: c
+      - end_bracket: )
+    - values_clause:
+      - keyword: VALUES
+      - bracketed:
+        - start_bracket: (
+        - expression:
+            literal: '1'
+        - comma: ','
+        - expression:
+            literal: '2'
+        - comma: ','
+        - expression:
+            literal: '3'
+        - end_bracket: )
+      - comma: ','
+      - bracketed:
+        - start_bracket: (
+        - expression:
+            literal: '4'
+        - comma: ','
+        - expression:
+            literal: '5'
+        - comma: ','
+        - expression:
+            literal: '6'
+        - end_bracket: )
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        identifier: t1
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                bracketed:
+                  start_bracket: (
+                  select_statement:
+                    select_clause:
+                    - keyword: SELECT
+                    - select_clause_element:
+                        column_reference:
+                          identifier: c
+                    - comma: ','
+                    - select_clause_element:
+                        expression:
+                        - column_reference:
+                            identifier: c
+                        - binary_operator: +
+                        - column_reference:
+                            identifier: d
+                        alias_expression:
+                          keyword: AS
+                          identifier: e
+                    from_clause:
+                      keyword: FROM
+                      from_expression:
+                        from_expression_element:
+                          table_expression:
+                            table_reference:
+                              identifier: t2
+                  end_bracket: )
+              alias_expression:
+                keyword: AS
+                identifier: dt
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        identifier: t1
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          identifier: a
+      - comma: ','
+      - column_reference:
+          identifier: b
+      - comma: ','
+      - column_reference:
+          identifier: c
+      - end_bracket: )
+    - values_clause:
+      - keyword: VALUES
+      - bracketed:
+        - start_bracket: (
+        - expression:
+            literal: '1'
+        - comma: ','
+        - expression:
+            literal: '2'
+        - comma: ','
+        - expression:
+            literal: '3'
+        - end_bracket: )
+      - comma: ','
+      - bracketed:
+        - start_bracket: (
+        - expression:
+            literal: '4'
+        - comma: ','
+        - expression:
+            literal: '5'
+        - comma: ','
+        - expression:
+            literal: '6'
+        - end_bracket: )
+    - insert_row_alias:
+        keyword: AS
+        identifier: t2
+    - upsert_clause_list:
+      - keyword: 'ON'
+      - keyword: DUPLICATE
+      - keyword: KEY
+      - keyword: UPDATE
+      - set_clause:
+          column_reference:
+            identifier: c
+          comparison_operator:
+            raw_comparison_operator: '='
+          expression:
+          - column_reference:
+            - identifier: t2
+            - dot: .
+            - identifier: a
+          - binary_operator: +
+          - column_reference:
+            - identifier: t2
+            - dot: .
+            - identifier: b
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        identifier: t1
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          identifier: a
+      - comma: ','
+      - column_reference:
+          identifier: b
+      - comma: ','
+      - column_reference:
+          identifier: c
+      - end_bracket: )
+    - values_clause:
+      - keyword: VALUES
+      - bracketed:
+        - start_bracket: (
+        - expression:
+            literal: '1'
+        - comma: ','
+        - expression:
+            literal: '2'
+        - comma: ','
+        - expression:
+            literal: '3'
+        - end_bracket: )
+      - comma: ','
+      - bracketed:
+        - start_bracket: (
+        - expression:
+            literal: '4'
+        - comma: ','
+        - expression:
+            literal: '5'
+        - comma: ','
+        - expression:
+            literal: '6'
+        - end_bracket: )
+    - insert_row_alias:
+        keyword: AS
+        identifier: t2
+        bracketed:
+          start_bracket: (
+          identifier_list:
+          - identifier: m
+          - comma: ','
+          - identifier: n
+          - comma: ','
+          - identifier: p
+          end_bracket: )
+    - upsert_clause_list:
+      - keyword: 'ON'
+      - keyword: DUPLICATE
+      - keyword: KEY
+      - keyword: UPDATE
+      - set_clause:
+          column_reference:
+            identifier: c
+          comparison_operator:
+            raw_comparison_operator: '='
+          expression:
+          - column_reference:
+              identifier: m
+          - binary_operator: +
+          - column_reference:
+              identifier: n
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        identifier: t1
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                bracketed:
+                  start_bracket: (
+                  select_statement:
+                    select_clause:
+                    - keyword: SELECT
+                    - select_clause_element:
+                        column_reference:
+                          identifier: c
+                    - comma: ','
+                    - select_clause_element:
+                        expression:
+                        - column_reference:
+                            identifier: c
+                        - binary_operator: +
+                        - column_reference:
+                            identifier: d
+                        alias_expression:
+                          keyword: AS
+                          identifier: e
+                    from_clause:
+                      keyword: FROM
+                      from_expression:
+                        from_expression_element:
+                          table_expression:
+                            table_reference:
+                              identifier: t2
+                  end_bracket: )
+              alias_expression:
+                keyword: AS
+                identifier: dt
+    - upsert_clause_list:
+      - keyword: 'ON'
+      - keyword: DUPLICATE
+      - keyword: KEY
+      - keyword: UPDATE
+      - set_clause:
+        - column_reference:
+            identifier: b
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+            identifier: e
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        identifier: t1
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                bracketed:
+                  start_bracket: (
+                  select_statement:
+                    select_clause:
+                    - keyword: SELECT
+                    - select_clause_element:
+                        column_reference:
+                          identifier: c
+                    - comma: ','
+                    - select_clause_element:
+                        expression:
+                        - column_reference:
+                            identifier: c
+                        - binary_operator: +
+                        - column_reference:
+                            identifier: d
+                        alias_expression:
+                          keyword: AS
+                          identifier: e
+                    from_clause:
+                      keyword: FROM
+                      from_expression:
+                        from_expression_element:
+                          table_expression:
+                            table_reference:
+                              identifier: t2
+                  end_bracket: )
+    - upsert_clause_list:
+      - keyword: 'ON'
+      - keyword: DUPLICATE
+      - keyword: KEY
+      - keyword: UPDATE
+      - set_clause:
+        - column_reference:
+            identifier: b
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+            identifier: e
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        identifier: t1
+    - bracketed:
+      - start_bracket: (
+      - column_reference:
+          identifier: a
+      - comma: ','
+      - column_reference:
+          identifier: b
+      - comma: ','
+      - column_reference:
+          identifier: c
+      - end_bracket: )
+    - keyword: TABLE
+    - table_reference:
+        identifier: t2
+    - insert_row_alias:
+        keyword: as
+        identifier: t3
+        bracketed:
+          start_bracket: (
+          identifier_list:
+          - identifier: m
+          - comma: ','
+          - identifier: n
+          - comma: ','
+          - identifier: p
+          end_bracket: )
+    - upsert_clause_list:
+      - keyword: 'ON'
+      - keyword: DUPLICATE
+      - keyword: KEY
+      - keyword: UPDATE
+      - set_clause:
+          column_reference:
+            identifier: b
+          comparison_operator:
+            raw_comparison_operator: '='
+          expression:
+          - column_reference:
+              identifier: n
+          - binary_operator: +
+          - column_reference:
+              identifier: p
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        identifier: t1
+    - set_clause_list:
+      - keyword: SET
+      - set_clause:
+          column_reference:
+            identifier: a
+          comparison_operator:
+            raw_comparison_operator: '='
+          literal: '1'
+      - comma: ','
+      - set_clause:
+          column_reference:
+            identifier: b
+          comparison_operator:
+            raw_comparison_operator: '='
+          literal: '2'
+      - comma: ','
+      - set_clause:
+          column_reference:
+            identifier: c
+          comparison_operator:
+            raw_comparison_operator: '='
+          literal: '3'
+    - insert_row_alias:
+        keyword: AS
+        identifier: t2
+    - upsert_clause_list:
+      - keyword: 'ON'
+      - keyword: DUPLICATE
+      - keyword: KEY
+      - keyword: UPDATE
+      - set_clause:
+          column_reference:
+            identifier: c
+          comparison_operator:
+            raw_comparison_operator: '='
+          expression:
+          - column_reference:
+            - identifier: t2
+            - dot: .
+            - identifier: a
+          - binary_operator: +
+          - column_reference:
+            - identifier: t2
+            - dot: .
+            - identifier: b
+- statement_terminator: ;
+- statement:
+    insert_statement:
+    - keyword: INSERT
+    - keyword: INTO
+    - table_reference:
+        identifier: t1
+    - set_clause_list:
+      - keyword: SET
+      - set_clause:
+          column_reference:
+            identifier: a
+          comparison_operator:
+            raw_comparison_operator: '='
+          literal: '1'
+      - comma: ','
+      - set_clause:
+          column_reference:
+            identifier: b
+          comparison_operator:
+            raw_comparison_operator: '='
+          literal: '2'
+      - comma: ','
+      - set_clause:
+          column_reference:
+            identifier: c
+          comparison_operator:
+            raw_comparison_operator: '='
+          literal: '3'
+    - insert_row_alias:
+        keyword: AS
+        identifier: t2
+        bracketed:
+          start_bracket: (
+          identifier_list:
+          - identifier: m
+          - comma: ','
+          - identifier: n
+          - comma: ','
+          - identifier: p
+          end_bracket: )
+    - upsert_clause_list:
+      - keyword: 'ON'
+      - keyword: DUPLICATE
+      - keyword: KEY
+      - keyword: UPDATE
+      - set_clause:
+          column_reference:
+            identifier: c
+          comparison_operator:
+            raw_comparison_operator: '='
+          expression:
+          - column_reference:
+              identifier: m
+          - binary_operator: +
+          - column_reference:
+              identifier: n
+      - comma: ','
+      - set_clause:
+          column_reference:
+            identifier: b
+          comparison_operator:
+            raw_comparison_operator: '='
+          expression:
+          - column_reference:
+              identifier: n
+          - binary_operator: +
+          - column_reference:
+              identifier: p
+- statement_terminator: ;

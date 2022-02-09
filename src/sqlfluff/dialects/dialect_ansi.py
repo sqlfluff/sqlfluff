@@ -485,6 +485,7 @@ ansi_dialect.add(
     ),
     PrimaryKeyGrammar=Sequence("PRIMARY", "KEY"),
     ForeignKeyGrammar=Sequence("FOREIGN", "KEY"),
+    UniqueKeyGrammar=Sequence("UNIQUE"),
     # Odd syntax, but prevents eager parameters being confused for data types
     FunctionParameterGrammar=OneOf(
         Sequence(
@@ -2057,7 +2058,6 @@ class ValuesClauseSegment(BaseSegment):
                 ),
             ),
         ),
-        Ref("AliasExpressionSegment", optional=True),
     )
 
 
@@ -2316,7 +2316,7 @@ class ColumnConstraintSegment(BaseSegment):
                 ),
             ),
             Ref("PrimaryKeyGrammar"),
-            "UNIQUE",  # UNIQUE
+            Ref("UniqueKeyGrammar"),  # UNIQUE
             "AUTO_INCREMENT",  # AUTO_INCREMENT (MySQL)
             "UNSIGNED",  # UNSIGNED (MySQL)
             Ref("ReferenceDefinitionGrammar"),  # REFERENCES reftable [ ( refcolumn) ]x

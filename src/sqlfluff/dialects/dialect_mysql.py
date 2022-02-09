@@ -87,6 +87,7 @@ mysql_dialect.sets("unreserved_keywords").update(
         "BUCKETS",
         "USE_FRM",
         "REPAIR",
+        "DUPLICATE",
     ]
 )
 mysql_dialect.sets("reserved_keywords").update(
@@ -187,6 +188,11 @@ mysql_dialect.replace(
         ),
         min_times=1,
     ),
+    UniqueKeyGrammar=Sequence(
+        "UNIQUE",
+        Ref.keyword("KEY", optional=True),
+    ),
+    # Odd syntax, but pr
 )
 
 mysql_dialect.add(
@@ -296,6 +302,89 @@ class CreateTableStatementSegment(
                 ),
             ),
         ],
+    )
+
+
+@mysql_dialect.segment()
+class UpsertClauseListSegment(BaseSegment):
+    """An `ON DUPLICATE KEY UPDATE` statement.
+
+    https://dev.mysql.com/doc/refman/8.0/en/insert-on-duplicate.html
+    """
+
+    type = "upsert_clause_list"
+    match_grammar = Sequence(
+        "ON",
+        "DUPLICATE",
+        "KEY",
+        "UPDATE",
+        Delimited(Ref("SetClauseSegment")),
+    )
+
+
+@mysql_dialect.segment()
+class InsertRowAliasSegment(BaseSegment):
+    """A row alias segment (used in `INSERT` statements).
+
+    https://dev.mysql.com/doc/refman/8.0/en/insert.html
+    """
+
+    type = "insert_row_alias"
+    match_grammar = Sequence(
+        "AS",
+        Ref("SingleIdentifierGrammar"),
+        Bracketed(
+            Ref("SingleIdentifierListSegment"),
+            optional=True,
+        ),
+    )
+
+
+@mysql_dialect.segment(replace=True)
+class InsertStatementSegment(BaseSegment):
+    """An `INSERT` statement.
+
+    https://dev.mysql.com/doc/refman/8.0/en/insert.html
+    """
+
+    type = "insert_statement"
+    match_grammar = Sequence(
+        "INSERT",
+        OneOf(
+            "LOW_PRIORITY",
+            "DELAYED",
+            "HIGH_PRIORITY",
+            optional=True,
+        ),
+        Ref.keyword("IGNORE", optional=True),
+        Ref.keyword("INTO", optional=True),
+        Ref("TableReferenceSegment"),
+        Sequence(
+            "PARTITION",
+            Bracketed(
+                Ref("SingleIdentifierListSegment"),
+            ),
+            optional=True,
+        ),
+        Ref("BracketedColumnReferenceListGrammar", optional=True),
+        AnySetOf(
+            OneOf(
+                Ref("ValuesClauseSegment"),
+                Ref("SetClauseListSegment"),
+                Sequence(
+                    OneOf(
+                        Ref("SelectableGrammar"),
+                        Sequence(
+                            "TABLE",
+                            Ref("TableReferenceSegment"),
+                        ),
+                    ),
+                ),
+                optional=False,
+            ),
+            Ref("InsertRowAliasSegment", optional=True),
+            Ref("UpsertClauseListSegment", optional=True),
+        ),
     )
 
 
@@ -556,6 +645,8 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref("AnalyzeTableStatementSegment"),
             Ref("RepairTableStatementSegment"),
             Ref("OptimizeTableStatementSegment"),
+            Ref("UpsertClauseListSegment"),
+            Ref("InsertRowAliasSegment"),
         ],
     )
 
@@ -979,6 +1070,7 @@ class UnorderedSelectStatementSegment(BaseSegment):
         .copy(insert=[Ref("ForClauseSegment")])
         .copy(insert=[Ref("IndexHintClauseSegment")])
         .copy(insert=[Ref("SelectPartitionClauseSegment")])
+        .copy(insert=[Ref("UpsertClauseListSegment")])
     )
 
     parse_grammar = (
@@ -1039,6 +1131,9 @@ class SelectStatementSegment(BaseSegment):
     match_grammar = ansi_dialect.get_segment(
         "SelectStatementSegment"
     ).match_grammar.copy()
+    match_grammar.terminator = match_grammar.terminator.copy(
+        insert=[Ref("UpsertClauseListSegment")]
+    )
 
     # Inherit most of the parse grammar from the original.
     parse_grammar = UnorderedSelectStatementSegment.parse_grammar.copy(
