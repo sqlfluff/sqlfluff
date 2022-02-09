@@ -30,7 +30,7 @@ class Rule_L016(Rule_L003):
         "tab_space_size",
         "indent_unit",
         "ignore_comment_lines",
-        "ignore_comment_clause",
+        "ignore_comment_clauses",
     ]
 
     def _eval_line_for_breaks(self, segments: List[RawSegment]) -> List[LintFix]:
@@ -426,7 +426,7 @@ class Rule_L016(Rule_L003):
         line_len = 0
         seen_slices = set()
         for segment in segments:
-            if self.ignore_comment_clause and segment in memory["comment_clauses"]:
+            if self.ignore_comment_clauses and segment in memory["comment_clauses"]:
                 continue
 
             slice = (
@@ -464,7 +464,7 @@ class Rule_L016(Rule_L003):
         # Config type hints
         self.max_line_length: int
         self.ignore_comment_lines: bool
-        self.ignore_comment_clause: bool
+        self.ignore_comment_clauses: bool
 
         if not context.memory:
             memory: dict = {"comment_clauses": set()}
@@ -474,7 +474,7 @@ class Rule_L016(Rule_L003):
             # iterate to buffer the whole line up to this point
             this_line = self._gen_line_so_far(context.raw_stack)
         else:
-            if self.ignore_comment_clause and context.segment.is_type(
+            if self.ignore_comment_clauses and context.segment.is_type(
                 "comment_clause", "comment_equals_clause"
             ):
                 comment_segment = context.functional.segment.children().first(

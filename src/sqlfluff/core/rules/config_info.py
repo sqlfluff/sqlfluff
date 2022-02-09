@@ -81,7 +81,7 @@ STANDARD_CONFIG_INFO_DICT = {
             " be ignored when linting line lengths?"
         ),
     },
-    "ignore_comment_clause": {
+    "ignore_comment_clauses": {
         "validation": [True, False],
         "definition": (
             "Should comment clauses (e.g. column comments) be ignored"
