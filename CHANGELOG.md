@@ -10,6 +10,60 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 
 
+## [0.10.0] - 2022-02-11
+
+## Highlights
+
+Major changes include:
+
+* Dropping support of DBT < 0.2.0 ** BREAKING CHANGE **
+* `sqlfluff fix` no will no longer fix SQL containing parsing or templating errors ** BREAKING CHANGE **
+* New rule L062 to allow blocking of list of configurable words (e.g. syntax, or schemas, or tables you do now want people to use)
+* Lots and lots of docs improvements
+* Looser requirements for `click` python package
+
+## What's Changed
+
+* Bug fix: L003 should fix indentation for templated code [#2580](https://github.com/sqlfluff/sqlfluff/pull/2580) [@barrywhart](https://github.com/barrywhart)
+* Exasol: Improve `COMMENT` and `WITH [NO] DATA` clause usage. [#2583](https://github.com/sqlfluff/sqlfluff/pull/2583) [@sti0](https://github.com/sti0)
+* Exasol: Allow multiple `LOCAL` keywords in `WHERE` clause [#2582](https://github.com/sqlfluff/sqlfluff/pull/2582) [@sti0](https://github.com/sti0)
+* Exasol: Allow `LOCAL` keyword within `PREFERRING` clause [#2579](https://github.com/sqlfluff/sqlfluff/pull/2579) [@sti0](https://github.com/sti0)
+* Add/Improve docs for config settings: "ignore", "ignore_templated_areas" [#2574](https://github.com/sqlfluff/sqlfluff/pull/2574) [@barrywhart](https://github.com/barrywhart)
+* Look for .sqlfluffignore in current directory [#2573](https://github.com/sqlfluff/sqlfluff/pull/2573) [@barrywhart](https://github.com/barrywhart)
+* Snowflake: L054 should ignore "WITHIN GROUP" clauses [#2571](https://github.com/sqlfluff/sqlfluff/pull/2571) [@barrywhart](https://github.com/barrywhart)
+* Redshift: Support Redshift SUPER Data Types [#2564](https://github.com/sqlfluff/sqlfluff/pull/2564) [@PLBMR](https://github.com/PLBMR)
+* Capitalization rules (L010, L014, L030, L040) should ignore templated code [#2566](https://github.com/sqlfluff/sqlfluff/pull/2566) [@barrywhart](https://github.com/barrywhart)
+* TSQL: Add Frame clause unreserved keywords [#2562](https://github.com/sqlfluff/sqlfluff/pull/2562) [@jpers36](https://github.com/jpers36)
+* Simple API: Fix bug where omitted parameters still override .sqlfluff [#2563](https://github.com/sqlfluff/sqlfluff/pull/2563) [@barrywhart](https://github.com/barrywhart)
+* Spark3: Add Direct File Query [#2553](https://github.com/sqlfluff/sqlfluff/pull/2553) [@R7L208](https://github.com/R7L208)
+* Redshift dialect: replace AnyNumberOf with AnySetOf where it makes sense [#2561](https://github.com/sqlfluff/sqlfluff/pull/2561) [@rpr-ableton](https://github.com/rpr-ableton)
+* jinja and dbt templaters: More robust handling of whitespace control [#2559](https://github.com/sqlfluff/sqlfluff/pull/2559) [@barrywhart](https://github.com/barrywhart)
+* Improve how "sqlfluff fix" handles templating and parse errors [#2546](https://github.com/sqlfluff/sqlfluff/pull/2546) [@barrywhart](https://github.com/barrywhart)
+* Jinja and dbt templater: Fix "list index out of range" error [#2555](https://github.com/sqlfluff/sqlfluff/pull/2555) [@barrywhart](https://github.com/barrywhart)
+* Fix typo in sqlfluffignore docs [#2551](https://github.com/sqlfluff/sqlfluff/pull/2551) [@tunetheweb](https://github.com/tunetheweb)
+* Correct parsing for BigQuery `SELECT REPLACE` clauses. [#2550](https://github.com/sqlfluff/sqlfluff/pull/2550) [@elyobo](https://github.com/elyobo)
+* Rules documentation improvements [#2542](https://github.com/sqlfluff/sqlfluff/pull/2542) [@tunetheweb](https://github.com/tunetheweb)
+* Remove requirement for Click>=8 [#2547](https://github.com/sqlfluff/sqlfluff/pull/2547) [@tunetheweb](https://github.com/tunetheweb)
+* Allow L059 to be configured to always prefer quoted identifiers [#2537](https://github.com/sqlfluff/sqlfluff/pull/2537) [@niconoe-](https://github.com/niconoe-)
+* Adds new rule L062 to allow blocking of certain words [#2540](https://github.com/sqlfluff/sqlfluff/pull/2540) [@tunetheweb](https://github.com/tunetheweb)
+* Update to latest Black, drop support for dbt < 0.20 [#2536](https://github.com/sqlfluff/sqlfluff/pull/2536) [@barrywhart](https://github.com/barrywhart)
+* dbt templater: Fix bug where profile wasn't found if DBT_PROFILES_DIR contained uppercase letters [#2539](https://github.com/sqlfluff/sqlfluff/pull/2539) [@barrywhart](https://github.com/barrywhart)
+* Spark3: Added segments & grammar needed for hints [#2528](https://github.com/sqlfluff/sqlfluff/pull/2528) [@R7L208](https://github.com/R7L208)
+* Spark3: parse some VALUES clauses [#2245](https://github.com/sqlfluff/sqlfluff/pull/2245) [@mcannamela](https://github.com/mcannamela)
+* TSQL: Allow multiple params in SET statements [#2535](https://github.com/sqlfluff/sqlfluff/pull/2535) [@tunetheweb](https://github.com/tunetheweb)
+* TSQL: Add indentation for SET statement [#2531](https://github.com/sqlfluff/sqlfluff/pull/2531) [@jpers36](https://github.com/jpers36)
+* Add additional documentation on dbt-adapter in pre-commit [#2530](https://github.com/sqlfluff/sqlfluff/pull/2530) [@robertdefilippi](https://github.com/robertdefilippi)
+* TSQL: Add indentation for UPDATE statement [#2532](https://github.com/sqlfluff/sqlfluff/pull/2532) [@jpers36](https://github.com/jpers36)
+* Fix Snowflake Unordered Select Clause [#2529](https://github.com/sqlfluff/sqlfluff/pull/2529) [@tunetheweb](https://github.com/tunetheweb)
+* Fix Quoted Literals for Postgres and Redshift affecting rule L039 [#2526](https://github.com/sqlfluff/sqlfluff/pull/2526) [@tunetheweb](https://github.com/tunetheweb)
+* Postgres specific CTEDefinitionSegment [#2524](https://github.com/sqlfluff/sqlfluff/pull/2524) [@jpy-git](https://github.com/jpy-git)
+
+## New Contributors
+* [@robertdefilippi](https://github.com/robertdefilippi) made their first contribution in [#2530](https://github.com/sqlfluff/sqlfluff/pull/2530)
+* [@niconoe-](https://github.com/niconoe-) made their first contribution in [#2537](https://github.com/sqlfluff/sqlfluff/pull/2537)
+* [@elyobo](https://github.com/elyobo) made their first contribution in [#2550](https://github.com/sqlfluff/sqlfluff/pull/2550)
+
+
 ## [0.9.4] - 2022-01-30
 
 ## Highlights
