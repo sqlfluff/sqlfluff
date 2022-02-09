@@ -467,9 +467,7 @@ class Rule_L016(Rule_L003):
         self.ignore_comment_clause: bool
 
         if not context.memory:
-            memory: dict = {}
-            if self.ignore_comment_clause:
-                memory["comment_clauses"] = set()
+            memory: dict = {"comment_clauses": set()}
         else:
             memory = context.memory
         if context.segment.name == "newline":
@@ -480,7 +478,8 @@ class Rule_L016(Rule_L003):
                 comment_segment = context.functional.segment.children().first(
                     sp.is_name("quoted_literal")
                 )
-                memory["comment_clauses"].add(comment_segment.get())
+                if comment_segment:
+                    memory["comment_clauses"].add(comment_segment.get())
 
             # Otherwise we're all good
             return LintResult(memory=memory)
