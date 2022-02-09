@@ -239,13 +239,27 @@ test_issue_1666_line_too_long_unfixable_jinja:
   # error.
   fail_str: "{{ config (schema='bronze', materialized='view', sort =['id','number'], dist = 'all', tags =['longlonglonglonglong']) }} \n\nselect 1\n"
 
-test_fail_ignore_comment_clause:
+test_fail_ignore_comment_clause_1:
+  # Too long, comment clause not ignored
   fail_str: |
     CREATE OR REPLACE TABLE mytable (
         col1 NUMBER COMMENT 'col1 comment',
         col2 BOOLEAN COMMENT 'very long comment line, exceeding max_line_lengthvery long comment line, exceeding max_line_length very long comment line, exceeding max_line_length very long comment line, exceeding max_line_length',
         col3 NUMBER COMMENT 'col3 comment'
     )
+
+test_fail_ignore_comment_clause_2:
+  # Too long even after ignoring comment clause
+  fail_str: |
+    CREATE OR REPLACE TABLE mytable (
+        col1 NUMBER COMMENT 'col1 comment',
+        colaaaaaaaaaaaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbbcccccccccccccccddddddddddddddddeeeeeeeeeeeeeee2 BOOLEAN COMMENT 'very long comment line, exceeding max_line_lengthvery long comment line, exceeding max_line_length very long comment line, exceeding max_line_length very long comment line, exceeding max_line_length',
+        col3 NUMBER COMMENT 'col3 comment'
+    )
+  configs:
+    rules:
+      L016:
+        ignore_comment_clause: True
 
 test_pass_ignore_comment_clause:
   pass_str: |
