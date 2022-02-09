@@ -445,11 +445,11 @@ class Rule_L016(Rule_L003):
             # vast overcount of the source length.
             #
             # :TRICKY: New segments (i.e. those introduced by earlier fixes)
-            # have weird values for source_slice. We definitely want to count
-            # the length of these segments. We can detect them with
-            # "not is_templated" because new segments are never templated
+            # have empty source slices. We definitely want to count the length
+            # of these segments. We can be sure they aren't the tricky templated
+            # segment case described above because new segments are never templated
             # (because "sqlfluff fix" produced them, not the templater!).
-            if not segment.is_templated or slice not in seen_slices:
+            if slice[0] == slice[1] or slice not in seen_slices:
                 seen_slices.add(slice)
                 line_len += cls._compute_segment_length(segment)
         return line_len
