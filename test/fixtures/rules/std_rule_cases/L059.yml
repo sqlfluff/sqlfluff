@@ -233,3 +233,10 @@ test_pass_reserved_keyword_prefer_quoted_backticks:
     rules:
       L059:
         prefer_quoted_identifiers: True
+
+test_pass_datetime_redshift:
+  pass_str: |
+    SELECT "datetime"
+  configs:
+    core:
+      dialect: redshift
