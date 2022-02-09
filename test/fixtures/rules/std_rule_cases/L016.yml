@@ -239,7 +239,7 @@ test_issue_1666_line_too_long_unfixable_jinja:
   # error.
   fail_str: "{{ config (schema='bronze', materialized='view', sort =['id','number'], dist = 'all', tags =['longlonglonglonglong']) }} \n\nselect 1\n"
 
-test_fail_ignore_comment_clause_1:
+test_fail_ignore_comment_clauses_1:
   # Too long, comment clause not ignored
   fail_str: |
     CREATE OR REPLACE TABLE mytable (
@@ -248,7 +248,7 @@ test_fail_ignore_comment_clause_1:
         col3 NUMBER COMMENT 'col3 comment'
     )
 
-test_fail_ignore_comment_clause_2:
+test_fail_ignore_comment_clauses_2:
   # Too long even after ignoring comment clause
   fail_str: |
     CREATE OR REPLACE TABLE mytable (
@@ -259,9 +259,9 @@ test_fail_ignore_comment_clause_2:
   configs:
     rules:
       L016:
-        ignore_comment_clause: True
+        ignore_comment_clauses: True
 
-test_pass_ignore_comment_clause:
+test_pass_ignore_comment_clauses:
   pass_str: |
     CREATE OR REPLACE TABLE mytable (
         col1 NUMBER COMMENT 'col1 comment',
@@ -271,9 +271,9 @@ test_pass_ignore_comment_clause:
   configs:
     rules:
       L016:
-        ignore_comment_clause: True
+        ignore_comment_clauses: True
 
-test_pass_ignore_comment_clause_teradata:
+test_pass_ignore_comment_clauses_teradata:
   pass_str: |
     comment on table sandbox_db.Org_Descendant is 'very long comment line, exceeding max_line_lengthvery long comment line, exceeding max_line_length very long comment line, exceeding max_line_length very long comment line, exceeding max_line_length';
   configs:
@@ -281,9 +281,9 @@ test_pass_ignore_comment_clause_teradata:
       dialect: teradata
     rules:
       L016:
-        ignore_comment_clause: True
+        ignore_comment_clauses: True
 
-test_pass_ignore_comment_clause_exasol:
+test_pass_ignore_comment_clauses_exasol:
   pass_str: |
     CREATE TABLE IF NOT EXISTS SCHEM.TAB (
         ID DECIMAL(18, 0) IDENTITY CONSTRAINT PRIMARY KEY DISABLE COMMENT IS 'without constraint name'
@@ -293,9 +293,9 @@ test_pass_ignore_comment_clause_exasol:
       dialect: exasol
     rules:
       L016:
-        ignore_comment_clause: True
+        ignore_comment_clauses: True
 
-test_pass_ignore_comment_clause_snowflake:
+test_pass_ignore_comment_clauses_snowflake:
   pass_str: |
     CREATE TABLE foo_table (bar INTEGER) COMMENT = 'very long comment line, exceeding max_line_lengthvery long comment line, exceeding max_line_length very long comment line, exceeding max_line_length very long comment line, exceeding max_line_length'
   configs:
@@ -303,4 +303,4 @@ test_pass_ignore_comment_clause_snowflake:
       dialect: snowflake
     rules:
       L016:
-        ignore_comment_clause: True
+        ignore_comment_clauses: True
