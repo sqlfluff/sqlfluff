@@ -2317,7 +2317,7 @@ class ColumnConstraintSegment(BaseSegment):
                 ),
             ),
             Ref("PrimaryKeyGrammar"),
-            Ref("UniqueKeyGrammar"),  # UNIQUE KEY (MySQL)
+            Ref("UniqueKeyGrammar"),  # UNIQUE
             "AUTO_INCREMENT",  # AUTO_INCREMENT (MySQL)
             "UNSIGNED",  # UNSIGNED (MySQL)
             Ref("ReferenceDefinitionGrammar"),  # REFERENCES reftable [ ( refcolumn) ]x
