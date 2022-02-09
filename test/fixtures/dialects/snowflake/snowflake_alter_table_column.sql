@@ -3,6 +3,9 @@
 ALTER TABLE my_table ADD COLUMN my_column INTEGER;
 ALTER TABLE my_table ADD COLUMN my_column VARCHAR(5000) NOT NULL;
 
+------ Multiple columns
+ALTER TABLE my_table ADD COLUMN column_1 varchar, column_2 integer;
+
 ---- Default, auto-increment & identity
 ALTER TABLE my_table ADD COLUMN my_column INTEGER DEFAULT 1;
 ALTER TABLE my_table ADD COLUMN my_column INTEGER AUTOINCREMENT;
