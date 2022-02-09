@@ -1485,13 +1485,10 @@ class JoinClauseSegment(BaseSegment):
 
     match_grammar = StartsWith(
         OneOf(
-            Sequence(
-                Ref("JoinTypeKeywords", optional=True),
-                Ref("JoinKeywords"),
-            ),
-            Sequence(Ref("NaturalJoinKeywords"), Ref("JoinKeywords")),
+            Ref("JoinTypeKeywords"),
+            Ref("JoinKeywords"),
+            Ref("NaturalJoinKeywords"),
         ),
-        Ref("FromExpressionElementSegment"),
     )
 
     parse_grammar = OneOf(
