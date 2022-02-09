@@ -3592,6 +3592,49 @@ class CTEDefinitionSegment(BaseSegment):
     )
 
 
+@postgres_dialect.segment()
+class DelimitedValues(BaseSegment):
+    """A ``VALUES`` clause can be a sequence either of scalar values or tuple values.
+
+    We make no attempt to ensure that all records have the same number of columns
+    besides the distinction between all scalar or all tuple, so for instance
+    ``VALUES (1,2), (3,4,5)`` will parse but is not legal SQL.
+    """
+
+    type = "delimited_values"
+    match_grammar = OneOf(Delimited(Ref("ScalarValue")), Delimited(Ref("TupleValue")))
+
+
+@postgres_dialect.segment()
+class ScalarValue(BaseSegment):
+    """An element of a ``VALUES`` clause that has a single column.
+
+    Ex: ``VALUES 1,2,3``
+    """
+
+    type = "scalar_value"
+    match_grammar = OneOf(
+        Ref("LiteralGrammar"),
+        Ref("BareFunctionSegment"),
+        Ref("FunctionSegment"),
+    )
+
+
+@postgres_dialect.segment()
+class TupleValue(BaseSegment):
+    """An element of a ``VALUES`` clause that has multiple columns.
+
+    Ex: ``VALUES (1,2), (3,4)``
+    """
+
+    type = "tuple_value"
+    match_grammar = Bracketed(
+        Delimited(
+            Ref("ScalarValue"),
+        )
+    )
+
+
 @postgres_dialect.segment(replace=True)
 class ValuesClauseSegment(BaseSegment):
     """A `VALUES` clause, as typically used with `INSERT` or `SELECT`.
@@ -3603,15 +3646,7 @@ class ValuesClauseSegment(BaseSegment):
 
     match_grammar = Sequence(
         "VALUES",
-        Delimited(
-            Bracketed(
-                Delimited(
-                    "DEFAULT",  # not in `FROM` clause, rule?
-                    Ref("ExpressionSegment"),
-                    ephemeral_name="ValuesClauseElements",
-                )
-            ),
-        ),
+        Ref("DelimitedValues"),
         AnyNumberOf(
             Ref("AliasExpressionSegment"),
             min_times=0,
