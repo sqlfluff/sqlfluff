@@ -258,3 +258,35 @@ test_pass_ignore_comment_clause:
     rules:
       L016:
         ignore_comment_clause: True
+
+test_pass_ignore_comment_clause_teradata:
+  pass_str: |
+    comment on table sandbox_db.Org_Descendant is 'very long comment line, exceeding max_line_lengthvery long comment line, exceeding max_line_length very long comment line, exceeding max_line_length very long comment line, exceeding max_line_length';
+  configs:
+    core:
+      dialect: teradata
+    rules:
+      L016:
+        ignore_comment_clause: True
+
+test_pass_ignore_comment_clause_exasol:
+  pass_str: |
+    CREATE TABLE IF NOT EXISTS SCHEM.TAB (
+        ID DECIMAL(18, 0) IDENTITY CONSTRAINT PRIMARY KEY DISABLE COMMENT IS 'without constraint name'
+    ) COMMENT IS 'very long comment line, exceeding max_line_lengthvery long comment line, exceeding max_line_length very long comment line, exceeding max_line_length very long comment line, exceeding max_line_length';
+  configs:
+    core:
+      dialect: exasol
+    rules:
+      L016:
+        ignore_comment_clause: True
+
+test_pass_ignore_comment_clause_snowflake:
+  pass_str: |
+    CREATE TABLE foo_table (bar INTEGER) COMMENT = 'very long comment line, exceeding max_line_lengthvery long comment line, exceeding max_line_length very long comment line, exceeding max_line_length very long comment line, exceeding max_line_length'
+  configs:
+    core:
+      dialect: snowflake
+    rules:
+      L016:
+        ignore_comment_clause: True
