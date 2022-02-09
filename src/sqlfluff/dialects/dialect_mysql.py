@@ -187,6 +187,11 @@ mysql_dialect.replace(
         ),
         min_times=1,
     ),
+    UniqueKeyGrammar=Sequence(
+        "UNIQUE",
+        Ref.keyword("KEY", optional=True),
+    ),
+    # Odd syntax, but pr
 )
 
 mysql_dialect.add(
