@@ -12,9 +12,10 @@ from sqlfluff.rules.L006 import Rule_L006
 class Rule_L048(Rule_L006):
     """Quoted literals should be surrounded by a single whitespace.
 
-    | **Anti-pattern**
-    | In this example, there is a space missing space between the string
-    | ``'foo'`` and the keyword ``AS``.
+    **Anti-pattern**
+
+    In this example, there is a space missing between the string
+    ``'foo'`` and the keyword ``AS``.
 
     .. code-block:: sql
 
@@ -23,8 +24,9 @@ class Rule_L048(Rule_L006):
         FROM foo
 
 
-    | **Best practice**
-    | Keep a single space.
+    **Best practice**
+
+    Keep a single space.
 
     .. code-block:: sql
 

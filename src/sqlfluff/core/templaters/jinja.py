@@ -386,7 +386,13 @@ class JinjaTemplater(PythonTemplater):
                         "Unrecoverable failure in Jinja templating: {}. Have you "
                         "configured your variables? "
                         "https://docs.sqlfluff.com/en/latest/configuration.html"
-                    ).format(err)
+                    ).format(err),
+                    # We don't have actual line number information, but specify
+                    # line 1 so users can ignore with "noqa" if they want. (The
+                    # default is line 0, which can't be ignored because it's not
+                    # a valid line number.)
+                    line_no=1,
+                    line_pos=1,
                 )
             )
             return None, violations

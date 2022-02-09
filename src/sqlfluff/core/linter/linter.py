@@ -26,7 +26,7 @@ from sqlfluff.core.errors import (
     SQLParseError,
     SQLTemplaterSkipFile,
 )
-from sqlfluff.core.parser import Lexer, Parser
+from sqlfluff.core.parser import Lexer, Parser, RegexLexer
 from sqlfluff.core.file_helpers import get_encoding
 from sqlfluff.core.templaters import TemplatedFile
 from sqlfluff.core.rules import get_ruleset
@@ -343,7 +343,7 @@ class Linter:
         cls,
         rendered: RenderedFile,
         recurse: bool = True,
-    ):
+    ) -> ParsedString:
         """Parse a rendered file."""
         t0 = time.monotonic()
         violations = cast(List[SQLBaseError], rendered.templater_violations)
@@ -382,6 +382,7 @@ class Linter:
             rendered.templated_file,
             rendered.config,
             rendered.fname,
+            rendered.source_str,
         )
 
     @classmethod
@@ -400,7 +401,7 @@ class Linter:
         return result
 
     @classmethod
-    def extract_ignore_mask(
+    def extract_ignore_mask_tree(
         cls,
         tree: BaseSegment,
         rule_codes: List[str],
@@ -413,6 +414,34 @@ class Linter:
                 ignore_entry = cls.extract_ignore_from_comment(comment, rule_codes)
                 if isinstance(ignore_entry, SQLParseError):
                     violations.append(ignore_entry)
+                elif ignore_entry:
+                    ignore_buff.append(ignore_entry)
+        if ignore_buff:
+            linter_logger.info("Parsed noqa directives from file: %r", ignore_buff)
+        return ignore_buff, violations
+
+    @classmethod
+    def extract_ignore_mask_source(
+        cls,
+        source: str,
+        inline_comment_regex: RegexLexer,
+        rule_codes: List[str],
+    ) -> Tuple[List[NoQaDirective], List[SQLBaseError]]:
+        """Look for inline ignore comments and return NoQaDirectives.
+
+        Very similar to extract_ignore_mask_tree(), but can be run on raw source
+        (i.e. does not require the code to have parsed successfully).
+        """
+        ignore_buff: List[NoQaDirective] = []
+        violations: List[SQLBaseError] = []
+        for idx, line in enumerate(source.split("\n")):
+            match = inline_comment_regex.search(line) if line else None
+            if match:
+                ignore_entry = cls.parse_noqa(
+                    line[match[0] : match[1]], idx + 1, rule_codes
+                )
+                if isinstance(ignore_entry, SQLParseError):
+                    violations.append(ignore_entry)  # pragma: no cover
                 elif ignore_entry:
                     ignore_buff.append(ignore_entry)
         if ignore_buff:
@@ -449,7 +478,7 @@ class Linter:
         # Look for comment segments which might indicate lines to ignore.
         if not config.get("disable_noqa"):
             rule_codes = [r.code for r in rule_set]
-            ignore_buff, ivs = cls.extract_ignore_mask(tree, rule_codes)
+            ignore_buff, ivs = cls.extract_ignore_mask_tree(tree, rule_codes)
             all_linting_errors += ivs
         else:
             ignore_buff = []
@@ -556,6 +585,21 @@ class Linter:
             # If no parsed tree, set to None
             tree = None
             ignore_buff = []
+            if not parsed.config.get("disable_noqa"):
+                # Templating and/or parsing have failed. Look for "noqa"
+                # comments (the normal path for identifying these comments
+                # requires access to the parse tree, and because of the failure,
+                # we don't have a parse tree).
+                ignore_buff, ignore_violations = cls.extract_ignore_mask_source(
+                    parsed.source_str,
+                    [
+                        lm
+                        for lm in parsed.config.get("dialect_obj").lexer_matchers
+                        if lm.name == "inline_comment"
+                    ][0],
+                    [r.code for r in rule_set],
+                )
+                violations += ignore_violations
 
         # We process the ignore config here if appropriate
         for violation in violations:
@@ -649,7 +693,13 @@ class Linter:
         time_dict = {"templating": time.monotonic() - t0}
 
         return RenderedFile(
-            templated_file, templater_violations, config, time_dict, fname, encoding
+            templated_file,
+            templater_violations,
+            config,
+            time_dict,
+            fname,
+            encoding,
+            in_str,
         )
 
     def render_file(self, fname: str, root_config: FluffConfig) -> RenderedFile:
@@ -793,6 +843,7 @@ class Linter:
         # matched, but we warn the users when that happens
         is_exact_file = os.path.isfile(path)
 
+        path_walk: WalkableType
         if is_exact_file:
             # When the exact file to lint is passed, we
             # fill path_walk with an input that follows
@@ -800,24 +851,26 @@ class Linter:
             #   (root, directories, files)
             dirpath = os.path.dirname(path)
             files = [os.path.basename(path)]
-            ignore_file_paths = ConfigLoader.find_ignore_config_files(
-                path=path, working_path=working_path, ignore_file_name=ignore_file_name
-            )
-            # Add paths that could contain "ignore files"
-            # to the path_walk list
-            path_walk_ignore_file = [
-                (
-                    os.path.dirname(ignore_file_path),
-                    None,
-                    # Only one possible file, since we only
-                    # have one "ignore file name"
-                    [os.path.basename(ignore_file_path)],
-                )
-                for ignore_file_path in ignore_file_paths
-            ]
-            path_walk: WalkableType = [(dirpath, None, files)] + path_walk_ignore_file
+            path_walk = [(dirpath, None, files)]
         else:
-            path_walk = os.walk(path)
+            path_walk = list(os.walk(path))
+
+        ignore_file_paths = ConfigLoader.find_ignore_config_files(
+            path=path, working_path=working_path, ignore_file_name=ignore_file_name
+        )
+        # Add paths that could contain "ignore files"
+        # to the path_walk list
+        path_walk_ignore_file = [
+            (
+                os.path.dirname(ignore_file_path),
+                None,
+                # Only one possible file, since we only
+                # have one "ignore file name"
+                [os.path.basename(ignore_file_path)],
+            )
+            for ignore_file_path in ignore_file_paths
+        ]
+        path_walk += path_walk_ignore_file
 
         # If it's a directory then expand the path!
         buffer = []

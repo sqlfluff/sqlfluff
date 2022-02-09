@@ -177,6 +177,31 @@ def test__api__fix_string_specific_exclude():
     assert result == "SELECT *, 1, blah AS foo FROM mytable\n"
 
 
+def test__api__fix_string_unparsable():
+    """Test behavior with parse errors."""
+    bad_query = """SELECT my_col
+FROM my_schema.my_table
+where processdate ! 3"""
+    result = sqlfluff.fix(bad_query, rules=["L010"])
+    # Check fix result: should be unchanged because of the parse error.
+    assert result == bad_query
+
+
+def test__api__fix_string_unparsable_fix_even_unparsable():
+    """Test behavior with parse errors."""
+    bad_query = """SELECT my_col
+FROM my_schema.my_table
+where processdate ! 3"""
+    result = sqlfluff.fix(bad_query, rules=["L010"], fix_even_unparsable=True)
+    # Check fix result: should be fixed because we overrode fix_even_unparsable.
+    assert (
+        result
+        == """SELECT my_col
+FROM my_schema.my_table
+WHERE processdate ! 3"""
+    )
+
+
 def test__api__parse_string():
     """Basic checking of parse functionality."""
     parsed = sqlfluff.parse(my_bad_query)
@@ -229,6 +254,31 @@ def test__api__config_path():
 
     # Compare JSON from parse to expected result.
     assert parsed == expected_parsed
+
+
+@pytest.mark.parametrize(
+    "kwargs,expected",
+    [
+        (
+            # No override from API, so uses .sqlfluff value
+            {},
+            set(),
+        ),
+        (
+            # API overrides, so it uses that
+            dict(exclude_rules=["L027"]),
+            {"L029"},
+        ),
+    ],
+)
+def test__api__config_override(kwargs, expected, tmpdir):
+    """Test that parameters to lint() override .sqlfluff correctly (or not)."""
+    config_path = "test/fixtures/api/config_override/.sqlfluff"
+    sql = "SELECT TRIM(name) AS name FROM some_table"
+    lint_results = sqlfluff.lint(sql, config_path=config_path, **kwargs)
+    assert expected == {"L027", "L029"}.intersection(
+        {lr["code"] for lr in lint_results}
+    )
 
 
 def test__api__invalid_dialect():

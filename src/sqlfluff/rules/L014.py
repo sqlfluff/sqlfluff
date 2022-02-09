@@ -35,11 +35,10 @@ def identifiers_policy_applicable(
 class Rule_L014(Rule_L010):
     """Inconsistent capitalisation of unquoted identifiers.
 
-    The functionality for this rule is inherited from :obj:`Rule_L010`.
+    **Anti-pattern**
 
-    | **Anti-pattern**
-    | In this example, unquoted identifier 'a' is in lower-case but
-    | 'B' is in upper-case.
+    In this example, unquoted identifier ``a`` is in lower-case but
+    ``B`` is in upper-case.
 
     .. code-block:: sql
 
@@ -48,8 +47,9 @@ class Rule_L014(Rule_L010):
             B
         from foo
 
-    | **Best practice**
-    | Ensure all unquoted identifiers are either in upper-case or in lower-case
+    **Best practice**
+
+    Ensure all unquoted identifiers are either in upper-case or in lower-case.
 
     .. code-block:: sql
 

@@ -2,7 +2,8 @@
 # code linting and formatting
 flake8
 flake8-docstrings
-flake8-black
+black>=22.1.0
+flake8-black>=0.2.4
 # documentation checks
 doc8
 Pygments

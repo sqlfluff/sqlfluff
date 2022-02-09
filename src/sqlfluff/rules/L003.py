@@ -17,13 +17,10 @@ from sqlfluff.core.templaters import TemplatedFile
 class Rule_L003(BaseRule):
     """Indentation not consistent with previous lines.
 
-    Note:
-        This rule used to be _"Indentation length is not a multiple
-        of `tab_space_size`"_, but was changed to be much smarter.
+    **Anti-pattern**
 
-    | **Anti-pattern**
-    | The • character represents a space.
-    | In this example, the third line contains five spaces instead of four.
+    The ``•`` character represents a space.
+    In this example, the third line contains five spaces instead of four.
 
     .. code-block:: sql
        :force:
@@ -34,8 +31,9 @@ class Rule_L003(BaseRule):
         FROM foo
 
 
-    | **Best practice**
-    | Change the indentation to use a multiple of four spaces.
+    **Best practice**
+
+    Change the indentation to use a multiple of four spaces.
 
     .. code-block:: sql
        :force:
@@ -47,6 +45,7 @@ class Rule_L003(BaseRule):
 
     """
 
+    targets_templated = True
     _works_on_unparsable = False
     _ignore_types: List[str] = ["script_content"]
     config_keywords = ["tab_space_size", "indent_unit"]
@@ -74,7 +73,7 @@ class Rule_L003(BaseRule):
 
         # If it's whitespace, it might be a mixture of literal and templated
         # whitespace. Check for this.
-        if elem.is_type("whitespace") and elem.templated:
+        if elem.is_type("whitespace") and elem.is_templated:
             # Templated case: Find the leading *literal* whitespace.
             templated_file = elem.pos_marker.templated_file
             # Extract the leading literal whitespace, slice by slice.
@@ -144,7 +143,7 @@ class Rule_L003(BaseRule):
                 # newline that ended the *current* line was in templated space.
                 # Reason: We want to ignore indentation of lines that are not
                 # present in the raw (pre-templated) code.
-                templated_line = elem.templated
+                templated_line = elem.is_templated
                 indent_buffer = []
                 line_buffer = []
                 indent_size = 0
@@ -882,15 +881,11 @@ class Rule_L003(BaseRule):
         if not cls._single_placeholder_line(current_line):
             return False
         for idx in range(1, len(current_line)):
-            if (
-                segment_info(idx - 1)
-                in (
-                    ("placeholder", "block_start"),
-                    ("placeholder", "compound"),
-                    ("placeholder", "block_mid"),
-                )
-                and segment_info(idx) == ("indent", None)
-            ):
+            if segment_info(idx - 1) in (
+                ("placeholder", "block_start"),
+                ("placeholder", "compound"),
+                ("placeholder", "block_mid"),
+            ) and segment_info(idx) == ("indent", None):
                 return True
         return False
 

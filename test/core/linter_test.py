@@ -1,9 +1,11 @@
 """The Test file for the linter class."""
 
-import pytest
+import os
 import logging
 from typing import List
 from unittest.mock import patch
+
+import pytest
 
 from sqlfluff.core import Linter, FluffConfig
 from sqlfluff.core.linter import runner
@@ -89,6 +91,23 @@ def test__linter__path_from_paths__explicit_ignore():
         working_path="test/fixtures/linter/sqlfluffignore/",
     )
     assert len(paths) == 0
+
+
+def test__linter__path_from_paths__sqlfluffignore_current_directory():
+    """Test that .sqlfluffignore in the current directory is read when dir given."""
+    oldcwd = os.getcwd()
+    try:
+        os.chdir("test/fixtures/linter/sqlfluffignore")
+        lntr = Linter()
+        paths = lntr.paths_from_path(
+            "path_a/",
+            ignore_non_existent_files=True,
+            ignore_files=True,
+            working_path="test/fixtures/linter/sqlfluffignore/",
+        )
+        assert len(paths) == 0
+    finally:
+        os.chdir(oldcwd)
 
 
 def test__linter__path_from_paths__dot():
@@ -708,18 +727,42 @@ def test_linter_noqa_with_templating():
     assert not result.get_violations()
 
 
+def test_linter_noqa_template_errors():
+    """Similar to test_linter_noqa, but uses templating (Jinja)."""
+    lntr = Linter(
+        config=FluffConfig(
+            overrides={
+                "templater": "jinja",
+            }
+        )
+    )
+    sql = """select * --noqa: TMP
+from raw
+where
+    balance_date >= {{ execution_date - macros.timedelta() }}  --noqa: TMP
+"""
+    result = lntr.lint_string(sql)
+    assert not result.get_violations()
+
+
 def test_linter_noqa_prs():
     """Test "noqa" feature to ignore PRS at the higher "Linter" level."""
     lntr = Linter(
         config=FluffConfig(
             overrides={
+                "dialect": "bigquery",
                 "exclude_rules": "L050",
             }
         )
     )
     sql = """
-    SELECT col_a AS a
-    FROM foo;, -- noqa: PRS
+    CREATE TABLE IF NOT EXISTS
+    Test.events (userID STRING,
+    eventName STRING,
+    eventID INTEGER,
+    device STRUCT < mobileBrandName STRING, -- noqa: PRS
+    mobileModelName STRING>);
+    Insert into Test.events VALUES ("1","abc",123,STRUCT("htc","10"));
         """
     result = lntr.lint_string(sql)
     violations = result.get_violations()

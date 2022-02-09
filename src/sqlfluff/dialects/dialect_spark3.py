@@ -11,6 +11,7 @@ https://spark.apache.org/docs/latest/sql-ref-ansi-compliance.html
 https://github.com/apache/spark/blob/master/sql/catalyst/src/main/antlr4/org/apache/spark/sql/catalyst/parser/SqlBase.g4
 """
 
+from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     AnyNumberOf,
     BaseSegment,
@@ -29,9 +30,8 @@ from sqlfluff.core.parser import (
     StringParser,
     SymbolSegment,
     Anything,
+    StartsWith,
 )
-
-from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser.segments.raw import CodeSegment, KeywordSegment
 from sqlfluff.dialects.dialect_spark3_keywords import (
     RESERVED_KEYWORDS,
@@ -173,6 +173,20 @@ spark3_dialect.replace(
         Ref("NotEqualToSegment"),
         Ref("LikeOperatorSegment"),
     ),
+    FromClauseTerminatorGrammar=OneOf(
+        "WHERE",
+        "LIMIT",
+        Sequence("GROUP", "BY"),
+        Sequence("ORDER", "BY"),
+        Sequence("CLUSTER", "BY"),
+        Sequence("DISTRIBUTE", "BY"),
+        # TODO Add PIVOT, LATERAL VIEW, SORT BY and DISTRIBUTE BY clauses
+        "HAVING",
+        "WINDOW",
+        Ref("SetOperatorSegment"),
+        Ref("WithNoSchemaBindingClauseSegment"),
+        Ref("WithDataClauseSegment"),
+    ),
     TemporaryGrammar=Sequence(
         Sequence("GLOBAL", optional=True),
         OneOf("TEMP", "TEMPORARY"),
@@ -190,10 +204,19 @@ spark3_dialect.replace(
             Ref("BytesQuotedLiteralSegment"),
         ]
     ),
+    NaturalJoinKeywords=Sequence(
+        "NATURAL",
+        Ref("JoinTypeKeywords", optional=True),
+    ),
 )
 
 spark3_dialect.add(
-    # Add Hive Segments TODO : Is there a way to retrieve this w/o redefining?
+    BinaryfileKeywordSegment=StringParser(
+        "BINARYFILE",
+        KeywordSegment,
+        name="binary_file",
+        type="file_format",
+    ),
     JsonfileKeywordSegment=StringParser(
         "JSONFILE",
         KeywordSegment,
@@ -232,7 +255,6 @@ spark3_dialect.add(
         "BracketedPropertyListGrammar"
     ),
     CommentGrammar=hive_dialect.get_grammar("CommentGrammar"),
-    FileFormatGrammar=hive_dialect.get_grammar("FileFormatGrammar"),
     LocationGrammar=hive_dialect.get_grammar("LocationGrammar"),
     PropertyGrammar=hive_dialect.get_grammar("PropertyGrammar"),
     SerdePropertiesGrammar=hive_dialect.get_grammar("SerdePropertiesGrammar"),
@@ -242,13 +264,13 @@ spark3_dialect.add(
     TerminatedByGrammar=hive_dialect.get_grammar("TerminatedByGrammar"),
     # Add Spark Grammar
     BucketSpecGrammar=Sequence(
-        Ref("ClusterSpecGrammar"),
+        Ref("ClusteredBySpecGrammar"),
         Ref("SortSpecGrammar", optional=True),
         "INTO",
         Ref("NumericLiteralSegment"),
         "BUCKETS",
     ),
-    ClusterSpecGrammar=Sequence(
+    ClusteredBySpecGrammar=Sequence(
         "CLUSTERED",
         "BY",
         Ref("BracketedColumnReferenceListGrammar"),
@@ -256,7 +278,11 @@ spark3_dialect.add(
     DatabasePropertiesGrammar=Sequence(
         "DBPROPERTIES", Ref("BracketedPropertyListGrammar")
     ),
-    DataSourceFormatGrammar=OneOf(
+    DataSourcesV2FileTypeGrammar=OneOf(
+        # https://github.com/apache/spark/tree/master/sql/core/src/main/scala/org/apache/spark/sql/execution/datasources/v2  # noqa: E501
+        # Separated here because these allow for additional
+        # commands such as Select From File
+        # https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-file.html
         # Spark Core Data Sources
         # https://spark.apache.org/docs/latest/sql-data-sources.html
         "AVRO",
@@ -264,11 +290,36 @@ spark3_dialect.add(
         "JSON",
         "PARQUET",
         "ORC",
-        "JDBC",
-        # Community Contributed Data Sources
+        # Separated here because these allow for additional commands
+        # Similar to DataSourcesV2
         "DELTA",  # https://github.com/delta-io/delta
-        "XML",  # https://github.com/databricks/spark-xml
+        "CSV",
+        "TEXT",
+        "BINARYFILE",
     ),
+    FileFormatGrammar=OneOf(
+        Ref("DataSourcesV2FileTypeGrammar"),
+        "SEQUENCEFILE",
+        "TEXTFILE",
+        "RCFILE",
+        "JSONFILE",
+        Sequence(
+            "INPUTFORMAT",
+            Ref("QuotedLiteralSegment"),
+            "OUTPUTFORMAT",
+            Ref("QuotedLiteralSegment"),
+        ),
+    ),
+    DataSourceFormatGrammar=OneOf(
+        Ref("FileFormatGrammar"),
+        # NB: JDBC is part of DataSourceV2 but not included
+        # there since there are no significant syntax changes
+        "JDBC",
+    ),
+    # Adding Hint related segments so they are not treated as generic comments
+    # https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-hints.html
+    StartHintSegment=StringParser("/*+", KeywordSegment, name="start_hint"),
+    EndHintSegment=StringParser("*/", KeywordSegment, name="end_hint"),
     PartitionSpecGrammar=Sequence(
         OneOf("PARTITION", Sequence("PARTITIONED", "BY")),
         Bracketed(
@@ -328,6 +379,44 @@ spark3_dialect.add(
             type="literal",
         ),
     ),
+    JoinTypeKeywords=OneOf(
+        "CROSS",
+        "INNER",
+        Sequence(
+            OneOf(
+                "FULL",
+                "LEFT",
+                "RIGHT",
+            ),
+            Ref.keyword("OUTER", optional=True),
+        ),
+        Sequence(
+            Ref.keyword("LEFT", optional=True),
+            "SEMI",
+        ),
+        Sequence(
+            Ref.keyword("LEFT", optional=True),
+            "ANTI",
+        ),
+    ),
+)
+
+# Adding Hint related grammar before comment `block_comment` and
+# `single_quote` so they are applied before comment lexer so
+# hints are treated as such instead of comments when parsing.
+# https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-hints.html
+spark3_dialect.insert_lexer_matchers(
+    [
+        RegexLexer("start_hint", r"\/\*\+", CodeSegment),
+    ],
+    before="block_comment",
+)
+
+spark3_dialect.insert_lexer_matchers(
+    [
+        RegexLexer("end_hint", r"\*\/", CodeSegment),
+    ],
+    before="single_quote",
 )
 
 
@@ -933,6 +1022,353 @@ class LoadDataSegment(BaseSegment):
     )
 
 
+# Data Retrieval Statements
+@spark3_dialect.segment()
+class ClusterByClauseSegment(BaseSegment):
+    """A `CLUSTER BY` clause from `SELECT` statement.
+
+    Equivalent to `DISTRIBUTE BY` and `SORT BY` in tandem.
+    This clause is mutually exclusive with SORT BY, ORDER BY and DISTRIBUTE BY.
+    https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-clusterby.html
+    """
+
+    type = "cluster_by_clause"
+
+    match_grammar = StartsWith(
+        Sequence("CLUSTER", "BY"),
+        terminator=OneOf(
+            "LIMIT",
+            "HAVING",
+            # For window functions
+            "WINDOW",
+            Ref("FrameClauseUnitGrammar"),
+            "SEPARATOR",
+        ),
+    )
+
+    parse_grammar = Sequence(
+        "CLUSTER",
+        "BY",
+        Indent,
+        Delimited(
+            Sequence(
+                OneOf(
+                    Ref("ColumnReferenceSegment"),
+                    # Can `CLUSTER BY 1`
+                    Ref("NumericLiteralSegment"),
+                    # Can cluster by an expression
+                    Ref("ExpressionSegment"),
+                ),
+            ),
+            terminator=OneOf(
+                "WINDOW",
+                "LIMIT",
+                Ref("FrameClauseUnitGrammar"),
+            ),
+        ),
+        Dedent,
+    )
+
+
+@spark3_dialect.segment()
+class DistributeByClauseSegment(BaseSegment):
+    """A `DISTRIBUTE BY` clause from `SELECT` statement.
+
+    This clause is mutually exclusive with SORT BY, ORDER BY and DISTRIBUTE BY.
+    https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-distribute-by.html
+    """
+
+    type = "distribute_by_clause"
+
+    match_grammar = StartsWith(
+        Sequence("DISTRIBUTE", "BY"),
+        terminator=OneOf(
+            "LIMIT",
+            "HAVING",
+            # For window functions
+            "WINDOW",
+            Ref("FrameClauseUnitGrammar"),
+            "SEPARATOR",
+        ),
+    )
+
+    parse_grammar = Sequence(
+        "DISTRIBUTE",
+        "BY",
+        Indent,
+        Delimited(
+            Sequence(
+                OneOf(
+                    Ref("ColumnReferenceSegment"),
+                    # Can `DISTRIBUTE BY 1`
+                    Ref("NumericLiteralSegment"),
+                    # Can distribute by an expression
+                    Ref("ExpressionSegment"),
+                ),
+            ),
+            terminator=OneOf(
+                "WINDOW",
+                "LIMIT",
+                Ref("FrameClauseUnitGrammar"),
+            ),
+        ),
+        Dedent,
+    )
+
+
+@spark3_dialect.segment()
+class HintFunctionSegment(BaseSegment):
+    """A Function within a SparkSQL Hint.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-hints.html
+    """
+
+    type = "hint_function"
+
+    match_grammar = Sequence(
+        Ref("FunctionNameSegment"),
+        Bracketed(
+            Delimited(
+                AnyNumberOf(
+                    Ref("SingleIdentifierGrammar"),
+                    Ref("NumericLiteralSegment"),
+                    min_times=1,
+                ),
+            ),
+            # May be Bare Function unique to Hints, i.e. REBALANCE
+            optional=True,
+        ),
+    )
+
+
+@spark3_dialect.segment()
+class SelectHintSegment(BaseSegment):
+    """Spark Select Hints.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-hints.html
+    """
+
+    type = "select_hint"
+
+    match_grammar = Sequence(
+        Sequence(
+            Ref("StartHintSegment"),
+            Delimited(
+                AnyNumberOf(
+                    Ref("HintFunctionSegment"),
+                    # At least function should be supplied
+                    min_times=1,
+                ),
+                terminator=Ref("EndHintSegment"),
+            ),
+            Ref("EndHintSegment"),
+        ),
+    )
+
+
+@spark3_dialect.segment(replace=True)
+class SelectClauseModifierSegment(BaseSegment):
+    """Things that come after SELECT but before the columns.
+
+    Enhance `SelectClauseModifierSegment` from Ansi to allow SparkSQL Hints
+    https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-hints.html
+    """
+
+    type = "select_clause_modifier"
+    match_grammar = Sequence(
+        # TODO New Rule warning of Join Hints priority if multiple specified
+        #   When different join strategy hints are specified on
+        #     both sides of a join, Spark prioritizes the BROADCAST
+        #     hint over the MERGE hint over the SHUFFLE_HASH hint
+        #     over the SHUFFLE_REPLICATE_NL hint.
+        #
+        #   Spark will issue Warning in the following example:
+        #
+        #   SELECT
+        #   /*+ BROADCAST(t1), MERGE(t1, t2) */
+        #       t1.a,
+        #       t1.b,
+        #       t2.c
+        #   FROM t1 INNER JOIN t2 ON t1.key = t2.key;
+        #
+        #   Hints should be listed in order of priority in Select
+        Ref("SelectHintSegment", optional=True),
+        OneOf("DISTINCT", "ALL", optional=True),
+    )
+
+
+@spark3_dialect.segment(replace=True)
+class UnorderedSelectStatementSegment(BaseSegment):
+    """Enhance unordered `SELECT` statement for valid SparkSQL clauses.
+
+    This is designed for use in the context of set operations,
+    for other use cases, we should use the main
+    SelectStatementSegment.
+    """
+
+    type = "select_statement"
+
+    match_grammar = ansi_dialect.get_segment(
+        "UnorderedSelectStatementSegment"
+    ).match_grammar.copy()
+
+    parse_grammar = ansi_dialect.get_segment(
+        "UnorderedSelectStatementSegment"
+    ).parse_grammar.copy(
+        # TODO Insert: PIVOT and LATERAL VIEW clauses
+        # Removing non-valid clauses that exist in ANSI dialect
+        remove=[Ref("OverlapsClauseSegment", optional=True)]
+    )
+
+
+@spark3_dialect.segment(replace=True)
+class SelectStatementSegment(BaseSegment):
+    """Enhance `SELECT` statement for valid SparkSQL clauses."""
+
+    type = "select_statement"
+
+    match_grammar = ansi_dialect.get_segment(
+        "SelectStatementSegment"
+    ).match_grammar.copy()
+
+    parse_grammar = ansi_dialect.get_segment(
+        "SelectStatementSegment"
+    ).parse_grammar.copy(
+        # TODO New Rule: Warn of mutual exclusion of following clauses
+        #  DISTRIBUTE, SORT, CLUSTER and ORDER BY if multiple specified
+        # TODO Insert: SORT BY clauses
+        insert=[
+            Ref("ClusterByClauseSegment", optional=True),
+            Ref("DistributeByClauseSegment", optional=True),
+        ],
+        before=Ref("LimitClauseSegment"),
+    )
+
+
+@spark3_dialect.segment(replace=True)
+class GroupByClauseSegment(BaseSegment):
+    """Enhance `GROUP BY` clause like in `SELECT` for 'CUBE' and 'ROLLUP`.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-groupby.html
+    """
+
+    type = "group_by_clause"
+
+    match_grammar = StartsWith(
+        Sequence("GROUP", "BY"),
+        terminator=OneOf("ORDER", "LIMIT", "HAVING", "WINDOW"),
+        enforce_whitespace_preceding_terminator=True,
+    )
+
+    parse_grammar = Sequence(
+        "GROUP",
+        "BY",
+        Indent,
+        Delimited(
+            OneOf(
+                Ref("ColumnReferenceSegment"),
+                # Can `GROUP BY 1`
+                Ref("NumericLiteralSegment"),
+                # Can `GROUP BY coalesce(col, 1)`
+                Ref("ExpressionSegment"),
+                Ref("CubeRollupClauseSegment"),
+                Ref("GroupingSetsClauseSegment"),
+            ),
+            terminator=OneOf("ORDER", "LIMIT", "HAVING", "WINDOW"),
+        ),
+        # TODO: New Rule
+        #  Warn if CubeRollupClauseSegment and
+        #  WithCubeRollupClauseSegment used in same query
+        Ref("WithCubeRollupClauseSegment", optional=True),
+        Dedent,
+    )
+
+
+@spark3_dialect.segment()
+class WithCubeRollupClauseSegment(BaseSegment):
+    """A `[WITH CUBE | WITH ROLLUP]` clause after the `GROUP BY` clause.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-groupby.html
+    """
+
+    type = "with_cube_rollup_clause"
+
+    match_grammar = Sequence(
+        "WITH",
+        OneOf("CUBE", "ROLLUP"),
+    )
+
+
+@spark3_dialect.segment()
+class CubeRollupClauseSegment(BaseSegment):
+    """`[CUBE | ROLLUP]` clause within the `GROUP BY` clause.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-groupby.html
+    """
+
+    type = "cube_rollup_clause"
+
+    match_grammar = StartsWith(
+        OneOf("CUBE", "ROLLUP"),
+        terminator=OneOf(
+            "HAVING",
+            Sequence("ORDER", "BY"),
+            "LIMIT",
+            Ref("SetOperatorSegment"),
+        ),
+    )
+
+    parse_grammar = Sequence(
+        OneOf("CUBE", "ROLLUP"),
+        Bracketed(
+            Ref("GroupingExpressionList"),
+        ),
+    )
+
+
+@spark3_dialect.segment()
+class GroupingSetsClauseSegment(BaseSegment):
+    """`GROUPING SETS` clause within the `GROUP BY` clause."""
+
+    type = "grouping_sets_clause"
+
+    match_grammar = StartsWith(
+        Sequence("GROUPING", "SETS"),
+        terminator=OneOf(
+            "HAVING",
+            Sequence("ORDER", "BY"),
+            "LIMIT",
+            Ref("SetOperatorSegment"),
+        ),
+    )
+
+    parse_grammar = Sequence(
+        "GROUPING",
+        "SETS",
+        Bracketed(
+            Delimited(
+                Ref("CubeRollupClauseSegment"),
+                Ref("GroupingExpressionList"),
+                Bracketed(),  # Allows empty parentheses
+            )
+        ),
+    )
+
+
+@spark3_dialect.segment()
+class GroupingExpressionList(BaseSegment):
+    """Grouping expression list within `CUBE` / `ROLLUP` `GROUPING SETS`."""
+
+    type = "grouping_expression_list"
+
+    match_grammar = Delimited(
+        OneOf(
+            Bracketed(Delimited(Ref("ExpressionSegment"))),
+            Ref("ExpressionSegment"),
+        )
+    )
+
+
 # Auxiliary Statements
 @spark3_dialect.segment()
 class AddExecutablePackage(BaseSegment):
@@ -1023,6 +1459,9 @@ class StatementSegment(BaseSegment):
             Ref("InsertOverwriteDirectorySegment"),
             Ref("InsertOverwriteDirectoryHiveFmtSegment"),
             Ref("LoadDataSegment"),
+            # Data Retrieval Statements
+            Ref("ClusterByClauseSegment"),
+            Ref("DistributeByClauseSegment"),
         ],
         remove=[
             Ref("TransactionStatementSegment"),
@@ -1039,73 +1478,215 @@ class StatementSegment(BaseSegment):
 class JoinClauseSegment(BaseSegment):
     """Any number of join clauses, including the `JOIN` keyword.
 
-    https://spark.apache.org/docs/3.0.0/sql-ref-syntax-qry-select-join.html
-    TODO: Add NATURAL JOIN syntax.
+    https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-join.html
     """
 
     type = "join_clause"
-    match_grammar = Sequence(
+
+    match_grammar = StartsWith(
+        OneOf(
+            Ref("JoinTypeKeywords"),
+            Ref("JoinKeywords"),
+            Ref("NaturalJoinKeywords"),
+        ),
+    )
+
+    parse_grammar = OneOf(
         # NB These qualifiers are optional
         # TODO: Allow nested joins like:
         # ....FROM S1.T1 t1 LEFT JOIN ( S2.T2 t2 JOIN S3.T3 t3 ON t2.col1=t3.col1) ON
         # tab1.col1 = tab2.col1
-        OneOf(
-            "CROSS",
-            "INNER",
-            Sequence(
-                OneOf(
-                    "FULL",
-                    "LEFT",
-                    "RIGHT",
-                ),
-                Ref.keyword("OUTER", optional=True),
-            ),
-            Sequence(
-                Ref.keyword("LEFT", optional=True),
-                "SEMI",
-            ),
-            Sequence(
-                Ref.keyword("LEFT", optional=True),
-                "ANTI",
-            ),
-            optional=True,
-        ),
-        Ref("JoinKeywords"),
-        Indent,
         Sequence(
-            Ref("FromExpressionElementSegment"),
-            Conditional(Dedent, indented_using_on=False),
-            # NB: this is optional
-            OneOf(
-                # ON clause
-                Ref("JoinOnConditionSegment"),
-                # USING clause
-                Sequence(
-                    "USING",
-                    Indent,
-                    Bracketed(
-                        # NB: We don't use BracketedColumnReferenceListGrammar
-                        # here because we're just using SingleIdentifierGrammar,
-                        # rather than ObjectReferenceSegment or ColumnReferenceSegment.
-                        # This is a) so that we don't lint it as a reference and
-                        # b) because the column will probably be returned anyway
-                        # during parsing.
-                        Delimited(
-                            Ref("SingleIdentifierGrammar"),
-                            ephemeral_name="UsingClauseContents",
-                        )
+            Ref("JoinTypeKeywords", optional=True),
+            Ref("JoinKeywords"),
+            Indent,
+            Sequence(
+                Ref("FromExpressionElementSegment"),
+                Conditional(Dedent, indented_using_on=False),
+                # NB: this is optional
+                OneOf(
+                    # ON clause
+                    Ref("JoinOnConditionSegment"),
+                    # USING clause
+                    Sequence(
+                        "USING",
+                        Indent,
+                        Bracketed(
+                            # NB: We don't use BracketedColumnReferenceListGrammar
+                            # here because we're just using SingleIdentifierGrammar,
+                            # rather than ObjectReferenceSegment or
+                            # ColumnReferenceSegment. This is a) so that we don't
+                            # lint it as a reference and b) because the column will
+                            # probably be returned anyway during parsing.
+                            Delimited(
+                                Ref("SingleIdentifierGrammar"),
+                                ephemeral_name="UsingClauseContents",
+                            )
+                        ),
+                        Dedent,
                     ),
-                    Dedent,
+                    # Unqualified joins *are* allowed. They just might not
+                    # be a good idea.
+                    optional=True,
                 ),
-                # Unqualified joins *are* allowed. They just might not
-                # be a good idea.
-                optional=True,
+                Conditional(Indent, indented_using_on=False),
             ),
-            Conditional(Indent, indented_using_on=False),
+            Dedent,
         ),
-        Dedent,
+        # Note NATURAL joins do not support Join conditions
+        Sequence(
+            Ref("NaturalJoinKeywords"),
+            Ref("JoinKeywords"),
+            Indent,
+            Ref("FromExpressionElementSegment"),
+            Dedent,
+        ),
     )
 
     get_eventual_alias = ansi_dialect.get_segment(
         "JoinClauseSegment"
     ).get_eventual_alias
+
+
+@spark3_dialect.segment(replace=True)
+class AliasExpressionSegment(BaseSegment):
+    """A reference to an object with an `AS` clause.
+
+    The optional AS keyword allows both implicit and explicit aliasing.
+    Note also that it's possible to specify just column aliases without aliasing the
+    table as well:
+    .. code-block:: sql
+
+        SELECT * FROM VALUES (1,2) as t (a, b);
+        SELECT * FROM VALUES (1,2) as (a, b);
+        SELECT * FROM VALUES (1,2) as t;
+
+    Note that in Spark SQL, identifiers are quoted using backticks (`my_table`) rather
+    than double quotes ("my_table"). Quoted identifiers are allowed in aliases, but
+    unlike ANSI which allows single quoted identifiers ('my_table') in aliases, this is
+    not allowed in Spark and so the definition of this segment must depart from ANSI.
+    """
+
+    type = "alias_expression"
+
+    match_grammar = Sequence(
+        Ref.keyword("AS", optional=True),
+        OneOf(
+            # maybe table alias and column aliases
+            Sequence(
+                Ref("SingleIdentifierGrammar", optional=True),
+                Bracketed(Ref("SingleIdentifierListSegment")),
+            ),
+            # just a table alias
+            Ref("SingleIdentifierGrammar"),
+            exclude=Ref("JoinTypeKeywords"),
+        ),
+    )
+
+
+@spark3_dialect.segment()
+class DelimitedValues(BaseSegment):
+    """A ``VALUES`` clause can be a sequence either of scalar values or tuple values.
+
+    We make no attempt to ensure that all records have the same number of columns
+    besides the distinction between all scalar or all tuple, so for instance
+    ``VALUES (1,2), (3,4,5)`` will parse but is not legal SQL.
+    """
+
+    type = "delimited_values"
+    match_grammar = OneOf(Delimited(Ref("ScalarValue")), Delimited(Ref("TupleValue")))
+
+
+@spark3_dialect.segment()
+class ScalarValue(BaseSegment):
+    """An element of a ``VALUES`` clause that has a single column.
+
+    Ex: ``VALUES 1,2,3``
+    """
+
+    type = "scalar_value"
+    match_grammar = OneOf(
+        Ref("LiteralGrammar"),
+        Ref("BareFunctionSegment"),
+        Ref("FunctionSegment"),
+    )
+
+
+@spark3_dialect.segment()
+class TupleValue(BaseSegment):
+    """An element of a ``VALUES`` clause that has multiple columns.
+
+    Ex: ``VALUES (1,2), (3,4)``
+    """
+
+    type = "tuple_value"
+    match_grammar = Bracketed(
+        Delimited(
+            Ref("ScalarValue"),
+        )
+    )
+
+
+@spark3_dialect.segment(replace=True)
+class ValuesClauseSegment(BaseSegment):
+    """A `VALUES` clause, as typically used with `INSERT` or `SELECT`.
+
+    The Spark SQL reference does not mention `VALUES` clauses except in the context
+    of `INSERT` statements. However, they appear to behave much the same as in
+    `postgres <https://www.postgresql.org/docs/13/sql-values.html>`.
+
+    In short, they can appear anywhere a `SELECT` can, and also as bare `VALUES`
+    statements. Here are some examples:
+    .. code-block:: sql
+
+        VALUES 1,2 LIMIT 1;
+        SELECT * FROM VALUES (1,2) as t (a,b);
+        SELECT * FROM (VALUES (1,2) as t (a,b));
+        WITH a AS (VALUES 1,2) SELECT * FROM a;
+
+    """
+
+    type = "values_clause"
+
+    match_grammar = Sequence(
+        "VALUES",
+        Ref("DelimitedValues"),
+        Ref("AliasExpressionSegment", optional=True),
+    )
+
+
+@spark3_dialect.segment(replace=True)
+class TableExpressionSegment(BaseSegment):
+    """The main table expression e.g. within a FROM clause.
+
+    Enhance to allow for additional clauses allowed in Spark.
+    """
+
+    type = "table_expression"
+    match_grammar = OneOf(
+        Ref("ValuesClauseSegment"),
+        Ref("BareFunctionSegment"),
+        Ref("FunctionSegment"),
+        Ref("FileReferenceSegment"),
+        Ref("TableReferenceSegment"),
+        # Nested Selects
+        Bracketed(Ref("SelectableGrammar")),
+    )
+
+
+@spark3_dialect.segment()
+class FileReferenceSegment(BaseSegment):
+    """A reference to a file for direct query.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-file.html
+    """
+
+    type = "file_reference"
+
+    match_grammar = Sequence(
+        Ref("DataSourcesV2FileTypeGrammar"),
+        Ref("DotSegment"),
+        # NB: Using `QuotedLiteralSegment` here causes `FileReferenceSegment`
+        # to match as a `TableReferenceSegment`
+        Ref("QuotedIdentifierSegment"),
+    )

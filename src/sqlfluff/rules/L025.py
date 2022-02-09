@@ -33,7 +33,7 @@ class L025Query(SelectCrawlerQuery):
 class Rule_L025(BaseRule):
     """Tables should not be aliased if that alias is not used.
 
-    | **Anti-pattern**
+    **Anti-pattern**
 
     .. code-block:: sql
 
@@ -41,9 +41,10 @@ class Rule_L025(BaseRule):
             a
         FROM foo AS zoo
 
-    | **Best practice**
-    | Use the alias or remove it. An unused alias makes code
-    | harder to read without changing any functionality.
+    **Best practice**
+
+    Use the alias or remove it. An unused alias makes code
+    harder to read without changing any functionality.
 
     .. code-block:: sql
 

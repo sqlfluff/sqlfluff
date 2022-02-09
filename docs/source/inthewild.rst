@@ -47,3 +47,10 @@ Just add a section below by raising a PR on GitHub by
   being able automatically lint Pull Requests through GitHub Actions is a
   fantastic way to help us maintain our growing repositary of
   `over a thousand queries <https://github.com/HTTPArchive/almanac.httparchive.org/tree/main/sql>`_.
+- `Brooklyn Data Co <https://www.brooklyndata.co>`_ has a `dbt_artifacts <https://github.com/brooklyn-data/dbt_artifacts>`_
+  dbt package from which runs SQLFluff in CI to lint pull requests
+  automatically. It uses the
+  `GitHub Actions workflow <https://github.com/sqlfluff/sqlfluff-github-actions/tree/main/menu_of_workflows/surfline>`_
+  contributed by Greg Clunies, with annotations on pull requests to make it
+  easy for contributors to see where their SQL has failed any rules. See an
+  `example pull request with SQLFluff annotations <https://github.com/brooklyn-data/dbt_artifacts/pull/74/files>`_.

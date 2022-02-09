@@ -84,6 +84,11 @@ tsql_dialect.sets("datetime_units").update(
     ]
 )
 
+tsql_dialect.sets("date_part_function_name").clear()
+tsql_dialect.sets("date_part_function_name").update(
+    ["DATEADD", "DATEDIFF", "DATEDIFF_BIG", "DATENAME"]
+)
+
 tsql_dialect.insert_lexer_matchers(
     [
         RegexLexer(
@@ -341,6 +346,7 @@ tsql_dialect.replace(
         Sequence(OneOf("IGNORE", "RESPECT"), "NULLS"),
     ),
     JoinKeywords=OneOf("JOIN", "APPLY", Sequence("OUTER", "APPLY")),
+    NaturalJoinKeywords=Nothing(),
     # Replace Expression_D_Grammar to remove casting syntax invalid in TSQL
     Expression_D_Grammar=Sequence(
         OneOf(
@@ -402,6 +408,7 @@ class StatementSegment(ansi_dialect.get_segment("StatementSegment")):  # type: i
             Ref("TryCatchSegment"),
             Ref("MergeStatementSegment"),
             Ref("ThrowStatementSegment"),
+            Ref("RaiserrorStatementSegment"),
             Ref("ReturnStatementSegment"),
         ],
         remove=[
@@ -1414,12 +1421,15 @@ class FunctionParameterListGrammar(BaseSegment):
 
     type = "function_parameter_list"
     # Function parameter list
-    match_grammar = OptionallyBracketed(
-        Ref("FunctionParameterGrammar"),
-        AnyNumberOf(
-            Ref("CommaSegment"),
+    match_grammar = Bracketed(
+        Sequence(
             Ref("FunctionParameterGrammar"),
-        ),
+            AnyNumberOf(
+                Ref("CommaSegment"),
+                Ref("FunctionParameterGrammar"),
+            ),
+            optional=True,
+        )
     )
 
 
@@ -1557,67 +1567,94 @@ class SetStatementSegment(BaseSegment):
     type = "set_segment"
     match_grammar = Sequence(
         "SET",
-        OneOf(
-            Ref("ParameterNameSegment"),
-            "DATEFIRST",
-            "DATEFORMAT",
-            "DEADLOCK_PRIORITY",
-            "LOCK_TIMEOUT",
-            "CONCAT_NULL_YIELDS_NULL",
-            "CURSOR_CLOSE_ON_COMMIT",
-            "FIPS_FLAGGER",
-            Sequence("IDENTITY_INSERT", Ref("TableReferenceSegment")),
-            "LANGUAGE",
-            "OFFSETS",
-            "QUOTED_IDENTIFIER",
-            "ARITHABORT",
-            "ARITHIGNORE",
-            "FMTONLY",
-            "NOCOUNT",
-            "NOEXEC",
-            "NUMERIC_ROUNDABORT",
-            "PARSEONLY",
-            "QUERY_GOVERNOR_COST_LIMIT",
-            "RESULT_SET_CACHING",  # Azure Synapse Analytics specific
-            "ROWCOUNT",
-            "TEXTSIZE",
-            "ANSI_DEFAULTS",
-            "ANSI_NULL_DFLT_OFF",
-            "ANSI_NULL_DFLT_ON",
-            "ANSI_NULLS",
-            "ANSI_PADDING",
-            "ANSI_WARNINGS",
-            "FORCEPLAN",
-            "SHOWPLAN_ALL",
-            "SHOWPLAN_TEXT",
-            "SHOWPLAN_XML",
+        Indent,
+        Delimited(
             Sequence(
-                "STATISTICS",
                 OneOf(
-                    "IO",
-                    "PROFILE",
-                    "TIME",
-                    "XML",
+                    Ref("ParameterNameSegment"),
+                    "DATEFIRST",
+                    "DATEFORMAT",
+                    "DEADLOCK_PRIORITY",
+                    "LOCK_TIMEOUT",
+                    "CONCAT_NULL_YIELDS_NULL",
+                    "CURSOR_CLOSE_ON_COMMIT",
+                    "FIPS_FLAGGER",
+                    Sequence("IDENTITY_INSERT", Ref("TableReferenceSegment")),
+                    "LANGUAGE",
+                    "OFFSETS",
+                    "QUOTED_IDENTIFIER",
+                    "ARITHABORT",
+                    "ARITHIGNORE",
+                    "FMTONLY",
+                    "NOCOUNT",
+                    "NOEXEC",
+                    "NUMERIC_ROUNDABORT",
+                    "PARSEONLY",
+                    "QUERY_GOVERNOR_COST_LIMIT",
+                    "RESULT_SET_CACHING",  # Azure Synapse Analytics specific
+                    "ROWCOUNT",
+                    "TEXTSIZE",
+                    "ANSI_DEFAULTS",
+                    "ANSI_NULL_DFLT_OFF",
+                    "ANSI_NULL_DFLT_ON",
+                    "ANSI_NULLS",
+                    "ANSI_PADDING",
+                    "ANSI_WARNINGS",
+                    "FORCEPLAN",
+                    "SHOWPLAN_ALL",
+                    "SHOWPLAN_TEXT",
+                    "SHOWPLAN_XML",
+                    Sequence(
+                        "STATISTICS",
+                        OneOf(
+                            "IO",
+                            "PROFILE",
+                            "TIME",
+                            "XML",
+                        ),
+                    ),
+                    "IMPLICIT_TRANSACTIONS",
+                    "REMOTE_PROC_TRANSACTIONS",
+                    Sequence(
+                        "TRANSACTION",
+                        "ISOLATION",
+                        "LEVEL",
+                    ),
+                    "XACT_ABORT",
+                ),
+                OneOf(
+                    "ON",
+                    "OFF",
+                    Sequence(
+                        Ref("EqualsSegment"),
+                        Ref("ExpressionSegment"),
+                    ),
                 ),
             ),
-            "IMPLICIT_TRANSACTIONS",
-            "REMOTE_PROC_TRANSACTIONS",
-            Sequence(
-                "TRANSACTION",
-                "ISOLATION",
-                "LEVEL",
-            ),
-            "XACT_ABORT",
         ),
-        OneOf(
-            "ON",
-            "OFF",
-            Sequence(
-                Ref("EqualsSegment"),
-                Ref("ExpressionSegment"),
-            ),
-        ),
+        Dedent,
         Ref("DelimiterSegment", optional=True),
+    )
+
+
+@tsql_dialect.segment()
+class ProcedureParameterListGrammar(BaseSegment):
+    """The parameters for a procedure ie.
+
+    `@city_name NVARCHAR(30), @postal_code NVARCHAR(15)`.
+    """
+
+    type = "procedure_parameter_list"
+    # Function parameter list
+    match_grammar = OptionallyBracketed(
+        Sequence(
+            Ref("FunctionParameterGrammar"),
+            AnyNumberOf(
+                Ref("CommaSegment"),
+                Ref("FunctionParameterGrammar"),
+            ),
+            optional=True,
+        ),
     )
 
 
@@ -1635,7 +1672,7 @@ class CreateProcedureStatementSegment(BaseSegment):
         Sequence("OR", "ALTER", optional=True),
         OneOf("PROCEDURE", "PROC"),
         Ref("ObjectReferenceSegment"),
-        Ref("FunctionParameterListGrammar", optional=True),
+        Ref("ProcedureParameterListGrammar", optional=True),
         "AS",
         Ref("ProcedureDefinitionGrammar"),
     )
@@ -1881,6 +1918,9 @@ class FunctionSegment(BaseSegment):
     type = "function"
     match_grammar = OneOf(
         Sequence(
+            # Treat functions which take date parts separately
+            # So those functions parse date parts as DatetimeUnitSegment
+            # rather than identifiers.
             Ref("DatePartFunctionNameSegment"),
             Bracketed(
                 Delimited(
@@ -2738,9 +2778,11 @@ class UpdateStatementSegment(BaseSegment):
     type = "update_statement"
     match_grammar = Sequence(
         "UPDATE",
+        Indent,
         OneOf(Ref("TableReferenceSegment"), Ref("AliasedTableReferenceGrammar")),
         Ref("PostTableExpressionGrammar", optional=True),
         Ref("SetClauseListSegment"),
+        Dedent,
         Ref("FromClauseSegment", optional=True),
         Ref("WhereClauseSegment", optional=True),
         Ref("DelimiterSegment", optional=True),
@@ -2781,17 +2823,6 @@ class SetClauseSegment(BaseSegment):
         Ref("EqualsSegment"),
         Ref("ExpressionSegment"),
     )
-
-
-@tsql_dialect.segment(replace=True)
-class DatePartFunctionNameSegment(BaseSegment):
-    """DATEADD function name segment.
-
-    Override to support DATEDIFF as well
-    """
-
-    type = "function_name"
-    match_grammar = OneOf("DATEADD", "DATEDIFF", "DATEDIFF_BIG", "DATENAME")
 
 
 @tsql_dialect.segment()
@@ -3363,6 +3394,31 @@ class ThrowStatementSegment(BaseSegment):
                 Ref("ParameterNameSegment"),
             ),
             optional=True,
+        ),
+    )
+
+
+@tsql_dialect.segment()
+class RaiserrorStatementSegment(BaseSegment):
+    """RAISERROR statement.
+
+    https://docs.microsoft.com/en-us/sql/t-sql/language-elements/raiserror-transact-sql?view=sql-server-ver15
+    """
+
+    type = "raiserror_statement"
+    match_grammar = Sequence(
+        "RAISERROR",
+        Bracketed(
+            Delimited(
+                OneOf(Ref("NumericLiteralSegment"), Ref("QuotedLiteralSegment")),
+                OneOf(
+                    Ref("NumericLiteralSegment"), Ref("QualifiedNumericLiteralSegment")
+                ),
+                OneOf(
+                    Ref("NumericLiteralSegment"), Ref("QualifiedNumericLiteralSegment")
+                ),
+                Ref("QuotedLiteralSegment", optional=True),
+            ),
         ),
     )
 

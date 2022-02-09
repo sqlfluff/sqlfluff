@@ -38,7 +38,14 @@ ignore templating (``TMP``) & parsing (``PRS``) errors.
 
 .. code-block:: sql
 
-   WHERE dt >= DATE_ADD(CURRENT_DATE(), INTERVAL -2 DAY) -- noqa: PRS
+   WHERE
+     col1 = 2 AND
+     dt >= DATE_ADD(CURRENT_DATE(), INTERVAL -2 DAY) -- noqa: PRS
+
+.. note::
+   It should be noted that ignoring ``TMP`` and ``PRS`` errors can lead to
+   incorrect ``sqlfluff lint`` and ``sqfluff fix`` results as `SQLFluff` can
+   misinterpret the SQL being analysed.
 
 Should the need arise, not specifying specific rules to ignore will ignore
 all rules on the given line.

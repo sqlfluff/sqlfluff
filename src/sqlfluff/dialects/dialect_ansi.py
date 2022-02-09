@@ -164,6 +164,8 @@ ansi_dialect.sets("datetime_units").update(
     ]
 )
 
+ansi_dialect.sets("date_part_function_name").update(["DATEADD"])
+
 # Set Keywords
 ansi_dialect.sets("unreserved_keywords").update(
     [n.strip().upper() for n in ansi_unreserved_keywords.split("\n")]
@@ -329,6 +331,14 @@ ansi_dialect.add(
             type="date_part",
         )
     ),
+    DatePartFunctionName=SegmentGenerator(
+        lambda dialect: RegexParser(
+            r"^(" + r"|".join(dialect.sets("date_part_function_name")) + r")$",
+            CodeSegment,
+            name="function_name_identifier",
+            type="function_name_identifier",
+        )
+    ),
     QuotedIdentifierSegment=NamedParser(
         "double_quote", CodeSegment, name="quoted_identifier", type="identifier"
     ),
@@ -475,6 +485,7 @@ ansi_dialect.add(
     ),
     PrimaryKeyGrammar=Sequence("PRIMARY", "KEY"),
     ForeignKeyGrammar=Sequence("FOREIGN", "KEY"),
+    UniqueKeyGrammar=Sequence("UNIQUE"),
     # Odd syntax, but prevents eager parameters being confused for data types
     FunctionParameterGrammar=OneOf(
         Sequence(
@@ -499,6 +510,21 @@ ansi_dialect.add(
     FrameClauseUnitGrammar=OneOf("ROWS", "RANGE"),
     # It's as a sequence to allow to parametrize that in Postgres dialect with LATERAL
     JoinKeywords=Sequence("JOIN"),
+    # NATURAL joins are not supported in all dialects (e.g. not in Bigquery
+    # or T-SQL). So define here to allow override with Nothing() for those.
+    NaturalJoinKeywords=Sequence(
+        "NATURAL",
+        OneOf(
+            # Note that NATURAL joins do not support CROSS joins
+            "INNER",
+            Sequence(
+                OneOf("LEFT", "RIGHT", "FULL"),
+                Ref.keyword("OUTER", optional=True),
+                optional=True,
+            ),
+            optional=True,
+        ),
+    ),
     ReferentialActionGrammar=OneOf(
         "RESTRICT",
         "CASCADE",
@@ -1029,6 +1055,9 @@ class FunctionSegment(BaseSegment):
     type = "function"
     match_grammar = OneOf(
         Sequence(
+            # Treat functions which take date parts separately
+            # So those functions parse date parts as DatetimeUnitSegment
+            # rather than identifiers.
             Sequence(
                 Ref("DatePartFunctionNameSegment"),
                 Bracketed(
@@ -1042,7 +1071,7 @@ class FunctionSegment(BaseSegment):
                         ),
                     )
                 ),
-            )
+            ),
         ),
         Sequence(
             Sequence(
@@ -1356,58 +1385,69 @@ class JoinClauseSegment(BaseSegment):
     """Any number of join clauses, including the `JOIN` keyword."""
 
     type = "join_clause"
-    match_grammar = Sequence(
+    match_grammar = OneOf(
         # NB These qualifiers are optional
         # TODO: Allow nested joins like:
         # ....FROM S1.T1 t1 LEFT JOIN ( S2.T2 t2 JOIN S3.T3 t3 ON t2.col1=t3.col1) ON
         # tab1.col1 = tab2.col1
-        OneOf(
-            "CROSS",
-            "INNER",
-            Sequence(
-                OneOf(
-                    "FULL",
-                    "LEFT",
-                    "RIGHT",
-                ),
-                Ref.keyword("OUTER", optional=True),
-            ),
-            optional=True,
-        ),
-        Ref("JoinKeywords"),
-        Indent,
         Sequence(
-            Ref("FromExpressionElementSegment"),
-            Conditional(Dedent, indented_using_on=False),
-            # NB: this is optional
             OneOf(
-                # ON clause
-                Ref("JoinOnConditionSegment"),
-                # USING clause
+                "CROSS",
+                "INNER",
                 Sequence(
-                    "USING",
-                    Indent,
-                    Bracketed(
-                        # NB: We don't use BracketedColumnReferenceListGrammar
-                        # here because we're just using SingleIdentifierGrammar,
-                        # rather than ObjectReferenceSegment or ColumnReferenceSegment.
-                        # This is a) so that we don't lint it as a reference and
-                        # b) because the column will probably be returned anyway
-                        # during parsing.
-                        Delimited(
-                            Ref("SingleIdentifierGrammar"),
-                            ephemeral_name="UsingClauseContents",
-                        )
+                    OneOf(
+                        "FULL",
+                        "LEFT",
+                        "RIGHT",
                     ),
-                    Dedent,
+                    Ref.keyword("OUTER", optional=True),
                 ),
-                # Unqualified joins *are* allowed. They just might not
-                # be a good idea.
                 optional=True,
             ),
-            Conditional(Indent, indented_using_on=False),
+            Ref("JoinKeywords"),
+            Indent,
+            Sequence(
+                Ref("FromExpressionElementSegment"),
+                Conditional(Dedent, indented_using_on=False),
+                # NB: this is optional
+                OneOf(
+                    # ON clause
+                    Ref("JoinOnConditionSegment"),
+                    # USING clause
+                    Sequence(
+                        "USING",
+                        Indent,
+                        Bracketed(
+                            # NB: We don't use BracketedColumnReferenceListGrammar
+                            # here because we're just using SingleIdentifierGrammar,
+                            # rather than ObjectReferenceSegment or
+                            # ColumnReferenceSegment.
+                            # This is a) so that we don't lint it as a reference and
+                            # b) because the column will probably be returned anyway
+                            # during parsing.
+                            Delimited(
+                                Ref("SingleIdentifierGrammar"),
+                                ephemeral_name="UsingClauseContents",
+                            )
+                        ),
+                        Dedent,
+                    ),
+                    # Unqualified joins *are* allowed. They just might not
+                    # be a good idea.
+                    optional=True,
+                ),
+                Conditional(Indent, indented_using_on=False),
+            ),
+            Dedent,
         ),
-        Dedent,
+        # Note NATURAL joins do not support Join conditions
+        Sequence(
+            Ref("NaturalJoinKeywords"),
+            Ref("JoinKeywords"),
+            Indent,
+            Ref("FromExpressionElementSegment"),
+            Dedent,
+        ),
     )
 
     def get_eventual_alias(self) -> AliasInfo:
@@ -1676,6 +1716,7 @@ ansi_dialect.add(
                             "FunctionSegment"
                         ),  # WHERE (a, substr(b,1,3)) IN (select c,d FROM...)
                         Ref("LiteralGrammar"),  # WHERE (a, 2) IN (SELECT b, c FROM ...)
+                        Ref("LocalAliasSegment"),  # WHERE (LOCAL.a, LOCAL.b) IN (...)
                     ),
                     ephemeral_name="BracketedExpression",
                 ),
@@ -2275,7 +2316,7 @@ class ColumnConstraintSegment(BaseSegment):
                 ),
             ),
             Ref("PrimaryKeyGrammar"),
-            "UNIQUE",  # UNIQUE
+            Ref("UniqueKeyGrammar"),  # UNIQUE
             "AUTO_INCREMENT",  # AUTO_INCREMENT (MySQL)
             "UNSIGNED",  # UNSIGNED (MySQL)
             Ref("ReferenceDefinitionGrammar"),  # REFERENCES reftable [ ( refcolumn) ]x
@@ -3437,7 +3478,7 @@ class DatePartFunctionNameSegment(BaseSegment):
     """
 
     type = "function_name"
-    match_grammar = Sequence("DATEADD")
+    match_grammar = Ref("DatePartFunctionName")
 
 
 @ansi_dialect.segment()

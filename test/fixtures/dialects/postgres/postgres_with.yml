@@ -1,0 +1,484 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 9186a2b9abd8dddb08b72c4faee9e10c8c91b2f86a4d3e005a00470a92269f25
+file:
+- statement:
+    with_compound_statement:
+      keyword: WITH
+      common_table_expression:
+      - identifier: w
+      - keyword: AS
+      - keyword: NOT
+      - keyword: MATERIALIZED
+      - bracketed:
+          start_bracket: (
+          select_statement:
+            select_clause:
+              keyword: SELECT
+              select_clause_element:
+                wildcard_expression:
+                  wildcard_identifier:
+                    star: '*'
+            from_clause:
+              keyword: FROM
+              from_expression:
+                from_expression_element:
+                  table_expression:
+                    table_reference:
+                      identifier: big_table
+          end_bracket: )
+      select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: w
+              alias_expression:
+                keyword: AS
+                identifier: w1
+            join_clause:
+              keyword: JOIN
+              from_expression_element:
+                table_expression:
+                  table_reference:
+                    identifier: w
+                alias_expression:
+                  keyword: AS
+                  identifier: w2
+              join_on_condition:
+                keyword: 'ON'
+                expression:
+                - column_reference:
+                  - identifier: w1
+                  - dot: .
+                  - identifier: key
+                - comparison_operator:
+                    raw_comparison_operator: '='
+                - column_reference:
+                  - identifier: w2
+                  - dot: .
+                  - identifier: ref
+        where_clause:
+          keyword: WHERE
+          expression:
+            column_reference:
+            - identifier: w2
+            - dot: .
+            - identifier: key
+            comparison_operator:
+              raw_comparison_operator: '='
+            literal: '123'
+- statement_terminator: ;
+- statement:
+    with_compound_statement:
+    - keyword: WITH
+    - keyword: RECURSIVE
+    - common_table_expression:
+      - identifier: search_tree
+      - bracketed:
+          start_bracket: (
+          identifier_list:
+          - identifier: id
+          - comma: ','
+          - identifier: link
+          - comma: ','
+          - identifier: data
+          end_bracket: )
+      - keyword: AS
+      - bracketed:
+          start_bracket: (
+          set_expression:
+          - select_statement:
+              select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                  column_reference:
+                  - identifier: t
+                  - dot: .
+                  - identifier: id
+              - comma: ','
+              - select_clause_element:
+                  column_reference:
+                  - identifier: t
+                  - dot: .
+                  - identifier: link
+              - comma: ','
+              - select_clause_element:
+                  column_reference:
+                  - identifier: t
+                  - dot: .
+                  - identifier: data
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        identifier: tree
+                    alias_expression:
+                      identifier: t
+          - set_operator:
+            - keyword: UNION
+            - keyword: ALL
+          - select_statement:
+              select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                  column_reference:
+                  - identifier: t
+                  - dot: .
+                  - identifier: id
+              - comma: ','
+              - select_clause_element:
+                  column_reference:
+                  - identifier: t
+                  - dot: .
+                  - identifier: link
+              - comma: ','
+              - select_clause_element:
+                  column_reference:
+                  - identifier: t
+                  - dot: .
+                  - identifier: data
+              from_clause:
+              - keyword: FROM
+              - from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        identifier: tree
+                    alias_expression:
+                      identifier: t
+              - comma: ','
+              - from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        identifier: search_tree
+                    alias_expression:
+                      identifier: st
+              where_clause:
+                keyword: WHERE
+                expression:
+                - column_reference:
+                  - identifier: t
+                  - dot: .
+                  - identifier: id
+                - comparison_operator:
+                    raw_comparison_operator: '='
+                - column_reference:
+                  - identifier: st
+                  - dot: .
+                  - identifier: link
+          end_bracket: )
+      - keyword: SEARCH
+      - keyword: DEPTH
+      - keyword: FIRST
+      - keyword: BY
+      - column_reference:
+          identifier: id
+      - keyword: SET
+      - column_reference:
+          identifier: ordercol
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: search_tree
+        orderby_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+            identifier: ordercol
+- statement_terminator: ;
+- statement:
+    with_compound_statement:
+    - keyword: WITH
+    - keyword: RECURSIVE
+    - common_table_expression:
+      - identifier: search_tree
+      - bracketed:
+          start_bracket: (
+          identifier_list:
+          - identifier: id
+          - comma: ','
+          - identifier: link
+          - comma: ','
+          - identifier: data
+          end_bracket: )
+      - keyword: AS
+      - bracketed:
+          start_bracket: (
+          set_expression:
+          - select_statement:
+              select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                  column_reference:
+                  - identifier: t
+                  - dot: .
+                  - identifier: id
+              - comma: ','
+              - select_clause_element:
+                  column_reference:
+                  - identifier: t
+                  - dot: .
+                  - identifier: link
+              - comma: ','
+              - select_clause_element:
+                  column_reference:
+                  - identifier: t
+                  - dot: .
+                  - identifier: data
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        identifier: tree
+                    alias_expression:
+                      identifier: t
+          - set_operator:
+            - keyword: UNION
+            - keyword: ALL
+          - select_statement:
+              select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                  column_reference:
+                  - identifier: t
+                  - dot: .
+                  - identifier: id
+              - comma: ','
+              - select_clause_element:
+                  column_reference:
+                  - identifier: t
+                  - dot: .
+                  - identifier: link
+              - comma: ','
+              - select_clause_element:
+                  column_reference:
+                  - identifier: t
+                  - dot: .
+                  - identifier: data
+              from_clause:
+              - keyword: FROM
+              - from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        identifier: tree
+                    alias_expression:
+                      identifier: t
+              - comma: ','
+              - from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        identifier: search_tree
+                    alias_expression:
+                      identifier: st
+              where_clause:
+                keyword: WHERE
+                expression:
+                - column_reference:
+                  - identifier: t
+                  - dot: .
+                  - identifier: id
+                - comparison_operator:
+                    raw_comparison_operator: '='
+                - column_reference:
+                  - identifier: st
+                  - dot: .
+                  - identifier: link
+          end_bracket: )
+      - keyword: SEARCH
+      - keyword: BREADTH
+      - keyword: FIRST
+      - keyword: BY
+      - column_reference:
+          identifier: id
+      - keyword: SET
+      - column_reference:
+          identifier: ordercol
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: search_tree
+        orderby_clause:
+        - keyword: ORDER
+        - keyword: BY
+        - column_reference:
+            identifier: ordercol
+- statement_terminator: ;
+- statement:
+    with_compound_statement:
+    - keyword: WITH
+    - keyword: RECURSIVE
+    - common_table_expression:
+      - identifier: search_graph
+      - bracketed:
+          start_bracket: (
+          identifier_list:
+          - identifier: id
+          - comma: ','
+          - identifier: link
+          - comma: ','
+          - identifier: data
+          - comma: ','
+          - identifier: depth
+          end_bracket: )
+      - keyword: AS
+      - bracketed:
+          start_bracket: (
+          set_expression:
+          - select_statement:
+              select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                  column_reference:
+                  - identifier: g
+                  - dot: .
+                  - identifier: id
+              - comma: ','
+              - select_clause_element:
+                  column_reference:
+                  - identifier: g
+                  - dot: .
+                  - identifier: link
+              - comma: ','
+              - select_clause_element:
+                  column_reference:
+                  - identifier: g
+                  - dot: .
+                  - identifier: data
+              - comma: ','
+              - select_clause_element:
+                  literal: '1'
+              from_clause:
+                keyword: FROM
+                from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        identifier: graph
+                    alias_expression:
+                      identifier: g
+          - set_operator:
+            - keyword: UNION
+            - keyword: ALL
+          - select_statement:
+              select_clause:
+              - keyword: SELECT
+              - select_clause_element:
+                  column_reference:
+                  - identifier: g
+                  - dot: .
+                  - identifier: id
+              - comma: ','
+              - select_clause_element:
+                  column_reference:
+                  - identifier: g
+                  - dot: .
+                  - identifier: link
+              - comma: ','
+              - select_clause_element:
+                  column_reference:
+                  - identifier: g
+                  - dot: .
+                  - identifier: data
+              - comma: ','
+              - select_clause_element:
+                  expression:
+                    column_reference:
+                    - identifier: sg
+                    - dot: .
+                    - identifier: depth
+                    binary_operator: +
+                    literal: '1'
+              from_clause:
+              - keyword: FROM
+              - from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        identifier: graph
+                    alias_expression:
+                      identifier: g
+              - comma: ','
+              - from_expression:
+                  from_expression_element:
+                    table_expression:
+                      table_reference:
+                        identifier: search_graph
+                    alias_expression:
+                      identifier: sg
+              where_clause:
+                keyword: WHERE
+                expression:
+                - column_reference:
+                  - identifier: g
+                  - dot: .
+                  - identifier: id
+                - comparison_operator:
+                    raw_comparison_operator: '='
+                - column_reference:
+                  - identifier: sg
+                  - dot: .
+                  - identifier: link
+          end_bracket: )
+      - keyword: CYCLE
+      - column_reference:
+          identifier: id
+      - keyword: SET
+      - column_reference:
+          identifier: is_cycle
+      - keyword: USING
+      - column_reference:
+          identifier: path
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: search_graph
+- statement_terminator: ;

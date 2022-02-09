@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 0132c9967315b48174b809cccd11d1880bc4810179b3096a4be7780bf6dc878b
+_hash: 818d4638dcf988381d63e7393545018cb6d77a369501e6e6421bbf727aef2a0c
 file:
   batch:
     statement:
@@ -17,7 +17,7 @@ file:
         - select_clause_element:
             function:
               function_name:
-                keyword: DATEDIFF
+                function_name_identifier: DATEDIFF
               bracketed:
               - start_bracket: (
               - date_part: day
@@ -67,7 +67,7 @@ file:
         - select_clause_element:
             function:
               function_name:
-                keyword: DATEDIFF
+                function_name_identifier: DATEDIFF
               bracketed:
               - start_bracket: (
               - date_part: year
@@ -82,7 +82,7 @@ file:
         - select_clause_element:
             function:
               function_name:
-                keyword: DATEDIFF
+                function_name_identifier: DATEDIFF
               bracketed:
               - start_bracket: (
               - date_part: quarter
@@ -97,7 +97,7 @@ file:
         - select_clause_element:
             function:
               function_name:
-                keyword: DATEDIFF
+                function_name_identifier: DATEDIFF
               bracketed:
               - start_bracket: (
               - date_part: month
@@ -112,7 +112,7 @@ file:
         - select_clause_element:
             function:
               function_name:
-                keyword: DATEDIFF
+                function_name_identifier: DATEDIFF
               bracketed:
               - start_bracket: (
               - date_part: dayofyear
@@ -127,7 +127,7 @@ file:
         - select_clause_element:
             function:
               function_name:
-                keyword: DATEDIFF
+                function_name_identifier: DATEDIFF
               bracketed:
               - start_bracket: (
               - date_part: day
@@ -142,7 +142,7 @@ file:
         - select_clause_element:
             function:
               function_name:
-                keyword: DATEDIFF
+                function_name_identifier: DATEDIFF
               bracketed:
               - start_bracket: (
               - date_part: week
@@ -157,7 +157,7 @@ file:
         - select_clause_element:
             function:
               function_name:
-                keyword: DATEDIFF
+                function_name_identifier: DATEDIFF
               bracketed:
               - start_bracket: (
               - date_part: hour
@@ -172,7 +172,7 @@ file:
         - select_clause_element:
             function:
               function_name:
-                keyword: DATEDIFF
+                function_name_identifier: DATEDIFF
               bracketed:
               - start_bracket: (
               - date_part: minute
@@ -187,7 +187,7 @@ file:
         - select_clause_element:
             function:
               function_name:
-                keyword: DATEDIFF
+                function_name_identifier: DATEDIFF
               bracketed:
               - start_bracket: (
               - date_part: second
@@ -202,7 +202,7 @@ file:
         - select_clause_element:
             function:
               function_name:
-                keyword: DATEDIFF
+                function_name_identifier: DATEDIFF
               bracketed:
               - start_bracket: (
               - date_part: millisecond
@@ -217,7 +217,7 @@ file:
         - select_clause_element:
             function:
               function_name:
-                keyword: DATEDIFF
+                function_name_identifier: DATEDIFF
               bracketed:
               - start_bracket: (
               - date_part: microsecond
@@ -232,7 +232,7 @@ file:
         - select_clause_element:
             function:
               function_name:
-                keyword: DATEDIFF_BIG
+                function_name_identifier: DATEDIFF_BIG
               bracketed:
               - start_bracket: (
               - date_part: microsecond
@@ -247,7 +247,7 @@ file:
         - select_clause_element:
             function:
               function_name:
-                keyword: DATEADD
+                function_name_identifier: DATEADD
               bracketed:
               - start_bracket: (
               - date_part: year
@@ -262,7 +262,7 @@ file:
         - select_clause_element:
             function:
               function_name:
-                keyword: DATEADD
+                function_name_identifier: DATEADD
               bracketed:
               - start_bracket: (
               - date_part: year
@@ -279,7 +279,7 @@ file:
         - select_clause_element:
             function:
               function_name:
-                keyword: DATENAME
+                function_name_identifier: DATENAME
               bracketed:
                 start_bracket: (
                 date_part: year
@@ -291,7 +291,7 @@ file:
         - select_clause_element:
             function:
               function_name:
-                keyword: DATENAME
+                function_name_identifier: DATENAME
               bracketed:
                 start_bracket: (
                 date_part: month
@@ -303,7 +303,7 @@ file:
         - select_clause_element:
             function:
               function_name:
-                keyword: DATENAME
+                function_name_identifier: DATENAME
               bracketed:
                 start_bracket: (
                 date_part: day
@@ -315,7 +315,7 @@ file:
         - select_clause_element:
             function:
               function_name:
-                keyword: DATENAME
+                function_name_identifier: DATENAME
               bracketed:
                 start_bracket: (
                 date_part: dayofyear
@@ -327,7 +327,7 @@ file:
         - select_clause_element:
             function:
               function_name:
-                keyword: DATENAME
+                function_name_identifier: DATENAME
               bracketed:
                 start_bracket: (
                 date_part: weekday

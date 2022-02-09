@@ -146,7 +146,7 @@ jobs:
           - 5432:5432
     strategy:
       matrix:
-        dbt-version: [ 'dbt018', 'dbt019', 'dbt020', 'dbt021', 'dbt100' ]
+        dbt-version: [ 'dbt020', 'dbt021', 'dbt100' ]
     name: DBT Plugin ${{ matrix.dbt-version }} tests
     steps:
     - uses: actions/checkout@v2
@@ -227,7 +227,7 @@ jobs:
       # Do not set explicitly temp dir for dbt as causes problems
       # None of these test need temp dir set
       run: |
-        python -m tox -e dbt018-winpy -- plugins/sqlfluff-templater-dbt
+        python -m tox -e dbt100-winpy -- plugins/sqlfluff-templater-dbt
     - name: Upload Coverage Report
       uses: codecov/codecov-action@v1
       with:
