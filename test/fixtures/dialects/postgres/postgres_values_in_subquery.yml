@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 117396aa8477ff1f1cf56069f3a3e9321fbf0f360a0a1e8b85fed75375706f9a
+_hash: 8f78ff77ce8210cb0bb643a4cc034986d2843c5b147492872df6f2f57edf0034
 file:
 - statement:
     with_compound_statement:
@@ -20,22 +20,28 @@ file:
       - keyword: AS
       - bracketed:
           start_bracket: (
-          unparsable:
-            raw: VALUES
-            bracketed:
-            - start_bracket: (
-            - raw: "'08RIX0'"
-            - comma: ','
-            - raw: '0.435'
-            - raw: '::'
-            - raw: NUMERIC
-            - bracketed:
-              - start_bracket: (
-              - raw: '4'
-              - comma: ','
-              - raw: '3'
-              - end_bracket: )
-            - end_bracket: )
+          values_clause:
+            keyword: VALUES
+            delimited_values:
+              tuple_value:
+                bracketed:
+                - start_bracket: (
+                - scalar_value:
+                    literal: "'08RIX0'"
+                - comma: ','
+                - scalar_value:
+                    literal: '0.435'
+                    cast_expression:
+                      casting_operator: '::'
+                      data_type:
+                        keyword: NUMERIC
+                        bracketed:
+                        - start_bracket: (
+                        - literal: '4'
+                        - comma: ','
+                        - literal: '3'
+                        - end_bracket: )
+                - end_bracket: )
           end_bracket: )
       select_statement:
         select_clause:

@@ -3613,10 +3613,13 @@ class ScalarValue(BaseSegment):
     """
 
     type = "scalar_value"
-    match_grammar = OneOf(
-        Ref("LiteralGrammar"),
-        Ref("BareFunctionSegment"),
-        Ref("FunctionSegment"),
+    match_grammar = Sequence(
+        OneOf(
+            Ref("LiteralGrammar"),
+            Ref("BareFunctionSegment"),
+            Ref("FunctionSegment"),
+        ),
+        AnyNumberOf(Ref("ShorthandCastSegment")),
     )
 
 
