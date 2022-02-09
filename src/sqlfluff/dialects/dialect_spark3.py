@@ -208,6 +208,21 @@ spark3_dialect.replace(
         "NATURAL",
         Ref("JoinTypeKeywords", optional=True),
     ),
+    LikeGrammar=OneOf(
+        # https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-like.html
+        Sequence(
+            "LIKE",
+            OneOf(
+                "ALL",
+                "ANY",
+                # `SOME` is equivalent to `ANY`
+                "SOME",
+                optional=True,
+            ),
+        ),
+        "RLIKE",
+        "REGEXP",
+    ),
 )
 
 spark3_dialect.add(
