@@ -485,10 +485,7 @@ ansi_dialect.add(
     ),
     PrimaryKeyGrammar=Sequence("PRIMARY", "KEY"),
     ForeignKeyGrammar=Sequence("FOREIGN", "KEY"),
-    UniqueKeyGrammar=Sequence(
-        "UNIQUE",
-        Ref.keyword("KEY", optional=True),
-    ),
+    UniqueKeyGrammar=Sequence("UNIQUE"),
     # Odd syntax, but prevents eager parameters being confused for data types
     FunctionParameterGrammar=OneOf(
         Sequence(
