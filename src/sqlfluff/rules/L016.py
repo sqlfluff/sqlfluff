@@ -29,6 +29,7 @@ class Rule_L016(Rule_L003):
         "tab_space_size",
         "indent_unit",
         "ignore_comment_lines",
+        "ignore_comment_clause",
     ]
 
     def _eval_line_for_breaks(self, segments: List[RawSegment]) -> List[LintFix]:
@@ -458,6 +459,7 @@ class Rule_L016(Rule_L003):
         # Config type hints
         self.max_line_length: int
         self.ignore_comment_lines: bool
+        self.ignore_comment_clause: bool
 
         if context.segment.name == "newline":
             # iterate to buffer the whole line up to this point

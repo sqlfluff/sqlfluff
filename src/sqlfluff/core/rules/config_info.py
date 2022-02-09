@@ -81,6 +81,13 @@ STANDARD_CONFIG_INFO_DICT = {
             " be ignored when linting line lengths?"
         ),
     },
+    "ignore_comment_clause": {
+        "validation": [True, False],
+        "definition": (
+            "Should lines that contain only whitespace and comments"
+            " be ignored when linting line lengths?"
+        ),
+    },
     "ignore_words": {
         "definition": ("Comma separated list of words to ignore from rule"),
     },
