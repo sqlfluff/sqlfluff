@@ -449,7 +449,9 @@ class Rule_L016(Rule_L003):
             # of these segments. We can be sure they aren't the tricky templated
             # segment case described above because new segments are never templated
             # (because "sqlfluff fix" produced them, not the templater!).
-            if slice[0] == slice[1] or slice not in seen_slices:
+            if (
+                slice[0] == slice[1] and not segment.is_meta
+            ) or slice not in seen_slices:
                 seen_slices.add(slice)
                 line_len += cls._compute_segment_length(segment)
         return line_len
