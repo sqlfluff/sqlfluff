@@ -1004,6 +1004,7 @@ class AlterTableTableColumnActionSegment(BaseSegment):
                         # @TODO: Add support for delimited col/expression list
                         optional=True,
                     ),
+                    Ref("CommentClauseSegment", optional=True),
                 ),
             ),
         ),
@@ -1047,7 +1048,7 @@ class AlterTableTableColumnActionSegment(BaseSegment):
                                     ),
                                     Ref("DatatypeSegment"),
                                 ),
-                                Sequence("COMMENT", Ref("QuotedLiteralSegment")),
+                                Ref("CommentClauseSegment"),
                             ),
                         ),
                         Sequence(
