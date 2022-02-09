@@ -2058,7 +2058,6 @@ class ValuesClauseSegment(BaseSegment):
                 ),
             ),
         ),
-        Ref("AliasExpressionSegment", optional=True),
     )
 
 
