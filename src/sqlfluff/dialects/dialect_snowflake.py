@@ -954,139 +954,134 @@ class AlterTableTableColumnActionSegment(BaseSegment):
 
     type = "alter_table_table_column_action"
 
-    match_grammar = Sequence(
-        OneOf(
-            # Add Column
-            Sequence(
-                "ADD",
-                "COLUMN",
+    match_grammar = OneOf(
+        # Add Column
+        Sequence(
+            "ADD",
+            "COLUMN",
+            # Handle Multiple Columns
+            Delimited(
                 Sequence(
-                    # Handle Multiple Columns
-                    Delimited(
+                    Ref("ColumnReferenceSegment"),
+                    Ref("DatatypeSegment"),
+                    OneOf(
+                        # Default
                         Sequence(
-                            Ref("ColumnReferenceSegment"),
-                            Ref("DatatypeSegment"),
+                            "DEFAULT",
+                            Ref("ExpressionSegment"),
+                        ),
+                        # Auto-increment/identity column
+                        Sequence(
                             OneOf(
-                                # Default
-                                Sequence(
-                                    "DEFAULT",
-                                    Ref("ExpressionSegment"),
+                                "AUTOINCREMENT",
+                                "IDENTITY",
+                            ),
+                            OneOf(
+                                # ( <start_num>, <step_num> )
+                                Bracketed(
+                                    Ref("NumericLiteralSegment"),
+                                    Ref("CommaSegment"),
+                                    Ref("NumericLiteralSegment"),
                                 ),
-                                # Auto-increment/identity column
+                                # START <num> INCREMENT <num>
                                 Sequence(
-                                    OneOf(
-                                        "AUTOINCREMENT",
-                                        "IDENTITY",
-                                    ),
-                                    OneOf(
-                                        # ( <start_num>, <step_num> )
-                                        Bracketed(
-                                            Ref("NumericLiteralSegment"),
-                                            Ref("CommaSegment"),
-                                            Ref("NumericLiteralSegment"),
-                                        ),
-                                        # START <num> INCREMENT <num>
-                                        Sequence(
-                                            "START",
-                                            Ref("NumericLiteralSegment"),
-                                            "INCREMENT",
-                                            Ref("NumericLiteralSegment"),
-                                        ),
+                                    "START",
+                                    Ref("NumericLiteralSegment"),
+                                    "INCREMENT",
+                                    Ref("NumericLiteralSegment"),
+                                ),
+                                optional=True,
+                            ),
+                        ),
+                        optional=True,
+                    ),
+                    # @TODO: Add support for `inlineConstraint`
+                    Sequence(
+                        Ref.keyword("WITH", optional=True),
+                        "MASKING",
+                        "POLICY",
+                        Ref("ObjectReferenceSegment"),
+                        # @TODO: Add support for delimited col/expression list
+                        optional=True,
+                    ),
+                ),
+            ),
+        ),
+        # Rename column
+        Sequence(
+            "RENAME",
+            "COLUMN",
+            Ref("ColumnReferenceSegment"),
+            "TO",
+            Ref("ColumnReferenceSegment"),
+        ),
+        # Alter/Modify column(s)
+        Sequence(
+            OneOf("ALTER", "MODIFY"),
+            OptionallyBracketed(
+                Delimited(
+                    OneOf(
+                        # Add things
+                        Sequence(
+                            Ref.keyword("COLUMN", optional=True),
+                            Ref("ColumnReferenceSegment"),
+                            OneOf(
+                                Sequence("DROP", "DEFAULT"),
+                                Sequence(
+                                    "SET",
+                                    "DEFAULT",
+                                    Ref("NakedIdentifierSegment"),
+                                    Ref("DotSegment"),
+                                    "NEXTVAL",
+                                ),
+                                Sequence(
+                                    OneOf("SET", "DROP", optional=True),
+                                    "NOT",
+                                    "NULL",
+                                ),
+                                Sequence(
+                                    Sequence(
+                                        Sequence("SET", "DATA", optional=True),
+                                        "TYPE",
                                         optional=True,
                                     ),
+                                    Ref("DatatypeSegment"),
                                 ),
-                                optional=True,
-                            ),
-                            # @TODO: Add support for `inlineConstraint`
-                            Sequence(
-                                Ref.keyword("WITH", optional=True),
-                                "MASKING",
-                                "POLICY",
-                                Ref("ObjectReferenceSegment"),
-                                # @TODO: Add support for delimited col/expression list
-                                optional=True,
+                                Sequence("COMMENT", Ref("QuotedLiteralSegment")),
                             ),
                         ),
+                        Sequence(
+                            "COLUMN",
+                            Ref("ColumnReferenceSegment"),
+                            OneOf("SET", "UNSET"),
+                            "MASKING",
+                            "POLICY",
+                            Ref("FunctionNameIdentifierSegment", optional=True),
+                        ),
+                        # @TODO: Set/Unset TAG support
                     ),
                 ),
             ),
-            # Rename column
-            Sequence(
-                "RENAME",
-                "COLUMN",
-                Ref("ColumnReferenceSegment"),
-                "TO",
-                Ref("ColumnReferenceSegment"),
+        ),
+        # Drop column
+        Sequence(
+            "DROP",
+            Ref.keyword("COLUMN", optional=True),
+            Delimited(Ref("ColumnReferenceSegment")),
+        ),
+        # @TODO: Drop columns
+        # vvvvv COPIED FROM ANSI vvvvv
+        # @TODO: Removed these once `tableColumnAction` is properly supported.
+        Sequence(
+            OneOf("ADD", "MODIFY"),
+            Ref.keyword("COLUMN", optional=True),
+            Ref("ColumnDefinitionSegment"),
+            OneOf(
+                Sequence(OneOf("FIRST", "AFTER"), Ref("ColumnReferenceSegment")),
+                # Bracketed Version of the same
+                Ref("BracketedColumnReferenceListGrammar"),
+                optional=True,
             ),
-            # Alter/Modify column(s)
-            Sequence(
-                OneOf("ALTER", "MODIFY"),
-                OptionallyBracketed(
-                    Delimited(
-                        OneOf(
-                            # Add things
-                            Sequence(
-                                Ref.keyword("COLUMN", optional=True),
-                                Ref("ColumnReferenceSegment"),
-                                OneOf(
-                                    Sequence("DROP", "DEFAULT"),
-                                    Sequence(
-                                        "SET",
-                                        "DEFAULT",
-                                        Ref("NakedIdentifierSegment"),
-                                        Ref("DotSegment"),
-                                        "NEXTVAL",
-                                    ),
-                                    Sequence(
-                                        OneOf("SET", "DROP", optional=True),
-                                        "NOT",
-                                        "NULL",
-                                    ),
-                                    Sequence(
-                                        Sequence(
-                                            Sequence("SET", "DATA", optional=True),
-                                            "TYPE",
-                                            optional=True,
-                                        ),
-                                        Ref("DatatypeSegment"),
-                                    ),
-                                    Sequence("COMMENT", Ref("QuotedLiteralSegment")),
-                                ),
-                            ),
-                            Sequence(
-                                "COLUMN",
-                                Ref("ColumnReferenceSegment"),
-                                OneOf("SET", "UNSET"),
-                                "MASKING",
-                                "POLICY",
-                                Ref("FunctionNameIdentifierSegment", optional=True),
-                            ),
-                            # @TODO: Set/Unset TAG support
-                        ),
-                    ),
-                ),
-            ),
-            # Drop column
-            Sequence(
-                "DROP",
-                Ref.keyword("COLUMN", optional=True),
-                Delimited(Ref("ColumnReferenceSegment")),
-            ),
-            # @TODO: Drop columns
-            # vvvvv COPIED FROM ANSI vvvvv
-            # @TODO: Removed these once `tableColumnAction` is properly supported.
-            Sequence(
-                OneOf("ADD", "MODIFY"),
-                Ref.keyword("COLUMN", optional=True),
-                Ref("ColumnDefinitionSegment"),
-                OneOf(
-                    Sequence(OneOf("FIRST", "AFTER"), Ref("ColumnReferenceSegment")),
-                    # Bracketed Version of the same
-                    Ref("BracketedColumnReferenceListGrammar"),
-                    optional=True,
-                ),
-            ),
-            # ^^^^^ COPIED FROM ANSI ^^^^^
         ),
     )
 
