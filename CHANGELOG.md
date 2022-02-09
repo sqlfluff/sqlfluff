@@ -24,6 +24,7 @@ Major changes include:
 
 ## What's Changed
 
+* Spark3: JOIN clause enhancements [#2570](https://github.com/sqlfluff/sqlfluff/pull/2570) [@R7L208](https://github.com/R7L208)
 * Bug fix: L003 should fix indentation for templated code [#2580](https://github.com/sqlfluff/sqlfluff/pull/2580) [@barrywhart](https://github.com/barrywhart)
 * Exasol: Improve `COMMENT` and `WITH [NO] DATA` clause usage. [#2583](https://github.com/sqlfluff/sqlfluff/pull/2583) [@sti0](https://github.com/sti0)
 * Exasol: Allow multiple `LOCAL` keywords in `WHERE` clause [#2582](https://github.com/sqlfluff/sqlfluff/pull/2582) [@sti0](https://github.com/sti0)
