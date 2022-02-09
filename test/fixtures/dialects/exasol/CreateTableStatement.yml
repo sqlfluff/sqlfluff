@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 51333ca11b7c9d9f7ad7becaff467964abf34f2b2bffbc0ec4fab278adf8d958
+_hash: 7dbd7974f2c5d161a1e018946de1bb527f670d49a52704c20a119bb2aeca9488
 file:
 - statement:
     create_table_statement:
@@ -40,12 +40,13 @@ file:
                 - literal: '4'
                 - end_bracket: )
             column_option:
-            - table_constraint_definition:
+              table_constraint_definition:
               - keyword: NOT
               - keyword: 'NULL'
-            - keyword: COMMENT
-            - keyword: IS
-            - literal: "'The B column'"
+              comment_clause:
+              - keyword: COMMENT
+              - keyword: IS
+              - literal: "'The B column'"
       - comma: ','
       - table_content_definition:
           column_definition:
@@ -108,9 +109,10 @@ file:
                   table_reference:
                     identifier: t1
         end_bracket: )
-    - keyword: WITH
-    - keyword: 'NO'
-    - keyword: DATA
+    - with_data_clause:
+      - keyword: WITH
+      - keyword: 'NO'
+      - keyword: DATA
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -182,9 +184,10 @@ file:
                   table_reference:
                     identifier: t1
         end_bracket: )
-    - keyword: WITH
-    - keyword: 'NO'
-    - keyword: DATA
+    - with_data_clause:
+      - keyword: WITH
+      - keyword: 'NO'
+      - keyword: DATA
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -316,9 +319,10 @@ file:
         - column_reference:
             identifier: order_date
       - end_bracket: )
-    - keyword: COMMENT
-    - keyword: IS
-    - literal: "'a great table'"
+    - comment_clause:
+      - keyword: COMMENT
+      - keyword: IS
+      - literal: "'a great table'"
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -388,19 +392,21 @@ file:
                 - literal: '0'
                 - end_bracket: )
             column_option:
-            - keyword: IDENTITY
-            - table_constraint_definition:
+              keyword: IDENTITY
+              table_constraint_definition:
               - keyword: CONSTRAINT
               - keyword: PRIMARY
               - keyword: KEY
               - keyword: DISABLE
-            - keyword: COMMENT
-            - keyword: IS
-            - literal: "'without constraint name'"
+              comment_clause:
+              - keyword: COMMENT
+              - keyword: IS
+              - literal: "'without constraint name'"
         end_bracket: )
-    - keyword: COMMENT
-    - keyword: IS
-    - literal: "'a nice table'"
+    - comment_clause:
+      - keyword: COMMENT
+      - keyword: IS
+      - literal: "'a nice table'"
 - statement_terminator: ;
 - statement:
     create_table_statement:
@@ -522,4 +528,90 @@ file:
               - keyword: PRIMARY
               - keyword: KEY
         end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+        identifier: T
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: A
+    - comment_clause:
+      - keyword: COMMENT
+      - keyword: IS
+      - literal: "'BLABLA'"
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - identifier: '"MYSCHEMA"'
+      - dot: .
+      - identifier: '"T2"'
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: t1
+    - with_data_clause:
+      - keyword: WITH
+      - keyword: 'NO'
+      - keyword: DATA
+- statement_terminator: ;
+- statement:
+    create_table_statement:
+    - keyword: CREATE
+    - keyword: TABLE
+    - table_reference:
+      - identifier: '"MYSCHEMA"'
+      - dot: .
+      - identifier: '"T2"'
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: t1
+    - with_data_clause:
+      - keyword: WITH
+      - keyword: 'NO'
+      - keyword: DATA
+    - comment_clause:
+      - keyword: COMMENT
+      - keyword: IS
+      - literal: "'ABC'"
 - statement_terminator: ;

@@ -137,7 +137,6 @@ exasol_dialect.add(
         Ref("ColumnReferenceSegment"),
         ephemeral_name="ColumnReferenceList",
     ),
-    CommentIsGrammar=Sequence("COMMENT", "IS", Ref("QuotedLiteralSegment")),
     # delimiter doesn't work for DISTRIBUTE and PARTITION BY
     # expression because both expressions are splitted by comma
     # as well as n columns within each expression
@@ -260,6 +259,8 @@ exasol_dialect.replace(
         "LIMIT",
         Ref("CommaSegment"),
         Ref("SetOperatorSegment"),
+        Ref("WithDataClauseSegment"),
+        Ref("CommentClauseSegment"),
     ),
     FromClauseTerminatorGrammar=OneOf(
         "WHERE",
@@ -272,6 +273,8 @@ exasol_dialect.replace(
         "HAVING",
         "QUALIFY",
         Ref("SetOperatorSegment"),
+        Ref("WithDataClauseSegment"),
+        Ref("CommentClauseSegment"),
     ),
     WhereClauseTerminatorGrammar=OneOf(
         "CONNECT",
@@ -283,6 +286,8 @@ exasol_dialect.replace(
         "HAVING",
         "QUALIFY",
         Ref("SetOperatorSegment"),
+        Ref("WithDataClauseSegment"),
+        Ref("CommentClauseSegment"),
     ),
     DateTimeLiteralGrammar=Sequence(
         OneOf("DATE", "TIMESTAMP"), Ref("QuotedLiteralSegment")
@@ -311,16 +316,24 @@ exasol_dialect.replace(
 
 
 @exasol_dialect.segment(replace=True)
-class SelectStatementSegment(BaseSegment):
-    """A `SELECT` statement.
+class UnorderedSelectStatementSegment(BaseSegment):
+    """A `SELECT` statement without any ORDER clauses or later.
 
-    https://docs.exasol.com/sql/select.htm
+    This is designed for use in the context of set operations,
+    for other use cases, we should use the main
+    SelectStatementSegment.
     """
 
     type = "select_statement"
     match_grammar = StartsWith(
         "SELECT",
-        terminator=Ref("SetOperatorSegment"),
+        terminator=OneOf(
+            Ref("SetOperatorSegment"),
+            Ref("WithDataClauseSegment"),
+            Ref("CommentClauseSegment"),  # within CREATE TABLE / VIEW statments
+            Ref("OrderByClauseSegment"),
+            Ref("LimitClauseSegment"),
+        ),
         enforce_whitespace_preceding_terminator=True,
     )
 
@@ -352,8 +365,33 @@ class SelectStatementSegment(BaseSegment):
         Ref("GroupByClauseSegment", optional=True),
         Ref("HavingClauseSegment", optional=True),
         Ref("QualifyClauseSegment", optional=True),
-        Ref("OrderByClauseSegment", optional=True),
-        Ref("LimitClauseSegment", optional=True),
+    )
+
+
+@exasol_dialect.segment(replace=True)
+class SelectStatementSegment(BaseSegment):
+    """A `SELECT` statement.
+
+    https://docs.exasol.com/sql/select.htm
+    """
+
+    type = "select_statement"
+    match_grammar = StartsWith(
+        "SELECT",
+        terminator=OneOf(
+            Ref("SetOperatorSegment"),
+            Ref("WithDataClauseSegment"),
+            Ref("CommentClauseSegment"),  # within CREATE TABLE / VIEW statments
+        ),
+        enforce_whitespace_preceding_terminator=True,
+    )
+
+    # Inherit most of the parse grammar from the original.
+    parse_grammar = UnorderedSelectStatementSegment.parse_grammar.copy(
+        insert=[
+            Ref("OrderByClauseSegment", optional=True),
+            Ref("LimitClauseSegment", optional=True),
+        ]
     )
 
 
@@ -890,19 +928,14 @@ class CreateViewStatementSegment(BaseSegment):
             Delimited(
                 Sequence(
                     Ref("ColumnReferenceSegment"),
-                    Ref("CommentIsGrammar", optional=True),
+                    Ref("CommentClauseSegment", optional=True),
                 ),
             ),
             optional=True,
         ),
         "AS",
-        OneOf(
-            Bracketed(Ref("SelectableGrammar")),
-            Ref("SelectableGrammar"),
-        ),
-        Ref("CommentIsGrammar", optional=True),
-        # TODO: (...) COMMENT IS '...' works, without brackets doesn't work
-        # COMMENT is matched as an identifier...
+        Ref("SelectableGrammar"),
+        Ref("CommentClauseSegment", optional=True),
     )
 
 
@@ -976,20 +1009,12 @@ class CreateTableStatementSegment(BaseSegment):
             Sequence(
                 "AS",
                 Ref("SelectableGrammar"),
-                Sequence(
-                    # TODO: this only works if there are brackets
-                    # around the selectable grammar. this should even
-                    # work without brackets
-                    "WITH",
-                    Ref.keyword("NO", optional=True),
-                    "DATA",
-                    optional=True,
-                ),
+                Ref("WithDataClauseSegment", optional=True),
             ),
             # Create like syntax
             Ref("CreateTableLikeClauseSegment"),
         ),
-        Ref("CommentIsGrammar", optional=True),
+        Ref("CommentClauseSegment", optional=True),
     )
 
 
@@ -1146,7 +1171,7 @@ class ColumnConstraintSegment(BaseSegment):
             optional=True,
         ),
         Ref("TableInlineConstraintSegment", optional=True),
-        Ref("CommentIsGrammar", optional=True),
+        Ref("CommentClauseSegment", optional=True),
     )
 
 
@@ -1518,6 +1543,17 @@ class DropTableStatementSegment(BaseSegment):
         Ref("DropBehaviorGrammar", optional=True),
         Sequence("CASCADE", "CONSTRAINTS", optional=True),
     )
+
+
+@exasol_dialect.segment(replace=True)
+class CommentClauseSegment(BaseSegment):
+    """A comment clause within `CREATE TABLE` / `CREATE VIEW` statements.
+
+    e.g. COMMENT IS 'view/table/column description'
+    """
+
+    type = "comment_clause"
+    match_grammar = Sequence("COMMENT", "IS", Ref("QuotedLiteralSegment"))
 
 
 ############################

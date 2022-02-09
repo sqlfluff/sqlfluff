@@ -9,3 +9,5 @@ as (select x from t);
 CREATE VIEW schem.few (col1 )
 --- single line
 as (select x from t);
+---
+CREATE VIEW T AS SELECT * FROM A COMMENT IS 'BLABLA';
