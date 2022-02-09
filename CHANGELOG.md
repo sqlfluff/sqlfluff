@@ -24,6 +24,13 @@ Major changes include:
 
 ## What's Changed
 
+* Redshift: Add DATETIME as reserved keyword [#2591](https://github.com/sqlfluff/sqlfluff/pull/2591) [@tunetheweb](https://github.com/tunetheweb)
+* Support LIMIT and ORDER BY clauses in Values clauses [#2590](https://github.com/sqlfluff/sqlfluff/pull/2590) [@tunetheweb](https://github.com/tunetheweb)
+* L016: New option "ignore_comment_clause" to ignore column COMMENTs, etc. [#2589](https://github.com/sqlfluff/sqlfluff/pull/2589) [@barrywhart](https://github.com/barrywhart)
+* Bug fix: L016 ("Line is too long") should consider length of prior fixes [#2587](https://github.com/sqlfluff/sqlfluff/pull/2587) [@barrywhart](https://github.com/barrywhart)
+* Add mysql INSERT ON DUPLICATE KEY [#2494](https://github.com/sqlfluff/sqlfluff/pull/2494) [@rpr-ableton](https://github.com/rpr-ableton)
+* Snowflake ALTER TABLE: Add multiple columns [#2578](https://github.com/sqlfluff/sqlfluff/pull/2578) [@erevear](https://github.com/erevear)
+* MySQL: UNIQUE KEY in CREATE TABLE [#2525](https://github.com/sqlfluff/sqlfluff/pull/2525) [@jpy-git](https://github.com/jpy-git)
 * Spark3: JOIN clause enhancements [#2570](https://github.com/sqlfluff/sqlfluff/pull/2570) [@R7L208](https://github.com/R7L208)
 * Bug fix: L003 should fix indentation for templated code [#2580](https://github.com/sqlfluff/sqlfluff/pull/2580) [@barrywhart](https://github.com/barrywhart)
 * Exasol: Improve `COMMENT` and `WITH [NO] DATA` clause usage. [#2583](https://github.com/sqlfluff/sqlfluff/pull/2583) [@sti0](https://github.com/sti0)
@@ -63,6 +70,7 @@ Major changes include:
 * [@robertdefilippi](https://github.com/robertdefilippi) made their first contribution in [#2530](https://github.com/sqlfluff/sqlfluff/pull/2530)
 * [@niconoe-](https://github.com/niconoe-) made their first contribution in [#2537](https://github.com/sqlfluff/sqlfluff/pull/2537)
 * [@elyobo](https://github.com/elyobo) made their first contribution in [#2550](https://github.com/sqlfluff/sqlfluff/pull/2550)
+* [@erevear](https://github.com/erevear) made their first contribution in [#2578](https://github.com/sqlfluff/sqlfluff/pull/2578)
 
 
 ## [0.9.4] - 2022-01-30
