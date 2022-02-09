@@ -10,8 +10,9 @@ from sqlfluff.core.rules.functional import sp
 class Rule_L058(BaseRule):
     """Nested ``CASE`` statement in ``ELSE`` clause could be flattened.
 
-    | **Anti-pattern**
-    | In this example, the outer ``CASE``'s ``ELSE`` is an unnecessary other ``CASE``.
+    **Anti-pattern**
+
+    In this example, the outer ``CASE``'s ``ELSE`` is an unnecessary, nested ``CASE``.
 
     .. code-block:: sql
 
@@ -25,8 +26,9 @@ class Rule_L058(BaseRule):
           END as sound
         FROM mytable
 
-    | **Best practice**
-    | Move the body of the inner ``CASE`` to the end of the outer one.
+    **Best practice**
+
+    Move the body of the inner ``CASE`` to the end of the outer one.
 
     .. code-block:: sql
 

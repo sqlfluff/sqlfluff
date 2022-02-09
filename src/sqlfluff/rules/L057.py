@@ -13,8 +13,9 @@ from sqlfluff.rules.L014 import identifiers_policy_applicable
 class Rule_L057(BaseRule):
     """Do not use special characters in identifiers.
 
-    | **Anti-pattern**
-    | Using special characters within identifiers when creating or aliasing objects.
+    **Anti-pattern**
+
+    Using special characters within identifiers when creating or aliasing objects.
 
     .. code-block:: sql
 
@@ -26,8 +27,9 @@ class Rule_L057(BaseRule):
             Number# INT
         )
 
-    | **Best practice**
-    | Identifiers should include only alphanumerics and underscores.
+    **Best practice**
+
+    Identifiers should include only alphanumerics and underscores.
 
     .. code-block:: sql
 
@@ -88,6 +90,22 @@ class Rule_L057(BaseRule):
                 if identifier[-1] == "*":
                     identifier = identifier[:-1]
                 identifier = identifier.replace(".", "")
+
+            # Spark3 file references for direct file query
+            # are quoted in back ticks to allow for identfiers common
+            # in file paths and regex patterns for path globbing
+            # https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-file.html
+            #
+            # Path Glob Filters (done inline for SQL direct file query)
+            # https://spark.apache.org/docs/latest/sql-data-sources-generic-options.html#path-global-filter
+            #
+
+            if (
+                context.dialect.name in ["spark3"]
+                and context.parent_stack
+                and context.parent_stack[-1].name == "FileReferenceSegment"
+            ):
+                return None
 
             # Strip spaces if allowed (note a separate config as only valid for quoted
             # identifiers)

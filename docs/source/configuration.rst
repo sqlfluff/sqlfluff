@@ -699,6 +699,17 @@ ignored until a corresponding `-- noqa:enable=<rule>[,...] | all` directive.
 
 .. _sqlfluffignore:
 
+Ignoring types of errors
+^^^^^^^^^^^^^^^^^^^^^^^^
+General *categories* of errors can be ignored using the ``--ignore`` command
+line option or the ``ignore`` setting in ``.sqlfluffignore``. Types of errors
+that can be ignored include:
+
+* ``lexing``
+* ``linting``
+* ``parsing``
+* ``templating``
+
 .sqlfluffignore
 ^^^^^^^^^^^^^^^
 
@@ -715,7 +726,7 @@ project would be:
     # Comments start with a hash.
 
     # Ignore anything in the "temp" path
-    /path/
+    /temp/
 
     # Ignore anything called "testing.sql"
     testing.sql

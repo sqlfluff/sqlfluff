@@ -12,11 +12,13 @@ import sqlfluff.core.rules.functional.segment_predicates as sp
 class Rule_L054(BaseRule):
     """Inconsistent column references in ``GROUP BY/ORDER BY`` clauses.
 
-    Note: ORDER BY clauses from WINDOW clauses are ignored by this rule.
+    .. note::
+       ``ORDER BY`` clauses from ``WINDOW`` clauses are ignored by this rule.
 
-    | **Anti-pattern**
-    | A mix of implicit and explicit column references are used in a ``GROUP BY``
-    | clause.
+    **Anti-pattern**
+
+    A mix of implicit and explicit column references are used in a ``GROUP BY``
+    clause.
 
     .. code-block:: sql
        :force:
@@ -39,8 +41,9 @@ class Rule_L054(BaseRule):
         ORDER BY
             1, bar;
 
-    | **Best practice**
-    | Reference all ``GROUP BY/ORDER BY`` columns either by name or by position.
+    **Best practice**
+
+    Reference all ``GROUP BY``/``ORDER BY`` columns either by name or by position.
 
     .. code-block:: sql
        :force:
@@ -81,7 +84,7 @@ class Rule_L054(BaseRule):
     """
 
     config_keywords = ["group_by_and_order_by_style"]
-    _ignore_types: List[str] = ["window_specification"]
+    _ignore_types: List[str] = ["withingroup_clause", "window_specification"]
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
         """Inconsistent column references in GROUP BY/ORDER BY clauses."""

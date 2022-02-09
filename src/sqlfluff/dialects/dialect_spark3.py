@@ -204,10 +204,19 @@ spark3_dialect.replace(
             Ref("BytesQuotedLiteralSegment"),
         ]
     ),
+    NaturalJoinKeywords=Sequence(
+        "NATURAL",
+        Ref("JoinTypeKeywords", optional=True),
+    ),
 )
 
 spark3_dialect.add(
-    # Add Hive Segments TODO : Is there a way to retrieve this w/o redefining?
+    BinaryfileKeywordSegment=StringParser(
+        "BINARYFILE",
+        KeywordSegment,
+        name="binary_file",
+        type="file_format",
+    ),
     JsonfileKeywordSegment=StringParser(
         "JSONFILE",
         KeywordSegment,
@@ -246,7 +255,6 @@ spark3_dialect.add(
         "BracketedPropertyListGrammar"
     ),
     CommentGrammar=hive_dialect.get_grammar("CommentGrammar"),
-    FileFormatGrammar=hive_dialect.get_grammar("FileFormatGrammar"),
     LocationGrammar=hive_dialect.get_grammar("LocationGrammar"),
     PropertyGrammar=hive_dialect.get_grammar("PropertyGrammar"),
     SerdePropertiesGrammar=hive_dialect.get_grammar("SerdePropertiesGrammar"),
@@ -270,7 +278,11 @@ spark3_dialect.add(
     DatabasePropertiesGrammar=Sequence(
         "DBPROPERTIES", Ref("BracketedPropertyListGrammar")
     ),
-    DataSourceFormatGrammar=OneOf(
+    DataSourcesV2FileTypeGrammar=OneOf(
+        # https://github.com/apache/spark/tree/master/sql/core/src/main/scala/org/apache/spark/sql/execution/datasources/v2  # noqa: E501
+        # Separated here because these allow for additional
+        # commands such as Select From File
+        # https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-file.html
         # Spark Core Data Sources
         # https://spark.apache.org/docs/latest/sql-data-sources.html
         "AVRO",
@@ -278,10 +290,31 @@ spark3_dialect.add(
         "JSON",
         "PARQUET",
         "ORC",
-        "JDBC",
-        # Community Contributed Data Sources
+        # Separated here because these allow for additional commands
+        # Similar to DataSourcesV2
         "DELTA",  # https://github.com/delta-io/delta
-        "XML",  # https://github.com/databricks/spark-xml
+        "CSV",
+        "TEXT",
+        "BINARYFILE",
+    ),
+    FileFormatGrammar=OneOf(
+        Ref("DataSourcesV2FileTypeGrammar"),
+        "SEQUENCEFILE",
+        "TEXTFILE",
+        "RCFILE",
+        "JSONFILE",
+        Sequence(
+            "INPUTFORMAT",
+            Ref("QuotedLiteralSegment"),
+            "OUTPUTFORMAT",
+            Ref("QuotedLiteralSegment"),
+        ),
+    ),
+    DataSourceFormatGrammar=OneOf(
+        Ref("FileFormatGrammar"),
+        # NB: JDBC is part of DataSourceV2 but not included
+        # there since there are no significant syntax changes
+        "JDBC",
     ),
     # Adding Hint related segments so they are not treated as generic comments
     # https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-hints.html
@@ -346,8 +379,27 @@ spark3_dialect.add(
             type="literal",
         ),
     ),
+    JoinTypeKeywords=OneOf(
+        "CROSS",
+        "INNER",
+        Sequence(
+            OneOf(
+                "FULL",
+                "LEFT",
+                "RIGHT",
+            ),
+            Ref.keyword("OUTER", optional=True),
+        ),
+        Sequence(
+            Ref.keyword("LEFT", optional=True),
+            "SEMI",
+        ),
+        Sequence(
+            Ref.keyword("LEFT", optional=True),
+            "ANTI",
+        ),
+    ),
 )
-
 
 # Adding Hint related grammar before comment `block_comment` and
 # `single_quote` so they are applied before comment lexer so
@@ -1426,71 +1478,69 @@ class StatementSegment(BaseSegment):
 class JoinClauseSegment(BaseSegment):
     """Any number of join clauses, including the `JOIN` keyword.
 
-    https://spark.apache.org/docs/3.0.0/sql-ref-syntax-qry-select-join.html
-    TODO: Add NATURAL JOIN syntax.
+    https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-join.html
     """
 
     type = "join_clause"
-    match_grammar = Sequence(
+
+    match_grammar = StartsWith(
+        OneOf(
+            Ref("JoinTypeKeywords"),
+            Ref("JoinKeywords"),
+            Ref("NaturalJoinKeywords"),
+        ),
+    )
+
+    parse_grammar = OneOf(
         # NB These qualifiers are optional
         # TODO: Allow nested joins like:
         # ....FROM S1.T1 t1 LEFT JOIN ( S2.T2 t2 JOIN S3.T3 t3 ON t2.col1=t3.col1) ON
         # tab1.col1 = tab2.col1
-        OneOf(
-            "CROSS",
-            "INNER",
-            Sequence(
-                OneOf(
-                    "FULL",
-                    "LEFT",
-                    "RIGHT",
-                ),
-                Ref.keyword("OUTER", optional=True),
-            ),
-            Sequence(
-                Ref.keyword("LEFT", optional=True),
-                "SEMI",
-            ),
-            Sequence(
-                Ref.keyword("LEFT", optional=True),
-                "ANTI",
-            ),
-            optional=True,
-        ),
-        Ref("JoinKeywords"),
-        Indent,
         Sequence(
-            Ref("FromExpressionElementSegment"),
-            Conditional(Dedent, indented_using_on=False),
-            # NB: this is optional
-            OneOf(
-                # ON clause
-                Ref("JoinOnConditionSegment"),
-                # USING clause
-                Sequence(
-                    "USING",
-                    Indent,
-                    Bracketed(
-                        # NB: We don't use BracketedColumnReferenceListGrammar
-                        # here because we're just using SingleIdentifierGrammar,
-                        # rather than ObjectReferenceSegment or ColumnReferenceSegment.
-                        # This is a) so that we don't lint it as a reference and
-                        # b) because the column will probably be returned anyway
-                        # during parsing.
-                        Delimited(
-                            Ref("SingleIdentifierGrammar"),
-                            ephemeral_name="UsingClauseContents",
-                        )
+            Ref("JoinTypeKeywords", optional=True),
+            Ref("JoinKeywords"),
+            Indent,
+            Sequence(
+                Ref("FromExpressionElementSegment"),
+                Conditional(Dedent, indented_using_on=False),
+                # NB: this is optional
+                OneOf(
+                    # ON clause
+                    Ref("JoinOnConditionSegment"),
+                    # USING clause
+                    Sequence(
+                        "USING",
+                        Indent,
+                        Bracketed(
+                            # NB: We don't use BracketedColumnReferenceListGrammar
+                            # here because we're just using SingleIdentifierGrammar,
+                            # rather than ObjectReferenceSegment or
+                            # ColumnReferenceSegment. This is a) so that we don't
+                            # lint it as a reference and b) because the column will
+                            # probably be returned anyway during parsing.
+                            Delimited(
+                                Ref("SingleIdentifierGrammar"),
+                                ephemeral_name="UsingClauseContents",
+                            )
+                        ),
+                        Dedent,
                     ),
-                    Dedent,
+                    # Unqualified joins *are* allowed. They just might not
+                    # be a good idea.
+                    optional=True,
                 ),
-                # Unqualified joins *are* allowed. They just might not
-                # be a good idea.
-                optional=True,
+                Conditional(Indent, indented_using_on=False),
             ),
-            Conditional(Indent, indented_using_on=False),
+            Dedent,
         ),
-        Dedent,
+        # Note NATURAL joins do not support Join conditions
+        Sequence(
+            Ref("NaturalJoinKeywords"),
+            Ref("JoinKeywords"),
+            Indent,
+            Ref("FromExpressionElementSegment"),
+            Dedent,
+        ),
     )
 
     get_eventual_alias = ansi_dialect.get_segment(
@@ -1518,6 +1568,7 @@ class AliasExpressionSegment(BaseSegment):
     """
 
     type = "alias_expression"
+
     match_grammar = Sequence(
         Ref.keyword("AS", optional=True),
         OneOf(
@@ -1528,6 +1579,7 @@ class AliasExpressionSegment(BaseSegment):
             ),
             # just a table alias
             Ref("SingleIdentifierGrammar"),
+            exclude=Ref("JoinTypeKeywords"),
         ),
     )
 
@@ -1600,4 +1652,41 @@ class ValuesClauseSegment(BaseSegment):
         "VALUES",
         Ref("DelimitedValues"),
         Ref("AliasExpressionSegment", optional=True),
+    )
+
+
+@spark3_dialect.segment(replace=True)
+class TableExpressionSegment(BaseSegment):
+    """The main table expression e.g. within a FROM clause.
+
+    Enhance to allow for additional clauses allowed in Spark.
+    """
+
+    type = "table_expression"
+    match_grammar = OneOf(
+        Ref("ValuesClauseSegment"),
+        Ref("BareFunctionSegment"),
+        Ref("FunctionSegment"),
+        Ref("FileReferenceSegment"),
+        Ref("TableReferenceSegment"),
+        # Nested Selects
+        Bracketed(Ref("SelectableGrammar")),
+    )
+
+
+@spark3_dialect.segment()
+class FileReferenceSegment(BaseSegment):
+    """A reference to a file for direct query.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-file.html
+    """
+
+    type = "file_reference"
+
+    match_grammar = Sequence(
+        Ref("DataSourcesV2FileTypeGrammar"),
+        Ref("DotSegment"),
+        # NB: Using `QuotedLiteralSegment` here causes `FileReferenceSegment`
+        # to match as a `TableReferenceSegment`
+        Ref("QuotedIdentifierSegment"),
     )

@@ -1716,6 +1716,7 @@ ansi_dialect.add(
                             "FunctionSegment"
                         ),  # WHERE (a, substr(b,1,3)) IN (select c,d FROM...)
                         Ref("LiteralGrammar"),  # WHERE (a, 2) IN (SELECT b, c FROM ...)
+                        Ref("LocalAliasSegment"),  # WHERE (LOCAL.a, LOCAL.b) IN (...)
                     ),
                     ephemeral_name="BracketedExpression",
                 ),

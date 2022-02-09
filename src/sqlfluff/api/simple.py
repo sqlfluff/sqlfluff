@@ -11,26 +11,28 @@ from sqlfluff.core import (
 
 
 def get_simple_config(
-    dialect: str = "ansi",
+    dialect: Optional[str] = None,
     rules: Optional[List[str]] = None,
     exclude_rules: Optional[List[str]] = None,
     config_path: Optional[str] = None,
 ) -> FluffConfig:
     """Get a config object from simple API arguments."""
-    # Check the requested dialect exists and is valid.
-    try:
-        dialect_selector(dialect)
-    except SQLFluffUserError as err:  # pragma: no cover
-        raise SQLFluffUserError(f"Error loading dialect '{dialect}': {str(err)}")
-    except KeyError:
-        raise SQLFluffUserError(f"Error: Unknown dialect '{dialect}'")
-
     # Create overrides for simple API arguments.
-    overrides = {
-        "dialect": dialect,
-        "rules": ",".join(rules) if rules is not None else None,
-        "exclude_rules": ",".join(exclude_rules) if exclude_rules is not None else None,
-    }
+    overrides = {}
+    if dialect is not None:
+        # Check the requested dialect exists and is valid.
+        try:
+            dialect_selector(dialect)
+        except SQLFluffUserError as err:  # pragma: no cover
+            raise SQLFluffUserError(f"Error loading dialect '{dialect}': {str(err)}")
+        except KeyError:
+            raise SQLFluffUserError(f"Error: Unknown dialect '{dialect}'")
+
+        overrides["dialect"] = dialect
+    if rules is not None:
+        overrides["rules"] = ",".join(rules)
+    if exclude_rules is not None:
+        overrides["exclude_rules"] = ",".join(exclude_rules)
 
     # Instantiate a config object.
     try:
@@ -97,6 +99,7 @@ def fix(
     rules: Optional[List[str]] = None,
     exclude_rules: Optional[List[str]] = None,
     config_path: Optional[str] = None,
+    fix_even_unparsable: Optional[bool] = None,
 ) -> str:
     """Fix a SQL string.
 
@@ -123,8 +126,18 @@ def fix(
     linter = Linter(config=cfg)
 
     result = linter.lint_string_wrapped(sql, fix=True)
-    fixed_string = result.paths[0].files[0].fix_string()[0]
-    return fixed_string
+    if fix_even_unparsable is None:
+        fix_even_unparsable = cfg.get("fix_even_unparsable")
+    should_fix = True
+    if not fix_even_unparsable:
+        # If fix_even_unparsable wasn't set, check for templating or parse
+        # errors and suppress fixing if there were any.
+        _, num_filtered_errors = result.count_tmp_prs_errors()
+        if num_filtered_errors > 0:
+            should_fix = False
+    if should_fix:
+        sql = result.paths[0].files[0].fix_string()[0]
+    return sql
 
 
 def parse(

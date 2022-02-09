@@ -3,16 +3,21 @@
 from sqlfluff.core.parser import NewlineSegment, WhitespaceSegment
 
 from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult, RuleContext
-from sqlfluff.core.rules.doc_decorators import document_fix_compatible
+from sqlfluff.core.rules.doc_decorators import (
+    document_fix_compatible,
+    document_configuration,
+)
 
 
 @document_fix_compatible
+@document_configuration
 class Rule_L018(BaseRule):
     """``WITH`` clause closing bracket should be aligned with ``WITH`` keyword.
 
-    | **Anti-pattern**
-    | The • character represents a space.
-    | In this example, the closing bracket is not aligned with ``WITH`` keyword.
+    **Anti-pattern**
+
+    The ``•`` character represents a space.
+    In this example, the closing bracket is not aligned with ``WITH`` keyword.
 
     .. code-block:: sql
        :force:
@@ -23,8 +28,9 @@ class Rule_L018(BaseRule):
 
         SELECT * FROM zoo
 
-    | **Best practice**
-    | Remove the spaces to align the ``WITH`` keyword with the closing bracket.
+    **Best practice**
+
+    Remove the spaces to align the ``WITH`` keyword with the closing bracket.
 
     .. code-block:: sql
 

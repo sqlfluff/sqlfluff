@@ -742,6 +742,60 @@ SELECT
                 ("literal", slice(132, 133, None), slice(34, 35, None)),
             ],
         ),
+        (
+            # Tests issue 2541, a bug where the {%- endfor %} was causing
+            # IndexError: list index out of range.
+            """{% for x in ['A', 'B'] %}
+    {% if x != 'A' %}
+    SELECT 'E'
+    {% endif %}
+{%- endfor %}
+""",
+            None,
+            [
+                ("block_start", slice(0, 25, None), slice(0, 0, None)),
+                ("literal", slice(25, 30, None), slice(0, 5, None)),
+                ("block_start", slice(30, 47, None), slice(5, 5, None)),
+                ("literal", slice(47, 67, None), slice(5, 5, None)),
+                ("block_end", slice(67, 78, None), slice(5, 5, None)),
+                ("literal", slice(78, 79, None), slice(5, 5, None)),
+                ("block_end", slice(79, 92, None), slice(5, 5, None)),
+                ("literal", slice(25, 30, None), slice(5, 10, None)),
+                ("block_start", slice(30, 47, None), slice(10, 10, None)),
+                ("literal", slice(47, 67, None), slice(10, 30, None)),
+                ("block_end", slice(67, 78, None), slice(30, 30, None)),
+                ("literal", slice(78, 79, None), slice(30, 30, None)),
+                ("block_end", slice(79, 92, None), slice(30, 30, None)),
+                ("literal", slice(92, 93, None), slice(30, 31, None)),
+            ],
+        ),
+        (
+            # Similar to the test above for issue 2541, but it's even trickier:
+            # whitespace control everywhere and NO NEWLINES or other characters
+            # between Jinja segments. In order to get a thorough-enough trace,
+            # JinjaTracer has to build the alternate template with whitespace
+            # control removed, as this increases the amount of trace output.
+            "{%- for x in ['A', 'B'] -%}"
+            "{%- if x == 'B' -%}"
+            "SELECT 'B';"
+            "{%- endif -%}"
+            "{%- if x == 'A' -%}"
+            "SELECT 'A';"
+            "{%- endif -%}"
+            "{%- endfor -%}",
+            None,
+            [
+                ("block_start", slice(0, 27, None), slice(0, 0, None)),
+                ("block_start", slice(27, 46, None), slice(0, 0, None)),
+                ("block_end", slice(57, 70, None), slice(0, 0, None)),
+                ("block_start", slice(70, 89, None), slice(0, 0, None)),
+                ("literal", slice(89, 100, None), slice(0, 11, None)),
+                ("block_end", slice(100, 113, None), slice(11, 11, None)),
+                ("block_end", slice(113, 127, None), slice(11, 11, None)),
+                ("block_start", slice(27, 46, None), slice(11, 11, None)),
+                ("literal", slice(46, 57, None), slice(11, 22, None)),
+            ],
+        ),
     ],
 )
 def test__templater_jinja_slice_file(raw_file, override_context, result, caplog):

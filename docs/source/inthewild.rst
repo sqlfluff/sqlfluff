@@ -53,4 +53,4 @@ Just add a section below by raising a PR on GitHub by
   `GitHub Actions workflow <https://github.com/sqlfluff/sqlfluff-github-actions/tree/main/menu_of_workflows/surfline>`_
   contributed by Greg Clunies, with annotations on pull requests to make it
   easy for contributors to see where their SQL has failed any rules. See an
-  `example pull request with SQLFLuff annotations <https://github.com/brooklyn-data/dbt_artifacts/pull/74/files>`_.
+  `example pull request with SQLFluff annotations <https://github.com/brooklyn-data/dbt_artifacts/pull/74/files>`_.

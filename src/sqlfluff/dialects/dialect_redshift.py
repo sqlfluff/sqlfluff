@@ -3,7 +3,6 @@
 This is based on postgres dialect, since it was initially based off of Postgres 8.
 We should monitor in future and see if it should be rebased off of ANSI
 """
-
 from sqlfluff.core.parser import (
     OneOf,
     AnyNumberOf,
@@ -16,15 +15,13 @@ from sqlfluff.core.parser import (
     Delimited,
     Nothing,
     OptionallyBracketed,
+    Matchable,
 )
-
 from sqlfluff.core.dialects import load_raw_dialect
-
 from sqlfluff.dialects.dialect_redshift_keywords import (
     redshift_reserved_keywords,
     redshift_unreserved_keywords,
 )
-
 
 postgres_dialect = load_raw_dialect("postgres")
 ansi_dialect = load_raw_dialect("ansi")
@@ -48,6 +45,45 @@ redshift_dialect.sets("bare_functions").update(["current_date", "sysdate"])
 redshift_dialect.sets("date_part_function_name").update(["DATEADD", "DATEDIFF"])
 
 redshift_dialect.replace(WellKnownTextGeometrySegment=Nothing())
+
+ObjectReferenceSegment = redshift_dialect.get_segment("ObjectReferenceSegment")
+
+
+# need to ignore type due to mypy rules on type variables
+# see https://mypy.readthedocs.io/en/stable/common_issues.html#variables-vs-type-aliases
+# for details
+@redshift_dialect.segment(replace=True)
+class ColumnReferenceSegment(ObjectReferenceSegment):  # type: ignore
+    """A reference to column, field or alias.
+
+    Adjusted to support column references for Redshift's SUPER data type
+    (https://docs.aws.amazon.com/redshift/latest/dg/super-overview.html), which
+    uses a subset of the PartiQL language (https://partiql.org/) to reference
+    columns.
+    """
+
+    type = "column_reference"
+    match_grammar: Matchable = Delimited(
+        Sequence(
+            Ref("SingleIdentifierGrammar"),
+            AnyNumberOf(Ref("ArrayAccessorSegment")),
+        ),
+        delimiter=OneOf(
+            Ref("DotSegment"), Sequence(Ref("DotSegment"), Ref("DotSegment"))
+        ),
+        terminator=OneOf(
+            "ON",
+            "AS",
+            "USING",
+            Ref("CommaSegment"),
+            Ref("CastOperatorSegment"),
+            Ref("BinaryOperatorGrammar"),
+            Ref("ColonSegment"),
+            Ref("DelimiterSegment"),
+            Ref("JoinLikeClauseGrammar"),
+        ),
+        allow_gaps=False,
+    )
 
 
 @redshift_dialect.segment(replace=True)
@@ -248,7 +284,7 @@ class AuthorizationSegment(BaseSegment):
 
     type = "authorization_segment"
 
-    match_grammar = AnyNumberOf(
+    match_grammar = AnySetOf(
         OneOf(
             Sequence(
                 "IAM_ROLE",
@@ -299,7 +335,7 @@ class ColumnAttributeSegment(BaseSegment):
 
     type = "column_attribute_segment"
 
-    match_grammar = AnyNumberOf(
+    match_grammar = AnySetOf(
         Sequence("DEFAULT", Ref("ExpressionSegment")),
         Sequence(
             "IDENTITY",
@@ -330,7 +366,7 @@ class ColumnConstraintSegment(BaseSegment):
 
     type = "column_constraint_segment"
 
-    match_grammar = AnyNumberOf(
+    match_grammar = AnySetOf(
         OneOf(Sequence("NOT", "NULL"), "NULL"),
         OneOf("UNIQUE", Sequence("PRIMARY", "KEY")),
         Sequence(
@@ -351,7 +387,7 @@ class TableAttributeSegment(BaseSegment):
 
     type = "table_constraint_segment"
 
-    match_grammar = AnyNumberOf(
+    match_grammar = AnySetOf(
         Sequence("DISTSTYLE", OneOf("AUTO", "EVEN", "KEY", "ALL"), optional=True),
         Sequence("DISTKEY", Bracketed(Ref("ColumnReferenceSegment")), optional=True),
         OneOf(
@@ -377,7 +413,7 @@ class TableConstraintSegment(BaseSegment):
 
     type = "table_constraint_segment"
 
-    match_grammar = AnyNumberOf(
+    match_grammar = AnySetOf(
         Sequence("UNIQUE", Bracketed(Delimited(Ref("ColumnReferenceSegment")))),
         Sequence(
             "PRIMARY",
@@ -796,7 +832,7 @@ class CreateLibraryStatementSegment(BaseSegment):
         "PLPYTHONU",
         "FROM",
         Ref("QuotedLiteralSegment"),
-        AnyNumberOf(
+        AnySetOf(
             Ref("AuthorizationSegment", optional=False),
             Sequence(
                 "REGION",
@@ -822,7 +858,7 @@ class UnloadStatementSegment(BaseSegment):
         Bracketed(Ref("QuotedLiteralSegment")),
         "TO",
         Ref("QuotedLiteralSegment"),
-        AnyNumberOf(
+        AnySetOf(
             Ref("AuthorizationSegment", optional=False),
             Sequence(
                 "REGION",
@@ -892,7 +928,7 @@ class UnloadStatementSegment(BaseSegment):
                 Ref("QuotedLiteralSegment"),
                 optional=True,
             ),
-            AnyNumberOf(
+            AnySetOf(
                 OneOf(
                     "MAXFILESIZE",
                     "ROWGROUPSIZE",
@@ -936,7 +972,7 @@ class CopyStatementSegment(BaseSegment):
         Ref("BracketedColumnReferenceListGrammar", optional=True),
         "FROM",
         Ref("QuotedLiteralSegment"),
-        AnyNumberOf(
+        AnySetOf(
             Ref("AuthorizationSegment", optional=False),
             Sequence(
                 "REGION",
@@ -1529,7 +1565,7 @@ class CreateUserSegment(BaseSegment):
         Ref.keyword("WITH", optional=True),
         "PASSWORD",
         OneOf(Ref("QuotedLiteralSegment"), "DISABLE"),
-        AnyNumberOf(
+        AnySetOf(
             OneOf(
                 "CREATEDB",
                 "NOCREATEDB",
@@ -1603,7 +1639,7 @@ class AlterUserSegment(BaseSegment):
         "USER",
         Ref("ObjectReferenceSegment"),
         Ref.keyword("WITH", optional=True),
-        AnyNumberOf(
+        AnySetOf(
             OneOf(
                 "CREATEDB",
                 "NOCREATEDB",

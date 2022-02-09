@@ -395,7 +395,7 @@ class ConfigLoader:
 
     @classmethod
     def find_ignore_config_files(
-        cls, path, working_path=os.getcwd(), ignore_file_name=".sqlfluffignore"
+        cls, path, working_path=Path.cwd(), ignore_file_name=".sqlfluffignore"
     ):
         """Finds sqlfluff ignore files from both the path and its parent paths."""
         return set(
@@ -417,8 +417,8 @@ class ConfigLoader:
         The lowest priority is the user appdir, then home dir, then increasingly
         the configs closest to the file being directly linted.
         """
-        given_path = Path(path).resolve()
-        working_path = Path(working_path).resolve()
+        given_path = Path(path).absolute()
+        working_path = Path(working_path).absolute()
 
         # If we've been passed a file and not a directory,
         # then go straight to the directory.

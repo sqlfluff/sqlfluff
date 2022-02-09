@@ -12,9 +12,10 @@ class Rule_L005(BaseRule):
     Unless it's an indent. Trailing/leading commas are dealt with
     in a different rule.
 
-    | **Anti-pattern**
-    | The • character represents a space.
-    | There is an extra space in line two before the comma.
+    **Anti-pattern**
+
+    The ``•`` character represents a space.
+    There is an extra space in line two before the comma.
 
     .. code-block:: sql
        :force:
@@ -24,8 +25,9 @@ class Rule_L005(BaseRule):
             b
         FROM foo
 
-    | **Best practice**
-    | Remove the space before the comma.
+    **Best practice**
+
+    Remove the space before the comma.
 
     .. code-block:: sql
 

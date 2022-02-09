@@ -537,18 +537,13 @@ class ReplaceClauseSegment(BaseSegment):
     type = "select_replace_clause"
     match_grammar = Sequence(
         "REPLACE",
-        OneOf(
-            # Multiple replace in brackets
-            Bracketed(
-                Delimited(
-                    # Not *really* a select target element. It behaves exactly
-                    # the same way however.
-                    Ref("SelectClauseElementSegment"),
-                    delimiter=Ref("CommaSegment"),
-                )
-            ),
-            # Single replace not in brackets.
-            Ref("SelectClauseElementSegment"),
+        Bracketed(
+            Delimited(
+                # Not *really* a select target element. It behaves exactly
+                # the same way however.
+                Ref("SelectClauseElementSegment"),
+                delimiter=Ref("CommaSegment"),
+            )
         ),
     )
 

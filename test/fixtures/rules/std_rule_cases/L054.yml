@@ -492,3 +492,12 @@ test_pass_window_snowflake:
   configs:
     core:
       dialect: snowflake
+
+test_pass_withingroup_snowflake:
+  pass_str: |
+    SELECT LISTAGG(x) WITHIN GROUP (ORDER BY list_order) AS my_list
+    FROM main
+    GROUP BY 1
+  configs:
+    core:
+      dialect: snowflake

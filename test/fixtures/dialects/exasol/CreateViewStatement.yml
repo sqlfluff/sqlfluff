@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 58b25106d8887ebd4a10cae8483c0907e6c1a7ed10e9f52812748cd41eb63b04
+_hash: 90379b0c5ac8973aa4fd8607bfdf0398f9eaf573ded96309614a4ed0d4add886
 file:
 - statement:
     create_view_statement:
@@ -28,9 +28,10 @@ file:
                   table_reference:
                     identifier: t
         end_bracket: )
-    - keyword: COMMENT
-    - keyword: IS
-    - literal: "'nice view'"
+    - comment_clause:
+      - keyword: COMMENT
+      - keyword: IS
+      - literal: "'nice view'"
 - statement_terminator: ;
 - statement:
     create_view_statement:
@@ -97,9 +98,10 @@ file:
       - start_bracket: (
       - column_reference:
           identifier: col_1
-      - keyword: COMMENT
-      - keyword: IS
-      - literal: "'something important'"
+      - comment_clause:
+        - keyword: COMMENT
+        - keyword: IS
+        - literal: "'something important'"
       - comma: ','
       - column_reference:
           identifier: col2
@@ -187,4 +189,30 @@ file:
                   table_reference:
                     identifier: t
         end_bracket: )
+- statement_terminator: ;
+- statement:
+    create_view_statement:
+    - keyword: CREATE
+    - keyword: VIEW
+    - view_reference:
+        identifier: T
+    - keyword: AS
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            wildcard_expression:
+              wildcard_identifier:
+                star: '*'
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                  identifier: A
+    - comment_clause:
+      - keyword: COMMENT
+      - keyword: IS
+      - literal: "'BLABLA'"
 - statement_terminator: ;
