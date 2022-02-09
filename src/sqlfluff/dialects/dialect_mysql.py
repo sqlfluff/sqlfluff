@@ -1070,6 +1070,7 @@ class UnorderedSelectStatementSegment(BaseSegment):
         .copy(insert=[Ref("ForClauseSegment")])
         .copy(insert=[Ref("IndexHintClauseSegment")])
         .copy(insert=[Ref("SelectPartitionClauseSegment")])
+        .copy(insert=[Ref("UpsertClauseListSegment")])
     )
 
     parse_grammar = (
@@ -1130,6 +1131,9 @@ class SelectStatementSegment(BaseSegment):
     match_grammar = ansi_dialect.get_segment(
         "SelectStatementSegment"
     ).match_grammar.copy()
+    match_grammar.terminator = match_grammar.terminator.copy(
+        insert=[Ref("UpsertClauseListSegment")]
+    )
 
     # Inherit most of the parse grammar from the original.
     parse_grammar = UnorderedSelectStatementSegment.parse_grammar.copy(

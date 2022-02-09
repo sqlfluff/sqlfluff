@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2900dab1b24c5b186edbb0cb1621ead094b1727e9870e722dafba20a684c2839
+_hash: 4fcb1def53935791b03b14a72b849f173d23f90aee81a99e047d0f67e4dae82c
 file:
 - statement:
     insert_statement:
@@ -282,14 +282,18 @@ file:
               alias_expression:
                 keyword: AS
                 identifier: dt
-          unparsable:
-          - raw: 'ON'
-          - raw: DUPLICATE
-          - raw: KEY
-          - raw: UPDATE
-          - raw: b
-          - raw: '='
-          - raw: e
+    - upsert_clause_list:
+      - keyword: 'ON'
+      - keyword: DUPLICATE
+      - keyword: KEY
+      - keyword: UPDATE
+      - set_clause:
+        - column_reference:
+            identifier: b
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+            identifier: e
 - statement_terminator: ;
 - statement:
     insert_statement:
@@ -336,14 +340,18 @@ file:
                             table_reference:
                               identifier: t2
                   end_bracket: )
-          unparsable:
-          - raw: 'ON'
-          - raw: DUPLICATE
-          - raw: KEY
-          - raw: UPDATE
-          - raw: b
-          - raw: '='
-          - raw: e
+    - upsert_clause_list:
+      - keyword: 'ON'
+      - keyword: DUPLICATE
+      - keyword: KEY
+      - keyword: UPDATE
+      - set_clause:
+        - column_reference:
+            identifier: b
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+            identifier: e
 - statement_terminator: ;
 - statement:
     insert_statement:
