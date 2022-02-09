@@ -961,8 +961,9 @@ class AlterTableTableColumnActionSegment(BaseSegment):
                 "ADD",
                 "COLUMN",
                 Sequence(
+                    # Handle Multiple Columns
                     Delimited(
-                        Sequence( 
+                        Sequence(
                             Ref("ColumnReferenceSegment"),
                             Ref("DatatypeSegment"),
                             OneOf(
