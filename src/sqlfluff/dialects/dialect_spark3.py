@@ -1651,14 +1651,9 @@ class ValuesClauseSegment(BaseSegment):
     match_grammar = Sequence(
         "VALUES",
         Ref("DelimitedValues"),
-        AnyNumberOf(
-            Ref("AliasExpressionSegment"),
-            min_times=0,
-            max_times=1,
-            exclude=OneOf("LIMIT", "ORDER"),
-        ),
         Ref("OrderByClauseSegment", optional=True),
         Ref("LimitClauseSegment", optional=True),
+        Ref("AliasExpressionSegment", optional=True),
     )
 
 

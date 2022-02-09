@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 82a56030416abff4e1aa0b4ef4910c308e5a4ab09fcfbb6aded59c9e6d2ed6cc
+_hash: c840d33ae97d17da0e547f7786feda1663430529850f5bb0e0bc62617bf02e9c
 file:
 - statement:
     insert_statement:
@@ -24,16 +24,14 @@ file:
     - keyword: VALUE
     - values_clause:
         keyword: VALUES
-        delimited_values:
-          tuple_value:
-            bracketed:
-            - start_bracket: (
-            - scalar_value:
-                literal: '1'
-            - comma: ','
-            - scalar_value:
-                literal: "'val'"
-            - end_bracket: )
+        bracketed:
+        - start_bracket: (
+        - expression:
+            literal: '1'
+        - comma: ','
+        - expression:
+            literal: "'val'"
+        - end_bracket: )
 - statement_terminator: ;
 - statement:
     insert_statement:
@@ -48,13 +46,11 @@ file:
         end_bracket: )
     - values_clause:
         keyword: VALUES
-        delimited_values:
-          tuple_value:
-            bracketed:
-              start_bracket: (
-              scalar_value:
-                bare_function: current_timestamp
-              end_bracket: )
+        bracketed:
+          start_bracket: (
+          expression:
+            bare_function: current_timestamp
+          end_bracket: )
 - statement_terminator: ;
 - statement:
     insert_statement:
@@ -75,14 +71,12 @@ file:
       - end_bracket: )
     - values_clause:
         keyword: VALUES
-        delimited_values:
-          tuple_value:
-            bracketed:
-            - start_bracket: (
-            - scalar_value:
-                literal: '8'
-            - comma: ','
-            - scalar_value:
-                literal: "'Anvil Distribution'"
-            - end_bracket: )
+        bracketed:
+        - start_bracket: (
+        - expression:
+            literal: '8'
+        - comma: ','
+        - expression:
+            literal: "'Anvil Distribution'"
+        - end_bracket: )
 - statement_terminator: ;
