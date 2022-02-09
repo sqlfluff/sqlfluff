@@ -443,6 +443,12 @@ class Rule_L016(Rule_L003):
             # source slice, and if we didn't correct for this, we'd count the
             # length of {{bi_ecommerce_orders}} roughly 10 times, resulting in
             # vast overcount of the source length.
+            #
+            # :TRICKY: New segments (i.e. those introduced by earlier fixes)
+            # have weird values for source_slice. We definitely want to count
+            # the length of these segments. We can detect them with
+            # "not is_templated" because new segments are never templated
+            # (because "sqlfluff fix" produced them, not the templater!).
             if not segment.is_templated or slice not in seen_slices:
                 seen_slices.add(slice)
                 line_len += cls._compute_segment_length(segment)
