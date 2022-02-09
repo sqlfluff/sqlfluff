@@ -634,6 +634,40 @@ test_pass_ignore_templated_whitespace_4:
         {{ "      c2\n" }} AS other_id
     FROM my_table
 
+test_fail_fix_template_indentation_1:
+  fail_str: |
+    SELECT
+        c1,
+    {{ "c2" }}
+  fix_str: |
+    SELECT
+        c1,
+        {{ "c2" }}
+
+test_fail_fix_template_indentation_2:
+  fail_str: |
+    with
+    first_join as (
+        select
+    {{ "c1" }},
+            c2
+        from helper
+    {{ "group by 1" }}
+    )
+
+    select * from first_join
+  fix_str: |
+    with
+    first_join as (
+        select
+            {{ "c1" }},
+            c2
+        from helper
+        {{ "group by 1" }}
+    )
+
+    select * from first_join
+
 test_pass_tsql_update_indent:
   pass_str: |
     update Extracts.itt_parm_base
