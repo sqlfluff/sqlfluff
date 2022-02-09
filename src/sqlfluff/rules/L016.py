@@ -443,7 +443,7 @@ class Rule_L016(Rule_L003):
             # source slice, and if we didn't correct for this, we'd count the
             # length of {{bi_ecommerce_orders}} roughly 10 times, resulting in
             # vast overcount of the source length.
-            if slice not in seen_slices:
+            if not segment.is_templated or slice not in seen_slices:
                 seen_slices.add(slice)
                 line_len += cls._compute_segment_length(segment)
         return line_len
