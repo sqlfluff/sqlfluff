@@ -22,3 +22,12 @@ test_pass_newlines:
     SELECT 1 from {{
       ref('foo')
     }}
+
+test_fail_templated_segment_contains_leading_literal:
+  fail_str: |
+    SELECT user_id
+    FROM
+        `{{"gcp_project"}}.{{"dataset"}}.campaign_performance`
+  configs:
+    core:
+      dialect: bigquery
