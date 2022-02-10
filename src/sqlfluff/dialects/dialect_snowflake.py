@@ -2062,7 +2062,7 @@ class CreateViewStatementSegment(BaseSegment):
             # @TODO: Support column-level masking policy & tagging.
         ),
         "AS",
-        Ref("SelectableGrammar"),
+        OptionallyBracketed(Ref("SelectableGrammar")),
     )
 
 
