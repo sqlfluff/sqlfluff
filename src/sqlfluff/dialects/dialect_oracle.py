@@ -38,7 +38,7 @@ oracle_dialect.insert_lexer_matchers(
         ),
         RegexLexer(
             "execution_sign",
-            r"@@([^(\r\n)])*((?=\n)|(?=\r\n))?",
+            r"@([^(\r\n)])*((?=\n)|(?=\r\n))?",
            CommentSegment, 
         )
     ],
