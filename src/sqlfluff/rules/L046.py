@@ -61,7 +61,7 @@ class Rule_L046(BaseRule):
             for raw_slice in templated_raw_slices:
                 src_raw = raw_slice.raw
                 if not src_raw or src_raw[0] != "{" or src_raw[-1] != "}":
-                    return LintResult(memory=context.memory)
+                    return LintResult(memory=context.memory)  # pragma: no cover
 
                 # Dedupe using a memory of source indexes.
                 # This is important because several positions in the
