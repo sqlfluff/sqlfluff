@@ -3499,7 +3499,7 @@ class CreateTriggerStatementSegment(BaseSegment):
         "CREATE",
         "TRIGGER",
         Ref("TriggerReferenceSegment"),
-        OneOf("BEFORE", "AFTER", Sequence("INSTEAD", "OF")),
+        OneOf("BEFORE", "AFTER", Sequence("INSTEAD", "OF"), optional=True),
         Delimited(
             "INSERT",
             "DELETE",
@@ -3549,6 +3549,7 @@ class CreateTriggerStatementSegment(BaseSegment):
             "PROCEDURE",
             Ref("FunctionNameIdentifierSegment"),
             Bracketed(Ref("FunctionContentsGrammar", optional=True)),
+            optional=True,
         ),
     )
 
