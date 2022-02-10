@@ -10,7 +10,7 @@ Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfl
 -->
 
 
-## [0.10.0] - 2022-02-11
+## [0.10.0] - 2022-02-10
 
 ## Highlights
 
