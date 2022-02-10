@@ -24,6 +24,7 @@ Major changes include:
 
 ## What's Changed
 
+* L046: Detect Jinja spacing issues where segment begins with literal content [#2603](https://github.com/sqlfluff/sqlfluff/pull/2603) [@barrywhart](https://github.com/barrywhart)
 * MySQL Add BINARY support [#2602](https://github.com/sqlfluff/sqlfluff/pull/2602) [@tunetheweb](https://github.com/tunetheweb)
 * Support indenting WINDOWS clauses and (optionally) CTEs [#2601](https://github.com/sqlfluff/sqlfluff/pull/2601) [@tunetheweb](https://github.com/tunetheweb)
 * Postgres: Support expressions in arrays [#2599](https://github.com/sqlfluff/sqlfluff/pull/2599) [@tunetheweb](https://github.com/tunetheweb)
