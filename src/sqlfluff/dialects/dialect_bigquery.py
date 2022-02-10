@@ -987,7 +987,7 @@ class CreateViewStatementSegment(BaseSegment):
         Ref("BracketedColumnReferenceListGrammar", optional=True),
         Ref("OptionsSegment", optional=True),
         "AS",
-        Ref("SelectableGrammar"),
+        OptionallyBracketed(Ref("SelectableGrammar")),
     )
 
 
