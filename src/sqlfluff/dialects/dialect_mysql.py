@@ -193,6 +193,7 @@ mysql_dialect.replace(
         Ref.keyword("KEY", optional=True),
     ),
     # Odd syntax, but pr
+    CharCharacterSetSegment=Ref.keyword("BINARY"),
 )
 
 mysql_dialect.add(
