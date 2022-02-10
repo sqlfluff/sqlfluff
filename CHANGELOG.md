@@ -24,6 +24,14 @@ Major changes include:
 
 ## What's Changed
 
+* MySQL Add BINARY support [#2602](https://github.com/sqlfluff/sqlfluff/pull/2602) [@tunetheweb](https://github.com/tunetheweb)
+* Support indenting WINDOWS clauses and (optionally) CTEs [#2601](https://github.com/sqlfluff/sqlfluff/pull/2601) [@tunetheweb](https://github.com/tunetheweb)
+* Postgres: Support expressions in arrays [#2599](https://github.com/sqlfluff/sqlfluff/pull/2599) [@tunetheweb](https://github.com/tunetheweb)
+* BigQuery support Array of Structs [#2598](https://github.com/sqlfluff/sqlfluff/pull/2598) [@tunetheweb](https://github.com/tunetheweb)
+* Support wildcards in triggers [#2597](https://github.com/sqlfluff/sqlfluff/pull/2597) [@tunetheweb](https://github.com/tunetheweb)
+* Support CTEs in CREATE VIEW statements [#2596](https://github.com/sqlfluff/sqlfluff/pull/2596) [@tunetheweb](https://github.com/tunetheweb)
+* SQLite Support more CREATE TRIGGER options [#2594](https://github.com/sqlfluff/sqlfluff/pull/2594) [@tunetheweb](https://github.com/tunetheweb)
+* Snowflake: Support Column Comments in Alter Table statements [#2593](https://github.com/sqlfluff/sqlfluff/pull/2593) [@tunetheweb](https://github.com/tunetheweb)
 * Redshift: Add DATETIME as reserved keyword [#2591](https://github.com/sqlfluff/sqlfluff/pull/2591) [@tunetheweb](https://github.com/tunetheweb)
 * Support LIMIT and ORDER BY clauses in Values clauses [#2590](https://github.com/sqlfluff/sqlfluff/pull/2590) [@tunetheweb](https://github.com/tunetheweb)
 * L016: New option "ignore_comment_clause" to ignore column COMMENTs, etc. [#2589](https://github.com/sqlfluff/sqlfluff/pull/2589) [@barrywhart](https://github.com/barrywhart)
