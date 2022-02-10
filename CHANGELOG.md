@@ -18,7 +18,7 @@ Major changes include:
 
 * Dropping support of DBT < 0.2.0 ** BREAKING CHANGE **
 * `sqlfluff fix` no will no longer fix SQL containing parsing or templating errors ** BREAKING CHANGE **
-* New rule L062 to allow blocking of list of configurable words (e.g. syntax, or schemas, or tables you do now want people to use)
+* New rule L062 to allow blocking of list of configurable words (e.g. syntax, or schemas, or tables you do not want people to use)
 * Lots and lots of docs improvements
 * Looser requirements for `click` python package
 
