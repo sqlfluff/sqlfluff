@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7617f400e5241b24807c1120b52434106bc63337423d7ca2149be3b5f2219267
+_hash: ed4290657654ca348736c324ecec6c10ce2429627be604c367cf924bf95ea666
 file:
 - statement:
     create_trigger:
@@ -438,19 +438,15 @@ file:
     - bracketed:
         start_bracket: (
         expression:
-        - wildcard_expression:
-            wildcard_identifier:
-              identifier: OLD
-              dot: .
-              star: '*'
+        - identifier: OLD
+        - dot: .
+        - star: '*'
         - keyword: IS
         - keyword: DISTINCT
         - keyword: FROM
-        - wildcard_expression:
-            wildcard_identifier:
-              identifier: NEW
-              dot: .
-              star: '*'
+        - identifier: NEW
+        - dot: .
+        - star: '*'
         end_bracket: )
     - keyword: EXECUTE
     - keyword: FUNCTION
