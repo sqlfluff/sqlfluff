@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 01500ad217b7b1edea1858dbc6e283a8e78c31337a666c2af3c94a466fcf9c14
+_hash: b112f8616e59e95d286cf8e894bca3dc4379cd9aff40996b57fb04b2ed4d879a
 file:
   statement:
     create_table_statement:
@@ -12,8 +12,19 @@ file:
     - table_reference:
         identifier: '`foo`'
     - bracketed:
-        start_bracket: (
-        column_definition:
+      - start_bracket: (
+      - column_definition:
+          identifier: b
+          data_type:
+            data_type_identifier: VARCHAR
+            bracketed:
+              start_bracket: (
+              expression:
+                literal: '255'
+              end_bracket: )
+            keyword: BINARY
+      - comma: ','
+      - column_definition:
         - identifier: '`id`'
         - data_type:
             data_type_identifier: int
@@ -29,8 +40,8 @@ file:
           - keyword: 'NULL'
         - column_constraint_segment:
             keyword: AUTO_INCREMENT
-        comma: ','
-        table_constraint_segment:
+      - comma: ','
+      - table_constraint_segment:
         - keyword: PRIMARY
         - keyword: KEY
         - bracketed:
@@ -38,7 +49,7 @@ file:
             column_reference:
               identifier: '`id`'
             end_bracket: )
-        end_bracket: )
+      - end_bracket: )
     - parameter: ENGINE
     - comparison_operator:
         raw_comparison_operator: '='

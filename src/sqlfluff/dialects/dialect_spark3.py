@@ -845,7 +845,7 @@ class CreateViewStatementSegment(BaseSegment):
         Ref("CommentGrammar", optional=True),
         Ref("TablePropertiesGrammar", optional=True),
         "AS",
-        Ref("SelectableGrammar"),
+        OptionallyBracketed(Ref("SelectableGrammar")),
         Ref("WithNoSchemaBindingClauseSegment", optional=True),
     )
 
@@ -1666,7 +1666,14 @@ class ValuesClauseSegment(BaseSegment):
     match_grammar = Sequence(
         "VALUES",
         Ref("DelimitedValues"),
-        Ref("AliasExpressionSegment", optional=True),
+        AnyNumberOf(
+            Ref("AliasExpressionSegment"),
+            min_times=0,
+            max_times=1,
+            exclude=OneOf("LIMIT", "ORDER"),
+        ),
+        Ref("OrderByClauseSegment", optional=True),
+        Ref("LimitClauseSegment", optional=True),
     )
 
 

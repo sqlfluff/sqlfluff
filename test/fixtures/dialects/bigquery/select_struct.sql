@@ -21,3 +21,13 @@ select
   ) as bar
 from foo
 left join bar on bar.foo_id = foo.foo_id;
+
+-- Array of structs
+SELECT
+  col_1,
+  col_2
+FROM
+  UNNEST(ARRAY<STRUCT<col_1 STRING, col_2 STRING>>[
+      ('hello','world'),
+      ('hi', 'there')
+      ])

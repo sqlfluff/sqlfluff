@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 18ee8537fe6f25a7faea2f7cfa8adda8bfafbfb52745a1a926f5d4d4f7be63d9
+_hash: b36104bc24392aeb07f4aa488f27cffcd046e7852b06d04df330144ff1f9a1ad
 file:
 - statement:
     select_statement:
@@ -12,22 +12,24 @@ file:
         select_clause_element:
           expression:
           - keyword: ARRAY
-          - array_contents_grammar:
-              simple_array_contents_grammar:
-              - start_square_bracket: '['
-              - literal: '1'
-              - comma: ','
-              - literal: '2'
-              - end_square_bracket: ']'
+          - array_literal:
+            - start_square_bracket: '['
+            - expression:
+                literal: '1'
+            - comma: ','
+            - expression:
+                literal: '2'
+            - end_square_bracket: ']'
           - binary_operator: '||'
           - keyword: ARRAY
-          - array_contents_grammar:
-              simple_array_contents_grammar:
-              - start_square_bracket: '['
-              - literal: '3'
-              - comma: ','
-              - literal: '4'
-              - end_square_bracket: ']'
+          - array_literal:
+            - start_square_bracket: '['
+            - expression:
+                literal: '3'
+            - comma: ','
+            - expression:
+                literal: '4'
+            - end_square_bracket: ']'
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -35,22 +37,26 @@ file:
         keyword: SELECT
         select_clause_element:
           keyword: ARRAY
-          array_contents_grammar:
+          array_literal:
           - start_square_bracket: '['
-          - array_contents_grammar:
-              simple_array_contents_grammar:
+          - expression:
+              array_literal:
               - start_square_bracket: '['
-              - literal: "'meeting'"
+              - expression:
+                  literal: "'meeting'"
               - comma: ','
-              - literal: "'lunch'"
+              - expression:
+                  literal: "'lunch'"
               - end_square_bracket: ']'
           - comma: ','
-          - array_contents_grammar:
-              simple_array_contents_grammar:
+          - expression:
+              array_literal:
               - start_square_bracket: '['
-              - literal: "'training'"
+              - expression:
+                  literal: "'training'"
               - comma: ','
-              - literal: "'presentation'"
+              - expression:
+                  literal: "'presentation'"
               - end_square_bracket: ']'
           - end_square_bracket: ']'
 - statement_terminator: ;
@@ -172,46 +178,55 @@ file:
         identifier: sal_emp
     - values_clause:
         keyword: VALUES
-        bracketed:
-        - start_bracket: (
-        - expression:
-            literal: "'Bill'"
-        - comma: ','
-        - expression:
-            keyword: ARRAY
-            array_contents_grammar:
-              simple_array_contents_grammar:
-              - start_square_bracket: '['
-              - literal: '10000'
-              - comma: ','
-              - literal: '10000'
-              - comma: ','
-              - literal: '10000'
-              - comma: ','
-              - literal: '10000'
-              - end_square_bracket: ']'
-        - comma: ','
-        - expression:
-            keyword: ARRAY
-            array_contents_grammar:
-            - start_square_bracket: '['
-            - array_contents_grammar:
-                simple_array_contents_grammar:
+        delimited_values:
+          tuple_value:
+            bracketed:
+            - start_bracket: (
+            - scalar_value:
+                literal: "'Bill'"
+            - comma: ','
+            - scalar_value:
+                keyword: ARRAY
+                array_literal:
                 - start_square_bracket: '['
-                - literal: "'meeting'"
+                - expression:
+                    literal: '10000'
                 - comma: ','
-                - literal: "'lunch'"
+                - expression:
+                    literal: '10000'
+                - comma: ','
+                - expression:
+                    literal: '10000'
+                - comma: ','
+                - expression:
+                    literal: '10000'
                 - end_square_bracket: ']'
             - comma: ','
-            - array_contents_grammar:
-                simple_array_contents_grammar:
+            - scalar_value:
+                keyword: ARRAY
+                array_literal:
                 - start_square_bracket: '['
-                - literal: "'training'"
+                - expression:
+                    array_literal:
+                    - start_square_bracket: '['
+                    - expression:
+                        literal: "'meeting'"
+                    - comma: ','
+                    - expression:
+                        literal: "'lunch'"
+                    - end_square_bracket: ']'
                 - comma: ','
-                - literal: "'presentation'"
+                - expression:
+                    array_literal:
+                    - start_square_bracket: '['
+                    - expression:
+                        literal: "'training'"
+                    - comma: ','
+                    - expression:
+                        literal: "'presentation'"
+                    - end_square_bracket: ']'
                 - end_square_bracket: ']'
-            - end_square_bracket: ']'
-        - end_bracket: )
+            - end_bracket: )
 - statement_terminator: ;
 - statement:
     insert_statement:
@@ -221,46 +236,55 @@ file:
         identifier: sal_emp
     - values_clause:
         keyword: VALUES
-        bracketed:
-        - start_bracket: (
-        - expression:
-            literal: "'Carol'"
-        - comma: ','
-        - expression:
-            keyword: ARRAY
-            array_contents_grammar:
-              simple_array_contents_grammar:
-              - start_square_bracket: '['
-              - literal: '20000'
-              - comma: ','
-              - literal: '25000'
-              - comma: ','
-              - literal: '25000'
-              - comma: ','
-              - literal: '25000'
-              - end_square_bracket: ']'
-        - comma: ','
-        - expression:
-            keyword: ARRAY
-            array_contents_grammar:
-            - start_square_bracket: '['
-            - array_contents_grammar:
-                simple_array_contents_grammar:
+        delimited_values:
+          tuple_value:
+            bracketed:
+            - start_bracket: (
+            - scalar_value:
+                literal: "'Carol'"
+            - comma: ','
+            - scalar_value:
+                keyword: ARRAY
+                array_literal:
                 - start_square_bracket: '['
-                - literal: "'breakfast'"
+                - expression:
+                    literal: '20000'
                 - comma: ','
-                - literal: "'consulting'"
+                - expression:
+                    literal: '25000'
+                - comma: ','
+                - expression:
+                    literal: '25000'
+                - comma: ','
+                - expression:
+                    literal: '25000'
                 - end_square_bracket: ']'
             - comma: ','
-            - array_contents_grammar:
-                simple_array_contents_grammar:
+            - scalar_value:
+                keyword: ARRAY
+                array_literal:
                 - start_square_bracket: '['
-                - literal: "'meeting'"
+                - expression:
+                    array_literal:
+                    - start_square_bracket: '['
+                    - expression:
+                        literal: "'breakfast'"
+                    - comma: ','
+                    - expression:
+                        literal: "'consulting'"
+                    - end_square_bracket: ']'
                 - comma: ','
-                - literal: "'lunch'"
+                - expression:
+                    array_literal:
+                    - start_square_bracket: '['
+                    - expression:
+                        literal: "'meeting'"
+                    - comma: ','
+                    - expression:
+                        literal: "'lunch'"
+                    - end_square_bracket: ']'
                 - end_square_bracket: ']'
-            - end_square_bracket: ']'
-        - end_bracket: )
+            - end_bracket: )
 - statement_terminator: ;
 - statement:
     select_statement:
@@ -395,24 +419,27 @@ file:
               start_bracket: (
               expression:
               - keyword: ARRAY
-              - array_contents_grammar:
-                  simple_array_contents_grammar:
-                  - start_square_bracket: '['
-                  - literal: '1'
-                  - comma: ','
-                  - literal: '2'
-                  - end_square_bracket: ']'
+              - array_literal:
+                - start_square_bracket: '['
+                - expression:
+                    literal: '1'
+                - comma: ','
+                - expression:
+                    literal: '2'
+                - end_square_bracket: ']'
               - binary_operator: '||'
               - keyword: ARRAY
-              - array_contents_grammar:
-                  simple_array_contents_grammar:
-                  - start_square_bracket: '['
-                  - literal: '3'
-                  - comma: ','
-                  - literal: '4'
-                  - comma: ','
-                  - literal: '5'
-                  - end_square_bracket: ']'
+              - array_literal:
+                - start_square_bracket: '['
+                - expression:
+                    literal: '3'
+                - comma: ','
+                - expression:
+                    literal: '4'
+                - comma: ','
+                - expression:
+                    literal: '5'
+                - end_square_bracket: ']'
               end_bracket: )
 - statement_terminator: ;
 - statement:
@@ -427,31 +454,36 @@ file:
               start_bracket: (
               expression:
               - keyword: ARRAY
-              - array_contents_grammar:
-                  simple_array_contents_grammar:
-                  - start_square_bracket: '['
-                  - literal: '1'
-                  - comma: ','
-                  - literal: '2'
-                  - end_square_bracket: ']'
+              - array_literal:
+                - start_square_bracket: '['
+                - expression:
+                    literal: '1'
+                - comma: ','
+                - expression:
+                    literal: '2'
+                - end_square_bracket: ']'
               - binary_operator: '||'
               - keyword: ARRAY
-              - array_contents_grammar:
+              - array_literal:
                 - start_square_bracket: '['
-                - array_contents_grammar:
-                    simple_array_contents_grammar:
+                - expression:
+                    array_literal:
                     - start_square_bracket: '['
-                    - literal: '3'
+                    - expression:
+                        literal: '3'
                     - comma: ','
-                    - literal: '4'
+                    - expression:
+                        literal: '4'
                     - end_square_bracket: ']'
                 - comma: ','
-                - array_contents_grammar:
-                    simple_array_contents_grammar:
+                - expression:
+                    array_literal:
                     - start_square_bracket: '['
-                    - literal: '5'
+                    - expression:
+                        literal: '5'
                     - comma: ','
-                    - literal: '6'
+                    - expression:
+                        literal: '6'
                     - end_square_bracket: ']'
                 - end_square_bracket: ']'
               end_bracket: )
@@ -463,13 +495,14 @@ file:
         select_clause_element:
           expression:
             keyword: ARRAY
-            array_contents_grammar:
-              simple_array_contents_grammar:
-              - start_square_bracket: '['
-              - literal: '1'
-              - comma: ','
-              - literal: '2'
-              - end_square_bracket: ']'
+            array_literal:
+            - start_square_bracket: '['
+            - expression:
+                literal: '1'
+            - comma: ','
+            - expression:
+                literal: '2'
+            - end_square_bracket: ']'
             binary_operator: '||'
             literal: "'{3, 4}'"
 - statement_terminator: ;
@@ -485,23 +518,29 @@ file:
             - start_bracket: (
             - expression:
                 keyword: ARRAY
-                array_contents_grammar:
-                  simple_array_contents_grammar:
-                  - start_square_bracket: '['
-                  - literal: "'sun'"
-                  - comma: ','
-                  - literal: "'mon'"
-                  - comma: ','
-                  - literal: "'tue'"
-                  - comma: ','
-                  - literal: "'wed'"
-                  - comma: ','
-                  - literal: "'thu'"
-                  - comma: ','
-                  - literal: "'fri'"
-                  - comma: ','
-                  - literal: "'sat'"
-                  - end_square_bracket: ']'
+                array_literal:
+                - start_square_bracket: '['
+                - expression:
+                    literal: "'sun'"
+                - comma: ','
+                - expression:
+                    literal: "'mon'"
+                - comma: ','
+                - expression:
+                    literal: "'tue'"
+                - comma: ','
+                - expression:
+                    literal: "'wed'"
+                - comma: ','
+                - expression:
+                    literal: "'thu'"
+                - comma: ','
+                - expression:
+                    literal: "'fri'"
+                - comma: ','
+                - expression:
+                    literal: "'sat'"
+                - end_square_bracket: ']'
             - comma: ','
             - expression:
                 literal: "'mon'"
@@ -575,3 +614,69 @@ file:
               keyword: AS
               identifier: ss
 - statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+        keyword: SELECT
+        select_clause_element:
+          expression:
+            function:
+              function_name:
+                function_name_identifier: SUM
+              bracketed:
+                start_bracket: (
+                expression:
+                  case_expression:
+                  - keyword: CASE
+                  - when_clause:
+                    - keyword: WHEN
+                    - expression:
+                        column_reference:
+                          identifier: direction
+                        comparison_operator:
+                          raw_comparison_operator: '='
+                        literal: "'forward'"
+                    - keyword: THEN
+                    - expression:
+                        column_reference:
+                          identifier: unit
+                  - else_clause:
+                      keyword: ELSE
+                      expression:
+                        literal: '0'
+                  - keyword: END
+                end_bracket: )
+            binary_operator: '*'
+            bracketed:
+              start_bracket: (
+              expression:
+                function:
+                  function_name:
+                    function_name_identifier: MAX
+                  bracketed:
+                    start_bracket: (
+                    expression:
+                      keyword: ARRAY
+                      array_literal:
+                      - start_square_bracket: '['
+                      - expression:
+                          column_reference:
+                            identifier: id
+                      - comma: ','
+                      - expression:
+                          column_reference:
+                            identifier: vertical
+                      - end_square_bracket: ']'
+                    end_bracket: )
+              end_bracket: )
+            array_accessor:
+              start_square_bracket: '['
+              literal: '2'
+              end_square_bracket: ']'
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: direction_with_vertical_change

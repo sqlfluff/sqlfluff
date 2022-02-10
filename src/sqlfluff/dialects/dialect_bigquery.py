@@ -161,7 +161,7 @@ bigquery_dialect.replace(
     SimpleArrayTypeGrammar=Sequence(
         "ARRAY",
         Bracketed(
-            Ref("DatatypeIdentifierSegment"),
+            Ref("DatatypeSegment"),
             bracket_type="angle",
             bracket_pairs_set="angle_bracket_pairs",
         ),
@@ -987,7 +987,7 @@ class CreateViewStatementSegment(BaseSegment):
         Ref("BracketedColumnReferenceListGrammar", optional=True),
         Ref("OptionsSegment", optional=True),
         "AS",
-        Ref("SelectableGrammar"),
+        OptionallyBracketed(Ref("SelectableGrammar")),
     )
 
 

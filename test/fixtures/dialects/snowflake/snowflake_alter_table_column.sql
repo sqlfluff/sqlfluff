@@ -3,6 +3,9 @@
 ALTER TABLE my_table ADD COLUMN my_column INTEGER;
 ALTER TABLE my_table ADD COLUMN my_column VARCHAR(5000) NOT NULL;
 
+------ Multiple columns
+ALTER TABLE my_table ADD COLUMN column_1 varchar, column_2 integer;
+
 ---- Default, auto-increment & identity
 ALTER TABLE my_table ADD COLUMN my_column INTEGER DEFAULT 1;
 ALTER TABLE my_table ADD COLUMN my_column INTEGER AUTOINCREMENT;
@@ -14,6 +17,9 @@ ALTER TABLE my_table ADD COLUMN my_column INTEGER IDENTITY START 10000 INCREMENT
 ALTER TABLE my_table ADD COLUMN my_column INTEGER MASKING POLICY my_policy;
 ALTER TABLE my_table ADD COLUMN my_column INTEGER WITH MASKING POLICY my_policy;
 
+-- comment
+ALTER TABLE reporting_tbl ADD COLUMN reporting_group VARCHAR
+  COMMENT 'internal reporting group defined by DE team';
 
 -- Rename column
 ALTER TABLE empl_info RENAME COLUMN old_col_name TO new_col_name;

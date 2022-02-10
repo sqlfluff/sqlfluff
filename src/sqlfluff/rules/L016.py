@@ -10,6 +10,7 @@ from sqlfluff.core.parser import (
 )
 
 from sqlfluff.core.rules.base import LintFix, LintResult, RuleContext
+from sqlfluff.core.rules.functional import sp
 from sqlfluff.core.rules.doc_decorators import (
     document_fix_compatible,
     document_configuration,
@@ -29,6 +30,7 @@ class Rule_L016(Rule_L003):
         "tab_space_size",
         "indent_unit",
         "ignore_comment_lines",
+        "ignore_comment_clauses",
     ]
 
     def _eval_line_for_breaks(self, segments: List[RawSegment]) -> List[LintFix]:
@@ -418,11 +420,15 @@ class Rule_L016(Rule_L003):
             # case, compute the length of its contents.
             return len(segment.raw)
 
-    @classmethod
-    def _compute_source_length(cls, segments: Sequence[BaseSegment]) -> int:
+    def _compute_source_length(
+        self, segments: Sequence[BaseSegment], memory: dict
+    ) -> int:
         line_len = 0
         seen_slices = set()
         for segment in segments:
+            if self.ignore_comment_clauses and segment in memory["comment_clauses"]:
+                continue
+
             slice = (
                 segment.pos_marker.source_slice.start,
                 segment.pos_marker.source_slice.stop,
@@ -443,9 +449,17 @@ class Rule_L016(Rule_L003):
             # source slice, and if we didn't correct for this, we'd count the
             # length of {{bi_ecommerce_orders}} roughly 10 times, resulting in
             # vast overcount of the source length.
-            if slice not in seen_slices:
+            #
+            # :TRICKY: New segments (i.e. those introduced by earlier fixes)
+            # have empty source slices. We definitely want to count the length
+            # of these segments. We can be sure they aren't the tricky templated
+            # segment case described above because new segments are never templated
+            # (because "sqlfluff fix" produced them, not the templater!).
+            if (
+                slice[0] == slice[1] and not segment.is_meta
+            ) or slice not in seen_slices:
                 seen_slices.add(slice)
-                line_len += cls._compute_segment_length(segment)
+                line_len += self._compute_segment_length(segment)
         return line_len
 
     def _eval(self, context: RuleContext) -> Optional[LintResult]:
@@ -458,16 +472,30 @@ class Rule_L016(Rule_L003):
         # Config type hints
         self.max_line_length: int
         self.ignore_comment_lines: bool
+        self.ignore_comment_clauses: bool
 
+        if not context.memory:
+            memory: dict = {"comment_clauses": set()}
+        else:
+            memory = context.memory
         if context.segment.name == "newline":
             # iterate to buffer the whole line up to this point
             this_line = self._gen_line_so_far(context.raw_stack)
         else:
+            if self.ignore_comment_clauses and context.segment.is_type(
+                "comment_clause", "comment_equals_clause"
+            ):
+                comment_segment = context.functional.segment.children().first(
+                    sp.is_name("quoted_literal")
+                )
+                if comment_segment:
+                    memory["comment_clauses"].add(comment_segment.get())
+
             # Otherwise we're all good
-            return None
+            return LintResult(memory=memory)
 
         # Now we can work out the line length and deal with the content
-        line_len = self._compute_source_length(this_line)
+        line_len = self._compute_source_length(this_line, memory)
         if line_len > self.max_line_length:
             # Problem, we'll be reporting a violation. The
             # question is, can we fix it?
@@ -486,7 +514,7 @@ class Rule_L016(Rule_L003):
             # They will remain as unfixable.
             if this_line[-1].type == "placeholder":
                 self.logger.info("Unfixable template segment: %s", this_line[-1])
-                return LintResult(anchor=context.segment)
+                return LintResult(anchor=context.segment, memory=memory)
 
             # Does the line end in an inline comment that we can move back?
             if this_line[-1].name == "inline_comment":
@@ -499,9 +527,9 @@ class Rule_L016(Rule_L003):
                         "Unfixable inline comment, alone on line: %s", this_line[-1]
                     )
                     if self.ignore_comment_lines:
-                        return LintResult()
+                        return LintResult(memory=memory)
                     else:
-                        return LintResult(anchor=context.segment)
+                        return LintResult(anchor=context.segment, memory=memory)
 
                 self.logger.info(
                     "Attempting move of inline comment at end of line: %s",
@@ -523,7 +551,10 @@ class Rule_L016(Rule_L003):
                     this_line[-1],
                     cast(RawSegment, context.segment),
                 ]
-                if self._compute_source_length(create_elements) > self.max_line_length:
+                if (
+                    self._compute_source_length(create_elements, memory)
+                    > self.max_line_length
+                ):
                     # The inline comment is NOT on a line by itself, but even if
                     # we move it onto a line by itself, it's still too long. In
                     # this case, the rule should do nothing, otherwise it
@@ -535,19 +566,21 @@ class Rule_L016(Rule_L003):
                         this_line[-1],
                     )
                     if self.ignore_comment_lines:
-                        return LintResult()
+                        return LintResult(memory=memory)
                     else:
-                        return LintResult(anchor=context.segment)
+                        return LintResult(anchor=context.segment, memory=memory)
                 # Create a newline before this one with the existing comment, an
                 # identical indent AND a terminating newline, copied from the current
                 # target segment.
                 create_buffer = [LintFix.create_before(this_line[0], create_elements)]
                 return LintResult(
-                    anchor=context.segment, fixes=delete_buffer + create_buffer
+                    anchor=context.segment,
+                    fixes=delete_buffer + create_buffer,
+                    memory=memory,
                 )
 
             fixes = self._eval_line_for_breaks(this_line)
             if fixes:
-                return LintResult(anchor=context.segment, fixes=fixes)
-            return LintResult(anchor=context.segment)
-        return LintResult()
+                return LintResult(anchor=context.segment, fixes=fixes, memory=memory)
+            return LintResult(anchor=context.segment, memory=memory)
+        return LintResult(memory=memory)

@@ -485,6 +485,7 @@ ansi_dialect.add(
     ),
     PrimaryKeyGrammar=Sequence("PRIMARY", "KEY"),
     ForeignKeyGrammar=Sequence("FOREIGN", "KEY"),
+    UniqueKeyGrammar=Sequence("UNIQUE"),
     # Odd syntax, but prevents eager parameters being confused for data types
     FunctionParameterGrammar=OneOf(
         Sequence(
@@ -1726,6 +1727,11 @@ ansi_dialect.add(
             Ref("IntervalExpressionSegment"),
             Ref("TypelessStructSegment"),
             Ref("ColumnReferenceSegment"),
+            # For triggers we allow "NEW.*" but not just "*" nor "a.b.*"
+            # So can't use WildcardIdentifierSegment nor WildcardExpressionSegment
+            Sequence(
+                Ref("SingleIdentifierGrammar"), Ref("DotSegment"), Ref("StarSegment")
+            ),
             Sequence(
                 Ref("SimpleArrayTypeGrammar", optional=True), Ref("ArrayLiteralSegment")
             ),
@@ -2011,9 +2017,11 @@ class NamedWindowSegment(BaseSegment):
     type = "named_window"
     match_grammar = Sequence(
         "WINDOW",
+        Indent,
         Delimited(
             Ref("NamedWindowExpressionSegment"),
         ),
+        Dedent,
     )
 
 
@@ -2057,7 +2065,6 @@ class ValuesClauseSegment(BaseSegment):
                 ),
             ),
         ),
-        Ref("AliasExpressionSegment", optional=True),
     )
 
 
@@ -2208,10 +2215,12 @@ class WithCompoundStatementSegment(BaseSegment):
     parse_grammar = Sequence(
         "WITH",
         Ref.keyword("RECURSIVE", optional=True),
+        Conditional(Indent, indented_ctes=True),
         Delimited(
             Ref("CTEDefinitionSegment"),
             terminator=Ref.keyword("SELECT"),
         ),
+        Conditional(Dedent, indented_ctes=True),
         OneOf(
             Ref("NonWithSelectableGrammar"),
             Ref("NonWithNonSelectableGrammar"),
@@ -2316,7 +2325,7 @@ class ColumnConstraintSegment(BaseSegment):
                 ),
             ),
             Ref("PrimaryKeyGrammar"),
-            "UNIQUE",  # UNIQUE
+            Ref("UniqueKeyGrammar"),  # UNIQUE
             "AUTO_INCREMENT",  # AUTO_INCREMENT (MySQL)
             "UNSIGNED",  # UNSIGNED (MySQL)
             Ref("ReferenceDefinitionGrammar"),  # REFERENCES reftable [ ( refcolumn) ]x
@@ -2647,7 +2656,7 @@ class CreateViewStatementSegment(BaseSegment):
         # Optional list of column names
         Ref("BracketedColumnReferenceListGrammar", optional=True),
         "AS",
-        Ref("SelectableGrammar"),
+        OptionallyBracketed(Ref("SelectableGrammar")),
         Ref("WithNoSchemaBindingClauseSegment", optional=True),
     )
 
@@ -3497,7 +3506,7 @@ class CreateTriggerStatementSegment(BaseSegment):
         "CREATE",
         "TRIGGER",
         Ref("TriggerReferenceSegment"),
-        OneOf("BEFORE", "AFTER", Sequence("INSTEAD", "OF")),
+        OneOf("BEFORE", "AFTER", Sequence("INSTEAD", "OF"), optional=True),
         Delimited(
             "INSERT",
             "DELETE",
@@ -3547,6 +3556,7 @@ class CreateTriggerStatementSegment(BaseSegment):
             "PROCEDURE",
             Ref("FunctionNameIdentifierSegment"),
             Bracketed(Ref("FunctionContentsGrammar", optional=True)),
+            optional=True,
         ),
     )
 
