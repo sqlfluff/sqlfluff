@@ -934,7 +934,7 @@ class CreateViewStatementSegment(BaseSegment):
             optional=True,
         ),
         "AS",
-        Ref("SelectableGrammar"),
+        OptionallyBracketed(Ref("SelectableGrammar")),
         Ref("CommentClauseSegment", optional=True),
     )
 

@@ -40,3 +40,13 @@ WITH cte AS (SELECT col1 FROM table_1)
 SELECT col1, col2
 FROM table_2
 INNER JOIN my_cte ON table_1.pk = table_2.pk;
+
+CREATE OR REPLACE VIEW vw_appt_latest AS (
+  WITH most_current as (
+      SELECT
+            da.*
+      FROM dim_appt da
+      WHERE da.current_appt_id IS NULL
+      )
+  SELECT * from most_current
+);

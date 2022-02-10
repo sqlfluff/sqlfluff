@@ -438,29 +438,6 @@ class ArrayAccessorSegment(BaseSegment):
 
 
 @postgres_dialect.segment()
-class SimpleArrayContentsGrammar(BaseSegment):
-    """This Grammar is Literals in Square Brackets, comma delimited."""
-
-    type = "simple_array_contents_grammar"
-
-    match_grammar = Bracketed(Delimited(Ref("LiteralGrammar")), bracket_type="square")
-
-
-@postgres_dialect.segment(replace=True)
-class ArrayLiteralSegment(BaseSegment):
-    """Overwrites ANSI to allow for nested Arrays."""
-
-    type = "array_contents_grammar"
-
-    match_grammar = Sequence(
-        OneOf(
-            Ref("SimpleArrayContentsGrammar"),
-            Bracketed(Delimited(Ref("ArrayLiteralSegment")), bracket_type="square"),
-        )
-    )
-
-
-@postgres_dialect.segment()
 class DateTimeTypeIdentifier(BaseSegment):
     """Date Time Type."""
 

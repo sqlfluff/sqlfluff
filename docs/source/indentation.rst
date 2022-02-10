@@ -186,7 +186,7 @@ Then the expected indentation will be:
          USING(a)
 
 However if no value for :code:`indented_joins` is set, or if it is set to
-:code:`false` then then following indentation will be expected:
+:code:`False` then then following indentation will be expected:
 
 .. code-block:: sql
 
@@ -196,8 +196,8 @@ However if no value for :code:`indented_joins` is set, or if it is set to
    JOIN another_table
       USING(a)
 
-There is a similar :code:`indented_using_on` config (defaulted to :code:`true`)
-which can be set to :code:`false` to prevent the :code:`using` clause from
+There is a similar :code:`indented_using_on` config (defaulted to :code:`True`)
+which can be set to :code:`False` to prevent the :code:`using` clause from
 being indented, in which case above SQL would become:
 
 .. code-block:: sql
@@ -208,6 +208,27 @@ being indented, in which case above SQL would become:
    JOIN another_table
    USING(a)
 
+There is also a similar :code:`indented_ctes` config (defaulted to
+:code:`False`) which can be set to :code:`True` to enforce CTEs to be
+indented within the :code:`WITH` clause:
+
+.. code-block:: sql
+
+   WITH
+      some_cte AS (
+         SELECT 1 FROM table1
+      ),
+
+      some_other_cte AS (
+         SELECT 1 FROM table1
+      )
+
+   SELECT 1 FROM some_cte
+
+Note that using :code:`indented_ctes` may clash with `Rule L018`_ (`"WITH
+clause closing bracket should be aligned with WITH keyword."``), so if using
+this option you will likely want to disable that rule.
+
 By default, *SQLFluff* aims to follow the indentation most common approach
 to indentation. However, if you have other versions of indentation which are
 supported by published style guides, then please submit an issue on GitHub
@@ -216,3 +237,4 @@ to have that variation supported by *SQLFluff*.
 .. _`dbt Labs SQL style guide`: https://github.com/dbt-labs/corp/blob/master/dbt_style_guide.md
 .. _`Mozilla SQL style guide`: https://docs.telemetry.mozilla.org/concepts/sql_style.html#joins
 .. _`Baron Schwartz`: https://www.xaprb.com/blog/2006/04/26/sql-coding-standards/
+.. _`Rule L018`: ./rules.html#sqlfluff.core.rules.Rule_L018

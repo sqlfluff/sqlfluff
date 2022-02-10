@@ -830,7 +830,7 @@ class CreateViewStatementSegment(BaseSegment):
         Ref("CommentGrammar", optional=True),
         Ref("TablePropertiesGrammar", optional=True),
         "AS",
-        Ref("SelectableGrammar"),
+        OptionallyBracketed(Ref("SelectableGrammar")),
         Ref("WithNoSchemaBindingClauseSegment", optional=True),
     )
 
