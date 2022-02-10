@@ -405,8 +405,8 @@ test_jinja_nested_blocks:
     )
     SELECT 1
 
-# LIMIT and QUALIFY both indent
-test_limit_and_qualify_indent:
+# LIMIT, QUALIFY, and WINDOW both indent
+test_limit_and_qualify_and_window_indent:
   fail_str: |
     SELECT
         a,
@@ -417,6 +417,8 @@ test_limit_and_qualify_indent:
     1
     LIMIT
     1
+    WINDOW
+    some_window AS (PARTITION BY 1)
   fix_str: |
     SELECT
         a,
@@ -427,12 +429,14 @@ test_limit_and_qualify_indent:
         1
     LIMIT
         1
+    WINDOW
+        some_window AS (PARTITION BY 1)
   configs:
     core:
       dialect: bigquery
 
-# LIMIT and QUALIFY both acceptable on single line
-test_limit_and_qualify_single_line:
+# LIMIT, QUALIFY and WINDOW both acceptable on single line
+test_limit_and_qualify_and_window_single_line:
   pass_str: |
     SELECT
         a,
@@ -441,9 +445,57 @@ test_limit_and_qualify_single_line:
         my_tbl
     QUALIFY 1
     LIMIT 1
+    WINDOW some_window AS (PARTITION BY 1)
   configs:
     core:
       dialect: bigquery
+
+# By default CTEs should not be indented
+test_pass_cte:
+  pass_str: |
+    WITH
+    some_cte AS (
+        SELECT 1 FROM table1
+    ),
+
+    some_other_cte AS (
+        SELECT 1 FROM table1
+    )
+
+    SELECT 1 FROM table1
+  configs:
+    core:
+      dialect: bigquery
+
+# CTEs can be configured to be indented
+test_fail_indented_cte:
+  fail_str: |
+    WITH
+    some_cte AS (
+        SELECT 1 FROM table1
+    ),
+
+    some_other_cte AS (
+        SELECT 1 FROM table1
+    )
+
+    SELECT 1 FROM table1
+  pass_str: |
+    WITH
+        some_cte AS (
+            SELECT 1 FROM table1
+        ),
+
+        some_other_cte AS (
+            SELECT 1 FROM table1
+        )
+
+    SELECT 1 FROM table1
+  configs:
+    core:
+      dialect: bigquery
+    indentation:
+      indented_ctes: true
 
 # Exasol LUA script
 test_exasol_script:
