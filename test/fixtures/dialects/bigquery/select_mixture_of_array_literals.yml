@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c47530d353648a4c2b721741e4cd0bc53e351fc10fb4626208198855367c5071
+_hash: df03b8df0f299cc91c3c77702151611d8060a88043ceb0b4d1da19c62185218d
 file:
   statement:
     select_statement:
@@ -27,7 +27,8 @@ file:
           expression:
             keyword: ARRAY
             start_angle_bracket: <
-            data_type_identifier: BOOLEAN
+            data_type:
+              data_type_identifier: BOOLEAN
             end_angle_bracket: '>'
             array_literal:
               start_square_bracket: '['
@@ -50,7 +51,8 @@ file:
           expression:
             keyword: ARRAY
             start_angle_bracket: <
-            data_type_identifier: string
+            data_type:
+              data_type_identifier: string
             end_angle_bracket: '>'
             array_literal:
               start_square_bracket: '['
@@ -76,7 +78,8 @@ file:
           expression:
             keyword: ARRAY
             start_angle_bracket: <
-            data_type_identifier: NUMERIC
+            data_type:
+              data_type_identifier: NUMERIC
             end_angle_bracket: '>'
             array_literal:
               start_square_bracket: '['
