@@ -31,19 +31,18 @@ oracle_dialect.insert_lexer_matchers(
             r"PROMPT([^(\r\n)])*((?=\n)|(?=\r\n))?",
             CommentSegment,
         ),
-        #RegexLexer(
-        #    "execution_sign",
-        #    r"^@@(?i).*\.sql(\s)(.*)$",
-        #    CodeSegment
-        #)
+        RegexLexer(
+            "double_execution_sign",
+            r"@@([^(\r\n)])*((?=\n)|(?=\r\n))?",
+           CommentSegment, 
+        ),
+        RegexLexer(
+            "execution_sign",
+            r"@@([^(\r\n)])*((?=\n)|(?=\r\n))?",
+           CommentSegment, 
+        )
     ],
     before="code",
-)
-
-oracle_dialect.add(
-    ExecutionSegment=RegexParser(
-        r"^@@(?i).*\.sql(\s)(.*)$", CodeSegment, name="execution_symbol", type="execution_symbol"
-    ),
 )
 
 
