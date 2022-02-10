@@ -1735,7 +1735,7 @@ class CreateViewStatementSegment(BaseSegment):
             optional=True,
         ),
         "AS",
-        Ref("SelectableGrammar"),
+        OptionallyBracketed(Ref("SelectableGrammar")),
         Sequence("WITH", "CHECK", "OPTION", optional=True),
         Ref("DelimiterSegment", optional=True),
     )
