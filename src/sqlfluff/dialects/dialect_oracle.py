@@ -5,9 +5,11 @@ This inherits from the ansi dialect.
 from sqlfluff.core.dialects import load_raw_dialect
 from sqlfluff.core.parser import (
     BaseSegment,
+    CodeSegment,
     CommentSegment,
     Ref,
     RegexLexer,
+    RegexParser,
     Sequence,
     StartsWith,
     OneOf,
@@ -28,9 +30,20 @@ oracle_dialect.insert_lexer_matchers(
             "prompt_command",
             r"PROMPT([^(\r\n)])*((?=\n)|(?=\r\n))?",
             CommentSegment,
-        )
+        ),
+        #RegexLexer(
+        #    "execution_sign",
+        #    r"^@@(?i).*\.sql(\s)(.*)$",
+        #    CodeSegment
+        #)
     ],
     before="code",
+)
+
+oracle_dialect.add(
+    ExecutionSegment=RegexParser(
+        r"^@@(?i).*\.sql(\s)(.*)$", CodeSegment, name="execution_symbol", type="execution_symbol"
+    ),
 )
 
 
