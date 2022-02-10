@@ -1727,6 +1727,11 @@ ansi_dialect.add(
             Ref("IntervalExpressionSegment"),
             Ref("TypelessStructSegment"),
             Ref("ColumnReferenceSegment"),
+            # For triggers we allow "NEW.*" but not just "*" nor "a.b.*"
+            # So can't use WildcardIdentifierSegment nor WildcardExpressionSegment
+            Sequence(
+                Ref("SingleIdentifierGrammar"), Ref("DotSegment"), Ref("StarSegment")
+            ),
             Sequence(
                 Ref("SimpleArrayTypeGrammar", optional=True), Ref("ArrayLiteralSegment")
             ),

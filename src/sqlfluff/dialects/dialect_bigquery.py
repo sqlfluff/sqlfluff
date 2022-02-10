@@ -161,7 +161,7 @@ bigquery_dialect.replace(
     SimpleArrayTypeGrammar=Sequence(
         "ARRAY",
         Bracketed(
-            Ref("DatatypeIdentifierSegment"),
+            Ref("DatatypeSegment"),
             bracket_type="angle",
             bracket_pairs_set="angle_bracket_pairs",
         ),
