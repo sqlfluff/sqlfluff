@@ -2017,9 +2017,11 @@ class NamedWindowSegment(BaseSegment):
     type = "named_window"
     match_grammar = Sequence(
         "WINDOW",
+        Indent,
         Delimited(
             Ref("NamedWindowExpressionSegment"),
         ),
+        Dedent,
     )
 
 
@@ -2213,10 +2215,12 @@ class WithCompoundStatementSegment(BaseSegment):
     parse_grammar = Sequence(
         "WITH",
         Ref.keyword("RECURSIVE", optional=True),
+        Conditional(Indent, indented_ctes=True),
         Delimited(
             Ref("CTEDefinitionSegment"),
             terminator=Ref.keyword("SELECT"),
         ),
+        Conditional(Dedent, indented_ctes=True),
         OneOf(
             Ref("NonWithSelectableGrammar"),
             Ref("NonWithNonSelectableGrammar"),
