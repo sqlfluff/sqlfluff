@@ -60,3 +60,9 @@ CREATE TRIGGER paired_items_update
     REFERENCING NEW TABLE AS newtab OLD TABLE AS oldtab
     FOR EACH ROW
     EXECUTE FUNCTION check_matching_pairs();
+
+CREATE TRIGGER log_update
+    AFTER UPDATE ON accounts
+    FOR EACH ROW
+    WHEN (OLD.* IS DISTINCT FROM NEW.*)
+    EXECUTE FUNCTION log_account_update();
