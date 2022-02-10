@@ -23,6 +23,7 @@ from sqlfluff.core.parser import (
     AnyNumberOf,
     CommentSegment,
     SegmentGenerator,
+    Conditional,
 )
 
 from sqlfluff.core.dialects import load_raw_dialect
@@ -592,10 +593,12 @@ class WithCompoundStatementSegment(BaseSegment):
     match_grammar = Sequence(
         "WITH",
         Ref.keyword("RECURSIVE", optional=True),
+        Conditional(Indent, indented_ctes=True),
         Delimited(
             Ref("CTEDefinitionSegment"),
             terminator=Ref.keyword("SELECT"),
         ),
+        Conditional(Dedent, indented_ctes=True),
         OneOf(
             Ref("NonWithSelectableGrammar"),
             Ref("NonWithNonSelectableGrammar"),

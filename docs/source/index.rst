@@ -27,11 +27,14 @@ Notable changes:
 * **0.6.x** introduced parallel processing, which necessitated a big re-write
   of several innards
 * **0.7.x** extracted the dbt templater to a separate plugin and removed the
-  `exasol_fs` dialect (now merged in with the main `exasol`)
+  ``exasol_fs`` dialect (now merged in with the main ``exasol``)
 * **0.8.x** an improvement to the performance of the parser, a rebuild of the
   Jinja Templater, and a progress bar for the CLI
 * **0.9.x** refinement of the Simple API, dbt 1.0.0 compatibility,
   and the official SQLFluff Docker image.
+* **0.10.x** removed support for older dbt versions < 0.20 and stopped ``fix``
+  attempting to fix unparsable SQL.
+
 
 
 Want to see where and how people are using SQLFluff in their projects?
