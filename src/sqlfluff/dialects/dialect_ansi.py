@@ -1712,6 +1712,7 @@ ansi_dialect.add(
                         Ref(
                             "ColumnReferenceSegment"
                         ),  # WHERE (a,b,c) IN (select a,b,c FROM...)
+                        Ref("WildcardExpressionSegment"),
                         Ref(
                             "FunctionSegment"
                         ),  # WHERE (a, substr(b,1,3)) IN (select c,d FROM...)
@@ -1727,6 +1728,7 @@ ansi_dialect.add(
             Ref("IntervalExpressionSegment"),
             Ref("TypelessStructSegment"),
             Ref("ColumnReferenceSegment"),
+            Ref("WildcardExpressionSegment"),
             Sequence(
                 Ref("SimpleArrayTypeGrammar", optional=True), Ref("ArrayLiteralSegment")
             ),
