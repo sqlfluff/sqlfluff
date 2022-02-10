@@ -242,8 +242,10 @@ class Rule_L052(BaseRule):
         # SQL does not require a final trailing semi-colon, however
         # this rule looks to enforce that it is there.
         if self.require_final_semicolon:
-            # Locate the end of the file.
-            if not self.is_final_segment(context):
+            # Locate the end of the statement or file.
+            # end_of_file = self.is_final_segment(context)
+            end_of_statement = self.is_final_segment_of_types(context, ["statement"])
+            if not end_of_statement:
                 return None
 
             # Include current segment for complete stack.
