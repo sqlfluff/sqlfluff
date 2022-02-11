@@ -84,7 +84,7 @@ class Rule_L059(BaseRule):
             identifier_contents = context.segment.raw[1:-1]
 
         # Ignore the segments that are not of the same type as the defined policy above.
-        if context.segment.name not in context_policy:
+        if context.segment.name not in context_policy or context.segment.type != "raw":
             return None
 
         # Manage cases of identifiers must be quoted first.
@@ -105,6 +105,10 @@ class Rule_L059(BaseRule):
 
         # Retrieve NakedIdentifierSegment RegexParser for the dialect.
         naked_identifier_parser = context.dialect._library["NakedIdentifierSegment"]
+
+        print("BARRY1:%s:" % (quoted_identifier_contents))
+        print("BARRY2:%s:" % (naked_identifier_parser.template))
+        print("BARRY3:%s:" % (naked_identifier_parser.anti_template))
 
         # Check if quoted_identifier_contents could be a valid naked identifier
         # and that it is not a reserved keyword.
