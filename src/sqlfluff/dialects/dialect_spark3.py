@@ -208,6 +208,21 @@ spark3_dialect.replace(
         "NATURAL",
         Ref("JoinTypeKeywords", optional=True),
     ),
+    LikeGrammar=OneOf(
+        # https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-like.html
+        Sequence(
+            "LIKE",
+            OneOf(
+                "ALL",
+                "ANY",
+                # `SOME` is equivalent to `ANY`
+                "SOME",
+                optional=True,
+            ),
+        ),
+        "RLIKE",
+        "REGEXP",
+    ),
 )
 
 spark3_dialect.add(
@@ -1163,6 +1178,31 @@ class SelectHintSegment(BaseSegment):
             ),
             Ref("EndHintSegment"),
         ),
+    )
+
+
+@spark3_dialect.segment(replace=True)
+class LimitClauseSegment(BaseSegment):
+    """A `LIMIT` clause like in `SELECT`.
+
+    Enhanced from ANSI dialect.
+    :: Spark does not allow explicit or implicit
+       `OFFSET` (implicit being 1000, 20 for example)
+    :: Spark allows an `ALL` quantifier or a function
+       expression as an input to `LIMIT`
+    https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-limit.html
+    """
+
+    type = "limit_clause"
+    match_grammar = Sequence(
+        "LIMIT",
+        Indent,
+        OneOf(
+            Ref("NumericLiteralSegment"),
+            "ALL",
+            Ref("FunctionSegment"),
+        ),
+        Dedent,
     )
 
 
