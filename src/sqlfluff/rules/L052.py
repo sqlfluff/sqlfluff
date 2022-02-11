@@ -171,24 +171,28 @@ class Rule_L052(BaseRule):
                     # semi-colon and its preceding whitespace and then insert
                     # the semi-colon in the correct location.
                     self.logger.debug("case 1")
-                    assert save_ended_statement
-                    fixes = [
-                        LintFix.create_after(
-                            save_ended_statement,
-                            [
-                                SymbolSegment(raw=";", type="symbol", name="semicolon"),
-                            ],
-                        ),
-                        LintFix.delete(
-                            context.segment,
-                        ),
-                    ]
-                    fixes.extend(LintFix.delete(d) for d in whitespace_deletions)
-                    return LintResult(
-                        anchor=anchor_segment,
-                        fixes=fixes,
-                        memory=memory,
-                    )
+                    if save_ended_statement:
+                        fixes = [
+                            LintFix.create_after(
+                                save_ended_statement,
+                                [
+                                    SymbolSegment(
+                                        raw=";", type="symbol", name="semicolon"
+                                    ),
+                                ],
+                            ),
+                            LintFix.delete(
+                                context.segment,
+                            ),
+                        ]
+                        fixes.extend(LintFix.delete(d) for d in whitespace_deletions)
+                        return LintResult(
+                            anchor=anchor_segment,
+                            fixes=fixes,
+                            memory=memory,
+                        )
+                    else:
+                        return LintResult(memory=memory)
             # Semi-colon on new line.
             else:
                 # Adjust pre_semicolon_segments and anchor_segment for preceding inline

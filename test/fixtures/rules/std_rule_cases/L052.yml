@@ -465,6 +465,14 @@ test_fail_newline_create_table_inline_comment:
       L052:
         multiline_newline: true
 
+test_pass_multiple_semicolons:
+  pass_str: |
+    SELECT foo FROM bar;;
+    SELECT foo FROM bar;
+    ;
+    ;
+    SELECT foo FROM bar;
+
 test_fail_tsql_semicolon_after_each_statement_1:
   fail_str: |
     CREATE FUNCTION dbo.funxn (
