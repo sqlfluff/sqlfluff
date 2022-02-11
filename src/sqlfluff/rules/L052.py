@@ -131,15 +131,16 @@ class Rule_L052(BaseRule):
 
         if not context.memory:
             memory: dict = {
-                "last_ended_statement": None,
+                "ended_statements": [],
             }
         else:
             memory = context.memory
 
         # First we can simply handle the case of existing semi-colon alignment.
         if context.segment.name == "semicolon":
-            save_memory = dict(memory)
-            memory["last_ended_statement"] = None
+            save_ended_statement: Optional[BaseSegment] = None
+            if memory["ended_statements"]:
+                save_ended_statement = memory["ended_statements"].pop()
 
             # Locate semicolon and search back over the raw stack
             # to find the end of the preceding statement.
@@ -170,9 +171,11 @@ class Rule_L052(BaseRule):
                     # If preceding segments are found then delete the old
                     # semi-colon and its preceding whitespace and then insert
                     # the semi-colon in the correct location.
+                    print("case 4")
+                    assert save_ended_statement
                     fixes = [
                         LintFix.create_after(
-                            save_memory["last_ended_statement"],
+                            save_ended_statement,
                             [
                                 SymbolSegment(raw=";", type="symbol", name="semicolon"),
                             ],
@@ -228,6 +231,7 @@ class Rule_L052(BaseRule):
                         )
                     else:
                         print("case 2")
+                        # import pdb; pdb.set_trace()
                         if anchor_segment.is_comment:
                             fixes = [
                                 LintFix.replace(
@@ -259,8 +263,8 @@ class Rule_L052(BaseRule):
                                         context.segment,
                                     ),
                                     LintFix.create_after(
-                                        save_memory["last_ended_statement"]
-                                        if save_memory["last_ended_statement"]
+                                        save_ended_statement
+                                        if save_ended_statement
                                         else anchor_segment,
                                         [
                                             SymbolSegment(
@@ -271,6 +275,7 @@ class Rule_L052(BaseRule):
                                 ]
                             )
                         fixes.extend(LintFix.delete(d) for d in whitespace_deletions)
+                    print("case 5")
                     return LintResult(
                         anchor=anchor_segment,
                         fixes=fixes,
@@ -281,12 +286,9 @@ class Rule_L052(BaseRule):
         end_of_file = self.is_final_segment(context)
         end_of_statement = self.is_final_segment_of_types(context, ["statement"])
         if end_of_statement:
-            assert memory["last_ended_statement"] is None
             reversed_parent_stack = context.functional.parent_stack.reversed()
             statement = reversed_parent_stack.first(sp.is_type("statement"))
-            statement_parent = reversed_parent_stack.select(start_seg=statement.get())
-            memory["last_ended_statement"] = statement.get()
-            memory["last_ended_statement_parent"] = statement_parent.get()
+            memory["ended_statements"].append(statement.get())
 
         # SQL does not require a final trailing semi-colon, however
         # this rule looks to enforce that it is there.
@@ -295,7 +297,7 @@ class Rule_L052(BaseRule):
                 return LintResult(memory=memory)
             if not end_of_file:
                 if (
-                    not memory["last_ended_statement"]
+                    not memory["ended_statements"]
                     or not context.segment.is_raw()
                     or context.segment.is_meta
                     or context.segment.is_whitespace
@@ -328,14 +330,15 @@ class Rule_L052(BaseRule):
             semicolon_newline = self.multiline_newline if not is_one_line else False
 
             # import pdb; pdb.set_trace()
-            # memory["last_ended_statement"] = None
+            # memory["ended_statements"] = None
             if not semi_colon_exist_flag:
                 # Create the final semi-colon if it does not yet exist.
                 # Semi-colon on same line.
                 if not semicolon_newline:
+                    print("case 6")
                     fixes = [
                         LintFix.create_after(
-                            memory["last_ended_statement"],
+                            memory["ended_statements"][-1],
                             [
                                 SymbolSegment(raw=";", type="symbol", name="semicolon"),
                             ],
@@ -351,8 +354,8 @@ class Rule_L052(BaseRule):
                     ) = self._handle_preceding_inline_comments(
                         pre_semicolon_segments, anchor_segment
                     )
-                    print("case 3")
                     if anchor_segment.is_comment:
+                        print("case 3")
                         fixes = [
                             LintFix.replace(
                                 anchor_segment,
@@ -366,9 +369,10 @@ class Rule_L052(BaseRule):
                             ),
                         ]
                     else:
+                        print("case 7")
                         fixes = [
                             LintFix.create_after(
-                                memory["last_ended_statement"],
+                                memory["ended_statements"][-1],
                                 [
                                     NewlineSegment(),
                                     SymbolSegment(
