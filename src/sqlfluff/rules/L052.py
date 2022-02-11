@@ -385,7 +385,7 @@ class Rule_L052(BaseRule):
                     "Adding final semicolon for %r", memory["ended_statements"][-1]
                 )
                 return LintResult(
-                    anchor=memory["ended_statements"][-1],
+                    anchor=anchor_segment,
                     fixes=fixes,
                     memory=memory,
                 )
