@@ -240,6 +240,9 @@ class Rule_L052(BaseRule):
                                         ),
                                     ],
                                 ),
+                                LintFix.delete(
+                                    context.segment,
+                                ),
                             ]
                         else:
                             # import pdb; pdb.set_trace()
