@@ -154,7 +154,6 @@ class Rule_L052(BaseRule):
                 if first_code
                 else False
             )
-            # import pdb; pdb.set_trace()
 
             # We can tidy up any whitespace between the semi-colon
             # and the preceding code/comment segment.
@@ -171,7 +170,7 @@ class Rule_L052(BaseRule):
                     # If preceding segments are found then delete the old
                     # semi-colon and its preceding whitespace and then insert
                     # the semi-colon in the correct location.
-                    print("case 4")
+                    self.logger.debug("case 1")
                     assert save_ended_statement
                     fixes = [
                         LintFix.create_after(
@@ -217,7 +216,7 @@ class Rule_L052(BaseRule):
                     )
                     fixes = []
                     if anchor_segment is context.segment:
-                        print("case 1")
+                        self.logger.debug("case 2")
                         fixes.append(
                             LintFix.replace(
                                 anchor_segment,
@@ -230,8 +229,7 @@ class Rule_L052(BaseRule):
                             )
                         )
                     else:
-                        print("case 2")
-                        # import pdb; pdb.set_trace()
+                        self.logger.debug("case 3")
                         if anchor_segment.is_comment:
                             fixes = [
                                 LintFix.replace(
@@ -249,7 +247,6 @@ class Rule_L052(BaseRule):
                                 ),
                             ]
                         else:
-                            # import pdb; pdb.set_trace()
                             fixes.extend(
                                 [
                                     LintFix.replace(
@@ -275,7 +272,7 @@ class Rule_L052(BaseRule):
                                 ]
                             )
                         fixes.extend(LintFix.delete(d) for d in whitespace_deletions)
-                    print("case 5")
+                    self.logger.debug("case 4")
                     return LintResult(
                         anchor=anchor_segment,
                         fixes=fixes,
@@ -329,13 +326,11 @@ class Rule_L052(BaseRule):
 
             semicolon_newline = self.multiline_newline if not is_one_line else False
 
-            # import pdb; pdb.set_trace()
-            # memory["ended_statements"] = None
             if not semi_colon_exist_flag:
                 # Create the final semi-colon if it does not yet exist.
                 # Semi-colon on same line.
                 if not semicolon_newline:
-                    print("case 6")
+                    self.logger.debug("case 5")
                     fixes = [
                         LintFix.create_after(
                             memory["ended_statements"][-1],
@@ -355,7 +350,7 @@ class Rule_L052(BaseRule):
                         pre_semicolon_segments, anchor_segment
                     )
                     if anchor_segment.is_comment:
-                        print("case 3")
+                        self.logger.debug("case 6")
                         fixes = [
                             LintFix.replace(
                                 anchor_segment,
@@ -369,7 +364,7 @@ class Rule_L052(BaseRule):
                             ),
                         ]
                     else:
-                        print("case 7")
+                        self.logger.debug("case 7")
                         fixes = [
                             LintFix.create_after(
                                 memory["ended_statements"][-1],
