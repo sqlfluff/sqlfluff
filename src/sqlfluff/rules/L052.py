@@ -281,7 +281,7 @@ class Rule_L052(BaseRule):
                         memory=memory,
                     )
 
-        # Locate the end of the statement or file.
+        # Determine if we're at the end of a statement or the entire file.
         end_of_file = self.is_final_segment(context)
         end_of_statement = self.is_final_segment_of_types(context, ["statement"])
         if end_of_statement:
@@ -343,6 +343,8 @@ class Rule_L052(BaseRule):
                     ]
                 # Semi-colon on new line.
                 else:
+                    self.logger.debug("case 6")
+
                     # Adjust pre_semicolon_segments and anchor_segment for inline
                     # comments.
                     (
@@ -351,32 +353,17 @@ class Rule_L052(BaseRule):
                     ) = self._handle_preceding_inline_comments(
                         pre_semicolon_segments, anchor_segment
                     )
-                    if anchor_segment.is_comment:
-                        self.logger.debug("case 6")
-                        fixes = [
-                            LintFix.create_after(
-                                anchor_segment,
-                                [
-                                    NewlineSegment(),
-                                    SymbolSegment(
-                                        raw=";", type="symbol", name="semicolon"
-                                    ),
-                                ],
-                            ),
-                        ]
-                    else:
-                        self.logger.debug("case 7")
-                        fixes = [
-                            LintFix.create_after(
-                                memory["ended_statements"][-1],
-                                [
-                                    NewlineSegment(),
-                                    SymbolSegment(
-                                        raw=";", type="symbol", name="semicolon"
-                                    ),
-                                ],
-                            )
-                        ]
+                    fixes = [
+                        LintFix.create_after(
+                            anchor_segment
+                            if anchor_segment.is_comment
+                            else memory["ended_statements"][-1],
+                            [
+                                NewlineSegment(),
+                                SymbolSegment(raw=";", type="symbol", name="semicolon"),
+                            ],
+                        )
+                    ]
 
                 self.logger.info(
                     "Adding final semicolon for %r", memory["ended_statements"][-1]
