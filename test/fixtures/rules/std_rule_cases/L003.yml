@@ -754,3 +754,12 @@ test_pass_tsql_set_indent_multiple_params:
   configs:
     core:
       dialect: tsql
+
+test_pass_tsql_if_indent:
+  pass_str: |
+    IF 1 > 1 AND
+        2 < 2
+        SELECT 1;
+  configs:
+    core:
+      dialect: tsql
