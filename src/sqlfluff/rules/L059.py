@@ -88,8 +88,7 @@ class Rule_L059(BaseRule):
         # need to explicity check for that.
         if (
             context.segment.name not in context_policy
-            or context.segment.raw.lower() == "quoted_identifier"
-            or context.segment.raw.lower() == "naked_identifier"
+            or context.segment.raw.lower() in ("quoted_identifier", "naked_identifier")
         ):
             return None
 
@@ -111,10 +110,6 @@ class Rule_L059(BaseRule):
 
         # Retrieve NakedIdentifierSegment RegexParser for the dialect.
         naked_identifier_parser = context.dialect._library["NakedIdentifierSegment"]
-
-        print("BARRY1:%s:" % (quoted_identifier_contents))
-        print("BARRY2:%s:" % (naked_identifier_parser.template))
-        print("BARRY3:%s:" % (naked_identifier_parser.anti_template))
 
         # Check if quoted_identifier_contents could be a valid naked identifier
         # and that it is not a reserved keyword.
