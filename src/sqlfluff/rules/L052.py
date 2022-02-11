@@ -253,10 +253,9 @@ class Rule_L052(BaseRule):
                         else:
                             fixes.extend(
                                 [
-                                    LintFix.replace(
+                                    LintFix.create_after(
                                         anchor_segment,
                                         [
-                                            anchor_segment,
                                             NewlineSegment(),
                                         ],
                                     ),
