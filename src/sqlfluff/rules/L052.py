@@ -382,9 +382,11 @@ class Rule_L052(BaseRule):
                             )
                         ]
 
-                self.logger.info("Adding final semicolon for %r", anchor_segment)
+                self.logger.info(
+                    "Adding final semicolon for %r", memory["ended_statements"][-1]
+                )
                 return LintResult(
-                    anchor=anchor_segment,
+                    anchor=memory["ended_statements"][-1],
                     fixes=fixes,
                     memory=memory,
                 )
