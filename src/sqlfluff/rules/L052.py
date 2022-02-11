@@ -153,6 +153,7 @@ class Rule_L052(BaseRule):
                 if first_code
                 else False
             )
+            # import pdb; pdb.set_trace()
 
             # We can tidy up any whitespace between the semi-colon
             # and the preceding code/comment segment.
@@ -234,10 +235,14 @@ class Rule_L052(BaseRule):
                                     [
                                         anchor_segment,
                                         NewlineSegment(),
+                                        SymbolSegment(
+                                            raw=";", type="symbol", name="semicolon"
+                                        ),
                                     ],
                                 ),
                             ]
                         else:
+                            # import pdb; pdb.set_trace()
                             fixes.extend(
                                 [
                                     LintFix.replace(
@@ -251,7 +256,9 @@ class Rule_L052(BaseRule):
                                         context.segment,
                                     ),
                                     LintFix.create_after(
-                                        save_memory["last_ended_statement"],
+                                        save_memory["last_ended_statement"]
+                                        if save_memory["last_ended_statement"]
+                                        else anchor_segment,
                                         [
                                             SymbolSegment(
                                                 raw=";", type="symbol", name="semicolon"
