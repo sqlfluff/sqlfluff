@@ -129,6 +129,13 @@ class Rule_L052(BaseRule):
         self.multiline_newline: bool
         self.require_final_semicolon: bool
 
+        if not context.memory:
+            memory: dict = {
+                "last_ended_statement": None,
+            }
+        else:
+            memory = context.memory
+
         # First we can simply handle the case of existing semi-colon alignment.
         if context.segment.name == "semicolon":
 
@@ -176,6 +183,7 @@ class Rule_L052(BaseRule):
                     return LintResult(
                         anchor=anchor_segment,
                         fixes=fixes,
+                        memory=memory,
                     )
             # Semi-colon on new line.
             else:
@@ -237,18 +245,32 @@ class Rule_L052(BaseRule):
                     return LintResult(
                         anchor=anchor_segment,
                         fixes=fixes,
+                        memory=memory,
                     )
 
         # SQL does not require a final trailing semi-colon, however
         # this rule looks to enforce that it is there.
         if self.require_final_semicolon:
             # Locate the end of the statement or file.
-            # end_of_file = self.is_final_segment(context)
+            end_of_file = self.is_final_segment(context)
             end_of_statement = self.is_final_segment_of_types(context, ["statement"])
-            if not end_of_statement:
-                return None
+            if end_of_statement:  # and not end_of_file:
+                assert memory["last_ended_statement"] is None
+                memory["last_ended_statement"] = context.segment
+                if not end_of_file:
+                    return LintResult(memory=memory)
+            if not end_of_file:
+                if (
+                    not memory["last_ended_statement"]
+                    or not context.segment.is_raw()
+                    or context.segment.is_meta
+                    or context.segment.is_whitespace
+                ):
+                    return LintResult(memory=memory)
 
-            # Include current segment for complete stack.
+            # If we reach here, it's either:
+            # - First non-whitespace segment after the end of a statement
+            # - End of file
             complete_stack: List[BaseSegment] = list(context.raw_stack)
             complete_stack.append(context.segment)
 
@@ -270,9 +292,9 @@ class Rule_L052(BaseRule):
 
             semicolon_newline = self.multiline_newline if not is_one_line else False
 
+            memory["last_ended_statement"] = None
             if not semi_colon_exist_flag:
                 # Create the final semi-colon if it does not yet exist.
-
                 # Semi-colon on same line.
                 if not semicolon_newline:
                     fixes = [
@@ -305,9 +327,11 @@ class Rule_L052(BaseRule):
                         )
                     ]
 
+                self.logger.info("Adding final semicolon for %r", anchor_segment)
                 return LintResult(
                     anchor=anchor_segment,
                     fixes=fixes,
+                    memory=memory,
                 )
 
-        return None
+        return LintResult(memory=memory)
