@@ -1182,6 +1182,31 @@ class SelectHintSegment(BaseSegment):
 
 
 @spark3_dialect.segment(replace=True)
+class LimitClauseSegment(BaseSegment):
+    """A `LIMIT` clause like in `SELECT`.
+
+    Enhanced from ANSI dialect.
+    :: Spark does not allow explicit or implicit
+       `OFFSET` (implicit being 1000, 20 for example)
+    :: Spark allows an `ALL` quantifier or a function
+       expression as an input to `LIMIT`
+    https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-limit.html
+    """
+
+    type = "limit_clause"
+    match_grammar = Sequence(
+        "LIMIT",
+        Indent,
+        OneOf(
+            Ref("NumericLiteralSegment"),
+            "ALL",
+            Ref("FunctionSegment"),
+        ),
+        Dedent,
+    )
+
+
+@spark3_dialect.segment(replace=True)
 class SelectClauseModifierSegment(BaseSegment):
     """Things that come after SELECT but before the columns.
 
