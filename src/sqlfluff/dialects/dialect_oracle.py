@@ -28,7 +28,17 @@ oracle_dialect.insert_lexer_matchers(
             "prompt_command",
             r"PROMPT([^(\r\n)])*((?=\n)|(?=\r\n))?",
             CommentSegment,
-        )
+        ),
+        RegexLexer(
+            "double_execution_sign",
+            r"@@([^(\r\n)])*((?=\n)|(?=\r\n))?",
+            CommentSegment,
+        ),
+        RegexLexer(
+            "execution_sign",
+            r"@([^(\r\n)])*((?=\n)|(?=\r\n))?",
+            CommentSegment,
+        ),
     ],
     before="code",
 )
