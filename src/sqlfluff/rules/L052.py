@@ -236,10 +236,9 @@ class Rule_L052(BaseRule):
                         self.logger.debug("case 3")
                         if anchor_segment.is_comment:
                             fixes = [
-                                LintFix.replace(
+                                LintFix.create_after(
                                     anchor_segment,
                                     [
-                                        anchor_segment,
                                         NewlineSegment(),
                                         SymbolSegment(
                                             raw=";", type="symbol", name="semicolon"
@@ -293,11 +292,10 @@ class Rule_L052(BaseRule):
         # SQL does not require a final trailing semi-colon, however
         # this rule looks to enforce that it is there.
         if self.require_final_semicolon:
-            if end_of_statement and not end_of_file:
-                return LintResult(memory=memory)
             if not end_of_file:
                 if (
-                    not memory["ended_statements"]
+                    end_of_statement
+                    or not memory["ended_statements"]
                     or not context.segment.is_raw()
                     or context.segment.is_meta
                     or context.segment.is_whitespace
@@ -331,6 +329,7 @@ class Rule_L052(BaseRule):
 
             if not semi_colon_exist_flag:
                 # Create the final semi-colon if it does not yet exist.
+
                 # Semi-colon on same line.
                 if not semicolon_newline:
                     self.logger.debug("case 5")
@@ -355,10 +354,9 @@ class Rule_L052(BaseRule):
                     if anchor_segment.is_comment:
                         self.logger.debug("case 6")
                         fixes = [
-                            LintFix.replace(
+                            LintFix.create_after(
                                 anchor_segment,
                                 [
-                                    anchor_segment,
                                     NewlineSegment(),
                                     SymbolSegment(
                                         raw=";", type="symbol", name="semicolon"
