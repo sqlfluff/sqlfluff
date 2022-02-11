@@ -218,10 +218,9 @@ class Rule_L052(BaseRule):
                     anchor_segment = self._handle_trailing_inline_comments(
                         context, anchor_segment
                     )
-                    fixes = []
                     if anchor_segment is context.segment:
                         self.logger.debug("case 2")
-                        fixes.append(
+                        fixes = [
                             LintFix.replace(
                                 anchor_segment,
                                 [
@@ -231,24 +230,28 @@ class Rule_L052(BaseRule):
                                     ),
                                 ],
                             )
-                        )
+                        ]
                     else:
                         self.logger.debug("case 3")
+                        fixes = [
+                            LintFix.delete(
+                                context.segment,
+                            ),
+                        ] + [LintFix.delete(d) for d in whitespace_deletions]
                         if anchor_segment.is_comment:
-                            fixes = [
-                                LintFix.create_after(
-                                    anchor_segment,
-                                    [
-                                        NewlineSegment(),
-                                        SymbolSegment(
-                                            raw=";", type="symbol", name="semicolon"
-                                        ),
-                                    ],
-                                ),
-                                LintFix.delete(
-                                    context.segment,
-                                ),
-                            ]
+                            fixes.extend(
+                                [
+                                    LintFix.create_after(
+                                        anchor_segment,
+                                        [
+                                            NewlineSegment(),
+                                            SymbolSegment(
+                                                raw=";", type="symbol", name="semicolon"
+                                            ),
+                                        ],
+                                    ),
+                                ]
+                            )
                         else:
                             fixes.extend(
                                 [
@@ -257,9 +260,6 @@ class Rule_L052(BaseRule):
                                         [
                                             NewlineSegment(),
                                         ],
-                                    ),
-                                    LintFix.delete(
-                                        context.segment,
                                     ),
                                     LintFix.create_after(
                                         save_ended_statement
@@ -273,7 +273,6 @@ class Rule_L052(BaseRule):
                                     ),
                                 ]
                             )
-                        fixes.extend(LintFix.delete(d) for d in whitespace_deletions)
                     self.logger.debug("case 4")
                     return LintResult(
                         anchor=anchor_segment,
