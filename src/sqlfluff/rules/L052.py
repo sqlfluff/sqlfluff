@@ -138,6 +138,8 @@ class Rule_L052(BaseRule):
 
         # First we can simply handle the case of existing semi-colon alignment.
         if context.segment.name == "semicolon":
+            save_memory = dict(memory)
+            memory["last_ended_statement"] = None
 
             # Locate semicolon and search back over the raw stack
             # to find the end of the preceding statement.
@@ -168,10 +170,9 @@ class Rule_L052(BaseRule):
                     # semi-colon and its preceding whitespace and then insert
                     # the semi-colon in the correct location.
                     fixes = [
-                        LintFix.replace(
-                            anchor_segment,
+                        LintFix.create_after(
+                            save_memory["last_ended_statement"],
                             [
-                                anchor_segment,
                                 SymbolSegment(raw=";", type="symbol", name="semicolon"),
                             ],
                         ),
@@ -212,6 +213,7 @@ class Rule_L052(BaseRule):
                     )
                     fixes = []
                     if anchor_segment is context.segment:
+                        print("case 1")
                         fixes.append(
                             LintFix.replace(
                                 anchor_segment,
@@ -224,23 +226,40 @@ class Rule_L052(BaseRule):
                             )
                         )
                     else:
-                        fixes.extend(
-                            [
+                        print("case 2")
+                        if anchor_segment.is_comment:
+                            fixes = [
                                 LintFix.replace(
                                     anchor_segment,
                                     [
                                         anchor_segment,
                                         NewlineSegment(),
-                                        SymbolSegment(
-                                            raw=";", type="symbol", name="semicolon"
-                                        ),
                                     ],
                                 ),
-                                LintFix.delete(
-                                    context.segment,
-                                ),
                             ]
-                        )
+                        else:
+                            fixes.extend(
+                                [
+                                    LintFix.replace(
+                                        anchor_segment,
+                                        [
+                                            anchor_segment,
+                                            NewlineSegment(),
+                                        ],
+                                    ),
+                                    LintFix.delete(
+                                        context.segment,
+                                    ),
+                                    LintFix.create_after(
+                                        save_memory["last_ended_statement"],
+                                        [
+                                            SymbolSegment(
+                                                raw=";", type="symbol", name="semicolon"
+                                            ),
+                                        ],
+                                    ),
+                                ]
+                            )
                         fixes.extend(LintFix.delete(d) for d in whitespace_deletions)
                     return LintResult(
                         anchor=anchor_segment,
@@ -248,23 +267,29 @@ class Rule_L052(BaseRule):
                         memory=memory,
                     )
 
+        # Locate the end of the statement or file.
+        end_of_file = self.is_final_segment(context)
+        end_of_statement = self.is_final_segment_of_types(context, ["statement"])
+        if end_of_statement:
+            assert memory["last_ended_statement"] is None
+            reversed_parent_stack = context.functional.parent_stack.reversed()
+            statement = reversed_parent_stack.first(sp.is_type("statement"))
+            statement_parent = reversed_parent_stack.select(start_seg=statement.get())
+            memory["last_ended_statement"] = statement.get()
+            memory["last_ended_statement_parent"] = statement_parent.get()
+
         # SQL does not require a final trailing semi-colon, however
         # this rule looks to enforce that it is there.
         if self.require_final_semicolon:
-            # Locate the end of the statement or file.
-            end_of_file = self.is_final_segment(context)
-            end_of_statement = self.is_final_segment_of_types(context, ["statement"])
-            if end_of_statement:  # and not end_of_file:
-                assert memory["last_ended_statement"] is None
-                memory["last_ended_statement"] = context.segment
-                if not end_of_file:
-                    return LintResult(memory=memory)
+            if end_of_statement and not end_of_file:
+                return LintResult(memory=memory)
             if not end_of_file:
                 if (
                     not memory["last_ended_statement"]
                     or not context.segment.is_raw()
                     or context.segment.is_meta
                     or context.segment.is_whitespace
+                    or context.segment.is_comment
                 ):
                     return LintResult(memory=memory)
 
@@ -292,16 +317,16 @@ class Rule_L052(BaseRule):
 
             semicolon_newline = self.multiline_newline if not is_one_line else False
 
-            memory["last_ended_statement"] = None
+            # import pdb; pdb.set_trace()
+            # memory["last_ended_statement"] = None
             if not semi_colon_exist_flag:
                 # Create the final semi-colon if it does not yet exist.
                 # Semi-colon on same line.
                 if not semicolon_newline:
                     fixes = [
-                        LintFix.replace(
-                            anchor_segment,
+                        LintFix.create_after(
+                            memory["last_ended_statement"],
                             [
-                                anchor_segment,
                                 SymbolSegment(raw=";", type="symbol", name="semicolon"),
                             ],
                         )
@@ -316,16 +341,32 @@ class Rule_L052(BaseRule):
                     ) = self._handle_preceding_inline_comments(
                         pre_semicolon_segments, anchor_segment
                     )
-                    fixes = [
-                        LintFix.replace(
-                            anchor_segment,
-                            [
+                    print("case 3")
+                    if anchor_segment.is_comment:
+                        fixes = [
+                            LintFix.replace(
                                 anchor_segment,
-                                NewlineSegment(),
-                                SymbolSegment(raw=";", type="symbol", name="semicolon"),
-                            ],
-                        )
-                    ]
+                                [
+                                    anchor_segment,
+                                    NewlineSegment(),
+                                    SymbolSegment(
+                                        raw=";", type="symbol", name="semicolon"
+                                    ),
+                                ],
+                            ),
+                        ]
+                    else:
+                        fixes = [
+                            LintFix.create_after(
+                                memory["last_ended_statement"],
+                                [
+                                    NewlineSegment(),
+                                    SymbolSegment(
+                                        raw=";", type="symbol", name="semicolon"
+                                    ),
+                                ],
+                            )
+                        ]
 
                 self.logger.info("Adding final semicolon for %r", anchor_segment)
                 return LintResult(
