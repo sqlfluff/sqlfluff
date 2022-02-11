@@ -1207,6 +1207,24 @@ class LimitClauseSegment(BaseSegment):
 
 
 @spark3_dialect.segment(replace=True)
+class SetOperatorSegment(BaseSegment):
+    """A set operator such as Union, Minus, Except or Intersect."""
+
+    type = "set_operator"
+    match_grammar = OneOf(
+        Sequence(
+            OneOf("EXCEPT", "MINUS"),
+            Ref.keyword("ALL", optional=True)
+        ),
+        Sequence(
+            OneOf("UNION", "INTERSECT"),
+            OneOf("DISTINCT", "ALL", optional=True)
+        ),
+        exclude=Sequence("EXCEPT", Bracketed(Anything())),
+    )
+
+
+@spark3_dialect.segment(replace=True)
 class SelectClauseModifierSegment(BaseSegment):
     """Things that come after SELECT but before the columns.
 
