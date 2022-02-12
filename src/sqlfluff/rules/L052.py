@@ -141,7 +141,15 @@ class Rule_L052(BaseRule):
         if context.segment.name == "semicolon":
             save_ended_statement: Optional[BaseSegment] = None
             if memory["ended_statements"]:
-                save_ended_statement = memory["ended_statements"].popleft()
+                # Assumption: Semicolons are at the same level of the parse
+                # tree as the statements they separate. Thus, a semicolon ends
+                # the last statement in siblings_pre.
+                save_ended_statement = (
+                    context.functional.siblings_pre.reversed()
+                    .first(sp.is_type("statement"))
+                    .get()
+                )
+                memory["ended_statements"].remove(save_ended_statement)
 
             # Locate semicolon and search back over the raw stack
             # to find the end of the preceding statement.
@@ -291,7 +299,8 @@ class Rule_L052(BaseRule):
             reversed_parent_stack = context.functional.parent_stack.reversed()
             statement = reversed_parent_stack.first(sp.is_type("statement"))
             memory["ended_statements"].append(statement.get())
-            if not end_of_file:
+            self.logger.debug("Statement ended: %r", statement.get())
+            if not end_of_file and len(memory["ended_statements"]) < 2:
                 return LintResult(memory=memory)
 
         # SQL does not require a final trailing semi-colon, however
