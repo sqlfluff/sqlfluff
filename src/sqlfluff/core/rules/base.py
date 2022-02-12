@@ -657,12 +657,13 @@ class BaseRule:
 
         return True
 
-    def is_final_segment_of_types(
+    def closing_ancestors(
         self, context: RuleContext, types: Iterable[str]
-    ) -> bool:
-        """Is the current segment the final segment in the parse tree."""
+    ) -> List[BaseSegment]:
+        """Returns ancestors of specified types closing at this segment."""
+        result: List[BaseSegment] = []
         if not self._is_final_segment_helper(context):
-            return False
+            return result
 
         # We know we are at a leaf of the tree but not necessarily at the end of the
         # tree. Therefore we look backwards up the parent stack and ask if any of
@@ -672,12 +673,12 @@ class BaseRule:
         for parent_segment in context.parent_stack[::-1]:
             possible_children = [s for s in parent_segment.segments if not s.is_meta]
             if len(possible_children) > possible_children.index(child_segment) + 1:
-                return False
+                return result
             elif parent_segment.is_type(*types):
-                return True
+                result.append(parent_segment)
             child_segment = parent_segment
 
-        return False
+        return result
 
     def _is_final_segment_helper(self, context: RuleContext):
         if len(self.filter_meta(context.siblings_post)) > 0:

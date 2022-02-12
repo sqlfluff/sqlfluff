@@ -132,19 +132,29 @@ class Rule_L052(BaseRule):
 
         memory = context.memory if context.memory else dict(ended_statements=deque())
 
+        closing_ancestors = self.closing_ancestors(context, ["statement"])
+        for closing_ancestor in closing_ancestors:
+            memory["ended_statements"].append(closing_ancestor)
+            self.logger.debug("Statement ended: %r", closing_ancestor)
+
         # First we can simply handle the case of existing semi-colon alignment.
         if context.segment.name == "semicolon":
-            save_ended_statement: Optional[BaseSegment] = None
+            save_ended_statement: Optional[BaseSegment]
             if memory["ended_statements"]:
-                # Assumption: Semicolons are at the same level of the parse
-                # tree as the statements they separate. Thus, a semicolon ends
-                # the last statement in siblings_pre.
-                save_ended_statement = (
-                    context.functional.siblings_pre.reversed()
-                    .first(sp.is_type("statement"))
-                    .get()
+                for search_base in [
+                    context.functional.siblings_pre,
+                    context.functional.parent_stack,
+                ]:
+                    save_ended_statement = (
+                        search_base.reversed().first(sp.is_type("statement")).get()
+                    )
+                    if save_ended_statement:
+                        memory["ended_statements"].remove(save_ended_statement)
+                        break
+            else:
+                self.logger.error(
+                    "Unable to identify statement terminated by %r", context.segment
                 )
-                memory["ended_statements"].remove(save_ended_statement)
 
             # Locate semicolon and search back over the raw stack
             # to find the end of the preceding statement.
@@ -289,12 +299,7 @@ class Rule_L052(BaseRule):
 
         # Determine if we're at the end of a statement or the entire file.
         end_of_file = self.is_final_segment(context)
-        end_of_statement = self.is_final_segment_of_types(context, ["statement"])
-        if end_of_statement:
-            reversed_parent_stack = context.functional.parent_stack.reversed()
-            statement = reversed_parent_stack.first(sp.is_type("statement"))
-            memory["ended_statements"].append(statement.get())
-            self.logger.debug("Statement ended: %r", statement.get())
+        if closing_ancestors:
             if not end_of_file and len(memory["ended_statements"]) < 2:
                 return LintResult(memory=memory)
 
