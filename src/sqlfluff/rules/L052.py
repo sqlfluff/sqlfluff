@@ -133,7 +133,6 @@ class Rule_L052(BaseRule):
         if not context.memory:
             memory: dict = {
                 "ended_statements": deque(),
-                "handled_statements": [],
             }
         else:
             memory = context.memory
@@ -143,7 +142,6 @@ class Rule_L052(BaseRule):
             save_ended_statement: Optional[BaseSegment] = None
             if memory["ended_statements"]:
                 save_ended_statement = memory["ended_statements"].popleft()
-                memory["handled_statements"].append(save_ended_statement)
 
             # Locate semicolon and search back over the raw stack
             # to find the end of the preceding statement.
@@ -293,6 +291,8 @@ class Rule_L052(BaseRule):
             reversed_parent_stack = context.functional.parent_stack.reversed()
             statement = reversed_parent_stack.first(sp.is_type("statement"))
             memory["ended_statements"].append(statement.get())
+            if not end_of_file:
+                return LintResult(memory=memory)
 
         # SQL does not require a final trailing semi-colon, however
         # this rule looks to enforce that it is there.
@@ -300,19 +300,11 @@ class Rule_L052(BaseRule):
             if not memory["ended_statements"]:
                 return LintResult(memory=memory)
 
-            if not end_of_file:
-                if (
-                    end_of_statement
-                    or memory["ended_statements"][-1] in memory["handled_statements"]
-                    or not context.segment.is_code
-                ):
-                    return LintResult(memory=memory)
+            if not (end_of_file or context.segment.is_code):
+                return LintResult(memory=memory)
 
-            assert not end_of_statement or end_of_file
-            assert context.segment.is_code or end_of_file
             save_ended_statement = memory["ended_statements"].popleft()
             assert save_ended_statement
-            memory["handled_statements"].append(save_ended_statement)
 
             # If we reach here, it's either:
             # - First non-whitespace segment after the end of a statement
