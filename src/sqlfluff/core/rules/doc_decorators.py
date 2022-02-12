@@ -14,7 +14,8 @@ def document_fix_compatible(cls):
     # then insert fix_compatible before the first occurrences.
     # We match `**Configuration**` here to make it work in all order of doc decorators
     pattern = re.compile(
-        "(\\s{4}\\*\\*Anti-pattern\\*\\*|\\s{4}\\.\\. note::|\\s{4}\\*\\*Configuration\\*\\*)",
+        "(\\s{4}\\*\\*Anti-pattern\\*\\*|\\s{4}\\.\\. note::|"
+        "\\s{4}\\*\\*Configuration\\*\\*)",
         flags=re.MULTILINE,
     )
     cls.__doc__ = pattern.sub(f"\n\n{FIX_COMPATIBLE}\n\n\\1", cls.__doc__, count=1)
