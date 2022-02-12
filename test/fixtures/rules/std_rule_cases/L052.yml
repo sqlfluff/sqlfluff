@@ -489,8 +489,8 @@ test_fail_tsql_semicolon_after_each_statement_1:
     ) RETURNS int
     AS
     BEGIN
-        IF 1 = 1 SET @result = 1;;
-        RETURN @result
+        IF 1 = 1 SET @result = 1;
+        RETURN @result;
     END;
   configs:
     core:
@@ -526,9 +526,9 @@ test_fail_tsql_semicolon_after_each_statement_2:
         ELSE
             BEGIN
                 SET @result = 0;
-            END;;
+            END;
 
-        RETURN @result
+        RETURN @result;
     END;
   configs:
     core:
