@@ -69,10 +69,15 @@ def document_configuration(cls, ruleset="std"):
         return cls
     # Add final blank line
     config_doc += "\n"
-    # Match `**Anti-pattern**`, then insert configuration before the first occurrences
-    pattern = re.compile("(\\s{4}\\*\\*Anti-pattern\\*\\*)", flags=re.MULTILINE)
 
-    cls.__doc__ = pattern.sub(f"\n{config_doc}\n\\1", cls.__doc__, count=1)
+    if "**Anti-pattern**" in cls.__doc__:
+        # Match `**Anti-pattern**`, then insert configuration before the first occurrences
+        pattern = re.compile("(\\s{4}\\*\\*Anti-pattern\\*\\*)", flags=re.MULTILINE)
+        cls.__doc__ = pattern.sub(f"\n{config_doc}\n\\1", cls.__doc__, count=1)
+    else:
+        # Match last `\n` or `.`, then append configuration
+        pattern = re.compile("(\\.|\\n)$", flags=re.MULTILINE)
+        cls.__doc__ = pattern.sub(f"\\1\n{config_doc}\n", cls.__doc__, count=1)
     return cls
 
 
