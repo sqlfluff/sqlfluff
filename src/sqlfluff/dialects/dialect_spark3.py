@@ -1212,14 +1212,8 @@ class SetOperatorSegment(BaseSegment):
 
     type = "set_operator"
     match_grammar = OneOf(
-        Sequence(
-            OneOf("EXCEPT", "MINUS"),
-            Ref.keyword("ALL", optional=True)
-        ),
-        Sequence(
-            OneOf("UNION", "INTERSECT"),
-            OneOf("DISTINCT", "ALL", optional=True)
-        ),
+        Sequence(OneOf("EXCEPT", "MINUS"), Ref.keyword("ALL", optional=True)),
+        Sequence(OneOf("UNION", "INTERSECT"), OneOf("DISTINCT", "ALL", optional=True)),
         exclude=Sequence("EXCEPT", Bracketed(Anything())),
     )
 
