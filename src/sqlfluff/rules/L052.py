@@ -130,12 +130,7 @@ class Rule_L052(BaseRule):
         self.multiline_newline: bool
         self.require_final_semicolon: bool
 
-        if not context.memory:
-            memory: dict = {
-                "ended_statements": deque(),
-            }
-        else:
-            memory = context.memory
+        memory = context.memory if context.memory else dict(ended_statements=deque())
 
         # First we can simply handle the case of existing semi-colon alignment.
         if context.segment.name == "semicolon":
@@ -306,10 +301,9 @@ class Rule_L052(BaseRule):
         # SQL does not require a final trailing semi-colon, however
         # this rule looks to enforce that it is there.
         if self.require_final_semicolon:
-            if not memory["ended_statements"]:
-                return LintResult(memory=memory)
-
-            if not (end_of_file or context.segment.is_code):
+            if not memory["ended_statements"] or not (
+                end_of_file or context.segment.is_code
+            ):
                 return LintResult(memory=memory)
 
             save_ended_statement = memory["ended_statements"].popleft()
@@ -318,9 +312,6 @@ class Rule_L052(BaseRule):
             # If we reach here, it's either:
             # - First non-whitespace segment after the end of a statement
             # - End of file
-            self.logger.info(
-                "Checking for semicolon after statement %r", save_ended_statement
-            )
             complete_stack: List[BaseSegment] = list(context.raw_stack)
             complete_stack.append(context.segment)
 
@@ -339,7 +330,6 @@ class Rule_L052(BaseRule):
                 elif not segment.is_meta:
                     pre_semicolon_segments.append(segment)
                 anchor_segment = segment
-            self.logger.info("semi_colon_exist_flag: %r", semi_colon_exist_flag)
 
             semicolon_newline = self.multiline_newline if not is_one_line else False
 
