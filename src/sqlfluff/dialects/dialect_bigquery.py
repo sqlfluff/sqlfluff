@@ -1048,15 +1048,8 @@ class UnpivotAliasExpressionSegment(BaseSegment):
     match_grammar = Sequence(
         Ref.keyword("AS", optional=True),
         OneOf(
-            Sequence(
-                Ref("SingleIdentifierGrammar"),
-                # Column alias in VALUES clause
-                Bracketed(Ref("SingleIdentifierListSegment"), optional=True),
-            ),
-            OneOf(
-                Ref("SingleQuotedLiteralSegment"),
-                Ref("DoubleQuotedLiteralSegment"),
-            ),
+            Ref("SingleQuotedLiteralSegment"),
+            Ref("DoubleQuotedLiteralSegment"),
         ),
     )
 
