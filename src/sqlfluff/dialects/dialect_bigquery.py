@@ -84,6 +84,13 @@ bigquery_dialect.add(
         type="literal",
         trim_chars=('"',),
     ),
+    SingleQuotedLiteralSegment=NamedParser(
+        "single_quote",
+        CodeSegment,
+        name="quoted_literal",
+        type="literal",
+        trim_chars=("'",),
+    ),
     DoubleQuotedUDFBody=NamedParser(
         "double_quote",
         CodeSegment,
@@ -1034,6 +1041,27 @@ class FromPivotExpressionSegment(BaseSegment):
 
 
 @bigquery_dialect.segment()
+class UnpivotAliasExpressionSegment(BaseSegment):
+    """In BigQuery UNPIVOT alias's can be single or double quoted."""
+
+    type = "alias_expression"
+    match_grammar = Sequence(
+        Ref.keyword("AS", optional=True),
+        OneOf(
+            Sequence(
+                Ref("SingleIdentifierGrammar"),
+                # Column alias in VALUES clause
+                Bracketed(Ref("SingleIdentifierListSegment"), optional=True),
+            ),
+            OneOf(
+                Ref("SingleQuotedLiteralSegment"),
+                Ref("DoubleQuotedLiteralSegment"),
+            ),
+        ),
+    )
+
+
+@bigquery_dialect.segment()
 class FromUnpivotExpressionSegment(BaseSegment):
     """An UNPIVOT expression.
 
@@ -1056,7 +1084,8 @@ class FromUnpivotExpressionSegment(BaseSegment):
                 "IN",
                 Bracketed(
                     Delimited(Ref("SingleIdentifierGrammar")),
-                    Ref("AliasExpressionSegment", optional=True),
+                    Ref("UnpivotAliasExpressionSegment", optional=True),
+                    # Ref("AliasExpressionSegment", optional=True),
                 ),
             ),
             Bracketed(
@@ -1078,7 +1107,8 @@ class FromUnpivotExpressionSegment(BaseSegment):
                                     min_delimiters=1,
                                 ),
                             ),
-                            Ref("AliasExpressionSegment", optional=True),
+                            Ref("UnpivotAliasExpressionSegment", optional=True),
+                            # Ref("AliasExpressionSegment", optional=True),
                         ),
                     ),
                 ),
