@@ -1022,8 +1022,12 @@ class FromPivotExpressionSegment(BaseSegment):
     parse_grammar = Sequence(
         "PIVOT",
         Bracketed(
-            Ref("FunctionSegment"),
-            Ref("AliasExpressionSegment", optional=True),
+            Delimited(
+                Sequence(
+                    Ref("FunctionSegment"),
+                    Ref("AliasExpressionSegment", optional=True),
+                ),
+            ),
             "FOR",
             Ref("SingleIdentifierGrammar"),
             "IN",
@@ -1033,7 +1037,6 @@ class FromPivotExpressionSegment(BaseSegment):
                         Ref("LiteralGrammar"),
                         Ref("AliasExpressionSegment", optional=True),
                     ),
-                    delimiter=Ref("CommaSegment"),
                 )
             ),
         ),
