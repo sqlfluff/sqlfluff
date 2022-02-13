@@ -506,7 +506,7 @@ def lint(
 
     """
     config = get_config(extra_config_path, ignore_local_config, **kwargs)
-    non_human_output = (format != FormatType.human.value) or write_output
+    non_human_output = (format != FormatType.human.value) or (write_output is not None)
     file_output = None
     lnt, formatter = get_linter_and_formatter(config, silent=non_human_output)
 
@@ -938,7 +938,7 @@ def parse(
     c = get_config(extra_config_path, ignore_local_config, **kwargs)
     # We don't want anything else to be logged if we want json or yaml output
     # unless we're writing to a file.
-    non_human_output = (format != FormatType.human.value) or write_output
+    non_human_output = (format != FormatType.human.value) or (write_output is not None)
     file_output = None
     lnt, formatter = get_linter_and_formatter(c, silent=non_human_output)
     verbose = c.get("verbose")
