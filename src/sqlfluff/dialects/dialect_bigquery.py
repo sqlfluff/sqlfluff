@@ -1081,7 +1081,6 @@ class FromUnpivotExpressionSegment(BaseSegment):
                 Bracketed(
                     Delimited(Ref("SingleIdentifierGrammar")),
                     Ref("UnpivotAliasExpressionSegment", optional=True),
-                    # Ref("AliasExpressionSegment", optional=True),
                 ),
             ),
             Bracketed(
