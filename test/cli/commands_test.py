@@ -798,19 +798,35 @@ def test__cli__command__fix_no_force(rule, fname, prompt, exit_code, fix_exit_co
 
 
 @pytest.mark.parametrize("serialize", ["yaml", "json"])
-def test__cli__command_parse_serialize_from_stdin(serialize):
+@pytest.mark.parametrize("write_file", [None, "outfile"])
+def test__cli__command_parse_serialize_from_stdin(serialize, write_file, tmp_path):
     """Check that the parser serialized output option is working.
+
+    This tests both output to stdout and output to file.
 
     Not going to test for the content of the output as that is subject to change.
     """
+    cmd_args = ("-", "--format", serialize)
+
+    if write_file:
+        target_file = os.path.join(tmp_path, write_file + "." + serialize)
+        cmd_args += ("--write-output", target_file)
+
     result = invoke_assert_code(
-        args=[parse, ("-", "--format", serialize)],
+        args=[parse, cmd_args],
         cli_input="select * from tbl",
     )
+
+    if write_file:
+        with open(target_file, "r") as payload_file:
+            result_payload = payload_file.read()
+    else:
+        result_payload = result.output
+
     if serialize == "json":
-        result = json.loads(result.output)
+        result = json.loads(result_payload)
     elif serialize == "yaml":
-        result = yaml.safe_load(result.output)
+        result = yaml.safe_load(result_payload)
     else:
         raise Exception
     result = result[0]  # only one file
@@ -880,24 +896,42 @@ def test__cli__command_fail_nice_not_found(command):
 
 
 @pytest.mark.parametrize("serialize", ["yaml", "json", "github-annotation"])
-def test__cli__command_lint_serialize_multiple_files(serialize):
-    """Check the general format of JSON output for multiple files."""
+@pytest.mark.parametrize("write_file", [None, "outfile"])
+def test__cli__command_lint_serialize_multiple_files(serialize, write_file, tmp_path):
+    """Check the general format of JSON output for multiple files.
+
+    This tests runs both stdout checking and file checking.
+    """
     fpath = "test/fixtures/linter/indentation_errors.sql"
+
+    cmd_args = (fpath, fpath, "--format", serialize, "--disable_progress_bar")
+
+    if write_file:
+        target_file = os.path.join(
+            tmp_path, write_file + (".yaml" if serialize == "yaml" else ".json")
+        )
+        cmd_args += ("--write-output", target_file)
 
     # note the file is in here twice. two files = two payloads.
     result = invoke_assert_code(
-        args=[lint, (fpath, fpath, "--format", serialize, "--disable_progress_bar")],
+        args=[lint, cmd_args],
         ret_code=65,
     )
 
+    if write_file:
+        with open(target_file, "r") as payload_file:
+            result_payload = payload_file.read()
+    else:
+        result_payload = result.output
+
     if serialize == "json":
-        result = json.loads(result.output)
+        result = json.loads(result_payload)
         assert len(result) == 2
     elif serialize == "yaml":
-        result = yaml.safe_load(result.output)
+        result = yaml.safe_load(result_payload)
         assert len(result) == 2
     elif serialize == "github-annotation":
-        result = json.loads(result.output)
+        result = json.loads(result_payload)
         filepaths = {r["file"] for r in result}
         assert len(filepaths) == 1
     else:
