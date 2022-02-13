@@ -1103,7 +1103,6 @@ class FromUnpivotExpressionSegment(BaseSegment):
                                 ),
                             ),
                             Ref("UnpivotAliasExpressionSegment", optional=True),
-                            # Ref("AliasExpressionSegment", optional=True),
                         ),
                     ),
                 ),
