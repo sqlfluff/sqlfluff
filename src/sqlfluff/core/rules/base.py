@@ -665,10 +665,9 @@ class BaseRule:
         if not self._is_final_segment_helper(context):
             return result
 
-        # We know we are at a leaf of the tree but not necessarily at the end of the
-        # tree. Therefore we look backwards up the parent stack and ask if any of
-        # the parent segments have another non-meta child segment after the current
-        # one.
+        # Look backwards up the parent stack until we find a parent segment that has
+        # another non-meta child segment after the current one, returning a list of
+        # matching "type" segments we encounter along the way.
         child_segment = context.segment
         for parent_segment in context.parent_stack[::-1]:
             possible_children = [s for s in parent_segment.segments if not s.is_meta]
