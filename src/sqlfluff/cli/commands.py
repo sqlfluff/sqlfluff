@@ -568,7 +568,7 @@ def lint(
                         "annotation_level": annotation_level,
                     }
                 )
-        click.echo(json.dumps(github_result))
+        file_output = json.dumps(github_result)
 
     if file_output:
         # If there's a file specified to write to, write to it.
@@ -1008,7 +1008,7 @@ def parse(
                 file_output = yaml.dump(parsed_strings_dict, sort_keys=False)
             elif format == FormatType.json.value:
                 file_output = json.dumps(parsed_strings_dict)
-        
+
         if file_output:
             # If there's a file specified to write to, write to it.
             if write_output:
