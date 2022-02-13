@@ -339,9 +339,8 @@ class Rule_L052(BaseRule):
             semicolon_newline = self.multiline_newline if not is_one_line else False
 
             # Create the final semi-colon if it does not yet exist.
-            if (
-                not semi_colon_exist_flag
-                and not save_ended_statement
+            if not semi_colon_exist_flag and (
+                not save_ended_statement
                 or not save_ended_statement.segments[0].is_type(
                     "if_then_statement", "begin_end_block"
                 )
