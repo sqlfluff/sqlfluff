@@ -430,6 +430,14 @@ def dialects(**kwargs) -> None:
     help="What format to return the lint result in (default=human).",
 )
 @click.option(
+    "--write-output",
+    help=(
+        "Optionally provide a filename to write the results to, mostly used in "
+        "tandem with --format. NB: Setting an output file re-enables normal "
+        "stdout logging."
+    ),
+)
+@click.option(
     "--annotation-level",
     default="notice",
     type=click.Choice(["notice", "warning", "failure"], case_sensitive=False),
@@ -468,6 +476,7 @@ def lint(
     paths: Tuple[str],
     processes: int,
     format: str,
+    write_output: Optional[str],
     annotation_level: str,
     nofail: bool,
     disregard_sqlfluffignores: bool,
@@ -497,7 +506,8 @@ def lint(
 
     """
     config = get_config(extra_config_path, ignore_local_config, **kwargs)
-    non_human_output = format != FormatType.human.value
+    non_human_output = (format != FormatType.human.value) or write_output
+    file_output = None
     lnt, formatter = get_linter_and_formatter(config, silent=non_human_output)
 
     verbose = config.get("verbose")
@@ -535,9 +545,9 @@ def lint(
             click.echo(format_linting_stats(result, verbose=verbose))
 
     if format == FormatType.json.value:
-        click.echo(json.dumps(result.as_records()))
+        file_output = json.dumps(result.as_records())
     elif format == FormatType.yaml.value:
-        click.echo(yaml.dump(result.as_records(), sort_keys=False))
+        file_output = yaml.dump(result.as_records(), sort_keys=False)
     elif format == FormatType.github_annotation.value:
         github_result = []
         for record in result.as_records():
@@ -559,6 +569,15 @@ def lint(
                     }
                 )
         click.echo(json.dumps(github_result))
+
+    if file_output:
+        # If there's a file specified to write to, write to it.
+        if write_output:
+            with open(write_output, "w") as out_file:
+                out_file.write(file_output)
+        # Otherwise write to stdout
+        else:
+            click.echo(file_output)
 
     if bench:
         click.echo("==== overall timings ====")
@@ -877,6 +896,14 @@ def quoted_presenter(dumper, data):
     help="What format to return the parse result in.",
 )
 @click.option(
+    "--write-output",
+    help=(
+        "Optionally provide a filename to write the results to, mostly used in "
+        "tandem with --format. NB: Setting an output file re-enables normal "
+        "stdout logging."
+    ),
+)
+@click.option(
     "--profiler", is_flag=True, help="Set this flag to engage the python profiler."
 )
 @click.option(
@@ -892,6 +919,7 @@ def parse(
     code_only: bool,
     include_meta: bool,
     format: str,
+    write_output: Optional[str],
     profiler: bool,
     bench: bool,
     nofail: bool,
@@ -909,7 +937,9 @@ def parse(
     """
     c = get_config(extra_config_path, ignore_local_config, **kwargs)
     # We don't want anything else to be logged if we want json or yaml output
-    non_human_output = format in (FormatType.json.value, FormatType.yaml.value)
+    # unless we're writing to a file.
+    non_human_output = (format != FormatType.human.value) or write_output
+    file_output = None
     lnt, formatter = get_linter_and_formatter(c, silent=non_human_output)
     verbose = c.get("verbose")
     recurse = c.get("recurse")
@@ -975,9 +1005,18 @@ def parse(
                 # For yaml dumping always dump double quoted strings if they contain
                 # tabs or newlines.
                 yaml.add_representer(str, quoted_presenter)
-                click.echo(yaml.dump(parsed_strings_dict, sort_keys=False))
+                file_output = yaml.dump(parsed_strings_dict, sort_keys=False)
             elif format == FormatType.json.value:
-                click.echo(json.dumps(parsed_strings_dict))
+                file_output = json.dumps(parsed_strings_dict)
+        
+        if file_output:
+            # If there's a file specified to write to, write to it.
+            if write_output:
+                with open(write_output, "w") as out_file:
+                    out_file.write(file_output)
+            # Otherwise write to stdout
+            else:
+                click.echo(file_output)
 
     except OSError:  # pragma: no cover
         click.echo(
