@@ -21,6 +21,9 @@ from click.testing import CliRunner
 # We import the library directly here to get the version
 import sqlfluff
 from sqlfluff.cli.commands import lint, version, rules, fix, parse, dialects, get_config
+from sqlfluff.core.errors import SQLLintError
+from sqlfluff.core.rules.base import BaseRule, LintFix
+from sqlfluff.core.parser.segments.raw import CommentSegment
 
 
 def invoke_assert_code(
@@ -668,6 +671,62 @@ def test__cli__fix_error_handling_behavior(sql, fix_args, fixed, exit_code, tmpd
             # fixes for this file. To confirm this, we verify that the output
             # file WAS NOT EVEN CREATED.
             assert not fixed_path.is_file()
+
+
+_old_crawl = BaseRule.crawl
+_fix_counter = 0
+
+
+def _mock_crawl(rule, segment, *args, **kwargs):
+    # For test__cli__fix_loop_limit_behavior, we mock BaseRule.crawl(),
+    # replacing it with this function. This function generates an infinite
+    # sequence of fixes without ever repeating the same fix. This causes the
+    # linter to hit the loop limit, allowing us to test that behavior.
+    if segment.is_type("comment"):
+        global _fix_counter
+        _fix_counter += 1
+        fixes = [
+            LintFix.replace(segment, [CommentSegment(f"-- Comment {_fix_counter}")])
+        ]
+        return (
+            [
+                SQLLintError(
+                    segment=segment,
+                    rule=rule,
+                    fixes=fixes,
+                    description="Dummy description",
+                )
+            ],
+            None,
+            fixes,
+            None,
+        )
+    else:
+        return _old_crawl(rule, segment, *args, **kwargs)
+
+
+@patch("sqlfluff.core.rules.base.BaseRule.crawl", _mock_crawl)
+def test__cli__fix_loop_limit_behavior(tmpdir):
+    """Tests how "fix" behaves when the loop limit is exceeded."""
+    sql = "-- Comment A\nSELECT 1 FROM foo"
+    fix_args = ["--force", "--fixed-suffix", "FIXED", "--rules", "L001"]
+    exit_code = 1
+    tmp_path = pathlib.Path(str(tmpdir))
+    filepath = tmp_path / "testing.sql"
+    filepath.write_text(textwrap.dedent(sql))
+    with tmpdir.as_cwd():
+        with pytest.raises(SystemExit) as e:
+            fix(
+                fix_args
+                + [
+                    "-f",
+                ]
+            )
+        assert exit_code == e.value.code
+    # Hitting the loop limit is an error, so not output file should have been
+    # created.
+    fixed_path = tmp_path / "testingFIXED.sql"
+    assert not fixed_path.is_file()
 
 
 # Test case disabled because there isn't a good example of where to test this.
