@@ -12,6 +12,7 @@ from typing import (
     NoReturn,
     Optional,
     List,
+    cast
 )
 
 import yaml
@@ -418,11 +419,11 @@ def dialects(**kwargs) -> None:
     click.echo(format_dialects(dialect_readout), color=c.get("color"))
 
 
-def dump_file_payload(out_file: Optional[str], payload: str):
+def dump_file_payload(filename: Optional[str], payload: str):
     """Write the output file content to stdout or file."""
     # If there's a file specified to write to, write to it.
-    if out_file:
-        with open(out_file, "w") as out_file:
+    if filename:
+        with open(filename, "w") as out_file:
             out_file.write(payload)
     # Otherwise write to stdout
     else:
@@ -582,7 +583,7 @@ def lint(
         file_output = json.dumps(github_result)
 
     if file_output:
-        dump_file_payload(write_output, file_output)
+        dump_file_payload(write_output, cast(str, file_output))
 
     if bench:
         click.echo("==== overall timings ====")
@@ -944,7 +945,6 @@ def parse(
     # We don't want anything else to be logged if we want json or yaml output
     # unless we're writing to a file.
     non_human_output = (format != FormatType.human.value) or (write_output is not None)
-    file_output = None
     lnt, formatter = get_linter_and_formatter(c, silent=non_human_output)
     verbose = c.get("verbose")
     recurse = c.get("recurse")
