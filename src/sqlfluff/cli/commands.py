@@ -6,14 +6,7 @@ import json
 import logging
 import time
 from logging import LogRecord
-from typing import (
-    Callable,
-    Tuple,
-    NoReturn,
-    Optional,
-    List,
-    cast
-)
+from typing import Callable, Tuple, NoReturn, Optional, List, cast
 
 import yaml
 
