@@ -1211,6 +1211,7 @@ class SetOperatorSegment(BaseSegment):
     """A set operator such as Union, Minus, Except or Intersect."""
 
     type = "set_operator"
+    # https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-setops.html
     match_grammar = OneOf(
         Sequence(OneOf("EXCEPT", "MINUS"), Ref.keyword("ALL", optional=True)),
         Sequence(OneOf("UNION", "INTERSECT"), OneOf("DISTINCT", "ALL", optional=True)),
