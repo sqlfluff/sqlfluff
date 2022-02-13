@@ -240,3 +240,11 @@ test_pass_datetime_redshift:
   configs:
     core:
       dialect: redshift
+
+test_pass_quoted_identifier_keyword_tsql:
+  pass_str: |
+    SET QUOTED_IDENTIFIER ON
+    GO
+  configs:
+    core:
+      dialect: tsql
