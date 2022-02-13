@@ -484,7 +484,7 @@ class Linter:
             ignore_buff = []
 
         save_tree = tree
-        for loop in range(loop_limit + 1):
+        for loop in range(loop_limit):
             changed = False
 
             progress_bar_crawler = tqdm(
