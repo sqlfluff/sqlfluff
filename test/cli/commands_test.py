@@ -806,7 +806,6 @@ def test__cli__command_parse_serialize_from_stdin(serialize, write_file, tmp_pat
 
     Not going to test for the content of the output as that is subject to change.
     """
-
     cmd_args = ("-", "--format", serialize)
 
     if write_file:
