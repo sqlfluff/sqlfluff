@@ -483,6 +483,7 @@ class Linter:
         else:
             ignore_buff = []
 
+        save_tree = tree
         for loop in range(loop_limit):
             changed = False
 
@@ -542,8 +543,27 @@ class Linter:
                     "loops."
                 )
                 break
-        if fix and loop + 1 == loop_limit:
-            linter_logger.warning(f"Loop limit on fixes reached [{loop_limit}].")
+        else:
+            if fix:
+                # The linter loop hit the limit before reaching a stable point
+                # (i.e. free of lint errors). If this happens, it's usually
+                # because one or more rules produced fixes which did not address
+                # the original issue **or** created new issues.
+                linter_logger.warning(f"Loop limit on fixes reached [{loop_limit}].")
+
+                # Discard any fixes for the linting errors, since they caused a
+                # loop. IMPORTANT: Unfixable linting errors also cause
+                # "sqlfluff fix" to exit with a "failure" exit code, which is
+                # the desired outcome in this situation.
+                for violation in initial_linting_errors:
+                    if isinstance(violation, SQLLintError):
+                        violation.fixes = []
+
+                # Return the original file. We do this because if the linter
+                # hit the loop limit, the file is probably messy, e.g. some of
+                # the fixes were applied repeatedly, possibly other strange
+                # things. We don't want the user to see this junk.
+                return save_tree, initial_linting_errors, ignore_buff
 
         if config.get("ignore_templated_areas", default=True):
             initial_linting_errors = cls.remove_templated_errors(initial_linting_errors)
@@ -987,7 +1007,7 @@ class Linter:
         for i, linted_file in enumerate(runner.run(fnames, fix), start=1):
             linted_path.add(linted_file)
             # If any fatal errors, then stop iteration.
-            if any(v.fatal for v in linted_file.violations):  # pragma: no cover
+            if any(v.fatal for v in linted_file.violations):
                 linter_logger.error("Fatal linting error. Halting further linting.")
                 break
 
