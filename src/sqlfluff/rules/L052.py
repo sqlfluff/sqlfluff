@@ -139,7 +139,7 @@ class Rule_L052(BaseRule):
 
         # First we can simply handle the case of existing semi-colon alignment.
         if context.segment.name == "semicolon":
-            save_ended_statement: Optional[BaseSegment]
+            save_ended_statement: Optional[BaseSegment] = None
             if memory["ended_statements"]:
                 for search_base in [
                     context.functional.siblings_pre,
@@ -339,7 +339,13 @@ class Rule_L052(BaseRule):
             semicolon_newline = self.multiline_newline if not is_one_line else False
 
             # Create the final semi-colon if it does not yet exist.
-            if not semi_colon_exist_flag:
+            if (
+                not semi_colon_exist_flag
+                and not save_ended_statement
+                or not save_ended_statement.segments[0].is_type(
+                    "if_then_statement", "begin_end_block"
+                )
+            ):
                 # Semi-colon on same line.
                 if not semicolon_newline:
                     self.logger.debug("case 5")
