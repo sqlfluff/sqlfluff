@@ -150,8 +150,8 @@ class Rule_L052(BaseRule):
                         try:
                             memory["ended_statements"].remove(save_ended_statement)
                             break
-                        except ValueError:
-                            pass  # pragma: no cover
+                        except ValueError:  # pragma: no cover
+                            pass
             else:
                 self.logger.error(
                     "Unable to identify statement terminated by %r", context.segment
