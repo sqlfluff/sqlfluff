@@ -639,6 +639,18 @@ class BaseRule:
         space = " "
         return space * self.tab_space_size if self.indent_unit == "space" else tab
 
+    def _is_final_segment_helper(self, context: RuleContext):
+        if len(self.filter_meta(context.siblings_post)) > 0:
+            # This can only fail on the last segment
+            return False
+        elif len(context.segment.segments) > 0:
+            # This can only fail on the last base segment
+            return False
+        elif context.segment.is_meta:
+            # We can't fail on a meta segment
+            return False
+        return True
+
     def is_final_segment(self, context: RuleContext) -> bool:
         """Is the current segment the final segment in the parse tree."""
         if not self._is_final_segment_helper(context):
@@ -678,18 +690,6 @@ class BaseRule:
             child_segment = parent_segment
 
         return result
-
-    def _is_final_segment_helper(self, context: RuleContext):
-        if len(self.filter_meta(context.siblings_post)) > 0:
-            # This can only fail on the last segment
-            return False
-        elif len(context.segment.segments) > 0:
-            # This can only fail on the last base segment
-            return False
-        elif context.segment.is_meta:
-            # We can't fail on a meta segment
-            return False
-        return True
 
     @staticmethod
     def filter_meta(segments, keep_meta=False):
