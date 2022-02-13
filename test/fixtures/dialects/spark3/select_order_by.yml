@@ -1,0 +1,138 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: e20c3956005c3f5d3531b6a94eb53befcc43323a6e87c64a4a72c9af4df3e63f
+file:
+- base:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            identifier: name
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: age
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: person
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          identifier: age
+- statement_terminator: ;
+- base:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            identifier: name
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: age
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: person
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          identifier: age
+      - keyword: NULLS
+      - keyword: LAST
+- statement_terminator: ;
+- base:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            identifier: name
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: age
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: person
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          identifier: age
+      - keyword: DESC
+- statement_terminator: ;
+- base:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            identifier: name
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: age
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: person
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          identifier: age
+      - keyword: DESC
+      - keyword: NULLS
+      - keyword: FIRST
+- statement_terminator: ;
+- base:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            identifier: name
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: age
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: person
+      orderby_clause:
+      - keyword: ORDER
+      - keyword: BY
+      - column_reference:
+          identifier: name
+      - keyword: ASC
+      - comma: ','
+      - column_reference:
+          identifier: age
+      - keyword: DESC
+- statement_terminator: ;
