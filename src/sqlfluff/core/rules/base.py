@@ -672,7 +672,10 @@ class BaseRule:
     def closing_ancestors(
         self, context: RuleContext, types: Iterable[str]
     ) -> List[BaseSegment]:
-        """Returns ancestors of specified types closing at this segment."""
+        """Returns ancestors of specified types closing at this segment.
+
+        Useful, for example, to find the statements ending at a segment.
+        """
         result: List[BaseSegment] = []
         if not self._is_final_segment_helper(context):
             return result

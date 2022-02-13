@@ -133,9 +133,7 @@ class Rule_L052(BaseRule):
         memory = context.memory if context.memory else dict(ended_statements=deque())
 
         closing_ancestors = self.closing_ancestors(context, ["statement"])
-        for closing_ancestor in closing_ancestors:
-            memory["ended_statements"].append(closing_ancestor)
-            self.logger.debug("Statement ended: %r", closing_ancestor)
+        memory["ended_statements"].extend(closing_ancestors)
 
         # First we can simply handle the case of existing semi-colon alignment.
         if context.segment.name == "semicolon":
