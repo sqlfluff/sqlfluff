@@ -147,8 +147,11 @@ class Rule_L052(BaseRule):
                         search_base.reversed().first(sp.is_type("statement")).get()
                     )
                     if save_ended_statement:
-                        memory["ended_statements"].remove(save_ended_statement)
-                        break
+                        try:
+                            memory["ended_statements"].remove(save_ended_statement)
+                            break
+                        except ValueError:
+                            pass  # pragma: no cover
             else:
                 self.logger.error(
                     "Unable to identify statement terminated by %r", context.segment
