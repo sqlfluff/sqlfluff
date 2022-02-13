@@ -13,3 +13,8 @@ SELECT * FROM
 SELECT * FROM
   (SELECT sales, quarter FROM Produce)
   PIVOT(SUM(sales) FOR quarter IN ('Q1', 'Q2', 'Q3'));
+
+SELECT * FROM
+  (SELECT sales, quarter FROM Produce)
+  PIVOT(SUM(sales), COUNT(sales) FOR quarter IN ('Q1', 'Q2', 'Q3'));
+
