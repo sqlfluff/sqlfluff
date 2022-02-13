@@ -253,3 +253,12 @@ test_pass_uppivot_bigquery:
   configs:
     core:
       dialect: bigquery
+
+test_pass_quoted_identifier_keyword_tsql:
+  pass_str: |
+    SET QUOTED_IDENTIFIER ON
+    GO
+  configs:
+    core:
+      dialect: tsql
+
