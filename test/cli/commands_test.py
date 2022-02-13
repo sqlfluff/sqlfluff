@@ -21,8 +21,7 @@ from click.testing import CliRunner
 # We import the library directly here to get the version
 import sqlfluff
 from sqlfluff.cli.commands import lint, version, rules, fix, parse, dialects, get_config
-from sqlfluff.core.errors import SQLLintError
-from sqlfluff.core.rules.base import BaseRule, LintFix
+from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult
 from sqlfluff.core.parser.segments.raw import CommentSegment
 
 
@@ -677,40 +676,42 @@ _old_crawl = BaseRule.crawl
 _fix_counter = 0
 
 
-def _mock_crawl(rule, segment, *args, **kwargs):
+def _mock_crawl(rule, segment, ignore_mask, templated_file=None, *args, **kwargs):
     # For test__cli__fix_loop_limit_behavior, we mock BaseRule.crawl(),
     # replacing it with this function. This function generates an infinite
     # sequence of fixes without ever repeating the same fix. This causes the
     # linter to hit the loop limit, allowing us to test that behavior.
-    if segment.is_type("comment"):
+    if segment.is_type("comment") and "Comment" in segment.raw:
         global _fix_counter
         _fix_counter += 1
-        fixes = [
-            LintFix.replace(segment, [CommentSegment(f"-- Comment {_fix_counter}")])
-        ]
+        fix = LintFix.replace(segment, [CommentSegment(f"-- Comment {_fix_counter}")])
+        result = LintResult(segment, fixes=[fix])
+        errors = []
+        fixes = []
+        rule._process_lint_result(result, templated_file, ignore_mask, errors, fixes)
         return (
-            [
-                SQLLintError(
-                    segment=segment,
-                    rule=rule,
-                    fixes=fixes,
-                    description="Dummy description",
-                )
-            ],
+            errors,
             None,
             fixes,
             None,
         )
     else:
-        return _old_crawl(rule, segment, *args, **kwargs)
+        return _old_crawl(
+            rule, segment, ignore_mask, templated_file=templated_file, *args, **kwargs
+        )
 
 
+@pytest.mark.parametrize(
+    "sql, exit_code",
+    [
+        ("-- Comment A\nSELECT 1 FROM foo", 1),
+        ("-- noqa: disable=all\n-- Comment A\nSELECT 1 FROM foo", 0),
+    ],
+)
 @patch("sqlfluff.core.rules.base.BaseRule.crawl", _mock_crawl)
-def test__cli__fix_loop_limit_behavior(tmpdir):
+def test__cli__fix_loop_limit_behavior(sql, exit_code, tmpdir):
     """Tests how "fix" behaves when the loop limit is exceeded."""
-    sql = "-- Comment A\nSELECT 1 FROM foo"
     fix_args = ["--force", "--fixed-suffix", "FIXED", "--rules", "L001"]
-    exit_code = 1
     tmp_path = pathlib.Path(str(tmpdir))
     filepath = tmp_path / "testing.sql"
     filepath.write_text(textwrap.dedent(sql))
@@ -723,8 +724,10 @@ def test__cli__fix_loop_limit_behavior(tmpdir):
                 ]
             )
         assert exit_code == e.value.code
-    # Hitting the loop limit is an error, so not output file should have been
+    # In both parametrized test cases, no output file should have been
     # created.
+    # - Case #1: Hitting the loop limit is an error
+    # - Case #2: "noqa" suppressed all lint errors, thus no fixes applied
     fixed_path = tmp_path / "testingFIXED.sql"
     assert not fixed_path.is_file()
 

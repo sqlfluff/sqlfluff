@@ -555,23 +555,8 @@ class BaseRule:
             )
             return vs, raw_stack, fixes, memory
 
-        new_lerrs = []
-        new_fixes = []
-
-        def _process_lint_result(res):
-            self.discard_unsafe_fixes(res, templated_file)
-            lerr = res.to_linting_error(rule=self)
-            ignored = False
-            if lerr:
-                if ignore_mask:
-                    filtered = LintedFile.ignore_masked_violations([lerr], ignore_mask)
-                    if not filtered:
-                        lerr = None
-                        ignored = True
-            if lerr:
-                new_lerrs.append(lerr)
-            if not ignored:
-                new_fixes.extend(res.fixes)
+        new_lerrs: List[SQLLintError] = []
+        new_fixes: List[LintFix] = []
 
         if res is None:
             # Assume this means no problems (also means no memory)
@@ -579,7 +564,9 @@ class BaseRule:
         elif isinstance(res, LintResult):
             # Extract any memory
             memory = res.memory
-            _process_lint_result(res)
+            self._process_lint_result(
+                res, templated_file, ignore_mask, new_lerrs, new_fixes
+            )
         elif isinstance(res, list) and all(
             isinstance(elem, LintResult) for elem in res
         ):
@@ -587,7 +574,9 @@ class BaseRule:
             # it was the last to be added
             memory = res[-1].memory
             for elem in res:
-                _process_lint_result(elem)
+                self._process_lint_result(
+                    elem, templated_file, ignore_mask, new_lerrs, new_fixes
+                )
         else:  # pragma: no cover
             raise TypeError(
                 "Got unexpected result [{!r}] back from linting rule: {!r}".format(
@@ -628,6 +617,23 @@ class BaseRule:
         return vs, raw_stack, fixes, memory
 
     # HELPER METHODS --------
+
+    def _process_lint_result(
+        self, res, templated_file, ignore_mask, new_lerrs, new_fixes
+    ):
+        self.discard_unsafe_fixes(res, templated_file)
+        lerr = res.to_linting_error(rule=self)
+        ignored = False
+        if lerr:
+            if ignore_mask:
+                filtered = LintedFile.ignore_masked_violations([lerr], ignore_mask)
+                if not filtered:
+                    lerr = None
+                    ignored = True
+        if lerr:
+            new_lerrs.append(lerr)
+        if not ignored:
+            new_fixes.extend(res.fixes)
 
     @cached_property
     def indent(self) -> str:
