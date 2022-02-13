@@ -1011,7 +1011,7 @@ class Linter:
         for i, linted_file in enumerate(runner.run(fnames, fix), start=1):
             linted_path.add(linted_file)
             # If any fatal errors, then stop iteration.
-            if any(v.fatal for v in linted_file.violations):
+            if any(v.fatal for v in linted_file.violations):  # pragma: no cover
                 linter_logger.error("Fatal linting error. Halting further linting.")
                 break
 
