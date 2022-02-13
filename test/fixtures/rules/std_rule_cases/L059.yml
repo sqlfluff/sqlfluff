@@ -261,4 +261,3 @@ test_pass_quoted_identifier_keyword_tsql:
   configs:
     core:
       dialect: tsql
-
