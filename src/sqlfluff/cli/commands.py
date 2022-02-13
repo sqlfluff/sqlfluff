@@ -418,6 +418,17 @@ def dialects(**kwargs) -> None:
     click.echo(format_dialects(dialect_readout), color=c.get("color"))
 
 
+def dump_file_payload(out_file: Optional[str], payload: str):
+    """Write the output file content to stdout or file."""
+    # If there's a file specified to write to, write to it.
+    if out_file:
+        with open(out_file, "w") as out_file:
+            out_file.write(payload)
+    # Otherwise write to stdout
+    else:
+        click.echo(payload)
+
+
 @cli.command()
 @common_options
 @core_options
@@ -571,13 +582,7 @@ def lint(
         file_output = json.dumps(github_result)
 
     if file_output:
-        # If there's a file specified to write to, write to it.
-        if write_output:
-            with open(write_output, "w") as out_file:
-                out_file.write(file_output)
-        # Otherwise write to stdout
-        else:
-            click.echo(file_output)
+        dump_file_payload(write_output, file_output)
 
     if bench:
         click.echo("==== overall timings ====")
@@ -1009,14 +1014,8 @@ def parse(
             elif format == FormatType.json.value:
                 file_output = json.dumps(parsed_strings_dict)
 
-        if file_output:
-            # If there's a file specified to write to, write to it.
-            if write_output:
-                with open(write_output, "w") as out_file:
-                    out_file.write(file_output)
-            # Otherwise write to stdout
-            else:
-                click.echo(file_output)
+            # Dump the output to stdout or to file as appropriate.
+            dump_file_payload(write_output, file_output)
 
     except OSError:  # pragma: no cover
         click.echo(
