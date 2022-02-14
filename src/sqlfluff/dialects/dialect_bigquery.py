@@ -84,6 +84,13 @@ bigquery_dialect.add(
         type="literal",
         trim_chars=('"',),
     ),
+    SingleQuotedLiteralSegment=NamedParser(
+        "single_quote",
+        CodeSegment,
+        name="quoted_literal",
+        type="literal",
+        trim_chars=("'",),
+    ),
     DoubleQuotedUDFBody=NamedParser(
         "double_quote",
         CodeSegment,
@@ -1015,8 +1022,12 @@ class FromPivotExpressionSegment(BaseSegment):
     parse_grammar = Sequence(
         "PIVOT",
         Bracketed(
-            Ref("FunctionSegment"),
-            Ref("AliasExpressionSegment", optional=True),
+            Delimited(
+                Sequence(
+                    Ref("FunctionSegment"),
+                    Ref("AliasExpressionSegment", optional=True),
+                ),
+            ),
             "FOR",
             Ref("SingleIdentifierGrammar"),
             "IN",
@@ -1026,9 +1037,22 @@ class FromPivotExpressionSegment(BaseSegment):
                         Ref("LiteralGrammar"),
                         Ref("AliasExpressionSegment", optional=True),
                     ),
-                    delimiter=Ref("CommaSegment"),
                 )
             ),
+        ),
+    )
+
+
+@bigquery_dialect.segment()
+class UnpivotAliasExpressionSegment(BaseSegment):
+    """In BigQuery UNPIVOT alias's can be single or double quoted."""
+
+    type = "alias_expression"
+    match_grammar = Sequence(
+        Ref.keyword("AS", optional=True),
+        OneOf(
+            Ref("SingleQuotedLiteralSegment"),
+            Ref("DoubleQuotedLiteralSegment"),
         ),
     )
 
@@ -1056,7 +1080,7 @@ class FromUnpivotExpressionSegment(BaseSegment):
                 "IN",
                 Bracketed(
                     Delimited(Ref("SingleIdentifierGrammar")),
-                    Ref("AliasExpressionSegment", optional=True),
+                    Ref("UnpivotAliasExpressionSegment", optional=True),
                 ),
             ),
             Bracketed(
@@ -1078,7 +1102,7 @@ class FromUnpivotExpressionSegment(BaseSegment):
                                     min_delimiters=1,
                                 ),
                             ),
-                            Ref("AliasExpressionSegment", optional=True),
+                            Ref("UnpivotAliasExpressionSegment", optional=True),
                         ),
                     ),
                 ),
