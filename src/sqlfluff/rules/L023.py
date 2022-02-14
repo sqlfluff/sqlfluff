@@ -41,7 +41,7 @@ class Rule_L023(BaseRule):
     expected_mother_segment_type = "with_compound_statement"
     pre_segment_identifier = ("name", "as")
     post_segment_identifier = ("type", "bracketed")
-    allow_newline = False
+    allow_newline = False  # hard-coded, could be configurable
     expand_children: Optional[List[str]] = ["common_table_expression"]
 
     def _eval(self, context: RuleContext) -> Optional[List[LintResult]]:
@@ -67,9 +67,16 @@ class Rule_L023(BaseRule):
                             self.allow_newline
                             and any(s.name == "newline" for s in mid_segs)
                         ):
-                            if not raw_inner:
-                                # There's nothing between. Just add a whitespace
-                                fixes = [
+                            if not raw_inner.strip():
+                                # There's some whitespace and/or newlines, or nothing
+                                fixes = []
+                                if raw_inner:
+                                    # There's whitespace and/or newlines. Drop those.
+                                    fixes += [
+                                        LintFix.delete(mid_seg) for mid_seg in mid_segs
+                                    ]
+                                # Enforce a single space
+                                fixes += [
                                     LintFix.create_before(
                                         seg,
                                         [WhitespaceSegment()],
@@ -77,6 +84,9 @@ class Rule_L023(BaseRule):
                                 ]
                             else:
                                 # Don't otherwise suggest a fix for now.
+                                # Only whitespace & newlines are covered.
+                                # At least a comment section between `AS` and `(` can
+                                # result in an unfixable error.
                                 # TODO: Enable more complex fixing here.
                                 fixes = None  # pragma: no cover
                             error_buffer.append(
