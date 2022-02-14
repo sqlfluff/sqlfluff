@@ -195,7 +195,7 @@ test_pass_join_on_expression_in_parentheses:
     INNER JOIN table2 AS tbl2 ON (tbl2.col2 = tbl1.col2)
     INNER JOIN table3 AS tbl3 ON (tbl3.col3 = tbl2.col3)
 
-test_pass_qualify_clause:
+test_pass_bigquery_qualify_clause:
   pass_str: |
     SELECT *
     FROM
