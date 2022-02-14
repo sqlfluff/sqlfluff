@@ -80,6 +80,8 @@ indented_comments:
 
 
 indented_comments_default_config:
+  # TODO partial fix - this requires some more attention
+  #  Not visible to bare eye but here tab indent is replaced with spaces
   fail_str: |
     SELECT
     	a,			-- Some comment
@@ -107,6 +109,8 @@ indented_comments_default_config:
 
 
 indented_comments_tab_config:
+  # TODO partial fix - this requires some more attention
+  #  Not visible to bare eye but here spaces indent is replaced with tab
   fail_str: |
     SELECT
         a,         -- Some comment
