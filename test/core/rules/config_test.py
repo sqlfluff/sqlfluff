@@ -56,9 +56,8 @@ def test__rules__runaway_fail_catch():
     # In theory this step should result in an infinite
     # loop, but the loop limit should catch it.
     linted = linter.lint_string(my_query, fix=True)
-    # We should have a lot of newlines in there.
-    # The number should equal the runaway limit
-    assert linted.tree.raw.count("\n") == runaway_limit
+    # When the linter hits the runaway limit, it returns the original SQL tree.
+    assert linted.tree.raw == my_query
 
 
 def test_rules_cannot_be_instantiated_without_declared_configs():
