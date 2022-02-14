@@ -48,7 +48,8 @@ body:
       description: >
         What should we do to reproduce the problem?
       placeholder: >
-        Please make sure you provide a reproducible step-by-step case of how to reproduce the problem
+        Please make sure you provide a reproducible step-by-step case of how to reproduce the problem,
+        including the exact command(s) you ran as well as the .sql file. 
         as minimally and precisely as possible. Keep in mind we do not have access to your deployment.
         If the issue requires more than two files (i.e. .sql file and .sqlfluff files) to reproduce, please
         consider providing a GitHub repo instead. Remember that non-reproducible issues will be closed!
