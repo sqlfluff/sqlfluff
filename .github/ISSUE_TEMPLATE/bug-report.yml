@@ -11,7 +11,7 @@ body:
         whether the same issue was reported already.
       options:
         - label: >
-            I had searched in the [issues](https://github.com/sqlfluff/sqlfluff/issues) and found
+            I searched the [issues](https://github.com/sqlfluff/sqlfluff/issues) and found
             no similar issues.
           required: true
 
