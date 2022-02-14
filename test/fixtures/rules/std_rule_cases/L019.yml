@@ -230,10 +230,10 @@ trailing_comma_move_past_several_comment_lines:
     global_actions_states
   configs:
     core:
-      # Set runaway_limit=1 to verify the fix only requires one pass. In an
+      # Set runaway_limit=2 to verify the fix only requires one pass. In an
       # earlier version, the comma before "SAFE_DIVIDE()" was being moved one
       # line per pass. Too lazy!
-      runaway_limit: 1
+      runaway_limit: 2
 
 
 leading_comma_move_past_several_comment_lines:
@@ -267,10 +267,10 @@ leading_comma_move_past_several_comment_lines:
     global_actions_states
   configs:
     core:
-      # Set runaway_limit=1 to verify the fix only requires one pass. In an
+      # Set runaway_limit=2 to verify the fix only requires one pass. In an
       # earlier version for the trailing comma case, commas were being moved
       # "through" comment blocks one line per pass. Too lazy!
-      runaway_limit: 1
+      runaway_limit: 2
     rules:
       L019:
         comma_style: leading
