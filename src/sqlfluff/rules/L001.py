@@ -65,7 +65,7 @@ class Rule_L001(BaseRule):
                 # else, it's template code, so don't delete the whitespace because
                 # it's not REALLY trailing whitespace in terms of the raw source
                 # code.
-                if next_raw_slice[0].slice_type != "literal":
+                if next_raw_slice and next_raw_slice[0].slice_type != "literal":
                     return LintResult()
             return LintResult(
                 anchor=deletions[-1],
