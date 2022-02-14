@@ -69,7 +69,8 @@ body:
       description: Which SQLFluff version did you use?
       placeholder: >
         * Include the output of `sqlfluff --version` along with your Python version.
-        * If you are using dbt then please additionally include the dbt version.
+        * If you are using dbt, then please additionally include the sqlfluff-templater-dbt
+        and dbt package versions.
     validations:
       required: true
 
