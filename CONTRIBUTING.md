@@ -94,9 +94,11 @@ tox -e dbt021-py38 --devenv .venv
 source .venv/bin/activate
 ```
 (The `dbt021-py38` environment is a good default choice.
-However any version can be installed by replacing `dbt021-py38` with `py`, `py37`, `py39`, `dbt020-py38`, etc.
+However any version can be installed by replacing `dbt021-py38` with
+`py`, `py37`, `py39`, `dbt020-py38`, etc.
 `py` defaults to the python version that was used to install tox.
-However, to be able to run all tests including the dbt templater, choose one of the dbt environments.)
+However, to be able to run all tests including the dbt templater,
+choose one of the dbt environments.)
 
 Windows users should call `.venv\Scripts\activate` rather than `source .venv/bin/activate`.
 
