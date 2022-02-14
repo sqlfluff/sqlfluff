@@ -37,8 +37,8 @@ body:
       label: Observed Behaviour
       description: What is your observed behaviour
       placeholder: >
-        Please explain why you think the behaviour is erroneous. It is extremely helpful if you copy and paste
-        the fragment of logs showing the exact error messages.
+        Please explain what you observed, and why you think the behaviour is erroneous. It is extremely
+        helpful if you include SQL output and logging output with exact error messages, stack traces, etc.
     validations:
       required: true
 
