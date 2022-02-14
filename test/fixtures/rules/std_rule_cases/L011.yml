@@ -43,6 +43,7 @@ test_fail_implicit_alias_explicit:
         aliasing: explicit
 
 test_fail_implicit_alias_implicit:
+  # TODO partial fix - this requires some more attention
   # Test implicit
   fail_str: select foo.bar from (select 1 as bar) AS foo
   fix_str: select foo.bar from (select 1 as bar) foo
@@ -52,6 +53,7 @@ test_fail_implicit_alias_implicit:
         aliasing: implicit
 
 test_fail_implicit_alias_implicit_multiple:
+  # TODO partial fix - this requires some more attention
   # Test implicit with multiple tables
   fail_str: select foo.bar from (select 1 as bar) AS bar, (select 1 as foo) AS foo
   fix_str: select foo.bar from (select 1 as bar) bar, (select 1 as foo) foo
@@ -61,6 +63,7 @@ test_fail_implicit_alias_implicit_multiple:
         aliasing: implicit
 
 test_fail_implicit_alias_implicit_newline:
+  # TODO partial fix - this requires some more attention
   # Add whitespace when fixing implicit aliasing
   fail_str: |
       select foo.bar from (select 1 as bar)
