@@ -645,8 +645,7 @@ class BaseRule:
         space = " "
         return space * self.tab_space_size if self.indent_unit == "space" else tab
 
-    def is_final_segment(self, context: RuleContext) -> bool:
-        """Is the current segment the final segment in the parse tree."""
+    def _is_final_segment_helper(self, context: RuleContext):
         if len(self.filter_meta(context.siblings_post)) > 0:
             # This can only fail on the last segment
             return False
@@ -656,21 +655,50 @@ class BaseRule:
         elif context.segment.is_meta:
             # We can't fail on a meta segment
             return False
-        else:
-            # We know we are at a leaf of the tree but not necessarily at the end of the
-            # tree. Therefore we look backwards up the parent stack and ask if any of
-            # the parent segments have another non-meta child segment after the current
-            # one.
-            child_segment = context.segment
-            for parent_segment in context.parent_stack[::-1]:
-                possible_children = [
-                    s for s in parent_segment.segments if not s.is_meta
-                ]
-                if len(possible_children) > possible_children.index(child_segment) + 1:
-                    return False
-                child_segment = parent_segment
+        return True
+
+    def is_final_segment(self, context: RuleContext) -> bool:
+        """Is the current segment the final segment in the parse tree."""
+        if not self._is_final_segment_helper(context):
+            return False
+
+        # We know we are at a leaf of the tree but not necessarily at the end of the
+        # tree. Therefore we look backwards up the parent stack and ask if any of
+        # the parent segments have another non-meta child segment after the current
+        # one.
+        child_segment = context.segment
+        for parent_segment in context.parent_stack[::-1]:
+            possible_children = [s for s in parent_segment.segments if not s.is_meta]
+            if len(possible_children) > possible_children.index(child_segment) + 1:
+                return False
+            child_segment = parent_segment
 
         return True
+
+    def closing_ancestors(
+        self, context: RuleContext, types: Iterable[str]
+    ) -> List[BaseSegment]:
+        """Returns ancestors of specified types closing at this segment.
+
+        Useful, for example, to find the statements ending at a segment.
+        """
+        result: List[BaseSegment] = []
+        if not self._is_final_segment_helper(context):
+            return result
+
+        # Look backwards up the parent stack until we find a parent segment that has
+        # another non-meta child segment after the current one, returning a list of
+        # matching "type" segments we encounter along the way.
+        child_segment = context.segment
+        for parent_segment in context.parent_stack[::-1]:
+            possible_children = [s for s in parent_segment.segments if not s.is_meta]
+            if len(possible_children) > possible_children.index(child_segment) + 1:
+                return result
+            elif parent_segment.is_type(*types):
+                result.append(parent_segment)
+            child_segment = parent_segment
+
+        return result
 
     @staticmethod
     def filter_meta(segments, keep_meta=False):

@@ -464,3 +464,150 @@ test_fail_newline_create_table_inline_comment:
     rules:
       L052:
         multiline_newline: true
+
+test_pass_multiple_semicolons:
+  pass_str: |
+    SELECT foo FROM bar;;
+    SELECT foo FROM bar;
+    ;
+    ;
+    SELECT foo FROM bar;
+
+test_fail_tsql_semicolon_after_each_statement_1:
+  fail_str: |
+    CREATE FUNCTION dbo.funxn (
+        @incoming varchar(50)
+    ) RETURNS int
+    AS
+    BEGIN
+        IF 1 = 1 SET @result = 1
+        RETURN @result
+    END
+  fix_str: |
+    CREATE FUNCTION dbo.funxn (
+        @incoming varchar(50)
+    ) RETURNS int
+    AS
+    BEGIN
+        IF 1 = 1 SET @result = 1;
+        RETURN @result;
+    END;
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      L052:
+        require_final_semicolon: true
+
+test_fail_tsql_semicolon_after_each_statement_2:
+  fail_str: |
+    CREATE FUNCTION dbo.funxn (
+        @incoming varchar(50)
+    ) RETURNS int
+    AS
+    BEGIN
+        DECLARE @result int
+        IF 1 = 1 SET @result = 1
+        ELSE
+            BEGIN
+                SET @result = 0
+            END
+
+        RETURN @result
+    END
+  fix_str: |
+    CREATE FUNCTION dbo.funxn (
+        @incoming varchar(50)
+    ) RETURNS int
+    AS
+    BEGIN
+        DECLARE @result int;
+        IF 1 = 1 SET @result = 1;
+        ELSE
+            BEGIN
+                SET @result = 0;
+            END
+
+        RETURN @result;
+    END;
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      L052:
+        require_final_semicolon: true
+
+test_fail_tsql_semicolon_after_each_statement_3:
+  fail_str: |
+    CREATE FUNCTION dbo.funxn (
+        @incoming varchar(50)
+    ) RETURNS int
+    AS
+    BEGIN
+        DECLARE @result int
+        SET @result = 1
+    END
+  fix_str: |
+    CREATE FUNCTION dbo.funxn (
+        @incoming varchar(50)
+    ) RETURNS int
+    AS
+    BEGIN
+        DECLARE @result int;
+        SET @result = 1;
+    END;
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      L052:
+        require_final_semicolon: true
+
+test_fail_tsql_semicolon_after_each_statement_4:
+  fail_str: |
+    CREATE FUNCTION dbo.funxn (
+        @incoming varchar(50)
+    ) RETURNS int
+    AS
+    BEGIN
+        DECLARE @result int;
+        SET @result = 1
+    END;
+  fix_str: |
+    CREATE FUNCTION dbo.funxn (
+        @incoming varchar(50)
+    ) RETURNS int
+    AS
+    BEGIN
+        DECLARE @result int;
+        SET @result = 1;
+    END;
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      L052:
+        require_final_semicolon: true
+
+test_fail_tsql_no_semicolon_after_each_statement_2:
+  pass_str: |
+    CREATE FUNCTION dbo.funxn (
+        @incoming varchar(50)
+    ) RETURNS int
+    AS
+    BEGIN
+        DECLARE @result int
+        IF 1 = 1 SET @result = 1
+        ELSE
+            BEGIN
+                SET @result = 0
+            END
+
+        RETURN @result
+    END
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      L052:
+        require_final_semicolon: false
