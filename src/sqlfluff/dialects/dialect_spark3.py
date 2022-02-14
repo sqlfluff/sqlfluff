@@ -1208,14 +1208,26 @@ class LimitClauseSegment(BaseSegment):
 
 @spark3_dialect.segment(replace=True)
 class SetOperatorSegment(BaseSegment):
-    """A set operator such as Union, Minus, Except or Intersect."""
+    """A set operator such as Union, Minus, Except or Intersect.
+
+    Enhanced from ANSI dialect.
+    :: Spark allows the `ALL` keyword to follow Except and Minus.
+    :: Distinct allows the `DISTINCT` and `ALL` keywords.
+
+    # https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-setops.html
+    """
 
     type = "set_operator"
-    # https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-setops.html
+
     match_grammar = OneOf(
-        Sequence(OneOf("EXCEPT", "MINUS"), Ref.keyword("ALL", optional=True)),
-        Sequence(OneOf("UNION", "INTERSECT"), OneOf("DISTINCT", "ALL", optional=True)),
-        exclude=Sequence("EXCEPT", Bracketed(Anything())),
+        Sequence(
+            OneOf("EXCEPT", "MINUS"),
+            Ref.keyword("ALL", optional=True),
+        ),
+        Sequence(
+            OneOf("UNION", "INTERSECT"),
+            OneOf("DISTINCT", "ALL", optional=True),
+        ),
     )
 
 
