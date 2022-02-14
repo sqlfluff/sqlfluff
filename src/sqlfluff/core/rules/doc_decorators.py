@@ -2,6 +2,7 @@
 
 from sqlfluff.core.rules.config_info import get_config_info
 from sqlfluff.core.rules.base import rules_logger  # noqa
+import re
 
 
 FIX_COMPATIBLE = "    This rule is ``sqlfluff fix`` compatible."
@@ -9,7 +10,15 @@ FIX_COMPATIBLE = "    This rule is ``sqlfluff fix`` compatible."
 
 def document_fix_compatible(cls):
     """Mark the rule as fixable in the documentation."""
-    cls.__doc__ = cls.__doc__.replace("\n", f"\n\n{FIX_COMPATIBLE}\n\n", 1)
+    # Match `**Anti-pattern**`, `.. note::` and `**Configuration**`,
+    # then insert fix_compatible before the first occurrences.
+    # We match `**Configuration**` here to make it work in all order of doc decorators
+    pattern = re.compile(
+        "(\\s{4}\\*\\*Anti-pattern\\*\\*|\\s{4}\\.\\. note::|"
+        "\\s{4}\\*\\*Configuration\\*\\*)",
+        flags=re.MULTILINE,
+    )
+    cls.__doc__ = pattern.sub(f"\n\n{FIX_COMPATIBLE}\n\n\\1", cls.__doc__, count=1)
     return cls
 
 
@@ -60,12 +69,16 @@ def document_configuration(cls, ruleset="std"):
         return cls
     # Add final blank line
     config_doc += "\n"
-    # Add the configuration section immediately after the class description
-    # docstring by inserting after the first line break, or first period,
-    # if there is no line break.
-    end_of_class_description = "." if "\n" not in cls.__doc__ else "\n"
 
-    cls.__doc__ = cls.__doc__.replace(end_of_class_description, "\n" + config_doc, 1)
+    if "**Anti-pattern**" in cls.__doc__:
+        # Match `**Anti-pattern**`, then insert configuration before
+        # the first occurrences
+        pattern = re.compile("(\\s{4}\\*\\*Anti-pattern\\*\\*)", flags=re.MULTILINE)
+        cls.__doc__ = pattern.sub(f"\n{config_doc}\n\\1", cls.__doc__, count=1)
+    else:
+        # Match last `\n` or `.`, then append configuration
+        pattern = re.compile("(\\.|\\n)$", flags=re.MULTILINE)
+        cls.__doc__ = pattern.sub(f"\\1\n{config_doc}\n", cls.__doc__, count=1)
     return cls
 
 

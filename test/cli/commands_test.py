@@ -21,6 +21,8 @@ from click.testing import CliRunner
 # We import the library directly here to get the version
 import sqlfluff
 from sqlfluff.cli.commands import lint, version, rules, fix, parse, dialects, get_config
+from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult
+from sqlfluff.core.parser.segments.raw import CommentSegment
 
 
 def invoke_assert_code(
@@ -670,6 +672,66 @@ def test__cli__fix_error_handling_behavior(sql, fix_args, fixed, exit_code, tmpd
             assert not fixed_path.is_file()
 
 
+_old_crawl = BaseRule.crawl
+_fix_counter = 0
+
+
+def _mock_crawl(rule, segment, ignore_mask, templated_file=None, *args, **kwargs):
+    # For test__cli__fix_loop_limit_behavior, we mock BaseRule.crawl(),
+    # replacing it with this function. This function generates an infinite
+    # sequence of fixes without ever repeating the same fix. This causes the
+    # linter to hit the loop limit, allowing us to test that behavior.
+    if segment.is_type("comment") and "Comment" in segment.raw:
+        global _fix_counter
+        _fix_counter += 1
+        fix = LintFix.replace(segment, [CommentSegment(f"-- Comment {_fix_counter}")])
+        result = LintResult(segment, fixes=[fix])
+        errors = []
+        fixes = []
+        rule._process_lint_result(result, templated_file, ignore_mask, errors, fixes)
+        return (
+            errors,
+            None,
+            fixes,
+            None,
+        )
+    else:
+        return _old_crawl(
+            rule, segment, ignore_mask, templated_file=templated_file, *args, **kwargs
+        )
+
+
+@pytest.mark.parametrize(
+    "sql, exit_code",
+    [
+        ("-- Comment A\nSELECT 1 FROM foo", 1),
+        ("-- noqa: disable=all\n-- Comment A\nSELECT 1 FROM foo", 0),
+    ],
+)
+@patch("sqlfluff.core.rules.base.BaseRule.crawl", _mock_crawl)
+def test__cli__fix_loop_limit_behavior(sql, exit_code, tmpdir):
+    """Tests how "fix" behaves when the loop limit is exceeded."""
+    fix_args = ["--force", "--fixed-suffix", "FIXED", "--rules", "L001"]
+    tmp_path = pathlib.Path(str(tmpdir))
+    filepath = tmp_path / "testing.sql"
+    filepath.write_text(textwrap.dedent(sql))
+    with tmpdir.as_cwd():
+        with pytest.raises(SystemExit) as e:
+            fix(
+                fix_args
+                + [
+                    "-f",
+                ]
+            )
+        assert exit_code == e.value.code
+    # In both parametrized test cases, no output file should have been
+    # created.
+    # - Case #1: Hitting the loop limit is an error
+    # - Case #2: "noqa" suppressed all lint errors, thus no fixes applied
+    fixed_path = tmp_path / "testingFIXED.sql"
+    assert not fixed_path.is_file()
+
+
 # Test case disabled because there isn't a good example of where to test this.
 # This *should* test the case where a rule DOES have a proposed fix, but for
 # some reason when we try to apply it, there's a failure.
@@ -798,19 +860,35 @@ def test__cli__command__fix_no_force(rule, fname, prompt, exit_code, fix_exit_co
 
 
 @pytest.mark.parametrize("serialize", ["yaml", "json"])
-def test__cli__command_parse_serialize_from_stdin(serialize):
+@pytest.mark.parametrize("write_file", [None, "outfile"])
+def test__cli__command_parse_serialize_from_stdin(serialize, write_file, tmp_path):
     """Check that the parser serialized output option is working.
+
+    This tests both output to stdout and output to file.
 
     Not going to test for the content of the output as that is subject to change.
     """
+    cmd_args = ("-", "--format", serialize)
+
+    if write_file:
+        target_file = os.path.join(tmp_path, write_file + "." + serialize)
+        cmd_args += ("--write-output", target_file)
+
     result = invoke_assert_code(
-        args=[parse, ("-", "--format", serialize)],
+        args=[parse, cmd_args],
         cli_input="select * from tbl",
     )
+
+    if write_file:
+        with open(target_file, "r") as payload_file:
+            result_payload = payload_file.read()
+    else:
+        result_payload = result.output
+
     if serialize == "json":
-        result = json.loads(result.output)
+        result = json.loads(result_payload)
     elif serialize == "yaml":
-        result = yaml.safe_load(result.output)
+        result = yaml.safe_load(result_payload)
     else:
         raise Exception
     result = result[0]  # only one file
@@ -880,24 +958,42 @@ def test__cli__command_fail_nice_not_found(command):
 
 
 @pytest.mark.parametrize("serialize", ["yaml", "json", "github-annotation"])
-def test__cli__command_lint_serialize_multiple_files(serialize):
-    """Check the general format of JSON output for multiple files."""
+@pytest.mark.parametrize("write_file", [None, "outfile"])
+def test__cli__command_lint_serialize_multiple_files(serialize, write_file, tmp_path):
+    """Check the general format of JSON output for multiple files.
+
+    This tests runs both stdout checking and file checking.
+    """
     fpath = "test/fixtures/linter/indentation_errors.sql"
+
+    cmd_args = (fpath, fpath, "--format", serialize, "--disable_progress_bar")
+
+    if write_file:
+        target_file = os.path.join(
+            tmp_path, write_file + (".yaml" if serialize == "yaml" else ".json")
+        )
+        cmd_args += ("--write-output", target_file)
 
     # note the file is in here twice. two files = two payloads.
     result = invoke_assert_code(
-        args=[lint, (fpath, fpath, "--format", serialize, "--disable_progress_bar")],
+        args=[lint, cmd_args],
         ret_code=65,
     )
 
+    if write_file:
+        with open(target_file, "r") as payload_file:
+            result_payload = payload_file.read()
+    else:
+        result_payload = result.output
+
     if serialize == "json":
-        result = json.loads(result.output)
+        result = json.loads(result_payload)
         assert len(result) == 2
     elif serialize == "yaml":
-        result = yaml.safe_load(result.output)
+        result = yaml.safe_load(result_payload)
         assert len(result) == 2
     elif serialize == "github-annotation":
-        result = json.loads(result.output)
+        result = json.loads(result_payload)
         filepaths = {r["file"] for r in result}
         assert len(filepaths) == 1
     else:

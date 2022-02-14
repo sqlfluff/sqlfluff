@@ -84,7 +84,12 @@ class Rule_L059(BaseRule):
             identifier_contents = context.segment.raw[1:-1]
 
         # Ignore the segments that are not of the same type as the defined policy above.
-        if context.segment.name not in context_policy:
+        # Also TSQL has a keyword called QUOTED_IDENTIFIER which maps to the name so
+        # need to explicity check for that.
+        if (
+            context.segment.name not in context_policy
+            or context.segment.raw.lower() in ("quoted_identifier", "naked_identifier")
+        ):
             return None
 
         # Manage cases of identifiers must be quoted first.

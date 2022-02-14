@@ -483,6 +483,7 @@ class Linter:
         else:
             ignore_buff = []
 
+        save_tree = tree
         for loop in range(loop_limit):
             changed = False
 
@@ -542,8 +543,31 @@ class Linter:
                     "loops."
                 )
                 break
-        if fix and loop + 1 == loop_limit:
-            linter_logger.warning(f"Loop limit on fixes reached [{loop_limit}].")
+        else:
+            if fix:
+                # The linter loop hit the limit before reaching a stable point
+                # (i.e. free of lint errors). If this happens, it's usually
+                # because one or more rules produced fixes which did not address
+                # the original issue **or** created new issues.
+                linter_logger.warning(f"Loop limit on fixes reached [{loop_limit}].")
+
+                # Discard any fixes for the linting errors, since they caused a
+                # loop. IMPORTANT: By doing this, we are telling SQLFluff that
+                # these linting errors are "unfixable". This is important,
+                # because when "sqlfluff fix" encounters unfixable lint errors,
+                # it exits with a "failure" exit code, which is exactly what we
+                # want in this situation. (Reason: Although this is more of an
+                # internal SQLFluff issue, users deserve to know about it,
+                # because it means their file(s) weren't fixed.
+                for violation in initial_linting_errors:
+                    if isinstance(violation, SQLLintError):
+                        violation.fixes = []
+
+                # Return the original parse tree, before any fixes were applied.
+                # Reason: When the linter hits the loop limit, the file is often
+                # messy, e.g. some of the fixes were applied repeatedly, possibly
+                # other weird things. We don't want the user to see this junk!
+                return save_tree, initial_linting_errors, ignore_buff
 
         if config.get("ignore_templated_areas", default=True):
             initial_linting_errors = cls.remove_templated_errors(initial_linting_errors)
