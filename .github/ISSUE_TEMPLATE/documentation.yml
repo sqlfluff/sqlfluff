@@ -26,7 +26,7 @@ body:
   - type: textarea
     attributes:
       label: Issue/Suggested Improvement
-      description: The issue you found or the improvement you suggested.
+      description: The issue you found or the improvement you suggest.
     validations:
       required: true
 
