@@ -9,6 +9,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfluff/sqlfluff/releases) and will be copied in here on each release (please remember to update the issues and contributors to links!). There is no need to manually edit this file going forward.
 -->
 
+## [0.10.1] - 2022-02-14
+
+## What’s Changed
+
+* Ensure ordering of fix compatible and config in rules docs [#2620](https://github.com/sqlfluff/sqlfluff/pull/2620) [@zhongjiajie](https://github.com/zhongjiajie)
+* Pin python version for tox -e mypy [#2629](https://github.com/sqlfluff/sqlfluff/pull/2629) [@juhoautio](https://github.com/juhoautio)
+* Hitting the linter loop limit should be treated as an error [#2628](https://github.com/sqlfluff/sqlfluff/pull/2628) [@barrywhart](https://github.com/barrywhart)
+* Allow file output directly from cli [#2625](https://github.com/sqlfluff/sqlfluff/pull/2625) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* BigQuery UNPIVOT and PIVOT fixes [#2619](https://github.com/sqlfluff/sqlfluff/pull/2619) [@tunetheweb](https://github.com/tunetheweb)
+* L059 quoted identifiers bug [#2614](https://github.com/sqlfluff/sqlfluff/pull/2614) [@tunetheweb](https://github.com/tunetheweb)
+* Snowflake dialect: Adjust snowflake array access [#2621](https://github.com/sqlfluff/sqlfluff/pull/2621) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Spark3: Test Cases for `ORDER BY` in `SELECT` [#2618](https://github.com/sqlfluff/sqlfluff/pull/2618) [@R7L208](https://github.com/R7L208)
+* Fix typos in 0.10.0 changelog [#2605](https://github.com/sqlfluff/sqlfluff/pull/2605) [@tunetheweb](https://github.com/tunetheweb)
+* TSQL: Indent IF clause expression segments [#2615](https://github.com/sqlfluff/sqlfluff/pull/2615) [@jpers36](https://github.com/jpers36)
+* Spark3: Enhancements for `LIMIT` Clause [#2612](https://github.com/sqlfluff/sqlfluff/pull/2612) [@R7L208](https://github.com/R7L208)
+* Allow Bare Functions in column constraints [#2607](https://github.com/sqlfluff/sqlfluff/pull/2607) [@tunetheweb](https://github.com/tunetheweb)
+* Add Oracle at and double at sign (execution symbol) [#2608](https://github.com/sqlfluff/sqlfluff/pull/2608) [@r0fls](https://github.com/r0fls)
+* Spark3: Enhancements to 'LIKE' clause [#2604](https://github.com/sqlfluff/sqlfluff/pull/2604) [@R7L208](https://github.com/R7L208)
 
 ## [0.10.0] - 2022-02-10
 
