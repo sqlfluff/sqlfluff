@@ -28,7 +28,7 @@ body:
     attributes:
       label: Expected Behaviour
       description: What is your expected behaviour
-      placeholder: Please explain what is your think expected behaviour.
+      placeholder: Please explain what behaviour you expected.
     validations:
       required: true
 
