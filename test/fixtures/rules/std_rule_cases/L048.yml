@@ -34,7 +34,6 @@ test_pass_bigquery_udf_triple_single_quote:
    AS '''
    CODE GOES HERE
    ''';
-
   configs:
     core:
       dialect: bigquery
@@ -46,7 +45,6 @@ test_pass_bigquery_udf_triple_double_quote:
    AS """
    CODE GOES HERE
    """;
-
   configs:
     core:
       dialect: bigquery
@@ -60,7 +58,6 @@ test_fail_ansi_single_quote:
 
 test_pass_tsql_unicode_single_quote:
   pass_str: "SELECT a + N'b' + N'c' FROM tbl;"
-
   configs:
     core:
       dialect: tsql
@@ -68,7 +65,6 @@ test_pass_tsql_unicode_single_quote:
 test_fail_tsql_unicode_single_quote:
   fail_str: "SELECT a +N'b'+N'c' FROM tbl;"
   fix_str: "SELECT a + N'b' + N'c' FROM tbl;"
-
   configs:
     core:
       dialect: tsql
@@ -81,3 +77,17 @@ test_fail_ansi_unicode_single_quote:
 
 test_pass_casting_expression:
   pass_str: "SELECT my_date = '2022-01-01'::DATE AS is_current FROM t;"
+
+test_fail_teradata_casting_type1:
+  fail_str: "SELECT DATE'2007-01-01' AS the_date;"
+  fix_str: "SELECT DATE '2007-01-01' AS the_date;"
+  configs:
+    core:
+      dialect: teradata
+
+# This should really fail but currently L048 treats brackets same as whitespace
+test_pass_teradata_casting_type2:
+  pass_str: "SELECT '9999-12-31'(DATE);"
+  configs:
+    core:
+      dialect: teradata

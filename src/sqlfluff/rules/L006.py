@@ -162,7 +162,7 @@ class Rule_L006(BaseRule):
                         LintResult(
                             anchor=before_anchor,
                             description="Missing whitespace before {}".format(
-                                before_anchor.raw[:10]
+                                before_anchor.raw
                             ),
                             fixes=[
                                 LintFix.create_before(
