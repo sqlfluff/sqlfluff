@@ -588,3 +588,26 @@ test_fail_tsql_semicolon_after_each_statement_4:
     rules:
       L052:
         require_final_semicolon: true
+
+test_fail_tsql_no_semicolon_after_each_statement_2:
+  pass_str: |
+    CREATE FUNCTION dbo.funxn (
+        @incoming varchar(50)
+    ) RETURNS int
+    AS
+    BEGIN
+        DECLARE @result int
+        IF 1 = 1 SET @result = 1
+        ELSE
+            BEGIN
+                SET @result = 0
+            END
+
+        RETURN @result
+    END
+  configs:
+    core:
+      dialect: tsql
+    rules:
+      L052:
+        require_final_semicolon: false
