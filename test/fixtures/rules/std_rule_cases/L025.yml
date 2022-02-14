@@ -206,3 +206,6 @@ test_pass_qualify_clause:
         PARTITION BY tbl1.col1
         ORDER BY tbl2.col3
         ) = 1
+  configs:
+    core:
+      dialect: bigquery
