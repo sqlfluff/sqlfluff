@@ -21,6 +21,8 @@ from click.testing import CliRunner
 # We import the library directly here to get the version
 import sqlfluff
 from sqlfluff.cli.commands import lint, version, rules, fix, parse, dialects, get_config
+from sqlfluff.core.rules.base import BaseRule, LintFix, LintResult
+from sqlfluff.core.parser.segments.raw import CommentSegment
 
 
 def invoke_assert_code(
@@ -668,6 +670,66 @@ def test__cli__fix_error_handling_behavior(sql, fix_args, fixed, exit_code, tmpd
             # fixes for this file. To confirm this, we verify that the output
             # file WAS NOT EVEN CREATED.
             assert not fixed_path.is_file()
+
+
+_old_crawl = BaseRule.crawl
+_fix_counter = 0
+
+
+def _mock_crawl(rule, segment, ignore_mask, templated_file=None, *args, **kwargs):
+    # For test__cli__fix_loop_limit_behavior, we mock BaseRule.crawl(),
+    # replacing it with this function. This function generates an infinite
+    # sequence of fixes without ever repeating the same fix. This causes the
+    # linter to hit the loop limit, allowing us to test that behavior.
+    if segment.is_type("comment") and "Comment" in segment.raw:
+        global _fix_counter
+        _fix_counter += 1
+        fix = LintFix.replace(segment, [CommentSegment(f"-- Comment {_fix_counter}")])
+        result = LintResult(segment, fixes=[fix])
+        errors = []
+        fixes = []
+        rule._process_lint_result(result, templated_file, ignore_mask, errors, fixes)
+        return (
+            errors,
+            None,
+            fixes,
+            None,
+        )
+    else:
+        return _old_crawl(
+            rule, segment, ignore_mask, templated_file=templated_file, *args, **kwargs
+        )
+
+
+@pytest.mark.parametrize(
+    "sql, exit_code",
+    [
+        ("-- Comment A\nSELECT 1 FROM foo", 1),
+        ("-- noqa: disable=all\n-- Comment A\nSELECT 1 FROM foo", 0),
+    ],
+)
+@patch("sqlfluff.core.rules.base.BaseRule.crawl", _mock_crawl)
+def test__cli__fix_loop_limit_behavior(sql, exit_code, tmpdir):
+    """Tests how "fix" behaves when the loop limit is exceeded."""
+    fix_args = ["--force", "--fixed-suffix", "FIXED", "--rules", "L001"]
+    tmp_path = pathlib.Path(str(tmpdir))
+    filepath = tmp_path / "testing.sql"
+    filepath.write_text(textwrap.dedent(sql))
+    with tmpdir.as_cwd():
+        with pytest.raises(SystemExit) as e:
+            fix(
+                fix_args
+                + [
+                    "-f",
+                ]
+            )
+        assert exit_code == e.value.code
+    # In both parametrized test cases, no output file should have been
+    # created.
+    # - Case #1: Hitting the loop limit is an error
+    # - Case #2: "noqa" suppressed all lint errors, thus no fixes applied
+    fixed_path = tmp_path / "testingFIXED.sql"
+    assert not fixed_path.is_file()
 
 
 # Test case disabled because there isn't a good example of where to test this.
