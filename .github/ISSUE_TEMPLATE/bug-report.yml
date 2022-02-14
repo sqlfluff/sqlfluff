@@ -85,7 +85,7 @@ body:
     attributes:
       label: Are you willing to work on and submit a PR to address the issue?
       description: >
-        This is absolutely not required, but we are happy to guide you in the contribution process
+        This is absolutely not required, but we are happy to guide you in the contribution process,
         especially if you already have a good understanding of how to implement the fix.
         SQLFluff is a totally community-driven project and we love to bring new contributors in.
       options:
