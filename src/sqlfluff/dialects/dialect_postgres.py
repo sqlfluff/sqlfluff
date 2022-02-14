@@ -3665,16 +3665,8 @@ class DeleteUsingClauseSegment(BaseSegment):
     parse_grammar = Sequence(
         "USING",
         Indent,
-        # NB: We don't use BracketedColumnReferenceListGrammar
-        # here because we're just using SingleIdentifierGrammar,
-        # rather than ObjectReferenceSegment or
-        # ColumnReferenceSegment.
-        # This is a) so that we don't lint it as a reference and
-        # b) because the column will probably be returned anyway
-        # during parsing.
         Delimited(
             Ref("TableExpressionSegment"),
-            ephemeral_name="UsingClauseContents",
         ),
         Dedent,
     )
