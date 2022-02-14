@@ -33,7 +33,7 @@ body:
   - type: textarea
     attributes:
       label: Dialect
-      description: What dialect you expect to add this feature?
+      description: If the enhancement relates to a particular dialect, which one?
     validations:
       required: true
 
