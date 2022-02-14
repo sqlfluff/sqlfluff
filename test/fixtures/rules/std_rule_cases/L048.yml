@@ -75,7 +75,9 @@ test_fail_tsql_unicode_single_quote:
 
 test_fail_ansi_unicode_single_quote:
   fail_str: "SELECT a + N'b' + N'c' FROM tbl;"
-
   configs:
     core:
       dialect: ansi
+
+test_pass_casting_expression:
+  pass_str: "SELECT my_date = '2022-01-01'::DATE AS is_current FROM t;"
