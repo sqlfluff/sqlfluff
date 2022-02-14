@@ -39,6 +39,7 @@ def get_select_statement_info(
         "groupby_clause",
         "having_clause",
         "orderby_clause",
+        "qualify_clause",
     ):
         clause = segment.get_child(potential_clause)
         if clause:
