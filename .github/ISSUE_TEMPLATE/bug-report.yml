@@ -58,7 +58,7 @@ body:
   - type: textarea
     attributes:
       label: Dialect
-      description: What dialect do you used?
+      description: What SQLFluff dialect did you use?
     validations:
       required: true
 
