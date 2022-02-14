@@ -180,7 +180,8 @@ spark3_dialect.replace(
         Sequence("ORDER", "BY"),
         Sequence("CLUSTER", "BY"),
         Sequence("DISTRIBUTE", "BY"),
-        # TODO Add PIVOT, LATERAL VIEW, SORT BY and DISTRIBUTE BY clauses
+        Sequence("SORT", "BY"),
+        # TODO Add PIVOT, LATERAL VIEW, and DISTRIBUTE BY clauses
         "HAVING",
         "WINDOW",
         Ref("SetOperatorSegment"),
@@ -1276,10 +1277,10 @@ class SelectStatementSegment(BaseSegment):
     ).parse_grammar.copy(
         # TODO New Rule: Warn of mutual exclusion of following clauses
         #  DISTRIBUTE, SORT, CLUSTER and ORDER BY if multiple specified
-        # TODO Insert: SORT BY clauses
         insert=[
             Ref("ClusterByClauseSegment", optional=True),
             Ref("DistributeByClauseSegment", optional=True),
+            Ref("SortByClauseSegment", optional=True),
         ],
         before=Ref("LimitClauseSegment"),
     )
@@ -1406,6 +1407,53 @@ class GroupingExpressionList(BaseSegment):
             Bracketed(Delimited(Ref("ExpressionSegment"))),
             Ref("ExpressionSegment"),
         )
+    )
+
+
+@spark3_dialect.segment()
+class SortByClauseSegment(BaseSegment):
+    """A `SORT BY` clause like in `SELECT`.
+
+    This clause is mutually exclusive with SORT BY, ORDER BY and DISTRIBUTE BY.
+    https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-sortby.html
+    """
+
+    type = "sort_by_clause"
+
+    match_grammar = StartsWith(
+        Sequence("SORT", "BY"),
+        terminator=OneOf(
+            "LIMIT",
+            "HAVING",
+            "QUALIFY",
+            # For window functions
+            "WINDOW",
+            Ref("FrameClauseUnitGrammar"),
+            "SEPARATOR",
+        ),
+    )
+    parse_grammar = Sequence(
+        "SORT",
+        "BY",
+        Indent,
+        Delimited(
+            Sequence(
+                OneOf(
+                    Ref("ColumnReferenceSegment"),
+                    # Can `ORDER BY 1`
+                    Ref("NumericLiteralSegment"),
+                    # Can order by an expression
+                    Ref("ExpressionSegment"),
+                ),
+                OneOf("ASC", "DESC", optional=True),
+                # NB: This isn't really ANSI, and isn't supported in Mysql, but
+                # is supported in enough other dialects for it to make sense here
+                # for now.
+                Sequence("NULLS", OneOf("FIRST", "LAST"), optional=True),
+            ),
+            terminator=OneOf(Ref.keyword("LIMIT"), Ref("FrameClauseUnitGrammar")),
+        ),
+        Dedent,
     )
 
 

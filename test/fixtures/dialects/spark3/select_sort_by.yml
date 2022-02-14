@@ -1,0 +1,479 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 013e20883076666f60cecb20b65c41da3b0cfbecc717df808d6f87b88c727202
+file:
+- base:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_modifier:
+          select_hint:
+          - keyword: /*+
+          - hint_function:
+              function_name:
+                function_name_identifier: REPARTITION
+              bracketed:
+                start_bracket: (
+                identifier: zip_code
+                end_bracket: )
+          - keyword: '*/'
+      - select_clause_element:
+          column_reference:
+            identifier: name
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: age
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: zip_code
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: person
+      sort_by_clause:
+      - keyword: SORT
+      - keyword: BY
+      - column_reference:
+          identifier: name
+- statement_terminator: ;
+- base:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            identifier: name
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: age
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: zip_code
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: person
+      sort_by_clause:
+      - keyword: SORT
+      - keyword: BY
+      - column_reference:
+          identifier: name
+- statement_terminator: ;
+- base:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_modifier:
+          select_hint:
+          - keyword: /*+
+          - hint_function:
+              function_name:
+                function_name_identifier: REPARTITION
+              bracketed:
+                start_bracket: (
+                identifier: zip_code
+                end_bracket: )
+          - keyword: '*/'
+      - select_clause_element:
+          column_reference:
+            identifier: name
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: age
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: zip_code
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: person
+      sort_by_clause:
+      - keyword: SORT
+      - keyword: BY
+      - literal: '1'
+- statement_terminator: ;
+- base:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            identifier: name
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: age
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: zip_code
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: person
+      sort_by_clause:
+      - keyword: SORT
+      - keyword: BY
+      - literal: '1'
+- statement_terminator: ;
+- base:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_modifier:
+          select_hint:
+          - keyword: /*+
+          - hint_function:
+              function_name:
+                function_name_identifier: REPARTITION
+              bracketed:
+                start_bracket: (
+                identifier: zip_code
+                end_bracket: )
+          - keyword: '*/'
+      - select_clause_element:
+          column_reference:
+            identifier: age
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: name
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: zip_code
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: person
+      sort_by_clause:
+      - keyword: SORT
+      - keyword: BY
+      - column_reference:
+          identifier: age
+      - keyword: NULLS
+      - keyword: LAST
+- statement_terminator: ;
+- base:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            identifier: age
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: name
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: zip_code
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: person
+      sort_by_clause:
+      - keyword: SORT
+      - keyword: BY
+      - column_reference:
+          identifier: age
+      - keyword: NULLS
+      - keyword: LAST
+- statement_terminator: ;
+- base:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_modifier:
+          select_hint:
+          - keyword: /*+
+          - hint_function:
+              function_name:
+                function_name_identifier: REPARTITION
+              bracketed:
+                start_bracket: (
+                identifier: zip_code
+                end_bracket: )
+          - keyword: '*/'
+      - select_clause_element:
+          column_reference:
+            identifier: age
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: name
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: zip_code
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: person
+      sort_by_clause:
+      - keyword: SORT
+      - keyword: BY
+      - column_reference:
+          identifier: age
+      - keyword: DESC
+- statement_terminator: ;
+- base:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            identifier: age
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: name
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: zip_code
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: person
+      sort_by_clause:
+      - keyword: SORT
+      - keyword: BY
+      - column_reference:
+          identifier: age
+      - keyword: DESC
+- statement_terminator: ;
+- base:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_modifier:
+          select_hint:
+          - keyword: /*+
+          - hint_function:
+              function_name:
+                function_name_identifier: REPARTITION
+              bracketed:
+                start_bracket: (
+                identifier: zip_code
+                end_bracket: )
+          - keyword: '*/'
+      - select_clause_element:
+          column_reference:
+            identifier: age
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: name
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: zip_code
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: person
+      sort_by_clause:
+      - keyword: SORT
+      - keyword: BY
+      - column_reference:
+          identifier: age
+      - keyword: DESC
+      - keyword: NULLS
+      - keyword: FIRST
+- statement_terminator: ;
+- base:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            identifier: age
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: name
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: zip_code
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: person
+      sort_by_clause:
+      - keyword: SORT
+      - keyword: BY
+      - column_reference:
+          identifier: age
+      - keyword: DESC
+      - keyword: NULLS
+      - keyword: FIRST
+- statement_terminator: ;
+- base:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_modifier:
+          select_hint:
+          - keyword: /*+
+          - hint_function:
+              function_name:
+                function_name_identifier: REPARTITION
+              bracketed:
+                start_bracket: (
+                identifier: zip_code
+                end_bracket: )
+          - keyword: '*/'
+      - select_clause_element:
+          column_reference:
+            identifier: name
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: age
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: zip_code
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: person
+      sort_by_clause:
+      - keyword: SORT
+      - keyword: BY
+      - column_reference:
+          identifier: name
+      - keyword: ASC
+      - comma: ','
+      - column_reference:
+          identifier: age
+      - keyword: DESC
+- statement_terminator: ;
+- base:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            identifier: name
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: age
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: zip_code
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: person
+      sort_by_clause:
+      - keyword: SORT
+      - keyword: BY
+      - column_reference:
+          identifier: name
+      - keyword: ASC
+      - comma: ','
+      - column_reference:
+          identifier: age
+      - keyword: DESC
+- statement_terminator: ;
+- base:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            identifier: age
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: name
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: person
+      sort_by_clause:
+      - keyword: SORT
+      - keyword: BY
+      - expression:
+          function:
+            function_name:
+              function_name_identifier: LEFT
+            bracketed:
+            - start_bracket: (
+            - expression:
+                function:
+                  function_name:
+                    function_name_identifier: SUBSTRING_INDEX
+                  bracketed:
+                  - start_bracket: (
+                  - expression:
+                      column_reference:
+                        identifier: name
+                  - comma: ','
+                  - expression:
+                      literal: "' '"
+                  - comma: ','
+                  - expression:
+                      numeric_literal:
+                        binary_operator: '-'
+                        literal: '1'
+                  - end_bracket: )
+            - comma: ','
+            - expression:
+                literal: '1'
+            - end_bracket: )
+- statement_terminator: ;
