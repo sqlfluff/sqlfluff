@@ -190,7 +190,7 @@ def rules__test_helper(test_case):
             assert_violations_before_fix(test_case, violations_before_fix)
         # If a `fixed` value is provided then check it matches
         if test_case.fix_str:
-            assert res == test_case.fix_str
+            assert res == test_case.fix_str, "result of fix doesn't match the fix_str"
             assert_rule_pass_in_sql(
                 test_case.rule,
                 test_case.fix_str,
