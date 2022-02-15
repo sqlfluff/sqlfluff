@@ -1082,13 +1082,26 @@ class BaseSegment:
 
                 root_parse_context = RootParseContext(dialect_selector("ansi"))
                 with root_parse_context as parse_context:
-                    match_result = r.match(r.segments, parse_context)
-                    if not match_result.is_complete():
-                        raise ValueError(
-                            f"After fixes were applied, segment {r!r} "
-                            f"had a parse error. Parse result: {match_result!r} "
-                            f"Fixes: {fixes_applied!r}"
-                        )
+                    if getattr(r, "match_grammar", None):
+                        match_result = r.match(r.segments, parse_context)
+                        if not match_result.is_complete():
+                            raise ValueError(
+                                f"After fixes were applied, segment {r!r} "
+                                "failed the match() parser check. "
+                                f"Result: {match_result!r} "
+                                f"Fixes: {fixes_applied!r}"
+                            )
+                    if getattr(r, "parse_grammar", None):
+                        parse_result = r.parse(parse_context)
+                        if parse_result.segments and isinstance(
+                            parse_result.segments[-1], UnparsableSegment
+                        ):
+                            raise ValueError(
+                                f"After fixes were applied, segment {parse_result!r} "
+                                "failed the parse() check. "
+                                f"Parse result: {parse_result.segments[-1]!r} "
+                                f"Fixes: {fixes_applied!r}"
+                            )
             # Return the new segment with any unused fixes.
             return r, fixes
         else:
