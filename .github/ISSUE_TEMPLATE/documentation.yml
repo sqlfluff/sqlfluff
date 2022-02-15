@@ -1,6 +1,5 @@
 name: Documentation Issue
 description: Report an issue or a suggestion with our documentation to help improve SQLFluff
-title: "[Doc] Documentation issue/improvement title"
 labels: [ "documentation" ]
 body:
   - type: checkboxes
