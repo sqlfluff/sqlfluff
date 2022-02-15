@@ -1478,7 +1478,7 @@ class SortByClauseSegment(BaseSegment):
             ),
             terminator=OneOf(
                 Ref.keyword("LIMIT"),
-                Ref("FrameClauseUnitGrammar")
+                Ref("FrameClauseUnitGrammar"),
             ),
         ),
         Dedent,
