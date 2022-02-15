@@ -81,6 +81,7 @@ test_fail_tsql_unicode_single_quote:
 
 test_fail_ansi_unicode_single_quote:
   fail_str: "SELECT a + N'b' + N'c' FROM tbl;"
+  fix_str: "SELECT a + N 'b' + N 'c' FROM tbl;"
   configs:
     core:
       dialect: ansi

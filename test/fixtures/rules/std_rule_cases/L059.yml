@@ -7,7 +7,7 @@ test_pass_column_reference:
 test_fail_column_reference:
   fail_str: |
     SELECT 123 AS "foo";
-  pass_str: |
+  fix_str: |
     SELECT 123 AS foo;
 
 test_pass_table_reference:
@@ -59,8 +59,6 @@ test_pass_column_reference_prefer_quoted_ansi:
 test_fail_column_reference_prefer_quoted_ansi:
   fail_str: |
     SELECT 123 AS foo;
-  pass_str: |
-    SELECT 123 AS "foo";
   configs:
     rules:
       L059:
@@ -79,9 +77,6 @@ test_fail_table_reference_prefer_quoted_ansi:
   fail_str: |
     SELECT "foo"
     FROM bar;
-  pass_str: |
-    SELECT "foo"
-    FROM "bar";
   configs:
     rules:
       L059:
@@ -100,9 +95,6 @@ test_fail_multiple_references_prefer_quoted_ansi:
   fail_str: |
     SELECT "foo"
     FROM bar.baz;
-  pass_str: |
-    SELECT "foo"
-    FROM "bar"."baz";
   configs:
     rules:
       L059:
@@ -145,8 +137,6 @@ test_pass_column_reference_prefer_quoted_backticks:
 test_fail_column_reference_prefer_quoted_backticks:
   fail_str: |
     SELECT 123 AS foo;
-  pass_str: |
-    SELECT 123 AS `foo`;
   configs:
     core:
       dialect: bigquery
@@ -169,9 +159,6 @@ test_fail_table_reference_prefer_quoted_backticks:
   fail_str: |
     SELECT `foo`
     FROM bar;
-  pass_str: |
-    SELECT `foo`
-    FROM `bar`;
   configs:
     core:
       dialect: bigquery
@@ -194,9 +181,6 @@ test_fail_multiple_references_prefer_quoted_backticks:
   fail_str: |
     SELECT `foo`
     FROM bar.baz;
-  pass_str: |
-    SELECT `foo`
-    FROM `bar`.`baz`;
   configs:
     core:
       dialect: bigquery
