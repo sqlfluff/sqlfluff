@@ -51,7 +51,7 @@ body:
         including the exact command(s) you ran as well as the `.sql` file.
         as minimally and precisely as possible. Keep in mind we do not have access to your deployment.
         If the issue requires more than two files (i.e. `.sql` file and `.sqlfluff` files) to reproduce, please
-        consider providing a GitHub repo instead. Remember that non-reproducible issues will be closed!
+        consider providing a GitHub repo instead. Unfortunately non-reproducible issues will have to be closed.
     validations:
       required: true
 
