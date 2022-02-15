@@ -16,7 +16,6 @@ from tqdm import tqdm
 
 from sqlfluff.core.cached_property import cached_property
 from sqlfluff.core.config import progress_bar_configuration
-from sqlfluff.core.dialects import dialect_selector
 from sqlfluff.core.string_helpers import (
     frame_msg,
     curtail_string,
@@ -1079,12 +1078,14 @@ class BaseSegment:
                 **{k: getattr(self, k) for k in self.additional_kwargs},
             )
             if fixes_applied:
+                from sqlfluff.core.dialects import dialect_selector
+
                 root_parse_context = RootParseContext(dialect_selector("ansi"))
                 with root_parse_context as parse_context:
                     match_result = r.match(r.segments, parse_context)
                     if not match_result.is_complete():
                         raise ValueError(
-                            f"Error: After fixes were applied, segment {r!r} "
+                            f"After fixes were applied, segment {r!r} "
                             f"had a parse error. Parse result: {match_result!r} "
                             f"Fixes: {fixes_applied!r}"
                         )
