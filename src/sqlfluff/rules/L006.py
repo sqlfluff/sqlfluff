@@ -41,6 +41,11 @@ class Rule_L006(BaseRule):
         FROM foo
     """
 
+    # L006 works on operators so requires three operators.
+    # However some rules that inherit from here (e.g. L048) do not.
+    # So allow this to be configurable.
+    _require_three_children: bool = True
+
     _target_elems: List[Tuple[str, str]] = [
         ("type", "binary_operator"),
         ("type", "comparison_operator"),
@@ -100,7 +105,7 @@ class Rule_L006(BaseRule):
         # be dealt with by the parent segment. That also means that we need
         # to have at least three children.
 
-        if len(context.segment.segments) <= 2:
+        if self._require_three_children and len(context.segment.segments) <= 2:
             return LintResult()
 
         violations = []
@@ -162,7 +167,7 @@ class Rule_L006(BaseRule):
                         LintResult(
                             anchor=before_anchor,
                             description="Missing whitespace before {}".format(
-                                before_anchor.raw[:10]
+                                before_anchor.raw
                             ),
                             fixes=[
                                 LintFix.create_before(
@@ -189,7 +194,7 @@ class Rule_L006(BaseRule):
                         LintResult(
                             anchor=after_anchor,
                             description="Missing whitespace after {}".format(
-                                after_anchor.raw[-10:]
+                                after_anchor.raw
                             ),
                             fixes=[
                                 LintFix.create_before(

@@ -224,3 +224,13 @@ test_pass_spark3_values_clause_cte_2:
   configs:
     core:
       dialect: spark3
+
+test_fail_query_uses_templating:
+  fail_str: |
+    WITH
+    random_gibberish AS (
+        SELECT 1
+    )
+
+    SELECT var_bar
+    FROM {{ ref('issue_2235') }}
