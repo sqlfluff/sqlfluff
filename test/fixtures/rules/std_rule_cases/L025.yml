@@ -186,3 +186,26 @@ test_fail_spark3_values_clause:
   configs:
     core:
       dialect: spark3
+
+test_pass_join_on_expression_in_parentheses:
+  pass_str: |
+    SELECT table1.c1
+    FROM
+        table1 AS tbl1
+    INNER JOIN table2 AS tbl2 ON (tbl2.col2 = tbl1.col2)
+    INNER JOIN table3 AS tbl3 ON (tbl3.col3 = tbl2.col3)
+
+test_pass_bigquery_qualify_clause:
+  pass_str: |
+    SELECT *
+    FROM
+        table1 AS tbl1
+    INNER JOIN tbl2 AS tbl2
+    WHERE TRUE
+    QUALIFY ROW_NUMBER() OVER (
+        PARTITION BY tbl1.col1
+        ORDER BY tbl2.col3
+        ) = 1
+  configs:
+    core:
+      dialect: bigquery

@@ -30,7 +30,7 @@ def get_select_statement_info(
     # Iterate through all the references, both in the select clause, but also
     # potential others.
     sc = segment.get_child("select_clause")
-    # Sometimes there is no select clause (e.g. "SELECT *" is a seleect_clause_element)
+    # Sometimes there is no select clause (e.g. "SELECT *" is a select_clause_element)
     if not sc:
         return None
     reference_buffer = list(sc.recursive_crawl("object_reference"))
@@ -39,6 +39,7 @@ def get_select_statement_info(
         "groupby_clause",
         "having_clause",
         "orderby_clause",
+        "qualify_clause",
     ):
         clause = segment.get_child(potential_clause)
         if clause:
@@ -64,7 +65,7 @@ def get_select_statement_info(
                     seen_using = True
                 elif seg.is_type("join_on_condition"):
                     for on_seg in seg.segments:
-                        if on_seg.is_type("expression"):
+                        if on_seg.is_type("bracketed", "expression"):
                             # Deal with expressions
                             reference_buffer += list(
                                 seg.recursive_crawl("object_reference")
