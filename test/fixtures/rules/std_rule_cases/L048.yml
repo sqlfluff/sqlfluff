@@ -1,19 +1,29 @@
 rule: L048
 
-test_pass_1:
+test_pass_simple_select:
   pass_str: "SELECT 'foo'"
 
-test_pass_2:
+test_pass_expression:
   # Test that brackets don't trigger it
   pass_str: "SELECT ('foo' || 'bar') as buzz"
 
-test_fail_simple:
+test_fail_as:
+  fail_str: |
+    SELECT
+        'foo'AS bar
+    FROM foo
+  pass_str: |
+    SELECT
+        'foo' AS bar
+    FROM foo
+
+test_fail_expression:
   fail_str: "SELECT ('foo'||'bar') as buzz"
   fix_str: "SELECT ('foo' || 'bar') as buzz"
 
 test_pass_comma:
   pass_str: |
-   SELECT
+    SELECT
         col1,
         'string literal' AS new_column_literal,
         CASE WHEN col2 IN ('a', 'b') THEN 'Y' ELSE 'N' END AS new_column_case
@@ -78,6 +88,13 @@ test_fail_ansi_unicode_single_quote:
 test_pass_casting_expression:
   pass_str: "SELECT my_date = '2022-01-01'::DATE AS is_current FROM t;"
 
+test_fail_bigquery_casting:
+  fail_str: "SELECT DATE'2007-01-01';"
+  fix_str: "SELECT DATE '2007-01-01';"
+  configs:
+    core:
+      dialect: bigquery
+
 test_fail_teradata_casting_type1:
   fail_str: "SELECT DATE'2007-01-01' AS the_date;"
   fix_str: "SELECT DATE '2007-01-01' AS the_date;"
@@ -85,9 +102,9 @@ test_fail_teradata_casting_type1:
     core:
       dialect: teradata
 
-# This should really fail but currently L048 treats brackets same as whitespace
 test_pass_teradata_casting_type2:
-  pass_str: "SELECT '9999-12-31'(DATE);"
+  fail_str: "SELECT '9999-12-31'(DATE);"
+  fix_str: "SELECT '9999-12-31' (DATE);"
   configs:
     core:
       dialect: teradata
