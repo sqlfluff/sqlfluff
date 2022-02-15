@@ -2,7 +2,11 @@ name: Enhancement
 description: Suggest an enhancement to help improve SQLFluff
 labels: [ "enhancement" ]
 body:
-  - type: checkboxes
+https://docs.sqlfluff.com/en/stable/
+  - type: markdown
+    attributes:
+      value: "Use this enhancement template to suggest new features or functionality for SQLFluff. Please not missing syntax support for any of our currently supported dialects, should instead be filed as a [Bug Report](https://github.com/zhongjiajie/sqlfluff/issues/new?assignees=&labels=bug&template=bug-report.yml&title=%5BBug%5D+Bug+title)."
+      
     attributes:
       label: Search before asking
       description: >
