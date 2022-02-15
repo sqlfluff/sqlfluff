@@ -81,7 +81,17 @@ indented_comments:
 
 indented_comments_default_config:
   # TODO partial fix - this requires some more attention
-  #  Not visible to bare eye but here tab indent is replaced with spaces
+  # This is because of TODO fix indents after text:
+  # https://github.com/sqlfluff/sqlfluff/pull/590#issuecomment-739484190
+  # Lint fails on the tabs that come before the comments (expects spaces)
+  #  Errors Found: [
+  #    <SQLLintError: rule L004 pos:(2, 7), #fixes: 0, description:
+  #      Incorrect indentation type found in file. The indent occurs after other text,
+  #      so a manual fix is needed.>,
+  #    <SQLLintError: rule L004 pos:(3, 15), #fixes: 0,
+  #      description: Incorrect indentation type found in file. The indent occurs after
+  #      other text, so a manual fix is needed.>]
+  # Not visible to bare eye but here tab indent is replaced with spaces
   fail_str: |
     SELECT
     	a,			-- Some comment
@@ -110,6 +120,13 @@ indented_comments_default_config:
 
 indented_comments_tab_config:
   # TODO partial fix - this requires some more attention
+  # Lint fails on the spaces that come before the comments (expects tabs)
+  # This is because of TODO fix indents after text:
+  # https://github.com/sqlfluff/sqlfluff/pull/590#issuecomment-739484190
+  #  Errors Found: [
+  #    <SQLLintError: rule L004 pos:(2, 4), #fixes: 0, description: Incorrect
+  #      indentation type found in file. The indent occurs after other text, so a
+  #      manual fix is needed.>]
   #  Not visible to bare eye but here spaces indent is replaced with tab
   fail_str: |
     SELECT
