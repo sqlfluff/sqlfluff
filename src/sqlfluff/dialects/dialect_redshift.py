@@ -385,7 +385,7 @@ class TableAttributeSegment(BaseSegment):
     https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_TABLE_NEW.html
     """
 
-    type = "table_constraint_segment"
+    type = "table_constraint"
 
     match_grammar = AnySetOf(
         Sequence("DISTSTYLE", OneOf("AUTO", "EVEN", "KEY", "ALL"), optional=True),
@@ -411,7 +411,7 @@ class TableConstraintSegment(BaseSegment):
     https://docs.aws.amazon.com/redshift/latest/dg/r_CREATE_TABLE_NEW.html
     """
 
-    type = "table_constraint_segment"
+    type = "table_constraint"
 
     match_grammar = AnySetOf(
         Sequence("UNIQUE", Bracketed(Delimited(Ref("ColumnReferenceSegment")))),

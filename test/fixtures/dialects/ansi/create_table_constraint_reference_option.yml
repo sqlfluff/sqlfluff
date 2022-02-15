@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ca8852e34a082baedb0e667f065ebbb342a98190c3e49527b7edbb6e971f449e
+_hash: a942d019c6cd1e08d911c8767f9646126e87fd50ffbb0c1077e08bfc34c99fe7
 file:
   statement:
     create_table_statement:
@@ -37,7 +37,7 @@ file:
           - keyword: NOT
           - keyword: 'NULL'
       - comma: ','
-      - table_constraint_segment:
+      - table_constraint:
         - keyword: CONSTRAINT
         - object_reference:
             identifier: c_b
@@ -64,7 +64,7 @@ file:
         - keyword: 'NO'
         - keyword: ACTION
       - comma: ','
-      - table_constraint_segment:
+      - table_constraint:
         - keyword: CONSTRAINT
         - object_reference:
             identifier: c_d
@@ -91,7 +91,7 @@ file:
         - keyword: SET
         - keyword: 'NULL'
       - comma: ','
-      - table_constraint_segment:
+      - table_constraint:
         - keyword: CONSTRAINT
         - object_reference:
             identifier: c_c

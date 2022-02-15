@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b31c436d97c3b61bdcc3ef8623170e7c01dc01a620d533fd07a01113847d3086
+_hash: 1ff6dbf1bb2a90edd7c11aa51cf183c91df28e96d004eb9027036d2d48712514
 file:
 - statement:
     alter_table_statement:
@@ -604,7 +604,7 @@ file:
         identifier: distributors
     - alter_table_action_segment:
         keyword: ADD
-        table_constraint_segment:
+        table_constraint:
         - keyword: CONSTRAINT
         - object_reference:
             identifier: zipchk
@@ -634,7 +634,7 @@ file:
         identifier: distributors
     - alter_table_action_segment:
         keyword: ADD
-        table_constraint_segment:
+        table_constraint:
         - keyword: CONSTRAINT
         - object_reference:
             identifier: zipchk
@@ -689,7 +689,7 @@ file:
         identifier: distributors
     - alter_table_action_segment:
         keyword: ADD
-        table_constraint_segment:
+        table_constraint:
         - keyword: CONSTRAINT
         - object_reference:
             identifier: distfk
@@ -717,7 +717,7 @@ file:
         identifier: distributors
     - alter_table_action_segment:
         keyword: ADD
-        table_constraint_segment:
+        table_constraint:
         - keyword: CONSTRAINT
         - object_reference:
             identifier: distfk
@@ -747,7 +747,7 @@ file:
         identifier: distributors
     - alter_table_action_segment:
         keyword: ADD
-        table_constraint_segment:
+        table_constraint:
         - keyword: CONSTRAINT
         - object_reference:
             identifier: distfk
@@ -781,7 +781,7 @@ file:
         identifier: distributors
     - alter_table_action_segment:
       - keyword: ADD
-      - table_constraint_segment:
+      - table_constraint:
         - keyword: CONSTRAINT
         - object_reference:
             identifier: distfk
@@ -822,7 +822,7 @@ file:
         identifier: distributors
     - alter_table_action_segment:
         keyword: ADD
-        table_constraint_segment:
+        table_constraint:
         - keyword: CONSTRAINT
         - object_reference:
             identifier: dist_id_zipcode_key
@@ -844,7 +844,7 @@ file:
         identifier: distributors
     - alter_table_action_segment:
         keyword: ADD
-        table_constraint_segment:
+        table_constraint:
         - keyword: PRIMARY
         - keyword: KEY
         - bracketed:
@@ -943,7 +943,7 @@ file:
     - comma: ','
     - alter_table_action_segment:
         keyword: ADD
-        table_constraint_segment:
+        table_constraint:
         - keyword: CONSTRAINT
         - object_reference:
             identifier: distributors_pkey
@@ -964,7 +964,7 @@ file:
     - parameter: measurement_y2016m07
     - keyword: FOR
     - keyword: VALUES
-    - partition_bound_segment:
+    - partition_bound_spec:
       - keyword: FROM
       - bracketed:
           start_bracket: (
@@ -989,7 +989,7 @@ file:
     - parameter: cities_ab
     - keyword: FOR
     - keyword: VALUES
-    - partition_bound_segment:
+    - partition_bound_spec:
         keyword: IN
         bracketed:
         - start_bracket: (
@@ -1011,7 +1011,7 @@ file:
     - parameter: orders_p4
     - keyword: FOR
     - keyword: VALUES
-    - partition_bound_segment:
+    - partition_bound_spec:
         keyword: WITH
         bracketed:
         - start_bracket: (
@@ -1065,7 +1065,7 @@ file:
       - identifier: workorderhistory
     - alter_table_action_segment:
         keyword: ADD
-        table_constraint_segment:
+        table_constraint:
         - keyword: CONSTRAINT
         - object_reference:
             identifier: workorder_id_foreign_key

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 45d3ef7caec5daf3a027287840ef348b256052a62da37721697160ca4042d3a6
+_hash: 0bf9efce669071b4f0e757d677d12819c669ddb50850e6ac9adb9276af41b9f1
 file:
 - batch:
     statement:
@@ -146,7 +146,7 @@ file:
             data_type:
               identifier: INT
           comma: ','
-          table_constraint_segment:
+          table_constraint:
           - keyword: PRIMARY
           - keyword: KEY
           - keyword: CLUSTERED
@@ -176,7 +176,7 @@ file:
             data_type:
               identifier: INT
           comma: ','
-          table_constraint_segment:
+          table_constraint:
           - keyword: CONSTRAINT
           - object_reference:
               identifier: '[Pk_Id]'

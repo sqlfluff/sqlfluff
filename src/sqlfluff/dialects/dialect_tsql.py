@@ -2120,7 +2120,7 @@ class TableConstraintSegment(BaseSegment):
 
     # https://docs.microsoft.com/en-us/sql/t-sql/statements/create-table-transact-sql?view=sql-server-ver15
 
-    type = "table_constraint_segment"
+    type = "table_constraint"
     match_grammar = Sequence(
         Sequence(  # [ CONSTRAINT <Constraint name> ]
             "CONSTRAINT", Ref("ObjectReferenceSegment"), optional=True
@@ -2969,7 +2969,7 @@ class PostTableExpressionGrammar(BaseSegment):
     https://docs.microsoft.com/en-us/sql/t-sql/queries/hints-transact-sql-table?view=sql-server-ver15
     """
 
-    type = "post_table_expression_grammar"
+    type = "post_table_expression"
     match_grammar = Sequence(
         Sequence("WITH", optional=True),
         Bracketed(

@@ -3537,7 +3537,7 @@ class TransactionStatementSegment(BaseSegment):
     https://docs.snowflake.com/en/sql-reference/sql/rollback.html
     """
 
-    type = "transaction_statement_segment"
+    type = "transaction_statement"
     match_grammar = OneOf(
         Sequence(
             "BEGIN",
