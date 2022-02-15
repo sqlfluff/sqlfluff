@@ -42,11 +42,6 @@ test_fail_line_too_long_with_comments_4:
     c1
     ,--  the "y variable" and uses_small_subject_line to be the "x variable" in terms of the regression line.
     c2
-  fix_str: |
-    SELECT
-    c1
-    ,--  the "y variable" and uses_small_subject_line to be the "x variable" in terms of the regression line.
-    c2
   configs:
     rules:
       max_line_length: 80

@@ -27,7 +27,7 @@ test_fail_1:
                 END
         END AS sound
     FROM mytable
-  pass_str: |
+  fix_str: |
     SELECT
         c1,
         CASE
@@ -118,7 +118,7 @@ test_fail_5:
                 CASE WHEN species = 'Dog' THEN 'Woof' END
         END AS sound
     FROM mytable
-  pass_str: |
+  fix_str: |
     SELECT
         c1,
         CASE
@@ -142,16 +142,16 @@ test_double_nesting_1:
                 END
         END AS sound
     FROM mytable
-  pass_str: |
+  fix_str: |
     SELECT
-    c1,
-    CASE
-        WHEN species = 'Rat' THEN
-            CASE
-                WHEN species = 'Dog' THEN 'Woof'
-                WHEN species = 'Bird' THEN 'tweet'
-            END
-    END AS sound
+        c1,
+        CASE
+            WHEN species = 'Rat' THEN
+                CASE
+                    WHEN species = 'Dog' THEN 'Woof'
+                    WHEN species = 'Bird' THEN 'tweet'
+                END
+        END AS sound
     FROM mytable
 
 test_double_nesting_2:
@@ -192,19 +192,8 @@ test_double_nesting_2:
 test_fail_no_copy_code_out_of_template:
   # The rule wants to replace the case statement with coalesce(), but
   # LintFix.has_template_conflicts() correctly prevents it copying code out
-  # of the templated region. Hence, fix_str and fail_str are the same.
+  # of the templated region. Hence, the query is not modified.
   fail_str: |
-    SELECT
-        c1,
-        CASE
-            WHEN species = 'Rat' THEN 'Squeak'
-            ELSE
-                CASE
-                    {{ inner_when }}
-                END
-        END AS sound
-    FROM mytable
-  fix_str: |
     SELECT
         c1,
         CASE
