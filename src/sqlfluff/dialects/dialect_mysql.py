@@ -254,9 +254,8 @@ class ColumnDefinitionSegment(BaseSegment):
                 OneOf(
                     Sequence(
                         "CURRENT_TIMESTAMP",
-                        Sequence(
-                            Bracketed(Ref("NumericLiteralSegment")),
-                            optional=True,
+                        Bracketed(
+                            Ref("NumericLiteralSegment", optional=True), optional=True
                         ),
                     ),
                     Ref("NumericLiteralSegment"),

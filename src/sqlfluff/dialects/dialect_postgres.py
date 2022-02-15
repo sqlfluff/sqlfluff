@@ -17,6 +17,7 @@ from sqlfluff.core.parser import (
     SymbolSegment,
     StartsWith,
     CommentSegment,
+    Indent,
     Dedent,
     SegmentGenerator,
     NewlineSegment,
@@ -376,6 +377,16 @@ postgres_dialect.replace(
         Sequence(Ref("SimpleArrayTypeGrammar"), Ref("ArrayLiteralSegment")),
     ),
     SimpleArrayTypeGrammar=Ref.keyword("ARRAY"),
+    WhereClauseTerminatorGrammar=OneOf(
+        "LIMIT",
+        Sequence("GROUP", "BY"),
+        Sequence("ORDER", "BY"),
+        "HAVING",
+        "QUALIFY",
+        "WINDOW",
+        "OVERLAPS",
+        "RETURNING",
+    ),
 )
 
 
@@ -3637,4 +3648,74 @@ class ValuesClauseSegment(BaseSegment):
         Ref("LimitClauseSegment", optional=True),
         # TO DO - CHECK OFFSET
         # TO DO - FETCH
+    )
+
+
+@postgres_dialect.segment()
+class DeleteUsingClauseSegment(BaseSegment):
+    """USING clause."""
+
+    type = "using_clause"
+    match_grammar = StartsWith(
+        "USING",
+        terminator="WHERE",
+        enforce_whitespace_preceding_terminator=True,
+    )
+
+    parse_grammar = Sequence(
+        "USING",
+        Indent,
+        Delimited(
+            Ref("TableExpressionSegment"),
+        ),
+        Dedent,
+    )
+
+
+@postgres_dialect.segment()
+class FromClauseTerminatingUsingWhereSegment(
+    ansi_dialect.get_segment("FromClauseSegment")  # type: ignore
+):
+    """Copy `FROM` terminator statement to support `USING` in specific circumstances."""
+
+    match_grammar = StartsWith(
+        "FROM",
+        terminator=OneOf(Ref.keyword("USING"), Ref.keyword("WHERE")),
+        enforce_whitespace_preceding_terminator=True,
+    )
+
+
+@postgres_dialect.segment(replace=True)
+class DeleteStatementSegment(BaseSegment):
+    """A `DELETE` statement.
+
+    https://www.postgresql.org/docs/14/sql-delete.html
+    """
+
+    type = "delete_statement"
+    # TODO Implement WITH RECURSIVE
+    match_grammar = StartsWith("DELETE")
+    parse_grammar = Sequence(
+        "DELETE",
+        Ref.keyword("ONLY", optional=True),
+        Ref("FromClauseTerminatingUsingWhereSegment"),
+        # TODO Implement Star and As Alias
+        Ref("DeleteUsingClauseSegment", optional=True),
+        OneOf(
+            Sequence("WHERE", "CURRENT", "OF", Ref("ObjectReferenceSegment")),
+            Ref("WhereClauseSegment"),
+            optional=True,
+        ),
+        Sequence(
+            "RETURNING",
+            OneOf(
+                Ref("StarSegment"),
+                Sequence(
+                    Ref("ExpressionSegment"),
+                    Ref("AliasSegment", optional=True),
+                ),
+                optional=True,
+            ),
+            optional=True,
+        ),
     )
