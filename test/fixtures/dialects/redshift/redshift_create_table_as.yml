@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2e9303a86427e8060e11290357e4c1e7fbe8701cdeb593dfb9d24221daccf764
+_hash: 7fa8bc8b3ac07a86cbff391a22b35d8e6eadef81751b3cdf02dc9e808bd765fd
 file:
 - statement:
     create_table_as_statement:
@@ -149,7 +149,7 @@ file:
     - keyword: TABLE
     - object_reference:
         identifier: t1
-    - table_constraint_segment:
+    - table_constraint:
         keyword: SORTKEY
         bracketed:
           start_bracket: (
@@ -177,7 +177,7 @@ file:
     - keyword: TABLE
     - object_reference:
         identifier: t1
-    - table_constraint_segment:
+    - table_constraint:
         keyword: SORTKEY
         bracketed:
           start_bracket: (
@@ -205,7 +205,7 @@ file:
     - keyword: TABLE
     - object_reference:
         identifier: t1
-    - table_constraint_segment:
+    - table_constraint:
         keyword: DISTKEY
         bracketed:
           start_bracket: (
@@ -233,7 +233,7 @@ file:
     - keyword: TABLE
     - object_reference:
         identifier: t1
-    - table_constraint_segment:
+    - table_constraint:
       - keyword: DISTKEY
       - bracketed:
           start_bracket: (
@@ -267,7 +267,7 @@ file:
     - keyword: TABLE
     - object_reference:
         identifier: t1
-    - table_constraint_segment:
+    - table_constraint:
       - keyword: DISTSTYLE
       - keyword: EVEN
     - keyword: AS
@@ -291,7 +291,7 @@ file:
     - keyword: TABLE
     - object_reference:
         identifier: t1
-    - table_constraint_segment:
+    - table_constraint:
       - keyword: DISTSTYLE
       - keyword: ALL
       - keyword: DISTKEY
@@ -327,7 +327,7 @@ file:
     - keyword: TABLE
     - object_reference:
         identifier: t1
-    - table_constraint_segment:
+    - table_constraint:
       - keyword: DISTSTYLE
       - keyword: ALL
       - keyword: DISTKEY
@@ -371,7 +371,7 @@ file:
     - keyword: TABLE
     - object_reference:
         identifier: t1
-    - table_constraint_segment:
+    - table_constraint:
       - keyword: DISTSTYLE
       - keyword: ALL
       - keyword: DISTKEY
@@ -560,7 +560,7 @@ file:
       - end_bracket: )
     - keyword: BACKUP
     - keyword: 'NO'
-    - table_constraint_segment:
+    - table_constraint:
       - keyword: DISTSTYLE
       - keyword: ALL
       - keyword: DISTKEY

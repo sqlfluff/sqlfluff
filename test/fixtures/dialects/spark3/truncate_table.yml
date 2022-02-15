@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d08b60a673b7a607091e271b2376fcef17e158b7f8ca215d319d7f68cc142fa9
+_hash: c68ae5dda87609bc1044152cc9fffb985e99502e48fb1cefb25ab7ab81905caf
 file:
-- base:
+- statement:
     truncate_table_statement:
     - keyword: TRUNCATE
     - keyword: TABLE
@@ -21,7 +21,7 @@ file:
         literal: '10'
         end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     truncate_table_statement:
     - keyword: TRUNCATE
     - keyword: TABLE

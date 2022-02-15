@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2e8a2a7473af740794b633ddf989f55250f697fecec012d09cf34f6a6f9c3bc9
+_hash: 2395ceec8c8a9a4173f7c2ba1681cb9c49e39b40d277c2df5f62195ba5e05d96
 file:
-- base:
+- statement:
     create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
@@ -109,7 +109,7 @@ file:
                 table_reference:
                   identifier: student
 - statement_terminator: ;
-- base:
+- statement:
     create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
@@ -138,7 +138,7 @@ file:
     - keyword: USING
     - keyword: CSV
 - statement_terminator: ;
-- base:
+- statement:
     create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
@@ -162,7 +162,7 @@ file:
                 table_reference:
                   identifier: student
 - statement_terminator: ;
-- base:
+- statement:
     create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
@@ -189,7 +189,7 @@ file:
               keyword: INT
       - end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
@@ -228,7 +228,7 @@ file:
       - literal: "'bar'"
       - end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     create_table_statement:
     - keyword: CREATE
     - keyword: TABLE

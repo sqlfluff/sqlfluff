@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bc800772bddcc5a5dc88ade38635d1ba1bb1ccef103cfbb178b88df146e8ecb4
+_hash: 5205c91839b6898aa282fd1946aa2cb8c539707096d88f34ca546868d858524d
 file:
-- base:
+- statement:
     alter_database_statement:
     - keyword: ALTER
     - keyword: DATABASE
@@ -21,7 +21,7 @@ file:
       - literal: "'John'"
       - end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     alter_database_statement:
     - keyword: ALTER
     - keyword: DATABASE
@@ -42,7 +42,7 @@ file:
       - literal: "'01/01/2001'"
       - end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     alter_database_statement:
     - keyword: ALTER
     - keyword: SCHEMA
@@ -58,7 +58,7 @@ file:
       - literal: "'John'"
       - end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     alter_database_statement:
     - keyword: ALTER
     - keyword: SCHEMA

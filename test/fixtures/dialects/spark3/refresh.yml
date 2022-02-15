@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e1491fda3158262959913d0e9339763d75e4bdb8f1296c273a0bdfced2aa038e
+_hash: b75cae24ddb38c927828dbb1092d772253e4853ceb52446682a27ff8c1d5841f
 file:
-  base:
+  statement:
     refresh_statement:
       keyword: REFRESH
       literal: '"hdfs://path/to/table"'

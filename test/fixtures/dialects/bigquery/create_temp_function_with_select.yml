@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 5f0bdf6abac2afed58fb03c667615a345bd0e9eeb99001180b1238f9008c7c57
+_hash: a1b9bcf079dc470b3b5e80d77b9aa62a8b86bd91015b60e566e315b88f3e37b3
 file:
   statement:
     create_function_statement:
@@ -12,7 +12,7 @@ file:
     - keyword: FUNCTION
     - function_name:
         function_name_identifier: URLDECODE
-    - base:
+    - function_parameter_list:
         bracketed:
           start_bracket: (
           parameter: url
@@ -22,7 +22,7 @@ file:
     - keyword: RETURNS
     - data_type:
         data_type_identifier: STRING
-    - base:
+    - function_definition:
         keyword: AS
         bracketed:
           start_bracket: (

@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: cae367bac9adae2e40474f89a108bfeea5427dd03e3f3f7064f6b02896365657
+_hash: dacbb4e497e140bc837622267c79482ec8f9cf917e73480111bd6704dc836a60
 file:
-- base:
+- statement:
     drop_database_statement:
     - keyword: DROP
     - keyword: DATABASE
@@ -15,7 +15,7 @@ file:
         identifier: dbname
     - keyword: RESTRICT
 - statement_terminator: ;
-- base:
+- statement:
     drop_database_statement:
     - keyword: DROP
     - keyword: DATABASE
@@ -25,7 +25,7 @@ file:
         identifier: dbname
     - keyword: CASCADE
 - statement_terminator: ;
-- base:
+- statement:
     drop_database_statement:
     - keyword: DROP
     - keyword: DATABASE
@@ -33,7 +33,7 @@ file:
         identifier: inventory_db
     - keyword: CASCADE
 - statement_terminator: ;
-- base:
+- statement:
     drop_database_statement:
     - keyword: DROP
     - keyword: DATABASE

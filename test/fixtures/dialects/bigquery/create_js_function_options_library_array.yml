@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 65b77a68deca7c57c1220bb182f25aa394e4959608b3b637bfc4789c19537125
+_hash: 74febd125c1eb7fe516c95ef631e854e7c83649e5b3f32a1ec417a20e23d07ce
 file:
   statement:
     create_function_statement:
@@ -12,7 +12,7 @@ file:
     - keyword: FUNCTION
     - function_name:
         function_name_identifier: parseTopSellers
-    - base:
+    - function_parameter_list:
         bracketed:
           start_bracket: (
           parameter: arr_str
@@ -35,7 +35,7 @@ file:
             data_type_identifier: FLOAT64
         - end_angle_bracket: '>'
         end_angle_bracket: '>'
-    - base:
+    - function_definition:
       - keyword: LANGUAGE
       - parameter: js
       - keyword: OPTIONS

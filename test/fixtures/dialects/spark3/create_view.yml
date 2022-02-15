@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 49134d230e605ac9d2556dbeb2a1ba95b932dd4bcce55137aa005cdc7d067026
+_hash: 7dea051e261d6f9b1a78aaa8f134f3da7c294c07136bba4424c50c9d5f6859c2
 file:
-- base:
+- statement:
     create_view_statement:
     - keyword: CREATE
     - keyword: VIEW
@@ -27,7 +27,7 @@ file:
                 table_reference:
                   identifier: experienced_employee
 - statement_terminator: ;
-- base:
+- statement:
     create_view_statement:
     - keyword: CREATE
     - binary_operator: OR
@@ -84,7 +84,7 @@ file:
                 table_reference:
                   identifier: temp2
 - statement_terminator: ;
-- base:
+- statement:
     create_view_statement:
     - keyword: CREATE
     - keyword: TEMP
@@ -110,7 +110,7 @@ file:
           keyword: limit
           literal: '2'
 - statement_terminator: ;
-- base:
+- statement:
     create_view_statement:
     - keyword: CREATE
     - binary_operator: OR

@@ -1553,6 +1553,7 @@ class RefreshFunctionStatementSegment(BaseSegment):
 class StatementSegment(BaseSegment):
     """Overriding StatementSegment to allow for additional segment parsing."""
 
+    type = "statement"
     match_grammar = ansi_dialect.get_segment("StatementSegment").match_grammar.copy()
 
     parse_grammar = ansi_dialect.get_segment("StatementSegment").parse_grammar.copy(

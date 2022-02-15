@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 10730fd1a61c93351b370fff6de37c2255a5097fc2ea3ae1a28cb1dff1fdee12
+_hash: effa68cc9efc760aa8b7f1f42caf6e4e462a915637813081e083037a5268cd8c
 file:
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -47,7 +47,7 @@ file:
             raw_comparison_operator: '='
           literal: "'Fremont'"
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -96,7 +96,7 @@ file:
             raw_comparison_operator: '>'
           literal: '15'
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -138,7 +138,7 @@ file:
             raw_comparison_operator: '>'
           literal: '15'
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -187,7 +187,7 @@ file:
             raw_comparison_operator: '>'
           literal: '15'
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -233,7 +233,7 @@ file:
       - column_reference:
           identifier: city
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
         keyword: SELECT

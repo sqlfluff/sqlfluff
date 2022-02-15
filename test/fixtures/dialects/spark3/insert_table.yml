@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3cf561b407706598eab7f8e4e60a18db30e474530c601c6201275bd2828a316c
+_hash: 1a53ea7cfdc6d98f64d518ee4167659267dec8134d688dfd66cb91dbd6ace494
 file:
-- base:
+- statement:
     insert_table_statement:
     - keyword: INSERT
     - keyword: INTO
@@ -28,7 +28,7 @@ file:
                 literal: '111111'
             - end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     insert_table_statement:
     - keyword: INSERT
     - keyword: INTO
@@ -50,7 +50,7 @@ file:
                 literal: '111111'
             - end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     insert_table_statement:
     - keyword: INSERT
     - keyword: OVERWRITE
@@ -72,7 +72,7 @@ file:
                 literal: '111111'
             - end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     insert_table_statement:
     - keyword: INSERT
     - keyword: INTO
@@ -107,7 +107,7 @@ file:
                 literal: '333333'
             - end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     insert_table_statement:
     - keyword: INSERT
     - keyword: OVERWRITE
@@ -142,7 +142,7 @@ file:
                 literal: '333333'
             - end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     insert_table_statement:
     - keyword: INSERT
     - keyword: INTO
@@ -183,7 +183,7 @@ file:
               raw_comparison_operator: '='
             literal: '"Dora Williams"'
 - statement_terminator: ;
-- base:
+- statement:
     insert_table_statement:
     - keyword: INSERT
     - keyword: OVERWRITE
@@ -224,7 +224,7 @@ file:
               raw_comparison_operator: '='
             literal: '"Dora Williams"'
 - statement_terminator: ;
-- base:
+- statement:
     insert_table_statement:
     - keyword: INSERT
     - keyword: INTO
@@ -234,7 +234,7 @@ file:
     - table_reference:
         identifier: visiting_students
 - statement_terminator: ;
-- base:
+- statement:
     insert_table_statement:
     - keyword: INSERT
     - keyword: OVERWRITE
@@ -244,7 +244,7 @@ file:
     - table_reference:
         identifier: visiting_students
 - statement_terminator: ;
-- base:
+- statement:
     insert_table_statement:
     - keyword: INSERT
     - keyword: INTO
@@ -271,7 +271,7 @@ file:
             raw_comparison_operator: '='
           literal: 'TRUE'
 - statement_terminator: ;
-- base:
+- statement:
     insert_table_statement:
     - keyword: INSERT
     - keyword: OVERWRITE
@@ -298,7 +298,7 @@ file:
             raw_comparison_operator: '='
           literal: 'TRUE'
 - statement_terminator: ;
-- base:
+- statement:
     insert_table_statement:
     - keyword: INSERT
     - keyword: INTO
@@ -327,7 +327,7 @@ file:
                 literal: "'123 Park Ave, San Jose'"
             - end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     insert_table_statement:
     - keyword: INSERT
     - keyword: OVERWRITE
@@ -356,7 +356,7 @@ file:
                 literal: "'123 Park Ave, San Jose'"
             - end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     insert_table_statement:
     - keyword: INSERT
     - keyword: INTO
@@ -392,7 +392,7 @@ file:
                 literal: "'Kent Yao Jr.'"
             - end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     insert_table_statement:
     - keyword: INSERT
     - keyword: OVERWRITE

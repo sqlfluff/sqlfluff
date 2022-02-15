@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 97264f8d61d2c75949200de92737617871092e995a14997c2c85cf3fb004ac99
+_hash: b25e4f2619d261dfc79ccf68d287279847e993bc69c53c846319869b3fd82f91
 file:
 - statement:
     create_table_statement:
@@ -124,7 +124,7 @@ file:
             literal: '40'
             end_bracket: )
       - comma: ','
-      - table_constraint_segment:
+      - table_constraint:
         - keyword: CONSTRAINT
         - object_reference:
             identifier: con1
@@ -169,7 +169,7 @@ file:
             literal: '40'
             end_bracket: )
       - comma: ','
-      - table_constraint_segment:
+      - table_constraint:
         - keyword: PRIMARY
         - keyword: KEY
         - bracketed:
@@ -329,7 +329,7 @@ file:
             literal: '40'
             end_bracket: )
       - comma: ','
-      - table_constraint_segment:
+      - table_constraint:
           keyword: UNIQUE
           bracketed:
             start_bracket: (
@@ -360,7 +360,7 @@ file:
             literal: '40'
             end_bracket: )
       - comma: ','
-      - table_constraint_segment:
+      - table_constraint:
           keyword: UNIQUE
           bracketed:
             start_bracket: (
@@ -439,7 +439,7 @@ file:
     - parameter: employee_type
     - bracketed:
       - start_bracket: (
-      - table_constraint_segment:
+      - table_constraint:
         - keyword: PRIMARY
         - keyword: KEY
         - bracketed:
@@ -663,7 +663,7 @@ file:
         end_bracket: )
     - keyword: FOR
     - keyword: VALUES
-    - base:
+    - partition_bound_spec:
       - keyword: FROM
       - bracketed:
           start_bracket: (
@@ -689,7 +689,7 @@ file:
         identifier: measurement_year_month
     - keyword: FOR
     - keyword: VALUES
-    - base:
+    - partition_bound_spec:
       - keyword: FROM
       - bracketed:
         - start_bracket: (
@@ -723,7 +723,7 @@ file:
         identifier: measurement_year_month
     - keyword: FOR
     - keyword: VALUES
-    - base:
+    - partition_bound_spec:
       - keyword: FROM
       - bracketed:
         - start_bracket: (
@@ -755,7 +755,7 @@ file:
         identifier: measurement_year_month
     - keyword: FOR
     - keyword: VALUES
-    - base:
+    - partition_bound_spec:
       - keyword: FROM
       - bracketed:
         - start_bracket: (
@@ -787,7 +787,7 @@ file:
         identifier: measurement_year_month
     - keyword: FOR
     - keyword: VALUES
-    - base:
+    - partition_bound_spec:
       - keyword: FROM
       - bracketed:
         - start_bracket: (
@@ -819,7 +819,7 @@ file:
         identifier: cities
     - bracketed:
         start_bracket: (
-        table_constraint_segment:
+        table_constraint:
         - keyword: CONSTRAINT
         - object_reference:
             identifier: city_id_nonzero
@@ -837,7 +837,7 @@ file:
         end_bracket: )
     - keyword: FOR
     - keyword: VALUES
-    - base:
+    - partition_bound_spec:
         keyword: IN
         bracketed:
         - start_bracket: (
@@ -860,7 +860,7 @@ file:
         identifier: cities
     - bracketed:
         start_bracket: (
-        table_constraint_segment:
+        table_constraint:
         - keyword: CONSTRAINT
         - object_reference:
             identifier: city_id_nonzero
@@ -878,7 +878,7 @@ file:
         end_bracket: )
     - keyword: FOR
     - keyword: VALUES
-    - base:
+    - partition_bound_spec:
         keyword: IN
         bracketed:
         - start_bracket: (
@@ -909,7 +909,7 @@ file:
         identifier: cities_ab
     - keyword: FOR
     - keyword: VALUES
-    - base:
+    - partition_bound_spec:
       - keyword: FROM
       - bracketed:
           start_bracket: (
@@ -935,7 +935,7 @@ file:
         identifier: orders
     - keyword: FOR
     - keyword: VALUES
-    - base:
+    - partition_bound_spec:
         keyword: WITH
         bracketed:
         - start_bracket: (
@@ -958,7 +958,7 @@ file:
         identifier: orders
     - keyword: FOR
     - keyword: VALUES
-    - base:
+    - partition_bound_spec:
         keyword: WITH
         bracketed:
         - start_bracket: (
@@ -981,7 +981,7 @@ file:
         identifier: orders
     - keyword: FOR
     - keyword: VALUES
-    - base:
+    - partition_bound_spec:
         keyword: WITH
         bracketed:
         - start_bracket: (
@@ -1004,7 +1004,7 @@ file:
         identifier: orders
     - keyword: FOR
     - keyword: VALUES
-    - base:
+    - partition_bound_spec:
         keyword: WITH
         bracketed:
         - start_bracket: (
@@ -1063,7 +1063,7 @@ file:
           datetime_type_identifier:
             keyword: DATE
       - comma: ','
-      - table_constraint_segment:
+      - table_constraint:
         - keyword: PRIMARY
         - keyword: KEY
         - bracketed:

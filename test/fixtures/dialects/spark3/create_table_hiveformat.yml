@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1712bfa1d11d0fcf171e638b93be7f9fce3414c15bd78c7cfa7e65e522a46e92
+_hash: c9e60e4107d8e23973b4b508706d0b2ed4d9b4d56cdcd047f8d2280ef39d5b6f
 file:
-- base:
+- statement:
     create_table_statement:
     - keyword: CREATE
     - keyword: EXTERNAL
@@ -113,7 +113,7 @@ file:
                     identifier: table_identifier
         end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
@@ -143,7 +143,7 @@ file:
     - keyword: AS
     - keyword: ORC
 - statement_terminator: ;
-- base:
+- statement:
     create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
@@ -168,7 +168,7 @@ file:
                 table_reference:
                   identifier: student
 - statement_terminator: ;
-- base:
+- statement:
     create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
@@ -208,7 +208,7 @@ file:
       - literal: "'bar'"
       - end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
@@ -248,7 +248,7 @@ file:
     - keyword: COMMENT
     - literal: "'this is a comment'"
 - statement_terminator: ;
-- base:
+- statement:
     create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
@@ -282,7 +282,7 @@ file:
     - keyword: AS
     - keyword: ORC
 - statement_terminator: ;
-- base:
+- statement:
     create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
@@ -316,7 +316,7 @@ file:
               keyword: INT
         end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
@@ -348,7 +348,7 @@ file:
     - keyword: AS
     - file_format: TEXTFILE
 - statement_terminator: ;
-- base:
+- statement:
     create_table_statement:
     - keyword: CREATE
     - keyword: EXTERNAL
@@ -439,7 +439,7 @@ file:
     - keyword: LOCATION
     - literal: "'/tmp/family/'"
 - statement_terminator: ;
-- base:
+- statement:
     create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
@@ -468,13 +468,13 @@ file:
           , \"type\":\"string\" }]\n    }'"
       - end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     add_executable_package:
       keyword: ADD
       file_type: JAR
       literal: "'/tmp/hive_serde_example.jar'"
 - statement_terminator: ;
-- base:
+- statement:
     create_table_statement:
     - keyword: CREATE
     - keyword: EXTERNAL
@@ -509,7 +509,7 @@ file:
     - keyword: LOCATION
     - literal: "'/tmp/family/'"
 - statement_terminator: ;
-- base:
+- statement:
     create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
@@ -543,7 +543,7 @@ file:
     - keyword: AS
     - keyword: ORC
 - statement_terminator: ;
-- base:
+- statement:
     create_table_statement:
     - keyword: CREATE
     - keyword: TABLE

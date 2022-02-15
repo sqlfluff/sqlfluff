@@ -152,10 +152,11 @@ class Rule_L052(BaseRule):
                             break
                         except ValueError:  # pragma: no cover
                             pass
-            else:
-                self.logger.error(
-                    "Unable to identify statement terminated by %r", context.segment
-                )
+            elif memory["ended_statements"]:
+                # Unless it's an empty statement we shouldn't reach here
+                raise ValueError(
+                    f"Unable to identify statement terminated by {context.segment!r}"
+                )  # pragma: no cover
 
             # Locate semicolon and search back over the raw stack
             # to find the end of the preceding statement.

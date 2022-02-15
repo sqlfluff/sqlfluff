@@ -3,22 +3,22 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8c884e8b32379f7fd5c7ce717acb8aeb4da193dd9436dbb10024992e6d447229
+_hash: e4ccba07f84315656aae040f39b983e98e1b0624712ac9861d24b4d9c42e3b0d
 file:
 - statement:
-    base:
+    describe_statement:
     - keyword: DESCRIBE
     - keyword: RESULT
     - literal: "'f2f07bdb-6a08-4689-9ad8-a1ba968a44b6'"
 - statement_terminator: ;
 - statement:
-    base:
+    describe_statement:
     - keyword: DESC
     - keyword: RESULT
     - literal: "'f2f07bdb-6a08-4689-9ad8-a1ba968a44b6'"
 - statement_terminator: ;
 - statement:
-    base:
+    describe_statement:
     - keyword: DESCRIBE
     - keyword: RESULT
     - keyword: LAST_QUERY_ID
@@ -27,7 +27,7 @@ file:
         end_bracket: )
 - statement_terminator: ;
 - statement:
-    base:
+    describe_statement:
     - keyword: DESC
     - keyword: RESULT
     - keyword: LAST_QUERY_ID
@@ -36,7 +36,7 @@ file:
         end_bracket: )
 - statement_terminator: ;
 - statement:
-    base:
+    describe_statement:
     - keyword: DESCRIBE
     - keyword: NETWORK
     - keyword: POLICY
@@ -44,7 +44,7 @@ file:
         identifier: my_policy
 - statement_terminator: ;
 - statement:
-    base:
+    describe_statement:
     - keyword: DESC
     - keyword: NETWORK
     - keyword: POLICY
@@ -52,21 +52,21 @@ file:
         identifier: my_policy
 - statement_terminator: ;
 - statement:
-    base:
+    describe_statement:
     - keyword: DESCRIBE
     - keyword: SHARE
     - object_reference:
         identifier: sales_s
 - statement_terminator: ;
 - statement:
-    base:
+    describe_statement:
     - keyword: DESC
     - keyword: SHARE
     - object_reference:
         identifier: sales_s
 - statement_terminator: ;
 - statement:
-    base:
+    describe_statement:
     - keyword: DESCRIBE
     - keyword: SHARE
     - object_reference:
@@ -75,7 +75,7 @@ file:
       - identifier: sales_s
 - statement_terminator: ;
 - statement:
-    base:
+    describe_statement:
     - keyword: DESC
     - keyword: SHARE
     - object_reference:
@@ -84,63 +84,63 @@ file:
       - identifier: sales_s
 - statement_terminator: ;
 - statement:
-    base:
+    describe_statement:
     - keyword: DESCRIBE
     - keyword: USER
     - object_reference:
         identifier: test_user
 - statement_terminator: ;
 - statement:
-    base:
+    describe_statement:
     - keyword: DESC
     - keyword: USER
     - object_reference:
         identifier: test_user
 - statement_terminator: ;
 - statement:
-    base:
+    describe_statement:
     - keyword: DESCRIBE
     - keyword: WAREHOUSE
     - object_reference:
         identifier: my_warehouse
 - statement_terminator: ;
 - statement:
-    base:
+    describe_statement:
     - keyword: DESC
     - keyword: WAREHOUSE
     - object_reference:
         identifier: my_warehouse
 - statement_terminator: ;
 - statement:
-    base:
+    describe_statement:
     - keyword: DESCRIBE
     - keyword: WAREHOUSE
     - object_reference:
         identifier: '"my warehouse"'
 - statement_terminator: ;
 - statement:
-    base:
+    describe_statement:
     - keyword: DESC
     - keyword: WAREHOUSE
     - object_reference:
         identifier: '"my warehouse"'
 - statement_terminator: ;
 - statement:
-    base:
+    describe_statement:
     - keyword: DESCRIBE
     - keyword: DATABASE
     - database_reference:
         identifier: my_database
 - statement_terminator: ;
 - statement:
-    base:
+    describe_statement:
     - keyword: DESC
     - keyword: DATABASE
     - database_reference:
         identifier: my_database
 - statement_terminator: ;
 - statement:
-    base:
+    describe_statement:
     - keyword: DESCRIBE
     - keyword: API
     - keyword: INTEGRATION
@@ -148,7 +148,7 @@ file:
         identifier: my_integration
 - statement_terminator: ;
 - statement:
-    base:
+    describe_statement:
     - keyword: DESC
     - keyword: API
     - keyword: INTEGRATION
@@ -156,7 +156,7 @@ file:
         identifier: my_integration
 - statement_terminator: ;
 - statement:
-    base:
+    describe_statement:
     - keyword: DESCRIBE
     - keyword: NOTIFICATION
     - keyword: INTEGRATION
@@ -164,7 +164,7 @@ file:
         identifier: my_integration
 - statement_terminator: ;
 - statement:
-    base:
+    describe_statement:
     - keyword: DESC
     - keyword: NOTIFICATION
     - keyword: INTEGRATION
@@ -172,7 +172,7 @@ file:
         identifier: my_integration
 - statement_terminator: ;
 - statement:
-    base:
+    describe_statement:
     - keyword: DESCRIBE
     - keyword: SECURITY
     - keyword: INTEGRATION
@@ -180,7 +180,7 @@ file:
         identifier: my_integration
 - statement_terminator: ;
 - statement:
-    base:
+    describe_statement:
     - keyword: DESC
     - keyword: SECURITY
     - keyword: INTEGRATION
@@ -188,7 +188,7 @@ file:
         identifier: my_integration
 - statement_terminator: ;
 - statement:
-    base:
+    describe_statement:
     - keyword: DESCRIBE
     - keyword: STORAGE
     - keyword: INTEGRATION
@@ -196,7 +196,7 @@ file:
         identifier: my_integration
 - statement_terminator: ;
 - statement:
-    base:
+    describe_statement:
     - keyword: DESC
     - keyword: STORAGE
     - keyword: INTEGRATION
@@ -204,7 +204,7 @@ file:
         identifier: my_integration
 - statement_terminator: ;
 - statement:
-    base:
+    describe_statement:
     - keyword: DESCRIBE
     - keyword: SESSION
     - keyword: POLICY
@@ -212,7 +212,7 @@ file:
         identifier: my_session_policy
 - statement_terminator: ;
 - statement:
-    base:
+    describe_statement:
     - keyword: DESC
     - keyword: SESSION
     - keyword: POLICY
@@ -220,21 +220,21 @@ file:
         identifier: my_session_policy
 - statement_terminator: ;
 - statement:
-    base:
+    describe_statement:
     - keyword: DESCRIBE
     - keyword: SCHEMA
     - schema_reference:
         identifier: my_schema
 - statement_terminator: ;
 - statement:
-    base:
+    describe_statement:
     - keyword: DESC
     - keyword: SCHEMA
     - schema_reference:
         identifier: my_schema
 - statement_terminator: ;
 - statement:
-    base:
+    describe_statement:
     - keyword: DESCRIBE
     - keyword: SCHEMA
     - schema_reference:
@@ -243,7 +243,7 @@ file:
       - identifier: my_schema
 - statement_terminator: ;
 - statement:
-    base:
+    describe_statement:
     - keyword: DESC
     - keyword: SCHEMA
     - schema_reference:
@@ -252,21 +252,21 @@ file:
       - identifier: my_schema
 - statement_terminator: ;
 - statement:
-    base:
+    describe_statement:
     - keyword: DESCRIBE
     - keyword: TABLE
     - table_reference:
         identifier: my_table
 - statement_terminator: ;
 - statement:
-    base:
+    describe_statement:
     - keyword: DESC
     - keyword: TABLE
     - table_reference:
         identifier: my_table
 - statement_terminator: ;
 - statement:
-    base:
+    describe_statement:
     - keyword: DESCRIBE
     - keyword: TABLE
     - table_reference:
@@ -277,7 +277,7 @@ file:
       - identifier: my_table
 - statement_terminator: ;
 - statement:
-    base:
+    describe_statement:
     - keyword: DESC
     - keyword: TABLE
     - table_reference:
@@ -288,7 +288,7 @@ file:
       - identifier: my_table
 - statement_terminator: ;
 - statement:
-    base:
+    describe_statement:
     - keyword: DESCRIBE
     - keyword: TABLE
     - table_reference:
@@ -299,7 +299,7 @@ file:
     - keyword: COLUMNS
 - statement_terminator: ;
 - statement:
-    base:
+    describe_statement:
     - keyword: DESC
     - keyword: TABLE
     - table_reference:
@@ -310,7 +310,7 @@ file:
     - keyword: COLUMNS
 - statement_terminator: ;
 - statement:
-    base:
+    describe_statement:
     - keyword: DESCRIBE
     - keyword: TABLE
     - table_reference:
@@ -321,7 +321,7 @@ file:
     - keyword: STAGE
 - statement_terminator: ;
 - statement:
-    base:
+    describe_statement:
     - keyword: DESC
     - keyword: TABLE
     - table_reference:
@@ -332,7 +332,7 @@ file:
     - keyword: STAGE
 - statement_terminator: ;
 - statement:
-    base:
+    describe_statement:
     - keyword: DESCRIBE
     - keyword: EXTERNAL
     - keyword: TABLE
@@ -340,7 +340,7 @@ file:
         identifier: my_table
 - statement_terminator: ;
 - statement:
-    base:
+    describe_statement:
     - keyword: DESC
     - keyword: EXTERNAL
     - keyword: TABLE
@@ -348,7 +348,7 @@ file:
         identifier: my_table
 - statement_terminator: ;
 - statement:
-    base:
+    describe_statement:
     - keyword: DESCRIBE
     - keyword: EXTERNAL
     - keyword: TABLE
@@ -360,7 +360,7 @@ file:
     - keyword: COLUMNS
 - statement_terminator: ;
 - statement:
-    base:
+    describe_statement:
     - keyword: DESC
     - keyword: EXTERNAL
     - keyword: TABLE
@@ -372,7 +372,7 @@ file:
     - keyword: COLUMNS
 - statement_terminator: ;
 - statement:
-    base:
+    describe_statement:
     - keyword: DESCRIBE
     - keyword: EXTERNAL
     - keyword: TABLE
@@ -384,7 +384,7 @@ file:
     - keyword: STAGE
 - statement_terminator: ;
 - statement:
-    base:
+    describe_statement:
     - keyword: DESC
     - keyword: EXTERNAL
     - keyword: TABLE
@@ -396,21 +396,21 @@ file:
     - keyword: STAGE
 - statement_terminator: ;
 - statement:
-    base:
+    describe_statement:
     - keyword: DESCRIBE
     - keyword: VIEW
     - table_reference:
         identifier: my_view
 - statement_terminator: ;
 - statement:
-    base:
+    describe_statement:
     - keyword: DESC
     - keyword: VIEW
     - table_reference:
         identifier: my_view
 - statement_terminator: ;
 - statement:
-    base:
+    describe_statement:
     - keyword: DESCRIBE
     - keyword: VIEW
     - table_reference:
@@ -421,7 +421,7 @@ file:
       - identifier: my_view
 - statement_terminator: ;
 - statement:
-    base:
+    describe_statement:
     - keyword: DESC
     - keyword: VIEW
     - table_reference:
@@ -432,7 +432,7 @@ file:
       - identifier: my_view
 - statement_terminator: ;
 - statement:
-    base:
+    describe_statement:
     - keyword: DESCRIBE
     - keyword: MATERIALIZED
     - keyword: VIEW
@@ -440,7 +440,7 @@ file:
         identifier: my_view
 - statement_terminator: ;
 - statement:
-    base:
+    describe_statement:
     - keyword: DESC
     - keyword: MATERIALIZED
     - keyword: VIEW
@@ -448,7 +448,7 @@ file:
         identifier: my_view
 - statement_terminator: ;
 - statement:
-    base:
+    describe_statement:
     - keyword: DESCRIBE
     - keyword: MATERIALIZED
     - keyword: VIEW
@@ -460,7 +460,7 @@ file:
       - identifier: my_view
 - statement_terminator: ;
 - statement:
-    base:
+    describe_statement:
     - keyword: DESC
     - keyword: MATERIALIZED
     - keyword: VIEW
@@ -472,21 +472,21 @@ file:
       - identifier: my_view
 - statement_terminator: ;
 - statement:
-    base:
+    describe_statement:
     - keyword: DESCRIBE
     - keyword: SEQUENCE
     - sequence_reference:
         identifier: my_sequence
 - statement_terminator: ;
 - statement:
-    base:
+    describe_statement:
     - keyword: DESC
     - keyword: SEQUENCE
     - sequence_reference:
         identifier: my_sequence
 - statement_terminator: ;
 - statement:
-    base:
+    describe_statement:
     - keyword: DESCRIBE
     - keyword: MASKING
     - keyword: POLICY
@@ -494,7 +494,7 @@ file:
         identifier: my_masking_policy
 - statement_terminator: ;
 - statement:
-    base:
+    describe_statement:
     - keyword: DESC
     - keyword: MASKING
     - keyword: POLICY
@@ -502,7 +502,7 @@ file:
         identifier: my_masking_policy
 - statement_terminator: ;
 - statement:
-    base:
+    describe_statement:
     - keyword: DESCRIBE
     - keyword: ROW
     - keyword: ACCESS
@@ -511,7 +511,7 @@ file:
         identifier: my_row_access_policy
 - statement_terminator: ;
 - statement:
-    base:
+    describe_statement:
     - keyword: DESC
     - keyword: ROW
     - keyword: ACCESS
@@ -520,7 +520,7 @@ file:
         identifier: my_row_access_policy
 - statement_terminator: ;
 - statement:
-    base:
+    describe_statement:
     - keyword: DESCRIBE
     - keyword: FILE
     - keyword: FORMAT
@@ -528,7 +528,7 @@ file:
         identifier: my_file_format
 - statement_terminator: ;
 - statement:
-    base:
+    describe_statement:
     - keyword: DESC
     - keyword: FILE
     - keyword: FORMAT
@@ -536,63 +536,63 @@ file:
         identifier: my_file_format
 - statement_terminator: ;
 - statement:
-    base:
+    describe_statement:
     - keyword: DESCRIBE
     - keyword: STAGE
     - object_reference:
         identifier: my_stage
 - statement_terminator: ;
 - statement:
-    base:
+    describe_statement:
     - keyword: DESC
     - keyword: STAGE
     - object_reference:
         identifier: my_stage
 - statement_terminator: ;
 - statement:
-    base:
+    describe_statement:
     - keyword: DESCRIBE
     - keyword: PIPE
     - object_reference:
         identifier: my_pipe
 - statement_terminator: ;
 - statement:
-    base:
+    describe_statement:
     - keyword: DESC
     - keyword: PIPE
     - object_reference:
         identifier: my_pipe
 - statement_terminator: ;
 - statement:
-    base:
+    describe_statement:
     - keyword: DESCRIBE
     - keyword: STREAM
     - object_reference:
         identifier: my_stream
 - statement_terminator: ;
 - statement:
-    base:
+    describe_statement:
     - keyword: DESC
     - keyword: STREAM
     - object_reference:
         identifier: my_stream
 - statement_terminator: ;
 - statement:
-    base:
+    describe_statement:
     - keyword: DESCRIBE
     - keyword: TASK
     - object_reference:
         identifier: my_task
 - statement_terminator: ;
 - statement:
-    base:
+    describe_statement:
     - keyword: DESC
     - keyword: TASK
     - object_reference:
         identifier: my_task
 - statement_terminator: ;
 - statement:
-    base:
+    describe_statement:
     - keyword: DESCRIBE
     - keyword: FUNCTION
     - function_name:
@@ -607,7 +607,7 @@ file:
       - end_bracket: )
 - statement_terminator: ;
 - statement:
-    base:
+    describe_statement:
     - keyword: DESC
     - keyword: FUNCTION
     - function_name:
@@ -622,7 +622,7 @@ file:
       - end_bracket: )
 - statement_terminator: ;
 - statement:
-    base:
+    describe_statement:
     - keyword: DESCRIBE
     - keyword: PROCEDURE
     - function_name:
@@ -632,7 +632,7 @@ file:
         end_bracket: )
 - statement_terminator: ;
 - statement:
-    base:
+    describe_statement:
     - keyword: DESC
     - keyword: PROCEDURE
     - function_name:
@@ -642,7 +642,7 @@ file:
         end_bracket: )
 - statement_terminator: ;
 - statement:
-    base:
+    describe_statement:
     - keyword: DESCRIBE
     - keyword: PROCEDURE
     - function_name:
@@ -654,7 +654,7 @@ file:
         end_bracket: )
 - statement_terminator: ;
 - statement:
-    base:
+    describe_statement:
     - keyword: DESC
     - keyword: PROCEDURE
     - function_name:

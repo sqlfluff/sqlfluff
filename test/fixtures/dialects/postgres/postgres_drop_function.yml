@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: b43b58e3cc8010a31884e461bc505592c46994abf42a3d3057833a6c802a2fd8
+_hash: af4657c34d959e21cd5ac7fa31e0be4aed673cb2baf503b2a9b1431c2270f063
 file:
 - statement:
     drop_function_statement:
@@ -11,7 +11,7 @@ file:
     - keyword: FUNCTION
     - function_name:
         function_name_identifier: sqrt
-    - base:
+    - function_parameter_list:
         bracketed:
           start_bracket: (
           data_type:
@@ -24,7 +24,7 @@ file:
     - keyword: FUNCTION
     - function_name:
         function_name_identifier: sqrt
-    - base:
+    - function_parameter_list:
         bracketed:
           start_bracket: (
           data_type:
@@ -33,7 +33,7 @@ file:
     - comma: ','
     - function_name:
         function_name_identifier: sqrt
-    - base:
+    - function_parameter_list:
         bracketed:
           start_bracket: (
           data_type:
@@ -53,7 +53,7 @@ file:
     - keyword: FUNCTION
     - function_name:
         function_name_identifier: update_employee_salaries
-    - base:
+    - function_parameter_list:
         bracketed:
           start_bracket: (
           end_bracket: )
@@ -66,7 +66,7 @@ file:
     - keyword: EXISTS
     - function_name:
         function_name_identifier: foo
-    - base:
+    - function_parameter_list:
         bracketed:
         - start_bracket: (
         - keyword: IN

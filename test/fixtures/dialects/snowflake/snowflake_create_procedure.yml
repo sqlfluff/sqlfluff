@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3fc8a1fce48f8dcb0488576455226061e2443b6500694349f576808625bf8fa7
+_hash: f75c5ea627915ae5e2514712f363f7616b2ddd951141022c7eca340bb2dccb45
 file:
 - statement:
     create_procedure_statement:
@@ -13,7 +13,7 @@ file:
     - keyword: procedure
     - function_name:
         function_name_identifier: sp_pi
-    - base:
+    - function_parameter_list:
         bracketed:
           start_bracket: (
           end_bracket: )
@@ -35,7 +35,7 @@ file:
     - keyword: procedure
     - function_name:
         function_name_identifier: stproc1
-    - base:
+    - function_parameter_list:
         bracketed:
           start_bracket: (
           parameter: FLOAT_PARAM1
@@ -69,7 +69,7 @@ file:
         identifier: public
         dot: .
         function_name_identifier: test_procedure
-    - base:
+    - function_parameter_list:
         bracketed:
         - start_bracket: (
         - parameter: test_table

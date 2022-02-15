@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 7a207c48c4c7c64e4bcdafbc14b7323e8ff131bedf82284964066bd396846e9c
+_hash: 8a1936b1d3db7a914b04b28e3a9e8d806de7efe93cf96c8b99850520c4c4a2a7
 file:
 - statement:
     alter_function_statement:
@@ -13,7 +13,7 @@ file:
     - keyword: EXISTS
     - function_name:
         function_name_identifier: function1
-    - base:
+    - function_parameter_list:
         bracketed:
           start_bracket: (
           data_type:
@@ -32,7 +32,7 @@ file:
     - keyword: EXISTS
     - function_name:
         function_name_identifier: function2
-    - base:
+    - function_parameter_list:
         bracketed:
           start_bracket: (
           data_type:
@@ -47,7 +47,7 @@ file:
     - keyword: FUNCTION
     - function_name:
         function_name_identifier: function3
-    - base:
+    - function_parameter_list:
         bracketed:
           start_bracket: (
           end_bracket: )

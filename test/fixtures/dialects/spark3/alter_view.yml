@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 1eab6d2ef472eff8df68975182f9a4baf6759a437159c7b2aeeb0c42e8e0aea4
+_hash: 562476d80501c42f792c4e0ee9fdd5f971d20f6e18b471590800782f0bb67ccb
 file:
-- base:
+- statement:
     alter_view_statement:
     - keyword: ALTER
     - keyword: VIEW
@@ -16,7 +16,7 @@ file:
     - table_reference:
         identifier: view_identifier
 - statement_terminator: ;
-- base:
+- statement:
     alter_view_statement:
     - keyword: ALTER
     - keyword: VIEW
@@ -31,7 +31,7 @@ file:
       - dot: .
       - identifier: v2
 - statement_terminator: ;
-- base:
+- statement:
     alter_view_statement:
     - keyword: ALTER
     - keyword: VIEW
@@ -47,7 +47,7 @@ file:
       - literal: '"property_val"'
       - end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     alter_view_statement:
     - keyword: ALTER
     - keyword: VIEW
@@ -70,7 +70,7 @@ file:
       - literal: "'01-01-2001'"
       - end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     alter_view_statement:
     - keyword: ALTER
     - keyword: VIEW
@@ -83,7 +83,7 @@ file:
         literal: '"property_key"'
         end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     alter_view_statement:
     - keyword: ALTER
     - keyword: VIEW
@@ -98,7 +98,7 @@ file:
         literal: '"property_key"'
         end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     alter_view_statement:
     - keyword: ALTER
     - keyword: VIEW
@@ -115,7 +115,7 @@ file:
       - literal: "'created.date'"
       - end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     alter_view_statement:
     - keyword: ALTER
     - keyword: VIEW
@@ -142,7 +142,7 @@ file:
                   - identifier: v1
         end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     alter_view_statement:
     - keyword: ALTER
     - keyword: VIEW

@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d79411fee00fc0f4056bc7405ba142c2908339829994f03430793ad5f18663b5
+_hash: 4c335cbed2e987284fd671fcddffa6959d127df5951e05e956a0daf0b7771164
 file:
 - statement:
     create_function_statement:
@@ -11,7 +11,7 @@ file:
     - keyword: FUNCTION
     - function_name:
         function_name_identifier: pi_udf
-    - base:
+    - function_parameter_list:
         bracketed:
           start_bracket: (
           end_bracket: )
@@ -27,7 +27,7 @@ file:
     - keyword: FUNCTION
     - function_name:
         function_name_identifier: simple_table_function
-    - base:
+    - function_parameter_list:
         bracketed:
           start_bracket: (
           end_bracket: )
@@ -56,7 +56,7 @@ file:
     - keyword: FUNCTION
     - function_name:
         function_name_identifier: get_countries_for_user
-    - base:
+    - function_parameter_list:
         bracketed:
           start_bracket: (
           parameter: id
@@ -93,7 +93,7 @@ file:
     - keyword: FUNCTION
     - function_name:
         function_name_identifier: js_factorial
-    - base:
+    - function_parameter_list:
         bracketed:
           start_bracket: (
           parameter: d

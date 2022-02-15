@@ -2364,7 +2364,7 @@ class IndexColumnDefinitionSegment(BaseSegment):
 class TableConstraintSegment(BaseSegment):
     """A table constraint, e.g. for CREATE TABLE."""
 
-    type = "table_constraint_segment"
+    type = "table_constraint"
 
     # Later add support for CHECK constraint, others?
     # e.g. CONSTRAINT constraint_1 PRIMARY KEY(column_1)
@@ -3058,6 +3058,7 @@ class SetClauseSegment(BaseSegment):
 class FunctionDefinitionGrammar(BaseSegment):
     """This is the body of a `CREATE FUNCTION AS` statement."""
 
+    type = "function_definition"
     match_grammar = Sequence(
         "AS",
         Ref("QuotedLiteralSegment"),
@@ -3113,6 +3114,7 @@ class CreateFunctionStatementSegment(BaseSegment):
 class FunctionParameterListGrammar(BaseSegment):
     """The parameters for a function ie. `(string, number)`."""
 
+    type = "function_parameter_list"
     # Function parameter list
     match_grammar = Bracketed(
         Delimited(
