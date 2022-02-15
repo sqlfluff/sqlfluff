@@ -1,6 +1,5 @@
 name: Enhancement
 description: Suggest an enhancement to help improve SQLFluff
-title: "[Enhancement] Feature title"
 labels: [ "enhancement" ]
 body:
   - type: checkboxes
