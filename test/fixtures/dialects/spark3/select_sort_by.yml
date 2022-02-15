@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 013e20883076666f60cecb20b65c41da3b0cfbecc717df808d6f87b88c727202
+_hash: e9f5faadf9cf816b385cd25b192715e3e1d27fd9e7f9d04e25c77a643deff4be
 file:
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -44,7 +44,7 @@ file:
       - column_reference:
           identifier: name
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -72,7 +72,7 @@ file:
       - column_reference:
           identifier: name
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -110,7 +110,7 @@ file:
       - keyword: BY
       - literal: '1'
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -137,7 +137,7 @@ file:
       - keyword: BY
       - literal: '1'
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -178,7 +178,7 @@ file:
       - keyword: NULLS
       - keyword: LAST
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -208,7 +208,7 @@ file:
       - keyword: NULLS
       - keyword: LAST
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -248,7 +248,7 @@ file:
           identifier: age
       - keyword: DESC
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -277,7 +277,7 @@ file:
           identifier: age
       - keyword: DESC
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -319,7 +319,7 @@ file:
       - keyword: NULLS
       - keyword: FIRST
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -350,7 +350,7 @@ file:
       - keyword: NULLS
       - keyword: FIRST
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -394,7 +394,7 @@ file:
           identifier: age
       - keyword: DESC
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -427,7 +427,7 @@ file:
           identifier: age
       - keyword: DESC
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
