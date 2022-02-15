@@ -1068,15 +1068,7 @@ class BaseSegment:
                 seg_buffer.append(s)
 
             # Reform into a new segment
-            r = r.__class__(
-                # Realign the segments within
-                segments=self._position_segments(
-                    tuple(seg_buffer), parent_pos=r.pos_marker
-                ),
-                pos_marker=r.pos_marker,
-                # Pass through any additional kwargs
-                **{k: getattr(self, k) for k in self.additional_kwargs},
-            )
+            r = self._create_segment_after_fixes(r, seg_buffer)
             if fixes_applied:
                 from sqlfluff.core.dialects import dialect_selector
 
@@ -1093,6 +1085,11 @@ class BaseSegment:
                             )
                     if getattr(r, "parse_grammar", None):
                         parse_result = r.parse(parse_context)
+                        # :HACK: Calling parse() corrupts the segment 'r' in
+                        # some unknown way, and it's possible this code is not
+                        # even useful. For now, work around this by creating a
+                        # new copy of the segment after calling parse().
+                        r = self._create_segment_after_fixes(r, seg_buffer)
                         if parse_result.segments and isinstance(
                             parse_result.segments[-1], UnparsableSegment
                         ):
@@ -1106,6 +1103,19 @@ class BaseSegment:
             return r, fixes
         else:
             return self, fixes
+
+    def _create_segment_after_fixes(
+        self, original: "BaseSegment", seg_buffer: List["BaseSegment"]
+    ):
+        return original.__class__(
+            # Realign the segments within
+            segments=self._position_segments(
+                tuple(seg_buffer), parent_pos=original.pos_marker
+            ),
+            pos_marker=original.pos_marker,
+            # Pass through any additional kwargs
+            **{k: getattr(self, k) for k in self.additional_kwargs},
+        )
 
     def iter_patches(self, templated_str: str) -> Iterator[FixPatch]:
         """Iterate through the segments generating fix patches.
