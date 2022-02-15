@@ -520,6 +520,7 @@ class ValuesClauseSegment(BaseSegment):
 class FunctionDefinitionGrammar(BaseSegment):
     """This is the body of a `CREATE FUNCTION AS` statement."""
 
+    type = "function_definition"
     match_grammar = Sequence(
         "AS",
         OneOf(Ref("QuotedLiteralSegment"), Ref("DollarQuotedLiteralSegment")),
@@ -3359,6 +3360,7 @@ class DescribeStatementSegment(BaseSegment):
     https://docs.snowflake.com/en/sql-reference/sql/desc.html
     """
 
+    type = "describe_statement"
     match_grammar = Sequence(
         OneOf("DESCRIBE", "DESC"),
         OneOf(
@@ -3535,6 +3537,7 @@ class TransactionStatementSegment(BaseSegment):
     https://docs.snowflake.com/en/sql-reference/sql/rollback.html
     """
 
+    type = "transaction_statement_segment"
     match_grammar = OneOf(
         Sequence(
             "BEGIN",

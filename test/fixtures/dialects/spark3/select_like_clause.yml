@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 86ba7d44959c1174dd19a0febb1337652cdcb7d0a15f8bf443143aa009c27883
+_hash: 29ffbaedfc4df2f64c3a8d41a08a1517b0e49af81a5d1e149d2b86c03e6e1f57
 file:
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -31,7 +31,7 @@ file:
           keyword: LIKE
           literal: "'M%'"
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -57,7 +57,7 @@ file:
           keyword: LIKE
           literal: "'M_ry'"
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -84,7 +84,7 @@ file:
         - keyword: LIKE
         - literal: "'M_ry'"
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -110,7 +110,7 @@ file:
           keyword: RLIKE
           literal: "'M+'"
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -136,7 +136,7 @@ file:
           keyword: REGEXP
           literal: "'M+'"
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -162,7 +162,7 @@ file:
           keyword: LIKE
           literal: "'%\\_%'"
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -190,7 +190,7 @@ file:
         - keyword: ESCAPE
         - literal: "'$'"
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -222,7 +222,7 @@ file:
           - literal: "'%an'"
           - end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -254,7 +254,7 @@ file:
           - literal: "'%an'"
           - end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -286,7 +286,7 @@ file:
           - literal: "'%an'"
           - end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -319,7 +319,7 @@ file:
           - literal: "'%an'"
           - end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -352,7 +352,7 @@ file:
           - literal: "'%an'"
           - end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT

@@ -2969,6 +2969,7 @@ class PostTableExpressionGrammar(BaseSegment):
     https://docs.microsoft.com/en-us/sql/t-sql/queries/hints-transact-sql-table?view=sql-server-ver15
     """
 
+    type = "post_table_expression_grammar"
     match_grammar = Sequence(
         Sequence("WITH", optional=True),
         Bracketed(

@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 599645e137bc6467a278a0d67fc2d30bfc40c8372e1d41d3ed083513e8d2bd6d
+_hash: 4e7a97cdc6ec29644c755516e6f89f66998a87aefeb8c8a4f58ff1fd161e240c
 file:
-- base:
+- statement:
     select_statement:
       select_clause:
         keyword: select
@@ -24,7 +24,7 @@ file:
                   scalar_value:
                     literal: '1'
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
         keyword: select
@@ -47,7 +47,7 @@ file:
                         literal: '1'
                       end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
         keyword: select
@@ -73,7 +73,7 @@ file:
                         literal: '2'
                     - end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
         keyword: select
@@ -101,7 +101,7 @@ file:
                       literal: '3'
               end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
         keyword: select
@@ -141,7 +141,7 @@ file:
                         end_bracket: )
               end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
         keyword: select
@@ -180,7 +180,7 @@ file:
                       - end_bracket: )
               end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
         keyword: select
@@ -208,7 +208,7 @@ file:
                   scalar_value:
                     literal: '2'
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
         keyword: select
@@ -276,7 +276,7 @@ file:
                       - end_bracket: )
               end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
         keyword: select
@@ -324,7 +324,7 @@ file:
                         - end_bracket: )
               end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
         keyword: select
@@ -346,7 +346,7 @@ file:
                   keyword: as
                   identifier: t
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
         keyword: select
@@ -382,7 +382,7 @@ file:
                     - identifier: b
                     end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
         keyword: select
@@ -431,7 +431,7 @@ file:
                 - identifier: b
                 end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
         keyword: select
@@ -479,7 +479,7 @@ file:
                 - identifier: b
                 end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
         keyword: select
@@ -500,7 +500,7 @@ file:
                 alias_expression:
                   identifier: t
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
         keyword: select
@@ -535,7 +535,7 @@ file:
                     - identifier: b
                     end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
         keyword: select
@@ -583,7 +583,7 @@ file:
                 - identifier: b
                 end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
         keyword: select

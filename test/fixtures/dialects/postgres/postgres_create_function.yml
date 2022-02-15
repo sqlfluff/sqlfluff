@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 38740d06578e7fc57aef6895215bbef34bca3af6a3cdde9cf9bda621f611f3ae
+_hash: 883ae124c9672f9d02813f810fcfa80649a0ddf4d188972162c323a19b9b45b8
 file:
 - statement:
     create_function_statement:
@@ -11,7 +11,7 @@ file:
     - keyword: FUNCTION
     - function_name:
         function_name_identifier: add
-    - base:
+    - function_parameter_list:
         bracketed:
         - start_bracket: (
         - data_type:
@@ -23,7 +23,7 @@ file:
     - keyword: RETURNS
     - data_type:
         keyword: integer
-    - base:
+    - function_definition:
         keyword: AS
         literal: "'select $1 + $2;'"
         language_clause:
@@ -38,7 +38,7 @@ file:
     - keyword: FUNCTION
     - function_name:
         function_name_identifier: increment
-    - base:
+    - function_parameter_list:
         bracketed:
           start_bracket: (
           parameter: i
@@ -48,7 +48,7 @@ file:
     - keyword: RETURNS
     - data_type:
         keyword: integer
-    - base:
+    - function_definition:
       - keyword: AS
       - literal: "'\n    BEGIN\n        RETURN i + 1;\n    END;\n'"
       - language_clause:
@@ -64,7 +64,7 @@ file:
     - keyword: FUNCTION
     - function_name:
         function_name_identifier: increment
-    - base:
+    - function_parameter_list:
         bracketed:
           start_bracket: (
           parameter: i
@@ -74,7 +74,7 @@ file:
     - keyword: RETURNS
     - data_type:
         keyword: integer
-    - base:
+    - function_definition:
       - keyword: AS
       - literal: "'\n    BEGIN\n        RETURN i + 1;\n    END;\n'"
       - language_clause:
@@ -108,7 +108,7 @@ file:
     - keyword: FUNCTION
     - function_name:
         function_name_identifier: increment
-    - base:
+    - function_parameter_list:
         bracketed:
           start_bracket: (
           parameter: i
@@ -118,7 +118,7 @@ file:
     - keyword: RETURNS
     - data_type:
         keyword: integer
-    - base:
+    - function_definition:
       - keyword: AS
       - literal: "'C:\\\\my_file.c'"
       - comma: ','
@@ -161,7 +161,7 @@ file:
     - keyword: FUNCTION
     - function_name:
         function_name_identifier: increment
-    - base:
+    - function_parameter_list:
         bracketed:
           start_bracket: (
           parameter: i
@@ -171,7 +171,7 @@ file:
     - keyword: RETURNS
     - data_type:
         keyword: integer
-    - base:
+    - function_definition:
       - keyword: PARALLEL
       - keyword: UNSAFE
       - keyword: AS
@@ -188,7 +188,7 @@ file:
     - keyword: FUNCTION
     - function_name:
         function_name_identifier: add
-    - base:
+    - function_parameter_list:
         bracketed:
         - start_bracket: (
         - data_type:
@@ -200,7 +200,7 @@ file:
     - keyword: RETURNS
     - data_type:
         keyword: integer
-    - base:
+    - function_definition:
       - keyword: AS
       - literal: "'select $1 + $2;'"
       - language_clause:
@@ -221,7 +221,7 @@ file:
     - keyword: FUNCTION
     - function_name:
         function_name_identifier: increment
-    - base:
+    - function_parameter_list:
         bracketed:
           start_bracket: (
           parameter: i
@@ -231,7 +231,7 @@ file:
     - keyword: RETURNS
     - data_type:
         keyword: integer
-    - base:
+    - function_definition:
         keyword: AS
         literal: "$$\n        BEGIN\n                RETURN i + 1;\n        END;\n\
           $$"
@@ -245,7 +245,7 @@ file:
     - keyword: FUNCTION
     - function_name:
         function_name_identifier: dup
-    - base:
+    - function_parameter_list:
         bracketed:
         - start_bracket: (
         - keyword: in
@@ -262,7 +262,7 @@ file:
         - data_type:
             keyword: text
         - end_bracket: )
-    - base:
+    - function_definition:
         keyword: AS
         literal: "$$ SELECT $1, CAST($1 AS text) || ' is text' $$"
         language_clause:
@@ -313,7 +313,7 @@ file:
     - keyword: FUNCTION
     - function_name:
         function_name_identifier: dup
-    - base:
+    - function_parameter_list:
         bracketed:
           start_bracket: (
           data_type:
@@ -322,7 +322,7 @@ file:
     - keyword: RETURNS
     - data_type:
         data_type_identifier: dup_result
-    - base:
+    - function_definition:
         keyword: AS
         literal: "$$ SELECT $1, CAST($1 AS text) || ' is text' $$"
         language_clause:
@@ -357,7 +357,7 @@ file:
     - keyword: FUNCTION
     - function_name:
         function_name_identifier: dup
-    - base:
+    - function_parameter_list:
         bracketed:
           start_bracket: (
           data_type:
@@ -375,7 +375,7 @@ file:
       - data_type:
           keyword: text
       - end_bracket: )
-    - base:
+    - function_definition:
         keyword: AS
         literal: "$$ SELECT $1, CAST($1 AS text) || ' is text' $$"
         language_clause:
@@ -410,7 +410,7 @@ file:
     - keyword: FUNCTION
     - function_name:
         function_name_identifier: check_password
-    - base:
+    - function_parameter_list:
         bracketed:
         - start_bracket: (
         - parameter: uname
@@ -424,7 +424,7 @@ file:
     - keyword: RETURNS
     - data_type:
         keyword: BOOLEAN
-    - base:
+    - function_definition:
       - keyword: AS
       - literal: "$$\nDECLARE passed BOOLEAN;\nBEGIN\n        SELECT  (pwd = $2) INTO\
           \ passed\n        FROM    pwds\n        WHERE   username = $1;\n\n     \
@@ -452,7 +452,7 @@ file:
     - keyword: FUNCTION
     - function_name:
         function_name_identifier: check_password
-    - base:
+    - function_parameter_list:
         bracketed:
         - start_bracket: (
         - parameter: uname
@@ -466,7 +466,7 @@ file:
     - keyword: RETURNS
     - data_type:
         keyword: BOOLEAN
-    - base:
+    - function_definition:
       - keyword: AS
       - literal: "$$\nDECLARE passed BOOLEAN;\nBEGIN\n        SELECT  (pwd = $2) INTO\
           \ passed\n        FROM    pwds\n        WHERE   username = $1;\n\n     \
@@ -485,7 +485,7 @@ file:
     - keyword: FUNCTION
     - object_reference:
         identifier: check_password
-    - base:
+    - function_parameter_list:
         bracketed:
         - start_bracket: (
         - parameter: uname
@@ -508,7 +508,7 @@ file:
     - keyword: FUNCTION
     - object_reference:
         identifier: check_password
-    - base:
+    - function_parameter_list:
         bracketed:
         - start_bracket: (
         - parameter: uname
@@ -537,7 +537,7 @@ file:
         identifier: public
         dot: .
         function_name_identifier: setof_test
-    - base:
+    - function_parameter_list:
         bracketed:
           start_bracket: (
           end_bracket: )
@@ -545,7 +545,7 @@ file:
     - keyword: SETOF
     - data_type:
         keyword: text
-    - base:
+    - function_definition:
       - language_clause:
           keyword: LANGUAGE
           parameter: sql
@@ -564,7 +564,7 @@ file:
         identifier: public
         dot: .
         function_name_identifier: foo
-    - base:
+    - function_parameter_list:
         bracketed:
         - start_bracket: (
         - parameter: _a
@@ -578,7 +578,7 @@ file:
     - keyword: RETURNS
     - data_type:
         keyword: FLOAT
-    - base:
+    - function_definition:
       - keyword: AS
       - literal: "$$\n  RETURN 0.0\n$$"
       - language_clause:
@@ -594,7 +594,7 @@ file:
     - keyword: FUNCTION
     - function_name:
         function_name_identifier: _add
-    - base:
+    - function_parameter_list:
         bracketed:
         - start_bracket: (
         - data_type:
@@ -606,7 +606,7 @@ file:
     - keyword: RETURNS
     - data_type:
         keyword: integer
-    - base:
+    - function_definition:
         keyword: AS
         literal: "'select $1 + $2;'"
         language_clause:
@@ -619,7 +619,7 @@ file:
     - keyword: FUNCTION
     - function_name:
         function_name_identifier: _$add
-    - base:
+    - function_parameter_list:
         bracketed:
         - start_bracket: (
         - data_type:
@@ -631,7 +631,7 @@ file:
     - keyword: RETURNS
     - data_type:
         keyword: integer
-    - base:
+    - function_definition:
         keyword: AS
         literal: "'select $1 + $2;'"
         language_clause:

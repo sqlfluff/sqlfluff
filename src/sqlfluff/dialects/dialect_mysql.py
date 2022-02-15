@@ -685,6 +685,7 @@ class CreateProcedureStatementSegment(BaseSegment):
 class FunctionDefinitionGrammar(BaseSegment):
     """This is the body of a `CREATE FUNCTION` statement."""
 
+    type = "function_definition"
     match_grammar = Ref("TransactionStatementSegment")
 
 
@@ -848,6 +849,7 @@ class AlterTableStatementSegment(BaseSegment):
 class ProcedureParameterListGrammar(BaseSegment):
     """The parameters for a procedure ie. `(in/out/inout name datatype)`."""
 
+    type = "procedure_parameter_list"
     match_grammar = Bracketed(
         Delimited(
             Ref("ProcedureParameterGrammar"),

@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e13795a3c538e2db8ac00a38dbe255173ddb7aa305bc4b0603b45508a00de084
+_hash: 6b178ad90f1732024ad018d47169c0f030724189c31f0f47410655cc1815903c
 file:
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -39,7 +39,7 @@ file:
               table_reference:
                 identifier: t
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -73,7 +73,7 @@ file:
               table_reference:
                 identifier: t
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -107,7 +107,7 @@ file:
               table_reference:
                 identifier: t
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -143,7 +143,7 @@ file:
               table_reference:
                 identifier: t
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -177,7 +177,7 @@ file:
               table_reference:
                 identifier: t
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -213,7 +213,7 @@ file:
               table_reference:
                 identifier: t
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -243,7 +243,7 @@ file:
               table_reference:
                 identifier: t
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -277,7 +277,7 @@ file:
               table_reference:
                 identifier: t
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -329,7 +329,7 @@ file:
               table_reference:
                 identifier: t
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -389,7 +389,7 @@ file:
                 - dot: .
                 - identifier: key
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -449,7 +449,7 @@ file:
                 - dot: .
                 - identifier: key
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -509,7 +509,7 @@ file:
                 - dot: .
                 - identifier: key
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -569,7 +569,7 @@ file:
                 - dot: .
                 - identifier: key
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -629,7 +629,7 @@ file:
                 - dot: .
                 - identifier: key
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -689,7 +689,7 @@ file:
                 - dot: .
                 - identifier: key
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -749,7 +749,7 @@ file:
                 - dot: .
                 - identifier: key
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -809,7 +809,7 @@ file:
                 - dot: .
                 - identifier: key
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT

@@ -871,6 +871,7 @@ class FunctionDefinitionGrammar(BaseSegment):
     https://www.postgresql.org/docs/13/sql-createfunction.html
     """
 
+    type = "function_definition"
     match_grammar = Sequence(
         AnyNumberOf(
             Ref("LanguageClauseSegment"),
@@ -2212,6 +2213,7 @@ class PartitionBoundSpecSegment(BaseSegment):
     As per https://www.postgresql.org/docs/13/sql-altertable.html.
     """
 
+    type = "partition_bound_segment"
     match_grammar = OneOf(
         Sequence(
             "IN",
@@ -2322,6 +2324,7 @@ class TableConstraintUsingIndexSegment(BaseSegment):
     As specified in: https://www.postgresql.org/docs/13/sql-altertable.html.
     """
 
+    type = "table_constraint_segment"
     match_grammar = Sequence(
         Sequence(  # [ CONSTRAINT <Constraint name> ]
             "CONSTRAINT", Ref("ObjectReferenceSegment"), optional=True

@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e3ff5b9e5e6a222428e1f399c038610c806c31213803dffdcde92db6d469a022
+_hash: fca63553bdb6ee1a0880fa57b87fede8ba2b61d7975f1209fe59ae494faacc90
 file:
-- base:
+- statement:
     select_statement:
       select_clause:
         keyword: SELECT
@@ -15,7 +15,7 @@ file:
             keyword: AS
             identifier: col
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
         keyword: SELECT

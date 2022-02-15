@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3d7f4385ee6cf816a55a9f5cfc772d5936328055f4d4b156e0a39b30e0c426c9
+_hash: b34eb8e8919a4cee40f68d0f1247a983c3eb86515034a200aa1d8d56599899aa
 file:
 - statement:
     alter_function_statement:
@@ -21,7 +21,7 @@ file:
     - keyword: FUNCTION
     - function_name:
         function_name_identifier: fn
-    - base:
+    - function_parameter_list:
         bracketed:
         - start_bracket: (
         - data_type:
@@ -168,7 +168,7 @@ file:
     - keyword: FUNCTION
     - function_name:
         function_name_identifier: fn
-    - base:
+    - function_parameter_list:
         bracketed:
           start_bracket: (
           parameter: arg1
@@ -190,7 +190,7 @@ file:
         identifier: public
         dot: .
         function_name_identifier: fn
-    - base:
+    - function_parameter_list:
         bracketed:
           start_bracket: (
           parameter: arg1
@@ -223,7 +223,7 @@ file:
     - keyword: FUNCTION
     - function_name:
         function_name_identifier: fn
-    - base:
+    - function_parameter_list:
         bracketed:
         - start_bracket: (
         - data_type:
@@ -275,7 +275,7 @@ file:
     - keyword: FUNCTION
     - function_name:
         function_name_identifier: fn
-    - base:
+    - function_parameter_list:
         bracketed:
         - start_bracket: (
         - data_type:
@@ -307,7 +307,7 @@ file:
     - keyword: FUNCTION
     - function_name:
         function_name_identifier: fn
-    - base:
+    - function_parameter_list:
         bracketed:
           start_bracket: (
           data_type:
@@ -344,7 +344,7 @@ file:
     - keyword: FUNCTION
     - function_name:
         function_name_identifier: fn
-    - base:
+    - function_parameter_list:
         bracketed:
           start_bracket: (
           parameter: arg1
@@ -441,7 +441,7 @@ file:
     - keyword: FUNCTION
     - function_name:
         function_name_identifier: fn
-    - base:
+    - function_parameter_list:
         bracketed:
         - start_bracket: (
         - data_type:
@@ -460,7 +460,7 @@ file:
     - keyword: FUNCTION
     - function_name:
         function_name_identifier: fn
-    - base:
+    - function_parameter_list:
         bracketed:
         - start_bracket: (
         - data_type:
@@ -482,7 +482,7 @@ file:
         identifier: public
         dot: .
         function_name_identifier: fn
-    - base:
+    - function_parameter_list:
         bracketed:
         - start_bracket: (
         - data_type:
@@ -502,7 +502,7 @@ file:
     - keyword: FUNCTION
     - function_name:
         function_name_identifier: fn
-    - base:
+    - function_parameter_list:
         bracketed:
           start_bracket: (
           data_type:
@@ -517,7 +517,7 @@ file:
     - keyword: FUNCTION
     - function_name:
         function_name_identifier: fn
-    - base:
+    - function_parameter_list:
         bracketed:
           start_bracket: (
           data_type:
@@ -533,7 +533,7 @@ file:
     - keyword: FUNCTION
     - function_name:
         function_name_identifier: fn
-    - base:
+    - function_parameter_list:
         bracketed:
           start_bracket: (
           parameter: arg
@@ -549,7 +549,7 @@ file:
     - keyword: FUNCTION
     - function_name:
         function_name_identifier: fn
-    - base:
+    - function_parameter_list:
         bracketed:
           start_bracket: (
           parameter: arg
@@ -585,7 +585,7 @@ file:
     - keyword: FUNCTION
     - function_name:
         function_name_identifier: fn
-    - base:
+    - function_parameter_list:
         bracketed:
         - start_bracket: (
         - data_type:
@@ -604,7 +604,7 @@ file:
     - keyword: FUNCTION
     - function_name:
         function_name_identifier: fn
-    - base:
+    - function_parameter_list:
         bracketed:
         - start_bracket: (
         - data_type:
@@ -645,7 +645,7 @@ file:
     - keyword: FUNCTION
     - function_name:
         function_name_identifier: fn
-    - base:
+    - function_parameter_list:
         bracketed:
           start_bracket: (
           parameter: arg
@@ -662,7 +662,7 @@ file:
     - keyword: FUNCTION
     - function_name:
         function_name_identifier: fn
-    - base:
+    - function_parameter_list:
         bracketed:
           start_bracket: (
           parameter: arg
@@ -701,7 +701,7 @@ file:
     - keyword: FUNCTION
     - function_name:
         function_name_identifier: fn
-    - base:
+    - function_parameter_list:
         bracketed:
         - start_bracket: (
         - data_type:
@@ -723,7 +723,7 @@ file:
     - keyword: FUNCTION
     - function_name:
         function_name_identifier: fn
-    - base:
+    - function_parameter_list:
         bracketed:
         - start_bracket: (
         - data_type:
@@ -769,7 +769,7 @@ file:
     - keyword: FUNCTION
     - function_name:
         function_name_identifier: fn
-    - base:
+    - function_parameter_list:
         bracketed:
         - start_bracket: (
         - data_type:
@@ -789,7 +789,7 @@ file:
     - keyword: FUNCTION
     - function_name:
         function_name_identifier: fn
-    - base:
+    - function_parameter_list:
         bracketed:
         - start_bracket: (
         - data_type:
@@ -854,7 +854,7 @@ file:
     - keyword: FUNCTION
     - function_name:
         function_name_identifier: fn
-    - base:
+    - function_parameter_list:
         bracketed:
         - start_bracket: (
         - parameter: arg1
@@ -879,7 +879,7 @@ file:
     - keyword: FUNCTION
     - function_name:
         function_name_identifier: fn
-    - base:
+    - function_parameter_list:
         bracketed:
         - start_bracket: (
         - parameter: arg1
@@ -915,7 +915,7 @@ file:
     - keyword: FUNCTION
     - function_name:
         function_name_identifier: fn
-    - base:
+    - function_parameter_list:
         bracketed:
           start_bracket: (
           parameter: arg
@@ -943,7 +943,7 @@ file:
     - keyword: FUNCTION
     - function_name:
         function_name_identifier: fn
-    - base:
+    - function_parameter_list:
         bracketed:
           start_bracket: (
           data_type:
@@ -981,7 +981,7 @@ file:
     - keyword: FUNCTION
     - function_name:
         function_name_identifier: fn
-    - base:
+    - function_parameter_list:
         bracketed:
         - start_bracket: (
         - data_type:
@@ -1000,7 +1000,7 @@ file:
     - keyword: FUNCTION
     - function_name:
         function_name_identifier: fn
-    - base:
+    - function_parameter_list:
         bracketed:
           start_bracket: (
           data_type:
@@ -1040,7 +1040,7 @@ file:
     - keyword: FUNCTION
     - function_name:
         function_name_identifier: fn
-    - base:
+    - function_parameter_list:
         bracketed:
         - start_bracket: (
         - data_type:
@@ -1060,7 +1060,7 @@ file:
     - keyword: FUNCTION
     - function_name:
         function_name_identifier: fn
-    - base:
+    - function_parameter_list:
         bracketed:
         - start_bracket: (
         - data_type:
@@ -1101,7 +1101,7 @@ file:
     - keyword: FUNCTION
     - function_name:
         function_name_identifier: fn
-    - base:
+    - function_parameter_list:
         bracketed:
         - start_bracket: (
         - parameter: arg1
@@ -1122,7 +1122,7 @@ file:
     - keyword: FUNCTION
     - function_name:
         function_name_identifier: fn
-    - base:
+    - function_parameter_list:
         bracketed:
         - start_bracket: (
         - parameter: arg1
@@ -1165,7 +1165,7 @@ file:
     - keyword: FUNCTION
     - function_name:
         function_name_identifier: fn
-    - base:
+    - function_parameter_list:
         bracketed:
         - start_bracket: (
         - parameter: arg1
@@ -1192,7 +1192,7 @@ file:
     - keyword: FUNCTION
     - function_name:
         function_name_identifier: fn
-    - base:
+    - function_parameter_list:
         bracketed:
         - start_bracket: (
         - parameter: arg1
@@ -1242,7 +1242,7 @@ file:
     - keyword: FUNCTION
     - function_name:
         function_name_identifier: fn
-    - base:
+    - function_parameter_list:
         bracketed:
         - start_bracket: (
         - data_type:
@@ -1261,7 +1261,7 @@ file:
     - keyword: FUNCTION
     - function_name:
         function_name_identifier: fn
-    - base:
+    - function_parameter_list:
         bracketed:
         - start_bracket: (
         - data_type:
@@ -1330,7 +1330,7 @@ file:
     - keyword: FUNCTION
     - function_name:
         function_name_identifier: fn
-    - base:
+    - function_parameter_list:
         bracketed:
         - start_bracket: (
         - data_type:
@@ -1351,7 +1351,7 @@ file:
     - keyword: FUNCTION
     - function_name:
         function_name_identifier: fn
-    - base:
+    - function_parameter_list:
         bracketed:
         - start_bracket: (
         - data_type:
@@ -1437,7 +1437,7 @@ file:
     - keyword: FUNCTION
     - function_name:
         function_name_identifier: fn
-    - base:
+    - function_parameter_list:
         bracketed:
         - start_bracket: (
         - parameter: arg1
@@ -1461,7 +1461,7 @@ file:
     - keyword: FUNCTION
     - function_name:
         function_name_identifier: fn
-    - base:
+    - function_parameter_list:
         bracketed:
           start_bracket: (
           data_type:
@@ -1480,7 +1480,7 @@ file:
     - keyword: FUNCTION
     - function_name:
         function_name_identifier: fn
-    - base:
+    - function_parameter_list:
         bracketed:
         - start_bracket: (
         - data_type:
@@ -1502,7 +1502,7 @@ file:
     - keyword: FUNCTION
     - function_name:
         function_name_identifier: fn
-    - base:
+    - function_parameter_list:
         bracketed:
         - start_bracket: (
         - data_type:
@@ -1533,7 +1533,7 @@ file:
     - keyword: FUNCTION
     - function_name:
         function_name_identifier: fn
-    - base:
+    - function_parameter_list:
         bracketed:
           start_bracket: (
           data_type:
@@ -1553,7 +1553,7 @@ file:
         identifier: public
         dot: .
         function_name_identifier: fn
-    - base:
+    - function_parameter_list:
         bracketed:
         - start_bracket: (
         - data_type:

@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 3cfff2ad6c3655dc653283adbb87a254ec4a96f42c4a650a09492570f013139b
+_hash: 3da8ca74f75db9ea1c4a6e6707a545906a61400b71ce296d681408f06f80dbc2
 file:
-- base:
+- statement:
     create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
@@ -46,7 +46,7 @@ file:
     - keyword: LOCATION
     - literal: '"path/to/files"'
 - statement_terminator: ;
-- base:
+- statement:
     create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
@@ -56,7 +56,7 @@ file:
     - table_reference:
         identifier: student
 - statement_terminator: ;
-- base:
+- statement:
     create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
@@ -68,7 +68,7 @@ file:
     - keyword: USING
     - keyword: CSV
 - statement_terminator: ;
-- base:
+- statement:
     create_table_statement:
     - keyword: CREATE
     - keyword: TABLE
@@ -80,7 +80,7 @@ file:
     - keyword: LOCATION
     - literal: "'/root1/home'"
 - statement_terminator: ;
-- base:
+- statement:
     create_table_statement:
     - keyword: CREATE
     - keyword: TABLE

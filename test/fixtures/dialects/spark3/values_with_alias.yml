@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 04d24cc13f9e48060677aaa964bac73ba7bc0fac333c4676fa32c0970e9cd1a9
+_hash: 1359d8be6bbbd128387df329b92ccf812cb139dec945bea54405e6c8f309a013
 file:
-- base:
+- statement:
     values_clause:
       keyword: values
       delimited_values:
@@ -22,7 +22,7 @@ file:
         keyword: as
         identifier: t
 - statement_terminator: ;
-- base:
+- statement:
     values_clause:
       keyword: values
       delimited_values:
@@ -38,7 +38,7 @@ file:
       alias_expression:
         identifier: t
 - statement_terminator: ;
-- base:
+- statement:
     values_clause:
       keyword: values
       delimited_values:
@@ -62,7 +62,7 @@ file:
           - identifier: b
           end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     values_clause:
       keyword: values
       delimited_values:
@@ -96,7 +96,7 @@ file:
           - identifier: b
           end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     values_clause:
       keyword: values
       delimited_values:
@@ -119,7 +119,7 @@ file:
           - identifier: b
           end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     values_clause:
       keyword: values
       delimited_values:
@@ -142,7 +142,7 @@ file:
           - identifier: b
           end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     values_clause:
       keyword: values
       delimited_values:
@@ -164,7 +164,7 @@ file:
           - identifier: b
           end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     values_clause:
       keyword: values
       delimited_values:
@@ -197,7 +197,7 @@ file:
           - identifier: b
           end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     values_clause:
       keyword: values
       delimited_values:
@@ -230,7 +230,7 @@ file:
           - identifier: b
           end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     values_clause:
       keyword: values
       delimited_values:

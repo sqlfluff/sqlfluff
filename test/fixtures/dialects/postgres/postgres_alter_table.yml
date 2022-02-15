@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: bc77d03157e3ce8516d662706bca4f3cc3a7054cb0db202cc8bb90925970a146
+_hash: b31c436d97c3b61bdcc3ef8623170e7c01dc01a620d533fd07a01113847d3086
 file:
 - statement:
     alter_table_statement:
@@ -943,7 +943,7 @@ file:
     - comma: ','
     - alter_table_action_segment:
         keyword: ADD
-        base:
+        table_constraint_segment:
         - keyword: CONSTRAINT
         - object_reference:
             identifier: distributors_pkey
@@ -964,7 +964,7 @@ file:
     - parameter: measurement_y2016m07
     - keyword: FOR
     - keyword: VALUES
-    - base:
+    - partition_bound_segment:
       - keyword: FROM
       - bracketed:
           start_bracket: (
@@ -989,7 +989,7 @@ file:
     - parameter: cities_ab
     - keyword: FOR
     - keyword: VALUES
-    - base:
+    - partition_bound_segment:
         keyword: IN
         bracketed:
         - start_bracket: (
@@ -1011,7 +1011,7 @@ file:
     - parameter: orders_p4
     - keyword: FOR
     - keyword: VALUES
-    - base:
+    - partition_bound_segment:
         keyword: WITH
         bracketed:
         - start_bracket: (

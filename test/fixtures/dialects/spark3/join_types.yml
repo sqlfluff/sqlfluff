@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d9c1438fcd5287a7fcff24bad6c9ca205c63f7bc69da80d9f20425c5d244d4c4
+_hash: 5f560dfbb9dfb1bc61fcc2c5b299666c504b14c7a2cd38480f04aa0c00f95840
 file:
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -60,7 +60,7 @@ file:
                 - dot: .
                 - identifier: deptno
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -115,7 +115,7 @@ file:
                 - dot: .
                 - identifier: deptno
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -170,7 +170,7 @@ file:
                 - dot: .
                 - identifier: deptno
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -225,7 +225,7 @@ file:
                 - dot: .
                 - identifier: deptno
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -281,7 +281,7 @@ file:
                 - dot: .
                 - identifier: deptno
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -323,7 +323,7 @@ file:
                 table_reference:
                   identifier: department
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
         keyword: SELECT
@@ -360,7 +360,7 @@ file:
                 - dot: .
                 - identifier: deptno
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
         keyword: SELECT
@@ -398,7 +398,7 @@ file:
                 - dot: .
                 - identifier: deptno
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
         keyword: SELECT
@@ -435,7 +435,7 @@ file:
                 - dot: .
                 - identifier: deptno
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
         keyword: SELECT
@@ -473,7 +473,7 @@ file:
                 - dot: .
                 - identifier: deptno
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -516,7 +516,7 @@ file:
                 table_reference:
                   identifier: department
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -559,7 +559,7 @@ file:
                 table_reference:
                   identifier: department
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -602,7 +602,7 @@ file:
                 table_reference:
                   identifier: department
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -645,7 +645,7 @@ file:
                 table_reference:
                   identifier: department
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -689,7 +689,7 @@ file:
                 table_reference:
                   identifier: department
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -732,7 +732,7 @@ file:
                 table_reference:
                   identifier: department
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
         keyword: SELECT
@@ -757,7 +757,7 @@ file:
                 table_reference:
                   identifier: department
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
         keyword: SELECT
@@ -783,7 +783,7 @@ file:
                 table_reference:
                   identifier: department
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
         keyword: SELECT
@@ -808,7 +808,7 @@ file:
                 table_reference:
                   identifier: department
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
         keyword: SELECT

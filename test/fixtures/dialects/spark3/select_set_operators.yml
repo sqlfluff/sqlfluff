@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 09ac2b90c406fbc03fedb31c442fd6d649b38e4a6ebf9e8dc156c885ceb33a3c
+_hash: 8e444999da5900080d29a3148d640f62f63b2b0242fd5105a6728ee524bc03f7
 file:
-- base:
+- statement:
     set_expression:
     - select_statement:
         select_clause:
@@ -36,7 +36,7 @@ file:
                 table_reference:
                   identifier: number2
 - statement_terminator: ;
-- base:
+- statement:
     set_expression:
       select_statement:
         select_clause:
@@ -71,7 +71,7 @@ file:
                     identifier: number2
         end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     set_expression:
     - select_statement:
         select_clause:
@@ -102,7 +102,7 @@ file:
                 table_reference:
                   identifier: number2
 - statement_terminator: ;
-- base:
+- statement:
     set_expression:
       select_statement:
         select_clause:
@@ -137,7 +137,7 @@ file:
                     identifier: number2
         end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     set_expression:
     - bracketed:
         start_bracket: (
@@ -174,7 +174,7 @@ file:
                     identifier: number2
         end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     set_expression:
     - bracketed:
         start_bracket: (
@@ -212,7 +212,7 @@ file:
                     identifier: number2
         end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     set_expression:
     - bracketed:
         start_bracket: (
@@ -250,7 +250,7 @@ file:
                     identifier: number2
         end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     set_expression:
     - bracketed:
         start_bracket: (
@@ -287,7 +287,7 @@ file:
                     identifier: number2
         end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     set_expression:
     - bracketed:
         start_bracket: (
@@ -325,7 +325,7 @@ file:
                     identifier: number2
         end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     set_expression:
       select_statement:
         select_clause:

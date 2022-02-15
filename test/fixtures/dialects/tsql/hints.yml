@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: c6976fb5117776ea0122563b8d98741bb6c062204c4d4d9707672ac626c7ec33
+_hash: 741e7277d40b88867459b772cd5044842a16abb00e6be634311ee0439bf4d50c
 file:
 - batch:
     statement:
@@ -635,7 +635,7 @@ file:
         - identifier: Production
         - dot: .
         - identifier: Product
-        base:
+        post_table_expression_grammar:
           keyword: WITH
           bracketed:
             start_bracket: (
@@ -697,7 +697,7 @@ file:
                 alias_expression:
                   keyword: AS
                   identifier: d
-                base:
+                post_table_expression_grammar:
                   keyword: WITH
                   bracketed:
                     start_bracket: (
@@ -796,7 +796,7 @@ file:
                 alias_expression:
                   keyword: AS
                   identifier: d
-                base:
+                post_table_expression_grammar:
                   keyword: WITH
                   bracketed:
                     start_bracket: (
@@ -904,7 +904,7 @@ file:
                 alias_expression:
                   keyword: AS
                   identifier: d
-                base:
+                post_table_expression_grammar:
                   keyword: WITH
                   bracketed:
                     start_bracket: (
@@ -974,7 +974,7 @@ file:
                 - identifier: dbo
                 - dot: .
                 - identifier: tableX
-              base:
+              post_table_expression_grammar:
                 keyword: WITH
                 bracketed:
                   start_bracket: (

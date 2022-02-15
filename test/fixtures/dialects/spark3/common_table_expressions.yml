@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 8cdecb88c8fcbbd731095683c83501deb36e39584984bc33dfe134993348fb24
+_hash: 7068b60485f3d9f4e1b8e0e14224226b5cfdc8a06e457c8a33522b65ab1c1306
 file:
-- base:
+- statement:
     with_compound_statement:
       keyword: WITH
       common_table_expression:
@@ -58,7 +58,7 @@ file:
               raw_comparison_operator: '='
           - literal: '2'
 - statement_terminator: ;
-- base:
+- statement:
     with_compound_statement:
       keyword: WITH
       common_table_expression:
@@ -109,7 +109,7 @@ file:
                 table_reference:
                   identifier: t
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
         keyword: SELECT
@@ -164,7 +164,7 @@ file:
                               identifier: t
                 end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
         keyword: SELECT
@@ -201,7 +201,7 @@ file:
                             identifier: t
               end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     create_view_statement:
     - keyword: CREATE
     - keyword: VIEW
@@ -256,7 +256,7 @@ file:
                   table_reference:
                     identifier: t
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
         keyword: SELECT
@@ -272,7 +272,7 @@ file:
               table_reference:
                 identifier: v
 - statement_terminator: ;
-- base:
+- statement:
     with_compound_statement:
     - keyword: WITH
     - common_table_expression:

@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: dc72128625532346c1ffa429fa9a29bcbbd9ad63d101ff93e5ce19321fb635e8
+_hash: 8a9ab5365ee7f3653d54b75a82620859c51daeab4429e7b86b99968c7db3be2d
 file:
-- base:
+- statement:
     load_data_statement:
     - keyword: LOAD
     - keyword: DATA
@@ -18,7 +18,7 @@ file:
     - table_reference:
         identifier: test_load
 - statement_terminator: ;
-- base:
+- statement:
     load_data_statement:
     - keyword: LOAD
     - keyword: DATA
@@ -46,7 +46,7 @@ file:
       - literal: '3'
       - end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     load_data_statement:
     - keyword: LOAD
     - keyword: DATA
@@ -58,7 +58,7 @@ file:
     - table_reference:
         identifier: test_load
 - statement_terminator: ;
-- base:
+- statement:
     load_data_statement:
     - keyword: LOAD
     - keyword: DATA
@@ -85,7 +85,7 @@ file:
       - literal: '3'
       - end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     load_data_statement:
     - keyword: LOAD
     - keyword: DATA

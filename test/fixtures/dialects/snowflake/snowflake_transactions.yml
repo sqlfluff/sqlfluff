@@ -3,31 +3,31 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: edb9a85fc338df4d07be8e6d5881efc1fa5f83ff480d508ee17409dddbb99093
+_hash: 82a3e1bc27c3ff96a0ce69270abaf7e2adbe1a80242adbe1ebf1d27a720f8709
 file:
 - statement:
-    base:
+    transaction_statement_segment:
       keyword: begin
 - statement_terminator: ;
 - statement:
-    base:
+    transaction_statement_segment:
     - keyword: begin
     - keyword: work
 - statement_terminator: ;
 - statement:
-    base:
+    transaction_statement_segment:
     - keyword: begin
     - keyword: transaction
 - statement_terminator: ;
 - statement:
-    base:
+    transaction_statement_segment:
     - keyword: begin
     - keyword: name
     - object_reference:
         identifier: t4
 - statement_terminator: ;
 - statement:
-    base:
+    transaction_statement_segment:
     - keyword: begin
     - keyword: work
     - keyword: name
@@ -35,7 +35,7 @@ file:
         identifier: t4
 - statement_terminator: ;
 - statement:
-    base:
+    transaction_statement_segment:
     - keyword: begin
     - keyword: transaction
     - keyword: name
@@ -43,12 +43,12 @@ file:
         identifier: t4
 - statement_terminator: ;
 - statement:
-    base:
+    transaction_statement_segment:
     - keyword: start
     - keyword: transaction
 - statement_terminator: ;
 - statement:
-    base:
+    transaction_statement_segment:
     - keyword: start
     - keyword: transaction
     - keyword: name
@@ -56,10 +56,10 @@ file:
         identifier: t4
 - statement_terminator: ;
 - statement:
-    base:
+    transaction_statement_segment:
       keyword: rollback
 - statement_terminator: ;
 - statement:
-    base:
+    transaction_statement_segment:
       keyword: commit
 - statement_terminator: ;

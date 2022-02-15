@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 97264f8d61d2c75949200de92737617871092e995a14997c2c85cf3fb004ac99
+_hash: c0b9968260c0cbb2f0d613a047dc6f42e80714c38b8fd17f3cc0a9b66bffa857
 file:
 - statement:
     create_table_statement:
@@ -663,7 +663,7 @@ file:
         end_bracket: )
     - keyword: FOR
     - keyword: VALUES
-    - base:
+    - partition_bound_segment:
       - keyword: FROM
       - bracketed:
           start_bracket: (
@@ -689,7 +689,7 @@ file:
         identifier: measurement_year_month
     - keyword: FOR
     - keyword: VALUES
-    - base:
+    - partition_bound_segment:
       - keyword: FROM
       - bracketed:
         - start_bracket: (
@@ -723,7 +723,7 @@ file:
         identifier: measurement_year_month
     - keyword: FOR
     - keyword: VALUES
-    - base:
+    - partition_bound_segment:
       - keyword: FROM
       - bracketed:
         - start_bracket: (
@@ -755,7 +755,7 @@ file:
         identifier: measurement_year_month
     - keyword: FOR
     - keyword: VALUES
-    - base:
+    - partition_bound_segment:
       - keyword: FROM
       - bracketed:
         - start_bracket: (
@@ -787,7 +787,7 @@ file:
         identifier: measurement_year_month
     - keyword: FOR
     - keyword: VALUES
-    - base:
+    - partition_bound_segment:
       - keyword: FROM
       - bracketed:
         - start_bracket: (
@@ -837,7 +837,7 @@ file:
         end_bracket: )
     - keyword: FOR
     - keyword: VALUES
-    - base:
+    - partition_bound_segment:
         keyword: IN
         bracketed:
         - start_bracket: (
@@ -878,7 +878,7 @@ file:
         end_bracket: )
     - keyword: FOR
     - keyword: VALUES
-    - base:
+    - partition_bound_segment:
         keyword: IN
         bracketed:
         - start_bracket: (
@@ -909,7 +909,7 @@ file:
         identifier: cities_ab
     - keyword: FOR
     - keyword: VALUES
-    - base:
+    - partition_bound_segment:
       - keyword: FROM
       - bracketed:
           start_bracket: (
@@ -935,7 +935,7 @@ file:
         identifier: orders
     - keyword: FOR
     - keyword: VALUES
-    - base:
+    - partition_bound_segment:
         keyword: WITH
         bracketed:
         - start_bracket: (
@@ -958,7 +958,7 @@ file:
         identifier: orders
     - keyword: FOR
     - keyword: VALUES
-    - base:
+    - partition_bound_segment:
         keyword: WITH
         bracketed:
         - start_bracket: (
@@ -981,7 +981,7 @@ file:
         identifier: orders
     - keyword: FOR
     - keyword: VALUES
-    - base:
+    - partition_bound_segment:
         keyword: WITH
         bracketed:
         - start_bracket: (
@@ -1004,7 +1004,7 @@ file:
         identifier: orders
     - keyword: FOR
     - keyword: VALUES
-    - base:
+    - partition_bound_segment:
         keyword: WITH
         bracketed:
         - start_bracket: (
