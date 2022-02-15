@@ -156,7 +156,7 @@ class Rule_L052(BaseRule):
                 # Unless it's an empty statement we shouldn't reach here
                 raise ValueError(
                     "Unable to identify statement terminated by %r", context.segment
-                )
+                )  # pragma: no cover
 
             # Locate semicolon and search back over the raw stack
             # to find the end of the preceding statement.
