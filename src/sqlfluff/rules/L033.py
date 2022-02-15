@@ -12,7 +12,7 @@ class Rule_L033(BaseRule):
 
     .. note::
        This rule is only enabled for dialects that support ``UNION DISTINCT``
-       (``ansi``, ``bigquery``, ``hive``, and ``mysql``).
+       (``ansi``, ``bigquery``, ``hive``, ``mysql``, and ``redshift``).
 
     **Anti-pattern**
 
@@ -48,7 +48,13 @@ class Rule_L033(BaseRule):
         Note only some dialects have concept of UNION DISTINCT, so rule is only
         applied to dialects that are known to support this syntax.
         """
-        if context.dialect.name not in ["ansi", "bigquery", "hive", "mysql"]:
+        if context.dialect.name not in [
+            "ansi",
+            "bigquery",
+            "hive",
+            "mysql",
+            "redshift",
+        ]:
             return LintResult()
 
         if context.segment.is_type("set_operator"):
