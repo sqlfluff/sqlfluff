@@ -281,7 +281,7 @@ spark3_dialect.add(
     # Add Spark Grammar
     BucketSpecGrammar=Sequence(
         Ref("ClusteredBySpecGrammar"),
-        Ref("SortSpecGrammar", optional=True),
+        Ref("SortedBySpecGrammar", optional=True),
         "INTO",
         Ref("NumericLiteralSegment"),
         "BUCKETS",
@@ -359,7 +359,7 @@ spark3_dialect.add(
         Ref("ResourceFileGrammar"),
         Ref("QuotedLiteralSegment"),
     ),
-    SortSpecGrammar=Sequence(
+    SortedBySpecGrammar=Sequence(
         "SORTED",
         "BY",
         Bracketed(
@@ -1471,12 +1471,15 @@ class SortByClauseSegment(BaseSegment):
                     Ref("ExpressionSegment"),
                 ),
                 OneOf("ASC", "DESC", optional=True),
-                # NB: This isn't really ANSI, and isn't supported in Mysql, but
-                # is supported in enough other dialects for it to make sense here
-                # for now.
+                # NB: This isn't really ANSI, and isn't supported in Mysql,
+                # but is supported in enough other dialects for it to make
+                # sense here for now.
                 Sequence("NULLS", OneOf("FIRST", "LAST"), optional=True),
             ),
-            terminator=OneOf(Ref.keyword("LIMIT"), Ref("FrameClauseUnitGrammar")),
+            terminator=OneOf(
+                Ref.keyword("LIMIT"),
+                Ref("FrameClauseUnitGrammar")
+            ),
         ),
         Dedent,
     )
