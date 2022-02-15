@@ -2,6 +2,10 @@ name: Bug report
 description: Report a bug to help improve SQLFluff
 labels: [ "bug" ]
 body:
+  - type: markdown
+    attributes:
+      value: "Use this bug report template to report issues with SQLFluff functionality, including missing syntax support for any of our currently supported dialects."
+      
   - type: checkboxes
     attributes:
       label: Search before asking
