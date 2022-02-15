@@ -32,29 +32,29 @@ test_pass_comma:
 
 test_pass_semicolon:
   pass_str: |
-    ALTER SESSION SET TIMEZONE = 'UTC';
+   ALTER SESSION SET TIMEZONE = 'UTC';
   configs:
     core:
       dialect: snowflake
 
 test_pass_bigquery_udf_triple_single_quote:
   pass_str: |
-    CREATE TEMPORARY FUNCTION a()
-    LANGUAGE js
-    AS '''
-    CODE GOES HERE
-    ''';
+   CREATE TEMPORARY FUNCTION a()
+   LANGUAGE js
+   AS '''
+   CODE GOES HERE
+   ''';
   configs:
     core:
       dialect: bigquery
 
 test_pass_bigquery_udf_triple_double_quote:
   pass_str: |
-    CREATE TEMPORARY FUNCTION a()
-    LANGUAGE js
-    AS """
-    CODE GOES HERE
-    """;
+   CREATE TEMPORARY FUNCTION a()
+   LANGUAGE js
+   AS """
+   CODE GOES HERE
+   """;
   configs:
     core:
       dialect: bigquery
