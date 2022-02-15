@@ -152,7 +152,7 @@ class Rule_L052(BaseRule):
                             break
                         except ValueError:  # pragma: no cover
                             pass
-            elif memory != dict(ended_statements=deque()):
+            elif memory["ended_statements"]:
                 # Unless it's an empty statement we shouldn't reach here
                 raise ValueError(
                     "Unable to identify statement terminated by %r", context.segment
