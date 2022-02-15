@@ -870,8 +870,8 @@ class Rule_L003(BaseRule):
         near the leaf of the tree and walking "up" the parse tree as long as the
         ancestor segments have the same templated position and length as the
         length as the proposed point. This is not guaranteed to produce a legal
-        insertion point, but it's a pretty good heuristic, and at worst, it
-        shouldn't hurt anything.
+        anchor for the related fix, but it's a pretty good heuristic, and at
+        worst, it shouldn't hurt anything.
         """
         anchor = segment
         trigger_pos = segment.pos_marker
