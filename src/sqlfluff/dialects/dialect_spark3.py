@@ -1477,7 +1477,7 @@ class SortByClauseSegment(BaseSegment):
                 Sequence("NULLS", OneOf("FIRST", "LAST"), optional=True),
             ),
             terminator=OneOf(
-                Ref.keyword("LIMIT"),
+                "LIMIT",
                 Ref("FrameClauseUnitGrammar"),
             ),
         ),
