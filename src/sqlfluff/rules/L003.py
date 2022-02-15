@@ -219,6 +219,7 @@ class Rule_L003(BaseRule):
 
     def _coerce_indent_to(
         self,
+        context: RuleContext,
         desired_indent: str,
         current_indent_buffer: Tuple[RawSegment, ...],
         current_anchor: BaseSegment,
@@ -231,7 +232,7 @@ class Rule_L003(BaseRule):
         elif len("".join(elem.raw for elem in current_indent_buffer)) == 0:
             fixes = [
                 LintFix.create_before(
-                    current_anchor,
+                    self._choose_anchor_segment(context, current_anchor),
                     [
                         WhitespaceSegment(
                             raw=desired_indent,
@@ -548,6 +549,7 @@ class Rule_L003(BaseRule):
 
                 # Make fixes
                 fixes = self._coerce_indent_to(
+                    context,
                     desired_indent=desired_indent,
                     current_indent_buffer=this_line["indent_buffer"],
                     current_anchor=this_line["line_buffer"][0],
@@ -610,6 +612,7 @@ class Rule_L003(BaseRule):
 
                     # Make fixes
                     fixes = self._coerce_indent_to(
+                        context,
                         desired_indent=desired_indent,
                         current_indent_buffer=this_line["indent_buffer"],
                         current_anchor=trigger_segment,
@@ -670,6 +673,7 @@ class Rule_L003(BaseRule):
 
                     # Make fixes
                     fixes = self._coerce_indent_to(
+                        context,
                         desired_indent=desired_indent,
                         current_indent_buffer=this_line["indent_buffer"],
                         current_anchor=trigger_segment,
@@ -738,7 +742,9 @@ class Rule_L003(BaseRule):
                             # Add in an extra bit of whitespace for the indent
                             fixes=[
                                 LintFix.create_before(
-                                    trigger_segment,
+                                    self._choose_anchor_segment(
+                                        context, trigger_segment
+                                    ),
                                     [
                                         WhitespaceSegment(
                                             raw=self._make_indent(
@@ -760,7 +766,7 @@ class Rule_L003(BaseRule):
                         ),
                         fixes=[
                             LintFix.create_before(
-                                trigger_segment,
+                                self._choose_anchor_segment(context, trigger_segment),
                                 [
                                     WhitespaceSegment(
                                         # Make the minimum indent for it to be ok.
@@ -784,6 +790,7 @@ class Rule_L003(BaseRule):
 
                     # Make fixes
                     fixes = self._coerce_indent_to(
+                        context,
                         desired_indent=desired_indent,
                         current_indent_buffer=this_line["indent_buffer"],
                         current_anchor=trigger_segment,
@@ -818,6 +825,7 @@ class Rule_L003(BaseRule):
                                 break
                         # Make fixes.
                         fixes += self._coerce_indent_to(
+                            context,
                             desired_indent="".join(
                                 elem.raw for elem in this_line["indent_buffer"]
                             ),
@@ -846,6 +854,33 @@ class Rule_L003(BaseRule):
 
         # If we get to here, then we're all good for now.
         return LintResult(memory=memory)
+
+    @staticmethod
+    def _choose_anchor_segment(context, segment):
+        """Choose the anchor point for a lint fix, i.e. where to apply the fix.
+
+        From a grammar perspective, segments near the leaf of the tree are
+        generally less likely to allow whitespace insertion. Fixes that place
+        whitespace (or, for that matter, *any* segment) where it's not permitted
+        by the grammar can cause subtle issues, e.g. weird behavior in other
+        rules that are confused by segments in unusual (i.e. wrong) areas of
+        the parse tree.
+
+        This function minimizes such issues by taking a proposed anchor point
+        near the leaf of the tree and walking "up" the parse tree as long as the
+        ancestor segments have the same templated position and length as the
+        length as the proposed point. This is not guaranteed to produce a legal
+        anchor for the related fix, but it's a pretty good heuristic, and at
+        worst, it shouldn't hurt anything.
+        """
+        anchor = segment
+        trigger_pos = segment.pos_marker
+        for seg in context.parent_stack[0].path_to(segment)[::-1]:
+            if seg.pos_marker == trigger_pos:
+                anchor = seg
+            else:
+                break
+        return anchor
 
     @classmethod
     def _get_element_template_info(

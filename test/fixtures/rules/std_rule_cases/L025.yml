@@ -143,6 +143,13 @@ test_snowflake_delete_cte:
             SELECT COLUMN3 FROM MYTABLE3
         ) X
     WHERE COLUMN1 = X.COLUMN3
+  fix_str: |
+    DELETE FROM MYTABLE1
+        USING (
+            WITH MYCTE AS (SELECT COLUMN2 FROM MYTABLE3)
+            SELECT COLUMN3 FROM MYTABLE3
+        ) X
+    WHERE COLUMN1 = X.COLUMN3
   configs:
     core:
       dialect: snowflake
@@ -163,6 +170,11 @@ test_fail_exasol_values_clause:
     FROM (
         VALUES (1, 2), (3, 4)
     ) AS t(c1, c2)
+  fix_str: |
+    SELECT *
+    FROM (
+        VALUES (1, 2), (3, 4)
+    )
   configs:
     core:
       dialect: exasol
@@ -183,6 +195,11 @@ test_fail_spark3_values_clause:
     FROM (
         VALUES (1, 2), (3, 4)
     ) AS t(c1, c2)
+  fix_str: |
+    SELECT *
+    FROM (
+        VALUES (1, 2), (3, 4)
+    )
   configs:
     core:
       dialect: spark3

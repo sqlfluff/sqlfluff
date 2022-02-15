@@ -247,17 +247,8 @@ test_fail_unnecessary_case_11:
 test_fail_no_copy_code_out_of_template:
   # The rule wants to replace the case statement with coalesce(), but
   # LintFix.has_template_conflicts() correctly prevents it copying code out
-  # of the templated region. Hence, fix_str and fail_str are the same.
+  # of the templated region. Hence, the query is not modified.
   fail_str: |
-    select
-        foo,
-        case
-            when
-                bar is null then {{ result }}
-            else bar
-        end as test
-    from baz;
-  fix_str: |
     select
         foo,
         case

@@ -480,7 +480,7 @@ test_fail_indented_cte:
     )
 
     SELECT 1 FROM table1
-  pass_str: |
+  fix_str: |
     WITH
         some_cte AS (
             SELECT 1 FROM table1
