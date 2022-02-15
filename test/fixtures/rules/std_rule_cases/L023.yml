@@ -1,6 +1,41 @@
 rule: L023
 
 test_fail_cte_no_space_after_as:
-  # Check fixing of single space rules
+  # Check fixing of single space rule when space is missing
   fail_str: WITH a AS(select 1) select * from a
   fix_str: WITH a AS (select 1) select * from a
+
+test_fail_multiple_spaces_after_as:
+  # Check fixing of single space rule on multiple spaces
+  fail_str: WITH a AS  (select 1) select * from a
+  fix_str: WITH a AS (select 1) select * from a
+
+test_fail_cte_newline_after_as:
+  # Check fixing of replacing newline with space
+  fail_str: |
+    WITH a AS
+    (
+      select 1
+    )
+    select * from a
+  fix_str: |
+    WITH a AS (
+      select 1
+    )
+    select * from a
+
+test_fail_cte_newline_and_spaces_after_as:
+  # Check stripping newlines and extra whitespace
+  fail_str: |
+    WITH a AS
+
+
+        (
+      select 1
+    )
+    select * from a
+  fix_str: |
+    WITH a AS (
+      select 1
+    )
+    select * from a

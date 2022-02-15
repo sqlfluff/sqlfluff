@@ -467,6 +467,7 @@ class FunctionSegment(BaseSegment):
 class FunctionDefinitionGrammar(BaseSegment):
     """This is the body of a `CREATE FUNCTION AS` statement."""
 
+    type = "function_definition"
     match_grammar = Sequence(
         AnyNumberOf(
             Sequence(
@@ -599,6 +600,7 @@ class FunctionParameterListGrammar(BaseSegment):
 
     # Function parameter list. Note that the only difference from the ANSI
     # grammar is that BigQuery provides overrides bracket_pairs_set.
+    type = "function_parameter_list"
     match_grammar = Bracketed(
         Delimited(
             Ref("FunctionParameterGrammar"),

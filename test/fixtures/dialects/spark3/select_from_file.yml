@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: aa188759fc7de79e364f0c5c76c8c99d4eb147e549e072fbd1d28afeb5555b32
+_hash: 383cb125aae7a42036e3c65f5845b0f9722129b67b1e18ae8ac3f453191eed1f
 file:
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -30,7 +30,7 @@ file:
                 dot: .
                 identifier: '`examples/src/main/resources/users.parquet`'
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -55,7 +55,7 @@ file:
                 dot: .
                 identifier: '`examples/src/main/resources/users`'
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -80,7 +80,7 @@ file:
                 dot: .
                 identifier: '`examples/src/main/resources/users.orc`'
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -105,7 +105,7 @@ file:
                 dot: .
                 identifier: '`examples/src/main/resources/people.json`'
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -130,7 +130,7 @@ file:
                 dot: .
                 identifier: '`examples/src/main/resources/people`'
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -155,7 +155,7 @@ file:
                 dot: .
                 identifier: '`examples/src/main/resources/people.txt`'
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -180,7 +180,7 @@ file:
                 dot: .
                 identifier: '`//root/*.txt`'
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -205,7 +205,7 @@ file:
                 dot: .
                 identifier: '`//root/200?.txt`'
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -230,7 +230,7 @@ file:
                 dot: .
                 identifier: '`//root/200[23].txt`'
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -255,7 +255,7 @@ file:
                 dot: .
                 identifier: '`//root/200[^23].txt`'
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -280,7 +280,7 @@ file:
                 dot: .
                 identifier: '`//root/200[2-5].txt`'
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -305,7 +305,7 @@ file:
                 dot: .
                 identifier: '`//root/200[^2-5].txt`'
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -330,7 +330,7 @@ file:
                 dot: .
                 identifier: '`//root/20{04, 05}.txt`'
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -355,7 +355,7 @@ file:
                 dot: .
                 identifier: '`examples/src/main/resources/people.json`'
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -380,7 +380,7 @@ file:
                 dot: .
                 identifier: '`/events/events-kafka.json`'
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -405,7 +405,7 @@ file:
                 dot: .
                 identifier: '`/events/events-kafka`'
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -430,7 +430,7 @@ file:
                 dot: .
                 identifier: '`/sales/sales.csv`'
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT

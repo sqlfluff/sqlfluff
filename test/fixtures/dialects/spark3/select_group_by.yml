@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 381980bd4a48794cf8b4b6ff24f9ae2b4331991187cf638fb2bc754450c2a2f6
+_hash: 1d96fa108bf0a7d4886ca012d15060c783d1454c539ad1b7158b393d61fcc3ad
 file:
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -44,7 +44,7 @@ file:
       - column_reference:
           identifier: id
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -81,7 +81,7 @@ file:
       - keyword: BY
       - literal: '1'
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -134,7 +134,7 @@ file:
       - column_reference:
           identifier: id
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -169,7 +169,7 @@ file:
       - column_reference:
           identifier: car_model
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -223,7 +223,7 @@ file:
       - column_reference:
           identifier: id
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -303,7 +303,7 @@ file:
       - column_reference:
           identifier: city
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -355,7 +355,7 @@ file:
       - column_reference:
           identifier: car_model
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -407,7 +407,7 @@ file:
       - column_reference:
           identifier: car_model
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
         keyword: SELECT
@@ -429,7 +429,7 @@ file:
               table_reference:
                 identifier: person
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -484,7 +484,7 @@ file:
               table_reference:
                 identifier: person
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT
@@ -532,7 +532,7 @@ file:
                   identifier: age
             - end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
       - keyword: SELECT

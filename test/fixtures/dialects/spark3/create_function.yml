@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 213d5d5867cbcbf4ea7e66d218e738e09fe3bf1a7b1fb4f6c170f909e5a054e4
+_hash: 3bee12bfaf3f18f18d67fa11abb49e22092fa8919b2209ca3eab7b042b5ef191
 file:
-- base:
+- statement:
     create_function_statement:
     - keyword: CREATE
     - binary_operator: OR
@@ -22,7 +22,7 @@ file:
     - file_type: FILE
     - literal: '"resource_locations"'
 - statement_terminator: ;
-- base:
+- statement:
     create_function_statement:
     - keyword: CREATE
     - keyword: FUNCTION
@@ -33,7 +33,7 @@ file:
     - file_type: JAR
     - literal: "'/tmp/SimpleUdf.jar'"
 - statement_terminator: ;
-- base:
+- statement:
     create_function_statement:
     - keyword: CREATE
     - keyword: TEMPORARY
@@ -45,7 +45,7 @@ file:
     - file_type: JAR
     - literal: "'/tmp/SimpleUdf.jar'"
 - statement_terminator: ;
-- base:
+- statement:
     create_function_statement:
     - keyword: CREATE
     - binary_operator: OR
@@ -58,7 +58,7 @@ file:
     - file_type: JAR
     - literal: "'/tmp/SimpleUdfR.jar'"
 - statement_terminator: ;
-- base:
+- statement:
     create_function_statement:
     - keyword: CREATE
     - keyword: FUNCTION
@@ -66,7 +66,7 @@ file:
     - keyword: AS
     - literal: "'org.apache.hadoop.hive.ql.udf.generic.GenericUDAFAverage'"
 - statement_terminator: ;
-- base:
+- statement:
     create_function_statement:
     - keyword: CREATE
     - keyword: TEMPORARY

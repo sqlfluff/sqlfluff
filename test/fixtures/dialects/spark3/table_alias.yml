@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 2f773b804324b2de42e9bf6cc9fd39f72fefd2d88b5ba8b9707007457b296b85
+_hash: ddc5e355f785104a2fc8c2054ba2dcedf18fc99c6af642851fd6651ebbb3ebd7
 file:
-- base:
+- statement:
     select_statement:
       select_clause:
         keyword: select
@@ -31,7 +31,7 @@ file:
                 - identifier: b
                 end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
         keyword: select
@@ -57,7 +57,7 @@ file:
                 - identifier: b
                 end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
         keyword: select
@@ -83,7 +83,7 @@ file:
                 - identifier: b
                 end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
         keyword: select
@@ -108,7 +108,7 @@ file:
                 - identifier: b
                 end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
         keyword: select
@@ -133,7 +133,7 @@ file:
                 - identifier: b
                 end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
         keyword: select
@@ -158,7 +158,7 @@ file:
                 - identifier: b
                 end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
         keyword: select
@@ -183,7 +183,7 @@ file:
                 - identifier: b
                 end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     select_statement:
       select_clause:
         keyword: select

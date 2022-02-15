@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 38368cb40f359609fcaf4b65fb8180e689f933cd141855f53511803de6c740ad
+_hash: 13224d46521c1c9972f5782d475a3157808eef0334d2e13945fac79bb417a593
 file:
-- base:
+- statement:
     insert_overwrite_directory_statement:
     - keyword: INSERT
     - keyword: OVERWRITE
@@ -46,7 +46,7 @@ file:
                 table_reference:
                   identifier: test_table
 - statement_terminator: ;
-- base:
+- statement:
     insert_overwrite_directory_statement:
     - keyword: INSERT
     - keyword: OVERWRITE

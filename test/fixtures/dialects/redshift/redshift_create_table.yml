@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: ef248c8a9dd155928672bfed3010a1dc3d4e9479f4acc1f8c1283a46aff03c05
+_hash: 0d29b2d1e17ca192e9c4d341673b99de87cd573a5f6634fac950e65c698d315b
 file:
 - statement:
     create_table_statement:
@@ -33,7 +33,7 @@ file:
         - keyword: NOT
         - keyword: 'NULL'
       - end_bracket: )
-    - table_constraint_segment:
+    - table_constraint:
       - keyword: DISTKEY
       - bracketed:
           start_bracket: (
@@ -84,7 +84,7 @@ file:
           - literal: '1'
           - end_bracket: )
       - end_bracket: )
-    - table_constraint_segment:
+    - table_constraint:
       - keyword: DISTKEY
       - bracketed:
           start_bracket: (
@@ -159,7 +159,7 @@ file:
             literal: '5'
             end_bracket: )
       - end_bracket: )
-    - table_constraint_segment:
+    - table_constraint:
       - keyword: DISTKEY
       - bracketed:
           start_bracket: (
@@ -214,7 +214,7 @@ file:
               identifier: col1
             end_bracket: )
       - end_bracket: )
-    - table_constraint_segment:
+    - table_constraint:
       - keyword: DISTKEY
       - bracketed:
           start_bracket: (
@@ -256,7 +256,7 @@ file:
             literal: '5'
             end_bracket: )
       - end_bracket: )
-    - table_constraint_segment:
+    - table_constraint:
       - keyword: DISTKEY
       - bracketed:
           start_bracket: (
@@ -296,7 +296,7 @@ file:
             literal: '5'
             end_bracket: )
       - end_bracket: )
-    - table_constraint_segment:
+    - table_constraint:
       - keyword: DISTKEY
       - bracketed:
           start_bracket: (
@@ -336,7 +336,7 @@ file:
             literal: '5'
             end_bracket: )
       - end_bracket: )
-    - table_constraint_segment:
+    - table_constraint:
       - keyword: DISTKEY
       - bracketed:
           start_bracket: (
@@ -407,7 +407,7 @@ file:
       - end_bracket: )
     - keyword: BACKUP
     - keyword: 'NO'
-    - table_constraint_segment:
+    - table_constraint:
       - keyword: DISTKEY
       - bracketed:
           start_bracket: (
@@ -457,7 +457,7 @@ file:
           column_encoding_segment:
             keyword: TEXT255
       - end_bracket: )
-    - table_constraint_segment:
+    - table_constraint:
       - keyword: DISTKEY
       - bracketed:
           start_bracket: (
@@ -560,7 +560,7 @@ file:
             literal: '60'
             end_bracket: )
       - comma: ','
-      - table_constraint_segment:
+      - table_constraint:
           keyword: UNIQUE
           bracketed:
             start_bracket: (
@@ -568,7 +568,7 @@ file:
               identifier: col1
             end_bracket: )
       - end_bracket: )
-    - table_constraint_segment:
+    - table_constraint:
       - keyword: DISTKEY
       - bracketed:
           start_bracket: (
@@ -617,7 +617,7 @@ file:
             literal: '60'
             end_bracket: )
       - comma: ','
-      - table_constraint_segment:
+      - table_constraint:
         - keyword: PRIMARY
         - keyword: KEY
         - bracketed:
@@ -626,7 +626,7 @@ file:
               identifier: col1
             end_bracket: )
       - end_bracket: )
-    - table_constraint_segment:
+    - table_constraint:
       - keyword: DISTKEY
       - bracketed:
           start_bracket: (
@@ -679,7 +679,7 @@ file:
             literal: '60'
             end_bracket: )
       - comma: ','
-      - table_constraint_segment:
+      - table_constraint:
         - keyword: FOREIGN
         - keyword: KEY
         - bracketed:

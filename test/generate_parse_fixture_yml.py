@@ -5,6 +5,7 @@ import os
 import yaml
 
 from conftest import compute_parse_tree_hash, get_parse_fixtures, parse_example_file
+from sqlfluff.core.errors import SQLParseError
 
 
 def generate_parse_fixture(example):
@@ -17,7 +18,16 @@ def generate_parse_fixture(example):
     path = os.path.join("test", "fixtures", "dialects", dialect, root + ".yml")
     with open(path, "w", newline="\n") as f:
         r = None
+
         if tree:
+
+            # Check we don't have any base types or unparsable sections
+            types = tree.type_set()
+            if "base" in types:
+                raise SQLParseError(f"Unnamed base section when parsing: {f.name}")
+            if "unparsable" in types:
+                raise SQLParseError(f"Could not parse: {f.name}")
+
             r = dict(
                 [("_hash", _hash)]
                 + list(tree.as_record(code_only=True, show_raw=True).items())

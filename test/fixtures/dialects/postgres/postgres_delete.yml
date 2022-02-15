@@ -1,0 +1,103 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 7fb777ecc5b4fc3836714dd400198a54b212075c86a388190bf8d05c6c4ac6f4
+file:
+- statement:
+    delete_statement:
+      keyword: DELETE
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: films
+      where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            identifier: kind
+          comparison_operator:
+          - raw_comparison_operator: <
+          - raw_comparison_operator: '>'
+          literal: "'Musical'"
+- statement_terminator: ;
+- statement:
+    delete_statement:
+      keyword: DELETE
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: films
+- statement_terminator: ;
+- statement:
+    delete_statement:
+    - keyword: DELETE
+    - from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: tasks
+    - where_clause:
+        keyword: WHERE
+        expression:
+          column_reference:
+            identifier: status
+          comparison_operator:
+            raw_comparison_operator: '='
+          literal: "'DONE'"
+    - keyword: RETURNING
+    - star: '*'
+- statement_terminator: ;
+- statement:
+    delete_statement:
+    - keyword: DELETE
+    - from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: tasks
+    - keyword: WHERE
+    - keyword: CURRENT
+    - keyword: OF
+    - object_reference:
+        identifier: c_tasks
+- statement_terminator: ;
+- statement:
+    delete_statement:
+      keyword: DELETE
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: some_table
+      using_clause:
+        keyword: USING
+        table_expression:
+          table_reference:
+            identifier: other_table
+      where_clause:
+        keyword: WHERE
+        expression:
+        - column_reference:
+          - identifier: other_table
+          - dot: .
+          - identifier: col
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - identifier: some_table
+          - dot: .
+          - identifier: col

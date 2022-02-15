@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 206500ea107a7649bb12c38c33848b6c6833af1a2fd3f887cb81e990ef17eba4
+_hash: 8afe2d4158814f06dc50bab598873e0c57cb00a911288acf091aadffd7d2ba03
 file:
 - statement:
     create_table_statement:
@@ -21,7 +21,7 @@ file:
           - keyword: NOT
           - keyword: 'NULL'
         comma: ','
-        table_constraint_segment:
+        table_constraint:
         - keyword: PRIMARY
         - keyword: KEY
         - bracketed:
@@ -60,7 +60,7 @@ file:
                   identifier: parent_id
               end_bracket: )
       - comma: ','
-      - table_constraint_segment:
+      - table_constraint:
         - keyword: FOREIGN
         - keyword: KEY
         - bracketed:
@@ -110,7 +110,7 @@ file:
           data_type:
             data_type_identifier: DECIMAL
       - comma: ','
-      - table_constraint_segment:
+      - table_constraint:
         - keyword: PRIMARY
         - keyword: KEY
         - bracketed:
@@ -139,7 +139,7 @@ file:
           - keyword: NOT
           - keyword: 'NULL'
         comma: ','
-        table_constraint_segment:
+        table_constraint:
         - keyword: PRIMARY
         - keyword: KEY
         - bracketed:
@@ -181,7 +181,7 @@ file:
           - keyword: NOT
           - keyword: 'NULL'
       - comma: ','
-      - table_constraint_segment:
+      - table_constraint:
         - keyword: PRIMARY
         - keyword: KEY
         - bracketed:
@@ -190,7 +190,7 @@ file:
               identifier: 'no'
             end_bracket: )
       - comma: ','
-      - table_constraint_segment:
+      - table_constraint:
         - keyword: FOREIGN
         - keyword: KEY
         - bracketed:
@@ -219,7 +219,7 @@ file:
         - keyword: DELETE
         - keyword: RESTRICT
       - comma: ','
-      - table_constraint_segment:
+      - table_constraint:
         - keyword: FOREIGN
         - keyword: KEY
         - bracketed:
@@ -265,7 +265,7 @@ file:
           - keyword: NOT
           - keyword: 'NULL'
       - comma: ','
-      - table_constraint_segment:
+      - table_constraint:
         - keyword: PRIMARY
         - keyword: KEY
         - bracketed:
@@ -277,7 +277,7 @@ file:
               identifier: tag_id
           - end_bracket: )
       - comma: ','
-      - table_constraint_segment:
+      - table_constraint:
         - keyword: FOREIGN
         - keyword: KEY
         - bracketed:
@@ -297,7 +297,7 @@ file:
         - keyword: DELETE
         - keyword: CASCADE
       - comma: ','
-      - table_constraint_segment:
+      - table_constraint:
         - keyword: FOREIGN
         - keyword: KEY
         - bracketed:

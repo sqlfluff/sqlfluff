@@ -254,9 +254,8 @@ class ColumnDefinitionSegment(BaseSegment):
                 OneOf(
                     Sequence(
                         "CURRENT_TIMESTAMP",
-                        Sequence(
-                            Bracketed(Ref("NumericLiteralSegment")),
-                            optional=True,
+                        Bracketed(
+                            Ref("NumericLiteralSegment", optional=True), optional=True
                         ),
                     ),
                     Ref("NumericLiteralSegment"),
@@ -393,7 +392,7 @@ class InsertStatementSegment(BaseSegment):
 class TableConstraintSegment(BaseSegment):
     """A table constraint, e.g. for CREATE TABLE."""
 
-    type = "table_constraint_segment"
+    type = "table_constraint"
     # Later add support for CHECK constraint, others?
     # e.g. CONSTRAINT constraint_1 PRIMARY KEY(column_1)
     match_grammar = Sequence(
@@ -686,6 +685,7 @@ class CreateProcedureStatementSegment(BaseSegment):
 class FunctionDefinitionGrammar(BaseSegment):
     """This is the body of a `CREATE FUNCTION` statement."""
 
+    type = "function_definition"
     match_grammar = Ref("TransactionStatementSegment")
 
 
@@ -849,6 +849,7 @@ class AlterTableStatementSegment(BaseSegment):
 class ProcedureParameterListGrammar(BaseSegment):
     """The parameters for a procedure ie. `(in/out/inout name datatype)`."""
 
+    type = "procedure_parameter_list"
     match_grammar = Bracketed(
         Delimited(
             Ref("ProcedureParameterGrammar"),

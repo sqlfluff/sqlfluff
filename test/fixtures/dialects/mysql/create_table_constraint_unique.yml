@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 89f5acbd9b7f7b2a7f14cc5faa9666129d97246fbc7eb70c4d34e8c193eec5ab
+_hash: b88fb6cd174ef91b96179fc1b5d0e1261380d8715ae4b603f1302d89623e6bd0
 file:
   statement:
     create_table_statement:
@@ -21,7 +21,7 @@ file:
           - keyword: NOT
           - keyword: 'NULL'
       - comma: ','
-      - table_constraint_segment:
+      - table_constraint:
           keyword: UNIQUE
           bracketed:
             start_bracket: (
@@ -29,7 +29,7 @@ file:
               identifier: a
             end_bracket: )
       - comma: ','
-      - table_constraint_segment:
+      - table_constraint:
           keyword: UNIQUE
           object_reference:
             identifier: idx_c
@@ -39,7 +39,7 @@ file:
               identifier: a
             end_bracket: )
       - comma: ','
-      - table_constraint_segment:
+      - table_constraint:
         - keyword: UNIQUE
         - keyword: KEY
         - bracketed:
@@ -48,7 +48,7 @@ file:
               identifier: a
             end_bracket: )
       - comma: ','
-      - table_constraint_segment:
+      - table_constraint:
         - keyword: UNIQUE
         - keyword: KEY
         - object_reference:
@@ -59,7 +59,7 @@ file:
               identifier: a
             end_bracket: )
       - comma: ','
-      - table_constraint_segment:
+      - table_constraint:
         - keyword: UNIQUE
         - keyword: INDEX
         - bracketed:
@@ -68,7 +68,7 @@ file:
               identifier: a
             end_bracket: )
       - comma: ','
-      - table_constraint_segment:
+      - table_constraint:
         - keyword: UNIQUE
         - keyword: INDEX
         - object_reference:

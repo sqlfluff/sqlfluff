@@ -3,9 +3,9 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 042c721d3689b3ce3c9b22bc5fd459ce50833088561b9bd7d31fe97b6c9b17c4
+_hash: 5d6c3e2e8f14dedf4ce5a212eee1d0fdffeb31f4a71f71838f55cef3f378595e
 file:
-- base:
+- statement:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -16,7 +16,7 @@ file:
     - table_reference:
         identifier: StudentInfo
 - statement_terminator: ;
-- base:
+- statement:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -45,7 +45,7 @@ file:
         literal: "'15'"
         end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -68,7 +68,7 @@ file:
               keyword: TIMESTAMP
       - end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -81,7 +81,7 @@ file:
     - keyword: COMMENT
     - literal: '"new comment"'
 - statement_terminator: ;
-- base:
+- statement:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -94,7 +94,7 @@ file:
     - keyword: COMMENT
     - literal: '"new comment"'
 - statement_terminator: ;
-- base:
+- statement:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -114,7 +114,7 @@ file:
         literal: '18'
         end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -143,7 +143,7 @@ file:
         literal: '20'
         end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -162,7 +162,7 @@ file:
         literal: '18'
         end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -180,7 +180,7 @@ file:
       - literal: "'loser'"
       - end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -198,7 +198,7 @@ file:
       - literal: "'A table comment.'"
       - end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -216,7 +216,7 @@ file:
       - literal: "'This is a new comment.'"
       - end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -231,7 +231,7 @@ file:
         literal: "'winner'"
         end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -252,7 +252,7 @@ file:
       - literal: '"val2"'
       - end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -262,7 +262,7 @@ file:
     - keyword: SERDE
     - literal: "'org.apache.hadoop.hive.serde2.columnar.LazyBinaryColumnarSerDe'"
 - statement_terminator: ;
-- base:
+- statement:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -288,7 +288,7 @@ file:
       - literal: "'vee'"
       - end_bracket: )
 - statement_terminator: ;
-- base:
+- statement:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -298,7 +298,7 @@ file:
     - keyword: FILEFORMAT
     - keyword: ORC
 - statement_terminator: ;
-- base:
+- statement:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -323,7 +323,7 @@ file:
     - keyword: FILEFORMAT
     - keyword: PARQUET
 - statement_terminator: ;
-- base:
+- statement:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
@@ -350,7 +350,7 @@ file:
     - keyword: LOCATION
     - literal: "'/path/to/part/ways'"
 - statement_terminator: ;
-- base:
+- statement:
     alter_table_statement:
     - keyword: ALTER
     - keyword: TABLE
