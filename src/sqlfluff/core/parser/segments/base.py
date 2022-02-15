@@ -16,11 +16,13 @@ from tqdm import tqdm
 
 from sqlfluff.core.cached_property import cached_property
 from sqlfluff.core.config import progress_bar_configuration
+from sqlfluff.core.dialects import dialect_selector
 from sqlfluff.core.string_helpers import (
     frame_msg,
     curtail_string,
 )
 
+from sqlfluff.core.parser.context import RootParseContext
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.match_logging import parse_match_logging
 from sqlfluff.core.parser.match_wrapper import match_wrapper
@@ -993,6 +995,7 @@ class BaseSegment:
 
             # Make a working copy
             seg_buffer = []
+            fixes_applied = []
             todo_buffer = list(self.segments)
             while True:
                 if len(todo_buffer) == 0:
@@ -1007,6 +1010,7 @@ class BaseSegment:
                         # Look for identity not just equality.
                         # This handles potential positioning ambiguity.
                         if f.anchor is seg:
+                            fixes_applied.append(f)
                             linter_logger.debug(
                                 "Matched fix against segment: %s -> %s", f, seg
                             )
@@ -1074,6 +1078,16 @@ class BaseSegment:
                 # Pass through any additional kwargs
                 **{k: getattr(self, k) for k in self.additional_kwargs},
             )
+            if fixes_applied:
+                root_parse_context = RootParseContext(dialect_selector("ansi"))
+                with root_parse_context as parse_context:
+                    match_result = r.match(r.segments, parse_context)
+                    if not match_result.is_complete():
+                        raise ValueError(
+                            f"Error: After fixes were applied, segment {r!r} "
+                            f"had a parse error. Parse result: {match_result!r} "
+                            f"Fixes: {fixes_applied!r}"
+                        )
             # Return the new segment with any unused fixes.
             return r, fixes
         else:
