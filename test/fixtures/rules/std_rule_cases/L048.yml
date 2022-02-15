@@ -12,7 +12,7 @@ test_fail_as:
     SELECT
         'foo'AS bar
     FROM foo
-  pass_str: |
+  fix_str: |
     SELECT
         'foo' AS bar
     FROM foo
