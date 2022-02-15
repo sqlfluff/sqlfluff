@@ -1,5 +1,4 @@
 name: Bug report
-title: "[Bug] Bug title"
 description: Report a bug to help improve SQLFluff
 labels: [ "bug" ]
 body:
