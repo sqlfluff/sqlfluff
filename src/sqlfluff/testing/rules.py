@@ -142,3 +142,9 @@ def rules__test_helper(test_case):
         # If a `fixed` value is provided then check it matches
         if test_case.fix_str:
             assert res == test_case.fix_str
+        else:
+            # Check that tests without a fix_str do not apply any fixes.
+            assert res == test_case.fail_str, (
+                "No fix_str was provided, but the rule modified the SQL. Where a fix "
+                "can be applied by a rule, a fix_str must be supplied in the test."
+            )
