@@ -1,5 +1,4 @@
 """Implementation of Rule L003."""
-from enum import Enum
 from typing import List, Optional, Sequence, Tuple
 
 from sqlfluff.core.parser import WhitespaceSegment
@@ -11,13 +10,6 @@ from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
 )
 from sqlfluff.core.templaters import TemplatedFile
-
-
-class EditType(Enum):
-    """Used by _choose_anchor_segment."""
-
-    CREATE_BEFORE = 1
-    CREATE_AFTER = 2
 
 
 @document_fix_compatible
@@ -55,6 +47,7 @@ class Rule_L003(BaseRule):
 
     targets_templated = True
     _works_on_unparsable = False
+    _adjust_anchors = True
     _ignore_types: List[str] = ["script_content"]
     config_keywords = ["tab_space_size", "indent_unit"]
 
@@ -240,7 +233,7 @@ class Rule_L003(BaseRule):
         elif len("".join(elem.raw for elem in current_indent_buffer)) == 0:
             fixes = [
                 LintFix.create_before(
-                    self._choose_anchor_segment(context, current_anchor),
+                    current_anchor,
                     [
                         WhitespaceSegment(
                             raw=desired_indent,
@@ -750,9 +743,7 @@ class Rule_L003(BaseRule):
                             # Add in an extra bit of whitespace for the indent
                             fixes=[
                                 LintFix.create_before(
-                                    self._choose_anchor_segment(
-                                        context, trigger_segment
-                                    ),
+                                    trigger_segment,
                                     [
                                         WhitespaceSegment(
                                             raw=self._make_indent(
@@ -774,7 +765,7 @@ class Rule_L003(BaseRule):
                         ),
                         fixes=[
                             LintFix.create_before(
-                                self._choose_anchor_segment(context, trigger_segment),
+                                trigger_segment,
                                 [
                                     WhitespaceSegment(
                                         # Make the minimum indent for it to be ok.
@@ -862,41 +853,6 @@ class Rule_L003(BaseRule):
 
         # If we get to here, then we're all good for now.
         return LintResult(memory=memory)
-
-    @staticmethod
-    def _choose_anchor_segment(context, segment, edit_type=EditType.CREATE_BEFORE):
-        """Choose the anchor point for a lint fix, i.e. where to apply the fix.
-
-        From a grammar perspective, segments near the leaf of the tree are
-        generally less likely to allow whitespace insertion. Fixes that place
-        whitespace (or, for that matter, *any* segment) where it's not permitted
-        by the grammar can cause subtle issues, e.g. weird behavior in other
-        rules that are confused by segments in unusual (i.e. wrong) areas of
-        the parse tree.
-
-        This function minimizes such issues by taking a proposed anchor point
-        near the leaf of the tree and walking "up" the parse tree as long as the
-        ancestor segments have the same templated position and length as the
-        length as the proposed point. This is not guaranteed to produce a legal
-        anchor for the related fix, but it's a pretty good heuristic, and at
-        worst, it shouldn't hurt anything.
-        """
-
-        def get_position(segment):
-            return (
-                segment.pos_marker.templated_slice.start
-                if edit_type == EditType.CREATE_BEFORE
-                else segment.pos_marker.templated_slice.stop
-            )
-
-        anchor = segment
-        trigger_pos = get_position(segment)
-        for seg in context.parent_stack[0].path_to(segment)[::-1]:
-            if get_position(seg) == trigger_pos:
-                anchor = seg
-            else:
-                break
-        return anchor
 
     @classmethod
     def _get_element_template_info(

@@ -108,7 +108,7 @@ class LintFix:
     """A class to hold a potential fix to a linting violation.
 
     Args:
-        edit_type (:obj:`str`): One of `create_before`, `create_after,
+        edit_type (:obj:`str`): One of `create_before`, `create_after`,
             `replace`, `delete` to indicate the kind of fix this represents.
         anchor (:obj:`BaseSegment`): A segment which represents
             the *position* that this fix should be applied at. For deletions
@@ -424,6 +424,7 @@ class BaseRule:
 
     _check_docstring = True
     _works_on_unparsable = True
+    _adjust_anchors = False
     targets_templated = False
 
     def __init__(self, code, description, **kwargs):
@@ -515,20 +516,19 @@ class BaseRule:
             return vs, raw_stack, [], memory
 
         # TODO: Document what options are available to the evaluation function.
+        context = RuleContext(
+            segment=segment,
+            parent_stack=parent_stack,
+            siblings_pre=siblings_pre,
+            siblings_post=siblings_post,
+            raw_stack=raw_stack,
+            memory=memory,
+            dialect=dialect,
+            path=pathlib.Path(fname) if fname else None,
+            templated_file=templated_file,
+        )
         try:
-            res = self._eval(
-                context=RuleContext(
-                    segment=segment,
-                    parent_stack=parent_stack,
-                    siblings_pre=siblings_pre,
-                    siblings_post=siblings_post,
-                    raw_stack=raw_stack,
-                    memory=memory,
-                    dialect=dialect,
-                    path=pathlib.Path(fname) if fname else None,
-                    templated_file=templated_file,
-                )
-            )
+            res = self._eval(context=context)
         except (bdb.BdbQuit, KeyboardInterrupt):  # pragma: no cover
             raise
         # Any exception at this point would halt the linter and
@@ -564,6 +564,7 @@ class BaseRule:
         elif isinstance(res, LintResult):
             # Extract any memory
             memory = res.memory
+            self._adjust_anchors_for_fixes(context, res)
             self._process_lint_result(
                 res, templated_file, ignore_mask, new_lerrs, new_fixes
             )
@@ -574,6 +575,7 @@ class BaseRule:
             # it was the last to be added
             memory = res[-1].memory
             for elem in res:
+                self._adjust_anchors_for_fixes(context, elem)
                 self._process_lint_result(
                     elem, templated_file, ignore_mask, new_lerrs, new_fixes
                 )
@@ -806,6 +808,71 @@ class BaseRule:
                 )
                 lint_result.fixes = []
                 return
+
+    @classmethod
+    def _adjust_anchors_for_fixes(cls, context, lint_result):
+        """Makes simple fixes to the anchor position for fixes.
+
+        Some rules return fixes where the anchor is too low in the tree. These
+        are most often rules like L003 and L016 that make whitespace changes
+        without a "deep" understanding of the parse structure. This function
+        attempts to correct those issues automatically. It won't handle
+        every possible issue with a rule; the goal is to handle typical issues;
+        i.e. the 80-90% case.
+        """
+        if not cls._adjust_anchors:
+            return
+
+        fix: LintFix
+        for fix in lint_result.fixes:
+            if fix.anchor:
+                fix.anchor = cls._choose_anchor_segment(
+                    context, fix.edit_type, fix.anchor
+                )
+
+    @staticmethod
+    def _choose_anchor_segment(context, edit_type, segment):
+        """Choose the anchor point for a lint fix, i.e. where to apply the fix.
+
+        From a grammar perspective, segments near the leaf of the tree are
+        generally less likely to allow general edits such as whitespace
+        insertion.
+
+        This function avoids such issues by taking a proposed anchor point
+        (assumed to be near the leaf of the tree) and walking "up" the parse
+        tree as long as the ancestor segments have the same start or end point
+        (depending on the edit type) as "segment". This newly chosen anchor
+        is more likely to be a valid anchor point for the fix.
+        """
+        if edit_type not in ("create_before", "create_after"):
+            return segment
+
+        def get_position(segment):
+            # :NOTE: By searching for segments with the same start or end point,
+            # this function can end up expanding the area of the file considered
+            # to be "touched" by the fix, making it more likely to be rejected
+            # due to intersecting a templated slice. However, this strategy is
+            # also more likely to avoid parse issues. If we find that too many
+            # fixes are being rejected due to templating issues, we may need to
+            # revisit this strategy, e.g.
+            # - Let the rules decide which strategy they want (start/end vs
+            #   "same exact position AND length)
+            # - Can we make this core logic "smarter" somehow?
+            # - Make the individual rules smarter.
+            return (
+                segment.pos_marker.templated_slice.start
+                if edit_type == "create_before"
+                else segment.pos_marker.templated_slice.stop
+            )
+
+        anchor = segment
+        trigger_pos = get_position(segment)
+        for seg in context.parent_stack[0].path_to(segment)[::-1]:
+            if get_position(seg) == trigger_pos:
+                anchor = seg
+            else:
+                break
+        return anchor
 
     @staticmethod
     def split_comma_separated_string(raw_str: str) -> List[str]:
