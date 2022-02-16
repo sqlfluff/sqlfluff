@@ -377,7 +377,7 @@ test_jinja_indent_templated_table_name_b:
             id
         FROM
             {{ product }}
-    {% if not loop.last -%} UNION ALL {%- endif %}
+        {% if not loop.last -%} UNION ALL {%- endif %}
     {% endfor %}
 
 test_jinja_nested_blocks:
