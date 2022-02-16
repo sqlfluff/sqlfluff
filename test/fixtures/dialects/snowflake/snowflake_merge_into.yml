@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: d07738df29bf8bdf14d50d018e4d4109a741356e621c628c6161f181165ba097
+_hash: 18fd458b5690b193777a1dbe281dd3e0ad4d1646dcefe1b5991c2f33b9832f80
 file:
 - statement:
     alter_table_statement:
@@ -102,3 +102,53 @@ file:
       - keyword: then
       - merge_delete_clause:
           keyword: delete
+- statement_terminator: ;
+- statement:
+    merge_statement:
+    - keyword: merge
+    - keyword: into
+    - table_reference:
+        identifier: t1
+    - keyword: using
+    - table_reference:
+        identifier: t2
+    - join_on_condition:
+        keyword: 'on'
+        expression:
+        - column_reference:
+          - identifier: t1
+          - dot: .
+          - identifier: t1key
+        - comparison_operator:
+            raw_comparison_operator: '='
+        - column_reference:
+          - identifier: t2
+          - dot: .
+          - identifier: t2key
+    - merge_when_not_matched_clause:
+      - keyword: when
+      - keyword: not
+      - keyword: matched
+      - binary_operator: and
+      - expression:
+          column_reference:
+          - identifier: t2
+          - dot: .
+          - identifier: marked
+          comparison_operator:
+            raw_comparison_operator: '='
+          literal: '1'
+      - keyword: then
+      - merge_insert_clause:
+        - keyword: insert
+        - bracketed:
+            start_bracket: (
+            column_reference:
+              identifier: marked
+            end_bracket: )
+        - keyword: values
+        - bracketed:
+            start_bracket: (
+            expression:
+              literal: '1'
+            end_bracket: )
