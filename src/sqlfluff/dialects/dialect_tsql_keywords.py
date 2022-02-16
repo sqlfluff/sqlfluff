@@ -268,14 +268,15 @@ UNRESERVED_KEYWORDS = [
     "KEEPDEFAULTS",
     "KEEPFIXED",
     "KEEPIDENTITY",
+    # LABEL is an Azure Synapse Analytics specific reserved keyword
+    # but could break TSQL parsing to add there
     "LABEL",
-    # Azure Synapse Analytics specific, reserved keyword but could break TSQL parsing to
-    # add there
     "LANGUAGE",
     "LEVEL",
     "LOAD",  # listed as reserved but functionally unreserved
     "LOCATION",
     "LOCK_TIMEOUT",
+    "LOG",
     "LOOP",
     "MAX_DURATION",
     "MAX_GRANT_PERCENT",
@@ -355,6 +356,7 @@ UNRESERVED_KEYWORDS = [
     "SCHEMABINDING",
     "SECURITYAUDIT",  # listed as reserved but functionally unreserved
     "SELF",
+    "SETERROR",
     "SEQUENCE",
     "SEQUENCE_NUMBER",
     "SERIALIZABLE",
