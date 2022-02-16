@@ -3415,15 +3415,33 @@ class RaiserrorStatementSegment(BaseSegment):
         "RAISERROR",
         Bracketed(
             Delimited(
-                OneOf(Ref("NumericLiteralSegment"), Ref("QuotedLiteralSegment")),
                 OneOf(
-                    Ref("NumericLiteralSegment"), Ref("QualifiedNumericLiteralSegment")
+                    Ref("NumericLiteralSegment"),
+                    Ref("QuotedLiteralSegment"),
+                    Ref("QuotedLiteralSegmentWithN"),
                 ),
                 OneOf(
                     Ref("NumericLiteralSegment"), Ref("QualifiedNumericLiteralSegment")
                 ),
-                Ref("QuotedLiteralSegment", optional=True),
+                OneOf(
+                    Ref("NumericLiteralSegment"), Ref("QualifiedNumericLiteralSegment")
+                ),
+                AnyNumberOf(
+                    Ref("LiteralGrammar"),
+                    Ref("ParameterNameSegment"),
+                    min_times=0,
+                    max_times=20,
+                ),
             ),
+        ),
+        Sequence(
+            "WITH",
+            Delimited(
+                "LOG",
+                "NOWAIT",
+                "SETERROR",
+            ),
+            optional=True,
         ),
     )
 
