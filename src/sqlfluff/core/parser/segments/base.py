@@ -1082,21 +1082,21 @@ class BaseSegment:
                                 f"Fixes: {fixes_applied!r}"
                             )
                     if getattr(r, "parse_grammar", None):
-                        parse_result = r.parse(parse_context)
-                        # :HACK: Calling parse() corrupts the segment 'r' in
-                        # some unknown way, and it's possible this code is not
-                        # even useful. For now, work around this by creating a
-                        # new copy of the segment after calling parse().
-                        r = self._create_segment_after_fixes(r, seg_buffer)
-                        if parse_result.segments and isinstance(
-                            parse_result.segments[-1], UnparsableSegment
-                        ):
+
+                        try:
+                            r.parse(parse_context)
+                        except ValueError:
                             raise ValueError(
-                                f"After fixes were applied, segment {parse_result!r} "
+                                f"After fixes were applied, segment {r!r} "
                                 "failed the parse() check. "
-                                f"Parse result: {parse_result.segments[-1]!r} "
                                 f"Fixes: {fixes_applied!r}"
                             )
+                        else:
+                            # :HACK: Calling parse() corrupts the segment 'r' in
+                            # some unknown way. Here, we work around this by
+                            # creating a new copy of the segment after calling
+                            # parse().
+                            r = self._create_segment_after_fixes(r, seg_buffer)
             # Return the new segment with any unused fixes.
             return r, fixes
         else:
