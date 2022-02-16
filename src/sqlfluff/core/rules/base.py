@@ -857,7 +857,11 @@ class BaseRule:
         anchor = segment
         trigger_pos = get_position(segment)
         for seg in context.parent_stack[0].path_to(segment)[::-1]:
-            if get_position(seg) == trigger_pos:
+            if get_position(seg) == trigger_pos and not seg.is_type("select_statement"):
+                # :HACK: Excluding select_statement as a replacement anchor
+                # because whitespace added before one seems to disappear. This
+                # is observed in L003.yml, test_jinja_indent_templated_table_name_a.
+                # We can revisit this in more detail if needed.
                 anchor = seg
             else:
                 break
