@@ -8,6 +8,7 @@ Here we define:
   analysis.
 """
 
+from copy import deepcopy
 from io import StringIO
 from typing import Any, Callable, Optional, List, Tuple, NamedTuple, Iterator
 import logging
@@ -1085,21 +1086,19 @@ class BaseSegment:
                                 f"Fixes: {fixes_applied!r}"
                             )
                     if getattr(r, "parse_grammar", None):
-
                         try:
-                            r.parse(parse_context)
+                            # :HACK: Calling parse() corrupts the segment 'r'
+                            # in some cases, e.g. adding additional Dedent child
+                            # segments. Here, we work around this by calling
+                            # parse() on a "backup copy" of the segment.
+                            r_copy = deepcopy(r)
+                            r_copy.parse(parse_context)
                         except ValueError:
                             raise ValueError(
-                                f"After fixes were applied, segment {r!r} "
+                                f"After fixes were applied, segment {r_copy!r} "
                                 "failed the parse() check. "
                                 f"Fixes: {fixes_applied!r}"
                             )
-                        else:
-                            # :HACK: Calling parse() corrupts the segment 'r' in
-                            # some unknown way. Here, we work around this by
-                            # creating a new copy of the segment after calling
-                            # parse().
-                            r = self._create_segment_after_fixes(r, seg_buffer)
             # Return the new segment with any unused fixes.
             return r, fixes
         else:
