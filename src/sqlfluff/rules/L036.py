@@ -318,7 +318,7 @@ class Rule_L036(BaseRule):
                         ].is_type("newline")
 
             if copy_with_newline:
-                insert_buff = insert_buff + [NewlineSegment()]
+                fixes += [LintFix.create_after(select_clause[0], [NewlineSegment()])]
 
             fixes += [
                 # Insert the select_clause in place of the first newlin in the
