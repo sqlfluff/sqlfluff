@@ -87,6 +87,24 @@ class ColumnReferenceSegment(ObjectReferenceSegment):  # type: ignore
 
 
 @redshift_dialect.segment(replace=True)
+class DateTimeTypeIdentifier(BaseSegment):
+    """A Date Time type."""
+
+    type = "datetime_type_identifier"
+    match_grammar = OneOf(
+        "DATE",
+        "DATETIME",
+        Sequence(
+            OneOf("TIME", "TIMESTAMP"),
+            Sequence(OneOf("WITH", "WITHOUT"), "TIME", "ZONE", optional=True),
+        ),
+        OneOf("TIMETZ", "TIMESTAMPTZ"),
+        # INTERVAL types are not Datetime types under Redshift:
+        # https://docs.aws.amazon.com/redshift/latest/dg/r_Datetime_types.html
+    )
+
+
+@redshift_dialect.segment(replace=True)
 class DatatypeSegment(BaseSegment):
     """A data type segment.
 
@@ -140,13 +158,7 @@ class DatatypeSegment(BaseSegment):
             "BPCHAR",
             "TEXT",
         ),
-        # datetime types
-        "DATE",
-        Sequence(
-            OneOf("TIME", "TIMESTAMP"),
-            Sequence(OneOf("WITH", "WITHOUT"), "TIME", "ZONE", optional=True),
-        ),
-        OneOf("TIMETZ", "TIMESTAMPTZ"),
+        Ref("DateTimeTypeIdentifier"),
         # INTERVAL is a data type *only* for conversion operations
         "INTERVAL",
         # boolean types
