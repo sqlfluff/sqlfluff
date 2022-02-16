@@ -347,7 +347,7 @@ test_jinja_indent_templated_table_name_a:
             id
         FROM
             {{ product }}
-    {% if not loop.last -%} UNION ALL {%- endif %}
+        {% if not loop.last -%} UNION ALL {%- endif %}
     {% endfor %}
 
 # Like test_jinja_indent_1_a but "FROM" table not initially

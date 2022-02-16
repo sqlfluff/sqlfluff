@@ -770,36 +770,6 @@ class BaseRule:
                     )
                 )
 
-        # Compute the set of block IDs affected by the fixes. If it's more than
-        # one, discard the fixes. Rationale: Fixes that span block boundaries
-        # may corrupt the file, e.g. by moving code in or out of a template
-        # loop.
-        block_info = templated_file.raw_slice_block_info
-        fix_block_ids = set(block_info.block_ids[slice_] for slice_ in fix_slices)
-        if len(fix_block_ids) > 1:
-            linter_logger.info(
-                "      * Discarding fixes that span blocks: %s",
-                lint_result.fixes,
-            )
-            lint_result.fixes = []
-            return
-
-        # If the fixes touch a literal-only loop, discard the fixes.
-        # Rationale: Fixes to a template loop that contains only literals are:
-        # - Difficult to map correctly back to source code, so there's a risk of
-        #   accidentally "expanding" the loop body if we apply them.
-        # - Highly unusual (In practice, templated loops in SQL are usually for
-        #   expanding the same code using different column names, types, etc.,
-        #   in which case the loop body contains template variables.
-        for block_id in fix_block_ids:
-            if block_id in block_info.literal_only_loops:
-                linter_logger.info(
-                    "      * Discarding fixes to literal-only loop: %s",
-                    lint_result.fixes,
-                )
-                lint_result.fixes = []
-                return
-
         for fix in lint_result.fixes:
             if fix.has_template_conflicts(templated_file):
                 linter_logger.info(
