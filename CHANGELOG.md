@@ -22,6 +22,8 @@ Major changes include:
 
 ## What's Changed
 
+* Redshift: Support DATETIME as a valid datatype [#2665](https://github.com/sqlfluff/sqlfluff/pull/2665) [@PLBMR](https://github.com/PLBMR)
+* Support L033 for RedShift [#2661](https://github.com/sqlfluff/sqlfluff/pull/2661) [@tunetheweb](https://github.com/tunetheweb)
 * Fix parsing types and add check to test in future [#2652](https://github.com/sqlfluff/sqlfluff/pull/2652) [@tunetheweb](https://github.com/tunetheweb)
 * Spark3: Support for `SORT BY` Clause [#2651](https://github.com/sqlfluff/sqlfluff/pull/2651) [@R7L208](https://github.com/R7L208)
 * Migrate issue template from markdown to yaml [#2626](https://github.com/sqlfluff/sqlfluff/pull/2626) [@zhongjiajie](https://github.com/zhongjiajie)
