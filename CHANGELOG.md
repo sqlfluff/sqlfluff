@@ -9,6 +9,49 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Note: Changes are now automatically tracked in [GitHub](https://github.com/sqlfluff/sqlfluff/releases) and will be copied in here on each release (please remember to update the issues and contributors to links!). There is no need to manually edit this file going forward.
 -->
 
+## [0.10.1] - 2022-02-15
+
+## Highlights
+
+Major changes include:
+* Improvements to rules L023, L045, L048, L052, L059 to make them more accurate.
+* If `sqlfluff fix` cannot find a stable fix after `runaway_limit` iterations (default 10) then no fixes will be applied.
+* Addition of `--write-output` config to command line so prevent errors corrupting output.
+* Various dialect improvements
+
+
+## What's Changed
+
+* Redshift: Support DATETIME as a valid datatype [#2665](https://github.com/sqlfluff/sqlfluff/pull/2665) [@PLBMR](https://github.com/PLBMR)
+* Support L033 for RedShift [#2661](https://github.com/sqlfluff/sqlfluff/pull/2661) [@tunetheweb](https://github.com/tunetheweb)
+* Fix parsing types and add check to test in future [#2652](https://github.com/sqlfluff/sqlfluff/pull/2652) [@tunetheweb](https://github.com/tunetheweb)
+* Spark3: Support for `SORT BY` Clause [#2651](https://github.com/sqlfluff/sqlfluff/pull/2651) [@R7L208](https://github.com/R7L208)
+* Migrate issue template from markdown to yaml [#2626](https://github.com/sqlfluff/sqlfluff/pull/2626) [@zhongjiajie](https://github.com/zhongjiajie)
+* L048 - handle more statements and exclude casting operators [#2642](https://github.com/sqlfluff/sqlfluff/pull/2642) [@tunetheweb](https://github.com/tunetheweb)
+* MySQL support `CURRENT_TIMESTAMP()` in `CREATE TABLE` [#2648](https://github.com/sqlfluff/sqlfluff/pull/2648) [@tunetheweb](https://github.com/tunetheweb)
+* Postgres enhanced `DELETE FROM` syntax [#2643](https://github.com/sqlfluff/sqlfluff/pull/2643) [@tunetheweb](https://github.com/tunetheweb)
+* Bug fix: L025 should consider BigQuery `QUALIFY` clause [#2647](https://github.com/sqlfluff/sqlfluff/pull/2647) [@barrywhart](https://github.com/barrywhart)
+* Bug fix: L025 overlooking `JOIN ON` clause if join expression in parentheses [#2645](https://github.com/sqlfluff/sqlfluff/pull/2645) [@barrywhart](https://github.com/barrywhart)
+* L045 not reporting unused CTEs if the query uses templating [#2641](https://github.com/sqlfluff/sqlfluff/pull/2641) [@barrywhart](https://github.com/barrywhart)
+* Fix IndexError in L001 [#2640](https://github.com/sqlfluff/sqlfluff/pull/2640) [@barrywhart](https://github.com/barrywhart)
+* L052: If require_final_semicolon is set, ensure semicolon after ALL statements [#2610](https://github.com/sqlfluff/sqlfluff/pull/2610) [@barrywhart](https://github.com/barrywhart)
+* L023 to also fix extra newlines in CTE [#2623](https://github.com/sqlfluff/sqlfluff/pull/2623) [@juhoautio](https://github.com/juhoautio)
+* Spark3: Enhancements for Set Operators [#2622](https://github.com/sqlfluff/sqlfluff/pull/2622) [@R7L208](https://github.com/R7L208)
+* Doc a better choice for default env [#2630](https://github.com/sqlfluff/sqlfluff/pull/2630) [@juhoautio](https://github.com/juhoautio)
+* Ensure ordering of fix compatible and config in rules docs [#2620](https://github.com/sqlfluff/sqlfluff/pull/2620) [@zhongjiajie](https://github.com/zhongjiajie)
+* Pin python version for tox -e mypy [#2629](https://github.com/sqlfluff/sqlfluff/pull/2629) [@juhoautio](https://github.com/juhoautio)
+* Hitting the linter loop limit should be treated as an error [#2628](https://github.com/sqlfluff/sqlfluff/pull/2628) [@barrywhart](https://github.com/barrywhart)
+* Allow file output directly from cli [#2625](https://github.com/sqlfluff/sqlfluff/pull/2625) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* BigQuery `UNPIVOT` and `PIVOT` fixes [#2619](https://github.com/sqlfluff/sqlfluff/pull/2619) [@tunetheweb](https://github.com/tunetheweb)
+* L059 quoted identifiers bug [#2614](https://github.com/sqlfluff/sqlfluff/pull/2614) [@tunetheweb](https://github.com/tunetheweb)
+* Snowflake dialect: Adjust snowflake array access [#2621](https://github.com/sqlfluff/sqlfluff/pull/2621) [@alanmcruickshank](https://github.com/alanmcruickshank)
+* Spark3: Test Cases for `ORDER BY` in `SELECT` [#2618](https://github.com/sqlfluff/sqlfluff/pull/2618) [@R7L208](https://github.com/R7L208)
+* Fix typos in 0.10.0 changelog [#2605](https://github.com/sqlfluff/sqlfluff/pull/2605) [@tunetheweb](https://github.com/tunetheweb)
+* TSQL: Indent `IF` clause expression segments [#2615](https://github.com/sqlfluff/sqlfluff/pull/2615) [@jpers36](https://github.com/jpers36)
+* Spark3: Enhancements for `LIMIT` Clause [#2612](https://github.com/sqlfluff/sqlfluff/pull/2612) [@R7L208](https://github.com/R7L208)
+* Allow Bare Functions in column constraints [#2607](https://github.com/sqlfluff/sqlfluff/pull/2607) [@tunetheweb](https://github.com/tunetheweb)
+* Add Oracle at and double at sign (execution symbol) [#2608](https://github.com/sqlfluff/sqlfluff/pull/2608) [@r0fls](https://github.com/r0fls)
+* Spark3: Enhancements to `LIKE` clause [#2604](https://github.com/sqlfluff/sqlfluff/pull/2604) [@R7L208](https://github.com/R7L208)
 
 ## [0.10.0] - 2022-02-10
 
