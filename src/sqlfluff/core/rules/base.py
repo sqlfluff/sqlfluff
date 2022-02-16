@@ -848,17 +848,6 @@ class BaseRule:
             return segment
 
         def get_position(segment):
-            # :NOTE: By searching for segments with the same start or end point,
-            # this function can end up expanding the area of the file considered
-            # to be "touched" by the fix, making it more likely to be rejected
-            # due to intersecting a templated slice. However, this strategy is
-            # also more likely to avoid parse issues. If we find that too many
-            # fixes are being rejected due to templating issues, we may need to
-            # revisit this strategy, e.g.
-            # - Let the rules decide which strategy they want (start/end vs
-            #   "same exact position AND length)
-            # - Can we make this core logic "smarter" somehow?
-            # - Make the individual rules smarter.
             return (
                 segment.pos_marker.templated_slice.start
                 if edit_type == "create_before"

@@ -1073,7 +1073,10 @@ class BaseSegment:
                 root_parse_context = RootParseContext(dialect=dialect)
                 with root_parse_context as parse_context:
                     if getattr(r, "match_grammar", None):
-                        match_result = r.match(r.segments, parse_context)
+                        match_result = r.match(
+                            tuple([seg for seg in r.segments if not seg.is_meta]),
+                            parse_context,
+                        )
                         if not match_result.is_complete():
                             raise ValueError(
                                 f"After fixes were applied, segment {r!r} "
