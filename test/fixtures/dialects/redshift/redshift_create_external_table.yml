@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 36bd34e1f1f2b3bc5c1c0eddcc058a1f01320389deeef61ed468064008dc3765
+_hash: 246bfa215d4aa569d960e471df5fb06b8bf2199d565174e24023853ee479822c
 file:
 - statement:
     create_external_table_statement:
@@ -269,7 +269,8 @@ file:
       - column_reference:
           identifier: saledate
       - data_type:
-          keyword: date
+          datetime_type_identifier:
+            keyword: date
       - comma: ','
       - column_reference:
           identifier: qtysold
@@ -290,7 +291,8 @@ file:
       - column_reference:
           identifier: saletime
       - data_type:
-          keyword: timestamp
+          datetime_type_identifier:
+            keyword: timestamp
       - end_bracket: )
     - keyword: row
     - keyword: format
@@ -339,7 +341,8 @@ file:
       - column_reference:
           identifier: event_time
       - data_type:
-          keyword: timestamp
+          datetime_type_identifier:
+            keyword: timestamp
       - comma: ','
       - column_reference:
           identifier: event_type
