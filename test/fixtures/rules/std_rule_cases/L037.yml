@@ -10,6 +10,7 @@ test_unspecified_unspecified:
 
 test_unspecified_desc:
   fail_str: SELECT * FROM t ORDER BY a, b DESC
+  fix_str: SELECT * FROM t ORDER BY a ASC, b DESC
 
 
 test_asc_desc:
@@ -18,6 +19,7 @@ test_asc_desc:
 
 test_desc_unspecified:
   fail_str: SELECT * FROM t ORDER BY a DESC, b
+  fix_str: SELECT * FROM t ORDER BY a DESC, b ASC
 
 
 test_desc_asc:

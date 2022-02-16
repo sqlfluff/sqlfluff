@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 10a3c69ef88358f1bd04d72cdc8331fac3cb5404cc63ba066af6c8ba1a866656
+_hash: 50802757c0d2dd34fc1ddfef97d82c6b5884eaf3f24c7276bb7b7481b971dac8
 file:
 - statement:
     create_external_table_statement:
@@ -497,7 +497,8 @@ file:
         - column_reference:
             identifier: l_shipdate
         - data_type:
-            keyword: date
+            datetime_type_identifier:
+              keyword: date
         - comma: ','
         - column_reference:
             identifier: l_shipmode

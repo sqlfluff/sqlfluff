@@ -197,11 +197,8 @@ issue_1639:
 test_fail_no_copy_code_out_of_template:
   # The rule wants to replace "t" with "foobar", but
   # LintFix.has_template_conflicts() correctly prevents it copying code out
-  # of the templated region. Hence, fix_str and fail_str are the same.
+  # of the templated region. Hence, the query is not modified.
   fail_str: |
-    SELECT t.repo_id
-    FROM {{ source_table }} AS t
-  fix_str: |
     SELECT t.repo_id
     FROM {{ source_table }} AS t
   configs:

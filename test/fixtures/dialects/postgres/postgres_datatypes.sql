@@ -140,3 +140,20 @@ create type public.c AS ENUM ('foo', 'bar');
 create table r(
     a public.c
 );
+
+-- DATETIME is a valid datatype, but is not a date_time_identifier; it is only
+-- potentially a user-defined type (i.e. a data_type_identifier).
+CREATE TABLE a (
+    b DATE,
+    c DATETIME
+);
+
+-- from https://github.com/sqlfluff/sqlfluff/issues/2649
+SELECT
+    b::DATETIME
+FROM a;
+
+SELECT
+    b,
+    c::DATE
+FROM a;
