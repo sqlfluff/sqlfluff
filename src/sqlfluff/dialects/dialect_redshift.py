@@ -85,6 +85,7 @@ class ColumnReferenceSegment(ObjectReferenceSegment):  # type: ignore
         allow_gaps=False,
     )
 
+
 @redshift_dialect.segment(replace=True)
 class DateTimeTypeIdentifier(BaseSegment):
     """A Date Time type."""
@@ -101,6 +102,7 @@ class DateTimeTypeIdentifier(BaseSegment):
         # INTERVAL types are not Datetime types under Redshift:
         # https://docs.aws.amazon.com/redshift/latest/dg/r_Datetime_types.html
     )
+
 
 @redshift_dialect.segment(replace=True)
 class DatatypeSegment(BaseSegment):
