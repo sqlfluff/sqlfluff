@@ -976,7 +976,7 @@ class BaseSegment:
 
         return self
 
-    def apply_fixes(self, fixes):
+    def apply_fixes(self, dialect, fixes):
         """Apply an iterable of fixes to this segment.
 
         Used in applying fixes if we're fixing linting errors.
@@ -1064,15 +1064,13 @@ class BaseSegment:
             seg_queue = seg_buffer
             seg_buffer = []
             for seg in seg_queue:
-                s, fixes = seg.apply_fixes(fixes)
+                s, fixes = seg.apply_fixes(dialect, fixes)
                 seg_buffer.append(s)
 
             # Reform into a new segment
             r = self._create_segment_after_fixes(r, seg_buffer)
             if fixes_applied:
-                from sqlfluff.core.dialects import dialect_selector
-
-                root_parse_context = RootParseContext(dialect_selector("ansi"))
+                root_parse_context = RootParseContext(dialect=dialect)
                 with root_parse_context as parse_context:
                     if getattr(r, "match_grammar", None):
                         match_result = r.match(r.segments, parse_context)
