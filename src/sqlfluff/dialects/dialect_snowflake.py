@@ -3251,13 +3251,13 @@ class MergeNotMatchedClauseSegment(BaseSegment):
             "WHEN",
             "NOT",
             "MATCHED",
-            "THEN",
         ),
     )
     parse_grammar = Sequence(
         "WHEN",
         "NOT",
         "MATCHED",
+        Sequence("AND", Ref("ExpressionSegment"), optional=True),
         "THEN",
         Ref("MergeInsertClauseSegment"),
     )
