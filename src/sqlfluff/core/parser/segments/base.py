@@ -9,6 +9,7 @@ Here we define:
 """
 
 from copy import deepcopy
+from dataclasses import replace
 from io import StringIO
 from typing import Any, Callable, Optional, List, Tuple, NamedTuple, Iterator
 import logging
@@ -1074,17 +1075,30 @@ class BaseSegment:
                 root_parse_context = RootParseContext(dialect=dialect)
                 with root_parse_context as parse_context:
                     if getattr(r, "match_grammar", None):
-                        match_result = r.match(
-                            tuple([seg for seg in r.segments if not seg.is_meta]),
-                            parse_context,
-                        )
-                        if not match_result.is_complete():
+                        try:
+                            for seg in r.segments:
+                                seg.pos_marker = replace(
+                                    seg.pos_marker,
+                                    templated_file=self.pos_marker.templated_file,
+                                )
+                            match_result = r.match(
+                                tuple([seg for seg in r.segments if not seg.is_meta]),
+                                parse_context,
+                            )
+                        except ValueError:
                             raise ValueError(
                                 f"After fixes were applied, segment {r!r} "
                                 "failed the match() parser check. "
-                                f"Result: {match_result!r} "
                                 f"Fixes: {fixes_applied!r}"
                             )
+                        else:
+                            if not match_result.is_complete():
+                                raise ValueError(
+                                    f"After fixes were applied, segment {r!r} "
+                                    "failed the match() parser check. "
+                                    f"Result: {match_result!r} "
+                                    f"Fixes: {fixes_applied!r}"
+                                )
                     if getattr(r, "parse_grammar", None):
                         try:
                             # :HACK: Calling parse() corrupts the segment 'r'
@@ -1092,6 +1106,11 @@ class BaseSegment:
                             # segments. Here, we work around this by calling
                             # parse() on a "backup copy" of the segment.
                             r_copy = deepcopy(r)
+                            for seg in r_copy.segments:
+                                seg.pos_marker = replace(
+                                    seg.pos_marker,
+                                    templated_file=self.pos_marker.templated_file,
+                                )
                             r_copy.parse(parse_context)
                         except ValueError:
                             raise ValueError(
