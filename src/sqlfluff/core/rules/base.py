@@ -819,7 +819,7 @@ class BaseRule:
 
         anchor = segment
         child = segment
-        for seg in context.parent_stack[0].path_to(segment)[-2::-1]:
+        for seg in context.parent_stack[0].path_to(segment)[1:-1][::-1]:
             if edit_type == "create_before" and seg.segments[0] is child:
                 anchor = seg
                 assert anchor.raw.startswith(segment.raw)
