@@ -817,20 +817,18 @@ class BaseRule:
         if edit_type not in ("create_before", "create_after"):
             return segment
 
-        def get_position(segment):
-            return (
-                segment.pos_marker.templated_slice.start
-                if edit_type == "create_before"
-                else segment.pos_marker.templated_slice.stop
-            )
-
         anchor = segment
-        trigger_pos = get_position(segment)
-        for seg in context.parent_stack[0].path_to(segment)[::-1]:
-            if get_position(seg) == trigger_pos:
+        child = segment
+        for seg in context.parent_stack[0].path_to(segment)[-2::-1]:
+            if edit_type == "create_before" and seg.segments[0] is child:
                 anchor = seg
+                assert anchor.raw.startswith(segment.raw)
+            elif edit_type == "create_after" and seg.segments[-1] is child:
+                anchor = seg
+                assert anchor.raw.endswith(segment.raw)
             else:
                 break
+            child = seg
         return anchor
 
     @staticmethod
