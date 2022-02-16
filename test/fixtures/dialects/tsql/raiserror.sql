@@ -8,7 +8,6 @@ RAISERROR (N'Unicode error', 16, 1);
 
 RAISERROR ('WITH option', 16, 1) WITH LOG;
 
-
 RAISERROR ('Error with lots of arguments %a %b %c %d %e %f %g %h %i %j %k %l %m %n %o %p %q %r %s %t', 16, 1,
 		'a',
 		N'b',
