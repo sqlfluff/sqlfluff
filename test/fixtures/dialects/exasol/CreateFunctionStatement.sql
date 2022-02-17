@@ -88,3 +88,25 @@ BEGIN
     RETURN res;
 END for_loop_function3;
 /
+CREATE FUNCTION schem.func (
+    p1 VARCHAR(6),
+    p2 VARCHAR(10)
+) RETURN VARCHAR (20)
+IS
+    res VARCHAR(20);
+
+BEGIN
+
+    IF p1 IS NOT NULL AND p2 IS NOT NULL THEN
+        IF p1 = 1 THEN
+            res:= 'Hello World';
+        ELSE
+            IF p2 = 3 THEN
+                res:= 'ABC';
+            END IF;
+            res:= 'WOHOOOO';
+        END IF;
+    END IF;
+    RETURN res;
+END schem.func;
+/

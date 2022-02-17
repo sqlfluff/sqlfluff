@@ -3351,6 +3351,7 @@ class CreateFunctionStatementSegment(BaseSegment):
         "RETURN",
         Ref("DatatypeSegment"),
         OneOf("IS", "AS", optional=True),
+        Indent,
         AnyNumberOf(
             Sequence(
                 Ref("VariableNameSegment"),
@@ -3359,11 +3360,14 @@ class CreateFunctionStatementSegment(BaseSegment):
             ),
             optional=True,
         ),
+        Dedent,
         "BEGIN",
+        Indent,
         AnyNumberOf(Ref("FunctionBodySegment")),
         "RETURN",
         Ref("FunctionContentsExpressionGrammar"),
         Ref("DelimiterSegment"),
+        Dedent,
         "END",
         Ref("FunctionReferenceSegment", optional=True),
         Ref("SemicolonSegment", optional=True),
@@ -3375,11 +3379,15 @@ class FunctionBodySegment(BaseSegment):
     """The definition of the function body."""
 
     type = "function_body"
-    match_grammar = OneOf(
-        Ref("FunctionAssignmentSegment"),
-        Ref("FunctionIfBranchSegment"),
-        Ref("FunctionForLoopSegment"),
-        Ref("FunctionWhileLoopSegment"),
+    match_grammar = Sequence(
+        Indent,
+        OneOf(
+            Ref("FunctionAssignmentSegment"),
+            Ref("FunctionIfBranchSegment"),
+            Ref("FunctionForLoopSegment"),
+            Ref("FunctionWhileLoopSegment"),
+        ),
+        Dedent,
     )
 
 
@@ -3422,7 +3430,9 @@ class FunctionIfBranchSegment(BaseSegment):
             optional=True,
         ),
         Sequence(
-            "ELSE", AnyNumberOf(Ref("FunctionBodySegment"), min_times=1), optional=True
+            "ELSE",
+            AnyNumberOf(Ref("FunctionBodySegment"), min_times=1),
+            optional=True,
         ),
         "END",
         "IF",
