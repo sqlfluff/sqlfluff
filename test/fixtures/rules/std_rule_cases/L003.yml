@@ -763,3 +763,20 @@ test_pass_tsql_if_indent:
   configs:
     core:
       dialect: tsql
+
+
+test_pass_tsql_index_indent:
+  pass_str: |
+    CREATE UNIQUE INDEX AK_UnitMeasure_Name
+      ON Production.UnitMeasure(Name);
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_tsql_statistics_indent:
+  pass_str: |
+    CREATE STATISTICS [stat_ccode]
+        ON [dbo].[CodeValues]([ccode]);
+  configs:
+    core:
+      dialect: tsql

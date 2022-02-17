@@ -670,6 +670,7 @@ class CreateIndexStatementSegment(BaseSegment):
     type = "create_index_statement"
     match_grammar = Sequence(
         "CREATE",
+        Indent,
         Ref("OrReplaceGrammar", optional=True),
         Sequence("UNIQUE", optional=True),
         OneOf("CLUSTERED", "NONCLUSTERED", optional=True),
@@ -689,6 +690,7 @@ class CreateIndexStatementSegment(BaseSegment):
         Ref("OnPartitionOrFilegroupOptionSegment", optional=True),
         Ref("FilestreamOnOptionSegment", optional=True),
         Ref("DelimiterSegment", optional=True),
+        Dedent,
     )
 
 
