@@ -3430,9 +3430,7 @@ class FunctionIfBranchSegment(BaseSegment):
             optional=True,
         ),
         Sequence(
-            "ELSE",
-            AnyNumberOf(Ref("FunctionBodySegment"), min_times=1),
-            optional=True,
+            "ELSE", AnyNumberOf(Ref("FunctionBodySegment"), min_times=1), optional=True
         ),
         "END",
         "IF",
