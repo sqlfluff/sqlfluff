@@ -1082,7 +1082,11 @@ class BaseSegment:
                                     templated_file=self.pos_marker.templated_file,
                                 )
                             match_result = r.match(
-                                tuple([seg for seg in r.segments if not seg.is_meta]),
+                                deepcopy(
+                                    tuple(
+                                        [seg for seg in r.segments if not seg.is_meta]
+                                    )
+                                ),
                                 parse_context,
                             )
                         except ValueError:
