@@ -194,6 +194,7 @@ class Rule_L036(BaseRule):
             # In most (but not all) case we'll want to replace the newline with
             # the statement and a newline, but in some cases however (see #1424)
             # we don't need the final newline.
+            copy_with_newline = True
             insert_buff = [
                 WhitespaceSegment(),
                 select_children[select_targets_info.first_select_target_idx],
@@ -285,6 +286,7 @@ class Rule_L036(BaseRule):
                                 [NewlineSegment()] + list(move_after_select_clause),
                             )
                         )
+                        copy_with_newline = False
 
                         # The select_clause is immediately followed by a
                         # newline. Delete the newline in order to avoid leaving
@@ -356,6 +358,10 @@ class Rule_L036(BaseRule):
                                 + list(move_after_select_clause),
                             )
                         )
+                        copy_with_newline = False
+
+            if copy_with_newline:
+                insert_buff = insert_buff + [NewlineSegment()]
 
             fixes += [
                 # Insert the select_clause in place of the first newline in the
