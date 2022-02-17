@@ -316,6 +316,31 @@ class Rule_L036(BaseRule):
                                 select_stmt.segments[after_select_clause_idx],
                             ),
                         ]
+
+                        move_after_select_clause = select_children.select(
+                            start_seg=select_children[
+                                select_targets_info.first_new_line_idx
+                            ],
+                            stop_seg=select_children[
+                                select_targets_info.first_select_target_idx
+                            ],
+                        )
+                        fixes += [
+                            LintFix.delete(seg) for seg in move_after_select_clause
+                        ]
+                        fixes.append(
+                            LintFix.create_after(
+                                self._choose_anchor_segment(
+                                    context,
+                                    "create_after",
+                                    select_clause[0],
+                                    filter_meta=True,
+                                ),
+                                ([NewlineSegment()] if copy_with_newline else [])
+                                + list(move_after_select_clause),
+                            )
+                        )
+                        copy_with_newline = False
                     elif select_stmt.segments[after_select_clause_idx].is_type(
                         "dedent"
                     ):
