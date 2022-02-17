@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: 757a0eb6de8f8048cc83e8bd4af2b0a253fb56c9fa79451d48c8eb822f82b922
+_hash: d88e5f09aebf827225e0e8212e0629860009f8d5ac1bdb6f8df8abbd37bcbda4
 file:
 - statement:
     select_statement:
@@ -91,7 +91,8 @@ file:
                   identifier: col1
               keyword: as
               data_type:
-                keyword: timestamptz
+                datetime_type_identifier:
+                  keyword: timestamptz
               end_bracket: )
       from_clause:
         keyword: from
@@ -138,7 +139,8 @@ file:
             cast_expression:
               casting_operator: '::'
               data_type:
-                keyword: timestamptz
+                datetime_type_identifier:
+                  keyword: timestamptz
       from_clause:
         keyword: from
         from_expression:
