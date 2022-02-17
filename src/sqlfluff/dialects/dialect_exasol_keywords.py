@@ -78,6 +78,7 @@ RESERVED_KEYWORDS = [
     "CONVERT",
     "CORRESPONDING",
     "CREATE",
+    "CROSS",  # a unreserved keyword but needed to be reserved to make join clause work
     "CS",
     "CSV",
     "CUBE",
@@ -530,7 +531,6 @@ UNRESERVED_KEYWORDS = [
     "COVAR_POP",
     "COVAR_SAMP",
     "CREATED",
-    "CROSS",
     "CURDATE",
     "DATABASE",
     "DATE_TRUNC",

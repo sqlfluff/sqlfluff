@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: dd6b6e2f270c8eed1a4a5e86a7b672259efad9235ca65d17044520867bda7da7
+_hash: 1208cf90d7540d5d3e7e6f9ecebfc72942c61993e206e64dbd3e20ed02ade181
 file:
 - statement:
     select_statement:
@@ -1573,4 +1573,56 @@ file:
       - keyword: BY
       - column_reference:
           identifier: a
+- statement_terminator: ;
+- statement:
+    set_expression:
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            expression:
+              numeric_literal:
+                binary_operator: '-'
+                literal: '1'
+              binary_operator: '*'
+              function:
+                function_name:
+                  function_name_identifier: row_number
+                bracketed:
+                  start_bracket: (
+                  end_bracket: )
+                over_clause:
+                  keyword: OVER
+                  bracketed:
+                    start_bracket: (
+                    end_bracket: )
+            alias_expression:
+              keyword: AS
+              identifier: nummer
+        from_clause:
+          keyword: FROM
+          from_expression:
+            from_expression_element:
+              table_expression:
+                table_reference:
+                - identifier: sys
+                - dot: .
+                - identifier: exa_sql_keywords
+            join_clause:
+            - keyword: CROSS
+            - keyword: JOIN
+            - from_expression_element:
+                table_expression:
+                  table_reference:
+                  - identifier: sys
+                  - dot: .
+                  - identifier: exa_sql_keywords
+    - set_operator:
+      - keyword: UNION
+      - keyword: ALL
+    - select_statement:
+        select_clause:
+          keyword: SELECT
+          select_clause_element:
+            literal: '0'
 - statement_terminator: ;
