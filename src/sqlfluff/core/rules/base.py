@@ -801,7 +801,7 @@ class BaseRule:
                 )
 
     @staticmethod
-    def _choose_anchor_segment(context, edit_type, segment):
+    def _choose_anchor_segment(context, edit_type, segment, filter_meta=False):
         """Choose the anchor point for a lint fix, i.e. where to apply the fix.
 
         From a grammar perspective, segments near the leaf of the tree are
@@ -820,10 +820,15 @@ class BaseRule:
         anchor = segment
         child = segment
         for seg in context.parent_stack[0].path_to(segment)[1:-1][::-1]:
-            if edit_type == "create_before" and seg.segments[0] is child:
+            children = (
+                seg.segments
+                if not filter_meta
+                else [child for child in seg.segments if not child.is_meta]
+            )
+            if edit_type == "create_before" and children[0] is child:
                 anchor = seg
                 assert anchor.raw.startswith(segment.raw)
-            elif edit_type == "create_after" and seg.segments[-1] is child:
+            elif edit_type == "create_after" and children[-1] is child:
                 anchor = seg
                 assert anchor.raw.endswith(segment.raw)
             else:
