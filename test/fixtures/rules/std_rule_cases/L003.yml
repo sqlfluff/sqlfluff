@@ -822,3 +822,19 @@ test_fail_fix_exa_func_format:
   configs:
     core:
       dialect: exasol
+
+test_pass_tsql_index_indent:
+  pass_str: |
+    CREATE UNIQUE INDEX AK_UnitMeasure_Name
+        ON Production.UnitMeasure(Name);
+  configs:
+    core:
+      dialect: tsql
+
+test_pass_tsql_statistics_indent:
+  pass_str: |
+    CREATE STATISTICS [stat_ccode]
+        ON [dbo].[CodeValues]([ccode]);
+  configs:
+    core:
+      dialect: tsql
