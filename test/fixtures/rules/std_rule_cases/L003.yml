@@ -768,7 +768,7 @@ test_pass_tsql_if_indent:
 test_pass_tsql_index_indent:
   pass_str: |
     CREATE UNIQUE INDEX AK_UnitMeasure_Name
-      ON Production.UnitMeasure(Name);
+        ON Production.UnitMeasure(Name);
   configs:
     core:
       dialect: tsql
