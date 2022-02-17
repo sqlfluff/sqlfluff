@@ -1070,75 +1070,74 @@ class BaseSegment:
                 seg_buffer.append(s)
 
             # Reform into a new segment
-            r = self._create_segment_after_fixes(r, seg_buffer)
-            if fixes_applied:
-                root_parse_context = RootParseContext(dialect=dialect)
-                with root_parse_context as parse_context:
-                    if getattr(r, "match_grammar", None):
-                        try:
-                            for seg in r.segments:
-                                seg.pos_marker = replace(
-                                    seg.pos_marker,
-                                    templated_file=self.pos_marker.templated_file,
-                                )
-                            match_result = r.match(
-                                deepcopy(
-                                    tuple(
-                                        [seg for seg in r.segments if not seg.is_meta]
-                                    )
-                                ),
-                                parse_context,
-                            )
-                        except ValueError:
-                            raise ValueError(
-                                f"After fixes were applied, segment {r!r} "
-                                "failed the match() parser check. "
-                                f"Fixes: {fixes_applied!r}"
-                            )
-                        else:
-                            if not match_result.is_complete():
-                                raise ValueError(
-                                    f"After fixes were applied, segment {r!r} "
-                                    "failed the match() parser check. "
-                                    f"Result: {match_result!r} "
-                                    f"Fixes: {fixes_applied!r}"
-                                )
-                    if getattr(r, "parse_grammar", None):
-                        try:
-                            # :HACK: Calling parse() corrupts the segment 'r'
-                            # in some cases, e.g. adding additional Dedent child
-                            # segments. Here, we work around this by calling
-                            # parse() on a "backup copy" of the segment.
-                            r_copy = deepcopy(r)
-                            for seg in r_copy.segments:
-                                seg.pos_marker = replace(
-                                    seg.pos_marker,
-                                    templated_file=self.pos_marker.templated_file,
-                                )
-                            r_copy.parse(parse_context)
-                        except ValueError:
-                            raise ValueError(
-                                f"After fixes were applied, segment {r_copy!r} "
-                                "failed the parse() check. "
-                                f"Fixes: {fixes_applied!r}"
-                            )
+            r = r.__class__(
+                # Realign the segments within
+                segments=self._position_segments(
+                    tuple(seg_buffer), parent_pos=r.pos_marker
+                ),
+                pos_marker=r.pos_marker,
+                # Pass through any additional kwargs
+                **{k: getattr(self, k) for k in self.additional_kwargs},
+            )
+            self._validate_segment_after_fixes(dialect, fixes_applied, r)
             # Return the new segment with any unused fixes.
             return r, fixes
         else:
             return self, fixes
 
-    def _create_segment_after_fixes(
-        self, original: "BaseSegment", seg_buffer: List["BaseSegment"]
-    ):
-        return original.__class__(
-            # Realign the segments within
-            segments=self._position_segments(
-                tuple(seg_buffer), parent_pos=original.pos_marker
-            ),
-            pos_marker=original.pos_marker,
-            # Pass through any additional kwargs
-            **{k: getattr(self, k) for k in self.additional_kwargs},
-        )
+    def _validate_segment_after_fixes(self, dialect, fixes_applied, segment):
+        """Checks correctness of new segment against match or parse grammar."""
+        if fixes_applied:
+            root_parse_context = RootParseContext(dialect=dialect)
+            with root_parse_context as parse_context:
+                if getattr(segment, "match_grammar", None):
+                    try:
+                        for seg in segment.segments:
+                            seg.pos_marker = replace(
+                                seg.pos_marker,
+                                templated_file=self.pos_marker.templated_file,
+                            )
+                        match_result = segment.match(
+                            deepcopy(
+                                tuple(
+                                    [seg for seg in segment.segments if not seg.is_meta]
+                                )
+                            ),
+                            parse_context,
+                        )
+                    except ValueError:  # pragma: no cover
+                        raise ValueError(
+                            f"After fixes were applied, segment {segment!r} "
+                            "failed the match() parser check. "
+                            f"Fixes: {fixes_applied!r}"
+                        )
+                    else:
+                        if not match_result.is_complete():
+                            raise ValueError(  # pragma: no cover
+                                f"After fixes were applied, segment {segment!r} "
+                                "failed the match() parser check. "
+                                f"Result: {match_result!r} "
+                                f"Fixes: {fixes_applied!r}"
+                            )
+                if getattr(segment, "parse_grammar", None):
+                    try:
+                        # :HACK: Calling parse() corrupts the segment 'r'
+                        # in some cases, e.g. adding additional Dedent child
+                        # segments. Here, we work around this by calling
+                        # parse() on a "backup copy" of the segment.
+                        r_copy = deepcopy(segment)
+                        for seg in r_copy.segments:
+                            seg.pos_marker = replace(
+                                seg.pos_marker,
+                                templated_file=self.pos_marker.templated_file,
+                            )
+                        r_copy.parse(parse_context)
+                    except ValueError:  # pragma: no cover
+                        raise ValueError(
+                            f"After fixes were applied, segment {r_copy!r} "
+                            "failed the parse() check. "
+                            f"Fixes: {fixes_applied!r}"
+                        )
 
     def iter_patches(self, templated_str: str) -> Iterator[FixPatch]:
         """Iterate through the segments generating fix patches.

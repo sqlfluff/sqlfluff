@@ -786,9 +786,10 @@ class BaseRule:
         Some rules return fixes where the anchor is too low in the tree. These
         are most often rules like L003 and L016 that make whitespace changes
         without a "deep" understanding of the parse structure. This function
-        attempts to correct those issues automatically. It won't handle
-        every possible issue with a rule; the goal is to handle typical issues;
-        i.e. the 80-90% case.
+        attempts to correct those issues automatically. It may not be perfect,
+        but it should be an improvement over the old behavior, where rules like
+        L003 often corrupted the parse tree, placing spaces in weird places that
+        caused issues with other rules. For more context, see issue #1304.
         """
         if not cls._adjust_anchors:
             return

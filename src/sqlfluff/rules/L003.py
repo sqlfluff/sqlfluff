@@ -220,7 +220,6 @@ class Rule_L003(BaseRule):
 
     def _coerce_indent_to(
         self,
-        context: RuleContext,
         desired_indent: str,
         current_indent_buffer: Tuple[RawSegment, ...],
         current_anchor: BaseSegment,
@@ -550,7 +549,6 @@ class Rule_L003(BaseRule):
 
                 # Make fixes
                 fixes = self._coerce_indent_to(
-                    context,
                     desired_indent=desired_indent,
                     current_indent_buffer=this_line["indent_buffer"],
                     current_anchor=this_line["line_buffer"][0],
@@ -613,7 +611,6 @@ class Rule_L003(BaseRule):
 
                     # Make fixes
                     fixes = self._coerce_indent_to(
-                        context,
                         desired_indent=desired_indent,
                         current_indent_buffer=this_line["indent_buffer"],
                         current_anchor=trigger_segment,
@@ -674,7 +671,6 @@ class Rule_L003(BaseRule):
 
                     # Make fixes
                     fixes = self._coerce_indent_to(
-                        context,
                         desired_indent=desired_indent,
                         current_indent_buffer=this_line["indent_buffer"],
                         current_anchor=trigger_segment,
@@ -789,7 +785,6 @@ class Rule_L003(BaseRule):
 
                     # Make fixes
                     fixes = self._coerce_indent_to(
-                        context,
                         desired_indent=desired_indent,
                         current_indent_buffer=this_line["indent_buffer"],
                         current_anchor=trigger_segment,
@@ -824,7 +819,6 @@ class Rule_L003(BaseRule):
                                 break
                         # Make fixes.
                         fixes += self._coerce_indent_to(
-                            context,
                             desired_indent="".join(
                                 elem.raw for elem in this_line["indent_buffer"]
                             ),
