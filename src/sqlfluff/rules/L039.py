@@ -39,7 +39,9 @@ class Rule_L039(BaseRule):
         prev_whitespace = None
         violations = []
         for seg in context.segment.segments:
-            if seg.is_type("newline"):
+            if seg.is_meta:
+                continue
+            elif seg.is_type("newline"):
                 prev_newline = True
                 prev_whitespace = None
             elif seg.is_type("whitespace"):
