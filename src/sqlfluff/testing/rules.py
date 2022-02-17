@@ -1,6 +1,8 @@
 """Testing utils for rule plugins."""
+import textwrap
+
 from sqlfluff.core import Linter
-from sqlfluff.core.errors import SQLParseError, SQLTemplaterError
+from sqlfluff.core.errors import SQLParseError, SQLTemplaterError, SQLLintError
 from sqlfluff.core.rules import get_ruleset
 from sqlfluff.core.config import FluffConfig
 from typing import Tuple, List, NamedTuple, Optional
@@ -148,3 +150,16 @@ def rules__test_helper(test_case):
                 "No fix_str was provided, but the rule modified the SQL. Where a fix "
                 "can be applied by a rule, a fix_str must be supplied in the test."
             )
+
+
+def dedent(sql: str) -> str:
+    """Cleans up the surrounding whitespace."""
+    return textwrap.dedent(sql).lstrip("\n").rstrip() + "\n"
+
+
+def lint(sql: str, configs: Optional[dict] = None) -> List[str]:
+    """Runs lint and returns the found violations."""
+    return [
+        v.description if isinstance(v, SQLLintError) else str(v)
+        for v in Linter(FluffConfig(configs)).lint_string(sql).violations
+    ]

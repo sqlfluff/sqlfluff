@@ -78,38 +78,3 @@ indented_comments:
         a,         -- Some comment
         longer_col -- A lined up comment
     FROM spam
-
-indented_comments_default_config:
-  fail_str: |
-    SELECT
-    	a,			-- Some comment
-    	longer_col	-- A lined up comment
-    FROM spam
-
-  # The rule will only fix the indent before the select targets.
-  fix_str: |
-    SELECT
-        a,			-- Some comment
-        longer_col	-- A lined up comment
-    FROM spam
-
-
-indented_comments_tab_config:
-  fail_str: |
-    SELECT
-        a,         -- Some comment
-        longer_col -- A lined up comment
-    FROM spam
-
-  # The rule will only fix the indent before the select targets.
-  fix_str: |
-    SELECT
-    	a,         -- Some comment
-    	longer_col -- A lined up comment
-    FROM spam
-
-  configs:
-    rules:
-      indent_unit: tab
-
-# TODO fix indents after text: https://github.com/sqlfluff/sqlfluff/issues/624
