@@ -82,13 +82,20 @@ changes.
 
 ### Developing and Running SQLFluff Locally
 
-The simplest way to set up a development environment is to use `tox`.
-First ensure that you have tox installed (windows users may have to replace `python3` with `py`):
-```shell
-python3 -m pip install -U tox
-```
+#### Requirements
 
-A virtual environment can then be created and activated by running:
+The simplest way to set up a development environment is to use `tox`.
+First ensure that you have tox installed:
+```shell
+python3.8 -m pip install -U tox
+```
+**IMPORTANT:** `tox` must be installed using Python 3.8 or newer. Otherwise `mypy` checks may fail. Depending on your setup and personal preference, replace `python3.8` as necessary, but make sure that the python version is new enough.
+
+<!-- Hopefully when tox 4 is released it will be possible to set `basepython = python3.10, python3.9, python3.8` to enforce a working version for running mypy checks. For now it's only possible to set it to a single version which is too restrictive. On the other hand for now there is a requirement for contributors to install tox with a new enough Python version. -->
+
+#### Creating a virtual environment
+
+A virtual environment can then be created and activated by running (check the [requirements](#requirements) before running this):
 ```shell
 tox -e dbt021-py38 --devenv .venv
 source .venv/bin/activate
@@ -130,7 +137,7 @@ pip install -e plugins/sqlfluff-templater-dbt/.
 
 ### Testing
 
-To test locally, SQLFluff uses `tox`. The test suite can be run via:
+To test locally, SQLFluff uses `tox` (check the [requirements](#requirements)!). The test suite can be run via:
 
 ```shell
 tox
@@ -209,7 +216,13 @@ py.test -v plugins/sqlfluff-templater-dbt/test/
 
 ### Pre-Commit Config
 
-For development convenience we also provide a `.pre-commit-config.yaml` file to allow the user to install a selection of pre-commit hooks via `tox -e pre-commit -- install`. These hooks can help the user identify and fix potential linting/typing violations prior to committing their code and therefore reduce having to deal with these sort of issues during code review.
+For development convenience we also provide a `.pre-commit-config.yaml` file to allow the user to install a selection of pre-commit hooks by running (check the [requirements](#requirements) before running this):
+
+```
+tox -e pre-commit -- install
+```
+
+These hooks can help the user identify and fix potential linting/typing violations prior to committing their code and therefore reduce having to deal with these sort of issues during code review.
 
 ### Documentation Website
 
