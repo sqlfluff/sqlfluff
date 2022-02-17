@@ -1485,6 +1485,36 @@ class SortByClauseSegment(BaseSegment):
     )
 
 
+@spark3_dialect.segment(replace=True)
+class SamplingExpressionSegment(BaseSegment):
+    """A `TABLESAMPLE` clause following a table identifier.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-sampling.html
+    """
+
+    type = "sample_expression"
+
+    match_grammar = Sequence(
+        "TABLESAMPLE",
+        OneOf(
+            Bracketed(
+                Ref("NumericLiteralSegment"),
+                OneOf(
+                    "PERCENT",
+                    "ROWS",
+                ),
+            ),
+            Bracketed(
+                "BUCKET",
+                Ref("NumericLiteralSegment"),
+                "OUT",
+                "OF",
+                Ref("NumericLiteralSegment"),
+            ),
+        ),
+    )
+
+
 # Auxiliary Statements
 @spark3_dialect.segment()
 class AddExecutablePackage(BaseSegment):
