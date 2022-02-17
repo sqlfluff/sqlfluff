@@ -191,10 +191,6 @@ class Rule_L036(BaseRule):
             modifier = select_children.first(sp.is_type("select_clause_modifier"))
 
             # Prepare the select clause which will be inserted
-            # In most (but not all) case we'll want to replace the newline with
-            # the statement and a newline, but in some cases however (see #1424)
-            # we don't need the final newline.
-            copy_with_newline = True
             insert_buff = [
                 WhitespaceSegment(),
                 select_children[select_targets_info.first_select_target_idx],
@@ -250,11 +246,17 @@ class Rule_L036(BaseRule):
                 # whitespace and newline, which we'll use below.
                 start_idx = select_targets_info.first_select_target_idx
 
+            # In most (but not all) case we'll want to replace the newline with
+            # the statement and a newline, but in some cases however (see #1424)
+            # we don't need the final newline.
+            copy_with_newline = True
+
             if parent_stack and parent_stack[-1].is_type("select_statement"):
                 select_stmt = parent_stack[-1]
                 select_clause_idx = select_stmt.segments.index(select_clause.get())
                 after_select_clause_idx = select_clause_idx + 1
                 if len(select_stmt.segments) > after_select_clause_idx:
+                    copy_with_newline = False
                     if select_stmt.segments[after_select_clause_idx].is_type("newline"):
                         # Since we're deleting the newline, we should also delete all
                         # whitespace before it or it will add random whitespace to
@@ -274,7 +276,6 @@ class Rule_L036(BaseRule):
                             to_delete[-1],
                             True,
                         )
-                        copy_with_newline = False
 
                         # The select_clause is immediately followed by a
                         # newline. Delete the newline in order to avoid leaving
@@ -312,9 +313,8 @@ class Rule_L036(BaseRule):
                             select_children[
                                 select_targets_info.first_select_target_idx
                             ],
-                            copy_with_newline,
+                            True,
                         )
-                        copy_with_newline = False
                     elif select_stmt.segments[after_select_clause_idx].is_type(
                         "dedent"
                     ):
@@ -327,23 +327,18 @@ class Rule_L036(BaseRule):
                         )
                         fixes += [LintFix.delete(seg) for seg in to_delete]
 
-                        # If we stopped due to something other than a newline,
-                        # we want to keep the final newline.
-                        copy_with_newline = not select_children[
-                            select_clause_idx - len(to_delete) - 2
-                        ].is_type("newline")
                         fixes += self._fixes_for_move_after_select_clause(
                             context,
                             select_clause,
                             select_children,
                             select_children[select_targets_info.first_new_line_idx],
                             to_delete[-1],
-                            copy_with_newline,
+                            # If we stopped due to something other than a newline,
+                            # we want to keep the final newline.
+                            not select_children[
+                                select_clause_idx - len(to_delete) - 2
+                            ].is_type("newline"),
                         )
-                        # The end of the select statement, so this is the one
-                        # case we don't want the newline added to end of
-                        # select_clause (see #1424)
-                        copy_with_newline = False
                     else:
                         fixes += self._fixes_for_move_after_select_clause(
                             context,
@@ -353,9 +348,8 @@ class Rule_L036(BaseRule):
                             select_children[
                                 select_targets_info.first_select_target_idx
                             ],
-                            copy_with_newline,
+                            True,
                         )
-                        copy_with_newline = False
 
             if copy_with_newline:
                 insert_buff = insert_buff + [NewlineSegment()]
