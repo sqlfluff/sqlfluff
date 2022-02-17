@@ -352,9 +352,8 @@ class Rule_L036(BaseRule):
                                     select_clause[0],
                                     filter_meta=True,
                                 ),
-                                list(move_after_select_clause) + [NewlineSegment()]
-                                if copy_with_newline
-                                else [],
+                                ([NewlineSegment()] if copy_with_newline else [])
+                                + list(move_after_select_clause),
                             )
                         )
 
