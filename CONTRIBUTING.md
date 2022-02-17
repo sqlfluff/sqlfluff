@@ -89,7 +89,7 @@ First ensure that you have tox installed:
 ```shell
 python3.8 -m pip install -U tox
 ```
-**IMPORTANT:** `tox` must be installed using Python 3.8 or newer. Otherwise `mypy` checks may fail. Depending on your setup and personal preference, replace `python3.8` as necessary, but make sure that the python version is new enough.
+**IMPORTANT:** `tox` must be installed with a minimum of Python 3.8 as the `mypy` checks are incompatible with 3.7. Those using newer versions of Python may replace `python3.8` as necessary (the test suite runs primarily under 3.10 for example).
 
 <!-- Hopefully when tox 4 is released it will be possible to set `basepython = python3.10, python3.9, python3.8` to enforce a working version for running mypy checks. For now it's only possible to set it to a single version which is too restrictive. On the other hand for now there is a requirement for contributors to install tox with a new enough Python version. -->
 
