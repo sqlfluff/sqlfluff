@@ -3,7 +3,7 @@
 # computed by SQLFluff when running the tests. Please run
 # `python test/generate_parse_fixture_yml.py`  to generate them after adding or
 # altering SQL files.
-_hash: e70f94559bd9e4b55da3e053e41e0462eb2ebc3cacb008e8d7e2d70c506cd456
+_hash: c83ad3d0869db8575c8471849199e09ec2d2948c5e8f4ef9e5835ba65e73dcfe
 file:
 - statement:
     create_function_statement:
@@ -471,5 +471,124 @@ file:
     - keyword: END
     - function_reference:
         identifier: for_loop_function3
+    - statement_terminator: ;
+- function_script_terminator: /
+- statement:
+    create_function_statement:
+    - keyword: CREATE
+    - keyword: FUNCTION
+    - function_reference:
+      - identifier: schem
+      - dot: .
+      - identifier: func
+    - bracketed:
+      - start_bracket: (
+      - identifier: p1
+      - data_type:
+          keyword: VARCHAR
+          bracketed:
+            start_bracket: (
+            literal: '6'
+            end_bracket: )
+      - comma: ','
+      - identifier: p2
+      - data_type:
+          keyword: VARCHAR
+          bracketed:
+            start_bracket: (
+            literal: '10'
+            end_bracket: )
+      - end_bracket: )
+    - keyword: RETURN
+    - data_type:
+        keyword: VARCHAR
+        bracketed:
+          start_bracket: (
+          literal: '20'
+          end_bracket: )
+    - keyword: IS
+    - variable: res
+    - data_type:
+        keyword: VARCHAR
+        bracketed:
+          start_bracket: (
+          literal: '20'
+          end_bracket: )
+    - statement_terminator: ;
+    - keyword: BEGIN
+    - function_body:
+        function_if_branch:
+        - keyword: IF
+        - expression:
+          - column_reference:
+              identifier: p1
+          - keyword: IS
+          - keyword: NOT
+          - keyword: 'NULL'
+          - binary_operator: AND
+          - column_reference:
+              identifier: p2
+          - keyword: IS
+          - keyword: NOT
+          - keyword: 'NULL'
+        - keyword: THEN
+        - function_body:
+            function_if_branch:
+            - keyword: IF
+            - expression:
+                column_reference:
+                  identifier: p1
+                comparison_operator:
+                  raw_comparison_operator: '='
+                literal: '1'
+            - keyword: THEN
+            - function_body:
+                function_assignment:
+                  variable: res
+                  assignment_operator: :=
+                  literal: "'Hello World'"
+                  statement_terminator: ;
+            - keyword: ELSE
+            - function_body:
+                function_if_branch:
+                - keyword: IF
+                - expression:
+                    column_reference:
+                      identifier: p2
+                    comparison_operator:
+                      raw_comparison_operator: '='
+                    literal: '3'
+                - keyword: THEN
+                - function_body:
+                    function_assignment:
+                      variable: res
+                      assignment_operator: :=
+                      literal: "'ABC'"
+                      statement_terminator: ;
+                - keyword: END
+                - keyword: IF
+                - statement_terminator: ;
+            - function_body:
+                function_assignment:
+                  variable: res
+                  assignment_operator: :=
+                  literal: "'WOHOOOO'"
+                  statement_terminator: ;
+            - keyword: END
+            - keyword: IF
+            - statement_terminator: ;
+        - keyword: END
+        - keyword: IF
+        - statement_terminator: ;
+    - keyword: RETURN
+    - expression:
+        column_reference:
+          identifier: res
+    - statement_terminator: ;
+    - keyword: END
+    - function_reference:
+      - identifier: schem
+      - dot: .
+      - identifier: func
     - statement_terminator: ;
 - function_script_terminator: /
