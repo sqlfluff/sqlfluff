@@ -1530,9 +1530,7 @@ class LateralViewClauseSegment(BaseSegment):
         "VIEW",
         Ref.keyword("OUTER", optional=True),
         Ref("FunctionSegment"),
-        AnyNumberOf(
-            Ref("AliasExpressionSegment", optional=True),
-            min_times=1,
+        AnyNumberOf(Ref("AliasExpressionSegment"),
         ),
         Dedent,
     )
@@ -1750,7 +1748,7 @@ class AliasExpressionSegment(BaseSegment):
             # just a table alias
             Ref("SingleIdentifierGrammar"),
             exclude=OneOf(
-                Ref.keyword("LATERAL"),
+                "LATERAL",
                 Ref("JoinTypeKeywords"),
             ),
         ),
@@ -1876,7 +1874,7 @@ class FileReferenceSegment(BaseSegment):
 class FromExpressionElementSegment(BaseSegment):
     """A table expression.
 
-    Enhanced from Ansi to allow for `LATERAL VIEW` clause
+    Enhanced from ANSI to allow for `LATERAL VIEW` clause
     """
 
     type = "from_expression_element"
