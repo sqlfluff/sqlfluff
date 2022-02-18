@@ -262,6 +262,18 @@ class Rule_L036(BaseRule):
                         stop_seg: BaseSegment,
                         add_newline: bool = True,
                     ) -> List[LintFix]:
+                        """Cleans up by moving leftover select_clause segments.
+
+                        Context: Some of the other fixes we make in
+                        _eval_single_select_target_element() leave the
+                        select_clause in an illegal state -- a select_clause's
+                        *rightmost children cannot be whitespace or comments*.
+                        This function addresses that by moving these segments
+                        up the parse tree to an ancestor segment chosen by
+                        _choose_anchor_segment(). After these fixes are applied,
+                        these segments may, for example, be *siblings* of
+                        select_clause.
+                        """
                         start_seg = select_children[
                             select_targets_info.first_new_line_idx
                         ]
