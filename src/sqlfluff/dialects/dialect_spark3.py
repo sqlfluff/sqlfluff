@@ -1530,8 +1530,16 @@ class LateralViewClauseSegment(BaseSegment):
         "VIEW",
         Ref.keyword("OUTER", optional=True),
         Ref("FunctionSegment"),
+        # NB: AliasExpressionSegment is not used here for table
+        # or column alias because `AS` is optional within it
+        # (and in most scenarios). Here it's explicitly defined
+        # for when it is required and not allowed.
         Ref("SingleIdentifierGrammar", optional=True),
-        Ref("AliasExpressionSegment", optional=True),
+        Sequence(
+            "AS",
+            Ref("SingleIdentifierGrammar"),
+            optional=True,
+        ),
         Dedent,
     )
 
