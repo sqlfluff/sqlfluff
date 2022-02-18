@@ -1883,9 +1883,7 @@ class FromExpressionElementSegment(BaseSegment):
         Ref("PreTableFunctionKeywordsGrammar", optional=True),
         OptionallyBracketed(Ref("TableExpressionSegment")),
         AnyNumberOf(
-            Ref("LateralViewClauseSegment"),
-            min_times=1,
-            optional=True,
+            Ref("LateralViewClauseSegment")
         ),
         OneOf(
             Sequence(
