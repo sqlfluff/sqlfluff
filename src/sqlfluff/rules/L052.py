@@ -107,7 +107,7 @@ class Rule_L052(BaseRule):
         statement_segment = next(
             (
                 s
-                for s in context.parent_stack[0].path_to(segment)
+                for s in (context.parent_stack[0].path_to(segment) or [])
                 if s.is_type("statement")
             ),
             None,
