@@ -2,18 +2,18 @@
 
 from typing import List, Optional, Tuple
 
-from sqlfluff.core.parser.helpers import trim_non_code_segments
-from sqlfluff.core.parser.match_result import MatchResult
-from sqlfluff.core.parser.match_wrapper import match_wrapper
-from sqlfluff.core.parser.match_logging import parse_match_logging
 from sqlfluff.core.parser.context import ParseContext
-from sqlfluff.core.parser.segments import BaseSegment, allow_ephemeral
 from sqlfluff.core.parser.grammar.base import (
     BaseGrammar,
     MatchableType,
     cached_method_for_parse_context,
 )
 from sqlfluff.core.parser.grammar.sequence import Sequence, Bracketed
+from sqlfluff.core.parser.helpers import trim_non_code_segments
+from sqlfluff.core.parser.match_logging import parse_match_logging
+from sqlfluff.core.parser.match_result import MatchResult
+from sqlfluff.core.parser.match_wrapper import match_wrapper
+from sqlfluff.core.parser.segments import BaseSegment, allow_ephemeral
 
 
 class AnyNumberOf(BaseGrammar):
@@ -165,8 +165,15 @@ class AnyNumberOf(BaseGrammar):
         # which would prevent the rest of this grammar from matching.
         if self.exclude:
             with parse_context.deeper_match() as ctx:
-                if self.exclude.match(segments, parse_context=ctx):
-                    return MatchResult.from_unmatched(segments)
+                try:
+                    if any(
+                        exclusion.match(segments, parse_context=ctx)
+                        for exclusion in self.exclude
+                    ):
+                        return MatchResult.from_unmatched(segments)
+                except TypeError:
+                    if self.exclude.match(segments, parse_context=ctx):
+                        return MatchResult.from_unmatched(segments)
 
         # Match on each of the options
         matched_segments: MatchResult = MatchResult.from_empty()
