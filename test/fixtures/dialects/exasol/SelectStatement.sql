@@ -121,3 +121,9 @@ SELECT a, b, c FROM x
 union
 SELECT a, b, c FROM y
 ORDER BY a;
+----
+SELECT -1 * row_number() OVER() AS nummer
+FROM sys.exa_sql_keywords
+CROSS JOIN sys.exa_sql_keywords
+UNION ALL
+SELECT 0;
