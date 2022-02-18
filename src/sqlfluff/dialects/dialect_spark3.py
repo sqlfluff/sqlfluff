@@ -1537,8 +1537,9 @@ class LateralViewClauseSegment(BaseSegment):
         Ref("SingleIdentifierGrammar", optional=True),
         Sequence(
             "AS",
-            Ref("SingleIdentifierGrammar"),
-            optional=True,
+            Delimited(
+                Ref("SingleIdentifierGrammar"),
+            ),
         ),
         Dedent,
     )

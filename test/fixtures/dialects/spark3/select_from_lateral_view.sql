@@ -38,3 +38,11 @@ SELECT
     c_age
 FROM person
     LATERAL VIEW OUTER EXPLODE(ARRAY()) tbl_name AS c_age;
+
+SELECT
+    person.id,
+    exploded_people.name,
+    exploded_people.age,
+    exploded_people.state
+FROM person
+    LATERAL VIEW INLINE(array_of_structs) exploded_people AS name, age, state
