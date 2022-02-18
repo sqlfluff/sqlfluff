@@ -10,8 +10,10 @@ https://spark.apache.org/docs/latest/sql-ref.html
 https://spark.apache.org/docs/latest/sql-ref-ansi-compliance.html
 https://github.com/apache/spark/blob/master/sql/catalyst/src/main/antlr4/org/apache/spark/sql/catalyst/parser/SqlBase.g4
 """
+from typing import Optional
 
 from sqlfluff.core.dialects import load_raw_dialect
+from sqlfluff.core.dialects.common import AliasInfo
 from sqlfluff.core.parser import (
     AnyNumberOf,
     BaseSegment,
@@ -33,6 +35,7 @@ from sqlfluff.core.parser import (
     StartsWith,
 )
 from sqlfluff.core.parser.segments.raw import CodeSegment, KeywordSegment
+from sqlfluff.dialects.dialect_ansi import ObjectReferenceSegment
 from sqlfluff.dialects.dialect_spark3_keywords import (
     RESERVED_KEYWORDS,
     UNRESERVED_KEYWORDS,
@@ -181,7 +184,7 @@ spark3_dialect.replace(
         Sequence("CLUSTER", "BY"),
         Sequence("DISTRIBUTE", "BY"),
         Sequence("SORT", "BY"),
-        # TODO Add PIVOT, LATERAL VIEW, and DISTRIBUTE BY clauses
+        # TODO Add PIVOT, and DISTRIBUTE BY clauses
         "HAVING",
         "WINDOW",
         Ref("SetOperatorSegment"),
@@ -1281,7 +1284,7 @@ class UnorderedSelectStatementSegment(BaseSegment):
     parse_grammar = ansi_dialect.get_segment(
         "UnorderedSelectStatementSegment"
     ).parse_grammar.copy(
-        # TODO Insert: PIVOT and LATERAL VIEW clauses
+        # TODO Insert: PIVOT clause
         # Removing non-valid clauses that exist in ANSI dialect
         remove=[Ref("OverlapsClauseSegment", optional=True)]
     )
@@ -1515,6 +1518,29 @@ class SamplingExpressionSegment(BaseSegment):
     )
 
 
+@spark3_dialect.segment()
+class LateralViewClauseSegment(BaseSegment):
+    """A `LATERAL VIEW` like in a `FROM` clause.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-lateral-view.html
+    """
+
+    type = "lateral_view_clause"
+
+    match_grammar = Sequence(
+        Indent,
+        "LATERAL",
+        "VIEW",
+        Ref.keyword("OUTER", optional=True),
+        Ref("FunctionSegment"),
+        AnyNumberOf(
+            Ref("AliasExpressionSegment", optional=True),
+            min_times=1,
+        ),
+        Dedent,
+    )
+
+
 # Auxiliary Statements
 @spark3_dialect.segment()
 class AddExecutablePackage(BaseSegment):
@@ -1726,7 +1752,9 @@ class AliasExpressionSegment(BaseSegment):
             ),
             # just a table alias
             Ref("SingleIdentifierGrammar"),
-            exclude=Ref("JoinTypeKeywords"),
+            exclude=[
+                Ref.keyword("LATERAL"), Ref("JoinTypeKeywords"),
+            ],
         ),
     )
 
@@ -1844,3 +1872,69 @@ class FileReferenceSegment(BaseSegment):
         # to match as a `TableReferenceSegment`
         Ref("QuotedIdentifierSegment"),
     )
+
+
+@spark3_dialect.segment(replace=True)
+class FromExpressionElementSegment(BaseSegment):
+    """A table expression.
+
+    Enhanced from Ansi to allow for `LATERAL VIEW` clause
+    """
+
+    type = "from_expression_element"
+    match_grammar = Sequence(
+        Ref("PreTableFunctionKeywordsGrammar", optional=True),
+        OptionallyBracketed(Ref("TableExpressionSegment")),
+        AnyNumberOf(
+            Ref("LateralViewClauseSegment"), min_times=1, optional=True,
+        ),
+        OneOf(
+            Sequence(
+                Ref("AliasExpressionSegment"),
+                Ref("SamplingExpressionSegment"),
+            ),
+            Ref("SamplingExpressionSegment"),
+            Ref("AliasExpressionSegment"),
+            optional=True,
+        ),
+        Ref("PostTableExpressionGrammar", optional=True),
+    )
+
+    def get_eventual_alias(self) -> Optional[AliasInfo]:
+        """Return the eventual table name referred to by this table expression.
+
+        Returns:
+            :obj:`tuple` of (:obj:`str`, :obj:`BaseSegment`, :obj:`bool`) containing
+                a string representation of the alias, a reference to the
+                segment containing it, and whether it's an alias.
+
+        """
+        alias_expression = self.get_child("alias_expression")
+        tbl_expression = self.get_child("table_expression")
+        if not tbl_expression:  # pragma: no cover
+            tbl_expression = self.get_child("bracketed").get_child("table_expression")
+        ref = tbl_expression.get_child("object_reference")
+        if alias_expression:
+            # If it has an alias, return that
+            segment = alias_expression.get_child("identifier")
+            if segment:
+                return AliasInfo(
+                    segment.raw, segment, True, self, alias_expression, ref
+                )
+
+        # If not return the object name (or None if there isn't one)
+        if ref:
+            # Return the last element of the reference.
+            penultimate_ref: ObjectReferenceSegment.ObjectReferencePart = list(
+                ref.iter_raw_references()
+            )[-1]
+            return AliasInfo(
+                penultimate_ref.part,
+                penultimate_ref.segments[0],
+                False,
+                self,
+                None,
+                ref,
+            )
+        # No references or alias, return None
+        return None

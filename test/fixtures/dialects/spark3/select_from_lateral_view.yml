@@ -1,0 +1,421 @@
+# YML test files are auto-generated from SQL files and should not be edited by
+# hand. To help enforce this, the "hash" field in the file must match a hash
+# computed by SQLFluff when running the tests. Please run
+# `python test/generate_parse_fixture_yml.py`  to generate them after adding or
+# altering SQL files.
+_hash: 47645b7591cacf43ed71727c1137a04d4634d0d47bffa6b1d257a5f1e13fb819
+file:
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            identifier: id
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: name
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: age
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: class
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: address
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: c_age
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: d_age
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+          - table_expression:
+              table_reference:
+                identifier: person
+          - lateral_view_clause:
+            - keyword: LATERAL
+            - keyword: VIEW
+            - function:
+                function_name:
+                  function_name_identifier: EXPLODE
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    function:
+                      function_name:
+                        function_name_identifier: ARRAY
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          literal: '30'
+                      - comma: ','
+                      - expression:
+                          literal: '60'
+                      - end_bracket: )
+                  end_bracket: )
+            - alias_expression:
+                identifier: tbl_name
+            - alias_expression:
+                keyword: AS
+                identifier: c_age
+          - lateral_view_clause:
+            - keyword: LATERAL
+            - keyword: VIEW
+            - function:
+                function_name:
+                  function_name_identifier: EXPLODE
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    function:
+                      function_name:
+                        function_name_identifier: ARRAY
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          literal: '40'
+                      - comma: ','
+                      - expression:
+                          literal: '80'
+                      - end_bracket: )
+                  end_bracket: )
+            - alias_expression:
+                keyword: AS
+                identifier: d_age
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            identifier: c_age
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: COUNT
+            bracketed:
+              start_bracket: (
+              star: '*'
+              end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+          - table_expression:
+              table_reference:
+                identifier: person
+          - lateral_view_clause:
+            - keyword: LATERAL
+            - keyword: VIEW
+            - function:
+                function_name:
+                  function_name_identifier: EXPLODE
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    function:
+                      function_name:
+                        function_name_identifier: ARRAY
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          literal: '30'
+                      - comma: ','
+                      - expression:
+                          literal: '60'
+                      - end_bracket: )
+                  end_bracket: )
+            - alias_expression:
+                keyword: AS
+                identifier: c_age
+          - lateral_view_clause:
+            - keyword: LATERAL
+            - keyword: VIEW
+            - function:
+                function_name:
+                  function_name_identifier: EXPLODE
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    function:
+                      function_name:
+                        function_name_identifier: ARRAY
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          literal: '40'
+                      - comma: ','
+                      - expression:
+                          literal: '80'
+                      - end_bracket: )
+                  end_bracket: )
+            - alias_expression:
+                keyword: AS
+                identifier: d_age
+      group_by_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - column_reference:
+          identifier: c_age
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            identifier: c_age
+      - comma: ','
+      - select_clause_element:
+          function:
+            function_name:
+              function_name_identifier: COUNT
+            bracketed:
+              start_bracket: (
+              star: '*'
+              end_bracket: )
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+          - table_expression:
+              table_reference:
+                identifier: person
+          - lateral_view_clause:
+            - keyword: LATERAL
+            - keyword: VIEW
+            - function:
+                function_name:
+                  function_name_identifier: EXPLODE
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    function:
+                      function_name:
+                        function_name_identifier: ARRAY
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          literal: '30'
+                      - comma: ','
+                      - expression:
+                          literal: '60'
+                      - end_bracket: )
+                  end_bracket: )
+            - alias_expression:
+                identifier: c_age
+          - lateral_view_clause:
+            - keyword: LATERAL
+            - keyword: VIEW
+            - function:
+                function_name:
+                  function_name_identifier: EXPLODE
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    function:
+                      function_name:
+                        function_name_identifier: ARRAY
+                      bracketed:
+                      - start_bracket: (
+                      - expression:
+                          literal: '40'
+                      - comma: ','
+                      - expression:
+                          literal: '80'
+                      - end_bracket: )
+                  end_bracket: )
+            - alias_expression:
+                identifier: d_age
+      group_by_clause:
+      - keyword: GROUP
+      - keyword: BY
+      - column_reference:
+          identifier: c_age
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            identifier: id
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: name
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: age
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: class
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: address
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: c_age
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: d_age
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: person
+            lateral_view_clause:
+            - keyword: LATERAL
+            - keyword: VIEW
+            - function:
+                function_name:
+                  function_name_identifier: EXPLODE
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    function:
+                      function_name:
+                        function_name_identifier: ARRAY
+                      bracketed:
+                        start_bracket: (
+                        end_bracket: )
+                  end_bracket: )
+            - alias_expression:
+                identifier: tbl_name
+            - alias_expression:
+                keyword: AS
+                identifier: c_age
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            identifier: id
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: name
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: age
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: class
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: address
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: c_age
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: person
+            lateral_view_clause:
+            - keyword: LATERAL
+            - keyword: VIEW
+            - keyword: OUTER
+            - function:
+                function_name:
+                  function_name_identifier: EXPLODE
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    function:
+                      function_name:
+                        function_name_identifier: ARRAY
+                      bracketed:
+                        start_bracket: (
+                        end_bracket: )
+                  end_bracket: )
+            - alias_expression:
+                identifier: tbl_name
+            - alias_expression:
+                keyword: AS
+                identifier: c_age
+- statement_terminator: ;
+- statement:
+    select_statement:
+      select_clause:
+      - keyword: SELECT
+      - select_clause_element:
+          column_reference:
+            identifier: id
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: name
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: age
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: class
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: address
+      - comma: ','
+      - select_clause_element:
+          column_reference:
+            identifier: c_age
+      from_clause:
+        keyword: FROM
+        from_expression:
+          from_expression_element:
+            table_expression:
+              table_reference:
+                identifier: person
+            lateral_view_clause:
+            - keyword: LATERAL
+            - keyword: VIEW
+            - keyword: OUTER
+            - function:
+                function_name:
+                  function_name_identifier: EXPLODE
+                bracketed:
+                  start_bracket: (
+                  expression:
+                    function:
+                      function_name:
+                        function_name_identifier: ARRAY
+                      bracketed:
+                        start_bracket: (
+                        end_bracket: )
+                  end_bracket: )
+            - alias_expression:
+                identifier: tbl_name
+            - alias_expression:
+                identifier: c_age
+- statement_terminator: ;
