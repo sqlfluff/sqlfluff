@@ -12,7 +12,7 @@ FROM person
 
 SELECT
     c_age,
-    COUNT(*)
+    COUNT(*) AS record_count
 FROM person
     LATERAL VIEW EXPLODE(ARRAY(30, 60)) AS c_age
     LATERAL VIEW EXPLODE(ARRAY(40, 80)) AS d_age
@@ -20,7 +20,7 @@ GROUP BY c_age;
 
 SELECT
     c_age,
-    COUNT(*)
+    COUNT(*) AS record_count
 FROM person
     LATERAL VIEW EXPLODE(ARRAY(30, 60)) c_age
     LATERAL VIEW EXPLODE(ARRAY(40, 80)) d_age
