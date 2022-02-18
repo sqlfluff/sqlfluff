@@ -1,5 +1,5 @@
 """Tests the python routines within L004."""
-from sqlfluff.testing.rules import assert_rule_fail_in_sql, dedent, lint
+from sqlfluff.testing.rules import dedent, lint, fix
 
 RULE = "L004"
 
@@ -28,9 +28,8 @@ def test_indented_comments_default_config() -> None:
     """
     )
     configs = {}
-    res = assert_rule_fail_in_sql(RULE, fail_str, configs)
-    assert res == fix_str
-    assert lint(res, configs) == 2 * [
+    assert fix(RULE, fail_str, configs) == fix_str
+    assert lint(RULE, fix_str, configs) == 2 * [
         "Incorrect indentation type found in file. "
         "The indent occurs after other text, so a manual fix is needed."
     ]
@@ -60,9 +59,8 @@ def test_indented_comments_tab_config_fails() -> None:
     """
     )
     configs = {"rules": {"indent_unit": "tab"}}
-    res = assert_rule_fail_in_sql(RULE, fail_str, configs)
-    assert res == fix_str
-    assert lint(res, configs) == [
+    assert fix(RULE, fail_str, configs) == fix_str
+    assert lint(RULE, fix_str, configs) == [
         "Incorrect indentation type found in file. "
         "The indent occurs after other text, so a manual fix is needed."
     ]

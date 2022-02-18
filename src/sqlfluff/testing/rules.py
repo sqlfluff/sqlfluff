@@ -157,9 +157,16 @@ def dedent(sql: str) -> str:
     return textwrap.dedent(sql).lstrip("\n").rstrip() + "\n"
 
 
-def lint(sql: str, configs: Optional[dict] = None) -> List[str]:
+def fix(code: str, sql: str, configs: Optional[dict] = None) -> str:
+    """Runs fix and returns the fixed sql."""
+    return assert_rule_fail_in_sql(code, sql, configs)
+
+
+def lint(code: str, sql: str, configs: Optional[dict] = None) -> List[str]:
     """Runs lint and returns the found violations."""
     return [
         v.description if isinstance(v, SQLLintError) else str(v)
-        for v in Linter(FluffConfig(configs)).lint_string(sql).violations
+        for v in Linter(FluffConfig(configs=configs, overrides={"rules": code}))
+        .lint_string(sql)
+        .violations
     ]
