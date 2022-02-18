@@ -1530,7 +1530,8 @@ class LateralViewClauseSegment(BaseSegment):
         "VIEW",
         Ref.keyword("OUTER", optional=True),
         Ref("FunctionSegment"),
-        AnyNumberOf(Ref("AliasExpressionSegment"),
+        AnyNumberOf(
+            Ref("AliasExpressionSegment"),
         ),
         Dedent,
     )
