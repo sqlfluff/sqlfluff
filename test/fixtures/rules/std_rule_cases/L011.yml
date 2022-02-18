@@ -1,5 +1,28 @@
 rule: L011
 
+test_fail_default_explicit:
+  # Add whitespace when fixing implicit aliasing
+  fail_str: select foo.bar from table1 foo
+  fix_str: select foo.bar from table1 AS foo
+
+test_fail_explicit:
+  # Add whitespace when fixing implicit aliasing
+  fail_str: select foo.bar from table1 foo
+  fix_str: select foo.bar from table1 AS foo
+  configs:
+    rules:
+      L011:
+        aliasing: explicit
+
+test_fail_implicit:
+  # Add whitespace when fixing implicit aliasing
+  fail_str: select foo.bar from table1 AS foo
+  fix_str: select foo.bar from table1 foo
+  configs:
+    rules:
+      L011:
+        aliasing: implicit
+
 test_fail_implicit_alias:
   # Add whitespace when fixing implicit aliasing
   fail_str: select foo.bar from (select 1 as bar)foo
