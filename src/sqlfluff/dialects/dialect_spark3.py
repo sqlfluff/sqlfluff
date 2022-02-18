@@ -1881,9 +1881,7 @@ class FromExpressionElementSegment(BaseSegment):
     match_grammar = Sequence(
         Ref("PreTableFunctionKeywordsGrammar", optional=True),
         OptionallyBracketed(Ref("TableExpressionSegment")),
-        AnyNumberOf(
-            Ref("LateralViewClauseSegment")
-        ),
+        AnyNumberOf(Ref("LateralViewClauseSegment")),
         OneOf(
             Sequence(
                 Ref("AliasExpressionSegment"),
