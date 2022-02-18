@@ -259,10 +259,12 @@ class Rule_L036(BaseRule):
                     copy_with_newline = False
 
                     def _fixes_for_move_after_select_clause(
-                        start_seg,
-                        stop_seg,
-                        add_newline=True,
-                    ):
+                        stop_seg: BaseSegment,
+                        add_newline: bool = True,
+                    ) -> List[LintFix]:
+                        start_seg = select_children[
+                            select_targets_info.first_new_line_idx
+                        ]
                         move_after_select_clause = select_children.select(
                             start_seg=start_seg,
                             stop_seg=stop_seg,
@@ -313,7 +315,6 @@ class Rule_L036(BaseRule):
                             )
 
                         fixes += _fixes_for_move_after_select_clause(
-                            select_children[select_targets_info.first_new_line_idx],
                             to_delete[-1],
                         )
                     elif select_stmt.segments[after_select_clause_idx].is_type(
@@ -329,7 +330,6 @@ class Rule_L036(BaseRule):
                             ),
                         ]
                         fixes += _fixes_for_move_after_select_clause(
-                            select_children[select_targets_info.first_new_line_idx],
                             select_children[
                                 select_targets_info.first_select_target_idx
                             ],
@@ -347,7 +347,6 @@ class Rule_L036(BaseRule):
                         fixes += [LintFix.delete(seg) for seg in to_delete]
 
                         fixes += _fixes_for_move_after_select_clause(
-                            select_children[select_targets_info.first_new_line_idx],
                             to_delete[-1],
                             # If we stopped due to something other than a newline,
                             # we want to include a newline here.
@@ -357,7 +356,6 @@ class Rule_L036(BaseRule):
                         )
                     else:
                         fixes += _fixes_for_move_after_select_clause(
-                            select_children[select_targets_info.first_new_line_idx],
                             select_children[
                                 select_targets_info.first_select_target_idx
                             ],
