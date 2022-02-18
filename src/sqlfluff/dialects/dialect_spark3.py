@@ -1753,7 +1753,8 @@ class AliasExpressionSegment(BaseSegment):
             # just a table alias
             Ref("SingleIdentifierGrammar"),
             exclude=[
-                Ref.keyword("LATERAL"), Ref("JoinTypeKeywords"),
+                Ref.keyword("LATERAL"),
+                Ref("JoinTypeKeywords"),
             ],
         ),
     )
@@ -1886,7 +1887,9 @@ class FromExpressionElementSegment(BaseSegment):
         Ref("PreTableFunctionKeywordsGrammar", optional=True),
         OptionallyBracketed(Ref("TableExpressionSegment")),
         AnyNumberOf(
-            Ref("LateralViewClauseSegment"), min_times=1, optional=True,
+            Ref("LateralViewClauseSegment"),
+            min_times=1,
+            optional=True,
         ),
         OneOf(
             Sequence(
