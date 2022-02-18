@@ -1752,10 +1752,10 @@ class AliasExpressionSegment(BaseSegment):
             ),
             # just a table alias
             Ref("SingleIdentifierGrammar"),
-            exclude=[
+            exclude=OneOf(
                 Ref.keyword("LATERAL"),
                 Ref("JoinTypeKeywords"),
-            ],
+            ),
         ),
     )
 

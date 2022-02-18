@@ -165,15 +165,8 @@ class AnyNumberOf(BaseGrammar):
         # which would prevent the rest of this grammar from matching.
         if self.exclude:
             with parse_context.deeper_match() as ctx:
-                try:
-                    if any(
-                        exclusion.match(segments, parse_context=ctx)
-                        for exclusion in self.exclude
-                    ):
-                        return MatchResult.from_unmatched(segments)
-                except TypeError:
-                    if self.exclude.match(segments, parse_context=ctx):
-                        return MatchResult.from_unmatched(segments)
+                if self.exclude.match(segments, parse_context=ctx):
+                    return MatchResult.from_unmatched(segments)
 
         # Match on each of the options
         matched_segments: MatchResult = MatchResult.from_empty()
