@@ -10,10 +10,8 @@ https://spark.apache.org/docs/latest/sql-ref.html
 https://spark.apache.org/docs/latest/sql-ref-ansi-compliance.html
 https://github.com/apache/spark/blob/master/sql/catalyst/src/main/antlr4/org/apache/spark/sql/catalyst/parser/SqlBase.g4
 """
-from typing import Optional
 
 from sqlfluff.core.dialects import load_raw_dialect
-from sqlfluff.core.dialects.common import AliasInfo
 from sqlfluff.core.parser import (
     AnyNumberOf,
     BaseSegment,
@@ -35,7 +33,6 @@ from sqlfluff.core.parser import (
     StartsWith,
 )
 from sqlfluff.core.parser.segments.raw import CodeSegment, KeywordSegment
-from sqlfluff.dialects.dialect_ansi import ObjectReferenceSegment
 from sqlfluff.dialects.dialect_spark3_keywords import (
     RESERVED_KEYWORDS,
     UNRESERVED_KEYWORDS,
