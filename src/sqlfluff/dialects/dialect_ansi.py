@@ -1162,6 +1162,7 @@ class FromExpressionElementSegment(BaseSegment):
             Ref("SamplingExpressionSegment"),
             Ref("AliasExpressionSegment"),
             optional=True,
+            exclude=Ref.keyword("CROSS"),
         ),
         Ref("PostTableExpressionGrammar", optional=True),
     )

@@ -56,12 +56,14 @@ class Rule_L011(BaseRule):
         The use of `raw_stack` is just for working out how much whitespace to add.
 
         """
+        # Config type hints
+        self.aliasing: str
         fixes = []
 
         if context.segment.is_type("alias_expression"):
             if context.parent_stack[-1].is_type(*self._target_elems):
                 if any(e.name.lower() == "as" for e in context.segment.segments):
-                    if self.aliasing == "implicit":  # type: ignore
+                    if self.aliasing == "implicit":
                         if context.segment.segments[0].name.lower() == "as":
 
                             # Remove the AS as we're using implict aliasing
@@ -84,7 +86,7 @@ class Rule_L011(BaseRule):
 
                             return LintResult(anchor=anchor, fixes=fixes)
 
-                else:
+                elif self.aliasing != "implicit":
                     insert_buff: List[Union[WhitespaceSegment, KeywordSegment]] = []
 
                     # Add initial whitespace if we need to...
