@@ -1107,16 +1107,16 @@ class BaseSegment:
                 except ValueError:  # pragma: no cover
                     found_error = True
                     linter_logger.warning(
-                        "After fixes were applied, segment %r failed the"
+                        "After fixes were applied, segment %r failed the "
                         "match() parser check. Fixes: %r",
                         segment,
                         fixes_applied,
                     )
                 else:
-                    if not match_result.is_complete():
+                    if not match_result.is_complete():  # pragma: no cover
                         found_error = True
                         linter_logger.warning(
-                            "After fixes were applied, segment %r failed the"
+                            "After fixes were applied, segment %r failed the "
                             "match() parser check. Result: %r Fixes: %r",
                             segment,
                             match_result,
@@ -1137,7 +1137,7 @@ class BaseSegment:
                     r_copy.parse(parse_context)
                 except ValueError:  # pragma: no cover
                     linter_logger.warning(
-                        "After fixes were applied, segment %r failed the"
+                        "After fixes were applied, segment %r failed the "
                         "parse() check. Fixes: %r",
                         r_copy,
                         fixes_applied,
