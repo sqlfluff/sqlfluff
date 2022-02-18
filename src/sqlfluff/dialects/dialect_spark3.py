@@ -1903,41 +1903,6 @@ class FromExpressionElementSegment(BaseSegment):
         Ref("PostTableExpressionGrammar", optional=True),
     )
 
-    def get_eventual_alias(self) -> Optional[AliasInfo]:
-        """Return the eventual table name referred to by this table expression.
-
-        Returns:
-            :obj:`tuple` of (:obj:`str`, :obj:`BaseSegment`, :obj:`bool`) containing
-                a string representation of the alias, a reference to the
-                segment containing it, and whether it's an alias.
-
-        """
-        alias_expression = self.get_child("alias_expression")
-        tbl_expression = self.get_child("table_expression")
-        if not tbl_expression:  # pragma: no cover
-            tbl_expression = self.get_child("bracketed").get_child("table_expression")
-        ref = tbl_expression.get_child("object_reference")
-        if alias_expression:
-            # If it has an alias, return that
-            segment = alias_expression.get_child("identifier")
-            if segment:
-                return AliasInfo(
-                    segment.raw, segment, True, self, alias_expression, ref
-                )
-
-        # If not return the object name (or None if there isn't one)
-        if ref:
-            # Return the last element of the reference.
-            penultimate_ref: ObjectReferenceSegment.ObjectReferencePart = list(
-                ref.iter_raw_references()
-            )[-1]
-            return AliasInfo(
-                penultimate_ref.part,
-                penultimate_ref.segments[0],
-                False,
-                self,
-                None,
-                ref,
-            )
-        # No references or alias, return None
-        return None
+    get_eventual_alias = ansi_dialect.get_segment(
+        "FromExpressionElementSegment"
+    ).get_eventual_alias
