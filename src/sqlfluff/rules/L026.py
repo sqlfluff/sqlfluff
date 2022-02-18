@@ -203,6 +203,6 @@ class Rule_L026(BaseRule):
                     # Return the first segment rather than the string
                     anchor=tbl_refs[0][0].segments[0],
                     description=f"Reference {r.raw!r} refers to table/view "
-                                "not found in the FROM clause or found in ancestor "
-                                "statement.",
+                    "not found in the FROM clause or found in ancestor "
+                    "statement.",
                 )
