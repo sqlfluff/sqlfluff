@@ -246,17 +246,11 @@ class Rule_L036(BaseRule):
                 # whitespace and newline, which we'll use below.
                 start_idx = select_targets_info.first_select_target_idx
 
-            # In most (but not all) case we'll want to replace the newline with
-            # the statement and a newline, but in some cases however (see #1424)
-            # we don't need the final newline.
-            copy_with_newline = True
-
             if parent_stack and parent_stack[-1].is_type("select_statement"):
                 select_stmt = parent_stack[-1]
                 select_clause_idx = select_stmt.segments.index(select_clause.get())
                 after_select_clause_idx = select_clause_idx + 1
                 if len(select_stmt.segments) > after_select_clause_idx:
-                    copy_with_newline = False
 
                     def _fixes_for_move_after_select_clause(
                         stop_seg: BaseSegment,
@@ -372,9 +366,6 @@ class Rule_L036(BaseRule):
                                 select_targets_info.first_select_target_idx
                             ],
                         )
-
-            if copy_with_newline:
-                insert_buff = insert_buff + [NewlineSegment()]
 
             fixes += [
                 # Insert the select_clause in place of the first newline in the
