@@ -257,6 +257,33 @@ class Rule_L036(BaseRule):
                 after_select_clause_idx = select_clause_idx + 1
                 if len(select_stmt.segments) > after_select_clause_idx:
                     copy_with_newline = False
+
+                    def _fixes_for_move_after_select_clause(
+                        start_seg,
+                        stop_seg,
+                        add_newline=True,
+                    ):
+                        move_after_select_clause = select_children.select(
+                            start_seg=start_seg,
+                            stop_seg=stop_seg,
+                        )
+                        fixes = [
+                            LintFix.delete(seg) for seg in move_after_select_clause
+                        ]
+                        fixes.append(
+                            LintFix.create_after(
+                                self._choose_anchor_segment(
+                                    context,
+                                    "create_after",
+                                    select_clause[0],
+                                    filter_meta=True,
+                                ),
+                                ([NewlineSegment()] if add_newline else [])
+                                + list(move_after_select_clause),
+                            )
+                        )
+                        return fixes
+
                     if select_stmt.segments[after_select_clause_idx].is_type("newline"):
                         # Since we're deleting the newline, we should also delete all
                         # whitespace before it or it will add random whitespace to
@@ -268,14 +295,6 @@ class Rule_L036(BaseRule):
                             start_seg=select_children[start_idx],
                         )
                         fixes += [LintFix.delete(seg) for seg in to_delete]
-                        fixes += self._fixes_for_move_after_select_clause(
-                            context,
-                            select_clause,
-                            select_children,
-                            select_children[select_targets_info.first_new_line_idx],
-                            to_delete[-1],
-                            True,
-                        )
 
                         # The select_clause is immediately followed by a
                         # newline. Delete the newline in order to avoid leaving
@@ -293,6 +312,10 @@ class Rule_L036(BaseRule):
                                 )
                             )
 
+                        fixes += _fixes_for_move_after_select_clause(
+                            select_children[select_targets_info.first_new_line_idx],
+                            to_delete[-1],
+                        )
                     elif select_stmt.segments[after_select_clause_idx].is_type(
                         "whitespace"
                     ):
@@ -305,15 +328,11 @@ class Rule_L036(BaseRule):
                                 select_stmt.segments[after_select_clause_idx],
                             ),
                         ]
-                        fixes += self._fixes_for_move_after_select_clause(
-                            context,
-                            select_clause,
-                            select_children,
+                        fixes += _fixes_for_move_after_select_clause(
                             select_children[select_targets_info.first_new_line_idx],
                             select_children[
                                 select_targets_info.first_select_target_idx
                             ],
-                            True,
                         )
                     elif select_stmt.segments[after_select_clause_idx].is_type(
                         "dedent"
@@ -327,28 +346,21 @@ class Rule_L036(BaseRule):
                         )
                         fixes += [LintFix.delete(seg) for seg in to_delete]
 
-                        fixes += self._fixes_for_move_after_select_clause(
-                            context,
-                            select_clause,
-                            select_children,
+                        fixes += _fixes_for_move_after_select_clause(
                             select_children[select_targets_info.first_new_line_idx],
                             to_delete[-1],
                             # If we stopped due to something other than a newline,
-                            # we want to keep the final newline.
+                            # we want to include a newline here.
                             not select_children[
                                 select_clause_idx - len(to_delete) - 2
                             ].is_type("newline"),
                         )
                     else:
-                        fixes += self._fixes_for_move_after_select_clause(
-                            context,
-                            select_clause,
-                            select_children,
+                        fixes += _fixes_for_move_after_select_clause(
                             select_children[select_targets_info.first_new_line_idx],
                             select_children[
                                 select_targets_info.first_select_target_idx
                             ],
-                            True,
                         )
 
             if copy_with_newline:
@@ -397,31 +409,3 @@ class Rule_L036(BaseRule):
                 return LintResult(anchor=select_clause.get(), fixes=fixes)
 
         return None
-
-    def _fixes_for_move_after_select_clause(
-        self,
-        context,
-        select_clause,
-        select_children,
-        start_seg,
-        stop_seg,
-        copy_with_newline,
-    ):
-        move_after_select_clause = select_children.select(
-            start_seg=start_seg,
-            stop_seg=stop_seg,
-        )
-        fixes = [LintFix.delete(seg) for seg in move_after_select_clause]
-        fixes.append(
-            LintFix.create_after(
-                self._choose_anchor_segment(
-                    context,
-                    "create_after",
-                    select_clause[0],
-                    filter_meta=True,
-                ),
-                ([NewlineSegment()] if copy_with_newline else [])
-                + list(move_after_select_clause),
-            )
-        )
-        return fixes
