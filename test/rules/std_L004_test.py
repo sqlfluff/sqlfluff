@@ -5,7 +5,7 @@ RULE = "L004"
 
 
 def test_indented_comments_default_config() -> None:
-    """It's not visible to bare eye, but here tab indent is replaced with spaces.
+    """Here tab indent is replaced with spaces.
 
     Lint fails after fixing due to the tabs that come before the comments.
     That is left unfixable for now, as explained in:
@@ -37,7 +37,7 @@ def test_indented_comments_default_config() -> None:
 
 
 def test_indented_comments_tab_config_fails() -> None:
-    """It's not visible to bare eye, but here spaces indent is replaced with tab.
+    """Here spaces indent is replaced with tab.
 
     Lint fails after fixing due to the spaces that come before the comments.
     That is left unfixable for now, as explained in:
