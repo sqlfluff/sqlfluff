@@ -108,7 +108,7 @@ class LintFix:
     """A class to hold a potential fix to a linting violation.
 
     Args:
-        edit_type (:obj:`str`): One of `create_before`, `create_after,
+        edit_type (:obj:`str`): One of `create_before`, `create_after`,
             `replace`, `delete` to indicate the kind of fix this represents.
         anchor (:obj:`BaseSegment`): A segment which represents
             the *position* that this fix should be applied at. For deletions
@@ -424,6 +424,7 @@ class BaseRule:
 
     _check_docstring = True
     _works_on_unparsable = True
+    _adjust_anchors = False
     targets_templated = False
 
     def __init__(self, code, description, **kwargs):
@@ -515,20 +516,19 @@ class BaseRule:
             return vs, raw_stack, [], memory
 
         # TODO: Document what options are available to the evaluation function.
+        context = RuleContext(
+            segment=segment,
+            parent_stack=parent_stack,
+            siblings_pre=siblings_pre,
+            siblings_post=siblings_post,
+            raw_stack=raw_stack,
+            memory=memory,
+            dialect=dialect,
+            path=pathlib.Path(fname) if fname else None,
+            templated_file=templated_file,
+        )
         try:
-            res = self._eval(
-                context=RuleContext(
-                    segment=segment,
-                    parent_stack=parent_stack,
-                    siblings_pre=siblings_pre,
-                    siblings_post=siblings_post,
-                    raw_stack=raw_stack,
-                    memory=memory,
-                    dialect=dialect,
-                    path=pathlib.Path(fname) if fname else None,
-                    templated_file=templated_file,
-                )
-            )
+            res = self._eval(context=context)
         except (bdb.BdbQuit, KeyboardInterrupt):  # pragma: no cover
             raise
         # Any exception at this point would halt the linter and
@@ -564,6 +564,7 @@ class BaseRule:
         elif isinstance(res, LintResult):
             # Extract any memory
             memory = res.memory
+            self._adjust_anchors_for_fixes(context, res)
             self._process_lint_result(
                 res, templated_file, ignore_mask, new_lerrs, new_fixes
             )
@@ -574,6 +575,7 @@ class BaseRule:
             # it was the last to be added
             memory = res[-1].memory
             for elem in res:
+                self._adjust_anchors_for_fixes(context, elem)
                 self._process_lint_result(
                     elem, templated_file, ignore_mask, new_lerrs, new_fixes
                 )
@@ -768,36 +770,6 @@ class BaseRule:
                     )
                 )
 
-        # Compute the set of block IDs affected by the fixes. If it's more than
-        # one, discard the fixes. Rationale: Fixes that span block boundaries
-        # may corrupt the file, e.g. by moving code in or out of a template
-        # loop.
-        block_info = templated_file.raw_slice_block_info
-        fix_block_ids = set(block_info.block_ids[slice_] for slice_ in fix_slices)
-        if len(fix_block_ids) > 1:
-            linter_logger.info(
-                "      * Discarding fixes that span blocks: %s",
-                lint_result.fixes,
-            )
-            lint_result.fixes = []
-            return
-
-        # If the fixes touch a literal-only loop, discard the fixes.
-        # Rationale: Fixes to a template loop that contains only literals are:
-        # - Difficult to map correctly back to source code, so there's a risk of
-        #   accidentally "expanding" the loop body if we apply them.
-        # - Highly unusual (In practice, templated loops in SQL are usually for
-        #   expanding the same code using different column names, types, etc.,
-        #   in which case the loop body contains template variables.
-        for block_id in fix_block_ids:
-            if block_id in block_info.literal_only_loops:
-                linter_logger.info(
-                    "      * Discarding fixes to literal-only loop: %s",
-                    lint_result.fixes,
-                )
-                lint_result.fixes = []
-                return
-
         for fix in lint_result.fixes:
             if fix.has_template_conflicts(templated_file):
                 linter_logger.info(
@@ -806,6 +778,64 @@ class BaseRule:
                 )
                 lint_result.fixes = []
                 return
+
+    @classmethod
+    def _adjust_anchors_for_fixes(cls, context, lint_result):
+        """Makes simple fixes to the anchor position for fixes.
+
+        Some rules return fixes where the anchor is too low in the tree. These
+        are most often rules like L003 and L016 that make whitespace changes
+        without a "deep" understanding of the parse structure. This function
+        attempts to correct those issues automatically. It may not be perfect,
+        but it should be an improvement over the old behavior, where rules like
+        L003 often corrupted the parse tree, placing spaces in weird places that
+        caused issues with other rules. For more context, see issue #1304.
+        """
+        if not cls._adjust_anchors:
+            return
+
+        fix: LintFix
+        for fix in lint_result.fixes:
+            if fix.anchor:
+                fix.anchor = cls._choose_anchor_segment(
+                    context, fix.edit_type, fix.anchor
+                )
+
+    @staticmethod
+    def _choose_anchor_segment(context, edit_type, segment, filter_meta=False):
+        """Choose the anchor point for a lint fix, i.e. where to apply the fix.
+
+        From a grammar perspective, segments near the leaf of the tree are
+        generally less likely to allow general edits such as whitespace
+        insertion.
+
+        This function avoids such issues by taking a proposed anchor point
+        (assumed to be near the leaf of the tree) and walking "up" the parse
+        tree as long as the ancestor segments have the same start or end point
+        (depending on the edit type) as "segment". This newly chosen anchor
+        is more likely to be a valid anchor point for the fix.
+        """
+        if edit_type not in ("create_before", "create_after"):
+            return segment
+
+        anchor = segment
+        child = segment
+        for seg in context.parent_stack[0].path_to(segment)[1:-1][::-1]:
+            children = (
+                seg.segments
+                if not filter_meta
+                else [child for child in seg.segments if not child.is_meta]
+            )
+            if edit_type == "create_before" and children[0] is child:
+                anchor = seg
+                assert anchor.raw.startswith(segment.raw)
+            elif edit_type == "create_after" and children[-1] is child:
+                anchor = seg
+                assert anchor.raw.endswith(segment.raw)
+            else:
+                break
+            child = seg
+        return anchor
 
     @staticmethod
     def split_comma_separated_string(raw_str: str) -> List[str]:

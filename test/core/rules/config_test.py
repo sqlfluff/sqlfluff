@@ -6,7 +6,7 @@ from sqlfluff.core.rules.base import BaseRule, LintResult, LintFix
 from sqlfluff.core.rules import get_ruleset
 from sqlfluff.core.rules.doc_decorators import document_configuration
 from sqlfluff.core.config import FluffConfig
-from sqlfluff.core.parser import NewlineSegment
+from sqlfluff.core.parser import WhitespaceSegment
 from sqlfluff.testing.rules import get_rule_from_set
 
 from test.fixtures.rules.custom.L000 import Rule_L000
@@ -26,10 +26,14 @@ class Rule_T001(BaseRule):
 
     def _eval(self, context):
         """Stars make newlines."""
-        if context.segment.is_type("star"):
+        if context.segment.is_type("whitespace"):
             return LintResult(
                 anchor=context.segment,
-                fixes=[LintFix.create_before(context.segment, [NewlineSegment()])],
+                fixes=[
+                    LintFix.replace(
+                        context.segment, [WhitespaceSegment(context.segment.raw + " ")]
+                    )
+                ],
             )
 
 
