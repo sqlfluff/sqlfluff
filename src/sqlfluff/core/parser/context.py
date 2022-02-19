@@ -101,7 +101,7 @@ class ParseContext:
     itself).
     """
 
-    # We create a destroy many ParseContexts so we limit the slots
+    # We create and destroy many ParseContexts, so we limit the slots
     # to improve performance.
     __slots__ = ["match_depth", "parse_depth", "match_segment", "recurse", "_root_ctx"]
 

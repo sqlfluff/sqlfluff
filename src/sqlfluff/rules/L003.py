@@ -47,6 +47,7 @@ class Rule_L003(BaseRule):
 
     targets_templated = True
     _works_on_unparsable = False
+    _adjust_anchors = True
     _ignore_types: List[str] = ["script_content"]
     config_keywords = ["tab_space_size", "indent_unit"]
 

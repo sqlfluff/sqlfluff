@@ -181,7 +181,7 @@ spark3_dialect.replace(
         Sequence("CLUSTER", "BY"),
         Sequence("DISTRIBUTE", "BY"),
         Sequence("SORT", "BY"),
-        # TODO Add PIVOT, LATERAL VIEW, and DISTRIBUTE BY clauses
+        # TODO Add PIVOT, and DISTRIBUTE BY clauses
         "HAVING",
         "WINDOW",
         Ref("SetOperatorSegment"),
@@ -1281,7 +1281,7 @@ class UnorderedSelectStatementSegment(BaseSegment):
     parse_grammar = ansi_dialect.get_segment(
         "UnorderedSelectStatementSegment"
     ).parse_grammar.copy(
-        # TODO Insert: PIVOT and LATERAL VIEW clauses
+        # TODO Insert: PIVOT clause
         # Removing non-valid clauses that exist in ANSI dialect
         remove=[Ref("OverlapsClauseSegment", optional=True)]
     )
@@ -1515,6 +1515,36 @@ class SamplingExpressionSegment(BaseSegment):
     )
 
 
+@spark3_dialect.segment()
+class LateralViewClauseSegment(BaseSegment):
+    """A `LATERAL VIEW` like in a `FROM` clause.
+
+    https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-lateral-view.html
+    """
+
+    type = "lateral_view_clause"
+
+    match_grammar = Sequence(
+        Indent,
+        "LATERAL",
+        "VIEW",
+        Ref.keyword("OUTER", optional=True),
+        Ref("FunctionSegment"),
+        # NB: AliasExpressionSegment is not used here for table
+        # or column alias because `AS` is optional within it
+        # (and in most scenarios). Here it's explicitly defined
+        # for when it is required and not allowed.
+        Ref("SingleIdentifierGrammar", optional=True),
+        Sequence(
+            "AS",
+            Delimited(
+                Ref("SingleIdentifierGrammar"),
+            ),
+        ),
+        Dedent,
+    )
+
+
 # Auxiliary Statements
 @spark3_dialect.segment()
 class AddExecutablePackage(BaseSegment):
@@ -1726,7 +1756,10 @@ class AliasExpressionSegment(BaseSegment):
             ),
             # just a table alias
             Ref("SingleIdentifierGrammar"),
-            exclude=Ref("JoinTypeKeywords"),
+            exclude=OneOf(
+                "LATERAL",
+                Ref("JoinTypeKeywords"),
+            ),
         ),
     )
 
@@ -1844,3 +1877,32 @@ class FileReferenceSegment(BaseSegment):
         # to match as a `TableReferenceSegment`
         Ref("QuotedIdentifierSegment"),
     )
+
+
+@spark3_dialect.segment(replace=True)
+class FromExpressionElementSegment(BaseSegment):
+    """A table expression.
+
+    Enhanced from ANSI to allow for `LATERAL VIEW` clause
+    """
+
+    type = "from_expression_element"
+    match_grammar = Sequence(
+        Ref("PreTableFunctionKeywordsGrammar", optional=True),
+        OptionallyBracketed(Ref("TableExpressionSegment")),
+        AnyNumberOf(Ref("LateralViewClauseSegment")),
+        OneOf(
+            Sequence(
+                Ref("AliasExpressionSegment"),
+                Ref("SamplingExpressionSegment"),
+            ),
+            Ref("SamplingExpressionSegment"),
+            Ref("AliasExpressionSegment"),
+            optional=True,
+        ),
+        Ref("PostTableExpressionGrammar", optional=True),
+    )
+
+    get_eventual_alias = ansi_dialect.get_segment(
+        "FromExpressionElementSegment"
+    ).get_eventual_alias

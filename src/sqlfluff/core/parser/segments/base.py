@@ -8,6 +8,8 @@ Here we define:
   analysis.
 """
 
+from copy import deepcopy
+from dataclasses import replace
 from io import StringIO
 from typing import Any, Callable, Optional, List, Tuple, NamedTuple, Iterator
 import logging
@@ -21,6 +23,7 @@ from sqlfluff.core.string_helpers import (
     curtail_string,
 )
 
+from sqlfluff.core.parser.context import RootParseContext
 from sqlfluff.core.parser.match_result import MatchResult
 from sqlfluff.core.parser.match_logging import parse_match_logging
 from sqlfluff.core.parser.match_wrapper import match_wrapper
@@ -975,7 +978,7 @@ class BaseSegment:
 
         return self
 
-    def apply_fixes(self, fixes):
+    def apply_fixes(self, dialect, fixes):
         """Apply an iterable of fixes to this segment.
 
         Used in applying fixes if we're fixing linting errors.
@@ -993,6 +996,7 @@ class BaseSegment:
 
             # Make a working copy
             seg_buffer = []
+            fixes_applied = []
             todo_buffer = list(self.segments)
             while True:
                 if len(todo_buffer) == 0:
@@ -1007,6 +1011,7 @@ class BaseSegment:
                         # Look for identity not just equality.
                         # This handles potential positioning ambiguity.
                         if f.anchor is seg:
+                            fixes_applied.append(f)
                             linter_logger.debug(
                                 "Matched fix against segment: %s -> %s", f, seg
                             )
@@ -1061,7 +1066,7 @@ class BaseSegment:
             seg_queue = seg_buffer
             seg_buffer = []
             for seg in seg_queue:
-                s, fixes = seg.apply_fixes(fixes)
+                s, fixes = seg.apply_fixes(dialect, fixes)
                 seg_buffer.append(s)
 
             # Reform into a new segment
@@ -1074,10 +1079,69 @@ class BaseSegment:
                 # Pass through any additional kwargs
                 **{k: getattr(self, k) for k in self.additional_kwargs},
             )
+            if fixes_applied:
+                self._validate_segment_after_fixes(dialect, fixes_applied, r)
             # Return the new segment with any unused fixes.
             return r, fixes
         else:
             return self, fixes
+
+    def _validate_segment_after_fixes(self, dialect, fixes_applied, segment):
+        """Checks correctness of new segment against match or parse grammar."""
+        found_error = False
+        root_parse_context = RootParseContext(dialect=dialect)
+        with root_parse_context as parse_context:
+            if getattr(segment, "match_grammar", None):
+                try:
+                    for seg in segment.segments:
+                        seg.pos_marker = replace(
+                            seg.pos_marker,
+                            templated_file=self.pos_marker.templated_file,
+                        )
+                    match_result = segment.match(
+                        deepcopy(
+                            tuple([seg for seg in segment.segments if not seg.is_meta])
+                        ),
+                        parse_context,
+                    )
+                except ValueError:  # pragma: no cover
+                    found_error = True
+                    linter_logger.warning(
+                        "After fixes were applied, segment %r failed the "
+                        "match() parser check. Fixes: %r",
+                        segment,
+                        fixes_applied,
+                    )
+                else:
+                    if not match_result.is_complete():  # pragma: no cover
+                        found_error = True
+                        linter_logger.warning(
+                            "After fixes were applied, segment %r failed the "
+                            "match() parser check. Result: %r Fixes: %r",
+                            segment,
+                            match_result,
+                            fixes_applied,
+                        )
+            if not found_error and getattr(segment, "parse_grammar", None):
+                try:
+                    # :HACK: Calling parse() corrupts the segment 'r'
+                    # in some cases, e.g. adding additional Dedent child
+                    # segments. Here, we work around this by calling
+                    # parse() on a "backup copy" of the segment.
+                    r_copy = deepcopy(segment)
+                    for seg in r_copy.segments:
+                        seg.pos_marker = replace(
+                            seg.pos_marker,
+                            templated_file=self.pos_marker.templated_file,
+                        )
+                    r_copy.parse(parse_context)
+                except ValueError:  # pragma: no cover
+                    linter_logger.warning(
+                        "After fixes were applied, segment %r failed the "
+                        "parse() check. Fixes: %r",
+                        r_copy,
+                        fixes_applied,
+                    )
 
     def iter_patches(self, templated_str: str) -> Iterator[FixPatch]:
         """Iterate through the segments generating fix patches.

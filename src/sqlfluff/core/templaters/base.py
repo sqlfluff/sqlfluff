@@ -2,10 +2,7 @@
 
 import logging
 from bisect import bisect_left
-from collections import defaultdict
 from typing import Dict, Iterator, List, Tuple, Optional, NamedTuple, Iterable
-
-from sqlfluff.core.cached_property import cached_property
 
 # Instantiate the templater logger
 templater_logger = logging.getLogger("sqlfluff.templater")
@@ -179,39 +176,6 @@ class TemplatedFile:
         if first_idx is None:  # pragma: no cover
             raise ValueError("Position Not Found")
         return first_idx, last_idx
-
-    @cached_property
-    def raw_slice_block_info(self) -> RawSliceBlockInfo:
-        """Returns a dict with a unique ID for each template block."""
-        block_ids: Dict[RawFileSlice, int] = {}
-        block_content_types = defaultdict(set)
-        loops = set()
-        blocks = []
-        block_id = 0
-        for idx, raw_slice in enumerate(self.raw_sliced):
-            if raw_slice.slice_type != "block_end":
-                block_content_types[block_id].add(raw_slice.slice_type)
-            if raw_slice.slice_type == "block_start":
-                blocks.append(raw_slice)
-                templater_logger.info("%d -> %r", block_id, raw_slice.raw)
-                block_ids[raw_slice] = block_id
-                block_id += 1
-                if raw_slice.slice_subtype == "loop":
-                    loops.add(block_id)
-            elif raw_slice.slice_type == "block_end":
-                blocks.pop()
-                block_id += 1
-                templater_logger.info("%d -> %r", block_id, raw_slice.raw)
-                block_ids[raw_slice] = block_id
-            else:
-                templater_logger.info("%d -> %r", block_id, raw_slice.raw)
-                block_ids[raw_slice] = block_id
-        literal_only_loops = [
-            block_id
-            for block_id in set(block_ids.values())
-            if block_id in loops and block_content_types[block_id] == {"literal"}
-        ]
-        return RawSliceBlockInfo(block_ids, literal_only_loops)
 
     def raw_slices_spanning_source_slice(
         self, source_slice: slice

@@ -3,19 +3,19 @@ from dataclasses import dataclass, field
 from typing import cast, List, Optional, Tuple
 
 from sqlfluff.core.dialects.base import Dialect
+from sqlfluff.core.dialects.common import AliasInfo
 from sqlfluff.core.rules.analysis.select_crawler import (
     Query as SelectCrawlerQuery,
     SelectCrawler,
 )
-from sqlfluff.core.dialects.common import AliasInfo
 from sqlfluff.core.rules.base import (
     BaseRule,
     LintResult,
     RuleContext,
     EvalResultType,
 )
-from sqlfluff.core.rules.functional import sp
 from sqlfluff.core.rules.doc_decorators import document_configuration
+from sqlfluff.core.rules.functional import sp
 from sqlfluff.core.rules.reference import object_ref_matches_table
 
 
@@ -31,9 +31,9 @@ class Rule_L026(BaseRule):
     """References cannot reference objects not present in ``FROM`` clause.
 
     .. note::
-       This rule is disabled by default for BigQuery due to its use of
-       structs which trigger false positives. It can be enabled with the
-       ``force_enable = True`` flag.
+       This rule is disabled by default for BigQuery, Hive, Redshift, and Spark3
+       due to the use of structs and lateral views which trigger false positives.
+       It can be enabled with the ``force_enable = True`` flag.
 
     **Anti-pattern**
 
@@ -64,7 +64,7 @@ class Rule_L026(BaseRule):
         self.force_enable: bool
 
         if (
-            context.dialect.name in ["bigquery", "hive", "redshift"]
+            context.dialect.name in ["bigquery", "hive", "redshift", "spark3"]
             and not self.force_enable
         ):
             return LintResult()
