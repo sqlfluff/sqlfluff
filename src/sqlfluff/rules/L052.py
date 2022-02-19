@@ -11,6 +11,7 @@ from sqlfluff.core.rules.doc_decorators import (
     document_configuration,
     document_fix_compatible,
 )
+from sqlfluff.core.rules.functional import Segments
 import sqlfluff.core.rules.functional.segment_predicates as sp
 
 
@@ -350,14 +351,24 @@ class Rule_L052(BaseRule):
                 # Semi-colon on same line.
                 if not semicolon_newline:
                     self.logger.debug("case 5")
-                    fixes = [
-                        LintFix.create_after(
-                            save_ended_statement,
-                            [
-                                SymbolSegment(raw=";", type="symbol", name="semicolon"),
-                            ],
-                        )
+                    trailing_non_code = (
+                        Segments(save_ended_statement)
+                        .recursive_crawl("raw")
+                        .reversed()
+                        .select(sp.not_(sp.is_meta()), loop_while=sp.not_(sp.is_code()))
+                    )
+                    after_statement = [
+                        SymbolSegment(raw=";", type="symbol", name="semicolon")
                     ]
+
+                    fixes = []
+                    if trailing_non_code:
+                        after_statement += trailing_non_code.reversed()
+                        fixes += [LintFix.delete(seg) for seg in trailing_non_code]
+                    fixes.append(
+                        LintFix.create_after(save_ended_statement, after_statement)
+                    )
+
                 # Semi-colon on new line.
                 else:
                     self.logger.debug("case 6")
