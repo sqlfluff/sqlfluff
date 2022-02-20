@@ -3,7 +3,7 @@ import sys
 import pytest
 
 # Expose the public API.
-from sqlfluff.api import lint, fix, parse, list_rules, list_dialects
+from sqlfluff.api import lint, fix, parse, reflow, list_rules, list_dialects
 
 # Import metadata (using importlib_metadata backport for python versions <3.8)
 if sys.version_info >= (3, 8):
@@ -15,6 +15,7 @@ __all__ = (
     "lint",
     "fix",
     "parse",
+    "reflow",
     "list_rules",
     "list_dialects",
 )

@@ -171,3 +171,22 @@ def parse(
     if parsed.tree is None:  # pragma: no cover
         return {}
     return parsed.tree.as_record(show_raw=True)
+
+
+def reflow(
+    sql: str,
+    dialect: str = "ansi",
+    config_path: Optional[str] = None,
+) -> Dict[str, Any]:
+    """Parse and reflow the tree in a consistent fashion."""
+    cfg = get_simple_config(
+        dialect=dialect,
+        config_path=config_path,
+    )
+    linter = Linter(config=cfg)
+
+    parsed = linter.parse_string(sql)
+    # If we encounter any parsing errors, raise them in a combined issue.
+    if parsed.violations:
+        raise APIParsingError(parsed.violations)
+    return parsed.tree.reflow()

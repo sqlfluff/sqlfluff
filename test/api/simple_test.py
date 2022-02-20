@@ -217,6 +217,14 @@ def test__api__parse_string():
     assert parsed == expected_parsed
 
 
+def test__api__reflow_string():
+    """Basic checking of reflow functionality."""
+    initial = "select     a from table"
+    expected_reflowed = "select a from table"
+    reflowed = sqlfluff.reflow(initial)
+    assert reflowed == expected_reflowed
+
+
 def test__api__parse_fail():
     """Basic failure mode of parse functionality."""
     try:

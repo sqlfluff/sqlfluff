@@ -1152,6 +1152,7 @@ class FromExpressionElementSegment(BaseSegment):
     """A table expression."""
 
     type = "from_expression_element"
+    reflow_pre_space = True
     match_grammar = Sequence(
         Ref("PreTableFunctionKeywordsGrammar", optional=True),
         OptionallyBracketed(Ref("TableExpressionSegment")),
@@ -1293,6 +1294,7 @@ class SelectClauseElementSegment(BaseSegment):
     """An element in the targets of a select statement."""
 
     type = "select_clause_element"
+    reflow_pre_space = "true"
     # Important to split elements before parsing, otherwise debugging is really hard.
     match_grammar = GreedyUntil(
         Ref("SelectClauseElementTerminatorGrammar"),
@@ -1491,6 +1493,7 @@ class FromClauseSegment(BaseSegment):
     """
 
     type = "from_clause"
+    reflow_pre_space = True
     match_grammar = StartsWith(
         "FROM",
         terminator=Ref("FromClauseTerminatorGrammar"),
